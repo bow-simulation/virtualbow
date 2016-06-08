@@ -4,14 +4,15 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += core gui
+QT += widgets
 
 TARGET = bow-design-simulator
 TEMPLATE = app
 
-
 SOURCES += src/main.cpp
 
-HEADERS  +=
+HEADERS += \
+    src/fem/view.hpp
+
+INCLUDEPATH += /home/s/Libraries/Eigen-3.2.8
