@@ -1,84 +1,30 @@
-#include "fem/view.hpp"
+#include "fem/system.hpp"
 
-#include <Eigen/Dense>
-
-#include <exception>
 #include <iostream>
 
-using Eigen::VectorXd;
-using Eigen::MatrixXd;
 
-struct Dof
+int main()
 {
-    enum{Active, Fixed} type;
-    size_t index;
-};
+    /*
+    System sys;
 
-class VectorAccess
-{
-private:
-    VectorXd& vec;
+    std::cout << sys.dofs();
 
-public:
-    VectorAccess(VectorXd& vec)
-        : vec(vec)
-    {
+    auto u = sys.get_u();
+    */
 
-    }
+    VectorXd vec = VectorXd::Zero(5);
 
-    double get(Dof dof) const
-    {
-        switch(dof.type)
-        {
-        case Dof::Active:
-            return vec(dof.index);
-        case Dof::Fixed:
-            return 0.0;
-        }
-    }
+    std::cout << vec << "\n\n";
 
-    void add(Dof dof, double val)
-    {
-        switch(dof.type)
-        {
-        case Dof::Active:
-            vec(dof.index) += val;
-            return;
-        case Dof::Fixed:
-            return;
-        }
-    }
-};
+    VectorXd unew;
+    unew = (VectorXd(6) << vec, 1.0).finished();
 
-class MatrixAccess
-{
-private:
-    MatrixXd& mat;
+    std::cout << unew << "\n\n";
+}
 
-public:
-    MatrixAccess(MatrixXd& mat)
-        : mat(mat)
-    {
-
-    }
-
-    double get(Dof dof_row, Dof dof_col) const
-    {
-        if(dof_row.type == Dof::Active && dof_col.type == Dof::Active)
-        {
-            return mat(dof_row.index, dof_col.index);
-        }
-    }
-
-    void add(Dof dof_row, Dof dof_col, double val)
-    {
-        if(dof_row.type == Dof::Active && dof_col.type == Dof::Active)
-        {
-            mat(dof_row.index, dof_col.index) += val;
-        }
-    }
-};
-
+/*
+// Todo: Turn into test cases
 int main()
 {
     std::array<Dof, 3> dofs{{{Dof::Active, 0}, {Dof::Active, 2}, {Dof::Active, 4}}};
@@ -86,11 +32,11 @@ int main()
     // Test VectorView
     {
         VectorXd vec = VectorXd::Zero(10);
-        VectorAccess acc(vec);
+        VectorAccess<VectorXd> acc(&vec, nullptr);
 
         // Write
         {
-            VectorView<VectorAccess, Dof> view(acc);
+            VectorView<VectorXd> view(acc);
 
             // Scalar
             view(dofs)(0) += 3.6;
@@ -103,7 +49,7 @@ int main()
 
         // Read
         {
-            const VectorView<VectorAccess, Dof> view(acc);
+            VectorView<VectorXd> view(acc);
 
             // Scalar
 
@@ -111,16 +57,17 @@ int main()
             Vector<3> u = view(dofs);
             std::cout << u << "\n\n";
         }
+
     }
 
     // Test MatrixView
     {
         MatrixXd mat = MatrixXd::Zero(10, 10);
-        MatrixAccess acc(mat);
+        MatrixAccess<MatrixXd> acc(mat);
 
         // Write
         {
-            MatrixView<MatrixAccess, Dof> view(acc);
+            MatrixView<MatrixXd> view(acc);
 
             // Scalar
             view(dofs)(0, 0) += 3.6;
@@ -138,7 +85,7 @@ int main()
 
         // Read
         {
-            const MatrixView<MatrixAccess, Dof> view(acc);
+            MatrixView<MatrixXd> view(acc);
 
             // Scalar
 
@@ -148,6 +95,6 @@ int main()
         }
     }
 
-
     return 0;
 }
+*/

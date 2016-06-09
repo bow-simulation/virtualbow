@@ -1,275 +1,111 @@
 #pragma once
+#include "view_base.hpp"
 
-#include <Eigen/Core>
+#include <Eigen/Dense>
 
-#include <array>
-#include <iostream>
+#include <exception>
 
-template<std::size_t n>
-using Matrix = Eigen::Matrix<double, n, n>;
+using Eigen::VectorXd;
+using Eigen::MatrixXd;
 
-template<std::size_t n>
-using Vector = Eigen::Matrix<double, n, 1>;
+class Dof;
 
-/*
-Access interface for VectorView:
-    double get(Key) const
-    void add(Key, double)
-*/
+template<class T> class VectorAccess;
+template<class T> class MatrixAccess;
 
-template<class Access, class Key>
-class LocalVectorEntry
+template<class T>
+using VectorView = VectorViewBase<VectorAccess<T>, Dof>;
+
+template<class T>
+using MatrixView = MatrixViewBase<MatrixAccess<T>, Dof>;
+
+enum class DofType
 {
-private:
-    Access access;
-    Key key;
-
-public:
-    LocalVectorEntry(Access access, Key key)
-        : access(access), key(key)
-    {
-
-    }
-
-    // Read
-    operator double() const
-    {
-        return access.get(key);
-    }
-
-    // Write
-    void operator+=(double rhs)
-    {
-        access.add(key, rhs);
-    }
-
-    void operator-=(double rhs)
-    {
-        operator+=(-rhs);
-    }
+    Active,
+    Fixed,
 };
 
-template<class Access, class Key, size_t N>
-class LocalVectorView
+struct Dof
+{
+    DofType type;
+    size_t index;
+};
+
+// Todo: Avoid nullptr checks at runtime? (Template, different types, ...)
+template<class T>
+class VectorAccess
 {
 private:
-    Access access;
-    const std::array<Key, N>& keys;
+    T* vec_active;
+    T* vec_fixed;
 
 public:
-    LocalVectorView(Access access, const std::array<Key, N>& keys)
-        : access(access), keys(keys)
+    VectorAccess(T* vec_active, T* vec_fixed)
+        : vec_active(vec_active),
+          vec_fixed(vec_fixed)
     {
 
     }
 
-    // Read
-    operator Vector<N>() const
+    double get(Dof dof) const
     {
-        Vector<N> res;
-        for(size_t i = 0; i < N; ++i)
+        if(dof.type == DofType::Active && vec_active != nullptr)
         {
-            res(i) = access.get(keys[i]);
+            return (*vec_active)(dof.index);
         }
-
-        return res;
-    }
-
-    // Write
-    template<class T>
-    void operator+=(const Eigen::MatrixBase<T>& rhs)
-    {
-        for(size_t i = 0; i < N; ++i)
+        else if(dof.type == DofType::Fixed && vec_fixed != nullptr)
         {
-            access.add(keys[i], rhs(i));
+            return (*vec_fixed)(dof.index);
+        }
+        else
+        {
+            return 0.0;
         }
     }
 
-    void operator-=(double rhs)
+    void add(Dof dof, double val)
     {
-        operator+=(-rhs);
-    }
-
-    // Index
-    LocalVectorEntry<Access, Key> operator()(size_t i)
-    {
-        return LocalVectorEntry<Access, Key>(access, keys[i]);
-    }
-
-    const LocalVectorEntry<Access, Key> operator()(size_t i) const
-    {
-        return LocalVectorEntry<Access, Key>(access, keys[i]);
-    }
-};
-
-template<class Access, class Key>
-class VectorView
-{
-private:
-    Access access;
-
-public:
-    VectorView(Access access)
-        : access(access)
-    {
-
-    }
-
-    // Index
-    template<size_t N>
-    LocalVectorView<Access, Key, N> operator()(const std::array<Key, N>& keys)
-    {
-        return LocalVectorView<Access, Key, N>(access, keys);
-    }
-
-    template<size_t N>
-    const LocalVectorView<Access, Key, N> operator()(const std::array<Key, N>& keys) const
-    {
-        return LocalVectorView<Access, Key, N>(access, keys);
-    }
-
-    LocalVectorEntry<Access, Key> operator()(Key key)
-    {
-        return LocalVectorEntry<Access, Key>(access, key);
-    }
-
-    const LocalVectorEntry<Access, Key> operator()(Key key) const
-    {
-        return LocalVectorEntry<Access, Key>(access, key);
-    }
-};
-
-/*
-Access interface for MatrixView:
-    double get(Key, Key) const
-    void add(Key, Key, double)
-*/
-
-template<class Access, class Key>
-class LocalMatrixEntry
-{
-private:
-    Access access;
-    Key key_row;
-    Key key_col;
-
-public:
-    LocalMatrixEntry(Access access, Key key_row, Key key_col)
-        : access(access), key_row(key_row), key_col(key_col)
-    {
-
-    }
-
-    // Read
-    operator double() const
-    {
-        return access.get(key_row, key_col);
-    }
-
-    // Write
-    void operator+=(double rhs)
-    {
-        access.add(key_row, key_col, rhs);
-    }
-
-    void operator-=(double rhs)
-    {
-        operator+=(-rhs);
-    }
-};
-
-template<class Access, class Key, size_t N>
-class LocalMatrixView
-{
-private:
-    Access access;
-    const std::array<Key, N>& keys;
-
-public:
-    LocalMatrixView(Access access, const std::array<Key, N>& keys)
-        : access(access), keys(keys)
-    {
-
-    }
-
-    // Read
-    operator Matrix<N>() const
-    {
-        Matrix<N> res;
-        for(size_t j = 0; j < N; ++j)
+        if(dof.type == DofType::Active && vec_active != nullptr)
         {
-            for(size_t i = 0; i < N; ++i)
-            {
-                res(i, j) = access.get(keys[i], keys[j]);
-            }
+            (*vec_active)(dof.index) += val;
         }
+        else if(dof.type == DofType::Fixed && vec_fixed != nullptr)
+        {
+            (*vec_fixed)(dof.index) += val;
+        }
+        else
+        {
+            throw std::runtime_error("Cannot add to this entry");
+        }
+    }
+};
 
-        return res;
+template<class T>
+class MatrixAccess
+{
+private:
+    T& mat;
+
+public:
+    MatrixAccess(T& mat)
+        : mat(mat)
+    {
+
     }
 
-    // Write
-    template<class T>
-    void operator+=(const Eigen::MatrixBase<T>& rhs)
+    double get(Dof dof_row, Dof dof_col) const
     {
-        for(size_t j = 0; j < N; ++j)
+        if(dof_row.type == DofType::Active && dof_col.type == DofType::Active)
         {
-            for(size_t i = 0; i < N; ++i)
-            {
-                access.add(keys[i], keys[j], rhs(i, j));
-            }
+            return mat(dof_row.index, dof_col.index);
         }
     }
 
-    void operator-=(double rhs)
+    void add(Dof dof_row, Dof dof_col, double val)
     {
-        operator+=(-rhs);
-    }
-
-    // Index
-    LocalMatrixEntry<Access, Key> operator()(size_t i, size_t j)
-    {
-        return LocalMatrixEntry<Access, Key>(access, keys[i], keys[j]);
-    }
-
-    const LocalMatrixEntry<Access, Key> operator()(size_t i, size_t j) const
-    {
-        return LocalMatrixEntry<Access, Key>(access, keys[i], keys[j]);
-    }
-};
-
-template<class Access, class Key>
-class MatrixView
-{
-private:
-    Access access;
-
-public:
-    MatrixView(Access access)
-        : access(access)
-    {
-
-    }
-
-    // Index
-    template<size_t N>
-    LocalMatrixView<Access, Key, N> operator()(const std::array<Key, N>& keys)
-    {
-        return LocalMatrixView<Access, Key, N>(access, keys);
-    }
-
-    template<size_t N>
-    const LocalMatrixView<Access, Key, N> operator()(const std::array<Key, N>& keys) const
-    {
-        return LocalMatrixView<Access, Key, N>(access, keys);
-    }
-
-    LocalMatrixEntry<Access, Key> operator()(Key key_row, Key key_col)
-    {
-        return LocalMatrixEntry<Access, Key>(access, key_row, key_col);
-    }
-
-    const LocalMatrixEntry<Access, Key> operator()(Key key_row, Key key_col) const
-    {
-        return LocalMatrixEntry<Access, Key>(access, key_row, key_col);
+        if(dof_row.type == DofType::Active && dof_col.type == DofType::Active)
+        {
+            mat(dof_row.index, dof_col.index) += val;
+        }
     }
 };
