@@ -1,30 +1,23 @@
-#include "fem/system.hpp"
+#include "gui/MainWindow.hpp"
 
-#include <iostream>
+#include <QtWidgets>
 
 
-int main()
+int main(int argc, char *argv[])
 {
-    /*
-    System sys;
+    QApplication app(argc, argv);
 
-    std::cout << sys.dofs();
+    MainWindow window;
+    window.show();
 
-    auto u = sys.get_u();
-    */
-
-    VectorXd vec = VectorXd::Zero(5);
-
-    std::cout << vec << "\n\n";
-
-    VectorXd unew;
-    unew = (VectorXd(6) << vec, 1.0).finished();
-
-    std::cout << unew << "\n\n";
+    return app.exec();
 }
 
 /*
 // Todo: Turn into test cases
+#include "fem/system.hpp"
+#include <iostream>
+
 int main()
 {
     std::array<Dof, 3> dofs{{{Dof::Active, 0}, {Dof::Active, 2}, {Dof::Active, 4}}};

@@ -1,5 +1,5 @@
 #pragma once
-#include "view_base.hpp"
+#include "ViewBase.hpp"
 
 #include <Eigen/Dense>
 

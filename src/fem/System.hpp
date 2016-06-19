@@ -1,5 +1,5 @@
 #pragma once
-#include "view.hpp"
+#include "View.hpp"
 
 struct Node
 {
