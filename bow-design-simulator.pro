@@ -12,13 +12,16 @@ TEMPLATE = app
 
 SOURCES += src/main.cpp \
     src/gui/MainWindow.cpp \
-    src/fem/System.cpp
+    src/fem/System.cpp \
+    src/fem/elements/Element.cpp
 
 HEADERS += \
-    src/fem/elements/element.hpp \
     src/gui/MainWindow.hpp \
-    src/fem/ViewBase.hpp \
+    src/fem/System.hpp \
+    src/fem/elements/Element.hpp \
     src/fem/View.hpp \
-    src/fem/System.hpp
+    src/fem/elements/BarElement.hpp \
+    src/fem/Node.hpp \
+    src/fem/elements/MassElement.hpp
 
 INCLUDEPATH += /home/s/Libraries/Eigen-3.2.8
