@@ -83,10 +83,7 @@ public:
                 return uf(dof.index);
         },
 
-        [&](Dof, double)
-        {
-            // Todo: Unreachable
-        });
+        nullptr);
     }
 
     const VectorView<Dof> get_v() const
@@ -100,10 +97,7 @@ public:
                 return 0.0;
         },
 
-        [&](Dof, double)
-        {
-            // Todo: Unreachable
-        });
+        nullptr);
     }
 
     const VectorView<Dof> get_a() const
@@ -117,65 +111,26 @@ public:
                 return 0.0;
         },
 
-        [&](Dof, double)
-        {
-            // Todo: Unreachable
-        });
+        nullptr);
     }
 
-    /*
-    VectorView<Dof> get_u()
+    VectorView<Dof> get_p()
     {
         return VectorView<Dof>(
         [&](Dof dof)
         {
             if(dof.type == Dof::Type::Active)
-                return u(dof.index);
+                return p(dof.index);
             else
-                return uf(dof.index);
+                return 0.0;
         },
 
         [&](Dof dof, double val)
         {
             if(dof.type == Dof::Type::Active)
-                u(dof.index) = val;
-            else
-                uf(dof.index) = val;
+                p(dof.index) += val;
         });
     }
-    */
-
-    /*
-    const VectorView<const VectorXd> get_u() const
-    {
-        VectorAccess<const VectorXd> access(&u, &uf);
-        return VectorView<const VectorXd>(access);
-    }
-
-    const VectorView<const VectorXd> get_v() const
-    {
-        VectorAccess<const VectorXd> access(&v, nullptr);
-        return VectorView<const VectorXd>(access);
-    }
-
-    const VectorView<const VectorXd> get_a() const
-    {
-        VectorAccess<const VectorXd> access(&a, nullptr);
-        return VectorView<const VectorXd>(access);
-    }
-
-    VectorView<VectorXd> get_p()
-    {
-        VectorAccess<VectorXd> access(&p, nullptr);
-        return VectorView<VectorXd>(access);
-    }
-
-    const VectorView<const VectorXd> get_p() const
-    {
-        VectorAccess<const VectorXd> access(&p, nullptr);
-        return VectorView<const VectorXd>(access);
-    }
-    */
 
     void solve_dynamics(double dt, const std::function<bool()>& callback)
     {
@@ -209,7 +164,7 @@ public:
         }
     }
 
-private:
+public: // Todo: private
     void update_element_states()
     {
         for(auto e: elements)
@@ -231,7 +186,7 @@ private:
         [&](Dof dof, double val)
         {
             if(dof.type == Dof::Type::Active)
-                M(dof.index) = val;
+                M(dof.index) += val;
         });
 
         for(auto e: elements)
@@ -253,12 +208,29 @@ private:
         [&](Dof dof, double val)
         {
             if(dof.type == Dof::Type::Active)
-                q(dof.index) = val;
+                q(dof.index) += val;
         });
 
         for(auto e: elements)
         {
             e->get_internal_forces(view);
+        }
+    }
+
+    void get_tangent_stiffness(MatrixXd& K)
+    {
+        K.setZero();
+
+        MatrixView<Dof> view(
+        [&](Dof dof_row, Dof dof_col, double val)
+        {
+            if(dof_row.type == Dof::Type::Active && dof_col.type == Dof::Type::Active)
+                K(dof_row.index, dof_col.index) += val;
+        });
+
+        for(auto e: elements)
+        {
+            e->get_tangent_stiffness(view);
         }
     }
 };

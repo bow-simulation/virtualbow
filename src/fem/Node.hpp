@@ -9,6 +9,11 @@ struct Dof
 
     Type type;
     size_t index;
+
+    bool operator!=(const Dof& rhs) const
+    {
+        return rhs.index != index;
+    }
 };
 
 struct Node

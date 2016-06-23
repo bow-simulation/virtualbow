@@ -14,7 +14,6 @@ void test_harmonic_oscillator()
 
     double s0 = 0.1;   // Initial displacement
 
-
     System system;
     Node node_a = system.create_node({{   0.0, 0.0, 0.0}}, {{Dof::Type::Fixed, Dof::Type::Fixed, Dof::Type::Fixed}});
     Node node_b = system.create_node({{l + s0, 0.0, 0.0}}, {{Dof::Type::Active, Dof::Type::Fixed, Dof::Type::Fixed}});
@@ -33,7 +32,7 @@ void test_harmonic_oscillator()
 
     //assert!(delta < omega0);                      // Make sure the system is underdamped  // Todo: Reintroduce this check
 
-    system.solve_dynamics(1e-7, [&]()
+    system.solve_dynamics(1e-5, [&]()
     {
         // Time
         double t = system.get_time();
@@ -52,7 +51,7 @@ void test_harmonic_oscillator()
         double error_s = std::abs(s_num - s_ref);
         double error_v = std::abs(v_num - v_ref);
 
-        std::cout << error_s << "\n";
+        //std::cout << error_s << "\n";
 
         return t < T;
     });

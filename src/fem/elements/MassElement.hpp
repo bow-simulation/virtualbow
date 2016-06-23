@@ -35,6 +35,11 @@ public:
 
     }
 
+    virtual void get_tangent_stiffness(MatrixView<Dof> K) const override
+    {
+
+    }
+
     virtual double get_potential_energy() const override
     {
         return 0.0;
