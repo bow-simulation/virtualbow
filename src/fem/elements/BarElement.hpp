@@ -8,10 +8,17 @@ class BarElement: public Element
 private:
     std::array<Node, 2> nodes;
 
+    // Parameters
     double L;
     double EA;
     double etaA;
     double rhoA;
+
+    // State
+    double dx;
+    double dy;
+    double L_new;   // Actual length
+    double L_dot;   // Time derivative of length
 
 public:
     BarElement(Node nd0, Node nd1, double L, double EA, double etaA, double rhoA)
@@ -24,6 +31,15 @@ public:
 
     }
 
+    virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> v)
+    {
+        dx = u(nodes[1].x) - u(nodes[0].x);
+        dy = u(nodes[1].y) - u(nodes[0].y);
+
+        L_new = std::hypot(dx, dy);  // Actual length
+        L_dot = 1.0/L*(dx*(v(nodes[1].x) - v(nodes[0].x)) + dy*(v(nodes[1].y) - v(nodes[0].y)));
+    }
+
     virtual void get_masses(VectorView<Dof> M) const override
     {
         double m = 0.5*rhoA*L;
@@ -34,14 +50,9 @@ public:
         M(nodes[1].y) += m;
     }
 
-    virtual void get_internal_forces(const VectorView<Dof> u, const VectorView<Dof> v, VectorView<Dof> q) const override
+    virtual void get_internal_forces(VectorView<Dof> q) const override
     {
-        double dx = u(nodes[1].x) - u(nodes[0].x);
-        double dy = u(nodes[1].y) - u(nodes[0].y);
-
-        double L_new = std::hypot(dx, dy);  // Actual length
-        double L_dot = 1.0/L*(dx*(v(nodes[1].x) - v(nodes[0].x)) + dy*(v(nodes[1].y) - v(nodes[0].y))); // Time derivative of length
-        double N = EA/L*(L_new - L) + etaA/L*L_dot;   // Axial force
+        double N = get_normal_force();
 
         q(nodes[0].x) -= N*dx/L;
         q(nodes[0].y) -= N*dy/L;
@@ -49,14 +60,14 @@ public:
         q(nodes[1].y) += N*dy/L;
     }
 
-    virtual double get_potential_energy(const VectorView<Dof> u) const override
+    virtual double get_potential_energy() const override
     {
-        // Todo: Code duplication
-        double dx = u(nodes[1].x) - u(nodes[0].x);
-        double dy = u(nodes[1].y) - u(nodes[0].y);
-        double L_new = std::hypot(dx, dy);  // Actual length
-
         return 0.5*EA/L*std::pow(L_new - L, 2);
+    }
+
+    double get_normal_force() const
+    {
+        return EA/L*(L_new - L) + etaA/L*L_dot;
     }
 
 };

@@ -33,7 +33,7 @@ void test_harmonic_oscillator()
 
     //assert!(delta < omega0);                      // Make sure the system is underdamped  // Todo: Reintroduce this check
 
-    system.solve_dynamics(1e-5, [&]()
+    system.solve_dynamics(1e-7, [&]()
     {
         // Time
         double t = system.get_time();

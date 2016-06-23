@@ -9,7 +9,7 @@
 class System
 {
 private:
-    std::vector<const Element*> elements;
+    std::vector<Element*> elements;
 
     double t;
 
@@ -57,7 +57,7 @@ public:
         }
     }
 
-    void add_element(const Element& element)
+    void add_element(Element& element)
     {
         elements.push_back(&element);
     }
@@ -183,6 +183,7 @@ public:
         VectorXd q(dofs());
         MatrixXd K(dofs(), dofs());
 
+        update_element_states();
         get_mass_matrix(M);
         get_internal_forces(q);
 
@@ -201,6 +202,7 @@ public:
             u = 2*u - u_p2 + dt*dt*a;
             t += dt;
 
+            update_element_states();
             get_internal_forces(q);
             v = (u - u_p2)/(2.0*dt) + dt*a;
             a = M.asDiagonal().inverse()*(p - q);
@@ -208,6 +210,14 @@ public:
     }
 
 private:
+    void update_element_states()
+    {
+        for(auto e: elements)
+        {
+            e->set_state(get_u(), get_v());
+        }
+    }
+
     void get_mass_matrix(VectorXd& M)
     {
         M.setZero();
@@ -248,7 +258,7 @@ private:
 
         for(auto e: elements)
         {
-            e->get_internal_forces(get_u(), get_v(), view);
+            e->get_internal_forces(view);
         }
     }
 };

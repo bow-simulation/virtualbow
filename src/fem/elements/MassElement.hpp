@@ -18,6 +18,11 @@ public:
 
     }
 
+    virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> v)
+    {
+
+    }
+
     virtual void get_masses(VectorView<Dof> M) const override
     {
         M(node.x) += m;
@@ -25,12 +30,12 @@ public:
         M(node.phi) += m;
     }
 
-    virtual void get_internal_forces(const VectorView<Dof> u, const VectorView<Dof> v, VectorView<Dof> q) const override
+    virtual void get_internal_forces(VectorView<Dof> q) const override
     {
 
     }
 
-    virtual double get_potential_energy(const VectorView<Dof> u) const override
+    virtual double get_potential_energy() const override
     {
         return 0.0;
     }
