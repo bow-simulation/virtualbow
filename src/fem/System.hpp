@@ -28,18 +28,18 @@ public:
 
     }
 
-    Node create_node(std::array<double, 3> u_node, std::array<Dof::Type, 3> dof_types)
+    Node create_node(std::array<double, 3> u_node, std::array<bool, 3> dof_types)
     {
         return Node{create_dof(u_node[0], dof_types[0]),
                     create_dof(u_node[1], dof_types[1]),
                     create_dof(u_node[2], dof_types[2])};
     }
 
-    Dof create_dof(double u_dof, Dof::Type type)
+    Dof create_dof(double u_dof, bool type)
     {
         switch(type)
         {
-            case Dof::Type::Active:
+            case true:
             {
                 size_t n = u.size() + 1;
                 u = (VectorXd(n) << u, u_dof).finished();
@@ -49,7 +49,7 @@ public:
 
                 return Dof{type, n-1};
             }
-            case Dof::Type::Fixed:
+            case false:
             {
                 size_t n = uf.size() + 1;
                 uf = (VectorXd(n) << uf, u_dof).finished();
@@ -80,7 +80,7 @@ public:
         return VectorView<Dof>(
         [&](Dof dof)
         {
-            if(dof.type == Dof::Type::Active)
+            if(dof.active)
                 return u(dof.index);
             else
                 return uf(dof.index);
@@ -94,7 +94,7 @@ public:
         return VectorView<Dof>(
         [&](Dof dof)
         {
-            if(dof.type == Dof::Type::Active)
+            if(dof.active)
                 return v(dof.index);
             else
                 return 0.0;
@@ -108,7 +108,7 @@ public:
         return VectorView<Dof>(
         [&](Dof dof)
         {
-            if(dof.type == Dof::Type::Active)
+            if(dof.active)
                 return a(dof.index);
             else
                 return 0.0;
@@ -117,22 +117,56 @@ public:
         nullptr);
     }
 
-    VectorView<Dof> get_p()
+    // Todo: Should this be done via a View instead? Problem: Add vs set
+    void set_external_force(Dof dof, double val)
     {
-        return VectorView<Dof>(
-        [&](Dof dof)
-        {
-            if(dof.type == Dof::Type::Active)
-                return p(dof.index);
-            else
-                return 0.0;
-        },
+        if(dof.active)
+            p(dof.index) = val;
+    }
 
-        [&](Dof dof, double val)
+    void solve_statics_lc()
+    {
+        v.setZero();
+        a.setZero();
+
+        unsigned max_iter = 50;     // Todo: Magic number
+        double epsilon = 1e-8;      // Todo: Magic number
+
+        Eigen::LDLT<Eigen::MatrixXd> stiffness_dec;
+        Eigen::MatrixXd K(dofs(), dofs());
+        Eigen::VectorXd q(dofs());
+
+        get_internal_forces(q);
+        get_tangent_stiffness(K);
+        double norm_0 = (p - q).norm();
+
+        if(norm_0 == 0)
         {
-            if(dof.type == Dof::Type::Active)
-                p(dof.index) += val;
-        });
+            return;   // System already in equilibrium
+        }
+
+        for(unsigned i = 0; i < max_iter; ++i)
+        {
+            stiffness_dec.compute(K);
+            if(stiffness_dec.info() != Eigen::Success)
+            {
+                throw std::runtime_error("Stiffness matrix decomposition failed");
+            }
+
+            u += stiffness_dec.solve(p - q);
+            update_element_states();
+
+            get_internal_forces(q);
+            get_tangent_stiffness(K);
+            double norm_i = (p - q).norm();
+
+            if(norm_i/norm_0 < epsilon)
+            {
+                return;
+            }
+        }
+
+        throw std::runtime_error("Maximum number of iterations exceeded");
     }
 
     void solve_dynamics(double timestep_factor, const std::function<bool()>& callback)
@@ -197,7 +231,7 @@ public: // Todo: private
 
         [&](Dof dof, double val)
         {
-            if(dof.type == Dof::Type::Active)
+            if(dof.active)
                 M(dof.index) += val;
         });
 
@@ -219,7 +253,7 @@ public: // Todo: private
 
         [&](Dof dof, double val)
         {
-            if(dof.type == Dof::Type::Active)
+            if(dof.active)
                 q(dof.index) += val;
         });
 
@@ -236,7 +270,7 @@ public: // Todo: private
         MatrixView<Dof> view(
         [&](Dof dof_row, Dof dof_col, double val)
         {
-            if(dof_row.type == Dof::Type::Active && dof_col.type == Dof::Type::Active)
+            if(dof_row.active && dof_col.active)
                 K(dof_row.index, dof_col.index) += val;
         });
 

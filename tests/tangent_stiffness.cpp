@@ -24,8 +24,8 @@ TEST_CASE("Tangent stiffness matrix: BarElement")
         double EA = 100.0;
 
         System system;
-        Node node0 = system.create_node({{    dx0, dy0, 0.0}}, {{Dof::Type::Active, Dof::Type::Active, Dof::Type::Fixed}});
-        Node node1 = system.create_node({{L + dx1, dy1, 0.0}}, {{Dof::Type::Active, Dof::Type::Active, Dof::Type::Fixed}});
+        Node node0 = system.create_node({{    dx0, dy0, 0.0}}, {{true, true, false}});
+        Node node1 = system.create_node({{L + dx1, dy1, 0.0}}, {{true, true, false}});
 
         BarElement element01(node0, node1, L, EA, 0.0, 0.0);
         system.add_element(element01);

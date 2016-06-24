@@ -2,12 +2,7 @@
 
 struct Dof
 {
-    enum class Type{
-        Active,
-        Fixed,
-    };
-
-    Type type;
+    bool active;
     size_t index;
 
     bool operator!=(const Dof& rhs) const
