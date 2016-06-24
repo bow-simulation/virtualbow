@@ -118,6 +118,14 @@ public:
     }
 
     // Todo: Should this be done via a View instead? Problem: Add vs set
+    double get_external_force(Dof dof)
+    {
+        if(dof.active)
+            return p(dof.index);
+        else
+            return 0.0;
+    }
+
     void set_external_force(Dof dof, double val)
     {
         if(dof.active)
@@ -167,6 +175,85 @@ public:
         }
 
         throw std::runtime_error("Maximum number of iterations exceeded");
+    }
+
+    void solve_statics_dc(Dof dof,
+                          double target_displacement,
+                          unsigned n_steps,
+                          const std::function<void()>& callback)
+    {
+        v.setZero();
+        a.setZero();
+
+        unsigned max_iter = 50;     // Todo: Magic number
+        double epsilon = 1e-8;      // Todo: Magic number
+
+        if(!dof.active)
+        {
+            throw std::runtime_error("Displacement control not possible for a fixed DOF");
+        }
+
+        Eigen::VectorXd q(dofs());
+        Eigen::MatrixXd K(dofs(), dofs());
+        Eigen::VectorXd delta_q(dofs());
+
+        Eigen::VectorXd alpha(dofs());
+        Eigen::VectorXd beta(dofs());
+        Eigen::VectorXd e = Eigen::VectorXd::Zero(dofs());
+        e(dof.index) = 1.0;
+
+        // Todo: Think of a better control flow
+        auto solve_equilibrium = [&](double displacement)
+        {
+            unsigned iteration = 0;
+            while(iteration < max_iter)
+            {
+                if(iteration == max_iter - 1)
+                {
+                    throw std::runtime_error("Maximum number of iterations exceeded");
+                }
+
+                // Calculate stiffness matrix and out of balance loads
+                get_internal_forces(q);
+                get_tangent_stiffness(K);
+                delta_q = p - q;
+
+                // Todo: Mode decomposition out of the main loop
+                Eigen::LDLT<Eigen::MatrixXd> stiffness_dec(K);
+                if(stiffness_dec.info() != Eigen::Success)
+                {
+                    throw std::runtime_error("Decomposition of the stiffness matrix failed");
+                }
+
+                alpha = stiffness_dec.solve(delta_q);
+                beta = stiffness_dec.solve(e);
+                double delta_f = (displacement - u(dof.index) - alpha(dof.index))/beta(dof.index);
+
+                u += alpha + beta*delta_f;
+                p(dof.index) += delta_f;
+                update_element_states();
+
+                if((alpha + delta_f*beta).norm()/double(dofs()) < epsilon)    // Todo: Better convergence criterion
+                {
+                    callback();
+                    return iteration;
+                }
+
+                ++iteration;
+            }
+
+            callback();
+            return iteration;
+        };
+
+        double displacement = u(dof.index);
+        double initial_displacement = displacement;
+
+        for(unsigned i = 0; i < n_steps; ++i)
+        {
+            displacement += initial_displacement + (target_displacement - initial_displacement)*double(i)/double(n_steps - 1);
+            solve_equilibrium(displacement);
+        }
     }
 
     void solve_dynamics(double timestep_factor, const std::function<bool()>& callback)
