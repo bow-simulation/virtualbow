@@ -2,6 +2,8 @@
 #include "fem/elements/BarElement.hpp"
 #include "fem/elements/MassElement.hpp"
 
+#include <catch.hpp>
+
 #include <iostream>
 
 void test_harmonic_oscillator()
@@ -32,7 +34,7 @@ void test_harmonic_oscillator()
 
     //assert!(delta < omega0);                      // Make sure the system is underdamped  // Todo: Reintroduce this check
 
-    system.solve_dynamics(1e-5, [&]()
+    system.solve_dynamics(0.01, [&]()
     {
         // Time
         double t = system.get_time();
@@ -50,8 +52,6 @@ void test_harmonic_oscillator()
         // Error
         double error_s = std::abs(s_num - s_ref);
         double error_v = std::abs(v_num - v_ref);
-
-        //std::cout << error_s << "\n";
 
         return t < T;
     });

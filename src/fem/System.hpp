@@ -3,6 +3,8 @@
 #include "Node.hpp"
 #include "elements/Element.hpp"
 
+#include <Eigen/Eigenvalues>
+
 #include <vector>
 #include <iostream>
 
@@ -59,6 +61,7 @@ public:
 
     void add_element(Element& element)
     {
+        element.set_state(get_u(), get_v());
         elements.push_back(&element);
     }
 
@@ -132,19 +135,28 @@ public:
         });
     }
 
-    void solve_dynamics(double dt, const std::function<bool()>& callback)
+    void solve_dynamics(double timestep_factor, const std::function<bool()>& callback)
     {
         VectorXd M(dofs());
         VectorXd q(dofs());
         MatrixXd K(dofs(), dofs());
 
-        update_element_states();
         get_mass_matrix(M);
         get_internal_forces(q);
+        get_tangent_stiffness(K);
+
+        // Timestep estimation
+        Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> eigen_solver(K, M.asDiagonal(), Eigen::DecompositionOptions::EigenvaluesOnly);
+        if(eigen_solver.info() != Eigen::Success)
+        {
+            throw std::runtime_error("Failed to compute eigenvalues of the system");
+        }
+
+        double omega_max = std::sqrt(eigen_solver.eigenvalues().maxCoeff());
+        double dt = timestep_factor*2.0/omega_max;
 
         // Version with a more accurate velocity based on central differences
         a = M.asDiagonal().inverse()*(p - q);
-
         // Previous displacements
         Eigen::VectorXd u_p2(dofs());
         Eigen::VectorXd u_p1 = u - dt*v + dt*dt/2.0*a;
@@ -231,6 +243,30 @@ public: // Todo: private
         for(auto e: elements)
         {
             e->get_tangent_stiffness(view);
+        }
+
+        std::cout << "K = " << K << "\n";
+    }
+
+    // Numeric stiffness matrix via central difference quotient. Only for testing purposes.
+    void get_numeric_tangent_stiffness(MatrixXd& K, double h)
+    {
+        K.setZero();
+
+        Eigen::VectorXd q_fwd = Eigen::VectorXd::Zero(dofs());
+        Eigen::VectorXd q_bwd = Eigen::VectorXd::Zero(dofs());
+
+        for(std::size_t i = 0; i < dofs(); ++i)
+        {
+            double ui = u(i);
+
+            u(i) = ui + h;
+            get_internal_forces(q_fwd);
+            u(i) = ui - h;
+            get_internal_forces(q_bwd);
+            u(i) = ui;
+
+            K.col(i) = (q_fwd - q_bwd)/(2.0*h);
         }
     }
 };
