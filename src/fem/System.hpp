@@ -185,7 +185,7 @@ public: // Todo: private
         }
     }
 
-    void get_mass_matrix(VectorXd& M)
+    void get_mass_matrix(VectorXd& M) const
     {
         M.setZero();
 
@@ -207,7 +207,7 @@ public: // Todo: private
         }
     }
 
-    void get_internal_forces(VectorXd& q)
+    void get_internal_forces(VectorXd& q) const
     {
         q.setZero();
 
@@ -229,7 +229,7 @@ public: // Todo: private
         }
     }
 
-    void get_tangent_stiffness(MatrixXd& K)
+    void get_tangent_stiffness(MatrixXd& K) const
     {
         K.setZero();
 
@@ -244,8 +244,6 @@ public: // Todo: private
         {
             e->get_tangent_stiffness(view);
         }
-
-        std::cout << "K = " << K << "\n";
     }
 
     // Numeric stiffness matrix via central difference quotient. Only for testing purposes.
@@ -261,9 +259,13 @@ public: // Todo: private
             double ui = u(i);
 
             u(i) = ui + h;
+            update_element_states();
             get_internal_forces(q_fwd);
+
             u(i) = ui - h;
+            update_element_states();
             get_internal_forces(q_bwd);
+
             u(i) = ui;
 
             K.col(i) = (q_fwd - q_bwd)/(2.0*h);

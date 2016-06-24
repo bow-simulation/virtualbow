@@ -36,8 +36,8 @@ public:
         dx = u(nodes[1].x) - u(nodes[0].x);
         dy = u(nodes[1].y) - u(nodes[0].y);
 
-        L_new = std::hypot(dx, dy);  // Actual length
-        L_dot = 1.0/L*(dx*(v(nodes[1].x) - v(nodes[0].x)) + dy*(v(nodes[1].y) - v(nodes[0].y)));
+        L_new = std::hypot(dx, dy);
+        L_dot = 1.0/L_new*(dx*(v(nodes[1].x) - v(nodes[0].x)) + dy*(v(nodes[1].y) - v(nodes[0].y)));
     }
 
     virtual void get_masses(VectorView<Dof> M) const override
@@ -54,16 +54,16 @@ public:
     {
         double N = get_normal_force();
 
-        q(nodes[0].x) -= N*dx/L;
-        q(nodes[0].y) -= N*dy/L;
-        q(nodes[1].x) += N*dx/L;
-        q(nodes[1].y) += N*dy/L;
+        q(nodes[0].x) -= N*dx/L_new;
+        q(nodes[0].y) -= N*dy/L_new;
+        q(nodes[1].x) += N*dx/L_new;
+        q(nodes[1].y) += N*dy/L_new;
     }
 
     virtual void get_tangent_stiffness(MatrixView<Dof> K) const override
     {
         double c0 = EA*(L_new - L)/(L_new*L);
-        double c1 = EA/(L*L*L);
+        double c1 = EA/std::pow(L_new, 3);
 
         // col 0
         K(nodes[0].x, nodes[0].x) += c1*dx*dx + c0;
