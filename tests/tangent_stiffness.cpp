@@ -1,5 +1,6 @@
 #include "../src/fem/System.hpp"
 #include "../src/fem/elements/BarElement.hpp"
+#include "../src/fem/elements/BeamElement.hpp"
 
 #include <catch.hpp>
 #include <iostream>
@@ -44,5 +45,37 @@ TEST_CASE("Tangent stiffness matrix: BarElement")
     check_at(-1.5,  1.5, 0.0, 0.0);
     check_at( 1.5, -1.5, 0.0, 0.0);
     check_at(-1.5, -1.5, 0.0, 0.0);
+}
+
+TEST_CASE("Tangent stiffness matrix: BeamElement")
+{
+    auto check_at = [](double x0, double y0, double phi0, double x1, double y1, double phi1)
+    {
+        double L = 1.0;
+        double EA = 100.0;
+        double EI = 10.0;
+
+        System system;
+        Node node0 = system.create_node({{x0, y0, phi0}}, {{true, true, true}});
+        Node node1 = system.create_node({{x1, y1, phi1}}, {{true, true, true}});
+
+        BeamElement element01(node0, node1, EA, EI, 0.0, 0.0, L);
+        system.add_element(element01);
+
+        system.update_element_states();
+        system.update_element_states();
+        system.update_element_states();
+
+        check_stiffness_matrix(system);
+    };
+
+    check_at(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+
+    check_at( 0.0, -6.0,  1.0, -7.0, -2.0,  3.0);
+    check_at( 4.0, -7.0, -5.0, -9.0,  6.0, -6.0);
+    check_at( 9.0, -4.0,  0.0,  4.0,  2.0, -7.0);
+    check_at( 2.0,  0.0,  5.0, 10.0, -1.0,  8.0);
+    check_at(-6.0,  5.0,  4.0, -6.0, -6.0, -5.0);
+    check_at(-4.0, -6.0, -4.0,  5.0,  0.0,  5.0);
 }
 

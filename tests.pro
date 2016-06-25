@@ -8,5 +8,6 @@ CONFIG -= qt
 SOURCES += tests/main.cpp \
            tests/harmonic_oscillator.cpp \
     tests/tangent_stiffness.cpp \
-    tests/bar_trusses.cpp
+    tests/bar_trusses.cpp \
+    tests/large_deformation_beams.cpp
 

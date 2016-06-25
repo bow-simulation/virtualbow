@@ -65,6 +65,15 @@ public:
         elements.push_back(&element);
     }
 
+    template<class ElementContainer>
+    void add_elements(ElementContainer& container)
+    {
+        for(auto it = container.begin(); it != container.end(); ++it)
+        {
+            add_element(*it);
+        }
+    }
+
     size_t dofs() const
     {
         return u.size();
@@ -132,6 +141,24 @@ public:
             p(dof.index) = val;
     }
 
+    // Euclidean distance between node_a and node_b
+    double get_distance(Node node_a, Node node_b)
+    {
+        double dx = get_u()(node_b.x) - get_u()(node_a.x);
+        double dy = get_u()(node_b.y) - get_u()(node_a.y);
+
+        return std::hypot(dx, dy);
+    }
+
+    // Angle between the x-axis and the line connecting node_a and node_b
+    double get_angle(Node node_a, Node node_b)
+    {
+        double dx = get_u()(node_b.x) - get_u()(node_a.x);
+        double dy = get_u()(node_b.y) - get_u()(node_a.y);
+
+        return std::atan2(dy, dx);
+    }
+
     void solve_statics_lc()
     {
         v.setZero();
@@ -148,7 +175,7 @@ public:
         get_tangent_stiffness(K);
         double norm_0 = (p - q).norm();
 
-        if(norm_0 == 0)
+        if(norm_0 == 0)     // Todo: Introduce absolute tolerance for this
         {
             return;   // System already in equilibrium
         }
@@ -164,14 +191,14 @@ public:
             u += stiffness_dec.solve(p - q);
             update_element_states();
 
-            get_internal_forces(q);
-            get_tangent_stiffness(K);
             double norm_i = (p - q).norm();
-
             if(norm_i/norm_0 < epsilon)
             {
                 return;
             }
+
+            get_internal_forces(q);
+            get_tangent_stiffness(K);
         }
 
         throw std::runtime_error("Maximum number of iterations exceeded");
@@ -202,6 +229,8 @@ public:
         Eigen::VectorXd e = Eigen::VectorXd::Zero(dofs());
         e(dof.index) = 1.0;
 
+        Eigen::LDLT<Eigen::MatrixXd> stiffness_dec;
+
         // Todo: Think of a better control flow
         auto solve_equilibrium = [&](double displacement)
         {
@@ -218,8 +247,7 @@ public:
                 get_tangent_stiffness(K);
                 delta_q = p - q;
 
-                // Todo: Mode decomposition out of the main loop
-                Eigen::LDLT<Eigen::MatrixXd> stiffness_dec(K);
+                stiffness_dec.compute(K);
                 if(stiffness_dec.info() != Eigen::Success)
                 {
                     throw std::runtime_error("Decomposition of the stiffness matrix failed");
@@ -246,12 +274,12 @@ public:
             return iteration;
         };
 
-        double displacement = u(dof.index);
-        double initial_displacement = displacement;
+        double init_displacement = u(dof.index);
+        double delta_displacement = target_displacement - init_displacement;
 
         for(unsigned i = 0; i < n_steps; ++i)
         {
-            displacement += initial_displacement + (target_displacement - initial_displacement)*double(i)/double(n_steps - 1);
+            double displacement = init_displacement + delta_displacement*double(i)/double(n_steps - 1);
             solve_equilibrium(displacement);
         }
     }

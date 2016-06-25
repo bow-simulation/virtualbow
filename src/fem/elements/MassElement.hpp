@@ -18,7 +18,7 @@ public:
 
     }
 
-    virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> v)
+    virtual void set_state(const VectorView<Dof>, const VectorView<Dof>)
     {
 
     }
@@ -27,15 +27,15 @@ public:
     {
         M(node.x) += m;
         M(node.y) += m;
-        M(node.phi) += m;
+        M(node.phi) += I;
     }
 
-    virtual void get_internal_forces(VectorView<Dof> q) const override
+    virtual void get_internal_forces(VectorView<Dof>) const override
     {
 
     }
 
-    virtual void get_tangent_stiffness(MatrixView<Dof> K) const override
+    virtual void get_tangent_stiffness(MatrixView<Dof>) const override
     {
 
     }
