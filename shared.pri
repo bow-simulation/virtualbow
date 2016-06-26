@@ -1,9 +1,11 @@
 INCLUDEPATH += /home/s/Libraries/Eigen-3.2.8 \
-               /home/s/Libraries/Catch-1.5.6 \
+               /home/s/Libraries/Catch-1.5.6 \z
 
 SOURCES += src/gui/MainWindow.cpp \
            src/fem/System.cpp \
-           src/fem/elements/Element.cpp
+           src/fem/elements/Element.cpp \
+           src/numerics/StepFunction.cpp \
+    $$PWD/src/numerics/SplineFunction.cpp
 
 HEADERS += src/gui/MainWindow.hpp \
            src/fem/System.hpp \
@@ -12,4 +14,7 @@ HEADERS += src/gui/MainWindow.hpp \
            src/fem/elements/MassElement.hpp \
            src/fem/elements/BeamElement.hpp \
            src/fem/Node.hpp \
-           src/fem/View.hpp
+           src/fem/View.hpp \
+           src/numerics/StepFunction.hpp \
+    $$PWD/src/numerics/SplineFunction.hpp \
+    $$PWD/src/numerics/TDMatrix.hpp
