@@ -16,6 +16,16 @@ double StepFunction::operator()(double arg) const
     return values[lower_index(arg)];
 }
 
+double StepFunction::arg_min() const
+{
+    return intervals.front();
+}
+
+double StepFunction::arg_max() const
+{
+    return intervals.back();
+}
+
 // Todo: Abstract, or maybe somehow use std lower_bound
 size_t StepFunction::lower_index(double arg) const
 {

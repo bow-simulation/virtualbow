@@ -15,6 +15,8 @@ private:
 public:
     StepFunction(std::vector<double> lengths, std::vector<double> values);
     double operator()(double arg) const;
+    double arg_min() const;
+    double arg_max() const;
 
 private:
     size_t lower_index(double arg) const;

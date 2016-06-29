@@ -1,3 +1,158 @@
+/*
+#include "model/Limb.hpp"
+
+int main()
+{
+    Limb limb;
+
+    return 0;
+}
+*/
+
+/*
+#include "numerics/StepFunction.hpp"
+
+#include <Eigen/Core>
+#include <boost/numeric/odeint.hpp>
+#include <iostream>
+#include <array>
+
+
+int main()
+{
+    using namespace boost::numeric::odeint;
+    typedef std::array<double, 3> State;
+
+    StepFunction kappa({{0.4, 0.3, 0.2}}, {{0.1, 0.2, 1.5}});
+
+    auto ode = [&](const State &z, State &dzds, const double s)
+    {
+        dzds[0] = std::cos(z[2]);
+        dzds[1] = std::sin(z[2]);
+        dzds[2] = kappa(s);
+    };
+
+    auto observer = [](const State& z , double s)
+    {
+        std::cout << z[0] << ", " << z[1] << "\n";
+    };
+
+    double mid_section_length = 0.5;
+    double mid_section_angle = -0.1;
+
+    State x0 = {{0.0, mid_section_length/2.0, mid_section_angle + M_PI_2}};
+
+    typedef runge_kutta_dopri5<State, double> stepper_type;
+    integrate_const(make_dense_output<stepper_type>(1e-8 , 1e-6),
+                    ode, x0, kappa.arg_min(), kappa.arg_max() , 0.01, observer);
+
+    return 0;
+}
+*/
+
+
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QMainWindow>
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
+#include <QtCore/QDateTime>
+#include <QtCharts/QDateTimeAxis>
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
+#include <QtCore/QDebug>
+#include <QtCharts/QValueAxis>
+
+QT_CHARTS_USE_NAMESPACE
+
+void plot(const std::vector<double>& x, const std::vector<double>& y)
+{
+    // Todo: Is this shit really neccessary?
+    int argc = 0; char** argv = nullptr;
+    QApplication app(argc, argv);
+
+    QLineSeries *series = new QLineSeries();
+    series->setName("Parabola");
+    for(size_t i = 0; i < x.size(); ++i)
+    {
+        series->append(x[i], y[i]);
+    }
+
+    QChart *chart = new QChart();
+    chart->addSeries(series);
+    //chart->legend()->hide();
+    chart->setTitle("Sunspots count (by Space Weather Prediction Center)");
+
+    QValueAxis *axisX = new QValueAxis;
+    axisX->setLabelFormat("%i");
+    axisX->setTitleText("x-Axis");
+    chart->addAxis(axisX, Qt::AlignBottom);
+    series->attachAxis(axisX);
+
+    QValueAxis *axisY = new QValueAxis;
+    axisY->setLabelFormat("%i");
+    axisY->setTitleText("y-Axis");
+    chart->addAxis(axisY, Qt::AlignLeft);
+    series->attachAxis(axisY);
+
+    QChartView *chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+    chartView->setRubberBand(QChartView::RectangleRubberBand);
+
+    QMainWindow window;
+    window.setCentralWidget(chartView);
+    window.resize(820, 600);
+    window.show();
+
+    app.exec();
+}
+
+
+
+int main(int argc, char *argv[])
+{
+    std::vector<double> x = {{0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0}};
+    std::vector<double> y = {{0.0, 1.0, 4.0, 9.0, 16.0, 25.0, 36.0}};
+
+    plot(x, y);
+
+    return 0;
+}
+
+
+/*
+#include <QtCharts>
+#include <cereal/archives/json.hpp>
+
+struct MyClass
+{
+    int x, y, z;
+
+    template<class Archive>
+    void serialize(Archive & archive)
+    {
+        archive(x, y, z);
+    }
+};
+
+#include <cereal/archives/xml.hpp>
+#include <fstream>
+
+int main()
+{
+    int someInt;
+    double d;
+
+    std::ofstream os("data.json");
+    cereal::JSONOutputArchive archive(os);
+
+    archive(CEREAL_NVP(someInt),
+            CEREAL_NVP(d));
+}
+*/
+
+
+
+/*
 #include "numerics/StepFunction.hpp"
 #include "numerics/SplineFunction.hpp"
 
@@ -14,6 +169,7 @@ int main()
 
     return 0;
 }
+*/
 
 /*
 #include "gui/MainWindow.hpp"
