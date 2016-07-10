@@ -45,6 +45,7 @@ public:
 
         QAction *action_about = new QAction(QIcon::fromTheme("dialog-information"), "&About...", this);
         //action_about->setStatusTip("Show the application's About box");
+        connect(action_about, &QAction::triggered, this, &MainWindow::about);
 
         // File menu
         QMenu *menu_file = this->menuBar()->addMenu("&File");
@@ -70,6 +71,21 @@ public:
         // Help menu
         QMenu *menu_help = this->menuBar()->addMenu("&Help");
         menu_help->addAction(action_about);
-
     }
+
+private slots:
+    void about()
+    {
+        // Todo: Icon
+        // Todo: Best way to handle version number?
+        QMessageBox::about(this, "About", "<h2>Bow Design Simulator</h2>"
+                                          "<h3>version 0.0.0</h3>"
+                                          "Bow and arrow physics simulation and design tool.<br>"
+                                          "<a href=\"http://stfnp.bitbucket.org\">http://stfnp.bitbucket.org</a><br><br>"
+                                          "Copyright (C) 2016 Stefan Pfeifer<br>"
+                                          "Distributed under the GNU General Public License v3.0");
+    }
+
+
+
 };

@@ -26,4 +26,5 @@ HEADERS += \
     ../src/numerics/SplineFunction.hpp \
     ../src/numerics/StepFunction.hpp \
     ../src/model/Limb.hpp \
-    ../src/gui/CurveEditor.hpp
+    ../src/gui/CurveEditor.hpp \
+    ../src/gui/BowEditor.hpp

@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
     MainWindow window;
     window.show();
 
+    /*
     CurveEditor *edit = new CurveEditor(&window, [](const std::vector<double>& x_in,
                                                     const std::vector<double>& y_in,
                                                     std::vector<double>& x_out,
@@ -37,6 +38,7 @@ int main(int argc, char *argv[])
 
         // ...
     }
+    */
 
     return app.exec();
 }

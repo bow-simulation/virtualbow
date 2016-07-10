@@ -53,7 +53,7 @@ public:
         //table->setItemDelegate(new Delegate);
         table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         //table->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        connect(table, SIGNAL(cellChanged(int, int)), this, SLOT(updateChart()));
+        connect(table, &QTableWidget::cellChanged, this, &CurveEditor::updateChart);
 
         // Init chart
         QLineSeries *series = new QLineSeries();
