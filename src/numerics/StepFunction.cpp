@@ -1,13 +1,13 @@
 #include "StepFunction.hpp"
 
-StepFunction::StepFunction(std::vector<double> lengths, std::vector<double> values)
-    : values(values)
+StepFunction::StepFunction(Parameters p)
+    : values(p.values)
 {
-    assert(lengths.size() == values.size());
+    assert(p.widths.size() == p.values.size());
 
     // Successively sum up lengths to get interval points
     intervals.push_back(0.0);
-    intervals.insert(intervals.end(), lengths.begin(), lengths.end());
+    intervals.insert(intervals.end(), p.widths.begin(), p.widths.end());
     std::partial_sum(intervals.begin(), intervals.end(), intervals.begin());
 }
 

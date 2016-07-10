@@ -1,13 +1,45 @@
-/*
-#include "model/Limb.hpp"
+#include "gui/MainWindow.hpp"
+#include "gui/CurveEditor.hpp"
+#include "numerics/SplineFunction.hpp"
+#include <QtWidgets>
 
-int main()
+
+int main(int argc, char *argv[])
 {
-    Limb limb;
+    QApplication app(argc, argv);
 
-    return 0;
+    MainWindow window;
+    window.show();
+
+    CurveEditor *edit = new CurveEditor(&window, [](const std::vector<double>& x_in,
+                                                    const std::vector<double>& y_in,
+                                                    std::vector<double>& x_out,
+                                                    std::vector<double>& y_out)
+    {
+        SplineFunction::Parameters param{x_in, y_in};
+        if(param.is_valid())
+        {
+            SplineFunction spline({x_in, y_in});
+            spline.sample(x_out, y_out, 100);
+        }
+    });
+
+    std::vector<double> x = {{0.0, 1.0, 2.0}};
+    std::vector<double> y = {{0.0, 1.0, 4.0}};
+    edit->setInputData(x, y);
+    edit->setInputLabels("x data", "y data");
+    edit->setOutputLabels("x axis", "y axis");
+
+    if(edit->exec() == QDialog::Accepted)
+    {
+        std::vector<double> x, y;
+        edit->getInputData(x, y);
+
+        // ...
+    }
+
+    return app.exec();
 }
-*/
 
 /*
 #include "numerics/StepFunction.hpp"
@@ -50,7 +82,7 @@ int main()
 }
 */
 
-
+/*
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMainWindow>
 #include <QtCharts/QChartView>
@@ -117,7 +149,7 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
+*/
 
 /*
 #include <QtCharts>
@@ -129,7 +161,7 @@ struct MyClass
 
     template<class Archive>
     void serialize(Archive & archive)
-    {
+    {std::vector<double> lengths, std::vector<double> values
         archive(x, y, z);
     }
 };
@@ -168,21 +200,5 @@ int main()
     std::cout << fn(25);
 
     return 0;
-}
-*/
-
-/*
-#include "gui/MainWindow.hpp"
-#include <QtWidgets>
-
-
-int main(int argc, char *argv[])
-{
-    QApplication app(argc, argv);
-
-    MainWindow window;
-    window.show();
-
-    return app.exec();
 }
 */

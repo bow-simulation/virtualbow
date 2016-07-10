@@ -1,12 +1,13 @@
 #pragma once
 #include "TDMatrix.hpp"
 
-#include <cassert>
+#include <cereal/cereal.hpp>
 
 class SplineFunction
 {
 public:
-    bool init(const std::vector<double>& args, const std::vector<double>& values);
+    struct Parameters;
+    SplineFunction(Parameters p);
     double operator()(double arg) const;
 
     // Todo: Factor this out and make it work for all function objects
@@ -21,4 +22,31 @@ private:
     std::vector<double> a;
     std::vector<double> b;
     std::vector<double> c;
+};
+
+struct SplineFunction::Parameters
+{
+    std::vector<double> args;
+    std::vector<double> values;
+
+    template<class Archive>
+    void serialize(Archive & archive)
+    {
+        archive(CEREAL_NVP(args),
+                CEREAL_NVP(values));
+    }
+
+    bool is_valid()
+    {
+        if(args.size() != values.size() || args.size() < 2)
+            return false;
+
+        for(size_t i = 0; i < args.size() - 1; ++i)
+        {
+            if(args[i] >= args[i+1])
+                return false;
+        }
+
+        return true;
+    }
 };

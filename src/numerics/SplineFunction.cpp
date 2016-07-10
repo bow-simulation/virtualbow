@@ -1,21 +1,11 @@
 #include "SplineFunction.hpp"
 
-bool SplineFunction::init(const std::vector<double>& args, const std::vector<double>& values)
+SplineFunction::SplineFunction(Parameters p)
 {
-    // Test validity of the input data
-    if(args.size() != values.size() || args.size() < 2)
-        return false;
+    size_t n = p.args.size();
 
-    for(size_t i = 0; i < args.size() - 1; ++i)
-    {
-        if(args[i] >= args[i+1])
-            return false;
-    }
-
-    size_t n = args.size();
-
-    t = args;
-    x = values;
+    t = p.args;
+    x = p.values;
     a.resize(n);
     b.resize(n);
     c.resize(n);
@@ -45,13 +35,10 @@ bool SplineFunction::init(const std::vector<double>& args, const std::vector<dou
         a[i] = 1.0/3.0*(b[i+1] - b[i])/delta_t;
         c[i] = delta_x/delta_t - 1./3.*(2*b[i] + b[i+1])*delta_t;
     }
-
-    return true;
 }
 
 double SplineFunction::operator()(double arg) const
 {
-    size_t n = t.size();
     size_t i = interval_index(arg);
     double h = arg - t[i];
 
