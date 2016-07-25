@@ -17,21 +17,23 @@ struct Limb
 struct Limb::Parameters
 {
     StepFunction::Parameters curvature;
-    double riser_width;
-    double riser_angle;
-    size_t n_elements;
+    double offset;
+    double angle;
+
+    // Default parameters
+    Parameters()
+        : curvature{{{0.2, 0.2, 0.2}}, {{1.0, 2.0, -5.0}}},
+          offset(0.0),
+          angle(0.0)
+    {
+
+    }
 
     template<class Archive>
     void serialize(Archive & archive)
     {
         archive(CEREAL_NVP(curvature),
-                CEREAL_NVP(riser_width),
-                CEREAL_NVP(riser_angle),
-                CEREAL_NVP(n_elements));
-    }
-
-    bool is_valid()
-    {
-        return true;
+                CEREAL_NVP(offset),
+                CEREAL_NVP(angle));
     }
 };
