@@ -3,14 +3,6 @@
 #include "numerics/SplineFunction.hpp"
 #include <QtWidgets>
 
-#include "numerics/NumParam.hpp"
-
-int main()
-{
-    NumParam<double, Domain::NonNeg> r = -3.24;
-}
-
-/*
 int main(int argc, char *argv[])
 {
     QCoreApplication::setApplicationName("Bow Design Simulator");
@@ -22,8 +14,6 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
-*/
-
 
 /*
 #include <stdexcept>

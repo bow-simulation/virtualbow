@@ -1,9 +1,11 @@
 #pragma once
-#include "../model/Limb.hpp"
+#include "NumberView.hpp"
 
-#include <QtWidgets>
-
-
+struct Parameters
+{
+    double angle = 3.14;
+    double offset = 2.17;
+};
 
 class BowEditor: public QWidget
 {
@@ -12,25 +14,25 @@ class BowEditor: public QWidget
 public:
     BowEditor()
     {
-        QPushButton* bt_curvature = new QPushButton("Edit");
-        QLineEdit* tf_offset = new QLineEdit();
-        QLineEdit* tf_angle = new QLineEdit();
+        //auto validator = new RealValidator<Domain::Pos>();
+        //tf_offset->setValidator(validator);
 
-        QFormLayout *form = new QFormLayout;
-        form->addRow("Curvature:", bt_curvature);
-        form->addRow("Offset:", tf_offset);
+        auto tf_angle = new NumberView<double, Domain::All>(param.angle);
+        auto tf_offset = new NumberView<double, Domain::NonNeg>(param.offset);
+
+        auto form = new QFormLayout();
         form->addRow("Angle:", tf_angle);
+        form->addRow("Offset:", tf_offset);
         this->setLayout(form);
 
-        QGroupBox* box = new QGroupBox("Limb Geometry");
+        auto box = new QGroupBox("Limb Geometry");
         box->setLayout(form);
 
-        QHBoxLayout* h = new QHBoxLayout();
+        auto h = new QHBoxLayout();
         h->addWidget(box);
         this->setLayout(h);
     }
 
 private:
-    Limb::Parameters data;
-
+    Parameters param;
 };

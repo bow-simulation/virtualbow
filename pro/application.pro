@@ -14,7 +14,8 @@ SOURCES += ../src/main.cpp \
     ../src/gui/MainWindow.cpp \
     ../src/numerics/SplineFunction.cpp \
     ../src/numerics/StepFunction.cpp \
-    ../src/fem/System.cpp
+    ../src/fem/System.cpp \
+    ../src/numerics/Domain.cpp
 
 HEADERS += \
     ../src/fem/elements/BarElement.hpp \
@@ -32,4 +33,7 @@ HEADERS += \
     ../src/fem/Node.hpp \
     ../src/fem/System.hpp \
     ../src/fem/View.hpp \
-    ../src/numerics/NumParam.hpp
+    ../src/numerics/NumParam.hpp \
+    ../src/numerics/Domain.hpp \
+    ../src/numerics/Units.hpp \
+    ../src/gui/NumberView.hpp
