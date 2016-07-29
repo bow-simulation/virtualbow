@@ -16,60 +16,6 @@ int main(int argc, char *argv[])
 }
 
 /*
-#include <stdexcept>
-
-enum class Domain
-{
-    All,
-    Pos,       // >  0
-    Neg,       // <  0
-    NonPos,    // <= 0
-    NonNeg,    // >= 0
-};
-
-template<Domain> bool domain_contains(double val);
-template<> bool domain_contains<Domain::All>(double val){ return true; }
-template<> bool domain_contains<Domain::Pos>(double val){ return val > 0; }
-template<> bool domain_contains<Domain::Neg>(double val){ return val < 0; }
-template<> bool domain_contains<Domain::NonPos>(double val){ return val <= 0; }
-template<> bool domain_contains<Domain::NonNeg>(double val){ return val >= 0; }
-
-template<typename T, Domain D>
-class NumParam
-{
-public:
-    NumParam(double rhs): data(rhs)
-    {
-        if(!domain_contains<D>(rhs))
-        {
-            throw std::runtime_error("Incorrect domain");
-        }
-    }
-
-    operator double() const
-    {
-        return data;
-    }
-
-private:
-    double data;
-};
-*/
-
-/*
-template<typename T>
-class NumParam<T, Domain::All>
-{
-    bool check_domain(double val)
-    {
-        return true;
-    }
-};
-*/
-
-
-
-/*
 CurveEditor *edit = new CurveEditor(&window, [](const std::vector<double>& x_in,
                                                 const std::vector<double>& y_in,
                                                 std::vector<double>& x_out,

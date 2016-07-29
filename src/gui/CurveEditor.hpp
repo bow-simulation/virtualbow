@@ -1,4 +1,6 @@
 #pragma once
+#include "../numerics/DataSeries.hpp"
+
 #include <QtWidgets>
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
@@ -20,12 +22,6 @@ QT_CHARTS_USE_NAMESPACE
 // Todo: Enable copy and paste in table and deleting cells without double clicking on them first.
 // Todo: Scrolling, panning on the plot
 
-// Parameters: x_in, y_in, x_out, y_out
-typedef std::function<void(const std::vector<double>&,
-                           const std::vector<double>&,
-                           std::vector<double>&,
-                           std::vector<double>&)> DataFunction;
-
 // Todo: Doesn't allow emptying a cell
 class Delegate : public QItemDelegate
 {
@@ -43,6 +39,8 @@ class CurveEditor: public QDialog
     Q_OBJECT
 
 public:
+    typedef std::function<DataSeries(const DataSeries&)> DataFunction;
+
     CurveEditor(QWidget* parent, DataFunction f)
         : QDialog(parent),
           getOutputData(f)
@@ -94,37 +92,33 @@ public:
         chart->axisY()->setTitleText(lby);
     }
 
-    void getInputData(std::vector<double>& x, std::vector<double>& y)
+    DataSeries getInputData()
     {
+        DataSeries data;
         for(int i = 0; i < table->rowCount(); ++i)
         {
-            auto item_x = table->item(i, 0);
-            auto item_y = table->item(i, 1);
+            auto item_arg = table->item(i, 0);
+            auto item_val = table->item(i, 1);
 
-            if(item_x == nullptr || item_y == nullptr)
-                return;
+            if(item_arg == nullptr || item_val == nullptr)
+                return data;
 
-            bool ok_x, ok_y;
-            double x_val = item_x->text().toDouble(&ok_x);
-            double y_val = item_y->text().toDouble(&ok_y);
+            bool ok_arg, ok_val;
+            double arg = item_arg->text().toDouble(&ok_arg);
+            double val = item_val->text().toDouble(&ok_val);
 
-            if(!ok_x || !ok_y)
-                return;
+            if(!ok_arg || !ok_val)
+                return data;
 
-            x.push_back(x_val);
-            y.push_back(y_val);
+            data.add(arg, val);
         }
-
     }
 
-    void setInputData(const std::vector<double>& x, const std::vector<double>& y)
+    void setInputData(const DataSeries& data)
     {
-        assert(x.size() == y.size());
+        bool old_state = table->blockSignals(true);     // Todo: Is there a better way to set item texts without triggering a plot update every time?
 
-        // Todo: Is there a better way to set item texts without triggering a plot update every time?
-        bool old_state = table->blockSignals(true);
-
-        for(size_t i = 0; i < x.size(); ++i)
+        for(size_t i = 0; i < data.size(); ++i)
         {
            if(table->item(i, 0) == nullptr)
                table->setItem(i, 0,  new QTableWidgetItem);
@@ -132,8 +126,8 @@ public:
            if(table->item(i, 1) == nullptr)
                table->setItem(i, 1,  new QTableWidgetItem);
 
-           table->item(i, 0)->setText(QString::number(x[i]));
-           table->item(i, 1)->setText(QString::number(y[i]));
+           table->item(i, 0)->setText(QString::number(data.arg(i)));
+           table->item(i, 1)->setText(QString::number(data.val(i)));
         }
 
         table->blockSignals(old_state);
@@ -144,15 +138,14 @@ public slots:
     void updateChart()
     {
         // Get input and output data
-        std::vector<double> x_in, y_in, x_out, y_out;
-        getInputData(x_in, y_in);
-        getOutputData(x_in, y_in, x_out, y_out);
+        DataSeries input = getInputData();
+        DataSeries output = getOutputData(input);
 
         // Update chart
         QLineSeries *series = new QLineSeries();
-        for(size_t i = 0; i < x_out.size(); ++i)
+        for(size_t i = 0; i < output.size(); ++i)
         {
-            series->append(x_out[i], y_out[i]);
+            series->append(output.arg(i), output.val(i));
         }
 
         chart->removeSeries(chart->series()[0]);

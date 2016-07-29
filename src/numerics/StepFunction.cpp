@@ -1,13 +1,18 @@
 #include "StepFunction.hpp"
 
-StepFunction::StepFunction(Parameters p)
-    : values(p.values)
+StepFunction::StepFunction(DataSeries data)
+    : values(data.vals())
 {
-    assert(p.widths.size() == p.values.size());
+    // Check validity
+    for(double w: data.args())
+    {
+        if(w <= 0)
+            throw std::runtime_error("Arguments have to be positive");
+    }
 
-    // Successively sum up lengths to get interval points
+    // Successively sum up args to get interval points
     intervals.push_back(0.0);
-    intervals.insert(intervals.end(), p.widths.begin(), p.widths.end());
+    intervals.insert(intervals.end(), data.args().begin(), data.args().end());
     std::partial_sum(intervals.begin(), intervals.end(), intervals.begin());
 }
 
@@ -24,6 +29,27 @@ double StepFunction::arg_min() const
 double StepFunction::arg_max() const
 {
     return intervals.back();
+}
+#include <QtCore>
+DataSeries StepFunction::sample() const
+{
+    DataSeries data;
+
+    size_t n = intervals.size();
+    for(size_t i = 0; i < n; ++i)
+    {
+        if(i > 0)
+        {
+            data.add(intervals[i], values[i-1]);
+        }
+
+        if(i < n-1)
+        {
+            data.add(intervals[i], values[i]);
+        }
+    }
+
+    return data;
 }
 
 // Todo: Abstract, or maybe somehow use std lower_bound

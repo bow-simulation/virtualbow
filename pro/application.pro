@@ -36,4 +36,5 @@ HEADERS += \
     ../src/numerics/NumParam.hpp \
     ../src/numerics/Domain.hpp \
     ../src/numerics/Units.hpp \
-    ../src/gui/NumberView.hpp
+    ../src/gui/NumberView.hpp \
+    ../src/numerics/DataSeries.hpp

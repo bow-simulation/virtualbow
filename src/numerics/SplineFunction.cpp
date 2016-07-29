@@ -1,11 +1,17 @@
 #include "SplineFunction.hpp"
 
-SplineFunction::SplineFunction(Parameters p)
+SplineFunction::SplineFunction(DataSeries data)
 {
-    size_t n = p.args.size();
+    // Check validity
+    size_t n = data.size();
+    for(size_t i = 0; i < n - 1; ++i)
+    {
+        if(data.arg(i) >= data.arg(i+1))
+            throw std::runtime_error("Arguments have to be in ascending order");
+    }
 
-    t = p.args;
-    x = p.values;
+    t = data.args();    // Todo: Maybe save the input data instead of doing these copies here?
+    x = data.vals();
     a.resize(n);
     b.resize(n);
     c.resize(n);
@@ -45,19 +51,21 @@ double SplineFunction::operator()(double arg) const
     return ((a[i]*h + b[i])*h + c[i])*h + x[i];
 }
 
-void SplineFunction::sample(std::vector<double>& args, std::vector<double>& values, size_t n_sample) const
+DataSeries SplineFunction::sample(size_t n_points) const
 {
     double arg0 = t.front();
     double arg1 = t.back();
 
-    for(size_t i = 0; i <= n_sample; ++i)
+    DataSeries data;
+    for(size_t i = 0; i <= n_points; ++i)
     {
-        double alpha = double(i)/double(n_sample);
+        double alpha = double(i)/double(n_points);
         double arg = arg0*alpha + arg1*(1.0 - alpha);
 
-        args.push_back(arg);
-        values.push_back((*this)(arg));
+        data.add(arg, (*this)(arg));
     }
+
+    return data;
 }
 
 size_t SplineFunction::interval_index(double arg) const
