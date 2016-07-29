@@ -1,5 +1,5 @@
 #include "gui/MainWindow.hpp"
-#include "gui/CurveEditor.hpp"
+#include "gui/SeriesEditor.hpp"
 #include "numerics/SplineFunction.hpp"
 #include <QtWidgets>
 

@@ -34,15 +34,16 @@ public:
     }
 };
 
-class CurveEditor: public QDialog
+class SeriesEditor: public QDialog
 {
     Q_OBJECT
 
 public:
     typedef std::function<DataSeries(const DataSeries&)> DataFunction;
 
-    CurveEditor(QWidget* parent, DataFunction f)
+    SeriesEditor(QWidget* parent, DataSeries& data, DataFunction f)
         : QDialog(parent),
+          data(data),
           getOutputData(f)
     {
         // Init table
@@ -51,7 +52,7 @@ public:
         //table->setItemDelegate(new Delegate);
         table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         //table->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        connect(table, &QTableWidget::cellChanged, this, &CurveEditor::updateChart);
+        connect(table, &QTableWidget::cellChanged, this, &SeriesEditor::updateChart);
 
         // Init chart
         QLineSeries *series = new QLineSeries();
@@ -66,8 +67,12 @@ public:
 
         // Ok and Cancel buttons
         QDialogButtonBox* btbox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-        connect(btbox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-        connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+        connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::reject);    // Reject: Do nothing
+        connect(btbox, &QDialogButtonBox::accepted, [&]()   // Accept: Store data
+        {
+            data = getInputData();
+            this->accept();
+        });
 
         // Layout
         QHBoxLayout* h = new QHBoxLayout;
@@ -79,6 +84,8 @@ public:
         v->addWidget(btbox);
         this->setLayout(v);
         this->resize(900, 400);
+
+        initInputData();
     }
 
     void setInputLabels(const QString& lbx, const QString& lby)
@@ -114,7 +121,7 @@ public:
         }
     }
 
-    void setInputData(const DataSeries& data)
+    void initInputData()
     {
         bool old_state = table->blockSignals(true);     // Todo: Is there a better way to set item texts without triggering a plot update every time?
 
@@ -169,5 +176,6 @@ public slots:
 private:
     QTableWidget* table;
     QChart* chart;
+    DataSeries& data;
     DataFunction getOutputData;
 };

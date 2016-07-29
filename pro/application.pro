@@ -28,7 +28,6 @@ HEADERS += \
     ../src/numerics/SplineFunction.hpp \
     ../src/numerics/StepFunction.hpp \
     ../src/model/Limb.hpp \
-    ../src/gui/CurveEditor.hpp \
     ../src/gui/BowEditor.hpp \
     ../src/fem/Node.hpp \
     ../src/fem/System.hpp \
@@ -37,4 +36,5 @@ HEADERS += \
     ../src/numerics/Domain.hpp \
     ../src/numerics/Units.hpp \
     ../src/gui/NumberView.hpp \
-    ../src/numerics/DataSeries.hpp
+    ../src/numerics/DataSeries.hpp \
+    ../src/gui/SeriesEditor.hpp

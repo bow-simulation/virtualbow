@@ -1,6 +1,6 @@
 #pragma once
 #include "NumberView.hpp"
-#include "CurveEditor.hpp"
+#include "SeriesEditor.hpp"
 
 #include "../numerics/StepFunction.hpp"
 
@@ -21,7 +21,7 @@ public:
         auto bt_curvature = new QPushButton("Edit");
         connect(bt_curvature, &QPushButton::clicked, [&]()
         {
-            CurveEditor *edit = new CurveEditor(this, [](const DataSeries& input)
+            auto edit = new SeriesEditor(this, param.curvature, [](const DataSeries& input)
             {
                 try
                 {
@@ -34,14 +34,9 @@ public:
                 }
             });
 
-            edit->setInputData(param.curvature);
             edit->setInputLabels("Width", "Curvature");
             edit->setOutputLabels("Arc length", "Curvature");
-
-            if(edit->exec() == QDialog::Accepted)
-            {
-                DataSeries output = edit->getInputData();
-            }
+            edit->exec();
         });
 
         auto tf_angle = new NumberView<double, Domain::All>(param.angle);
