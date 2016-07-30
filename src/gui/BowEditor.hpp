@@ -3,13 +3,7 @@
 #include "SeriesEditor.hpp"
 
 #include "../numerics/StepFunction.hpp"
-
-struct Parameters
-{
-    DataSeries curvature = {{0.7}, {0.0}};
-    double angle = 3.14;
-    double offset = 2.17;
-};
+#include "../model/BowParameters.hpp"
 
 class BowEditor: public QWidget
 {
@@ -18,6 +12,9 @@ class BowEditor: public QWidget
 public:
     BowEditor()
     {
+        auto bt_width = new QPushButton("Edit");
+        auto bt_height = new QPushButton("Edit");
+
         auto bt_curvature = new QPushButton("Edit");
         connect(bt_curvature, &QPushButton::clicked, [&]()
         {
@@ -43,6 +40,8 @@ public:
         auto tf_offset = new NumberView<double, Domain::NonNeg>(param.offset);
 
         auto form = new QFormLayout();
+        form->addRow("Width", bt_width);
+        form->addRow("Height", bt_height);
         form->addRow("Curvature", bt_curvature);
         form->addRow("Angle:", tf_angle);
         form->addRow("Offset:", tf_offset);
@@ -57,5 +56,5 @@ public:
     }
 
 private:
-    Parameters param;
+    BowParameters param;
 };

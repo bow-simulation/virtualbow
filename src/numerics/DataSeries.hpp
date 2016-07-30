@@ -1,5 +1,6 @@
 #pragma once
 #include <cereal/cereal.hpp>
+#include <cereal/types/vector.hpp>
 #include <vector>
 #include <cassert>
 

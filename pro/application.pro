@@ -23,7 +23,6 @@ HEADERS += \
     ../src/fem/elements/BeamElement.hpp \
     ../src/fem/elements/Element.hpp \
     ../src/gui/MainWindow.hpp \
-    ../src/model/InputData.hpp \
     ../src/numerics/TDMatrix.hpp \
     ../src/numerics/SplineFunction.hpp \
     ../src/numerics/StepFunction.hpp \
@@ -37,4 +36,5 @@ HEADERS += \
     ../src/numerics/Units.hpp \
     ../src/gui/NumberView.hpp \
     ../src/numerics/DataSeries.hpp \
-    ../src/gui/SeriesEditor.hpp
+    ../src/gui/SeriesEditor.hpp \
+    ../src/model/BowParameters.hpp
