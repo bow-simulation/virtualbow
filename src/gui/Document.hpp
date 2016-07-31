@@ -1,5 +1,5 @@
 #pragma once
-#include <vector>
+#include <set>
 #include <functional>
 #include <algorithm>
 
@@ -23,15 +23,13 @@ public:
 
     void addView(ViewBase* view)
     {
-        views.push_back(view);
+        views.insert(view);
         view->update();
     }
 
     void removeView(ViewBase* view)
     {
-        auto it = std::find(views.begin(), views.end(), view);
-        if(it != views.end())
-            views.erase(it);
+        views.erase(view);
     }
 
     void updateViews()
@@ -44,8 +42,7 @@ public:
 
 private:
     BowParameters data;
-    std::vector<ViewBase*> views;
-
+    std::set<ViewBase*> views;
 };
 
 template<typename T>
@@ -72,17 +69,8 @@ public:
         view_function(document.getData()) = data;
     }
 
-    /*
-    virtual void update() override
-    {
-        update(view_function(document.getData()));
-    }
-
-    virtual void update(const T& data) = 0;
-    */
-
 protected:
-    Document document;
+    Document& document;
 
 private:
     ViewFunction<T> view_function;

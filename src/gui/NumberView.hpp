@@ -41,7 +41,7 @@ public:
         View<T>::document.removeView(this);
     }
 
-    virtual void update(/*const double& data*/) override
+    virtual void update() override
     {
         this->setText(QString::number(this->getData()));   // Todo: Check domain
     }
