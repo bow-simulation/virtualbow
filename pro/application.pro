@@ -37,4 +37,5 @@ HEADERS += \
     ../src/gui/NumberView.hpp \
     ../src/numerics/DataSeries.hpp \
     ../src/gui/SeriesEditor.hpp \
-    ../src/model/BowParameters.hpp
+    ../src/model/BowParameters.hpp \
+    ../src/gui/Document.hpp

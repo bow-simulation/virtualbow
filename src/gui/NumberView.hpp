@@ -1,32 +1,33 @@
 #pragma once
 #include "../numerics/Domain.hpp"
 #include "../numerics/Units.hpp"
+#include "Document.hpp"
 
 #include <boost/lexical_cast.hpp>
 
 #include <QtWidgets>
 
 template<typename T, Domain D>
-class NumberView: public QLineEdit
+class NumberView: public QLineEdit, public View<T>
 {
 public:
-    NumberView(T& data): data(data)
+    NumberView(Document& document, ViewFunction<T> view_function)
+        : View<T>(document, view_function)
     {
-        this->setText(QString::number(data));   // Todo: Check domain
+        View<T>::document.addView(this);
 
         connect(this, &QLineEdit::editingFinished, [&]()
         {
             try
             {
                 T new_data = boost::lexical_cast<T>(this->text().toStdString());
-                // Todo: Check domain
-                data= new_data;
+                this->setData(new_data); // Todo: Check domain
             }
             catch(...)  // Todo
             {
                 bool old_state = this->blockSignals(true);
 
-                this->setText(QString::number(data));
+                this->setText(QString::number(this->getData()));
                 QMessageBox::critical(this, "Error", "Invalid input");  // Todo: Ok: Mark wrong input, Cancel: Restore old value.
                 this->setFocus();
 
@@ -35,7 +36,14 @@ public:
         });
     }
 
-private:
-    T& data;
+    ~NumberView()
+    {
+        View<T>::document.removeView(this);
+    }
+
+    virtual void update(/*const double& data*/) override
+    {
+        this->setText(QString::number(this->getData()));   // Todo: Check domain
+    }
 };
 
