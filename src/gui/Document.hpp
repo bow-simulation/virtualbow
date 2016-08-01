@@ -7,10 +7,19 @@
 
 #include <QtCore>
 
+
+template<typename T>
+using ViewFunction = std::function<T&(BowParameters&)>;
+using UpdateFunction = std::function<void()>;
+
 class ViewBase
 {
 public:
-    virtual void update() = 0;
+    UpdateFunction update;
+    ViewBase(UpdateFunction update): update(update)
+    {
+
+    }
 };
 
 class Document
@@ -46,17 +55,20 @@ private:
 };
 
 template<typename T>
-using ViewFunction = std::function<T&(BowParameters&)>;
-
-template<typename T>
 class View: public ViewBase
 {
 public:
-    View(Document& document, ViewFunction<T> view_function)
-        : document(document),
+    View(Document& document, ViewFunction<T> view_function, UpdateFunction update_function)
+        : ViewBase(update_function),
+          document(document),
           view_function(view_function)
     {
+        document.addView(this);
+    }
 
+    ~View()
+    {
+        document.removeView(this);
     }
 
     T& getData()
@@ -69,9 +81,7 @@ public:
         view_function(document.getData()) = data;
     }
 
-protected:
-    Document& document;
-
 private:
+    Document& document;
     ViewFunction<T> view_function;
 };

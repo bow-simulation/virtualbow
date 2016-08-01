@@ -12,10 +12,11 @@ class NumberView: public QLineEdit, public View<T>
 {
 public:
     NumberView(Document& document, ViewFunction<T> view_function)
-        : View<T>(document, view_function)
+        : View<T>(document, view_function, [&]()
+        {
+            this->setText(QString::number(this->getData()));   // Todo: Check domain
+        })
     {
-        View<T>::document.addView(this);
-
         connect(this, &QLineEdit::editingFinished, [&]()
         {
             try
@@ -34,16 +35,6 @@ public:
                 this->blockSignals(old_state);
             }
         });
-    }
-
-    ~NumberView()
-    {
-        View<T>::document.removeView(this);
-    }
-
-    virtual void update() override
-    {
-        this->setText(QString::number(this->getData()));   // Todo: Check domain
     }
 };
 
