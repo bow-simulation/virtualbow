@@ -11,24 +11,23 @@ template<typename T, Domain D>
 class NumberView: public QLineEdit, public View<T>
 {
 public:
-    NumberView(Document& document, ViewFunction<T> view_function)
-        : View<T>(document, view_function, [&]()
-        {
-            this->setText(QString::number(this->getData()));   // Todo: Check domain
-        })
+    NumberView(Document& doc, ViewFunction<T> view_function)
+        : View<T>(view_function)
     {
+        this->setDocument(doc);
+
         connect(this, &QLineEdit::editingFinished, [&]()
         {
             try
             {
                 T new_data = boost::lexical_cast<T>(this->text().toStdString());
-                this->setData(new_data); // Todo: Check domain
+                this->getData() = new_data; // Todo: Check domain
             }
             catch(...)  // Todo
             {
                 bool old_state = this->blockSignals(true);
 
-                this->setText(QString::number(this->getData()));
+                this->setText(QString::number(this->getConstData()));
                 QMessageBox::critical(this, "Error", "Invalid input");  // Todo: Ok: Mark wrong input, Cancel: Restore old value.
                 this->setFocus();
 
@@ -36,5 +35,9 @@ public:
             }
         });
     }
-};
 
+    virtual void update()
+    {
+        this->setText(QString::number(this->getConstData()));   // Todo: Check domain
+    }
+};

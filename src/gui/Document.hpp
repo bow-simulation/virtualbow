@@ -7,81 +7,72 @@
 
 #include <QtCore>
 
-
-template<typename T>
-using ViewFunction = std::function<T&(BowParameters&)>;
-using UpdateFunction = std::function<void()>;
-
-class ViewBase
-{
-public:
-    UpdateFunction update;
-    ViewBase(UpdateFunction update): update(update)
-    {
-
-    }
-};
+class ViewBase;
 
 class Document
 {
 public:
-    BowParameters& getData()
-    {
-        return data;
-    }
+    BowParameters& getData();
 
-    void addView(ViewBase* view)
-    {
-        views.insert(view);
-        view->update();
-    }
-
-    void removeView(ViewBase* view)
-    {
-        views.erase(view);
-    }
-
-    void updateViews()
-    {
-        for(auto view: views)
-        {
-            view->update();
-        }
-    }
+    void addView(ViewBase* view);
+    void removeView(ViewBase* view);
+    void updateViews();
 
 private:
     BowParameters data;
     std::set<ViewBase*> views;
 };
 
+class ViewBase
+{
+public:
+    ViewBase(): document(nullptr)
+    {
+
+    }
+
+    ~ViewBase()
+    {
+        if(document != nullptr)
+            document->removeView(this);
+    }
+
+    void setDocument(Document& doc)
+    {
+        document = &doc;
+        document->addView(this);
+        update();
+    }
+
+    virtual void update() = 0;
+
+protected:
+    Document* document;
+};
+
+template<typename T>
+using ViewFunction = std::function<T&(BowParameters&)>;
+
 template<typename T>
 class View: public ViewBase
 {
 public:
-    View(Document& document, ViewFunction<T> view_function, UpdateFunction update_function)
-        : ViewBase(update_function),
-          document(document),
-          view_function(view_function)
+    View(ViewFunction<T> view_function)
+        : view_function(view_function)
     {
-        document.addView(this);
-    }
 
-    ~View()
-    {
-        document.removeView(this);
     }
 
     T& getData()
     {
-        return view_function(document.getData());
+        return view_function(document->getData());  // Todo: Check for nullptr
     }
 
-    void setData(const T& data)
+    const T& getConstData()
     {
-        view_function(document.getData()) = data;
+        return view_function(document->getData());  // Todo: Check for nullptr
     }
 
 private:
-    Document& document;
     ViewFunction<T> view_function;
 };
