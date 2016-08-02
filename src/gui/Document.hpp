@@ -9,10 +9,19 @@
 
 class ViewBase;
 
+template<typename T>
+class View;
+
 class Document
 {
 public:
-    BowParameters& getData();
+    template<typename T>
+    friend class View;
+
+    Document();
+    void load(const std::string& path);
+    void save(const std::string& path);
+    const BowParameters& getData();
 
     void addView(ViewBase* view);
     void removeView(ViewBase* view);
@@ -21,33 +30,15 @@ public:
 private:
     BowParameters data;
     std::set<ViewBase*> views;
+    bool modified;
 };
 
 class ViewBase
 {
 public:
-    ViewBase(): document(nullptr)
-    {
-
-    }
-
-    ~ViewBase()
-    {
-        if(document != nullptr)
-            document->removeView(this);
-    }
-
-    void setDocument(Document& doc)
-    {
-        document = &doc;
-        document->addView(this);
-        update();
-    }
-
-    virtual void update() = 0;
-
-protected:
-    Document* document;
+    virtual ~ViewBase(){}
+    virtual void updateDoc()= 0;
+    virtual void updateView() = 0;
 };
 
 template<typename T>
@@ -57,22 +48,33 @@ template<typename T>
 class View: public ViewBase
 {
 public:
-    View(ViewFunction<T> view_function)
-        : view_function(view_function)
+    View(Document& doc, ViewFunction<T> view_fn)
+        : doc(doc), view_fn(view_fn)
     {
-
+        doc.addView(this);
     }
 
-    T& getData()
+    virtual ~View()
     {
-        return view_function(document->getData());  // Todo: Check for nullptr
+        doc.removeView(this);
     }
 
-    const T& getConstData()
+    virtual void updateDoc() override
     {
-        return view_function(document->getData());  // Todo: Check for nullptr
+        updateDoc(view_fn(doc.data));
+        doc.updateViews();
+        doc.modified = true;
     }
+
+    virtual void updateView() override
+    {
+        updateView(view_fn(doc.data));
+    }
+
+    virtual void updateDoc(T& data) = 0;
+    virtual void updateView(const T& data) = 0;
 
 private:
-    ViewFunction<T> view_function;
+    ViewFunction<T> view_fn;
+    Document& doc;
 };

@@ -1,6 +1,24 @@
 #include "Document.hpp"
 
-BowParameters& Document::getData()
+Document::Document(): modified(false)
+{
+
+}
+
+void Document::load(const std::string& path)
+{
+    data.load(path);
+    modified = false;
+    updateViews();
+}
+
+void Document::save(const std::string& path)
+{
+    data.save(path);
+    modified = false;
+}
+
+const BowParameters& Document::getData()
 {
     return data;
 }
@@ -8,7 +26,6 @@ BowParameters& Document::getData()
 void Document::addView(ViewBase* view)
 {
     views.insert(view);
-    view->update();
 }
 
 void Document::removeView(ViewBase* view)
@@ -20,7 +37,7 @@ void Document::updateViews()
 {
     for(auto view: views)
     {
-        view->update();
+        view->updateView();
     }
 }
 

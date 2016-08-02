@@ -39,7 +39,6 @@ public:
         });
         */
 
-        double x, y;
         auto tf_angle = new NumberView<double, Domain::All>(document, [](BowParameters& p)->double&{ return p.angle; });
         auto tf_offset = new NumberView<double, Domain::NonNeg>(document, [](BowParameters& p)->double&{ return p.offset; });
 
