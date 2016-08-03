@@ -27,7 +27,6 @@ HEADERS += \
     ../src/numerics/TDMatrix.hpp \
     ../src/numerics/SplineFunction.hpp \
     ../src/numerics/StepFunction.hpp \
-    ../src/model/Limb.hpp \
     ../src/gui/BowEditor.hpp \
     ../src/fem/Node.hpp \
     ../src/fem/System.hpp \
@@ -39,4 +38,6 @@ HEADERS += \
     ../src/numerics/DataSeries.hpp \
     ../src/gui/SeriesEditor.hpp \
     ../src/model/BowParameters.hpp \
-    ../src/gui/Document.hpp
+    ../src/gui/Document.hpp \
+    ../src/model/InputData.hpp \
+    ../src/model/DiscreteLimb.hpp

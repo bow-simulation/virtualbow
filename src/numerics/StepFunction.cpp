@@ -6,7 +6,7 @@ StepFunction::StepFunction(DataSeries data)
     // Check validity
     for(double w: data.args())
     {
-        if(w <= 0)
+        if(w <= 0)   // Todo: Allow zero-length intervals?
             throw std::runtime_error("Arguments have to be positive");
     }
 

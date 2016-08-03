@@ -5,6 +5,30 @@
 
 #include "gui/Document.hpp"
 
+
+#include "model/InputData.hpp"
+#include "model/DiscreteLimb.hpp"
+
+int main()
+{
+    //InputData data;
+    //data.limb.layers.push_back(Limb::Layer());
+    //data.save("../examples/default.bow");
+
+    InputData data;
+    data.load("../examples/default.bow");
+
+    DiscreteLimb limb(data);
+
+    for(size_t i = 0; i < limb.s.size(); ++i)
+    {
+        qInfo() << limb.s[i] << ", " << limb.x[i] << ", " << limb.y[i];
+    }
+
+    return 0;
+}
+
+/*
 int main(int argc, char *argv[])
 {
     QCoreApplication::setApplicationName("Bow Design Simulator");
@@ -16,6 +40,7 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
+*/
 
 /*
 CurveEditor *edit = new CurveEditor(&window, [](const std::vector<double>& x_in,
