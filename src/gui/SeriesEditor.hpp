@@ -26,7 +26,7 @@ QT_CHARTS_USE_NAMESPACE
 class Delegate : public QItemDelegate
 {
 public:
-    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override
+    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& /*option*/, const QModelIndex& /*index*/) const override
     {
         QLineEdit* line_edit = new QLineEdit(parent);
         line_edit->setValidator(new QDoubleValidator);  // Todo: Domain?
@@ -119,6 +119,8 @@ public:
 
             data.add(arg, val);
         }
+
+        return data;
     }
 
     void initInputData()

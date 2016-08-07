@@ -9,10 +9,10 @@ struct Limb
 {
     struct Layer
     {
-        std::string name;
-        DataSeries height;
-        double rho;
-        double E;
+        std::string name = "";
+        DataSeries height = {{0.0, 1.0}, {0.01, 0.008}};
+        double rho = 500.0;
+        double E = 40.0e9;
 
         template<class Archive>
         void serialize(Archive & archive)
@@ -24,13 +24,13 @@ struct Limb
         }
     };
 
-    DataSeries width;
-    std::vector<Layer> layers;
-    DataSeries curvature;
-    double offset_x;
-    double offset_y;
-    double angle;
-    double tip_mass;
+    DataSeries width = {{0.0, 1.0}, {0.05, 0.01}};
+    std::vector<Layer> layers = {Layer()};
+    DataSeries curvature = {{0.3, 0.4}, {-1.0, 1.0}};
+    double offset_x = 0.0;
+    double offset_y = 0.0;
+    double angle = 0.0;
+    double tip_mass = 0.0;
 
     template<class Archive>
     void serialize(Archive & archive)
@@ -47,12 +47,12 @@ struct Limb
 
 struct String
 {
-    double strand_stiffness;
-    double strand_density;
-    unsigned n_strands;
+    double strand_stiffness = 3100.0;
+    double strand_density = 0.05;
+    unsigned n_strands = 10;
 
-    double center_mass;
-    double end_mass;
+    double center_mass = 0.0;
+    double end_mass = 0.0;
 
     template<class Archive>
     void serialize(Archive & archive)
@@ -67,9 +67,9 @@ struct String
 
 struct Operation
 {
-    double brace_height;
-    double draw_length;
-    double arrow_mass;
+    double brace_height = 0.2;
+    double draw_length = 0.7;
+    double arrow_mass = 0.02;
 
     template<class Archive>
     void serialize(Archive & archive)
@@ -82,23 +82,23 @@ struct Operation
 
 struct Settings
 {
-    unsigned n_limb_elements;
-    unsigned n_string_elements;
-    double step_factor;
+    unsigned n_elements_limb = 25;
+    unsigned n_elements_string = 25;
+    double step_factor = 0.5;
 
     template<class Archive>
     void serialize(Archive & archive)
     {
-        archive(CEREAL_NVP(n_limb_elements),
-                CEREAL_NVP(n_string_elements),
+        archive(CEREAL_NVP(n_elements_limb),
+                CEREAL_NVP(n_elements_string),
                 CEREAL_NVP(step_factor));
     }
 };
 
 struct Meta
 {
-    std::string comments;
-    std::string version;    // Todo: Get default value from somewhere?
+    std::string comments = "";
+    std::string version = "";    // Todo: Get default value from somewhere?
 
     template<class Archive>
     void serialize(Archive & archive)
@@ -130,6 +130,11 @@ struct InputData
     {
         // Todo: Handle file not existing or inability to parse
         std::ifstream file(path);
+        if(!file)
+        {
+            throw std::runtime_error(strerror(errno));    // Todo: Better message with filename
+        }
+
         cereal::JSONInputArchive archive(file);
         serialize(archive);
     }
@@ -138,6 +143,11 @@ struct InputData
     {
         // Todo: Handle file not existing
         std::ofstream file(path);
+        if(!file)
+        {
+            throw std::runtime_error(strerror(errno));    // Todo: Better message with filename
+        }
+
         cereal::JSONOutputArchive archive(file);
         serialize(archive);
     }

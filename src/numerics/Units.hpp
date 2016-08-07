@@ -18,7 +18,7 @@ public:
         return label_;
     }
 
-    double factor(double value) const
+    double factor() const
     {
         return factor_;
     }

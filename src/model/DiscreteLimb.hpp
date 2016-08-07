@@ -12,9 +12,16 @@ struct DiscreteLimb
     std::vector<double> y;
     std::vector<double> phi;
 
+    std::vector<double> h;          // Total cross section height (used for contact)
+    std::vector<double> Cee;
+    std::vector<double> Ckk;
+    std::vector<double> Cek;
+    std::vector<double> rhoA;
+
     DiscreteLimb(const InputData& input)
     {
         calculate_nodes(input);
+        calculate_properties(input);
     }
 
 private:
@@ -42,11 +49,16 @@ private:
         };
 
         state_type z0 = {input.limb.offset_x, input.limb.offset_y, input.limb.angle + M_PI_2};
-        unsigned n = input.settings.n_limb_elements;
+        unsigned n = input.settings.n_elements_limb;
         double s0 = kappa.arg_min();
         double ds = (kappa.arg_max() - kappa.arg_min())/n;
 
         auto stepper = make_controlled<error_stepper_type>(1.0e-10, 1.0e-6);    // Todo: Magic numbers
         integrate_n_steps(stepper, system, z0, s0, ds, n, observer);
+    }
+
+    void calculate_properties(const InputData& /*input*/)
+    {
+
     }
 };

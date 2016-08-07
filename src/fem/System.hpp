@@ -28,34 +28,31 @@ public:
 
     }
 
-    Node create_node(std::array<double, 3> u_node, std::array<bool, 3> dof_types)
+    Node create_node(std::array<double, 3> u_node, std::array<bool, 3> active)
     {
-        return Node{create_dof(u_node[0], dof_types[0]),
-                    create_dof(u_node[1], dof_types[1]),
-                    create_dof(u_node[2], dof_types[2])};
+        return Node{create_dof(u_node[0], active[0]),
+                    create_dof(u_node[1], active[1]),
+                    create_dof(u_node[2], active[2])};
     }
 
-    Dof create_dof(double u_dof, bool type)
+    Dof create_dof(double u_dof, bool active)
     {
-        switch(type)
+        if(active)
         {
-            case true:
-            {
-                size_t n = u.size() + 1;
-                u = (VectorXd(n) << u, u_dof).finished();
-                v = (VectorXd(n) << v, 0.0).finished();
-                a = (VectorXd(n) << a, 0.0).finished();
-                p = (VectorXd(n) << p, 0.0).finished();
+            size_t n = u.size() + 1;
+            u = (VectorXd(n) << u, u_dof).finished();
+            v = (VectorXd(n) << v, 0.0).finished();
+            a = (VectorXd(n) << a, 0.0).finished();
+            p = (VectorXd(n) << p, 0.0).finished();
 
-                return Dof{type, n-1};
-            }
-            case false:
-            {
-                size_t n = uf.size() + 1;
-                uf = (VectorXd(n) << uf, u_dof).finished();
+            return Dof{active, n-1};
+        }
+        else
+        {
+            size_t n = uf.size() + 1;
+            uf = (VectorXd(n) << uf, u_dof).finished();
 
-                return Dof{type, n-1};
-            }
+            return Dof{active, n-1};
         }
     }
 

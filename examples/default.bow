@@ -1,23 +1,41 @@
 {
     "limb": {
         "width": {
-            "args": [0.0, 1.0],
-            "vals": [0.05, 0.01]
+            "args": [
+                0.0,
+                1.0
+            ],
+            "vals": [
+                0.05,
+                0.01
+            ]
         },
         "layers": [
             {
-                "name": "Default",
+                "name": "",
                 "height": {
-                    "args": [0.0, 1.0],
-                    "vals": [0.01, 0.008]
+                    "args": [
+                        0.0,
+                        1.0
+                    ],
+                    "vals": [
+                        0.01,
+                        0.008
+                    ]
                 },
                 "rho": 500.0,
-                "E": 40.0e9
+                "E": 40000000000.0
             }
         ],
         "curvature": {
-            "args": [0.3, 0.4],
-            "vals": [-1.0, 1.0]
+            "args": [
+                0.3,
+                0.4
+            ],
+            "vals": [
+                -1.0,
+                1.0
+            ]
         },
         "offset_x": 0.0,
         "offset_y": 0.0,
@@ -37,9 +55,9 @@
         "arrow_mass": 0.02
     },
     "settings": {
-        "n_limb_elements": 25,
-        "n_string_elements": 25,
-        "step_factor": 0.8
+        "n_elements_limb": 25,
+        "n_elements_string": 25,
+        "step_factor": 0.5
     },
     "meta": {
         "comments": "",

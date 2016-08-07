@@ -75,6 +75,6 @@ public:
     virtual void updateView(const T& data) = 0;
 
 private:
-    ViewFunction<T> view_fn;
     Document& doc;
+    ViewFunction<T> view_fn;
 };

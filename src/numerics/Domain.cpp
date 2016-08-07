@@ -1,7 +1,7 @@
 #include "Domain.hpp"
 
 template<>
-void check_domain<Domain::All>(double val)
+void check_domain<Domain::All>(double /*val*/)
 {
 
 }

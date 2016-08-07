@@ -90,12 +90,12 @@ private slots:
 
     bool save()
     {
-
+        return false;
     }
 
     bool saveAs()
     {
-
+        return false;
     }
 
     void about()

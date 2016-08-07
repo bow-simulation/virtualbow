@@ -37,7 +37,7 @@ public:
         this->phi_ref_1 = phi_ref_1;
     }
 
-    virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> v)
+    virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> /*v*/)
     {
         dx = u(dofs[3]) - u(dofs[0]);
         dy = u(dofs[4]) - u(dofs[1]);

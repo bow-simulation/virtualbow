@@ -16,7 +16,9 @@ int main()
     //data.save("../examples/default.bow");
 
     InputData data;
-    data.load("../examples/default.bow");
+    data.save("../examples/default.bow");
+
+    //data.load("../examples/default.bow");
 
     DiscreteLimb limb(data);
 

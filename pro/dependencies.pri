@@ -1,6 +1,4 @@
-INCLUDEPATH += /home/s/Libraries/Eigen-3.2.8 \
-               /home/s/Libraries/Catch-1.5.6 \
-               /home/s/Libraries/Boost-1.61.0 \
-               /home/s/Libraries/Cereal-1.1.2/include \
-
-# QCustomPlot 1.3.2
+INCLUDEPATH += /media/s/Daten/Libraries/Eigen-3.2.9 \
+               /media/s/Daten/Libraries/Catch-1.5.6 \
+               /media/s/Daten/Libraries/Boost-1.61.0 \
+               /media/s/Daten/Libraries/Cereal-1.2.0/include \
