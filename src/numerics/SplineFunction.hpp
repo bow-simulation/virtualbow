@@ -10,6 +10,8 @@ public:
     SplineFunction(DataSeries data);
 
     double operator()(double arg) const;
+    double arg_min() const;
+    double arg_max() const;
     DataSeries sample(size_t n_points) const;
 
 private:

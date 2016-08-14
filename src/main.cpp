@@ -16,19 +16,18 @@ int main()
     //data.save("../examples/default.bow");
 
     InputData data;
-    data.save("../examples/default.bow");
-
-    //data.load("../examples/default.bow");
+    data.load("../examples/layers.bow");
 
     DiscreteLimb limb(data);
 
     for(size_t i = 0; i < limb.s.size(); ++i)
     {
-        qInfo() << limb.s[i] << ", " << limb.x[i] << ", " << limb.y[i];
+        qInfo() << limb.s[i] << ", " << limb.hc[i];
     }
 
     return 0;
 }
+
 
 /*
 int main(int argc, char *argv[])

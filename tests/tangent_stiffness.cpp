@@ -59,7 +59,8 @@ TEST_CASE("Tangent stiffness matrix: BeamElement")
         Node node0 = system.create_node({{x0, y0, phi0}}, {{true, true, true}});
         Node node1 = system.create_node({{x1, y1, phi1}}, {{true, true, true}});
 
-        BeamElement element01(node0, node1, EA, EI, 0.0, 0.0, L);
+        BeamElement element01(node0, node1, 0.0, L);
+        element01.set_stiffness(EA, EI, 0.0);
         system.add_element(element01);
 
         system.update_element_states();

@@ -16,7 +16,7 @@ public:
         : m_args(args), m_vals(vals)
     {
         if(args.size() != vals.size())
-            throw std::runtime_error("Arguments and values must have the same size");
+            throw std::runtime_error("Arguments and values have a different size");
     }
 
     void add(double arg, double val)

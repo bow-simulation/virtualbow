@@ -19,22 +19,28 @@ private:
     Eigen::Matrix<double, 3, 3> C;
 
 public:
-    BeamElement(Node nd0, Node nd1, double Cee, double Ckk, double Cek, double rhoA, double L)
+    BeamElement(Node nd0, Node nd1, double rhoA, double L)
         : dofs{{nd0.x, nd0.y, nd0.phi, nd1.x, nd1.y, nd1.phi}},
           phi_ref_0(0.0),
           phi_ref_1(0.0),
           rhoA(rhoA),
-          L(L)
+          L(L),
+          C(Eigen::Matrix<double, 3, 3>::Zero())
     {
-        C << Cee,    -Cek,     Cek,
-            -Cek, 4.0*Ckk, 2.0*Ckk,
-             Cek, 2.0*Ckk, 4.0*Ckk;
+
     }
 
     void set_reference_angles(double phi_ref_0, double phi_ref_1)
     {
         this->phi_ref_0 = phi_ref_0;
         this->phi_ref_1 = phi_ref_1;
+    }
+
+    void set_stiffness(double Cee, double Ckk, double Cek)
+    {
+        C << Cee,    -Cek,     Cek,
+            -Cek, 4.0*Ckk, 2.0*Ckk,
+             Cek, 2.0*Ckk, 4.0*Ckk;
     }
 
     virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> /*v*/)

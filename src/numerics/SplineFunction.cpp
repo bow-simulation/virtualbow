@@ -51,6 +51,16 @@ double SplineFunction::operator()(double arg) const
     return ((a[i]*h + b[i])*h + c[i])*h + x[i];
 }
 
+double SplineFunction::arg_min() const
+{
+    return t.front();
+}
+
+double SplineFunction::arg_max() const
+{
+    return t.back();
+}
+
 DataSeries SplineFunction::sample(size_t n_points) const
 {
     double arg0 = t.front();

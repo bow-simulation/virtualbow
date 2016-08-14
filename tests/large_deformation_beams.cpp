@@ -36,7 +36,9 @@ TEST_CASE("Large deformation cantilever")
     // Create elements
     for(unsigned i = 0; i < N; ++i)
     {
-        elements.push_back(BeamElement(nodes[i], nodes[i+1], E*A, E*I, 0.0, 0.0, L/double(N)));
+        BeamElement element(nodes[i], nodes[i+1], 0.0, L/double(N));
+        element.set_stiffness(E*A, E*I, 0.0);
+        elements.push_back(element);
     }
     system.add_elements(elements);
 
@@ -90,7 +92,8 @@ TEST_CASE("Large deformation circular beam")
         double dist = system.get_distance(nodes[i], nodes[i+1]);
         double angle = system.get_angle(nodes[i], nodes[i+1]);
 
-        BeamElement element(nodes[i], nodes[i+1], EA, EI, 0.0, 0.0, dist);
+        BeamElement element(nodes[i], nodes[i+1], 0.0, dist);
+        element.set_stiffness(EA, EI, 0.0);
         element.set_reference_angles(angle - system.get_u()(nodes[i].phi),
                                      angle - system.get_u()(nodes[i+1].phi));
 
