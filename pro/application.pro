@@ -40,4 +40,7 @@ HEADERS += \
     ../src/model/BowParameters.hpp \
     ../src/gui/Document.hpp \
     ../src/model/InputData.hpp \
-    ../src/model/DiscreteLimb.hpp
+    ../src/model/DiscreteLimb.hpp \
+    ../src/model/BowModel.hpp \
+    ../src/model/OutputData.hpp \
+    ../src/numerics/SecantMethod.hpp

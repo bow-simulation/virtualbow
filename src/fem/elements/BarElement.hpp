@@ -18,7 +18,7 @@ private:
     double dx;
     double dy;
     double L_new;   // Actual length
-    double L_dot;   // Time derivative of length
+    double L_dot;   // Time derivative of actual length
 
 public:
     BarElement(Node nd0, Node nd1, double L, double EA, double etaA, double rhoA)
@@ -29,6 +29,11 @@ public:
           rhoA(rhoA)
     {
 
+    }
+
+    void set_length(double val)
+    {
+        L = val;
     }
 
     virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> v)

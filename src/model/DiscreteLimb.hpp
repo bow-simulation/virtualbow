@@ -21,7 +21,7 @@ struct DiscreteLimb
     std::vector<double> y;
     std::vector<double> phi;
 
-    // Properties
+    // Section properties
     std::vector<double> Cee;
     std::vector<double> Ckk;
     std::vector<double> Cek;
@@ -31,7 +31,12 @@ struct DiscreteLimb
     DiscreteLimb(const InputData& input)
     {
         calculate_nodes(input);
-        calculate_properties(input);
+        calculate_section_properties(input);
+    }
+
+    DiscreteLimb()  // Todo: Remove this, find better solution
+    {
+
     }
 
 private:
@@ -67,10 +72,11 @@ private:
         integrate_n_steps(stepper, system, z0, s0, ds, n, observer);
     }
 
-    void calculate_properties(const InputData& input)
+    void calculate_section_properties(const InputData& input)
     {
         // Construct splines for layer geometry
         SplineFunction layer_width(input.limb.width);
+
         std::vector<SplineFunction> layer_heights;
         for(size_t i = 0; i < input.limb.layers.size(); ++i)
         {
@@ -78,7 +84,7 @@ private:
         }
 
         // Calculate section properties at every node
-        for(size_t i = 0; i < s.size(); ++i)    // Iterate over nodes
+        for(size_t i = 0; i < s.size(); ++i)
         {
             Cee.push_back(0.0);
             Ckk.push_back(0.0);
@@ -86,12 +92,12 @@ private:
             rhoA.push_back(0.0);
             hc.push_back(0.0);
 
-            double yu = 0.0;    // Upper Position layer top
-            double yl = 0.0;    // Position layer bottom
+            double p = s[i]/s.back();   // Relative position along the limb curve
+            double yu = 0.0;            // Upper border of the layer
+            double yl = 0.0;            // Lower border of the layer
 
-            double p = s[i]/s.back();
-
-            for(size_t j = 0; j < input.limb.layers.size(); ++j)    // Iterate over layers
+            // Iterate over layers and sum up section properties
+            for(size_t j = 0; j < input.limb.layers.size(); ++j)
             {
                 if(p >= layer_heights[j].arg_min() && p <= layer_heights[j].arg_max()) // Todo: Abstract this?
                 {

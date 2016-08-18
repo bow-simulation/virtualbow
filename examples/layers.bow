@@ -75,12 +75,12 @@
     "string": {
         "strand_stiffness": 3100.0,
         "strand_density": 0.05,
-        "n_strands": 10,
+        "n_strands": 50,
         "center_mass": 0.0,
         "end_mass": 0.0
     },
     "operation": {
-        "brace_height": 0.2,
+        "brace_height": 0.46,
         "draw_length": 0.7,
         "arrow_mass": 0.02
     },

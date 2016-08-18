@@ -1,0 +1,31 @@
+#pragma once
+#include "DiscreteLimb.hpp"
+
+struct BowOutput
+{
+    /*
+    pub time: Vec<f64>,
+    pub draw_force: Vec<f64>,
+
+    pub pos_limb: Vec<Vec<[f64; 2]>>,
+    pub vel_limb: Vec<Vec<[f64; 2]>>,
+    pub acc_limb: Vec<Vec<[f64; 2]>>,
+
+    pub pos_string: Vec<Vec<[f64; 2]>>,
+    pub vel_string: Vec<Vec<[f64; 2]>>,
+    pub acc_string: Vec<Vec<[f64; 2]>>,
+    */
+};
+
+struct BowSetup
+{
+    DiscreteLimb limb;
+    double string_length;
+};
+
+struct OutputData
+{
+    BowSetup setup;
+    BowOutput statics;
+    BowOutput dynamics;
+};

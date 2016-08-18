@@ -124,6 +124,7 @@ public:
     }
 
     // Todo: Should this be done via a View instead? Problem: Add vs set
+    // One solution: Replace get, add with get, set. Implement add as set(get+add)
     double get_external_force(Dof dof)
     {
         if(dof.active)
@@ -147,7 +148,7 @@ public:
         return std::hypot(dx, dy);
     }
 
-    // Angle between the x-axis and the line connecting node_a and node_b
+    // Angle between the x-axis and the line connecting node_a to node_b
     double get_angle(Node node_a, Node node_b)
     {
         double dx = get_u()(node_b.x) - get_u()(node_a.x);
@@ -156,13 +157,14 @@ public:
         return std::atan2(dy, dx);
     }
 
+    // Todo: Rename statics methods to 'solve_equilibrium' and 'solve_equilibrium_path'?
     void solve_statics_lc()
     {
         v.setZero();
         a.setZero();
 
         unsigned max_iter = 50;     // Todo: Magic number
-        double epsilon = 1e-8;      // Todo: Magic number
+        double epsilon = 1e-6;      // Todo: Magic number
 
         Eigen::LDLT<Eigen::MatrixXd> stiffness_dec;
         Eigen::MatrixXd K(dofs(), dofs());
@@ -272,12 +274,20 @@ public:
         };
 
         double init_displacement = u(dof.index);
-        double delta_displacement = target_displacement - init_displacement;
-
-        for(unsigned i = 0; i < n_steps; ++i)
+        // Todo: Separate into different methods
+        // Todo: Think about meaning of 'n_steps'. Number of times the newton method is employed? Or number of intervals in between?
+        if(n_steps <= 1)
         {
-            double displacement = init_displacement + delta_displacement*double(i)/double(n_steps - 1);
-            solve_equilibrium(displacement);
+            solve_equilibrium(init_displacement);
+        }
+        else
+        {
+            double delta_displacement = target_displacement - init_displacement;
+            for(unsigned i = 0; i < n_steps; ++i)
+            {
+                double displacement = init_displacement + delta_displacement*double(i)/double(n_steps - 1);
+                solve_equilibrium(displacement);
+            }
         }
     }
 
@@ -322,7 +332,51 @@ public:
         }
     }
 
-public: // Todo: private
+    // Todo: tangent stiffness methods only need to be public for tests. Wat do?
+    void get_tangent_stiffness(MatrixXd& K) const
+    {
+        K.setZero();
+
+        MatrixView<Dof> view(
+        [&](Dof dof_row, Dof dof_col, double val)
+        {
+            if(dof_row.active && dof_col.active)
+                K(dof_row.index, dof_col.index) += val;
+        });
+
+        for(auto e: elements)
+        {
+            e->get_tangent_stiffness(view);
+        }
+    }
+
+    // Numeric stiffness matrix via central difference quotient. Only for testing purposes.
+    void get_numeric_tangent_stiffness(MatrixXd& K, double h)
+    {
+        K.setZero();
+
+        Eigen::VectorXd q_fwd = Eigen::VectorXd::Zero(dofs());
+        Eigen::VectorXd q_bwd = Eigen::VectorXd::Zero(dofs());
+
+        for(std::size_t i = 0; i < dofs(); ++i)
+        {
+            double ui = u(i);
+
+            u(i) = ui + h;
+            update_element_states();
+            get_internal_forces(q_fwd);
+
+            u(i) = ui - h;
+            update_element_states();
+            get_internal_forces(q_bwd);
+
+            u(i) = ui;
+
+            K.col(i) = (q_fwd - q_bwd)/(2.0*h);
+        }
+    }
+
+private:
     void update_element_states()
     {
         for(auto e: elements)
@@ -372,49 +426,6 @@ public: // Todo: private
         for(auto e: elements)
         {
             e->get_internal_forces(view);
-        }
-    }
-
-    void get_tangent_stiffness(MatrixXd& K) const
-    {
-        K.setZero();
-
-        MatrixView<Dof> view(
-        [&](Dof dof_row, Dof dof_col, double val)
-        {
-            if(dof_row.active && dof_col.active)
-                K(dof_row.index, dof_col.index) += val;
-        });
-
-        for(auto e: elements)
-        {
-            e->get_tangent_stiffness(view);
-        }
-    }
-
-    // Numeric stiffness matrix via central difference quotient. Only for testing purposes.
-    void get_numeric_tangent_stiffness(MatrixXd& K, double h)
-    {
-        K.setZero();
-
-        Eigen::VectorXd q_fwd = Eigen::VectorXd::Zero(dofs());
-        Eigen::VectorXd q_bwd = Eigen::VectorXd::Zero(dofs());
-
-        for(std::size_t i = 0; i < dofs(); ++i)
-        {
-            double ui = u(i);
-
-            u(i) = ui + h;
-            update_element_states();
-            get_internal_forces(q_fwd);
-
-            u(i) = ui - h;
-            update_element_states();
-            get_internal_forces(q_bwd);
-
-            u(i) = ui;
-
-            K.col(i) = (q_fwd - q_bwd)/(2.0*h);
         }
     }
 };

@@ -63,10 +63,6 @@ TEST_CASE("Tangent stiffness matrix: BeamElement")
         element01.set_stiffness(EA, EI, 0.0);
         system.add_element(element01);
 
-        system.update_element_states();
-        system.update_element_states();
-        system.update_element_states();
-
         check_stiffness_matrix(system);
     };
 

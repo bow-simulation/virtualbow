@@ -6,15 +6,17 @@
 #include "gui/Document.hpp"
 
 
-#include "model/InputData.hpp"
-#include "model/DiscreteLimb.hpp"
+#include "model/BowModel.hpp"
 
 int main()
 {
-    //InputData data;
-    //data.limb.layers.push_back(Limb::Layer());
-    //data.save("../examples/default.bow");
+    InputData input;
+    input.load("../examples/layers.bow");
 
+    OutputData output = BowModel::simulate(input, true, false);
+
+
+    /*
     InputData data;
     data.load("../examples/layers.bow");
 
@@ -24,6 +26,7 @@ int main()
     {
         qInfo() << limb.s[i] << ", " << limb.hc[i];
     }
+    */
 
     return 0;
 }
