@@ -6,6 +6,7 @@
 #include "../fem/System.hpp"
 #include "../fem/elements/BeamElement.hpp"
 #include "../fem/elements/BarElement.hpp"
+#include "../fem/elements/MassElement.hpp"
 #include "../numerics/SecantMethod.hpp"
 
 #include <QtCore>
@@ -34,10 +35,16 @@ private:
     DiscreteLimb limb;
 
     System system;
+
     std::vector<BeamElement> elements_limb;
     std::vector<BarElement> elements_string;
     std::vector<Node> nodes_limb;
     std::vector<Node> nodes_string;
+
+    MassElement mass_limb_tip;
+    MassElement mass_string_tip;
+    MassElement mass_string_center;
+    MassElement mass_arrow;
 
     BowModel(const InputData& input, OutputData& output)
         : input(input),
@@ -116,6 +123,13 @@ private:
         // or maybe even let system own elements. Look at boost pointer container library.
         system.add_elements(elements_limb);
         system.add_elements(elements_string);
+
+        // Create mass elements
+        // MassElement(Node nd, double m, double I)
+        mass_limb_tip = MassElement(nodes_limb.back(), input.limb.tip_mass);
+        mass_string_tip = MassElement(nodes_string.back(), input.string.end_mass);
+        mass_string_center = MassElement(nodes_string.front(), 0.5*input.string.center_mass);   // 0.5 because of symmetric model
+        mass_arrow = MassElement(nodes_string.front(), 0.5*input.operation.arrow_mass);         // 0.5 because of symmetric model
 
         // Takes a string length, iterates to equilibrium with the constraint of the brace height
         // and returns the angle of the string center

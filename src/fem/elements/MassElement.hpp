@@ -12,8 +12,14 @@ private:
     double I;
 
 public:
-    MassElement(Node nd, double m, double I)
-        : node(nd), m(m), I(I)
+    MassElement(Node node, double m, double I = 0.0)
+        : node(node), m(m), I(I)
+    {
+
+    }
+
+    // Todo: Find better solution than this (necessary because MassElement members of BowModel)
+    MassElement()
     {
 
     }

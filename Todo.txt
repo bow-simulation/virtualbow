@@ -1,1 +1,6 @@
 * Find a way to handle comma vs dot as decimal separator, otherwise note in docs
+
+* Find a way to prevent changing element properties during simulation. Could be done by having the system own
+  the elements and only pass a const& of the system in the simulation callbacks.
+
+* Make simulation callbacks in System templates
