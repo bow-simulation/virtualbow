@@ -4,3 +4,7 @@
   the elements and only pass a const& of the system in the simulation callbacks.
 
 * Make simulation callbacks in System templates
+
+* get_u, get_v, get_a in system could be public fields instead of methods. Saves some parenthesis when calling.
+
+

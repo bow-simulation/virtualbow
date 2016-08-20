@@ -80,7 +80,7 @@
         "end_mass": 0.0
     },
     "operation": {
-        "brace_height": 0.46,
+        "brace_height": 0.2,
         "draw_length": 0.7,
         "arrow_mass": 0.02
     },

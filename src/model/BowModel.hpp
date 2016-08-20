@@ -16,11 +16,11 @@ class BowModel
 public:
     static OutputData simulate(const InputData& input, bool statics, bool dynamics)
     {
-        OutputData output;
-        BowModel model(input, output);
+        BowModel model(input);
 
         // Todo: Omit detailed static simulation if statics == false
-        model.simulate_setup();
+        OutputData output;
+        output.setup = model.simulate_setup();
         model.simulate_statics();
 
         if(dynamics)
@@ -31,7 +31,6 @@ public:
 
 private:
     const InputData& input;
-    OutputData& output;
     DiscreteLimb limb;
 
     System system;
@@ -46,15 +45,14 @@ private:
     MassElement mass_string_center;
     MassElement mass_arrow;
 
-    BowModel(const InputData& input, OutputData& output)
+    BowModel(const InputData& input)
         : input(input),
-          output(output),
           limb(input)
     {
 
     }
 
-    void simulate_setup()
+    BowSetup simulate_setup()
     {
         size_t n = input.settings.n_elements_limb;
         size_t k = input.settings.n_elements_string;
@@ -152,33 +150,54 @@ private:
         string_length = secant_method(try_string_length, 0.95*string_length, 0.9*string_length, 1e-8, 50);   // Todo: Magic numbers
 
         // Store setup results
-        output.setup.limb = limb;
-        output.setup.string_length = string_length;
+        BowSetup setup;
+        setup.limb = limb;
+        setup.string_length = string_length;
 
-        /*
-        for(auto& node: nodes_limb)
-        {
-            qInfo() << system.get_u()(node.x) << ", " << system.get_u()(node.y);
-        }
+        return setup;
 
-        qInfo() << "=============";
-
-        for(auto& node: nodes_string)
-        {
-            qInfo() << system.get_u()(node.x) << ", " << system.get_u()(node.y);
-        }
-        */
 
     }
 
-    void simulate_statics()
+    BowStates simulate_statics()
     {
-        qInfo() << "Simulate Statics";
+        BowStates states;
+
+        // Todo: Magic number
+        system.solve_statics_dc(nodes_string[0].x, input.operation.draw_length, 50, [&]()
+        {
+            get_bow_state(states);
+        });
+
+        return states;
     }
 
-    void simulate_dynamics()
+    BowStates simulate_dynamics()
     {
-        qInfo() << "Simulate Dynamics";
+        BowStates states;
+        return states;
+    }
+
+    void get_bow_state(BowStates& states)
+    {
+        states.draw_length.push_back(system.get_u()(nodes_string[0].x));
+        states.draw_force.push_back(system.get_external_force(nodes_string[0].x));
+
+        qInfo() << states.draw_length.back() << ", " << states.draw_force.back();
     }
 
 };
+
+/*
+for(auto& node: nodes_limb)
+{
+    qInfo() << system.get_u()(node.x) << ", " << system.get_u()(node.y);
+}
+
+qInfo() << "=============";
+
+for(auto& node: nodes_string)
+{
+    qInfo() << system.get_u()(node.x) << ", " << system.get_u()(node.y);
+}
+*/

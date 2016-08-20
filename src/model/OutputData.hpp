@@ -1,8 +1,11 @@
 #pragma once
 #include "DiscreteLimb.hpp"
 
-struct BowOutput
+struct BowStates
 {
+    std::vector<double> draw_length;
+    std::vector<double> draw_force;
+
     /*
     pub time: Vec<f64>,
     pub draw_force: Vec<f64>,
@@ -26,6 +29,6 @@ struct BowSetup
 struct OutputData
 {
     BowSetup setup;
-    BowOutput statics;
-    BowOutput dynamics;
+    BowStates statics;
+    BowStates dynamics;
 };
