@@ -82,11 +82,11 @@
     "operation": {
         "brace_height": 0.2,
         "draw_length": 0.7,
-        "arrow_mass": 0.02
+        "arrow_mass": 0.5
     },
     "settings": {
         "n_elements_limb": 25,
-        "n_elements_string": 25,
+        "n_elements_string": 20,
         "step_factor": 0.5
     },
     "meta": {

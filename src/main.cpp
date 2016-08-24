@@ -13,7 +13,7 @@ int main()
     InputData input;
     input.load("../examples/layers.bow");
 
-    OutputData output = BowModel::simulate(input, true, false);
+    OutputData output = BowModel::simulate(input, true, true);
 
 
     /*

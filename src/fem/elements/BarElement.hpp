@@ -36,6 +36,11 @@ public:
         L = val;
     }
 
+    double get_node_mass() const    // Todo: Unify with beam element, use this function in mass matrix
+    {
+        return 0.5*rhoA*L;
+    }
+
     virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> v)
     {
         dx = u(nodes[1].x) - u(nodes[0].x);
@@ -47,7 +52,7 @@ public:
 
     virtual void get_masses(VectorView<Dof> M) const override
     {
-        double m = 0.5*rhoA*L;
+        double m = get_node_mass();
 
         M(nodes[0].x) += m;
         M(nodes[0].y) += m;

@@ -3,8 +3,10 @@
 
 struct BowStates
 {
-    std::vector<double> draw_length;
+    std::vector<double> time;
     std::vector<double> draw_force;
+    std::vector<double> pos_string;
+    std::vector<double> pos_arrow;
 
     /*
     pub time: Vec<f64>,

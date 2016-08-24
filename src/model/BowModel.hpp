@@ -7,6 +7,7 @@
 #include "../fem/elements/BeamElement.hpp"
 #include "../fem/elements/BarElement.hpp"
 #include "../fem/elements/MassElement.hpp"
+#include "../fem/elements/ContactElement1D.hpp"
 #include "../numerics/SecantMethod.hpp"
 
 #include <QtCore>
@@ -39,11 +40,14 @@ private:
     std::vector<BarElement> elements_string;
     std::vector<Node> nodes_limb;
     std::vector<Node> nodes_string;
+    Node node_arrow;
 
     MassElement mass_limb_tip;
     MassElement mass_string_tip;
     MassElement mass_string_center;
     MassElement mass_arrow;
+
+    ContactElement1D contact_arrow;
 
     BowModel(const InputData& input)
         : input(input),
@@ -104,8 +108,10 @@ private:
             Node node = system.create_node({{x, y, 0.0}}, {{true, (i != 0), false}});
             nodes_string.push_back(node);
         }
-
         nodes_string.push_back(nodes_limb.back());
+
+        // Create arrow node
+        node_arrow = system.create_node({{xc, yc, 0.0}}, {{true, false, false}});
 
         // Create string elements
         double rhoA = double(input.string.n_strands)*input.string.strand_density;
@@ -127,7 +133,16 @@ private:
         mass_limb_tip = MassElement(nodes_limb.back(), input.limb.tip_mass);
         mass_string_tip = MassElement(nodes_string.back(), input.string.end_mass);
         mass_string_center = MassElement(nodes_string.front(), 0.5*input.string.center_mass);   // 0.5 because of symmetric model
-        mass_arrow = MassElement(nodes_string.front(), 0.5*input.operation.arrow_mass);         // 0.5 because of symmetric model
+        mass_arrow = MassElement(node_arrow, 0.5*input.operation.arrow_mass);         // 0.5 because of symmetric model
+
+        // Arrow contact with default values for static analysis
+        contact_arrow = ContactElement1D(node_arrow, nodes_string[0], 1e5, 0.0); // Todo: Magic numbers
+
+        system.add_element(mass_limb_tip);
+        system.add_element(mass_string_tip);
+        system.add_element(mass_string_center);
+        system.add_element(mass_arrow);
+        system.add_element(contact_arrow);
 
         // Takes a string length, iterates to equilibrium with the constraint of the brace height
         // and returns the angle of the string center
@@ -155,35 +170,67 @@ private:
         setup.string_length = string_length;
 
         return setup;
-
-
     }
 
     BowStates simulate_statics()
     {
         BowStates states;
-
-        // Todo: Magic number
-        system.solve_statics_dc(nodes_string[0].x, input.operation.draw_length, 50, [&]()
+        system.solve_statics_dc(nodes_string[0].x, input.operation.draw_length, 50, [&]()   // Todo: Magic number
         {
             get_bow_state(states);
         });
+
+        qInfo() << "===============";
 
         return states;
     }
 
     BowStates simulate_dynamics()
     {
+        // Adjust arrow contact based on static results
+        double max_penetration = 1e-4*(input.operation.draw_length - input.operation.brace_height);  // Todo: Magic number
+        double max_force = system.get_external_force(nodes_string[0].x);    // Todo: Better way to get static results, maybe pass reference.    // Todo: Assumes that max draw force is reached at end of draw
+        double kc = max_force/max_penetration;
+
+        double ml = input.operation.arrow_mass;
+        double mr = input.string.center_mass + elements_string[0].get_node_mass();  // Todo: Find better (less fragile) way to get this mass
+        double dc = 2.0*std::sqrt(kc*ml*mr/(ml + mr));
+
+        contact_arrow.set_stiffness(kc);
+        contact_arrow.set_damping(dc);
+        contact_arrow.set_one_sided(true);
+
+        // Remove draw force    // Todo: Doesn't really belong in this method
+        system.set_external_force(nodes_string[0].x, 0.0);
+
+        double T = 0.05;
+        double t = 0.0;
+        double dt = 1e-4;
+
         BowStates states;
+        system.solve_dynamics(input.settings.step_factor, [&]()
+        {
+            if(system.get_time() > t + dt)
+            {
+                get_bow_state(states);
+                t = system.get_time();
+            }
+
+            return t < T;
+        });
+
         return states;
     }
 
     void get_bow_state(BowStates& states)
     {
-        states.draw_length.push_back(system.get_u()(nodes_string[0].x));
+        states.time.push_back(system.get_time());
         states.draw_force.push_back(system.get_external_force(nodes_string[0].x));
+        states.pos_string.push_back(system.get_u()(nodes_string[0].x));
+        states.pos_arrow.push_back(system.get_u()(node_arrow.x));
 
-        qInfo() << states.draw_length.back() << ", " << states.draw_force.back();
+        //qInfo() << states.pos_string.back() << ", " << states.draw_force.back();
+        qInfo() << states.time.back() << ", " << states.pos_arrow.back() - states.pos_string.back();
     }
 
 };

@@ -43,4 +43,5 @@ HEADERS += \
     ../src/model/DiscreteLimb.hpp \
     ../src/model/BowModel.hpp \
     ../src/model/OutputData.hpp \
-    ../src/numerics/SecantMethod.hpp
+    ../src/numerics/SecantMethod.hpp \
+    ../src/fem/elements/ContactElement1D.hpp
