@@ -22,15 +22,17 @@ private:
     VectorXd uf;    // Displacements of fixed DOFs
 
 public:
-    const VectorView<Dof> get_u;    // Todo: Rename to view_u, view_v, view_a or something better?
-    const VectorView<Dof> get_v;
-    const VectorView<Dof> get_a;
+    VectorView<Dof> get_u;    // Todo: Rename to view_u, view_v, view_a or something better?
+    VectorView<Dof> get_v;
+    VectorView<Dof> get_a;
+    VectorView<Dof> get_p;
 
     System()
         : t(0.0),
-          get_u([&](Dof dof){ return dof.active ? u(dof.index) : uf(dof.index); }, nullptr),
-          get_v([&](Dof dof){ return dof.active ? v(dof.index) : 0.0;           }, nullptr),
-          get_a([&](Dof dof){ return dof.active ? a(dof.index) : 0.0;           }, nullptr)
+          get_u([&](Dof dof){ return dof.active ? u(dof.index) : uf(dof.index); }, nullptr, nullptr),
+          get_v([&](Dof dof){ return dof.active ? v(dof.index) : 0.0;           }, nullptr, nullptr),
+          get_a([&](Dof dof){ return dof.active ? a(dof.index) : 0.0;           }, nullptr, nullptr),
+          get_p([&](Dof dof){ return dof.active ? p(dof.index) : 0.0;           }, [&](Dof dof, double val){ if(dof.active) p(dof.index) = val; }, nullptr)
     {
 
     }
@@ -86,22 +88,6 @@ public:
     double get_time() const
     {
         return t;
-    }
-
-    // Todo: Should this be done via a View instead? Problem: Add vs set
-    // One solution: Replace get, add with get, set. Implement add as set(get+add)
-    double get_external_force(Dof dof)
-    {
-        if(dof.active)
-            return p(dof.index);
-        else
-            return 0.0;
-    }
-
-    void set_external_force(Dof dof, double val)
-    {
-        if(dof.active)
-            p(dof.index) = val;
     }
 
     // Euclidean distance between node_a and node_b
@@ -354,12 +340,7 @@ private:
     {
         M.setZero();
 
-        VectorView<Dof> view(
-        [&](Dof)
-        {
-            return 0.0;     // Todo: Unreachable
-        },
-
+        VectorView<Dof> view(nullptr, nullptr,
         [&](Dof dof, double val)
         {
             if(dof.active)
@@ -376,12 +357,7 @@ private:
     {
         q.setZero();
 
-        VectorView<Dof> view(
-        [&](Dof)
-        {
-            return 0.0;     // Todo: Unreachable
-        },
-
+        VectorView<Dof> view(nullptr, nullptr,
         [&](Dof dof, double val)
         {
             if(dof.active)

@@ -43,7 +43,7 @@ TEST_CASE("Large deformation cantilever")
     system.add_elements(elements);
 
 
-    system.set_external_force(nodes[N].y, F0);
+    system.get_p(nodes[N].y) = F0;
     system.solve_statics_lc();
 
     // Tip displacements
@@ -106,7 +106,7 @@ TEST_CASE("Large deformation circular beam")
         //std::cout << "phi = " << system.get_u()(nodes[N].phi) << "\n";
     });
 
-    double M_num = -system.get_external_force(nodes[N].phi);
+    double M_num = -system.get_p(nodes[N].phi);
     double M_ref = EI*R;
 
 

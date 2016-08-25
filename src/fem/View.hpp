@@ -21,6 +21,7 @@ class LocalVectorEntry
 {
 public:
     std::function<double(Key)>& get;
+    std::function<void(Key, double)>& set;
     std::function<void(Key, double)>& add;
     Key key;
 
@@ -31,6 +32,11 @@ public:
     }
 
     // Write
+    LocalVectorEntry<Key>& operator=(double rhs)
+    {
+        set(key, rhs);
+    }
+
     void operator+=(double rhs)
     {
         add(key, rhs);
@@ -47,6 +53,7 @@ class LocalVectorView
 {
 public:
     std::function<double(Key)>& get;
+    std::function<void(Key, double)>& set;
     std::function<void(Key, double)>& add;
     const std::array<Key, N>& keys;
 
@@ -80,12 +87,12 @@ public:
     // Index
     LocalVectorEntry<Key> operator()(size_t i)
     {
-        return LocalVectorEntry<Key>{get, add, keys[i]};
+        return LocalVectorEntry<Key>{get, set, add, keys[i]};
     }
 
     const LocalVectorEntry<Key> operator()(size_t i) const
     {
-        return LocalVectorEntry<Key>{get, add, keys[i]};
+        return LocalVectorEntry<Key>{get, set, add, keys[i]};
     }
 };
 
@@ -94,12 +101,15 @@ class VectorView
 {
 private:
     mutable std::function<double(Key)> get;
+    mutable std::function<void(Key, double)> set;
     mutable std::function<void(Key, double)> add;
 
 public:
     VectorView(std::function<double(Key)> get,
+               std::function<void(Key, double)> set,
                std::function<void(Key, double)> add)
         : get(get),
+          set(set),
           add(add)
     {
 
@@ -109,24 +119,24 @@ public:
     template<size_t N>
     LocalVectorView<Key, N> operator()(const std::array<Key, N>& keys)
     {
-        return LocalVectorView<Key, N>{get , add, keys};
+        return LocalVectorView<Key, N>{get, set, add, keys};
     }
 
     template<size_t N>
     const LocalVectorView<Key, N> operator()(const std::array<Key, N>& keys) const
     {
-        return LocalVectorView<Key, N>{get, add, keys};
+        return LocalVectorView<Key, N>{get, set, add, keys};
     }
 
-    // Single indes
+    // Single indices
     LocalVectorEntry<Key> operator()(Key key)
     {
-        return LocalVectorEntry<Key>{get, add, key};
+        return LocalVectorEntry<Key>{get, set, add, key};
     }
 
     const LocalVectorEntry<Key> operator()(Key key) const
     {
-        return LocalVectorEntry<Key>{get, add, key};
+        return LocalVectorEntry<Key>{get, set, add, key};
     }
 };
 

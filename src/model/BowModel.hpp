@@ -189,7 +189,7 @@ private:
     {
         // Adjust arrow contact based on static results
         double max_penetration = 1e-4*(input.operation.draw_length - input.operation.brace_height);  // Todo: Magic number
-        double max_force = system.get_external_force(nodes_string[0].x);    // Todo: Better way to get static results, maybe pass reference.    // Todo: Assumes that max draw force is reached at end of draw
+        double max_force = system.get_p(nodes_string[0].x);    // Todo: Better way to get static results, maybe pass reference.    // Todo: Assumes that max draw force is reached at end of draw
         double kc = max_force/max_penetration;
 
         double ml = input.operation.arrow_mass;
@@ -201,7 +201,7 @@ private:
         contact_arrow.set_one_sided(true);
 
         // Remove draw force    // Todo: Doesn't really belong in this method
-        system.set_external_force(nodes_string[0].x, 0.0);
+        system.get_p(nodes_string[0].x) = 0.0;
 
         double T = 0.05;
         double t = 0.0;
@@ -222,10 +222,10 @@ private:
         return states;
     }
 
-    void get_bow_state(BowStates& states)
+    void get_bow_state(BowStates& states) const
     {
         states.time.push_back(system.get_time());
-        states.draw_force.push_back(system.get_external_force(nodes_string[0].x));
+        states.draw_force.push_back(system.get_p(nodes_string[0].x));
         states.pos_string.push_back(system.get_u(nodes_string[0].x));
         states.pos_arrow.push_back(system.get_u(node_arrow.x));
 

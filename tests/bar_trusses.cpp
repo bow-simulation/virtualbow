@@ -61,8 +61,8 @@ TEST_CASE("Small deformation bar truss")
     system.add_element(element_03_09);
     system.add_element(element_09_05);
 
-    system.set_external_force(node_02.y, -F);
-    system.set_external_force(node_04.y, -F);
+    system.get_p(node_02.y) = -F;
+    system.get_p(node_04.y) = -F;
 
     system.solve_statics_lc();
 
@@ -95,7 +95,7 @@ TEST_CASE("Large deformation bar truss")
     system.solve_statics_dc(node02.y, 0.6*H, 100, [&]()
     {
         double s = system.get_u(node02.y);
-        double f_num = system.get_external_force(node02.y);
+        double f_num = system.get_p(node02.y);
 
         double L0 = M_SQRT2*H;
         double L = std::hypot(H, s);
