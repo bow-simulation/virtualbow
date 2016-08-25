@@ -81,8 +81,8 @@ private:
 
             // Todo: Document this
             double phi = system.get_angle(nodes_limb[i], nodes_limb[i+1]);
-            double phi0 = phi - system.get_u()(nodes_limb[i].phi);
-            double phi1 = phi - system.get_u()(nodes_limb[i+1].phi);
+            double phi0 = phi - system.get_u(nodes_limb[i].phi);
+            double phi1 = phi - system.get_u(nodes_limb[i+1].phi);
 
             BeamElement element(nodes_limb[i], nodes_limb[i+1], rhoA, L);
             element.set_reference_angles(phi0, phi1);
@@ -91,8 +91,8 @@ private:
         }
 
         // Limb tip
-        double xt = system.get_u()(nodes_limb.back().x);
-        double yt = system.get_u()(nodes_limb.back().y);
+        double xt = system.get_u(nodes_limb.back().x);
+        double yt = system.get_u(nodes_limb.back().y);
 
         // String center at brace height
         double xc = input.operation.brace_height;
@@ -226,8 +226,8 @@ private:
     {
         states.time.push_back(system.get_time());
         states.draw_force.push_back(system.get_external_force(nodes_string[0].x));
-        states.pos_string.push_back(system.get_u()(nodes_string[0].x));
-        states.pos_arrow.push_back(system.get_u()(node_arrow.x));
+        states.pos_string.push_back(system.get_u(nodes_string[0].x));
+        states.pos_arrow.push_back(system.get_u(node_arrow.x));
 
         //qInfo() << states.pos_string.back() << ", " << states.draw_force.back();
         qInfo() << states.time.back() << ", " << states.pos_arrow.back() - states.pos_string.back();

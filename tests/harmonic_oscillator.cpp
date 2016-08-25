@@ -40,8 +40,8 @@ TEST_CASE("Dynamic solution harmonic oscillator")
         double t = system.get_time();
 
         // Numerical solution
-        double s_num = system.get_u()(node_b.x) - l;
-        double v_num = system.get_v()(node_b.x);
+        double s_num = system.get_u(node_b.x) - l;
+        double v_num = system.get_v(node_b.x);
 
         // Analytical solution
         double s_ref = std::exp(-delta*t)*(A*std::sin(omega*t) + B*std::cos(omega*t));

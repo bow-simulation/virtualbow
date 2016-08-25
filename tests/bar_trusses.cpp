@@ -66,7 +66,7 @@ TEST_CASE("Small deformation bar truss")
 
     system.solve_statics_lc();
 
-    double s_numeric = -system.get_u()(node_03.y);
+    double s_numeric = -system.get_u(node_03.y);
     double s_analytic = (4.0+2.0*std::sqrt(2))*F*L/EA;
 
     REQUIRE(std::abs(s_numeric - s_analytic) < 1e-6);
@@ -94,7 +94,7 @@ TEST_CASE("Large deformation bar truss")
     // Solve for static equilibrium and get vertical deflection of node 02
     system.solve_statics_dc(node02.y, 0.6*H, 100, [&]()
     {
-        double s = system.get_u()(node02.y);
+        double s = system.get_u(node02.y);
         double f_num = system.get_external_force(node02.y);
 
         double L0 = M_SQRT2*H;

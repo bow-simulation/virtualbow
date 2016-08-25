@@ -13,8 +13,7 @@ class System
 private:
     std::vector<Element*> elements;
 
-    double t;
-
+    double t;       // Time
     VectorXd u;     // Displacements
     VectorXd v;     // Velocities
     VectorXd a;     // Accelerations
@@ -23,7 +22,15 @@ private:
     VectorXd uf;    // Displacements of fixed DOFs
 
 public:
-    System(): t(0.0)
+    const VectorView<Dof> get_u;    // Todo: Rename to view_u, view_v, view_a or something better?
+    const VectorView<Dof> get_v;
+    const VectorView<Dof> get_a;
+
+    System()
+        : t(0.0),
+          get_u([&](Dof dof){ return dof.active ? u(dof.index) : uf(dof.index); }, nullptr),
+          get_v([&](Dof dof){ return dof.active ? v(dof.index) : 0.0;           }, nullptr),
+          get_a([&](Dof dof){ return dof.active ? a(dof.index) : 0.0;           }, nullptr)
     {
 
     }
@@ -58,7 +65,7 @@ public:
 
     void add_element(Element& element)
     {
-        element.set_state(get_u(), get_v());
+        element.set_state(get_u, get_v);
         elements.push_back(&element);
     }
 
@@ -81,48 +88,6 @@ public:
         return t;
     }
 
-    const VectorView<Dof> get_u() const
-    {
-        return VectorView<Dof>(
-        [&](Dof dof)
-        {
-            if(dof.active)
-                return u(dof.index);
-            else
-                return uf(dof.index);
-        },
-
-        nullptr);
-    }
-
-    const VectorView<Dof> get_v() const
-    {
-        return VectorView<Dof>(
-        [&](Dof dof)
-        {
-            if(dof.active)
-                return v(dof.index);
-            else
-                return 0.0;
-        },
-
-        nullptr);
-    }
-
-    const VectorView<Dof> get_a() const
-    {
-        return VectorView<Dof>(
-        [&](Dof dof)
-        {
-            if(dof.active)
-                return a(dof.index);
-            else
-                return 0.0;
-        },
-
-        nullptr);
-    }
-
     // Todo: Should this be done via a View instead? Problem: Add vs set
     // One solution: Replace get, add with get, set. Implement add as set(get+add)
     double get_external_force(Dof dof)
@@ -142,8 +107,8 @@ public:
     // Euclidean distance between node_a and node_b
     double get_distance(Node node_a, Node node_b)
     {
-        double dx = get_u()(node_b.x) - get_u()(node_a.x);
-        double dy = get_u()(node_b.y) - get_u()(node_a.y);
+        double dx = get_u(node_b.x) - get_u(node_a.x);
+        double dy = get_u(node_b.y) - get_u(node_a.y);
 
         return std::hypot(dx, dy);
     }
@@ -151,8 +116,8 @@ public:
     // Angle between the x-axis and the line connecting node_a to node_b
     double get_angle(Node node_a, Node node_b)
     {
-        double dx = get_u()(node_b.x) - get_u()(node_a.x);
-        double dy = get_u()(node_b.y) - get_u()(node_a.y);
+        double dx = get_u(node_b.x) - get_u(node_a.x);
+        double dy = get_u(node_b.y) - get_u(node_a.y);
 
         return std::atan2(dy, dx);
     }
@@ -381,7 +346,7 @@ private:
     {
         for(auto e: elements)
         {
-            e->set_state(get_u(), get_v());
+            e->set_state(get_u, get_v);
         }
     }
 

@@ -47,8 +47,8 @@ TEST_CASE("Large deformation cantilever")
     system.solve_statics_lc();
 
     // Tip displacements
-    double ux_num = L - system.get_u()(nodes[N].x);
-    double uy_num = system.get_u()(nodes[N].y);
+    double ux_num = L - system.get_u(nodes[N].x);
+    double uy_num = system.get_u(nodes[N].y);
 
     // Reference displacements according to [1]
     double ux_ref = 0.5089228704;
@@ -94,8 +94,8 @@ TEST_CASE("Large deformation circular beam")
 
         BeamElement element(nodes[i], nodes[i+1], 0.0, dist);
         element.set_stiffness(EA, EI, 0.0);
-        element.set_reference_angles(angle - system.get_u()(nodes[i].phi),
-                                     angle - system.get_u()(nodes[i+1].phi));
+        element.set_reference_angles(angle - system.get_u(nodes[i].phi),
+                                     angle - system.get_u(nodes[i+1].phi));
 
         elements.push_back(element);
     }
@@ -111,8 +111,8 @@ TEST_CASE("Large deformation circular beam")
 
 
     double error_M = std::abs((M_num - M_ref)/M_ref);
-    double error_x = std::abs(system.get_u()(nodes[N].x));
-    double error_y = std::abs(system.get_u()(nodes[N].y));
+    double error_x = std::abs(system.get_u(nodes[N].x));
+    double error_y = std::abs(system.get_u(nodes[N].y));
 
     // Todo: Why is the error in the torque so much higher than the displacement error?
     REQUIRE(error_M < 1.1e-3);
