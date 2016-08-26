@@ -1,11 +1,24 @@
 #include "gui/MainWindow.hpp"
 #include "gui/SeriesEditor.hpp"
-#include "numerics/SplineFunction.hpp"
+#include "numerics/CubicSpline.hpp"
 #include <QtWidgets>
 
 #include "gui/Document.hpp"
 
+#include "numerics/LinearSpline.hpp"
 
+int main()
+{
+    DataSeries series({0, 1, 2, 3, 4}, {0, 1, 4, 9, 16});
+    LinearSpline spline(series);
+
+    qInfo() << spline(0);
+
+    return 0;
+}
+
+
+/*
 #include "model/BowModel.hpp"
 
 int main()
@@ -15,22 +28,9 @@ int main()
 
     OutputData output = BowModel::simulate(input, true, true);
 
-
-    /*
-    InputData data;
-    data.load("../examples/layers.bow");
-
-    DiscreteLimb limb(data);
-
-    for(size_t i = 0; i < limb.s.size(); ++i)
-    {
-        qInfo() << limb.s[i] << ", " << limb.hc[i];
-    }
-    */
-
     return 0;
 }
-
+*/
 
 /*
 int main(int argc, char *argv[])

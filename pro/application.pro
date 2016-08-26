@@ -12,11 +12,12 @@ QT += core \
 SOURCES += ../src/main.cpp \
     ../src/fem/elements/Element.cpp \
     ../src/gui/MainWindow.cpp \
-    ../src/numerics/SplineFunction.cpp \
     ../src/numerics/StepFunction.cpp \
     ../src/fem/System.cpp \
     ../src/numerics/Domain.cpp \
-    ../src/gui/Document.cpp
+    ../src/gui/Document.cpp \
+    ../src/numerics/CubicSpline.cpp \
+    ../src/numerics/LinearSpline.cpp
 
 HEADERS += \
     ../src/fem/elements/BarElement.hpp \
@@ -25,7 +26,6 @@ HEADERS += \
     ../src/fem/elements/Element.hpp \
     ../src/gui/MainWindow.hpp \
     ../src/numerics/TDMatrix.hpp \
-    ../src/numerics/SplineFunction.hpp \
     ../src/numerics/StepFunction.hpp \
     ../src/gui/BowEditor.hpp \
     ../src/fem/Node.hpp \
@@ -44,4 +44,6 @@ HEADERS += \
     ../src/model/BowModel.hpp \
     ../src/model/OutputData.hpp \
     ../src/numerics/SecantMethod.hpp \
-    ../src/fem/elements/ContactElement1D.hpp
+    ../src/fem/elements/ContactElement1D.hpp \
+    ../src/numerics/CubicSpline.hpp \
+    ../src/numerics/LinearSpline.hpp

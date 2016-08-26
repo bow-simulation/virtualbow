@@ -1,16 +1,17 @@
 #pragma once
 #include "InputData.hpp"
-#include "../numerics/SplineFunction.hpp"
+#include "../numerics/CubicSpline.hpp"
 #include "../numerics/StepFunction.hpp"
 
 #include <boost/numeric/odeint.hpp>
+#include <Eigen/Dense>
 
 // sigma(s) = He(s)*epsilon(s) + Hk(s)*kappa(s)
-struct DiscreteStresses
+struct DiscreteLayer
 {
     std::vector<double> s;
-    std::vector<double> He;
-    std::vector<double> Hk;
+    std::vector<std::array<double, 2>> He;
+    std::vector<std::array<double, 2>> Hk;
 };
 
 struct DiscreteLimb
@@ -28,6 +29,9 @@ struct DiscreteLimb
     std::vector<double> rhoA;
     std::vector<double> hc;          // Total cross section height (used for contact)
 
+    // Layer properties
+    std::vector<DiscreteLayer> layers;
+
     DiscreteLimb(const InputData& input)
     {
         calculate_nodes(input);
@@ -38,6 +42,13 @@ struct DiscreteLimb
     {
 
     }
+
+    /*
+    std::vector<std::array<double, 2>> calculate_stresses(size_t layer, const std::vector<double>& epsilon, const std::vector<double>& kappa)
+    {
+
+    }
+    */
 
 private:
     // Calculate positions and orientations of the nodes by integrating the limb curve from it's curvature.
@@ -75,9 +86,9 @@ private:
     void calculate_section_properties(const InputData& input)
     {
         // Construct splines for layer geometry
-        SplineFunction layer_width(input.limb.width);
+        CubicSpline layer_width(input.limb.width);
 
-        std::vector<SplineFunction> layer_heights;
+        std::vector<CubicSpline> layer_heights;
         for(size_t i = 0; i < input.limb.layers.size(); ++i)
         {
             layer_heights.push_back({input.limb.layers[i].height});
@@ -121,5 +132,10 @@ private:
                 }
             }
         }
+    }
+
+    void calculate_layer_properties(const InputData& input)
+    {
+
     }
 };

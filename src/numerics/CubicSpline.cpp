@@ -1,6 +1,6 @@
-#include "SplineFunction.hpp"
+#include "CubicSpline.hpp"
 
-SplineFunction::SplineFunction(DataSeries data)
+CubicSpline::CubicSpline(DataSeries data)
 {
     // Check validity
     size_t n = data.size();
@@ -43,7 +43,7 @@ SplineFunction::SplineFunction(DataSeries data)
     }
 }
 
-double SplineFunction::operator()(double arg) const
+double CubicSpline::operator()(double arg) const
 {
     size_t i = interval_index(arg);
     double h = arg - t[i];
@@ -51,17 +51,17 @@ double SplineFunction::operator()(double arg) const
     return ((a[i]*h + b[i])*h + c[i])*h + x[i];
 }
 
-double SplineFunction::arg_min() const
+double CubicSpline::arg_min() const
 {
     return t.front();
 }
 
-double SplineFunction::arg_max() const
+double CubicSpline::arg_max() const
 {
     return t.back();
 }
 
-DataSeries SplineFunction::sample(size_t n_points) const
+DataSeries CubicSpline::sample(size_t n_points) const
 {
     double arg0 = t.front();
     double arg1 = t.back();
@@ -78,7 +78,7 @@ DataSeries SplineFunction::sample(size_t n_points) const
     return data;
 }
 
-size_t SplineFunction::interval_index(double arg) const
+size_t CubicSpline::interval_index(double arg) const
 {
     size_t lower = 0;
     size_t upper = t.size() - 1;

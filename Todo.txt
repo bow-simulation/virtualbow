@@ -14,4 +14,6 @@ FEM
 General
 =======
 
-* Restructure. Put code in cpp files, include less stuff in headers to reduce compile times.
+    * Restructure. Put code in cpp files, include less stuff in headers to reduce compile times.
+
+    * Decide between using std::array and Eigen::Array, then replace one with the other.

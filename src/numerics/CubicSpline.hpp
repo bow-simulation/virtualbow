@@ -4,10 +4,10 @@
 
 #include <cereal/cereal.hpp>
 
-class SplineFunction
+class CubicSpline
 {
 public:
-    SplineFunction(DataSeries data);
+    CubicSpline(DataSeries data);
 
     double operator()(double arg) const;
     double arg_min() const;
