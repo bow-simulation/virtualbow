@@ -1,11 +1,45 @@
 #pragma once
 #include <set>
 #include <functional>
-#include <algorithm>
 
-#include "../model/BowParameters.hpp"
+template<typename D>
+class Document
+{
+public:
+    Document(): modified(false)
+    {
 
-#include <QtCore>
+    }
+
+    D getData() const
+    {
+        return data;
+    }
+
+    void setData(D val) const
+    {
+        data = val;
+        modified = false;
+
+        updateViews();
+    }
+
+private:
+    D data;
+    bool modified;
+
+    void updateViews() const
+    {
+
+    }
+};
+
+
+
+
+
+
+/*
 
 class ViewBase;
 
@@ -48,33 +82,39 @@ template<typename T>
 class View: public ViewBase
 {
 public:
-    View(Document& doc, ViewFunction<T> view_fn)
-        : doc(doc), view_fn(view_fn)
+    View(): doc(nullptr), view_fn(nullptr)
     {
-        doc.addView(this);
+        //doc.addView(this);
     }
 
     virtual ~View()
     {
-        doc.removeView(this);
+        if(doc != nullptr)
+        {
+            doc->removeView(this);
+        }
     }
+
 
     virtual void updateDoc() override
     {
-        updateDoc(view_fn(doc.data));
-        doc.updateViews();
-        doc.modified = true;
+        //updateDoc(view_fn(doc.data));
+        //doc.updateViews();
+        //doc.modified = true;
     }
 
     virtual void updateView() override
     {
-        updateView(view_fn(doc.data));
+        //updateView(view_fn(doc.data));
     }
+
 
     virtual void updateDoc(T& data) = 0;
     virtual void updateView(const T& data) = 0;
 
 private:
-    Document& doc;
+    Document* doc;
     ViewFunction<T> view_fn;
 };
+
+*/

@@ -4,7 +4,6 @@
 #include "../numerics/StepFunction.hpp"
 
 #include <boost/numeric/odeint.hpp>
-#include <Eigen/Dense>
 
 // sigma(s) = He(s)*epsilon(s) + Hk(s)*kappa(s)
 struct DiscreteLayer

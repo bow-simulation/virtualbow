@@ -1,5 +1,5 @@
-#include "Document.hpp"
-
+#include "DocView.hpp"
+/*
 Document::Document(): modified(false)
 {
 
@@ -40,4 +40,4 @@ void Document::updateViews()
         view->updateView();
     }
 }
-
+*/

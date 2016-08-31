@@ -1,10 +1,10 @@
 #pragma once
 #include "NumberView.hpp"
 #include "SeriesEditor.hpp"
-#include "Document.hpp"
+#include "DocView.hpp"
 
 #include "../numerics/StepFunction.hpp"
-#include "../model/BowParameters.hpp"
+#include "../model/InputData.hpp"
 
 class BowEditor: public QWidget
 {
@@ -39,18 +39,21 @@ public:
         });
         */
 
-        auto tf_angle = new NumberView<double, Domain::All>(document, [](BowParameters& p)->double&{ return p.angle; });
-        auto tf_offset = new NumberView<double, Domain::NonNeg>(document, [](BowParameters& p)->double&{ return p.offset; });
+        //auto tf_offset_x = new NumberView<double, Domain::NonNeg>();
+        //tf_offset_x->setDocument(document);
+        //tf_offset_x->setViewFunction([](BowParameters& p)->double&{ return p.offset; });
+
+        //auto tf_offset_y = new NumberView<double, Domain::NonNeg>(document, [](BowParameters& p)->double&{ return p.offset; });
+        //auto tf_angle = new NumberView<double, Domain::All>(document, [](BowParameters& p)->double&{ return p.angle; });
 
         auto form = new QFormLayout();
-        //form->addRow("Width", bt_width);
-        //form->addRow("Height", bt_height);
         //form->addRow("Curvature", bt_curvature);
-        form->addRow("Angle:", tf_angle);
-        form->addRow("Offset:", tf_offset);
+        //form->addRow("Offset x:", tf_offset_x);
+        //form->addRow("Offset y:", tf_offset_y);
+        //form->addRow("Angle:", tf_angle);
         this->setLayout(form);
 
-        auto box = new QGroupBox("Limb Geometry");
+        auto box = new QGroupBox("Profile");
         box->setLayout(form);
 
         auto h = new QHBoxLayout();
@@ -59,5 +62,5 @@ public:
     }
 
 private:
-    Document document;
+    Document<InputData> document;
 };

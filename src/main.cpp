@@ -3,20 +3,17 @@
 #include "numerics/CubicSpline.hpp"
 #include <QtWidgets>
 
-#include "gui/Document.hpp"
-
-#include "numerics/LinearSpline.hpp"
-
-int main()
+int main(int argc, char *argv[])
 {
-    DataSeries series({0, 1, 2, 3, 4}, {0, 1, 4, 9, 16});
-    LinearSpline spline(series);
+    QCoreApplication::setApplicationName("Bow Design Simulator");
+    QCoreApplication::setApplicationVersion("0.0.0");
+    QApplication app(argc, argv);
 
-    qInfo() << spline(0);
+    MainWindow window;
+    window.show();
 
-    return 0;
+    return app.exec();
 }
-
 
 /*
 #include "model/BowModel.hpp"
@@ -33,86 +30,43 @@ int main()
 */
 
 /*
+#include "gui/SeriesEditor.hpp"
+
 int main(int argc, char *argv[])
 {
     QCoreApplication::setApplicationName("Bow Design Simulator");
     QCoreApplication::setApplicationVersion("0.0.0");
     QApplication app(argc, argv);
 
-    MainWindow window;
-    window.show(); 
+    QMainWindow window;
+    window.show();
+
+    DataSeries series;
+    auto edit = new SeriesEditor(&window, series, [](const DataSeries& in)
+    {
+        try
+        {
+            CubicSpline spline(in);
+            return spline.sample(100);
+        }
+        catch(std::runtime_error e)
+        {
+            return DataSeries();
+        }
+
+        //return DataSeries();
+    });
+
+    edit->setInputLabels("x data", "y data");
+    edit->setOutputLabels("x axis", "y axis");
+
+    if(edit->exec() == QDialog::Accepted)
+    {
+        // ...
+    }
+
 
     return app.exec();
-}
-*/
-
-/*
-CurveEditor *edit = new CurveEditor(&window, [](const std::vector<double>& x_in,
-                                                const std::vector<double>& y_in,
-                                                std::vector<double>& x_out,
-                                                std::vector<double>& y_out)
-{
-    SplineFunction::Parameters param{x_in, y_in};
-    if(param.is_valid())
-    {
-        SplineFunction spline({x_in, y_in});
-        spline.sample(x_out, y_out, 100);
-    }
-});
-
-std::vector<double> x = {{0.0, 1.0, 2.0}};
-std::vector<double> y = {{0.0, 1.0, 4.0}};
-edit->setInputData(x, y);
-edit->setInputLabels("x data", "y data");
-edit->setOutputLabels("x axis", "y axis");
-
-if(edit->exec() == QDialog::Accepted)
-{
-    std::vector<double> x, y;
-    edit->getInputData(x, y);
-
-    // ...
-}
-*/
-
-/*
-#include "numerics/StepFunction.hpp"
-
-#include <Eigen/Core>
-#include <boost/numeric/odeint.hpp>
-#include <iostream>
-#include <array>
-
-
-int main()
-{
-    using namespace boost::numeric::odeint;
-    typedef std::array<double, 3> State;
-
-    StepFunction kappa({{0.4, 0.3, 0.2}}, {{0.1, 0.2, 1.5}});
-
-    auto ode = [&](const State &z, State &dzds, const double s)
-    {
-        dzds[0] = std::cos(z[2]);
-        dzds[1] = std::sin(z[2]);
-        dzds[2] = kappa(s);
-    };
-
-    auto observer = [](const State& z , double s)
-    {
-        std::cout << z[0] << ", " << z[1] << "\n";
-    };
-
-    double mid_section_length = 0.5;
-    double mid_section_angle = -0.1;
-
-    State x0 = {{0.0, mid_section_length/2.0, mid_section_angle + M_PI_2}};
-
-    typedef runge_kutta_dopri5<State, double> stepper_type;
-    integrate_const(make_dense_output<stepper_type>(1e-8 , 1e-6),
-                    ode, x0, kappa.arg_min(), kappa.arg_max() , 0.01, observer);
-
-    return 0;
 }
 */
 
@@ -180,58 +134,6 @@ int main(int argc, char *argv[])
     std::vector<double> y = {{0.0, 1.0, 4.0, 9.0, 16.0, 25.0, 36.0}};
 
     plot(x, y);
-
-    return 0;
-}
-*/
-
-/*
-#include <QtCharts>
-#include <cereal/archives/json.hpp>
-
-struct MyClass
-{
-    int x, y, z;
-
-    template<class Archive>
-    void serialize(Archive & archive)
-    {std::vector<double> lengths, std::vector<double> values
-        archive(x, y, z);
-    }
-};
-
-#include <cereal/archives/xml.hpp>
-#include <fstream>
-
-int main()
-{
-    int someInt;
-    double d;
-
-    std::ofstream os("data.json");
-    cereal::JSONOutputArchive archive(os);
-
-    archive(CEREAL_NVP(someInt),
-            CEREAL_NVP(d));
-}
-*/
-
-
-
-/*
-#include "numerics/StepFunction.hpp"
-#include "numerics/SplineFunction.hpp"
-
-#include <iostream>
-
-int main()
-{
-    std::vector<double> l = {4.0, 5.0, 2.0, 5.0, 3.0};
-    std::vector<double> v = {1.0, 2.0, 3.0, 1.0, -1.0};
-
-    StepFunction fn(l, v);
-
-    std::cout << fn(25);
 
     return 0;
 }

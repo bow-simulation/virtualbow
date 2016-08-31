@@ -1,23 +1,23 @@
 #pragma once
 #include "../numerics/Domain.hpp"
 #include "../numerics/Units.hpp"
-#include "Document.hpp"
+#include "DocView.hpp"
 
 #include <boost/lexical_cast.hpp>
 
 #include <QtWidgets>
 
 template<typename T, Domain D>
-class NumberView: public QLineEdit, public View<T>
+class NumberView: public QLineEdit//, public View<T>
 {
 public:
-    NumberView(Document& doc, ViewFunction<T> view_function)
-        : View<T>(doc, view_function)
+    NumberView()
     {
-        View<T>::updateView();
-        connect(this, &QLineEdit::editingFinished, [&](){ View<T>::updateDoc(); });
+        //connect(this, &QLineEdit::editingFinished, [&](){ View<T>::updateDoc(); });
+        //View<T>::updateView();
     }
 
+    /*
     virtual void updateDoc(T& data) override
     {
         try
@@ -41,6 +41,7 @@ public:
     {
         this->setText(QString::number(data));   // Todo: Check domain
     }
+    */
 };
 
 /*

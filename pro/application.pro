@@ -15,9 +15,9 @@ SOURCES += ../src/main.cpp \
     ../src/numerics/StepFunction.cpp \
     ../src/fem/System.cpp \
     ../src/numerics/Domain.cpp \
-    ../src/gui/Document.cpp \
     ../src/numerics/CubicSpline.cpp \
-    ../src/numerics/LinearSpline.cpp
+    ../src/numerics/LinearSpline.cpp \
+    ../src/gui/DocView.cpp
 
 HEADERS += \
     ../src/fem/elements/BarElement.hpp \
@@ -37,8 +37,6 @@ HEADERS += \
     ../src/gui/NumberView.hpp \
     ../src/numerics/DataSeries.hpp \
     ../src/gui/SeriesEditor.hpp \
-    ../src/model/BowParameters.hpp \
-    ../src/gui/Document.hpp \
     ../src/model/InputData.hpp \
     ../src/model/DiscreteLimb.hpp \
     ../src/model/BowModel.hpp \
@@ -46,4 +44,5 @@ HEADERS += \
     ../src/numerics/SecantMethod.hpp \
     ../src/fem/elements/ContactElement1D.hpp \
     ../src/numerics/CubicSpline.hpp \
-    ../src/numerics/LinearSpline.hpp
+    ../src/numerics/LinearSpline.hpp \
+    ../src/gui/DocView.hpp
