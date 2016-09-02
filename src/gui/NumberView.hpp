@@ -1,48 +1,51 @@
 #pragma once
 #include "../numerics/Domain.hpp"
 #include "../numerics/Units.hpp"
-#include "DocView.hpp"
+#include "Document.hpp"
 
 #include <boost/lexical_cast.hpp>
 
 #include <QtWidgets>
 
-template<typename T, Domain D>
-class NumberView: public QLineEdit//, public View<T>
+template<typename T, Domain D = Domain::All>
+class NumberView: public QLineEdit
 {
 public:
-    NumberView()
+    NumberView(DocumentItem<T> item)
+        : doc_item(item)
     {
-        //connect(this, &QLineEdit::editingFinished, [&](){ View<T>::updateDoc(); });
-        //View<T>::updateView();
-    }
-
-    /*
-    virtual void updateDoc(T& data) override
-    {
-        try
+        // Update view
+        doc_item.connect([&]()
         {
-            T new_data = boost::lexical_cast<T>(this->text().toStdString());
-            data = new_data; // Todo: Check domain
-        }
-        catch(...)  // Todo
+            this->setText(QString::number(doc_item.getData()));   // Todo: Check domain
+        });
+
+        // Update document
+        QObject::connect(this, &QLineEdit::editingFinished, [&]()
         {
-            bool old_state = this->blockSignals(true);
+            try
+            {
+                T new_data = boost::lexical_cast<T>(this->text().toStdString());
+                doc_item.setData(new_data); // Todo: Check domain
+            }
+            catch(...)  // Todo
+            {
+                bool old_state = this->blockSignals(true);
 
-            QMessageBox::critical(this, "Error", "Invalid input");  // Todo: Ok: Mark wrong input, Cancel: Restore old value.
-            this->setText(QString::number(data));
-            this->setFocus();
+                QMessageBox::critical(this, "Error", "Invalid input");  // Todo: Ok: Mark wrong input, Cancel: Restore old value.
+                this->setText(QString::number(doc_item.getData()));
+                this->setFocus();
 
-            this->blockSignals(old_state);
-        }
+                this->blockSignals(old_state);
+            }
+        });
     }
 
-    virtual void updateView(const T& data) override
-    {
-        this->setText(QString::number(data));   // Todo: Check domain
-    }
-    */
+private:
+    DocumentItem<T> doc_item;
+
 };
+
 
 /*
 class DoubleView: public QLineEdit, public View<double>

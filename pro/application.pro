@@ -16,8 +16,7 @@ SOURCES += ../src/main.cpp \
     ../src/fem/System.cpp \
     ../src/numerics/Domain.cpp \
     ../src/numerics/CubicSpline.cpp \
-    ../src/numerics/LinearSpline.cpp \
-    ../src/gui/DocView.cpp
+    ../src/numerics/LinearSpline.cpp
 
 HEADERS += \
     ../src/fem/elements/BarElement.hpp \
@@ -45,4 +44,4 @@ HEADERS += \
     ../src/fem/elements/ContactElement1D.hpp \
     ../src/numerics/CubicSpline.hpp \
     ../src/numerics/LinearSpline.hpp \
-    ../src/gui/DocView.hpp
+    ../src/gui/Document.hpp

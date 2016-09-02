@@ -1,7 +1,7 @@
 #pragma once
 #include "NumberView.hpp"
 #include "SeriesEditor.hpp"
-#include "DocView.hpp"
+#include "Document.hpp"
 
 #include "../numerics/StepFunction.hpp"
 #include "../model/InputData.hpp"
@@ -39,18 +39,15 @@ public:
         });
         */
 
-        //auto tf_offset_x = new NumberView<double, Domain::NonNeg>();
-        //tf_offset_x->setDocument(document);
-        //tf_offset_x->setViewFunction([](BowParameters& p)->double&{ return p.offset; });
-
-        //auto tf_offset_y = new NumberView<double, Domain::NonNeg>(document, [](BowParameters& p)->double&{ return p.offset; });
-        //auto tf_angle = new NumberView<double, Domain::All>(document, [](BowParameters& p)->double&{ return p.angle; });
+        auto tf_offset_x = new NumberView<double>(DocumentItem<double>(doc, [](InputData& input)->double&{ return input.limb.offset_x; }));
+        auto tf_offset_y = new NumberView<double>(DocumentItem<double>(doc, [](InputData& input)->double&{ return input.limb.offset_y; }));
+        auto tf_angle    = new NumberView<double>(DocumentItem<double>(doc, [](InputData& input)->double&{ return input.limb.angle;    }));
 
         auto form = new QFormLayout();
         //form->addRow("Curvature", bt_curvature);
-        //form->addRow("Offset x:", tf_offset_x);
-        //form->addRow("Offset y:", tf_offset_y);
-        //form->addRow("Angle:", tf_angle);
+        form->addRow("Offset x:", tf_offset_x);
+        form->addRow("Offset y:", tf_offset_y);
+        form->addRow("Angle:", tf_angle);
         this->setLayout(form);
 
         auto box = new QGroupBox("Profile");
@@ -62,5 +59,5 @@ public:
     }
 
 private:
-    Document<InputData> document;
+    Document doc;
 };

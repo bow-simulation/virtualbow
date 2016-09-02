@@ -3,6 +3,8 @@
 #include "numerics/CubicSpline.hpp"
 #include <QtWidgets>
 
+#include "gui/Document.hpp"
+
 int main(int argc, char *argv[])
 {
     QCoreApplication::setApplicationName("Bow Design Simulator");
