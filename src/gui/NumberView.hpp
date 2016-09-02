@@ -1,13 +1,12 @@
 #pragma once
-#include "../numerics/Domain.hpp"
-#include "../numerics/Units.hpp"
 #include "Document.hpp"
 
 #include <boost/lexical_cast.hpp>
 
 #include <QtWidgets>
 
-template<typename T, Domain D = Domain::All>
+// Todo: Check domain, domain perhaps as template parameter
+template<typename T>
 class NumberView: public QLineEdit
 {
 public:
@@ -23,23 +22,35 @@ public:
         // Update document
         QObject::connect(this, &QLineEdit::editingFinished, [&]()
         {
+            if(!this->isModified())
+                return;
+
+            bool old_state = this->blockSignals(true);
+
             try
             {
                 T new_data = boost::lexical_cast<T>(this->text().toStdString());
-                doc_item.setData(new_data); // Todo: Check domain
+                doc_item.setData(new_data);                // Todo: Check domain
             }
-            catch(...)  // Todo
+            catch(const boost::bad_lexical_cast&)
             {
-                bool old_state = this->blockSignals(true);
+                auto pick = QMessageBox::warning(this, "Warning", "Input is invalid",
+                                                 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
 
-                // Todo: Ok: Mark wrong input, Cancel: Restore old value
-                // Todo: Better error messages
-                QMessageBox::critical(this, "Error", "Invalid input");
-                this->setText(QString::number(doc_item.getData()));
-                this->setFocus();
+                switch(pick)
+                {
+                case QMessageBox::Ok:       // Leave input, mark it for easy deletion
+                    this->setFocus();
+                    this->selectAll();
+                    break;
 
-                this->blockSignals(old_state);
+                case QMessageBox::Cancel:   // Reset input to last valid value
+                    this->setText(QString::number(doc_item.getData()));
+                    break;
+                }
             }
+
+            this->blockSignals(old_state);
         });
     }
 

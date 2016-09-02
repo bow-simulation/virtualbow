@@ -38,7 +38,7 @@ signals:
     void update();
 
 private:
-    InputData data;                 // Todo: Make InputData a template parameter
+    InputData data;
     bool modified;
 };
 
@@ -46,7 +46,7 @@ template<typename T>
 class DocumentItem
 {
 public:
-    using ItemFunction = std::function<T&(InputData&)>; // Todo: using or typedef? Replace typedefs with using?
+    using ItemFunction = std::function<T&(InputData&)>;     // Todo: using or typedef? Replace typedefs with using?
 
     DocumentItem(Document& doc, ItemFunction fn)
         : document(doc),
@@ -66,14 +66,6 @@ public:
         QObject::connect(&document, &Document::update, fn);
         fn();
     }
-
-    /*
-    void connect(std::function<void()> fn) // Todo: Different name? Can only connect one function at a time.
-    {
-        //update_fn = fn;
-        //update_fn();
-    }
-    */
 
     T getData() const
     {
