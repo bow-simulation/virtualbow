@@ -7,9 +7,9 @@
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setApplicationName("Bow Designer");
-    QCoreApplication::setApplicationVersion("0.0");
     QApplication app(argc, argv);
+    QGuiApplication::setApplicationDisplayName("Bow Designer");
+    QGuiApplication::setApplicationVersion("0.0");
 
     MainWindow window;
     window.show();
