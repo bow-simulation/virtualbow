@@ -74,6 +74,8 @@ public:
 private slots:
     void closeEvent(QCloseEvent *event) override
     {
+        //this->setFocus();   // Make all views lose their focus so they propagate their changes to the document
+
         if(optionalSave())
         {
             event->accept();

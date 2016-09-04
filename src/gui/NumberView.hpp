@@ -16,41 +16,29 @@ public:
         // Update view
         doc_item.connect([&]()
         {
-            this->setText(QString::number(doc_item.getData()));   // Todo: Check domain
+            // Todo: This condition is a workaround to prevent the update from the document immediately overwriting
+            // things the user put in, like a trailing dot for example. Better would be if the document only updates
+            // all views but the one who sent the change.
+            if(!this->hasFocus())
+                this->setText(QString::number(doc_item.getData()));   // Todo: Check domain
         });
 
         // Update document
-        QObject::connect(this, &QLineEdit::editingFinished, [&]()
+        QObject::connect(this, &QLineEdit::textEdited, [&]()
         {
-            if(!this->isModified())
-                return;
-
-            bool old_state = this->blockSignals(true);
-
             try
             {
                 T new_data = boost::lexical_cast<T>(this->text().toStdString());
                 doc_item.setData(new_data);                // Todo: Check domain
+
+                this->setPalette(QPalette());
             }
             catch(const boost::bad_lexical_cast&)
             {
-                auto pick = QMessageBox::warning(this, "Warning", "Input is invalid",
-                                                 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
-
-                switch(pick)
-                {
-                case QMessageBox::Ok:       // Leave input, mark it for easy deletion
-                    this->setFocus();
-                    this->selectAll();
-                    break;
-
-                case QMessageBox::Cancel:   // Reset input to last valid value
-                    this->setText(QString::number(doc_item.getData()));
-                    break;
-                }
+                QPalette palette;
+                palette.setColor(QPalette::Base, QColor(255, 128, 128));
+                this->setPalette(palette);
             }
-
-            this->blockSignals(old_state);
         });
     }
 

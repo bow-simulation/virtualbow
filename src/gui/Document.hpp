@@ -78,8 +78,8 @@ public:
     void setData(T val)
     {
         item_fn(document.data) = val;
-
         document.modified = true;
+
         emit document.update();
     }
 
