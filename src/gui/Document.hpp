@@ -24,9 +24,12 @@ public:
     void setData(InputData val)
     {
         data = val;
-
-        modified = false;
         emit update();
+    }
+
+    void setModified(bool val)
+    {
+        modified = val;
     }
 
     bool isModified()

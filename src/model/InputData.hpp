@@ -126,10 +126,10 @@ struct InputData
                 CEREAL_NVP(meta));
     }
 
-    void load(const std::string& path)
+    void load(const std::string& current_file)
     {
         // Todo: Handle file not existing or inability to parse
-        std::ifstream file(path);
+        std::ifstream file(current_file);
         if(!file)
         {
             throw std::runtime_error(strerror(errno));    // Todo: Better message with filename
@@ -139,10 +139,10 @@ struct InputData
         serialize(archive);
     }
 
-    void save(const std::string& path)
+    void save(const std::string& current_file)
     {
         // Todo: Handle file not existing
-        std::ofstream file(path);
+        std::ofstream file(current_file);
         if(!file)
         {
             throw std::runtime_error(strerror(errno));    // Todo: Better message with filename

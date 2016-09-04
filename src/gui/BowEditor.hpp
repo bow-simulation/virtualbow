@@ -11,7 +11,7 @@ class BowEditor: public QWidget
     Q_OBJECT
 
 public:
-    BowEditor()
+    BowEditor(Document& document)
     {
         /*
         auto bt_width = new QPushButton("Edit");
@@ -39,9 +39,9 @@ public:
         });
         */
 
-        auto tf_offset_x = new NumberView<double>(DocumentItem<double>(doc, [](InputData& input)->double&{ return input.limb.offset_x; }));
-        auto tf_offset_y = new NumberView<double>(DocumentItem<double>(doc, [](InputData& input)->double&{ return input.limb.offset_y; }));
-        auto tf_angle    = new NumberView<double>(DocumentItem<double>(doc, [](InputData& input)->double&{ return input.limb.angle;    }));
+        auto tf_offset_x = new NumberView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_x; }));
+        auto tf_offset_y = new NumberView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_y; }));
+        auto tf_angle    = new NumberView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.angle;    }));
 
         auto form = new QFormLayout();
         //form->addRow("Curvature", bt_curvature);
@@ -57,7 +57,4 @@ public:
         h->addWidget(box);
         this->setLayout(h);
     }
-
-private:
-    Document doc;
 };

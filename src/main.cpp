@@ -7,8 +7,8 @@
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setApplicationName("Bow Design Simulator");
-    QCoreApplication::setApplicationVersion("0.0.0");
+    QCoreApplication::setApplicationName("Bow Designer");
+    QCoreApplication::setApplicationVersion("0.0");
     QApplication app(argc, argv);
 
     MainWindow window;

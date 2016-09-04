@@ -3,6 +3,13 @@ GUI
 
     * Find a way to handle comma vs dot as decimal separator, otherwise note in docs
 
+    * Bug: Edit NumberView, don't leave and close main window. Saving will not be suggested.
+
+    * Bug: When suggesting save before creating new file the discard button shouldn't say "Close without saving"
+      but rather something like "Discard changes". (Platform dependent?)
+
+    * bug: Title of the main window should include the application name. (Platform dependent?)
+
 FEM
 ===
 
