@@ -132,8 +132,8 @@ private slots:
 
     void about()
     {
-        QMessageBox::information(this, "About", "<h2>" + QCoreApplication::applicationName() + "</h2>"
-                                                "<h4>Version " + QCoreApplication::applicationVersion() + "</h4>"
+        QMessageBox::information(this, "About", "<h2>" + QGuiApplication::applicationName() + "</h2>"
+                                                "<h4>Version " + QGuiApplication::applicationVersion() + "</h4>"
                                                 "Bow and arrow physics simulation<br>"
                                                 "<a href=\"http://stfnp.bitbucket.org\">http://stfnp.bitbucket.org</a><br><br>"
                                                 "Copyright (C) 2016 Stefan Pfeifer<br>"
