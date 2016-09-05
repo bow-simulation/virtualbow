@@ -17,9 +17,29 @@ public:
         // Update document
         QObject::connect(this, &QLineEdit::textEdited, this, &NumberView::updateDocument);
 
-        // Update view
-        doc_item.connect([&](){ updateView(); });    // Todo: Use std::bind
+        // Update view when document changes
+        doc_item.connect([&]()
+        {
+            // Todo: This condition is a workaround to prevent the update from the document immediately overwriting
+            // things the user put in, like a trailing dot for example. Better would be if the document only updates
+            // all views but the one who sent the change.
+            if(this->hasFocus())
+                return;
+
+            updateView();
+        });
+
+        // Update view when editing is finished to overwrite possible invalid input
         QObject::connect(this, &QLineEdit::editingFinished, this, &NumberView::updateView);
+
+
+        // Replace decimal comma with dot
+        QObject::connect(this, &QLineEdit::textEdited, [&]()
+        {
+            QString text = this->text();
+            text.replace(",", ".");
+            this->setText(text);
+        });
     }
 
 private:
@@ -44,13 +64,7 @@ private:
 
     void updateView()
     {
-        // Todo: This condition is a workaround to prevent the update from the document immediately overwriting
-        // things the user put in, like a trailing dot for example. Better would be if the document only updates
-        // all views but the one who sent the change.
-        if(this->hasFocus())
-            return;
-
-        this->setText(QString::number(doc_item.getData(), 'g', 10));   // Todo: Check domain
+        this->setText(QString::number(doc_item.getData(), 'g', 10));   // Todo: Check domain // Todo: Magic number
         this->setPalette(QPalette());
     }
 };
