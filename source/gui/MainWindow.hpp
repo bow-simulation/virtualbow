@@ -11,36 +11,36 @@ public:
     MainWindow(): editor(new BowEditor(document))
     {
         // Actions
-        QAction *action_new = new QAction(QIcon::fromTheme(":/oxygen/document-new"), "&New", this);
+        QAction *action_new = new QAction(QIcon(":/document-new"), "&New", this);
         //QAction *action_new = new QAction(QIcon(":/document-new"), "&New", this);
         action_new->setShortcuts(QKeySequence::New);
         connect(action_new, &QAction::triggered, this, &MainWindow::newFile);
 
-        QAction *action_open = new QAction(QIcon::fromTheme(":/oxygen/document-open"), "&Open...", this);
+        QAction *action_open = new QAction(QIcon(":/document-open"), "&Open...", this);
         action_open->setShortcuts(QKeySequence::Open);
         connect(action_open, &QAction::triggered, this, &MainWindow::open);
 
-        QAction *action_save = new QAction(QIcon::fromTheme(":/oxygen/document-save"), "&Save", this);
+        QAction *action_save = new QAction(QIcon(":/document-save"), "&Save", this);
         action_save->setShortcuts(QKeySequence::Save);
         connect(action_save, &QAction::triggered, this, &MainWindow::save);
 
-        QAction *action_save_as = new QAction(QIcon::fromTheme(":/oxygen/document-save-as"), "Save &As...", this);
+        QAction *action_save_as = new QAction(QIcon(":/document-save-as"), "Save &As...", this);
         action_save_as->setShortcuts(QKeySequence::SaveAs);
         connect(action_save_as, &QAction::triggered, this, &MainWindow::saveAs);
 
-        QAction *action_exit = new QAction(QIcon::fromTheme(":/oxygen/application-exit"), "&Quit", this);
+        QAction *action_exit = new QAction(QIcon(":/application-exit"), "&Quit", this);
         action_exit->setShortcuts(QKeySequence::Quit);
         connect(action_exit, &QAction::triggered, this, &QWidget::close);
 
-        QAction *action_run_statics = new QAction(QIcon::fromTheme(":/oxygen/arrow-right"), "Statics...", this);
+        QAction *action_run_statics = new QAction(QIcon(":/arrow-right"), "Statics...", this);
         //action_run_statics->setShortcuts(QKeySequence::Quit);
         // connect ...
 
-        QAction *action_run_dynamics = new QAction(QIcon::fromTheme(":/oxygen/arrow-right-double"), "Dynamics...", this);
+        QAction *action_run_dynamics = new QAction(QIcon(":/arrow-right-double"), "Dynamics...", this);
         //action_run_dynmics->setShortcuts(QKeySequence::Quit);
         // connect ...
 
-        QAction *action_about = new QAction(QIcon::fromTheme(":/oxygen/system-help"), "&About...", this);
+        QAction *action_about = new QAction(QIcon(":/dialog-information"), "&About...", this);
         connect(action_about, &QAction::triggered, this, &MainWindow::about);
 
         // File menu
@@ -137,12 +137,16 @@ private slots:
 
     void about()
     {
-        QMessageBox::information(this, "About", "<h2>" + QGuiApplication::applicationName() + "</h2>"
-                                                "<h4>Version " + QGuiApplication::applicationVersion() + "</h4>"
-                                                "Bow and arrow physics simulation<br>"
-                                                "<a href=\"http://stfnp.bitbucket.org\">http://stfnp.bitbucket.org</a><br><br>"
-                                                "Copyright (C) 2016 Stefan Pfeifer<br>"
-                                                "Distributed under the GNU General Public License v3.0");
+        QMessageBox msgbox(this);
+        msgbox.setIconPixmap(QPixmap(":/icon"));
+        msgbox.setWindowTitle("About");
+        msgbox.setText("<h2>" + QGuiApplication::applicationDisplayName() + "</h2>"
+                       "<h4>Version " + QGuiApplication::applicationVersion() + "</h4>"
+                       "Bow and arrow physics simulation\n"
+                       "<a href=\"" + QGuiApplication::organizationDomain() + "\">" + QGuiApplication::organizationDomain() + "</a><br><br>"
+                       "Copyright (C) 2016 Stefan Pfeifer<br>"
+                       "Distributed under the GNU General Public License v3.0");
+        msgbox.exec();
     }
 
 private:
@@ -154,7 +158,7 @@ private:
     {
         current_file = file_name;
         setWindowModified(false);
-        setWindowFilePath(current_file.isEmpty() ? "untitled.txt" : current_file);
+        setWindowFilePath(current_file.isEmpty() ? "untitled.bow" : current_file);
     }
 
     bool optionalSave()    // true: Discard, false: Cancel

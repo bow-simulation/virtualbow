@@ -10,6 +10,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QGuiApplication::setApplicationDisplayName("Bow Designer");
     QGuiApplication::setApplicationVersion("0.0");
+    QGuiApplication::setOrganizationDomain("stfnp.bitbucket.org");
 
     MainWindow window;
     window.show();

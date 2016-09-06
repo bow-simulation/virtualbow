@@ -1,13 +1,13 @@
 <RCC>
     <qresource prefix="/">
         <file>icon.png</file>
-        <file>oxygen/application-exit.png</file>
-        <file>oxygen/arrow-right.png</file>
-        <file>oxygen/arrow-right-double.png</file>
-        <file>oxygen/document-new.png</file>
-        <file>oxygen/document-open.png</file>
-        <file>oxygen/document-save.png</file>
-        <file>oxygen/document-save-as.png</file>
-        <file>oxygen/system-help.png</file>
+        <file>application-exit.png</file>
+        <file>arrow-right.png</file>
+        <file>arrow-right-double.png</file>
+        <file>document-new.png</file>
+        <file>document-open.png</file>
+        <file>document-save.png</file>
+        <file>document-save-as.png</file>
+        <file>dialog-information.png</file>
     </qresource>
 </RCC>
