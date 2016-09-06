@@ -27,3 +27,9 @@ General
     * Restructure. Put code in cpp files, include less stuff in headers to reduce compile times.
 
     * Decide between using std::array and Eigen::Array, then replace one with the other.
+
+
+Platforms, compilers
+====================
+
+    * tests fail on Windows 7 with MinGW 5.3.0 32bit.

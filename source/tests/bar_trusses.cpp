@@ -1,5 +1,5 @@
-#include "../src/fem/System.hpp"
-#include "../src/fem/elements/BarElement.hpp"
+#include "../fem/System.hpp"
+#include "../fem/elements/BarElement.hpp"
 
 #include <catch.hpp>
 #include <iostream>

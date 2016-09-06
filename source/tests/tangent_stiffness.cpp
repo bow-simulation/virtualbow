@@ -1,6 +1,6 @@
-#include "../src/fem/System.hpp"
-#include "../src/fem/elements/BarElement.hpp"
-#include "../src/fem/elements/BeamElement.hpp"
+#include "../fem/System.hpp"
+#include "../fem/elements/BarElement.hpp"
+#include "../fem/elements/BeamElement.hpp"
 
 #include <catch.hpp>
 #include <iostream>

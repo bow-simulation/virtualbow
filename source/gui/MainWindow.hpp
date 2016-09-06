@@ -11,35 +11,36 @@ public:
     MainWindow(): editor(new BowEditor(document))
     {
         // Actions
-        QAction *action_new = new QAction(QIcon::fromTheme("document-new"), "&New", this);
+        QAction *action_new = new QAction(QIcon::fromTheme(":/oxygen/document-new"), "&New", this);
+        //QAction *action_new = new QAction(QIcon(":/document-new"), "&New", this);
         action_new->setShortcuts(QKeySequence::New);
         connect(action_new, &QAction::triggered, this, &MainWindow::newFile);
 
-        QAction *action_open = new QAction(QIcon::fromTheme("document-open"), "&Open...", this);
+        QAction *action_open = new QAction(QIcon::fromTheme(":/oxygen/document-open"), "&Open...", this);
         action_open->setShortcuts(QKeySequence::Open);
         connect(action_open, &QAction::triggered, this, &MainWindow::open);
 
-        QAction *action_save = new QAction(QIcon::fromTheme("document-save"), "&Save", this);
+        QAction *action_save = new QAction(QIcon::fromTheme(":/oxygen/document-save"), "&Save", this);
         action_save->setShortcuts(QKeySequence::Save);
         connect(action_save, &QAction::triggered, this, &MainWindow::save);
 
-        QAction *action_save_as = new QAction(QIcon::fromTheme("document-save-as"), "Save &As...", this);
+        QAction *action_save_as = new QAction(QIcon::fromTheme(":/oxygen/document-save-as"), "Save &As...", this);
         action_save_as->setShortcuts(QKeySequence::SaveAs);
         connect(action_save_as, &QAction::triggered, this, &MainWindow::saveAs);
 
-        QAction *action_exit = new QAction(QIcon::fromTheme("application-exit"), "&Quit", this);
+        QAction *action_exit = new QAction(QIcon::fromTheme(":/oxygen/application-exit"), "&Quit", this);
         action_exit->setShortcuts(QKeySequence::Quit);
         connect(action_exit, &QAction::triggered, this, &QWidget::close);
 
-        QAction *action_run_statics = new QAction("Statics...", this);
+        QAction *action_run_statics = new QAction(QIcon::fromTheme(":/oxygen/arrow-right"), "Statics...", this);
         //action_run_statics->setShortcuts(QKeySequence::Quit);
         // connect ...
 
-        QAction *action_run_dynamics = new QAction("Dynamics...", this);
+        QAction *action_run_dynamics = new QAction(QIcon::fromTheme(":/oxygen/arrow-right-double"), "Dynamics...", this);
         //action_run_dynmics->setShortcuts(QKeySequence::Quit);
         // connect ...
 
-        QAction *action_about = new QAction(QIcon::fromTheme("dialog-information"), "&About...", this);
+        QAction *action_about = new QAction(QIcon::fromTheme(":/oxygen/system-help"), "&About...", this);
         connect(action_about, &QAction::triggered, this, &MainWindow::about);
 
         // File menu
@@ -58,6 +59,11 @@ public:
         toolbar_file->addAction(action_save);
         toolbar_file->addAction(action_save_as);
 
+        // Simulation toolbar
+        QToolBar *toolbar_simulation = this->addToolBar("Simulation");
+        toolbar_simulation->addAction(action_run_statics);
+        toolbar_simulation->addAction(action_run_dynamics);
+
         // Simulation menu
         QMenu *menu_run = this->menuBar()->addMenu("&Simulate");
         menu_run->addAction(action_run_statics);
@@ -67,6 +73,7 @@ public:
         QMenu *menu_help = this->menuBar()->addMenu("&Help");
         menu_help->addAction(action_about);
 
+        this->setWindowIcon(QIcon(":/icon"));
         this->setCentralWidget(editor);
         setCurrentFile(QString());
     }
@@ -74,8 +81,6 @@ public:
 private slots:
     void closeEvent(QCloseEvent *event) override
     {
-        //this->setFocus();   // Make all views lose their focus so they propagate their changes to the document
-
         if(optionalSave())
         {
             event->accept();
