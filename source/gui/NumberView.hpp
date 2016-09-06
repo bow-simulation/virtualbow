@@ -31,19 +31,24 @@ public:
 
         // Update view when editing is finished to overwrite possible invalid input
         QObject::connect(this, &QLineEdit::editingFinished, this, &NumberView::updateView);
-
-
-        // Replace decimal comma with dot
-        QObject::connect(this, &QLineEdit::textEdited, [&]()
-        {
-            QString text = this->text();
-            text.replace(",", ".");
-            this->setText(text);
-        });
     }
 
 private:
     DocumentItem<T> doc_item;
+
+    // Replace decimal comma with dot
+    virtual void keyPressEvent(QKeyEvent *event) override
+    {
+        if(event->text() == QLocale().decimalPoint())
+        {
+            event->ignore();
+            this->insert(".");
+        }
+        else
+        {
+            QLineEdit::keyPressEvent(event);
+        }
+    }
 
     void updateDocument()
     {
