@@ -8,7 +8,7 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QGuiApplication::setApplicationDisplayName("Bow Designer");
+    QGuiApplication::setApplicationDisplayName("Bow Simulator");
     QGuiApplication::setApplicationVersion("0.0");
     QGuiApplication::setOrganizationDomain("stfnp.bitbucket.org");
 
@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
+
 
 /*
 #include "model/BowModel.hpp"
@@ -47,17 +48,17 @@ int main(int argc, char *argv[])
     DataSeries series;
     auto edit = new SeriesEditor(&window, series, [](const DataSeries& in)
     {
-        try
-        {
-            CubicSpline spline(in);
-            return spline.sample(100);
-        }
-        catch(std::runtime_error e)
-        {
-            return DataSeries();
-        }
+        //try
+        //{
+        //    CubicSpline spline(in);
+        //    return spline.sample(100);
+        //}
+        //catch(std::runtime_error e)
+        //{
+        //    return DataSeries();
+        //}
 
-        //return DataSeries();
+        return DataSeries();
     });
 
     edit->setInputLabels("x data", "y data");
@@ -73,6 +74,7 @@ int main(int argc, char *argv[])
 }
 */
 
+
 /*
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMainWindow>
@@ -87,37 +89,54 @@ int main(int argc, char *argv[])
 
 QT_CHARTS_USE_NAMESPACE
 
-void plot(const std::vector<double>& x, const std::vector<double>& y)
+class LinePlot: public  QChart
 {
-    // Todo: Is this shit really neccessary?
-    int argc = 0; char** argv = nullptr;
-    QApplication app(argc, argv);
-
-    QLineSeries *series = new QLineSeries();
-    series->setName("Parabola");
-    for(size_t i = 0; i < x.size(); ++i)
+public:
+    LineChart(const QString& title, const QString& x_label, const QString& y_label)
     {
-        series->append(x[i], y[i]);
+        QValueAxis *axisX = new QValueAxis;
+        axisX->setLabelFormat("%i");
+        axisX->setTitleText(x_label);
+
+        QValueAxis *axisY = new QValueAxis;
+        axisY->setLabelFormat("%i");
+        axisY->setTitleText(y_label);
+
+        this->setTitle(title);
+        this->addAxis(axisX, Qt::AlignBottom);
+        this->addAxis(axisY, Qt::AlignLeft);
+        this->legend()->hide();     // Todo: Make depenent on number of series
     }
 
-    QChart *chart = new QChart();
-    chart->addSeries(series);
-    //chart->legend()->hide();
-    chart->setTitle("Sunspots count (by Space Weather Prediction Center)");
+    void addSeries(const DataSeries& data)
+    {
+        QLineSeries *series = new QLineSeries();
+        for(size_t i = 0; i < data.size(); ++i)
+        {
+            series->append(data.arg(i), data.val(i));
+        }
 
-    QValueAxis *axisX = new QValueAxis;
-    axisX->setLabelFormat("%i");
-    axisX->setTitleText("x-Axis");
-    chart->addAxis(axisX, Qt::AlignBottom);
-    series->attachAxis(axisX);
+        QChart::addSeries(series);
+        //series->attachAxis(this->axisX());
+        //series->attachAxis(this->axisY());
+        this->createDefaultAxes();  // Todo: Is there a better solution?
+    }
 
-    QValueAxis *axisY = new QValueAxis;
-    axisY->setLabelFormat("%i");
-    axisY->setTitleText("y-Axis");
-    chart->addAxis(axisY, Qt::AlignLeft);
-    series->attachAxis(axisY);
+};
+*/
+/*
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
 
-    QChartView *chartView = new QChartView(chart);
+    LineChart* chart = new LineChart("Function plot", "x-axis", "y-axis");
+    DataSeries series1({{0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0}}, {{0.0, 1.0, 4.0, 9.0, 16.0, 25.0, 36.0}});
+    chart->addSeries(series1);
+
+    DataSeries series2({{0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0}}, {{0.0, 1.0, 4.0, 9.0, 16.0, 25.0, 36.0}});
+    chart->addSeries(series2);
+
+    QChartView* chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
     chartView->setRubberBand(QChartView::RectangleRubberBand);
 
@@ -126,18 +145,6 @@ void plot(const std::vector<double>& x, const std::vector<double>& y)
     window.resize(820, 600);
     window.show();
 
-    app.exec();
-}
-
-
-
-int main(int argc, char *argv[])
-{
-    std::vector<double> x = {{0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0}};
-    std::vector<double> y = {{0.0, 1.0, 4.0, 9.0, 16.0, 25.0, 36.0}};
-
-    plot(x, y);
-
-    return 0;
+    return app.exec();
 }
 */

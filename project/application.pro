@@ -33,7 +33,6 @@ HEADERS += \
     ../source/numerics/NumParam.hpp \
     ../source/numerics/Domain.hpp \
     ../source/numerics/Units.hpp \
-    ../source/gui/NumberView.hpp \
     ../source/numerics/DataSeries.hpp \
     ../source/gui/SeriesEditor.hpp \
     ../source/model/InputData.hpp \
@@ -44,6 +43,8 @@ HEADERS += \
     ../source/fem/elements/ContactElement1D.hpp \
     ../source/numerics/CubicSpline.hpp \
     ../source/numerics/LinearSpline.hpp \
-    ../source/gui/Document.hpp
+    ../source/gui/Document.hpp \
+    ../source/gui/ScalarView.hpp \
+    ../source/gui/SeriesView.hpp
 
 RESOURCES += ../resources/resources.qrc

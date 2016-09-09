@@ -1,5 +1,6 @@
 #pragma once
-#include "NumberView.hpp"
+#include "ScalarView.hpp"
+#include "SeriesView.hpp"
 #include "SeriesEditor.hpp"
 #include "Document.hpp"
 
@@ -39,12 +40,16 @@ public:
         });
         */
 
-        auto tf_offset_x = new NumberView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_x; }));
-        auto tf_offset_y = new NumberView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_y; }));
-        auto tf_angle    = new NumberView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.angle;    }));
+        DocumentItem<DataSeries> series_item(document, [](InputData& input)->DataSeries&{ return input.limb.curvature; });
+        auto series_view = new SeriesView(series_item, "x lbl", "y lbl");
+
+        auto tf_offset_x = new ScalarView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_x; }));
+        auto tf_offset_y = new ScalarView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_y; }));
+        auto tf_angle    = new ScalarView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.angle;    }));
 
         auto form = new QFormLayout();
         //form->addRow("Curvature", bt_curvature);
+        form->addRow("Test", series_view);
         form->addRow("Offset x:", tf_offset_x);
         form->addRow("Offset y:", tf_offset_y);
         form->addRow("Angle:", tf_angle);

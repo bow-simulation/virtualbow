@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>icon.png</file>
+        <file>logo.png</file>
         <file>application-exit.png</file>
         <file>arrow-right.png</file>
         <file>arrow-right-double.png</file>

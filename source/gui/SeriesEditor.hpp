@@ -49,9 +49,7 @@ public:
         // Init table
         table = new QTableWidget(20, 2);    // Todo: Magic number
         table->verticalHeader()->hide();
-        //table->setItemDelegate(new Delegate);
-        table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        //table->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
         connect(table, &QTableWidget::cellChanged, this, &SeriesEditor::updateChart);
 
         // Init chart

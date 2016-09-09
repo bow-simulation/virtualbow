@@ -73,7 +73,7 @@ public:
         QMenu *menu_help = this->menuBar()->addMenu("&Help");
         menu_help->addAction(action_about);
 
-        this->setWindowIcon(QIcon(":/icon"));
+        this->setWindowIcon(QIcon(":/logo"));
         this->setCentralWidget(editor);
         setCurrentFile(QString());
     }
@@ -138,11 +138,11 @@ private slots:
     void about()
     {
         QMessageBox msgbox(this);
-        msgbox.setIconPixmap(QPixmap(":/icon"));
+        msgbox.setIconPixmap(QPixmap(":/logo"));
         msgbox.setWindowTitle("About");
         msgbox.setText("<h2>" + QGuiApplication::applicationDisplayName() + "</h2>"
                        "<h4>Version " + QGuiApplication::applicationVersion() + "</h4>"
-                       "Bow and arrow physics simulation\n"
+                       "Bow and arrow physics simulation<br>"
                        "<a href=\"" + QGuiApplication::organizationDomain() + "\">" + QGuiApplication::organizationDomain() + "</a><br><br>"
                        "Copyright (C) 2016 Stefan Pfeifer<br>"
                        "Distributed under the GNU General Public License v3.0");

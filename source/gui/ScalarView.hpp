@@ -8,14 +8,14 @@
 
 // Todo: Check domain, domain perhaps as template parameter
 template<typename T>
-class NumberView: public QLineEdit
+class ScalarView: public QLineEdit
 {
 public:
-    NumberView(DocumentItem<T> item)
+    ScalarView(DocumentItem<T> item)
         : doc_item(item)
     {
         // Update document
-        QObject::connect(this, &QLineEdit::textEdited, this, &NumberView::updateDocument);
+        QObject::connect(this, &QLineEdit::textEdited, this, &ScalarView::updateDocument);
 
         // Update view when document changes
         doc_item.connect([&]()
@@ -30,7 +30,7 @@ public:
         });
 
         // Update view when editing is finished to overwrite possible invalid input
-        QObject::connect(this, &QLineEdit::editingFinished, this, &NumberView::updateView);
+        QObject::connect(this, &QLineEdit::editingFinished, this, &ScalarView::updateView);
     }
 
 private:
