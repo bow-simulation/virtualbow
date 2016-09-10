@@ -12,7 +12,7 @@ public:
     SeriesView(DocumentItem<DataSeries> item, const QString& arg_label, const QString& val_label)
         : doc_item(item)
     {
-        table = new QTableWidget(20, 2);
+        table = new QTableWidget(0, 2);
 
         table->verticalHeader()->hide();
         table->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
@@ -21,10 +21,40 @@ public:
         table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
         table->setHorizontalHeaderLabels({{arg_label, val_label}});
 
-        // Todo: Is there a better way for laying out only one widget?
+        doc_item.connect([&]()
+        {
+            table->setRowCount(doc_item.getData().size());
+        });
+
+        auto bt_add = new QPushButton(QIcon(":/list-add"), "");
+        connect(bt_add, &QPushButton::clicked, [&]()
+        {
+            DataSeries data = doc_item.getData();
+            data.add(0.0, 0.0);
+            doc_item.setData(data);
+        });
+
+        auto bt_remove = new QPushButton(QIcon(":/list-remove"), "");
+        connect(bt_remove, &QPushButton::clicked, [&]()
+        {
+            DataSeries data = doc_item.getData();
+            if(data.size() > 0)
+            {
+                data.remove();
+                doc_item.setData(data);
+            }
+        });
+
+        // Layout
         auto h = new QHBoxLayout();
-        h->addWidget(table);
-        this->setLayout(h);
+        h->addWidget(bt_add);
+        h->addWidget(bt_remove);
+
+        auto v = new QVBoxLayout();
+        v->addWidget(table);
+        v->addLayout(h);
+
+        this->setLayout(v);
     }
 
 

@@ -17,20 +17,21 @@ public:
         // Update document
         QObject::connect(this, &QLineEdit::textEdited, this, &ScalarView::updateDocument);
 
+        // Update view when editing is finished to overwrite possible invalid input
+        QObject::connect(this, &QLineEdit::editingFinished, this, &ScalarView::updateView);
+
         // Update view when document changes
         doc_item.connect([&]()
         {
-            // Todo: This condition is a workaround to prevent the update from the document immediately overwriting
-            // things the user put in, like a trailing dot for example. Better would be if the document only updates
-            // all views but the one who sent the change.
+            // Don't receive updates from document while the widget still has focus.
+            // Todo: This is a workaround to prevent the update from the document immediately overwriting
+            // things the user put in, like a trailing dot for example. Better would be if the document updates
+            // all views except the one who sent the change.
             if(this->hasFocus())
-                return;
+               return;
 
             updateView();
         });
-
-        // Update view when editing is finished to overwrite possible invalid input
-        QObject::connect(this, &QLineEdit::editingFinished, this, &ScalarView::updateView);
     }
 
 private:

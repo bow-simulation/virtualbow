@@ -25,6 +25,19 @@ public:
         m_vals.push_back(val);
     }
 
+    void remove(size_t i)
+    {
+        // Todo: Seriously?
+        m_args.erase(m_args.begin() + i);
+        m_vals.erase(m_vals.begin() + i);
+    }
+
+    void remove()
+    {
+        m_args.pop_back();
+        m_vals.pop_back();
+    }
+
     const double& arg(size_t i) const
     {
         return m_args[i];

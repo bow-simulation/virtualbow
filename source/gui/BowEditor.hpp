@@ -14,14 +14,14 @@ class BowEditor: public QWidget
 public:
     BowEditor(Document& document)
     {
-        /*
-        auto bt_width = new QPushButton("Edit");
-        auto bt_height = new QPushButton("Edit");
-
         auto bt_curvature = new QPushButton("Edit");
         connect(bt_curvature, &QPushButton::clicked, [&]()
         {
-            auto edit = new SeriesEditor(this, param.curvature, [](const DataSeries& input)
+            auto* view = new SeriesView(DocumentItem<DataSeries>(document, [](InputData& input)->DataSeries&{ return input.limb.curvature; }), "x", "y");
+            view->show();
+
+            /*
+            auto edit = new SeriesEditor(this, ..., [](const DataSeries& input)
             {
                 try
                 {
@@ -34,22 +34,18 @@ public:
                 }
             });
 
-            edit->setInputLabels("Width", "Curvature");
+            edit->setInputLabels("Length", "Curvature");
             edit->setOutputLabels("Arc length", "Curvature");
             edit->exec();
+            */
         });
-        */
-
-        DocumentItem<DataSeries> series_item(document, [](InputData& input)->DataSeries&{ return input.limb.curvature; });
-        auto series_view = new SeriesView(series_item, "x lbl", "y lbl");
 
         auto tf_offset_x = new ScalarView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_x; }));
         auto tf_offset_y = new ScalarView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_y; }));
         auto tf_angle    = new ScalarView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.angle;    }));
 
         auto form = new QFormLayout();
-        //form->addRow("Curvature", bt_curvature);
-        form->addRow("Test", series_view);
+        form->addRow("Curvature", bt_curvature);
         form->addRow("Offset x:", tf_offset_x);
         form->addRow("Offset y:", tf_offset_y);
         form->addRow("Angle:", tf_angle);

@@ -63,6 +63,7 @@ public:
 
     }
 
+    // Todo: Naming
     template<typename Function>
     void connect(Function fn)
     {
