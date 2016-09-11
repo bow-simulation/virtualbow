@@ -4,11 +4,16 @@
 enum class Domain
 {
     All,
-    Pos,       // >  0
-    Neg,       // <  0
-    NonPos,    // <= 0
-    NonNeg,    // >= 0
+    Pos,
+    Neg,
 };
 
-template<Domain>
-void check_domain(double val);
+// Todo: Use constexpr and switch somehow?
+template<Domain domain>
+class DomainInfo
+{
+public:
+    static double default_value();
+    static bool contains(double value);
+};
+

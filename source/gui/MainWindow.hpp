@@ -14,31 +14,31 @@ public:
         QAction *action_new = new QAction(QIcon(":/document-new"), "&New", this);
         //QAction *action_new = new QAction(QIcon(":/document-new"), "&New", this);
         action_new->setShortcuts(QKeySequence::New);
-        connect(action_new, &QAction::triggered, this, &MainWindow::newFile);
+        QObject::connect(action_new, &QAction::triggered, this, &MainWindow::newFile);
 
         QAction *action_open = new QAction(QIcon(":/document-open"), "&Open...", this);
         action_open->setShortcuts(QKeySequence::Open);
-        connect(action_open, &QAction::triggered, this, &MainWindow::open);
+        QObject::connect(action_open, &QAction::triggered, this, &MainWindow::open);
 
         QAction *action_save = new QAction(QIcon(":/document-save"), "&Save", this);
         action_save->setShortcuts(QKeySequence::Save);
-        connect(action_save, &QAction::triggered, this, &MainWindow::save);
+        QObject::connect(action_save, &QAction::triggered, this, &MainWindow::save);
 
         QAction *action_save_as = new QAction(QIcon(":/document-save-as"), "Save &As...", this);
         action_save_as->setShortcuts(QKeySequence::SaveAs);
-        connect(action_save_as, &QAction::triggered, this, &MainWindow::saveAs);
+        QObject::connect(action_save_as, &QAction::triggered, this, &MainWindow::saveAs);
 
         QAction *action_exit = new QAction(QIcon(":/application-exit"), "&Quit", this);
         action_exit->setShortcuts(QKeySequence::Quit);
-        connect(action_exit, &QAction::triggered, this, &QWidget::close);
+        QObject::connect(action_exit, &QAction::triggered, this, &QWidget::close);
 
         QAction *action_run_statics = new QAction(QIcon(":/arrow-right"), "Statics...", this);
         //action_run_statics->setShortcuts(QKeySequence::Quit);
-        // connect ...
+        // QObject::connect ...
 
         QAction *action_run_dynamics = new QAction(QIcon(":/arrow-right-double"), "Dynamics...", this);
         //action_run_dynmics->setShortcuts(QKeySequence::Quit);
-        // connect ...
+        // QObject::connect ...
 
         QAction *action_about = new QAction(QIcon(":/dialog-information"), "&About...", this);
         connect(action_about, &QAction::triggered, this, &MainWindow::about);

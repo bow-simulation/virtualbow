@@ -1,8 +1,10 @@
 #pragma once
 #include "ScalarView.hpp"
+#include "NumberEditor.hpp"
 #include "SeriesView.hpp"
 #include "SeriesEditor.hpp"
 #include "Document.hpp"
+
 
 #include "../numerics/StepFunction.hpp"
 #include "../model/InputData.hpp"
@@ -40,9 +42,20 @@ public:
             */
         });
 
+        /*
         auto tf_offset_x = new ScalarView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_x; }));
         auto tf_offset_y = new ScalarView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_y; }));
         auto tf_angle    = new ScalarView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.angle;    }));
+        */
+
+        auto tf_offset_x = new NumberEditor<Domain::All>();
+        auto tf_offset_y = new NumberEditor<Domain::Pos>();
+        auto tf_angle    = new NumberEditor<Domain::Neg>();
+
+        QObject::connect(tf_offset_x, &NumberEditor<Domain::All>::valueChanged, [](double value)
+        {
+            qInfo() << "New value: " << value;
+        });
 
         auto form = new QFormLayout();
         form->addRow("Curvature", bt_curvature);

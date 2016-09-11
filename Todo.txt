@@ -1,13 +1,9 @@
 GUI
 ===
     * Bug: When suggesting save before creating new file the discard button shouldn't say "Close without saving"
-      but rather something like "Discard changes". (Platform dependent?)
+      but rather something like "Discard changes". (Platform dependent)
 
     * Bug/Annoyance: About box breaks the line about licensing before "v3.0" (Platform dependent)
-
-    * Toolbar icons under Windows
-
-    * Application icon
 
     * Bug: Repeatedly clicking the load and save icons and closing the dialogs with x sometimes makes the program print the following message,
 

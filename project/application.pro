@@ -3,6 +3,8 @@ include(dependencies.pri)
 TARGET = bow-design-simulator
 TEMPLATE = app
 
+CONFIG += c++14
+
 QT += core \
       gui \
       widgets \
@@ -14,9 +16,10 @@ SOURCES += ../source/main.cpp \
     ../source/gui/MainWindow.cpp \
     ../source/numerics/StepFunction.cpp \
     ../source/fem/System.cpp \
-    ../source/numerics/Domain.cpp \
     ../source/numerics/CubicSpline.cpp \
-    ../source/numerics/LinearSpline.cpp
+    ../source/numerics/LinearSpline.cpp \
+    ../source/gui/NumberEditor.cpp \
+    ../source/numerics/Domain.cpp
 
 HEADERS += \
     ../source/fem/elements/BarElement.hpp \
@@ -45,6 +48,7 @@ HEADERS += \
     ../source/numerics/LinearSpline.hpp \
     ../source/gui/Document.hpp \
     ../source/gui/ScalarView.hpp \
-    ../source/gui/SeriesView.hpp
+    ../source/gui/SeriesView.hpp \
+    ../source/gui/NumberEditor.hpp
 
 RESOURCES += ../resources/resources.qrc

@@ -20,6 +20,39 @@ int main(int argc, char *argv[])
 
 
 /*
+#include <wobjectdefs.h>
+#include <QObject>
+
+class MyObject : public QLineEdit
+{
+    W_OBJECT(MyObject)
+
+public:
+    void mySlot(const QString &name)
+    {
+        qDebug("hello %s", qPrintable(name));
+    }
+
+    W_SLOT(mySlot)
+
+signals:
+    void mySignal(const QString &name)
+    W_SIGNAL(mySignal, name)
+};
+
+#include <wobjectimpl.h>
+W_OBJECT_IMPL(MyObject)
+
+int main()
+{
+    MyObject* obj = new MyObject();
+    QObject::connect(obj, &MyObject::mySignal, obj, &MyObject::mySlot);
+
+    return 0;
+}
+*/
+
+/*
 #include "model/BowModel.hpp"
 
 int main()

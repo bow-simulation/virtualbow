@@ -1,35 +1,42 @@
 #include "Domain.hpp"
 
-template<>
-void check_domain<Domain::All>(double /*val*/)
-{
+// Default value
 
+template<>
+double DomainInfo<Domain::All>::default_value()
+{
+    return 0.0;
+}
+
+
+template<>
+double DomainInfo<Domain::Pos>::default_value()
+{
+    return 1.0;
 }
 
 template<>
-void check_domain<Domain::Pos>(double val)
+double DomainInfo<Domain::Neg>::default_value()
 {
-    if(val <= 0)
-        throw std::runtime_error("Value must be positive");
+    return -1.0;
+}
+
+// Contains
+
+template<>
+bool DomainInfo<Domain::All>::contains(double value)
+{
+    return true;
 }
 
 template<>
-void check_domain<Domain::Neg>(double val)
+bool DomainInfo<Domain::Pos>::contains(double value)
 {
-    if(val >= 0)
-        throw std::runtime_error("Value must be negative");
+    return value > 0.0;
 }
 
 template<>
-void check_domain<Domain::NonPos>(double val)
+bool DomainInfo<Domain::Neg>::contains(double value)
 {
-    if(val > 0)
-        throw std::runtime_error("Value must not be positive");
-}
-
-template<>
-void check_domain<Domain::NonNeg>(double val)
-{
-    if(val < 0)
-        throw std::runtime_error("Value must not be negative");
+    return value < 0.0;
 }
