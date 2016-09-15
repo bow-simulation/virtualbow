@@ -6,29 +6,31 @@
 #include <QtWidgets>
 #include <wobjectdefs.h>
 
-#include <functional>
-
-template<Domain D>
-class NumberEditor: public QLineEdit
+template<DomainTag D>
+class DoubleEditor: public QLineEdit
 {
-    W_OBJECT(NumberEditor)
+    W_OBJECT(DoubleEditor)
 
 public:
-    NumberEditor()
+    DoubleEditor(QWidget* parent = nullptr): QLineEdit(parent)
     {
-        QObject::connect(this, &QLineEdit::textEdited, this, &NumberEditor::updateValue);
-        QObject::connect(this, &QLineEdit::editingFinished, this, &NumberEditor::updateDisplay);
+        QObject::connect(this, &QLineEdit::textEdited, this, &DoubleEditor::updateValue);
+        QObject::connect(this, &QLineEdit::editingFinished, this, &DoubleEditor::updateDisplay);
 
-        setValue(DomainInfo<D>::default_value());
+        setValue(Domain<D>::default_value());
     }
 
     void setValue(double new_value)
     {
-        if(DomainInfo<D>::contains(new_value))
+        if(Domain<D>::contains(new_value))
         {
             value = new_value;
             updateDisplay();
             emit valueChanged(new_value);
+        }
+        else
+        {
+            throw std::runtime_error("Value is not in the required domain");
         }
     }
 
@@ -49,7 +51,6 @@ private:
         // Replace the local decimal separator with a dot
         if(event->text() == QLocale().decimalPoint())
         {
-            event->ignore();
             this->insert(".");
         }
         else
@@ -63,7 +64,7 @@ private:
         bool success;
         double new_value = this->text().toDouble(&success);
 
-        if(success && DomainInfo<D>::contains(new_value))
+        if(success && Domain<D>::contains(new_value))
         {
             value = new_value;
             this->setPalette(QPalette());
@@ -75,31 +76,6 @@ private:
             palette.setColor(QPalette::Base, QColor(255, 128, 128));
             this->setPalette(palette);
         }
-
-
-        /*
-        try
-        {
-
-
-            double new_value = boost::lexical_cast<double>(this->text().toStdString());
-
-            if(DomainInfo<D>::contains(new_value))
-            {
-
-            }
-
-            value = new_value;  // Todo: Check domain
-            this->setPalette(QPalette());
-            emit valueChanged(new_value);
-        }
-        catch(const boost::bad_lexical_cast&)
-        {
-            QPalette palette;
-            palette.setColor(QPalette::Base, QColor(255, 128, 128));
-            this->setPalette(palette);
-        }
-        */
     }
 
     void updateDisplay()
@@ -111,4 +87,4 @@ private:
 
 #include <wobjectimpl.h>
 
-W_OBJECT_IMPL(NumberEditor<D>, template<Domain D>)
+W_OBJECT_IMPL(DoubleEditor<D>, template<DomainTag D>)

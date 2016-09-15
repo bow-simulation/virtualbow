@@ -1,10 +1,9 @@
 #pragma once
 #include "ScalarView.hpp"
-#include "NumberEditor.hpp"
+#include "DoubleEditor.hpp"
 #include "SeriesView.hpp"
 #include "SeriesEditor.hpp"
 #include "Document.hpp"
-
 
 #include "../numerics/StepFunction.hpp"
 #include "../model/InputData.hpp"
@@ -19,11 +18,16 @@ public:
         auto bt_curvature = new QPushButton("Edit");
         connect(bt_curvature, &QPushButton::clicked, [&]()
         {
-            auto* view = new SeriesView(DocumentItem<DataSeries>(document, [](InputData& input)->DataSeries&{ return input.limb.curvature; }), "x", "y");
-            view->show();
+            //DocumentItem<DataSeries> doc_item(document, [](InputData& input)->DataSeries&{ return input.limb.curvature; });
+            //auto* view = new SeriesView<DomainTag::Pos, DomainTag::All>(doc_item, "x", "y");
+            //view->show();
 
-            /*
-            auto edit = new SeriesEditor(this, ..., [](const DataSeries& input)
+            DataSeries series;
+            series.add(1, 1);
+            series.add(1, 2);
+            series.add(1, 3);
+
+            auto edit = new SeriesEditor(this, series, [](const DataSeries& input)
             {
                 try
                 {
@@ -36,10 +40,10 @@ public:
                 }
             });
 
-            edit->setInputLabels("Length", "Curvature");
+            edit->setWindowTitle("Edit profile");
+            edit->setInputLabels("Seg. length", "Curvature");
             edit->setOutputLabels("Arc length", "Curvature");
             edit->exec();
-            */
         });
 
         /*
@@ -48,11 +52,11 @@ public:
         auto tf_angle    = new ScalarView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.angle;    }));
         */
 
-        auto tf_offset_x = new NumberEditor<Domain::All>();
-        auto tf_offset_y = new NumberEditor<Domain::Pos>();
-        auto tf_angle    = new NumberEditor<Domain::Neg>();
+        auto tf_offset_x = new DoubleEditor<DomainTag::All>();
+        auto tf_offset_y = new DoubleEditor<DomainTag::Pos>();
+        auto tf_angle    = new DoubleEditor<DomainTag::Neg>();
 
-        QObject::connect(tf_offset_x, &NumberEditor<Domain::All>::valueChanged, [](double value)
+        QObject::connect(tf_offset_x, &DoubleEditor<DomainTag::All>::valueChanged, [](double value)
         {
             qInfo() << "New value: " << value;
         });

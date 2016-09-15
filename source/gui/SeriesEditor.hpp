@@ -1,5 +1,6 @@
 #pragma once
 #include "../numerics/DataSeries.hpp"
+#include "Plot.hpp"
 
 #include <QtWidgets>
 #include <QtCharts/QChartView>
@@ -39,34 +40,30 @@ class SeriesEditor: public QDialog
     Q_OBJECT
 
 public:
-    typedef std::function<DataSeries(const DataSeries&)> DataFunction;
+    typedef std::function<DataSeries(const DataSeries&)> Transform;
 
-    SeriesEditor(QWidget* parent, DataSeries& data, DataFunction f)
+    SeriesEditor(QWidget* parent, DataSeries& data, Transform transform)
         : QDialog(parent),
-          data(data),
-          getOutputData(f)
+          transform(transform),
+          data(data)
     {
         // Init table
         table = new QTableWidget(20, 2);    // Todo: Magic number
         table->verticalHeader()->hide();
         table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-        connect(table, &QTableWidget::cellChanged, this, &SeriesEditor::updateChart);
+        QObject::connect(table, &QTableWidget::cellChanged, this, &SeriesEditor::updateChart);
 
-        // Init chart
-        QLineSeries *series = new QLineSeries();
-        chart = new QChart();
-        chart->legend()->hide();
-        chart->addSeries(series);
-        chart->createDefaultAxes();
+        // Init plot
+        plot = new Plot();
+        plot->addSeries();
 
-        QChartView *view = new QChartView(chart);
+        QChartView *view = new QChartView(plot);
         view->setRenderHint(QPainter::Antialiasing);
-        view->setRubberBand(QChartView::RectangleRubberBand);
 
         // Ok and Cancel buttons
         QDialogButtonBox* btbox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-        connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::reject);    // Reject: Do nothing
-        connect(btbox, &QDialogButtonBox::accepted, [&]()   // Accept: Store data
+        QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::reject);    // Reject: Do nothing
+        QObject::connect(btbox, &QDialogButtonBox::accepted, [&]()   // Accept: Store data
         {
             data = getInputData();
             this->accept();
@@ -80,10 +77,11 @@ public:
         QVBoxLayout* v = new QVBoxLayout;
         v->addLayout(h);
         v->addWidget(btbox);
+
         this->setLayout(v);
         this->resize(900, 400);
 
-        initInputData();
+        setInputData();
     }
 
     void setInputLabels(const QString& lbx, const QString& lby)
@@ -93,8 +91,8 @@ public:
 
     void setOutputLabels(const QString& lbx, const QString& lby)
     {
-        chart->axisX()->setTitleText(lbx);
-        chart->axisY()->setTitleText(lby);
+        plot->axisX()->setTitleText(lbx);
+        plot->axisY()->setTitleText(lby);
     }
 
     DataSeries getInputData()
@@ -121,7 +119,7 @@ public:
         return data;
     }
 
-    void initInputData()
+    void setInputData()
     {
         bool old_state = table->blockSignals(true);     // Todo: Is there a better way to set item texts without triggering a plot update every time?
 
@@ -146,36 +144,14 @@ public slots:
     {
         // Get input and output data
         DataSeries input = getInputData();
-        DataSeries output = getOutputData(input);
-
-        // Update chart
-        QLineSeries *series = new QLineSeries();
-        for(size_t i = 0; i < output.size(); ++i)
-        {
-            series->append(output.arg(i), output.val(i));
-        }
-
-        chart->removeSeries(chart->series()[0]);
-        chart->addSeries(series);
-
-        /*
-        // Todo: Using clear() on existing series would be better, but the axes won't update properly.
-        QLineSeries* series = dynamic_cast<QLineSeries*>(chart->series()[0]);
-        series->clear();
-        for(size_t i = 0; i < x_out.size(); ++i)
-        {
-            series->append(x_out[i], y_out[i]);
-        }
-
-        // ...
-        // Alternative zu append:
-        // series->replace(xy_out);
-        */
+        DataSeries output = transform(input);
+        plot->setData(0, output);
     }
 
 private:
-    QTableWidget* table;
-    QChart* chart;
+    Transform transform;
     DataSeries& data;
-    DataFunction getOutputData;
+
+    QTableWidget* table;
+    Plot* plot;
 };

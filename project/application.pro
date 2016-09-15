@@ -49,6 +49,7 @@ HEADERS += \
     ../source/gui/Document.hpp \
     ../source/gui/ScalarView.hpp \
     ../source/gui/SeriesView.hpp \
-    ../source/gui/NumberEditor.hpp
+    ../source/gui/DoubleEditor.hpp \
+    ../source/gui/Plot.hpp
 
 RESOURCES += ../resources/resources.qrc

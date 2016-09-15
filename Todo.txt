@@ -18,6 +18,8 @@ GUI
     * ScalarView: Inherit from QWidget and implement with QLineEdit? (Prevent QLineEdit methods from being used)
       Same for other view classes. Maybe use private inheritance?
 
+    * NumberEditor: Display large numbers in engineering format (e+03, e+06, e+09, ...) instead of scientific
+
 FEM
 ===
 

@@ -1,16 +1,18 @@
 #pragma once
 #include <stdexcept>
 
-enum class Domain
+enum class DomainTag
 {
     All,
     Pos,
     Neg,
+    NonPos,
+    NonNeg,
 };
 
 // Todo: Use constexpr and switch somehow?
-template<Domain domain>
-class DomainInfo
+template<DomainTag domain>
+class Domain
 {
 public:
     static double default_value();

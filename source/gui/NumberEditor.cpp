@@ -1,1 +1,1 @@
-#include "NumberEditor.hpp"
+#include "DoubleEditor.hpp"

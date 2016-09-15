@@ -3,40 +3,64 @@
 // Default value
 
 template<>
-double DomainInfo<Domain::All>::default_value()
+double Domain<DomainTag::All>::default_value()
 {
     return 0.0;
 }
 
 
 template<>
-double DomainInfo<Domain::Pos>::default_value()
+double Domain<DomainTag::Pos>::default_value()
 {
     return 1.0;
 }
 
 template<>
-double DomainInfo<Domain::Neg>::default_value()
+double Domain<DomainTag::Neg>::default_value()
 {
     return -1.0;
+}
+
+template<>
+double Domain<DomainTag::NonPos>::default_value()
+{
+    return 0.0;
+}
+
+template<>
+double Domain<DomainTag::NonNeg>::default_value()
+{
+    return 0.0;
 }
 
 // Contains
 
 template<>
-bool DomainInfo<Domain::All>::contains(double value)
+bool Domain<DomainTag::All>::contains(double value)
 {
     return true;
 }
 
 template<>
-bool DomainInfo<Domain::Pos>::contains(double value)
+bool Domain<DomainTag::Pos>::contains(double value)
 {
     return value > 0.0;
 }
 
 template<>
-bool DomainInfo<Domain::Neg>::contains(double value)
+bool Domain<DomainTag::Neg>::contains(double value)
 {
     return value < 0.0;
+}
+
+template<>
+bool Domain<DomainTag::NonPos>::contains(double value)
+{
+    return value <= 0.0;
+}
+
+template<>
+bool Domain<DomainTag::NonNeg>::contains(double value)
+{
+    return value >= 0.0;
 }
