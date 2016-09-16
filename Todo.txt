@@ -14,6 +14,7 @@ GUI
     * Bug: About box link doesn't work under Windows 7
 
     * Decision: Use theme icons on linux or just use the same icons everywhere?
+      http://mithatkonar.com/wiki/doku.php/qt/icons
 
     * ScalarView: Inherit from QWidget and implement with QLineEdit? (Prevent QLineEdit methods from being used)
       Same for other view classes. Maybe use private inheritance?

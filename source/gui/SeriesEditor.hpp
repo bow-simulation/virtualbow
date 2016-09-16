@@ -42,10 +42,9 @@ class SeriesEditor: public QDialog
 public:
     typedef std::function<DataSeries(const DataSeries&)> Transform;
 
-    SeriesEditor(QWidget* parent, DataSeries& data, Transform transform)
+    SeriesEditor(QWidget* parent, Transform transform)
         : QDialog(parent),
-          transform(transform),
-          data(data)
+          transform(transform)
     {
         // Init table
         table = new QTableWidget(20, 2);    // Todo: Magic number
@@ -61,13 +60,9 @@ public:
         view->setRenderHint(QPainter::Antialiasing);
 
         // Ok and Cancel buttons
-        QDialogButtonBox* btbox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-        QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::reject);    // Reject: Do nothing
-        QObject::connect(btbox, &QDialogButtonBox::accepted, [&]()   // Accept: Store data
-        {
-            data = getInputData();
-            this->accept();
-        });
+        btbox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+        QObject::connect(btbox, &QDialogButtonBox::accepted, this, &QDialog::accept);
 
         // Layout
         QHBoxLayout* h = new QHBoxLayout;
@@ -81,7 +76,7 @@ public:
         this->setLayout(v);
         this->resize(900, 400);
 
-        setInputData();
+        setData(DataSeries());
     }
 
     void setInputLabels(const QString& lbx, const QString& lby)
@@ -95,7 +90,7 @@ public:
         plot->axisY()->setTitleText(lby);
     }
 
-    DataSeries getInputData()
+    DataSeries getData() const
     {
         DataSeries data;
         for(int i = 0; i < table->rowCount(); ++i)
@@ -119,7 +114,7 @@ public:
         return data;
     }
 
-    void setInputData()
+    void setData(DataSeries data)
     {
         bool old_state = table->blockSignals(true);     // Todo: Is there a better way to set item texts without triggering a plot update every time?
 
@@ -142,16 +137,17 @@ public:
 public slots:
     void updateChart()
     {
-        // Get input and output data
-        DataSeries input = getInputData();
+        DataSeries input = getData();
         DataSeries output = transform(input);
+
         plot->setData(0, output);
+        btbox->button(QDialogButtonBox::Ok)->setEnabled(output.size() != 0);
     }
 
 private:
     Transform transform;
-    DataSeries& data;
 
     QTableWidget* table;
     Plot* plot;
+    QDialogButtonBox* btbox;
 };

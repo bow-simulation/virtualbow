@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QGuiApplication::setApplicationDisplayName("Bow Simulator");
     QGuiApplication::setApplicationVersion("0.0");
-    QGuiApplication::setOrganizationDomain("stfnp.bitbucket.org");
+    QGuiApplication::setOrganizationDomain("bow-simulator.sourceforge.net");
 
     MainWindow window;
     window.show();

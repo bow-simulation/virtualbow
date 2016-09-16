@@ -16,18 +16,9 @@ public:
     BowEditor(Document& document)
     {
         auto bt_curvature = new QPushButton("Edit");
-        connect(bt_curvature, &QPushButton::clicked, [&]()
+        QObject::connect(bt_curvature, &QPushButton::clicked, [&]()
         {
-            //DocumentItem<DataSeries> doc_item(document, [](InputData& input)->DataSeries&{ return input.limb.curvature; });
-            //auto* view = new SeriesView<DomainTag::Pos, DomainTag::All>(doc_item, "x", "y");
-            //view->show();
-
-            DataSeries series;
-            series.add(1, 1);
-            series.add(1, 2);
-            series.add(1, 3);
-
-            auto edit = new SeriesEditor(this, series, [](const DataSeries& input)
+            auto edit = new SeriesEditor(this, [](const DataSeries& input)
             {
                 try
                 {
@@ -42,8 +33,15 @@ public:
 
             edit->setWindowTitle("Edit profile");
             edit->setInputLabels("Seg. length", "Curvature");
+
+            DocumentItem<DataSeries> doc_item(document, [](InputData& input)->DataSeries&{ return input.limb.curvature; });
+            edit->setData(doc_item.getData());
             edit->setOutputLabels("Arc length", "Curvature");
-            edit->exec();
+
+            if(edit->exec() == QDialog::Accepted)
+            {
+                doc_item.setData(edit->getData());
+            }
         });
 
         /*

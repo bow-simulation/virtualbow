@@ -100,7 +100,6 @@ private:
     };
 };
 
-
 /*
 // Todo: Check domain, domain perhaps as template parameter
 template<typename T>
