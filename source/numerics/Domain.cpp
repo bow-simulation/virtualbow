@@ -1,66 +1,73 @@
 #include "Domain.hpp"
+#include <limits>
 
-// Default value
+// All
 
 template<>
-double Domain<DomainTag::All>::default_value()
+double Domain<DomainTag::All>::min()
+{
+    return std::numeric_limits<double>::lowest();
+}
+
+template<>
+double Domain<DomainTag::All>::max()
+{
+    return std::numeric_limits<double>::max();
+}
+
+// Pos
+
+template<>
+double Domain<DomainTag::Pos>::min()
+{
+    return std::numeric_limits<double>::min();
+}
+
+template<>
+double Domain<DomainTag::Pos>::max()
+{
+    return std::numeric_limits<double>::max();
+}
+
+// Neg
+
+template<>
+double Domain<DomainTag::Neg>::min()
+{
+    return std::numeric_limits<double>::lowest();
+}
+
+template<>
+double Domain<DomainTag::Neg>::max()
+{
+    return -std::numeric_limits<double>::min();
+}
+
+// NonPos
+
+template<>
+double Domain<DomainTag::NonPos>::min()
+{
+    return std::numeric_limits<double>::lowest();
+}
+
+template<>
+double Domain<DomainTag::NonPos>::max()
 {
     return 0.0;
 }
 
+// NonNeg
 
 template<>
-double Domain<DomainTag::Pos>::default_value()
-{
-    return 1.0;
-}
-
-template<>
-double Domain<DomainTag::Neg>::default_value()
-{
-    return -1.0;
-}
-
-template<>
-double Domain<DomainTag::NonPos>::default_value()
+double Domain<DomainTag::NonNeg>::min()
 {
     return 0.0;
 }
 
 template<>
-double Domain<DomainTag::NonNeg>::default_value()
+double Domain<DomainTag::NonNeg>::max()
 {
-    return 0.0;
+    return std::numeric_limits<double>::max();
 }
 
-// Contains
-
-template<>
-bool Domain<DomainTag::All>::contains(double value)
-{
-    return true;
-}
-
-template<>
-bool Domain<DomainTag::Pos>::contains(double value)
-{
-    return value > 0.0;
-}
-
-template<>
-bool Domain<DomainTag::Neg>::contains(double value)
-{
-    return value < 0.0;
-}
-
-template<>
-bool Domain<DomainTag::NonPos>::contains(double value)
-{
-    return value <= 0.0;
-}
-
-template<>
-bool Domain<DomainTag::NonNeg>::contains(double value)
-{
-    return value >= 0.0;
-}

@@ -5,6 +5,21 @@
 
 #include "gui/Document.hpp"
 
+class Edit: public QLineEdit
+{
+public:
+    Edit(double min, double max)
+    {
+        setValidator(new QDoubleValidator(min, max, 10));
+
+        connect(this, &QLineEdit::editingFinished, [this, min]()
+        {
+            if(hasAcceptableInput())
+                setText(QString::number(min));
+        });
+    }
+};
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);

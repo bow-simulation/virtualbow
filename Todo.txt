@@ -11,15 +11,10 @@ GUI
 
     * Bug/Annoyance: Application name is shown behind window title even in simple dialogs (about box, file dialogs, ...)
 
-    * Bug: About box link doesn't work under Windows 7
-
     * Decision: Use theme icons on linux or just use the same icons everywhere?
       http://mithatkonar.com/wiki/doku.php/qt/icons
 
-    * ScalarView: Inherit from QWidget and implement with QLineEdit? (Prevent QLineEdit methods from being used)
-      Same for other view classes. Maybe use private inheritance?
-
-    * NumberEditor: Display large numbers in engineering format (e+03, e+06, e+09, ...) instead of scientific
+    * DoubleView: Display large numbers in engineering format (e+03, e+06, e+09, ...) instead of scientific
 
 FEM
 ===

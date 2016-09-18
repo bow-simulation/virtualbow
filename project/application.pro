@@ -47,9 +47,9 @@ HEADERS += \
     ../source/numerics/CubicSpline.hpp \
     ../source/numerics/LinearSpline.hpp \
     ../source/gui/Document.hpp \
-    ../source/gui/ScalarView.hpp \
     ../source/gui/SeriesView.hpp \
     ../source/gui/DoubleEditor.hpp \
-    ../source/gui/Plot.hpp
+    ../source/gui/Plot.hpp \
+    ../source/gui/DoubleView.hpp
 
 RESOURCES += ../resources/resources.qrc

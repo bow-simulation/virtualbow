@@ -2,7 +2,6 @@
 #include "Document.hpp"
 #include "../numerics/Domain.hpp"
 
-#include <boost/lexical_cast.hpp>
 #include <QtWidgets>
 #include <wobjectdefs.h>
 

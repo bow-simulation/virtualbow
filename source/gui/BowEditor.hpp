@@ -1,5 +1,5 @@
 #pragma once
-#include "ScalarView.hpp"
+#include "DoubleView.hpp"
 #include "DoubleEditor.hpp"
 #include "SeriesView.hpp"
 #include "SeriesEditor.hpp"
@@ -44,20 +44,18 @@ public:
             }
         });
 
+        DocumentItem<double> item(document, [](InputData& input)->double&{ return input.limb.offset_x; });
+
+        auto tf_offset_x = new DoubleView<DomainTag::All>(item);
+        auto tf_offset_y = new DoubleView<DomainTag::All>(item);
+        auto tf_angle    = new DoubleView<DomainTag::All>(item);
+
+
         /*
-        auto tf_offset_x = new ScalarView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_x; }));
-        auto tf_offset_y = new ScalarView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_y; }));
-        auto tf_angle    = new ScalarView<double>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.angle;    }));
+        auto tf_offset_x = new DoubleView<DomainTag::All>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_x; }));
+        auto tf_offset_y = new DoubleView<DomainTag::Pos>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_y; }));
+        auto tf_angle    = new DoubleView<DomainTag::Neg>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.angle;    }));
         */
-
-        auto tf_offset_x = new DoubleEditor<DomainTag::All>();
-        auto tf_offset_y = new DoubleEditor<DomainTag::Pos>();
-        auto tf_angle    = new DoubleEditor<DomainTag::Neg>();
-
-        QObject::connect(tf_offset_x, &DoubleEditor<DomainTag::All>::valueChanged, [](double value)
-        {
-            qInfo() << "New value: " << value;
-        });
 
         auto form = new QFormLayout();
         form->addRow("Curvature", bt_curvature);

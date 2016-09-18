@@ -15,7 +15,12 @@ template<DomainTag domain>
 class Domain
 {
 public:
-    static double default_value();
-    static bool contains(double value);
+    static bool contains(double value)
+    {
+        return value >= min() && value <= max();
+    }
+
+    static double min();
+    static double max();
 };
 
