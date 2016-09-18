@@ -1,24 +1,35 @@
+/*
+#include <QtWidgets>
+
+class Validator: public QValidator
+{
+    virtual State validate(QString& input, int& pos) const override
+    {
+        qInfo() << "See? Told you!";
+        return Acceptable;
+    }
+};
+
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
+
+    QLineEdit* edit = new QLineEdit;
+    edit->setValidator(new Validator);
+    edit->show();
+
+    edit->setText("test");
+
+    return app.exec();
+}
+*/
+
 #include "gui/MainWindow.hpp"
 #include "gui/SeriesEditor.hpp"
 #include "numerics/CubicSpline.hpp"
 #include <QtWidgets>
 
 #include "gui/Document.hpp"
-
-class Edit: public QLineEdit
-{
-public:
-    Edit(double min, double max)
-    {
-        setValidator(new QDoubleValidator(min, max, 10));
-
-        connect(this, &QLineEdit::editingFinished, [this, min]()
-        {
-            if(hasAcceptableInput())
-                setText(QString::number(min));
-        });
-    }
-};
 
 int main(int argc, char *argv[])
 {

@@ -44,18 +44,9 @@ public:
             }
         });
 
-        DocumentItem<double> item(document, [](InputData& input)->double&{ return input.limb.offset_x; });
-
-        auto tf_offset_x = new DoubleView<DomainTag::All>(item);
-        auto tf_offset_y = new DoubleView<DomainTag::All>(item);
-        auto tf_angle    = new DoubleView<DomainTag::All>(item);
-
-
-        /*
         auto tf_offset_x = new DoubleView<DomainTag::All>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_x; }));
-        auto tf_offset_y = new DoubleView<DomainTag::Pos>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_y; }));
-        auto tf_angle    = new DoubleView<DomainTag::Neg>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.angle;    }));
-        */
+        auto tf_offset_y = new DoubleView<DomainTag::All>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_y; }));
+        auto tf_angle    = new DoubleView<DomainTag::All>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.angle;    }));
 
         auto form = new QFormLayout();
         form->addRow("Curvature", bt_curvature);

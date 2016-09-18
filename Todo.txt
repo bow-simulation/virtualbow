@@ -32,3 +32,5 @@ General
     * Decide between using std::array and Eigen::Array, then replace one with the other.
 
     * tests fail on Windows 7 with MinGW 5.3.0 32bit.
+
+    * Lambdas: Most lambdas could capture only [this], instead of [&]

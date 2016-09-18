@@ -9,7 +9,7 @@ class DoubleValidator : public QDoubleValidator
 {
 public:
     DoubleValidator(DocumentItem<double> doc_item)
-        : QDoubleValidator(Domain<D>::min(), Domain<D>::max(), 10),     // Todo: Magic number
+        : QDoubleValidator(Domain<D>::min(), Domain<D>::max(), 15),     // Todo: Magic number
           doc_item(doc_item)
     {
         this->setLocale(QLocale(QLocale::C));
@@ -17,10 +17,16 @@ public:
 
     virtual State validate(QString& input, int& pos) const override
     {
+        qInfo() << "Validate!";
+
         State state = QDoubleValidator::validate(input, pos);
         if(state == Acceptable)
         {
-            doc_item.setData(this->locale().toDouble(input));
+            double new_value = locale().toDouble(input);
+            if(new_value != doc_item.getData())     // Todo: Move this check to DocumentItem?
+            {
+                doc_item.setData(new_value);
+            }
         }
 
         return state;
@@ -28,7 +34,13 @@ public:
 
     virtual void fixup(QString& input) const override
     {
-        input = locale().toString(doc_item.getData(), 'g', decimals());
+        double value = doc_item.getData();
+        if(!Domain<D>::contains(value))
+        {
+            throw std::runtime_error("Value lies outside of valid domain");
+        }
+
+        input = locale().toString(value, 'g', decimals());
     }
 
 private:
@@ -39,11 +51,10 @@ template<DomainTag D>
 class DoubleView: public QLineEdit
 {
 public:
-    DoubleView(DocumentItem<double> item): doc_item(item)
+    DoubleView(DocumentItem<double> doc_item): doc_item(doc_item)
     {
-        this->setValidator(new DoubleValidator<D>(doc_item));   // Todo: DocumentItem by reference? (here and elsewhere)
-
-        doc_item.connect([&]()
+        this->setValidator(new DoubleValidator<D>(doc_item));
+        doc_item.connect([this]()
         {
             // Don't receive updates from document while the widget still has focus.
             // Todo: This is a workaround to prevent the update from the document immediately overwriting
@@ -51,13 +62,6 @@ public:
             // all views except the one that was responsible for the change.
             if(this->hasFocus())
                return;
-
-            // Update view with new value, exception if out of bounds
-            double new_value = doc_item.getData();
-            if(!Domain<D>::contains(new_value))
-            {
-                throw std::runtime_error("Value lies outside valid domain");
-            }
 
             QString text;
             this->validator()->fixup(text);
