@@ -20,6 +20,11 @@ public:
 
             this->setText(QString::fromStdString(this->doc_item.getData()));
         });
+
+        QObject::connect(this, &QTextEdit::textChanged, [this]()
+        {
+            this->doc_item.setData(this->toPlainText().toStdString());
+        });
     }
 
 private:
