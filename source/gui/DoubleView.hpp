@@ -17,8 +17,6 @@ public:
 
     virtual State validate(QString& input, int& pos) const override
     {
-        qInfo() << "Validate!";
-
         State state = QDoubleValidator::validate(input, pos);
         if(state == Acceptable)
         {

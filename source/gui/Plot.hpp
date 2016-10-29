@@ -1,16 +1,12 @@
 #pragma once
-#include <QtCharts/QChart>
-#include <QtCharts/QLineSeries>
-#include <QtCharts/QValueAxis>
-#include <QGraphicsLayout>
+#include "qcustomplot/qcustomplot.h"
 
-QT_CHARTS_USE_NAMESPACE
-
-class Plot: public QChart
+class Plot: public QCustomPlot
 {
 public:
     Plot()
     {
+        /*
         QValueAxis *axisX = new QValueAxis;
         axisX->setLabelFormat("%g");
         //axisX->setTitleText(x_label);
@@ -25,18 +21,22 @@ public:
         this->legend()->hide();
         this->layout()->setContentsMargins(0, 0, 0, 0);
         this->setBackgroundRoundness(0);
+        */
     }
 
     int addSeries(const DataSeries& data, const QString& name = "")
     {
+        /*
         int index = addSeries(name);
         setData(index, data);
 
         return index;
+        */
     }
 
     int addSeries(const QString& name = "")
     {
+        /*
         if(!name.isEmpty())
             this->legend()->show();
 
@@ -48,10 +48,12 @@ public:
         series->attachAxis(this->axisY());
 
         return this->series().size() - 1;
+        */
     }
 
     void setData(int index, const DataSeries& data)
     {
+        /*
         auto* series = dynamic_cast<QLineSeries*>(this->series()[index]);
         series->clear();
 
@@ -60,10 +62,13 @@ public:
             series->append(data.arg(i), data.val(i));
         }
 
-        // Todo
-        // http://stackoverflow.com/questions/39409994/how-to-automatically-rescale-axis-in-qtcharts
-        QChart::removeSeries(series);
-        QChart::addSeries(series);
+        fit();
+        */
+    }
+
+    void fit()
+    {
+        //qInfo() << "Fit!";
     }
 };
 

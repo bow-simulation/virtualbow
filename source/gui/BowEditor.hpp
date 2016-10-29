@@ -1,65 +1,79 @@
 #pragma once
 #include "DoubleView.hpp"
+#include "TextView.hpp"
 #include "DoubleEditor.hpp"
 #include "SeriesView.hpp"
 #include "SeriesEditor.hpp"
 #include "Document.hpp"
+#include "BowPreview.hpp"
 
 #include "../numerics/StepFunction.hpp"
 #include "../model/InputData.hpp"
 
+
+class DoubleGroup: public QGroupBox
+{
+public:
+    DoubleGroup(Document& doc, const QString& title)
+        : QGroupBox(title),
+          doc(doc),
+          layout(new QFormLayout)
+    {
+        this->setLayout(layout);
+    }
+
+    template<DomainTag D>
+    void addRow(const QString& label, std::function<double&(InputData&)> f)
+    {
+        auto field = new DoubleView<D>(DocumentItem<double>(doc, f));
+        layout->addRow(label, field);
+    }
+
+private:
+    Document& doc;
+    QFormLayout* layout;
+};
+
 class BowEditor: public QWidget
 {
-    Q_OBJECT
-
 public:
-    BowEditor(Document& document)
+    BowEditor(Document& doc)
     {
-        auto bt_curvature = new QPushButton("Edit");
-        QObject::connect(bt_curvature, &QPushButton::clicked, [&]()
-        {
-            auto edit = new SeriesEditor(this, [](const DataSeries& input)
-            {
-                try
-                {
-                    StepFunction f(input);
-                    return f.sample();
-                }
-                catch(std::runtime_error e)
-                {
-                    return DataSeries();
-                }
-            });
+        auto vbox = new QVBoxLayout();
+        this->setLayout(vbox);
 
-            edit->setWindowTitle("Edit profile");
-            edit->setInputLabels("Seg. length", "Curvature");
+        auto tabs = new QTabWidget();
+        tabs->addTab(new QWidget(),"Profile");
+        tabs->addTab(new QWidget(),"Width");
+        tabs->addTab(new QWidget(),"Height");
+        vbox->addWidget(tabs, 1);
 
-            DocumentItem<DataSeries> doc_item(document, [](InputData& input)->DataSeries&{ return input.limb.curvature; });
-            edit->setData(doc_item.getData());
-            edit->setOutputLabels("Arc length", "Curvature");
+        auto hbox = new QHBoxLayout();
+        vbox->addLayout(hbox);
 
-            if(edit->exec() == QDialog::Accepted)
-            {
-                doc_item.setData(edit->getData());
-            }
-        });
+        // String
+        auto group_string = new DoubleGroup(doc, "String");
+        group_string->addRow<DomainTag::Pos>("Strand stiffness:", [](InputData& input)->double&{ return input.string.strand_stiffness; });
+        group_string->addRow<DomainTag::Pos>("Strand density:", [](InputData& input)->double&{ return input.string.strand_density; });
+        group_string->addRow<DomainTag::Pos>("Number of strands:", [](InputData& input)->double&{ return input.string.n_strands; });
+        hbox->addWidget(group_string);
 
-        auto tf_offset_x = new DoubleView<DomainTag::All>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_x; }));
-        auto tf_offset_y = new DoubleView<DomainTag::All>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.offset_y; }));
-        auto tf_angle    = new DoubleView<DomainTag::All>(DocumentItem<double>(document, [](InputData& input)->double&{ return input.limb.angle;    }));
+        // Operation
+        auto group_operation = new DoubleGroup(doc, "Operation");
+        group_operation->addRow<DomainTag::Pos>("Brace height:", [](InputData& input)->double&{ return input.operation.brace_height; });
+        group_operation->addRow<DomainTag::Pos>("Draw length:", [](InputData& input)->double&{ return input.operation.draw_length; });
+        group_operation->addRow<DomainTag::Pos>("Arrow mass:", [](InputData& input)->double&{ return input.operation.arrow_mass; });
+        hbox->addWidget(group_operation);
+        hbox->addStretch(1);
 
-        auto form = new QFormLayout();
-        form->addRow("Curvature", bt_curvature);
-        form->addRow("Offset x:", tf_offset_x);
-        form->addRow("Offset y:", tf_offset_y);
-        form->addRow("Angle:", tf_angle);
-        this->setLayout(form);
-
-        auto box = new QGroupBox("Profile");
-        box->setLayout(form);
-
-        auto h = new QHBoxLayout();
-        h->addWidget(box);
-        this->setLayout(h);
+        // Comments
+        auto view_comments = new TextView(DocumentItem<std::string>(doc, [](InputData& input)->std::string&{ return input.meta.comments; }));
+        auto box_comments = new QHBoxLayout();
+        auto group_comments = new QGroupBox("Comments");
+        box_comments->addWidget(view_comments);
+        group_comments->setLayout(box_comments);
+        vbox->addWidget(group_comments);
     }
+
+
 };

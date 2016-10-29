@@ -8,7 +8,6 @@ CONFIG += c++14
 QT += core \
       gui \
       widgets \
-      charts \
       printsupport \
 
 SOURCES += ../source/main.cpp \
@@ -19,7 +18,8 @@ SOURCES += ../source/main.cpp \
     ../source/numerics/CubicSpline.cpp \
     ../source/numerics/LinearSpline.cpp \
     ../source/gui/NumberEditor.cpp \
-    ../source/numerics/Domain.cpp
+    ../source/numerics/Domain.cpp \
+    ../source/gui/qcustomplot/qcustomplot.cpp
 
 HEADERS += \
     ../source/fem/elements/BarElement.hpp \
@@ -49,7 +49,11 @@ HEADERS += \
     ../source/gui/Document.hpp \
     ../source/gui/SeriesView.hpp \
     ../source/gui/DoubleEditor.hpp \
+    ../source/gui/DoubleView.hpp \
+    ../source/gui/LayerEditor.hpp \
+    ../source/gui/BowPreview.hpp \
     ../source/gui/Plot.hpp \
-    ../source/gui/DoubleView.hpp
+    ../source/gui/qcustomplot/qcustomplot.h \
+    ../source/gui/TextView.hpp
 
 RESOURCES += ../resources/resources.qrc

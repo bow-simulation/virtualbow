@@ -30,7 +30,6 @@ struct Limb
     double offset_x = 0.0;
     double offset_y = 0.0;
     double angle = 0.0;
-    double tip_mass = 0.0;
 
     template<class Archive>
     void serialize(Archive & archive)
@@ -40,8 +39,7 @@ struct Limb
                 CEREAL_NVP(curvature),
                 CEREAL_NVP(offset_x),
                 CEREAL_NVP(offset_y),
-                CEREAL_NVP(angle),
-                CEREAL_NVP(tip_mass));
+                CEREAL_NVP(angle));
     }
 };
 
@@ -49,19 +47,14 @@ struct String
 {
     double strand_stiffness = 3100.0;
     double strand_density = 0.05;
-    unsigned n_strands = 10;
-
-    double center_mass = 0.0;
-    double end_mass = 0.0;
+    double n_strands = 10.0;
 
     template<class Archive>
     void serialize(Archive & archive)
     {
         archive(CEREAL_NVP(strand_stiffness),
                 CEREAL_NVP(strand_density),
-                CEREAL_NVP(n_strands),
-                CEREAL_NVP(center_mass),
-                CEREAL_NVP(end_mass));
+                CEREAL_NVP(n_strands));
     }
 };
 
@@ -95,7 +88,7 @@ struct Settings
     }
 };
 
-struct Meta
+struct MetaData
 {
     std::string comments = "";
     std::string version = "";    // Todo: Get default value from somewhere?
@@ -114,7 +107,7 @@ struct InputData
     String string;
     Operation operation;
     Settings settings;
-    Meta meta;
+    MetaData meta;
 
     template<class Archive>
     void serialize(Archive & archive)

@@ -4,13 +4,8 @@
 
 #include <QtWidgets>
 #include <QtCharts/QChartView>
-#include <QtCharts/QLineSeries>
-#include <QtCharts/QValueAxis>
-QT_CHARTS_USE_NAMESPACE
 
 #include <functional>
-#include <iostream>
-#include <cassert>
 #include <vector>
 
 // Todo: Why do the axis not rescale on updating?
@@ -56,9 +51,6 @@ public:
         plot = new Plot();
         plot->addSeries();
 
-        QChartView *view = new QChartView(plot);
-        view->setRenderHint(QPainter::Antialiasing);
-
         // Ok and Cancel buttons
         btbox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
         QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -67,7 +59,7 @@ public:
         // Layout
         QHBoxLayout* h = new QHBoxLayout;
         h->addWidget(table);
-        h->addWidget(view, 1);
+        h->addWidget(plot, 1);
 
         QVBoxLayout* v = new QVBoxLayout;
         v->addLayout(h);
@@ -86,8 +78,8 @@ public:
 
     void setOutputLabels(const QString& lbx, const QString& lby)
     {
-        plot->axisX()->setTitleText(lbx);
-        plot->axisY()->setTitleText(lby);
+        plot->xAxis->setLabel(lbx);
+        plot->yAxis->setLabel(lby);
     }
 
     DataSeries getData() const

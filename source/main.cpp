@@ -1,42 +1,12 @@
-/*
-#include <QtWidgets>
-
-class Validator: public QValidator
-{
-    virtual State validate(QString& input, int& pos) const override
-    {
-        qInfo() << "See? Told you!";
-        return Acceptable;
-    }
-};
-
-int main(int argc, char *argv[])
-{
-    QApplication app(argc, argv);
-
-    QLineEdit* edit = new QLineEdit;
-    edit->setValidator(new Validator);
-    edit->show();
-
-    edit->setText("test");
-
-    return app.exec();
-}
-*/
-
 #include "gui/MainWindow.hpp"
-#include "gui/SeriesEditor.hpp"
-#include "numerics/CubicSpline.hpp"
-#include <QtWidgets>
-
-#include "gui/Document.hpp"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+
     QGuiApplication::setApplicationDisplayName("Bow Simulator");
-    QGuiApplication::setApplicationVersion("0.0");
-    QGuiApplication::setOrganizationDomain("bow-simulator.sourceforge.net");
+    QGuiApplication::setApplicationVersion("0.1.0");
+    QGuiApplication::setOrganizationDomain("https://bow-simulator.sourceforge.net");
 
     MainWindow window;
     window.show();
@@ -45,37 +15,53 @@ int main(int argc, char *argv[])
 }
 
 /*
-#include <wobjectdefs.h>
-#include <QObject>
+#include <QtGui>
+#include "gui/qcustomplot/qcustomplot.h"
+#include <cmath>
 
-class MyObject : public QLineEdit
+void setup(QCustomPlot* customPlot)
 {
-    W_OBJECT(MyObject)
-
-public:
-    void mySlot(const QString &name)
+    QVector<double> x, y;
+    for(double t = 0.0; t < 2*M_PI; t += 0.01)
     {
-        qDebug("hello %s", qPrintable(name));
+        x.push_back(sin(t));
+        y.push_back(cos(t));
     }
 
-    W_SLOT(mySlot)
+    QVector<double> x2, y2;
+    for(double t = 0.0; t < 2*M_PI; t += 0.01)
+    {
+        x2.push_back(sin(t) + 1.0);
+        y2.push_back(cos(t));
+    }
 
-signals:
-    void mySignal(const QString &name)
-    W_SIGNAL(mySignal, name)
-};
+    QCPCurve* newCurve = new QCPCurve(customPlot->xAxis, customPlot->yAxis);
+    newCurve->setData(x, y);
 
-#include <wobjectimpl.h>
-W_OBJECT_IMPL(MyObject)
+    QCPCurve* newCurve2 = new QCPCurve(customPlot->yAxis, customPlot->xAxis);
+    newCurve2->setData(x2, y2);
 
-int main()
+    // give the axes some labels:
+    customPlot->xAxis->setLabel("x");
+    customPlot->yAxis->setLabel("y");
+    // set axes ranges, so we see all data:
+    customPlot->replot();
+}
+
+int main(int argc, char *argv[])
 {
-    MyObject* obj = new MyObject();
-    QObject::connect(obj, &MyObject::mySignal, obj, &MyObject::mySlot);
+    QApplication app(argc, argv);
 
-    return 0;
+    QCustomPlot* plot = new QCustomPlot;
+    setup(plot);
+    plot->show();
+
+    return app.exec();
 }
 */
+
+
+
 
 /*
 #include "model/BowModel.hpp"
