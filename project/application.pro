@@ -37,8 +37,7 @@ HEADERS += \
     ../source/numerics/Domain.hpp \
     ../source/numerics/Units.hpp \
     ../source/numerics/DataSeries.hpp \
-    ../source/gui/SeriesEditor.hpp \
-    ../source/model/InputData.hpp \
+    ../source/model/InputData2.hpp \
     ../source/model/DiscreteLimb.hpp \
     ../source/model/BowModel.hpp \
     ../source/model/OutputData.hpp \
@@ -46,16 +45,16 @@ HEADERS += \
     ../source/fem/elements/ContactElement1D.hpp \
     ../source/numerics/CubicSpline.hpp \
     ../source/numerics/LinearSpline.hpp \
-    ../source/gui/Document.hpp \
-    ../source/gui/SeriesView.hpp \
-    ../source/gui/DoubleEditor.hpp \
+    ../source/gui/Document2.hpp \
     ../source/gui/DoubleView.hpp \
-    ../source/gui/LayerEditor.hpp \
     ../source/gui/BowPreview.hpp \
     ../source/gui/Plot.hpp \
     ../source/gui/qcustomplot/qcustomplot.h \
-    ../source/gui/TextView.hpp \
     ../source/gui/SettingsDialog.hpp \
-    ../source/gui/IntegerView.hpp
+    ../source/gui/IntegerView.hpp \
+    ../source/model/Document2.hpp \
+    ../source/model/InputData.hpp \
+    ../source/model/Document.hpp \
+    ../source/gui/StringView.hpp
 
 RESOURCES += ../resources/resources.qrc

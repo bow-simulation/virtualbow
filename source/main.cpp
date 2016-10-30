@@ -1,96 +1,3 @@
-#include <iostream>
-
-
-#include <boost/signals2.hpp>
-
-class Document
-{
-public:
-    Document(): modified(false)
-    {
-
-    }
-
-    bool is_modified() const
-    {
-        return modified;
-    }
-
-    void set_modified(bool m)
-    {
-        modified = m;
-    }
-
-private:
-    bool modified;
-};
-
-template<typename T>
-class DocItem
-{
-public:
-    typedef boost::signals2::signal<void(const T&)> Signal;
-    typedef boost::signals2::scoped_connection Connection;
-
-    DocItem(Document& doc, T val)
-        : doc(doc),
-          val(val)
-    {
-
-    }
-
-    operator const T&() const
-    {
-        return val;
-    }
-
-    DocItem& operator=(const T& rhs)
-    {
-        val = rhs;
-        doc.set_modified(true);
-        sig(val);
-
-        return *this;
-    }
-
-    Connection connect(const typename Signal::slot_type& slot)
-    {
-        slot(val);
-        return sig.connect(slot);
-    }
-
-private:
-    Document& doc;
-    Signal sig;
-    T val;
-};
-
-struct InputData: public Document
-{
-public:
-    DocItem<double> item01{*this, 12.0};
-    DocItem<double> item02{*this, 12.0};
-    DocItem<double> item03{*this, 12.0};
-};
-
-
-int main()
-{
-    InputData d;
-
-    auto connection = d.item01.connect([](const double& value)
-    {
-        std::cout << "Modified!, item0 = " << value << "\n";
-    });
-
-    d.item01 = 2993.3;
-    d.item01 = 2.5;
-
-    return 0;
-}
-
-
-/*
 #include "gui/MainWindow.hpp"
 
 int main(int argc, char *argv[])
@@ -106,8 +13,6 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
-*/
-
 
 /*
 #include <QtGui>
@@ -163,7 +68,7 @@ int main(int argc, char *argv[])
 
 int main()
 {
-    InputData input;
+    InputData2 input;
     input.load("../examples/layers.bow");
 
     OutputData output = BowModel::simulate(input, true, true);

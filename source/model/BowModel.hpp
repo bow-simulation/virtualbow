@@ -1,5 +1,5 @@
 #pragma once
-#include "InputData.hpp"
+#include "InputData2.hpp"
 #include "OutputData.hpp"
 #include "DiscreteLimb.hpp"
 
@@ -15,7 +15,7 @@
 class BowModel
 {
 public:
-    static OutputData simulate(const InputData& input, bool statics, bool dynamics)
+    static OutputData simulate(const InputData2& input, bool statics, bool dynamics)
     {
         BowModel model(input);
 
@@ -31,7 +31,7 @@ public:
     }
 
 private:
-    const InputData& input;
+    const InputData2& input;
     DiscreteLimb limb;
 
     System system;
@@ -49,7 +49,7 @@ private:
 
     ContactElement1D contact_arrow;
 
-    BowModel(const InputData& input)
+    BowModel(const InputData2& input)
         : input(input),
           limb(input)
     {
@@ -79,7 +79,7 @@ private:
             double Ckk = 0.5*(limb.Ckk[i] + limb.Ckk[i+1]);
             double Cek = 0.5*(limb.Cek[i] + limb.Cek[i+1]);
 
-            // Todo: Document this
+            // Todo: Document2 this
             double phi = system.get_angle(nodes_limb[i], nodes_limb[i+1]);
             double phi0 = phi - system.get_u(nodes_limb[i].phi);
             double phi1 = phi - system.get_u(nodes_limb[i+1].phi);

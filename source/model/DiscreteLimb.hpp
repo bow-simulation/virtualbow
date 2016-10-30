@@ -1,5 +1,5 @@
 #pragma once
-#include "InputData.hpp"
+#include "InputData2.hpp"
 #include "../numerics/CubicSpline.hpp"
 #include "../numerics/StepFunction.hpp"
 
@@ -31,7 +31,7 @@ struct DiscreteLimb
     // Layer properties
     std::vector<DiscreteLayer> layers;
 
-    DiscreteLimb(const InputData& input)
+    DiscreteLimb(const InputData2& input)
     {
         calculate_nodes(input);
         calculate_section_properties(input);
@@ -51,7 +51,7 @@ struct DiscreteLimb
 
 private:
     // Calculate positions and orientations of the nodes by integrating the limb curve from it's curvature.
-    void calculate_nodes(const InputData& input)
+    void calculate_nodes(const InputData2& input)
     {
         using namespace boost::numeric::odeint;
         typedef std::array<double, 3> state_type;
@@ -82,7 +82,7 @@ private:
         integrate_n_steps(stepper, system, z0, s0, ds, n, observer);
     }
 
-    void calculate_section_properties(const InputData& input)
+    void calculate_section_properties(const InputData2& input)
     {
         // Construct splines for layer geometry
         CubicSpline layer_width(input.limb.width);
@@ -133,7 +133,7 @@ private:
         }
     }
 
-    void calculate_layer_properties(const InputData& input)
+    void calculate_layer_properties(const InputData2& input)
     {
         // Todo
     }

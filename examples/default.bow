@@ -1,33 +1,6 @@
 {
-    "limb": {
-        "width": {
-            "args": [
-                0.0,
-                1.0
-            ],
-            "vals": [
-                0.05,
-                0.01
-            ]
-        },
-        "layers": [
-            {
-                "name": "",
-                "height": {
-                    "args": [
-                        0.0,
-                        1.0
-                    ],
-                    "vals": [
-                        0.01,
-                        0.008
-                    ]
-                },
-                "rho": 500.0,
-                "E": 40000000000.0
-            }
-        ],
-        "curvature": {
+    "profile_curvature": {
+        "value0": {
             "args": [
                 0.3,
                 0.4
@@ -36,33 +9,90 @@
                 -1.0,
                 1.0
             ]
-        },
-        "offset_x": 0.0,
-        "offset_y": 0.0,
-        "angle": 0.0
+        }
     },
-    "string": {
-        "strand_stiffness": 3100.0,
-        "strand_density": 0.05,
-        "n_strands": 10.0
+    "profile_offset_x": {
+        "value0": 0.0
     },
-    "operation": {
-        "brace_height": 0.2,
-        "draw_length": 0.7,
-        "arrow_mass": 0.02
+    "profile_offset_y": {
+        "value0": 0.0
     },
-    "masses": {
-        "string_center": 0.0,
-        "string_tip": 0.0,
-        "limb_tip": 0.0
+    "profile_angle": {
+        "value0": 0.0
     },
-    "settings": {
-        "n_elements_limb": 25,
-        "n_elements_string": 25,
-        "step_factor": 0.5
+    "sections_width": {
+        "value0": {
+            "args": [
+                0.0,
+                1.0
+            ],
+            "vals": [
+                0.01,
+                0.008
+            ]
+        }
     },
-    "meta": {
-        "comments": "",
-        "version": ""
+    "sections_height": {
+        "value0": {
+            "args": [
+                0.0,
+                1.0
+            ],
+            "vals": [
+                0.01,
+                0.008
+            ]
+        }
+    },
+    "sections_rho": {
+        "value0": 500.0
+    },
+    "sections_E": {
+        "value0": 40000000000.0
+    },
+    "string_strand_stiffness": {
+        "value0": 3100.0
+    },
+    "string_strand_density": {
+        "value0": 0.05
+    },
+    "string_n_strands": {
+        "value0": 10.0
+    },
+    "operation_brace_height": {
+        "value0": 0.2
+    },
+    "operation_draw_length": {
+        "value0": 0.7
+    },
+    "operation_mass_arrow": {
+        "value0": 0.02
+    },
+    "mass_string_center": {
+        "value0": 0.0
+    },
+    "mass_string_tip": {
+        "value0": 0.0
+    },
+    "mass_limb_tip": {
+        "value0": 0.0
+    },
+    "settings_n_elements_limb": {
+        "value0": 25
+    },
+    "settings_n_elements_string": {
+        "value0": 25
+    },
+    "settings_n_draw_steps": {
+        "value0": 50
+    },
+    "settings_step_factor": {
+        "value0": 0.5
+    },
+    "meta_comments": {
+        "value0": ""
+    },
+    "meta_version": {
+        "value0": "0.1.0"
     }
 }

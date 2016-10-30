@@ -1,17 +1,17 @@
 #pragma once
-#include "Document.hpp"
+#include "../model/Document.hpp"
 
 #include <QtWidgets>
 
 class IntegerView: public QSpinBox
 {
 public:
-    IntegerView(DocumentItem<unsigned> doc_item)
+    IntegerView(DocItem<unsigned>& doc_item)
         : doc_item(doc_item)
     {
         this->setMinimum(1);
 
-        doc_item.connect([this]()
+        connection = this->doc_item.connect([this](const unsigned& value)
         {
             // Don't receive updates from document while the widget still has focus.
             // Todo: This is a workaround to prevent the update from the document immediately overwriting
@@ -20,15 +20,16 @@ public:
             if(this->hasFocus())
                return;
 
-            this->setValue(this->doc_item.getData());
+            this->setValue(value);
         });
 
         QObject::connect(this, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this](int value)
         {
-            this->doc_item.setData(value);
+            this->doc_item = value;
         });
     }
 
 private:
-    DocumentItem<unsigned> doc_item;
+    DocItem<unsigned>& doc_item;
+    DocItem<unsigned>::Connection connection;
 };

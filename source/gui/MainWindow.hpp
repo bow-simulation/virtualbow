@@ -1,4 +1,5 @@
 #pragma once
+#include "../model/InputData.hpp"
 #include "BowEditor.hpp"
 #include "SettingsDialog.hpp"
 
@@ -9,7 +10,7 @@ class MainWindow: public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(): editor(new BowEditor(document))
+    MainWindow(): editor(new BowEditor(data))
     {
         // Actions
         QAction* action_new = new QAction(QIcon(":/document-new"), "&New", this);
@@ -102,7 +103,7 @@ private slots:
         if(!optionalSave())
             return;
 
-        document.setData(InputData());
+        data = InputData();
         setCurrentFile(QString());
     }
 
@@ -144,7 +145,7 @@ private slots:
     // Todo: settings and about dialogs as lambdas in constructor?
     void settings()
     {
-        SettingsDialog dialog(this, document);
+        SettingsDialog dialog(this, data);
         dialog.exec();
     }
 
@@ -163,7 +164,7 @@ private slots:
     }
 
 private:
-    Document document;
+    InputData data;
     BowEditor* editor;
     QString current_file;
 
@@ -176,7 +177,7 @@ private:
 
     bool optionalSave()    // true: Discard, false: Cancel
     {
-        if(!document.isModified())
+        if(!data.is_modified())
             return true;
 
         auto pick = QMessageBox::warning(this, "", "The document has been modified.\nDo you want to save your changes?",
@@ -198,11 +199,10 @@ private:
     {
         try
         {
-            InputData data;
+            data = InputData();
             data.load(file_name.toStdString());
+            data.set_modified(false);
 
-            document.setData(data);                 // Todo: Avoid this copying? Access by reference?
-            document.setModified(false);
             setCurrentFile(file_name);
             return true;
         }
@@ -217,8 +217,10 @@ private:
     {
         try
         {
-            document.getData().save(file_name.toStdString());
-            document.setModified(false);
+            data.meta_version = QGuiApplication::applicationVersion().toStdString();
+            data.save(file_name.toStdString());
+            data.set_modified(false);
+
             setCurrentFile(file_name);
             return true;
         }

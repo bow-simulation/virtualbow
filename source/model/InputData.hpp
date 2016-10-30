@@ -1,152 +1,82 @@
 #pragma once
+#include "Document.hpp"
 #include "../numerics/DataSeries.hpp"
 
 #include <cereal/cereal.hpp>
 #include <cereal/archives/json.hpp>
 #include <fstream>
 
-struct Limb
+struct InputData: public Document
 {
-    struct Layer
-    {
-        std::string name = "";
-        DataSeries height = {{0.0, 1.0}, {0.01, 0.008}};
-        double rho = 500.0;
-        double E = 40.0e9;
+    // Profile
+    DocItem<DataSeries> profile_curvature{this, {{0.3, 0.4}, {-1.0, 1.0}}};
+    DocItem<double> profile_offset_x{this, 0.0};
+    DocItem<double> profile_offset_y{this, 0.0};
+    DocItem<double> profile_angle{this, 0.0};
 
-        template<class Archive>
-        void serialize(Archive & archive)
-        {
-            archive(CEREAL_NVP(name),
-                    CEREAL_NVP(height),
-                    CEREAL_NVP(rho),
-                    CEREAL_NVP(E));
-        }
-    };
+    // Sections
+    DocItem<DataSeries> sections_width{this, {{0.0, 1.0}, {0.01, 0.008}}};
+    DocItem<DataSeries> sections_height{this, {{0.0, 1.0}, {0.01, 0.008}}};
+    DocItem<double> sections_rho{this, 500.0};
+    DocItem<double> sections_E{this, 40.0e9};
 
-    DataSeries width = {{0.0, 1.0}, {0.05, 0.01}};
-    std::vector<Layer> layers = {Layer()};
-    DataSeries curvature = {{0.3, 0.4}, {-1.0, 1.0}};
-    double offset_x = 0.0;
-    double offset_y = 0.0;
-    double angle = 0.0;
+    // String
+    DocItem<double> string_strand_stiffness{this, 3100.0};
+    DocItem<double> string_strand_density{this, 0.05};
+    DocItem<double> string_n_strands{this, 10.0};
+
+    // Operation
+    DocItem<double> operation_brace_height{this, 0.2};
+    DocItem<double> operation_draw_length{this, 0.7};
+    DocItem<double> operation_mass_arrow{this, 0.02};
+
+    // Additional masses
+    DocItem<double> mass_string_center{this, 0.0};
+    DocItem<double> mass_string_tip{this, 0.0};
+    DocItem<double> mass_limb_tip{this, 0.0};
+
+    // Settings
+    DocItem<unsigned> settings_n_elements_limb{this, 25};
+    DocItem<unsigned> settings_n_elements_string{this, 25};
+    DocItem<unsigned> settings_n_draw_steps{this, 50};
+    DocItem<double> settings_step_factor{this, 0.5};
+
+    // Meta
+    DocItem<std::string> meta_comments{this, ""};
+    DocItem<std::string> meta_version{this, ""};    // Todo: Get default value from somewhere? Perhaps set in GUI appliation.
 
     template<class Archive>
     void serialize(Archive & archive)
     {
-        archive(CEREAL_NVP(width),
-                CEREAL_NVP(layers),
-                CEREAL_NVP(curvature),
-                CEREAL_NVP(offset_x),
-                CEREAL_NVP(offset_y),
-                CEREAL_NVP(angle));
-    }
-};
-
-struct String
-{
-    double strand_stiffness = 3100.0;
-    double strand_density = 0.05;
-    double n_strands = 10.0;
-
-    template<class Archive>
-    void serialize(Archive & archive)
-    {
-        archive(CEREAL_NVP(strand_stiffness),
-                CEREAL_NVP(strand_density),
-                CEREAL_NVP(n_strands));
-    }
-};
-
-struct Operation
-{
-    double brace_height = 0.2;
-    double draw_length = 0.7;
-    double arrow_mass = 0.02;
-
-    template<class Archive>
-    void serialize(Archive & archive)
-    {
-        archive(CEREAL_NVP(brace_height),
-                CEREAL_NVP(draw_length),
-                CEREAL_NVP(arrow_mass));
-    }
-};
-
-struct Masses
-{
-    double string_center = 0.0;
-    double string_tip = 0.0;
-    double limb_tip = 0.0;
-
-    template<class Archive>
-    void serialize(Archive & archive)
-    {
-        archive(CEREAL_NVP(string_center),
-                CEREAL_NVP(string_tip),
-                CEREAL_NVP(limb_tip));
-    }
-};
-
-struct Settings
-{
-    // General
-    unsigned n_elements_limb = 25;
-    unsigned n_elements_string = 25;
-
-    // Statics
-    unsigned n_draw_steps = 50;
-
-    // Dynamics
-    double step_factor = 0.5;
-
-    template<class Archive>
-    void serialize(Archive & archive)
-    {
-        archive(CEREAL_NVP(n_elements_limb),
-                CEREAL_NVP(n_elements_string),
-                CEREAL_NVP(n_draw_steps),
-                CEREAL_NVP(step_factor));
-    }
-};
-
-struct MetaData
-{
-    std::string comments = "";
-    std::string version = "";    // Todo: Get default value from somewhere?
-
-    template<class Archive>
-    void serialize(Archive & archive)
-    {
-        archive(CEREAL_NVP(comments),
-                CEREAL_NVP(version));
-    }
-};
-
-struct InputData
-{
-    Limb limb;
-    String string;
-    Operation operation;
-    Masses masses;
-    Settings settings;
-    MetaData meta;
-
-    template<class Archive>
-    void serialize(Archive & archive)
-    {
-        archive(CEREAL_NVP(limb),
-                CEREAL_NVP(string),
-                CEREAL_NVP(operation),
-                CEREAL_NVP(masses),
-                CEREAL_NVP(settings),
-                CEREAL_NVP(meta));
+        archive(CEREAL_NVP(profile_curvature),
+                CEREAL_NVP(profile_offset_x),
+                CEREAL_NVP(profile_offset_y),
+                CEREAL_NVP(profile_angle),
+                CEREAL_NVP(sections_width),
+                CEREAL_NVP(sections_height),
+                CEREAL_NVP(sections_rho),
+                CEREAL_NVP(sections_E),
+                CEREAL_NVP(string_strand_stiffness),
+                CEREAL_NVP(string_strand_density),
+                CEREAL_NVP(string_n_strands),
+                CEREAL_NVP(operation_brace_height),
+                CEREAL_NVP(operation_draw_length),
+                CEREAL_NVP(operation_mass_arrow),
+                CEREAL_NVP(mass_string_center),
+                CEREAL_NVP(mass_string_tip),
+                CEREAL_NVP(mass_limb_tip),
+                CEREAL_NVP(settings_n_elements_limb),
+                CEREAL_NVP(settings_n_elements_string),
+                CEREAL_NVP(settings_n_draw_steps),
+                CEREAL_NVP(settings_step_factor),
+                CEREAL_NVP(meta_comments),
+                CEREAL_NVP(meta_version));
     }
 
-    void load(const std::string& current_file)
+    void load(const std::string& path)
     {
         // Todo: Handle file not existing or inability to parse
-        std::ifstream file(current_file);
+        std::ifstream file(path);
         if(!file)
         {
             throw std::runtime_error(strerror(errno));    // Todo: Better message with filename
@@ -156,10 +86,10 @@ struct InputData
         serialize(archive);
     }
 
-    void save(const std::string& current_file)
+    void save(const std::string& path)
     {
         // Todo: Handle file not existing
-        std::ofstream file(current_file);
+        std::ofstream file(path);
         if(!file)
         {
             throw std::runtime_error(strerror(errno));    // Todo: Better message with filename

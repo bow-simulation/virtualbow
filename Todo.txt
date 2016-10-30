@@ -18,17 +18,7 @@ GUI
 
     * DoubleView: Display large numbers in engineering format (e+03, e+06, e+09, ...) instead of scientific
 
-    * Closing SeriesEditor with okay leads to document modification even if nothing has changed
-
-    * Change Simulation menu to this, create class SettingsView to open when editing settings:
-        - Simulation
-            - Run static simulation...
-            - Run dynamic simulation...
-            ===========================
-            - Settings...
-                === General ===
-                === Static  ===
-                === Dynamic ===
+    * Make heighth of the comment box the same as the groups above
 
 FEM
 ===
@@ -37,6 +27,11 @@ FEM
       the elements and only pass a const& of the system in the simulation callbacks.
 
     * Make simulation callbacks in System templates
+
+Model
+=====
+
+    * InputData: JSON Serialisation not very nice because of unnecessary nesting.
 
 General
 =======

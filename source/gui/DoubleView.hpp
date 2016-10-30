@@ -1,5 +1,5 @@
 #pragma once
-#include "Document.hpp"
+#include "../model/Document.hpp"
 #include "../numerics/Domain.hpp"
 
 #include <QtWidgets>
@@ -8,7 +8,7 @@ template<DomainTag D>
 class DoubleValidator : public QDoubleValidator
 {
 public:
-    DoubleValidator(DocumentItem<double> doc_item)
+    DoubleValidator(DocItem<double>& doc_item)
         : QDoubleValidator(Domain<D>::min(), Domain<D>::max(), 15),     // Todo: Magic number
           doc_item(doc_item)
     {
@@ -21,9 +21,9 @@ public:
         if(state == Acceptable)
         {
             double new_value = locale().toDouble(input);
-            if(new_value != doc_item.getData())     // Todo: Move this check to DocumentItem?
+            if(new_value != doc_item)     // Todo: Move this check to DocumentItem?
             {
-                doc_item.setData(new_value);
+                doc_item = new_value;
             }
         }
 
@@ -32,27 +32,26 @@ public:
 
     virtual void fixup(QString& input) const override
     {
-        double value = doc_item.getData();
-        if(!Domain<D>::contains(value))
+        if(!Domain<D>::contains(doc_item))
         {
             throw std::runtime_error("Value lies outside of valid domain");
         }
 
-        input = locale().toString(value, 'g', decimals());
+        input = locale().toString(doc_item, 'g', decimals());
     }
 
 private:
-    mutable DocumentItem<double> doc_item;  // Todo: Not so pretty
+    DocItem<double>& doc_item;
 };
 
 template<DomainTag D>
 class DoubleView: public QLineEdit
 {
 public:
-    DoubleView(DocumentItem<double> doc_item): doc_item(doc_item)
+    DoubleView(DocItem<double>& doc_item): doc_item(doc_item)
     {
         this->setValidator(new DoubleValidator<D>(doc_item));
-        doc_item.connect([this]()
+        connection = doc_item.connect([this](const double&)
         {
             // Don't receive updates from document while the widget still has focus.
             // Todo: This is a workaround to prevent the update from the document immediately overwriting
@@ -68,7 +67,8 @@ public:
     }
 
 private:
-    DocumentItem<double> doc_item;
+    DocItem<double>& doc_item;
+    DocItem<double>::Connection connection;
 
     // Replace the local decimal separator with the one from the C locale (dot)
     virtual void keyPressEvent(QKeyEvent *event) override

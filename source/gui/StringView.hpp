@@ -1,15 +1,15 @@
 #pragma once
-#include "Document.hpp"
+#include "../model/Document.hpp"
 
 #include <QtWidgets>
 
-class TextView: public QTextEdit
+class StringView: public QTextEdit
 {
 public:
-    TextView(DocumentItem<std::string> doc_item)
+    StringView(DocItem<std::string>& doc_item)
         : doc_item(doc_item)
     {
-        doc_item.connect([this]()
+        connection = doc_item.connect([this](const std::string& text)
         {
             // Don't receive updates from document while the widget still has focus.
             // Todo: This is a workaround to prevent the update from the document immediately overwriting
@@ -18,15 +18,16 @@ public:
             if(this->hasFocus())
                return;
 
-            this->setText(QString::fromStdString(this->doc_item.getData()));
+            this->setText(QString::fromStdString(text));
         });
 
         QObject::connect(this, &QTextEdit::textChanged, [this]()
         {
-            this->doc_item.setData(this->toPlainText().toStdString());
+            this->doc_item = this->toPlainText().toStdString();
         });
     }
 
 private:
-    DocumentItem<std::string> doc_item;
+    DocItem<std::string>& doc_item;
+    DocItem<std::string>::Connection connection;
 };
