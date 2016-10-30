@@ -54,6 +54,8 @@ HEADERS += \
     ../source/gui/BowPreview.hpp \
     ../source/gui/Plot.hpp \
     ../source/gui/qcustomplot/qcustomplot.h \
-    ../source/gui/TextView.hpp
+    ../source/gui/TextView.hpp \
+    ../source/gui/SettingsDialog.hpp \
+    ../source/gui/IntegerView.hpp
 
 RESOURCES += ../resources/resources.qrc

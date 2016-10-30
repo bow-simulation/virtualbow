@@ -1,5 +1,6 @@
 #pragma once
 #include "BowEditor.hpp"
+#include "SettingsDialog.hpp"
 
 #include <QtWidgets>
 
@@ -11,40 +12,43 @@ public:
     MainWindow(): editor(new BowEditor(document))
     {
         // Actions
-        QAction *action_new = new QAction(QIcon(":/document-new"), "&New", this);
+        QAction* action_new = new QAction(QIcon(":/document-new"), "&New", this);
         //QAction *action_new = new QAction(QIcon(":/document-new"), "&New", this);
         action_new->setShortcuts(QKeySequence::New);
         QObject::connect(action_new, &QAction::triggered, this, &MainWindow::newFile);
 
-        QAction *action_open = new QAction(QIcon(":/document-open"), "&Open...", this);
+        QAction* action_open = new QAction(QIcon(":/document-open"), "&Open...", this);
         action_open->setShortcuts(QKeySequence::Open);
         QObject::connect(action_open, &QAction::triggered, this, &MainWindow::open);
 
-        QAction *action_save = new QAction(QIcon(":/document-save"), "&Save", this);
+        QAction* action_save = new QAction(QIcon(":/document-save"), "&Save", this);
         action_save->setShortcuts(QKeySequence::Save);
         QObject::connect(action_save, &QAction::triggered, this, &MainWindow::save);
 
-        QAction *action_save_as = new QAction(QIcon(":/document-save-as"), "Save &As...", this);
+        QAction* action_save_as = new QAction(QIcon(":/document-save-as"), "Save &As...", this);
         action_save_as->setShortcuts(QKeySequence::SaveAs);
         QObject::connect(action_save_as, &QAction::triggered, this, &MainWindow::saveAs);
 
-        QAction *action_exit = new QAction(QIcon(":/application-exit"), "&Quit", this);
+        QAction* action_exit = new QAction(QIcon(":/application-exit"), "&Quit", this);
         action_exit->setShortcuts(QKeySequence::Quit);
         QObject::connect(action_exit, &QAction::triggered, this, &QWidget::close);
 
-        QAction *action_run_statics = new QAction(QIcon(":/arrow-right"), "Statics...", this);
-        //action_run_statics->setShortcuts(QKeySequence::Quit);
+        QAction* action_run_statics = new QAction(QIcon(":/arrow-right"), "Simulate statics...", this);
+        // action_run_statics->setShortcuts(QKeySequence::Quit);
         // QObject::connect ...
 
-        QAction *action_run_dynamics = new QAction(QIcon(":/arrow-right-double"), "Dynamics...", this);
-        //action_run_dynmics->setShortcuts(QKeySequence::Quit);
+        QAction* action_run_dynamics = new QAction(QIcon(":/arrow-right-double"), "Simulate dynamics...", this);
+        // action_run_dynmics->setShortcuts(QKeySequence::Quit);
         // QObject::connect ...
 
-        QAction *action_about = new QAction(QIcon(":/dialog-information"), "&About...", this);
+        QAction* action_settings = new QAction("Settings...", this);
+        connect(action_settings, &QAction::triggered, this, &MainWindow::settings);
+
+        QAction* action_about = new QAction(QIcon(":/dialog-information"), "&About...", this);
         connect(action_about, &QAction::triggered, this, &MainWindow::about);
 
         // File menu
-        QMenu *menu_file = this->menuBar()->addMenu("&File");
+        QMenu* menu_file = this->menuBar()->addMenu("&File");
         menu_file->addAction(action_new);
         menu_file->addAction(action_open);
         menu_file->addAction(action_save);
@@ -52,25 +56,27 @@ public:
         menu_file->addSeparator();
         menu_file->addAction(action_exit);
 
+        // Simulation menu
+        QMenu* menu_simulation = this->menuBar()->addMenu("&Simulation");
+        menu_simulation->addAction(action_run_statics);
+        menu_simulation->addAction(action_run_dynamics);
+        menu_simulation->addSeparator();
+        menu_simulation->addAction(action_settings);
+
         // File toolbar
-        QToolBar *toolbar_file = this->addToolBar("File");
+        QToolBar* toolbar_file = this->addToolBar("File");
         toolbar_file->addAction(action_new);
         toolbar_file->addAction(action_open);
         toolbar_file->addAction(action_save);
         toolbar_file->addAction(action_save_as);
 
         // Simulation toolbar
-        QToolBar *toolbar_simulation = this->addToolBar("Simulation");
+        QToolBar* toolbar_simulation = this->addToolBar("Simulation");
         toolbar_simulation->addAction(action_run_statics);
         toolbar_simulation->addAction(action_run_dynamics);
 
-        // Simulation menu
-        QMenu *menu_run = this->menuBar()->addMenu("&Simulate");
-        menu_run->addAction(action_run_statics);
-        menu_run->addAction(action_run_dynamics);
-
         // Help menu
-        QMenu *menu_help = this->menuBar()->addMenu("&Help");
+        QMenu* menu_help = this->menuBar()->addMenu("&Help");
         menu_help->addAction(action_about);
 
         this->setWindowIcon(QIcon(":/logo"));
@@ -133,6 +139,13 @@ private slots:
             return saveFile(dialog.selectedFiles().first());
 
         return false;
+    }
+
+    // Todo: settings and about dialogs as lambdas in constructor?
+    void settings()
+    {
+        SettingsDialog dialog(this, document);
+        dialog.exec();
     }
 
     void about()

@@ -1,7 +1,7 @@
 #pragma once
 #include "DoubleView.hpp"
+#include "IntegerView.hpp"
 #include "TextView.hpp"
-#include "DoubleEditor.hpp"
 #include "SeriesView.hpp"
 #include "SeriesEditor.hpp"
 #include "Document.hpp"
@@ -11,27 +11,45 @@
 #include "../model/InputData.hpp"
 
 
+// Todo: Rename InputGroup, methods addDouble and addInteger
 class DoubleGroup: public QGroupBox
 {
 public:
     DoubleGroup(Document& doc, const QString& title)
         : QGroupBox(title),
           doc(doc),
-          layout(new QFormLayout)
+          vbox(new QVBoxLayout)
     {
-        this->setLayout(layout);
+        this->setLayout(vbox);
     }
 
     template<DomainTag D>
-    void addRow(const QString& label, std::function<double&(InputData&)> f)
+    void addRow(const QString& lb, std::function<double&(InputData&)> fn)
     {
-        auto field = new DoubleView<D>(DocumentItem<double>(doc, f));
-        layout->addRow(label, field);
+        auto field = new DoubleView<D>(DocumentItem<double>(doc, fn));
+        addRow(lb, field);
+    }
+
+    void addRow(const QString& lb, std::function<unsigned&(InputData&)> fn)
+    {
+        auto field = new IntegerView(DocumentItem<unsigned>(doc, fn));
+        addRow(lb, field);
     }
 
 private:
+    void addRow(const QString& lb, QWidget* field)
+    {
+        auto label = new QLabel(lb);
+        label->setAlignment(Qt::AlignRight);
+
+        auto hbox = new QHBoxLayout();
+        vbox->addLayout(hbox);
+        hbox->addWidget(label, 1);
+        hbox->addWidget(field, 0);
+    }
+
     Document& doc;
-    QFormLayout* layout;
+    QVBoxLayout* vbox;
 };
 
 class BowEditor: public QWidget
@@ -71,7 +89,7 @@ public:
         group_masses->addRow<DomainTag::NonNeg>("String tip:", [](InputData& input)->double&{ return input.masses.string_tip; });
         group_masses->addRow<DomainTag::NonNeg>("Limb tip:", [](InputData& input)->double&{ return input.masses.limb_tip; });
         hbox->addWidget(group_masses);
-        hbox->addStretch(1);
+        //hbox->addStretch(1);
 
         // Comments
         auto view_comments = new TextView(DocumentItem<std::string>(doc, [](InputData& input)->std::string&{ return input.meta.comments; }));

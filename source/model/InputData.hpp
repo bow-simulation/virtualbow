@@ -90,8 +90,14 @@ struct Masses
 
 struct Settings
 {
+    // General
     unsigned n_elements_limb = 25;
     unsigned n_elements_string = 25;
+
+    // Statics
+    unsigned n_draw_steps = 50;
+
+    // Dynamics
     double step_factor = 0.5;
 
     template<class Archive>
@@ -99,6 +105,7 @@ struct Settings
     {
         archive(CEREAL_NVP(n_elements_limb),
                 CEREAL_NVP(n_elements_string),
+                CEREAL_NVP(n_draw_steps),
                 CEREAL_NVP(step_factor));
     }
 };
