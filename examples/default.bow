@@ -39,20 +39,22 @@
         },
         "offset_x": 0.0,
         "offset_y": 0.0,
-        "angle": 0.0,
-        "tip_mass": 0.0
+        "angle": 0.0
     },
     "string": {
         "strand_stiffness": 3100.0,
         "strand_density": 0.05,
-        "n_strands": 10,
-        "center_mass": 0.0,
-        "end_mass": 0.0
+        "n_strands": 10.0
     },
     "operation": {
         "brace_height": 0.2,
         "draw_length": 0.7,
         "arrow_mass": 0.02
+    },
+    "masses": {
+        "string_center": 0.0,
+        "string_tip": 0.0,
+        "limb_tip": 0.0
     },
     "settings": {
         "n_elements_limb": 25,

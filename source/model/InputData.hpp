@@ -73,6 +73,21 @@ struct Operation
     }
 };
 
+struct Masses
+{
+    double string_center = 0.0;
+    double string_tip = 0.0;
+    double limb_tip = 0.0;
+
+    template<class Archive>
+    void serialize(Archive & archive)
+    {
+        archive(CEREAL_NVP(string_center),
+                CEREAL_NVP(string_tip),
+                CEREAL_NVP(limb_tip));
+    }
+};
+
 struct Settings
 {
     unsigned n_elements_limb = 25;
@@ -106,6 +121,7 @@ struct InputData
     Limb limb;
     String string;
     Operation operation;
+    Masses masses;
     Settings settings;
     MetaData meta;
 
@@ -115,6 +131,7 @@ struct InputData
         archive(CEREAL_NVP(limb),
                 CEREAL_NVP(string),
                 CEREAL_NVP(operation),
+                CEREAL_NVP(masses),
                 CEREAL_NVP(settings),
                 CEREAL_NVP(meta));
     }

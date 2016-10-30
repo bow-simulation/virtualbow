@@ -64,6 +64,13 @@ public:
         group_operation->addRow<DomainTag::Pos>("Draw length:", [](InputData& input)->double&{ return input.operation.draw_length; });
         group_operation->addRow<DomainTag::Pos>("Arrow mass:", [](InputData& input)->double&{ return input.operation.arrow_mass; });
         hbox->addWidget(group_operation);
+
+        // Masses
+        auto group_masses = new DoubleGroup(doc, "Additional masses");
+        group_masses->addRow<DomainTag::NonNeg>("String center:", [](InputData& input)->double&{ return input.masses.string_center; });
+        group_masses->addRow<DomainTag::NonNeg>("String tip:", [](InputData& input)->double&{ return input.masses.string_tip; });
+        group_masses->addRow<DomainTag::NonNeg>("Limb tip:", [](InputData& input)->double&{ return input.masses.limb_tip; });
+        hbox->addWidget(group_masses);
         hbox->addStretch(1);
 
         // Comments
@@ -74,6 +81,4 @@ public:
         group_comments->setLayout(box_comments);
         vbox->addWidget(group_comments);
     }
-
-
 };
