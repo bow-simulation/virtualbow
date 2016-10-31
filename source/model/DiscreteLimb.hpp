@@ -1,5 +1,5 @@
 #pragma once
-#include "InputData2.hpp"
+#include "InputData.hpp"
 #include "../numerics/CubicSpline.hpp"
 #include "../numerics/StepFunction.hpp"
 

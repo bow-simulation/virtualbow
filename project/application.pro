@@ -17,8 +17,6 @@ SOURCES += ../source/main.cpp \
     ../source/fem/System.cpp \
     ../source/numerics/CubicSpline.cpp \
     ../source/numerics/LinearSpline.cpp \
-    ../source/gui/NumberEditor.cpp \
-    ../source/numerics/Domain.cpp \
     ../source/gui/qcustomplot/qcustomplot.cpp
 
 HEADERS += \
@@ -45,16 +43,16 @@ HEADERS += \
     ../source/fem/elements/ContactElement1D.hpp \
     ../source/numerics/CubicSpline.hpp \
     ../source/numerics/LinearSpline.hpp \
-    ../source/gui/Document2.hpp \
-    ../source/gui/DoubleView.hpp \
-    ../source/gui/BowPreview.hpp \
+    ../source/gui/Document.hpp \
     ../source/gui/Plot.hpp \
     ../source/gui/qcustomplot/qcustomplot.h \
     ../source/gui/SettingsDialog.hpp \
     ../source/gui/IntegerView.hpp \
-    ../source/model/Document2.hpp \
+    ../source/model/Document.hpp \
     ../source/model/InputData.hpp \
     ../source/model/Document.hpp \
-    ../source/gui/StringView.hpp
+    ../source/gui/StringView.hpp \
+    ../source/gui/DoubleView.hpp \
+    ../source/gui/NumberGroup.hpp
 
 RESOURCES += ../resources/resources.qrc

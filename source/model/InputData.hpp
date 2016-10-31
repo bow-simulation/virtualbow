@@ -9,44 +9,44 @@
 struct InputData: public Document
 {
     // Profile
-    DocItem<DataSeries> profile_curvature{this, {{0.3, 0.4}, {-1.0, 1.0}}};
-    DocItem<double> profile_offset_x{this, 0.0};
-    DocItem<double> profile_offset_y{this, 0.0};
-    DocItem<double> profile_angle{this, 0.0};
+    DocItem<DataSeries> profile_curvature{{{0.3, 0.4}, {-1.0, 1.0}}, this};
+    DocItem<double> profile_offset_x{0.0, this};
+    DocItem<double> profile_offset_y{0.0, this};
+    DocItem<double>    profile_angle{0.0, this};
 
     // Sections
-    DocItem<DataSeries> sections_width{this, {{0.0, 1.0}, {0.01, 0.008}}};
-    DocItem<DataSeries> sections_height{this, {{0.0, 1.0}, {0.01, 0.008}}};
-    DocItem<double> sections_rho{this, 500.0};
-    DocItem<double> sections_E{this, 40.0e9};
+    DocItem<DataSeries> sections_width{{{0.0, 1.0}, {0.01, 0.008}}, this};
+    DocItem<DataSeries> sections_height{{{0.0, 1.0}, {0.01, 0.008}}, this};
+    DocItem<double> sections_rho {500.0, this, &Domain<double>::pos};
+    DocItem<double>   sections_E{40.0e9, this, &Domain<double>::pos};
 
     // String
-    DocItem<double> string_strand_stiffness{this, 3100.0};
-    DocItem<double> string_strand_density{this, 0.05};
-    DocItem<double> string_n_strands{this, 10.0};
+    DocItem<double> string_strand_stiffness{3100.0, this, &Domain<double>::pos};
+    DocItem<double>   string_strand_density{  0.05, this, &Domain<double>::pos};
+    DocItem<double>        string_n_strands{  10.0, this, &Domain<double>::pos};
 
     // Operation
-    DocItem<double> operation_brace_height{this, 0.2};
-    DocItem<double> operation_draw_length{this, 0.7};
-    DocItem<double> operation_mass_arrow{this, 0.02};
+    DocItem<double> operation_brace_height{ 0.2, this};
+    DocItem<double>  operation_draw_length{ 0.7, this, &Domain<double>::pos};
+    DocItem<double>   operation_mass_arrow{0.02, this, &Domain<double>::pos};
 
     // Additional masses
-    DocItem<double> mass_string_center{this, 0.0};
-    DocItem<double> mass_string_tip{this, 0.0};
-    DocItem<double> mass_limb_tip{this, 0.0};
+    DocItem<double> mass_string_center{0.0, this, &Domain<double>::non_neg};
+    DocItem<double>    mass_string_tip{0.0, this, &Domain<double>::non_neg};
+    DocItem<double>      mass_limb_tip{0.0, this, &Domain<double>::non_neg};
 
     // Settings
-    DocItem<unsigned> settings_n_elements_limb{this, 25};
-    DocItem<unsigned> settings_n_elements_string{this, 25};
-    DocItem<unsigned> settings_n_draw_steps{this, 50};
-    DocItem<double> settings_step_factor{this, 0.5};
+    DocItem<int>   settings_n_elements_limb{ 25, this, &Domain<int>::pos};
+    DocItem<int> settings_n_elements_string{ 25, this, &Domain<int>::pos};
+    DocItem<int>      settings_n_draw_steps{ 50, this, &Domain<int>::pos};
+    DocItem<double>    settings_step_factor{0.5, this, &Domain<double>::pos};
 
     // Meta
-    DocItem<std::string> meta_comments{this, ""};
-    DocItem<std::string> meta_version{this, ""};    // Todo: Get default value from somewhere? Perhaps set in GUI appliation.
+    DocItem<std::string> meta_comments{"", this};
+    DocItem<std::string>  meta_version{"", this};    // Todo: Get default value from somewhere? Perhaps set in GUI appliation.
 
     template<class Archive>
-    void serialize(Archive & archive)
+    void serialize(Archive& archive)
     {
         archive(CEREAL_NVP(profile_curvature),
                 CEREAL_NVP(profile_offset_x),

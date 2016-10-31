@@ -1,5 +1,5 @@
 #pragma once
-#include "InputData2.hpp"
+#include "InputData.hpp"
 #include "OutputData.hpp"
 #include "DiscreteLimb.hpp"
 
@@ -79,7 +79,7 @@ private:
             double Ckk = 0.5*(limb.Ckk[i] + limb.Ckk[i+1]);
             double Cek = 0.5*(limb.Cek[i] + limb.Cek[i+1]);
 
-            // Todo: Document2 this
+            // Todo: Document this
             double phi = system.get_angle(nodes_limb[i], nodes_limb[i+1]);
             double phi0 = phi - system.get_u(nodes_limb[i].phi);
             double phi1 = phi - system.get_u(nodes_limb[i+1].phi);

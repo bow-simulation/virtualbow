@@ -1,26 +1,26 @@
 #pragma once
-#include <stdexcept>
 
-enum class DomainTag
-{
-    All,
-    Pos,
-    Neg,
-    NonPos,
-    NonNeg,
-};
-
-// Todo: Use constexpr and switch somehow?
-template<DomainTag domain>
+template<typename T>
 class Domain
 {
 public:
-    static bool contains(double value)
+    static bool pos(const T& value)
     {
-        return value >= min() && value <= max();
+        return value > 0;
     }
 
-    static double min();
-    static double max();
-};
+    static bool neg(const T& value)
+    {
+        return value < 0;
+    }
 
+    static bool non_pos(const T& value)
+    {
+        return value <= 0;
+    }
+
+    static bool non_neg(const T& value)
+    {
+        return value >= 0;
+    }
+};

@@ -33,6 +33,8 @@ Model
 
     * InputData: JSON Serialisation not very nice because of unnecessary nesting.
 
+    * InputData: Extend domain such that values in a certain interval can be expressed, e.g. the step factor in ]0, 1]
+
 General
 =======
 
