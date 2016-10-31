@@ -1,7 +1,6 @@
-#pragma once;
+#pragma once
 #include "../numerics/Domain.hpp"
 #include <boost/signals2.hpp>
-#include <cereal/cereal.hpp>
 #include <functional>
 
 class Document

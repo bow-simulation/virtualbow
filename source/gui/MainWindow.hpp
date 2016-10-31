@@ -199,16 +199,15 @@ private:
     {
         try
         {
-            data = InputData();
             data.load(file_name.toStdString());
             data.set_modified(false);
 
             setCurrentFile(file_name);
             return true;
         }
-        catch(...)  // Todo
+        catch(const std::exception& e)  // Todo
         {
-            QMessageBox::warning(this, "", "Failed to load file");  // Todo: Detailed error message
+            QMessageBox::warning(this, "", QString("Failed to load file: ") + e.what());  // Todo: Detailed error message
             return false;
         }
     }

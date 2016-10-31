@@ -11,7 +11,12 @@ public:
     {
         connection = doc_item.connect([this](const std::string& text)
         {
+            if(this->hasFocus())
+                return;
+
+            bool old_state = this->blockSignals(true);    // Supress QTextEdit::textChanged signal
             this->setText(QString::fromStdString(text));
+            this->blockSignals(old_state);
         });
 
         QObject::connect(this, &QTextEdit::textChanged, [this]()

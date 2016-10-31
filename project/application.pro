@@ -34,8 +34,6 @@ HEADERS += \
     ../source/numerics/NumParam.hpp \
     ../source/numerics/Domain.hpp \
     ../source/numerics/Units.hpp \
-    ../source/numerics/DataSeries.hpp \
-    ../source/model/InputData2.hpp \
     ../source/model/DiscreteLimb.hpp \
     ../source/model/BowModel.hpp \
     ../source/model/OutputData.hpp \
@@ -53,6 +51,8 @@ HEADERS += \
     ../source/model/Document.hpp \
     ../source/gui/StringView.hpp \
     ../source/gui/DoubleView.hpp \
-    ../source/gui/NumberGroup.hpp
+    ../source/gui/NumberGroup.hpp \
+    ../source/numerics/DataSeries.hpp \
+    ../source/numerics/Series.hpp
 
 RESOURCES += ../resources/resources.qrc

@@ -1,24 +1,27 @@
 #pragma once
 #include "Document.hpp"
-#include "../numerics/DataSeries.hpp"
-
-#include <cereal/cereal.hpp>
-#include <cereal/archives/json.hpp>
+#include "../numerics/Series.hpp"
+#include <jsoncons/json.hpp>
 #include <fstream>
+
 
 struct InputData: public Document
 {
+    // Meta
+    DocItem<std::string>  meta_version{"", this};
+    DocItem<std::string> meta_comments{"", this};
+
     // Profile
-    DocItem<DataSeries> profile_curvature{{{0.3, 0.4}, {-1.0, 1.0}}, this};
+    DocItem<Series> profile_curvature{{{0.3, 0.4}, {-1.0, 1.0}}, this};
     DocItem<double> profile_offset_x{0.0, this};
     DocItem<double> profile_offset_y{0.0, this};
     DocItem<double>    profile_angle{0.0, this};
 
     // Sections
-    DocItem<DataSeries> sections_width{{{0.0, 1.0}, {0.01, 0.008}}, this};
-    DocItem<DataSeries> sections_height{{{0.0, 1.0}, {0.01, 0.008}}, this};
-    DocItem<double> sections_rho {500.0, this, &Domain<double>::pos};
-    DocItem<double>   sections_E{40.0e9, this, &Domain<double>::pos};
+    DocItem<Series>  sections_width{{{0.0, 1.0}, {0.01, 0.008}}, this};
+    DocItem<Series> sections_height{{{0.0, 1.0}, {0.01, 0.008}}, this};
+    DocItem<double> sections_rho { 500.0, this, &Domain<double>::pos};
+    DocItem<double>    sections_E{40.0e9, this, &Domain<double>::pos};
 
     // String
     DocItem<double> string_strand_stiffness{3100.0, this, &Domain<double>::pos};
@@ -41,38 +44,6 @@ struct InputData: public Document
     DocItem<int>      settings_n_draw_steps{ 50, this, &Domain<int>::pos};
     DocItem<double>    settings_step_factor{0.5, this, &Domain<double>::pos};
 
-    // Meta
-    DocItem<std::string> meta_comments{"", this};
-    DocItem<std::string>  meta_version{"", this};    // Todo: Get default value from somewhere? Perhaps set in GUI appliation.
-
-    template<class Archive>
-    void serialize(Archive& archive)
-    {
-        archive(CEREAL_NVP(profile_curvature),
-                CEREAL_NVP(profile_offset_x),
-                CEREAL_NVP(profile_offset_y),
-                CEREAL_NVP(profile_angle),
-                CEREAL_NVP(sections_width),
-                CEREAL_NVP(sections_height),
-                CEREAL_NVP(sections_rho),
-                CEREAL_NVP(sections_E),
-                CEREAL_NVP(string_strand_stiffness),
-                CEREAL_NVP(string_strand_density),
-                CEREAL_NVP(string_n_strands),
-                CEREAL_NVP(operation_brace_height),
-                CEREAL_NVP(operation_draw_length),
-                CEREAL_NVP(operation_mass_arrow),
-                CEREAL_NVP(mass_string_center),
-                CEREAL_NVP(mass_string_tip),
-                CEREAL_NVP(mass_limb_tip),
-                CEREAL_NVP(settings_n_elements_limb),
-                CEREAL_NVP(settings_n_elements_string),
-                CEREAL_NVP(settings_n_draw_steps),
-                CEREAL_NVP(settings_step_factor),
-                CEREAL_NVP(meta_comments),
-                CEREAL_NVP(meta_version));
-    }
-
     void load(const std::string& path)
     {
         // Todo: Handle file not existing or inability to parse
@@ -82,20 +53,65 @@ struct InputData: public Document
             throw std::runtime_error(strerror(errno));    // Todo: Better message with filename
         }
 
-        cereal::JSONInputArchive archive(file);
-        serialize(archive);
+        jsoncons::ojson obj = jsoncons::ojson::parse(file);
+        meta_version = obj["meta"]["version"].as<std::string>();
+        meta_comments = obj["meta"]["comments"].as<std::string>();
+        profile_curvature = obj["profile"]["curvature"].as<Series>();
+        profile_offset_x = obj["profile"]["offset_x"].as<double>();
+        profile_offset_y = obj["profile"]["offset_y"].as<double>();
+        profile_angle = obj["profile"]["angle"].as<double>();
+        sections_width = obj["sections"]["width"].as<Series>();
+        sections_height = obj["sections"]["height"].as<Series>();
+        sections_rho = obj["sections"]["rho"].as<double>();
+        sections_E = obj["sections"]["E"].as<double>();
+        string_strand_stiffness = obj["string"]["strand_stiffness"].as<double>();
+        string_strand_density = obj["string"]["strand_density"].as<double>();
+        string_n_strands = obj["string"]["n_strands"].as<double>();
+        operation_brace_height = obj["operation"]["brace_height"].as<double>();
+        operation_draw_length = obj["operation"]["draw_length"].as<double>();
+        operation_mass_arrow = obj["operation"]["mass_arrow"].as<double>();
+        mass_string_center = obj["masses"]["string_center"].as<double>();
+        mass_string_tip = obj["masses"]["string_tip"].as<double>();
+        mass_limb_tip = obj["masses"]["limb_tip"].as<double>();
+        settings_n_elements_limb = obj["settings"]["n_elements_limb"].as<int>();
+        settings_n_elements_string = obj["settings"]["n_elements_string"].as<int>();
+        settings_n_draw_steps = obj["settings"]["n_draw_steps"].as<int>();
+        settings_step_factor = obj["settings"]["step_factor"].as<double>();
     }
 
     void save(const std::string& path)
     {
+        jsoncons::ojson obj;
+        obj["meta"]["version"] = std::string(meta_version);
+        obj["meta"]["comments"] = std::string(meta_comments);
+        obj["profile"]["curvature"] = Series(profile_curvature);
+        obj["profile"]["offset_x"] = double(profile_offset_x);
+        obj["profile"]["offset_y"] = double(profile_offset_y);
+        obj["profile"]["angle"] = double(profile_angle);
+        obj["sections"]["width"] = Series(sections_width);
+        obj["sections"]["height"] = Series(sections_height);
+        obj["sections"]["rho"] = double(sections_rho);
+        obj["sections"]["E"] = double(sections_E);
+        obj["string"]["strand_stiffness"] = double(string_strand_stiffness);
+        obj["string"]["strand_density"] = double(string_strand_density);
+        obj["string"]["n_strands"] = double(string_n_strands);
+        obj["operation"]["brace_height"] = double(operation_brace_height);
+        obj["operation"]["draw_length"] = double(operation_draw_length);
+        obj["operation"]["mass_arrow"] = double(operation_mass_arrow);
+        obj["masses"]["string_center"] = double(mass_string_center);
+        obj["masses"]["string_tip"] = double(mass_string_tip);
+        obj["masses"]["limb_tip"] = double(mass_limb_tip);
+        obj["settings"]["n_elements_limb"] = int(settings_n_elements_limb);
+        obj["settings"]["n_elements_string"] = int(settings_n_elements_string);
+        obj["settings"]["n_draw_steps"] = int(settings_n_draw_steps);
+        obj["settings"]["step_factor"] = double(settings_step_factor);
+
         // Todo: Handle file not existing
         std::ofstream file(path);
         if(!file)
         {
             throw std::runtime_error(strerror(errno));    // Todo: Better message with filename
         }
-
-        cereal::JSONOutputArchive archive(file);
-        serialize(archive);
+        file << jsoncons::pretty_print(obj);
     }
 };
