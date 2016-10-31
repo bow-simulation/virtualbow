@@ -16,7 +16,14 @@ public:
 
         QObject::connect(this, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this](int value)
         {
-            this->doc_item = value;
+            try
+            {
+                this->doc_item = value;
+            }
+            catch(const std::runtime_error&)
+            {
+                this->setValue(this->doc_item);
+            }
         });
     }
 

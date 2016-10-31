@@ -32,16 +32,14 @@ class DocItem
 public:
     typedef boost::signals2::signal<void(const T&)> Signal;
     typedef boost::signals2::scoped_connection Connection;
-
     typedef std::function<bool(const T&)> Validator;
-    Validator validate;
 
-    DocItem(T value, Document* document, Validator validate = [](const T&){ return true; })
+    DocItem(T value, Document* document, Validator validator = [](const T&){ return true; })
         : value(value),
           document(document),
-          validate(validate)
+          validator(validator)
     {
-        if(!validate(value))
+        if(!validator(value))
         {
             throw std::runtime_error("Invalid initial value");
         }
@@ -54,13 +52,16 @@ public:
 
     DocItem& operator=(const T& rhs)
     {
-        if(validate(rhs))
+        if(validator(rhs))
         {
             value = rhs;
             document->set_modified(true);
+            signal(value);
         }
-
-        signal(value);
+        else
+        {
+            throw std::runtime_error("Invalid value");
+        }
 
         return *this;
     }
@@ -75,10 +76,16 @@ public:
     void serialize(Archive& archive)
     {
         archive(value);
+
+        if(!validator(value))
+        {
+            throw std::runtime_error("Invalid value");
+        }
     }
 
 private:
     T value;
     Document* document;
+    Validator validator;
     Signal signal;
 };

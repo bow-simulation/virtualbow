@@ -21,7 +21,14 @@ public:
 
             if(ok)
             {
-                this->doc_item = value;
+                try
+                {
+                    this->doc_item = value;
+                }
+                catch(const std::runtime_error&)
+                {
+                    setValue(this->doc_item);
+                }
             }
             else
             {
