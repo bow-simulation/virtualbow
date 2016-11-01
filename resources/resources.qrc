@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>logo.png</file>
         <file>application-exit.png</file>
+        <file>applications-system.png</file>
         <file>arrow-right.png</file>
         <file>arrow-right-double.png</file>
         <file>dialog-information.png</file>
@@ -9,6 +10,7 @@
         <file>document-open.png</file>
         <file>document-save.png</file>
         <file>document-save-as.png</file>
+        <file>knotes.png</file>
         <file>list-add.png</file>
         <file>list-remove.png</file>
     </qresource>

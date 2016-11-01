@@ -29,11 +29,9 @@ public:
         vbox->addWidget(group_dynamics);
 
         // OK Button
-        auto hbox = new QHBoxLayout();
         auto btbox = new QDialogButtonBox(QDialogButtonBox::Ok);
         QObject::connect(btbox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-        vbox->addLayout(hbox);
-        hbox->addWidget(btbox);
+        vbox->addWidget(btbox);
 
         this->setWindowTitle("Settings");
         this->layout()->setSizeConstraint(QLayout::SetFixedSize);

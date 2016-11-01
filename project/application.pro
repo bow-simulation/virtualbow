@@ -49,10 +49,10 @@ HEADERS += \
     ../source/model/Document.hpp \
     ../source/model/InputData.hpp \
     ../source/model/Document.hpp \
-    ../source/gui/StringView.hpp \
     ../source/gui/DoubleView.hpp \
     ../source/gui/NumberGroup.hpp \
     ../source/numerics/Series.hpp \
-    ../source/gui/SeriesView.hpp
+    ../source/gui/SeriesView.hpp \
+    ../source/gui/NotesDialog.hpp
 
 RESOURCES += ../resources/resources.qrc

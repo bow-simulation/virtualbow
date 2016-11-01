@@ -1,7 +1,6 @@
 #pragma once
 #include "SeriesView.hpp"
 #include "NumberGroup.hpp"
-#include "StringView.hpp"
 #include "Plot.hpp"
 #include "../model/InputData.hpp"
 
@@ -106,16 +105,5 @@ public:
         tabs->addTab(new WidthEditor(data), "Width");
         tabs->addTab(new HeightEditor(data), "Height");
         vbox->addWidget(tabs, 1);
-
-        /*
-        // Comments
-        auto view_comments = new StringView(data.meta_comments);
-        view_comments->setFixedHeight(120);     // Todo: Magic number
-        auto box_comments = new QHBoxLayout();
-        auto group_comments = new QGroupBox("Comments");
-        box_comments->addWidget(view_comments);
-        group_comments->setLayout(box_comments);
-        vbox->addWidget(group_comments);
-        */
     }
 };

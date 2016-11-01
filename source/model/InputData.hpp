@@ -9,7 +9,7 @@ struct InputData: public Document
 {
     // Meta
     DocItem<std::string>  meta_version{"", this};
-    DocItem<std::string> meta_comments{"", this};
+    DocItem<std::string> meta_notes{"", this};
 
     // Profile
     DocItem<Series> profile_curvature{{{0.3, 0.4, 0.2}, {-1.0, 1.0, -2.0}}, this};
@@ -55,7 +55,7 @@ struct InputData: public Document
 
         jsoncons::ojson obj = jsoncons::ojson::parse(file);
         meta_version = obj["meta"]["version"].as<std::string>();
-        meta_comments = obj["meta"]["comments"].as<std::string>();
+        meta_notes = obj["meta"]["notes"].as<std::string>();
         profile_curvature = obj["profile"]["curvature"].as<Series>();
         profile_offset_x = obj["profile"]["offset_x"].as<double>();
         profile_offset_y = obj["profile"]["offset_y"].as<double>();
@@ -83,7 +83,7 @@ struct InputData: public Document
     {
         jsoncons::ojson obj;
         obj["meta"]["version"] = std::string(meta_version);
-        obj["meta"]["comments"] = std::string(meta_comments);
+        obj["meta"]["notes"] = std::string(meta_notes);
         obj["profile"]["curvature"] = Series(profile_curvature);
         obj["profile"]["offset_x"] = double(profile_offset_x);
         obj["profile"]["offset_y"] = double(profile_offset_y);

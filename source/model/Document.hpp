@@ -54,9 +54,12 @@ public:
     {
         if(validate(rhs))
         {
-            value = rhs;
-            document->set_modified(true);
-            signal(value);
+            if(rhs != value)
+            {
+                value = rhs;
+                document->set_modified(true);
+                signal(value);
+            }
         }
         else
         {

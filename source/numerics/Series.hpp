@@ -74,6 +74,16 @@ public:
         return m_args.size();
     }
 
+    bool operator ==(const Series& rhs) const
+    {
+        return m_args == rhs.m_args && m_vals == rhs.m_vals;
+    }
+
+    bool operator !=(const Series& rhs) const
+    {
+        return !operator==(rhs);
+    }
+
 private:
     std::vector<double> m_args;
     std::vector<double> m_vals;

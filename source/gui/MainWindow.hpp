@@ -2,6 +2,7 @@
 #include "../model/InputData.hpp"
 #include "BowEditor.hpp"
 #include "SettingsDialog.hpp"
+#include "NotesDialog.hpp"
 
 #include <QtWidgets>
 
@@ -34,6 +35,12 @@ public:
         action_exit->setShortcuts(QKeySequence::Quit);
         QObject::connect(action_exit, &QAction::triggered, this, &QWidget::close);
 
+        QAction* action_settings = new QAction(QIcon(":/applications-system"), "Settings...", this);
+        connect(action_settings, &QAction::triggered, this, &MainWindow::settings);
+
+        QAction* action_notes = new QAction(QIcon(":/knotes"), "Notes...", this);
+        connect(action_notes, &QAction::triggered, this, &MainWindow::notes);
+
         QAction* action_run_statics = new QAction(QIcon(":/arrow-right"), "Static analysis...", this);
         // action_run_statics->setShortcuts(QKeySequence::Quit);
         // QObject::connect ...
@@ -41,9 +48,6 @@ public:
         QAction* action_run_dynamics = new QAction(QIcon(":/arrow-right-double"), "Dynamic analysis...", this);
         // action_run_dynmics->setShortcuts(QKeySequence::Quit);
         // QObject::connect ...
-
-        QAction* action_settings = new QAction("Settings...", this);
-        connect(action_settings, &QAction::triggered, this, &MainWindow::settings);
 
         QAction* action_about = new QAction(QIcon(":/dialog-information"), "&About...", this);
         connect(action_about, &QAction::triggered, this, &MainWindow::about);
@@ -57,12 +61,15 @@ public:
         menu_file->addSeparator();
         menu_file->addAction(action_exit);
 
+        // Edit menu
+        QMenu* menu_edit = this->menuBar()->addMenu("&Edit");
+        menu_edit->addAction(action_settings);
+        menu_edit->addAction(action_notes);
+
         // Simulation menu
-        QMenu* menu_simulation = this->menuBar()->addMenu("&Simulation");
+        QMenu* menu_simulation = this->menuBar()->addMenu("&Run");
         menu_simulation->addAction(action_run_statics);
         menu_simulation->addAction(action_run_dynamics);
-        menu_simulation->addSeparator();
-        menu_simulation->addAction(action_settings);
 
         // File toolbar
         QToolBar* toolbar_file = this->addToolBar("File");
@@ -70,6 +77,11 @@ public:
         toolbar_file->addAction(action_open);
         toolbar_file->addAction(action_save);
         toolbar_file->addAction(action_save_as);
+
+        // Edit toolbar
+        QToolBar* toolbar_edit = this->addToolBar("Edit");
+        toolbar_edit->addAction(action_settings);
+        toolbar_edit->addAction(action_notes);
 
         // Simulation toolbar
         QToolBar* toolbar_simulation = this->addToolBar("Simulation");
@@ -142,10 +154,16 @@ private slots:
         return false;
     }
 
-    // Todo: settings and about dialogs as lambdas in constructor?
+    // Todo: settings, notes and about dialogs as lambdas in constructor?
     void settings()
     {
         SettingsDialog dialog(this, data);
+        dialog.exec();
+    }
+
+    void notes()
+    {
+        NotesDialog dialog(this, data);
         dialog.exec();
     }
 
