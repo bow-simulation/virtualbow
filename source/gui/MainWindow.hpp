@@ -11,45 +11,46 @@ class MainWindow: public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(): editor(new BowEditor(data))
+    MainWindow()
+        : data(":/bows/default.bow"),
+          editor(new BowEditor(data))
     {
         // Actions
-        QAction* action_new = new QAction(QIcon(":/document-new"), "&New", this);
-        //QAction *action_new = new QAction(QIcon(":/document-new"), "&New", this);
+        QAction* action_new = new QAction(QIcon(":/icons/document-new"), "&New", this);
         action_new->setShortcuts(QKeySequence::New);
         QObject::connect(action_new, &QAction::triggered, this, &MainWindow::newFile);
 
-        QAction* action_open = new QAction(QIcon(":/document-open"), "&Open...", this);
+        QAction* action_open = new QAction(QIcon(":/icons/document-open"), "&Open...", this);
         action_open->setShortcuts(QKeySequence::Open);
         QObject::connect(action_open, &QAction::triggered, this, &MainWindow::open);
 
-        QAction* action_save = new QAction(QIcon(":/document-save"), "&Save", this);
+        QAction* action_save = new QAction(QIcon(":/icons/document-save"), "&Save", this);
         action_save->setShortcuts(QKeySequence::Save);
         QObject::connect(action_save, &QAction::triggered, this, &MainWindow::save);
 
-        QAction* action_save_as = new QAction(QIcon(":/document-save-as"), "Save &As...", this);
+        QAction* action_save_as = new QAction(QIcon(":/icons/document-save-as"), "Save &As...", this);
         action_save_as->setShortcuts(QKeySequence::SaveAs);
         QObject::connect(action_save_as, &QAction::triggered, this, &MainWindow::saveAs);
 
-        QAction* action_exit = new QAction(QIcon(":/application-exit"), "&Quit", this);
+        QAction* action_exit = new QAction(QIcon(":/icons/application-exit"), "&Quit", this);
         action_exit->setShortcuts(QKeySequence::Quit);
         QObject::connect(action_exit, &QAction::triggered, this, &QWidget::close);
 
-        QAction* action_settings = new QAction(QIcon(":/applications-system"), "Settings...", this);
+        QAction* action_settings = new QAction(QIcon(":/icons/applications-system"), "Settings...", this);
         connect(action_settings, &QAction::triggered, this, &MainWindow::settings);
 
-        QAction* action_notes = new QAction(QIcon(":/knotes"), "Notes...", this);
+        QAction* action_notes = new QAction(QIcon(":/icons/knotes"), "Notes...", this);
         connect(action_notes, &QAction::triggered, this, &MainWindow::notes);
 
-        QAction* action_run_statics = new QAction(QIcon(":/arrow-right"), "Static analysis...", this);
+        QAction* action_run_statics = new QAction(QIcon(":/icons/arrow-right"), "Static analysis...", this);
         // action_run_statics->setShortcuts(QKeySequence::Quit);
         // QObject::connect ...
 
-        QAction* action_run_dynamics = new QAction(QIcon(":/arrow-right-double"), "Dynamic analysis...", this);
+        QAction* action_run_dynamics = new QAction(QIcon(":/icons/arrow-right-double"), "Dynamic analysis...", this);
         // action_run_dynmics->setShortcuts(QKeySequence::Quit);
         // QObject::connect ...
 
-        QAction* action_about = new QAction(QIcon(":/dialog-information"), "&About...", this);
+        QAction* action_about = new QAction(QIcon(":/icons/dialog-information"), "&About...", this);
         connect(action_about, &QAction::triggered, this, &MainWindow::about);
 
         // File menu
@@ -115,7 +116,7 @@ private slots:
         if(!optionalSave())
             return;
 
-        data = InputData();
+        data.load(":/bows/default.bow");
         setCurrentFile(QString());
     }
 
@@ -217,8 +218,7 @@ private:
     {
         try
         {
-            data.load(file_name.toStdString());
-            data.set_modified(false);
+            data.load(file_name);
 
             setCurrentFile(file_name);
             return true;
@@ -235,8 +235,7 @@ private:
         try
         {
             data.meta_version = QGuiApplication::applicationVersion().toStdString();
-            data.save(file_name.toStdString());
-            data.set_modified(false);
+            data.save(file_name);
 
             setCurrentFile(file_name);
             return true;

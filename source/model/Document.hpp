@@ -34,15 +34,11 @@ public:
     typedef std::function<bool(const T&)> Validator;
     Validator validate;
 
-    DocItem(T value, Document* document, Validator validate = [](const T&){ return true; })
-        : value(value),
-          document(document),
+    DocItem(Document* document, Validator validate = [](const T&){ return true; })
+        : document(document),
           validate(validate)
     {
-        if(!validate(value))
-        {
-            throw std::runtime_error("Invalid initial value");
-        }
+
     }
 
     operator const T&() const

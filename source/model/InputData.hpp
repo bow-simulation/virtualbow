@@ -1,59 +1,66 @@
 #pragma once
 #include "Document.hpp"
 #include "../numerics/Series.hpp"
+#include <QtCore>
 #include <jsoncons/json.hpp>
-#include <fstream>
-
 
 struct InputData: public Document
 {
     // Meta
-    DocItem<std::string>  meta_version{"", this};
-    DocItem<std::string> meta_notes{"", this};
+    DocItem<std::string>  meta_version{this};
+    DocItem<std::string> meta_notes{this};
 
     // Profile
-    DocItem<Series> profile_curvature{{{0.3, 0.4, 0.2}, {-1.0, 1.0, -2.0}}, this};
-    DocItem<double> profile_offset_x{0.0, this};
-    DocItem<double> profile_offset_y{0.0, this};
-    DocItem<double>    profile_angle{0.0, this};
+    DocItem<Series> profile_curvature{this};
+    DocItem<double> profile_offset_x{this};
+    DocItem<double> profile_offset_y{this};
+    DocItem<double>    profile_angle{this};
 
     // Sections
-    DocItem<Series>  sections_width{{{0.0, 1.0}, {0.01, 0.008}}, this};
-    DocItem<Series> sections_height{{{0.0, 1.0}, {0.01, 0.008}}, this};
-    DocItem<double> sections_rho { 500.0, this, &Domain<double>::pos};
-    DocItem<double>    sections_E{40.0e9, this, &Domain<double>::pos};
+    DocItem<Series>  sections_width{this};
+    DocItem<Series> sections_height{this};
+    DocItem<double> sections_rho {this, &Domain<double>::pos};
+    DocItem<double>    sections_E{this, &Domain<double>::pos};
 
     // String
-    DocItem<double> string_strand_stiffness{3100.0, this, &Domain<double>::pos};
-    DocItem<double>   string_strand_density{  0.05, this, &Domain<double>::pos};
-    DocItem<double>        string_n_strands{  10.0, this, &Domain<double>::pos};
+    DocItem<double> string_strand_stiffness{this, &Domain<double>::pos};
+    DocItem<double>   string_strand_density{this, &Domain<double>::pos};
+    DocItem<double>        string_n_strands{this, &Domain<double>::pos};
 
     // Operation
-    DocItem<double> operation_brace_height{ 0.2, this};
-    DocItem<double>  operation_draw_length{ 0.7, this, &Domain<double>::pos};
-    DocItem<double>   operation_mass_arrow{0.02, this, &Domain<double>::pos};
+    DocItem<double> operation_brace_height{this};
+    DocItem<double>  operation_draw_length{this, &Domain<double>::pos};
+    DocItem<double>   operation_mass_arrow{this, &Domain<double>::pos};
 
     // Additional masses
-    DocItem<double> mass_string_center{0.0, this, &Domain<double>::non_neg};
-    DocItem<double>    mass_string_tip{0.0, this, &Domain<double>::non_neg};
-    DocItem<double>      mass_limb_tip{0.0, this, &Domain<double>::non_neg};
+    DocItem<double> mass_string_center{this, &Domain<double>::non_neg};
+    DocItem<double>    mass_string_tip{this, &Domain<double>::non_neg};
+    DocItem<double>      mass_limb_tip{this, &Domain<double>::non_neg};
 
     // Settings
-    DocItem<int>   settings_n_elements_limb{ 25, this, &Domain<int>::pos};
-    DocItem<int> settings_n_elements_string{ 25, this, &Domain<int>::pos};
-    DocItem<int>      settings_n_draw_steps{ 50, this, &Domain<int>::pos};
-    DocItem<double>    settings_step_factor{0.5, this, &Domain<double>::pos};
+    DocItem<int>   settings_n_elements_limb{this, &Domain<int>::pos};
+    DocItem<int> settings_n_elements_string{this, &Domain<int>::pos};
+    DocItem<int>      settings_n_draw_steps{this, &Domain<int>::pos};
+    DocItem<double>    settings_step_factor{this, &Domain<double>::pos};
 
-    void load(const std::string& path)
+    InputData(const QString& path)
     {
+        load(path);
+    }
+
+    void load(const QString& path)
+    {
+        QFile file(path);
+
         // Todo: Handle file not existing or inability to parse
-        std::ifstream file(path);
-        if(!file)
+        if(!file.open(QFile::ReadOnly | QFile::Text))
         {
-            throw std::runtime_error(strerror(errno));    // Todo: Better message with filename
+            throw std::runtime_error("Could not open file");    // Todo: Better message with filename
         }
 
-        jsoncons::ojson obj = jsoncons::ojson::parse(file);
+        std::string str = QTextStream(&file).readAll().toStdString();
+        jsoncons::ojson obj = jsoncons::ojson::parse_string(str);
+
         meta_version = obj["meta"]["version"].as<std::string>();
         meta_notes = obj["meta"]["notes"].as<std::string>();
         profile_curvature = obj["profile"]["curvature"].as<Series>();
@@ -77,9 +84,11 @@ struct InputData: public Document
         settings_n_elements_string = obj["settings"]["n_elements_string"].as<int>();
         settings_n_draw_steps = obj["settings"]["n_draw_steps"].as<int>();
         settings_step_factor = obj["settings"]["step_factor"].as<double>();
+
+        this->set_modified(false);
     }
 
-    void save(const std::string& path)
+    void save(const QString& path)
     {
         jsoncons::ojson obj;
         obj["meta"]["version"] = std::string(meta_version);
@@ -106,6 +115,7 @@ struct InputData: public Document
         obj["settings"]["n_draw_steps"] = int(settings_n_draw_steps);
         obj["settings"]["step_factor"] = double(settings_step_factor);
 
+        /*
         // Todo: Handle file not existing
         std::ofstream file(path);
         if(!file)
@@ -113,5 +123,21 @@ struct InputData: public Document
             throw std::runtime_error(strerror(errno));    // Todo: Better message with filename
         }
         file << jsoncons::pretty_print(obj);
+*/
+
+        QFile file(path);
+
+        // Todo: Handle file not existing or inability to parse
+        if(!file.open(QFile::WriteOnly | QFile::Text))
+        {
+            throw std::runtime_error("Could not open file");    // Todo: Better message with filename
+        }
+
+
+        std::ostringstream os;
+        os << jsoncons::pretty_print(obj);
+        QTextStream(&file) << QString::fromStdString(os.str());
+
+        this->set_modified(false);
     }
 };

@@ -34,6 +34,8 @@ Model
 
     * InputData: Extend domain such that values in a certain interval can be expressed, e.g. the step factor in ]0, 1]
 
+    * DocItem: value is default constructed and might not be valid until the DocItem is assigned a valid one. Perhaps express this with boost::optional.
+
 General
 =======
 
