@@ -22,8 +22,8 @@ public:
         table->verticalHeader()->hide();
         vbox->addWidget(table);
 
-        auto bt_plus = new QPushButton(QIcon(":/list-add"), "Add");
-        auto bt_minus = new QPushButton(QIcon(":/list-remove"), "Remove");
+        auto bt_plus = new QPushButton("Add");
+        auto bt_minus = new QPushButton("Remove");
 
         auto hbox = new QHBoxLayout();
         hbox->addWidget(bt_plus);

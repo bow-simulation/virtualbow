@@ -42,11 +42,11 @@ public:
         QAction* action_notes = new QAction(QIcon(":/icons/knotes"), "Notes...", this);
         connect(action_notes, &QAction::triggered, this, &MainWindow::notes);
 
-        QAction* action_run_statics = new QAction(QIcon(":/icons/arrow-right"), "Static analysis...", this);
+        QAction* action_run_statics = new QAction(QIcon(":/icons/arrow-right"), "Statics...", this);
         // action_run_statics->setShortcuts(QKeySequence::Quit);
         // QObject::connect ...
 
-        QAction* action_run_dynamics = new QAction(QIcon(":/icons/arrow-right-double"), "Dynamic analysis...", this);
+        QAction* action_run_dynamics = new QAction(QIcon(":/icons/arrow-right-double"), "Dynamics...", this);
         // action_run_dynmics->setShortcuts(QKeySequence::Quit);
         // QObject::connect ...
 
@@ -68,7 +68,7 @@ public:
         menu_edit->addAction(action_notes);
 
         // Simulation menu
-        QMenu* menu_simulation = this->menuBar()->addMenu("&Run");
+        QMenu* menu_simulation = this->menuBar()->addMenu("&Simulate");
         menu_simulation->addAction(action_run_statics);
         menu_simulation->addAction(action_run_dynamics);
 
@@ -93,7 +93,7 @@ public:
         QMenu* menu_help = this->menuBar()->addMenu("&Help");
         menu_help->addAction(action_about);
 
-        this->setWindowIcon(QIcon(":/logo"));
+        this->setWindowIcon(QIcon(":/icons/logo"));
         this->setCentralWidget(editor);
         setCurrentFile(QString());
     }
@@ -171,7 +171,7 @@ private slots:
     void about()
     {
         QMessageBox msgbox(this);
-        msgbox.setIconPixmap(QPixmap(":/logo"));
+        msgbox.setIconPixmap(QPixmap(":/icons/logo"));
         msgbox.setWindowTitle("About");
         msgbox.setText("<h2>" + QGuiApplication::applicationDisplayName() + "</h2>"
                        "<h4>Version " + QGuiApplication::applicationVersion() + "</h4>"

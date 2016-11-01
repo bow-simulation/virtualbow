@@ -12,6 +12,7 @@ public:
         auto vbox = new QVBoxLayout();
         this->setLayout(vbox);
         this->setWindowTitle("Notes");
+        this->resize(600, 300);     // Todo: Magic numbers
 
         edit = new QTextEdit();
         edit->setText(QString::fromStdString(data.meta_notes));
@@ -25,6 +26,8 @@ public:
             this->data.meta_notes = edit->toPlainText().toStdString();
             this->accept();
         });
+
+        QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     }
 
 private:

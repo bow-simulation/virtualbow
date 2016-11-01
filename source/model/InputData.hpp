@@ -51,8 +51,6 @@ struct InputData: public Document
     void load(const QString& path)
     {
         QFile file(path);
-
-        // Todo: Handle file not existing or inability to parse
         if(!file.open(QFile::ReadOnly | QFile::Text))
         {
             throw std::runtime_error("Could not open file");    // Todo: Better message with filename
@@ -115,28 +113,15 @@ struct InputData: public Document
         obj["settings"]["n_draw_steps"] = int(settings_n_draw_steps);
         obj["settings"]["step_factor"] = double(settings_step_factor);
 
-        /*
-        // Todo: Handle file not existing
-        std::ofstream file(path);
-        if(!file)
-        {
-            throw std::runtime_error(strerror(errno));    // Todo: Better message with filename
-        }
-        file << jsoncons::pretty_print(obj);
-*/
-
         QFile file(path);
-
-        // Todo: Handle file not existing or inability to parse
         if(!file.open(QFile::WriteOnly | QFile::Text))
         {
             throw std::runtime_error("Could not open file");    // Todo: Better message with filename
         }
 
-
-        std::ostringstream os;
-        os << jsoncons::pretty_print(obj);
-        QTextStream(&file) << QString::fromStdString(os.str());
+        std::ostringstream oss;
+        oss << jsoncons::pretty_print(obj);
+        QTextStream(&file) << QString::fromStdString(oss.str());
 
         this->set_modified(false);
     }
