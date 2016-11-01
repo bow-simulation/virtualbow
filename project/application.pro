@@ -53,6 +53,7 @@ HEADERS += \
     ../source/gui/DoubleView.hpp \
     ../source/gui/NumberGroup.hpp \
     ../source/numerics/DataSeries.hpp \
-    ../source/numerics/Series.hpp
+    ../source/numerics/Series.hpp \
+    ../source/gui/SeriesView.hpp
 
 RESOURCES += ../resources/resources.qrc

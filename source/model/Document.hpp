@@ -32,13 +32,14 @@ public:
     typedef boost::signals2::signal<void(const T&)> Signal;
     typedef boost::signals2::scoped_connection Connection;
     typedef std::function<bool(const T&)> Validator;
+    Validator validate;
 
-    DocItem(T value, Document* document, Validator validator = [](const T&){ return true; })
+    DocItem(T value, Document* document, Validator validate = [](const T&){ return true; })
         : value(value),
           document(document),
-          validator(validator)
+          validate(validate)
     {
-        if(!validator(value))
+        if(!validate(value))
         {
             throw std::runtime_error("Invalid initial value");
         }
@@ -51,7 +52,7 @@ public:
 
     DocItem& operator=(const T& rhs)
     {
-        if(validator(rhs))
+        if(validate(rhs))
         {
             value = rhs;
             document->set_modified(true);
@@ -76,7 +77,7 @@ public:
     {
         archive(value);
 
-        if(!validator(value))
+        if(!validate(value))
         {
             throw std::runtime_error("Invalid value");
         }
@@ -85,6 +86,5 @@ public:
 private:
     T value;
     Document* document;
-    Validator validator;
     Signal signal;
 };

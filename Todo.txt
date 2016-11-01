@@ -1,10 +1,5 @@
 GUI
 ===
-    * Bug: When suggesting save before creating new file the discard button shouldn't say "Close without saving"
-      but rather something like "Discard changes". (Platform dependent)
-
-    * Bug/Annoyance: About box breaks the line about licensing before "v3.0" (Platform dependent)
-
     * Bug: Repeatedly clicking the load and save icons and closing the dialogs with x sometimes makes the program print the following message,
 
           QXcbConnection: XCB error: 3 (BadWindow), sequence: 1352, resource id: 7826577, major code: 40 (TranslateCoords), minor code: 0
@@ -20,6 +15,8 @@ GUI
 
     * Make heighth of the comment box the same as the groups above
 
+    * Make height of the table cells the same as QLineEdit and/or the table headers
+
 FEM
 ===
 
@@ -30,8 +27,6 @@ FEM
 
 Model
 =====
-
-    * InputData: JSON Serialisation not very nice because of unnecessary nesting.
 
     * InputData: Extend domain such that values in a certain interval can be expressed, e.g. the step factor in ]0, 1]
 

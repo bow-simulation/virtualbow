@@ -12,7 +12,7 @@ struct InputData: public Document
     DocItem<std::string> meta_comments{"", this};
 
     // Profile
-    DocItem<Series> profile_curvature{{{0.3, 0.4}, {-1.0, 1.0}}, this};
+    DocItem<Series> profile_curvature{{{0.3, 0.4, 0.2}, {-1.0, 1.0, -2.0}}, this};
     DocItem<double> profile_offset_x{0.0, this};
     DocItem<double> profile_offset_y{0.0, this};
     DocItem<double>    profile_angle{0.0, this};
