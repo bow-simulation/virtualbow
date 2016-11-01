@@ -1,6 +1,6 @@
 #include "CubicSpline.hpp"
 
-CubicSpline::CubicSpline(DataSeries data)
+CubicSpline::CubicSpline(Series data)
 {
     // Check validity
     size_t n = data.size();
@@ -61,12 +61,12 @@ double CubicSpline::arg_max() const
     return t.back();
 }
 
-DataSeries CubicSpline::sample(size_t n_points) const
+Series CubicSpline::sample(size_t n_points) const
 {
     double arg0 = t.front();
     double arg1 = t.back();
 
-    DataSeries data;
+    Series data;
     for(size_t i = 0; i <= n_points; ++i)
     {
         double alpha = double(i)/double(n_points);

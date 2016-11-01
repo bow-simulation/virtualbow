@@ -34,11 +34,11 @@ public:
         action_exit->setShortcuts(QKeySequence::Quit);
         QObject::connect(action_exit, &QAction::triggered, this, &QWidget::close);
 
-        QAction* action_run_statics = new QAction(QIcon(":/arrow-right"), "Simulate statics...", this);
+        QAction* action_run_statics = new QAction(QIcon(":/arrow-right"), "Static analysis...", this);
         // action_run_statics->setShortcuts(QKeySequence::Quit);
         // QObject::connect ...
 
-        QAction* action_run_dynamics = new QAction(QIcon(":/arrow-right-double"), "Simulate dynamics...", this);
+        QAction* action_run_dynamics = new QAction(QIcon(":/arrow-right-double"), "Dynamic analysis...", this);
         // action_run_dynmics->setShortcuts(QKeySequence::Quit);
         // QObject::connect ...
 

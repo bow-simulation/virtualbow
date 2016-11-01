@@ -2,7 +2,65 @@
 #include "SeriesView.hpp"
 #include "NumberGroup.hpp"
 #include "StringView.hpp"
+#include "Plot.hpp"
 #include "../model/InputData.hpp"
+
+class ProfileEditor: public QWidget
+{
+public:
+    ProfileEditor(InputData& data)
+    {
+        auto hbox = new QHBoxLayout();
+        this->setLayout(hbox);
+
+        auto vbox = new QVBoxLayout();
+        hbox->addLayout(vbox);
+
+        auto series_view = new SeriesView("Length", "Curvature", data.profile_curvature);
+        vbox->addWidget(series_view);
+
+        auto group_limb = new NumberGroup(data, "Offset");
+        group_limb->addRow("x:", data.profile_offset_x);
+        group_limb->addRow("y:", data.profile_offset_y);
+        group_limb->addRow("Angle:", data.profile_angle);
+        vbox->addWidget(group_limb);
+
+        auto plot = new Plot();
+        hbox->addWidget(plot, 1);
+    }
+};
+
+class WidthEditor: public QWidget
+{
+public:
+    WidthEditor(InputData& data)
+    {
+        auto hbox = new QHBoxLayout();
+        this->setLayout(hbox);
+
+        auto series_view = new SeriesView("Position", "Width", data.sections_width);
+        hbox->addWidget(series_view);
+
+        auto plot = new Plot();
+        hbox->addWidget(plot, 1);
+    }
+};
+
+class HeightEditor: public QWidget
+{
+public:
+    HeightEditor(InputData& data)
+    {
+        auto hbox = new QHBoxLayout();
+        this->setLayout(hbox);
+
+        auto series_view = new SeriesView("Position", "Height", data.sections_height);
+        hbox->addWidget(series_view);
+
+        auto plot = new Plot();
+        hbox->addWidget(plot, 1);
+    }
+};
 
 class BowEditor: public QWidget
 {
@@ -12,20 +70,14 @@ public:
         auto vbox = new QVBoxLayout();
         this->setLayout(vbox);
 
-        auto tabs = new QTabWidget();
-        tabs->addTab(new SeriesView("Length", "Curvature", data.profile_curvature), "Profile");
-        tabs->addTab(new QWidget(),"Width");
-        tabs->addTab(new QWidget(),"Height");
-        vbox->addWidget(tabs, 1);
-
         auto hbox = new QHBoxLayout();
         vbox->addLayout(hbox);
 
-        // Material group
-        auto group_material = new NumberGroup(data, "Limb material");
-        group_material->addRow("rho:", data.sections_rho);
-        group_material->addRow("E:", data.sections_E);
-        hbox->addWidget(group_material);
+        // Limb group
+        auto group_limb = new NumberGroup(data, "Limb Material");
+        group_limb->addRow("rho:", data.sections_rho);      // Todo: Use unicode character
+        group_limb->addRow("E:", data.sections_E);
+        hbox->addWidget(group_limb);
 
         // String group
         auto group_string = new NumberGroup(data, "String");
@@ -48,6 +100,14 @@ public:
         group_masses->addRow("Limb tip:", data.mass_limb_tip);
         hbox->addWidget(group_masses);
 
+        // Limb geometry editors
+        auto tabs = new QTabWidget();
+        tabs->addTab(new ProfileEditor(data), "Profile");
+        tabs->addTab(new WidthEditor(data), "Width");
+        tabs->addTab(new HeightEditor(data), "Height");
+        vbox->addWidget(tabs, 1);
+
+        /*
         // Comments
         auto view_comments = new StringView(data.meta_comments);
         view_comments->setFixedHeight(120);     // Todo: Magic number
@@ -56,5 +116,6 @@ public:
         box_comments->addWidget(view_comments);
         group_comments->setLayout(box_comments);
         vbox->addWidget(group_comments);
+        */
     }
 };

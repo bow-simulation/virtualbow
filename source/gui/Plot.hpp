@@ -24,7 +24,7 @@ public:
         */
     }
 
-    int addSeries(const DataSeries& data, const QString& name = "")
+    int addSeries(const Series& data, const QString& name = "")
     {
         /*
         int index = addSeries(name);
@@ -51,7 +51,7 @@ public:
         */
     }
 
-    void setData(int index, const DataSeries& data)
+    void setData(int index, const Series& data)
     {
         /*
         auto* series = dynamic_cast<QLineSeries*>(this->series()[index]);

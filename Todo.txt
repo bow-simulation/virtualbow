@@ -17,6 +17,10 @@ GUI
 
     * Make height of the table cells the same as QLineEdit and/or the table headers
 
+    * SeriesView: Enable/Implement copy and paste
+
+    * SeriesView: Find solution for default values and validation
+
 FEM
 ===
 

@@ -1,6 +1,6 @@
 #include "StepFunction.hpp"
 
-StepFunction::StepFunction(DataSeries data)
+StepFunction::StepFunction(Series data)
     : values(data.vals())
 {
     // Check validity
@@ -30,10 +30,10 @@ double StepFunction::arg_max() const
 {
     return intervals.back();
 }
-#include <QtCore>
-DataSeries StepFunction::sample() const
+
+Series StepFunction::sample() const
 {
-    DataSeries data;
+    Series data;
 
     size_t n = intervals.size();
     for(size_t i = 0; i < n; ++i)

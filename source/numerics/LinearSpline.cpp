@@ -1,6 +1,6 @@
 #include "LinearSpline.hpp"
 
-LinearSpline::LinearSpline(DataSeries data)
+LinearSpline::LinearSpline(Series data)
     : data(data)
 {
     // Check validity. Todo: Abstract this. Maybe as part of DataSeries.
@@ -30,17 +30,16 @@ double LinearSpline::arg_max() const
     return data.args().back();
 }
 
-DataSeries LinearSpline::sample(size_t n_points) const
+Series LinearSpline::sample(size_t n_points) const
 {
     double arg0 = data.args().front();
     double arg1 = data.args().back();
 
-    DataSeries data;
+    Series data;
     for(size_t i = 0; i <= n_points; ++i)
     {
         double alpha = double(i)/double(n_points);
         double arg = arg0*alpha + arg1*(1.0 - alpha);
-
         data.add(arg, (*this)(arg));
     }
 
