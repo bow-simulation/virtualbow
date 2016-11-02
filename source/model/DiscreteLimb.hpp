@@ -31,7 +31,7 @@ struct DiscreteLimb
     // Layer properties
     std::vector<DiscreteLayer> layers;
 
-    DiscreteLimb(const InputData2& input)
+    DiscreteLimb(const InputData& input)
     {
         calculate_nodes(input);
         calculate_section_properties(input);
@@ -51,13 +51,13 @@ struct DiscreteLimb
 
 private:
     // Calculate positions and orientations of the nodes by integrating the limb curve from it's curvature.
-    void calculate_nodes(const InputData2& input)
+    void calculate_nodes(const InputData& input)
     {
         using namespace boost::numeric::odeint;
         typedef std::array<double, 3> state_type;
         typedef runge_kutta_cash_karp54<state_type> error_stepper_type;
 
-        StepFunction kappa(input.limb.curvature);
+        StepFunction kappa(input.profile_curvature);
         auto system = [&](const state_type& z, state_type& dzds, double s)
         {
             dzds[0] = std::cos(z[2]);
@@ -73,8 +73,8 @@ private:
             this->phi.push_back(z[2]);
         };
 
-        state_type z0 = {input.limb.offset_x, input.limb.offset_y, input.limb.angle + M_PI_2};
-        unsigned n = input.settings.n_elements_limb;
+        state_type z0 = {input.profile_offset_x, input.profile_offset_y, input.profile_angle + M_PI_2};
+        unsigned n = input.settings_n_elements_limb;
         double s0 = kappa.arg_min();
         double ds = (kappa.arg_max() - kappa.arg_min())/n;
 
@@ -82,10 +82,11 @@ private:
         integrate_n_steps(stepper, system, z0, s0, ds, n, observer);
     }
 
-    void calculate_section_properties(const InputData2& input)
+    void calculate_section_properties(const InputData& input)
     {
+        /*
         // Construct splines for layer geometry
-        CubicSpline layer_width(input.limb.width);
+        CubicSpline layer_width(input.sections_width);
 
         std::vector<CubicSpline> layer_heights;
         for(size_t i = 0; i < input.limb.layers.size(); ++i)
@@ -131,9 +132,10 @@ private:
                 }
             }
         }
+        */
     }
 
-    void calculate_layer_properties(const InputData2& input)
+    void calculate_layer_properties(const InputData& input)
     {
         // Todo
     }

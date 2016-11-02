@@ -29,5 +29,5 @@ public:
 
 private:
     DocItem<int>& doc_item;
-    DocItem<int>::Connection connection;
+    Connection connection;
 };

@@ -82,7 +82,7 @@ public:
 
 private:
     DocItem<Series>& doc_item;
-    DocItem<Series>::Connection connection;
+    Connection connection;
     QTableWidget* table;
 
     void setData(const Series& series)

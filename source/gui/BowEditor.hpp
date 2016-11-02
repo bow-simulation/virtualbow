@@ -1,7 +1,7 @@
 #pragma once
 #include "SeriesView.hpp"
 #include "NumberGroup.hpp"
-#include "PlotView.hpp"
+#include "PlotViews.hpp"
 #include "../model/InputData.hpp"
 
 class ProfileEditor: public QWidget
@@ -24,7 +24,7 @@ public:
         group_limb->addRow("Angle:", data.profile_angle);
         vbox->addWidget(group_limb);
 
-        auto plot = new SplineView("x", "y", data.profile_curvature);
+        auto plot = new ProfileView(data);
         hbox->addWidget(plot, 1);
     }
 };

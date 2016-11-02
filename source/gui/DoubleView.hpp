@@ -30,7 +30,7 @@ public:
 
 private:
     DocItem<double>& doc_item;
-    DocItem<double>::Connection connection;
+    Connection connection;
 
     void setValue(double value)
     {

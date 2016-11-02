@@ -9,12 +9,16 @@ class Plot: public QCustomPlot
 public:
     void includeOrigin()
     {
-        auto range_x = this->xAxis->range();
-        auto range_y = this->yAxis->range();
-        range_x.expand(0.0);
-        range_y.expand(0.0);
+        auto expand_axis = [this](QCPAxis* axis)
+        {
+            auto r = axis->range();
+            r.expand(0.0);
+            axis->setRange(r);
+        };
 
-        this->xAxis->setRange(range_x);
-        this->yAxis->setRange(range_y);
+        expand_axis(this->xAxis);
+        expand_axis(this->yAxis);
+        expand_axis(this->xAxis2);
+        expand_axis(this->yAxis2);
     }
 };

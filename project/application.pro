@@ -53,7 +53,7 @@ HEADERS += \
     ../source/numerics/Series.hpp \
     ../source/gui/SeriesView.hpp \
     ../source/gui/NotesDialog.hpp \
-    ../source/gui/PlotView.hpp \
-    ../source/gui/Plot.hpp
+    ../source/gui/Plot.hpp \
+    ../source/gui/PlotViews.hpp
 
 RESOURCES += ../resources/resources.qrc

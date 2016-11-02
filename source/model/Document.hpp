@@ -25,12 +25,14 @@ private:
     bool modified;
 };
 
+
+typedef boost::signals2::scoped_connection Connection;
+
 template<typename T>
 class DocItem
 {
 public:
     typedef boost::signals2::signal<void(const T&)> Signal;
-    typedef boost::signals2::scoped_connection Connection;
     typedef std::function<bool(const T&)> Validator;
     Validator validate;
 
