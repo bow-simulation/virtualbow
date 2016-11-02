@@ -42,7 +42,6 @@ HEADERS += \
     ../source/numerics/CubicSpline.hpp \
     ../source/numerics/LinearSpline.hpp \
     ../source/gui/Document.hpp \
-    ../source/gui/Plot.hpp \
     ../source/gui/qcustomplot/qcustomplot.h \
     ../source/gui/SettingsDialog.hpp \
     ../source/gui/IntegerView.hpp \
@@ -53,6 +52,8 @@ HEADERS += \
     ../source/gui/NumberGroup.hpp \
     ../source/numerics/Series.hpp \
     ../source/gui/SeriesView.hpp \
-    ../source/gui/NotesDialog.hpp
+    ../source/gui/NotesDialog.hpp \
+    ../source/gui/PlotView.hpp \
+    ../source/gui/Plot.hpp
 
 RESOURCES += ../resources/resources.qrc

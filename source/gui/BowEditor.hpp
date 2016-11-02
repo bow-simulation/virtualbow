@@ -1,7 +1,7 @@
 #pragma once
 #include "SeriesView.hpp"
 #include "NumberGroup.hpp"
-#include "Plot.hpp"
+#include "PlotView.hpp"
 #include "../model/InputData.hpp"
 
 class ProfileEditor: public QWidget
@@ -24,7 +24,7 @@ public:
         group_limb->addRow("Angle:", data.profile_angle);
         vbox->addWidget(group_limb);
 
-        auto plot = new Plot();
+        auto plot = new SplineView("x", "y", data.profile_curvature);
         hbox->addWidget(plot, 1);
     }
 };
@@ -40,7 +40,7 @@ public:
         auto series_view = new SeriesView("Position", "Width", data.sections_width);
         hbox->addWidget(series_view);
 
-        auto plot = new Plot();
+        auto plot = new SplineView("Position", "Width", data.sections_width);
         hbox->addWidget(plot, 1);
     }
 };
@@ -56,7 +56,7 @@ public:
         auto series_view = new SeriesView("Position", "Height", data.sections_height);
         hbox->addWidget(series_view);
 
-        auto plot = new Plot();
+        auto plot = new SplineView("Position", "Height", data.sections_height);
         hbox->addWidget(plot, 1);
     }
 };
@@ -72,27 +72,25 @@ public:
         auto hbox = new QHBoxLayout();
         vbox->addLayout(hbox);
 
-        // Limb group
+        // Number groups
+
         auto group_limb = new NumberGroup(data, "Limb Material");
         group_limb->addRow("rho:", data.sections_rho);      // Todo: Use unicode character
         group_limb->addRow("E:", data.sections_E);
         hbox->addWidget(group_limb);
 
-        // String group
         auto group_string = new NumberGroup(data, "String");
         group_string->addRow("Strand stiffness:", data.string_strand_stiffness);
         group_string->addRow("Strand density:", data.string_strand_density);
         group_string->addRow("Number of strands:", data.string_n_strands);
         hbox->addWidget(group_string);
 
-        // Operation group
         auto group_operation = new NumberGroup(data, "Operation");
         group_operation->addRow("Brace height:", data.operation_brace_height);
         group_operation->addRow("Draw length:", data.operation_draw_length);
         group_operation->addRow("Arrow mass:", data.operation_mass_arrow);
         hbox->addWidget(group_operation);
 
-        // Masses group
         auto group_masses = new NumberGroup(data, "Additional masses");
         group_masses->addRow("String center:", data.mass_string_center);
         group_masses->addRow("String tip:", data.mass_string_tip);
@@ -100,6 +98,7 @@ public:
         hbox->addWidget(group_masses);
 
         // Limb geometry editors
+
         auto tabs = new QTabWidget();
         tabs->addTab(new ProfileEditor(data), "Profile");
         tabs->addTab(new WidthEditor(data), "Width");
