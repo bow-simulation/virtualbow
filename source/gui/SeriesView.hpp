@@ -22,7 +22,7 @@ public:
         table->verticalHeader()->hide();
         vbox->addWidget(table);
 
-        auto bt_plus = new QPushButton("Add");
+        auto bt_plus = new QPushButton("Insert");
         auto bt_minus = new QPushButton("Remove");
 
         auto hbox = new QHBoxLayout();
@@ -117,82 +117,3 @@ private:
         return value;
     }
 };
-
-/*
-class SeriesView: public QTableWidget
-{
-public:
-    SeriesView(const QString& lb_args, const QString& lb_vals, DocItem<Series>& doc_item)
-        : QTableWidget(1, 2),
-          doc_item(doc_item)
-    {
-        this->setHorizontalHeaderLabels({{lb_args, lb_vals}});
-        this->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-        this->verticalHeader()->sectionResizeMode(QHeaderView::Fixed);
-        this->verticalHeader()->setDefaultSectionSize(this->horizontalHeader()->height());
-        this->verticalHeader()->hide();
-
-        connection = doc_item.connect([this](const Series& series)
-        {
-            setData(series);
-        });
-
-        QObject::connect(this, &QTableWidget::cellChanged, []()
-        {
-            qInfo() << "Cell changed";
-        });
-
-        QObject::connect(this, &QLineEdit::editingFinished, [this]()
-        {
-            bool ok;
-            double value = getValue(&ok);
-
-            if(ok)
-            {
-                try
-                {
-                    this->doc_item = value;
-                }
-                catch(const std::runtime_error&)
-                {
-                    setValue(this->doc_item);
-                }
-            }
-            else
-            {
-                setValue(this->doc_item);
-            }
-        });
-    }
-
-private:
-    DocItem<Series>& doc_item;
-    DocItem<Series>::Connection connection;
-
-    void focusOutEvent(QFocusEvent* event) override
-    {
-        setData(doc_item);
-    }
-
-    void setData(const Series& series)
-    {
-        this->setRowCount(series.size() + 1);
-
-        for(size_t i = 0; i < series.size(); ++i)
-        {
-            if(this->item(i, 0) == nullptr)
-                this->setItem(i, 0,  new QTableWidgetItem);
-
-            if(this->item(i, 1) == nullptr)
-                this->setItem(i, 1,  new QTableWidgetItem);
-
-            this->item(i, 0)->setText(QLocale::c().toString(series.arg(i), 'g', 15));    // Todo: Magic number
-            this->item(i, 1)->setText(QLocale::c().toString(series.val(i), 'g', 15));    // Todo: Magic number
-        }
-
-        this->setItem(series.size(), 0, nullptr);
-        this->setItem(series.size(), 1, nullptr);
-    }
-
-};
-*/

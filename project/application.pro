@@ -54,6 +54,7 @@ HEADERS += \
     ../source/gui/SeriesView.hpp \
     ../source/gui/NotesDialog.hpp \
     ../source/gui/Plot.hpp \
-    ../source/gui/PlotViews.hpp
+    ../source/gui/PlotViews.hpp \
+    ../source/numerics/ArcCurve.hpp
 
 RESOURCES += ../resources/resources.qrc

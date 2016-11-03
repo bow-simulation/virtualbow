@@ -21,6 +21,12 @@ GUI
 
     * SeriesView: Find solution for default values and validation
 
+    * Find a solution to localised numbers.
+        a) Use the C locale, convert local decimal separator to dot manually
+        b) Use the default locale and somehow get rid of the thousands separator
+
+    * Does the notes dialog really need a cancel button? (consistency with settings dialog)
+
 FEM
 ===
 

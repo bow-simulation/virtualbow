@@ -7,6 +7,14 @@
 class Plot: public QCustomPlot
 {
 public:
+    Plot()
+    {
+        this->xAxis->setUpperEnding(QCPLineEnding::esFlatArrow);
+        this->yAxis->setUpperEnding(QCPLineEnding::esFlatArrow);
+        this->xAxis2->setUpperEnding(QCPLineEnding::esFlatArrow);
+        this->yAxis2->setUpperEnding(QCPLineEnding::esFlatArrow);
+    }
+
     void includeOrigin()
     {
         auto expand_axis = [this](QCPAxis* axis)

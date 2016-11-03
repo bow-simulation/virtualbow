@@ -50,7 +50,8 @@ private:
         return value;
     }
 
-    virtual void keyPressEvent(QKeyEvent *event) override
+    /*
+    virtual void keyPressEvent(QKeyEvent* event) override
     {
         // Replace the local decimal separator with the one from the C locale (dot)
         if(event->text() == QLocale().decimalPoint())
@@ -62,4 +63,5 @@ private:
             QLineEdit::keyPressEvent(event);
         }
     }
+    */
 };

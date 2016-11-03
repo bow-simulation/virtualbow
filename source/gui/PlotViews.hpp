@@ -2,9 +2,9 @@
 #include "Plot.hpp"
 #include "../model/InputData.hpp"
 #include "../model/InputData.hpp"
-#include "../model/DiscreteLimb.hpp"
 #include "../numerics/Series.hpp"
 #include "../numerics/CubicSpline.hpp"
+#include "../numerics/ArcCurve.hpp"
 
 class SplineView: public Plot
 {
@@ -64,7 +64,10 @@ public:
         this->yAxis->setRangeReversed(true);
 
         profile_curve = new QCPCurve(this->yAxis, this->xAxis2);
-
+        profile_segments = new QCPCurve(this->yAxis, this->xAxis2);
+        profile_segments->setLineStyle(QCPCurve::lsNone);
+        profile_segments->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssSquare, Qt::red, 6));
+        profile_segments->setScatterSkip(0);    // Todo: Why only for curves necessary?
 
         // Todo: Use std::bind?
         // Todo: Inefficient and ugly
@@ -78,26 +81,49 @@ public:
 private:
     InputData& data;
     std::vector<Connection> connections;
-    QCPCurve* profile_curve;
+    QCPCurve* profile_curve;    // Todo: Better naming?
+    QCPCurve* profile_segments;
 
     void update()
     {
         try
         {
-            DiscreteLimb limb(data);
-            auto x = QVector<double>::fromStdVector(limb.x);
-            auto y = QVector<double>::fromStdVector(limb.y);
-            profile_curve->setData(x, y);
+            ArcCurve profile(data.profile_curvature,
+                             data.profile_offset_x,
+                             data.profile_offset_y,
+                             data.profile_angle,
+                             20);
+
+            ArcCurve segments(data.profile_curvature,
+                              data.profile_offset_x,
+                              data.profile_offset_y,
+                              data.profile_angle,
+                              0);
+
+            auto xp = QVector<double>::fromStdVector(profile.x);
+            auto yp = QVector<double>::fromStdVector(profile.y);
+
+            auto xs = QVector<double>::fromStdVector(segments.x);
+            auto ys = QVector<double>::fromStdVector(segments.y);
+
+            profile_curve->setData(xp, yp);
+            profile_segments->setData(xs, ys);
         }
         catch(const std::runtime_error&)
         {
             profile_curve->setData(QVector<double>(), QVector<double>());
-            profile_curve->setData(QVector<double>(), QVector<double>());
+            profile_segments->setData(QVector<double>(), QVector<double>());
         }
 
         this->rescaleAxes();
         this->includeOrigin();    // Todo
-        this->yAxis->setScaleRatio(this->xAxis2, 0.5);
+        this->yAxis->setScaleRatio(this->xAxis2);
         this->replot();
+    }
+
+    virtual void resizeEvent(QResizeEvent *event) override
+    {
+        this->yAxis->setScaleRatio(this->xAxis2);
+        Plot::resizeEvent(event);
     }
 };
