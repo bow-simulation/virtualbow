@@ -2,7 +2,7 @@
 #include "../model/InputData.hpp"
 #include "BowEditor.hpp"
 #include "SettingsDialog.hpp"
-#include "NotesDialog.hpp"
+#include "CommentsDialog.hpp"
 
 #include <QtWidgets>
 
@@ -39,8 +39,8 @@ public:
         QAction* action_settings = new QAction(QIcon(":/icons/applications-system"), "Settings...", this);
         connect(action_settings, &QAction::triggered, this, &MainWindow::settings);
 
-        QAction* action_notes = new QAction(QIcon(":/icons/knotes"), "Notes...", this);
-        connect(action_notes, &QAction::triggered, this, &MainWindow::notes);
+        QAction* action_notes = new QAction(QIcon(":/icons/comments"), "Comments...", this);
+        connect(action_notes, &QAction::triggered, this, &MainWindow::comments);
 
         QAction* action_run_statics = new QAction(QIcon(":/icons/arrow-right"), "Statics...", this);
         // action_run_statics->setShortcuts(QKeySequence::Quit);
@@ -57,6 +57,7 @@ public:
         QMenu* menu_file = this->menuBar()->addMenu("&File");
         menu_file->addAction(action_new);
         menu_file->addAction(action_open);
+        menu_file->addSeparator();
         menu_file->addAction(action_save);
         menu_file->addAction(action_save_as);
         menu_file->addSeparator();
@@ -85,7 +86,7 @@ public:
         toolbar_edit->addAction(action_notes);
 
         // Simulation toolbar
-        QToolBar* toolbar_simulation = this->addToolBar("Simulation");
+        QToolBar* toolbar_simulation = this->addToolBar("Simulate");
         toolbar_simulation->addAction(action_run_statics);
         toolbar_simulation->addAction(action_run_dynamics);
 
@@ -162,9 +163,9 @@ private slots:
         dialog.exec();
     }
 
-    void notes()
+    void comments()
     {
-        NotesDialog dialog(this, data);
+        CommentsDialog dialog(this, data);
         dialog.exec();
     }
 

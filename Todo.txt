@@ -25,7 +25,7 @@ GUI
         a) Use the C locale, convert local decimal separator to dot manually
         b) Use the default locale and somehow get rid of the thousands separator
 
-    * Does the notes dialog really need a cancel button? (consistency with settings dialog)
+    * Maybe the settings be in the simulation menu and toolbar.
 
 FEM
 ===

@@ -8,10 +8,10 @@ struct InputData: public Document
 {
     // Meta
     DocItem<std::string>  meta_version{this};
-    DocItem<std::string> meta_notes{this};
+    DocItem<std::string> meta_comments{this};
 
     // Profile
-    DocItem<Series> profile_curvature{this};
+    DocItem<Series> profile_segments{this};
     DocItem<double> profile_offset_x{this};
     DocItem<double> profile_offset_y{this};
     DocItem<double>    profile_angle{this};
@@ -19,8 +19,8 @@ struct InputData: public Document
     // Sections
     DocItem<Series>  sections_width{this};
     DocItem<Series> sections_height{this};
-    DocItem<double> sections_rho {this, &Domain<double>::pos};
-    DocItem<double>    sections_E{this, &Domain<double>::pos};
+    DocItem<double>   sections_rho {this, &Domain<double>::pos};
+    DocItem<double>      sections_E{this, &Domain<double>::pos};
 
     // String
     DocItem<double> string_strand_stiffness{this, &Domain<double>::pos};
@@ -60,8 +60,8 @@ struct InputData: public Document
         jsoncons::ojson obj = jsoncons::ojson::parse_string(str);
 
         meta_version = obj["meta"]["version"].as<std::string>();
-        meta_notes = obj["meta"]["notes"].as<std::string>();
-        profile_curvature = obj["profile"]["curvature"].as<Series>();
+        meta_comments = obj["meta"]["comments"].as<std::string>();
+        profile_segments = obj["profile"]["segments"].as<Series>();
         profile_offset_x = obj["profile"]["offset_x"].as<double>();
         profile_offset_y = obj["profile"]["offset_y"].as<double>();
         profile_angle = obj["profile"]["angle"].as<double>();
@@ -90,8 +90,8 @@ struct InputData: public Document
     {
         jsoncons::ojson obj;
         obj["meta"]["version"] = std::string(meta_version);
-        obj["meta"]["notes"] = std::string(meta_notes);
-        obj["profile"]["curvature"] = Series(profile_curvature);
+        obj["meta"]["comments"] = std::string(meta_comments);
+        obj["profile"]["segments"] = Series(profile_segments);
         obj["profile"]["offset_x"] = double(profile_offset_x);
         obj["profile"]["offset_y"] = double(profile_offset_y);
         obj["profile"]["angle"] = double(profile_angle);

@@ -10,7 +10,7 @@
         <file>icons/document-open.png</file>
         <file>icons/document-save.png</file>
         <file>icons/document-save-as.png</file>
-        <file>icons/knotes.png</file>
+        <file>icons/comments.png</file>
         <file>bows/default.bow</file>
     </qresource>
 </RCC>

@@ -52,9 +52,9 @@ HEADERS += \
     ../source/gui/NumberGroup.hpp \
     ../source/numerics/Series.hpp \
     ../source/gui/SeriesView.hpp \
-    ../source/gui/NotesDialog.hpp \
     ../source/gui/Plot.hpp \
     ../source/gui/PlotViews.hpp \
-    ../source/numerics/ArcCurve.hpp
+    ../source/numerics/ArcCurve.hpp \
+    ../source/gui/CommentsDialog.hpp
 
 RESOURCES += ../resources/resources.qrc

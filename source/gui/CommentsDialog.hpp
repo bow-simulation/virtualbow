@@ -2,10 +2,10 @@
 #include "../model/InputData.hpp"
 #include <QtWidgets>
 
-class NotesDialog: public QDialog
+class CommentsDialog: public QDialog
 {
 public:
-    NotesDialog(QWidget* parent, InputData& data)
+    CommentsDialog(QWidget* parent, InputData& data)
         : QDialog(parent),
           data(data)
     {
@@ -15,7 +15,7 @@ public:
         this->resize(600, 300);     // Todo: Magic numbers
 
         edit = new QTextEdit();
-        edit->setText(QString::fromStdString(data.meta_notes));
+        edit->setText(QString::fromStdString(data.meta_comments));
         vbox->addWidget(edit);
 
         auto btbox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -23,7 +23,7 @@ public:
 
         QObject::connect(btbox, &QDialogButtonBox::accepted, [this]()
         {
-            this->data.meta_notes = edit->toPlainText().toStdString();
+            this->data.meta_comments = edit->toPlainText().toStdString();
             this->accept();
         });
 

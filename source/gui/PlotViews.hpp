@@ -71,7 +71,7 @@ public:
 
         // Todo: Use std::bind?
         // Todo: Inefficient and ugly
-        connections.push_back(data.profile_curvature.connect([this](const Series&){ update(); }));
+        connections.push_back(data.profile_segments.connect([this](const Series&){ update(); }));
         connections.push_back(data.profile_offset_x.connect([this](const double&){ update(); }));
         connections.push_back(data.profile_offset_y.connect([this](const double&){ update(); }));
         connections.push_back(data.profile_angle.connect([this](const double&){ update(); }));
@@ -88,13 +88,13 @@ private:
     {
         try
         {
-            ArcCurve profile(data.profile_curvature,
+            ArcCurve profile(data.profile_segments,
                              data.profile_offset_x,
                              data.profile_offset_y,
                              data.profile_angle,
-                             20);
+                             150);  // Todo: Magic number
 
-            ArcCurve segments(data.profile_curvature,
+            ArcCurve segments(data.profile_segments,
                               data.profile_offset_x,
                               data.profile_offset_y,
                               data.profile_angle,
@@ -115,6 +115,7 @@ private:
             profile_segments->setData(QVector<double>(), QVector<double>());
         }
 
+
         this->rescaleAxes();
         this->includeOrigin();    // Todo
         this->yAxis->setScaleRatio(this->xAxis2);
@@ -123,6 +124,9 @@ private:
 
     virtual void resizeEvent(QResizeEvent *event) override
     {
+        //auto size = event->size();
+
+
         this->yAxis->setScaleRatio(this->xAxis2);
         Plot::resizeEvent(event);
     }

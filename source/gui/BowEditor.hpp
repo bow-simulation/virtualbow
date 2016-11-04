@@ -15,7 +15,7 @@ public:
         auto vbox = new QVBoxLayout();
         hbox->addLayout(vbox);
 
-        auto series_view = new SeriesView("Length", "Curvature", data.profile_curvature);
+        auto series_view = new SeriesView("Length", "Curvature", data.profile_segments);
         vbox->addWidget(series_view);
 
         auto group_limb = new NumberGroup(data, "Offset");

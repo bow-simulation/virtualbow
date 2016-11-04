@@ -57,7 +57,7 @@ private:
         typedef std::array<double, 3> state_type;
         typedef runge_kutta_cash_karp54<state_type> error_stepper_type;
 
-        StepFunction kappa(input.profile_curvature);
+        StepFunction kappa(input.profile_segments);
         auto system = [&](const state_type& z, state_type& dzds, double s)
         {
             dzds[0] = std::cos(z[2]);
