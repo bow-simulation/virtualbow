@@ -27,6 +27,13 @@ GUI
 
     * Maybe the settings be in the simulation menu and toolbar.
 
+    * Plot: Enable user interactions. Prerequisite: no call to rescaleAxes when fixing the aspect ratio.
+
+    * Plot: Add a contect menu to reset the plot (if user interaions are enabled) and to save it.
+      (QCustomPlot can export pdf, png and more)
+
+    * Plot: Bug in aspect ratio when maximising the window.
+
 FEM
 ===
 

@@ -11,7 +11,7 @@ public:
     {
         auto vbox = new QVBoxLayout();
         this->setLayout(vbox);
-        this->setWindowTitle("Notes");
+        this->setWindowTitle("Comments");
         this->resize(600, 300);     // Todo: Magic numbers
 
         edit = new QTextEdit();

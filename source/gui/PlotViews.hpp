@@ -9,15 +9,14 @@
 class SplineView: public Plot
 {
 public:
-    SplineView(const QString& x_label, const QString& y_label, DocItem<Series>& doc_item)
+    SplineView(const QString& lbx, const QString& lby, DocItem<Series>& doc_item)
+        : Plot(lbx, lby)
     {
-        this->xAxis->setLabel(x_label);
-        this->yAxis->setLabel(y_label);
-        this->addGraph();
-        this->addGraph();
-
-        graph(1)->setLineStyle(QCPGraph::lsNone);
-        graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssSquare, Qt::red, 6));
+        this->includeOrigin(true, true);
+        this->addSeries();
+        this->addSeries();
+        this->setLineStyle(0, QCPCurve::lsNone);
+        this->setScatterStyle(0, QCPScatterStyle(QCPScatterStyle::ssSquare, Qt::red, 6));
 
         connection = doc_item.connect([this](const Series& input)
         {
@@ -26,22 +25,15 @@ public:
                 CubicSpline spline(input);
                 Series output = spline.sample(100);
 
-                auto x_out = QVector<double>::fromStdVector(output.args());
-                auto y_out = QVector<double>::fromStdVector(output.vals());
-                this->graph(0)->setData(x_out, y_out);
-
-                auto x_in = QVector<double>::fromStdVector(input.args());
-                auto y_in = QVector<double>::fromStdVector(input.vals());
-                this->graph(1)->setData(x_in, y_in);
+                this->setData(0, input);
+                this->setData(1, output);
             }
             catch(const std::runtime_error&)
             {
-                this->graph(0)->setData(QVector<double>(), QVector<double>());
-                this->graph(1)->setData(QVector<double>(), QVector<double>());
+                this->setData(0, Series());
+                this->setData(1, Series());
             }
 
-            this->rescaleAxes();
-            this->includeOrigin();
             this->replot();
         });
     }
@@ -54,20 +46,16 @@ class ProfileView: public Plot
 {
 public:
     ProfileView(InputData& data)
-        : data(data)
+        : Plot("y", "x", Align::TopLeft),
+          data(data)
     {
-        this->xAxis->setVisible(false);
-        this->xAxis2->setVisible(true);
-        this->xAxis2->grid()->setVisible(true);
-        this->xAxis2->setLabel("y");
-        this->yAxis->setLabel("x");
-        this->yAxis->setRangeReversed(true);
+        this->includeOrigin(true, false);
+        this->fixAspectRatio(true);
 
-        profile_curve = new QCPCurve(this->yAxis, this->xAxis2);
-        profile_segments = new QCPCurve(this->yAxis, this->xAxis2);
-        profile_segments->setLineStyle(QCPCurve::lsNone);
-        profile_segments->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssSquare, Qt::red, 6));
-        profile_segments->setScatterSkip(0);    // Todo: Why only for curves necessary?
+        this->addSeries();
+        this->addSeries();
+        this->setLineStyle(1, QCPCurve::lsNone);
+        this->setScatterStyle(1, QCPScatterStyle(QCPScatterStyle::ssSquare, Qt::red, 6));
 
         // Todo: Use std::bind?
         // Todo: Inefficient and ugly
@@ -81,8 +69,6 @@ public:
 private:
     InputData& data;
     std::vector<Connection> connections;
-    QCPCurve* profile_curve;    // Todo: Better naming?
-    QCPCurve* profile_segments;
 
     void update()
     {
@@ -100,34 +86,15 @@ private:
                               data.profile_angle,
                               0);
 
-            auto xp = QVector<double>::fromStdVector(profile.x);
-            auto yp = QVector<double>::fromStdVector(profile.y);
-
-            auto xs = QVector<double>::fromStdVector(segments.x);
-            auto ys = QVector<double>::fromStdVector(segments.y);
-
-            profile_curve->setData(xp, yp);
-            profile_segments->setData(xs, ys);
+            this->setData(0, Series(profile.y, profile.x));
+            this->setData(1, Series(segments.y, segments.x));
         }
         catch(const std::runtime_error&)
         {
-            profile_curve->setData(QVector<double>(), QVector<double>());
-            profile_segments->setData(QVector<double>(), QVector<double>());
+            this->setData(0, Series());
+            this->setData(1, Series());
         }
 
-
-        this->rescaleAxes();
-        this->includeOrigin();    // Todo
-        this->yAxis->setScaleRatio(this->xAxis2);
         this->replot();
-    }
-
-    virtual void resizeEvent(QResizeEvent *event) override
-    {
-        //auto size = event->size();
-
-
-        this->yAxis->setScaleRatio(this->xAxis2);
-        Plot::resizeEvent(event);
     }
 };
