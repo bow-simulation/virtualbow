@@ -112,6 +112,18 @@ public:
                 }
             }
         });
+
+        // Context menu
+
+        plot->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(plot, &QCustomPlot::customContextMenuRequested, [this](QPoint pos)
+        {
+            QMenu menu(this);
+            menu.addAction("Export...", [this](){ exportDialog(); });   // Todo: Use std::bind?
+
+            menu.exec(plot->mapToGlobal(pos));
+        });
+
     }
 
     void addSeries()
@@ -177,5 +189,48 @@ private:
     virtual void resizeEvent(QResizeEvent *event) override
     {
         plot->replot();
+    }
+
+    void exportDialog()
+    {
+        #define PNG_FILE "PNG image (*.png)"
+        #define BMP_FILE "BMP image (*.bmp)"
+        #define PDF_FILE "Portable Document Format (*.pdf)"
+
+        QFileDialog dialog(this);
+        dialog.setAcceptMode(QFileDialog::AcceptSave);
+
+        QStringList filters;
+        filters << PNG_FILE << BMP_FILE << PDF_FILE;
+        dialog.setNameFilters(filters);
+
+        // Todo: Is there a better way to connect default suffix to the selected name filter?
+        QObject::connect(&dialog, &QFileDialog::filterSelected, [&](const QString &filter)
+        {
+            if(filter == PNG_FILE)
+                dialog.setDefaultSuffix(".png");
+
+            if(filter == BMP_FILE)
+                dialog.setDefaultSuffix(".bmp");
+
+            if(filter == PDF_FILE)
+                dialog.setDefaultSuffix(".pdf");
+        });
+        dialog.filterSelected(PNG_FILE);
+
+        if(dialog.exec() == QDialog::Accepted)
+        {
+            QString filter = dialog.selectedNameFilter();
+            QString path = dialog.selectedFiles().first();
+
+            if(filter == PNG_FILE)
+                plot->savePng(path);
+
+            if(filter == BMP_FILE)
+                plot->saveBmp(path);
+
+            if(filter == PDF_FILE)
+                plot->savePdf(path);
+        }
     }
 };

@@ -1,6 +1,6 @@
 GUI
 ===
-    * Bug: Repeatedly clicking the load and save icons and closing the dialogs with x sometimes makes the program print the following message,
+    * Bug: Repeatedly clicking the load and save icons and closing the dialogs with x sometimes makes the program messages like,
 
           QXcbConnection: XCB error: 3 (BadWindow), sequence: 1352, resource id: 7826577, major code: 40 (TranslateCoords), minor code: 0
 
@@ -9,17 +9,17 @@ GUI
     * Decision: Use theme icons on linux or just use the same icons everywhere?
       http://mithatkonar.com/wiki/doku.php/qt/icons
 
-    * DoubleView: Why doesn't it show large numbers in scientific notation?
+    * DoubleView:
+        
+        * Why doesn't it show large numbers in scientific notation?
 
-    * DoubleView: Display large numbers in engineering format (e+03, e+06, e+09, ...) instead of scientific
+        * Display large numbers in engineering format (e+03, e+06, e+09, ...) instead of scientific
 
-    * Make heighth of the comment box the same as the groups above
+    * SeriesView:
+        
+        * Enable/Implement copy and paste
 
-    * Make height of the table cells the same as QLineEdit and/or the table headers
-
-    * SeriesView: Enable/Implement copy and paste
-
-    * SeriesView: Find solution for default values and validation
+        * Find solution for default values and validation
 
     * Find a solution to localised numbers.
         a) Use the C locale, convert local decimal separator to dot manually
@@ -27,12 +27,15 @@ GUI
 
     * Maybe the settings be in the simulation menu and toolbar.
 
-    * Plot: Enable user interactions. Prerequisite: no call to rescaleAxes when fixing the aspect ratio.
+    * Plot:
 
-    * Plot: Add a contect menu to reset the plot (if user interaions are enabled) and to save it.
-      (QCustomPlot can export pdf, png and more)
+        * Enable user interactions. Prerequisite: no call to rescaleAxes when fixing the aspect ratio.
 
-    * Plot: Bug in aspect ratio when maximising the window.
+        * Add a contect menu action to reset the plot if user interaions are enabled.
+
+        * Handle errors when exporting.
+
+        * Can (and should?) the file menus for plot export and the main one "remember" different locations?
 
 FEM
 ===
