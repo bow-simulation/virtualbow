@@ -17,7 +17,16 @@ SOURCES += ../source/main.cpp \
     ../source/fem/System.cpp \
     ../source/numerics/CubicSpline.cpp \
     ../source/numerics/LinearSpline.cpp \
-    ../source/gui/qcustomplot/qcustomplot.cpp
+    ../source/external/qcustomplot/qcustomplot.cpp \
+    ../source/gui/BowEditor.cpp \
+    ../source/gui/CommentsDialog.cpp \
+    ../source/gui/DoubleView.cpp \
+    ../source/gui/IntegerView.cpp \
+    ../source/gui/NumberGroup.cpp \
+    ../source/gui/Plot.cpp \
+    ../source/gui/PlotViews.cpp \
+    ../source/gui/SeriesView.cpp \
+    ../source/gui/SettingsDialog.cpp
 
 HEADERS += \
     ../source/fem/elements/BarElement.hpp \
@@ -42,7 +51,6 @@ HEADERS += \
     ../source/numerics/CubicSpline.hpp \
     ../source/numerics/LinearSpline.hpp \
     ../source/gui/Document.hpp \
-    ../source/gui/qcustomplot/qcustomplot.h \
     ../source/gui/SettingsDialog.hpp \
     ../source/gui/IntegerView.hpp \
     ../source/model/Document.hpp \
@@ -55,6 +63,7 @@ HEADERS += \
     ../source/gui/Plot.hpp \
     ../source/gui/PlotViews.hpp \
     ../source/numerics/ArcCurve.hpp \
-    ../source/gui/CommentsDialog.hpp
+    ../source/gui/CommentsDialog.hpp \
+    ../source/external/qcustomplot/qcustomplot.h
 
 RESOURCES += ../resources/resources.qrc
