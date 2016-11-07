@@ -17,10 +17,16 @@ public:
             throw std::runtime_error("Arguments and values must have the same size");
     }
 
-    void add(double arg, double val)
+    void push_back(double arg, double val)
     {
         m_args.push_back(arg);
         m_vals.push_back(val);
+    }
+
+    void insert(size_t i, double arg, double val)
+    {
+        m_args.insert(m_args.begin() + i, arg);
+        m_vals.insert(m_vals.begin() + i, arg);
     }
 
     void remove(size_t i)

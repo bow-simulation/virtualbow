@@ -40,12 +40,12 @@ Series StepFunction::sample() const
     {
         if(i > 0)
         {
-            data.add(intervals[i], values[i-1]);
+            data.push_back(intervals[i], values[i-1]);
         }
 
         if(i < n-1)
         {
-            data.add(intervals[i], values[i]);
+            data.push_back(intervals[i], values[i]);
         }
     }
 

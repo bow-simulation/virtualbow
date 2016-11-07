@@ -12,11 +12,11 @@ public:
     SplineView(const QString& lbx, const QString& lby, DocItem<Series>& doc_item)
         : Plot(lbx, lby)
     {
-        this->includeOrigin(true, true);
+        this->includeOrigin(false, true);
         this->addSeries();
         this->addSeries();
         this->setLineStyle(0, QCPCurve::lsNone);
-        this->setScatterStyle(0, QCPScatterStyle(QCPScatterStyle::ssSquare, Qt::red, 6));
+        this->setScatterStyle(0, QCPScatterStyle(QCPScatterStyle::ssDisc, Qt::red, 6));
 
         connection = doc_item.connect([this](const Series& input)
         {
@@ -55,7 +55,7 @@ public:
         this->addSeries();
         this->addSeries();
         this->setLineStyle(1, QCPCurve::lsNone);
-        this->setScatterStyle(1, QCPScatterStyle(QCPScatterStyle::ssSquare, Qt::red, 6));
+        this->setScatterStyle(1, QCPScatterStyle(QCPScatterStyle::ssDisc, Qt::red, 6));
 
         // Todo: Use std::bind?
         // Todo: Inefficient and ugly

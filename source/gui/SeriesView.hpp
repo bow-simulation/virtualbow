@@ -22,12 +22,19 @@ public:
         table->verticalHeader()->hide();
         vbox->addWidget(table);
 
-        auto bt_plus = new QPushButton("Insert");
-        auto bt_minus = new QPushButton("Remove");
+        //table->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+        auto bt_insert_below = new QPushButton(QIcon(":/icons/insert-below"), "");
+        auto bt_insert_above = new QPushButton(QIcon(":/icons/insert-above"), "");
+        auto bt_delete = new QPushButton(QIcon(":/icons/edit-delete"), "");
+        bt_insert_below->setToolTip("Insert below");
+        bt_insert_above->setToolTip("Insert above");
+        bt_delete->setToolTip("Delete selected rows");
 
         auto hbox = new QHBoxLayout();
-        hbox->addWidget(bt_plus);
-        hbox->addWidget(bt_minus);
+        hbox->addWidget(bt_insert_below);
+        hbox->addWidget(bt_insert_above);
+        hbox->addWidget(bt_delete);
         vbox->addLayout(hbox);
 
         // Event handling
@@ -65,18 +72,22 @@ public:
             }
         });
 
-        QObject::connect(bt_plus, &QPushButton::clicked, [this]()
+        QObject::connect(bt_insert_below, &QPushButton::clicked, [this]()
         {
-             Series series = this->doc_item;
-             series.add(0.0, 0.0);  // Todo: Magic numbers
-             this->doc_item = series;
+             insertRow(false);
         });
 
-        QObject::connect(bt_minus, &QPushButton::clicked, [this]()
+        QObject::connect(bt_insert_above, &QPushButton::clicked, [this]()
         {
-             Series series = this->doc_item;
-             series.remove();
-             this->doc_item = series;
+            insertRow(true);
+        });
+
+        QObject::connect(bt_delete, &QPushButton::clicked, [this]()
+        {
+            if(!deleteSelectedRows())
+            {
+                deleteLastRow();
+            }
         });
     }
 
@@ -111,9 +122,85 @@ private:
 
         if(!ok)
         {
-            throw std::runtime_error("Cannot convert inout to number");
+            throw std::runtime_error("Cannot convert input to number");
         }
 
         return value;
+    }
+
+    void insertRow(bool above)
+    {
+        auto selection = table->selectedRanges();
+        Series series = this->doc_item;
+
+        size_t index;
+        switch(selection.size())
+        {
+        case 0:
+            // No range selected: Insert at top or bottom of the table
+            index = above ? 0 : series.size();
+            break;
+
+        case 1:
+            // One range selected: Insert above or below the selection
+            if(above)
+            {
+                index = selection[0].topRow();
+
+                // Move selection
+                QTableWidgetSelectionRange new_range(selection[0].topRow() + 1, selection[0].leftColumn(),
+                                                     selection[0].bottomRow() + 1, selection[0].rightColumn());
+                table->setRangeSelected(selection[0], false);
+                table->setRangeSelected(new_range, true);
+            }
+            else
+            {
+                index = selection[0].bottomRow() + 1;
+            }
+
+            break;
+
+        default:
+            // Multiple ranges selected: Do nothing.
+            return;
+        }
+
+        series.insert(index, 0.0, 0.0);  // Todo: Magic numbers
+        this->doc_item = series;
+    }
+
+    void deleteLastRow()
+    {
+        Series series = this->doc_item;
+        series.remove();
+        this->doc_item = series;
+    }
+
+    bool deleteSelectedRows()
+    {
+        auto selection = table->selectedRanges();
+        if(selection.isEmpty())
+            return false;
+
+        Series series = this->doc_item;
+        for(int i = selection.size()-1; i >= 0; --i)
+        {
+            table->setRangeSelected(selection[i], false);
+            for(int j = selection[i].bottomRow(); j >= selection[i].topRow(); --j)
+            {
+                series.remove(j);
+            }
+        }
+
+        this->doc_item = series;
+        return true;
+    }
+
+    virtual void keyPressEvent(QKeyEvent* event) override
+    {
+        if(event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace)
+        {
+            deleteSelectedRows();
+        }
     }
 };

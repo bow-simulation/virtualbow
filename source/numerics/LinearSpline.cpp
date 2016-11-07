@@ -40,7 +40,7 @@ Series LinearSpline::sample(size_t n_points) const
     {
         double alpha = double(i)/double(n_points);
         double arg = arg0*alpha + arg1*(1.0 - alpha);
-        data.add(arg, (*this)(arg));
+        data.push_back(arg, (*this)(arg));
     }
 
     return data;

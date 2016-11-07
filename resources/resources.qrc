@@ -11,6 +11,9 @@
         <file>icons/document-save.png</file>
         <file>icons/document-save-as.png</file>
         <file>icons/comments.png</file>
+        <file>icons/insert-above.png</file>
+        <file>icons/insert-below.png</file>
+        <file>icons/edit-delete.png</file>
         <file>bows/default.bow</file>
     </qresource>
 </RCC>

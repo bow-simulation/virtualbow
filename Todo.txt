@@ -17,7 +17,7 @@ GUI
 
     * SeriesView:
         
-        * Enable/Implement copy and paste
+        * Implement copy and paste
 
         * Find solution for default values and validation
 
@@ -36,6 +36,12 @@ GUI
         * Handle errors when exporting.
 
         * Can (and should?) the file menus for plot export and the main one "remember" different locations?
+
+    * SettingsDialog:
+
+        * Width of the integer and double views should be the same. Last resort: Set default width of the  integer views.
+
+    * Width and height plots: Show the actual arc length if a valid profile curve is defined. (Second x-Axis?)
 
 FEM
 ===

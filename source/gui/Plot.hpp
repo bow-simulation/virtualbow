@@ -120,7 +120,6 @@ public:
         {
             QMenu menu(this);
             menu.addAction("Export...", [this](){ exportDialog(); });   // Todo: Use std::bind?
-
             menu.exec(plot->mapToGlobal(pos));
         });
 
@@ -193,9 +192,9 @@ private:
 
     void exportDialog()
     {
-        #define PNG_FILE "PNG image (*.png)"
-        #define BMP_FILE "BMP image (*.bmp)"
-        #define PDF_FILE "Portable Document Format (*.pdf)"
+        const char* PNG_FILE  = "PNG image (*.png)";
+        const char* BMP_FILE  = "BMP image (*.bmp)";
+        const char* PDF_FILE  = "Portable Document Format (*.pdf)";
 
         QFileDialog dialog(this);
         dialog.setAcceptMode(QFileDialog::AcceptSave);
