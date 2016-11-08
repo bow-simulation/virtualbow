@@ -26,7 +26,8 @@ SOURCES += ../source/main.cpp \
     ../source/gui/Plot.cpp \
     ../source/gui/PlotViews.cpp \
     ../source/gui/SeriesView.cpp \
-    ../source/gui/SettingsDialog.cpp
+    ../source/gui/SettingsDialog.cpp \
+    ../source/gui/ProgressDialog.cpp
 
 HEADERS += \
     ../source/fem/elements/BarElement.hpp \
@@ -64,6 +65,7 @@ HEADERS += \
     ../source/gui/PlotViews.hpp \
     ../source/numerics/ArcCurve.hpp \
     ../source/gui/CommentsDialog.hpp \
-    ../source/external/qcustomplot/qcustomplot.h
+    ../source/external/qcustomplot/qcustomplot.h \
+    ../source/gui/ProgressDialog.hpp
 
 RESOURCES += ../resources/resources.qrc

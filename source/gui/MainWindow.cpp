@@ -2,6 +2,10 @@
 #include "BowEditor.hpp"
 #include "SettingsDialog.hpp"
 #include "CommentsDialog.hpp"
+#include "ProgressDialog.hpp"
+
+#include <unistd.h> // Todo: Remove
+
 
 MainWindow:: MainWindow()
     : data(":/bows/default.bow"),
@@ -9,34 +13,58 @@ MainWindow:: MainWindow()
 {
     // Actions
     QAction* action_new = new QAction(QIcon(":/icons/document-new"), "&New", this);
-    action_new->setShortcuts(QKeySequence::New);
     QObject::connect(action_new, &QAction::triggered, this, &MainWindow::newFile);
+    action_new->setShortcuts(QKeySequence::New);
 
     QAction* action_open = new QAction(QIcon(":/icons/document-open"), "&Open...", this);
-    action_open->setShortcuts(QKeySequence::Open);
     QObject::connect(action_open, &QAction::triggered, this, &MainWindow::open);
+    action_open->setShortcuts(QKeySequence::Open);
 
     QAction* action_save = new QAction(QIcon(":/icons/document-save"), "&Save", this);
-    action_save->setShortcuts(QKeySequence::Save);
     QObject::connect(action_save, &QAction::triggered, this, &MainWindow::save);
+    action_save->setShortcuts(QKeySequence::Save);
 
     QAction* action_save_as = new QAction(QIcon(":/icons/document-save-as"), "Save &As...", this);
-    action_save_as->setShortcuts(QKeySequence::SaveAs);
     QObject::connect(action_save_as, &QAction::triggered, this, &MainWindow::saveAs);
+    action_save_as->setShortcuts(QKeySequence::SaveAs);
 
     QAction* action_exit = new QAction(QIcon(":/icons/application-exit"), "&Quit", this);
-    action_exit->setShortcuts(QKeySequence::Quit);
     QObject::connect(action_exit, &QAction::triggered, this, &QWidget::close);
+    action_exit->setShortcuts(QKeySequence::Quit);
 
     QAction* action_settings = new QAction(QIcon(":/icons/applications-system"), "Settings...", this);
-    connect(action_settings, &QAction::triggered, this, &MainWindow::settings);
+    QObject::connect(action_settings, &QAction::triggered, this, &MainWindow::settings);
 
     QAction* action_notes = new QAction(QIcon(":/icons/comments"), "Comments...", this);
-    connect(action_notes, &QAction::triggered, this, &MainWindow::comments);
+    QObject::connect(action_notes, &QAction::triggered, this, &MainWindow::comments);
 
     QAction* action_run_statics = new QAction(QIcon(":/icons/arrow-yellow"), "Statics...", this);
     // action_run_statics->setShortcuts(QKeySequence::Quit);
-    // QObject::connect ...
+    QObject::connect(action_run_statics, &QAction::triggered, [this]()
+    {
+        ProgressDialog dialog(this);
+        dialog.addTask("Statics", [](TaskState& state)
+        {
+            for(int i = 0; i < 100 && !state.isCanceled(); ++i)
+            {
+                usleep(100000);
+                state.setProgress(i);
+            }
+        });
+
+        /*
+        dialog.addTask("Dynamics", [](TaskState& state)
+        {
+            for(int i = 0; i < 100 && !state.isCanceled(); ++i)
+            {
+                usleep(100000);
+                state.setProgress(i);
+            }
+        });
+        */
+
+        dialog.exec();
+    });
 
     QAction* action_run_dynamics = new QAction(QIcon(":/icons/arrow-green"), "Dynamics...", this);
     // action_run_dynmics->setShortcuts(QKeySequence::Quit);
@@ -135,7 +163,6 @@ bool MainWindow::save()
 
 bool MainWindow::saveAs()
 {
-
     QFileDialog dialog(this);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setNameFilter("Bow Files (*.bow)");
