@@ -39,7 +39,7 @@ MainWindow:: MainWindow()
     QObject::connect(action_notes, &QAction::triggered, this, &MainWindow::comments);
 
     QAction* action_run_statics = new QAction(QIcon(":/icons/arrow-yellow"), "Statics...", this);
-    // action_run_statics->setShortcuts(QKeySequence::Quit);
+    action_run_statics->setShortcut(Qt::Key_F5);
     QObject::connect(action_run_statics, &QAction::triggered, [this]()
     {
         ProgressDialog dialog(this);
@@ -67,7 +67,7 @@ MainWindow:: MainWindow()
     });
 
     QAction* action_run_dynamics = new QAction(QIcon(":/icons/arrow-green"), "Dynamics...", this);
-    // action_run_dynmics->setShortcuts(QKeySequence::Quit);
+    action_run_dynamics->setShortcut(Qt::Key_F6);
     // QObject::connect ...
 
     QAction* action_about = new QAction(QIcon(":/icons/dialog-information"), "&About...", this);

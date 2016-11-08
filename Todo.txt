@@ -25,7 +25,7 @@ GUI
         a) Use the C locale, convert local decimal separator to dot manually
         b) Use the default locale and somehow get rid of the thousands separator
 
-    * Maybe the settings be in the simulation menu and toolbar.
+    * Maybe the settings should be in the simulation menu and toolbar.
 
     * Plot:
 
@@ -35,7 +35,7 @@ GUI
 
         * Handle errors when exporting.
 
-        * Can (and should?) the file menus for plot export and the main one "remember" different locations?
+        * Can (and should) the file menus for plot export and the main one "remember" different locations?
 
     * SettingsDialog:
 
@@ -65,6 +65,10 @@ General
 
     * Decide between using std::array and Eigen::Array, then replace one with the other.
 
+    * Can Eigen::Array<2, dynamic> replace the custom Series class?
+
     * tests fail on Windows 7 with MinGW 5.3.0 32bit.
 
     * Lambdas: Most lambdas could capture only [this], instead of [&]
+
+    * Find a consistent style regarding this->
