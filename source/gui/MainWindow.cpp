@@ -6,7 +6,6 @@
 
 #include <unistd.h> // Todo: Remove
 
-
 MainWindow:: MainWindow()
     : data(":/bows/default.bow"),
       editor(new BowEditor(data))
@@ -45,23 +44,23 @@ MainWindow:: MainWindow()
         ProgressDialog dialog(this);
         dialog.addTask("Statics", [](TaskState& state)
         {
-            for(int i = 0; i < 100 && !state.isCanceled(); ++i)
+            for(int i = 0; i <= 100 && !state.isCanceled(); ++i)
             {
                 usleep(100000);
                 state.setProgress(i);
             }
         });
 
-        /*
+
         dialog.addTask("Dynamics", [](TaskState& state)
         {
-            for(int i = 0; i < 100 && !state.isCanceled(); ++i)
+            for(int i = 0; i <= 100 && !state.isCanceled(); ++i)
             {
                 usleep(100000);
                 state.setProgress(i);
             }
         });
-        */
+
 
         dialog.exec();
     });

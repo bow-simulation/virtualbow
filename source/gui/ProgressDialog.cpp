@@ -26,6 +26,7 @@ ProgressDialog::ProgressDialog(QWidget* parent)
     this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 
     auto btbox = new QDialogButtonBox(QDialogButtonBox::Cancel);
+    vbox->addSpacing(8);   // Todo: Magic number
     vbox->addWidget(btbox);
     QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
@@ -35,8 +36,7 @@ void ProgressDialog::addTask(const QString& name, TaskFunction task)
     auto pbar = new QProgressBar();
     pbar->setMinimumWidth(380);    // Todo: Magic number
 
-    int i = vbox->count()-1;
-    vbox->insertSpacing(i, 5);    // Todo: Magig number
+    int i = vbox->count()-2;    // Insert above button box and spacing
     vbox->insertWidget(i, pbar);
     vbox->insertWidget(i, new QLabel(name));
 

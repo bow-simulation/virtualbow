@@ -17,7 +17,7 @@ SplineView::SplineView(const QString& lbx, const QString& lby, DocItem<Series>& 
         try
         {
             CubicSpline spline(input);
-            Series output = spline.sample(100);
+            Series output = spline.sample(150);    // Todo: Magic number
 
             this->setData(0, input);
             this->setData(1, output);

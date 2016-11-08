@@ -32,5 +32,6 @@ private:
     bool fix_aspect_ratio;
 
     virtual void resizeEvent(QResizeEvent *event) override;
+    void copy();
     void exportDialog();
 };

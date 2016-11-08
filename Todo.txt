@@ -31,6 +31,8 @@ GUI
 
         * Enable user interactions. Prerequisite: no call to rescaleAxes when fixing the aspect ratio.
 
+        * Enable selecting curves and copying their data as csv.
+
         * Add a contect menu action to reset the plot if user interaions are enabled.
 
         * Handle errors when exporting.
@@ -42,6 +44,8 @@ GUI
         * Width of the integer and double views should be the same. Last resort: Set default width of the  integer views.
 
     * Width and height plots: Show the actual arc length if a valid profile curve is defined. (Second x-Axis?)
+
+    * ProgressView: Handle exceptions from the simulation thread
 
 FEM
 ===

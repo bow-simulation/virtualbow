@@ -58,8 +58,9 @@ Plot::Plot(const QString& lbx, const QString& lby, Align align)
     vbox->addWidget(plot);
     setLayout(vbox);
 
-    //setInteraction(QCP::iRangeDrag, true);
-    //setInteraction(QCP::iRangeZoom, true);
+    //plot->setInteraction(QCP::iRangeDrag, true);
+    //plot->setInteraction(QCP::iRangeZoom, true);
+    plot->setInteraction(QCP::iSelectPlottables, true);
 
     QObject::connect(plot, &QCustomPlot::beforeReplot, [this]()
     {
@@ -106,15 +107,18 @@ Plot::Plot(const QString& lbx, const QString& lby, Align align)
     });
 
     // Context menu
-
     plot->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(plot, &QCustomPlot::customContextMenuRequested, [this](QPoint pos)
+    QObject::connect(plot, &QCustomPlot::customContextMenuRequested, [&](QPoint pos)
     {
-        QMenu menu(this);
-        menu.addAction("Export...", [this](){ exportDialog(); });   // Todo: Use std::bind?
-        menu.exec(plot->mapToGlobal(pos));
+        auto menu = new QMenu(this);
+        menu->addAction("Copy", [this](){ copy(); });   // Todo: Use std::bind?
+        menu->addSeparator();
+        menu->addAction("Export...", [this](){ exportDialog(); });   // Todo: Use std::bind?
+        menu->exec(plot->mapToGlobal(pos));
     });
 
+    auto shortcut_copy = new QShortcut(QKeySequence::Copy, plot);
+    QObject::connect(shortcut_copy, &QShortcut::activated, this, &Plot::copy);
 }
 
 void Plot::addSeries()
@@ -160,6 +164,29 @@ void Plot::fixAspectRatio(bool value)
 void Plot::resizeEvent(QResizeEvent *event)
 {
     plot->replot();
+}
+
+void Plot::copy()
+{
+    auto selection = plot->selectedPlottables();
+
+    if(selection.size()  ==  0)
+    {
+        // Copy whole plot as pixmap
+        QApplication::clipboard()->setPixmap(plot->toPixmap());
+    }
+    else
+    {
+        // Copy selected data series
+        auto data = dynamic_cast<QCPCurve*>(selection[0])->data();
+        QString result;
+        for(auto it = data->begin(); it != data->end(); ++it)
+        {
+            result += QString::number((*it).key) + "\t" + QString::number((*it).value) + "\n";
+        }
+
+        QApplication::clipboard()->setText(result);
+    }
 }
 
 void Plot::exportDialog()
