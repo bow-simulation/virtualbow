@@ -38,7 +38,7 @@ T TDMatrix<T>::get(std::size_t i, std::size_t j) const
 {
 	assert(i < size() && j < size());
 	
-	switch(i-j)
+    switch(int(i-j))
 	{
 	case 1:
 		return a[j];
@@ -56,7 +56,7 @@ void TDMatrix<T>::set(std::size_t i, std::size_t j, T val)
 {
 	assert(i < size() && j < size());
 
-	switch(i-j)
+    switch(int(i-j))
 	{
 	case 1:
 		a[j] = val;

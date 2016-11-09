@@ -51,7 +51,6 @@ MainWindow:: MainWindow()
             }
         });
 
-
         dialog.addTask("Dynamics", [](TaskState& state)
         {
             for(int i = 0; i <= 100 && !state.isCanceled(); ++i)
@@ -60,7 +59,6 @@ MainWindow:: MainWindow()
                 state.setProgress(i);
             }
         });
-
 
         dialog.exec();
     });
@@ -88,7 +86,7 @@ MainWindow:: MainWindow()
     menu_edit->addAction(action_notes);
 
     // Simulation menu
-    QMenu* menu_simulation = this->menuBar()->addMenu("&Simulation");
+    QMenu* menu_simulation = this->menuBar()->addMenu("&Simulate");
     menu_simulation->addAction(action_run_statics);
     menu_simulation->addAction(action_run_dynamics);
 

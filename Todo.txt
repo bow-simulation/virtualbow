@@ -17,7 +17,7 @@ GUI
 
     * SeriesView:
         
-        * Implement copy and paste
+        * Implement copy, cut and paste
 
         * Find solution for default values and validation
 
@@ -31,13 +31,13 @@ GUI
 
         * Enable user interactions. Prerequisite: no call to rescaleAxes when fixing the aspect ratio.
 
-        * Enable selecting curves and copying their data as csv.
-
         * Add a contect menu action to reset the plot if user interaions are enabled.
 
         * Handle errors when exporting.
 
         * Can (and should) the file menus for plot export and the main one "remember" different locations?
+
+        * Allow selecting curves with left click which then also opens the context menu
 
     * SettingsDialog:
 
