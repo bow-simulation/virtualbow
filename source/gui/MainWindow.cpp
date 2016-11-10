@@ -14,31 +14,39 @@ MainWindow:: MainWindow()
     QAction* action_new = new QAction(QIcon(":/icons/document-new"), "&New", this);
     QObject::connect(action_new, &QAction::triggered, this, &MainWindow::newFile);
     action_new->setShortcuts(QKeySequence::New);
+    action_new->setMenuRole(QAction::NoRole);
 
     QAction* action_open = new QAction(QIcon(":/icons/document-open"), "&Open...", this);
     QObject::connect(action_open, &QAction::triggered, this, &MainWindow::open);
     action_open->setShortcuts(QKeySequence::Open);
+    action_open->setMenuRole(QAction::NoRole);
 
     QAction* action_save = new QAction(QIcon(":/icons/document-save"), "&Save", this);
     QObject::connect(action_save, &QAction::triggered, this, &MainWindow::save);
     action_save->setShortcuts(QKeySequence::Save);
+    action_save->setMenuRole(QAction::NoRole);
 
     QAction* action_save_as = new QAction(QIcon(":/icons/document-save-as"), "Save &As...", this);
     QObject::connect(action_save_as, &QAction::triggered, this, &MainWindow::saveAs);
     action_save_as->setShortcuts(QKeySequence::SaveAs);
+    action_save_as->setMenuRole(QAction::NoRole);
 
     QAction* action_exit = new QAction(QIcon(":/icons/application-exit"), "&Quit", this);
     QObject::connect(action_exit, &QAction::triggered, this, &QWidget::close);
     action_exit->setShortcuts(QKeySequence::Quit);
+    action_exit->setMenuRole(QAction::QuitRole);
 
     QAction* action_settings = new QAction(QIcon(":/icons/applications-system"), "Settings...", this);
     QObject::connect(action_settings, &QAction::triggered, this, &MainWindow::settings);
+    action_settings->setMenuRole(QAction::NoRole);
 
     QAction* action_notes = new QAction(QIcon(":/icons/comments"), "Comments...", this);
     QObject::connect(action_notes, &QAction::triggered, this, &MainWindow::comments);
+    action_notes->setMenuRole(QAction::NoRole);
 
     QAction* action_run_statics = new QAction(QIcon(":/icons/arrow-yellow"), "Statics...", this);
     action_run_statics->setShortcut(Qt::Key_F5);
+    action_run_statics->setMenuRole(QAction::NoRole);
     QObject::connect(action_run_statics, &QAction::triggered, [this]()
     {
         ProgressDialog dialog(this);
@@ -73,10 +81,12 @@ MainWindow:: MainWindow()
 
     QAction* action_run_dynamics = new QAction(QIcon(":/icons/arrow-green"), "Dynamics...", this);
     action_run_dynamics->setShortcut(Qt::Key_F6);
+    action_run_dynamics->setMenuRole(QAction::NoRole);
     // QObject::connect ...
 
     QAction* action_about = new QAction(QIcon(":/icons/dialog-information"), "&About...", this);
     connect(action_about, &QAction::triggered, this, &MainWindow::about);
+    action_about->setMenuRole(QAction::AboutRole);
 
     // File menu
     QMenu* menu_file = this->menuBar()->addMenu("&File");

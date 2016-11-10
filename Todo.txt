@@ -19,6 +19,8 @@ GUI
         
         * Implement copy, cut and paste
 
+        * After a selection is deleted: Automatically select a new row (above? below?)
+
         * Find solution for default values and validation
 
     * Find a solution to localised numbers.
@@ -39,6 +41,8 @@ GUI
 
         * Allow selecting curves with left click which then also opens the context menu
 
+        * Make the labels the same font(size) as the SeriesView headers
+
     * SettingsDialog:
 
         * Width of the integer and double views should be the same. Last resort: Set default width of the  integer views.
@@ -46,6 +50,12 @@ GUI
     * Width and height plots: Show the actual arc length if a valid profile curve is defined. (Second x-Axis?)
 
     * ProgressView: Handle exceptions from the simulation thread
+
+    * File path as program argument
+
+    * Replace the separate static and dynamic launch buttons with a QToolButton with arrow icon and a drop down menu for selection?
+
+    * Set the executable icon
 
 FEM
 ===
@@ -76,3 +86,12 @@ General
     * Lambdas: Most lambdas could capture only [this], instead of [&]
 
     * Find a consistent style regarding this->
+
+Platform dependent
+==================
+
+    * Read OS-X Interface guidelines: https://developer.apple.com/library/content/documentation/UserExperience/Conceptual/OSXHIGuidelines/MenuIconsSymbols.html
+
+    * OS-X: Hide menu icons? (Application::setAttribute(Qt::AA_DontShowIconsInMenus, true))
+
+    * OS-X: How to set the displayed application name to sonething else than the filename?
