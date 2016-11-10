@@ -1,20 +1,24 @@
 #include "ProgressDialog.hpp"
 #include <thread>
 
-TaskState::TaskState(QProgressBar* pbar, bool& canceled)
-    : pbar(pbar), canceled(canceled)
+TaskState::TaskState(): canceled(false)
 {
 
 }
 
-void TaskState::setProgress(unsigned value)
+void TaskState::cancel()
 {
-    pbar->setValue(value);
+    canceled = true;
 }
 
 bool TaskState::isCanceled() const
 {
     return canceled;
+}
+
+void TaskState::setProgress(int value)
+{
+    emit progressChanged(value);
 }
 
 ProgressDialog::ProgressDialog(QWidget* parent)
@@ -26,9 +30,13 @@ ProgressDialog::ProgressDialog(QWidget* parent)
     this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 
     auto btbox = new QDialogButtonBox(QDialogButtonBox::Cancel);
-    vbox->addSpacing(8);   // Todo: Magic number
     vbox->addWidget(btbox);
     QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+}
+
+void ProgressDialog::closeEvent(QCloseEvent *event)
+{
+    this->reject();
 }
 
 void ProgressDialog::addTask(const QString& name, TaskFunction task)
@@ -36,7 +44,7 @@ void ProgressDialog::addTask(const QString& name, TaskFunction task)
     auto pbar = new QProgressBar();
     pbar->setMinimumWidth(380);    // Todo: Magic number
 
-    int i = vbox->count()-2;    // Insert above button box and spacing
+    int i = vbox->count()-1;    // Insert above button box
     vbox->insertWidget(i, pbar);
     vbox->insertWidget(i, new QLabel(name));
 
@@ -46,25 +54,26 @@ void ProgressDialog::addTask(const QString& name, TaskFunction task)
 
 int ProgressDialog::exec()
 {
-    bool canceled;
-
-    QObject::connect(this, &QDialog::rejected, this, [&]()
-    {
-        canceled = true;
-    });
-
+    // On calling slots from different threads:
+    // http://stackoverflow.com/questions/1144240/qt-how-to-call-slot-from-custom-c-code-running-in-a-different-thread
     std::thread thread([&]()
     {
         for(size_t i = 0; i < tasks.size(); ++i)
         {
-            TaskState state(pbars[i], canceled);
+            TaskState state;
+            QObject::connect(&state, &TaskState::progressChanged, pbars[i], &QProgressBar::setValue, Qt::QueuedConnection);
+            //QObject::connect(this, &QDialog::rejected, &state, &TaskState::cancel, Qt::QueuedConnection); // Todo: Why doesn't this shit work?
+            QObject::connect(this, &QDialog::rejected, [&](){ state.cancel(); });
+
             tasks[i](state);
+
+            if(state.isCanceled())
+                return;
         }
 
-        QDialog::accept();
+        QMetaObject::invokeMethod(this, "accept", Qt::QueuedConnection);
     });
 
     QDialog::exec();
     thread.join();
 }
-

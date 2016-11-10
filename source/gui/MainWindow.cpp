@@ -44,20 +44,28 @@ MainWindow:: MainWindow()
         ProgressDialog dialog(this);
         dialog.addTask("Statics", [](TaskState& state)
         {
+            qInfo() << "Started!";
+
             for(int i = 0; i <= 100 && !state.isCanceled(); ++i)
             {
-                usleep(100000);
+                usleep(10000);
                 state.setProgress(i);
             }
+
+            qInfo() << "Ended!";
         });
 
         dialog.addTask("Dynamics", [](TaskState& state)
         {
+            qInfo() << "Started!";
+
             for(int i = 0; i <= 100 && !state.isCanceled(); ++i)
             {
-                usleep(100000);
+                usleep(10000);
                 state.setProgress(i);
             }
+
+            qInfo() << "Ended!";
         });
 
         dialog.exec();
