@@ -129,6 +129,8 @@ MainWindow:: MainWindow()
     QMenu* menu_help = this->menuBar()->addMenu("&Help");
     menu_help->addAction(action_about);
 
+    // Main window
+    QObject::connect(&data, &Document::stateChanged, this, &QMainWindow::setWindowModified);
     this->setWindowIcon(QIcon(":/icons/logo"));
     this->setCentralWidget(editor);
     setCurrentFile(QString());
@@ -220,13 +222,12 @@ void MainWindow::about()
 void MainWindow::setCurrentFile(const QString &file_name)
 {
     current_file = file_name;
-    setWindowModified(false);
     setWindowFilePath(current_file.isEmpty() ? "untitled.bow" : current_file);
 }
 
 bool MainWindow::optionalSave()    // true: Discard, false: Cancel
 {
-    if(!data.is_modified())
+    if(!data.isModified())
         return true;
 
     auto pick = QMessageBox::warning(this, "", "The document has been modified.\nDo you want to save your changes?",

@@ -83,7 +83,7 @@ struct InputData: public Document
         settings_n_draw_steps = obj["settings"]["n_draw_steps"].as<int>();
         settings_step_factor = obj["settings"]["step_factor"].as<double>();
 
-        this->set_modified(false);
+        this->setModified(false);
     }
 
     void save(const QString& path)
@@ -123,6 +123,6 @@ struct InputData: public Document
         oss << jsoncons::pretty_print(obj);
         QTextStream(&file) << QString::fromStdString(oss.str());
 
-        this->set_modified(false);
+        this->setModified(false);
     }
 };

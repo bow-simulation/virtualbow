@@ -3,23 +3,31 @@
 #include <boost/signals2.hpp>
 #include <functional>
 
-class Document
+#include <QtCore>
+
+class Document: public QObject
 {
+    Q_OBJECT
+
 public:
     Document(): modified(false)
     {
 
     }
 
-    bool is_modified() const
+    bool isModified() const
     {
         return modified;
     }
 
-    void set_modified(bool m)
+    void setModified(bool value)
     {
-        modified = m;
+        modified = value;
+        emit stateChanged(modified);
     }
+
+signals:
+    void stateChanged(bool modified);
 
 private:
     bool modified;
@@ -55,7 +63,7 @@ public:
             if(rhs != value)
             {
                 value = rhs;
-                document->set_modified(true);
+                document->setModified(true);
                 signal(value);
             }
         }
