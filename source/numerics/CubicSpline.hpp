@@ -10,7 +10,9 @@ public:
     double operator()(double arg) const;
     double arg_min() const;
     double arg_max() const;
-    Series sample(size_t n_points) const;
+
+    // n: Number of sampling steps.
+    static Series sample(const Series& nodes, unsigned n);
 
 private:
     size_t interval_index(double arg) const;

@@ -1,4 +1,4 @@
-#include "PlotViews.hpp"
+#include "GeometryViews.hpp"
 #include "../model/InputData.hpp"
 #include "../numerics/CubicSpline.hpp"
 #include "../numerics/ArcCurve.hpp"
@@ -16,9 +16,7 @@ SplineView::SplineView(const QString& lbx, const QString& lby, DocItem<Series>& 
     {
         try
         {
-            CubicSpline spline(input);
-            Series output = spline.sample(150);    // Todo: Magic number
-
+            Series output = CubicSpline::sample(input, 5);    // Todo: Magic number
             this->setData(0, input);
             this->setData(1, output);
         }
@@ -57,17 +55,17 @@ void ProfileView::update()
 {
     try
     {
-        ArcCurve profile(data.profile_segments,
-                         data.profile_offset_x,
-                         data.profile_offset_y,
-                         data.profile_angle,
-                         150);  // Todo: Magic number
+        Curve profile = ArcCurve::sample(data.profile_segments,
+                                         data.profile_offset_x,
+                                         data.profile_offset_y,
+                                         data.profile_angle,
+                                         150);  // Todo: Magic number
 
-        ArcCurve segments(data.profile_segments,
-                          data.profile_offset_x,
-                          data.profile_offset_y,
-                          data.profile_angle,
-                          0);
+        Curve segments = ArcCurve::sample(data.profile_segments,
+                                          data.profile_offset_x,
+                                          data.profile_offset_y,
+                                          data.profile_angle,
+                                          0);
 
         this->setData(0, Series(profile.y, profile.x));
         this->setData(1, Series(segments.y, segments.x));

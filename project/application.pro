@@ -13,10 +13,7 @@ QT += core \
 SOURCES += ../source/main.cpp \
     ../source/fem/elements/Element.cpp \
     ../source/gui/MainWindow.cpp \
-    ../source/numerics/StepFunction.cpp \
     ../source/fem/System.cpp \
-    ../source/numerics/CubicSpline.cpp \
-    ../source/numerics/LinearSpline.cpp \
     ../source/external/qcustomplot/qcustomplot.cpp \
     ../source/gui/BowEditor.cpp \
     ../source/gui/CommentsDialog.cpp \
@@ -24,10 +21,11 @@ SOURCES += ../source/main.cpp \
     ../source/gui/IntegerView.cpp \
     ../source/gui/NumberGroup.cpp \
     ../source/gui/Plot.cpp \
-    ../source/gui/PlotViews.cpp \
     ../source/gui/SeriesView.cpp \
     ../source/gui/SettingsDialog.cpp \
-    ../source/gui/ProgressDialog.cpp
+    ../source/gui/ProgressDialog.cpp \
+    ../source/numerics/CubicSpline.cpp \
+    ../source/gui/GeometryViews.cpp
 
 HEADERS += \
     ../source/fem/elements/BarElement.hpp \
@@ -35,13 +33,10 @@ HEADERS += \
     ../source/fem/elements/BeamElement.hpp \
     ../source/fem/elements/Element.hpp \
     ../source/gui/MainWindow.hpp \
-    ../source/numerics/TDMatrix.hpp \
-    ../source/numerics/StepFunction.hpp \
     ../source/gui/BowEditor.hpp \
     ../source/fem/Node.hpp \
     ../source/fem/System.hpp \
     ../source/fem/View.hpp \
-    ../source/numerics/NumParam.hpp \
     ../source/numerics/Domain.hpp \
     ../source/numerics/Units.hpp \
     ../source/model/DiscreteLimb.hpp \
@@ -50,7 +45,6 @@ HEADERS += \
     ../source/numerics/SecantMethod.hpp \
     ../source/fem/elements/ContactElement1D.hpp \
     ../source/numerics/CubicSpline.hpp \
-    ../source/numerics/LinearSpline.hpp \
     ../source/gui/Document.hpp \
     ../source/gui/SettingsDialog.hpp \
     ../source/gui/IntegerView.hpp \
@@ -62,10 +56,12 @@ HEADERS += \
     ../source/numerics/Series.hpp \
     ../source/gui/SeriesView.hpp \
     ../source/gui/Plot.hpp \
-    ../source/gui/PlotViews.hpp \
     ../source/numerics/ArcCurve.hpp \
     ../source/gui/CommentsDialog.hpp \
     ../source/external/qcustomplot/qcustomplot.h \
-    ../source/gui/ProgressDialog.hpp
+    ../source/gui/ProgressDialog.hpp \
+    ../source/numerics/Curve.hpp \
+    ../source/numerics/TDMatrix.hpp \
+    ../source/gui/GeometryViews.hpp
 
 RESOURCES += ../resources/resources.qrc

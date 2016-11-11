@@ -61,18 +61,20 @@ double CubicSpline::arg_max() const
     return t.back();
 }
 
-Series CubicSpline::sample(size_t n_points) const
+Series CubicSpline::sample(const Series& nodes, unsigned n)
 {
-    double arg0 = t.front();
-    double arg1 = t.back();
+    CubicSpline spline(nodes);
+
+    double t0 = spline.t.front();
+    double t1 = spline.t.back();
 
     Series data;
-    for(size_t i = 0; i <= n_points; ++i)
+    for(size_t i = 0; i < n; ++i)
     {
-        double alpha = double(i)/double(n_points);
-        double arg = arg0*alpha + arg1*(1.0 - alpha);
+        double p = double(i)/double(n - 1);
+        double t = t0*p + t1*(1.0 - p);
 
-        data.push_back(arg, (*this)(arg));
+        data.push_back(t, spline(t));
     }
 
     return data;

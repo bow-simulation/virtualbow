@@ -68,7 +68,7 @@ void TDMatrix<T>::set(std::size_t i, std::size_t j, T val)
 		c[i] = val;
 		break;
 	default:
-        throw std::runtime_error("This entry cannot be set");
+        throw std::runtime_error("This entry cannot be set");   // Todo: Use something more assert-like here?
 	}
 }
 

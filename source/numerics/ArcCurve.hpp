@@ -1,33 +1,32 @@
 #pragma once
 #include "Series.hpp"
-#include <vector>
-#include <cmath>
+#include "Curve.hpp"
 
-struct ArcCurve
+class ArcCurve
 {
-    std::vector<double> s;
-    std::vector<double> x;
-    std::vector<double> y;
-    std::vector<double> phi;
-
-    // n: Number of points. For n = 0 the segment nodes are calculated.
-    // Angle: Angle between curve and y-axis
-    ArcCurve(const Series& segments, double x0, double y0, double angle, unsigned n)
+public:
+    // n: Number of sampling steps. For n = 0 the segment nodes are calculated instead.
+    // alpha: Angle between curve and y-axis
+    static Curve sample(const Series& segments, double x0, double y0, double alpha, unsigned n)
     {
         if(n == 0)
         {
-            add_point({0.0, x0, y0, angle +  M_PI_2});
+            Curve nodes;
+            nodes.add_point({0.0, x0, y0, alpha +  M_PI_2});
 
             for(size_t i = 0; i < segments.size(); ++i)
             {
-                auto p = eval_arc({s[i], x[i], y[i], phi[i]}, segments.val(i), segments.arg(i));
-                add_point(p);
+                auto p = eval_arc({nodes.s[i], nodes.x[i], nodes.y[i], nodes.phi[i]}, segments.val(i), segments.arg(i));
+                nodes.add_point(p);
             }
+
+            return nodes;
         }
         else
         {
-            ArcCurve nodes(segments, x0, y0, angle, 0);
-            add_point({nodes.s[0], nodes.x[0], nodes.y[0], nodes.phi[0]});
+            Curve curve;
+            Curve nodes = ArcCurve::sample(segments, x0, y0, alpha, 0);
+            curve.add_point({nodes.s[0], nodes.x[0], nodes.y[0], nodes.phi[0]});
 
             unsigned i = 0;
             for(unsigned j = 0; j < n; ++j)
@@ -39,30 +38,18 @@ struct ArcCurve
                 }
 
                 auto p = eval_arc({nodes.s[i], nodes.x[i], nodes.y[i], nodes.phi[i]}, segments.val(i), sj - nodes.s[i]);
-                add_point(p);
+                curve.add_point(p);
             }
+
+            return curve;
         }
     }
+
 private:
-    struct Point
+    // Calculates the end point of an arc segment with staring point p0, curvature kappa and arc length ds.
+    static CurvePoint eval_arc(CurvePoint p0, double kappa, double ds)
     {
-        double s;
-        double x;
-        double y;
-        double phi;
-    };
-
-    void add_point(Point p)
-    {
-        s.push_back(p.s);
-        x.push_back(p.x);
-        y.push_back(p.y);
-        phi.push_back(p.phi);
-    }
-
-    Point eval_arc(Point p0, double kappa, double ds) const
-    {
-        Point p;
+        CurvePoint p;
 
         p.s = p0.s + ds;
         p.phi = p0.phi + kappa*ds;

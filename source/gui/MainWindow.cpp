@@ -56,7 +56,7 @@ MainWindow:: MainWindow()
 
             for(int i = 0; i <= 100 && !state.isCanceled(); ++i)
             {
-                usleep(10000);
+                usleep(50000);
                 state.setProgress(i);
             }
 
@@ -69,7 +69,7 @@ MainWindow:: MainWindow()
 
             for(int i = 0; i <= 100 && !state.isCanceled(); ++i)
             {
-                usleep(10000);
+                usleep(50000);
                 state.setProgress(i);
             }
 

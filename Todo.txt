@@ -31,7 +31,7 @@ GUI
 
     * Plot:
 
-        * Enable user interactions. Prerequisite: no call to rescaleAxes when fixing the aspect ratio.
+        * Enable scrolling and zooming. Prerequisite: no call to rescaleAxes when fixing the aspect ratio.
 
         * Add a contect menu action to reset the plot if user interaions are enabled.
 
@@ -40,8 +40,6 @@ GUI
         * Can (and should) the file menus for plot export and the main one "remember" different locations?
 
         * Allow selecting curves with left click which then also opens the context menu
-
-        * Make the labels the same font(size) as the SeriesView headers
 
     * SettingsDialog:
 

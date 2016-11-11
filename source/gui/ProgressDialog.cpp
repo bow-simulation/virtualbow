@@ -43,6 +43,7 @@ void ProgressDialog::closeEvent(QCloseEvent *event)
 void ProgressDialog::addTask(const QString& name, TaskFunction task)
 {
     auto pbar = new QProgressBar();
+    pbar->setTextVisible(false);
     pbar->setMinimumWidth(350);    // Todo: Magic number
 
     int i = vbox->count()-2;    // Insert above button box and spacing
