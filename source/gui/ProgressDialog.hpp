@@ -2,6 +2,8 @@
 #include <QtWidgets>
 #include <functional>
 
+#include "Plot.hpp"
+
 class TaskState: public QObject
 {
     Q_OBJECT

@@ -1,9 +1,7 @@
 #pragma once
 #include "InputData.hpp"
+#include "../numerics/ArcCurve.hpp"
 #include "../numerics/CubicSpline.hpp"
-#include "../numerics/StepFunction.hpp"
-
-#include <boost/numeric/odeint.hpp>
 
 // sigma(s) = He(s)*epsilon(s) + Hk(s)*kappa(s)
 struct DiscreteLayer
@@ -53,6 +51,7 @@ private:
     // Calculate positions and orientations of the nodes by integrating the limb curve from it's curvature.
     void calculate_nodes(const InputData& input)
     {
+        /*
         using namespace boost::numeric::odeint;
         typedef std::array<double, 3> state_type;
         typedef runge_kutta_cash_karp54<state_type> error_stepper_type;
@@ -80,6 +79,7 @@ private:
 
         auto stepper = make_controlled<error_stepper_type>(1.0e-10, 1.0e-6);    // Todo: Magic numbers
         integrate_n_steps(stepper, system, z0, s0, ds, n, observer);
+        */
     }
 
     void calculate_section_properties(const InputData& input)

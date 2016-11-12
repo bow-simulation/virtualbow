@@ -1,7 +1,8 @@
 #include "ProgressDialog.hpp"
 #include <thread>
 
-TaskState::TaskState(): canceled(false)
+TaskState::TaskState()
+    : canceled(false)
 {
 
 }
@@ -30,7 +31,6 @@ ProgressDialog::ProgressDialog(QWidget* parent)
     this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 
     auto btbox = new QDialogButtonBox(QDialogButtonBox::Cancel);
-    vbox->addSpacing(8);    // Todo: Magic number
     vbox->addWidget(btbox);
     QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
@@ -42,11 +42,13 @@ void ProgressDialog::closeEvent(QCloseEvent *event)
 
 void ProgressDialog::addTask(const QString& name, TaskFunction task)
 {
+    // Create new progress bar
     auto pbar = new QProgressBar();
     pbar->setTextVisible(false);
     pbar->setMinimumWidth(350);    // Todo: Magic number
 
-    int i = vbox->count()-2;    // Insert above button box and spacing
+    // Insert bar and label above button box
+    int i = vbox->count()-1;
     vbox->insertWidget(i, pbar);
     vbox->insertWidget(i, new QLabel(name));
 
@@ -64,8 +66,8 @@ int ProgressDialog::exec()
         {
             TaskState state;
             QObject::connect(&state, &TaskState::progressChanged, pbars[i], &QProgressBar::setValue, Qt::QueuedConnection);
-            //QObject::connect(this, &QDialog::rejected, &state, &TaskState::cancel, Qt::QueuedConnection); // Todo: Why doesn't this shit work?
             QObject::connect(this, &QDialog::rejected, [&](){ state.cancel(); });
+            //QObject::connect(this, &QDialog::rejected, &state, &TaskState::cancel, Qt::QueuedConnection); // Todo: Why doesn't this shit work?
 
             tasks[i](state);
 
@@ -76,6 +78,8 @@ int ProgressDialog::exec()
         QMetaObject::invokeMethod(this, "accept", Qt::QueuedConnection);
     });
 
-    QDialog::exec();
+    int result = QDialog::exec();
     thread.join();
+
+    return result;
 }

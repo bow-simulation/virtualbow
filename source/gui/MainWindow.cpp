@@ -3,12 +3,13 @@
 #include "SettingsDialog.hpp"
 #include "CommentsDialog.hpp"
 #include "ProgressDialog.hpp"
-
-#include <unistd.h> // Todo: Remove
+#include "OutputDialog.hpp"
+#include "../model/BowModel.hpp"
+#include <thread>
 
 MainWindow:: MainWindow()
-    : data(":/bows/default.bow"),
-      editor(new BowEditor(data))
+    : input(":/bows/default.bow"),
+      editor(new BowEditor(input))
 {
     // Actions
     QAction* action_new = new QAction(QIcon(":/icons/document-new"), "&New", this);
@@ -47,42 +48,12 @@ MainWindow:: MainWindow()
     QAction* action_run_statics = new QAction(QIcon(":/icons/arrow-yellow"), "Statics...", this);
     action_run_statics->setShortcut(Qt::Key_F5);
     action_run_statics->setMenuRole(QAction::NoRole);
-    QObject::connect(action_run_statics, &QAction::triggered, [this]()
-    {
-        ProgressDialog dialog(this);
-        dialog.addTask("Statics", [](TaskState& state)
-        {
-            qInfo() << "Started!";
-
-            for(int i = 0; i <= 100 && !state.isCanceled(); ++i)
-            {
-                usleep(50000);
-                state.setProgress(i);
-            }
-
-            qInfo() << "Ended!";
-        });
-
-        dialog.addTask("Dynamics", [](TaskState& state)
-        {
-            qInfo() << "Started!";
-
-            for(int i = 0; i <= 100 && !state.isCanceled(); ++i)
-            {
-                usleep(50000);
-                state.setProgress(i);
-            }
-
-            qInfo() << "Ended!";
-        });
-
-        dialog.exec();
-    });
+    QObject::connect(action_run_statics, &QAction::triggered, [&](){ runSimulation(false); });    // Todo: Use std::bind
 
     QAction* action_run_dynamics = new QAction(QIcon(":/icons/arrow-green"), "Dynamics...", this);
     action_run_dynamics->setShortcut(Qt::Key_F6);
     action_run_dynamics->setMenuRole(QAction::NoRole);
-    // QObject::connect ...
+    QObject::connect(action_run_dynamics, &QAction::triggered, [&](){ runSimulation(true); });    // Todo: Use std::bind
 
     QAction* action_about = new QAction(QIcon(":/icons/dialog-information"), "&About...", this);
     connect(action_about, &QAction::triggered, this, &MainWindow::about);
@@ -130,7 +101,7 @@ MainWindow:: MainWindow()
     menu_help->addAction(action_about);
 
     // Main window
-    QObject::connect(&data, &Document::stateChanged, this, &QMainWindow::setWindowModified);
+    QObject::connect(&input, &Document::stateChanged, this, &QMainWindow::setWindowModified);
     this->setWindowIcon(QIcon(":/icons/logo"));
     this->setCentralWidget(editor);
     setCurrentFile(QString());
@@ -153,7 +124,7 @@ void MainWindow::newFile()
     if(!optionalSave())
         return;
 
-    data.load(":/bows/default.bow");
+    input.load(":/bows/default.bow");
     setCurrentFile(QString());
 }
 
@@ -194,14 +165,41 @@ bool MainWindow::saveAs()
 // Todo: settings, notes and about dialogs as lambdas in constructor?
 void MainWindow::settings()
 {
-    SettingsDialog dialog(this, data);
+    SettingsDialog dialog(this, input);
     dialog.exec();
 }
 
 void MainWindow::comments()
 {
-    CommentsDialog dialog(this, data);
+    CommentsDialog dialog(this, input);
     dialog.exec();
+}
+
+void MainWindow::runSimulation(bool dynamics)
+{
+    OutputData output;
+    BowModel model(input, output);
+
+    ProgressDialog dialog(this);
+    dialog.addTask("Statics", [&](TaskState& task)
+    {
+        model.simulate_setup();
+        model.simulate_statics(task);
+    });
+
+    if(dynamics)
+    {
+        dialog.addTask("Dynamics", [&](TaskState& task)
+        {
+            model.simulate_dynamics(task);
+        });
+    }
+
+    if(dialog.exec() == QDialog::Accepted)
+    {
+        OutputDialog results(this, output);
+        results.exec();
+    }
 }
 
 void MainWindow::about()
@@ -227,7 +225,7 @@ void MainWindow::setCurrentFile(const QString &file_name)
 
 bool MainWindow::optionalSave()    // true: Discard, false: Cancel
 {
-    if(!data.isModified())
+    if(!input.isModified())
         return true;
 
     auto pick = QMessageBox::warning(this, "", "The document has been modified.\nDo you want to save your changes?",
@@ -249,7 +247,7 @@ bool MainWindow::loadFile(const QString &file_name)
 {
     try
     {
-        data.load(file_name);
+        input.load(file_name);
 
         setCurrentFile(file_name);
         return true;
@@ -265,8 +263,8 @@ bool MainWindow::saveFile(const QString &file_name)
 {
     try
     {
-        data.meta_version = QGuiApplication::applicationVersion().toStdString();
-        data.save(file_name);
+        input.meta_version = QGuiApplication::applicationVersion().toStdString();
+        input.save(file_name);
 
         setCurrentFile(file_name);
         return true;

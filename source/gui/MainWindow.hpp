@@ -10,7 +10,7 @@ public:
     MainWindow();
 
 private:
-    InputData data;
+    InputData input;
     BowEditor* editor;
     QString current_file;
 
@@ -23,6 +23,7 @@ private:
     // Todo: settings, notes and about dialogs as lambdas in constructor?
     void settings();
     void comments();
+    void runSimulation(bool dynamics);
     void about();
 
     void setCurrentFile(const QString &file_name);

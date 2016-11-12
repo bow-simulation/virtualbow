@@ -70,6 +70,8 @@ Model
 
     * DocItem: value is default constructed and might not be valid until the DocItem is assigned a valid one. Perhaps express this with boost::optional.
 
+    * Make it possible to omit detailed static simulation if only dynamics are needed?
+
 General
 =======
 

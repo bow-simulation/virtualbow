@@ -1,6 +1,12 @@
 #pragma once
 #include "DiscreteLimb.hpp"
 
+struct BowSetup
+{
+    DiscreteLimb limb;
+    double string_length;
+};
+
 struct BowStates
 {
     std::vector<double> time;
@@ -20,12 +26,6 @@ struct BowStates
     pub vel_string: Vec<Vec<[f64; 2]>>,
     pub acc_string: Vec<Vec<[f64; 2]>>,
     */
-};
-
-struct BowSetup
-{
-    DiscreteLimb limb;
-    double string_length;
 };
 
 struct OutputData

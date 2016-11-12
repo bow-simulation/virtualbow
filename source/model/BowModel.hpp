@@ -1,8 +1,10 @@
 #pragma once
 #include "InputData.hpp"
 #include "OutputData.hpp"
-#include "DiscreteLimb.hpp"
+#include "../gui/ProgressDialog.hpp"
 
+/*
+#include "DiscreteLimb.hpp"
 #include "../fem/System.hpp"
 #include "../fem/elements/BeamElement.hpp"
 #include "../fem/elements/BarElement.hpp"
@@ -11,7 +13,61 @@
 #include "../numerics/SecantMethod.hpp"
 
 #include <QtCore>
+*/
 
+
+#include <unistd.h> // Todo: Remove
+
+
+class BowModel
+{
+public:
+    BowModel(const InputData& input, OutputData& output)
+        : input(input), output(output)
+    {
+
+    }
+
+    void simulate_setup()
+    {
+
+    }
+
+    void simulate_statics(TaskState& task)
+    {
+        qInfo() << "Start statics!";
+
+        for(int i = 0; i <= 100 && !task.isCanceled(); ++i)
+        {
+            usleep(50000);
+            task.setProgress(i);
+        }
+
+        qInfo() << "Ended statics!";
+    }
+
+    void simulate_dynamics(TaskState& task)
+    {
+        qInfo() << "Start dynamics!";
+
+        for(int i = 0; i <= 100 && !task.isCanceled(); ++i)
+        {
+            usleep(50000);
+            task.setProgress(i);
+        }
+
+        qInfo() << "Ended dynamics!";
+    }
+
+private:
+    const InputData& input;
+    OutputData& output;
+};
+
+
+
+
+/*
 class BowModel
 {
 public:
@@ -234,6 +290,7 @@ private:
     }
 
 };
+*/
 
 /*
 for(auto& node: nodes_limb)
