@@ -28,11 +28,13 @@ public:
             Curve nodes = ArcCurve::sample(segments, x0, y0, alpha, 0);
             curve.add_point({nodes.s[0], nodes.x[0], nodes.y[0], nodes.phi[0]});
 
+            // i: Segment
+            // j: Sampling interval
             unsigned i = 0;
             for(unsigned j = 0; j < n; ++j)
             {
-                double sj = double(j)/double(n-1)*nodes.s.back();
-                if(sj > nodes.s[i + 1])
+                double sj = double(j+1)/double(n)*nodes.s.back();
+                if(sj > nodes.s[i+1])
                 {
                     ++i;
                 }

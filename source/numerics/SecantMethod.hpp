@@ -24,5 +24,5 @@ double secant_method(const F& f, double x0, double x1, double epsilon, unsigned 
         x1 = x2; f1 = f(x2);
     }
 
-    throw std::runtime_error("Secant Method: Maximum number of iterations exceeded");
+    throw std::runtime_error("Maximum number of iterations exceeded");
 }

@@ -12,6 +12,7 @@ public:
     Plot(const QString& lbx, const QString& lby, Align align = Align::BottomLeft);
 
     void addSeries();
+    void addSeries(const Series& data);
     void setData(size_t i, const Series& data);
     void setLineStyle(size_t i, QCPCurve::LineStyle style);
     void setScatterStyle(size_t i, QCPScatterStyle style);

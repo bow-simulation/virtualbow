@@ -63,6 +63,9 @@ FEM
 
     * Make simulation callbacks in System templates
 
+    * Make system simulation methods return bool to indicate success instead of throwing exceptions.
+      Then throw exceptions with domain-specific error messages in model code.
+
 Model
 =====
 

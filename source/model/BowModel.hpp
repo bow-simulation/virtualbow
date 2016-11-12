@@ -12,7 +12,7 @@
 #include "../numerics/SecantMethod.hpp"
 
 #include <QtCore>
-
+#include "../gui/Plot.hpp"
 
 
 #include <unistd.h> // Todo: Remove
@@ -40,6 +40,11 @@ public:
             Node node = system.create_node({{limb.x[i], limb.y[i], limb.phi[i]}}, {{active, active, active}});
             nodes_limb.push_back(node);
         }
+
+        qInfo() << limb.s;
+        qInfo() << limb.x;
+        qInfo() << limb.y;
+        qInfo() << limb.phi;
 
         // Create limb elements
         for(size_t i = 0; i < n; ++i)
@@ -86,8 +91,8 @@ public:
         node_arrow = system.create_node({{xc, yc, 0.0}}, {{true, false, false}});
 
         // Create string elements
-        double rhoA = double(input.string_n_strands)*input.string_strand_density;
-        double EA = double(input.string_n_strands)*input.string_strand_stiffness;
+        double rhoA = input.string_n_strands*input.string_strand_density;
+        double EA = input.string_n_strands*input.string_strand_stiffness;
 
         for(size_t i = 0; i < k; ++i)
         {
@@ -132,7 +137,7 @@ public:
             return system.get_angle(nodes_string[0], nodes_string[1]) - M_PI/2;
         };
 
-        // Todo: Perhaps limit the step size of the root finding algorithm ti increase robustness.
+        // Todo: Perhaps limit the step size of the root finding algorithm to increase robustness.
         double string_length = 2.0*std::hypot(xc - xt, yc - yt);
         string_length = secant_method(try_string_length, 0.95*string_length, 0.9*string_length, 1e-8, 50);   // Todo: Magic numbers
 
@@ -143,15 +148,10 @@ public:
 
     void simulate_statics(TaskState& task)
     {
-        qInfo() << "Start statics!";
-
-        for(int i = 0; i <= 100 && !task.isCanceled(); ++i)
+        system.solve_statics_dc(nodes_string[0].x, input.operation_draw_length, 50, [&]()   // Todo: Magic number
         {
-            usleep(10000);
-            task.setProgress(i);
-        }
-
-        qInfo() << "Ended statics!";
+            get_bow_state(output.statics);
+        });
     }
 
     void simulate_dynamics(TaskState& task)
@@ -165,6 +165,17 @@ public:
         }
 
         qInfo() << "Ended dynamics!";
+    }
+
+    void get_bow_state(BowStates& states) const
+    {
+        states.time.push_back(system.get_time());
+        states.draw_force.push_back(system.get_p(nodes_string[0].x));
+        states.pos_string.push_back(system.get_u(nodes_string[0].x));
+        states.pos_arrow.push_back(system.get_u(node_arrow.x));
+
+        //qInfo() << states.pos_string.back() << ", " << states.draw_force.back();
+        qInfo() << states.time.back() << ", " << states.pos_arrow.back() - states.pos_string.back();
     }
 
 private:

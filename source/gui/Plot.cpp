@@ -128,6 +128,12 @@ void Plot::addSeries()
     series.push_back(curve);
 }
 
+void Plot::addSeries(const Series& data)
+{
+    addSeries();
+    setData(series.size()-1, data);
+}
+
 void Plot::setData(size_t i, const Series& data)
 {
     auto x = QVector<double>::fromStdVector(data.args());
