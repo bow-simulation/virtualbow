@@ -195,10 +195,17 @@ void MainWindow::runSimulation(bool dynamics)
         });
     }
 
-    if(dialog.exec() == QDialog::Accepted)
+    try
     {
-        OutputDialog results(this, output);
-        results.exec();
+        if(dialog.exec() == QDialog::Accepted)
+        {
+            OutputDialog results(this, output);
+            results.exec();
+        }
+    }
+    catch(const std::runtime_error& e)
+    {
+        QMessageBox::critical(this, "Error", e.what());
     }
 }
 

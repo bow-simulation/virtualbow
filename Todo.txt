@@ -72,6 +72,8 @@ Model
 
     * Make it possible to omit detailed static simulation if only dynamics are needed?
 
+    * Width and height: Do something if the position parameter doesn't start at zero, most likely just shift it.
+
 General
 =======
 

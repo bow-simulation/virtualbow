@@ -40,7 +40,6 @@ HEADERS += \
     ../source/fem/View.hpp \
     ../source/numerics/Domain.hpp \
     ../source/numerics/Units.hpp \
-    ../source/model/DiscreteLimb.hpp \
     ../source/model/BowModel.hpp \
     ../source/model/OutputData.hpp \
     ../source/numerics/SecantMethod.hpp \
@@ -64,6 +63,7 @@ HEADERS += \
     ../source/numerics/Curve.hpp \
     ../source/numerics/TDMatrix.hpp \
     ../source/gui/GeometryViews.hpp \
-    ../source/gui/OutputDialog.hpp
+    ../source/gui/OutputDialog.hpp \
+    ../source/model/DiscreteLimb.hpp
 
 RESOURCES += ../resources/resources.qrc

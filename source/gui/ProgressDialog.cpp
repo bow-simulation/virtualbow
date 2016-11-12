@@ -31,6 +31,7 @@ ProgressDialog::ProgressDialog(QWidget* parent)
     this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 
     auto btbox = new QDialogButtonBox(QDialogButtonBox::Cancel);
+    vbox->addSpacing(8);    // Todo: Magic number
     vbox->addWidget(btbox);
     QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
@@ -48,7 +49,7 @@ void ProgressDialog::addTask(const QString& name, TaskFunction task)
     pbar->setMinimumWidth(350);    // Todo: Magic number
 
     // Insert bar and label above button box
-    int i = vbox->count()-1;
+    int i = vbox->count()-2;
     vbox->insertWidget(i, pbar);
     vbox->insertWidget(i, new QLabel(name));
 
@@ -56,30 +57,49 @@ void ProgressDialog::addTask(const QString& name, TaskFunction task)
     tasks.push_back(task);
 }
 
+
 int ProgressDialog::exec()
 {
-    // On calling slots from different threads:
+    // Food for thought...
+    // Calling slots from different threads:
     // http://stackoverflow.com/questions/1144240/qt-how-to-call-slot-from-custom-c-code-running-in-a-different-thread
+    // Propagating exceptions across thread boundaries:
+    // http://stackoverflow.com/questions/233127/how-can-i-propagate-exceptions-between-threads
+
+    std::exception_ptr exception = nullptr;
     std::thread thread([&]()
     {
-        for(size_t i = 0; i < tasks.size(); ++i)
+        try
         {
-            TaskState state;
-            QObject::connect(&state, &TaskState::progressChanged, pbars[i], &QProgressBar::setValue, Qt::QueuedConnection);
-            QObject::connect(this, &QDialog::rejected, [&](){ state.cancel(); });
-            //QObject::connect(this, &QDialog::rejected, &state, &TaskState::cancel, Qt::QueuedConnection); // Todo: Why doesn't this shit work?
+            for(size_t i = 0; i < tasks.size(); ++i)
+            {
+                TaskState state;
+                QObject::connect(&state, &TaskState::progressChanged, pbars[i], &QProgressBar::setValue, Qt::QueuedConnection);
+                QObject::connect(this, &QDialog::rejected, [&](){ state.cancel(); });
+                //QObject::connect(this, &QDialog::rejected, &state, &TaskState::cancel, Qt::QueuedConnection); // Todo: Why doesn't this shit work?
 
-            tasks[i](state);
+                tasks[i](state);
 
-            if(state.isCanceled())
-                return;
+                if(state.isCanceled())
+                    return;
+            }
+
+            QMetaObject::invokeMethod(this, "accept", Qt::QueuedConnection);
         }
-
-        QMetaObject::invokeMethod(this, "accept", Qt::QueuedConnection);
+        catch(...)
+        {
+            exception = std::current_exception();
+            QMetaObject::invokeMethod(this, "reject", Qt::QueuedConnection);
+        }
     });
 
     int result = QDialog::exec();
+
     thread.join();
+    if(exception)
+    {
+        std::rethrow_exception(exception);
+    }
 
     return result;
 }
