@@ -1,7 +1,6 @@
 #pragma once
 #include "InputData.hpp"
 #include "OutputData.hpp"
-#include "../gui/ProgressDialog.hpp"
 
 #include "DiscreteLimb.hpp"
 #include "../fem/System.hpp"
@@ -10,13 +9,7 @@
 #include "../fem/elements/MassElement.hpp"
 #include "../fem/elements/ContactElement1D.hpp"
 #include "../numerics/SecantMethod.hpp"
-
-#include <QtCore>
-#include "../gui/Plot.hpp"
-
-
-#include <unistd.h> // Todo: Remove
-
+#include "../gui/ProgressDialog.hpp"
 
 class BowModel
 {
@@ -40,11 +33,6 @@ public:
             Node node = system.create_node({{limb.x[i], limb.y[i], limb.phi[i]}}, {{active, active, active}});
             nodes_limb.push_back(node);
         }
-
-        qInfo() << limb.s;
-        qInfo() << limb.x;
-        qInfo() << limb.y;
-        qInfo() << limb.phi;
 
         // Create limb elements
         for(size_t i = 0; i < n; ++i)
@@ -132,7 +120,7 @@ public:
             }
 
             Dof dof = nodes_string[0].x;
-            system.solve_statics_dc(dof, xc, 1, [](){});
+            system.solve_statics_dc(dof, xc, 1);
 
             return system.get_angle(nodes_string[0], nodes_string[1]) - M_PI/2;
         };
@@ -148,34 +136,45 @@ public:
 
     void simulate_statics(TaskState& task)
     {
-        system.solve_statics_dc(nodes_string[0].x, input.operation_draw_length, 50, [&]()   // Todo: Magic number
+        output.statics = std::unique_ptr<BowStates>(new BowStates());    // Todo: Why does std::make_unique<BowStates>() not work?
+        system.solve_statics_dc(nodes_string[0].x, input.operation_draw_length, input.settings_n_draw_steps, [&]()   // Todo: Magic number
         {
-            get_bow_state(output.statics);
+            get_bow_state(*output.statics);
+            task.setProgress((system.get_u(nodes_string[0].x) - input.operation_brace_height)/
+                             (input.operation_draw_length - input.operation_brace_height)*100.0);
+
+            return !task.isCanceled();
         });
     }
 
     void simulate_dynamics(TaskState& task)
     {
-        qInfo() << "Start dynamics!";
-
-        for(int i = 0; i <= 100 && !task.isCanceled(); ++i)
-        {
-            usleep(10000);
-            task.setProgress(i);
-        }
-
-        qInfo() << "Ended dynamics!";
+        output.dynamics = std::unique_ptr<BowStates>(new BowStates());    // Todo: Why does std::make_unique<BowStates>() not work?
     }
 
     void get_bow_state(BowStates& states) const
     {
         states.time.push_back(system.get_time());
         states.draw_force.push_back(system.get_p(nodes_string[0].x));
-        states.pos_string.push_back(system.get_u(nodes_string[0].x));
+        states.pos_string_center.push_back(system.get_u(nodes_string[0].x));
         states.pos_arrow.push_back(system.get_u(node_arrow.x));
 
-        //qInfo() << states.pos_string.back() << ", " << states.draw_force.back();
-        qInfo() << states.time.back() << ", " << states.pos_arrow.back() - states.pos_string.back();
+        states.pos_limb_x.push_back({});
+        states.pos_limb_y.push_back({});
+        states.pos_string_x.push_back({});
+        states.pos_string_y.push_back({});
+
+        for(auto& node: nodes_limb)
+        {
+            states.pos_limb_x.back().push_back(system.get_u(node.x));
+            states.pos_limb_y.back().push_back(system.get_u(node.y));
+        }
+
+        for(auto& node: nodes_string)
+        {
+            states.pos_string_x.back().push_back(system.get_u(node.x));
+            states.pos_string_y.back().push_back(system.get_u(node.y));
+        }
     }
 
 private:

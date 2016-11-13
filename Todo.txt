@@ -11,15 +11,18 @@ GUI
 
     * DoubleView:
         
-        * Why doesn't it show large numbers in scientific notation?
+       !* Why doesn't it show large numbers in scientific notation?
 
         * Display large numbers in engineering format (e+03, e+06, e+09, ...) instead of scientific
+
+    * IntegerView: Numbers are limited to two digits.
+
 
     * SeriesView:
         
         * Implement copy, cut and paste
 
-        * After a selection is deleted: Automatically select a new row (above? below?)
+       !* After a selection is deleted: Automatically select a new row (above? below?)
 
         * Find solution for default values and validation
 
@@ -35,11 +38,13 @@ GUI
 
         * Add a contect menu action to reset the plot if user interaions are enabled.
 
-        * Handle errors when exporting.
+       !* Handle errors when exporting.
 
         * Can (and should) the file menus for plot export and the main one "remember" different locations?
 
         * Allow selecting curves with left click which then also opens the context menu
+
+        * Tick at axis end
 
     * SettingsDialog:
 
@@ -47,13 +52,15 @@ GUI
 
     * Width and height plots: Show the actual arc length if a valid profile curve is defined. (Second x-Axis?)
 
-    * ProgressView: Handle exceptions from the simulation thread
-
-    * File path as program argument
+   !* File path as program argument
 
     * Replace the separate static and dynamic launch buttons with a QToolButton with arrow icon and a drop down menu for selection?
 
     * Set the executable icon
+
+   !* MainWindow: Handle exceptions from file operations
+
+    * Add (more) tooltips
 
 FEM
 ===
@@ -75,8 +82,6 @@ Model
 
     * Make it possible to omit detailed static simulation if only dynamics are needed?
 
-    * Width and height: Do something if the position parameter doesn't start at zero, most likely just shift it.
-
 General
 =======
 
@@ -86,11 +91,17 @@ General
 
     * Can Eigen::Array<2, dynamic> replace the custom Series class?
 
-    * tests fail on Windows 7 with MinGW 5.3.0 32bit.
+   !* tests fail on Windows 7 with MinGW 5.3.0 32bit.
 
     * Lambdas: Most lambdas could capture only [this], instead of [&]
 
     * Find a consistent style regarding this->
+
+Bugs:
+=====
+
+    * Why does every other simulation fail without any changes to the parameters and settings?
+
 
 Platform dependent
 ==================
@@ -99,4 +110,4 @@ Platform dependent
 
     * OS-X: Hide menu icons? (Application::setAttribute(Qt::AA_DontShowIconsInMenus, true))
 
-    * OS-X: How to set the displayed application name to sonething else than the filename?
+   !* OS-X: How to set the displayed application name to sonething else than the filename?

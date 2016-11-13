@@ -157,7 +157,7 @@ public:
     void solve_statics_dc(Dof dof,
                           double target_displacement,
                           unsigned n_steps,
-                          const std::function<void()>& callback)
+                          const std::function<bool()>& callback = [](){ return true; })
     {
         v.setZero();
         a.setZero();
@@ -220,11 +220,11 @@ public:
                 ++iteration;
             }
 
-            callback();
             return iteration;
         };
 
         double init_displacement = u(dof.index);
+
         // Todo: Separate into different methods
         // Todo: Think about meaning of 'n_steps'. Number of times the newton method is employed? Or number of intervals in between?
         if(n_steps <= 1)
@@ -234,7 +234,7 @@ public:
         else
         {
             double delta_displacement = target_displacement - init_displacement;
-            for(unsigned i = 0; i < n_steps; ++i)
+            for(unsigned i = 0; i < n_steps && callback(); ++i)
             {
                 double displacement = init_displacement + delta_displacement*double(i)/double(n_steps - 1);
                 solve_equilibrium(displacement);

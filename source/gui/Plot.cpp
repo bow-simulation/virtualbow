@@ -104,6 +104,14 @@ Plot::Plot(const QString& lbx, const QString& lby, Align align)
                 x_axis->setRange(x_axis->range().lower, x_axis->range().lower + lx);
             }
         }
+
+        // Adjust axes such that the last label is drawn
+        // Todo: Not a complete solution, only works for labels which have a "nice" value
+        double epsilon = std::numeric_limits<double>::epsilon();
+        x_axis->setRangeLower(x_axis->range().lower - epsilon);
+        x_axis->setRangeUpper(x_axis->range().upper + epsilon);
+        y_axis->setRangeLower(y_axis->range().lower - epsilon);
+        y_axis->setRangeUpper(y_axis->range().upper + epsilon);
     });
 
     // Context menu

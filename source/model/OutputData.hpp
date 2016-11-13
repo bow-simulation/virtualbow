@@ -1,5 +1,6 @@
 #pragma once
 #include "DiscreteLimb.hpp"
+#include <memory>
 
 struct BowSetup
 {
@@ -11,8 +12,13 @@ struct BowStates
 {
     std::vector<double> time;
     std::vector<double> draw_force;
-    std::vector<double> pos_string;
+    std::vector<double> pos_string_center;
     std::vector<double> pos_arrow;
+
+    std::vector<std::vector<double>> pos_limb_x;
+    std::vector<std::vector<double>> pos_limb_y;
+    std::vector<std::vector<double>> pos_string_x;
+    std::vector<std::vector<double>> pos_string_y;
 
     /*
     pub time: Vec<f64>,
@@ -26,11 +32,15 @@ struct BowStates
     pub vel_string: Vec<Vec<[f64; 2]>>,
     pub acc_string: Vec<Vec<[f64; 2]>>,
     */
+    BowStates()
+    {
+
+    }
 };
 
 struct OutputData
 {
     BowSetup setup;
-    BowStates statics;
-    BowStates dynamics;
+    std::unique_ptr<BowStates> statics = nullptr;   // Todo: Use boost optional?
+    std::unique_ptr<BowStates> dynamics = nullptr;
 };
