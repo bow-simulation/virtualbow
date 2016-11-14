@@ -7,7 +7,7 @@ class Series;
 class Plot: public QWidget
 {
 public:
-    enum class Align{ BottomLeft, BottomRight, TopLeft, TopRight };
+    enum class Align{ BottomLeft, BottomRight, TopLeft, TopRight }; // Todo: Better name than "align"
 
     Plot(const QString& lbx, const QString& lby, Align align = Align::BottomLeft);
 

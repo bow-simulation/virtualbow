@@ -72,7 +72,7 @@ Series CubicSpline::sample(const Series& nodes, unsigned n)
     for(size_t i = 0; i < n; ++i)
     {
         double p = double(i)/double(n - 1);
-        double t = t0*p + t1*(1.0 - p);
+        double t = t0*(1.0-p) + t1*p;
 
         data.push_back(t, spline(t));
     }

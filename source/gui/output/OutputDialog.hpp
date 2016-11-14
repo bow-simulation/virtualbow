@@ -43,27 +43,42 @@ public:
         auto vbox = new QVBoxLayout();
         this->setLayout(vbox);
 
-        plot = new Plot("x", "y");
+        plot = new Plot("y", "x", Plot::Align::TopLeft);
         plot->fixAspectRatio(true);
         vbox->addWidget(plot);
 
-        plot->addSeries({setup.limb.x, setup.limb.y});
-        plot->setLinePen(0, QPen(QBrush(Qt::lightGray), 2));
+        Series limb(setup.limb.y, setup.limb.x);
+        plot->addSeries(limb);
+        plot->addSeries(limb.flip(false));
+        plot->setLinePen(0, QPen(QBrush(Qt::lightGray), 1));
+        plot->setLinePen(1, QPen(QBrush(Qt::lightGray), 1));
 
         // "Stroboscope" plots during different draw lengths
         unsigned steps = 2; // Todo: Magic number
         for(unsigned i = 0; i <= steps; ++i)
         {
             size_t j = i*(parameter.size()-1)/steps;
-            plot->addSeries({states.pos_limb_x[j], states.pos_limb_y[j]});
-            plot->addSeries({states.pos_string_x[j], states.pos_string_y[j]});
-            plot->setLinePen(plot->count()-2, QPen(QBrush(Qt::lightGray), 2));
+
+            Series limb(states.pos_limb_y[j], states.pos_limb_x[j]);
+            Series string(states.pos_string_y[j], states.pos_string_x[j]);
+
+            plot->addSeries(limb);
+            plot->addSeries(string);
+            plot->addSeries(limb.flip(false));
+            plot->addSeries(string.flip(false));
+            plot->setLinePen(plot->count()-4, QPen(QBrush(Qt::lightGray), 1));
+            plot->setLinePen(plot->count()-3, QPen(QBrush(Qt::lightGray), 1));
+            plot->setLinePen(plot->count()-2, QPen(QBrush(Qt::lightGray), 1));
             plot->setLinePen(plot->count()-1, QPen(QBrush(Qt::lightGray), 1));
         }
 
         // Plot at user defined draw length
         plot->addSeries();
         plot->addSeries();
+        plot->addSeries();
+        plot->addSeries();
+        plot->setLinePen(plot->count()-4, QPen(QBrush(Qt::blue), 2));
+        plot->setLinePen(plot->count()-3, QPen(QBrush(Qt::blue), 1));
         plot->setLinePen(plot->count()-2, QPen(QBrush(Qt::blue), 2));
         plot->setLinePen(plot->count()-1, QPen(QBrush(Qt::blue), 1));
 
@@ -113,8 +128,13 @@ private:
 
     void setParameterIndex(int index)
     {
-        plot->setData(plot->count()-2, {states.pos_limb_x[index], states.pos_limb_y[index]});
-        plot->setData(plot->count()-1, {states.pos_string_x[index], states.pos_string_y[index]});
+        Series limb(states.pos_limb_y[index], states.pos_limb_x[index]);
+        Series string(states.pos_string_y[index], states.pos_string_x[index]);
+
+        plot->setData(plot->count()-4, limb);
+        plot->setData(plot->count()-3, string);
+        plot->setData(plot->count()-2, limb.flip(false));
+        plot->setData(plot->count()-1, string.flip(false));
         plot->replot();
     }
 };

@@ -80,14 +80,32 @@ public:
         return m_args.size();
     }
 
-    bool operator ==(const Series& rhs) const
+    bool operator==(const Series& rhs) const
     {
         return m_args == rhs.m_args && m_vals == rhs.m_vals;
     }
 
-    bool operator !=(const Series& rhs) const
+    bool operator!=(const Series& rhs) const
     {
         return !operator==(rhs);
+    }
+
+    Series flip(bool vertical)  // Todo: Use enum instead of bool and a better name
+    {
+
+        // Todo: Remove code duplication
+        if(vertical)
+        {
+            std::vector<double> new_vals;
+            std::for_each(m_vals.begin(), m_vals.end(), [&](double val){ new_vals.push_back(-val); });
+            return Series(m_args, new_vals);
+        }
+        else
+        {
+            std::vector<double> new_args;
+            std::for_each(m_args.begin(), m_args.end(), [&](double arg){ new_args.push_back(-arg); });
+            return Series(new_args, m_vals);
+        }
     }
 
 private:
