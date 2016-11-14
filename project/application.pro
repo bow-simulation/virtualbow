@@ -25,8 +25,8 @@ SOURCES += ../source/main.cpp \
     ../source/gui/SettingsDialog.cpp \
     ../source/gui/ProgressDialog.cpp \
     ../source/numerics/CubicSpline.cpp \
-    ../source/gui/GeometryViews.cpp \
-    ../source/gui/OutputDialog.cpp
+    ../source/gui/OutputDialog.cpp \
+    ../source/gui/LimbViews.cpp
 
 HEADERS += \
     ../source/fem/elements/BarElement.hpp \
@@ -62,8 +62,8 @@ HEADERS += \
     ../source/gui/ProgressDialog.hpp \
     ../source/numerics/Curve.hpp \
     ../source/numerics/TDMatrix.hpp \
-    ../source/gui/GeometryViews.hpp \
     ../source/gui/OutputDialog.hpp \
-    ../source/model/DiscreteLimb.hpp
+    ../source/model/DiscreteLimb.hpp \
+    ../source/gui/LimbViews.hpp
 
 RESOURCES += ../resources/resources.qrc

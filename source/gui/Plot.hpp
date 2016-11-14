@@ -11,13 +11,15 @@ public:
 
     Plot(const QString& lbx, const QString& lby, Align align = Align::BottomLeft);
 
-    void addSeries();
-    void addSeries(const Series& data);
+    size_t addSeries();
+    size_t addSeries(const Series& data);
     void setData(size_t i, const Series& data);
     void setLineStyle(size_t i, QCPCurve::LineStyle style);
+    void setLinePen(size_t i, const QPen& pen);
     void setScatterStyle(size_t i, QCPScatterStyle style);
 
     void replot();
+    int count() const;
 
     void includeOrigin(bool x, bool y);
     void fixAspectRatio(bool value);

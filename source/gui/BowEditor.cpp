@@ -1,7 +1,7 @@
 #include "BowEditor.hpp"
 #include "SeriesView.hpp"
 #include "NumberGroup.hpp"
-#include "GeometryViews.hpp"
+#include "LimbViews.hpp"
 #include "../model/InputData.hpp"
 
 BowEditor::BowEditor(InputData& data)

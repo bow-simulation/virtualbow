@@ -213,7 +213,6 @@ public:
 
                 if((alpha + delta_f*beta).norm()/double(dofs()) < epsilon)    // Todo: Better convergence criterion
                 {
-                    callback();
                     return iteration;
                 }
 
@@ -234,10 +233,13 @@ public:
         else
         {
             double delta_displacement = target_displacement - init_displacement;
-            for(unsigned i = 0; i < n_steps && callback(); ++i)
+            for(unsigned i = 0; i < n_steps; ++i)
             {
                 double displacement = init_displacement + delta_displacement*double(i)/double(n_steps - 1);
                 solve_equilibrium(displacement);
+
+                if(!callback())
+                    return;
             }
         }
     }

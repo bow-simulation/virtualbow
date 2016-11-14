@@ -2,7 +2,7 @@
     "settings": {
         "n_elements_limb": 25,
         "n_elements_string": 25,
-        "n_draw_steps": 50,
+        "n_draw_steps": 25,
         "step_factor": 0.5
     },
     "masses": {
@@ -35,7 +35,7 @@
     "profile": {
         "segments": {
             "args": [0.5,0.1,0.1],
-            "vals": [-0.4,2.0,4.0]
+            "vals": [-0.4,1.0,4.0]
         },
         "offset_x": 0.0,
         "offset_y": 0.0,

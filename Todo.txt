@@ -46,6 +46,10 @@ GUI
 
         * Tick at axis end
 
+        * Make it possible to add a series and define its style in one method call
+
+       !* Change the picking color? Or don't make all the curves blue?
+
     * SettingsDialog:
 
         * Width of the integer and double views should be the same. Last resort: Set default width of the  integer views.
@@ -62,6 +66,10 @@ GUI
 
     * Add (more) tooltips
 
+    * ShapePlot:
+        
+        * Make scrolling speed independent from number of data points
+       !* Bug: Aspect ratio initially wrong, corrects itself after changing the parameter or resizing the window.
 FEM
 ===
 

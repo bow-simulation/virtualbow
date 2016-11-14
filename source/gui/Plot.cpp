@@ -129,17 +129,20 @@ Plot::Plot(const QString& lbx, const QString& lby, Align align)
     QObject::connect(shortcut_copy, &QShortcut::activated, this, &Plot::copy);
 }
 
-void Plot::addSeries()
+size_t Plot::addSeries()
 {
     auto curve = new QCPCurve(x_axis, y_axis);
     curve->setScatterSkip(0);
     series.push_back(curve);
+
+    return count()-1;
 }
 
-void Plot::addSeries(const Series& data)
+size_t Plot::addSeries(const Series& data)
 {
-    addSeries();
+    size_t index = addSeries();
     setData(series.size()-1, data);
+    return index;
 }
 
 void Plot::setData(size_t i, const Series& data)
@@ -154,6 +157,11 @@ void Plot::setLineStyle(size_t i, QCPCurve::LineStyle style)
     series[i]->setLineStyle(style);
 }
 
+void Plot::setLinePen(size_t i, const QPen& pen)
+{
+    series[i]->setPen(pen);
+}
+
 void Plot::setScatterStyle(size_t i, QCPScatterStyle style)
 {
     series[i]->setScatterStyle(style);
@@ -162,6 +170,11 @@ void Plot::setScatterStyle(size_t i, QCPScatterStyle style)
 void Plot::replot()
 {
     plot->replot();
+}
+
+int Plot::count() const
+{
+    return series.size();
 }
 
 void Plot::includeOrigin(bool x, bool y)
