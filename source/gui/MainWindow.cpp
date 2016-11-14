@@ -1,9 +1,9 @@
 #include "MainWindow.hpp"
-#include "BowEditor.hpp"
-#include "SettingsDialog.hpp"
-#include "CommentsDialog.hpp"
 #include "ProgressDialog.hpp"
-#include "OutputDialog.hpp"
+#include "input/BowEditor.hpp"
+#include "input/SettingsDialog.hpp"
+#include "input/CommentsDialog.hpp"
+#include "output/OutputDialog.hpp"
 #include "../model/BowModel.hpp"
 #include <thread>
 

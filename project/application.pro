@@ -10,60 +10,59 @@ QT += core \
       widgets \
       printsupport \
 
-SOURCES += ../source/main.cpp \
-    ../source/fem/elements/Element.cpp \
-    ../source/gui/MainWindow.cpp \
-    ../source/fem/System.cpp \
+SOURCES += \
     ../source/external/qcustomplot/qcustomplot.cpp \
-    ../source/gui/BowEditor.cpp \
-    ../source/gui/CommentsDialog.cpp \
-    ../source/gui/DoubleView.cpp \
-    ../source/gui/IntegerView.cpp \
-    ../source/gui/NumberGroup.cpp \
+    ../source/fem/elements/Element.cpp \
+    ../source/fem/System.cpp \
+    ../source/gui/input/BowEditor.cpp \
+    ../source/gui/input/CommentsDialog.cpp \
+    ../source/gui/input/DoubleView.cpp \
+    ../source/gui/input/IntegerView.cpp \
+    ../source/gui/input/LimbViews.cpp \
+    ../source/gui/input/NumberGroup.cpp \
+    ../source/gui/input/SeriesView.cpp \
+    ../source/gui/input/SettingsDialog.cpp \
+    ../source/gui/output/OutputDialog.cpp \
+    ../source/gui/MainWindow.cpp \
     ../source/gui/Plot.cpp \
-    ../source/gui/SeriesView.cpp \
-    ../source/gui/SettingsDialog.cpp \
     ../source/gui/ProgressDialog.cpp \
     ../source/numerics/CubicSpline.cpp \
-    ../source/gui/OutputDialog.cpp \
-    ../source/gui/LimbViews.cpp
+    ../source/main.cpp
 
 HEADERS += \
+    ../source/external/qcustomplot/qcustomplot.h \
     ../source/fem/elements/BarElement.hpp \
-    ../source/fem/elements/MassElement.hpp \
     ../source/fem/elements/BeamElement.hpp \
+    ../source/fem/elements/ContactElement1D.hpp \
     ../source/fem/elements/Element.hpp \
-    ../source/gui/MainWindow.hpp \
-    ../source/gui/BowEditor.hpp \
+    ../source/fem/elements/MassElement.hpp \
     ../source/fem/Node.hpp \
     ../source/fem/System.hpp \
     ../source/fem/View.hpp \
-    ../source/numerics/Domain.hpp \
-    ../source/numerics/Units.hpp \
+    ../source/gui/input/BowEditor.hpp \
+    ../source/gui/input/CommentsDialog.hpp \
+    ../source/gui/input/DoubleView.hpp \
+    ../source/gui/input/IntegerView.hpp \
+    ../source/gui/input/LimbViews.hpp \
+    ../source/gui/input/NumberGroup.hpp \
+    ../source/gui/input/SeriesView.hpp \
+    ../source/gui/input/SettingsDialog.hpp \
+    ../source/gui/output/OutputDialog.hpp \
+    ../source/gui/MainWindow.hpp \
+    ../source/gui/Plot.hpp \
+    ../source/gui/ProgressDialog.hpp \
     ../source/model/BowModel.hpp \
-    ../source/model/OutputData.hpp \
-    ../source/numerics/SecantMethod.hpp \
-    ../source/fem/elements/ContactElement1D.hpp \
-    ../source/numerics/CubicSpline.hpp \
-    ../source/gui/Document.hpp \
-    ../source/gui/SettingsDialog.hpp \
-    ../source/gui/IntegerView.hpp \
+    ../source/model/DiscreteLimb.hpp \
     ../source/model/Document.hpp \
     ../source/model/InputData.hpp \
-    ../source/model/Document.hpp \
-    ../source/gui/DoubleView.hpp \
-    ../source/gui/NumberGroup.hpp \
-    ../source/numerics/Series.hpp \
-    ../source/gui/SeriesView.hpp \
-    ../source/gui/Plot.hpp \
+    ../source/model/OutputData.hpp \
     ../source/numerics/ArcCurve.hpp \
-    ../source/gui/CommentsDialog.hpp \
-    ../source/external/qcustomplot/qcustomplot.h \
-    ../source/gui/ProgressDialog.hpp \
+    ../source/numerics/CubicSpline.hpp \
     ../source/numerics/Curve.hpp \
+    ../source/numerics/Domain.hpp \
+    ../source/numerics/SecantMethod.hpp \
+    ../source/numerics/Series.hpp \
     ../source/numerics/TDMatrix.hpp \
-    ../source/gui/OutputDialog.hpp \
-    ../source/model/DiscreteLimb.hpp \
-    ../source/gui/LimbViews.hpp
+    ../source/numerics/Units.hpp
 
 RESOURCES += ../resources/resources.qrc

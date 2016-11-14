@@ -1,8 +1,8 @@
 #pragma once
-#include "../model/OutputData.hpp"
+#include "../../model/OutputData.hpp"
 #include <QtWidgets>
 
-#include "Plot.hpp"
+#include "../Plot.hpp"
 
 class OutputGrid: public QWidget
 {

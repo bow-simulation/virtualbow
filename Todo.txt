@@ -69,7 +69,10 @@ GUI
     * ShapePlot:
         
         * Make scrolling speed independent from number of data points
+
        !* Bug: Aspect ratio initially wrong, corrects itself after changing the parameter or resizing the window.
+
+       !* Show the complete bow (both halfs)?
 FEM
 ===
 
