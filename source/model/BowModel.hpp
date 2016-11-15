@@ -167,34 +167,97 @@ public:
         // Remove draw force    // Todo: Doesn't really belong in this method
         system.get_p(nodes_string[0].x) = 0.0;
 
-        double T = 0.1;
+        double T = 0.0;
+        double alpha = 1.5;     // Todo: Magic number // Todo: Make this a setting
+        auto sample = [&]()
+        {
+            get_bow_state(*output.dynamics);
+
+            // If brace height was not yet reached update estimate T
+            double u = system.get_u(node_arrow.x);
+            if(u > input.operation_brace_height)
+            {
+                double u0 = input.operation_draw_length;
+                double u1 = input.operation_brace_height;
+
+                if(u == u0)
+                    return true;
+
+                //T = system.get_time()*std::sqrt((u1 - u0)/(u - u0));    // Quadratic approximation
+                T = system.get_time()*std::acos(u1/u0)/std::acos(u/u0);    // Cosine approximation
+            }
+
+            task.setProgress(100.0*system.get_time()/(alpha*T));
+            return system.get_time() < alpha*T;
+        };
+
         double t = 0.0;
         double dt = 1e-4;
+        output.dynamics = std::unique_ptr<BowStates>(new BowStates());    // Todo: Why does std::make_unique<BowStates>() not work?
+        system.solve_dynamics(input.settings_step_factor, [&]()
+        {
+            if(system.get_time() >= t)
+            {
+                t += dt;
+                return sample() && !task.isCanceled();
+            }
+
+            return !task.isCanceled();
+        });
+    }
+
+    /*
+    void simulate_dynamics(TaskState& task)
+    {
+        // Adjust arrow contact based on static results
+        double max_penetration = 1e-4*(input.operation_draw_length - input.operation_brace_height);  // Todo: Magic number
+        double max_force = system.get_p(nodes_string[0].x);    // Todo: Better way to get static results, maybe pass reference.    // Todo: Assumes that max draw force is reached at end of draw
+        double kc = max_force/max_penetration;
+
+        double ml = input.operation_mass_arrow;
+        double mr = input.mass_string_center + elements_string[0].get_node_mass();  // Todo: Find better (less fragile) way to get this mass
+        double dc = 2.0*std::sqrt(kc*ml*mr/(ml + mr));
+
+        contact_arrow.set_stiffness(kc);
+        contact_arrow.set_damping(dc);
+        contact_arrow.set_one_sided(true);
+
+        // Remove draw force    // Todo: Doesn't really belong in this method
+        system.get_p(nodes_string[0].x) = 0.0;
+
+        double T = 0.0;
+        double dt = 1e-4;
+        double t = 0.0;
 
         double alpha = 1.5;     // Todo: Magic number // Todo: Make this a setting
 
         output.dynamics = std::unique_ptr<BowStates>(new BowStates());    // Todo: Why does std::make_unique<BowStates>() not work?
         system.solve_dynamics(input.settings_step_factor, [&]()
         {
-            if(system.get_time() > t + dt)
+            if(system.get_time() >= t)
             {
+                t += dt;
                 get_bow_state(*output.dynamics);
 
-                t = system.get_time();
+                // If brace height was not yet reached update estimate T
                 double u = system.get_u(node_arrow.x);
-
-                // If brace height not yet reached, estimate T
                 if(u > input.operation_brace_height)
                 {
-                    T = t*std::sqrt((input.operation_brace_height - input.operation_draw_length)/(u - input.operation_draw_length));
+                    double u0 = input.operation_draw_length;
+                    double u1 = input.operation_brace_height;
+
+                    //T = system.get_time()*std::sqrt((u1 - u0)/(u - u0));    // Quadratic approximation
+                    T = system.get_time()*std::acos(u1/u0)/std::acos(u/u0);    // Cosine approximation
                 }
 
-                task.setProgress(100.0*t/(alpha*T));
+                qInfo() << 100.0*system.get_time()/(alpha*T);
+                task.setProgress(100.0*system.get_time()/(alpha*T));
             }
 
-            return t < alpha*T && !task.isCanceled();
+            return std::isnan(T) || (system.get_time() < alpha*T && !task.isCanceled());
         });
     }
+    */
 
     void get_bow_state(BowStates& states) const
     {
