@@ -1,6 +1,6 @@
 #include "SettingsDialog.hpp"
 #include "NumberGroup.hpp"
-#include "../model/InputData.hpp"
+#include "../../model/InputData.hpp"
 
 SettingsDialog::SettingsDialog(QWidget* parent, InputData& data)
     : QDialog(parent)

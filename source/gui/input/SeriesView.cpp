@@ -1,5 +1,5 @@
 #include "SeriesView.hpp"
-#include "../numerics/Series.hpp"
+#include "../../numerics/Series.hpp"
 
 SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocItem<Series>& doc_item)
     : doc_item(doc_item)

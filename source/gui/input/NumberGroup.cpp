@@ -1,7 +1,7 @@
 #include "NumberGroup.hpp"
 #include "DoubleView.hpp"
 #include "IntegerView.hpp"
-#include "../model/InputData.hpp"
+#include "../../model/InputData.hpp"
 
 NumberGroup::NumberGroup(InputData& data, const QString& title)
     : QGroupBox(title),

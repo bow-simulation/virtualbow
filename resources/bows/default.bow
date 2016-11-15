@@ -2,7 +2,7 @@
     "settings": {
         "n_elements_limb": 25,
         "n_elements_string": 25,
-        "n_draw_steps": 25,
+        "n_draw_steps": 50,
         "step_factor": 0.5
     },
     "masses": {
@@ -13,12 +13,12 @@
     "operation": {
         "brace_height": 0.2,
         "draw_length": 0.7,
-        "mass_arrow": 0.02
+        "mass_arrow": 0.03
     },
     "string": {
-        "strand_stiffness": 3100.0,
-        "strand_density": 0.05,
-        "n_strands": 10.0
+        "strand_stiffness": 3500.0,
+        "strand_density": 0.0005,
+        "n_strands": 12.0
     },
     "sections": {
         "width": {
@@ -27,10 +27,10 @@
         },
         "height": {
             "args": [0.0,1.0],
-            "vals": [0.01,0.008]
+            "vals": [0.015,0.01]
         },
-        "rho": 500.0,
-        "E": 40000000000.0
+        "rho": 600.0,
+        "E": 15000000000.0
     },
     "profile": {
         "segments": {
@@ -38,7 +38,7 @@
             "vals": [-0.4,1.0,4.0]
         },
         "offset_x": 0.0,
-        "offset_y": 0.0,
+        "offset_y": 0.1,
         "angle": 0.0
     },
     "meta": {

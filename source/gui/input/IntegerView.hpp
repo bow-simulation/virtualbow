@@ -1,5 +1,5 @@
 #pragma once
-#include "../model/Document.hpp"
+#include "../../model/Document.hpp"
 #include <QtWidgets>
 
 class IntegerView: public QSpinBox

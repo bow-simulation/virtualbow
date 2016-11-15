@@ -149,14 +149,44 @@ public:
 
     void simulate_dynamics(TaskState& task)
     {
+        // Adjust arrow contact based on static results
+        double max_penetration = 1e-4*(input.operation_draw_length - input.operation_brace_height);  // Todo: Magic number
+        double max_force = system.get_p(nodes_string[0].x);    // Todo: Better way to get static results, maybe pass reference.    // Todo: Assumes that max draw force is reached at end of draw
+        double kc = max_force/max_penetration;
+
+        double ml = input.operation_mass_arrow;
+        double mr = input.mass_string_center + elements_string[0].get_node_mass();  // Todo: Find better (less fragile) way to get this mass
+        double dc = 2.0*std::sqrt(kc*ml*mr/(ml + mr));
+
+        contact_arrow.set_stiffness(kc);
+        contact_arrow.set_damping(dc);
+        contact_arrow.set_one_sided(true);
+
+        // Remove draw force    // Todo: Doesn't really belong in this method
+        system.get_p(nodes_string[0].x) = 0.0;
+
+        double T = 0.1;
+        double t = 0.0;
+        double dt = 1e-4;
+
         output.dynamics = std::unique_ptr<BowStates>(new BowStates());    // Todo: Why does std::make_unique<BowStates>() not work?
+        system.solve_dynamics(input.settings_step_factor, [&]()
+        {
+            if(system.get_time() > t + dt)
+            {
+                get_bow_state(*output.dynamics);
+                t = system.get_time();
+            }
+
+            return t < T;
+        });
     }
 
     void get_bow_state(BowStates& states) const
     {
         states.time.push_back(system.get_time());
         states.draw_force.push_back(system.get_p(nodes_string[0].x));
-        states.pos_string_center.push_back(system.get_u(nodes_string[0].x));
+        states.draw_length.push_back(system.get_u(nodes_string[0].x));
         states.pos_arrow.push_back(system.get_u(node_arrow.x));
 
         states.pos_limb_x.push_back({});

@@ -63,6 +63,8 @@ HEADERS += \
     ../source/numerics/SecantMethod.hpp \
     ../source/numerics/Series.hpp \
     ../source/numerics/TDMatrix.hpp \
-    ../source/numerics/Units.hpp
+    ../source/numerics/Units.hpp \
+    ../source/gui/output/OutputGrid.hpp \
+    ../source/gui/output/ShapePlot.hpp
 
 RESOURCES += ../resources/resources.qrc

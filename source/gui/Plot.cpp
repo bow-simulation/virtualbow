@@ -44,13 +44,10 @@ Plot::Plot(const QString& lbx, const QString& lby, Align align)
 
     x_axis->setVisible(true);
     y_axis->setVisible(true);
-
     x_axis->grid()->setVisible(true);
     y_axis->grid()->setVisible(true);
-
     x_axis->setLabel(lbx);
     y_axis->setLabel(lby);
-
     x_axis->setUpperEnding(QCPLineEnding::esFlatArrow);
     y_axis->setUpperEnding(QCPLineEnding::esFlatArrow);
 

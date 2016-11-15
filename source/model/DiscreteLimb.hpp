@@ -48,8 +48,7 @@ struct DiscreteLimb
         Series w = CubicSpline::sample(input.sections_width, input.settings_n_elements_limb);
         Series h = CubicSpline::sample(input.sections_height, input.settings_n_elements_limb);
 
-        int n_nodes = input.settings_n_elements_limb + 1;
-        for(int i = 0; i < n_nodes; ++i)
+        for(int i = 0; i < s.size(); ++i)
         {
             double w_i = w.val(i);
             double h_i = h.val(i);

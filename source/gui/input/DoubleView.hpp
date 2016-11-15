@@ -1,5 +1,5 @@
 #pragma once
-#include "../model/Document.hpp"
+#include "../../model/Document.hpp"
 #include <QtWidgets>
 
 class DoubleView: public QLineEdit
@@ -12,5 +12,5 @@ private:
     Connection connection;
 
     void setValue(double value);
-    double getValue() const;
+    void getValue(bool correct);
 };

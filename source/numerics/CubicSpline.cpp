@@ -61,6 +61,7 @@ double CubicSpline::arg_max() const
     return t.back();
 }
 
+// n: Number of segments
 Series CubicSpline::sample(const Series& nodes, unsigned n)
 {
     CubicSpline spline(nodes);
@@ -69,9 +70,9 @@ Series CubicSpline::sample(const Series& nodes, unsigned n)
     double t1 = spline.t.back();
 
     Series data;
-    for(size_t i = 0; i < n; ++i)
+    for(size_t i = 0; i <= n; ++i)
     {
-        double p = double(i)/double(n - 1);
+        double p = double(i)/double(n);
         double t = t0*(1.0-p) + t1*p;
 
         data.push_back(t, spline(t));

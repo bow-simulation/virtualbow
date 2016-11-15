@@ -1,25 +1,24 @@
 #include "DoubleView.hpp"
-#include "../numerics/Domain.hpp"
 
 DoubleView::DoubleView(DocItem<double>& doc_item)
     : doc_item(doc_item)
 {
     connection = doc_item.connect([this](const double& value)
     {
-        setValue(value);
+        if(!this->hasFocus())
+        {
+            setValue(value);
+        }
+    });
+
+    QObject::connect(this, &QLineEdit::textEdited, [this]()
+    {
+        getValue(false);
     });
 
     QObject::connect(this, &QLineEdit::editingFinished, [this]()
     {
-        try
-        {
-            double value = getValue();
-            this->doc_item = value;
-        }
-        catch(const std::runtime_error&)
-        {
-            setValue(this->doc_item);
-        }
+        getValue(true);
     });
 }
 
@@ -28,16 +27,18 @@ void DoubleView::setValue(double value)
     this->setText(QLocale::c().toString(value, 'g', 15));    // Todo: Magic number
 }
 
-double DoubleView::getValue() const
+void DoubleView::getValue(bool correct)
 {
-    bool ok;
-    double value = QLocale::c().toDouble(this->text(), &ok);
+    bool success;
+    double value = QLocale::c().toDouble(this->text(), &success);
 
-    if(!ok)
+    if(success)
     {
-        throw std::runtime_error("Cannot convert inout to number");
+        this->doc_item = value;
     }
-
-    return value;
+    else if(correct)
+    {
+        setValue(this->doc_item);
+    }
 }
 

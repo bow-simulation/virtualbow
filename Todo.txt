@@ -73,6 +73,13 @@ GUI
        !* Bug: Aspect ratio initially wrong, corrects itself after changing the parameter or resizing the window.
 
        !* Show the complete bow (both halfs)?
+
+   * Parameters are not updated when the simulation button is pressed while still editing.
+     (Solution: Update document already while typing as long as the input is valid. Fixed for DoubleView, Todo: SeriesView)
+     Todo: (DoubleView, IntegerView) Remember entry before editing and revert to that in case of invalid input. That way
+     a value that makes sense is used instead of the last digit of some deleted input.
+
+
 FEM
 ===
 
@@ -84,6 +91,8 @@ FEM
     * Make system simulation methods return bool to indicate success instead of throwing exceptions.
       Then throw exceptions with domain-specific error messages in model code.
 
+    * Unify the static solution methods: Implement one method with arbitrary constraint. Load control and displacement control are special cases of this.
+
 Model
 =====
 
@@ -92,6 +101,8 @@ Model
     * DocItem: value is default constructed and might not be valid until the DocItem is assigned a valid one. Perhaps express this with boost::optional.
 
     * Make it possible to omit detailed static simulation if only dynamics are needed?
+
+    * Add dynamic setting: Sampling time.
 
 General
 =======
@@ -108,11 +119,14 @@ General
 
     * Find a consistent style regarding this->
 
+    * How to avoid using ../../ in includes?
+
+    * Use the GUI editor to rid the code of layout stuff, etc... ?
+
 Bugs:
 =====
 
     * Why does every other simulation fail without any changes to the parameters and settings?
-
 
 Platform dependent
 ==================

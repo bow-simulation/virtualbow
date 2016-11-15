@@ -1,7 +1,7 @@
 #include "LimbViews.hpp"
-#include "../model/InputData.hpp"
-#include "../numerics/CubicSpline.hpp"
-#include "../numerics/ArcCurve.hpp"
+#include "../../model/InputData.hpp"
+#include "../../numerics/CubicSpline.hpp"
+#include "../../numerics/ArcCurve.hpp"
 
 SplineView::SplineView(const QString& lbx, const QString& lby, DocItem<Series>& doc_item)
     : Plot(lbx, lby)
