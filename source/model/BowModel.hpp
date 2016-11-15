@@ -11,6 +11,8 @@
 #include "../numerics/SecantMethod.hpp"
 #include "../gui/ProgressDialog.hpp"
 
+#include <boost/optional.hpp>
+
 class BowModel
 {
 public:
@@ -169,16 +171,28 @@ public:
         double t = 0.0;
         double dt = 1e-4;
 
+        double alpha = 1.5;     // Todo: Magic number // Todo: Make this a setting
+
         output.dynamics = std::unique_ptr<BowStates>(new BowStates());    // Todo: Why does std::make_unique<BowStates>() not work?
         system.solve_dynamics(input.settings_step_factor, [&]()
         {
             if(system.get_time() > t + dt)
             {
                 get_bow_state(*output.dynamics);
+
                 t = system.get_time();
+                double u = system.get_u(node_arrow.x);
+
+                // If brace height not yet reached, estimate T
+                if(u > input.operation_brace_height)
+                {
+                    T = t*std::sqrt((input.operation_brace_height - input.operation_draw_length)/(u - input.operation_draw_length));
+                }
+
+                task.setProgress(100.0*t/(alpha*T));
             }
 
-            return t < T;
+            return t < alpha*T && !task.isCanceled();
         });
     }
 
