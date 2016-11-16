@@ -27,7 +27,7 @@ public:
 
         auto tabs = new QTabWidget();
         tabs->addTab(plot, "Draw characteristics");
-        tabs->addTab(new ShapePlot(setup, statics, statics.draw_length, "Draw length:"), "Shapes");
+        tabs->addTab(new ShapePlot(setup, statics, statics.draw_length, "Draw length:", true), "Shapes");
         tabs->addTab(new QWidget(), "Stresses");
         vbox->addWidget(tabs);
     }
@@ -43,7 +43,7 @@ public:
 
         auto tabs = new QTabWidget();
         tabs->addTab(new QWidget(), "Shot characteristics");
-        tabs->addTab(new ShapePlot(setup, dynamics, dynamics.time, "Time:"), "Shapes");
+        tabs->addTab(new ShapePlot(setup, dynamics, dynamics.time, "Time:", false), "Shapes");
         tabs->addTab(new QWidget(), "Stresses");
         hbox->addWidget(tabs);
     }

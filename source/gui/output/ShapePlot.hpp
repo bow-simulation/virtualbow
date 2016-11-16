@@ -6,7 +6,7 @@
 class ShapePlot: public QWidget
 {
 public:
-    ShapePlot(const BowSetup& setup, const BowStates& states, const std::vector<double>& parameter, const QString& text)
+    ShapePlot(const BowSetup& setup, const BowStates& states, const std::vector<double>& parameter, const QString& text, bool show_steps)
         : states(states),
           parameter(parameter)
     {
@@ -18,11 +18,13 @@ public:
         plot->includeOrigin(true, true);
         vbox->addWidget(plot);
 
+        QPen pen_steps = show_steps ? QPen(QBrush(Qt::lightGray), 1) : Qt::NoPen;
+
         Series limb(setup.limb.y, setup.limb.x);
         plot->addSeries(limb);
         plot->addSeries(limb.flip(false));
-        plot->setLinePen(0, QPen(QBrush(Qt::lightGray), 1));
-        plot->setLinePen(1, QPen(QBrush(Qt::lightGray), 1));
+        plot->setLinePen(0, pen_steps);
+        plot->setLinePen(1, pen_steps);
 
         // "Stroboscope" plots during different draw lengths
         unsigned steps = 2; // Todo: Magic number
@@ -37,21 +39,25 @@ public:
             plot->addSeries(string);
             plot->addSeries(limb.flip(false));
             plot->addSeries(string.flip(false));
-            plot->setLinePen(plot->count()-4, QPen(QBrush(Qt::lightGray), 1));
-            plot->setLinePen(plot->count()-3, QPen(QBrush(Qt::lightGray), 1));
-            plot->setLinePen(plot->count()-2, QPen(QBrush(Qt::lightGray), 1));
-            plot->setLinePen(plot->count()-1, QPen(QBrush(Qt::lightGray), 1));
+            plot->setLinePen(plot->count()-4, pen_steps);
+            plot->setLinePen(plot->count()-3, pen_steps);
+            plot->setLinePen(plot->count()-2, pen_steps);
+            plot->setLinePen(plot->count()-1, pen_steps);
         }
 
         // Plot at user defined draw length
-        plot->addSeries();
-        plot->addSeries();
-        plot->addSeries();
-        plot->addSeries();
-        plot->setLinePen(plot->count()-4, QPen(QBrush(Qt::blue), 2));
-        plot->setLinePen(plot->count()-3, QPen(QBrush(Qt::blue), 1));
-        plot->setLinePen(plot->count()-2, QPen(QBrush(Qt::blue), 2));
-        plot->setLinePen(plot->count()-1, QPen(QBrush(Qt::blue), 1));
+        index_limb_a = plot->addSeries();
+        index_limb_b = plot->addSeries();
+        index_string_a = plot->addSeries();
+        index_string_b = plot->addSeries();
+        index_arrow = plot->addSeries();
+
+        plot->setLinePen(index_limb_a, QPen(QBrush(Qt::blue), 2));
+        plot->setLinePen(index_limb_b, QPen(QBrush(Qt::blue), 2));
+        plot->setLinePen(index_string_a, QPen(QBrush(Qt::blue), 1));
+        plot->setLinePen(index_string_b, QPen(QBrush(Qt::blue), 1));
+        plot->setLineStyle(index_arrow, QCPCurve::lsNone);
+        plot->setScatterStyle(index_arrow, QCPScatterStyle(QCPScatterStyle::ssPlus, Qt::red, 8));
 
         auto hbox = new QHBoxLayout();
         vbox->addLayout(hbox);
@@ -96,16 +102,23 @@ private:
     const std::vector<double>& parameter;
 
     Plot* plot;
+    size_t index_limb_a;
+    size_t index_limb_b;
+    size_t index_string_a;
+    size_t index_string_b;
+    size_t index_arrow;
 
     void setParameterIndex(int index)
     {
         Series limb(states.pos_limb_y[index], states.pos_limb_x[index]);
         Series string(states.pos_string_y[index], states.pos_string_x[index]);
+        Series arrow({0.0}, {states.pos_arrow[index]});
 
-        plot->setData(plot->count()-4, limb);
-        plot->setData(plot->count()-3, string);
-        plot->setData(plot->count()-2, limb.flip(false));
-        plot->setData(plot->count()-1, string.flip(false));
+        plot->setData(index_limb_a, limb);
+        plot->setData(index_limb_b, limb.flip(false));
+        plot->setData(index_string_a, string);
+        plot->setData(index_string_b, string.flip(false));
+        plot->setData(index_arrow, arrow);
         plot->replot();
     }
 };

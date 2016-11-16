@@ -72,7 +72,7 @@ GUI
 
        !* Bug: Aspect ratio initially wrong, corrects itself after changing the parameter or resizing the window.
 
-       !* Show the complete bow (both halfs)?
+       !* Don't include arrow in rescale
 
    * Parameters are not updated when the simulation button is pressed while still editing.
      (Solution: Update document already while typing as long as the input is valid. Fixed for DoubleView, Todo: SeriesView)
