@@ -7,7 +7,7 @@ class ShapePlot: public Plot
 {
 public:
     ShapePlot(const BowSetup& setup, const BowStates& states, bool show_steps)
-        : Plot("y", "x", Plot::Align::TopLeft),
+        : Plot("x", "y", Plot::Align::TopLeft),
           states(states)
     {
         this->fixAspectRatio(true);
@@ -15,7 +15,7 @@ public:
 
         QPen pen_steps = show_steps ? QPen(QBrush(Qt::lightGray), 1) : Qt::NoPen;
 
-        Series limb(setup.limb.y, setup.limb.x);
+        Series limb(setup.limb.x, setup.limb.y);
         this->addSeries(limb);
         this->addSeries(limb.flip(false));
         this->setLinePen(0, pen_steps);
@@ -27,8 +27,8 @@ public:
         {
             size_t j = i*(states.time.size()-1)/steps;
 
-            Series limb(states.pos_limb_y[j], states.pos_limb_x[j]);
-            Series string(states.pos_string_y[j], states.pos_string_x[j]);
+            Series limb(states.pos_limb_x[j], states.pos_limb_y[j]);
+            Series string(states.pos_string_x[j], states.pos_string_y[j]);
 
             this->addSeries(limb);
             this->addSeries(string);
@@ -58,8 +58,8 @@ public:
 
     void setShapeIndex(int index)
     {
-        Series limb(states.pos_limb_y[index], states.pos_limb_x[index]);
-        Series string(states.pos_string_y[index], states.pos_string_x[index]);
+        Series limb(states.pos_limb_x[index], states.pos_limb_y[index]);
+        Series string(states.pos_string_x[index], states.pos_string_y[index]);
         Series arrow({0.0}, {states.pos_arrow[index]});
 
         this->setData(index_limb_a, limb);

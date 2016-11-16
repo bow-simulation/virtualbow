@@ -54,9 +54,9 @@ ProfileEditor::ProfileEditor(InputData& data)
     vbox->addWidget(series_view);
 
     auto group_limb = new NumberGroup(data, "Offset");
-    group_limb->addRow("x:", data.profile_offset_x);
-    group_limb->addRow("y:", data.profile_offset_y);
-    group_limb->addRow("Angle:", data.profile_angle);
+    group_limb->addRow("x:", data.profile_x0);
+    group_limb->addRow("y:", data.profile_y0);
+    group_limb->addRow("Angle:", data.profile_phi0);
     vbox->addWidget(group_limb);
 
     auto plot = new ProfileView(data);

@@ -7,12 +7,12 @@ class ArcCurve
 public:
     // n: Number of sampling steps. For n = 0 the segment nodes are calculated instead.
     // alpha: Angle between curve and y-axis
-    static Curve sample(const Series& segments, double x0, double y0, double alpha, unsigned n)
+    static Curve sample(const Series& segments, double x0, double y0, double phi0, unsigned n)
     {
         if(n == 0)
         {
             Curve nodes;
-            nodes.add_point({0.0, x0, y0, alpha +  M_PI_2});
+            nodes.add_point({0.0, x0, y0, phi0});
 
             for(size_t i = 0; i < segments.size(); ++i)
             {
@@ -25,7 +25,7 @@ public:
         else
         {
             Curve curve;
-            Curve nodes = ArcCurve::sample(segments, x0, y0, alpha, 0);
+            Curve nodes = ArcCurve::sample(segments, x0, y0, phi0, 0);
             curve.add_point({nodes.s[0], nodes.x[0], nodes.y[0], nodes.phi[0]});
 
             // i: Segment

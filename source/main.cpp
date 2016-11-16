@@ -15,17 +15,3 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
-
-/*
-#include "model/BowModel.hpp"
-
-int main()
-{
-    InputData2 input;
-    input.load("../examples/layers.bow");
-
-    OutputData output = BowModel::simulate(input, true, true);
-
-    return 0;
-}
-*/

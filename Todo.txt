@@ -74,6 +74,9 @@ GUI
 
        !* Don't include arrow in rescale
 
+        * Bow should be horizontally centered (problem: aspect ratio)
+          Idea: Store an own set of (fixed) axis ranges and use them to set the ones from qcustomplot
+
    * Parameters are not updated when the simulation button is pressed while still editing.
      (Solution: Update document already while typing as long as the input is valid. Fixed for DoubleView, Todo: SeriesView)
      Todo: (DoubleView, IntegerView) Remember entry before editing and revert to that in case of invalid input. That way

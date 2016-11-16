@@ -62,8 +62,8 @@ public:
         double yt = system.get_u(nodes_limb.back().y);
 
         // String center at brace height
-        double xc = input.operation_brace_height;
-        double yc = 0.0;
+        double xc = 0.0;
+        double yc = input.operation_brace_height;
 
         // Create string nodes
         for(size_t i = 0; i < k; ++i)
@@ -72,17 +72,17 @@ public:
             double x = xc*(1.0 - p) + xt*p;
             double y = yc*(1.0 - p) + yt*p;
 
-            Node node = system.create_node({{x, y, 0.0}}, {{true, (i != 0), false}});
+            Node node = system.create_node({{x, y, 0.0}}, {{(i != 0), true, false}});
             nodes_string.push_back(node);
         }
         nodes_string.push_back(nodes_limb.back());
 
         // Create arrow node
-        node_arrow = system.create_node({{xc, yc, 0.0}}, {{true, false, false}});
+        node_arrow = system.create_node({{xc, yc, 0.0}}, {{false, true, false}});
 
         // Create string elements
-        double rhoA = input.string_n_strands*input.string_strand_density;
         double EA = input.string_n_strands*input.string_strand_stiffness;
+        double rhoA = input.string_n_strands*input.string_strand_density;
 
         for(size_t i = 0; i < k; ++i)
         {
@@ -103,7 +103,7 @@ public:
         mass_arrow = MassElement(node_arrow, 0.5*input.operation_mass_arrow);                   // 0.5 because of symmetric model
 
         // Arrow contact with default values for static analysis
-        contact_arrow = ContactElement1D(node_arrow, nodes_string[0], 1e5, 0.0); // Todo: Magic numbers
+        contact_arrow = ContactElement1D(nodes_string[0].y, node_arrow.y, 1e5, 0.0); // Todo: Magic numbers
 
         system.add_element(mass_limb_tip);
         system.add_element(mass_string_tip);
@@ -121,10 +121,10 @@ public:
                 element.set_length(L);
             }
 
-            Dof dof = nodes_string[0].x;
-            system.solve_statics_dc(dof, xc, 1);
+            Dof dof = nodes_string[0].y;
+            system.solve_statics_dc(dof, yc, 1);
 
-            return system.get_angle(nodes_string[0], nodes_string[1]) - M_PI/2;
+            return system.get_angle(nodes_string[0], nodes_string[1]);
         };
 
         // Todo: Perhaps limit the step size of the root finding algorithm to increase robustness.
@@ -139,10 +139,10 @@ public:
     void simulate_statics(TaskState& task)
     {
         output.statics = std::unique_ptr<BowStates>(new BowStates());    // Todo: Why does std::make_unique<BowStates>() not work?
-        system.solve_statics_dc(nodes_string[0].x, input.operation_draw_length, input.settings_n_draw_steps, [&]()   // Todo: Magic number
+        system.solve_statics_dc(nodes_string[0].y, input.operation_draw_length, input.settings_n_draw_steps, [&]()   // Todo: Magic number
         {
             get_bow_state(*output.statics);
-            task.setProgress((system.get_u(nodes_string[0].x) - input.operation_brace_height)/
+            task.setProgress((system.get_u(nodes_string[0].y) - input.operation_brace_height)/
                              (input.operation_draw_length - input.operation_brace_height)*100.0);
 
             return !task.isCanceled();
@@ -153,7 +153,7 @@ public:
     {
         // Adjust arrow contact based on static results
         double max_penetration = 1e-4*(input.operation_draw_length - input.operation_brace_height);  // Todo: Magic number
-        double max_force = system.get_p(nodes_string[0].x);    // Todo: Better way to get static results, maybe pass reference.    // Todo: Assumes that max draw force is reached at end of draw
+        double max_force = output.statics->draw_force.back();  // Todo: Assumes that max draw force is reached at end of draw
         double kc = max_force/max_penetration;
 
         double ml = input.operation_mass_arrow;
@@ -165,7 +165,7 @@ public:
         contact_arrow.set_one_sided(true);
 
         // Remove draw force    // Todo: Doesn't really belong in this method
-        system.get_p(nodes_string[0].x) = 0.0;
+        system.get_p(nodes_string[0].y) = 0.0;
 
         double T = 0.0;
         double alpha = input.settings_time_span_factor;     // Todo: Magic number // Todo: Make this a setting
@@ -174,8 +174,8 @@ public:
             get_bow_state(*output.dynamics);
 
             // If brace height was not yet reached update estimate T
-            double u = system.get_u(node_arrow.x);
-            if(u > input.operation_brace_height)
+            double u = system.get_u(node_arrow.y);
+            if(u >= input.operation_brace_height)
             {
                 double u0 = input.operation_draw_length;
                 double u1 = input.operation_brace_height;
@@ -206,65 +206,12 @@ public:
         });
     }
 
-    /*
-    void simulate_dynamics(TaskState& task)
-    {
-        // Adjust arrow contact based on static results
-        double max_penetration = 1e-4*(input.operation_draw_length - input.operation_brace_height);  // Todo: Magic number
-        double max_force = system.get_p(nodes_string[0].x);    // Todo: Better way to get static results, maybe pass reference.    // Todo: Assumes that max draw force is reached at end of draw
-        double kc = max_force/max_penetration;
-
-        double ml = input.operation_mass_arrow;
-        double mr = input.mass_string_center + elements_string[0].get_node_mass();  // Todo: Find better (less fragile) way to get this mass
-        double dc = 2.0*std::sqrt(kc*ml*mr/(ml + mr));
-
-        contact_arrow.set_stiffness(kc);
-        contact_arrow.set_damping(dc);
-        contact_arrow.set_one_sided(true);
-
-        // Remove draw force    // Todo: Doesn't really belong in this method
-        system.get_p(nodes_string[0].x) = 0.0;
-
-        double T = 0.0;
-        double dt = 1e-4;
-        double t = 0.0;
-
-        double alpha = 1.5;     // Todo: Magic number // Todo: Make this a setting
-
-        output.dynamics = std::unique_ptr<BowStates>(new BowStates());    // Todo: Why does std::make_unique<BowStates>() not work?
-        system.solve_dynamics(input.settings_step_factor, [&]()
-        {
-            if(system.get_time() >= t)
-            {
-                t += dt;
-                get_bow_state(*output.dynamics);
-
-                // If brace height was not yet reached update estimate T
-                double u = system.get_u(node_arrow.x);
-                if(u > input.operation_brace_height)
-                {
-                    double u0 = input.operation_draw_length;
-                    double u1 = input.operation_brace_height;
-
-                    //T = system.get_time()*std::sqrt((u1 - u0)/(u - u0));    // Quadratic approximation
-                    T = system.get_time()*std::acos(u1/u0)/std::acos(u/u0);    // Cosine approximation
-                }
-
-                qInfo() << 100.0*system.get_time()/(alpha*T);
-                task.setProgress(100.0*system.get_time()/(alpha*T));
-            }
-
-            return std::isnan(T) || (system.get_time() < alpha*T && !task.isCanceled());
-        });
-    }
-    */
-
     void get_bow_state(BowStates& states) const
     {
         states.time.push_back(system.get_time());
-        states.draw_force.push_back(system.get_p(nodes_string[0].x));
-        states.draw_length.push_back(system.get_u(nodes_string[0].x));
-        states.pos_arrow.push_back(system.get_u(node_arrow.x));
+        states.draw_force.push_back(system.get_p(nodes_string[0].y));
+        states.draw_length.push_back(system.get_u(nodes_string[0].y));
+        states.pos_arrow.push_back(system.get_u(node_arrow.y));
 
         states.pos_limb_x.push_back({});
         states.pos_limb_y.push_back({});

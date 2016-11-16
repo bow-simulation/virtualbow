@@ -1,10 +1,12 @@
 #pragma once
 #include "Element.hpp"
 
+// Todo: Generalise for other directions
 class ContactElement1D: public Element
 {
 private:
-    std::array<Node, 2> nodes;
+    Dof dof_upper;
+    Dof dof_lower;
 
     // Parameters
     bool one_sided;
@@ -16,8 +18,9 @@ private:
     double delta_v;
 
 public:
-    ContactElement1D(Node node0, Node node1, double k, double d)
-        : nodes{{node0, node1}},
+    ContactElement1D(Dof dof_upper, Dof dof_lower, double k, double d)
+        : dof_upper(dof_upper),
+          dof_lower(dof_lower),
           k(k),
           d(d),
           one_sided(false)
@@ -48,8 +51,8 @@ public:
 
     virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> v)
     {
-        delta_u = u(nodes[1].x) - u(nodes[0].x);
-        delta_v = v(nodes[1].x) - v(nodes[0].x);
+        delta_u = u(dof_upper) - u(dof_lower);
+        delta_v = v(dof_upper) - v(dof_lower);
     }
 
     virtual void get_masses(VectorView<Dof> M) const override
@@ -63,8 +66,8 @@ public:
         {
             double fc = k*delta_u + d*delta_v;  // Contact force
 
-            q(nodes[0].x) -= fc;
-            q(nodes[1].x) += fc;
+            q(dof_lower) -= fc;
+            q(dof_upper) += fc;
         }
     }
 
@@ -72,9 +75,9 @@ public:
     {
         if(!one_sided || delta_u < 0.0)
         {
-            K(nodes[0].x, nodes[0].x) += k;
-            K(nodes[1].x, nodes[1].x) += k;
-            K(nodes[0].x, nodes[1].x) -= k;
+            K(dof_lower, dof_lower) += k;
+            K(dof_upper, dof_upper) += k;
+            K(dof_lower, dof_upper) -= k;
         }
     }
 

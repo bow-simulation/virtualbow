@@ -27,6 +27,7 @@ void DoubleView::setValue(double value)
     this->setText(QLocale::c().toString(value, 'g', 15));    // Todo: Magic number
 }
 
+// Todo: Rewrite control structure
 void DoubleView::getValue(bool correct)
 {
     bool success;
@@ -34,7 +35,15 @@ void DoubleView::getValue(bool correct)
 
     if(success)
     {
-        this->doc_item = value;
+        try
+        {
+            this->doc_item = value;
+        }
+        catch(const std::runtime_error&)
+        {
+            if(correct)
+                setValue(this->doc_item);
+        }
     }
     else if(correct)
     {

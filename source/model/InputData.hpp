@@ -12,9 +12,9 @@ struct InputData: public Document
 
     // Profile
     DocItem<Series> profile_segments{this};
-    DocItem<double> profile_offset_x{this};
-    DocItem<double> profile_offset_y{this};
-    DocItem<double>    profile_angle{this};
+    DocItem<double> profile_x0{this};
+    DocItem<double> profile_y0{this};
+    DocItem<double>    profile_phi0{this};
 
     // Sections
     DocItem<Series>  sections_width{this};
@@ -64,9 +64,9 @@ struct InputData: public Document
         meta_version = obj["meta"]["version"].as<std::string>();
         meta_comments = obj["meta"]["comments"].as<std::string>();
         profile_segments = obj["profile"]["segments"].as<Series>();
-        profile_offset_x = obj["profile"]["offset_x"].as<double>();
-        profile_offset_y = obj["profile"]["offset_y"].as<double>();
-        profile_angle = obj["profile"]["angle"].as<double>();
+        profile_x0 = obj["profile"]["offset_x"].as<double>();
+        profile_y0 = obj["profile"]["offset_y"].as<double>();
+        profile_phi0 = obj["profile"]["angle"].as<double>();
         sections_width = obj["sections"]["width"].as<Series>();
         sections_height = obj["sections"]["height"].as<Series>();
         sections_rho = obj["sections"]["rho"].as<double>();
@@ -96,9 +96,9 @@ struct InputData: public Document
         obj["meta"]["version"] = std::string(meta_version);
         obj["meta"]["comments"] = std::string(meta_comments);
         obj["profile"]["segments"] = Series(profile_segments);
-        obj["profile"]["offset_x"] = double(profile_offset_x);
-        obj["profile"]["offset_y"] = double(profile_offset_y);
-        obj["profile"]["angle"] = double(profile_angle);
+        obj["profile"]["offset_x"] = double(profile_x0);
+        obj["profile"]["offset_y"] = double(profile_y0);
+        obj["profile"]["angle"] = double(profile_phi0);
         obj["sections"]["width"] = Series(sections_width);
         obj["sections"]["height"] = Series(sections_height);
         obj["sections"]["rho"] = double(sections_rho);

@@ -35,9 +35,9 @@ struct DiscreteLimb
     {
         // 1. Nodes
         Curve nodes = ArcCurve::sample(input.profile_segments,
-                                       input.profile_offset_x,
-                                       input.profile_offset_y,
-                                       input.profile_angle,
+                                       input.profile_x0,
+                                       input.profile_y0,
+                                       input.profile_phi0,
                                        input.settings_n_elements_limb);
 
         // Todo: Is there a more elegant way? Maybe have a Curve member?
