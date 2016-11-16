@@ -2,6 +2,8 @@
 #include "InputData.hpp"
 #include "../numerics/ArcCurve.hpp"
 #include "../numerics/CubicSpline.hpp"
+#include <vector>
+#include <array>
 
 // sigma(s) = He(s)*epsilon(s) + Hk(s)*kappa(s)
 struct DiscreteLayer

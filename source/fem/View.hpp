@@ -35,6 +35,7 @@ public:
     LocalVectorEntry<Key>& operator=(double rhs)
     {
         set(key, rhs);
+        return *this;
     }
 
     void operator+=(double rhs)
@@ -70,6 +71,17 @@ public:
     }
 
     // Write
+    template<class T>
+    LocalVectorView<Key, N>& operator=(const Eigen::MatrixBase<T>& rhs)
+    {
+        for(size_t i = 0; i < N; ++i)
+        {
+            set(keys[i], rhs(i));
+        }
+
+        return *this;
+    }
+
     template<class T>
     void operator+=(const Eigen::MatrixBase<T>& rhs)
     {
