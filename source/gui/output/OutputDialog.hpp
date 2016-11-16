@@ -3,6 +3,7 @@
 #include "../Plot.hpp"
 #include "OutputGrid.hpp"
 #include "ShapePlot.hpp"
+#include "Slider.hpp"
 #include <QtWidgets>
 
 class StaticOutput: public QWidget
@@ -22,14 +23,22 @@ public:
         grid->add(1, 2, "Storage ratio:", 0.0);
         vbox->addWidget(grid);
 
-        auto plot = new Plot("Draw length", "Draw force");
-        plot->addSeries({statics.draw_length, statics.draw_force});
+        auto plot_draw = new QWidget();
+        auto plot_shapes = new ShapePlot(setup, statics, true);
+        auto plot_stresses = new QWidget();
 
         auto tabs = new QTabWidget();
-        tabs->addTab(plot, "Draw characteristics");
-        tabs->addTab(new ShapePlot(setup, statics, statics.draw_length, "Draw length:", true), "Shapes");
-        tabs->addTab(new QWidget(), "Stresses");
+        tabs->addTab(plot_draw, "Draw characteristics");
+        tabs->addTab(plot_shapes, "Shapes");
+        tabs->addTab(plot_stresses, "Stresses");
         vbox->addWidget(tabs);
+
+        auto slider = new Slider(statics.draw_length, "Draw length:");
+        //QObject::connect(slider, &Slider::valueChanged, plot_draw, &ShapePlot::setShapeIndex);
+        QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setShapeIndex);
+        //QObject::connect(slider, &Slider::valueChanged, plot_stresses, &ShapePlot::setShapeIndex);
+        emit slider->valueChanged(0);
+        vbox->addWidget(slider);
     }
 };
 
@@ -38,14 +47,31 @@ class DynamicOutput: public QWidget
 public:
     DynamicOutput(const BowSetup& setup, const BowStates& dynamics)
     {
-        auto hbox = new QHBoxLayout();
-        this->setLayout(hbox);
+        auto vbox = new QVBoxLayout();
+        this->setLayout(vbox);
+
+        auto grid = new OutputGrid();
+        grid->add(0, 0, "Arrow velocity:", 0.0);
+        grid->add(1, 0, "Arrow energy:", 0.0);
+        grid->add(0, 1, "Efficiency:", 0.0);
+        vbox->addWidget(grid);
+
+        auto plot_shot = new QWidget();
+        auto plot_shapes = new ShapePlot(setup, dynamics, false);
+        auto plot_stresses = new QWidget();
 
         auto tabs = new QTabWidget();
-        tabs->addTab(new QWidget(), "Shot characteristics");
-        tabs->addTab(new ShapePlot(setup, dynamics, dynamics.time, "Time:", false), "Shapes");
-        tabs->addTab(new QWidget(), "Stresses");
-        hbox->addWidget(tabs);
+        tabs->addTab(plot_shot, "Shot characteristics");
+        tabs->addTab(plot_shapes, "Shapes");
+        tabs->addTab(plot_stresses, "Stresses");
+        vbox->addWidget(tabs);
+
+        auto slider = new Slider(dynamics.time, "Time:");
+        //QObject::connect(slider, &Slider::valueChanged, plot_draw, &ShapePlot::setShapeIndex);
+        QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setShapeIndex);
+        //QObject::connect(slider, &Slider::valueChanged, plot_stresses, &ShapePlot::setShapeIndex);
+        emit slider->valueChanged(0);
+        vbox->addWidget(slider);
     }
 };
 
@@ -65,8 +91,8 @@ public:
         tabs->addTab(output.dynamics ? new DynamicOutput(output.setup, *output.dynamics) : new QWidget(), "Dynamics");
         tabs->setTabEnabled(0, output.statics != nullptr);
         tabs->setTabEnabled(1, output.dynamics != nullptr);
-        tabs->setDocumentMode(true);
         tabs->setIconSize({24, 24});    // Todo: Magic numbers
+        tabs->setDocumentMode(true);
         vbox->addWidget(tabs, 1);
 
         // Todo: Better solution?

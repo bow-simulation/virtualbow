@@ -65,6 +65,7 @@ HEADERS += \
     ../source/numerics/TDMatrix.hpp \
     ../source/numerics/Units.hpp \
     ../source/gui/output/OutputGrid.hpp \
-    ../source/gui/output/ShapePlot.hpp
+    ../source/gui/output/ShapePlot.hpp \
+    ../source/gui/output/Slider.hpp
 
 RESOURCES += ../resources/resources.qrc
