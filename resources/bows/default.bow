@@ -1,9 +1,11 @@
 {
     "settings": {
-        "n_elements_limb": 25,
-        "n_elements_string": 25,
+        "n_elements_limb": 30,
+        "n_elements_string": 30,
         "n_draw_steps": 50,
-        "step_factor": 0.5
+        "time_span_factor": 1.5,
+        "time_step_factor": 0.5,
+        "sampling_time": 0.0001
     },
     "masses": {
         "string_center": 0.0,
@@ -43,6 +45,6 @@
     },
     "meta": {
         "version": "0.1.0",
-        "comments": ""
+        "comments": "jiuhlkm,\njij\n\njljkhgjghjgkgjkg\n"
     }
 }

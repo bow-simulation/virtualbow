@@ -41,7 +41,9 @@ struct InputData: public Document
     DocItem<int>   settings_n_elements_limb{this, &Domain<int>::pos};
     DocItem<int> settings_n_elements_string{this, &Domain<int>::pos};
     DocItem<int>      settings_n_draw_steps{this, &Domain<int>::pos};
-    DocItem<double>    settings_step_factor{this, &Domain<double>::pos};
+    DocItem<double>    settings_time_span_factor{this, &Domain<double>::pos};
+    DocItem<double>    settings_time_step_factor{this, &Domain<double>::pos};
+    DocItem<double>    settings_sampling_time{this, &Domain<double>::pos};
 
     InputData(const QString& path)
     {
@@ -81,7 +83,9 @@ struct InputData: public Document
         settings_n_elements_limb = obj["settings"]["n_elements_limb"].as<int>();
         settings_n_elements_string = obj["settings"]["n_elements_string"].as<int>();
         settings_n_draw_steps = obj["settings"]["n_draw_steps"].as<int>();
-        settings_step_factor = obj["settings"]["step_factor"].as<double>();
+        settings_time_span_factor = obj["settings"]["time_span_factor"].as<double>();
+        settings_time_step_factor = obj["settings"]["time_step_factor"].as<double>();
+        settings_sampling_time = obj["settings"]["sampling_time"].as<double>();
 
         this->setModified(false);
     }
@@ -111,7 +115,9 @@ struct InputData: public Document
         obj["settings"]["n_elements_limb"] = int(settings_n_elements_limb);
         obj["settings"]["n_elements_string"] = int(settings_n_elements_string);
         obj["settings"]["n_draw_steps"] = int(settings_n_draw_steps);
-        obj["settings"]["step_factor"] = double(settings_step_factor);
+        obj["settings"]["time_span_factor"] = double(settings_time_span_factor);
+        obj["settings"]["time_step_factor"] = double(settings_time_step_factor);
+        obj["settings"]["sampling_time"] = double(settings_sampling_time);
 
         QFile file(path);
         if(!file.open(QFile::WriteOnly | QFile::Text))

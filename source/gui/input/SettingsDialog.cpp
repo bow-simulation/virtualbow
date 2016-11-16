@@ -21,7 +21,9 @@ SettingsDialog::SettingsDialog(QWidget* parent, InputData& data)
 
     // Dynamics
     auto group_dynamics = new NumberGroup(data, "Dynamics");
-    group_dynamics->addRow("Step factor:", data.settings_step_factor);
+    group_dynamics->addRow("Time span factor:", data.settings_time_span_factor);
+    group_dynamics->addRow("Time step factor:", data.settings_time_step_factor);
+    group_dynamics->addRow("Sampling time:", data.settings_sampling_time);
     vbox->addWidget(group_dynamics);
 
     // OK Button
@@ -31,4 +33,13 @@ SettingsDialog::SettingsDialog(QWidget* parent, InputData& data)
 
     this->setWindowTitle("Settings");
     this->layout()->setSizeConstraint(QLayout::SetFixedSize);
+}
+
+// Keep dialog from closing on enter
+void SettingsDialog::keyPressEvent(QKeyEvent *evt)
+{
+    if(evt->key() == Qt::Key_Enter || evt->key() == Qt::Key_Return)
+        return;
+
+    QDialog::keyPressEvent(evt);
 }

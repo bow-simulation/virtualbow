@@ -168,7 +168,7 @@ public:
         system.get_p(nodes_string[0].x) = 0.0;
 
         double T = 0.0;
-        double alpha = 1.5;     // Todo: Magic number // Todo: Make this a setting
+        double alpha = input.settings_time_span_factor;     // Todo: Magic number // Todo: Make this a setting
         auto sample = [&]()
         {
             get_bow_state(*output.dynamics);
@@ -192,9 +192,9 @@ public:
         };
 
         double t = 0.0;
-        double dt = 1e-4;
+        double dt = input.settings_sampling_time;
         output.dynamics = std::unique_ptr<BowStates>(new BowStates());    // Todo: Why does std::make_unique<BowStates>() not work?
-        system.solve_dynamics(input.settings_step_factor, [&]()
+        system.solve_dynamics(input.settings_time_step_factor, [&]()
         {
             if(system.get_time() >= t)
             {

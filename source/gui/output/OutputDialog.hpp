@@ -101,6 +101,7 @@ private:
     {
         if(evt->key() == Qt::Key_Enter || evt->key() == Qt::Key_Return)
             return;
+
         QDialog::keyPressEvent(evt);
     }
 };
