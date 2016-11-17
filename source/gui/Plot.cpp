@@ -3,9 +3,10 @@
 
 Plot::Plot(const QString& lbx, const QString& lby, Align align)
     : plot(new QCustomPlot),
-      include_origin_x(false),
-      include_origin_y(false),
-      fix_aspect_ratio(false)
+      content_range_x(0.0, 1.0),
+      content_range_y(0.0, 1.0),
+      mode_x(ExpansionMode::None),
+      mode_y(ExpansionMode::None)
 {
     switch(align)
     {
@@ -61,46 +62,38 @@ Plot::Plot(const QString& lbx, const QString& lby, Align align)
 
     QObject::connect(plot, &QCustomPlot::beforeReplot, [this]()
     {
-        // Todo: Get rid of this function call and instead just calculate the axis ranges without applying them
-        // This way a rescale is not done every plot which makes enabling the user interactions above feasible
-        plot->rescaleAxes();
-
-        auto expand_axis = [this](QCPAxis* axis)
+        auto expand_axis = [](QCPAxis* axis, double size, ExpansionMode mode)
         {
-            auto r = axis->range();
-            r.expand(0.0);
-            axis->setRange(r);
+            switch(mode)
+            {
+            case ExpansionMode::None:
+                break;
+
+            case ExpansionMode::OneSided:
+                axis->setRangeUpper(axis->range().lower + size);
+                break;
+
+            case ExpansionMode::Symmetric:
+                double center = axis->range().center();
+                axis->setRangeLower(center - 0.5*size);
+                axis->setRangeUpper(center + 0.5*size);
+                break;
+            }
         };
 
-        if(include_origin_x)
-        {
-            expand_axis(x_axis);
-        }
+        double w = plot->axisRect(0)->width();
+        double h = plot->axisRect(0)->height();
 
-        if(include_origin_y)
-        {
-            expand_axis(y_axis);
-        }
+        double size_x = content_range_x.size();
+        double size_y = content_range_y.size();
 
-        if(fix_aspect_ratio)
-        {
-            double w = plot->axisRect(0)->width();
-            double h = plot->axisRect(0)->height();
+        x_axis->setRange(content_range_x);
+        y_axis->setRange(content_range_y);
 
-            double lx = x_axis->range().size();
-            double ly = y_axis->range().size();
-
-            if(h/w > ly/lx)
-            {
-                ly = h/w*lx;
-                y_axis->setRange(y_axis->range().lower, y_axis->range().lower + ly);
-            }
-            else
-            {
-                lx = w/h*ly;
-                x_axis->setRange(x_axis->range().lower, x_axis->range().lower + lx);
-            }
-        }
+        if(h/w > size_y/size_x)
+            expand_axis(y_axis, h/w*size_x, mode_y);
+        else
+            expand_axis(x_axis, w/h*size_y, mode_x);
 
         // Adjust axes such that the last label is drawn
         // Todo: Not a complete solution, only works for labels which have a "nice" value
@@ -164,6 +157,44 @@ void Plot::setScatterStyle(size_t i, QCPScatterStyle style)
     series[i]->setScatterStyle(style);
 }
 
+void Plot::setExpansionMode(ExpansionMode em_x, ExpansionMode em_y)
+{
+    mode_x = em_x;
+    mode_y = em_y;
+}
+
+void Plot::fitContent(bool include_origin_x, bool include_origin_y)
+{
+    content_range_x = QCPRange();
+    content_range_y = QCPRange();
+
+    for(auto s: series)
+    {
+        bool exists_x;
+        bool exists_y;
+        QCPRange range_x = s->getKeyRange(exists_x);
+        QCPRange range_y = s->getValueRange(exists_y);
+
+        if(exists_x)
+            content_range_x.expand(range_x);
+        if(exists_y)
+            content_range_y.expand(range_y);
+    }
+
+    auto include_origin = [this](QCPAxis* axis)
+    {
+        auto range = axis->range();
+        range.expand(0.0);
+        axis->setRange(range);
+    };
+
+    if(include_origin_x)
+        include_origin(x_axis);
+
+    if(include_origin_y)
+        include_origin(y_axis);
+}
+
 void Plot::replot()
 {
     plot->replot();
@@ -172,17 +203,6 @@ void Plot::replot()
 int Plot::count() const
 {
     return series.size();
-}
-
-void Plot::includeOrigin(bool x, bool y)
-{
-    include_origin_x = x;
-    include_origin_y = y;
-}
-
-void Plot::fixAspectRatio(bool value)
-{
-    fix_aspect_ratio = value;
 }
 
 void Plot::resizeEvent(QResizeEvent *event)

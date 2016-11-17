@@ -10,8 +10,7 @@ public:
         : Plot("x", "y", Plot::Align::TopLeft),
           states(states)
     {
-        this->fixAspectRatio(true);
-        this->includeOrigin(true, true);
+        this->setExpansionMode(ExpansionMode::Symmetric, ExpansionMode::OneSided);
 
         QPen pen_steps = show_steps ? QPen(QBrush(Qt::lightGray), 1) : Qt::NoPen;
 
@@ -39,6 +38,8 @@ public:
             this->setLinePen(this->count()-2, pen_steps);
             this->setLinePen(this->count()-1, pen_steps);
         }
+
+        this->fitContent(true, true);
 
         // Plot at user defined draw length
         index_limb_a = this->addSeries();

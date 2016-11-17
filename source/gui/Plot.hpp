@@ -4,6 +4,11 @@
 
 class Series;
 
+enum class ExpansionMode
+{
+    None, OneSided, Symmetric
+};
+
 class Plot: public QWidget
 {
 public:
@@ -18,21 +23,22 @@ public:
     void setLinePen(size_t i, const QPen& pen);
     void setScatterStyle(size_t i, QCPScatterStyle style);
 
+    void setExpansionMode(ExpansionMode em_x, ExpansionMode em_y);  // Todo: Naming
+    void fitContent(bool include_origin_x, bool include_origin_y);
     void replot();
     int count() const;
-
-    void includeOrigin(bool x, bool y);
-    void fixAspectRatio(bool value);
 
 private:
     QCustomPlot* plot;
     QCPAxis* x_axis;
     QCPAxis* y_axis;
 
+    QCPRange content_range_x;
+    QCPRange content_range_y;
+    ExpansionMode mode_x;
+    ExpansionMode mode_y;
+
     std::vector<QCPCurve*> series;
-    bool include_origin_x;
-    bool include_origin_y;
-    bool fix_aspect_ratio;
 
     virtual void resizeEvent(QResizeEvent *event) override;
     void copy();

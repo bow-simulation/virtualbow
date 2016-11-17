@@ -6,7 +6,6 @@
 SplineView::SplineView(const QString& lbx, const QString& lby, DocItem<Series>& doc_item)
     : Plot(lbx, lby)
 {
-    this->includeOrigin(false, true);
     this->addSeries();
     this->addSeries();
     this->setLineStyle(0, QCPCurve::lsNone);
@@ -26,6 +25,7 @@ SplineView::SplineView(const QString& lbx, const QString& lby, DocItem<Series>& 
             this->setData(1, Series());
         }
 
+        this->fitContent(false, true);
         this->replot();
     });
 }
@@ -34,8 +34,7 @@ ProfileView::ProfileView(InputData& data)
     : Plot("x", "y", Align::TopLeft),
       data(data)
 {
-    this->includeOrigin(true, false);
-    this->fixAspectRatio(true);
+    this->setExpansionMode(ExpansionMode::OneSided, ExpansionMode::OneSided);
 
     this->addSeries();
     this->addSeries();
@@ -76,5 +75,6 @@ void ProfileView::update()
         this->setData(1, Series());
     }
 
+    this->fitContent(true, false);
     this->replot();
 }
