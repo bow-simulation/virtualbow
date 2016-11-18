@@ -68,12 +68,10 @@ GUI
 
     * ShapePlot:
         
-        * Make scrolling speed independent from number of data points
+       !* Make scrolling speed independent from number of data points
 
-       !* Bug: Aspect ratio initially wrong, corrects itself after changing the parameter or resizing the window.
-
-        * Instead of using Plot::fitContents after the intermediate states have been plotted: Use actual minimum and maximum
-          axis values for all possible states to ensure all states fit on the plot.
+        * Bug: Aspect ratio initially wrong, corrects itself after changing the parameter or resizing the window.
+          (Note: This is not solved, it just doesn't occur anymore since the shape plot is the first tab.)
 
    * Parameters are not updated when the simulation button is pressed while still editing.
      (Solution: Update document already while typing as long as the input is valid. Fixed for DoubleView, Todo: SeriesView)
@@ -84,7 +82,7 @@ GUI
 FEM
 ===
 
-    * Find a way to prevent changing element properties during simulation. Could be done by having the system own
+    * Find a way to prevent changing the element properties during simulation. Could be done by having the system own
       the elements and only pass a const& of the system in the simulation callbacks.
 
     * Make simulation callbacks in System templates
@@ -137,3 +135,8 @@ Platform dependent
     * OS-X: Hide menu icons? (Application::setAttribute(Qt::AA_DontShowIconsInMenus, true))
 
    !* OS-X: How to set the displayed application name to sonething else than the filename?
+
+Ideas for Improvement
+=====================
+
+    * Slider in output window could have a go-to menu with options like "maximum limb stress", "arrow separation", "maximum string force", ...

@@ -7,19 +7,19 @@ class Series;
 
 struct Style
 {
-    QCPCurve::LineStyle line_style;
-    Qt::GlobalColor line_color;
-    int line_width;
-
-     QCPScatterStyle::ScatterShape scatter_style;
-    Qt::GlobalColor scatter_color;
-    int scatter_size;
+    QCPCurve::LineStyle line_style = QCPCurve::lsNone;
+    QPen line_pen = Qt::NoPen;
+    QBrush line_brush = Qt::NoBrush;
+    QCPScatterStyle scatter_style = QCPScatterStyle();
 
     // Line only
-    Style(Qt::GlobalColor line_color, int line_width);
+    static Style Line(QColor color, int width = 1);
+
+    // Brush only
+    static Style Brush(QColor color);
 
     // Scatter only
-    Style(QCPScatterStyle::ScatterShape scatter_style, Qt::GlobalColor scatter_color, int scatter_size);
+    static Style Scatter(QCPScatterStyle::ScatterShape shape, QColor color, int size = 6);
 };
 
 enum class ExpansionMode
@@ -35,7 +35,7 @@ public:
     Plot(const QString& lbx, const QString& lby, Align align = Align::BottomLeft);
 
     //size_t addSeries();
-    size_t addSeries(const Series& data = Series(), const Style& style = Style(Qt::blue, 1), const QString& name = QString());
+    size_t addSeries(const Series& data = Series(), const Style& style = Style::Line(Qt::blue), const QString& name = QString());
     void setData(size_t i, const Series& data);
     void setStyle(size_t i, const Style& style);
     void setName(size_t i, const QString& name);

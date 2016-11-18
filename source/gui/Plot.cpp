@@ -1,25 +1,25 @@
 #include "Plot.hpp"
 
-Style::Style(Qt::GlobalColor line_color, int line_width)
-    : line_style(QCPCurve::lsLine),
-      line_color(line_color),
-      line_width(line_width),
-      scatter_style(QCPScatterStyle::ssNone),
-      scatter_color(Qt::color0),
-      scatter_size(0)
+Style Style::Line(QColor color, int width)
 {
-
+    Style style;
+    style.line_style = QCPCurve::lsLine;
+    style.line_pen = QPen(QBrush(color), width);
+    return style;
 }
 
-Style::Style(QCPScatterStyle::ScatterShape scatter_style, Qt::GlobalColor scatter_color, int scatter_size)
-    : line_style(QCPCurve::lsNone),
-      line_color(Qt::color0),
-      line_width(0),
-      scatter_style(scatter_style),
-      scatter_color(scatter_color),
-      scatter_size(scatter_size)
+Style Style::Brush(QColor color)
 {
+    Style style;
+    style.line_brush = QBrush(color);
+    return style;
+}
 
+Style Style::Scatter(QCPScatterStyle::ScatterShape shape, QColor color, int size)
+{
+    Style style;
+    style.scatter_style = QCPScatterStyle(shape, color, size);
+    return style;
 }
 
 Plot::Plot(const QString& lbx, const QString& lby, Align align)
@@ -163,8 +163,9 @@ void Plot::setData(size_t i, const Series& data)
 void Plot::setStyle(size_t i, const Style& style)
 {
     series[i]->setLineStyle(style.line_style);
-    series[i]->setPen(QPen(QBrush(style.line_color), style.line_width));
-    series[i]->setScatterStyle(QCPScatterStyle(style.scatter_style, style.scatter_color, style.scatter_size));
+    series[i]->setPen(style.line_pen);
+    series[i]->setBrush(style.line_brush);
+    series[i]->setScatterStyle(style.scatter_style);
 }
 
 void Plot::setName(size_t i, const QString& name)

@@ -28,9 +28,9 @@ public:
         auto plot_stresses = new QWidget();
 
         auto tabs = new QTabWidget();
-        tabs->addTab(plot_draw, "Draw characteristics");
-        tabs->addTab(plot_shapes, "Shapes");
+        tabs->addTab(plot_shapes, "Shape");
         tabs->addTab(plot_stresses, "Stresses");
+        tabs->addTab(plot_draw, "Draw characteristics");
         vbox->addWidget(tabs);
 
         auto slider = new Slider(statics.draw_length, "Draw length:");
@@ -61,9 +61,9 @@ public:
         auto plot_stresses = new QWidget();
 
         auto tabs = new QTabWidget();
-        tabs->addTab(plot_shot, "Shot characteristics");
-        tabs->addTab(plot_shapes, "Shapes");
+        tabs->addTab(plot_shapes, "Shape");
         tabs->addTab(plot_stresses, "Stresses");
+        tabs->addTab(plot_shot, "Shot characteristics");
         vbox->addWidget(tabs);
 
         auto slider = new Slider(dynamics.time, "Time:");
@@ -97,7 +97,7 @@ public:
 
         // Todo: Better solution?
         // When a tab is set as disabled the icons are somehow converted to grayscale internally.
-        // So maybe there is no need to have an extra grey icon. Look at Qt source how they do it.
+        // Look at Qt source how they do that, maybe there is no need to have an extra grey version of the icon.
         auto set_icons = [tabs](int index)
         {
             switch(index)

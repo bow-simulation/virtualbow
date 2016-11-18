@@ -16,11 +16,11 @@ public:
             plotIntermediateSteps();
         }
 
-        limb_l = this->addSeries({}, {Qt::blue, 2});
-        limb_r = this->addSeries({}, {Qt::blue, 2});
-        string_l = this->addSeries({}, {Qt::blue, 1});
-        string_r = this->addSeries({}, {Qt::blue, 1});
-        arrow = this->addSeries({}, {QCPScatterStyle::ssPlus, Qt::red, 8});
+        limb_l = this->addSeries({}, Style::Line(Qt::blue, 2));
+        limb_r = this->addSeries({}, Style::Line(Qt::blue, 2));
+        string_l = this->addSeries({}, Style::Line(Qt::blue));
+        string_r = this->addSeries({}, Style::Line(Qt::blue));
+        arrow = this->addSeries({}, Style::Scatter(QCPScatterStyle::ssPlus, Qt::red, 10));
 
         this->setExpansionMode(ExpansionMode::Symmetric, ExpansionMode::OneSided);
         setContentRanges();
@@ -56,8 +56,8 @@ private:
     {
         // Unbraced state
         Series limb(setup.limb.x, setup.limb.y);
-        this->addSeries(limb, {Qt::lightGray, 1});
-        this->addSeries(limb.flip(false), {Qt::lightGray, 1});
+        this->addSeries(limb, Style::Line(Qt::lightGray));
+        this->addSeries(limb.flip(false), Style::Line(Qt::lightGray));
 
         // Stroboscope-like plots during different states
         unsigned steps = 2; // Todo: Magic number
@@ -68,10 +68,10 @@ private:
             Series limb(states.pos_limb_x[j], states.pos_limb_y[j]);
             Series string(states.pos_string_x[j], states.pos_string_y[j]);
 
-            this->addSeries(limb, {Qt::lightGray, 1});
-            this->addSeries(string, {Qt::lightGray, 1});
-            this->addSeries(limb.flip(false), {Qt::lightGray, 1});
-            this->addSeries(string.flip(false), {Qt::lightGray, 1});
+            this->addSeries(limb, Style::Line(Qt::lightGray));
+            this->addSeries(string, Style::Line(Qt::lightGray));
+            this->addSeries(limb.flip(false), Style::Line(Qt::lightGray));
+            this->addSeries(string.flip(false), Style::Line(Qt::lightGray));
         }
     }
 
