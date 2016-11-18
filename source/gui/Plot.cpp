@@ -1,5 +1,26 @@
 #include "Plot.hpp"
-#include "../numerics/Series.hpp"
+
+Style::Style(Qt::GlobalColor line_color, int line_width)
+    : line_style(QCPCurve::lsLine),
+      line_color(line_color),
+      line_width(line_width),
+      scatter_style(QCPScatterStyle::ssNone),
+      scatter_color(Qt::color0),
+      scatter_size(0)
+{
+
+}
+
+Style::Style(QCPScatterStyle::ScatterShape scatter_style, Qt::GlobalColor scatter_color, int scatter_size)
+    : line_style(QCPCurve::lsNone),
+      line_color(Qt::color0),
+      line_width(0),
+      scatter_style(scatter_style),
+      scatter_color(scatter_color),
+      scatter_size(scatter_size)
+{
+
+}
 
 Plot::Plot(const QString& lbx, const QString& lby, Align align)
     : plot(new QCustomPlot),
@@ -83,7 +104,6 @@ Plot::Plot(const QString& lbx, const QString& lby, Align align)
 
         double w = plot->axisRect(0)->width();
         double h = plot->axisRect(0)->height();
-
         double size_x = content_range_x.size();
         double size_y = content_range_y.size();
 
@@ -119,19 +139,17 @@ Plot::Plot(const QString& lbx, const QString& lby, Align align)
     QObject::connect(shortcut_copy, &QShortcut::activated, this, &Plot::copy);
 }
 
-size_t Plot::addSeries()
+size_t Plot::addSeries(const Series& data, const Style& style, const QString& name)
 {
     auto curve = new QCPCurve(x_axis, y_axis);
     curve->setScatterSkip(0);
     series.push_back(curve);
 
-    return count()-1;
-}
+    size_t index = series.size() - 1;
+    setData(index, data);
+    setStyle(index, style);
+    setName(index, name);
 
-size_t Plot::addSeries(const Series& data)
-{
-    size_t index = addSeries();
-    setData(series.size()-1, data);
     return index;
 }
 
@@ -142,19 +160,16 @@ void Plot::setData(size_t i, const Series& data)
     series[i]->setData(x, y);
 }
 
-void Plot::setLineStyle(size_t i, QCPCurve::LineStyle style)
+void Plot::setStyle(size_t i, const Style& style)
 {
-    series[i]->setLineStyle(style);
+    series[i]->setLineStyle(style.line_style);
+    series[i]->setPen(QPen(QBrush(style.line_color), style.line_width));
+    series[i]->setScatterStyle(QCPScatterStyle(style.scatter_style, style.scatter_color, style.scatter_size));
 }
 
-void Plot::setLinePen(size_t i, const QPen& pen)
+void Plot::setName(size_t i, const QString& name)
 {
-    series[i]->setPen(pen);
-}
-
-void Plot::setScatterStyle(size_t i, QCPScatterStyle style)
-{
-    series[i]->setScatterStyle(style);
+    series[i]->setName(name);
 }
 
 void Plot::setExpansionMode(ExpansionMode em_x, ExpansionMode em_y)
@@ -195,14 +210,15 @@ void Plot::fitContent(bool include_origin_x, bool include_origin_y)
         include_origin(y_axis);
 }
 
+void Plot::setContentRanges(const QCPRange& rx, const QCPRange& ry)
+{
+    content_range_x = rx;
+    content_range_y = ry;
+}
+
 void Plot::replot()
 {
     plot->replot();
-}
-
-int Plot::count() const
-{
-    return series.size();
 }
 
 void Plot::resizeEvent(QResizeEvent *event)

@@ -1,8 +1,26 @@
 #pragma once
 #include "../external/qcustomplot/qcustomplot.h"
+#include "../numerics/Series.hpp"
 #include <QtWidgets>
 
 class Series;
+
+struct Style
+{
+    QCPCurve::LineStyle line_style;
+    Qt::GlobalColor line_color;
+    int line_width;
+
+     QCPScatterStyle::ScatterShape scatter_style;
+    Qt::GlobalColor scatter_color;
+    int scatter_size;
+
+    // Line only
+    Style(Qt::GlobalColor line_color, int line_width);
+
+    // Scatter only
+    Style(QCPScatterStyle::ScatterShape scatter_style, Qt::GlobalColor scatter_color, int scatter_size);
+};
 
 enum class ExpansionMode
 {
@@ -16,17 +34,16 @@ public:
 
     Plot(const QString& lbx, const QString& lby, Align align = Align::BottomLeft);
 
-    size_t addSeries();
-    size_t addSeries(const Series& data);
+    //size_t addSeries();
+    size_t addSeries(const Series& data = Series(), const Style& style = Style(Qt::blue, 1), const QString& name = QString());
     void setData(size_t i, const Series& data);
-    void setLineStyle(size_t i, QCPCurve::LineStyle style);
-    void setLinePen(size_t i, const QPen& pen);
-    void setScatterStyle(size_t i, QCPScatterStyle style);
+    void setStyle(size_t i, const Style& style);
+    void setName(size_t i, const QString& name);
 
     void setExpansionMode(ExpansionMode em_x, ExpansionMode em_y);  // Todo: Naming
     void fitContent(bool include_origin_x, bool include_origin_y);
+    void setContentRanges(const QCPRange& rx, const QCPRange& ry);
     void replot();
-    int count() const;
 
 private:
     QCustomPlot* plot;

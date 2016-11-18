@@ -6,10 +6,8 @@
 SplineView::SplineView(const QString& lbx, const QString& lby, DocItem<Series>& doc_item)
     : Plot(lbx, lby)
 {
-    this->addSeries();
-    this->addSeries();
-    this->setLineStyle(0, QCPCurve::lsNone);
-    this->setScatterStyle(0, QCPScatterStyle(QCPScatterStyle::ssDisc, Qt::red, 6));
+    this->addSeries({}, {QCPScatterStyle::ssDisc, Qt::red, 6});
+    this->addSeries({}, {Qt::blue, 1});
 
     connection = doc_item.connect([this](const Series& input)
     {
@@ -35,11 +33,8 @@ ProfileView::ProfileView(InputData& data)
       data(data)
 {
     this->setExpansionMode(ExpansionMode::OneSided, ExpansionMode::OneSided);
-
-    this->addSeries();
-    this->addSeries();
-    this->setLineStyle(1, QCPCurve::lsNone);
-    this->setScatterStyle(1, QCPScatterStyle(QCPScatterStyle::ssDisc, Qt::red, 6));
+    this->addSeries({}, {Qt::blue, 1});
+    this->addSeries({}, {QCPScatterStyle::ssDisc, Qt::red, 6});
 
     // Todo: Use std::bind?
     // Todo: Inefficient and ugly
