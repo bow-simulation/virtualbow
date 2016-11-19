@@ -41,13 +41,15 @@ public:
         return 0.5*rhoA*L;
     }
 
-    virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> v)
+    virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> v) override
     {
         dx = u(nodes[1].x) - u(nodes[0].x);
         dy = u(nodes[1].y) - u(nodes[0].y);
 
         L_new = std::hypot(dx, dy);
         L_dot = 1.0/L_new*(dx*(v(nodes[1].x) - v(nodes[0].x)) + dy*(v(nodes[1].y) - v(nodes[0].y)));
+
+        Element::set_state(u, v);
     }
 
     virtual void get_masses(VectorView<Dof> M) const override

@@ -14,6 +14,12 @@ struct BowStates
     std::vector<double> draw_length;
     std::vector<double> draw_force;
 
+    std::vector<double> e_pot_limbs;
+    std::vector<double> e_kin_limbs;
+    std::vector<double> e_pot_string;
+    std::vector<double> e_kin_string;
+    std::vector<double> e_kin_arrow;
+
     std::vector<std::vector<double>> pos_limb_x;
     std::vector<std::vector<double>> pos_limb_y;
     std::vector<std::vector<double>> pos_string_x;

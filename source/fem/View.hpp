@@ -127,6 +127,11 @@ public:
 
     }
 
+    VectorView()
+    {
+
+    }
+
     // Multi index
     template<size_t N>
     LocalVectorView<Key, N> operator()(const std::array<Key, N>& keys)
@@ -226,6 +231,11 @@ private:
 public:
     MatrixView(std::function<void(Key, Key, double)> add)
         : add(add)
+    {
+
+    }
+
+    MatrixView()
     {
 
     }

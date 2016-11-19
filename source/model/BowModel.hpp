@@ -11,7 +11,7 @@
 #include "../numerics/SecantMethod.hpp"
 #include "../gui/ProgressDialog.hpp"
 
-#include <boost/optional.hpp>
+#include <algorithm>
 
 class BowModel
 {
@@ -212,6 +212,36 @@ public:
         states.draw_force.push_back(system.get_p(nodes_string[0].y));
         states.draw_length.push_back(system.get_u(nodes_string[0].y));
         states.pos_arrow.push_back(system.get_u(node_arrow.y));
+
+        // Energy limbs
+
+        double e_pot_limbs = 0.0;
+        double e_kin_limbs = 0.0;
+        mass_limb_tip.accumulate_energy(e_pot_limbs, e_kin_limbs);
+        for(auto& element: elements_limb)
+            element.accumulate_energy(e_pot_limbs, e_kin_limbs);
+
+        states.e_pot_limbs.push_back(e_pot_limbs);
+        states.e_pot_limbs.push_back(e_kin_limbs);
+
+        // Energy string
+
+        double e_pot_string = 0.0;
+        double e_kin_string = 0.0;
+        mass_string_tip.accumulate_energy(e_pot_string, e_kin_string);
+        mass_string_center.accumulate_energy(e_pot_string, e_kin_string);
+        contact_arrow.accumulate_energy(e_pot_string, e_kin_string);
+        for(auto& element: elements_string)
+            element.accumulate_energy(e_pot_string, e_kin_string);
+
+        states.e_pot_string.push_back(e_pot_string);
+        states.e_pot_string.push_back(e_kin_string);
+
+        // Energy arrow
+
+        states.e_kin_arrow.push_back(mass_arrow.get_kinetic_energy());
+
+        // Shapes
 
         states.pos_limb_x.push_back({});
         states.pos_limb_y.push_back({});

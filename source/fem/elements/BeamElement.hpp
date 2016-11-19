@@ -43,7 +43,7 @@ public:
              Cek, 2.0*Ckk, 4.0*Ckk;
     }
 
-    virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> /*v*/)
+    virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> v) override
     {
         dx = u(dofs[3]) - u(dofs[0]);
         dy = u(dofs[4]) - u(dofs[1]);
@@ -71,6 +71,8 @@ public:
         J << -j0, -j1, 0.0, j0,  j1, 0.0,
              -j3,  j2, 1.0, j3, -j2, 0.0,
              -j3,  j2, 0.0, j3, -j2, 1.0;
+
+        Element::set_state(u, v);
     }
 
     virtual void get_masses(VectorView<Dof> M) const override
