@@ -12,10 +12,10 @@ public:
           parameter(parameter),
           energy_sum(parameter.size(), 0.0)
     {
-        addEnergy(states.e_pot_limbs, QColor(0, 0, 255, 150), "Limbs (Pot.)");
-        addEnergy(states.e_kin_limbs, QColor(40, 40, 255, 150), "Limbs (Kin.)");
-        addEnergy(states.e_pot_string, QColor(255, 0, 255, 150), "String (Pot.)");
-        addEnergy(states.e_kin_string, QColor(255, 40, 255, 150), "String (Kin.)");
+        addEnergy(states.e_pot_limbs, QColor(50, 50, 255, 150), "Limbs (Pot.)");
+        addEnergy(states.e_kin_limbs, QColor(0, 0, 255, 150), "Limbs (Kin.)");
+        addEnergy(states.e_pot_string, QColor(255, 50, 255, 150), "String (Pot.)");
+        addEnergy(states.e_kin_string, QColor(255, 0, 255, 150), "String (Kin.)");
         addEnergy(states.e_kin_arrow, QColor(255, 0, 0, 150), "Arrow (Kin.)");
 
         this->fitContent(true, true);

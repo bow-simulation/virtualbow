@@ -172,33 +172,21 @@ void Plot::setName(size_t i, const QString& name)
 {
     series[i]->setName(name);
 
-    if(!name.isEmpty())
-    {
-        plot->legend->setVisible(true);
-    }
-
-    /*
     if(!name.isEmpty() && !plot->legend->visible())
     {
         plot->legend->setVisible(true);
         plot->legend->setFillOrder(QCPLayoutGrid::foColumnsFirst);
 
-        // plot->plotLayout()->insertRow(0);
-        // plot->plotLayout()->addElement(0, 0, plot->legend);
-        // plot->plotLayout()->setRowStretchFactor(0, 0.0);
-        // plot->plotLayout()->setRowStretchFactor(1, 1.0);
-
+        // Move legend at to the top outside of the plot
+        // http://qcustomplot.com/index.php/support/forum/63
         QCPLayoutGrid *subLayout = new QCPLayoutGrid;
-        QCPLayoutElement *dummyElement = new QCPLayoutElement;
-
         plot->plotLayout()->insertRow(0);
-        plot->plotLayout()->addElement(0, 0, subLayout); // add sub-layout in the cell to the right of the main axis rect
-
-        subLayout->addElement(0, 0, plot->legend); // add legend
-        subLayout->addElement(1, 0, dummyElement); // add dummy element below legend
-        subLayout->setRowStretchFactor(0, 0.01); // make legend cell (in row 0) take up as little vertical space as possible
+        plot->plotLayout()->addElement(0, 0, subLayout);
+        subLayout->addElement(0, 0, new QCPLayoutElement);
+        subLayout->addElement(0, 1, plot->legend);
+        subLayout->addElement(0, 2, new QCPLayoutElement);
+        plot->plotLayout()->setRowStretchFactor(0, 0.001);
     }
-    */
 }
 
 void Plot::setExpansionMode(ExpansionMode em_x, ExpansionMode em_y)

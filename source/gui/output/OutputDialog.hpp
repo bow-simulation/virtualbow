@@ -85,7 +85,7 @@ public:
         auto vbox = new QVBoxLayout();
         this->setLayout(vbox);
         this->setWindowTitle("Simulation results");
-        this->resize(900, 800);     // Todo: Magic numbers
+        this->resize(1000, 800);     // Todo: Magic numbers
 
         auto tabs = new QTabWidget();
         tabs->addTab(output.statics ? new StaticOutput(output.setup, *output.statics) : new QWidget(), "Statics");

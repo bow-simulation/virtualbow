@@ -50,6 +50,8 @@ GUI
 
        !* Change the picking color? Or don't make all the curves blue?
 
+        * Make sure it uses the same locale as the rest of the program. (Currently not the case.)
+
     * SettingsDialog:
 
         * Width of the integer and double views should be the same. Last resort: Set default width of the  integer views.
