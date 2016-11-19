@@ -218,11 +218,15 @@ public:
         double e_pot_limbs = 0.0;
         double e_kin_limbs = 0.0;
         mass_limb_tip.accumulate_energy(e_pot_limbs, e_kin_limbs);
+
         for(auto& element: elements_limb)
             element.accumulate_energy(e_pot_limbs, e_kin_limbs);
 
+        e_pot_limbs *= 2.0;     // *2 for Symmetry
+        e_kin_limbs *= 2.0;     // *2 for Symmetry
+
         states.e_pot_limbs.push_back(e_pot_limbs);
-        states.e_pot_limbs.push_back(e_kin_limbs);
+        states.e_kin_limbs.push_back(e_kin_limbs);
 
         // Energy string
 
@@ -231,15 +235,19 @@ public:
         mass_string_tip.accumulate_energy(e_pot_string, e_kin_string);
         mass_string_center.accumulate_energy(e_pot_string, e_kin_string);
         contact_arrow.accumulate_energy(e_pot_string, e_kin_string);
+
         for(auto& element: elements_string)
             element.accumulate_energy(e_pot_string, e_kin_string);
 
+        e_pot_string *= 2.0;     // *2 for Symmetry
+        e_kin_string *= 2.0;     // *2 for Symmetry
+
         states.e_pot_string.push_back(e_pot_string);
-        states.e_pot_string.push_back(e_kin_string);
+        states.e_kin_string.push_back(e_kin_string);
 
         // Energy arrow
 
-        states.e_kin_arrow.push_back(mass_arrow.get_kinetic_energy());
+        states.e_kin_arrow.push_back(2.0*mass_arrow.get_kinetic_energy());  // *2 for Symmetry
 
         // Shapes
 

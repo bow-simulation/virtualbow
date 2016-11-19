@@ -66,6 +66,7 @@ HEADERS += \
     ../source/numerics/Units.hpp \
     ../source/gui/output/OutputGrid.hpp \
     ../source/gui/output/ShapePlot.hpp \
-    ../source/gui/output/Slider.hpp
+    ../source/gui/output/Slider.hpp \
+    ../source/gui/output/EnergyPlot.hpp
 
 RESOURCES += ../resources/resources.qrc

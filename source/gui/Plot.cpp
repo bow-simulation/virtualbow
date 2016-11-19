@@ -171,6 +171,34 @@ void Plot::setStyle(size_t i, const Style& style)
 void Plot::setName(size_t i, const QString& name)
 {
     series[i]->setName(name);
+
+    if(!name.isEmpty())
+    {
+        plot->legend->setVisible(true);
+    }
+
+    /*
+    if(!name.isEmpty() && !plot->legend->visible())
+    {
+        plot->legend->setVisible(true);
+        plot->legend->setFillOrder(QCPLayoutGrid::foColumnsFirst);
+
+        // plot->plotLayout()->insertRow(0);
+        // plot->plotLayout()->addElement(0, 0, plot->legend);
+        // plot->plotLayout()->setRowStretchFactor(0, 0.0);
+        // plot->plotLayout()->setRowStretchFactor(1, 1.0);
+
+        QCPLayoutGrid *subLayout = new QCPLayoutGrid;
+        QCPLayoutElement *dummyElement = new QCPLayoutElement;
+
+        plot->plotLayout()->insertRow(0);
+        plot->plotLayout()->addElement(0, 0, subLayout); // add sub-layout in the cell to the right of the main axis rect
+
+        subLayout->addElement(0, 0, plot->legend); // add legend
+        subLayout->addElement(1, 0, dummyElement); // add dummy element below legend
+        subLayout->setRowStretchFactor(0, 0.01); // make legend cell (in row 0) take up as little vertical space as possible
+    }
+    */
 }
 
 void Plot::setExpansionMode(ExpansionMode em_x, ExpansionMode em_y)

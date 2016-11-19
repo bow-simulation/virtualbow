@@ -3,6 +3,7 @@
 #include "../Plot.hpp"
 #include "OutputGrid.hpp"
 #include "ShapePlot.hpp"
+#include "EnergyPlot.hpp"
 #include "Slider.hpp"
 #include <QtWidgets>
 
@@ -23,20 +24,20 @@ public:
         grid->add(1, 2, "Storage ratio:", 0.0);
         vbox->addWidget(grid);
 
-        auto plot_draw = new QWidget();
         auto plot_shapes = new ShapePlot(setup, statics, true);
         auto plot_stresses = new QWidget();
+        auto plot_energy = new EnergyPlot(statics, statics.draw_length, "Draw length");
 
         auto tabs = new QTabWidget();
         tabs->addTab(plot_shapes, "Shape");
         tabs->addTab(plot_stresses, "Stresses");
-        tabs->addTab(plot_draw, "Draw characteristics");
+        tabs->addTab(plot_energy, "Energy");
         vbox->addWidget(tabs);
 
         auto slider = new Slider(statics.draw_length, "Draw length:");
-        //QObject::connect(slider, &Slider::valueChanged, plot_draw, &ShapePlot::setShapeIndex);
-        QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setShapeIndex);
-        //QObject::connect(slider, &Slider::valueChanged, plot_stresses, &ShapePlot::setShapeIndex);
+        //QObject::connect(slider, &Slider::valueChanged, plot_draw, &ShapePlot::setStateIndex);
+        QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
+        //QObject::connect(slider, &Slider::valueChanged, plot_stresses, &ShapePlot::setStateIndex);
         emit slider->valueChanged(0);
         vbox->addWidget(slider);
     }
@@ -56,20 +57,20 @@ public:
         grid->add(0, 1, "Efficiency:", 0.0);
         vbox->addWidget(grid);
 
-        auto plot_shot = new QWidget();
         auto plot_shapes = new ShapePlot(setup, dynamics, false);
         auto plot_stresses = new QWidget();
+        auto plot_energy = new EnergyPlot(dynamics, dynamics.time, "Time");
 
         auto tabs = new QTabWidget();
         tabs->addTab(plot_shapes, "Shape");
         tabs->addTab(plot_stresses, "Stresses");
-        tabs->addTab(plot_shot, "Shot characteristics");
+        tabs->addTab(plot_energy, "Energy");
         vbox->addWidget(tabs);
 
         auto slider = new Slider(dynamics.time, "Time:");
-        //QObject::connect(slider, &Slider::valueChanged, plot_draw, &ShapePlot::setShapeIndex);
-        QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setShapeIndex);
-        //QObject::connect(slider, &Slider::valueChanged, plot_stresses, &ShapePlot::setShapeIndex);
+        //QObject::connect(slider, &Slider::valueChanged, plot_draw, &ShapePlot::setStateIndex);
+        QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
+        //QObject::connect(slider, &Slider::valueChanged, plot_stresses, &ShapePlot::setStateIndex);
         emit slider->valueChanged(0);
         vbox->addWidget(slider);
     }

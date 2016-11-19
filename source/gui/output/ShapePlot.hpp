@@ -1,7 +1,6 @@
 #pragma once
 #include "../../model/OutputData.hpp"
 #include "../Plot.hpp"
-#include <QtWidgets>
 
 class ShapePlot: public Plot
 {
@@ -26,7 +25,7 @@ public:
         setContentRanges();
     }
 
-    void setShapeIndex(int index)
+    void setStateIndex(int index)
     {
         Series series_limb(states.pos_limb_x[index], states.pos_limb_y[index]);
         this->setData(limb_l, series_limb);
