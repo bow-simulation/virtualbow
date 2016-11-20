@@ -15,9 +15,6 @@ GUI
 
         * Display large numbers in engineering format (e+03, e+06, e+09, ...) instead of scientific
 
-    * IntegerView: Numbers are limited to two digits.
-
-
     * SeriesView:
         
         * Implement copy, cut and paste
@@ -34,15 +31,15 @@ GUI
 
     * Plot:
 
-        * Enable scrolling and zooming. Prerequisite: no call to rescaleAxes when fixing the aspect ratio.
+        * Enable scrolling and zooming.
 
-        * Add a contect menu action to reset the plot if user interaions are enabled.
+        * Add a contect menu action to reset the plot (only relevant if user interaions are enabled).
 
        !* Handle errors when exporting.
 
         * Can (and should) the file menus for plot export and the main one "remember" different locations?
 
-        * Allow selecting curves with left click which then also opens the context menu
+        * Allow selecting curves with right click which then also opens the context menu
 
         * Tick at axis end
 
@@ -52,15 +49,17 @@ GUI
 
         * Make sure it uses the same locale as the rest of the program. (Currently not the case.)
 
+        * Update to QCustomPlot 2.0 (currently beta)
+
     * SettingsDialog:
 
         * Width of the integer and double views should be the same. Last resort: Set default width of the  integer views.
 
+        * It would be good to have an option to restore the default values
+
     * Width and height plots: Show the actual arc length if a valid profile curve is defined. (Second x-Axis?)
 
    !* File path as program argument
-
-    * Replace the separate static and dynamic launch buttons with a QToolButton with arrow icon and a drop down menu for selection?
 
     * Set the executable icon
 
@@ -72,8 +71,8 @@ GUI
         
        !* Make scrolling speed independent from number of data points
 
-        * Bug: Aspect ratio initially wrong, corrects itself after changing the parameter or resizing the window.
-          (Note: This is not solved, it just doesn't occur anymore since the shape plot is the first tab.)
+       !* Bug: Aspect ratio initially wrong, corrects itself after changing the parameter or resizing the window.
+          (Note: This is not solved, it just doesn't occur anymore since the shape plot is the first tab. Switching tabs and enlarging the window still produce this.)
 
    * Parameters are not updated when the simulation button is pressed while still editing.
      (Solution: Update document already while typing as long as the input is valid. Fixed for DoubleView, Todo: SeriesView)
@@ -103,8 +102,6 @@ Model
 
     * Make it possible to omit detailed static simulation if only dynamics are needed?
 
-    * Add dynamic setting: Sampling time.
-
 General
 =======
 
@@ -122,17 +119,12 @@ General
 
     * How to avoid using ../../ in includes?
 
-    * Use the GUI editor to rid the code of layout stuff, etc... ?
-
-Bugs:
-=====
-
-    * Why does every other simulation fail without any changes to the parameters and settings?
+    * Use the GUI editor to rid the setup and layout code, etc... ?
 
 Platform dependent
 ==================
 
-    * Read OS-X Interface guidelines: https://developer.apple.com/library/content/documentation/UserExperience/Conceptual/OSXHIGuidelines/MenuIconsSymbols.html
+    * Look at OS-X Interface guidelines: https://developer.apple.com/library/content/documentation/UserExperience/Conceptual/OSXHIGuidelines/MenuIconsSymbols.html
 
     * OS-X: Hide menu icons? (Application::setAttribute(Qt::AA_DontShowIconsInMenus, true))
 

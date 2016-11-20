@@ -2,10 +2,10 @@
     "settings": {
         "n_elements_limb": 30,
         "n_elements_string": 30,
-        "n_draw_steps": 50,
+        "n_draw_steps": 150,
         "time_span_factor": 1.5,
         "time_step_factor": 0.5,
-        "sampling_time": 0.0001
+        "sampling_time": 1.0e-05
     },
     "masses": {
         "string_center": 0.0,

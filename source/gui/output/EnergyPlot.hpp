@@ -8,17 +8,17 @@ class EnergyPlot: public Plot
 public:
     EnergyPlot(const BowStates& states, const std::vector<double>& parameter, const QString& x_label)
         : Plot(x_label, "Energy"),
-          states(states),
           parameter(parameter),
           energy_sum(parameter.size(), 0.0)
     {
-        addEnergy(states.e_pot_limbs, QColor(50, 50, 255, 150), "Limbs (Pot.)");
-        addEnergy(states.e_kin_limbs, QColor(0, 0, 255, 150), "Limbs (Kin.)");
-        addEnergy(states.e_pot_string, QColor(255, 50, 255, 150), "String (Pot.)");
-        addEnergy(states.e_kin_string, QColor(255, 0, 255, 150), "String (Kin.)");
+        addEnergy(states.e_pot_limbs, QColor(0, 0, 255, 150), "Limbs (Pot.)");
+        addEnergy(states.e_kin_limbs, QColor(40, 40, 255, 150), "Limbs (Kin.)");
+        addEnergy(states.e_pot_string, QColor(128, 0, 128, 150), "String (Pot.)");
+        addEnergy(states.e_kin_string, QColor(128, 40, 128, 150), "String (Kin.)");
         addEnergy(states.e_kin_arrow, QColor(255, 0, 0, 150), "Arrow (Kin.)");
 
-        this->fitContent(true, true);
+        this->fitContent(false, true);
+        this->showIndicatorX(true);
     }
 
     void addEnergy(const std::vector<double>& energy, const QColor& color, const QString& name)
@@ -52,29 +52,26 @@ public:
         this->addSeries({loop_time, loop_energy}, Style::Brush(color), name);
 
         energy_sum = energy_sum_new;
+        added_energies.push_back(&energy);
+        added_names.push_back(name);
     }
 
-    /*
-    void setShapeIndex(int index)
+    void setStateIndex(int index)
     {
-        Series series_limb(states.pos_limb_x[index], states.pos_limb_y[index]);
-        this->setData(limb_l, series_limb);
-        this->setData(limb_r, series_limb.flip(false));
+        for(size_t i = 0; i < added_energies.size(); ++i)
+        {
+            QString value = QLocale::c().toString((*added_energies[i])[index], 'g', 5);
+            this->setName(i, added_names[i] + "\n" + value + " J");
+        }
 
-        Series series_string(states.pos_string_x[index], states.pos_string_y[index]);
-        this->setData(string_l, series_string);
-        this->setData(string_r, series_string.flip(false));
-
-        Series series_arrow({0.0}, {states.pos_arrow[index]});
-        this->setData(arrow, series_arrow);
-
+        this->setIndicatorX(parameter[index]);
         this->replot();
     }
-    */
 
 private:
-    const BowStates& states;
     const std::vector<double>& parameter;
-    std::vector<double> energy_sum;
 
+    std::vector<double> energy_sum;
+    std::vector<const std::vector<double>*> added_energies;
+    std::vector<QString> added_names;
 };

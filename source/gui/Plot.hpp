@@ -45,6 +45,11 @@ public:
     void setContentRanges(const QCPRange& rx, const QCPRange& ry);
     void replot();
 
+    void showIndicatorX(bool show);
+    void showIndicatorY(bool show);
+    void setIndicatorX(double x);
+    void setIndicatorY(double y);
+
 private:
     QCustomPlot* plot;
     QCPAxis* x_axis;
@@ -56,6 +61,9 @@ private:
     ExpansionMode mode_y;
 
     std::vector<QCPCurve*> series;
+
+    QCPItemStraightLine* indicator_x;
+    QCPItemStraightLine* indicator_y;
 
     virtual void resizeEvent(QResizeEvent *event) override;
     void copy();

@@ -33,7 +33,7 @@ ProfileView::ProfileView(InputData& data)
       data(data)
 {
     this->setExpansionMode(ExpansionMode::OneSided, ExpansionMode::OneSided);
-    this->addSeries({}, Style::Line(Qt::blue));
+    this->addSeries({}, Style::Line(Qt::blue, 2));
     this->addSeries({}, Style::Scatter(QCPScatterStyle::ssDisc, Qt::red));
 
     // Todo: Use std::bind?

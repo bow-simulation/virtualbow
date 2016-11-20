@@ -35,9 +35,8 @@ public:
         vbox->addWidget(tabs);
 
         auto slider = new Slider(statics.draw_length, "Draw length:");
-        //QObject::connect(slider, &Slider::valueChanged, plot_draw, &ShapePlot::setStateIndex);
         QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
-        //QObject::connect(slider, &Slider::valueChanged, plot_stresses, &ShapePlot::setStateIndex);
+        QObject::connect(slider, &Slider::valueChanged, plot_energy, &EnergyPlot::setStateIndex);
         emit slider->valueChanged(0);
         vbox->addWidget(slider);
     }
@@ -68,9 +67,8 @@ public:
         vbox->addWidget(tabs);
 
         auto slider = new Slider(dynamics.time, "Time:");
-        //QObject::connect(slider, &Slider::valueChanged, plot_draw, &ShapePlot::setStateIndex);
         QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
-        //QObject::connect(slider, &Slider::valueChanged, plot_stresses, &ShapePlot::setStateIndex);
+        QObject::connect(slider, &Slider::valueChanged, plot_energy, &EnergyPlot::setStateIndex);
         emit slider->valueChanged(0);
         vbox->addWidget(slider);
     }

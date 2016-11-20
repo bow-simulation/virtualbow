@@ -137,6 +137,24 @@ Plot::Plot(const QString& lbx, const QString& lby, Align align)
 
     auto shortcut_copy = new QShortcut(QKeySequence::Copy, plot);
     QObject::connect(shortcut_copy, &QShortcut::activated, this, &Plot::copy);
+
+    // Indicators
+
+    indicator_x = new QCPItemStraightLine(plot);
+    indicator_x->setPen({QColor(100, 100, 100)});
+    indicator_x->point1->setAxes(x_axis, y_axis);
+    indicator_x->point2->setAxes(x_axis, y_axis);
+    indicator_x->point1->setCoords(0.0, 0.0);
+    indicator_x->point2->setCoords(0.0, 1.0);
+    indicator_x->setVisible(false);
+
+    indicator_y = new QCPItemStraightLine(plot);
+    indicator_y->setPen({QColor(100, 100, 100)});
+    indicator_y->point1->setAxes(x_axis, y_axis);
+    indicator_y->point2->setAxes(x_axis, y_axis);
+    indicator_y->point1->setCoords(0.0, 0.0);
+    indicator_y->point2->setCoords(1.0, 0.0);
+    indicator_y->setVisible(false);
 }
 
 size_t Plot::addSeries(const Series& data, const Style& style, const QString& name)
@@ -200,31 +218,29 @@ void Plot::fitContent(bool include_origin_x, bool include_origin_y)
     content_range_x = QCPRange();
     content_range_y = QCPRange();
 
-    for(auto s: series)
+    for(size_t i = 0; i < series.size(); ++i)
     {
         bool exists_x;
         bool exists_y;
-        QCPRange range_x = s->getKeyRange(exists_x);
-        QCPRange range_y = s->getValueRange(exists_y);
+        QCPRange range_x = series[i]->getKeyRange(exists_x);
+        QCPRange range_y = series[i]->getValueRange(exists_y);
 
+        // Todo: More elegant control flow
         if(exists_x)
-            content_range_x.expand(range_x);
+        {
+            if(i == 0 && !include_origin_x)
+                content_range_x = range_x;
+            else
+                content_range_x.expand(range_x);
+        }
         if(exists_y)
-            content_range_y.expand(range_y);
+        {
+            if(i == 0 && !include_origin_y)
+                content_range_y = range_y;
+            else
+                content_range_y.expand(range_y);
+        }
     }
-
-    auto include_origin = [this](QCPAxis* axis)
-    {
-        auto range = axis->range();
-        range.expand(0.0);
-        axis->setRange(range);
-    };
-
-    if(include_origin_x)
-        include_origin(x_axis);
-
-    if(include_origin_y)
-        include_origin(y_axis);
 }
 
 void Plot::setContentRanges(const QCPRange& rx, const QCPRange& ry)
@@ -309,3 +325,24 @@ void Plot::exportDialog()
     }
 }
 
+void Plot::showIndicatorX(bool show)
+{
+    indicator_x->setVisible(show);
+}
+
+void Plot::showIndicatorY(bool show)
+{
+    indicator_y->setVisible(show);
+}
+
+void Plot::setIndicatorX(double x)
+{
+    indicator_x->point1->setCoords(x, 0.0);
+    indicator_x->point2->setCoords(x, 1.0);
+}
+
+void Plot::setIndicatorY(double y)
+{
+    indicator_y->point1->setCoords(0.0, y);
+    indicator_y->point2->setCoords(1.0, y);
+}
