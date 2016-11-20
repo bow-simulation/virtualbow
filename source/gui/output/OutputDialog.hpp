@@ -3,6 +3,7 @@
 #include "../Plot.hpp"
 #include "OutputGrid.hpp"
 #include "ShapePlot.hpp"
+#include "StressPlot.hpp"
 #include "EnergyPlot.hpp"
 #include "Slider.hpp"
 #include <QtWidgets>
@@ -25,17 +26,18 @@ public:
         vbox->addWidget(grid);
 
         auto plot_shapes = new ShapePlot(setup, statics, true);
-        auto plot_stresses = new QWidget();
+        auto plot_stress = new StressPlot(setup, statics);
         auto plot_energy = new EnergyPlot(statics, statics.draw_length, "Draw length");
 
         auto tabs = new QTabWidget();
         tabs->addTab(plot_shapes, "Shape");
-        tabs->addTab(plot_stresses, "Stresses");
+        tabs->addTab(plot_stress, "Stress");
         tabs->addTab(plot_energy, "Energy");
         vbox->addWidget(tabs);
 
         auto slider = new Slider(statics.draw_length, "Draw length:");
         QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
+        QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
         QObject::connect(slider, &Slider::valueChanged, plot_energy, &EnergyPlot::setStateIndex);
         emit slider->valueChanged(0);
         vbox->addWidget(slider);
@@ -57,17 +59,18 @@ public:
         vbox->addWidget(grid);
 
         auto plot_shapes = new ShapePlot(setup, dynamics, false);
-        auto plot_stresses = new QWidget();
+        auto plot_stress = new StressPlot(setup, dynamics);
         auto plot_energy = new EnergyPlot(dynamics, dynamics.time, "Time");
 
         auto tabs = new QTabWidget();
         tabs->addTab(plot_shapes, "Shape");
-        tabs->addTab(plot_stresses, "Stresses");
+        tabs->addTab(plot_stress, "Stress");
         tabs->addTab(plot_energy, "Energy");
         vbox->addWidget(tabs);
 
         auto slider = new Slider(dynamics.time, "Time:");
         QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
+        QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
         QObject::connect(slider, &Slider::valueChanged, plot_energy, &EnergyPlot::setStateIndex);
         emit slider->valueChanged(0);
         vbox->addWidget(slider);

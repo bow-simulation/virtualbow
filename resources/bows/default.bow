@@ -5,7 +5,7 @@
         "n_draw_steps": 150,
         "time_span_factor": 1.5,
         "time_step_factor": 0.5,
-        "sampling_time": 1.0e-05
+        "sampling_time": 2.0e-05
     },
     "masses": {
         "string_center": 0.0,
@@ -24,12 +24,12 @@
     },
     "sections": {
         "width": {
-            "args": [0.0,1.0],
-            "vals": [0.05,0.01]
+            "args": [0.0,0.25,0.5,0.75,1.0],
+            "vals": [0.05,0.048,0.042,0.03,0.01]
         },
         "height": {
             "args": [0.0,1.0],
-            "vals": [0.015,0.01]
+            "vals": [0.016,0.008]
         },
         "rho": 600.0,
         "E": 15000000000.0

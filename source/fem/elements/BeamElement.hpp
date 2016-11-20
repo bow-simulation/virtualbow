@@ -43,6 +43,18 @@ public:
              Cek, 2.0*Ckk, 4.0*Ckk;
     }
 
+    // p in [0, 1]
+    double get_epsilon(double p) const
+    {
+        return e(0)/L;
+    }
+
+    // p in [0, 1]
+    double get_kappa(double p) const
+    {
+        return (6.0*p - 4.0)/L*e(1) + (6.0*p - 2.0)/L*e(2);
+    }
+
     virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> v) override
     {
         dx = u(dofs[3]) - u(dofs[0]);

@@ -51,6 +51,8 @@ GUI
 
         * Update to QCustomPlot 2.0 (currently beta)
 
+        * Find out how to align legend with the plot axes and add some margins
+
     * SettingsDialog:
 
         * Width of the integer and double views should be the same. Last resort: Set default width of the  integer views.

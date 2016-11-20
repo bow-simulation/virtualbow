@@ -28,7 +28,7 @@ public:
         size_t k = input.settings_n_elements_string;
 
         // Create limb nodes
-        DiscreteLimb limb(input);
+        limb = DiscreteLimb(input);
         for(size_t i = 0; i < n+1; ++i)
         {
             bool active = (i != 0);
@@ -267,11 +267,39 @@ public:
             states.pos_string_x.back().push_back(system.get_u(node.x));
             states.pos_string_y.back().push_back(system.get_u(node.y));
         }
+
+        // Stress and Deformation
+
+        std::vector<double> epsilon;
+        std::vector<double> kappa;
+        for(size_t i = 0; i < elements_limb.size(); ++i)
+        {
+            if(i == 0)
+            {
+                epsilon.push_back(elements_limb[i].get_epsilon(0.0));
+                kappa.push_back(elements_limb[i].get_kappa(0.0));
+            }
+            else
+            {
+                if(i == elements_limb.size() - 1)
+                {
+                    epsilon.push_back(elements_limb[i-1].get_epsilon(1.0));
+                    kappa.push_back(elements_limb[i-1].get_kappa(1.0));
+                }
+
+                epsilon.push_back(0.5*(elements_limb[i].get_epsilon(0.0) + elements_limb[i-1].get_epsilon(1.0)));
+                kappa.push_back(0.5*(elements_limb[i].get_kappa(0.0) + elements_limb[i-1].get_kappa(1.0)));
+            }
+        }
+
+        states.epsilon.push_back(epsilon);
+        states.kappa.push_back(kappa);
     }
 
 private:
     const InputData& input;
     OutputData& output;
+    DiscreteLimb limb;
 
     System system;
 

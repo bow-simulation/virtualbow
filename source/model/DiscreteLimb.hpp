@@ -5,12 +5,15 @@
 #include <vector>
 #include <array>
 
-// sigma(s) = He(s)*epsilon(s) + Hk(s)*kappa(s)
+// sigma_upper(s) = He_upper(s)*epsilon(s) + Hk_upper(s)*kappa(s)
+// sigma_lower(s) = He_lower(s)*epsilon(s) + Hk_lower(s)*kappa(s)
 struct DiscreteLayer
 {
     std::vector<double> s;
-    std::vector<std::array<double, 2>> He;
-    std::vector<std::array<double, 2>> Hk;
+    std::vector<double> He_upper;
+    std::vector<double> He_lower;
+    std::vector<double> Hk_upper;
+    std::vector<double> Hk_lower;
 };
 
 struct DiscreteLimb

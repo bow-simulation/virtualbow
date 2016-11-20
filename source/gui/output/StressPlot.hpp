@@ -1,0 +1,51 @@
+#pragma once
+#include "../../model/OutputData.hpp"
+#include "../Plot.hpp"
+#include <algorithm>
+
+class StressPlot: public Plot
+{
+public:
+    StressPlot(const BowSetup& setup, const BowStates& states)
+        : Plot("Arc length", "Deformation"),
+          setup(setup),
+          states(states)
+    {
+        this->addSeries({}, Style::Line(Qt::blue), "Epsilon");
+        this->addSeries({}, Style::Line(Qt::red), "Kappa");
+        setContentRanges();
+    }
+
+    void setStateIndex(int index)
+    {
+        this->setData(0, {setup.limb.s, states.epsilon[index]});
+        this->setData(1, {setup.limb.s, states.kappa[index]});
+        this->replot();
+    }
+
+private:
+    const BowSetup& setup;
+    const BowStates& states;
+
+    void setContentRanges()
+    {
+        QCPRange rx(setup.limb.s.front(), setup.limb.s.back());
+        QCPRange ry;
+
+        auto expand = [&](const std::vector<double>& values_y)
+        {
+            for(double y: values_y)
+            {
+                ry.expand(y);
+            }
+        };
+
+        for(size_t i = 0; i < states.time.size(); ++i)
+        {
+            expand(states.epsilon[i]);
+            expand(states.kappa[i]);
+        }
+
+        Plot::setContentRanges(rx, ry);
+    }
+};

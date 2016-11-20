@@ -26,6 +26,9 @@ struct BowStates
     std::vector<std::vector<double>> pos_string_y;
     std::vector<double> pos_arrow;
 
+    std::vector<std::vector<double>> epsilon;
+    std::vector<std::vector<double>> kappa;
+
     /*
     pub time: Vec<f64>,
     pub draw_force: Vec<f64>,
