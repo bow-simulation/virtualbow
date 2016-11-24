@@ -104,6 +104,9 @@ Model
 
     * Make it possible to omit detailed static simulation if only dynamics are needed?
 
+    * Calculate shear stresses and use von Mises stresses in the output data.
+      This would give a more realistic stresses for the limb tips (or rather would make the model applicable to the limb tips in the first place)
+
 General
 =======
 

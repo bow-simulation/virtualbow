@@ -294,6 +294,9 @@ public:
 
         states.epsilon.push_back(epsilon);
         states.kappa.push_back(kappa);
+
+        states.sigma_upper.push_back(limb.layers[0].sigma_upper(epsilon, kappa));
+        states.sigma_lower.push_back(limb.layers[0].sigma_lower(epsilon, kappa));
     }
 
 private:

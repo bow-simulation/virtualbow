@@ -29,6 +29,9 @@ struct BowStates
     std::vector<std::vector<double>> epsilon;
     std::vector<std::vector<double>> kappa;
 
+    std::vector<std::vector<double>> sigma_upper;
+    std::vector<std::vector<double>> sigma_lower;
+
     /*
     pub time: Vec<f64>,
     pub draw_force: Vec<f64>,

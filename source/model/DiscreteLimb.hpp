@@ -9,11 +9,32 @@
 // sigma_lower(s) = He_lower(s)*epsilon(s) + Hk_lower(s)*kappa(s)
 struct DiscreteLayer
 {
+    double E;
     std::vector<double> s;
-    std::vector<double> He_upper;
-    std::vector<double> He_lower;
-    std::vector<double> Hk_upper;
-    std::vector<double> Hk_lower;
+    std::vector<double> y_upper;
+    std::vector<double> y_lower;
+
+    std::vector<double> sigma_upper(const std::vector<double>& epsilon, const std::vector<double>& kappa) const
+    {
+        std::vector<double> sigma(s.size());
+        for(int i = 0; i < s.size(); ++i)
+        {
+            sigma[i] = -E*epsilon[i] + E*y_upper[i]*kappa[i];    // Todo: Sign?
+        }
+        return sigma;
+    }
+
+    std::vector<double> sigma_lower(const std::vector<double>& epsilon, const std::vector<double>& kappa) const
+    {
+        // Todo: Code duplication
+        std::vector<double> sigma(s.size());
+        for(int i = 0; i < s.size(); ++i)
+        {
+            sigma[i] = -E*epsilon[i] + E*y_lower[i]*kappa[i];    // Todo: Sign?
+        }
+
+        return sigma;
+    }
 };
 
 struct DiscreteLimb
@@ -70,18 +91,19 @@ struct DiscreteLimb
 
         // 3. Layers
 
-        // Todo
+        layers.push_back({});
+        layers[0].E = input.sections_E;
+
+        for(int i = 0; i < s.size(); ++i)
+        {
+            layers[0].s.push_back(s[i]);
+            layers[0].y_upper.push_back(0.0);
+            layers[0].y_lower.push_back(-h.val(i));
+        }
     }
 
     DiscreteLimb()
     {
 
     }
-
-    /*
-    std::vector<std::array<double, 2>> calculate_stresses(size_t layer, const std::vector<double>& epsilon, const std::vector<double>& kappa)
-    {
-
-    }
-    */
 };

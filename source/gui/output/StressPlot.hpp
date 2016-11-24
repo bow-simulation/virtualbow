@@ -7,19 +7,19 @@ class StressPlot: public Plot
 {
 public:
     StressPlot(const BowSetup& setup, const BowStates& states)
-        : Plot("Arc length", "Deformation"),
+        : Plot("Arc length", "Stress"),
           setup(setup),
           states(states)
     {
-        this->addSeries({}, Style::Line(Qt::blue), "Epsilon");
-        this->addSeries({}, Style::Line(Qt::red), "Kappa");
+        this->addSeries({}, Style::Line(Qt::blue), "Back");
+        this->addSeries({}, Style::Line(Qt::red), "Belly");
         setContentRanges();
     }
 
     void setStateIndex(int index)
     {
-        this->setData(0, {setup.limb.s, states.epsilon[index]});
-        this->setData(1, {setup.limb.s, states.kappa[index]});
+        this->setData(0, {setup.limb.s, states.sigma_upper[index]});
+        this->setData(1, {setup.limb.s, states.sigma_lower[index]});
         this->replot();
     }
 
@@ -42,8 +42,8 @@ private:
 
         for(size_t i = 0; i < states.time.size(); ++i)
         {
-            expand(states.epsilon[i]);
-            expand(states.kappa[i]);
+            expand(states.sigma_upper[i]);
+            expand(states.sigma_lower[i]);
         }
 
         Plot::setContentRanges(rx, ry);
