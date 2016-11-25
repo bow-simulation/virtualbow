@@ -23,6 +23,8 @@ public:
         grid->add(1, 1, "Energy drawn:", 0.0);
         grid->add(0, 2, "Drawing work:", 0.0);
         grid->add(1, 2, "Storage ratio:", 0.0);
+        grid->add(0, 3, "Max. Tension:", 0.0);
+        grid->add(1, 3, "Max. Compression:", 0.0);
         vbox->addWidget(grid);
 
         auto plot_shapes = new ShapePlot(setup, statics, true);
@@ -86,6 +88,7 @@ public:
         auto vbox = new QVBoxLayout();
         this->setLayout(vbox);
         this->setWindowTitle("Simulation results");
+        this->setWindowFlags(this->windowFlags() | Qt::WindowMaximizeButtonHint);
         this->resize(1000, 800);     // Todo: Magic numbers
 
         auto tabs = new QTabWidget();
@@ -125,6 +128,7 @@ public:
 
 private:
     // Keep dialog from closing on enter
+    // http://stackoverflow.com/questions/15845487/how-do-i-prevent-the-enter-key-from-closing-my-qdialog-qt-4-8-1
     virtual void keyPressEvent(QKeyEvent *evt) override
     {
         if(evt->key() == Qt::Key_Enter || evt->key() == Qt::Key_Return)

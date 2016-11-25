@@ -27,11 +27,11 @@ public:
 
     void setStateIndex(int index)
     {
-        Series series_limb(states.pos_limb_x[index], states.pos_limb_y[index]);
+        Series series_limb(states.x_limb[index], states.y_limb[index]);
         this->setData(limb_l, series_limb);
         this->setData(limb_r, series_limb.flip(false));
 
-        Series series_string(states.pos_string_x[index], states.pos_string_y[index]);
+        Series series_string(states.x_string[index], states.y_string[index]);
         this->setData(string_l, series_string);
         this->setData(string_r, series_string.flip(false));
 
@@ -64,8 +64,8 @@ private:
         {
             size_t j = i*(states.time.size()-1)/steps;
 
-            Series limb(states.pos_limb_x[j], states.pos_limb_y[j]);
-            Series string(states.pos_string_x[j], states.pos_string_y[j]);
+            Series limb(states.x_limb[j], states.y_limb[j]);
+            Series string(states.x_string[j], states.y_string[j]);
 
             this->addSeries(limb, Style::Line(Qt::lightGray));
             this->addSeries(string, Style::Line(Qt::lightGray));
@@ -94,8 +94,8 @@ private:
         expand(setup.limb.x, setup.limb.y);
         for(size_t i = 0; i < states.time.size(); ++i)
         {
-            expand(states.pos_limb_x[i], states.pos_limb_y[i]);
-            expand(states.pos_string_x[i], states.pos_string_y[i]);
+            expand(states.x_limb[i], states.y_limb[i]);
+            expand(states.x_string[i], states.y_string[i]);
         }
 
         Plot::setContentRanges(rx, ry);

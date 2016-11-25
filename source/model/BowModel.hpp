@@ -251,21 +251,21 @@ public:
 
         // Shapes
 
-        states.pos_limb_x.push_back({});
-        states.pos_limb_y.push_back({});
-        states.pos_string_x.push_back({});
-        states.pos_string_y.push_back({});
+        states.x_limb.push_back({});
+        states.y_limb.push_back({});
+        states.x_string.push_back({});
+        states.y_string.push_back({});
 
         for(auto& node: nodes_limb)
         {
-            states.pos_limb_x.back().push_back(system.get_u(node.x));
-            states.pos_limb_y.back().push_back(system.get_u(node.y));
+            states.x_limb.back().push_back(system.get_u(node.x));
+            states.y_limb.back().push_back(system.get_u(node.y));
         }
 
         for(auto& node: nodes_string)
         {
-            states.pos_string_x.back().push_back(system.get_u(node.x));
-            states.pos_string_y.back().push_back(system.get_u(node.y));
+            states.x_string.back().push_back(system.get_u(node.x));
+            states.y_string.back().push_back(system.get_u(node.y));
         }
 
         // Stress and Deformation
@@ -291,9 +291,6 @@ public:
                 kappa.push_back(0.5*(elements_limb[i].get_kappa(0.0) + elements_limb[i-1].get_kappa(1.0)));
             }
         }
-
-        states.epsilon.push_back(epsilon);
-        states.kappa.push_back(kappa);
 
         states.sigma_upper.push_back(limb.layers[0].sigma_upper(epsilon, kappa));
         states.sigma_lower.push_back(limb.layers[0].sigma_lower(epsilon, kappa));

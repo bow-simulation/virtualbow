@@ -8,6 +8,7 @@ CommentsDialog::CommentsDialog(QWidget* parent, InputData& data)
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
     this->setWindowTitle("Comments");
+    this->setWindowFlags(this->windowFlags() | Qt::WindowMaximizeButtonHint);
     this->resize(600, 300);     // Todo: Magic numbers
 
     edit = new QTextEdit();

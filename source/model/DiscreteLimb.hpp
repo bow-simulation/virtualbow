@@ -17,20 +17,21 @@ struct DiscreteLayer
     std::vector<double> sigma_upper(const std::vector<double>& epsilon, const std::vector<double>& kappa) const
     {
         std::vector<double> sigma(s.size());
-        for(int i = 0; i < s.size(); ++i)
+        for(size_t i = 0; i < s.size(); ++i)
         {
-            sigma[i] = -E*epsilon[i] + E*y_upper[i]*kappa[i];    // Todo: Sign?
+            sigma[i] = E*y_upper[i]*kappa[i] - E*epsilon[i];    // Todo: Sign?
         }
+
         return sigma;
     }
 
+    // Todo: Code duplication
     std::vector<double> sigma_lower(const std::vector<double>& epsilon, const std::vector<double>& kappa) const
     {
-        // Todo: Code duplication
         std::vector<double> sigma(s.size());
-        for(int i = 0; i < s.size(); ++i)
+        for(size_t i = 0; i < s.size(); ++i)
         {
-            sigma[i] = -E*epsilon[i] + E*y_lower[i]*kappa[i];    // Todo: Sign?
+            sigma[i] = E*y_lower[i]*kappa[i] - E*epsilon[i];    // Todo: Sign?
         }
 
         return sigma;
@@ -74,7 +75,7 @@ struct DiscreteLimb
         Series w = CubicSpline::sample(input.sections_width, input.settings_n_elements_limb);
         Series h = CubicSpline::sample(input.sections_height, input.settings_n_elements_limb);
 
-        for(int i = 0; i < s.size(); ++i)
+        for(size_t i = 0; i < s.size(); ++i)
         {
             double w_i = w.val(i);
             double h_i = h.val(i);
@@ -94,7 +95,7 @@ struct DiscreteLimb
         layers.push_back({});
         layers[0].E = input.sections_E;
 
-        for(int i = 0; i < s.size(); ++i)
+        for(size_t i = 0; i < s.size(); ++i)
         {
             layers[0].s.push_back(s[i]);
             layers[0].y_upper.push_back(0.0);

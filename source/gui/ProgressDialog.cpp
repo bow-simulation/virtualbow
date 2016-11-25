@@ -28,6 +28,7 @@ ProgressDialog::ProgressDialog(QWidget* parent)
 {
     this->setLayout(vbox);
     this->setWindowTitle("Simulation Progress");
+    this->setWindowFlags(this->windowFlags() & ~Qt::WindowContextHelpButtonHint);
     this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 
     auto btbox = new QDialogButtonBox(QDialogButtonBox::Cancel);

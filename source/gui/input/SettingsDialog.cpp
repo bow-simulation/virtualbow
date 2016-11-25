@@ -32,6 +32,7 @@ SettingsDialog::SettingsDialog(QWidget* parent, InputData& data)
     vbox->addWidget(btbox);
 
     this->setWindowTitle("Settings");
+    this->setWindowFlags(this->windowFlags() & ~Qt::WindowContextHelpButtonHint);
     this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 }
 

@@ -13,7 +13,7 @@ BowEditor::BowEditor(InputData& data)
     vbox->addLayout(hbox);
 
     auto group_limb = new NumberGroup(data, "Limb Material");
-    group_limb->addRow("\u2374:", data.sections_rho);      // Todo: Use unicode character
+    group_limb->addRow("rho:", data.sections_rho);      // Todo: Use unicode character (\u2374). Problem: Windows
     group_limb->addRow("E:", data.sections_E);
     hbox->addWidget(group_limb);
 
