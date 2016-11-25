@@ -20,6 +20,7 @@ private:
     void open();
     bool save();
     bool saveAs();
+
     // Todo: settings, notes and about dialogs as lambdas in constructor?
     void settings();
     void comments();

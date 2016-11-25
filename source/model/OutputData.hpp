@@ -1,14 +1,7 @@
 #pragma once
 #include "DiscreteLimb.hpp"
 #include <memory>
-
-
-struct SpecialValue
-{
-    double value;
-    size_t i;       // Index of the bow state
-    size_t j;       // Index along the limb axis
-};
+#include <algorithm>
 
 struct BowSetup
 {
@@ -49,11 +42,45 @@ struct BowStates
     }
 };
 
+struct StaticData
+{
+    const BowStates states;
+    const double final_draw_force;
+    const double drawing_work;
+    const double storage_ratio;
+
+    StaticData(BowStates states)
+        : states(states),
+          final_draw_force(states.draw_force.back()),
+          drawing_work(states.e_pot_limbs.back() + states.e_pot_string.back() - states.e_pot_limbs.front() - states.e_pot_string.front()),
+          storage_ratio(drawing_work/(0.5*(states.draw_length.back() - states.draw_length.front())*final_draw_force))
+    {
+
+    }
+};
+
+struct DynamicData
+{
+    const BowStates states;
+    const double final_arrow_velocity;
+    const double final_arrow_energy;
+    const double efficiency;
+
+    DynamicData(BowStates states, const StaticData& static_data)
+        : states(states),
+          final_arrow_velocity(std::abs(states.vel_arrow.back())),
+          final_arrow_energy(states.e_kin_arrow.back()),
+          efficiency(final_arrow_energy/static_data.drawing_work)
+    {
+
+    }
+};
+
 struct OutputData
 {
     BowSetup setup;
-    std::unique_ptr<BowStates> statics = nullptr;   // Todo: Use boost optional?
-    std::unique_ptr<BowStates> dynamics = nullptr;
+    std::unique_ptr<StaticData> statics = nullptr;   // Todo: Use boost optional?
+    std::unique_ptr<DynamicData> dynamics = nullptr;
 };
 
 
