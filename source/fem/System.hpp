@@ -266,6 +266,7 @@ public:
 
         // Version with a more accurate velocity based on central differences
         a = M.asDiagonal().inverse()*(p - q);
+
         // Previous displacements
         Eigen::VectorXd u_p2(dofs());
         Eigen::VectorXd u_p1 = u - dt*v + dt*dt/2.0*a;

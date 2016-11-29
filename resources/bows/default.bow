@@ -15,7 +15,7 @@
     "operation": {
         "brace_height": 0.2,
         "draw_length": 0.7,
-        "mass_arrow": 0.03
+        "mass_arrow": 0.025
     },
     "string": {
         "strand_stiffness": 3500.0,

@@ -32,7 +32,7 @@ class Plot: public QWidget
 public:
     enum class Align{ BottomLeft, BottomRight, TopLeft, TopRight }; // Todo: Better name than "align"
 
-    Plot(const QString& lbx, const QString& lby, Align align = Align::BottomLeft);
+    Plot(const QString& lbx = "", const QString& lby = "", Align align = Align::BottomLeft);
 
     //size_t addSeries();
     size_t addSeries(const Series& data = Series(), const Style& style = Style::Line(Qt::blue), const QString& name = QString());
@@ -43,6 +43,7 @@ public:
     void setExpansionMode(ExpansionMode em_x, ExpansionMode em_y);  // Todo: Naming
     void fitContent(bool include_origin_x, bool include_origin_y);
     void setContentRanges(const QCPRange& rx, const QCPRange& ry);
+    void setLabels(const QString& lbx, const QString& lby);
     void replot();
 
     void showIndicatorX(bool show);

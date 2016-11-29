@@ -68,6 +68,7 @@ HEADERS += \
     ../source/gui/output/ShapePlot.hpp \
     ../source/gui/output/Slider.hpp \
     ../source/gui/output/EnergyPlot.hpp \
-    ../source/gui/output/StressPlot.hpp
+    ../source/gui/output/StressPlot.hpp \
+    ../source/gui/output/ComboPlot.hpp
 
 RESOURCES += ../resources/resources.qrc

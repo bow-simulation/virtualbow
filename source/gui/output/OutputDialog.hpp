@@ -5,6 +5,7 @@
 #include "ShapePlot.hpp"
 #include "StressPlot.hpp"
 #include "EnergyPlot.hpp"
+#include "ComboPlot.hpp"
 #include "Slider.hpp"
 #include <QtWidgets>
 
@@ -25,15 +26,20 @@ public:
 
         auto plot_shapes = new ShapePlot(setup, statics.states, true);
         auto plot_stress = new StressPlot(setup, statics.states);
-        auto plot_energy = new EnergyPlot(statics.states, statics.states.draw_length, "Draw length");
+        auto plot_energy = new EnergyPlot(statics.states, statics.states.pos_string, "Draw length");
+        auto plot_combo = new ComboPlot();
+        plot_combo->addData("Draw length", statics.states.pos_string);
+        plot_combo->addData("Draw force", statics.states.draw_force);
+        plot_combo->setCombination(0, 1);
 
         auto tabs = new QTabWidget();
         tabs->addTab(plot_shapes, "Shape");
         tabs->addTab(plot_stress, "Stress");
         tabs->addTab(plot_energy, "Energy");
+        tabs->addTab(plot_combo, "Other");
         vbox->addWidget(tabs);
 
-        auto slider = new Slider(statics.states.draw_length, "Draw length:");
+        auto slider = new Slider(statics.states.pos_string, "Draw length:");
         QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
         QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
         QObject::connect(slider, &Slider::valueChanged, plot_energy, &EnergyPlot::setStateIndex);
@@ -59,11 +65,21 @@ public:
         auto plot_shapes = new ShapePlot(setup, dynamics.states, false);
         auto plot_stress = new StressPlot(setup, dynamics.states);
         auto plot_energy = new EnergyPlot(dynamics.states, dynamics.states.time, "Time");
+        auto plot_combo = new ComboPlot();
+        plot_combo->addData("Time", dynamics.states.time);
+        plot_combo->addData("Arrow position", dynamics.states.pos_arrow);
+        plot_combo->addData("Arrow velocity", dynamics.states.vel_arrow);
+        plot_combo->addData("Arrow acceleration", dynamics.states.acc_arrow);
+        plot_combo->addData("String position", dynamics.states.pos_string);
+        plot_combo->addData("String velocity", dynamics.states.vel_string);
+        plot_combo->addData("String acceleration", dynamics.states.acc_string);
+        plot_combo->setCombination(0, 1);
 
         auto tabs = new QTabWidget();
         tabs->addTab(plot_shapes, "Shape");
         tabs->addTab(plot_stress, "Stress");
         tabs->addTab(plot_energy, "Energy");
+        tabs->addTab(plot_combo, "Other");
         vbox->addWidget(tabs);
 
         auto slider = new Slider(dynamics.states.time, "Time:");

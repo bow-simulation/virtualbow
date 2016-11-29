@@ -148,7 +148,7 @@ public:
             return !task.isCanceled();
         });
 
-        output.statics = std::unique_ptr<StaticData>(new StaticData(states));    // Todo: Why does std::make_unique<BowStates>() not work?
+        output.statics = std::make_unique<StaticData>(states);
     }
 
     void simulate_dynamics(TaskState& task)
@@ -208,14 +208,12 @@ public:
             return !task.isCanceled();
         });
 
-        // Todo: Abstract this? e.g. method setDynamicStates(...)
-        output.dynamics = std::unique_ptr<DynamicData>(new DynamicData(states, *output.statics));    // Todo: Why does std::make_unique<BowStates>() not work?
+        output.dynamics = std::make_unique<DynamicData>(states, *output.statics);
     }
 
     void get_bow_state(BowStates& states) const
     {
         states.time.push_back(system.get_time());
-        states.draw_length.push_back(system.get_u(nodes_string[0].y));
         states.draw_force.push_back(2.0*system.get_p(nodes_string[0].y));   // *2.0 because symmetry
 
         states.pos_arrow.push_back(system.get_u(node_arrow.y));

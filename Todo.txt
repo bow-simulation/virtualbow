@@ -107,6 +107,8 @@ Model
     * Calculate shear stresses and use von Mises stresses in the output data.
       This would give a more realistic stresses for the limb tips (or rather would make the model applicable to the limb tips in the first place)
 
+    * Bug: First arrow acceleration is zero.
+
 General
 =======
 
@@ -139,3 +141,11 @@ Ideas for Improvement
 =====================
 
     * Slider in output window could have a go-to menu with options like "maximum limb stress", "arrow separation", "maximum string force", ...
+
+    * Command-line interface:
+        * Start simulations, static or dynamic
+        * Option to supress Progress? Option to show it in the first place?
+        * Create default bow file
+        * Option to specify output file
+        * Invoke Program on input file: Simulation from command line
+        * Invoke Program on output file: Show output window

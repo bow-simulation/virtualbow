@@ -12,7 +12,6 @@ struct BowSetup
 struct BowStates
 {
     std::vector<double> time;
-    std::vector<double> draw_length;
     std::vector<double> draw_force;
 
     std::vector<double> pos_arrow;
@@ -53,7 +52,7 @@ struct StaticData
         : states(states),
           final_draw_force(states.draw_force.back()),
           drawing_work(states.e_pot_limbs.back() + states.e_pot_string.back() - states.e_pot_limbs.front() - states.e_pot_string.front()),
-          storage_ratio(drawing_work/(0.5*(states.draw_length.back() - states.draw_length.front())*final_draw_force))
+          storage_ratio(drawing_work/(0.5*(states.pos_string.back() - states.pos_string.front())*final_draw_force))
     {
 
     }
@@ -82,27 +81,3 @@ struct OutputData
     std::unique_ptr<StaticData> statics = nullptr;   // Todo: Use boost optional?
     std::unique_ptr<DynamicData> dynamics = nullptr;
 };
-
-
-/*
-class BowState
-{
-    double time;
-    double draw_force;
-
-    double pos_arrow;
-    double vel_arrow;
-    double acc_arrow;
-
-    double pos_string_center;
-    double vel_string_center;
-    double acc_string_center;
-
-    std::vector<double> x_limb;
-    std::vector<double> y_limb;
-    std::vector<double> x_string;
-    std::vector<double> y_string;
-    std::vector<double> sigma_upper;
-    std::vector<double> sigma_lower;
-};
-*/

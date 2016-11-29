@@ -68,10 +68,9 @@ Plot::Plot(const QString& lbx, const QString& lby, Align align)
     y_axis->setVisible(true);
     x_axis->grid()->setVisible(true);
     y_axis->grid()->setVisible(true);
-    x_axis->setLabel(lbx);
-    y_axis->setLabel(lby);
     x_axis->setUpperEnding(QCPLineEnding::esFlatArrow);
     y_axis->setUpperEnding(QCPLineEnding::esFlatArrow);
+    setLabels(lbx, lby);
 
     auto vbox = new QVBoxLayout();
     vbox->addWidget(plot);
@@ -247,6 +246,12 @@ void Plot::setContentRanges(const QCPRange& rx, const QCPRange& ry)
 {
     content_range_x = rx;
     content_range_y = ry;
+}
+
+void Plot::setLabels(const QString& lbx, const QString& lby)
+{
+    x_axis->setLabel(lbx);
+    y_axis->setLabel(lby);
 }
 
 void Plot::replot()
