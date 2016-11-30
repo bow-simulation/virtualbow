@@ -7,8 +7,8 @@ NumberGroup::NumberGroup(InputData& data, const QString& title)
     : QGroupBox(title),
       grid(new QGridLayout())
 {
-    grid->setColumnStretch(0, 0);
-    grid->setColumnStretch(1, 1);
+    grid->setColumnStretch(0, 1);
+    grid->setColumnStretch(1, 0);
     grid->setColumnStretch(2, 0);
 
     auto vbox = new QVBoxLayout();

@@ -18,10 +18,10 @@ public:
         this->setLayout(vbox);
 
         auto grid = new OutputGrid();
-        grid->add(0, 0, "String length [m]:", setup.string_length);
-        grid->add(1, 0, "Final draw force [N]:", statics.final_draw_force);
-        grid->add(0, 2, "Drawing work [J]:", statics.drawing_work);
-        grid->add(1, 2, "Storage ratio:", statics.storage_ratio);
+        grid->add(0, 0, "String length:", "m", setup.string_length);
+        grid->add(1, 0, "Final draw force:", "N", statics.final_draw_force);
+        grid->add(0, 2, "Drawing work:", "J", statics.drawing_work);
+        grid->add(1, 2, "Storage ratio:", "", statics.storage_ratio);
         vbox->addWidget(grid);
 
         auto plot_shapes = new ShapePlot(setup, statics.states, true);
@@ -57,9 +57,9 @@ public:
         this->setLayout(vbox);
 
         auto grid = new OutputGrid();
-        grid->add(0, 0, "Final arrow velocity [m/s]:", dynamics.final_arrow_velocity);
-        grid->add(1, 0, "Final arrow energy [J]:", dynamics.final_arrow_energy);
-        grid->add(0, 1, "Efficiency:", dynamics.efficiency);
+        grid->add(0, 0, "Final arrow velocity:", "m/s", dynamics.final_arrow_velocity);
+        grid->add(1, 0, "Final arrow energy:", "J", dynamics.final_arrow_energy);
+        grid->add(0, 1, "Efficiency:", "", dynamics.efficiency);
         vbox->addWidget(grid);
 
         auto plot_shapes = new ShapePlot(setup, dynamics.states, false);
