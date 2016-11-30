@@ -226,21 +226,14 @@ public:
 
         // Todo: Separate into different methods
         // Todo: Think about meaning of 'n_steps'. Number of times the newton method is employed? Or number of intervals in between?
-        if(n_steps <= 1)
+        double delta_displacement = target_displacement - init_displacement;
+        for(unsigned i = 0; i <= n_steps; ++i)
         {
-            solve_equilibrium(init_displacement);
-        }
-        else
-        {
-            double delta_displacement = target_displacement - init_displacement;
-            for(unsigned i = 0; i < n_steps; ++i)
-            {
-                double displacement = init_displacement + delta_displacement*double(i)/double(n_steps - 1);
-                solve_equilibrium(displacement);
+            double displacement = init_displacement + delta_displacement*double(i)/double(n_steps);
+            solve_equilibrium(displacement);
 
-                if(!callback())
-                    return;
-            }
+            if(!callback())
+                return;
         }
     }
 
