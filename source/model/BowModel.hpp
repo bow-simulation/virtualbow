@@ -220,8 +220,6 @@ public:
         states.vel_arrow.push_back(system.get_v(node_arrow.y));
         states.acc_arrow.push_back(system.get_a(node_arrow.y));
 
-        qInfo() << 2.0*system.get_p(nodes_string[0].y);
-
         states.pos_string.push_back(system.get_u(nodes_string[0].y));
         states.vel_string.push_back(system.get_v(nodes_string[0].y));
         states.acc_string.push_back(system.get_a(nodes_string[0].y));

@@ -13,26 +13,26 @@ BowEditor::BowEditor(InputData& data)
     vbox->addLayout(hbox);
 
     auto group_limb = new NumberGroup(data, "Limb Material");
-    group_limb->addRow("rho [kg/m³]:", data.sections_rho);      // Todo: Use unicode character (\u2374). Problem: Windows
-    group_limb->addRow("E [N/m²]:", data.sections_E);
+    group_limb->addRow("rho:", "kg/m³", data.sections_rho);      // Todo: Use unicode character (\u2374). Problem: Windows
+    group_limb->addRow("E:", "N/m²", data.sections_E);
     hbox->addWidget(group_limb);
 
     auto group_string = new NumberGroup(data, "String");
-    group_string->addRow("Strand stiffness [N]:", data.string_strand_stiffness);
-    group_string->addRow("Strand density [kg/m]:", data.string_strand_density);
-    group_string->addRow("Number of strands:", data.string_n_strands);
+    group_string->addRow("Strand stiffness:", "N", data.string_strand_stiffness);
+    group_string->addRow("Strand density:", "kg/m", data.string_strand_density);
+    group_string->addRow("Number of strands:", "", data.string_n_strands);
     hbox->addWidget(group_string);
 
     auto group_operation = new NumberGroup(data, "Operation");
-    group_operation->addRow("Brace height [m]:", data.operation_brace_height);
-    group_operation->addRow("Draw length [m]:", data.operation_draw_length);
-    group_operation->addRow("Arrow mass [kg]:", data.operation_mass_arrow);
+    group_operation->addRow("Brace height:", "m", data.operation_brace_height);
+    group_operation->addRow("Draw length:", "m", data.operation_draw_length);
+    group_operation->addRow("Arrow mass:", "kg", data.operation_mass_arrow);
     hbox->addWidget(group_operation);
 
     auto group_masses = new NumberGroup(data, "Additional masses");
-    group_masses->addRow("String center [kg]:", data.mass_string_center);
-    group_masses->addRow("String tip [kg]:", data.mass_string_tip);
-    group_masses->addRow("Limb tip [kg]:", data.mass_limb_tip);
+    group_masses->addRow("String center:", "kg", data.mass_string_center);
+    group_masses->addRow("String tip:", "kg", data.mass_string_tip);
+    group_masses->addRow("Limb tip:", "kg", data.mass_limb_tip);
     hbox->addWidget(group_masses);
 
     auto tabs = new QTabWidget();
@@ -54,9 +54,9 @@ ProfileEditor::ProfileEditor(InputData& data)
     vbox->addWidget(series_view);
 
     auto group_limb = new NumberGroup(data, "Offset");
-    group_limb->addRow("x [m]:", data.profile_x0);
-    group_limb->addRow("y [m]:", data.profile_y0);
-    group_limb->addRow("Angle [rad]:", data.profile_phi0);
+    group_limb->addRow("x:", "m", data.profile_x0);
+    group_limb->addRow("y:", "m", data.profile_y0);
+    group_limb->addRow("Angle:", "rad", data.profile_phi0);
     vbox->addWidget(group_limb);
 
     auto plot = new ProfileView(data);
