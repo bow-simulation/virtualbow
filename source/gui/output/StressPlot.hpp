@@ -7,7 +7,7 @@ class StressPlot: public Plot
 {
 public:
     StressPlot(const BowSetup& setup, const BowStates& states)
-        : Plot("Arc length", "Stress"),
+        : Plot("Arc length [m]", "Stress [N/m²]"),
           setup(setup),
           states(states)
     {

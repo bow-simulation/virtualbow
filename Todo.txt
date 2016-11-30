@@ -81,6 +81,8 @@ GUI
      Todo: (DoubleView, IntegerView) Remember entry before editing and revert to that in case of invalid input. That way
      a value that makes sense is used instead of the last digit of some deleted input.
 
+   !* BowEditor: TableView for curvature: Fit complete word "curvature" on label without abbreviating.
+
 
 FEM
 ===
@@ -149,3 +151,5 @@ Ideas for Improvement
         * Option to specify output file
         * Invoke Program on input file: Simulation from command line
         * Invoke Program on output file: Show output window
+
+    * Sampling frequency instead of sampling time?

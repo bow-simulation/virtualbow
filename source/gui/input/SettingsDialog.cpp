@@ -23,7 +23,7 @@ SettingsDialog::SettingsDialog(QWidget* parent, InputData& data)
     auto group_dynamics = new NumberGroup(data, "Dynamics");
     group_dynamics->addRow("Time span factor:", data.settings_time_span_factor);
     group_dynamics->addRow("Time step factor:", data.settings_time_step_factor);
-    group_dynamics->addRow("Sampling time:", data.settings_sampling_time);
+    group_dynamics->addRow("Sampling time [s]:", data.settings_sampling_time);
     vbox->addWidget(group_dynamics);
 
     // OK Button

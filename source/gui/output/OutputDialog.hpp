@@ -18,18 +18,18 @@ public:
         this->setLayout(vbox);
 
         auto grid = new OutputGrid();
-        grid->add(0, 0, "String length:", setup.string_length);
-        grid->add(1, 0, "Final draw force:", statics.final_draw_force);
-        grid->add(0, 2, "Drawing work:", statics.drawing_work);
+        grid->add(0, 0, "String length [m]:", setup.string_length);
+        grid->add(1, 0, "Final draw force [N]:", statics.final_draw_force);
+        grid->add(0, 2, "Drawing work [J]:", statics.drawing_work);
         grid->add(1, 2, "Storage ratio:", statics.storage_ratio);
         vbox->addWidget(grid);
 
         auto plot_shapes = new ShapePlot(setup, statics.states, true);
         auto plot_stress = new StressPlot(setup, statics.states);
-        auto plot_energy = new EnergyPlot(statics.states, statics.states.pos_string, "Draw length");
+        auto plot_energy = new EnergyPlot(statics.states, statics.states.pos_string, "Draw length [m]");
         auto plot_combo = new ComboPlot();
-        plot_combo->addData("Draw length", statics.states.pos_string);
-        plot_combo->addData("Draw force", statics.states.draw_force);
+        plot_combo->addData("Draw length [m]", statics.states.pos_string);
+        plot_combo->addData("Draw force [N]", statics.states.draw_force);
         plot_combo->setCombination(0, 1);
 
         auto tabs = new QTabWidget();
@@ -39,7 +39,7 @@ public:
         tabs->addTab(plot_combo, "Other");
         vbox->addWidget(tabs);
 
-        auto slider = new Slider(statics.states.pos_string, "Draw length:");
+        auto slider = new Slider(statics.states.pos_string, "Draw length [m]:");
         QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
         QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
         QObject::connect(slider, &Slider::valueChanged, plot_energy, &EnergyPlot::setStateIndex);
@@ -57,22 +57,22 @@ public:
         this->setLayout(vbox);
 
         auto grid = new OutputGrid();
-        grid->add(0, 0, "Final arrow velocity:", dynamics.final_arrow_velocity);
-        grid->add(1, 0, "Final arrow energy:", dynamics.final_arrow_energy);
+        grid->add(0, 0, "Final arrow velocity [m/s]:", dynamics.final_arrow_velocity);
+        grid->add(1, 0, "Final arrow energy [J]:", dynamics.final_arrow_energy);
         grid->add(0, 1, "Efficiency:", dynamics.efficiency);
         vbox->addWidget(grid);
 
         auto plot_shapes = new ShapePlot(setup, dynamics.states, false);
         auto plot_stress = new StressPlot(setup, dynamics.states);
-        auto plot_energy = new EnergyPlot(dynamics.states, dynamics.states.time, "Time");
+        auto plot_energy = new EnergyPlot(dynamics.states, dynamics.states.time, "Time [s]");
         auto plot_combo = new ComboPlot();
-        plot_combo->addData("Time", dynamics.states.time);
-        plot_combo->addData("Arrow position", dynamics.states.pos_arrow);
-        plot_combo->addData("Arrow velocity", dynamics.states.vel_arrow);
-        plot_combo->addData("Arrow acceleration", dynamics.states.acc_arrow);
-        plot_combo->addData("String position", dynamics.states.pos_string);
-        plot_combo->addData("String velocity", dynamics.states.vel_string);
-        plot_combo->addData("String acceleration", dynamics.states.acc_string);
+        plot_combo->addData("Time [s]", dynamics.states.time);
+        plot_combo->addData("Arrow position [m]", dynamics.states.pos_arrow);
+        plot_combo->addData("Arrow velocity [m/s]", dynamics.states.vel_arrow);
+        plot_combo->addData("Arrow acceleration [m/s²]", dynamics.states.acc_arrow);
+        plot_combo->addData("String position [m]", dynamics.states.pos_string);
+        plot_combo->addData("String velocity [m/s]", dynamics.states.vel_string);
+        plot_combo->addData("String acceleration [m/s²]", dynamics.states.acc_string);
         plot_combo->setCombination(0, 1);
 
         auto tabs = new QTabWidget();
@@ -82,7 +82,7 @@ public:
         tabs->addTab(plot_combo, "Other");
         vbox->addWidget(tabs);
 
-        auto slider = new Slider(dynamics.states.time, "Time:");
+        auto slider = new Slider(dynamics.states.time, "Time [s]:");
         QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
         QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
         QObject::connect(slider, &Slider::valueChanged, plot_energy, &EnergyPlot::setStateIndex);

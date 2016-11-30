@@ -7,7 +7,7 @@ class EnergyPlot: public Plot
 {
 public:
     EnergyPlot(const BowStates& states, const std::vector<double>& parameter, const QString& x_label)
-        : Plot(x_label, "Energy"),
+        : Plot(x_label, "Energy [J]"),
           parameter(parameter),
           energy_sum(parameter.size(), 0.0)
     {

@@ -29,7 +29,7 @@ SplineView::SplineView(const QString& lbx, const QString& lby, DocItem<Series>& 
 }
 
 ProfileView::ProfileView(InputData& data)
-    : Plot("x", "y", Align::TopLeft),
+    : Plot("x [m]", "y [m]", Align::TopLeft),
       data(data)
 {
     this->setExpansionMode(ExpansionMode::OneSided, ExpansionMode::OneSided);

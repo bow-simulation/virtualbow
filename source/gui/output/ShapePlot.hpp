@@ -6,7 +6,7 @@ class ShapePlot: public Plot
 {
 public:
     ShapePlot(const BowSetup& setup, const BowStates& states, bool show_steps)
-        : Plot("x", "y", Plot::Align::TopLeft),
+        : Plot("x [m]", "y [m]", Plot::Align::TopLeft),
           setup(setup),
           states(states)
     {
