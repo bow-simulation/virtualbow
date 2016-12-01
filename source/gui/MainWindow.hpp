@@ -7,7 +7,7 @@ class BowEditor;
 class MainWindow: public QMainWindow
 {
 public:
-    MainWindow();
+    MainWindow(const QString& file_path);   // Todo: Consistent naming: file_name, file_path, file, path, ...
 
 private:
     InputData input;

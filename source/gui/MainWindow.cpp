@@ -7,8 +7,8 @@
 #include "../model/BowModel.hpp"
 #include <thread>
 
-MainWindow:: MainWindow()
-    : input(":/bows/default.bow"),
+MainWindow:: MainWindow(const QString& file_path)
+    : input(file_path),
       editor(new BowEditor(input))
 {
     // Actions

@@ -9,7 +9,8 @@ int main(int argc, char *argv[])
     QGuiApplication::setApplicationVersion("0.1.0");
     QGuiApplication::setOrganizationDomain("https://bow-simulator.sourceforge.net");
 
-    MainWindow window;
+    QStringList args = QApplication::arguments();
+    MainWindow window(args.size() == 1 ? ":/bows/default.bow" : args.at(1));
     window.show();
 
     return app.exec();
