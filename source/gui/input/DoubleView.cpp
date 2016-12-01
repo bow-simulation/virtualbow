@@ -24,7 +24,7 @@ DoubleView::DoubleView(DocItem<double>& doc_item)
 
 void DoubleView::setValue(double value)
 {
-    this->setText(QLocale::c().toString(value, 'g', 15));    // Todo: Magic number
+    this->setText(QLocale::c().toString(value, 'g'));    // Todo: Magic number
 }
 
 // Todo: Rewrite control structure

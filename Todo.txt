@@ -12,8 +12,11 @@ GUI
     * DoubleView:
         
        !* Why doesn't it show large numbers in scientific notation?
+            * Answer: Does only show in scientific when precision is lower than number of digits in "normal" format.
+            * New Question: Show in scientific with higher precision?
 
         * Display large numbers in engineering format (e+03, e+06, e+09, ...) instead of scientific
+            * Probably requires making custom conversion methods...
 
     * SeriesView:
         

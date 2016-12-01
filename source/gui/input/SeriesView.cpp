@@ -110,7 +110,7 @@ void SeriesView::setCellValue(int i, int j, double value)
     if(table->item(i, j) == nullptr)
         table->setItem(i, j,  new QTableWidgetItem);
 
-    table->item(i, j)->setText(QLocale::c().toString(value, 'g', 15));    // Todo: Magic number
+    table->item(i, j)->setText(QLocale::c().toString(value, 'g'));    // Todo: Magic number
 }
 
 double SeriesView::getCellValue(int i, int j) const
