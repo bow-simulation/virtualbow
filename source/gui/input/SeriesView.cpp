@@ -183,7 +183,6 @@ bool SeriesView::deleteSelectedRows()
     Series series = this->doc_item;
     for(int i = selection.size()-1; i >= 0; --i)
     {
-        table->setRangeSelected(selection[i], false);
         for(int j = selection[i].bottomRow(); j >= selection[i].topRow(); --j)
         {
             series.remove(j);

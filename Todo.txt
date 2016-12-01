@@ -19,8 +19,6 @@ GUI
         
         * Implement copy, cut and paste
 
-       !* After a selection is deleted: Automatically select a new row (above? below?)
-
         * Find solution for default values and validation
 
     * Find a solution to localised numbers.
@@ -109,7 +107,12 @@ Model
     * Calculate shear stresses and use von Mises stresses in the output data.
       This would give a more realistic stresses for the limb tips (or rather would make the model applicable to the limb tips in the first place)
 
-    * Bug: First arrow acceleration is zero.
+   !* Bug: First arrow acceleration is zero.
+        
+        * Not really a bug, this is due to the coupling element between string and arrow
+        * Solution: No coupling element, make arrow mass share the string center node until arrow acceleration changes sign,
+          then change the node of the arrow mass to a new one with appropriate initial displacement and velocity.
+          Restart dynamic simulation.
 
 General
 =======
