@@ -30,7 +30,7 @@ TEST_CASE("Large deformation cantilever")
     for(unsigned i = 0; i < N+1; ++i)
     {
         bool active = (i != 0);
-        nodes.push_back(system.create_node({{double(i)/double(N)*L, 0.0, 0.0}}, {{active, active, active}}));
+        nodes.push_back(system.create_node({{active, active, active}}, {{double(i)/double(N)*L, 0.0, 0.0}}));
     }
 
     // Create elements
@@ -83,7 +83,7 @@ TEST_CASE("Large deformation circular beam")
     {
         bool active = (i != 0);
         double phi = double(i)/double(N)*M_PI;
-        nodes.push_back(system.create_node({{R*std::sin(phi), R*(std::cos(phi) - 1.0), 0.0}}, {{active, active, active}}));
+        nodes.push_back(system.create_node({{active, active, active}}, {{R*std::sin(phi), R*(std::cos(phi) - 1.0), 0.0}}));
     }
 
     // Create elements

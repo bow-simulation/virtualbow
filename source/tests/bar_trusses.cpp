@@ -11,16 +11,16 @@ TEST_CASE("Small deformation bar truss")
     double F = 10.0;
 
     System system;
-    Node node_01 = system.create_node({{  0.0, 0.0, 0.0}}, {{false, false, false}});
-    Node node_02 = system.create_node({{    L, 0.0, 0.0}}, {{ true,  true, false}});
-    Node node_03 = system.create_node({{2.0*L, 0.0, 0.0}}, {{ true,  true, false}});
-    Node node_04 = system.create_node({{3.0*L, 0.0, 0.0}}, {{ true,  true, false}});
-    Node node_05 = system.create_node({{4.0*L, 0.0, 0.0}}, {{ true, false, false}});
-    Node node_06 = system.create_node({{  0.0,   L, 0.0}}, {{ true,  true, false}});
-    Node node_07 = system.create_node({{    L,   L, 0.0}}, {{ true,  true, false}});
-    Node node_08 = system.create_node({{2.0*L,   L, 0.0}}, {{ true,  true, false}});
-    Node node_09 = system.create_node({{3.0*L,   L, 0.0}}, {{ true,  true, false}});
-    Node node_10 = system.create_node({{4.0*L,   L, 0.0}}, {{ true,  true, false}});
+    Node node_01 = system.create_node({{false, false, false}}, {{  0.0, 0.0, 0.0}});
+    Node node_02 = system.create_node({{ true,  true, false}}, {{    L, 0.0, 0.0}});
+    Node node_03 = system.create_node({{ true,  true, false}}, {{2.0*L, 0.0, 0.0}});
+    Node node_04 = system.create_node({{ true,  true, false}}, {{3.0*L, 0.0, 0.0}});
+    Node node_05 = system.create_node({{ true, false, false}}, {{4.0*L, 0.0, 0.0}});
+    Node node_06 = system.create_node({{ true,  true, false}}, {{  0.0,   L, 0.0}});
+    Node node_07 = system.create_node({{ true,  true, false}}, {{    L,   L, 0.0}});
+    Node node_08 = system.create_node({{ true,  true, false}}, {{2.0*L,   L, 0.0}});
+    Node node_09 = system.create_node({{ true,  true, false}}, {{3.0*L,   L, 0.0}});
+    Node node_10 = system.create_node({{ true,  true, false}}, {{4.0*L,   L, 0.0}});
 
     BarElement element_01_02(node_01, node_02, L, EA, 0.0, 0.0);
     BarElement element_02_03(node_02, node_03, L, EA, 0.0, 0.0);
@@ -82,9 +82,9 @@ TEST_CASE("Large deformation bar truss")
 
     System system;
 
-    Node node01 = system.create_node({{  0.0, 0.0, 0.0}}, {{false, false, false}});
-    Node node02 = system.create_node({{    H,   H, 0.0}}, {{false, true,  false}});
-    Node node03 = system.create_node({{2.0*H, 0.0, 0.0}}, {{false, false, false}});
+    Node node01 = system.create_node({{false, false, false}}, {{  0.0, 0.0, 0.0}});
+    Node node02 = system.create_node({{false, true,  false}}, {{    H,   H, 0.0}});
+    Node node03 = system.create_node({{false, false, false}}, {{2.0*H, 0.0, 0.0}});
 
     BarElement element_01_02(node01, node02, M_SQRT2*H, EA, 0.0, 0.0);
     BarElement element_02_03(node02, node03, M_SQRT2*H, EA, 0.0, 0.0);

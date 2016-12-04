@@ -7,8 +7,8 @@
 #include "../model/BowModel.hpp"
 #include <thread>
 
-MainWindow:: MainWindow(const QString& file_path)
-    : input(file_path),
+MainWindow:: MainWindow(const QString& path)
+    : input(path),
       editor(new BowEditor(input))
 {
     // Actions
@@ -224,9 +224,9 @@ void MainWindow::about()
     msgbox.exec();
 }
 
-void MainWindow::setCurrentFile(const QString &file_name)
+void MainWindow::setCurrentFile(const QString &path)
 {
-    current_file = file_name;
+    current_file = path;
     setWindowFilePath(current_file.isEmpty() ? "untitled.bow" : current_file);
 }
 
@@ -250,13 +250,13 @@ bool MainWindow::optionalSave()    // true: Discard, false: Cancel
 }
 
 // Todo: Unify loadFile and saveFile?
-bool MainWindow::loadFile(const QString &file_name)
+bool MainWindow::loadFile(const QString& path)
 {
     try
     {
-        input.load(file_name);
+        input.load(path);
 
-        setCurrentFile(file_name);
+        setCurrentFile(path);
         return true;
     }
     catch(const std::exception& e)  // Todo
@@ -266,14 +266,14 @@ bool MainWindow::loadFile(const QString &file_name)
     }
 }
 
-bool MainWindow::saveFile(const QString &file_name)
+bool MainWindow::saveFile(const QString& path)
 {
     try
     {
         input.meta_version = QGuiApplication::applicationVersion().toStdString();
-        input.save(file_name);
+        input.save(path);
 
-        setCurrentFile(file_name);
+        setCurrentFile(path);
         return true;
     }
     catch(...)  // Todo

@@ -32,7 +32,7 @@ public:
         for(size_t i = 0; i < n+1; ++i)
         {
             bool active = (i != 0);
-            Node node = system.create_node({{limb.x[i], limb.y[i], limb.phi[i]}}, {{active, active, active}});
+            Node node = system.create_node({{active, active, active}}, {{limb.x[i], limb.y[i], limb.phi[i]}});
             nodes_limb.push_back(node);
         }
 
@@ -72,7 +72,7 @@ public:
             double x = xc*(1.0 - p) + xt*p;
             double y = yc*(1.0 - p) + yt*p;
 
-            Node node = system.create_node({{x, y, 0.0}}, {{(i != 0), true, false}});
+            Node node = system.create_node({{(i != 0), true, false}}, {{x, y, 0.0}});
             nodes_string.push_back(node);
         }
         nodes_string.push_back(nodes_limb.back());

@@ -37,20 +37,28 @@ public:
 
     }
 
-    Node create_node(std::array<double, 3> u_node, std::array<bool, 3> active)
+    Node create_node(std::array<bool, 3> active, std::array<double, 3> u_node, std::array<double, 3> v_node = {0.0, 0.0, 0.0})
     {
-        return Node{create_dof(u_node[0], active[0]),
-                    create_dof(u_node[1], active[1]),
-                    create_dof(u_node[2], active[2])};
+        return Node{create_dof(u_node[0], v_node[0], active[0]),
+                    create_dof(u_node[1], v_node[1], active[1]),
+                    create_dof(u_node[2], v_node[2], active[2])};
     }
 
-    Dof create_dof(double u_dof, bool active)
+    // Create node with the same displacement and velocity as 'other'
+    Node create_node(const Node& other, std::array<bool, 3> active)
+    {
+        return Node{create_dof(get_u(other.x),   get_v(other.x),   active[0]),
+                    create_dof(get_u(other.y),   get_v(other.y),   active[1]),
+                    create_dof(get_u(other.phi), get_v(other.phi), active[2])};
+    }
+
+    Dof create_dof(double u_dof, double v_dof, bool active)
     {
         if(active)
         {
             size_t n = u.size() + 1;
             u = (VectorXd(n) << u, u_dof).finished();
-            v = (VectorXd(n) << v, 0.0).finished();
+            v = (VectorXd(n) << v, v_dof).finished();
             a = (VectorXd(n) << a, 0.0).finished();
             p = (VectorXd(n) << p, 0.0).finished();
 

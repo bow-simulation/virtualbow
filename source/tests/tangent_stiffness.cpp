@@ -25,8 +25,8 @@ TEST_CASE("Tangent stiffness matrix: BarElement")
         double EA = 100.0;
 
         System system;
-        Node node0 = system.create_node({{    dx0, dy0, 0.0}}, {{true, true, false}});
-        Node node1 = system.create_node({{L + dx1, dy1, 0.0}}, {{true, true, false}});
+        Node node0 = system.create_node({{true, true, false}}, {{    dx0, dy0, 0.0}});
+        Node node1 = system.create_node({{true, true, false}}, {{L + dx1, dy1, 0.0}});
 
         BarElement element01(node0, node1, L, EA, 0.0, 0.0);
         system.add_element(element01);
@@ -56,8 +56,8 @@ TEST_CASE("Tangent stiffness matrix: BeamElement")
         double EI = 10.0;
 
         System system;
-        Node node0 = system.create_node({{x0, y0, phi0}}, {{true, true, true}});
-        Node node1 = system.create_node({{x1, y1, phi1}}, {{true, true, true}});
+        Node node0 = system.create_node({{true, true, true}}, {{x0, y0, phi0}});
+        Node node1 = system.create_node({{true, true, true}}, {{x1, y1, phi1}});
 
         BeamElement element01(node0, node1, 0.0, L);
         element01.set_stiffness(EA, EI, 0.0);

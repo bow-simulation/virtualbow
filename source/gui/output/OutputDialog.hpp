@@ -67,12 +67,12 @@ public:
         auto plot_energy = new EnergyPlot(dynamics.states, dynamics.states.time, "Time [s]");
         auto plot_combo = new ComboPlot();
         plot_combo->addData("Time [s]", dynamics.states.time);
-        plot_combo->addData("Arrow position [m]", dynamics.states.pos_arrow);
-        plot_combo->addData("Arrow velocity [m/s]", dynamics.states.vel_arrow);
-        plot_combo->addData("Arrow acceleration [m/s²]", dynamics.states.acc_arrow);
-        plot_combo->addData("String position [m]", dynamics.states.pos_string);
-        plot_combo->addData("String velocity [m/s]", dynamics.states.vel_string);
-        plot_combo->addData("String acceleration [m/s²]", dynamics.states.acc_string);
+        plot_combo->addData("Arrow position (y) [m]", dynamics.states.pos_arrow);
+        plot_combo->addData("Arrow velocity (y) [m/s]", dynamics.states.vel_arrow);
+        plot_combo->addData("Arrow acceleration (y) [m/s²]", dynamics.states.acc_arrow);
+        plot_combo->addData("String position (y) [m]", dynamics.states.pos_string);
+        plot_combo->addData("String velocity (y) [m/s]", dynamics.states.vel_string);
+        plot_combo->addData("String acceleration (y) [m/s²]", dynamics.states.acc_string);
         plot_combo->setCombination(0, 1);
 
         auto tabs = new QTabWidget();

@@ -68,7 +68,7 @@ private:
         auto y = combo_y->currentData().value<const std::vector<double>*>();
         plot->setData(0, {*x, *y});
         plot->setLabels(combo_x->currentText(), combo_y->currentText());
-        plot->fitContent(true, true);
+        plot->fitContent(false, false); // Todo: Default arguments?
         plot->replot();
     }
 };

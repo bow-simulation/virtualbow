@@ -16,8 +16,8 @@ TEST_CASE("Dynamic solution harmonic oscillator")
     double s0 = 0.1;   // Initial displacement
 
     System system;
-    Node node_a = system.create_node({{   0.0, 0.0, 0.0}}, {{false, false, false}});
-    Node node_b = system.create_node({{l + s0, 0.0, 0.0}}, {{true, false, false}});
+    Node node_a = system.create_node({{false, false, false}}, {{   0.0, 0.0, 0.0}});
+    Node node_b = system.create_node({{true, false, false}}, {{l + s0, 0.0, 0.0}});
 
     BarElement element1(node_a, node_b, l, l*k, l*d, 0.0);
     MassElement element2(node_b, m, 0.0);

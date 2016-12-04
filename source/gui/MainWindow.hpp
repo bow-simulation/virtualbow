@@ -7,7 +7,7 @@ class BowEditor;
 class MainWindow: public QMainWindow
 {
 public:
-    MainWindow(const QString& file_path);   // Todo: Consistent naming: file_name, file_path, file, path, ...
+    MainWindow(const QString& path);   // Todo: Consistent naming: path, file_path, file, path, ...
 
 private:
     InputData input;
@@ -27,8 +27,8 @@ private:
     void runSimulation(bool dynamics);
     void about();
 
-    void setCurrentFile(const QString &file_name);
+    void setCurrentFile(const QString& path);
     bool optionalSave();
-    bool loadFile(const QString &file_name);
-    bool saveFile(const QString &file_name);
+    bool loadFile(const QString& path);
+    bool saveFile(const QString& path);
 };
