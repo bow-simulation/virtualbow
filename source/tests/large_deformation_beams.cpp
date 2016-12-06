@@ -8,7 +8,7 @@
 // "Large deformation of a cantilever beam subjected to a vertical tip load" as described in [1]
 // [1] On the correct representation of bending and axial deformation in the absolute nodal coordinate formulation with an elastic line approach
 // Johannes Gerstmayr, Hans Irschik, Journal of Sound and Vibration 318 (2008) 461-487
-TEST_CASE("Large deformation cantilever")
+TEST_CASE("large-deformation-cantilever")
 {
     unsigned N = 15; // Number of elements
 
@@ -24,7 +24,6 @@ TEST_CASE("Large deformation cantilever")
 
     System system;
     std::vector<Node> nodes;
-    std::vector<BeamElement> elements;
 
     // Create nodes
     for(unsigned i = 0; i < N+1; ++i)
@@ -38,10 +37,8 @@ TEST_CASE("Large deformation cantilever")
     {
         BeamElement element(nodes[i], nodes[i+1], 0.0, L/double(N));
         element.set_stiffness(E*A, E*I, 0.0);
-        elements.push_back(element);
+        system.elements().add(element);
     }
-    system.add_elements(elements);
-
 
     system.get_p(nodes[N].y) = F0;
     system.solve_statics_lc();
@@ -66,7 +63,7 @@ TEST_CASE("Large deformation cantilever")
 // Static test "Bending of a pre-curved beam into a full circle" from [1]
 // [1] On the correct representation of bending and axial deformation in the absolute nodal coordinate formulation with an elastic line approach
 // Johannes Gerstmayr, Hans Irschik. Journal of Sound and Vibration 318 (2008) 461-487
-TEST_CASE("Large deformation circular beam")
+TEST_CASE("large-deformation-circular-beam")
 {
     unsigned N = 20;    // Number of elements
 
@@ -97,13 +94,13 @@ TEST_CASE("Large deformation circular beam")
         element.set_reference_angles(angle - system.get_u(nodes[i].phi),
                                      angle - system.get_u(nodes[i+1].phi));
 
-        elements.push_back(element);
+        system.elements().add(element);
     }
-    system.add_elements(elements);
 
     system.solve_statics_dc(nodes[N].phi, -M_PI, 15, [&]()
     {
         //std::cout << "phi = " << system.get_u()(nodes[N].phi) << "\n";
+        return true;
     });
 
     double M_num = -system.get_p(nodes[N].phi);

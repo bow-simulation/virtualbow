@@ -10,7 +10,7 @@
 #include "../fem/elements/ContactElement1D.hpp"
 #include "../numerics/SecantMethod.hpp"
 #include "../gui/ProgressDialog.hpp"
-
+#include <boost/optional.hpp>
 #include <algorithm>
 
 class BowModel
@@ -54,7 +54,7 @@ public:
             BeamElement element(nodes_limb[i], nodes_limb[i+1], rhoA, L);
             element.set_reference_angles(phi0, phi1);
             element.set_stiffness(Cee, Ckk, Cek);
-            elements_limb.push_back(element);
+            system.elements().add(element, "limb");
         }
 
         // Limb tip
@@ -78,7 +78,7 @@ public:
         nodes_string.push_back(nodes_limb.back());
 
         // Create arrow node
-        node_arrow = system.create_node({{xc, yc, 0.0}}, {{false, true, false}});
+        node_arrow = nodes_string[0];   //system.create_node({{xc, yc, 0.0}}, {{false, true, false}});
 
         // Create string elements
         double EA = input.string_n_strands*input.string_strand_stiffness;
@@ -87,36 +87,27 @@ public:
         for(size_t i = 0; i < k; ++i)
         {
             BarElement element(nodes_string[i], nodes_string[i+1], 0.0, EA, 0.0, rhoA); // Element lengths are reset later when string length is determined
-            elements_string.push_back(element);
+            system.elements().add(element, "string");
         }
-
-        // Todo: Add elements inside loops, prevent iterator invalidation by using unique_ptr or shared_ptr
-        // or maybe even let system own elements. Look at boost pointer container library.
-        system.add_elements(elements_limb);
-        system.add_elements(elements_string);
 
         // Create mass elements
         // MassElement(Node nd, double m, double I)
-        mass_limb_tip = MassElement(nodes_limb.back(), input.mass_limb_tip);
-        mass_string_tip = MassElement(nodes_string.back(), input.mass_string_tip);
-        mass_string_center = MassElement(nodes_string.front(), 0.5*input.mass_string_center);   // 0.5 because of symmetric model
-        mass_arrow = MassElement(node_arrow, 0.5*input.operation_mass_arrow);                   // 0.5 because of symmetric model
+        MassElement mass_limb_tip(nodes_limb.back(), input.mass_limb_tip);
+        MassElement mass_string_tip(nodes_string.back(), input.mass_string_tip);
+        MassElement mass_string_center(nodes_string.front(), 0.5*input.mass_string_center);   // 0.5 because of symmetric model
+        MassElement mass_arrow(node_arrow, 0.5*input.operation_mass_arrow);                   // 0.5 because of symmetric model
 
-        // Arrow contact with default values for static analysis
-        contact_arrow = ContactElement1D(nodes_string[0].y, node_arrow.y, 1e5, 0.0); // Todo: Magic numbers
-
-        system.add_element(mass_limb_tip);
-        system.add_element(mass_string_tip);
-        system.add_element(mass_string_center);
-        system.add_element(mass_arrow);
-        system.add_element(contact_arrow);
+        system.elements().add(mass_limb_tip, "mass limb tip");
+        system.elements().add(mass_string_tip, "mass string tip");
+        system.elements().add(mass_string_center, "mass string center");
+        system.elements().add(mass_arrow, "mass arrow");
 
         // Takes a string length, iterates to equilibrium with the constraint of the brace height
         // and returns the angle of the string center
         auto try_string_length = [&](double string_length)
         {
             double L = 0.5*string_length/double(k);
-            for(auto& element: elements_string)
+            for(auto& element: system.elements_const().group<BarElement>("string"))
             {
                 element.set_length(L);
             }
@@ -153,19 +144,6 @@ public:
 
     void simulate_dynamics(TaskState& task)
     {
-        // Adjust arrow contact based on static results
-        double max_penetration = 1e-4*(input.operation_draw_length - input.operation_brace_height);  // Todo: Magic number
-        double max_force = output.statics->states.draw_force.back();  // Todo: Assumes that max draw force is reached at end of draw
-        double kc = max_force/max_penetration;
-
-        double ml = input.operation_mass_arrow;
-        double mr = input.mass_string_center + elements_string[0].get_node_mass();  // Todo: Find better (less fragile) way to get this mass
-        double dc = 2.0*std::sqrt(kc*ml*mr/(ml + mr));
-
-        contact_arrow.set_stiffness(kc);
-        contact_arrow.set_damping(dc);
-        contact_arrow.set_one_sided(true);
-
         // Remove draw force    // Todo: Doesn't really belong in this method
         system.get_p(nodes_string[0].y) = 0.0;
 
@@ -224,41 +202,11 @@ public:
         states.vel_string.push_back(system.get_v(nodes_string[0].y));
         states.acc_string.push_back(system.get_a(nodes_string[0].y));
 
-        // Energy limbs
-
-        double e_pot_limbs = 0.0;
-        double e_kin_limbs = 0.0;
-        mass_limb_tip.accumulate_energy(e_pot_limbs, e_kin_limbs);
-
-        for(auto& element: elements_limb)
-            element.accumulate_energy(e_pot_limbs, e_kin_limbs);
-
-        e_pot_limbs *= 2.0;     // *2 for Symmetry
-        e_kin_limbs *= 2.0;     // *2 for Symmetry
-
-        states.e_pot_limbs.push_back(e_pot_limbs);
-        states.e_kin_limbs.push_back(e_kin_limbs);
-
-        // Energy string
-
-        double e_pot_string = 0.0;
-        double e_kin_string = 0.0;
-        mass_string_tip.accumulate_energy(e_pot_string, e_kin_string);
-        mass_string_center.accumulate_energy(e_pot_string, e_kin_string);
-        contact_arrow.accumulate_energy(e_pot_string, e_kin_string);
-
-        for(auto& element: elements_string)
-            element.accumulate_energy(e_pot_string, e_kin_string);
-
-        e_pot_string *= 2.0;     // *2 for Symmetry
-        e_kin_string *= 2.0;     // *2 for Symmetry
-
-        states.e_pot_string.push_back(e_pot_string);
-        states.e_kin_string.push_back(e_kin_string);
-
-        // Energy arrow
-
-        states.e_kin_arrow.push_back(2.0*mass_arrow.get_kinetic_energy());  // *2 for Symmetry
+        states.e_pot_limbs.push_back(2.0*(system.get_potential_energy("limb") + system.get_potential_energy("mass limb tip")));
+        states.e_kin_limbs.push_back(2.0*(system.get_kinetic_energy("limb") + system.get_kinetic_energy("mass limb tip")));
+        states.e_pot_string.push_back(2.0*(system.get_potential_energy("string") + system.get_potential_energy("mass string tip") + system.get_potential_energy("mass string center")));
+        states.e_kin_string.push_back(2.0*(system.get_kinetic_energy("string") + system.get_kinetic_energy("mass string tip") + system.get_kinetic_energy("mass string center")));
+        states.e_kin_arrow.push_back(2.0*system.get_kinetic_energy("mass arrow"));
 
         // Shapes
 
@@ -281,25 +229,27 @@ public:
 
         // Stresses
 
-        std::vector<double> epsilon;
-        std::vector<double> kappa;
-        for(size_t i = 0; i < elements_limb.size(); ++i)
+        std::vector<double> epsilon(nodes_limb.size());
+        std::vector<double> kappa(nodes_limb.size());
+
+        auto elements = system.elements_const().group<BeamElement>("limb");
+
+        for(size_t i = 0; i < nodes_limb.size(); ++i)
         {
             if(i == 0)
             {
-                epsilon.push_back(elements_limb[i].get_epsilon(0.0));
-                kappa.push_back(elements_limb[i].get_kappa(0.0));
+                epsilon[i] = elements[i].get_epsilon(0.0);
+                kappa[i] = elements[i].get_kappa(0.0);
+            }
+            else if(i == nodes_limb.size()-1)
+            {
+                epsilon[i] = elements[i-1].get_epsilon(1.0);
+                kappa[i] = elements[i-1].get_kappa(1.0);
             }
             else
             {
-                if(i == elements_limb.size() - 1)
-                {
-                    epsilon.push_back(elements_limb[i-1].get_epsilon(1.0));
-                    kappa.push_back(elements_limb[i-1].get_kappa(1.0));
-                }
-
-                epsilon.push_back(0.5*(elements_limb[i].get_epsilon(0.0) + elements_limb[i-1].get_epsilon(1.0)));
-                kappa.push_back(0.5*(elements_limb[i].get_kappa(0.0) + elements_limb[i-1].get_kappa(1.0)));
+                epsilon[i] = 0.5*(elements[i-1].get_epsilon(1.0) + elements[i].get_epsilon(0.0));
+                kappa[i] = 0.5*(elements[i-1].get_kappa(1.0) + elements[i].get_kappa(0.0));
             }
         }
 
@@ -314,16 +264,7 @@ private:
 
     System system;
 
-    std::vector<BeamElement> elements_limb;
-    std::vector<BarElement> elements_string;
     std::vector<Node> nodes_limb;
     std::vector<Node> nodes_string;
     Node node_arrow;
-
-    MassElement mass_limb_tip;
-    MassElement mass_string_tip;
-    MassElement mass_string_center;
-    MassElement mass_arrow;
-
-    ContactElement1D contact_arrow;
 };

@@ -12,7 +12,8 @@ SOURCES += \
     ../source/tests/main.cpp \
     ../source/tests/large_deformation_beams.cpp \
     ../source/fem/System.cpp \
-    ../source/fem/elements/Element.cpp
+    ../source/fem/elements/Element.cpp \
+    ../source/fem/ElementContainer.cpp
 
 HEADERS += \
     ../source/fem/Node.hpp \
@@ -21,6 +22,7 @@ HEADERS += \
     ../source/fem/elements/BarElement.hpp \
     ../source/fem/elements/MassElement.hpp \
     ../source/fem/elements/Element.hpp \
-    ../source/fem/elements/BeamElement.hpp
+    ../source/fem/elements/BeamElement.hpp \
+    ../source/fem/ElementContainer.hpp
 
 

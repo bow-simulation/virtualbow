@@ -5,7 +5,7 @@
 #include <catch.hpp>
 #include <iostream>
 
-TEST_CASE("Dynamic solution harmonic oscillator")
+TEST_CASE("dynamic-solution-harmonic-oscillator")
 {
     // https://de.wikipedia.org/wiki/Schwingung#Linear_ged.C3.A4mpfte_Schwingung
     double l = 1.0;
@@ -21,8 +21,8 @@ TEST_CASE("Dynamic solution harmonic oscillator")
 
     BarElement element1(node_a, node_b, l, l*k, l*d, 0.0);
     MassElement element2(node_b, m, 0.0);
-    system.add_element(element1);
-    system.add_element(element2);
+    system.elements().add(element1);
+    system.elements().add(element2);
 
     // Constants for the analytical solution
     double delta = d/(2.0*m);                                // Decay constant

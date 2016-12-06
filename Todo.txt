@@ -98,6 +98,9 @@ FEM
 
     * Unify the static solution methods: Implement one method with arbitrary constraint. Load control and displacement control are special cases of this.
 
+    * Does std::function perform dynamic memory allocation? (Used heavily in FEM vector and matrix views)
+      https://www.reddit.com/r/cpp_questions/comments/5ga9ar/what_are_downsides_of_using_lambdas/
+
 Model
 =====
 
@@ -159,3 +162,5 @@ Ideas for Improvement
         * Invoke Program on output file: Show output window
 
     * Sampling frequency instead of sampling time?
+
+    * Look at boost book

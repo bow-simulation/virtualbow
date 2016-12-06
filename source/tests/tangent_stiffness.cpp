@@ -17,7 +17,7 @@ void check_stiffness_matrix(System& system)
     REQUIRE(K_sym.isApprox(K_num.transpose(), 1e-5));       // Symmetric
 }
 
-TEST_CASE("Tangent stiffness matrix: BarElement")
+TEST_CASE("tangent-stiffness-bar-element")
 {
     auto check_at = [](double dx0, double dy0, double dx1, double dy1)
     {
@@ -29,7 +29,7 @@ TEST_CASE("Tangent stiffness matrix: BarElement")
         Node node1 = system.create_node({{true, true, false}}, {{L + dx1, dy1, 0.0}});
 
         BarElement element01(node0, node1, L, EA, 0.0, 0.0);
-        system.add_element(element01);
+        system.elements().add(element01);
 
         check_stiffness_matrix(system);
     };
@@ -47,7 +47,7 @@ TEST_CASE("Tangent stiffness matrix: BarElement")
     check_at(-1.5, -1.5, 0.0, 0.0);
 }
 
-TEST_CASE("Tangent stiffness matrix: BeamElement")
+TEST_CASE("tangent-stiffness-beam-element")
 {
     auto check_at = [](double x0, double y0, double phi0, double x1, double y1, double phi1)
     {
@@ -61,7 +61,7 @@ TEST_CASE("Tangent stiffness matrix: BeamElement")
 
         BeamElement element01(node0, node1, 0.0, L);
         element01.set_stiffness(EA, EI, 0.0);
-        system.add_element(element01);
+        system.elements().add(element01);
 
         check_stiffness_matrix(system);
     };

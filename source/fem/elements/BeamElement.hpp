@@ -83,8 +83,6 @@ public:
         J << -j0, -j1, 0.0, j0,  j1, 0.0,
              -j3,  j2, 1.0, j3, -j2, 0.0,
              -j3,  j2, 0.0, j3, -j2, 1.0;
-
-        Element::set_state(u, v);
     }
 
     virtual void get_masses(VectorView<Dof> M) const override

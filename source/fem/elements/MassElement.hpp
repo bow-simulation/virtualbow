@@ -24,6 +24,11 @@ public:
 
     }
 
+    virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> v) override
+    {
+
+    }
+
     virtual void get_masses(VectorView<Dof> M) const override
     {
         M(node.x) += m;

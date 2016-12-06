@@ -53,8 +53,6 @@ public:
     {
         delta_u = u(dof_upper) - u(dof_lower);
         delta_v = v(dof_upper) - v(dof_lower);
-
-        Element::set_state(u, v);
     }
 
     virtual void get_masses(VectorView<Dof> M) const override

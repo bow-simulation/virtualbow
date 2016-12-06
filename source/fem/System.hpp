@@ -2,16 +2,16 @@
 #include "View.hpp"
 #include "Node.hpp"
 #include "elements/Element.hpp"
-
+#include "ElementContainer.hpp"
 #include <Eigen/Eigenvalues>
-
 #include <vector>
+
 #include <iostream>
 
 class System
 {
 private:
-    std::vector<Element*> elements;
+    ElementContainer m_elements;
 
     double t;       // Time
     VectorXd u;     // Displacements
@@ -73,19 +73,14 @@ public:
         }
     }
 
-    void add_element(Element& element)
+    ElementContainer& elements()
     {
-        element.set_state(get_u, get_v);
-        elements.push_back(&element);
+        return m_elements;
     }
 
-    template<class ElementContainer>
-    void add_elements(ElementContainer& container)
+    const ElementContainer& elements_const() const
     {
-        for(auto it = container.begin(); it != container.end(); ++it)
-        {
-            add_element(*it);
-        }
+        return m_elements;
     }
 
     size_t dofs() const
@@ -116,9 +111,34 @@ public:
         return std::atan2(dy, dx);
     }
 
+    double get_kinetic_energy(const std::string& key) const
+    {
+        double e_kin = 0.0;
+        for(auto& e: m_elements.group(key))
+        {
+            e_kin += e.get_kinetic_energy(get_v);
+        }
+
+        return e_kin;
+    }
+
+    double get_potential_energy(const std::string& key) const
+    {
+        double e_pot = 0.0;
+        for(auto& e: m_elements.group(key))
+        {
+            e_pot += e.get_potential_energy();
+        }
+
+        return e_pot;
+    }
+
     // Todo: Rename statics methods to 'solve_equilibrium' and 'solve_equilibrium_path'?
     void solve_statics_lc()
     {
+        // Todo: Remove and replace with comprehensive approach to changing data and recalculation
+        update_element_states();
+
         v.setZero();
         a.setZero();
 
@@ -131,6 +151,7 @@ public:
 
         get_internal_forces(q);
         get_tangent_stiffness(K);
+
         double norm_0 = (p - q).norm();
 
         if(norm_0 == 0)     // Todo: Introduce absolute tolerance for this
@@ -167,6 +188,9 @@ public:
                           unsigned n_steps,
                           const std::function<bool()>& callback = [](){ return true; })
     {
+        // Todo: Remove and replace with comprehensive approach to changing data and recalculation
+        update_element_states();
+
         v.setZero();
         a.setZero();
 
@@ -247,6 +271,9 @@ public:
 
     void solve_dynamics(double timestep_factor, const std::function<bool()>& callback)
     {
+        // Todo: Remove and replace with comprehensive approach to changing data and recalculation
+        update_element_states();
+
         VectorXd M(dofs());
         VectorXd q(dofs());
         MatrixXd K(dofs(), dofs());
@@ -299,9 +326,9 @@ public:
                 K(dof_row.index, dof_col.index) += val;
         });
 
-        for(auto e: elements)
+        for(auto& e: m_elements)
         {
-            e->get_tangent_stiffness(view);
+            e.get_tangent_stiffness(view);
         }
     }
 
@@ -334,9 +361,9 @@ public:
 private:
     void update_element_states()
     {
-        for(auto e: elements)
+        for(auto& e: m_elements)
         {
-            e->set_state(get_u, get_v);
+            e.set_state(get_u, get_v);
         }
     }
 
@@ -351,9 +378,9 @@ private:
                 M(dof.index) += val;
         });
 
-        for(auto e: elements)
+        for(auto& e: m_elements)
         {
-            e->get_masses(view);
+            e.get_masses(view);
         }
     }
 
@@ -368,9 +395,9 @@ private:
                 q(dof.index) += val;
         });
 
-        for(auto e: elements)
+        for(auto& e: m_elements)
         {
-            e->get_internal_forces(view);
+            e.get_internal_forces(view);
         }
     }
 };
