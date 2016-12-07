@@ -192,7 +192,7 @@ public:
     void get_bow_state(BowStates& states) const
     {
         states.time.push_back(system.get_time());
-        states.draw_force.push_back(2.0*system.get_p(nodes_string[0].y));   // *2.0 because symmetry
+        states.draw_force.push_back(2.0*system.get_p(nodes_string[0].y));
 
         states.pos_arrow.push_back(system.get_u(node_arrow.y));
         states.vel_arrow.push_back(system.get_v(node_arrow.y));
@@ -202,10 +202,10 @@ public:
         states.vel_string.push_back(system.get_v(nodes_string[0].y));
         states.acc_string.push_back(system.get_a(nodes_string[0].y));
 
-        states.e_pot_limbs.push_back(2.0*(system.get_potential_energy("limb") + system.get_potential_energy("mass limb tip")));
-        states.e_kin_limbs.push_back(2.0*(system.get_kinetic_energy("limb") + system.get_kinetic_energy("mass limb tip")));
-        states.e_pot_string.push_back(2.0*(system.get_potential_energy("string") + system.get_potential_energy("mass string tip") + system.get_potential_energy("mass string center")));
-        states.e_kin_string.push_back(2.0*(system.get_kinetic_energy("string") + system.get_kinetic_energy("mass string tip") + system.get_kinetic_energy("mass string center")));
+        states.e_pot_limbs.push_back(2.0*system.get_potential_energy("limb", "mass limb tip"));
+        states.e_kin_limbs.push_back(2.0*system.get_kinetic_energy("limb", "mass limb tip"));
+        states.e_pot_string.push_back(2.0*system.get_potential_energy("string", "mass string tip", "mass string center"));
+        states.e_kin_string.push_back(2.0*system.get_kinetic_energy("string", "mass string tip", "mass string center"));
         states.e_kin_arrow.push_back(2.0*system.get_kinetic_energy("mass arrow"));
 
         // Shapes
