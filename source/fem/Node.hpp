@@ -7,7 +7,7 @@ struct Dof
 
     bool operator!=(const Dof& rhs) const
     {
-        return rhs.index != index;
+        return (rhs.active != active) || (rhs.index != index);
     }
 };
 

@@ -1,54 +1,11 @@
 #pragma once
 #include "elements/Element.hpp"
+#include "../utils/DynamicCastIterator.hpp"
 #include <boost/range/iterator_range.hpp>
 #include <boost/iterator/transform_iterator.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/casts.hpp>
-#include <boost/functional.hpp>
-
 #include <string>
 #include <vector>
 #include <map>
-
-// Dynamic cast iterator adapted from stackoverflow:
-// http://stackoverflow.com/questions/842387/how-do-i-dynamically-cast-between-vectors-of-pointers/842491#842491
-
-template<class Target>
-struct dynamic_caster
-{
-    typedef Target& result_type;
-
-    template<typename Source>
-    Target& operator()(Source* s) const
-    {
-         return dynamic_cast<Target&>(*s);
-    }
-};
-
-/*
-template<class Iterator, class Target>
-using dynamic_cast_iterator = boost::transform_iterator<dynamic_caster<Target>, Iterator>;
-
-template<class Iterator, class Target>
-dynamic_cast_iterator<Target, Iterator> make_dynamic_cast_iterator(Iterator it)
-{
-    return boost::make_transform_iterator(it, dynamic_caster<Target>());
-}
-*/
-
-template<class Iterator, class Target>
-using dynamic_cast_iterator_base = boost::transform_iterator<dynamic_caster<Target>, Iterator>;
-
-template<class Iterator, class Target>
-class dynamic_cast_iterator: public dynamic_cast_iterator_base<Iterator, Target>
-{
-public:
-    dynamic_cast_iterator(Iterator it)
-        : dynamic_cast_iterator_base<Iterator, Target>(it, dynamic_caster<Target>())
-    {
-
-    }
-};
 
 class ElementContainer
 {

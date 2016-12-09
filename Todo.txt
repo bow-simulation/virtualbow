@@ -101,6 +101,10 @@ FEM
     * Does std::function perform dynamic memory allocation? (Used heavily in FEM vector and matrix views)
       https://www.reddit.com/r/cpp_questions/comments/5ga9ar/what_are_downsides_of_using_lambdas/
 
+   !* Dynamic cast iterator: Combine with a filter iterator to filter all elements that do not convert?
+      (let dynamic_cast return pointer, check for null, then convert to referene)
+      This way several element types could be added to one group. Maybe add another key (group + name).
+
 Model
 =====
 
@@ -116,6 +120,7 @@ Model
    !* Bug: First arrow acceleration is zero.
         
         * Not really a bug, this is due to the coupling element between string and arrow
+
         * Solution: No coupling element, make arrow mass share the string center node until arrow acceleration changes sign,
           then change the node of the arrow mass to a new one with appropriate initial displacement and velocity.
           Restart dynamic simulation.
@@ -138,6 +143,10 @@ General
     * How to avoid using ../../ in includes?
 
     * Use the GUI editor to rid the setup and layout code, etc... ?
+
+    * Use auto& more often instead of auto?
+
+    * Use Linspace class more often (e.g. for sampling curvces)
 
 Platform dependent
 ==================

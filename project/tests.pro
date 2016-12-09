@@ -11,18 +11,19 @@ SOURCES += \
     ../source/tests/harmonic_oscillator.cpp \
     ../source/tests/main.cpp \
     ../source/tests/large_deformation_beams.cpp \
-    ../source/fem/System.cpp \
-    ../source/fem/elements/Element.cpp \
-    ../source/fem/ElementContainer.cpp
+    ../source/fem/System2.cpp \
+    ../source/fem/Node2.cpp \
+    ../source/fem/Element2.cpp
 
 HEADERS += \
-    ../source/fem/Node.hpp \
     ../source/fem/View.hpp \
-    ../source/fem/System.hpp \
-    ../source/fem/elements/BarElement.hpp \
-    ../source/fem/elements/MassElement.hpp \
-    ../source/fem/elements/Element.hpp \
-    ../source/fem/elements/BeamElement.hpp \
-    ../source/fem/ElementContainer.hpp
+    ../source/fem/System2.hpp \
+    ../source/fem/Node2.hpp \
+    ../source/fem/elements/BarElement2.hpp \
+    ../source/fem/Solver.hpp \
+    ../source/numerics/Linspace.hpp \
+    ../source/fem/elements/MassElement2.hpp \
+    ../source/fem/Element2.hpp \
+    ../source/fem/elements/BeamElement2.hpp
 
 

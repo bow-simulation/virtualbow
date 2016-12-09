@@ -1,20 +1,42 @@
-#include "../fem/System.hpp"
-#include "../fem/elements/BarElement.hpp"
-#include "../fem/elements/BeamElement.hpp"
+#include "../fem/System2.hpp"
+#include "../fem/elements/BarElement2.hpp"
+#include "../fem/elements/BeamElement2.hpp"
 
 #include <catch.hpp>
 #include <iostream>
 
-void check_stiffness_matrix(System& system)
+// Numeric tangent stiffness matrix using central differences
+Eigen::MatrixXd numeric_tangent_stiffness(System2& system, double h = 1e-8)
 {
-    Eigen::MatrixXd K_sym = Eigen::MatrixXd::Zero(system.dofs(), system.dofs());
-    Eigen::MatrixXd K_num = Eigen::MatrixXd::Zero(system.dofs(), system.dofs());
+    Eigen::MatrixXd K = Eigen::MatrixXd::Zero(system.dofs(), system.dofs());
 
-    system.get_tangent_stiffness(K_sym);
-    system.get_numeric_tangent_stiffness(K_num, 1e-8);
+    Eigen::VectorXd q_fwd = Eigen::VectorXd::Zero(system.dofs());
+    Eigen::VectorXd q_bwd = Eigen::VectorXd::Zero(system.dofs());
 
-    REQUIRE(K_sym.isApprox(K_num, 1e-5));                   // Equal to numeric derivatives
-    REQUIRE(K_sym.isApprox(K_num.transpose(), 1e-5));       // Symmetric
+    for(std::size_t i = 0; i < system.dofs(); ++i)
+    {
+        double ui = system.u()(i);
+
+        system.u_mut()(i) = ui + h;
+        q_fwd = system.q();
+
+        system.u_mut()(i) = ui - h;
+        q_bwd = system.q();
+
+        system.u_mut()(i) = ui;
+        K.col(i) = (q_fwd - q_bwd)/(2.0*h);
+    }
+
+    return K;
+}
+
+void check_stiffness_matrix(System2& system)
+{
+    Eigen::MatrixXd K_ana = system.K();
+    Eigen::MatrixXd K_num = numeric_tangent_stiffness(system);
+
+    REQUIRE(K_ana.isApprox(K_num, 1e-5));                   // Equal to numeric derivatives
+    REQUIRE(K_ana.isApprox(K_num.transpose(), 1e-5));       // Symmetric
 }
 
 TEST_CASE("tangent-stiffness-bar-element")
@@ -24,12 +46,10 @@ TEST_CASE("tangent-stiffness-bar-element")
         double L = 1.0;
         double EA = 100.0;
 
-        System system;
-        Node node0 = system.create_node({{true, true, false}}, {{    dx0, dy0, 0.0}});
-        Node node1 = system.create_node({{true, true, false}}, {{L + dx1, dy1, 0.0}});
-
-        BarElement element01(node0, node1, L, EA, 0.0, 0.0);
-        system.elements().add(element01);
+        System2 system;
+        Node2 node0 = system.create_node({DofType::Active, DofType::Active, DofType::Fixed}, {    dx0, dy0, 0.0});
+        Node2 node1 = system.create_node({DofType::Active, DofType::Active, DofType::Fixed}, {L + dx1, dy1, 0.0});
+        system.add_element(BarElement2(node0, node1, L, EA, 0.0, 0.0));
 
         check_stiffness_matrix(system);
     };
@@ -55,13 +75,13 @@ TEST_CASE("tangent-stiffness-beam-element")
         double EA = 100.0;
         double EI = 10.0;
 
-        System system;
-        Node node0 = system.create_node({{true, true, true}}, {{x0, y0, phi0}});
-        Node node1 = system.create_node({{true, true, true}}, {{x1, y1, phi1}});
+        System2 system;
+        Node2 node0 = system.create_node({DofType::Active, DofType::Active, DofType::Active}, {x0, y0, phi0});
+        Node2 node1 = system.create_node({DofType::Active, DofType::Active, DofType::Active}, {x1, y1, phi1});
 
-        BeamElement element01(node0, node1, 0.0, L);
+        BeamElement2 element01(node0, node1, 0.0, L);
         element01.set_stiffness(EA, EI, 0.0);
-        system.elements().add(element01);
+        system.add_element(element01);
 
         check_stiffness_matrix(system);
     };

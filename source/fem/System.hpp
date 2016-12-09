@@ -131,6 +131,12 @@ public:
         return get_kinetic_energy(key) + get_kinetic_energy(args...);
     }
 
+    template<typename... Args>
+    double get_potential_energy(const std::string& key, Args... args) const
+    {
+        return get_potential_energy(key) + get_potential_energy(args...);
+    }
+
     double get_kinetic_energy(const std::string& key) const
     {
         double e_kin = 0.0;
@@ -140,12 +146,6 @@ public:
         }
 
         return e_kin;
-    }
-
-    template<typename... Args>
-    double get_potential_energy(const std::string& key, Args... args) const
-    {
-        return get_potential_energy(key) + get_potential_energy(args...);
     }
 
     double get_potential_energy(const std::string& key) const

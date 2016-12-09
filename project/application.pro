@@ -27,7 +27,9 @@ SOURCES += \
     ../source/gui/Plot.cpp \
     ../source/gui/ProgressDialog.cpp \
     ../source/numerics/CubicSpline.cpp \
-    ../source/main.cpp
+    ../source/main.cpp \
+    ../source/fem/System2.cpp \
+    ../source/fem/Node2.cpp
 
 HEADERS += \
     ../source/external/qcustomplot/qcustomplot.h \
@@ -70,6 +72,14 @@ HEADERS += \
     ../source/gui/output/EnergyPlot.hpp \
     ../source/gui/output/StressPlot.hpp \
     ../source/gui/output/ComboPlot.hpp \
-    ../source/fem/ElementContainer.hpp
+    ../source/fem/ElementContainer.hpp \
+    ../source/fem/System2.hpp \
+    ../source/fem/Node2.hpp \
+    ../source/fem/elements/BarElement2.hpp \
+    ../source/fem/elements/Element2.hpp \
+    ../source/utils/DynamicCastIterator.hpp \
+    ../source/utils/Optional.hpp \
+    ../source/fem/Solver.hpp \
+    ../source/numerics/Linspace.hpp
 
 RESOURCES += ../resources/resources.qrc
