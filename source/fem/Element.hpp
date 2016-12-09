@@ -1,16 +1,13 @@
 #pragma once
-#include "../View.hpp"
-#include "../Node.hpp"
+#include "View.hpp"
 
 class Dof;
 
 // Todo: Make some typedef for VectorView<Dof>
 
-class Element
+class Element2
 {
 public:
-    virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> v) = 0;
-
     virtual void get_masses(VectorView<Dof> M) const = 0;
     virtual void get_internal_forces(VectorView<Dof> q) const = 0;
     virtual void get_tangent_stiffness(MatrixView<Dof> K) const = 0;

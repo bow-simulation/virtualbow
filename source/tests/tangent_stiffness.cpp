@@ -1,4 +1,4 @@
-#include "../fem/System2.hpp"
+#include "../fem/System.hpp"
 #include "../fem/elements/BarElement2.hpp"
 #include "../fem/elements/BeamElement2.hpp"
 
@@ -6,7 +6,7 @@
 #include <iostream>
 
 // Numeric tangent stiffness matrix using central differences
-Eigen::MatrixXd numeric_tangent_stiffness(System2& system, double h = 1e-8)
+Eigen::MatrixXd numeric_tangent_stiffness(System& system, double h = 1e-8)
 {
     Eigen::MatrixXd K = Eigen::MatrixXd::Zero(system.dofs(), system.dofs());
 
@@ -30,7 +30,7 @@ Eigen::MatrixXd numeric_tangent_stiffness(System2& system, double h = 1e-8)
     return K;
 }
 
-void check_stiffness_matrix(System2& system)
+void check_stiffness_matrix(System& system)
 {
     Eigen::MatrixXd K_ana = system.K();
     Eigen::MatrixXd K_num = numeric_tangent_stiffness(system);
@@ -46,9 +46,9 @@ TEST_CASE("tangent-stiffness-bar-element")
         double L = 1.0;
         double EA = 100.0;
 
-        System2 system;
-        Node2 node0 = system.create_node({DofType::Active, DofType::Active, DofType::Fixed}, {    dx0, dy0, 0.0});
-        Node2 node1 = system.create_node({DofType::Active, DofType::Active, DofType::Fixed}, {L + dx1, dy1, 0.0});
+        System system;
+        Node node0 = system.create_node({DofType::Active, DofType::Active, DofType::Fixed}, {    dx0, dy0, 0.0});
+        Node node1 = system.create_node({DofType::Active, DofType::Active, DofType::Fixed}, {L + dx1, dy1, 0.0});
         system.add_element(BarElement2(node0, node1, L, EA, 0.0, 0.0));
 
         check_stiffness_matrix(system);
@@ -75,9 +75,9 @@ TEST_CASE("tangent-stiffness-beam-element")
         double EA = 100.0;
         double EI = 10.0;
 
-        System2 system;
-        Node2 node0 = system.create_node({DofType::Active, DofType::Active, DofType::Active}, {x0, y0, phi0});
-        Node2 node1 = system.create_node({DofType::Active, DofType::Active, DofType::Active}, {x1, y1, phi1});
+        System system;
+        Node node0 = system.create_node({DofType::Active, DofType::Active, DofType::Active}, {x0, y0, phi0});
+        Node node1 = system.create_node({DofType::Active, DofType::Active, DofType::Active}, {x1, y1, phi1});
 
         BeamElement2 element01(node0, node1, 0.0, L);
         element01.set_stiffness(EA, EI, 0.0);

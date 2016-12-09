@@ -1,16 +1,18 @@
 #pragma once
-#include "System2.hpp"
-#include "Node2.hpp"
+#include "System.hpp"
+#include "Node.hpp"
 #include "../numerics/Linspace.hpp"
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <functional>
 
+#include <iostream>
+
 // Load controlled Newton-Raphson method
 class StaticSolverLC
 {
 public:
-    StaticSolverLC(System2& system): system(system)
+    StaticSolverLC(System& system): system(system)
     {
 
     }
@@ -45,7 +47,7 @@ public:
     }
 
 private:
-    System2& system;
+    System& system;
 
     const unsigned max_iter = 50;     // Todo: Magic number
     const double epsilon = 1e-6;      // Todo: Magic number
@@ -57,14 +59,13 @@ private:
 class StaticSolverDC
 {
 public:
-    StaticSolverDC(System2& system, Dof2 dof, double u_end, unsigned steps)
+    StaticSolverDC(System& system, Dof dof, double u_end, unsigned steps)
         : system(system),
-          dof(dof)
+          dof(dof),
+          displacements(system.u()(dof.index), u_end, steps),
+          e(unit_vector(system.dofs(), dof.index))
     {
-        if(dof.type == DofType::Fixed)
-            throw std::runtime_error("Displacement control not possible for fixed DOF");
-
-        displacements = Linspace(system.u()(dof.index), u_end, steps);
+        assert(dof.type == DofType::Active);
     }
 
     bool step()
@@ -81,18 +82,18 @@ public:
     }
 
 private:
-    System2& system;
-    Dof2 dof;
+    System& system;
+    Dof dof;
     Linspace displacements;
 
     const unsigned max_iter = 50;     // Todo: Magic number
     const double epsilon = 1e-6;      // Todo: Magic number
 
     Eigen::LDLT<Eigen::MatrixXd> stiffness_dec;
-    VectorXd delta = VectorXd(system.dofs());
-    VectorXd alpha = VectorXd(system.dofs());
-    VectorXd beta = VectorXd(system.dofs());
-    VectorXd e = unit_vector(system.dofs(), dof.index);
+    VectorXd delta;
+    VectorXd alpha;
+    VectorXd beta;
+    VectorXd e;
 
     void find_equilibrium(double displacement)
     {
@@ -113,7 +114,7 @@ private:
             double df = (displacement - system.u()(dof.index) - alpha(dof.index))/beta(dof.index);
 
             system.u_mut() += alpha + df*beta;
-            system.p_mut()(dof.index) += df;
+            dof.p_mut() += df;
 
             if((alpha + df*beta).norm()/double(system.dofs()) < epsilon)    // Todo: Better convergence criterion
             {
@@ -124,11 +125,11 @@ private:
         throw std::runtime_error("Maximum number of iterations exceeded");
     }
 
-    static VectorXd unit_vector(size_t n, size_t i)
+    VectorXd unit_vector(size_t n, size_t i) const
     {
         assert(i < n);
 
-        VectorXd vec(n);
+        VectorXd vec = VectorXd::Zero(n);
         vec(i) = 1.0;
 
         return vec;
@@ -139,15 +140,16 @@ private:
 class DynamicSolver
 {
 public:
-    DynamicSolver(System2& system, double step_factor, double sampling_time, std::function<bool()> stopping_criterion)
+    DynamicSolver(System& system, double step_factor, double sampling_time, std::function<bool()> stop)
         : system(system),
-          stopping_criterion(stopping_criterion),
-          stop(false),
+          stop(stop),
           ts(sampling_time),
           t(0.0)
     {
         // Timestep estimation
-        Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> eigen_solver(system.K(), system.M().asDiagonal(), Eigen::DecompositionOptions::EigenvaluesOnly);
+        Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd>
+        eigen_solver(system.K(), system.M().asDiagonal(), Eigen::DecompositionOptions::EigenvaluesOnly);
+
         if(eigen_solver.info() != Eigen::Success)
             throw std::runtime_error("Failed to compute eigenvalues of the system");
 
@@ -160,32 +162,29 @@ public:
 
     bool step()
     {
-        if(stop)
-            return false;
+        // Evaluate stop() before performing substeps so that one last sampling
+        // point is calculated after the stopping criterion has been reached.
+        bool stopped = stop();
 
         while(system.t() < t)
-        {
-            stop = stop || !sub_step();  // Set stop to true when sub_step returns false (stopping criterion reached)
-        }
+            sub_step();
 
         t = system.t() + ts;
-        return true;
+        return !stopped;
     }
 
 private:
-    System2& system;
-    std::function<bool()> stopping_criterion;
+    System& system;
+    std::function<bool()> stop;
 
     double dt;    // Timestep
-
-    bool stop;    // Stopping criterion reached, continue until next sampling point
     double ts;    // Sampling time
-    double t;     // Time at/after which the system needs to be sampled next
+    double t;     // Time at which the system has to be sampled next
 
     VectorXd u_p2;
     VectorXd u_p1;
 
-    bool sub_step()
+    void sub_step()
     {
         u_p1 = system.u();
 
@@ -194,7 +193,5 @@ private:
         system.t_mut() += dt;
 
         u_p2 = u_p1;
-
-        return !stopping_criterion();
     }
 };

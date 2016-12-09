@@ -1,9 +1,10 @@
 #pragma once
-#include "Element.hpp"
+#include "../Element.hpp"
+#include "../Node.hpp"
 
 #include <cmath>
 
-class BarElement: public Element
+class BarElement2: public Element2
 {
 private:
     std::array<Node, 2> nodes;
@@ -14,15 +15,9 @@ private:
     double etaA;
     double rhoA;
 
-    // State
-    double dx;
-    double dy;
-    double L_new;   // Actual length
-    double L_dot;   // Time derivative of actual length
-
 public:
-    BarElement(Node nd0, Node nd1, double L, double EA, double etaA, double rhoA)
-        : nodes{{nd0, nd1}},
+    BarElement2(Node nd0, Node nd1, double L, double EA, double etaA, double rhoA)
+        : nodes{nd0, nd1},
           L(L),
           EA(EA),
           etaA(etaA),
@@ -41,66 +36,81 @@ public:
         return 0.5*rhoA*L;
     }
 
-    virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> v) override
-    {        
-        dx = u(nodes[1].x) - u(nodes[0].x);
-        dy = u(nodes[1].y) - u(nodes[0].y);
-
-        L_new = std::hypot(dx, dy);
-        L_dot = 1.0/L_new*(dx*(v(nodes[1].x) - v(nodes[0].x)) + dy*(v(nodes[1].y) - v(nodes[0].y)));
-    }
-
     virtual void get_masses(VectorView<Dof> M) const override
     {
         double m = get_node_mass();
 
-        M(nodes[0].x) += m;
-        M(nodes[0].y) += m;
-        M(nodes[1].x) += m;
-        M(nodes[1].y) += m;
+        M(nodes[0][0]) += m;
+        M(nodes[0][1]) += m;
+        M(nodes[1][0]) += m;
+        M(nodes[1][1]) += m;
     }
 
     virtual void get_internal_forces(VectorView<Dof> q) const override
     {
+        // Todo: Code duplication
+        double dx = nodes[1][0].u() - nodes[0][0].u();
+        double dy = nodes[1][1].u() - nodes[0][1].u();
+        double L_new = std::hypot(dx, dy);
+        double L_dot = 1.0/L_new*(dx*(nodes[1][0].v() - nodes[0][0].v() + dy*nodes[1][1].v() - nodes[0][1].v()));
+
         double N = get_normal_force();
 
-        q(nodes[0].x) -= N*dx/L_new;
-        q(nodes[0].y) -= N*dy/L_new;
-        q(nodes[1].x) += N*dx/L_new;
-        q(nodes[1].y) += N*dy/L_new;
+        q(nodes[0][0]) -= N*dx/L_new;
+        q(nodes[0][1]) -= N*dy/L_new;
+        q(nodes[1][0]) += N*dx/L_new;
+        q(nodes[1][1]) += N*dy/L_new;
     }
 
     virtual void get_tangent_stiffness(MatrixView<Dof> K) const override
     {
+        // Todo: Code duplication
+        double dx = nodes[1][0].u() - nodes[0][0].u();
+        double dy = nodes[1][1].u() - nodes[0][1].u();
+        double L_new = std::hypot(dx, dy);
+        double L_dot = 1.0/L_new*(dx*(nodes[1][0].v() - nodes[0][0].v() + dy*nodes[1][1].v() - nodes[0][1].v()));
+
         double c0 = EA*(L_new - L)/(L_new*L);
         double c1 = EA/std::pow(L_new, 3);
 
         // col 0
-        K(nodes[0].x, nodes[0].x) += c1*dx*dx + c0;
+        K(nodes[0][0], nodes[0][0]) += c1*dx*dx + c0;
 
         // col 1
-        K(nodes[0].x, nodes[0].y) += c1*dx*dy;
-        K(nodes[0].y, nodes[0].y) += c1*dy*dy + c0;
+        K(nodes[0][0], nodes[0][1]) += c1*dx*dy;
+        K(nodes[0][1], nodes[0][1]) += c1*dy*dy + c0;
 
         // col 2
-        K(nodes[0].x, nodes[1].x) += -c1*dx*dx - c0;
-        K(nodes[0].y, nodes[1].x) += -c1*dx*dy;
-        K(nodes[1].x, nodes[1].x) +=  c1*dx*dx + c0;
+        K(nodes[0][0], nodes[1][0]) += -c1*dx*dx - c0;
+        K(nodes[0][1], nodes[1][0]) += -c1*dx*dy;
+        K(nodes[1][0], nodes[1][0]) +=  c1*dx*dx + c0;
 
         // col 3
-        K(nodes[0].x, nodes[1].y) += -c1*dx*dy;
-        K(nodes[0].y, nodes[1].y) += -c1*dy*dy - c0;
-        K(nodes[1].x, nodes[1].y) +=  c1*dx*dy;
-        K(nodes[1].y, nodes[1].y) +=  c1*dy*dy + c0;
+        K(nodes[0][0], nodes[1][1]) += -c1*dx*dy;
+        K(nodes[0][1], nodes[1][1]) += -c1*dy*dy - c0;
+        K(nodes[1][0], nodes[1][1]) +=  c1*dx*dy;
+        K(nodes[1][1], nodes[1][1]) +=  c1*dy*dy + c0;
     }
 
     virtual double get_potential_energy() const override
     {
+        // Todo: Code duplication
+        double dx = nodes[1][0].u() - nodes[0][0].u();
+        double dy = nodes[1][1].u() - nodes[0][1].u();
+        double L_new = std::hypot(dx, dy);
+        double L_dot = 1.0/L_new*(dx*(nodes[1][0].v() - nodes[0][0].v() + dy*nodes[1][1].v() - nodes[0][1].v()));
+
         return 0.5*EA/L*std::pow(L_new - L, 2);
     }
 
     double get_normal_force() const
     {
+        // Todo: Code duplication
+        double dx = nodes[1][0].u() - nodes[0][0].u();
+        double dy = nodes[1][1].u() - nodes[0][1].u();
+        double L_new = std::hypot(dx, dy);
+        double L_dot = 1.0/L_new*(dx*(nodes[1][0].v() - nodes[0][0].v() + dy*nodes[1][1].v() - nodes[0][1].v()));
+
         return EA/L*(L_new - L) + etaA/L*L_dot;
     }
 };

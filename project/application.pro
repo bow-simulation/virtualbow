@@ -12,8 +12,6 @@ QT += core \
 
 SOURCES += \
     ../source/external/qcustomplot/qcustomplot.cpp \
-    ../source/fem/elements/Element.cpp \
-    ../source/fem/System.cpp \
     ../source/gui/input/BowEditor.cpp \
     ../source/gui/input/CommentsDialog.cpp \
     ../source/gui/input/DoubleView.cpp \
@@ -28,18 +26,12 @@ SOURCES += \
     ../source/gui/ProgressDialog.cpp \
     ../source/numerics/CubicSpline.cpp \
     ../source/main.cpp \
-    ../source/fem/System2.cpp \
-    ../source/fem/Node2.cpp
+    ../source/fem/Element.cpp \
+    ../source/fem/Node.cpp \
+    ../source/fem/System.cpp
 
 HEADERS += \
     ../source/external/qcustomplot/qcustomplot.h \
-    ../source/fem/elements/BarElement.hpp \
-    ../source/fem/elements/BeamElement.hpp \
-    ../source/fem/elements/ContactElement1D.hpp \
-    ../source/fem/elements/Element.hpp \
-    ../source/fem/elements/MassElement.hpp \
-    ../source/fem/Node.hpp \
-    ../source/fem/System.hpp \
     ../source/fem/View.hpp \
     ../source/gui/input/BowEditor.hpp \
     ../source/gui/input/CommentsDialog.hpp \
@@ -72,14 +64,15 @@ HEADERS += \
     ../source/gui/output/EnergyPlot.hpp \
     ../source/gui/output/StressPlot.hpp \
     ../source/gui/output/ComboPlot.hpp \
-    ../source/fem/ElementContainer.hpp \
-    ../source/fem/System2.hpp \
-    ../source/fem/Node2.hpp \
-    ../source/fem/elements/BarElement2.hpp \
-    ../source/fem/elements/Element2.hpp \
     ../source/utils/DynamicCastIterator.hpp \
     ../source/utils/Optional.hpp \
     ../source/fem/Solver.hpp \
-    ../source/numerics/Linspace.hpp
+    ../source/numerics/Linspace.hpp \
+    ../source/fem/elements/BarElement.hpp \
+    ../source/fem/elements/BeamElement.hpp \
+    ../source/fem/elements/MassElement.hpp \
+    ../source/fem/Element.hpp \
+    ../source/fem/Node.hpp \
+    ../source/fem/System.hpp
 
 RESOURCES += ../resources/resources.qrc

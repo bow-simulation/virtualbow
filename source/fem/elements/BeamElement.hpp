@@ -1,9 +1,9 @@
 #pragma once
-#include "Element.hpp"
+#include "../Element.hpp"
 
 #include <cmath>
 
-class BeamElement: public Element
+class BeamElement2: public Element2
 {
 private:
     std::array<Dof, 6> dofs;
@@ -12,15 +12,11 @@ private:
     double rhoA;
     double L;
 
-    double dx;
-    double dy;
-    Eigen::Matrix<double, 3, 6> J;
-    Eigen::Matrix<double, 3, 1> e;
     Eigen::Matrix<double, 3, 3> C;
 
 public:
-    BeamElement(Node nd0, Node nd1, double rhoA, double L)
-        : dofs{{nd0.x, nd0.y, nd0.phi, nd1.x, nd1.y, nd1.phi}},
+    BeamElement2(Node nd0, Node nd1, double rhoA, double L)
+        : dofs{nd0[0], nd0[1], nd0[2], nd1[0], nd1[1], nd1[2]},
           phi_ref_0(0.0),
           phi_ref_1(0.0),
           rhoA(rhoA),
@@ -46,43 +42,17 @@ public:
     // p in [0, 1]
     double get_epsilon(double p) const
     {
+        auto e = get_e();
+
         return e(0)/L;
     }
 
     // p in [0, 1]
     double get_kappa(double p) const
     {
+        auto e = get_e();
+
         return (6.0*p - 4.0)/L*e(1) + (6.0*p - 2.0)/L*e(2);
-    }
-
-    virtual void set_state(const VectorView<Dof> u, const VectorView<Dof> v) override
-    {
-        dx = u(dofs[3]) - u(dofs[0]);
-        dy = u(dofs[4]) - u(dofs[1]);
-        double alpha = std::atan2(dy, dx);
-
-        // Elastic coordinates
-        double sin_e1 = std::sin(u(dofs[2]) + phi_ref_0 - alpha);
-        double cos_e1 = std::cos(u(dofs[2]) + phi_ref_0 - alpha);
-        double sin_e2 = std::sin(u(dofs[5]) + phi_ref_1 - alpha);
-        double cos_e2 = std::cos(u(dofs[5]) + phi_ref_1 - alpha);
-
-        e(0) = std::hypot(dx, dy) - L;
-        e(1) = std::atan(sin_e1/cos_e1);     // Todo: Replace atan(sin(x)/cos(x)) with a cheaper function
-        e(2) = std::atan(sin_e2/cos_e2);
-
-        // Jacobian of the elastic coordinates
-        double a0 = std::pow(dx*dx + dy*dy, -0.5);
-        double a1 = 1.0/(dx*dx + dy*dy);
-
-        double j0 = a0*dx;
-        double j1 = a0*dy;
-        double j2 = a1*dx;
-        double j3 = a1*dy;
-
-        J << -j0, -j1, 0.0, j0,  j1, 0.0,
-             -j3,  j2, 1.0, j3, -j2, 0.0,
-             -j3,  j2, 0.0, j3, -j2, 1.0;
     }
 
     virtual void get_masses(VectorView<Dof> M) const override
@@ -101,12 +71,19 @@ public:
 
     virtual void get_internal_forces(VectorView<Dof> q) const override
     {
+        auto e = get_e();
+        auto J = get_J();
+
         q(dofs) += 1.0/L*J.transpose()*C*e;
     }
 
     virtual void get_tangent_stiffness(MatrixView<Dof> K) const override
     {
-        // Todo: Introduce some more variables for common expressions
+        auto e = get_e();
+        auto J = get_J();
+
+        double dx = dofs[3].u() - dofs[0].u();
+        double dy = dofs[4].u() - dofs[1].u();
 
         double a0 = std::pow(dx*dx + dy*dy, -0.5);
         double a1 =     1.0/(dx*dx + dy*dy);
@@ -141,7 +118,46 @@ public:
 
     virtual double get_potential_energy() const override
     {
+        auto e = get_e();
+
         return 0.5/L*e.transpose()*C*e;
+    }
+
+    Eigen::Matrix<double, 3, 1> get_e() const
+    {
+        double dx = dofs[3].u() - dofs[0].u();
+        double dy = dofs[4].u() - dofs[1].u();
+        double phi = std::atan2(dy, dx);
+
+        // Elastic coordinates
+        double sin_e1 = std::sin(dofs[2].u() + phi_ref_0 - phi);
+        double cos_e1 = std::cos(dofs[2].u() + phi_ref_0 - phi);
+        double sin_e2 = std::sin(dofs[5].u() + phi_ref_1 - phi);
+        double cos_e2 = std::cos(dofs[5].u() + phi_ref_1 - phi);
+
+        // Todo: Replace atan(sin(x)/cos(x)) with a cheaper function
+        return {std::hypot(dx, dy) - L, std::atan(sin_e1/cos_e1), std::atan(sin_e2/cos_e2)};
+    }
+
+    Eigen::Matrix<double, 3, 6> get_J() const
+    {
+        double dx = dofs[3].u() - dofs[0].u();
+        double dy = dofs[4].u() - dofs[1].u();
+
+        double a0 = std::pow(dx*dx + dy*dy, -0.5);
+        double a1 = 1.0/(dx*dx + dy*dy);
+
+        double j0 = a0*dx;
+        double j1 = a0*dy;
+        double j2 = a1*dx;
+        double j3 = a1*dy;
+
+        Eigen::Matrix<double, 3, 6> J;
+        J << -j0, -j1, 0.0, j0,  j1, 0.0,
+             -j3,  j2, 1.0, j3, -j2, 0.0,
+             -j3,  j2, 0.0, j3, -j2, 1.0;
+
+        return J;
     }
 };
 

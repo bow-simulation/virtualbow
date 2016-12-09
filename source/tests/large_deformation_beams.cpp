@@ -1,4 +1,4 @@
-#include "../fem/System2.hpp"
+#include "../fem/System.hpp"
 #include "../fem/Solver.hpp"
 #include "../fem/elements/BeamElement2.hpp"
 
@@ -24,8 +24,8 @@ TEST_CASE("large-deformation-cantilever")
 
     double F0 = 3.0*E*I/(L*L);
 
-    System2 system;
-    std::vector<Node2> nodes;
+    System system;
+    std::vector<Node> nodes;
 
     // Create nodes
     for(unsigned i = 0; i < N+1; ++i)
@@ -42,7 +42,7 @@ TEST_CASE("large-deformation-cantilever")
         system.add_element(element);
     }
 
-    nodes[N][1].p() = F0;
+    nodes[N][1].p_mut() = F0;
     StaticSolverLC solver(system);
     solver.find_equilibrium();
 
@@ -74,8 +74,8 @@ TEST_CASE("large-deformation-circular-beam")
     double EA = 5.0e8;
     double EI = 10.0e5;
 
-    System2 system;
-    std::vector<Node2> nodes;
+    System system;
+    std::vector<Node> nodes;
     std::vector<BeamElement2> elements;
 
     // Create nodes
@@ -89,8 +89,8 @@ TEST_CASE("large-deformation-circular-beam")
     // Create elements
     for(unsigned i = 0; i < N; ++i)
     {
-        double dist = Node2::distance(nodes[i], nodes[i+1]);
-        double angle = Node2::angle(nodes[i], nodes[i+1]);
+        double dist = Node::distance(nodes[i], nodes[i+1]);
+        double angle = Node::angle(nodes[i], nodes[i+1]);
 
         BeamElement2 element(nodes[i], nodes[i+1], 0.0, dist);
         element.set_stiffness(EA, EI, 0.0);
@@ -111,10 +111,6 @@ TEST_CASE("large-deformation-circular-beam")
     double error_M = std::abs((M_num - M_ref)/M_ref);
     double error_x = std::abs(nodes[N][0].u());
     double error_y = std::abs(nodes[N][1].u());
-
-    // Todo: Why does this test not fail when run by itself but fail when all tests are run?
-    std::cout << M_num << "\n";
-    std::cout << M_ref << "\n";
 
     // Todo: Why is the error in the torque so much higher than the displacement error?
     REQUIRE(error_M < 1.03e-03);

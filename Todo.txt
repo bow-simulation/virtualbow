@@ -125,6 +125,8 @@ Model
           then change the node of the arrow mass to a new one with appropriate initial displacement and velocity.
           Restart dynamic simulation.
 
+   !* Handle too short draw length (smaller than brace height)
+
 General
 =======
 
