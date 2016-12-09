@@ -5,7 +5,7 @@ class Dof;
 
 // Todo: Make some typedef for VectorView<Dof>
 
-class Element2
+class Element
 {
 public:
     virtual void get_masses(VectorView<Dof> M) const = 0;

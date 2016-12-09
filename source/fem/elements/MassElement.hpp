@@ -2,7 +2,7 @@
 #include "../Element.hpp"
 #include "../Node.hpp"
 
-class MassElement2: public Element2
+class MassElement: public Element
 {
 private:
     Node node;
@@ -11,7 +11,7 @@ private:
     double I;
 
 public:
-    MassElement2(Node node, double m, double I = 0.0)
+    MassElement(Node node, double m, double I = 0.0)
         : node(node), m(m), I(I)
     {
 

@@ -1,6 +1,6 @@
 #include "../fem/System.hpp"
-#include "../fem/elements/BarElement2.hpp"
-#include "../fem/elements/BeamElement2.hpp"
+#include "../fem/elements/BarElement.hpp"
+#include "../fem/elements/BeamElement.hpp"
 
 #include <catch.hpp>
 #include <iostream>
@@ -49,7 +49,7 @@ TEST_CASE("tangent-stiffness-bar-element")
         System system;
         Node node0 = system.create_node({DofType::Active, DofType::Active, DofType::Fixed}, {    dx0, dy0, 0.0});
         Node node1 = system.create_node({DofType::Active, DofType::Active, DofType::Fixed}, {L + dx1, dy1, 0.0});
-        system.add_element(BarElement2(node0, node1, L, EA, 0.0, 0.0));
+        system.add_element(BarElement(node0, node1, L, EA, 0.0, 0.0));
 
         check_stiffness_matrix(system);
     };
@@ -79,7 +79,7 @@ TEST_CASE("tangent-stiffness-beam-element")
         Node node0 = system.create_node({DofType::Active, DofType::Active, DofType::Active}, {x0, y0, phi0});
         Node node1 = system.create_node({DofType::Active, DofType::Active, DofType::Active}, {x1, y1, phi1});
 
-        BeamElement2 element01(node0, node1, 0.0, L);
+        BeamElement element01(node0, node1, 0.0, L);
         element01.set_stiffness(EA, EI, 0.0);
         system.add_element(element01);
 

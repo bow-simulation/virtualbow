@@ -1,7 +1,7 @@
 #include "../fem/System.hpp"
 #include "../fem/Solver.hpp"
-#include "../fem/elements/BarElement2.hpp"
-#include "../fem/elements/MassElement2.hpp"
+#include "../fem/elements/BarElement.hpp"
+#include "../fem/elements/MassElement.hpp"
 
 #include <catch.hpp>
 #include <iostream>
@@ -20,8 +20,8 @@ TEST_CASE("harmonic-oscillator")
     Node node_a = system.create_node({DofType::Fixed,  DofType::Fixed, DofType::Fixed}, {   0.0, 0.0, 0.0});
     Node node_b = system.create_node({DofType::Active, DofType::Fixed, DofType::Fixed}, {l + s0, 0.0, 0.0});
 
-    system.add_element(BarElement2(node_a, node_b, l, l*k, l*d, 0.0));
-    system.add_element(MassElement2(node_b, m, 0.0));
+    system.add_element(BarElement(node_a, node_b, l, l*k, l*d, 0.0));
+    system.add_element(MassElement(node_b, m, 0.0));
 
     // Constants for the analytical solution
     double delta = d/(2.0*m);                                // Decay constant

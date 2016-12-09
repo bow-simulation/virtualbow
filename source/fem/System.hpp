@@ -40,8 +40,8 @@ private:
     mutable Optional<MatrixXd> m_K;    // Tangent stiffness matrix
 
     // Todo: Why mutable?
-    mutable std::map<std::string, std::vector<Element2*>> groups;
-    mutable std::vector<Element2*> elements;
+    mutable std::map<std::string, std::vector<Element*>> groups;
+    mutable std::vector<Element*> elements;
 
 public:
     size_t dofs() const;
@@ -69,7 +69,7 @@ public:
     Node create_node(const Node& other, std::array<DofType, 3> type);
     Dof create_dof(DofType type, double u_dof, double v_dof);
 
-    template<typename ElementType = Element2>
+    template<typename ElementType = Element>
     void add_element(ElementType element, const std::string& key = "")
     {
         m_a.set_valid(false);
@@ -77,7 +77,7 @@ public:
         m_M.set_valid(false);
         m_K.set_valid(false);
 
-        Element2* ptr = new ElementType(element);
+        Element* ptr = new ElementType(element);
         groups[key].push_back(ptr);
         elements.push_back(ptr);
     }
@@ -85,10 +85,10 @@ public:
     // Iterating over groups of elements
 
     template<class ElementType>
-    using iterator = dynamic_cast_iterator<std::vector<Element2*>::iterator, ElementType>;
+    using iterator = dynamic_cast_iterator<std::vector<Element*>::iterator, ElementType>;
 
     template<class ElementType>
-    using const_iterator = dynamic_cast_iterator<std::vector<Element2*>::const_iterator, ElementType>;
+    using const_iterator = dynamic_cast_iterator<std::vector<Element*>::const_iterator, ElementType>;
 
     template<class ElementType>
     boost::iterator_range<iterator<ElementType>> element_group_mut(const std::string& key)

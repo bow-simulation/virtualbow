@@ -4,7 +4,7 @@
 
 #include <cmath>
 
-class BarElement2: public Element2
+class BarElement: public Element
 {
 private:
     std::array<Node, 2> nodes;
@@ -16,7 +16,7 @@ private:
     double rhoA;
 
 public:
-    BarElement2(Node nd0, Node nd1, double L, double EA, double etaA, double rhoA)
+    BarElement(Node nd0, Node nd1, double L, double EA, double etaA, double rhoA)
         : nodes{nd0, nd1},
           L(L),
           EA(EA),

@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-class BeamElement2: public Element2
+class BeamElement: public Element
 {
 private:
     std::array<Dof, 6> dofs;
@@ -15,7 +15,7 @@ private:
     Eigen::Matrix<double, 3, 3> C;
 
 public:
-    BeamElement2(Node nd0, Node nd1, double rhoA, double L)
+    BeamElement(Node nd0, Node nd1, double rhoA, double L)
         : dofs{nd0[0], nd0[1], nd0[2], nd1[0], nd1[1], nd1[2]},
           phi_ref_0(0.0),
           phi_ref_1(0.0),

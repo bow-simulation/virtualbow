@@ -50,7 +50,7 @@ public:
             double phi0 = phi - nodes_limb[i][2].u();
             double phi1 = phi - nodes_limb[i+1][2].u();
 
-            BeamElement2 element(nodes_limb[i], nodes_limb[i+1], rhoA, L);
+            BeamElement element(nodes_limb[i], nodes_limb[i+1], rhoA, L);
             element.set_reference_angles(phi0, phi1);
             element.set_stiffness(Cee, Ckk, Cek);
             system.add_element(element, "limb");
@@ -86,16 +86,16 @@ public:
 
         for(size_t i = 0; i < k; ++i)
         {
-            BarElement2 element(nodes_string[i], nodes_string[i+1], 0.0, EA, 0.0, rhoA); // Element lengths are reset later when string length is determined
+            BarElement element(nodes_string[i], nodes_string[i+1], 0.0, EA, 0.0, rhoA); // Element lengths are reset later when string length is determined
             system.add_element(element, "string");
         }
 
         // Create mass elements
         // MassElement(Node nd, double m, double I)
-        MassElement2 mass_limb_tip(nodes_limb.back(), input.mass_limb_tip);
-        MassElement2 mass_string_tip(nodes_string.back(), input.mass_string_tip);
-        MassElement2 mass_string_center(nodes_string.front(), 0.5*input.mass_string_center);   // 0.5 because of symmetric model
-        MassElement2 mass_arrow(node_arrow, 0.5*input.operation_mass_arrow);                   // 0.5 because of symmetric model
+        MassElement mass_limb_tip(nodes_limb.back(), input.mass_limb_tip);
+        MassElement mass_string_tip(nodes_string.back(), input.mass_string_tip);
+        MassElement mass_string_center(nodes_string.front(), 0.5*input.mass_string_center);   // 0.5 because of symmetric model
+        MassElement mass_arrow(node_arrow, 0.5*input.operation_mass_arrow);                   // 0.5 because of symmetric model
 
         system.add_element(mass_limb_tip, "mass limb tip");
         system.add_element(mass_string_tip, "mass string tip");
@@ -107,7 +107,7 @@ public:
         auto try_string_length = [&](double string_length)
         {
             double L = 0.5*string_length/double(k);
-            for(auto& element: system.element_group_mut<BarElement2>("string"))
+            for(auto& element: system.element_group_mut<BarElement>("string"))
             {
                 element.set_length(L);
             }
@@ -221,7 +221,7 @@ public:
         std::vector<double> epsilon(nodes_limb.size());
         std::vector<double> kappa(nodes_limb.size());
 
-        auto elements = system.element_group<BeamElement2>("limb");
+        auto elements = system.element_group<BeamElement>("limb");
 
         for(size_t i = 0; i < nodes_limb.size(); ++i)
         {

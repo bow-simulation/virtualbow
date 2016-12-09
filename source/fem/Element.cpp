@@ -1,7 +1,7 @@
 #include "Element.hpp"
 #include "Node.hpp"
 
-double Element2::get_kinetic_energy(VectorView<Dof> v) const
+double Element::get_kinetic_energy(VectorView<Dof> v) const
 {
     double e_kin = 0.0;
     get_masses(VectorView<Dof>(nullptr, nullptr, [&](Dof dof, double val)

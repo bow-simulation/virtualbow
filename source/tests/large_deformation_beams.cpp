@@ -1,6 +1,6 @@
 #include "../fem/System.hpp"
 #include "../fem/Solver.hpp"
-#include "../fem/elements/BeamElement2.hpp"
+#include "../fem/elements/BeamElement.hpp"
 
 #include <catch.hpp>
 #include <vector>
@@ -37,7 +37,7 @@ TEST_CASE("large-deformation-cantilever")
     // Create elements
     for(unsigned i = 0; i < N; ++i)
     {
-        BeamElement2 element(nodes[i], nodes[i+1], 0.0, L/double(N));
+        BeamElement element(nodes[i], nodes[i+1], 0.0, L/double(N));
         element.set_stiffness(E*A, E*I, 0.0);
         system.add_element(element);
     }
@@ -76,7 +76,7 @@ TEST_CASE("large-deformation-circular-beam")
 
     System system;
     std::vector<Node> nodes;
-    std::vector<BeamElement2> elements;
+    std::vector<BeamElement> elements;
 
     // Create nodes
     for(unsigned i = 0; i < N+1; ++i)
@@ -92,7 +92,7 @@ TEST_CASE("large-deformation-circular-beam")
         double dist = Node::distance(nodes[i], nodes[i+1]);
         double angle = Node::angle(nodes[i], nodes[i+1]);
 
-        BeamElement2 element(nodes[i], nodes[i+1], 0.0, dist);
+        BeamElement element(nodes[i], nodes[i+1], 0.0, dist);
         element.set_stiffness(EA, EI, 0.0);
         element.set_reference_angles(angle - nodes[i][2].u(), angle - nodes[i+1][2].u());
 
