@@ -62,10 +62,10 @@ public:
     StaticSolverDC(System& system, Dof dof, double u_end, unsigned steps)
         : system(system),
           dof(dof),
-          displacements(system.u()(dof.index), u_end, steps),
-          e(unit_vector(system.dofs(), dof.index))
+          displacements(system.u()(dof.index()), u_end, steps),
+          e(unit_vector(system.dofs(), dof.index()))
     {
-        assert(dof.type == DofType::Active);
+
     }
 
     bool step()
@@ -111,7 +111,7 @@ private:
 
             alpha = stiffness_dec.solve(delta);
             beta = stiffness_dec.solve(e);
-            double df = (displacement - system.u()(dof.index) - alpha(dof.index))/beta(dof.index);
+            double df = (displacement - system.u()(dof.index()) - alpha(dof.index()))/beta(dof.index());
 
             system.u_mut() += alpha + df*beta;
             dof.p_mut() += df;

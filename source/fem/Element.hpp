@@ -13,5 +13,5 @@ public:
     virtual void get_tangent_stiffness(MatrixView<Dof> K) const = 0;
 
     virtual double get_potential_energy() const = 0;
-    double get_kinetic_energy(VectorView<Dof> v) const;
+    virtual double get_kinetic_energy(VectorView<Dof> v) const;
 };

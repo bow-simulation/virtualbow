@@ -62,8 +62,6 @@ GUI
 
     * Width and height plots: Show the actual arc length if a valid profile curve is defined. (Second x-Axis?)
 
-   !* File path as program argument
-
     * Set the executable icon
 
    !* MainWindow: Handle exceptions from file operations
@@ -117,14 +115,6 @@ Model
 
     * Calculate shear stresses and use von Mises stresses in the output data.
       This would give a more realistic stresses for the limb tips (or rather would make the model applicable to the limb tips in the first place)
-
-   !* Bug: First arrow acceleration is zero.
-        
-        * Not really a bug, this is due to the coupling element between string and arrow
-
-        * Solution: No coupling element, make arrow mass share the string center node until arrow acceleration changes sign,
-          then change the node of the arrow mass to a new one with appropriate initial displacement and velocity.
-          Restart dynamic simulation.
 
    !* Handle too short draw length (smaller than brace height)
 

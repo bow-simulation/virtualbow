@@ -27,15 +27,15 @@ struct InputData: public Document
     DocItem<double>   string_strand_density{this, &Domain<double>::pos};
     DocItem<double>        string_n_strands{this, &Domain<double>::pos};
 
-    // Operation
-    DocItem<double> operation_brace_height{this};
-    DocItem<double>  operation_draw_length{this, &Domain<double>::pos};
-    DocItem<double>   operation_mass_arrow{this, &Domain<double>::pos};
-
     // Additional masses
     DocItem<double> mass_string_center{this, &Domain<double>::non_neg};
     DocItem<double>    mass_string_tip{this, &Domain<double>::non_neg};
     DocItem<double>      mass_limb_tip{this, &Domain<double>::non_neg};
+
+    // Operation
+    DocItem<double> operation_brace_height{this};
+    DocItem<double>  operation_draw_length{this, &Domain<double>::pos};
+    DocItem<double>   operation_mass_arrow{this, &Domain<double>::pos};
 
     // Settings
     DocItem<int>   settings_n_elements_limb{this, &Domain<int>::pos};
@@ -74,12 +74,12 @@ struct InputData: public Document
         string_strand_stiffness = obj["string"]["strand_stiffness"].as<double>();
         string_strand_density = obj["string"]["strand_density"].as<double>();
         string_n_strands = obj["string"]["n_strands"].as<double>();
-        operation_brace_height = obj["operation"]["brace_height"].as<double>();
-        operation_draw_length = obj["operation"]["draw_length"].as<double>();
-        operation_mass_arrow = obj["operation"]["mass_arrow"].as<double>();
         mass_string_center = obj["masses"]["string_center"].as<double>();
         mass_string_tip = obj["masses"]["string_tip"].as<double>();
         mass_limb_tip = obj["masses"]["limb_tip"].as<double>();
+        operation_brace_height = obj["operation"]["brace_height"].as<double>();
+        operation_draw_length = obj["operation"]["draw_length"].as<double>();
+        operation_mass_arrow = obj["operation"]["mass_arrow"].as<double>();
         settings_n_elements_limb = obj["settings"]["n_elements_limb"].as<int>();
         settings_n_elements_string = obj["settings"]["n_elements_string"].as<int>();
         settings_n_draw_steps = obj["settings"]["n_draw_steps"].as<int>();
@@ -106,12 +106,12 @@ struct InputData: public Document
         obj["string"]["strand_stiffness"] = double(string_strand_stiffness);
         obj["string"]["strand_density"] = double(string_strand_density);
         obj["string"]["n_strands"] = double(string_n_strands);
-        obj["operation"]["brace_height"] = double(operation_brace_height);
-        obj["operation"]["draw_length"] = double(operation_draw_length);
-        obj["operation"]["mass_arrow"] = double(operation_mass_arrow);
         obj["masses"]["string_center"] = double(mass_string_center);
         obj["masses"]["string_tip"] = double(mass_string_tip);
         obj["masses"]["limb_tip"] = double(mass_limb_tip);
+        obj["operation"]["brace_height"] = double(operation_brace_height);
+        obj["operation"]["draw_length"] = double(operation_draw_length);
+        obj["operation"]["mass_arrow"] = double(operation_mass_arrow);
         obj["settings"]["n_elements_limb"] = int(settings_n_elements_limb);
         obj["settings"]["n_elements_string"] = int(settings_n_elements_string);
         obj["settings"]["n_draw_steps"] = int(settings_n_draw_steps);

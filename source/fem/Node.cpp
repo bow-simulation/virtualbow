@@ -1,18 +1,18 @@
 #include "Node.hpp"
 #include "System.hpp"
 
-Dof::Dof(System& system, size_t index)
-    : system(&system),
-      type(DofType::Active),
-      index(index)
+Dof::Dof(System& system, size_t i)
+    : m_system(&system),
+      m_type(DofType::Active),
+      m_i(i)
 {
 
 }
 
 Dof::Dof(System& system, double u)
-    : system(&system),
-      type(DofType::Fixed),
-      u_fixed(u)
+    : m_system(&system),
+      m_type(DofType::Fixed),
+      m_u(u)
 {
 
 }
@@ -22,38 +22,46 @@ Dof::Dof()
 
 }
 
+size_t Dof::index() const
+{
+    assert(m_type == DofType::Active);
+    return m_i;
+}
+
+DofType Dof::type() const
+{
+    return m_type;
+}
+
 
 bool Dof::operator!=(const Dof& rhs) const
 {
-    return (system != rhs.system) || (type != rhs.type) || (index != rhs.index);
+    return (m_system != rhs.m_system) || (m_type != rhs.m_type) || (m_i != rhs.m_i);
 }
 
 double Dof::u() const
 {
-    return type == DofType::Active ? system->u()(index) : u_fixed;
+    return m_type == DofType::Active ? m_system->u()(m_i) : m_u;
 }
 
 double Dof::v() const
 {
-    return type == DofType::Active ? system->v()(index) : 0.0;
+    return m_type == DofType::Active ? m_system->v()(m_i) : 0.0;
 }
 
 double Dof::a() const
 {
-    return type == DofType::Active ? system->a()(index) : 0.0;
+    return m_type == DofType::Active ? m_system->a()(m_i) : 0.0;
 }
 
 double Dof::p() const
 {
-    return type == DofType::Active ? system->p()(index) : 0.0;
+    return m_type == DofType::Active ? m_system->p()(m_i) : 0.0;
 }
 
 double& Dof::p_mut()
 {
-    if(type == DofType::Active)
-        return system->p_mut()(index);
-    else
-        throw std::runtime_error("Cannot modify force on fixed DOF");
+    return m_system->p_mut()(index());
 }
 
 Node::Node(std::array<Dof, 3> dofs): dofs(dofs)

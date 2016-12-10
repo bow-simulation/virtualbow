@@ -9,15 +9,15 @@ enum class DofType
 class System;
 
 // Todo: Encapsulation
-struct Dof
+class Dof
 {
-    System* system;
-    DofType type;
-    union{ size_t index; double u_fixed; };
-
-    Dof(System& system, size_t index);
+public:
+    Dof(System& system, size_t i);
     Dof(System& system, double u);
     Dof();
+
+    size_t index() const;
+    DofType type() const;
 
     bool operator!=(const Dof& rhs) const;
 
@@ -26,6 +26,11 @@ struct Dof
     double a() const;
     double p() const;
     double& p_mut();
+
+private:
+    System* m_system;
+    DofType m_type;
+    union{ size_t m_i; double m_u; };
 };
 
 class Node

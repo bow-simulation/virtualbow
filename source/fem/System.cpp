@@ -77,8 +77,8 @@ const VectorXd& System::q() const
         VectorView<Dof> view(nullptr, nullptr,
         [&](Dof dof, double val)
         {
-            if(dof.type == DofType::Active)
-                (*m_q)(dof.index) += val;
+            if(dof.type() == DofType::Active)
+                (*m_q)(dof.index()) += val;
         });
 
         for(auto e: elements)
@@ -101,8 +101,8 @@ const VectorXd& System::M() const
         VectorView<Dof> view(nullptr, nullptr,
         [&](Dof dof, double val)
         {
-            if(dof.type == DofType::Active)
-                (*m_M)(dof.index) += val;
+            if(dof.type() == DofType::Active)
+                (*m_M)(dof.index()) += val;
         });
 
         for(auto e: elements)
@@ -124,8 +124,8 @@ const MatrixXd& System::K() const
 
         MatrixView<Dof> view([&](Dof dof_row, Dof dof_col, double val)
         {
-            if(dof_row.type == DofType::Active && dof_col.type == DofType::Active)
-                (*m_K)(dof_row.index, dof_col.index) += val;
+            if(dof_row.type() == DofType::Active && dof_col.type() == DofType::Active)
+                (*m_K)(dof_row.index(), dof_col.index()) += val;
         });
 
         for(auto e: elements)
