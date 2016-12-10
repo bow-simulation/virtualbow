@@ -9,7 +9,6 @@ class BarElement: public Element
 private:
     std::array<Node, 2> nodes;
 
-    // Parameters
     double L;
     double EA;
     double etaA;

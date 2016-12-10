@@ -6,15 +6,19 @@ class MassElement: public Element
 {
 private:
     Node node;
-
     double m;
     double I;
 
 public:
-    MassElement(Node node, double m, double I = 0.0)
-        : node(node), m(m), I(I)
+    MassElement(Node nd, double m, double I = 0.0)
+        : node(nd), m(m), I(I)
     {
 
+    }
+
+    void set_node(Node nd)
+    {
+        node = nd;
     }
 
     virtual void get_masses(VectorView<Dof> M) const override

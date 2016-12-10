@@ -162,8 +162,22 @@ public:
 
     bool step()
     {
-        // Evaluate stop() before performing substeps so that one last sampling
-        // point is calculated after the stopping criterion has been reached.
+        while(system.t() < t)
+        {
+            sub_step();
+            if(stop())
+                return false;
+        }
+
+        t = system.t() + ts;
+        return true;
+    }
+
+    // This version evaluates stop() before performing substeps so that one last sampling
+    // point is calculated after the stopping criterion has been reached.
+    /*
+    bool step()
+    {
         bool stopped = stop();
 
         while(system.t() < t)
@@ -172,6 +186,7 @@ public:
         t = system.t() + ts;
         return !stopped;
     }
+    */
 
 private:
     System& system;

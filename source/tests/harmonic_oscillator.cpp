@@ -33,11 +33,15 @@ TEST_CASE("harmonic-oscillator")
 
     REQUIRE(delta < omega0);    // Make sure the system is underdamped
 
+    //std::cout << "T = " << T << "\n";
+
     DynamicSolver solver(system, 0.01, 1e-15, [&](){ return system.t() >= T; });
     while(solver.step())
     {
         // Time
         double t = system.t();
+
+        //std::cout << "t = " << t << "\n";
 
         // Numerical solution
         double s_num = node_b[0].u() - l;

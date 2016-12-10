@@ -84,6 +84,7 @@ GUI
 
    !* BowEditor: TableView for curvature: Fit complete word "curvature" on label without abbreviating.
 
+    * Try new qcustomplot beta version
 
 FEM
 ===

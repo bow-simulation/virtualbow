@@ -78,7 +78,7 @@ public:
         nodes_string.push_back(nodes_limb.back());
 
         // Create arrow node
-        node_arrow = nodes_string[0];   //system.create_node({{xc, yc, 0.0}}, {{false, true, false}});
+        node_arrow = nodes_string[0];
 
         // Create string elements
         double EA = input.string_n_strands*input.string_strand_stiffness;
@@ -150,7 +150,7 @@ public:
         double T = std::numeric_limits<double>::max();
         double alpha = input.settings_time_span_factor;     // Todo: Magic number // Todo: Make this a setting
 
-        DynamicSolver solver(system, input.settings_time_step_factor, input.settings_sampling_time, [&]()
+        DynamicSolver solver1(system, input.settings_time_step_factor, input.settings_sampling_time, [&]()
         {
             double ut = node_arrow[1].u();
             if(ut >= input.operation_brace_height)
@@ -165,15 +165,33 @@ public:
                 }
             }
 
-            return system.t() >= alpha*T;
+            return node_arrow[1].a() >= 0;
+            //return system.t() >= alpha*T;
         });
 
         BowStates states;
-        while(solver.step() && !task.isCanceled())
+        auto run_solver = [&](DynamicSolver& solver)
         {
-            get_bow_state(states);
-            task.setProgress(100.0*system.t()/(alpha*T));
-        }
+            while(solver.step() && !task.isCanceled())
+            {
+                get_bow_state(states);
+                task.setProgress(100.0*system.t()/(alpha*T));
+            }
+        };
+
+        run_solver(solver1);
+
+        // Change model by giving the arrow an independent node with the initial position and velocity of the string center
+        // Todo: Would more elegant to remove the mass element from the system and create a new one with a new node.
+        node_arrow = system.create_node(nodes_string[0], {DofType::Fixed, DofType::Active, DofType::Fixed});
+        system.element_mut<MassElement>("mass arrow").set_node(node_arrow);
+
+        DynamicSolver solver2(system, input.settings_time_step_factor, input.settings_sampling_time, [&]()
+        {
+            return system.t() >= alpha*T;
+        });
+
+        run_solver(solver2);
 
         output.dynamics = std::make_unique<DynamicData>(states, *output.statics);
     }

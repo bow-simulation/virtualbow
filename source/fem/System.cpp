@@ -140,15 +140,15 @@ const MatrixXd& System::K() const
 Node System::create_node(std::array<DofType, 3> type, std::array<double, 3> u_node, std::array<double, 3> v_node)
 {
     return Node({create_dof(type[0], u_node[0], v_node[0]),
-                  create_dof(type[1], u_node[1], v_node[1]),
-                  create_dof(type[2], u_node[2], v_node[2])});
+                 create_dof(type[1], u_node[1], v_node[1]),
+                 create_dof(type[2], u_node[2], v_node[2])});
 }
 
 Node System::create_node(const Node& other, std::array<DofType, 3> type)
 {
-    return Node({create_dof(type[0], other[0].u(), other[0].u()),
-                  create_dof(type[1], other[1].u(), other[1].u()),
-                  create_dof(type[2], other[2].u(), other[2].u())});
+    return Node({create_dof(type[0], other[0].u(), other[0].v()),
+                 create_dof(type[1], other[1].u(), other[1].v()),
+                 create_dof(type[2], other[2].u(), other[2].v())});
 }
 
 Dof System::create_dof(DofType type, double u_dof, double v_dof)
