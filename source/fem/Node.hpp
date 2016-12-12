@@ -1,14 +1,13 @@
 #pragma once
 #include <array>
 
+class System;
+
 enum class DofType
 {
     Active, Fixed
 };
 
-class System;
-
-// Todo: Encapsulation
 class Dof
 {
 public:

@@ -100,9 +100,11 @@ FEM
     * Does std::function perform dynamic memory allocation? (Used heavily in FEM vector and matrix views)
       https://www.reddit.com/r/cpp_questions/comments/5ga9ar/what_are_downsides_of_using_lambdas/
 
-   !* Dynamic cast iterator: Combine with a filter iterator to filter all elements that do not convert?
+    * Dynamic cast iterator: Combine with a filter iterator to filter all elements that do not convert?
       (let dynamic_cast return pointer, check for null, then convert to referene)
       This way several element types could be added to one group. Maybe add another key (group + name).
+
+    * Remove/Reduce code duplication from element kinematics
 
 Model
 =====

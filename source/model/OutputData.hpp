@@ -34,10 +34,7 @@ struct BowStates
     std::vector<std::vector<double>> sigma_upper;
     std::vector<std::vector<double>> sigma_lower;
 
-    BowStates() // Todo: Why?
-    {
-
-    }
+    BowStates();    // Todo: Why?
 };
 
 struct StaticData
@@ -47,14 +44,7 @@ struct StaticData
     const double drawing_work;
     const double storage_ratio;
 
-    StaticData(BowStates states)
-        : states(states),
-          final_draw_force(states.draw_force.back()),
-          drawing_work(states.e_pot_limbs.back() + states.e_pot_string.back() - states.e_pot_limbs.front() - states.e_pot_string.front()),
-          storage_ratio(drawing_work/(0.5*(states.draw_length.back() - states.draw_length.front())*final_draw_force))
-    {
-
-    }
+    StaticData(BowStates states);
 };
 
 struct DynamicData
@@ -64,14 +54,7 @@ struct DynamicData
     const double final_arrow_energy;
     const double efficiency;
 
-    DynamicData(BowStates states, const StaticData& static_data)
-        : states(states),
-          final_arrow_velocity(std::abs(states.vel_arrow.back())),
-          final_arrow_energy(states.e_kin_arrow.back()),
-          efficiency(final_arrow_energy/static_data.drawing_work)
-    {
-
-    }
+    DynamicData(BowStates states, const StaticData& static_data);
 };
 
 struct OutputData

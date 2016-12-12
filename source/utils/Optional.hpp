@@ -1,5 +1,5 @@
 #pragma once
-#include <stdexcept>
+#include <cassert>
 #include <Eigen/Core>
 
 template<class MatrixType>
@@ -25,18 +25,14 @@ public:
 
     MatrixType& operator*()
     {
-        if(valid)
-            return data;
-        else
-            throw std::runtime_error("Bad Optional access");
+        assert(valid);
+        return data;
     }
 
     MatrixType* operator->()
     {
-        if(valid)
-            return &data;
-        else
-            throw std::runtime_error("Bad Optional access");
+        assert(valid);
+        return &data;
     }
 
 private:

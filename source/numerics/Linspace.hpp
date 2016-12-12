@@ -1,10 +1,11 @@
 #pragma once
 #include <boost/optional.hpp>
 
+template<typename T>
 class Linspace
 {
 public:
-    Linspace(double x0, double x1, size_t steps)
+    Linspace(T x0, T x1, size_t steps)
         : x0(x0), x1(x1), n(steps), i(0)
     {
 
@@ -15,11 +16,11 @@ public:
 
     }
 
-    boost::optional<double> next()
+    boost::optional<T> next()
     {
         if(i <= n)
         {
-            double x = x0 + double(i)/double(n)*(x1 - x0);
+            T x = x0 + T(i)/T(n)*(x1 - x0);
             ++i;
 
             return x;
@@ -31,8 +32,8 @@ public:
     }
 
 private:
-    double x0;
-    double x1;
+    T x0;
+    T x1;
     size_t n;
     size_t i;
 };

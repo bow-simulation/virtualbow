@@ -3,8 +3,6 @@
 
 class Dof;
 
-// Todo: Make some typedef for VectorView<Dof>
-
 class Element
 {
 public:

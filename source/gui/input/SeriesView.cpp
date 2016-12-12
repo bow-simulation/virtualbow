@@ -12,6 +12,7 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocItem<S
     table = new QTableWidget(1, 2);
     table->setHorizontalHeaderLabels({{lb_args, lb_vals}});
     table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    table->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
     table->verticalHeader()->sectionResizeMode(QHeaderView::Fixed);
     table->verticalHeader()->setDefaultSectionSize(table->horizontalHeader()->height());    // Todo: Better way?
     table->verticalHeader()->hide();

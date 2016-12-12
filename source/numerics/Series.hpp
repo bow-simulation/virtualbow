@@ -5,108 +5,30 @@
 class Series
 {
 public:
-    Series()
-    {
+    Series();
+    Series(std::vector<double> args, std::vector<double> vals);  // Todo: Is this overhead? Maybe take initializer lists?
 
-    }
+    void push_back(double arg, double val);
+    void insert(size_t i, double arg, double val);
+    void remove(size_t i);
+    void remove();
 
-    Series(std::vector<double> args, std::vector<double> vals)  // Todo: Is this overhead? Maybe take initializer lists?
-        : m_args(args), m_vals(vals)
-    {
-        if(args.size() != vals.size())
-            throw std::runtime_error("Arguments and values must have the same size");
-    }
+    const double& arg(size_t i) const;
+    const double& val(size_t i) const;
+    double& arg(size_t i);
+    double& val(size_t i);
 
-    void push_back(double arg, double val)
-    {
-        m_args.push_back(arg);
-        m_vals.push_back(val);
-    }
 
-    void insert(size_t i, double arg, double val)
-    {
-        m_args.insert(m_args.begin() + i, arg);
-        m_vals.insert(m_vals.begin() + i, arg);
-    }
+    const std::vector<double>& args() const;
+    const std::vector<double>& vals() const;
 
-    void remove(size_t i)
-    {
-        // Todo: Seriously?
-        m_args.erase(m_args.begin() + i);
-        m_vals.erase(m_vals.begin() + i);
-    }
+    size_t size() const;
 
-    void remove()
-    {
-        if(size() > 0)
-        {
-            m_args.pop_back();
-            m_vals.pop_back();
-        }
-    }
+    bool operator==(const Series& rhs) const;
+    bool operator!=(const Series& rhs) const;
 
-    const double& arg(size_t i) const
-    {
-        return m_args[i];
-    }
+    Series flip(bool vertical);  // Todo: Use enum instead of bool and a better name
 
-    const double& val(size_t i) const
-    {
-        return m_vals[i];
-    }
-
-    double& arg(size_t i)
-    {
-        return m_args[i];
-    }
-
-    double& val(size_t i)
-    {
-        return m_vals[i];
-    }
-
-    const std::vector<double>& args() const
-    {
-        return m_args;
-    }
-
-    const std::vector<double>& vals() const
-    {
-        return m_vals;
-    }
-
-    size_t size() const
-    {
-        return m_args.size();
-    }
-
-    bool operator==(const Series& rhs) const
-    {
-        return m_args == rhs.m_args && m_vals == rhs.m_vals;
-    }
-
-    bool operator!=(const Series& rhs) const
-    {
-        return !operator==(rhs);
-    }
-
-    Series flip(bool vertical)  // Todo: Use enum instead of bool and a better name
-    {
-
-        // Todo: Remove code duplication
-        if(vertical)
-        {
-            std::vector<double> new_vals;
-            std::for_each(m_vals.begin(), m_vals.end(), [&](double val){ new_vals.push_back(-val); });
-            return Series(m_args, new_vals);
-        }
-        else
-        {
-            std::vector<double> new_args;
-            std::for_each(m_args.begin(), m_args.end(), [&](double arg){ new_args.push_back(-arg); });
-            return Series(new_args, m_vals);
-        }
-    }
 
 private:
     std::vector<double> m_args;

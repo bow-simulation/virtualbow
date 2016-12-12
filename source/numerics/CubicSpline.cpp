@@ -1,4 +1,5 @@
 #include "CubicSpline.hpp"
+#include "TDMatrix.hpp"
 
 CubicSpline::CubicSpline(Series data)
 {

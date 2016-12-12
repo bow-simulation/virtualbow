@@ -4,43 +4,18 @@
 
 class MassElement: public Element
 {
+public:
+    MassElement(Node nd, double m, double I = 0.0);
+    void set_node(Node nd);
+
+    virtual void get_masses(VectorView<Dof> M) const override;
+    virtual void get_internal_forces(VectorView<Dof> q) const override;
+    virtual void get_tangent_stiffness(MatrixView<Dof> K) const override;
+    virtual double get_potential_energy() const override;
+
 private:
     Node node;
     double m;
     double I;
-
-public:
-    MassElement(Node nd, double m, double I = 0.0)
-        : node(nd), m(m), I(I)
-    {
-
-    }
-
-    void set_node(Node nd)
-    {
-        node = nd;
-    }
-
-    virtual void get_masses(VectorView<Dof> M) const override
-    {
-        M(node[0]) += m;
-        M(node[1]) += m;
-        M(node[2]) += I;
-    }
-
-    virtual void get_internal_forces(VectorView<Dof> q) const override
-    {
-
-    }
-
-    virtual void get_tangent_stiffness(MatrixView<Dof> K) const override
-    {
-
-    }
-
-    virtual double get_potential_energy() const override
-    {
-        return 0.0;
-    }
 
 };

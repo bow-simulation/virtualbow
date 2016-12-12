@@ -1,5 +1,4 @@
 #pragma once
-#include "TDMatrix.hpp"
 #include "Series.hpp"
 
 class CubicSpline
