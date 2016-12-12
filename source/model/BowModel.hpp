@@ -200,14 +200,11 @@ public:
     {
         states.time.push_back(system.t());
         states.draw_force.push_back(2.0*nodes_string[0][1].p());
+        states.draw_length.push_back(nodes_string[0][1].u());
 
-        states.pos_arrow.push_back(node_arrow[1].u());
-        states.vel_arrow.push_back(node_arrow[1].v());
-        states.acc_arrow.push_back(node_arrow[1].a());
-
-        states.pos_string.push_back(nodes_string[0][1].u());
-        states.vel_string.push_back(nodes_string[0][1].v());
-        states.acc_string.push_back(nodes_string[0][1].a());
+        states.pos_arrow.push_back(input.operation_draw_length - node_arrow[1].u());
+        states.vel_arrow.push_back(-node_arrow[1].v());
+        states.acc_arrow.push_back(-node_arrow[1].a());
 
         states.e_pot_limbs.push_back(2.0*system.get_potential_energy("limb", "mass limb tip"));
         states.e_kin_limbs.push_back(2.0*system.get_kinetic_energy("limb", "mass limb tip"));
@@ -215,12 +212,11 @@ public:
         states.e_kin_string.push_back(2.0*system.get_kinetic_energy("string", "mass string tip", "mass string center"));
         states.e_kin_arrow.push_back(2.0*system.get_kinetic_energy("mass arrow"));
 
-        // Shapes
-
         states.x_limb.push_back({});
         states.y_limb.push_back({});
         states.x_string.push_back({});
         states.y_string.push_back({});
+        states.y_arrow.push_back(node_arrow[1].u());
 
         for(auto& node: nodes_limb)
         {

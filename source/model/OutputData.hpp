@@ -13,14 +13,11 @@ struct BowStates
 {
     std::vector<double> time;
     std::vector<double> draw_force;
+    std::vector<double> draw_length;
 
     std::vector<double> pos_arrow;
     std::vector<double> vel_arrow;
     std::vector<double> acc_arrow;
-
-    std::vector<double> pos_string;
-    std::vector<double> vel_string;
-    std::vector<double> acc_string;
 
     std::vector<double> e_pot_limbs;
     std::vector<double> e_kin_limbs;
@@ -32,6 +29,8 @@ struct BowStates
     std::vector<std::vector<double>> y_limb;
     std::vector<std::vector<double>> x_string;
     std::vector<std::vector<double>> y_string;
+    std::vector<double> y_arrow;
+
     std::vector<std::vector<double>> sigma_upper;
     std::vector<std::vector<double>> sigma_lower;
 
@@ -52,7 +51,7 @@ struct StaticData
         : states(states),
           final_draw_force(states.draw_force.back()),
           drawing_work(states.e_pot_limbs.back() + states.e_pot_string.back() - states.e_pot_limbs.front() - states.e_pot_string.front()),
-          storage_ratio(drawing_work/(0.5*(states.pos_string.back() - states.pos_string.front())*final_draw_force))
+          storage_ratio(drawing_work/(0.5*(states.draw_length.back() - states.draw_length.front())*final_draw_force))
     {
 
     }

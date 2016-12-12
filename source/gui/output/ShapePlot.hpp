@@ -35,7 +35,7 @@ public:
         this->setData(string_l, series_string);
         this->setData(string_r, series_string.flip(false));
 
-        Series series_arrow({0.0}, {states.pos_arrow[index]});
+        Series series_arrow({0.0}, {states.y_arrow[index]});
         this->setData(arrow, series_arrow);
 
         this->replot();

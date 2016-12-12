@@ -26,9 +26,9 @@ public:
 
         auto plot_shapes = new ShapePlot(setup, statics.states, true);
         auto plot_stress = new StressPlot(setup, statics.states);
-        auto plot_energy = new EnergyPlot(statics.states, statics.states.pos_string, "Draw length [m]");
+        auto plot_energy = new EnergyPlot(statics.states, statics.states.draw_length, "Draw length [m]");
         auto plot_combo = new ComboPlot();
-        plot_combo->addData("Draw length [m]", statics.states.pos_string);
+        plot_combo->addData("Draw length [m]", statics.states.draw_length);
         plot_combo->addData("Draw force [N]", statics.states.draw_force);
         plot_combo->setCombination(0, 1);
 
@@ -39,7 +39,7 @@ public:
         tabs->addTab(plot_combo, "Other");
         vbox->addWidget(tabs);
 
-        auto slider = new Slider(statics.states.pos_string, "Draw length [m]:");
+        auto slider = new Slider(statics.states.draw_length, "Draw length [m]:");
         QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
         QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
         QObject::connect(slider, &Slider::valueChanged, plot_energy, &EnergyPlot::setStateIndex);
@@ -67,12 +67,9 @@ public:
         auto plot_energy = new EnergyPlot(dynamics.states, dynamics.states.time, "Time [s]");
         auto plot_combo = new ComboPlot();
         plot_combo->addData("Time [s]", dynamics.states.time);
-        plot_combo->addData("Arrow position (y) [m]", dynamics.states.pos_arrow);
-        plot_combo->addData("Arrow velocity (y) [m/s]", dynamics.states.vel_arrow);
-        plot_combo->addData("Arrow acceleration (y) [m/s²]", dynamics.states.acc_arrow);
-        plot_combo->addData("String position (y) [m]", dynamics.states.pos_string);
-        plot_combo->addData("String velocity (y) [m/s]", dynamics.states.vel_string);
-        plot_combo->addData("String acceleration (y) [m/s²]", dynamics.states.acc_string);
+        plot_combo->addData("Arrow position [m]", dynamics.states.pos_arrow);
+        plot_combo->addData("Arrow velocity [m/s]", dynamics.states.vel_arrow);
+        plot_combo->addData("Arrow acceleration [m/s²]", dynamics.states.acc_arrow);
         plot_combo->setCombination(0, 1);
 
         auto tabs = new QTabWidget();
