@@ -3,8 +3,6 @@ include(dependencies.pri)
 TARGET = bow-simulator
 TEMPLATE = app
 
-CONFIG += c++14
-
 QT += core \
       gui \
       widgets \
@@ -92,3 +90,12 @@ SOURCES += \
     ../source/numerics/CubicSpline.cpp \
     ../source/numerics/Series.cpp \
     ../source/main.cpp
+
+# Compiler flags
+CONFIG += c++14
+
+# Platform specific
+win32-g++{
+    # http://eigen.tuxfamily.org/dox-devel/group__TopicWrongStackAlignment.html
+    QMAKE_CXXFLAGS += -mincoming-stack-boundary=2
+}

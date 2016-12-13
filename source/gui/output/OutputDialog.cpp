@@ -85,7 +85,7 @@ OutputDialog::OutputDialog(QWidget* parent, const OutputData& output)
     this->setLayout(vbox);
     this->setWindowTitle("Simulation results");
     this->setWindowFlags(this->windowFlags() | Qt::WindowMaximizeButtonHint);
-    this->resize(1000, 800);     // Todo: Magic numbers
+    this->resize(800, 600);     // Todo: Magic numbers
 
     auto tabs = new QTabWidget();
     tabs->addTab(output.statics ? new StaticOutput(output.setup, *output.statics) : new QWidget(), "Statics");
