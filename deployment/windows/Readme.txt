@@ -1,3 +1,6 @@
+// Installer Todo:
+- Make file associations optional
+
 Release Build and Deployment on Windows
 =======================================
 
@@ -12,7 +15,7 @@ Release Build and Deployment on Windows
     - License.rtf
     - Manual.pdf
 
-5. Open bow-simulator.aip with Advanced Installer (www.advancedinstaller.com) and build.
+5. Open installer.aip with Advanced Installer (www.advancedinstaller.com) and build.
 
 6. Name the installer 'bow-simulator-[major].[minor].[patch]-win32' according to the current release
 
