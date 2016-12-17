@@ -1,0 +1,10 @@
+{
+  "title": "Bow Simulator",
+  "background": "background.png",
+  "window": { "size": { "width": 600, "height": 400 }},
+  "icon-size": 100,
+  "contents": [
+    { "x": 140, "y": 190, "type": "file", "path": "Bow Simulator.app" },
+    { "x": 455, "y": 190, "type": "link", "path": "/Applications" }
+  ]
+}
