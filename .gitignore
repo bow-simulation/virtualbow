@@ -1,13 +1,3 @@
-# Simulation data
-*.dat
-
-# Hidden files and folders
-.*
-!/.gitignore
-
-# Build directory
-/build/
-
 # C++ objects and libs
 
 *.slo

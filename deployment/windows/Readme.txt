@@ -4,7 +4,7 @@
 Release Build and Deployment on Windows
 =======================================
 
-1. Build a static release version of Qt with MinGW using the instructions in windows-build-qt-static.html and the shell script windows-build-qt-static.ps1 (from the Qt wiki, script modified to only perform release build).
+1. Build a static release version of Qt with MinGW using the instructions in windows-qt-static.html and the shell script windows-qt-static.ps1 (from the Qt wiki, script modified to only perform release build).
 
 2. Open Qt-Creator, create a new static kit and do a release build of the application.
 
