@@ -1,0 +1,17 @@
+name: bow-simulator
+version: 0.1.0
+summary: Bow and arrow physics simulation
+description: Bow Simulator allows you to create virtual bow designs and simulate their performance. It calculates a wide range of static and dynamic bow characteristics such as the draw curve, material stresses, arrow velocity and degree of efficiency. It can be used for evaluating and optimising bow designs before actually building them.
+
+apps:
+  bow-simulator:
+    command: desktop-launch bow-simulator
+    plugs: [x11, home]
+
+parts:
+  bow-simulator:
+    plugin: qmake
+    qt-version: qt5
+    options: [CONFIG += release]
+    source: ../../
+    after: [desktop-qt5]

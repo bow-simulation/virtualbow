@@ -29,6 +29,8 @@ enum class ExpansionMode
 
 class Plot: public QWidget
 {
+    Q_OBJECT    // Todo: Only necessary because of old signals/slots mechanism (snap qt-version compatibility)
+
 public:
     enum class Align{ BottomLeft, BottomRight, TopLeft, TopRight }; // Todo: Better name than "align"
 
@@ -67,6 +69,8 @@ private:
     QCPItemStraightLine* indicator_y;
 
     virtual void resizeEvent(QResizeEvent *event) override;
+
+public slots:
     void copy();
     void exportDialog();
 };

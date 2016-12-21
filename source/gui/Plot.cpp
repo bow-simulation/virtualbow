@@ -128,9 +128,9 @@ Plot::Plot(const QString& lbx, const QString& lby, Align align)
     QObject::connect(plot, &QCustomPlot::customContextMenuRequested, [&](QPoint pos)
     {
         auto menu = new QMenu(this);
-        menu->addAction("Copy", [this](){ copy(); });   // Todo: Use std::bind?
+        menu->addAction("Copy", this, SLOT(copy(void)));   // Todo: Use &Plot::copy (blocked by snap qt-version compatibility)
         menu->addSeparator();
-        menu->addAction("Export...", [this](){ exportDialog(); });   // Todo: Use std::bind?
+        menu->addAction("Export...", this, SLOT(exportDialog(void)));   // Todo: Use &Plot::exportDialog (blocked by snap qt-version compatibility)
         menu->exec(plot->mapToGlobal(pos));
     });
 
