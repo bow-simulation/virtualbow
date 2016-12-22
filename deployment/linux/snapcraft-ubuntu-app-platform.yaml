@@ -9,7 +9,7 @@ confinement: strict
 apps:
   bow-simulator:
     command: desktop-launch bow-simulator
-    plugs: [x11, home]
+    plugs: [platform, unity7, x11, home]
 
 parts:
   bow-simulator:
@@ -17,4 +17,11 @@ parts:
     qt-version: qt5
     options: [CONFIG += release]
     source: ../../
-    after: [desktop-qt5]
+    after: [desktop-ubuntu-app-platform]
+
+plugs:
+    platform:
+        interface: content
+        content: ubuntu-app-platform1
+        target: ubuntu-app-platform
+        default-provider: ubuntu-app-platform

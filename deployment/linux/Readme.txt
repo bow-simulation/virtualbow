@@ -1,11 +1,11 @@
-Alternative A: Snap
-===================
+Problems with the snap package:
 
-run snapcraft. Yeah.
+    - Access folders outside of /home?
+    - Large file size. Use Ubuntu app platform or KDE content snap?
+    - Looks weird, not like other applications. No group boxes for example.
 
-
-Alternative B: Static build
-===========================
+Alternative: Static build
+=========================
 
 1. Install the following libraries (source: wolhsoft.ru/pgewiki/Building_static_Qt_5)
 
