@@ -13,7 +13,6 @@ Release Build and Deployment on Windows
 4. Gather the following files:
     - BowSimulator.exe
     - License.rtf
-    - Manual.pdf
 
 5. Open installer.aip with Advanced Installer (www.advancedinstaller.com) and build.
 

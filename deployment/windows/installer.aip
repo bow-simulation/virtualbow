@@ -10,7 +10,6 @@
     <ROW Property="ALLUSERS" Value="1"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPCONTACT" Value="s-pfeifer@gmx.net"/>
-    <ROW Property="ARPPRODUCTICON" Value="logo.exe" Type="8"/>
     <ROW Property="ARPSYSTEMCOMPONENT" Value="1"/>
     <ROW Property="ARPURLINFOABOUT" Value="https://bow-simulator.sourceforge.io/"/>
     <ROW Property="Manufacturer" Value="Bow Simulator Project"/>
@@ -40,18 +39,16 @@
     <ROW Component="AI_CustomARPName" ComponentId="{E5E96205-A2B6-4B99-BB9E-C8FAABA9EDFA}" Directory_="APPDIR" Attributes="4" KeyPath="DisplayName" Options="1"/>
     <ROW Component="BowSimulator.exe" ComponentId="{F466ACE4-1E23-4D70-B808-5E0D661B45F1}" Directory_="APPDIR" Attributes="0" KeyPath="BowSimulator.exe"/>
     <ROW Component="License.rtf" ComponentId="{3C6F0314-93CD-4EEB-9E51-CF3EFC319210}" Directory_="APPDIR" Attributes="0" KeyPath="License.rtf" Type="0"/>
-    <ROW Component="Manual.pdf" ComponentId="{F97DDC54-947C-4588-AFB0-42B6DF885D9B}" Directory_="APPDIR" Attributes="0" KeyPath="Manual.pdf"/>
     <ROW Component="ProductInformation" ComponentId="{6114443C-08E0-4BF7-9388-2FF7B3881FA1}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
     <ROW Component="SHORTCUTDIR" ComponentId="{7C111648-040A-41ED-864E-010F91983F34}" Directory_="SHORTCUTDIR" Attributes="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="AIShRegAnswer AI_CustomARPName BowSimulator.exe License.rtf Manual.pdf ProductInformation SHORTCUTDIR"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="AIShRegAnswer AI_CustomARPName BowSimulator.exe License.rtf ProductInformation SHORTCUTDIR"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
     <ROW File="BowSimulator.exe" Component_="BowSimulator.exe" FileName="BOWSIM~1.EXE|BowSimulator.exe" Attributes="0" SourcePath="release-files\BowSimulator.exe" SelfReg="false" NextFile="License.rtf" DigSign="true"/>
-    <ROW File="License.rtf" Component_="License.rtf" FileName="License.rtf" Attributes="0" SourcePath="release-files\License.rtf" SelfReg="false" NextFile="Manual.pdf"/>
-    <ROW File="Manual.pdf" Component_="Manual.pdf" FileName="Manual.pdf" Attributes="0" SourcePath="release-files\Manual.pdf" SelfReg="false"/>
+    <ROW File="License.rtf" Component_="License.rtf" FileName="License.rtf" Attributes="0" SourcePath="release-files\License.rtf" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" Languages="en" InstallationType="4" UseLargeSchema="true"/>
@@ -144,7 +141,7 @@
     <ROW Extension="bow" Component_="BowSimulator.exe" ProgId_="[|Manufacturer].[|ProductName].bow" Feature_="MainFeature" Options="32"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
-    <ROW Name="logo.exe" SourcePath="..\bow-simulator\resources\icons\logo.ico" Index="0"/>
+    <ROW Name="ext.exe" SourcePath="logo.ico" Index="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
@@ -171,7 +168,7 @@
     <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]." DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiProgIdComponent">
-    <ROW ProgId="[|Manufacturer].[|ProductName].bow" Description="Bow Simulator Input File"/>
+    <ROW ProgId="[|Manufacturer].[|ProductName].bow" Description="Bow Simulator Input File" Icon_="ext.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
     <ROW Signature_="AI_ShRegOptionMachine" Root="2" Key="Software\Caphyon\Advanced Installer\Installs\[ProductCode]" Name="AIShRegAnswer" Type="2"/>
@@ -201,7 +198,6 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
     <ROW Shortcut="BowSimulator" Directory_="SHORTCUTDIR" Name="BOWSIM~1|Bow Simulator" Component_="BowSimulator.exe" Target="[#BowSimulator.exe]" Hotkey="0" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
     <ROW Shortcut="BowSimulator_1" Directory_="DesktopFolder" Name="BOWSIM~1|Bow Simulator" Component_="BowSimulator.exe" Target="[#BowSimulator.exe]" Hotkey="0" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
-    <ROW Shortcut="Manual" Directory_="SHORTCUTDIR" Name="Manual" Component_="Manual.pdf" Target="[#Manual.pdf]" Hotkey="0" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
     <ATTRIBUTE name="UsedTheme" value="classic"/>
