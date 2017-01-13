@@ -5,12 +5,28 @@
 #include "../../model/InputData.hpp"
 
 BowEditor::BowEditor(InputData& data)
+    : QSplitter(Qt::Vertical)
+{
+    this->addWidget(new ProfileView(data));
+
+    auto tabs = new QTabWidget();
+    tabs->addTab(new GeneralEditor(data), "General");
+    tabs->addTab(new ProfileEditor(data), "Profile");
+    tabs->addTab(new WidthEditor(data), "Width");
+    tabs->addTab(new HeightEditor(data), "Layers");
+    this->addWidget(tabs);
+
+    this->setStretchFactor(1, 0);
+}
+
+GeneralEditor::GeneralEditor(InputData& data)
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
 
     auto hbox = new QHBoxLayout();
-    vbox->addLayout(hbox);
+    vbox->addLayout(hbox, 0);
+    vbox->addStretch();
 
     auto group_limb = new NumberGroup(data, "Limb Material");
     group_limb->addRow("rho:", "kg/m³", data.sections_rho);      // Todo: Use unicode character (\u2374). Problem: Windows
@@ -34,12 +50,6 @@ BowEditor::BowEditor(InputData& data)
     group_operation->addRow("Draw length:", "m", data.operation_draw_length);
     group_operation->addRow("Arrow mass:", "kg", data.operation_mass_arrow);
     hbox->addWidget(group_operation);
-
-    auto tabs = new QTabWidget();
-    tabs->addTab(new ProfileEditor(data), "Profile");
-    tabs->addTab(new WidthEditor(data), "Width");
-    tabs->addTab(new HeightEditor(data), "Height");
-    vbox->addWidget(tabs, 1);
 }
 
 ProfileEditor::ProfileEditor(InputData& data)
@@ -87,4 +97,5 @@ HeightEditor::HeightEditor(InputData& data)
     auto plot = new SplineView("Position", "Height [m]", data.sections_height);
     hbox->addWidget(plot, 1);
 }
+
 

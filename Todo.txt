@@ -24,6 +24,8 @@ GUI
 
         * Find solution for default values and validation
 
+    * ProfileEditor: Draw the arcs that are) marked in the table in red, so users immediately see what they are editing or deleting
+
     * Find a solution to localised numbers.
         a) Use the C locale, convert local decimal separator to dot manually
         b) Use the default locale and somehow get rid of the thousands separator
@@ -83,6 +85,10 @@ GUI
    !* BowEditor: TableView for curvature: Fit complete word "curvature" on label without abbreviating.
 
     * Try new qcustomplot beta version
+
+   !* BowEditor: Why is the splitter not visible (on linux?)
+
+    * Remember window sizes
 
 FEM
 ===

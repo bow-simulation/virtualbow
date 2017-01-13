@@ -3,10 +3,16 @@
 
 class InputData;
 
-class BowEditor: public QWidget
+class BowEditor: public QSplitter
 {
 public:
     BowEditor(InputData& data);
+};
+
+class GeneralEditor: public QWidget
+{
+public:
+    GeneralEditor(InputData& data);
 };
 
 class ProfileEditor: public QWidget

@@ -3,6 +3,14 @@
 #include "../numerics/Series.hpp"
 #include <QtCore>
 
+struct Layer
+{
+    std::string name;
+    Series height;
+    double rho;
+    double E;
+};
+
 struct InputData: public Document
 {
     // Meta
