@@ -7,7 +7,7 @@ class InputData;
 class NumberGroup: public QGroupBox
 {
 public:
-    NumberGroup(InputData& data, const QString& title);
+    NumberGroup(const QString& title);
     void addRow(const QString& name, const QString& unit, DocItem<double>& item);
     void addRow(const QString& name, const QString& unit, DocItem<int>& item);
 

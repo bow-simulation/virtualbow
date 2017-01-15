@@ -24,7 +24,11 @@ GUI
 
         * Find solution for default values and validation
 
-    * ProfileEditor: Draw the arcs that are) marked in the table in red, so users immediately see what they are editing or deleting
+    * ProfileEditor
+        
+        * Draw the arcs that are) marked in the table in red, so users immediately see what they are editing or deleting
+
+        * NumberGroup below the profile table should not expand vewrtically. Also: Is there a better place for this?
 
     * Find a solution to localised numbers.
         a) Use the C locale, convert local decimal separator to dot manually

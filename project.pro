@@ -10,10 +10,11 @@ TEMPLATE = app
 target.path = /bin
 INSTALLS += target
 
-QT += core \
-      gui \
-      widgets \
-      printsupport \
+# Todo: Remove opengl?
+QT += core gui widgets opengl printsupport
+
+# Todo: Remove what's not needed
+QT += 3dcore 3drender 3dinput 3dextras
 
 RESOURCES += resources/resources.qrc
 
@@ -31,7 +32,6 @@ HEADERS += \
     source/gui/input/CommentsDialog.hpp \
     source/gui/input/DoubleView.hpp \
     source/gui/input/IntegerView.hpp \
-    source/gui/input/LimbViews.hpp \
     source/gui/input/NumberGroup.hpp \
     source/gui/input/SeriesView.hpp \
     source/gui/input/SettingsDialog.hpp \
@@ -60,7 +60,10 @@ HEADERS += \
     source/numerics/TDMatrix.hpp \
     source/numerics/Units.hpp \
     source/utils/DynamicCastIterator.hpp \
-    source/utils/Optional.hpp
+    source/utils/Optional.hpp \
+    source/gui/input/SplineView.hpp \
+    source/gui/input/ProfileView.hpp \
+    source/gui/input/GeometryView.hpp
 
 SOURCES += \
     source/external/qcustomplot/qcustomplot.cpp \
@@ -75,7 +78,6 @@ SOURCES += \
     source/gui/input/CommentsDialog.cpp \
     source/gui/input/DoubleView.cpp \
     source/gui/input/IntegerView.cpp \
-    source/gui/input/LimbViews.cpp \
     source/gui/input/NumberGroup.cpp \
     source/gui/input/SeriesView.cpp \
     source/gui/input/SettingsDialog.cpp \
@@ -96,7 +98,10 @@ SOURCES += \
     source/numerics/ArcCurve.cpp \
     source/numerics/CubicSpline.cpp \
     source/numerics/Series.cpp \
-    source/main.cpp
+    source/main.cpp \
+    source/gui/input/SplineView.cpp \
+    source/gui/input/ProfileView.cpp \
+    source/gui/input/LimbView.cpp
 
 # Compiler flags
 CONFIG += c++14

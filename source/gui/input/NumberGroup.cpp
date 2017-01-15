@@ -3,7 +3,7 @@
 #include "IntegerView.hpp"
 #include "../../model/InputData.hpp"
 
-NumberGroup::NumberGroup(InputData& data, const QString& title)
+NumberGroup::NumberGroup(const QString& title)
     : QGroupBox(title),
       grid(new QGridLayout())
 {
