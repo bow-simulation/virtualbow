@@ -10,12 +10,13 @@
 BowEditor::BowEditor(InputData& data)
     : QSplitter(Qt::Vertical)
 {
-    this->addWidget(new GeometryView(data));
+    //this->addWidget(new GeometryView(data));
+    this->addWidget(QWidget::createWindowContainer(new GeometryView(data)));
 
     auto tabs = new QTabWidget();
     tabs->addTab(new ProfileEditor(data), "Profile");
     tabs->addTab(new WidthEditor(data), "Width");
-    tabs->addTab(new HeightEditor(data), "Layers");
+    tabs->addTab(new HeightEditor(data), "Height");
     tabs->addTab(new GeneralEditor(data), "Other parameters");
     this->addWidget(tabs);
 }
