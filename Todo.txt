@@ -24,6 +24,8 @@ GUI
 
         * Find solution for default values and validation
 
+       !* Length: negative numbers shouldn't be accepteed
+
     * ProfileEditor
         
         * Draw the arcs that are) marked in the table in red, so users immediately see what they are editing or deleting
@@ -129,6 +131,8 @@ Model
       This would give a more realistic stresses for the limb tips (or rather would make the model applicable to the limb tips in the first place)
 
    !* Handle too short draw length (smaller than brace height)
+
+    * Have a look at https://github.com/nlohmann/json for storing simulation data as MessagePack.
 
 General
 =======
