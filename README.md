@@ -1,1 +1,1 @@
-Redesign of 'Bow Simulation Tool' (http://stfnp.bitbucket.org/) under a new name. Not yet usable.
+Bow and arrow physics simulation. Visit https://bow-simulator.sourceforge.io/ for more information.

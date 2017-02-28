@@ -1,22 +1,22 @@
 #pragma once
 #include <vector>
 
-struct CurvePoint
-{
-    double s;
-    double x;
-    double y;
-    double phi;
-};
-
-struct Curve
+struct Curve2D
 {
     std::vector<double> s;
     std::vector<double> x;
     std::vector<double> y;
     std::vector<double> phi;
 
-    void add_point(CurvePoint p)
+    struct Point
+    {
+        double s;
+        double x;
+        double y;
+        double phi;
+    };
+
+    void add_point(Point p)
     {
         s.push_back(p.s);
         x.push_back(p.x);

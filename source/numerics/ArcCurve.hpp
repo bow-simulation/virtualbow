@@ -1,12 +1,13 @@
 #pragma once
 #include "Series.hpp"
-#include "Curve.hpp"
+#include "Curve2D.hpp"
 
 class ArcCurve
 {
 public:
-    static Curve sample(const Series& segments, double x0, double y0, double phi0, unsigned n);
+    static Curve2D nodes(const Series& segments, double x0, double y0, double phi0);
+    static Curve2D sample(const Series& segments, double x0, double y0, double phi0, unsigned n);
 
 private:
-    static CurvePoint eval_arc(CurvePoint p0, double kappa, double ds);
+    static Curve2D::Point eval_arc(Curve2D::Point p0, double kappa, double ds);
 };

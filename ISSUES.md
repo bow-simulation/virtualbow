@@ -157,6 +157,8 @@ General
 
     * Use Linspace class more often (e.g. for sampling curvces)
 
+    * Use DiscreteLimb class for graphic previews. Give it an optional sampling parameter to use instead of the number of elements.
+
 Platform dependent
 ==================
 

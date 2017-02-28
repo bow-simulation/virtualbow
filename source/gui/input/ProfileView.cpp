@@ -23,20 +23,19 @@ void ProfileView::update()
 {
     try
     {
-        Curve profile = ArcCurve::sample(data.profile_segments,
+        Curve2D curve = ArcCurve::sample(data.profile_segments,
                                          data.profile_x0,
                                          data.profile_y0,
                                          data.profile_phi0,
                                          150);  // Todo: Magic number
 
-        Curve segments = ArcCurve::sample(data.profile_segments,
-                                          data.profile_x0,
-                                          data.profile_y0,
-                                          data.profile_phi0,
-                                          0);
+        Curve2D nodes = ArcCurve::nodes(data.profile_segments,
+                                        data.profile_x0,
+                                        data.profile_y0,
+                                        data.profile_phi0);
 
-        this->setData(0, Series(profile.x, profile.y));
-        this->setData(1, Series(segments.x, segments.y));
+        this->setData(0, Series(curve.x, curve.y));
+        this->setData(1, Series(nodes.x, nodes.y));
     }
     catch(const std::runtime_error&)
     {

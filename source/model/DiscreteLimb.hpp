@@ -59,17 +59,17 @@ struct DiscreteLimb
     DiscreteLimb(const InputData& input)
     {
         // 1. Nodes
-        Curve nodes = ArcCurve::sample(input.profile_segments,
-                                       input.profile_x0,
-                                       input.profile_y0,
-                                       input.profile_phi0,
-                                       input.settings_n_elements_limb);
+        Curve2D curve = ArcCurve::sample(input.profile_segments,
+                                         input.profile_x0,
+                                         input.profile_y0,
+                                         input.profile_phi0,
+                                         input.settings_n_elements_limb);
 
-        // Todo: Is there a more elegant way? Maybe have a Curve member?
-        s = nodes.s;
-        x = nodes.x;
-        y = nodes.y;
-        phi = nodes.phi;
+        // Todo: Is there a more elegant way? Maybe have a Curve2D member?
+        s = curve.s;
+        x = curve.x;
+        y = curve.y;
+        phi = curve.phi;
 
         // 2. Sections
         Series w = CubicSpline::sample(input.sections_width, input.settings_n_elements_limb);

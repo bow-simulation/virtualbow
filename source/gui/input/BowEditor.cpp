@@ -10,8 +10,7 @@
 BowEditor::BowEditor(InputData& data)
     : QSplitter(Qt::Vertical)
 {
-    //this->addWidget(new GeometryView(data));
-    this->addWidget(QWidget::createWindowContainer(new GeometryView(data)));
+    this->addWidget(new GeometryView(data));
 
     auto tabs = new QTabWidget();
     tabs->addTab(new ProfileEditor(data), "Profile");

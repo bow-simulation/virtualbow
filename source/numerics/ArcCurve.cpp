@@ -1,51 +1,55 @@
 #include "ArcCurve.hpp"
+#include <cassert>
 
-// n: Number of sampling steps. For n = 0 the segment nodes are calculated instead.
-// alpha: Angle between curve and y-axis
-Curve ArcCurve::sample(const Series& segments, double x0, double y0, double phi0, unsigned n)
+Curve2D ArcCurve::nodes(const Series& segments, double x0, double y0, double phi0)
 {
-    if(n == 0)
+    Curve2D nodes;
+    nodes.add_point({0.0, x0, y0, phi0});
+
+    for(size_t i = 0; i < segments.size(); ++i)
     {
-        Curve nodes;
-        nodes.add_point({0.0, x0, y0, phi0});
-
-        for(size_t i = 0; i < segments.size(); ++i)
-        {
-            auto p = eval_arc({nodes.s[i], nodes.x[i], nodes.y[i], nodes.phi[i]}, segments.val(i), segments.arg(i));
-            nodes.add_point(p);
-        }
-
-        return nodes;
+        auto p = eval_arc({nodes.s[i], nodes.x[i], nodes.y[i], nodes.phi[i]}, segments.val(i), segments.arg(i));
+        nodes.add_point(p);
     }
-    else
+
+    return nodes;
+}
+
+// n: Number of sampling steps/intervals.
+// alpha: Angle between curve and y-axis
+Curve2D ArcCurve::sample(const Series& segments, double x0, double y0, double phi0, unsigned n)
+{
+    Curve2D nodes = ArcCurve::nodes(segments, x0, y0, phi0);
+
+    unsigned j = 0; // Segment index
+    auto eval_curve = [&](double s)
     {
-        Curve curve;
-        Curve nodes = ArcCurve::sample(segments, x0, y0, phi0, 0);
-        curve.add_point({nodes.s[0], nodes.x[0], nodes.y[0], nodes.phi[0]});
+        // Make sure that s[j] <= s <= s[j + 1]
+        while(s > nodes.s[j+1])
+            ++j;
 
-        // i: Segment
-        // j: Sampling interval
-        unsigned i = 0;
-        for(unsigned j = 0; j < n; ++j)
-        {
-            double sj = double(j+1)/double(n)*nodes.s.back();
-            if(sj > nodes.s[i+1])
-            {
-                ++i;
-            }
+        assert(s >= nodes.s[j]);
 
-            auto p = eval_arc({nodes.s[i], nodes.x[i], nodes.y[i], nodes.phi[i]}, segments.val(i), sj - nodes.s[i]);
-            curve.add_point(p);
-        }
+        // Todo: Add get_point(size_t) method to Curve2D?
+        double kappa = segments.val(j);
+        double ds = s - nodes.s[j];
+        return eval_arc({nodes.s[j], nodes.x[j], nodes.y[j], nodes.phi[j]}, kappa, ds);
+    };
 
-        return curve;
+    Curve2D result;
+    for(unsigned i = 0; i <= n; ++i)
+    {
+        double s = double(i)/double(n)*nodes.s.back();
+        result.add_point(eval_curve(s));
     }
+
+    return result;
 }
 
 // Calculates the end point of an arc segment with staring point p0, curvature kappa and arc length ds.
-CurvePoint ArcCurve::eval_arc(CurvePoint p0, double kappa, double ds)
+Curve2D::Point ArcCurve::eval_arc(Curve2D::Point p0, double kappa, double ds)
 {
-    CurvePoint p;
+    Curve2D::Point p;
 
     p.s = p0.s + ds;
     p.phi = p0.phi + kappa*ds;
