@@ -1,5 +1,5 @@
 #include "CommentsDialog.hpp"
-#include "../../model/InputData.hpp"
+#include "model/InputData.hpp"
 
 CommentsDialog::CommentsDialog(QWidget* parent, InputData& data)
     : QDialog(parent),

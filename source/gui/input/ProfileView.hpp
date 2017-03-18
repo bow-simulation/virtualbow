@@ -1,6 +1,6 @@
 #pragma once
-#include "../Plot.hpp"
-#include "../../model/Document.hpp"
+#include "gui/Plot.hpp"
+#include "model/Document.hpp"
 
 class InputData;
 

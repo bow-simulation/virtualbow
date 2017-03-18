@@ -1,6 +1,6 @@
 #include "SplineView.hpp"
-#include "../../model/InputData.hpp"
-#include "../../numerics/CubicSpline.hpp"
+#include "model/InputData.hpp"
+#include "numerics/CubicSpline.hpp"
 
 SplineView::SplineView(const QString& lbx, const QString& lby, DocItem<Series>& doc_item)
     : Plot(lbx, lby)

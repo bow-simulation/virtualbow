@@ -4,7 +4,7 @@
 #include "input/SettingsDialog.hpp"
 #include "input/CommentsDialog.hpp"
 #include "output/OutputDialog.hpp"
-#include "../model/BowModel.hpp"
+#include "model/BowModel.hpp"
 #include <thread>
 
 MainWindow:: MainWindow(const QString& path)

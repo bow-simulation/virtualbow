@@ -1,8 +1,8 @@
 #pragma once
-#include "Node.hpp"
-#include "Element.hpp"
-#include "../utils/DynamicCastIterator.hpp"
-#include "../utils/Optional.hpp"
+#include "fem/Node.hpp"
+#include "fem/Element.hpp"
+#include "utils/DynamicCastIterator.hpp"
+#include "utils/Optional.hpp"
 
 #include <boost/range/iterator_range.hpp>
 #include <string>
@@ -40,6 +40,7 @@ private:
     mutable Optional<MatrixXd> m_K;    // Tangent stiffness matrix
 
     // Todo: Why mutable?
+    // Todo: Use https://github.com/Tessil/ordered-map
     mutable std::map<std::string, std::vector<Element*>> groups;
     mutable std::vector<Element*> elements;
 

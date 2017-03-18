@@ -1,7 +1,7 @@
-#include "../fem/System.hpp"
-#include "../fem/Solver.hpp"
-#include "../fem/elements/BarElement.hpp"
-#include "../fem/elements/MassElement.hpp"
+#include "fem/System.hpp"
+#include "fem/Solver.hpp"
+#include "fem/elements/BarElement.hpp"
+#include "fem/elements/MassElement.hpp"
 
 #include <catch.hpp>
 #include <iostream>

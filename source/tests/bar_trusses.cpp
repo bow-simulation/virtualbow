@@ -1,6 +1,6 @@
-#include "../fem/System.hpp"
-#include "../fem/Solver.hpp"
-#include "../fem/elements/BarElement.hpp"
+#include "fem/System.hpp"
+#include "fem/Solver.hpp"
+#include "fem/elements/BarElement.hpp"
 
 #include <catch.hpp>
 #include <iostream>

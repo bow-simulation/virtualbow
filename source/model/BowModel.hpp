@@ -1,15 +1,14 @@
 #pragma once
-#include "InputData.hpp"
-#include "OutputData.hpp"
-
-#include "DiscreteLimb.hpp"
-#include "../fem/System.hpp"
-#include "../fem/Solver.hpp"
-#include "../fem/elements/BeamElement.hpp"
-#include "../fem/elements/BarElement.hpp"
-#include "../fem/elements/MassElement.hpp"
-#include "../numerics/SecantMethod.hpp"
-#include "../gui/ProgressDialog.hpp"
+#include "model/InputData.hpp"
+#include "model/OutputData.hpp"
+#include "model/LimbProperties.hpp"
+#include "fem/System.hpp"
+#include "fem/Solver.hpp"
+#include "fem/elements/BeamElement.hpp"
+#include "fem/elements/BarElement.hpp"
+#include "fem/elements/MassElement.hpp"
+#include "numerics/SecantMethod.hpp"
+#include "gui/ProgressDialog.hpp"
 #include <algorithm>
 
 class BowModel
@@ -27,7 +26,7 @@ public:
         size_t k = input.settings_n_elements_string;
 
         // Create limb nodes
-        limb = DiscreteLimb(input);
+        limb = LimbProperties(input);
         for(size_t i = 0; i < n+1; ++i)
         {
             DofType type = (i == 0) ? DofType::Fixed : DofType::Active;
@@ -263,7 +262,7 @@ public:
 private:
     const InputData& input;
     OutputData& output;
-    DiscreteLimb limb;
+    LimbProperties limb;
 
     System system;
 

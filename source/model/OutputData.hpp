@@ -1,11 +1,9 @@
 #pragma once
-#include "DiscreteLimb.hpp"
-#include <memory>
-#include <algorithm>
+#include "model/LimbProperties.hpp"
 
 struct BowSetup
 {
-    DiscreteLimb limb;
+    LimbProperties limb;
     double string_length;
 };
 

@@ -11,7 +11,7 @@ Curve2D ArcCurve::nodes(const Series& segments, double x0, double y0, double phi
         auto p = eval_arc({nodes.s[i], nodes.x[i], nodes.y[i], nodes.phi[i]}, segments.val(i), segments.arg(i));
         nodes.add_point(p);
     }
-
+    
     return nodes;
 }
 

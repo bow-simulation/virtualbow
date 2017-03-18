@@ -1,10 +1,6 @@
-# Build directory
+# User settings for Qt creator
 
-/build
-
-# KDevelop project files
-
-*.kdev4
+*.user
 
 # Hidden files
 

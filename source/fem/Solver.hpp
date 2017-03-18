@@ -1,7 +1,8 @@
 #pragma once
-#include "System.hpp"
-#include "Node.hpp"
-#include "../numerics/Linspace.hpp"
+#include "fem/System.hpp"
+#include "fem/Node.hpp"
+#include "numerics/Linspace.hpp"
+
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <functional>

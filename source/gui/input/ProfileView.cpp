@@ -1,6 +1,6 @@
 #include "ProfileView.hpp"
-#include "../../model/InputData.hpp"
-#include "../../numerics/ArcCurve.hpp"
+#include "model/InputData.hpp"
+#include "numerics/ArcCurve.hpp"
 
 ProfileView::ProfileView(InputData& data)
     : Plot("x [m]", "y [m]", Align::TopLeft),

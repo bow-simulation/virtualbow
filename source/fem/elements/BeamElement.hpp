@@ -1,6 +1,6 @@
 #pragma once
-#include "../Element.hpp"
-#include "../Node.hpp"
+#include "fem/Element.hpp"
+#include "fem/Node.hpp"
 
 class BeamElement: public Element
 {

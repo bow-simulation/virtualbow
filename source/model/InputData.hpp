@@ -1,6 +1,7 @@
 #pragma once
-#include "Document.hpp"
-#include "../numerics/Series.hpp"
+#include "model/Document.hpp"
+#include "numerics/Series.hpp"
+
 #include <QtCore>
 
 struct Layer

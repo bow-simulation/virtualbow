@@ -1,13 +1,14 @@
 #pragma once
-#include "InputData.hpp"
-#include "../numerics/ArcCurve.hpp"
-#include "../numerics/CubicSpline.hpp"
+#include "model/InputData.hpp"
+#include "numerics/ArcCurve.hpp"
+#include "numerics/CubicSpline.hpp"
+
 #include <vector>
 #include <array>
 
 // sigma_upper(s) = He_upper(s)*epsilon(s) + Hk_upper(s)*kappa(s)
 // sigma_lower(s) = He_lower(s)*epsilon(s) + Hk_lower(s)*kappa(s)
-struct DiscreteLayer
+struct LayerProperties
 {
     double E;
     std::vector<double> s;
@@ -38,12 +39,14 @@ struct DiscreteLayer
     }
 };
 
-struct DiscreteLimb
+struct LimbProperties
 {
     // Nodes
     std::vector<double> s;
     std::vector<double> x;
     std::vector<double> y;
+    std::vector<double> w;
+    std::vector<double> h;
     std::vector<double> phi;
 
     // Section properties
@@ -54,16 +57,21 @@ struct DiscreteLimb
     std::vector<double> rhoA;
 
     // Layer properties
-    std::vector<DiscreteLayer> layers;
+    std::vector<LayerProperties> layers;
 
-    DiscreteLimb(const InputData& input)
+    LimbProperties(const InputData& input)
+    {
+        LimbProperties(input, input.settings_n_elements_limb);
+    }
+
+    LimbProperties(const InputData& input, unsigned int n_elements_limb)
     {
         // 1. Nodes
         Curve2D curve = ArcCurve::sample(input.profile_segments,
                                          input.profile_x0,
                                          input.profile_y0,
                                          input.profile_phi0,
-                                         input.settings_n_elements_limb);
+                                         n_elements_limb);
 
         // Todo: Is there a more elegant way? Maybe have a Curve2D member?
         s = curve.s;
@@ -72,16 +80,19 @@ struct DiscreteLimb
         phi = curve.phi;
 
         // 2. Sections
-        Series w = CubicSpline::sample(input.sections_width, input.settings_n_elements_limb);
-        Series h = CubicSpline::sample(input.sections_height, input.settings_n_elements_limb);
+        Series width = CubicSpline::sample(input.sections_width, n_elements_limb);
+        Series height = CubicSpline::sample(input.sections_height, n_elements_limb);
 
         for(size_t i = 0; i < s.size(); ++i)
         {
-            double w_i = w.val(i);
-            double h_i = h.val(i);
+            double w_i = width.val(i);
+            double h_i = height.val(i);
 
             double A = w_i*h_i;
             double I = A*h_i*h_i/3.0;
+
+            w.push_back(w_i);
+            h.push_back(h_i);
 
             hc.push_back(h_i);
             Cee.push_back(input.sections_E*A);
@@ -99,11 +110,11 @@ struct DiscreteLimb
         {
             layers[0].s.push_back(s[i]);
             layers[0].y_upper.push_back(0.0);
-            layers[0].y_lower.push_back(-h.val(i));
+            layers[0].y_lower.push_back(-height.val(i));
         }
     }
 
-    DiscreteLimb()
+    LimbProperties()
     {
 
     }

@@ -25,8 +25,10 @@ set(CMAKE_AUTOUIC ON)
 
 # VTK
 find_package(VTK 7.1.0 REQUIRED)
+include(${VTK_USE_FILE})
 
-# Compile and link
+# Add files, compile and link
+include_directories(source)
 add_executable(${PROJECT_NAME}
     source/main.cpp
     source/fem/elements/BarElement.cpp
@@ -43,6 +45,8 @@ add_executable(${PROJECT_NAME}
     source/gui/input/NumberGroup.cpp
     source/gui/input/SeriesView.cpp
     source/gui/input/SettingsDialog.cpp
+    source/gui/input/LimbView.cpp
+    source/gui/input/LimbSource.cpp
     source/gui/output/ComboPlot.cpp
     source/gui/output/EnergyPlot.cpp
     source/gui/output/OutputDialog.cpp
@@ -57,24 +61,18 @@ add_executable(${PROJECT_NAME}
     source/gui/input/ProfileView.cpp
     source/gui/input/LimbView.cpp
     source/model/BowModel.cpp
-    source/model/DiscreteLimb.cpp
+    source/model/LimbProperties.cpp
     source/model/InputData.cpp
     source/model/OutputData.cpp
+    source/model/Document.hpp   # moc
     source/numerics/ArcCurve.cpp
     source/numerics/CubicSpline.cpp
     source/numerics/Series.cpp
     source/external/qcustomplot/qcustomplot.cpp
-    
-    # moc
-    source/model/Document.hpp
-    
-    # resources
     resources/resources.qrc
 )
 
-target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
-target_link_libraries(${PROJECT_NAME} Qt5::PrintSupport)
-target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::PrintSupport ${VTK_LIBRARIES})
 
 # Install
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)

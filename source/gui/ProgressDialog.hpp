@@ -1,8 +1,8 @@
 #pragma once
+#include "gui/Plot.hpp"
+
 #include <QtWidgets>
 #include <functional>
-
-#include "Plot.hpp"
 
 class TaskState: public QObject
 {

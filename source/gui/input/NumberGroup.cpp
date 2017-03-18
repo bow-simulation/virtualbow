@@ -1,21 +1,18 @@
 #include "NumberGroup.hpp"
 #include "DoubleView.hpp"
 #include "IntegerView.hpp"
-#include "../../model/InputData.hpp"
+#include "model/InputData.hpp"
 
 NumberGroup::NumberGroup(const QString& title)
     : QGroupBox(title),
       grid(new QGridLayout())
 {
+    grid->setAlignment(Qt::AlignTop);
     grid->setColumnStretch(0, 1);
     grid->setColumnStretch(1, 0);
     grid->setColumnStretch(2, 0);
 
-    auto vbox = new QVBoxLayout();
-    vbox->addLayout(grid);
-    vbox->addStretch(1);
-
-    this->setLayout(vbox);
+    this->setLayout(grid);
 }
 
 void NumberGroup::addRow(const QString& name, const QString& unit, DocItem<double>& item)

@@ -1,6 +1,6 @@
 #pragma once
-#include "../external/qcustomplot/qcustomplot.h"
-#include "../numerics/Series.hpp"
+#include "external/qcustomplot/qcustomplot.h"
+#include "numerics/Series.hpp"
 #include <QtWidgets>
 
 class Series;

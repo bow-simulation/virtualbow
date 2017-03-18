@@ -1,5 +1,5 @@
 #include "OutputDialog.hpp"
-#include "../Plot.hpp"
+#include "gui/Plot.hpp"
 #include "OutputGrid.hpp"
 #include "ShapePlot.hpp"
 #include "StressPlot.hpp"

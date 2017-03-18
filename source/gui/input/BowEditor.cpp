@@ -1,33 +1,32 @@
 #include "BowEditor.hpp"
 #include "SeriesView.hpp"
 #include "NumberGroup.hpp"
-#include "GeometryView.hpp"
+#include "LimbView.hpp"
 #include "ProfileView.hpp"
 #include "SplineView.hpp"
 #include "DoubleView.hpp"
-#include "../../model/InputData.hpp"
+#include "model/InputData.hpp"
 
 BowEditor::BowEditor(InputData& data)
     : QSplitter(Qt::Vertical)
 {
-    this->addWidget(new GeometryView(data));
+    this->addWidget(new LimbView(data));
 
     auto tabs = new QTabWidget();
+    tabs->addTab(new GeneralEditor(data), "General");
     tabs->addTab(new ProfileEditor(data), "Profile");
     tabs->addTab(new WidthEditor(data), "Width");
     tabs->addTab(new HeightEditor(data), "Height");
-    tabs->addTab(new GeneralEditor(data), "Other parameters");
     this->addWidget(tabs);
+
+    this->setStretchFactor(0, 1);
+    this->setStretchFactor(1, 0);
 }
 
 GeneralEditor::GeneralEditor(InputData& data)
 {
-    auto vbox = new QVBoxLayout();
-    this->setLayout(vbox);
-
     auto hbox = new QHBoxLayout();
-    vbox->addLayout(hbox, 0);
-    vbox->addStretch();
+    this->setLayout(hbox);
 
     auto group_limb = new NumberGroup("Limb Material");
     group_limb->addRow("rho:", "kg/m³", data.sections_rho);      // Todo: Use unicode character (\u2374). Problem: Windows

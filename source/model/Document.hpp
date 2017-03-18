@@ -1,8 +1,8 @@
 #pragma once
-#include "../numerics/Domain.hpp"
+#include "numerics/Domain.hpp"
+
 #include <boost/signals2.hpp>
 #include <functional>
-
 #include <QtCore>
 
 class Document: public QObject

@@ -1,6 +1,6 @@
-#include "../fem/System.hpp"
-#include "../fem/Solver.hpp"
-#include "../fem/elements/BeamElement.hpp"
+#include "fem/System.hpp"
+#include "fem/Solver.hpp"
+#include "fem/elements/BeamElement.hpp"
 
 #include <catch.hpp>
 #include <vector>
