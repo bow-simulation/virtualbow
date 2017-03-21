@@ -96,7 +96,11 @@ GUI
 
    !* VTK: Culling/Transparency doesn't work correctly. Workaround: Backface culling on, frontface culling off.
 
-    * LimbView/LimbSource: Limit discretisation step depending on curvature to prevent mesh from overlapping with itself
+    * LimbView/LimbSource
+
+        * Limit discretisation step depending on curvature and cross section height to prevent mesh from overlapping with itself
+        * Aliasing: Other way than to use fxaa? Alternatively: Can fxaa be assumed to be available? Also, rendering has become sluggish since fxaa was enabled.
+        * Clipping (?) problem sometimes, usually limb tip is cut off
 
 FEM
 ===
@@ -135,6 +139,10 @@ Model
    !* Handle too short draw length (smaller than brace height)
 
     * Have a look at https://github.com/nlohmann/json for storing simulation data as MessagePack.
+
+    * Enforce that cross section height < radius of curvature
+
+    * Crash when height goes to zero
 
 General
 =======

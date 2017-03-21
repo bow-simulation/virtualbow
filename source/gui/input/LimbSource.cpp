@@ -53,17 +53,6 @@ int LimbSource::RequestData(vtkInformation* request, vtkInformationVector** inpu
         points->InsertNextPoint(p1.data());
         points->InsertNextPoint(p2.data());
         points->InsertNextPoint(p3.data());
-
-        /*
-        vtkIdType i0 = 4*i;
-
-        if(i == 0)
-        {
-            vtkIdType pts[] = {i0, i0 + 1, i0 + 2, i0 + 3};
-            polys->InsertNextCell(4, pts);
-        }
-        */
-
     }
 
     // Generate indices

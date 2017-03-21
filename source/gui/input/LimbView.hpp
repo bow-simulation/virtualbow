@@ -39,11 +39,13 @@ public:
         // Todo: Why is the face orientation wrong inside QVTKWidget?! (http://stackoverflow.com/questions/24131430/vtk-6-1-and-qt-5-3-3d-objects-in-qvtkwidget-with-bad-transparencies)
         actor->GetProperty()->SetFrontfaceCulling(false);
         actor->GetProperty()->SetBackfaceCulling(true);
+        actor->GetProperty()->SetColor(1.0, 0.8, 0.4);
 
         renderer = vtkSmartPointer<vtkRenderer>::New();
         this->GetRenderWindow()->AddRenderer(renderer);
         renderer->AddActor(actor);
         renderer->SetBackground(0.2, 0.3, 0.4);
+        renderer->SetUseFXAA(true);    // Todo: What if this is not supported (or can that be reasonably assumed?)
 
         // Integration of vtkOrientationMarkerWidget and QVTKWidget
         // http://vtk.markmail.org/message/cgkqlbz3jgmn6h3z?q=vtkOrientationMarkerWidget+qvtkwidget
@@ -56,38 +58,23 @@ public:
 
         auto camera = renderer->GetActiveCamera();
         camera->SetParallelProjection(true);
-        //camera->SetPosition(0.0, 1.0, 0.0);
 
         // Buttons (Profile, width, 3D, fit)
         auto button0 = new QPushButton("Profile");
         // button0->setIcon(QIcon(":/icons/document-new"));
-        QObject::connect(button0, &QPushButton::clicked, [&]()
-        {
-            qInfo() << "Profile!";
-            renderer->GetActiveCamera()->Azimuth(1);
-            this->GetInteractor()->Render();    // http://vtk.markmail.org/message/nyq3dwlyfrivrqac
-        });
+        QObject::connect(button0, &QPushButton::clicked, this, &LimbView::viewProfile);
 
         auto button1 = new QPushButton("Top");
         // button1->setIcon(QIcon(":/icons/document-new"));
-        QObject::connect(button1, &QPushButton::clicked, []()
-        {
-            qInfo() << "Top!";
-        });
+        QObject::connect(button1, &QPushButton::clicked, this, &LimbView::viewTop);
 
-        auto button2 = new QPushButton("Dimetric");
+        auto button2 = new QPushButton("3D View");
         // button2->setIcon(QIcon(":/icons/document-new"));
-        QObject::connect(button2, &QPushButton::clicked, []()
-        {
-            qInfo() << "Dimetric!";
-        });
+        QObject::connect(button2, &QPushButton::clicked, this, &LimbView::view3D);
 
         auto button3 = new QPushButton("Fit");
         // button3->setIcon(QIcon(":/icons/document-new"));
-        QObject::connect(button3, &QPushButton::clicked, []()
-        {
-            qInfo() << "Fit!";
-        });
+        QObject::connect(button3, &QPushButton::clicked, this, &LimbView::viewFit);
 
         // Todo: Magic numbers
         button0->setIconSize({32, 32});
@@ -115,6 +102,9 @@ public:
         connections.push_back(    data.profile_phi0.connect([&](const double&){ update(); }));
         connections.push_back(  data.sections_width.connect([&](const Series&){ update(); }));
         connections.push_back( data.sections_height.connect([&](const Series&){ update(); }));
+
+        // Default view
+        viewProfile();
     }
 
 private:
@@ -133,21 +123,71 @@ private:
 
     virtual void resizeEvent(QResizeEvent* event)
     {
-        const int w = 100;   // Magic number
-        const int h = 100;   // Magic number
+        const int size = 100;   // Magic number
+        widget->SetViewport(0.0, 0.0, double(size)/event->size().width(), double(size)/event->size().height());
 
-        widget->SetViewport(0.0, 0.0, double(w)/double(event->size().width()), double(h)/double(event->size().height()));
-        widget->Modified();
-        this->GetInteractor()->Render();
-        renderer->Render();
+        /*
         widget->SetEnabled(true);
         widget->SetInteractive(false);
 
-        qInfo() << double(w)/double(event->size().width()) << ", " << double(h)/double(event->size().height());
+        widget->Modified();
+        this->GetInteractor()->Render();
+        renderer->Render();
+        */
+
+        qInfo() << double(size)/event->size().width() << ", " << double(size)/event->size().height();
     }
 
     virtual QSize sizeHint() const
     {
         return {900, 300};    // Magic numbers
+    }
+
+    void setCameraPosition(double rot_y, double rot_x)
+    {
+        auto center = source->GetOutput()->GetCenter();
+        auto length = source->GetOutput()->GetLength();
+
+        auto camera = renderer->GetActiveCamera();
+        camera->SetFocalPoint(center);
+
+        // Subsequently rotate camera around y- and x-axis
+        camera->SetPosition(center[0] + length*std::cos(rot_y),
+                            center[1] + length*std::sin(rot_x)*std::sin(rot_y),
+                            center[2] - length*std::cos(rot_x)*std::sin(rot_y));
+
+        camera->SetViewUp(0.0, -std::cos(rot_x), -std::sin(rot_x));
+
+        this->GetInteractor()->Render();    // http://vtk.markmail.org/message/nyq3dwlyfrivrqac
+    }
+
+    void viewProfile()
+    {
+        setCameraPosition(M_PI_2, 0.0);
+        viewFit();
+    }
+
+    void viewTop()
+    {
+        setCameraPosition(M_PI_2, -M_PI_2);
+        viewFit();
+    }
+
+    void view3D()
+    {
+        setCameraPosition(1.2, -0.4);
+        viewFit();
+    }
+
+    void viewFit()
+    {
+        auto length = source->GetOutput()->GetLength();
+        const double factor = 1.05;    // Magic number
+        QSize size = this->size();
+
+        auto camera = renderer->GetActiveCamera();
+        camera->SetParallelScale(0.5*factor*length*double(size.height())/double(size.width()));
+
+        this->GetInteractor()->Render();    // http://vtk.markmail.org/message/nyq3dwlyfrivrqac
     }
 };
