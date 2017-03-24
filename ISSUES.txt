@@ -100,7 +100,11 @@ GUI
 
         * Limit discretisation step depending on curvature and cross section height to prevent mesh from overlapping with itself
         * Aliasing: Other way than to use fxaa? Alternatively: Can fxaa be assumed to be available? Also, rendering has become sluggish since fxaa was enabled.
-        * Clipping (?) problem sometimes, usually limb tip is cut off
+        * Clipping (?) problem sometimes, sometimes limb tip is cut off
+        * Put orientation marker lower on the screen
+        * Face orientation/transparency? What is going on here?
+        * Profile view: If the bow has a depth/length ratio over some threshold, rotate it around the z-axis so that it fits better into the view.
+        * Add an option to show the coordinate origin, maybe with some infinite lines. Useful e.g. when whole bow is viewed.
 
 FEM
 ===

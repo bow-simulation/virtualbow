@@ -17,6 +17,11 @@
         <file>icons/insert-above.png</file>
         <file>icons/insert-below.png</file>
         <file>icons/edit-delete.png</file>
+	<file>icons/view-profile.png</file>
+        <file>icons/view-top.png</file>
+        <file>icons/view-3d.png</file>
+        <file>icons/view-fit.png</file>
+        <file>icons/view-symmetric.png</file>
         <file>bows/default.bow</file>
     </qresource>
 </RCC>

@@ -33,17 +33,27 @@ public:
 
         auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
         mapper->SetInputConnection(source->GetOutputPort());
+
+        // Right limb
+        actor_r = vtkSmartPointer<vtkActor>::New();
+        actor_r->SetMapper(mapper);
+        actor_r->GetProperty()->SetFrontfaceCulling(false);    // Todo: Why is the face orientation wrong inside QVTKWidget?! (http://stackoverflow.com/questions/24131430/vtk-6-1-and-qt-5-3-3d-objects-in-qvtkwidget-with-bad-transparencies)
+        actor_r->GetProperty()->SetBackfaceCulling(true);
+        actor_r->GetProperty()->SetColor(1.0, 0.8, 0.4);
         
-        auto actor = vtkSmartPointer<vtkActor>::New();
-        actor->SetMapper(mapper);
-        // Todo: Why is the face orientation wrong inside QVTKWidget?! (http://stackoverflow.com/questions/24131430/vtk-6-1-and-qt-5-3-3d-objects-in-qvtkwidget-with-bad-transparencies)
-        actor->GetProperty()->SetFrontfaceCulling(false);
-        actor->GetProperty()->SetBackfaceCulling(true);
-        actor->GetProperty()->SetColor(1.0, 0.8, 0.4);
+        // Left limb
+        actor_l = vtkSmartPointer<vtkActor>::New();
+        actor_l->SetMapper(mapper);
+        actor_l->GetProperty()->SetFrontfaceCulling(false);
+        actor_l->GetProperty()->SetBackfaceCulling(true);
+        actor_l->GetProperty()->SetColor(1.0, 0.8, 0.4);
+        actor_l->SetOrientation(0.0, 180.0, 0.0);
+        actor_l->SetVisibility(false);
 
         renderer = vtkSmartPointer<vtkRenderer>::New();
         this->GetRenderWindow()->AddRenderer(renderer);
-        renderer->AddActor(actor);
+        renderer->AddActor(actor_l);
+        renderer->AddActor(actor_r);
         renderer->SetBackground(0.2, 0.3, 0.4);
         renderer->SetUseFXAA(true);    // Todo: What if this is not supported (or can that be reasonably assumed?)
 
@@ -58,50 +68,60 @@ public:
 
         auto camera = renderer->GetActiveCamera();
         camera->SetParallelProjection(true);
+        camera->SetUseHorizontalParallelScale(true);
 
-        // Buttons (Profile, width, 3D, fit)
-        auto button0 = new QPushButton("Profile");
-        // button0->setIcon(QIcon(":/icons/document-new"));
+        // Buttons
+
+        auto button0 = new QToolButton();
         QObject::connect(button0, &QPushButton::clicked, this, &LimbView::viewProfile);
-
-        auto button1 = new QPushButton("Top");
-        // button1->setIcon(QIcon(":/icons/document-new"));
-        QObject::connect(button1, &QPushButton::clicked, this, &LimbView::viewTop);
-
-        auto button2 = new QPushButton("3D View");
-        // button2->setIcon(QIcon(":/icons/document-new"));
-        QObject::connect(button2, &QPushButton::clicked, this, &LimbView::view3D);
-
-        auto button3 = new QPushButton("Fit");
-        // button3->setIcon(QIcon(":/icons/document-new"));
-        QObject::connect(button3, &QPushButton::clicked, this, &LimbView::viewFit);
-
-        // Todo: Magic numbers
+        button0->setIcon(QIcon(":/icons/view-profile"));
+        button0->setToolTip("Profile view");
         button0->setIconSize({32, 32});
+
+        auto button1 = new QToolButton();
+        QObject::connect(button1, &QPushButton::clicked, this, &LimbView::viewTop);
+        button1->setIcon(QIcon(":/icons/view-top"));
+        button1->setToolTip("Top view");
         button1->setIconSize({32, 32});
+
+        auto button2 = new QToolButton();
+        QObject::connect(button2, &QPushButton::clicked, this, &LimbView::view3D);
+        button2->setIcon(QIcon(":/icons/view-3d"));
+        button2->setToolTip("3D view");
         button2->setIconSize({32, 32});
+
+        auto button3 = new QToolButton();
+        QObject::connect(button3, &QPushButton::clicked, this, &LimbView::viewFit);
+        button3->setIcon(QIcon(":/icons/view-fit"));
+        button3->setToolTip("Fit view");
         button3->setIconSize({32, 32});
+
+        auto button4 = new QToolButton();
+        QObject::connect(button4, &QToolButton::toggled, this, &LimbView::viewSymmetric);
+        button4->setIcon(QIcon(":/icons/view-symmetric"));
+        button4->setToolTip("Show symmetric limb");
+        button4->setIconSize({32, 32});
+        button4->setCheckable(true);
 
         auto hbox = new QHBoxLayout();
         hbox->setAlignment(Qt::AlignBottom);
         hbox->addStretch();
         hbox->addWidget(button0);
-        hbox->addSpacing(10);       // Magic number
         hbox->addWidget(button1);
-        hbox->addSpacing(10);       // Magic number
         hbox->addWidget(button2);
-        hbox->addSpacing(10);       // Magic number
         hbox->addWidget(button3);
+        hbox->addSpacing(20);
+        hbox->addWidget(button4);
         this->setLayout(hbox);
 
         // Event handling
         // Todo: Use std::bind or something...
-        connections.push_back(data.profile_segments.connect([&](const Series&){ update(); }));
-        connections.push_back(      data.profile_x0.connect([&](const double&){ update(); }));
-        connections.push_back(      data.profile_y0.connect([&](const double&){ update(); }));
-        connections.push_back(    data.profile_phi0.connect([&](const double&){ update(); }));
-        connections.push_back(  data.sections_width.connect([&](const Series&){ update(); }));
-        connections.push_back( data.sections_height.connect([&](const Series&){ update(); }));
+        connections.push_back(data.profile_segments.connect([&](const Series&){ updateLimbSource(); }));
+        connections.push_back(      data.profile_x0.connect([&](const double&){ updateLimbSource(); }));
+        connections.push_back(      data.profile_y0.connect([&](const double&){ updateLimbSource(); }));
+        connections.push_back(    data.profile_phi0.connect([&](const double&){ updateLimbSource(); }));
+        connections.push_back(  data.sections_width.connect([&](const Series&){ updateLimbSource(); }));
+        connections.push_back( data.sections_height.connect([&](const Series&){ updateLimbSource(); }));
 
         // Default view
         viewProfile();
@@ -109,33 +129,25 @@ public:
 
 private:
     vtkSmartPointer<LimbSource> source;
+    vtkSmartPointer<vtkActor> actor_r;
+    vtkSmartPointer<vtkActor> actor_l;
     vtkSmartPointer<vtkRenderer> renderer;
     vtkSmartPointer<vtkOrientationMarkerWidget> widget;
 
     InputData& data;
     std::vector<Connection> connections;
 
-    void update()
+    void updateLimbSource()
     {
         source->SetLimbData(LimbProperties(data, 150));    // Magic number
         this->GetInteractor()->Render();
     }
 
+    // Adjust orientation widget's viewport on resize to keep it at a constant screen size
     virtual void resizeEvent(QResizeEvent* event)
     {
-        const int size = 100;   // Magic number
+        const int size = 200;   // Magic number
         widget->SetViewport(0.0, 0.0, double(size)/event->size().width(), double(size)/event->size().height());
-
-        /*
-        widget->SetEnabled(true);
-        widget->SetInteractive(false);
-
-        widget->Modified();
-        this->GetInteractor()->Render();
-        renderer->Render();
-        */
-
-        qInfo() << double(size)/event->size().width() << ", " << double(size)/event->size().height();
     }
 
     virtual QSize sizeHint() const
@@ -143,22 +155,15 @@ private:
         return {900, 300};    // Magic numbers
     }
 
+     // Subsequently rotate camera around y- and x-axis, starting from (1, 0, 0)
     void setCameraPosition(double rot_y, double rot_x)
     {
-        auto center = source->GetOutput()->GetCenter();
-        auto length = source->GetOutput()->GetLength();
+        using namespace std;
 
         auto camera = renderer->GetActiveCamera();
-        camera->SetFocalPoint(center);
-
-        // Subsequently rotate camera around y- and x-axis
-        camera->SetPosition(center[0] + length*std::cos(rot_y),
-                            center[1] + length*std::sin(rot_x)*std::sin(rot_y),
-                            center[2] - length*std::cos(rot_x)*std::sin(rot_y));
-
-        camera->SetViewUp(0.0, -std::cos(rot_x), -std::sin(rot_x));
-
-        this->GetInteractor()->Render();    // http://vtk.markmail.org/message/nyq3dwlyfrivrqac
+        camera->SetFocalPoint(0.0, 0.0, 0.0);
+        camera->SetPosition(cos(rot_y), sin(rot_x)*sin(rot_y), -cos(rot_x)*sin(rot_y));
+        camera->SetViewUp(0.0, -cos(rot_x), -sin(rot_x));
     }
 
     void viewProfile()
@@ -179,14 +184,16 @@ private:
         viewFit();
     }
 
+    void viewSymmetric(bool checked)
+    {
+        actor_l->SetVisibility(checked);
+        viewFit();
+    }
+
     void viewFit()
     {
-        auto length = source->GetOutput()->GetLength();
-        const double factor = 1.05;    // Magic number
-        QSize size = this->size();
-
-        auto camera = renderer->GetActiveCamera();
-        camera->SetParallelScale(0.5*factor*length*double(size.height())/double(size.width()));
+        renderer->ResetCamera();
+        renderer->GetActiveCamera()->Zoom(0.98);   // Magic number
 
         this->GetInteractor()->Render();    // http://vtk.markmail.org/message/nyq3dwlyfrivrqac
     }

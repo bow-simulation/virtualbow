@@ -1,74 +1,113 @@
 /*
-#include <vtkVersion.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkPolyData.h>
-#include <vtkSphereSource.h>
-#include <vtkOrientationMarkerWidget.h>
-#include <vtkAxesActor.h>
-#include <vtkPropAssembly.h>
 #include <vtkSmartPointer.h>
 
-int main (int, char *[])
+#include <vtkActor.h>
+#include <vtkCubeSource.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+
+int main(int, char *[])
 {
-  vtkSmartPointer<vtkSphereSource> sphereSource =
-    vtkSmartPointer<vtkSphereSource>::New();
-  sphereSource->SetCenter(0.0, 0.0, 0.0);
-  sphereSource->SetRadius(1.0);
-  sphereSource->Update();
+  // Create a cube.
+  vtkSmartPointer<vtkCubeSource> cubeSource =
+    vtkSmartPointer<vtkCubeSource>::New();
 
-  vtkPolyData* polydata = sphereSource->GetOutput();
-
-  // Create a mapper
+  // Create a mapper and actor.
   vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-#if VTK_MAJOR_VERSION <= 5
-  mapper->SetInput(polydata);
-#else
-  mapper->SetInputData(polydata);
-#endif
+  mapper->SetInputConnection(cubeSource->GetOutputPort());
 
-  // Create an actor
   vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
-  // A renderer and render window
+  // Create a renderer, render window, and interactor
   vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
+
+  renderer->SetViewport(0.0, 0.0, 0.5, 0.5);
+
+
   vtkSmartPointer<vtkRenderWindow> renderWindow =
     vtkSmartPointer<vtkRenderWindow>::New();
   renderWindow->AddRenderer(renderer);
-
-  // An interactor
   vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
   renderWindowInteractor->SetRenderWindow(renderWindow);
 
   // Add the actors to the scene
   renderer->AddActor(actor);
-  renderer->SetBackground(.2, .3, .4);
+  renderer->SetBackground(.3, .2, .1);
 
-  vtkSmartPointer<vtkAxesActor> axes =
-    vtkSmartPointer<vtkAxesActor>::New();
-
-  vtkSmartPointer<vtkOrientationMarkerWidget> widget =
-    vtkSmartPointer<vtkOrientationMarkerWidget>::New();
-  widget->SetOutlineColor(0.9300, 0.5700, 0.1300);
-  widget->SetOrientationMarker( axes );
-  widget->SetInteractor( renderWindowInteractor );
-  widget->SetViewport(0.0, 0.0, 0.2, 0.4);
-  widget->SetEnabled( 1 );
-  widget->SetInteractive(false);
-
-  renderer->ResetCamera();
+  // Render and interact
   renderWindow->Render();
-
-  // Begin mouse interaction
   renderWindowInteractor->Start();
+
+  return EXIT_SUCCESS;
+}
+*/
+
+/*
+#include <vtkCubeSource.h>
+#include <vtkPolyData.h>
+#include <vtkSmartPointer.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkActor.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderer.h>
+#include <vtkCamera.h>
+#include <vtkRenderWindowInteractor.h>
+
+int main(int, char *[])
+{
+  vtkSmartPointer<vtkCubeSource> source = vtkSmartPointer<vtkCubeSource>::New();
+
+  vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+  mapper->SetInputConnection(source->GetOutputPort());
+
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+  actor->SetMapper(mapper);
+  actor->SetOrientation(30.0, 30.0, 30.0);
+
+  vtkSmartPointer<vtkRenderWindow> window = vtkSmartPointer<vtkRenderWindow>::New();
+  window->SetSize(400, 300);
+
+  vtkSmartPointer<vtkRenderWindowInteractor> interactor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  interactor->SetRenderWindow(window);
+
+  // Add renderer with specified viewport and camera settings to the window
+  auto AddRenderer = [&](bool parallel, bool horizontal, double xmin, double ymin, double xmax, double ymax)
+  {
+    vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+    renderer->SetViewport(xmin, ymin, xmax, ymax);
+    renderer->AddActor(actor);
+
+    vtkCamera* camera = renderer->GetActiveCamera();
+    camera->SetParallelProjection(parallel);
+    camera->SetUseHorizontalViewAngle(horizontal);
+    camera->SetUseHorizontalParallelScale(horizontal);
+    renderer->ResetCamera();
+
+    window->AddRenderer(renderer);
+  };
+
+  // Top left: perspective projection, vertical view angle
+  AddRenderer(false, false, 0.0, 0.5, 0.5, 1.0);
+
+  // Top right: perspective projection, horizontal view angle
+  AddRenderer(false,  true, 0.5, 0.5, 1.0, 1.0);
+
+  // Bottom left: parallel projection, vertical parallel scale angle
+  AddRenderer( true, false, 0.0, 0.0, 0.5, 0.5);
+
+  // Bottom right: parallel projection, horizontal parallel scale
+  AddRenderer( true,  true, 0.5, 0.0, 1.0, 0.5);
+
+  window->Render();
+  interactor->Start();
 
   return EXIT_SUCCESS;
 }
@@ -91,7 +130,6 @@ int main(int argc, char *argv[])
     
     return app.exec();
 }
-
 
 /*
 #include <iostream>
