@@ -60,8 +60,9 @@ struct LimbProperties
     std::vector<LayerProperties> layers;
 
     LimbProperties(const InputData& input)
+        : LimbProperties(input, input.settings_n_elements_limb)
     {
-        LimbProperties(input, input.settings_n_elements_limb);
+
     }
 
     LimbProperties(const InputData& input, unsigned int n_elements_limb)
