@@ -19947,6 +19947,7 @@ void QCPGraph::setAdaptiveSampling(bool enabled)
   returns a pointer to the internal data container.
 */
 
+
 /*! \overload
   
   Adds the provided data point as \a key and \a value to the current data.
@@ -21524,6 +21525,7 @@ void QCPCurve::setData(QSharedPointer<QCPCurveDataContainer> data)
   \see addData
 */
 
+
 /*!
   Sets the visual appearance of single data points in the plot. If set to \ref
   QCPScatterStyle::ssNone, no scatter points are drawn (e.g. for line-only plots with appropriate
@@ -21563,34 +21565,6 @@ void QCPCurve::setLineStyle(QCPCurve::LineStyle style)
 {
   mLineStyle = style;
 }
-
-/*! \overload
-  
-  Adds the provided points in \a t, \a keys and \a values to the current data. The provided vectors
-  should have equal length. Else, the number of added points will be the size of the smallest
-  vector.
-  
-  If you can guarantee that the passed data points are sorted by \a keys in ascending order, you
-  can set \a alreadySorted to true, to improve performance by saving a sorting run.
-  
-  Alternatively, you can also access and modify the data directly via the \ref data method, which
-  returns a pointer to the internal data container.
-*/
-
-
-/*! \overload
-  
-  Adds the provided points in \a keys and \a values to the current data. The provided vectors
-  should have equal length. Else, the number of added points will be the size of the smallest
-  vector.
-  
-  The t parameter of each data point will be set to the integer index of the respective key/value
-  pair.
-  
-  Alternatively, you can also access and modify the data directly via the \ref data method, which
-  returns a pointer to the internal data container.
-*/
-
 
 /*! \overload
   Adds the provided data point as \a t, \a key and \a value to the current data.
