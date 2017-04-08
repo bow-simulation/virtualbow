@@ -1,23 +1,23 @@
 #pragma once
-#include "gui/Plot.hpp"
+#include "gui/PlotWidget.hpp"
 #include "model/OutputData.hpp"
 
-class ShapePlot: public Plot
+class ShapePlot: public PlotWidget
 {
 public:
-    ShapePlot(const BowSetup& setup, const BowStates& states, bool show_steps);
+    ShapePlot(const BowSetup& setup, const BowStates& states, bool intermediate_steps);
     void setStateIndex(int index);
 
 private:
     const BowSetup& setup;
     const BowStates& states;
 
-    size_t limb_l;
-    size_t limb_r;
-    size_t string_l;
-    size_t string_r;
-    size_t arrow;
+    QCPCurve* limb_right;
+    QCPCurve* limb_left;
+    QCPCurve* string_right;
+    QCPCurve* string_left;
+    QCPCurve* arrow;    // Todo: Replace with other QCustomPlot object?
 
-    void plotIntermediateSteps();
-    void setContentRanges();
+    void plotIntermediateStates();
+    void setAxesRanges();
 };

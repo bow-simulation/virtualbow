@@ -3,13 +3,13 @@
 
 Curve2D ArcCurve::nodes(const Series& segments, double x0, double y0, double phi0)
 {
-    Curve2D nodes;
-    nodes.add_point({0.0, x0, y0, phi0});
+    Curve2D nodes(segments.size() + 1);
+    nodes.set_point(0, {0.0, x0, y0, phi0});
 
     for(size_t i = 0; i < segments.size(); ++i)
     {
         auto p = eval_arc({nodes.s[i], nodes.x[i], nodes.y[i], nodes.phi[i]}, segments.val(i), segments.arg(i));
-        nodes.add_point(p);
+        nodes.set_point(i+1, p);
     }
     
     return nodes;
@@ -36,11 +36,11 @@ Curve2D ArcCurve::sample(const Series& segments, double x0, double y0, double ph
         return eval_arc({nodes.s[j], nodes.x[j], nodes.y[j], nodes.phi[j]}, kappa, ds);
     };
 
-    Curve2D result;
-    for(unsigned i = 0; i <= n; ++i)
+    Curve2D result(n + 1);
+    for(unsigned i = 0; i < n + 1; ++i)
     {
-        double s = double(i)/double(n)*nodes.s.back();
-        result.add_point(eval_curve(s));
+        double s = double(i)/double(n)*nodes.s.max();   // Todo: Last element of valarray?
+        result.set_point(i, eval_curve(s));
     }
 
     return result;

@@ -1,6 +1,9 @@
 #pragma once
 #include "model/LimbProperties.hpp"
 
+#include <vector>
+#include <valarray>
+
 struct BowSetup
 {
     LimbProperties limb;
@@ -23,14 +26,14 @@ struct BowStates
     std::vector<double> e_kin_string;
     std::vector<double> e_kin_arrow;
 
-    std::vector<std::vector<double>> x_limb;
-    std::vector<std::vector<double>> y_limb;
-    std::vector<std::vector<double>> x_string;
-    std::vector<std::vector<double>> y_string;
     std::vector<double> y_arrow;
+    std::vector<std::valarray<double>> x_limb;
+    std::vector<std::valarray<double>> y_limb;
+    std::vector<std::valarray<double>> x_string;
+    std::vector<std::valarray<double>> y_string;
 
-    std::vector<std::vector<double>> sigma_upper;
-    std::vector<std::vector<double>> sigma_lower;
+    std::vector<std::valarray<double>> sigma_upper;
+    std::vector<std::valarray<double>> sigma_lower;
 
     BowStates();    // Todo: Why?
 };

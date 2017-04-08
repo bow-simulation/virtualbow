@@ -1,10 +1,10 @@
 #pragma once
-#include "gui/Plot.hpp"
+#include "gui/PlotWidget.hpp"
 #include "model/Document.hpp"
 
 class InputData;
 
-class ProfileView: public Plot
+class ProfileView: public PlotWidget
 {
 public:
     ProfileView(InputData& data);
@@ -12,6 +12,8 @@ public:
 private:
     InputData& data;
     std::vector<Connection> connections;
+    QCPCurve* curve0;
+    QCPCurve* curve1;
 
     void update();
 };

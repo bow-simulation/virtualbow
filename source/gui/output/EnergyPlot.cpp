@@ -1,63 +1,129 @@
 #include "EnergyPlot.hpp"
+#include "gui/HorizontalLine.hpp"
 
 EnergyPlot::EnergyPlot(const BowStates& states, const std::vector<double>& parameter, const QString& x_label)
-    : Plot(x_label, "Energy [J]"),
+    : states(states),
       parameter(parameter),
-      energy_sum(parameter.size(), 0.0)
+      state_index(0),
+      plot(new PlotWidget()),
+      checkbox_stacked(new QCheckBox("Stacked")),
+      checkbox_type(new QCheckBox("Group by type")),
+      checkbox_part(new QCheckBox("Group by component"))
+      //energy_sum(parameter.size(), 0.0)
 {
-    addEnergy(states.e_pot_limbs, QColor(0, 0, 255, 150), "Limbs (Pot.)");
-    addEnergy(states.e_kin_limbs, QColor(40, 40, 255, 150), "Limbs (Kin.)");
-    addEnergy(states.e_pot_string, QColor(128, 0, 128, 150), "String (Pot.)");
-    addEnergy(states.e_kin_string, QColor(128, 40, 128, 150), "String (Kin.)");
-    addEnergy(states.e_kin_arrow, QColor(255, 0, 0, 150), "Arrow (Kin.)");
+    plot->xAxis->setLabel(x_label);
+    plot->yAxis->setLabel("Energy [J]");
+    plot->setupTopLegend();
 
-    this->fitContent(false, true);
-    this->showIndicatorX(true);
-}
+    auto vbox = new QVBoxLayout();
+    this->setLayout(vbox);
+    vbox->setContentsMargins({});
+    vbox->setSpacing(0);
+    vbox->addWidget(plot, 1);
+    vbox->addSpacing(10);    // Magic number
 
-void EnergyPlot::addEnergy(const std::vector<double>& energy, const QColor& color, const QString& name)
-{
-    auto reverse = [](const std::vector<double>& vec)
-    {
-        auto result = vec;
-        std::reverse(result.begin(), result.end());
-        return result;
-    };
+    vbox->addWidget(new HorizontalLine());
+    vbox->addSpacing(10);    // Magic number
 
-    auto append = [](std::vector<double> vec_a, std::vector<double> vec_b)
-    {
-        auto result = vec_a;
-        result.insert(result.end(), vec_b.begin(), vec_b.end());
-        return result;
-    };
+    auto hbox = new QHBoxLayout();
+    vbox->addLayout(hbox);
+    vbox->addSpacing(10);    // Magic number
 
-    auto energy_sum_new = energy_sum;
-    for(size_t i = 0; i < energy.size(); ++i)
-    {
-        energy_sum_new[i] += energy[i];
-    }
+    hbox->addStretch();
+    hbox->addWidget(checkbox_stacked);
+    hbox->addSpacing(20);    // Magic number
+    hbox->addWidget(checkbox_type);
+    hbox->addSpacing(20);    // Magic number
+    hbox->addWidget(checkbox_part);
+    hbox->addStretch();
 
-    // Don't display energies that are zero (kinetic energies in static simulation)
-    if(energy_sum_new == energy_sum)
-        return;
+    QObject::connect(checkbox_stacked, &QCheckBox::toggled, this, &EnergyPlot::updatePlot);
+    QObject::connect(checkbox_type, &QCheckBox::toggled, this, &EnergyPlot::updatePlot);
+    QObject::connect(checkbox_part, &QCheckBox::toggled, this, &EnergyPlot::updatePlot);
+    checkbox_stacked->setChecked(true);
 
-    auto loop_time = append(parameter, reverse(parameter));
-    auto loop_energy = append(energy_sum, reverse(energy_sum_new));
-    this->addSeries({loop_time, loop_energy}, Style::Brush(color), name);
-
-    energy_sum = energy_sum_new;
-    added_energies.push_back(&energy);
-    added_names.push_back(name);
+    // Todo
+    checkbox_type->setEnabled(false);
+    checkbox_part->setEnabled(false);
 }
 
 void EnergyPlot::setStateIndex(int index)
 {
+    state_index = index;
+
+    /*
     for(size_t i = 0; i < added_energies.size(); ++i)
     {
         QString value = QLocale::c().toString((*added_energies[i])[index], 'g', 5);
-        this->setName(i, added_names[i] + "\n" + value + " J");
+        plot->setName(i, added_names[i] + "\n" + value + " J");
     }
 
-    this->setIndicatorX(parameter[index]);
-    this->replot();
+    plot->setIndicatorX(parameter[index]);
+    plot->replot();
+    */
+}
+
+void EnergyPlot::updatePlot()
+{
+    plot->clearPlottables();
+
+    if(checkbox_stacked->isChecked())
+    {
+        std::vector<double> energy_lower;
+        std::vector<double> energy_upper(parameter.size(), 0.0);
+
+        auto add_energy = [&](const std::vector<double>& energy, const QString& name, const QColor& color)
+        {
+            energy_lower = energy_upper;
+
+            for(size_t i = 0; i < parameter.size(); ++i)
+            {
+                energy_upper[i] += energy[i];
+            }
+
+            if(energy_upper != energy_lower)
+            {
+                auto graph_lower = plot->graph();
+
+                auto graph_upper = plot->addGraph();
+                graph_upper->setData(parameter, energy_upper);
+                graph_upper->setName(name);
+                graph_upper->setBrush(color);
+                //graph_upper->setPen(Qt::NoPen);
+                graph_upper->setPen(color);
+
+                if(graph_lower != nullptr)
+                {
+                    graph_upper->setChannelFillGraph(graph_lower);
+                }
+            }
+        };
+
+        // Todo: Make this a for-each loop with tuples and c++17 structured bindings and shit
+        add_energy(states.e_pot_limbs, "Limbs (Pot)", QColor(0, 0, 255, 180));
+        add_energy(states.e_kin_limbs, "Limbs (Kin)", QColor(40, 40, 255, 180));
+        add_energy(states.e_pot_string, "String (Pot)", QColor(128, 0, 128, 180));
+        add_energy(states.e_kin_string, "String (Kin)", QColor(128, 40, 128, 180));
+        add_energy(states.e_kin_arrow, "Arrow (Kin)", QColor(255, 0, 0, 180));
+    }
+    else
+    {
+        auto add_energy = [&](const std::vector<double>& energy, const QString& name, const QColor& color)
+        {
+            auto graph = plot->addGraph();
+            graph->setData(parameter, energy);
+            graph->setName(name);
+            graph->setPen(color);
+        };
+
+        // Todo: Get rid of this code repetition (see above)
+        add_energy(states.e_pot_limbs, "Limbs (Pot)", QColor(0, 0, 255));
+        add_energy(states.e_kin_limbs, "Limbs (Kin)", QColor(40, 40, 255));
+        add_energy(states.e_pot_string, "String (Pot)", QColor(128, 0, 128));
+        add_energy(states.e_kin_string, "String (Kin)", QColor(128, 40, 128));
+        add_energy(states.e_kin_arrow, "Arrow (Kin)", QColor(255, 0, 0));
+    }
+
+    plot->rescaleAxes();
+    plot->replot();
 }

@@ -1,8 +1,8 @@
 #pragma once
-#include "gui/Plot.hpp"
 #include "gui/input/LimbSource.hpp"
 #include "model/Document.hpp"
 #include "model/LimbProperties.hpp"
+#include <QtWidgets>
 
 #include <QVTKWidget.h>
 #include <vtkSmartPointer.h>
@@ -99,7 +99,7 @@ public:
         auto button4 = new QToolButton();
         QObject::connect(button4, &QToolButton::toggled, this, &LimbView::viewSymmetric);
         button4->setIcon(QIcon(":/icons/view-symmetric"));
-        button4->setToolTip("Show symmetric limb");
+        button4->setToolTip("Show complete bow");
         button4->setIconSize({32, 32});
         button4->setCheckable(true);
 
@@ -144,7 +144,7 @@ private:
     }
 
     // Adjust orientation widget's viewport on resize to keep it at a constant screen size
-    virtual void resizeEvent(QResizeEvent* event)
+    virtual void resizeEvent(QResizeEvent* event) override
     {
         const int size = 200;   // Magic number
         widget->SetViewport(0.0, 0.0, double(size)/event->size().width(), double(size)/event->size().height());

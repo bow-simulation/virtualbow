@@ -4,6 +4,7 @@
 #include "numerics/CubicSpline.hpp"
 
 #include <vector>
+#include <valarray>
 #include <array>
 
 // sigma_upper(s) = He_upper(s)*epsilon(s) + Hk_upper(s)*kappa(s)
@@ -11,50 +12,43 @@
 struct LayerProperties
 {
     double E;
-    std::vector<double> s;
-    std::vector<double> y_upper;
-    std::vector<double> y_lower;
+    std::valarray<double> s;
+    std::valarray<double> y_upper;
+    std::valarray<double> y_lower;
 
-    std::vector<double> sigma_upper(const std::vector<double>& epsilon, const std::vector<double>& kappa) const
+    LayerProperties(size_t n)
+        : s(n), y_upper(n), y_lower(n)
     {
-        std::vector<double> sigma(s.size());
-        for(size_t i = 0; i < s.size(); ++i)
-        {
-            sigma[i] = E*y_upper[i]*kappa[i] - E*epsilon[i];    // Todo: Sign?
-        }
 
-        return sigma;
     }
 
-    // Todo: Code duplication
-    std::vector<double> sigma_lower(const std::vector<double>& epsilon, const std::vector<double>& kappa) const
+    std::valarray<double> sigma_upper(const std::valarray<double>& epsilon, const std::valarray<double>& kappa) const
     {
-        std::vector<double> sigma(s.size());
-        for(size_t i = 0; i < s.size(); ++i)
-        {
-            sigma[i] = E*y_lower[i]*kappa[i] - E*epsilon[i];    // Todo: Sign?
-        }
+        return E*(y_upper*kappa - epsilon);    // Todo: Sign?
+    }
 
-        return sigma;
+    std::valarray<double> sigma_lower(const std::valarray<double>& epsilon, const std::valarray<double>& kappa) const
+    {
+        return E*(y_lower*kappa - epsilon);    // Todo: Sign?
     }
 };
 
 struct LimbProperties
 {
     // Nodes
-    std::vector<double> s;
-    std::vector<double> x;
-    std::vector<double> y;
-    std::vector<double> w;
-    std::vector<double> h;
-    std::vector<double> phi;
+    std::valarray<double> s;
+    std::valarray<double> x;
+    std::valarray<double> y;
+    std::valarray<double> w;
+    std::valarray<double> h;
+    std::valarray<double> phi;
 
     // Section properties
-    std::vector<double> hc;          // Total cross section height (used for contact)
-    std::vector<double> Cee;
-    std::vector<double> Ckk;
-    std::vector<double> Cek;
-    std::vector<double> rhoA;
+    std::valarray<double> hc;          // Total cross section height (used for contact)
+    std::valarray<double> Cee;
+    std::valarray<double> Ckk;
+    std::valarray<double> Cek;
+    std::valarray<double> rhoA;
 
     // Layer properties
     std::vector<LayerProperties> layers;
@@ -65,7 +59,18 @@ struct LimbProperties
 
     }
 
-    LimbProperties(const InputData& input, unsigned int n_elements_limb)
+    LimbProperties(const InputData& input, unsigned n_elements_limb)
+        : s(n_elements_limb + 1),
+          x(n_elements_limb + 1),
+          y(n_elements_limb + 1),
+          w(n_elements_limb + 1),
+          h(n_elements_limb + 1),
+          phi(n_elements_limb + 1),
+          hc(n_elements_limb + 1),
+          Cee(n_elements_limb + 1),
+          Ckk(n_elements_limb + 1),
+          Cek(n_elements_limb + 1),
+          rhoA(n_elements_limb + 1)
     {
         // 1. Nodes
         Curve2D curve = ArcCurve::sample(input.profile_segments,
@@ -92,26 +97,26 @@ struct LimbProperties
             double A = w_i*h_i;
             double I = A*h_i*h_i/3.0;
 
-            w.push_back(w_i);
-            h.push_back(h_i);
+            w[i] = w_i;
+            h[i] = h_i;
 
-            hc.push_back(h_i);
-            Cee.push_back(input.sections_E*A);
-            Ckk.push_back(input.sections_E*I);
-            Cek.push_back(input.sections_E*A*h_i/2.0);
-            rhoA.push_back(input.sections_rho*A);
+            hc[i] = h_i;
+            Cee[i] = input.sections_E*A;
+            Ckk[i] = input.sections_E*I;
+            Cek[i] = input.sections_E*A*h_i/2.0;
+            rhoA[i] = input.sections_rho*A;
         }
 
         // 3. Layers
 
-        layers.push_back({});
+        layers.push_back({n_elements_limb + 1});
         layers[0].E = input.sections_E;
 
         for(size_t i = 0; i < s.size(); ++i)
         {
-            layers[0].s.push_back(s[i]);
-            layers[0].y_upper.push_back(0.0);
-            layers[0].y_lower.push_back(-height.val(i));
+            layers[0].s[i] = s[i];
+            layers[0].y_upper[i] = 0.0;
+            layers[0].y_lower[i] = -height.val(i);
         }
     }
 

@@ -8,6 +8,7 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocItem<S
 
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
+    this->setContentsMargins({});
 
     table = new QTableWidget(1, 2);
     table->setHorizontalHeaderLabels({{lb_args, lb_vals}});
@@ -34,7 +35,6 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocItem<S
     vbox->addLayout(hbox);
 
     // Event handling
-
     connection = doc_item.connect([this](const Series& series)
     {
         setData(series);
@@ -84,6 +84,18 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocItem<S
         {
             deleteLastRow();
         }
+    });
+
+    QObject::connect(table, &QTableWidget::itemSelectionChanged, [&]()
+    {
+        std::vector<int> rows;
+        for(int i = 0; i < table->rowCount(); ++i)
+        {
+            if(table->item(i, 0)->isSelected() || table->item(i, 1)->isSelected())
+                rows.push_back(i);
+        }
+
+        emit this->selectionChanged(rows);
     });
 }
 

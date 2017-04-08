@@ -6,6 +6,7 @@
 #include "SplineView.hpp"
 #include "DoubleView.hpp"
 #include "model/InputData.hpp"
+#include "gui/HorizontalLine.hpp"
 
 BowEditor::BowEditor(InputData& data)
     : QSplitter(Qt::Vertical)
@@ -61,6 +62,7 @@ ProfileEditor::ProfileEditor(InputData& data)
     hbox->addWidget(series_view);
 
     auto vbox = new QVBoxLayout();
+    vbox->setSpacing(0);
     hbox->addLayout(vbox, 1);
 
     auto plot = new ProfileView(data);
@@ -69,16 +71,18 @@ ProfileEditor::ProfileEditor(InputData& data)
     // Todo: Modify NumberGroup so that it can also display horizontal groups. Use here.
     auto hbox2 = new QHBoxLayout();
     hbox2->addStretch();
-    hbox2->addWidget(new QLabel("x:")); hbox2->addWidget(new DoubleView(data.profile_x0)); hbox2->addWidget(new QLabel("[m]"));
+    hbox2->addWidget(new QLabel("X-offset:")); hbox2->addSpacing(10); hbox2->addWidget(new DoubleView(data.profile_x0)); hbox2->addSpacing(10); hbox2->addWidget(new QLabel("[m]"));
     hbox2->addStretch();
-    hbox2->addWidget(new QLabel("y:")); hbox2->addWidget(new DoubleView(data.profile_y0)); hbox2->addWidget(new QLabel("[m]"));
+    hbox2->addWidget(new QLabel("Y-offset:")); hbox2->addSpacing(10); hbox2->addWidget(new DoubleView(data.profile_y0)); hbox2->addSpacing(10); hbox2->addWidget(new QLabel("[m]"));
     hbox2->addStretch();
-    hbox2->addWidget(new QLabel("Angle:")); hbox2->addWidget(new DoubleView(data.profile_phi0)); hbox2->addWidget(new QLabel("[rad]"));
+    hbox2->addWidget(new QLabel("Angle:")); hbox2->addSpacing(10); hbox2->addWidget(new DoubleView(data.profile_phi0)); hbox2->addSpacing(10); hbox2->addWidget(new QLabel("[rad]"));
     hbox2->addStretch();
 
-    auto group_limb = new QGroupBox("Offset");
-    vbox->addWidget(group_limb);
-    group_limb->setLayout(hbox2);
+    vbox->addSpacing(10);    // Magic number
+    vbox->addWidget(new HorizontalLine());
+    vbox->addSpacing(10);    // Magic number
+    vbox->addLayout(hbox2);
+    vbox->addSpacing(5);    // Magic number
 }
 
 WidthEditor::WidthEditor(InputData& data)
@@ -86,11 +90,13 @@ WidthEditor::WidthEditor(InputData& data)
     auto hbox = new QHBoxLayout();
     this->setLayout(hbox);
 
-    auto series_view = new SeriesView("Position", "Width [m]", data.sections_width);
+    auto series_view = new SeriesView("Rel. position", "Width [m]", data.sections_width);
     hbox->addWidget(series_view);
 
-    auto plot = new SplineView("Position", "Width [m]", data.sections_width);
-    hbox->addWidget(plot, 1);
+    auto spline_view = new SplineView("Relative position", "Width [m]", data.sections_width);
+    hbox->addWidget(spline_view, 1);
+
+    QObject::connect(series_view, &SeriesView::selectionChanged, spline_view, &SplineView::setMarkedControlPoints);
 }
 
 
@@ -99,11 +105,11 @@ HeightEditor::HeightEditor(InputData& data)
     auto hbox = new QHBoxLayout();
     this->setLayout(hbox);
 
-    auto series_view = new SeriesView("Position", "Height [m]", data.sections_height);
+    auto series_view = new SeriesView("Rel. position", "Height [m]", data.sections_height);
     hbox->addWidget(series_view);
 
-    auto plot = new SplineView("Position", "Height [m]", data.sections_height);
-    hbox->addWidget(plot, 1);
+    auto spline_view = new SplineView("Relative position", "Height [m]", data.sections_height);
+    hbox->addWidget(spline_view, 1);
 }
 
 

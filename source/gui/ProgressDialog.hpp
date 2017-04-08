@@ -1,6 +1,4 @@
 #pragma once
-#include "gui/Plot.hpp"
-
 #include <QtWidgets>
 #include <functional>
 

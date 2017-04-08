@@ -1,5 +1,4 @@
 #include "OutputDialog.hpp"
-#include "gui/Plot.hpp"
 #include "OutputGrid.hpp"
 #include "ShapePlot.hpp"
 #include "StressPlot.hpp"
@@ -12,13 +11,6 @@ StaticOutput::StaticOutput(const BowSetup& setup, const StaticData& statics)
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
 
-    auto grid = new OutputGrid();
-    grid->add(0, 0, "String length:", "m", setup.string_length);
-    grid->add(1, 0, "Final draw force:", "N", statics.final_draw_force);
-    grid->add(0, 2, "Drawing work:", "J", statics.drawing_work);
-    grid->add(1, 2, "Storage ratio:", "", statics.storage_ratio);
-    vbox->addWidget(grid);
-
     auto plot_shapes = new ShapePlot(setup, statics.states, true);
     auto plot_stress = new StressPlot(setup, statics.states);
     auto plot_energy = new EnergyPlot(statics.states, statics.states.draw_length, "Draw length [m]");
@@ -27,12 +19,19 @@ StaticOutput::StaticOutput(const BowSetup& setup, const StaticData& statics)
     plot_combo->addData("Draw force [N]", statics.states.draw_force);
     plot_combo->setCombination(0, 1);
 
+    auto grid = new OutputGrid();
+    grid->add(0, 0, "String length:", "m", setup.string_length);
+    grid->add(1, 0, "Final draw force:", "N", statics.final_draw_force);
+    grid->add(0, 2, "Drawing work:", "J", statics.drawing_work);
+    grid->add(1, 2, "Storage ratio:", "", statics.storage_ratio);
+
     auto tabs = new QTabWidget();
+    vbox->addWidget(tabs);
     tabs->addTab(plot_shapes, "Shape");
     tabs->addTab(plot_stress, "Stress");
     tabs->addTab(plot_energy, "Energy");
-    tabs->addTab(plot_combo, "Other");
-    vbox->addWidget(tabs);
+    tabs->addTab(plot_combo, "Other Plots");
+    tabs->addTab(grid, "Numbers");
 
     auto slider = new Slider(statics.states.draw_length, "Draw length [m]:");
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
@@ -47,12 +46,6 @@ DynamicOutput::DynamicOutput(const BowSetup& setup, const DynamicData& dynamics)
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
 
-    auto grid = new OutputGrid();
-    grid->add(0, 0, "Final arrow velocity:", "m/s", dynamics.final_arrow_velocity);
-    grid->add(1, 0, "Final arrow energy:", "J", dynamics.final_arrow_energy);
-    grid->add(0, 1, "Efficiency:", "", dynamics.efficiency);
-    vbox->addWidget(grid);
-
     auto plot_shapes = new ShapePlot(setup, dynamics.states, false);
     auto plot_stress = new StressPlot(setup, dynamics.states);
     auto plot_energy = new EnergyPlot(dynamics.states, dynamics.states.time, "Time [s]");
@@ -63,12 +56,18 @@ DynamicOutput::DynamicOutput(const BowSetup& setup, const DynamicData& dynamics)
     plot_combo->addData("Arrow acceleration [m/s²]", dynamics.states.acc_arrow);
     plot_combo->setCombination(0, 1);
 
+    auto grid = new OutputGrid();
+    grid->add(0, 0, "Final arrow velocity:", "m/s", dynamics.final_arrow_velocity);
+    grid->add(1, 0, "Final arrow energy:", "J", dynamics.final_arrow_energy);
+    grid->add(0, 1, "Efficiency:", "", dynamics.efficiency);
+
     auto tabs = new QTabWidget();
+    vbox->addWidget(tabs);
     tabs->addTab(plot_shapes, "Shape");
     tabs->addTab(plot_stress, "Stress");
     tabs->addTab(plot_energy, "Energy");
-    tabs->addTab(plot_combo, "Other");
-    vbox->addWidget(tabs);
+    tabs->addTab(plot_combo, "Other Plots");
+    tabs->addTab(grid, "Numbers");
 
     auto slider = new Slider(dynamics.states.time, "Time [s]:");
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);

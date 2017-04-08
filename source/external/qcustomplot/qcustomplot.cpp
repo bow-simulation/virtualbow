@@ -19830,11 +19830,6 @@ void QCPGraph::setData(QSharedPointer<QCPGraphDataContainer> data)
   
   \see addData
 */
-void QCPGraph::setData(const QVector<double> &keys, const QVector<double> &values, bool alreadySorted)
-{
-  mDataContainer->clear();
-  addData(keys, values, alreadySorted);
-}
 
 /*!
   Sets how the single data points are connected in the plot. For scatter-only plots, set \a ls to
@@ -19951,24 +19946,7 @@ void QCPGraph::setAdaptiveSampling(bool enabled)
   Alternatively, you can also access and modify the data directly via the \ref data method, which
   returns a pointer to the internal data container.
 */
-void QCPGraph::addData(const QVector<double> &keys, const QVector<double> &values, bool alreadySorted)
-{
-  if (keys.size() != values.size())
-    qDebug() << Q_FUNC_INFO << "keys and values have different sizes:" << keys.size() << values.size();
-  const int n = qMin(keys.size(), values.size());
-  QVector<QCPGraphData> tempData(n);
-  QVector<QCPGraphData>::iterator it = tempData.begin();
-  const QVector<QCPGraphData>::iterator itEnd = tempData.end();
-  int i = 0;
-  while (it != itEnd)
-  {
-    it->key = keys[i];
-    it->value = values[i];
-    ++it;
-    ++i;
-  }
-  mDataContainer->add(tempData, alreadySorted); // don't modify tempData beyond this to prevent copy on write
-}
+
 
 /*! \overload
   
@@ -21534,12 +21512,6 @@ void QCPCurve::setData(QSharedPointer<QCPCurveDataContainer> data)
   
   \see addData
 */
-void QCPCurve::setData(const QVector<double> &t, const QVector<double> &keys, const QVector<double> &values, bool alreadySorted)
-{
-  mDataContainer->clear();
-  addData(t, keys, values, alreadySorted);
-}
-
 
 /*! \overload
   
@@ -21552,11 +21524,7 @@ void QCPCurve::setData(const QVector<double> &t, const QVector<double> &keys, co
   
   \see addData
 */
-void QCPCurve::setData(const QVector<double> &keys, const QVector<double> &values)
-{
-  mDataContainer->clear();
-  addData(keys, values);
-}
+
 
 /*!
   Sets the visual appearance of single data points in the plot. If set to \ref
@@ -21596,75 +21564,6 @@ void QCPCurve::setScatterSkip(int skip)
 void QCPCurve::setLineStyle(QCPCurve::LineStyle style)
 {
   mLineStyle = style;
-}
-
-/*! \overload
-  
-  Adds the provided points in \a t, \a keys and \a values to the current data. The provided vectors
-  should have equal length. Else, the number of added points will be the size of the smallest
-  vector.
-  
-  If you can guarantee that the passed data points are sorted by \a keys in ascending order, you
-  can set \a alreadySorted to true, to improve performance by saving a sorting run.
-  
-  Alternatively, you can also access and modify the data directly via the \ref data method, which
-  returns a pointer to the internal data container.
-*/
-void QCPCurve::addData(const QVector<double> &t, const QVector<double> &keys, const QVector<double> &values, bool alreadySorted)
-{
-  if (t.size() != keys.size() || t.size() != values.size())
-    qDebug() << Q_FUNC_INFO << "ts, keys and values have different sizes:" << t.size() << keys.size() << values.size();
-  const int n = qMin(qMin(t.size(), keys.size()), values.size());
-  QVector<QCPCurveData> tempData(n);
-  QVector<QCPCurveData>::iterator it = tempData.begin();
-  const QVector<QCPCurveData>::iterator itEnd = tempData.end();
-  int i = 0;
-  while (it != itEnd)
-  {
-    it->t = t[i];
-    it->key = keys[i];
-    it->value = values[i];
-    ++it;
-    ++i;
-  }
-  mDataContainer->add(tempData, alreadySorted); // don't modify tempData beyond this to prevent copy on write
-}
-
-/*! \overload
-  
-  Adds the provided points in \a keys and \a values to the current data. The provided vectors
-  should have equal length. Else, the number of added points will be the size of the smallest
-  vector.
-  
-  The t parameter of each data point will be set to the integer index of the respective key/value
-  pair.
-  
-  Alternatively, you can also access and modify the data directly via the \ref data method, which
-  returns a pointer to the internal data container.
-*/
-void QCPCurve::addData(const QVector<double> &keys, const QVector<double> &values)
-{
-  if (keys.size() != values.size())
-    qDebug() << Q_FUNC_INFO << "keys and values have different sizes:" << keys.size() << values.size();
-  const int n = qMin(keys.size(), values.size());
-  double tStart;
-  if (!mDataContainer->isEmpty())
-    tStart = (mDataContainer->constEnd()-1)->t + 1.0;
-  else
-    tStart = 0;
-  QVector<QCPCurveData> tempData(n);
-  QVector<QCPCurveData>::iterator it = tempData.begin();
-  const QVector<QCPCurveData>::iterator itEnd = tempData.end();
-  int i = 0;
-  while (it != itEnd)
-  {
-    it->t = tStart + i;
-    it->key = keys[i];
-    it->value = values[i];
-    ++it;
-    ++i;
-  }
-  mDataContainer->add(tempData, true); // don't modify tempData beyond this to prevent copy on write
 }
 
 /*! \overload

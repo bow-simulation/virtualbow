@@ -2,27 +2,36 @@
 #include "model/InputData.hpp"
 #include "numerics/CubicSpline.hpp"
 
-SplineView::SplineView(const QString& lbx, const QString& lby, DocItem<Series>& doc_item)
-    : Plot(lbx, lby)
+SplineView::SplineView(const QString& x_label, const QString& y_label, DocItem<Series>& doc_item)
 {
-    this->addSeries({}, Style::Scatter(QCPScatterStyle::ssDisc, Qt::red));
-    this->addSeries({}, Style::Line(Qt::blue));
+    this->xAxis->setLabel(x_label);
+    this->yAxis->setLabel(y_label);
+
+    // Line
+    this->addGraph();
+    this->graph()->setPen({Qt::blue, 2});
+
+    // Control points
+    this->addGraph();
+    this->graph()->setScatterStyle({QCPScatterStyle::ssSquare, Qt::red, 6});
+    this->graph()->setLineStyle(QCPGraph::lsNone);
 
     connection = doc_item.connect([this](const Series& input)
     {
         try
         {
             Series output = CubicSpline::sample(input, 150);    // Todo: Magic number
-            this->setData(0, input);
-            this->setData(1, output);
+            this->graph(0)->setData(output.args(), output.vals());
+            this->graph(1)->setData(input.args(), input.vals());
         }
         catch(const std::runtime_error&)
         {
-            this->setData(0, Series());
-            this->setData(1, Series());
+            this->graph(0)->data()->clear();
+            this->graph(1)->data()->clear();
         }
 
-        this->fitContent(false, true);
+        this->rescaleAxes();
+        this->yAxis->setRangeLower(0.0);    // Todo: Replace
         this->replot();
     });
 }

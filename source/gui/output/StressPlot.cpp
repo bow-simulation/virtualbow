@@ -1,40 +1,42 @@
 #include "StressPlot.hpp"
 
 StressPlot::StressPlot(const BowSetup& setup, const BowStates& states)
-    : Plot("Arc length [m]", "Stress [N/m²]"),
-      setup(setup),
+    : setup(setup),
       states(states)
 {
-    this->addSeries({}, Style::Line(Qt::blue), "Back");
-    this->addSeries({}, Style::Line(Qt::red), "Belly");
-    setContentRanges();
+    this->xAxis->setLabel("Arc length [m]");
+    this->yAxis->setLabel("Stress [N/m²]");
+    this->setupTopLegend();
+
+    this->addGraph();
+    this->graph(0)->setPen({Qt::blue});
+    this->graph(0)->setName("Back");
+
+    this->addGraph();
+    this->graph(1)->setPen({Qt::red});
+    this->graph(1)->setName("Belly");
+
+    setAxesRanges();
 }
 
 void StressPlot::setStateIndex(int index)
 {
-    this->setData(0, {setup.limb.s, states.sigma_upper[index]});
-    this->setData(1, {setup.limb.s, states.sigma_lower[index]});
+    this->graph(0)->setData(setup.limb.s, states.sigma_upper[index]);
+    this->graph(1)->setData(setup.limb.s, states.sigma_lower[index]);
     this->replot();
 }
 
-void StressPlot::setContentRanges()
+void StressPlot::setAxesRanges()
 {
-    QCPRange rx(setup.limb.s.front(), setup.limb.s.back());
-    QCPRange ry;
-
-    auto expand = [&](const std::vector<double>& values_y)
-    {
-        for(double y: values_y)
-        {
-            ry.expand(y);
-        }
-    };
+    QCPRange x_range(setup.limb.s.min(), setup.limb.s.max());
+    QCPRange y_range;
 
     for(size_t i = 0; i < states.time.size(); ++i)
     {
-        expand(states.sigma_upper[i]);
-        expand(states.sigma_lower[i]);
+        y_range.expand(states.sigma_upper[i].max());
+        y_range.expand(states.sigma_lower[i].min());
     }
 
-    Plot::setContentRanges(rx, ry);
+    this->xAxis->setRange(x_range);
+    this->yAxis->setRange(y_range);
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "gui/Plot.hpp"
+#include "gui/PlotWidget.hpp"
 #include "model/OutputData.hpp"
 
 class ComboPlot: public QWidget
@@ -13,7 +13,8 @@ public:
 private:
     QComboBox* combo_x;
     QComboBox* combo_y;
-    Plot* plot;
+    PlotWidget* plot;
+    QCPCurve* curve;
 
-    void setPlotData(int index);
+    void updatePlot();
 };

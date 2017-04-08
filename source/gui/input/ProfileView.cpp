@@ -3,12 +3,22 @@
 #include "numerics/ArcCurve.hpp"
 
 ProfileView::ProfileView(InputData& data)
-    : Plot("x [m]", "y [m]", Align::TopLeft),
-      data(data)
+    : data(data)
 {
-    this->setExpansionMode(ExpansionMode::OneSided, ExpansionMode::OneSided);
-    this->addSeries({}, Style::Line(Qt::blue, 2));
-    this->addSeries({}, Style::Scatter(QCPScatterStyle::ssDisc, Qt::red));
+    this->xAxis->setLabel("X [m]");
+    this->yAxis->setLabel("Y [m]");
+    this->yAxis->setRangeReversed(true);
+
+    // Line
+    curve0 = new QCPCurve(this->xAxis, this->yAxis);
+    curve0->setPen({Qt::blue, 2});
+    curve0->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
+
+    // Segment nodes
+    curve1 = new QCPCurve(this->xAxis, this->yAxis);
+    curve1->setScatterStyle({QCPScatterStyle::ssSquare, Qt::red, 6});
+    curve1->setLineStyle(QCPCurve::lsNone);
+    curve1->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
 
     // Todo: Use std::bind?
     // Todo: Inefficient and ugly
@@ -34,15 +44,15 @@ void ProfileView::update()
                                         data.profile_y0,
                                         data.profile_phi0);
 
-        this->setData(0, Series(curve.x, curve.y));
-        this->setData(1, Series(nodes.x, nodes.y));
+        curve0->setData(curve.x, curve.y);
+        curve1->setData(nodes.x, nodes.y);
     }
     catch(const std::runtime_error&)
     {
-        this->setData(0, Series());
-        this->setData(1, Series());
+        curve0->data()->clear();
+        curve1->data()->clear();
     }
 
-    this->fitContent(true, false);
+    this->rescaleAxes();
     this->replot();
 }

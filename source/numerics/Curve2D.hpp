@@ -1,12 +1,18 @@
 #pragma once
-#include <vector>
+#include <valarray>
 
 struct Curve2D
 {
-    std::vector<double> s;
-    std::vector<double> x;
-    std::vector<double> y;
-    std::vector<double> phi;
+    std::valarray<double> s;
+    std::valarray<double> x;
+    std::valarray<double> y;
+    std::valarray<double> phi;
+
+    Curve2D(size_t n)
+        : s(n), x(n), y(n), phi(n)
+    {
+
+    }
 
     struct Point
     {
@@ -16,11 +22,11 @@ struct Curve2D
         double phi;
     };
 
-    void add_point(Point p)
+    void set_point(size_t i, Point p)
     {
-        s.push_back(p.s);
-        x.push_back(p.x);
-        y.push_back(p.y);
-        phi.push_back(p.phi);
+        s[i] = p.s;
+        x[i] = p.x;
+        y[i] = p.y;
+        phi[i] = p.phi;
     }
 };

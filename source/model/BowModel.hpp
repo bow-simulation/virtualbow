@@ -211,31 +211,34 @@ public:
         states.e_kin_string.push_back(2.0*system.get_kinetic_energy("string", "mass string tip", "mass string center"));
         states.e_kin_arrow.push_back(2.0*system.get_kinetic_energy("mass arrow"));
 
-        states.x_limb.push_back({});
-        states.y_limb.push_back({});
-        states.x_string.push_back({});
-        states.y_string.push_back({});
+        // Arrow, limb and string coordinates
+
         states.y_arrow.push_back(node_arrow[1].u());
 
-        for(auto& node: nodes_limb)
+        states.x_limb.push_back(std::valarray<double>(nodes_limb.size()));
+        states.y_limb.push_back(std::valarray<double>(nodes_limb.size()));
+
+        for(size_t i = 0; i < nodes_limb.size(); ++i)
         {
-            states.x_limb.back().push_back(node[0].u());
-            states.y_limb.back().push_back(node[1].u());
+            states.x_limb.back()[i] = nodes_limb[i][0].u();
+            states.y_limb.back()[i] = nodes_limb[i][1].u();
         }
 
-        for(auto& node: nodes_string)
+        states.x_string.push_back(std::valarray<double>(nodes_string.size()));
+        states.y_string.push_back(std::valarray<double>(nodes_string.size()));
+
+        for(size_t i = 0; i < nodes_string.size(); ++i)
         {
-            states.x_string.back().push_back(node[0].u());
-            states.y_string.back().push_back(node[1].u());
+            states.x_string.back()[i] = nodes_string[i][0].u();
+            states.y_string.back()[i] = nodes_string[i][1].u();
         }
 
         // Stresses
 
-        std::vector<double> epsilon(nodes_limb.size());
-        std::vector<double> kappa(nodes_limb.size());
+        std::valarray<double> epsilon(nodes_limb.size());
+        std::valarray<double> kappa(nodes_limb.size());
 
         auto elements = system.element_group<BeamElement>("limb");
-
         for(size_t i = 0; i < nodes_limb.size(); ++i)
         {
             if(i == 0)

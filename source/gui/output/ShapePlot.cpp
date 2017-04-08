@@ -1,78 +1,109 @@
 #include "ShapePlot.hpp"
 
-ShapePlot::ShapePlot(const BowSetup& setup, const BowStates& states, bool show_steps)
-    : Plot("x [m]", "y [m]", Plot::Align::TopLeft),
-      setup(setup),
+ShapePlot::ShapePlot(const BowSetup& setup, const BowStates& states, bool intermediate_states)
+    : setup(setup),
       states(states)
 {
-    if(show_steps)
-    {
-        plotIntermediateSteps();
-    }
+    if(intermediate_states)
+        plotIntermediateStates();
 
-    limb_l = this->addSeries({}, Style::Line(Qt::blue, 2));
-    limb_r = this->addSeries({}, Style::Line(Qt::blue, 2));
-    string_l = this->addSeries({}, Style::Line(Qt::blue));
-    string_r = this->addSeries({}, Style::Line(Qt::blue));
-    arrow = this->addSeries({}, Style::Scatter(QCPScatterStyle::ssPlus, Qt::red, 10));
+    limb_right = new QCPCurve(this->xAxis, this->yAxis);
+    limb_right->setPen({Qt::blue, 2});
+    limb_right->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
 
-    this->setExpansionMode(ExpansionMode::Symmetric, ExpansionMode::OneSided);
-    setContentRanges();
+    limb_left = new QCPCurve(this->xAxis, this->yAxis);
+    limb_left->setPen({Qt::blue, 2});
+    limb_left->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
+
+    string_right = new QCPCurve(this->xAxis, this->yAxis);
+    string_right->setPen({Qt::blue, 1});
+    string_right->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
+
+    string_left = new QCPCurve(this->xAxis, this->yAxis);
+    string_left->setPen({Qt::blue, 1});
+    string_left->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
+
+    arrow = new QCPCurve(this->xAxis, this->yAxis);
+    arrow->setLineStyle(QCPCurve::lsNone);
+    arrow->setScatterStyle({QCPScatterStyle::ssCrossCircle, Qt::red, 10});
+
+    this->xAxis->setLabel("X [m]");
+    this->yAxis->setLabel("Y [m]");
+    this->yAxis->setRangeReversed(true);
+    //this->setExpansionMode(ExpansionMode::Symmetric, ExpansionMode::OneSided);
+    setAxesRanges();
 }
 
 void ShapePlot::setStateIndex(int index)
 {
-    Series series_limb(states.x_limb[index], states.y_limb[index]);
-    this->setData(limb_l, series_limb);
-    this->setData(limb_r, series_limb.flip(false));
+    limb_right->setData(states.x_limb[index], states.y_limb[index]);
+    limb_left->setData(-states.x_limb[index], states.y_limb[index]);
 
-    Series series_string(states.x_string[index], states.y_string[index]);
-    this->setData(string_l, series_string);
-    this->setData(string_r, series_string.flip(false));
+    string_right->setData(states.x_string[index], states.y_string[index]);
+    string_left->setData(-states.x_string[index], states.y_string[index]);
 
-    Series series_arrow({0.0}, {states.y_arrow[index]});
-    this->setData(arrow, series_arrow);
+    arrow->setData(std::array<double, 1>{0.0}, std::array<double, 1>{states.y_arrow[index]});
 
     this->replot();
 }
 
-void ShapePlot::plotIntermediateSteps()
+void ShapePlot::plotIntermediateStates()
 {
     // Unbraced state
-    Series limb(setup.limb.x, setup.limb.y);
-    this->addSeries(limb, Style::Line(Qt::lightGray));
-    this->addSeries(limb.flip(false), Style::Line(Qt::lightGray));
+    auto limb_right = new QCPCurve(this->xAxis, this->yAxis);
+    limb_right->setData(setup.limb.x, setup.limb.y);
+    limb_right->setPen({Qt::lightGray, 2});
+    limb_right->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
 
-    // Stroboscope-like plots during different states
+    auto limb_left = new QCPCurve(this->xAxis, this->yAxis);
+    limb_left->setData(-setup.limb.x, setup.limb.y);
+    limb_left->setPen({Qt::lightGray, 2});
+    limb_left->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
+
+
+    // Stroboscope-like plots during intermediate states
     unsigned steps = 2; // Todo: Magic number
     for(unsigned i = 0; i <= steps; ++i)
     {
         size_t j = i*(states.time.size()-1)/steps;
 
-        Series limb(states.x_limb[j], states.y_limb[j]);
-        Series string(states.x_string[j], states.y_string[j]);
+        auto limb_right = new QCPCurve(this->xAxis, this->yAxis);
+        limb_right->setData(states.x_limb[j], states.y_limb[j]);
+        limb_right->setPen({Qt::lightGray, 2});
+        limb_right->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
 
-        this->addSeries(limb, Style::Line(Qt::lightGray));
-        this->addSeries(string, Style::Line(Qt::lightGray));
-        this->addSeries(limb.flip(false), Style::Line(Qt::lightGray));
-        this->addSeries(string.flip(false), Style::Line(Qt::lightGray));
+        auto limb_left = new QCPCurve(this->xAxis, this->yAxis);
+        limb_left->setData(-states.x_limb[j], states.y_limb[j]);
+        limb_left->setPen({Qt::lightGray, 2});
+        limb_left->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
+
+        auto string_right = new QCPCurve(this->xAxis, this->yAxis);
+        string_right->setData(states.x_string[j], states.y_string[j]);
+        string_right->setPen({Qt::lightGray, 1});
+        string_right->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
+
+        auto string_left = new QCPCurve(this->xAxis, this->yAxis);
+        string_left->setData(-states.x_string[j], states.y_string[j]);
+        string_left->setPen({Qt::lightGray, 1});
+        string_left->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
     }
 }
 
-void ShapePlot::setContentRanges()
+void ShapePlot::setAxesRanges()
 {
-    QCPRange rx, ry;
-    auto expand = [&](const std::vector<double>& values_x, const std::vector<double>& values_y)
+    QCPRange x_range;
+    QCPRange y_range;
+    auto expand = [&x_range, &y_range](const std::valarray<double>& x_values, const std::valarray<double>& y_values)
     {
-        for(double x: values_x)
+        for(double x: x_values)
         {
-            rx.expand(x);
-            rx.expand(-x);
+            x_range.expand(x);
+            x_range.expand(-x);
         }
 
-        for(double y: values_y)
+        for(double y: y_values)
         {
-            ry.expand(y);
+            y_range.expand(y);
         }
     };
 
@@ -83,5 +114,6 @@ void ShapePlot::setContentRanges()
         expand(states.x_string[i], states.y_string[i]);
     }
 
-    Plot::setContentRanges(rx, ry);
+    this->xAxis->setRange(x_range);
+    this->yAxis->setRange(y_range);
 }

@@ -1,111 +1,3 @@
-GUI
-===
-    * Bug: Repeatedly clicking the load and save icons and closing the dialogs with x sometimes makes the program print messages like
-
-          QXcbConnection: XCB error: 3 (BadWindow), sequence: 1352, resource id: 7826577, major code: 40 (TranslateCoords), minor code: 0
-
-    * Bug/Annoyance: Application name is shown behind window title even in simple dialogs (about box, file dialogs, ...)
-
-    * Decision: Use theme icons on linux or just use the same icons everywhere?
-      http://mithatkonar.com/wiki/doku.php/qt/icons
-
-    * DoubleView:
-        
-       !* Why doesn't it show large numbers in scientific notation?
-            * Answer: Does only show in scientific when precision is lower than number of digits in "normal" format.
-            * New Question: Show in scientific with higher precision?
-
-        * Display large numbers in engineering format (e+03, e+06, e+09, ...) instead of scientific
-            * Probably requires making custom conversion methods...
-
-    * SeriesView:
-        
-        * Implement copy, cut and paste
-
-        * Find solution for default values and validation
-
-       !* Length: negative numbers shouldn't be accepteed
-
-    * ProfileEditor
-        
-        * Draw the arcs that are marked in the table in red, so users immediately see what they are editing or deleting
-
-    * Find a solution to localised numbers
-        a) Use the C locale, convert local decimal separator to dot manually
-        b) Use the default locale and somehow get rid of the thousands separator that is present in some of them
-
-    * Maybe the settings should be in the simulation menu and toolbar.
-
-    * Plot:
-
-        * Enable scrolling and zooming.
-
-        * Add a contect menu action to reset the plot (only relevant if user interaions are enabled).
-
-       !* Handle errors when exporting.
-
-        * Can (and should) the file menus for plot export and the main one "remember" different locations?
-
-        * Allow selecting curves with right click which then also opens the context menu
-
-        * Tick at axis end
-
-        * Make it possible to add a series and define its style in one method call
-
-       !* Change the picking color? Or don't make all the curves blue?
-
-        * Make sure it uses the same locale as the rest of the program. (Currently not the case.)
-
-        * Update to QCustomPlot 2.0 (currently beta)
-
-        * Find out how to align legend with the plot axes and add some margins
-
-    * SettingsDialog:
-
-        * Width of the integer and double views should be the same. Last resort: Set default width of the  integer views.
-
-        * It would be good to have an option to restore the default values
-
-    * Width and height plots: Show the actual arc length if a valid profile curve is defined. (Second x-Axis?)
-
-    * Set the executable icon
-
-   !* MainWindow: Handle exceptions from file operations
-
-    * Add (more) tooltips
-
-    * ShapePlot:
-        
-       !* Make scrolling speed independent from number of data points
-
-       !* Bug: Aspect ratio initially wrong, corrects itself after changing the parameter or resizing the window.
-          (Note: This is not solved, it just doesn't occur anymore since the shape plot is the first tab. Switching tabs and enlarging the window still produce this.)
-
-   * Parameters are not updated when the simulation button is pressed while still editing.
-     (Solution: Update document already while typing as long as the input is valid. Fixed for DoubleView, Todo: SeriesView)
-     Todo: (DoubleView, IntegerView) Remember entry before editing and revert to that in case of invalid input. That way
-     a value that makes sense is used instead of the last digit of some deleted input.
-
-   !* BowEditor: TableView for curvature: Fit complete word "curvature" on label without abbreviating.
-
-    * Try new qcustomplot beta version
-
-   !* BowEditor: Why is the splitter not visible (on linux?)
-
-    * Remember window sizes
-
-   !* VTK: Culling/Transparency doesn't work correctly. Workaround: Backface culling on, frontface culling off.
-
-    * LimbView/LimbSource
-
-        * Limit discretisation step depending on curvature and cross section height to prevent mesh from overlapping with itself
-        * Aliasing: Other way than to use fxaa? Alternatively: Can fxaa be assumed to be available? Also, rendering has become sluggish since fxaa was enabled.
-        * Clipping (?) problem sometimes, sometimes limb tip is cut off
-        * Put orientation marker lower on the screen
-        * Face orientation/transparency? What is going on here?
-        * Profile view: If the bow has a depth/length ratio over some threshold, rotate it around the z-axis so that it fits better into the view.
-        * Add an option to show the coordinate origin, maybe with some infinite lines. Useful e.g. when whole bow is viewed.
-
 FEM
 ===
 
@@ -148,6 +40,8 @@ Model
 
     * Crash when height goes to zero
 
+    * Include model in testing. Keep suite of test files and test the output for regressions.
+
 General
 =======
 
@@ -156,8 +50,6 @@ General
     * Decide between using std::array and Eigen::Array, then replace one with the other.
 
     * Can Eigen::Array<2, dynamic> replace the custom Series class?
-
-   !* tests fail on Windows 7 with MinGW 5.3.0 32bit.
 
     * Lambdas: Most lambdas could capture only [this], instead of [&]
 
@@ -172,6 +64,8 @@ General
     * Use Linspace class more often (e.g. for sampling curvces)
 
     * Use DiscreteLimb class for graphic previews. Give it an optional sampling parameter to use instead of the number of elements.
+
+    * Replace unsigned int with unsigned?
 
 Platform dependent
 ==================
@@ -196,5 +90,3 @@ Ideas for Improvement
         * Invoke Program on output file: Show output window
 
     * Sampling frequency instead of sampling time?
-
-    * Look at boost book

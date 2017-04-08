@@ -3,10 +3,10 @@
 OutputGrid::OutputGrid()
     : grid(new QGridLayout())
 {
-    auto hbox = new QHBoxLayout();
-    this->setLayout(hbox);
-    hbox->addLayout(grid);
-    hbox->addStretch();
+    auto vbox = new QVBoxLayout();
+    this->setLayout(vbox);
+    vbox->addLayout(grid);
+    vbox->addStretch();
 
     grid->setHorizontalSpacing(15);     // Todo: Unify with NumberGroup. Todo: Spacing only after line edits.
 }
