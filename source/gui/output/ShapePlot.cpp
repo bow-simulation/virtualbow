@@ -114,6 +114,5 @@ void ShapePlot::setAxesRanges()
         expand(states.x_string[i], states.y_string[i]);
     }
 
-    this->xAxis->setRange(x_range);
-    this->yAxis->setRange(y_range);
+    this->setAxesLimits(x_range, y_range);
 }
