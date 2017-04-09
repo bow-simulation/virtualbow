@@ -1,5 +1,6 @@
 #include "EnergyPlot.hpp"
 #include "gui/HorizontalLine.hpp"
+#include <algorithm>
 
 EnergyPlot::EnergyPlot(const BowStates& states, const std::vector<double>& parameter, const QString& x_label)
     : states(states),
@@ -9,7 +10,7 @@ EnergyPlot::EnergyPlot(const BowStates& states, const std::vector<double>& param
       checkbox_stacked(new QCheckBox("Stacked")),
       checkbox_type(new QCheckBox("Group by type")),
       checkbox_part(new QCheckBox("Group by component"))
-      //energy_sum(parameter.size(), 0.0)
+    //energy_sum(parameter.size(), 0.0)
 {
     plot->xAxis->setLabel(x_label);
     plot->yAxis->setLabel("Energy [J]");
@@ -74,15 +75,15 @@ void EnergyPlot::updatePlot()
 
         auto add_energy = [&](const std::vector<double>& energy, const QString& name, const QColor& color)
         {
-            energy_lower = energy_upper;
-
-            for(size_t i = 0; i < parameter.size(); ++i)
+            // Test if energy is nonzero
+            if(std::any_of(energy.begin(), energy.end(), [](double e) { return e > 0.0; }))
             {
-                energy_upper[i] += energy[i];
-            }
+                energy_lower = energy_upper;
+                for(size_t i = 0; i < parameter.size(); ++i)
+                {
+                    energy_upper[i] += energy[i];
+                }
 
-            if(energy_upper != energy_lower)
-            {
                 auto graph_lower = plot->graph();
 
                 auto graph_upper = plot->addGraph();
@@ -110,10 +111,14 @@ void EnergyPlot::updatePlot()
     {
         auto add_energy = [&](const std::vector<double>& energy, const QString& name, const QColor& color)
         {
-            auto graph = plot->addGraph();
-            graph->setData(parameter, energy);
-            graph->setName(name);
-            graph->setPen(color);
+            // Test if energy is nonzero
+            if(std::any_of(energy.begin(), energy.end(), [](double e) { return e > 0.0; }))
+            {
+                auto graph = plot->addGraph();
+                graph->setData(parameter, energy);
+                graph->setName(name);
+                graph->setPen(color);
+            }
         };
 
         // Todo: Get rid of this code repetition (see above)
