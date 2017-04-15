@@ -2,7 +2,7 @@
     <qresource prefix="/">
         <file>icons/logo.png</file>
         <file>icons/application-exit.png</file>
-        <file>icons/applications-system.png</file>
+        <file>icons/settings.png</file>
         <file>icons/arrow-yellow.png</file>
         <file>icons/arrow-green.png</file>
         <file>icons/circle-yellow.png</file>

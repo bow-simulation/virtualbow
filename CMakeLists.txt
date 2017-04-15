@@ -50,6 +50,8 @@ add_executable(${PROJECT_NAME}
     source/gui/ProgressDialog.cpp
 
     source/gui/input/BowEditor.cpp
+    source/gui/input/ModelTree.cpp
+
     source/gui/input/CommentsDialog.cpp
     source/gui/input/DoubleView.cpp
     source/gui/input/IntegerView.cpp

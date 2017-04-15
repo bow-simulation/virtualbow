@@ -152,18 +152,20 @@ private:
 
     virtual QSize sizeHint() const
     {
-        return {900, 300};    // Magic numbers
+        return {900, 600};    // Magic numbers  // Todo: Remove
     }
 
-     // Subsequently rotate camera around y- and x-axis, starting from (1, 0, 0)
-    void setCameraPosition(double rot_y, double rot_x)
+     // phi: Azimuth, theta: elevation.
+     // Camera position: Ry(phi)*Rz(-theta)*[1, 0, 0].
+     // Camera view up: Ry(phi)*Rz(-theta)*[0,-1, 0].
+    void setCameraPosition(double phi, double theta)
     {
         using namespace std;
 
         auto camera = renderer->GetActiveCamera();
         camera->SetFocalPoint(0.0, 0.0, 0.0);
-        camera->SetPosition(cos(rot_y), sin(rot_x)*sin(rot_y), -cos(rot_x)*sin(rot_y));
-        camera->SetViewUp(0.0, -cos(rot_x), -sin(rot_x));
+        camera->SetPosition(cos(phi)*cos(theta), -sin(theta), -sin(phi)*cos(theta));
+        camera->SetViewUp(-cos(phi)*sin(theta), -cos(theta), sin(phi)*sin(theta));
     }
 
     void viewProfile()
@@ -174,13 +176,14 @@ private:
 
     void viewTop()
     {
-        setCameraPosition(M_PI_2, -M_PI_2);
+        setCameraPosition(M_PI_2, M_PI_2);
         viewFit();
     }
 
+    // Todo: Take window size into account and rotate so that the bow goes from the top left corner to bottom right
     void view3D()
     {
-        setCameraPosition(1.2, -0.4);
+        setCameraPosition(0.9, 0.5);
         viewFit();
     }
 

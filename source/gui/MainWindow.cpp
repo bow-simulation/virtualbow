@@ -37,7 +37,7 @@ MainWindow:: MainWindow(const QString& path)
     action_exit->setShortcuts(QKeySequence::Quit);
     action_exit->setMenuRole(QAction::QuitRole);
 
-    auto action_settings = new QAction(QIcon(":/icons/applications-system"), "Settings...", this);
+    auto action_settings = new QAction(QIcon(":/icons/settings"), "Settings...", this);
     QObject::connect(action_settings, &QAction::triggered, this, &MainWindow::settings);
     action_settings->setMenuRole(QAction::NoRole);
 
