@@ -1,19 +1,20 @@
 #pragma once
+#include "gui/input/CommentsDialog.hpp"
+#include "gui/input/SettingsDialog.hpp"
 #include <QtWidgets>
+#include <functional>
 
 class TreeItem: public QTreeWidgetItem
 {
 public:
-    TreeItem(const QIcon& icon, const QString& name)
-        : QTreeWidgetItem({name})
+    std::function<void()> action;
+
+    template<class parent_t>
+    TreeItem(parent_t* parent, const QString& name, const QIcon& icon, const std::function<void()>& action = [](){})
+        : QTreeWidgetItem(parent, {name}),
+          action(action)
     {
         this->setIcon(0, icon);
-    }
-
-    TreeItem(QTreeWidgetItem* parent, const QIcon& icon, const QString& name)
-        : TreeItem(icon, name)
-    {
-        parent->addChild(this);
     }
 };
 
@@ -21,25 +22,31 @@ public:
 class ModelTree: public QTreeWidget
 {
 public:
-    ModelTree()
+    ModelTree(InputData& data)
     {
-        auto item_comments = new TreeItem(QIcon(":/icons/comments"), "Comments");
-        auto item_settings = new TreeItem(QIcon(":/icons/settings"), "Settings");
-        auto item_parameters = new TreeItem(QIcon(":/icons/circle-grey"), "Parameters");
+        new TreeItem(this, "Comments", QIcon(":/icons/comments"), [&](){ CommentsDialog(this, data); });
+        new TreeItem(this, "Settings", QIcon(":/icons/settings"), [&](){ SettingsDialog(this, data); });
+        auto item_parameters = new TreeItem(this, "Parameters", QIcon(":/icons/circle-grey"));
 
-        auto item_limbs = new TreeItem(item_parameters, QIcon(":/icons/circle-grey"), "Limbs");
-        new TreeItem(item_limbs, QIcon(":/icons/circle-grey"), "Material");
-        new TreeItem(item_limbs, QIcon(":/icons/circle-grey"), "Profile");
-        new TreeItem(item_limbs, QIcon(":/icons/circle-grey"), "Width");
-        new TreeItem(item_limbs, QIcon(":/icons/circle-grey"), "Height");
+        auto item_limbs = new TreeItem(item_parameters, "Limbs", QIcon(":/icons/circle-grey"));
+        new TreeItem(item_limbs, "Material", QIcon(":/icons/circle-grey"));
+        new TreeItem(item_limbs, "Profile", QIcon(":/icons/circle-grey"));
+        new TreeItem(item_limbs, "Width", QIcon(":/icons/circle-grey"));
+        new TreeItem(item_limbs, "Height", QIcon(":/icons/circle-grey"));
 
-        new TreeItem(item_parameters, QIcon(":/icons/circle-grey"), "String");
-        new TreeItem(item_parameters, QIcon(":/icons/circle-grey"), "Masses");
-        new TreeItem(item_parameters, QIcon(":/icons/circle-grey"), "Operation");
+        new TreeItem(item_parameters, "String", QIcon(":/icons/circle-grey"));
+        new TreeItem(item_parameters, "Masses", QIcon(":/icons/circle-grey"));
+        new TreeItem(item_parameters, "Operation", QIcon(":/icons/circle-grey"));
 
-        this->addTopLevelItem(item_comments);
-        this->addTopLevelItem(item_settings);
-        this->addTopLevelItem(item_parameters);
+        QObject::connect(this, &QTreeWidget::itemActivated, [](QTreeWidgetItem* item, int column)
+        {
+            auto ptr = dynamic_cast<TreeItem*>(item);
+            if(ptr)
+            {
+                ptr->action();
+            }
+        });
+
         this->setHeaderLabel("Model Tree");
         this->expandAll();
     }

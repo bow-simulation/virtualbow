@@ -34,6 +34,7 @@ SettingsDialog::SettingsDialog(QWidget* parent, InputData& data)
     this->setWindowTitle("Settings");
     this->setWindowFlags(this->windowFlags() & ~Qt::WindowContextHelpButtonHint);
     this->layout()->setSizeConstraint(QLayout::SetFixedSize);
+    this->exec();
 }
 
 // Keep dialog from closing on enter
