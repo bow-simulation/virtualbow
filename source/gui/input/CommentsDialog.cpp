@@ -8,11 +8,11 @@ CommentsDialog::CommentsDialog(QWidget* parent, InputData& data)
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
     this->setWindowTitle("Comments");
-    this->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));    // Set to system's default monospace font
     this->setWindowFlags(this->windowFlags() | Qt::WindowMaximizeButtonHint);
     this->resize(600, 300);     // Todo: Magic numbers
 
     edit = new QTextEdit();
+    edit->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));    // Set to system's default monospace font
     edit->setText(QString::fromStdString(data.meta_comments));
     vbox->addWidget(edit);
 

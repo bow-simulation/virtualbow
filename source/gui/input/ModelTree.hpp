@@ -18,7 +18,6 @@ public:
     }
 };
 
-
 class ModelTree: public QTreeWidget
 {
 public:
