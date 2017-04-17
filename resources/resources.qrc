@@ -2,7 +2,6 @@
     <qresource prefix="/">
         <file>icons/logo.png</file>
         <file>icons/application-exit.png</file>
-        <file>icons/settings.png</file>
         <file>icons/arrow-yellow.png</file>
         <file>icons/arrow-green.png</file>
         <file>icons/circle-yellow.png</file>
@@ -13,19 +12,29 @@
         <file>icons/document-open.png</file>
         <file>icons/document-save.png</file>
         <file>icons/document-save-as.png</file>
-        <file>icons/comments.png</file>
-        <file>icons/insert-above.png</file>
-        <file>icons/insert-below.png</file>
-        <file>icons/edit-delete.png</file>
-	<file>icons/view-profile.png</file>
-        <file>icons/view-top.png</file>
-        <file>icons/view-3d.png</file>
-        <file>icons/view-fit.png</file>
-        <file>icons/view-symmetric.png</file>
-        <file>icons/width.png</file>
-        <file>icons/height.png</file>
-        <file>icons/material.png</file>
-        <file>icons/profile.png</file>
+
+        <file>icons/series-view/edit-delete.png</file>
+        <file>icons/series-view/insert-above.png</file>
+        <file>icons/series-view/insert-below.png</file>
+
+	<file>icons/limb-view/view-profile.png</file>
+        <file>icons/limb-view/view-top.png</file>
+        <file>icons/limb-view/view-3d.png</file>
+        <file>icons/limb-view/view-fit.png</file>
+        <file>icons/limb-view/view-symmetric.png</file>
+
+        <file>icons/model-tree/comments.png</file>
+        <file>icons/model-tree/settings.png</file>
+        <file>icons/model-tree/parameters.png</file>
+        <file>icons/model-tree/limbs.png</file>
+        <file>icons/model-tree/profile.png</file>
+        <file>icons/model-tree/width.png</file>
+        <file>icons/model-tree/height.png</file>
+        <file>icons/model-tree/material.png</file>
+        <file>icons/model-tree/string.png</file>
+        <file>icons/model-tree/masses.png</file>
+        <file>icons/model-tree/operation.png</file>
+
         <file>bows/default.bow</file>
     </qresource>
 </RCC>

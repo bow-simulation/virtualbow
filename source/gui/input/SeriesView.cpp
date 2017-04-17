@@ -21,9 +21,9 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocItem<S
 
     //table->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    auto bt_insert_below = new QPushButton(QIcon(":/icons/insert-below"), "");
-    auto bt_insert_above = new QPushButton(QIcon(":/icons/insert-above"), "");
-    auto bt_delete = new QPushButton(QIcon(":/icons/edit-delete"), "");
+    auto bt_insert_below = new QPushButton(QIcon(":/icons/series-view/insert-below"), "");
+    auto bt_insert_above = new QPushButton(QIcon(":/icons/series-view/insert-above"), "");
+    auto bt_delete = new QPushButton(QIcon(":/icons/series-view/edit-delete"), "");
     bt_insert_below->setToolTip("Insert below");
     bt_insert_above->setToolTip("Insert above");
     bt_delete->setToolTip("Delete");
