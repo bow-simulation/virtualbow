@@ -25,12 +25,14 @@ class ModelTree: public QTreeWidget
 public:
     ModelTree(InputData& data)
     {
-        new TreeItem(this, "Comments", QIcon(":/icons/comments"), [&](){
+        new TreeItem(this, "Comments", QIcon(":/icons/comments"), [&]()
+        {
             CommentsDialog dialog(this, data);
             dialog.exec();
         });
 
-        new TreeItem(this, "Settings", QIcon(":/icons/settings"), [&](){
+        new TreeItem(this, "Settings", QIcon(":/icons/settings"), [&]()
+        {
             NumberDialog dialog(this, "Settings");
 
             dialog.addGroup("General");
@@ -52,20 +54,31 @@ public:
 
         auto item_limbs = new TreeItem(item_parameters, "Limbs", QIcon(":/icons/circle-grey"));
 
-        new TreeItem(item_limbs, "Material", QIcon(":/icons/circle-grey"), [&](){
+        new TreeItem(item_limbs, "Profile", QIcon(":/icons/profile"), [&]()
+        {
+            qInfo() << "Profile";
+        });
+
+        new TreeItem(item_limbs, "Width", QIcon(":/icons/width"), [&]()
+        {
+            qInfo() << "Width";
+        });
+
+        new TreeItem(item_limbs, "Height", QIcon(":/icons/height"), [&]()
+        {
+            qInfo() << "Height";
+        });
+
+        new TreeItem(item_limbs, "Material", QIcon(":/icons/material"), [&]()
+        {
             NumberDialog dialog(this, "Material");
             dialog.addField("rho:", "kg/m³", data.sections_rho);    // Todo: Use unicode character (\u2374). Problem: Windows
             dialog.addField("E:", "N/m²", data.sections_E);
             dialog.exec();
         });
 
-        new TreeItem(item_limbs, "Profile", QIcon(":/icons/circle-grey"));
-
-        new TreeItem(item_limbs, "Width", QIcon(":/icons/circle-grey"));
-
-        new TreeItem(item_limbs, "Height", QIcon(":/icons/circle-grey"));
-
-        new TreeItem(item_parameters, "String", QIcon(":/icons/circle-grey"), [&](){
+        new TreeItem(item_parameters, "String", QIcon(":/icons/circle-grey"), [&]()
+        {
             NumberDialog dialog(this, "String");
             dialog.addField("Strand stiffness:", "N/100%", data.string_strand_stiffness);
             dialog.addField("Strand density:", "kg/m", data.string_strand_density);
@@ -73,14 +86,16 @@ public:
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, "Masses", QIcon(":/icons/circle-grey"), [&](){
+        new TreeItem(item_parameters, "Masses", QIcon(":/icons/circle-grey"), [&]()
+        {
             NumberDialog dialog(this, "Masses");
             dialog.addField("String center:", "kg", data.mass_string_center);
             dialog.addField("String tip:", "kg", data.mass_string_tip);
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, "Operation", QIcon(":/icons/circle-grey"), [&](){
+        new TreeItem(item_parameters, "Operation", QIcon(":/icons/circle-grey"), [&]()
+        {
             NumberDialog dialog(this, "Operation");
             dialog.addField("Brace height:", "m", data.operation_brace_height);
             dialog.addField("Draw length:", "m", data.operation_draw_length);

@@ -13,6 +13,7 @@ CommentsDialog::CommentsDialog(QWidget* parent, InputData& data)
 
     edit = new QTextEdit();
     edit->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));    // Set to system's default monospace font
+    edit->setAcceptRichText(false);                                        // Limit to plain text
     edit->setText(QString::fromStdString(data.meta_comments));
     vbox->addWidget(edit);
 
