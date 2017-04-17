@@ -57,7 +57,6 @@ add_executable(${PROJECT_NAME}
     source/gui/input/IntegerView.cpp
     source/gui/input/NumberGroup.cpp
     source/gui/input/SeriesView.cpp
-    source/gui/input/SettingsDialog.cpp
     source/gui/input/LimbView.cpp
     source/gui/input/LimbSource.cpp
     source/gui/input/SplineView.cpp

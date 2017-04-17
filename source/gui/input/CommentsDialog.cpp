@@ -26,5 +26,4 @@ CommentsDialog::CommentsDialog(QWidget* parent, InputData& data)
     });
 
     QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    this->exec();
 }
