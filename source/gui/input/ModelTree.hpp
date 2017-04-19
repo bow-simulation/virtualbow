@@ -1,6 +1,9 @@
 #pragma once
 #include "model/InputData.hpp"
 #include "gui/input/CommentsDialog.hpp"
+#include "gui/input/ProfileDialog.hpp"
+#include "gui/input/WidthDialog.hpp"
+#include "gui/input/HeightDialog.hpp"
 #include "gui/input/NumberDialog.hpp"
 
 #include <QtWidgets>
@@ -52,24 +55,25 @@ public:
 
         auto item_parameters = new TreeItem(this, "Parameters", QIcon(":/icons/model-tree/parameters"));
 
-        auto item_limbs = new TreeItem(item_parameters, "Limbs", QIcon(":/icons/model-tree/limbs"));
-
-        new TreeItem(item_limbs, "Profile", QIcon(":/icons/profile"), [&]()
+        new TreeItem(item_parameters, "Profile", QIcon(":/icons/model-tree/profile"), [&]()
         {
-            qInfo() << "Profile";
+            ProfileDialog dialog(this, data);
+            dialog.exec();
         });
 
-        new TreeItem(item_limbs, "Width", QIcon(":/icons/model-tree/width"), [&]()
+        new TreeItem(item_parameters, "Width", QIcon(":/icons/model-tree/width"), [&]()
         {
-            qInfo() << "Width";
+            WidthDialog dialog(this, data);
+            dialog.exec();
         });
 
-        new TreeItem(item_limbs, "Height", QIcon(":/icons/model-tree/height"), [&]()
+        new TreeItem(item_parameters, "Height", QIcon(":/icons/model-tree/height"), [&]()
         {
-            qInfo() << "Height";
+            HeightDialog dialog(this, data);
+            dialog.exec();
         });
 
-        new TreeItem(item_limbs, "Material", QIcon(":/icons/model-tree/material"), [&]()
+        new TreeItem(item_parameters, "Material", QIcon(":/icons/model-tree/material"), [&]()
         {
             NumberDialog dialog(this, "Material");
             dialog.addField("rho:", "kg/m³", data.sections_rho);    // Todo: Use unicode character (\u2374). Problem: Windows
@@ -91,6 +95,7 @@ public:
             NumberDialog dialog(this, "Masses");
             dialog.addField("String center:", "kg", data.mass_string_center);
             dialog.addField("String tip:", "kg", data.mass_string_tip);
+            dialog.addField("Limb tip:", "kg", data.mass_limb_tip);
             dialog.exec();
         });
 
