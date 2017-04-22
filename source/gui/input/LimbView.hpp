@@ -74,31 +74,31 @@ public:
 
         auto button0 = new QToolButton();
         QObject::connect(button0, &QPushButton::clicked, this, &LimbView::viewProfile);
-        button0->setIcon(QIcon(":/icons/view-profile"));
+        button0->setIcon(QIcon(":/icons/limb-view/view-profile"));
         button0->setToolTip("Profile view");
         button0->setIconSize({32, 32});
 
         auto button1 = new QToolButton();
         QObject::connect(button1, &QPushButton::clicked, this, &LimbView::viewTop);
-        button1->setIcon(QIcon(":/icons/view-top"));
+        button1->setIcon(QIcon(":/icons/limb-view/view-top"));
         button1->setToolTip("Top view");
         button1->setIconSize({32, 32});
 
         auto button2 = new QToolButton();
         QObject::connect(button2, &QPushButton::clicked, this, &LimbView::view3D);
-        button2->setIcon(QIcon(":/icons/view-3d"));
+        button2->setIcon(QIcon(":/icons/limb-view/view-3d"));
         button2->setToolTip("3D view");
         button2->setIconSize({32, 32});
 
         auto button3 = new QToolButton();
         QObject::connect(button3, &QPushButton::clicked, this, &LimbView::viewFit);
-        button3->setIcon(QIcon(":/icons/view-fit"));
+        button3->setIcon(QIcon(":/icons/limb-view/view-fit"));
         button3->setToolTip("Fit view");
         button3->setIconSize({32, 32});
 
         auto button4 = new QToolButton();
         QObject::connect(button4, &QToolButton::toggled, this, &LimbView::viewSymmetric);
-        button4->setIcon(QIcon(":/icons/view-symmetric"));
+        button4->setIcon(QIcon(":/icons/limb-view/view-symmetric"));
         button4->setToolTip("Show complete bow");
         button4->setIconSize({32, 32});
         button4->setCheckable(true);
@@ -152,18 +152,20 @@ private:
 
     virtual QSize sizeHint() const
     {
-        return {900, 300};    // Magic numbers
+        return {900, 600};    // Magic numbers  // Todo: Remove
     }
 
-     // Subsequently rotate camera around y- and x-axis, starting from (1, 0, 0)
-    void setCameraPosition(double rot_y, double rot_x)
+     // phi: Azimuth, theta: elevation.
+     // Camera position: Ry(phi)*Rz(-theta)*[1, 0, 0].
+     // Camera view up: Ry(phi)*Rz(-theta)*[0,-1, 0].
+    void setCameraPosition(double phi, double theta)
     {
         using namespace std;
 
         auto camera = renderer->GetActiveCamera();
         camera->SetFocalPoint(0.0, 0.0, 0.0);
-        camera->SetPosition(cos(rot_y), sin(rot_x)*sin(rot_y), -cos(rot_x)*sin(rot_y));
-        camera->SetViewUp(0.0, -cos(rot_x), -sin(rot_x));
+        camera->SetPosition(cos(phi)*cos(theta), -sin(theta), -sin(phi)*cos(theta));
+        camera->SetViewUp(-cos(phi)*sin(theta), -cos(theta), sin(phi)*sin(theta));
     }
 
     void viewProfile()
@@ -174,13 +176,14 @@ private:
 
     void viewTop()
     {
-        setCameraPosition(M_PI_2, -M_PI_2);
+        setCameraPosition(M_PI_2, M_PI_2);
         viewFit();
     }
 
+    // Todo: Take window size into account and rotate so that the bow goes from the top left corner to bottom right
     void view3D()
     {
-        setCameraPosition(1.2, -0.4);
+        setCameraPosition(0.9, 0.5);
         viewFit();
     }
 
