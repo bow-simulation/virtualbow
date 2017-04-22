@@ -4,8 +4,9 @@
 class PlotWidget: public QCustomPlot
 {
 public:
-    PlotWidget()
-    {
+    PlotWidget(const QSize& size_hint = {600, 400})
+        : size_hint(size_hint)
+    {    
         // Styling
 
         this->xAxis2->setTickLabels(false);
@@ -84,4 +85,12 @@ public:
         subLayout->addElement(0, 2, new QCPLayoutElement);
         this->plotLayout()->setRowStretchFactor(0, 0.001);
     }
+
+    virtual QSize sizeHint() const
+    {
+        return size_hint;
+    }
+
+private:
+    QSize size_hint;
 };

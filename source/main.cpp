@@ -2,14 +2,16 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
-    setlocale(LC_NUMERIC, "C");
-
-    qInfo("Test1");
-
     QGuiApplication::setApplicationDisplayName("Bow Simulator");
     QGuiApplication::setApplicationVersion("0.1.0");
     QGuiApplication::setOrganizationDomain("https://bow-simulator.sourceforge.net");
+
+    QApplication app(argc, argv);
+    // Todo: Use default style. Problem: GroupBox bug on Fusion theme (linux)
+    // https://bugreports.qt.io/browse/QTBUG-44056
+    // https://forum.qt.io/topic/75080/use-gtk-theme-on-linux/3
+    app.setStyle("Windows");
+    setlocale(LC_NUMERIC, "C");
 
     QStringList args = QApplication::arguments();
     MainWindow window(args.size() == 1 ? ":/bows/default.bow" : args.at(1));

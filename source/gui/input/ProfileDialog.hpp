@@ -22,18 +22,19 @@ public:
 
         auto hbox0 = new QHBoxLayout();
         hbox0->addStretch();
-        hbox0->addWidget(new QLabel("X-offset [m]:")); hbox0->addSpacing(10); hbox0->addWidget(new DoubleView(data.profile_x0));
+        hbox0->addWidget(new QLabel("X0 [m]:")); hbox0->addSpacing(10); hbox0->addWidget(new DoubleView(data.profile_x0));
         hbox0->addSpacing(10);
         hbox0->addStretch();
-        hbox0->addWidget(new QLabel("Y-offset [m]:")); hbox0->addSpacing(10); hbox0->addWidget(new DoubleView(data.profile_y0));
+        hbox0->addWidget(new QLabel("Y0 [m]:")); hbox0->addSpacing(10); hbox0->addWidget(new DoubleView(data.profile_y0));
         hbox0->addSpacing(10);
         hbox0->addStretch();
         hbox0->addWidget(new QLabel("Angle [rad]:")); hbox0->addSpacing(10); hbox0->addWidget(new DoubleView(data.profile_phi0));
         hbox0->addStretch();
 
-        auto group = new QFrame();
-        group->setLayout(hbox0);
-        group->setFrameStyle(QFrame::StyledPanel);
+        auto offsets = new QGroupBox();
+        offsets->setLayout(hbox0);
+
+        // QGroupBox{ margin-top: 0; }
 
         auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok);
         QObject::connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -41,8 +42,9 @@ public:
         // Layout
 
         auto vbox0 = new QVBoxLayout();
+        //vbox0->setMargin(0);
         vbox0->addWidget(plot, 1);
-        vbox0->addWidget(group);
+        vbox0->addWidget(offsets);
 
         auto hbox1 = new QHBoxLayout();
         hbox1->addWidget(series_view);

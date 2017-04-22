@@ -15,7 +15,6 @@ public:
     {
         auto btbox = new QDialogButtonBox(QDialogButtonBox::Ok);
         QObject::connect(btbox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-        vbox->addSpacing(10);   // Todo: Magic number
         vbox->addWidget(btbox, 0, Qt::AlignBottom);
 
         this->setWindowTitle(title);
@@ -33,7 +32,7 @@ public:
         group = new QGroupBox(name);
         group->setLayout(grid);
 
-        vbox->insertWidget(vbox->count()-2, group);
+        vbox->insertWidget(vbox->count()-1, group);
     }
 
     void addField(const QString& name, const QString& unit, DocItem<double>& item)

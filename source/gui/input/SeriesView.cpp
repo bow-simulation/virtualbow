@@ -7,8 +7,8 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocItem<S
     // Widgets and Layout
 
     auto vbox = new QVBoxLayout();
+    vbox->setMargin(0);
     this->setLayout(vbox);
-    this->setContentsMargins({});
 
     table = new QTableWidget(1, 2);
     table->setHorizontalHeaderLabels({{lb_args, lb_vals}});
