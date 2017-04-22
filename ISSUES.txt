@@ -1,42 +1,5 @@
-FEM
-===
-
-    * Find a way to prevent changing the element properties during simulation. Could be done by having the system own
-      the elements and only pass a const& of the system in the simulation callbacks.
-
-    * Make simulation callbacks in System templates
-
-    * Make system simulation methods return bool to indicate success instead of throwing exceptions.
-      Then throw exceptions with domain-specific error messages in model code.
-
-    * Unify the static solution methods: Implement one method with arbitrary constraint. Load control and displacement control are special cases of this.
-
-    * Does std::function perform dynamic memory allocation? (Used heavily in FEM vector and matrix views)
-      https://www.reddit.com/r/cpp_questions/comments/5ga9ar/what_are_downsides_of_using_lambdas/
-
-    * Dynamic cast iterator: Combine with a filter iterator to filter all elements that do not convert?
-      (let dynamic_cast return pointer, check for null, then convert to referene)
-      This way several element types could be added to one group. Maybe add another key (group + name).
-
-    * Remove/Reduce code duplication from element kinematics
-
 Model
 =====
-
-    * InputData: Extend domain such that values in a certain interval can be expressed, e.g. the step factor in ]0, 1]
-
-    * DocItem: value is default constructed and might not be valid until the DocItem is assigned a valid one. Perhaps express this with boost::optional.
-
-    * Make it possible to omit detailed static simulation if only dynamics are needed?
-
-    * Calculate shear stresses and use von Mises stresses in the output data.
-      This would give a more realistic stresses for the limb tips (or rather would make the model applicable to the limb tips in the first place)
-
-   !* Handle too short draw length (smaller than brace height)
-
-    * Have a look at https://github.com/nlohmann/json for storing simulation data as MessagePack.
-
-    * Enforce that cross section height < radius of curvature
 
     * Crash when height goes to zero
 

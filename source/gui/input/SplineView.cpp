@@ -3,6 +3,7 @@
 #include "numerics/CubicSpline.hpp"
 
 SplineView::SplineView(const QString& x_label, const QString& y_label, DocItem<Series>& doc_item)
+    : PlotWidget({750, 250})    // Todo: Magic number
 {
     this->xAxis->setLabel(x_label);
     this->yAxis->setLabel(y_label);

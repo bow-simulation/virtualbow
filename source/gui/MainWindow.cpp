@@ -1,8 +1,6 @@
 #include "MainWindow.hpp"
 #include "ProgressDialog.hpp"
 #include "input/BowEditor.hpp"
-#include "input/SettingsDialog.hpp"
-#include "input/CommentsDialog.hpp"
 #include "output/OutputDialog.hpp"
 #include "model/BowModel.hpp"
 #include <thread>
@@ -37,14 +35,6 @@ MainWindow:: MainWindow(const QString& path)
     action_exit->setShortcuts(QKeySequence::Quit);
     action_exit->setMenuRole(QAction::QuitRole);
 
-    auto action_settings = new QAction(QIcon(":/icons/applications-system"), "Settings...", this);
-    QObject::connect(action_settings, &QAction::triggered, this, &MainWindow::settings);
-    action_settings->setMenuRole(QAction::NoRole);
-
-    auto action_notes = new QAction(QIcon(":/icons/comments"), "Comments...", this);
-    QObject::connect(action_notes, &QAction::triggered, this, &MainWindow::comments);
-    action_notes->setMenuRole(QAction::NoRole);
-
     auto action_run_statics = new QAction(QIcon(":/icons/arrow-yellow"), "Statics...", this);
     action_run_statics->setShortcut(Qt::Key_F5);
     action_run_statics->setMenuRole(QAction::NoRole);
@@ -69,11 +59,6 @@ MainWindow:: MainWindow(const QString& path)
     menu_file->addSeparator();
     menu_file->addAction(action_exit);
 
-    // Edit menu
-    auto menu_edit = this->menuBar()->addMenu("&Edit");
-    menu_edit->addAction(action_settings);
-    menu_edit->addAction(action_notes);
-
     // Simulation menu
     auto menu_simulation = this->menuBar()->addMenu("&Simulate");
     menu_simulation->addAction(action_run_statics);
@@ -85,11 +70,6 @@ MainWindow:: MainWindow(const QString& path)
     toolbar_file->addAction(action_open);
     toolbar_file->addAction(action_save);
     toolbar_file->addAction(action_save_as);
-
-    // Edit toolbar
-    auto toolbar_edit = this->addToolBar("Edit");
-    toolbar_edit->addAction(action_settings);
-    toolbar_edit->addAction(action_notes);
 
     // Simulation toolbar
     auto toolbar_simulation = this->addToolBar("Simulate");
@@ -160,19 +140,6 @@ bool MainWindow::saveAs()
         return saveFile(dialog.selectedFiles().first());
 
     return false;
-}
-
-// Todo: settings, notes and about dialogs as lambdas in constructor?
-void MainWindow::settings()
-{
-    SettingsDialog dialog(this, input);
-    dialog.exec();
-}
-
-void MainWindow::comments()
-{
-    CommentsDialog dialog(this, input);
-    dialog.exec();
 }
 
 void MainWindow::runSimulation(bool dynamics)

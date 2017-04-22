@@ -3,7 +3,8 @@
 #include "numerics/ArcCurve.hpp"
 
 ProfileView::ProfileView(InputData& data)
-    : data(data)
+    : PlotWidget({750, 250}),   // Todo: Magic number
+      data(data)
 {
     this->xAxis->setLabel("X [m]");
     this->yAxis->setLabel("Y [m]");

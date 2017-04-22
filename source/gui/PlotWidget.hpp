@@ -5,8 +5,9 @@
 class PlotWidget: public QCustomPlot
 {
 public:
-    PlotWidget()
-    {
+    PlotWidget(const QSize& size_hint = {600, 400})
+        : size_hint(size_hint)
+    {    
         // Styling
 
         this->xAxis2->setTickLabels(false);
@@ -138,4 +139,12 @@ public:
 private:
     boost::optional<QCPRange> max_x_range;
     boost::optional<QCPRange> max_y_range;
+
+    virtual QSize sizeHint() const
+    {
+        return size_hint;
+    }
+
+private:
+    QSize size_hint;
 };
