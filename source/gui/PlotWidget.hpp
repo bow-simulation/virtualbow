@@ -5,8 +5,14 @@
 class PlotWidget: public QCustomPlot
 {
 public:
+    enum AspectPolicy
+    {
+        NONE, SCALE_X, SCALE_Y
+    };
+
     PlotWidget(const QSize& size_hint = {600, 400})
-        : size_hint(size_hint)
+        : size_hint(size_hint),
+          aspect_policy(NONE)
     {    
         // Styling
 
@@ -88,6 +94,27 @@ public:
                 this->yAxis->setRange(bounded);
             }
         });
+
+        // Handle aspect ratio
+
+        QObject::connect(this, &QCustomPlot::beforeReplot, [&]()
+        {
+            switch(aspect_policy)
+            {
+            case SCALE_X:
+                this->xAxis->blockSignals(true);
+                this->xAxis->setScaleRatio(this->yAxis);
+                this->xAxis->blockSignals(false);
+                break;
+
+            case SCALE_Y:
+                this->yAxis->blockSignals(true);
+                this->yAxis->setScaleRatio(this->xAxis);
+                this->yAxis->blockSignals(false);
+                break;
+            }
+        });
+
     }
 
     void setupTopLegend()
@@ -136,15 +163,28 @@ public:
         yAxis->setRange(y_range);
     }
 
-private:
-    boost::optional<QCPRange> max_x_range;
-    boost::optional<QCPRange> max_y_range;
+    void setAspectPolicy(AspectPolicy policy)
+    {
+        aspect_policy = policy;
+    }
 
+protected:
     virtual QSize sizeHint() const
     {
         return size_hint;
     }
 
+    virtual void resizeEvent(QResizeEvent * event) override
+    {
+        QCustomPlot::resizeEvent(event);
+
+        if(aspect_policy != NONE)
+            this->replot();
+    }
+
 private:
     QSize size_hint;
+    boost::optional<QCPRange> max_x_range;
+    boost::optional<QCPRange> max_y_range;
+    AspectPolicy aspect_policy;
 };

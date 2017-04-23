@@ -2,15 +2,11 @@
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication::setApplicationDisplayName("Bow Simulator");
-    QGuiApplication::setApplicationVersion("0.1.0");
-    QGuiApplication::setOrganizationDomain("https://bow-simulator.sourceforge.net");
-
     QApplication app(argc, argv);
-    // Todo: Use default style. Problem: GroupBox bug on Fusion theme (linux)
-    // https://bugreports.qt.io/browse/QTBUG-44056
-    // https://forum.qt.io/topic/75080/use-gtk-theme-on-linux/3
-    app.setStyle("Windows");
+    app.setApplicationDisplayName("Bow Simulator");
+    app.setApplicationVersion("0.2.0");
+    app.setOrganizationDomain("https://bow-simulator.gitlab.io/");
+    app.setStyle("Windows");    // Todo: Use default style. Problem: GroupBox bug on Fusion theme (https://bugreports.qt.io/browse/QTBUG-44056)
     setlocale(LC_NUMERIC, "C");
 
     QStringList args = QApplication::arguments();

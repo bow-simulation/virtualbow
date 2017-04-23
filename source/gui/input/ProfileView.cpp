@@ -9,6 +9,7 @@ ProfileView::ProfileView(InputData& data)
     this->xAxis->setLabel("X [m]");
     this->yAxis->setLabel("Y [m]");
     this->yAxis->setRangeReversed(true);
+    this->setAspectPolicy(PlotWidget::SCALE_Y);
 
     // Line
     curve0 = new QCPCurve(this->xAxis, this->yAxis);
