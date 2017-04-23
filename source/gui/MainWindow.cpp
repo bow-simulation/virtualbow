@@ -178,8 +178,7 @@ void MainWindow::runSimulation(bool dynamics)
 
 void MainWindow::about()
 {
-    QMessageBox::about(this, "About", "<h2>" + QApplication::applicationDisplayName() + "</h2>"
-                   "<h4>Version " + QApplication::applicationVersion() + "</h4>"
+    QMessageBox::about(this, "About", "<h2>" + QApplication::applicationDisplayName() + " v" + QApplication::applicationVersion() + "</h2>"
                    "Bow and arrow physics simulation<br>"
                    "<a href=\"" + QApplication::organizationDomain() + "\">" + QApplication::organizationDomain() + "</a><br><br>"
                    "<small>Copyright (C) 2016 Stefan Pfeifer<br>"
