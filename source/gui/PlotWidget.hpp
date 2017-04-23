@@ -5,8 +5,14 @@
 class PlotWidget: public QCustomPlot
 {
 public:
+    enum AspectPolicy
+    {
+        NONE, SCALE_X, SCALE_Y
+    };
+
     PlotWidget(const QSize& size_hint = {600, 400})
-        : size_hint(size_hint)
+        : size_hint(size_hint),
+          aspect_policy(NONE)
     {    
         // Styling
 
@@ -88,23 +94,50 @@ public:
                 this->yAxis->setRange(bounded);
             }
         });
+
+        // Handle aspect ratio
+
+        QObject::connect(this, &QCustomPlot::beforeReplot, [&]()
+        {
+            switch(aspect_policy)
+            {
+            case SCALE_X:
+                this->xAxis->blockSignals(true);
+                this->xAxis->setScaleRatio(this->yAxis);
+                this->xAxis->blockSignals(false);
+                break;
+
+            case SCALE_Y:
+                this->yAxis->blockSignals(true);
+                this->yAxis->setScaleRatio(this->xAxis);
+                this->yAxis->blockSignals(false);
+                break;
+            }
+        });
+
     }
 
     void setupTopLegend()
     {
+        // Legend properties
         this->legend->setVisible(true);
         this->legend->setFillOrder(QCPLayoutGrid::foColumnsFirst);
 
-        // Move legend at to the top outside of the plot
-        // http://qcustomplot.com/index.php/support/forum/63
-        // Todo: Better solution with QCustomPlot 2.0?
-        QCPLayoutGrid *subLayout = new QCPLayoutGrid;
+        // Create sublayout and add legend to it
+        QCPLayoutGrid *sub_layout = new QCPLayoutGrid();
+        sub_layout->setMargins({0, 11, 0, 0});                // Magic number
+        sub_layout->addElement(0, 0, this->legend);
+
+        // Create a new row in the plot layout and add sublayout
         this->plotLayout()->insertRow(0);
-        this->plotLayout()->addElement(0, 0, subLayout);
-        subLayout->addElement(0, 0, new QCPLayoutElement);
-        subLayout->addElement(0, 1, this->legend);
-        subLayout->addElement(0, 2, new QCPLayoutElement);
-        this->plotLayout()->setRowStretchFactor(0, 0.001);
+        this->plotLayout()->setRowStretchFactor(0, 0.001);    // Magic number
+        this->plotLayout()->setRowSpacing(0);
+        this->plotLayout()->addElement(0, 0, sub_layout);
+
+        // Connect horizontal margins of the sublayout those of the axis rectangle
+        auto group = new QCPMarginGroup(this);
+        sub_layout->setMarginGroup(QCP::msLeft|QCP::msRight, group);
+        this->axisRect(0)->setMarginGroup(QCP::msLeft|QCP::msRight, group);
     }
 
     // Limit the axis maximum ranges to current range
@@ -136,15 +169,28 @@ public:
         yAxis->setRange(y_range);
     }
 
-private:
-    boost::optional<QCPRange> max_x_range;
-    boost::optional<QCPRange> max_y_range;
+    void setAspectPolicy(AspectPolicy policy)
+    {
+        aspect_policy = policy;
+    }
 
+protected:
     virtual QSize sizeHint() const
     {
         return size_hint;
     }
 
+    virtual void resizeEvent(QResizeEvent * event) override
+    {
+        QCustomPlot::resizeEvent(event);
+
+        if(aspect_policy != NONE)
+            this->replot();
+    }
+
 private:
     QSize size_hint;
+    boost::optional<QCPRange> max_x_range;
+    boost::optional<QCPRange> max_y_range;
+    AspectPolicy aspect_policy;
 };
