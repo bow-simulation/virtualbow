@@ -37,6 +37,5 @@ void StressPlot::setAxesRanges()
         y_range.expand(states.sigma_lower[i].min());
     }
 
-    this->xAxis->setRange(x_range);
-    this->yAxis->setRange(y_range);
+    this->setAxesLimits(x_range, y_range);
 }

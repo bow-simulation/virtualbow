@@ -31,8 +31,7 @@ SplineView::SplineView(const QString& x_label, const QString& y_label, DocItem<S
             this->graph(1)->data()->clear();
         }
 
-        this->rescaleAxes();
-        this->yAxis->setRangeLower(0.0);    // Todo: Replace
+        this->rescaleAxes(false, true);
         this->replot();
     });
 }

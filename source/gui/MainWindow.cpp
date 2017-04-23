@@ -178,17 +178,12 @@ void MainWindow::runSimulation(bool dynamics)
 
 void MainWindow::about()
 {
-    QMessageBox msgbox(this);
-    msgbox.setIconPixmap(QPixmap(":/icons/logo"));
-    msgbox.setWindowTitle("About");
-    msgbox.setText("<h2>" + QGuiApplication::applicationDisplayName() + "</h2>"
-                   "<h4>Version " + QGuiApplication::applicationVersion() + "</h4>"
+    QMessageBox::about(this, "About", "<h2>" + QApplication::applicationDisplayName() + "</h2>"
+                   "<h4>Version " + QApplication::applicationVersion() + "</h4>"
                    "Bow and arrow physics simulation<br>"
-                   "<a href=\"" + QGuiApplication::organizationDomain() + "\">" + QGuiApplication::organizationDomain() + "</a><br><br>"
-                   "Copyright (C) 2016 Stefan Pfeifer<br>"
-                   "Distributed under the GNU General Public License v3.0");
-
-    msgbox.exec();
+                   "<a href=\"" + QApplication::organizationDomain() + "\">" + QApplication::organizationDomain() + "</a><br><br>"
+                   "<small>Copyright (C) 2016 Stefan Pfeifer<br>"
+                   "Distributed under the GNU General Public License v3.0</small>");
 }
 
 void MainWindow::setCurrentFile(const QString &path)

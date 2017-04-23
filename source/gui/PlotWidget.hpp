@@ -1,5 +1,6 @@
 #pragma once
 #include "external/qcustomplot/qcustomplot.h"
+#include <boost/optional.hpp>
 
 class PlotWidget: public QCustomPlot
 {
@@ -67,6 +68,26 @@ public:
 
             menu->exec(this->mapToGlobal(pos));
         });
+
+        // Limit axis ranges for zooming and panning
+
+        QObject::connect(this->xAxis, static_cast<void (QCPAxis::*)(const QCPRange&)>(&QCPAxis::rangeChanged), [&](const QCPRange& range)
+        {
+            if(max_x_range)
+            {
+                QCPRange bounded = range.bounded(max_x_range->lower, max_x_range->upper);
+                this->xAxis->setRange(bounded);
+            }
+        });
+
+        QObject::connect(this->yAxis, static_cast<void (QCPAxis::*)(const QCPRange&)>(&QCPAxis::rangeChanged), [&](const QCPRange& range)
+        {
+            if(max_y_range)
+            {
+                QCPRange bounded = range.bounded(max_y_range->lower, max_y_range->upper);
+                this->yAxis->setRange(bounded);
+            }
+        });
     }
 
     void setupTopLegend()
@@ -85,6 +106,39 @@ public:
         subLayout->addElement(0, 2, new QCPLayoutElement);
         this->plotLayout()->setRowStretchFactor(0, 0.001);
     }
+
+    // Limit the axis maximum ranges to current range
+    void rescaleAxes(bool include_zero_x = false, bool include_zero_y = false)
+    {
+        max_x_range = boost::none;
+        max_y_range = boost::none;
+
+        QCustomPlot::rescaleAxes();
+
+        QCPRange x_range = xAxis->range();
+        QCPRange y_range = yAxis->range();
+
+        if(include_zero_x)
+            x_range.expand(0.0);
+
+        if(include_zero_y)
+            y_range.expand(0.0);
+
+        setAxesLimits(x_range, y_range);
+    }
+
+    void setAxesLimits(QCPRange x_range, QCPRange y_range)
+    {
+        max_x_range = x_range;
+        max_y_range = y_range;
+
+        xAxis->setRange(x_range);
+        yAxis->setRange(y_range);
+    }
+
+private:
+    boost::optional<QCPRange> max_x_range;
+    boost::optional<QCPRange> max_y_range;
 
     virtual QSize sizeHint() const
     {
