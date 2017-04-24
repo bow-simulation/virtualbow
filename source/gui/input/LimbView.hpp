@@ -124,7 +124,7 @@ public:
         connections.push_back( data.sections_height.connect([&](const Series&){ updateLimbSource(); }));
 
         // Default view
-        viewProfile();
+        view3D();
     }
 
 private:
