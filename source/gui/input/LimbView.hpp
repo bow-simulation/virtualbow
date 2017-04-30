@@ -124,7 +124,7 @@ public:
         connections.push_back( data.sections_height.connect([&](const Series&){ updateLimbSource(); }));
 
         // Default view
-        viewProfile();
+        view3D();
     }
 
 private:
@@ -139,8 +139,15 @@ private:
 
     void updateLimbSource()
     {
-        source->SetLimbData(LimbProperties(data, 150));    // Magic number
-        this->GetInteractor()->Render();
+        try
+        {
+            source->SetLimbData(LimbProperties(data, 150));    // Magic number
+            this->GetInteractor()->Render();
+        }
+        catch(std::runtime_error& e)
+        {
+            // Input data invalid, do nothing. Leave geometry in previous state until the input is valid again.
+        }
     }
 
     // Adjust orientation widget's viewport on resize to keep it at a constant screen size
