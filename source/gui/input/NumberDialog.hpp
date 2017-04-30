@@ -32,7 +32,7 @@ public:
         group = new QGroupBox(name);
         group->setLayout(grid);
 
-        vbox->insertWidget(vbox->count()-1, group);
+        vbox->insertWidget(vbox->count()-1, group, 1);
     }
 
     void addField(const QString& name, const QString& unit, DocItem<double>& item)
