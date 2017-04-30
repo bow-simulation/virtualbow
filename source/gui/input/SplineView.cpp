@@ -21,7 +21,6 @@ SplineView::SplineView(const QString& x_label, const QString& y_label, DocItem<S
     {
         try
         {
-                    qInfo() << "Here";
             Series output = CubicSpline::sample(input, 150);    // Todo: Magic number
             this->graph(0)->setData(output.args(), output.vals());
             this->graph(1)->setData(input.args(), input.vals());
