@@ -17,6 +17,8 @@ StaticOutput::StaticOutput(const BowSetup& setup, const StaticData& statics)
     auto plot_combo = new ComboPlot();
     plot_combo->addData("Draw length [m]", statics.states.draw_length);
     plot_combo->addData("Draw force [N]", statics.states.draw_force);
+    plot_combo->addData("Pot. energy limbs [J]", statics.states.e_pot_limbs);
+    plot_combo->addData("Pot. energy string [J]", statics.states.e_pot_string);
     plot_combo->setCombination(0, 1);
 
     auto grid = new OutputGrid();
@@ -54,6 +56,11 @@ DynamicOutput::DynamicOutput(const BowSetup& setup, const DynamicData& dynamics)
     plot_combo->addData("Arrow position [m]", dynamics.states.pos_arrow);
     plot_combo->addData("Arrow velocity [m/s]", dynamics.states.vel_arrow);
     plot_combo->addData("Arrow acceleration [m/s²]", dynamics.states.acc_arrow);
+    plot_combo->addData("Pot. energy limbs [J]", dynamics.states.e_pot_limbs);
+    plot_combo->addData("Kin. energy limbs [J]", dynamics.states.e_kin_limbs);
+    plot_combo->addData("Pot. energy string [J]", dynamics.states.e_pot_string);
+    plot_combo->addData("Kin. energy string [J]", dynamics.states.e_kin_string);
+    plot_combo->addData("Kin. energy arrow [J]", dynamics.states.e_kin_arrow);
     plot_combo->setCombination(0, 1);
 
     auto grid = new OutputGrid();
