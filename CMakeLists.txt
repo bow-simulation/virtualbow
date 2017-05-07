@@ -53,6 +53,7 @@ add_executable(${PROJECT_NAME}
     source/gui/input/ModelTree.cpp
 
     source/gui/input/CommentsDialog.cpp
+    source/gui/input/ProfileDialog.cpp
     source/gui/input/DoubleView.cpp
     source/gui/input/IntegerView.cpp
     source/gui/input/NumberGroup.cpp

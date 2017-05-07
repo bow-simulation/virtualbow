@@ -17,8 +17,9 @@ public:
         // Widgets
 
         auto series_view = new SeriesView("Length [m]", "Curvature [m⁻¹]", data.profile_segments);
-
         auto plot = new ProfileView(data);
+
+        //QObject::connect()
 
         auto hbox0 = new QHBoxLayout();
         hbox0->addStretch();
