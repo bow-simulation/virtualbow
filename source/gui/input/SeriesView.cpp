@@ -68,17 +68,17 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocItem<S
         }
     });
 
-    QObject::connect(bt_insert_below, &QPushButton::clicked, [this]()
+    QObject::connect(bt_insert_below, &QPushButton::clicked, [this]
     {
         insertRow(false);
     });
 
-    QObject::connect(bt_insert_above, &QPushButton::clicked, [this]()
+    QObject::connect(bt_insert_above, &QPushButton::clicked, [this]
     {
         insertRow(true);
     });
 
-    QObject::connect(bt_delete, &QPushButton::clicked, [this]()
+    QObject::connect(bt_delete, &QPushButton::clicked, [this]
     {
         if(!deleteSelectedRows())
         {
@@ -86,7 +86,7 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocItem<S
         }
     });
 
-    QObject::connect(table, &QTableWidget::itemSelectionChanged, [&]()
+    QObject::connect(table, &QTableWidget::itemSelectionChanged, [&]
     {
         std::vector<int> rows;
         for(int i = 0; i < table->rowCount(); ++i)

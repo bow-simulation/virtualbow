@@ -5,7 +5,8 @@ MassElement::MassElement(Node nd, double m, double I)
       m(m),
       I(I)
 {
-
+    assert(m >= 0.0);
+    assert(I >= 0.0);
 }
 
 void MassElement::set_node(Node nd)

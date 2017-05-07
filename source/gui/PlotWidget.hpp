@@ -32,7 +32,7 @@ public:
         QObject::connect(this, &QCustomPlot::customContextMenuRequested, [&](QPoint pos)
         {
             auto menu = new QMenu(this);
-            menu->addAction("Export as...", this, [&]()
+            menu->addAction("Export as...", this, [&]
             {
                 const char* PNG_FILE  = "PNG image (*.png)";
                 const char* BMP_FILE  = "BMP image (*.bmp)";
@@ -97,7 +97,7 @@ public:
 
         // Handle aspect ratio
 
-        QObject::connect(this, &QCustomPlot::beforeReplot, [&]()
+        QObject::connect(this, &QCustomPlot::beforeReplot, [&]
         {
             switch(aspect_policy)
             {

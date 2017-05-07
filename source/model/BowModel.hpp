@@ -138,7 +138,8 @@ public:
                              (input.operation_draw_length - input.operation_brace_height)*100.0);
         }
 
-        output.statics = std::make_unique<StaticData>(states);
+        if(!task.isCanceled())
+            output.statics = std::make_unique<StaticData>(states);
     }
 
     void simulate_dynamics(TaskState& task)
@@ -149,7 +150,7 @@ public:
         double T = std::numeric_limits<double>::max();
         double alpha = input.settings_time_span_factor;     // Todo: Magic number // Todo: Make this a setting
 
-        DynamicSolver solver1(system, input.settings_time_step_factor, input.settings_sampling_time, [&]()
+        DynamicSolver solver1(system, input.settings_time_step_factor, input.settings_sampling_time, [&]
         {
             double ut = node_arrow[1].u();
             if(ut >= input.operation_brace_height)
@@ -185,14 +186,15 @@ public:
         node_arrow = system.create_node(nodes_string[0], {DofType::Fixed, DofType::Active, DofType::Fixed});
         system.element_mut<MassElement>("mass arrow").set_node(node_arrow);
 
-        DynamicSolver solver2(system, input.settings_time_step_factor, input.settings_sampling_time, [&]()
+        DynamicSolver solver2(system, input.settings_time_step_factor, input.settings_sampling_time, [&]
         {
             return system.t() >= alpha*T;
         });
 
         run_solver(solver2);
 
-        output.dynamics = std::make_unique<DynamicData>(states, *output.statics);
+        if(!task.isCanceled())
+            output.dynamics = std::make_unique<DynamicData>(states, *output.statics);
     }
 
     void get_bow_state(BowStates& states) const

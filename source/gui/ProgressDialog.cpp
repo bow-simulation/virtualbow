@@ -68,7 +68,7 @@ int ProgressDialog::exec()
     // http://stackoverflow.com/questions/233127/how-can-i-propagate-exceptions-between-threads
 
     std::exception_ptr exception = nullptr;
-    std::thread thread([&]()
+    std::thread thread([&]
     {
         try
         {
@@ -76,7 +76,7 @@ int ProgressDialog::exec()
             {
                 TaskState state;
                 QObject::connect(&state, &TaskState::progressChanged, pbars[i], &QProgressBar::setValue, Qt::QueuedConnection);
-                QObject::connect(this, &QDialog::rejected, [&](){ state.cancel(); });
+                QObject::connect(this, &QDialog::rejected, [&]{ state.cancel(); });
                 //QObject::connect(this, &QDialog::rejected, &state, &TaskState::cancel, Qt::QueuedConnection); // Todo: Why doesn't this shit work?
 
                 tasks[i](state);

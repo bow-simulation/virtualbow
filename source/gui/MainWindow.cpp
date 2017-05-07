@@ -38,12 +38,12 @@ MainWindow:: MainWindow(const QString& path)
     auto action_run_statics = new QAction(QIcon(":/icons/arrow-yellow"), "Statics...", this);
     action_run_statics->setShortcut(Qt::Key_F5);
     action_run_statics->setMenuRole(QAction::NoRole);
-    QObject::connect(action_run_statics, &QAction::triggered, [&](){ runSimulation(false); });    // Todo: Use std::bind
+    QObject::connect(action_run_statics, &QAction::triggered, [&]{ runSimulation(false); });    // Todo: Use std::bind
 
     auto action_run_dynamics = new QAction(QIcon(":/icons/arrow-green"), "Dynamics...", this);
     action_run_dynamics->setShortcut(Qt::Key_F6);
     action_run_dynamics->setMenuRole(QAction::NoRole);
-    QObject::connect(action_run_dynamics, &QAction::triggered, [&](){ runSimulation(true); });    // Todo: Use std::bind
+    QObject::connect(action_run_dynamics, &QAction::triggered, [&]{ runSimulation(true); });    // Todo: Use std::bind
 
     auto action_about = new QAction(QIcon(":/icons/dialog-information"), "&About...", this);
     connect(action_about, &QAction::triggered, this, &MainWindow::about);
