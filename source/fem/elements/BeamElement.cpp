@@ -8,7 +8,8 @@ BeamElement::BeamElement(Node nd0, Node nd1, double rhoA, double L)
       L(L),
       C(Eigen::Matrix<double, 3, 3>::Zero())
 {
-
+    assert(rhoA > 0.0);
+    assert(L > 0.0);
 }
 
 void BeamElement::set_reference_angles(double phi_ref_0, double phi_ref_1)
@@ -22,13 +23,14 @@ void BeamElement::set_stiffness(double Cee, double Ckk, double Cek)
     C << Cee,    -Cek,     Cek,
         -Cek, 4.0*Ckk, 2.0*Ckk,
          Cek, 2.0*Ckk, 4.0*Ckk;
+
+    // Todo: Assert that C > 0
 }
 
 // p in [0, 1]
 double BeamElement::get_epsilon(double p) const
 {
     auto e = get_e();
-
     return e(0)/L;
 }
 
@@ -36,7 +38,6 @@ double BeamElement::get_epsilon(double p) const
 double BeamElement::get_kappa(double p) const
 {
     auto e = get_e();
-
     return (6.0*p - 4.0)/L*e(1) + (6.0*p - 2.0)/L*e(2);
 }
 
@@ -84,13 +85,13 @@ void BeamElement::get_tangent_stiffness(MatrixView<Dof> K) const
 
     Eigen::Matrix<double, 3, 6> dJ0;
     dJ0 << -b0, -b2, 0.0, b0,  b2, 0.0,
-            -b5,  b3, 0.0, b5, -b3, 0.0,
-            -b5,  b3, 0.0, b5, -b3, 0.0;
+           -b5,  b3, 0.0, b5, -b3, 0.0,
+           -b5,  b3, 0.0, b5, -b3, 0.0;
 
     Eigen::Matrix<double, 3, 6> dJ1;
     dJ1 << -b2, -b1, 0.0, b2,  b1, 0.0,
-            -b4,  b5, 0.0, b4, -b5, 0.0,
-            -b4,  b5, 0.0, b4, -b5, 0.0;
+           -b4,  b5, 0.0, b4, -b5, 0.0,
+           -b4,  b5, 0.0, b4, -b5, 0.0;
 
     Eigen::Matrix<double, 6, 6> Kn = Eigen::Matrix<double, 6, 6>::Zero();
     Kn.col(0) =  1.0/L*dJ0.transpose()*C*e;
@@ -104,7 +105,6 @@ void BeamElement::get_tangent_stiffness(MatrixView<Dof> K) const
 double BeamElement::get_potential_energy() const
 {
     auto e = get_e();
-
     return 0.5/L*e.transpose()*C*e;
 }
 

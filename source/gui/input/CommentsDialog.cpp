@@ -20,7 +20,7 @@ CommentsDialog::CommentsDialog(QWidget* parent, InputData& data)
     auto btbox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     vbox->addWidget(btbox);
 
-    QObject::connect(btbox, &QDialogButtonBox::accepted, [this]()
+    QObject::connect(btbox, &QDialogButtonBox::accepted, [this]
     {
         this->data.meta_comments = edit->toPlainText().toStdString();
         this->accept();

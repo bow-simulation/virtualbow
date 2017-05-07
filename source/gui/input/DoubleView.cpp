@@ -11,12 +11,12 @@ DoubleView::DoubleView(DocItem<double>& doc_item)
         }
     });
 
-    QObject::connect(this, &QLineEdit::textEdited, [this]()
+    QObject::connect(this, &QLineEdit::textEdited, [this]
     {
         getValue(false);
     });
 
-    QObject::connect(this, &QLineEdit::editingFinished, [this]()
+    QObject::connect(this, &QLineEdit::editingFinished, [this]
     {
         getValue(true);
     });

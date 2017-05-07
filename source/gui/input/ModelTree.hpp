@@ -15,7 +15,7 @@ public:
     std::function<void()> action;
 
     template<class parent_t>
-    TreeItem(parent_t* parent, const QString& name, const QIcon& icon, const std::function<void()>& action = [](){})
+    TreeItem(parent_t* parent, const QString& name, const QIcon& icon, const std::function<void()>& action = []{})
         : QTreeWidgetItem(parent, {name}),
           action(action)
     {
@@ -28,13 +28,13 @@ class ModelTree: public QTreeWidget
 public:
     ModelTree(InputData& data)
     {
-        new TreeItem(this, "Comments", QIcon(":/icons/model-tree/comments"), [&]()
+        new TreeItem(this, "Comments", QIcon(":/icons/model-tree/comments"), [&]
         {
             CommentsDialog dialog(this, data);
             dialog.exec();
         });
 
-        new TreeItem(this, "Settings", QIcon(":/icons/model-tree/settings"), [&]()
+        new TreeItem(this, "Settings", QIcon(":/icons/model-tree/settings"), [&]
         {
             NumberDialog dialog(this, "Settings");
 
@@ -55,25 +55,25 @@ public:
 
         auto item_parameters = new TreeItem(this, "Parameters", QIcon(":/icons/model-tree/parameters"));
 
-        new TreeItem(item_parameters, "Profile", QIcon(":/icons/model-tree/profile"), [&]()
+        new TreeItem(item_parameters, "Profile", QIcon(":/icons/model-tree/profile"), [&]
         {
             ProfileDialog dialog(this, data);
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, "Width", QIcon(":/icons/model-tree/width"), [&]()
+        new TreeItem(item_parameters, "Width", QIcon(":/icons/model-tree/width"), [&]
         {
             WidthDialog dialog(this, data);
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, "Height", QIcon(":/icons/model-tree/height"), [&]()
+        new TreeItem(item_parameters, "Height", QIcon(":/icons/model-tree/height"), [&]
         {
             HeightDialog dialog(this, data);
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, "Material", QIcon(":/icons/model-tree/material"), [&]()
+        new TreeItem(item_parameters, "Material", QIcon(":/icons/model-tree/material"), [&]
         {
             NumberDialog dialog(this, "Material");
             dialog.addField("rho:", "kg/m³", data.sections_rho);    // Todo: Use unicode character (\u2374). Problem: Windows
@@ -81,7 +81,7 @@ public:
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, "String", QIcon(":/icons/model-tree/string"), [&]()
+        new TreeItem(item_parameters, "String", QIcon(":/icons/model-tree/string"), [&]
         {
             NumberDialog dialog(this, "String");
             dialog.addField("Strand stiffness:", "N/100%", data.string_strand_stiffness);
@@ -90,7 +90,7 @@ public:
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, "Masses", QIcon(":/icons/model-tree/masses"), [&]()
+        new TreeItem(item_parameters, "Masses", QIcon(":/icons/model-tree/masses"), [&]
         {
             NumberDialog dialog(this, "Masses");
             dialog.addField("String center:", "kg", data.mass_string_center);
@@ -99,7 +99,7 @@ public:
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, "Operation", QIcon(":/icons/model-tree/operation"), [&]()
+        new TreeItem(item_parameters, "Operation", QIcon(":/icons/model-tree/operation"), [&]
         {
             NumberDialog dialog(this, "Operation");
             dialog.addField("Brace height:", "m", data.operation_brace_height);

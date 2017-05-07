@@ -35,7 +35,7 @@ Slider::Slider(const std::vector<double>& values, const QString& text)
         emit valueChanged(index);
     });
 
-    QObject::connect(edit, &QLineEdit::editingFinished, [=]()
+    QObject::connect(edit, &QLineEdit::editingFinished, [=]
     {
         double val= QLocale::c().toDouble(edit->text());
         double min = values.front();

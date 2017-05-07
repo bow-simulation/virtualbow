@@ -155,7 +155,7 @@ public:
             qInfo() << "Double click";
         });
 
-        QObject::connect(button, &QPushButton::clicked, [&]()
+        QObject::connect(button, &QPushButton::clicked, [&]
         {
             qInfo() << "Add tab";
         });
