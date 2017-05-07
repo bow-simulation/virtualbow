@@ -97,6 +97,19 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocItem<S
 
         emit this->selectionChanged(rows);
     });
+
+    /*
+    QObject::connect(table->selectionModel(), &QItemSelectionModel::selectionChanged, [&](const QItemSelection& selected, const QItemSelection& deselected)
+    {
+        for(auto model_index: selected.indexes())
+        {
+            int row = model_index.row();
+            int col = model_index.column();
+
+
+        }
+    });
+    */
 }
 
 void SeriesView::keyPressEvent(QKeyEvent* event)

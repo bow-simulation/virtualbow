@@ -47,7 +47,7 @@ void ProgressDialog::addTask(const QString& name, TaskFunction task)
     // Create new progress bar
     auto pbar = new QProgressBar();
     pbar->setTextVisible(false);
-    pbar->setMinimumWidth(300);    // Todo: Magic number
+    pbar->setMinimumWidth(350);    // Todo: Magic number
 
     // Insert bar and label above button box
     int i = vbox->count()-2;

@@ -101,11 +101,11 @@ void EnergyPlot::updatePlot()
         };
 
         // Todo: Make this a for-each loop with tuples and c++17 structured bindings and shit
-        add_energy(states.e_pot_limbs, "Limbs (Pot)", QColor(0, 0, 255, 180));
-        add_energy(states.e_kin_limbs, "Limbs (Kin)", QColor(40, 40, 255, 180));
-        add_energy(states.e_pot_string, "String (Pot)", QColor(128, 0, 128, 180));
-        add_energy(states.e_kin_string, "String (Kin)", QColor(128, 40, 128, 180));
-        add_energy(states.e_kin_arrow, "Arrow (Kin)", QColor(255, 0, 0, 180));
+        add_energy(states.e_pot_limbs, "Limbs (Pot)", QColor(0, 0, 255, 150));
+        add_energy(states.e_kin_limbs, "Limbs (Kin)", QColor(40, 40, 255, 150));
+        add_energy(states.e_pot_string, "String (Pot)", QColor(128, 0, 128, 150));
+        add_energy(states.e_kin_string, "String (Kin)", QColor(128, 40, 128, 150));
+        add_energy(states.e_kin_arrow, "Arrow (Kin)", QColor(255, 0, 0, 150));
     }
     else
     {
