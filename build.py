@@ -2,9 +2,9 @@ import os
 import sys
 import urllib.request
 import tarfile
+import subprocess
 
 def download_and_extract(path, url):
-    
     # If path already exists, do nothing. Otherwise create it and proceed.
     if os.path.exists(path):
         return
@@ -32,7 +32,111 @@ def download_and_extract(path, url):
                 tarinfo.name = tarinfo.name[len(prefix):]
                 tar.extract(tarinfo, path)
 
-# def build_qt(source, destination):
+def build_qt(source_dir, build_dir):
+    # If build directory already exists, do nothing.
+    if os.path.exists(build_dir):
+        return
+
+    # Remember current directory and make sure source and build paths are absolute
+    current_dir = os.getcwd()
+    source_dir = os.path.abspath(source_dir)
+    build_dir = os.path.abspath(build_dir)
+
+    # Change into source directory
+    os.chdir(source_dir)
+
+    # Install necessary libraries (http://doc.qt.io/qt-5/linux-requirements.html)
+    #subprocess.call(["apt", "install",
+    #"libfontconfig1-dev",
+    #"libfreetype6-dev",
+    #"libx11-dev",
+    #"libxext-dev",
+    #"libxfixes-dev",
+    #"libxi-dev",
+    #"libxrender-dev",
+    #"libxcb1-dev",
+    #"libx11-xcb-dev",
+    #"libxcb-glx0-dev"])
+
+    subprocess.call(["apt", "install",
+    "^libxcb.*",
+    "libx11-dev",
+    "libx11-xcb-dev",
+    "libxcursor-dev",
+    "libxrender-dev",
+    "libxrandr-dev",
+    "libxext-dev",
+    "libxi-dev",
+    "libxss-dev",
+    "libxt-dev",
+    "libxv-dev",
+    "libxxf86vm-dev",
+    "libxinerama-dev",
+    "libxkbcommon-dev",
+    "libfontconfig1-dev",
+    "libasound2-dev",
+    "libpulse-dev",
+    "libdbus-1-dev",
+    "udev",
+    "mtdev-tools",
+    "webp",
+    "libudev-dev",
+    "libglm-dev",
+    "libwayland-dev",
+    "libegl1-mesa-dev",
+    "mesa-common-dev",
+    "libgl1-mesa-dev",
+    "libglu1-mesa-dev",
+    "libgles2-mesa", 
+    "libgles2-mesa-dev",
+    "libmirclient-dev",
+    "libproxy-dev",
+    "libgtk2.0-dev"])
+
+    # Install some more libraries, because why not? (https://wiki.qt.io/Install_Qt_5_on_Ubuntu, http://stackoverflow.com/questions/18794201/using-qt-without-opengl)
+    #subprocess.call(["apt", "install",
+    #"libglu1-mesa-dev",
+    #"mesa-common-dev"])
+
+    # http://doc.qt.io/qt-5.8/configure-options.html
+    subprocess.call(["./configure",
+    "-prefix", build_dir, "-opensource", "-confirm-license",
+    "-static", "-release", "-platform linux-g++",
+    "-qt-xcb", "-qt-zlib", "-qt-pcre", "-qt-libpng", "-qt-libjpeg", "-qt-libjpeg", "-qt-freetype", "-qt-sql-sqlite", "-no-openssl",
+    "-make libs", "-nomake", "tools", "-nomake", "examples", "-nomake", "tests"])
+
+    # Todo: Skip building unneccessary stuff, see -skip here: http://doc.qt.io/qt-5.8/configure-options.html
+    # https://forum.qt.io/topic/65629/qt-5-6-linux-compile-fails/3
+    # https://doc.qt.io/qt-5/qtgui-attribution-harfbuzz-ng.html
+    # http://lists.qt-project.org/pipermail/interest/2016-April/022323.html
+
+    subprocess.call(["make"])
+    subprocess.call(["make", "install"])
+
+    # Change back to original directory
+    os.chdir(current_dir)
+
+def build_vtk(source_dir, build_dir, qt_dir):
+    # If build directory already exists, do nothing.
+    if os.path.exists(build_dir):
+        return
+
+    # http://stackoverflow.com/a/24435795/4692009
+    subprocess.call(["cmake",
+    "-H" + source_dir,
+    "-B" + build_dir,
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DBUILD_SHARED_LIBS=OFF",
+    "-DBUILD_TESTING=OFF",
+    "-DVTK_Group_Qt=ON",
+    "-DVTK_QT_VERSION=5",
+    "-DQT_QMAKE_EXECUTABLE=" + qt_dir + "/bin",
+    "-DQt5_DIR=" + qt_dir + "/lib/cmake/Qt5"])
+
+    subprocess.call(["make", "-C", build_dir])
+
+# def build_application(build_dir):
+
 
 # Eigen (http://eigen.tuxfamily.org)
 download_and_extract("build/eigen", "http://bitbucket.org/eigen/eigen/get/3.3.3.tar.gz")
@@ -47,7 +151,9 @@ download_and_extract("build/jsoncons", "https://github.com/danielaparker/jsoncon
 download_and_extract("build/boost", "https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz")
 
 # Qt (https://www.qt.io/)
-download_and_extract("build/qt-source", "http://download.qt.io/official_releases/qt/5.8/5.8.0/single/qt-everywhere-opensource-src-5.8.0.tar.gz")
+download_and_extract("build/qt-source", "http://download.qt.io/official_releases/qt/5.7/5.7.1/single/qt-everywhere-opensource-src-5.7.0.tar.gz")
+build_qt("build/qt-source", "build/qt")
 
 # VTK (http://www.vtk.org/)
 download_and_extract("build/vtk-source", "https://gitlab.kitware.com/stfnp/vtk/repository/archive.tar.gz?ref=vtkcamera-horizontal-parallel-scale")
+build_vtk("build/vtk-source", "build/vtk", "build/qt")

@@ -4,20 +4,10 @@ project(bow-simulator)
 
 # Dependencies
 
-set(EIGEN_DIR CACHE FILEPATH "Eigen 3.3.1 directory (http://eigen.tuxfamily.org)")
-include_directories(${EIGEN_DIR})
-
-set(CATCH_DIR CACHE FILEPATH "Catch 1.5.9 directory (https://github.com/philsquared/Catch)")
-include_directories(${CATCH_DIR}/include)
-
-set(JSONCONS_DIR CACHE FILEPATH "Jsoncons 0.99.5 directory (https://github.com/danielaparker/jsoncons)")
-include_directories(${JSONCONS_DIR}/src)
-
-set(BOOST_DIR CACHE FILEPATH "Boost 1.62.0 directory (http://www.boost.org)")
-include_directories(${BOOST_DIR})
-
-set(QWT_DIR CACHE FILEPATH "Qwt 6.1.3 directory (https://sourceforge.net/projects/qwt/)")
-include_directories(${QWT_DIR}/src)
+include_directories("build/eigen")
+include_directories("build/catch/include")
+include_directories("build/jsoncons/src")
+include_directories("build/boost")
 
 find_package(VTK 7.1.0 REQUIRED)
 include(${VTK_USE_FILE})
@@ -83,10 +73,8 @@ add_executable(${PROJECT_NAME}
     source/numerics/Series.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} ${QWT_DIR}/lib/libqwt.so)
 target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::PrintSupport)
-
 
 # Install
 
