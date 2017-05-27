@@ -102,5 +102,5 @@ download_and_extract("build/qt-source", "http://download.qt.io/official_releases
 build_qt()
 
 # VTK (http://www.vtk.org/)
-download_and_extract("build/vtk-source", "https://gitlab.kitware.com/stfnp/vtk/repository/archive.tar.gz?ref=vtkcamera-horizontal-parallel-scale")
-build_vtk()
+#download_and_extract("build/vtk-source", "https://gitlab.kitware.com/stfnp/vtk/repository/archive.tar.gz?ref=vtkcamera-horizontal-parallel-scale")
+#build_vtk()

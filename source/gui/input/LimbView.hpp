@@ -1,210 +1,367 @@
 #pragma once
-#include "gui/input/LimbSource.hpp"
 #include "model/Document.hpp"
 #include "model/LimbProperties.hpp"
-#include <QtWidgets>
 
-#include <QVTKWidget.h>
-#include <vtkSmartPointer.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
-#include <vtkProperty.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkCamera.h>
-#include <vtkAxesActor.h>
-#include <vtkOrientationMarkerWidget.h>
+#include <Qt3DCore>
+#include <Qt3DRender>
+#include <Qt3DInput>
+#include <Qt3DExtras>
 
-// Todo
-// - Anti-aliasing
-// - Edge tracing
-// - Coordinate axes
-// - ...
+class ModelEntity: public Qt3DCore::QEntity
+{
+public:
+    ModelEntity(QNode* parent = nullptr)
+        : Qt3DCore::QEntity(parent)
+    {
+        // Geometry
+
+        vertices = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::VertexBuffer, this);
+        normals = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::VertexBuffer, this);
+        indices = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::IndexBuffer, this);
+
+        Qt3DRender::QAttribute *positionAttribute = new Qt3DRender::QAttribute();
+        positionAttribute->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
+        positionAttribute->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
+        positionAttribute->setBuffer(vertices);
+        ///positionAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
+        ///positionAttribute->setVertexSize(3);
+        positionAttribute->setByteOffset(0);
+        positionAttribute->setByteStride(3*sizeof(float));
+        positionAttribute->setCount(n_vertices);
+
+        Qt3DRender::QAttribute *normalAttribute = new Qt3DRender::QAttribute();
+        normalAttribute->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
+        normalAttribute->setName(Qt3DRender::QAttribute::defaultNormalAttributeName());
+        normalAttribute->setBuffer(normals);
+        ///normalAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
+        ///normalAttribute->setVertexSize(3);
+        normalAttribute->setByteOffset(0);
+        normalAttribute->setByteStride(3*sizeof(float));
+        normalAttribute->setCount(n_vertices);
+
+        Qt3DRender::QAttribute *indexAttribute = new Qt3DRender::QAttribute();
+        indexAttribute->setAttributeType(Qt3DRender::QAttribute::IndexAttribute);
+        indexAttribute->setBuffer(indices);
+        ///indexAttribute->setVertexBaseType(Qt3DRender::QAttribute::UnsignedShort);
+        ///indexAttribute->setVertexSize(1);
+        indexAttribute->setByteOffset(0);
+        indexAttribute->setByteStride(0);
+        indexAttribute->setCount(n_indices);
+
+        Qt3DRender::QGeometry* geometry = new Qt3DRender::QGeometry;
+        geometry->addAttribute(positionAttribute);
+        geometry->addAttribute(normalAttribute);
+        geometry->addAttribute(indexAttribute);
+
+        // Mesh renderer
+
+        Qt3DRender::QGeometryRenderer* renderer = new Qt3DRender::QGeometryRenderer;
+        renderer->setGeometry(geometry);
+        //renderer->setPrimitiveType(Qt3DRender::QGeometryRenderer::Points);
+
+        //renderer->setInstanceCount(1);
+        //renderer->setIndexOffset(0);
+        //renderer->setFirstInstance(0);
+        //renderer->setPrimitiveType(Qt3DRender::QGeometryRenderer::Triangles);
+        //renderer->setVertexCount(12);
+
+        // Material
+
+        Qt3DExtras::QPhongMaterial *material = new Qt3DExtras::QPhongMaterial;
+        material->setDiffuse(0x000066); // Magic number
+
+        // Transform
+
+        Qt3DCore::QTransform *transform = new Qt3DCore::QTransform;
+
+        this->addComponent(renderer);
+        this->addComponent(material);
+        this->addComponent(transform);
+    }
+
+    void update(const InputData& input)
+    {
+        this->setEnabled(true);
+
+        try
+        {
+            // Interpolate and sample geometric data
+            Curve2D profile = ArcCurve::sample(input.profile_segments, input.profile_x0, input.profile_y0, input.profile_phi0, n_segments);
+            Series width = CubicSpline::sample(input.sections_width, n_segments);
+            Series height = CubicSpline::sample(input.sections_height, n_segments);
+
+            // Update vertex and index buffers
+            setGeometryData(profile, width, height);
+        }
+        catch(const std::runtime_error&)  // Todo
+        {
+            this->setEnabled(false);
+        }
+    }
+
+    void setGeometryData(const Curve2D& profile, const Series& width, const Series& height)
+    {
+        // Vertex, normal and index arrays
+
+        QByteArray vertex_array;
+        vertex_array.resize(3*n_vertices*sizeof(float));
+        float* vertex_data = reinterpret_cast<float*>(vertex_array.data());
+
+        QByteArray normal_array;
+        normal_array.resize(3*n_vertices*sizeof(float));
+        float* normal_data = reinterpret_cast<float*>(normal_array.data());
+
+        QByteArray index_array;
+        index_array.resize(n_indices*sizeof(ushort));
+        ushort* index_data = reinterpret_cast<ushort*>(index_array.data());
+
+        // Calculate vertices and normals
+
+        size_t iv = 0;
+        size_t in = 0;
+        for(size_t i = 0; i <= n_segments; ++i)
+        {
+            // Curve point, tangent and normal
+
+            QVector3D p(profile.x[i], profile.y[i], 0.0f);
+            QVector3D t(std::cos(profile.phi[i]), std::sin(profile.phi[i]), 0.0f);
+            QVector3D n(-std::sin(profile.phi[i]), std::cos(profile.phi[i]), 0.0f);
+
+            // Cross section vertices
+
+            QVector3D p0 = p - QVector3D(0.0f, 0.0f, 0.5*width.val(i));
+            QVector3D p1 = p + QVector3D(0.0f, 0.0f, 0.5*width.val(i));
+            QVector3D p2 = p0 + height.val(i)*n;
+            QVector3D p3 = p1 + height.val(i)*n;
+
+            // Surface normals
+
+            QVector3D n0 = (QVector3D(0.0f, 0.0f, -1.0f) - n).normalized();
+            QVector3D n1 = (QVector3D(0.0f, 0.0f,  1.0f) - n).normalized();
+            QVector3D n2 = (QVector3D(0.0f, 0.0f, -1.0f) + n).normalized();
+            QVector3D n3 = (QVector3D(0.0f, 0.0f,  1.0f) + n).normalized();
+
+            if(i == 0)
+            {
+                n0 = (QVector3D(0.0f, 0.0f, -1.0f) - n - t).normalized();
+                n1 = (QVector3D(0.0f, 0.0f,  1.0f) - n - t).normalized();
+                n2 = (QVector3D(0.0f, 0.0f, -1.0f) + n - t).normalized();
+                n3 = (QVector3D(0.0f, 0.0f,  1.0f) + n - t).normalized();
+            }
+            else if(i == n_segments)
+            {
+                n0 = (QVector3D(0.0f, 0.0f, -1.0f) - n + t).normalized();
+                n1 = (QVector3D(0.0f, 0.0f,  1.0f) - n + t).normalized();
+                n2 = (QVector3D(0.0f, 0.0f, -1.0f) + n + t).normalized();
+                n3 = (QVector3D(0.0f, 0.0f,  1.0f) + n + t).normalized();
+            }
+
+            // Write data to array    // Todo: More elegant solution?
+
+            vertex_data[iv++] = p0.x(); vertex_data[iv++] = p0.y(); vertex_data[iv++] = p0.z();
+            vertex_data[iv++] = p1.x(); vertex_data[iv++] = p1.y(); vertex_data[iv++] = p1.z();
+            vertex_data[iv++] = p2.x(); vertex_data[iv++] = p2.y(); vertex_data[iv++] = p2.z();
+            vertex_data[iv++] = p3.x(); vertex_data[iv++] = p3.y(); vertex_data[iv++] = p3.z();
+
+            normal_data[in++] = n0.x(); normal_data[in++] = n0.y(); normal_data[in++] = n0.z();
+            normal_data[in++] = n1.x(); normal_data[in++] = n1.y(); normal_data[in++] = n1.z();
+            normal_data[in++] = n2.x(); normal_data[in++] = n2.y(); normal_data[in++] = n2.z();
+            normal_data[in++] = n3.x(); normal_data[in++] = n3.y(); normal_data[in++] = n3.z();
+        }
+
+        // Calculate indices
+
+        qInfo() << "-----------";
+
+        size_t ii = 0;
+        for(size_t i = 0; i < n_segments; ++i)
+        {
+            size_t i0 = 4*i;        // Beginning index of first section
+            size_t i1 = i0 + 4;     // Beginning index of second section
+
+            if(i == 0)
+            {
+                index_data[ii++] = i0 + 0; index_data[ii++] = i0 + 1; index_data[ii++] = i0 + 2;
+                index_data[ii++] = i0 + 1; index_data[ii++] = i0 + 3; index_data[ii++] = i0 + 2;
+            }
+            else if(i == n_segments - 1)
+            {
+                index_data[ii++] = i1 + 2; index_data[ii++] = i1 + 1; index_data[ii++] = i1 + 0;
+                index_data[ii++] = i1 + 2; index_data[ii++] = i1 + 3; index_data[ii++] = i1 + 1;
+            }
+
+            index_data[ii++] = i0 + 3; index_data[ii++] = i0 + 1; index_data[ii++] = i1 + 1;
+            index_data[ii++] = i1 + 1; index_data[ii++] = i1 + 3; index_data[ii++] = i0 + 3;
+
+            index_data[ii++] = i0 + 0; index_data[ii++] = i0 + 2; index_data[ii++] = i1 + 0;
+            index_data[ii++] = i1 + 2; index_data[ii++] = i1 + 0; index_data[ii++] = i0 + 2;
+
+            index_data[ii++] = i0 + 2; index_data[ii++] = i0 + 3; index_data[ii++] = i1 + 3;
+            index_data[ii++] = i1 + 3; index_data[ii++] = i1 + 2; index_data[ii++] = i0 + 2;
+
+            index_data[ii++] = i0 + 1; index_data[ii++] = i0 + 0; index_data[ii++] = i1 + 1;
+            index_data[ii++] = i1 + 0; index_data[ii++] = i1 + 1; index_data[ii++] = i0 + 0;
+        }
+
+/*
+        index_data[0] = 0;
+        index_data[1] = 1;
+        index_data[2] = 2;
+
+        index_data[3] = 1;
+        index_data[4] = 3;
+        index_data[5] = 2;
+*/
+
+        // Assign data to buffers
+
+        vertices->setData(vertex_array);
+        normals->setData(normal_array);
+        indices->setData(index_array);
+    }
+
+    /*
+    void setGeometryData(const Curve& profile, const Series& width, const Series& height)
+    {
+        // Vertices
+
+        QByteArray vertex_array;
+        vertex_array.resize(3*n_vertices*sizeof(float));
+        float* vertex_data = reinterpret_cast<float*>(vertex_array.data());
+
+        vertex_data[0] = 0.0f;
+        vertex_data[1] = 0.0f;
+        vertex_data[2] = 0.0f;
+
+        vertex_data[3] = 1.0f;
+        vertex_data[4] = 0.0f;
+        vertex_data[5] = 0.0f;
+
+        vertex_data[6] = 1.0f;
+        vertex_data[7] = 1.0f;
+        vertex_data[8] = 0.0f;
+
+        vertex_data[9] = 0.0f;
+        vertex_data[10] = 1.0f;
+        vertex_data[11] = 0.0f;
+
+        vertices->setData(vertex_array);
+
+        // Normals
+
+        QByteArray normal_array;
+        normal_array.resize(3*n_vertices*sizeof(float));
+        float* normal_data = reinterpret_cast<float*>(normal_array.data());
+
+        normal_data[0] = 0.0f;
+        normal_data[1] = 0.0f;
+        normal_data[2] = 1.0f;
+
+        normal_data[3] = 0.0f;
+        normal_data[4] = 0.0f;
+        normal_data[5] = 1.0f;
+
+        normal_data[6] = 0.0f;
+        normal_data[7] = 0.0f;
+        normal_data[8] = 1.0f;
+
+        normal_data[9] = 0.0f;
+        normal_data[10] = 0.0f;
+        normal_data[11] = 1.0f;
+
+        normals->setData(normal_array);
+
+         // Indices
+
+        QByteArray index_array;
+        index_array.resize(2*3*sizeof(ushort));
+        ushort* raw_index_array = reinterpret_cast<ushort *>(index_array.data());
+
+        raw_index_array[0] = 0;
+        raw_index_array[1] = 1;
+        raw_index_array[2] = 2;
+
+        raw_index_array[3] = 2;
+        raw_index_array[4] = 3;
+        raw_index_array[5] = 0;
+
+        indices->setData(index_array);
+    }
+    */
+
+private:
+    const static unsigned n_segments = 100; // Todo: Magic number
+    const static unsigned n_vertices = 4*(n_segments + 1);
+    const static unsigned n_indices = 3*(8*n_segments + 4);     // Three times number of triangles
+
+    Qt3DRender::QBuffer* vertices;
+    Qt3DRender::QBuffer* normals;
+    Qt3DRender::QBuffer* indices;
+};
 
 class InputData;
 
-class LimbView: public QVTKWidget
+class LimbView: public Qt3DExtras::Qt3DWindow
 {
 public:
     LimbView(InputData& data)
         : data(data)
     {
-        source = vtkSmartPointer<LimbSource>::New();
+        auto *scene = new Qt3DCore::QEntity();
 
-        auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-        mapper->SetInputConnection(source->GetOutputPort());
+        // Camera
+        auto *camera = this->camera();
+        //camera->lens()->setOrthographicProjection(-3.0f, 3.0f, -1.0f, 1.0f, 0.1f, 100.0f);
+        camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
+        camera->setPosition({-0.3f, -0.1f, 0.1f});
+        camera->setViewCenter({0.0f, 0.0f, 0.0f});
+/*
+        camera->setLeft(0.0f);
+        camera->setRight(0.8f);
+        camera->setBottom(-0.2f);
+        camera->setTop(0.2f);
+        camera->setNearPlane(0.1f);
+        camera->setFarPlane(10.0f);
+*/
+        // Camera controls
+        auto *camController = new Qt3DExtras::QFirstPersonCameraController(scene);  //new Qt3DExtras::QOrbitCameraController(scene);
+        camController->setLinearSpeed(2.0f);
+        camController->setLookSpeed(100.0f);
+        camController->setCamera(camera);
 
-        // Right limb
-        actor_r = vtkSmartPointer<vtkActor>::New();
-        actor_r->SetMapper(mapper);
-        actor_r->GetProperty()->SetFrontfaceCulling(false);    // Todo: Why is the face orientation wrong inside QVTKWidget?! (http://stackoverflow.com/questions/24131430/vtk-6-1-and-qt-5-3-3d-objects-in-qvtkwidget-with-bad-transparencies)
-        actor_r->GetProperty()->SetBackfaceCulling(true);
-        actor_r->GetProperty()->SetColor(1.0, 0.8, 0.4);
-        
-        // Left limb
-        actor_l = vtkSmartPointer<vtkActor>::New();
-        actor_l->SetMapper(mapper);
-        actor_l->GetProperty()->SetFrontfaceCulling(false);
-        actor_l->GetProperty()->SetBackfaceCulling(true);
-        actor_l->GetProperty()->SetColor(1.0, 0.8, 0.4);
-        actor_l->SetOrientation(0.0, 180.0, 0.0);
-        actor_l->SetVisibility(false);
+        // Light
+        //Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(scene);
+        Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(scene);
+        light->setColor(0xffffff);
+        light->setIntensity(1.0f);
+        //lightEntity->addComponent(light);
+        //Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
+        //lightTransform->setTranslation(camera->position());
+        //lightEntity->addComponent(lightTransform);
+        camera->addComponent(light);
 
-        renderer = vtkSmartPointer<vtkRenderer>::New();
-        this->GetRenderWindow()->AddRenderer(renderer);
-        renderer->AddActor(actor_l);
-        renderer->AddActor(actor_r);
-        renderer->SetBackground(0.2, 0.3, 0.4);
-        renderer->SetUseFXAA(true);    // Todo: What if this is not supported (or can that be reasonably assumed?)
+        // Model
+        ModelEntity* model = new ModelEntity(scene);
 
-        // Integration of vtkOrientationMarkerWidget and QVTKWidget
-        // http://vtk.markmail.org/message/cgkqlbz3jgmn6h3z?q=vtkOrientationMarkerWidget+qvtkwidget
-        widget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
-        widget->SetInteractor(this->GetInteractor());
-        widget->SetDefaultRenderer(renderer);
-        widget->SetOrientationMarker(vtkSmartPointer<vtkAxesActor>::New());
-        widget->SetEnabled(true);
-        widget->SetInteractive(false);
-
-        auto camera = renderer->GetActiveCamera();
-        camera->SetParallelProjection(true);
-        camera->SetUseHorizontalParallelScale(true);
-
-        // Buttons
-
-        auto button0 = new QToolButton();
-        QObject::connect(button0, &QPushButton::clicked, this, &LimbView::viewProfile);
-        button0->setIcon(QIcon(":/icons/limb-view/view-profile"));
-        button0->setToolTip("Profile view");
-        button0->setIconSize({32, 32});
-
-        auto button1 = new QToolButton();
-        QObject::connect(button1, &QPushButton::clicked, this, &LimbView::viewTop);
-        button1->setIcon(QIcon(":/icons/limb-view/view-top"));
-        button1->setToolTip("Top view");
-        button1->setIconSize({32, 32});
-
-        auto button2 = new QToolButton();
-        QObject::connect(button2, &QPushButton::clicked, this, &LimbView::view3D);
-        button2->setIcon(QIcon(":/icons/limb-view/view-3d"));
-        button2->setToolTip("3D view");
-        button2->setIconSize({32, 32});
-
-        auto button3 = new QToolButton();
-        QObject::connect(button3, &QPushButton::clicked, this, &LimbView::viewFit);
-        button3->setIcon(QIcon(":/icons/limb-view/view-fit"));
-        button3->setToolTip("Fit view");
-        button3->setIconSize({32, 32});
-
-        auto button4 = new QToolButton();
-        QObject::connect(button4, &QToolButton::toggled, this, &LimbView::viewSymmetric);
-        button4->setIcon(QIcon(":/icons/limb-view/view-symmetric"));
-        button4->setToolTip("Show complete bow");
-        button4->setIconSize({32, 32});
-        button4->setCheckable(true);
-
-        auto hbox = new QHBoxLayout();
-        hbox->setAlignment(Qt::AlignBottom);
-        hbox->addStretch();
-        hbox->addWidget(button0);
-        hbox->addWidget(button1);
-        hbox->addWidget(button2);
-        hbox->addWidget(button3);
-        hbox->addSpacing(20);
-        hbox->addWidget(button4);
-        this->setLayout(hbox);
+        this->defaultFrameGraph()->setClearColor(0x4d4d4f);
+        this->setRootEntity(scene);
 
         // Event handling
-        // Todo: Use std::bind or something...
-        connections.push_back(data.profile_segments.connect([&](const Series&){ updateLimbSource(); }));
-        connections.push_back(      data.profile_x0.connect([&](const double&){ updateLimbSource(); }));
-        connections.push_back(      data.profile_y0.connect([&](const double&){ updateLimbSource(); }));
-        connections.push_back(    data.profile_phi0.connect([&](const double&){ updateLimbSource(); }));
-        connections.push_back(  data.sections_width.connect([&](const Series&){ updateLimbSource(); }));
-        connections.push_back( data.sections_height.connect([&](const Series&){ updateLimbSource(); }));
-
-        // Default view
-        view3D();
+        // Todo: Use std::bind?
+        connections.push_back(data.profile_segments.connect([model, &data](const Series&){ model->update(data); }));
+        connections.push_back(      data.profile_x0.connect([model, &data](const double&){ model->update(data); }));
+        connections.push_back(      data.profile_y0.connect([model, &data](const double&){ model->update(data); }));
+        connections.push_back(    data.profile_phi0.connect([model, &data](const double&){ model->update(data); }));
+        connections.push_back(  data.sections_width.connect([model, &data](const Series&){ model->update(data); }));
+        connections.push_back( data.sections_height.connect([model, &data](const Series&){ model->update(data); }));
     }
 
 private:
-    vtkSmartPointer<LimbSource> source;
-    vtkSmartPointer<vtkActor> actor_r;
-    vtkSmartPointer<vtkActor> actor_l;
-    vtkSmartPointer<vtkRenderer> renderer;
-    vtkSmartPointer<vtkOrientationMarkerWidget> widget;
-
     InputData& data;
     std::vector<Connection> connections;
 
-    void updateLimbSource()
+    void update()
     {
-        try
-        {
-            source->SetLimbData(LimbProperties(data, 150));    // Magic number
-            this->GetInteractor()->Render();
-        }
-        catch(std::runtime_error& e)
-        {
-            // Input data invalid, do nothing. Leave geometry in previous state until the input is valid again.
-        }
-    }
-
-    // Adjust orientation widget's viewport on resize to keep it at a constant screen size
-    virtual void resizeEvent(QResizeEvent* event) override
-    {
-        const int size = 200;   // Magic number
-        widget->SetViewport(0.0, 0.0, double(size)/event->size().width(), double(size)/event->size().height());
-    }
-
-    virtual QSize sizeHint() const
-    {
-        return {900, 600};    // Magic numbers  // Todo: Remove
-    }
-
-     // phi: Azimuth, theta: elevation.
-     // Camera position: Ry(phi)*Rz(-theta)*[1, 0, 0].
-     // Camera view up: Ry(phi)*Rz(-theta)*[0,-1, 0].
-    void setCameraPosition(double phi, double theta)
-    {
-        using namespace std;
-
-        auto camera = renderer->GetActiveCamera();
-        camera->SetFocalPoint(0.0, 0.0, 0.0);
-        camera->SetPosition(cos(phi)*cos(theta), -sin(theta), -sin(phi)*cos(theta));
-        camera->SetViewUp(-cos(phi)*sin(theta), -cos(theta), sin(phi)*sin(theta));
-    }
-
-    void viewProfile()
-    {
-        setCameraPosition(M_PI_2, 0.0);
-        viewFit();
-    }
-
-    void viewTop()
-    {
-        setCameraPosition(M_PI_2, M_PI_2);
-        viewFit();
-    }
-
-    // Todo: Take window size into account and rotate so that the bow goes from the top left corner to bottom right
-    void view3D()
-    {
-        setCameraPosition(0.9, 0.5);
-        viewFit();
-    }
-
-    void viewSymmetric(bool checked)
-    {
-        actor_l->SetVisibility(checked);
-        viewFit();
-    }
-
-    void viewFit()
-    {
-        renderer->ResetCamera();
-        renderer->GetActiveCamera()->Zoom(0.98);   // Magic number
-
-        this->GetInteractor()->Render();    // http://vtk.markmail.org/message/nyq3dwlyfrivrqac
+        qInfo() << "Update!";
     }
 };
