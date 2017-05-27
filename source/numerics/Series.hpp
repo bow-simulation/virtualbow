@@ -30,11 +30,11 @@ public:
     Series flip(bool vertical);  // Todo: Use enum instead of bool and a better name
 
 
-private:
+//private:
     std::vector<double> m_args;
     std::vector<double> m_vals;
 
-    template<typename> friend class jsoncons::json_type_traits;
+    //template<typename> friend class jsoncons::json_type_traits;
 };
 
 namespace jsoncons

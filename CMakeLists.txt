@@ -2,19 +2,39 @@ cmake_minimum_required(VERSION 3.5.1)
 set(CMAKE_CXX_STANDARD 14)
 project(bow-simulator)
 
-# Dependencies
+# Eigen
+set(EIGEN_DIR "build/eigen" CACHE FILEPATH "Eigen directory")
+include_directories(${EIGEN_DIR})
 
-include_directories("build/eigen")
-include_directories("build/catch/include")
-include_directories("build/jsoncons/src")
-include_directories("build/boost")
+# Catch
+set(CATCH_DIR "build/catch" CACHE FILEPATH "Catch directory")
+include_directories(${CATCH_DIR}/include)
 
-find_package(VTK 7.1.0 REQUIRED)
+# Jsonsons
+set(JSONCONS_DIR "build/jsoncons" CACHE FILEPATH "Jsoncons directory")
+include_directories(${JSONCONS_DIR}/src)
+
+# Boost
+set(BOOST_DIR "build/boost" CACHE FILEPATH "Boost directory")
+include_directories(${BOOST_DIR})
+
+# VTK
+find_package(VTK 7.1.0 REQUIRED PATHS "build/vtk")
 include(${VTK_USE_FILE})
 
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5X11Extras REQUIRED)
-find_package(Qt5PrintSupport REQUIRED)
+# Qt
+find_package(Qt5Core REQUIRED PATHS "build/qt/lib/cmake/Qt5Core")
+
+
+find_package(Qt5Widgets REQUIRED PATHS "build/qt/lib/cmake/Qt5Widgets")
+find_package(Qt5PrintSupport REQUIRED PATHS "build/qt/lib/cmake/Qt5PrintSupport")
+find_package(Qt5X11Extras PATHS "build/qt/lib/cmake/Qt5X11Extras")    # On Linux
+
+find_package(Qt5Core REQUIRED PATHS "build/qt/lib/cmake/Qt5Core")
+find_package(Qt5Gui REQUIRED PATHS "build/qt/lib/cmake/Qt5Gui")
+find_package(Qt5Sql REQUIRED PATHS "build/qt/lib/cmake/Qt5Sql")
+
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)   # Add resource files to sources, cmake does the rest
 set(CMAKE_AUTOUIC ON)
@@ -74,8 +94,7 @@ add_executable(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::PrintSupport)
+target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::PrintSupport Qt5::Core Qt5::Gui Qt5::Sql Qt5::X11Extras)
 
-# Install
-
-install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+#link_directories("build/qt/lib")
+#target_link_libraries(${PROJECT_NAME} libpng)
