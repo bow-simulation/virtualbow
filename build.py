@@ -42,6 +42,9 @@ def build_qt():
     subprocess.call(["apt", "install", "-y", "libfontconfig1-dev", "libfreetype6-dev", "libx11-dev", "libxext-dev",
     "libxfixes-dev", "libxi-dev", "libxrender-dev", "libxcb1-dev", "libx11-xcb-dev", "libxcb-glx0-dev"])
 
+    # Fontconfig: https://doc.qt.io/archives/qtextended4.4/buildsystem/over-configure-options-qt-1.html
+    subprocess.call(["apt", "install", "-y", "libfontconfig", "libfreetype"])
+
     # Install some more libraries, because why not? (https://wiki.qt.io/Install_Qt_5_on_Ubuntu, http://stackoverflow.com/questions/18794201/using-qt-without-opengl)
     subprocess.call(["apt", "install", "-y", "libglu1-mesa-dev", "mesa-common-dev"])
 
@@ -49,8 +52,9 @@ def build_qt():
     # https://forum.qt.io/topic/38062/disabling-webkit/4
     subprocess.call(["../qt-source/configure", "-prefix", os.path.abspath("../qt"),
     "-opensource", "-confirm-license", "-static", "-release", "-platform", "linux-g++",
-    "-qt-zlib", "-qt-libjpeg", "-qt-libpng", "-qt-xcb", "-qt-xkbcommon", "-qt-freetype", "-qt-pcre", "-qt-harfbuzz",
-    "-make", "libs", "-nomake", "tools", "-nomake", "examples", "-nomake", "tests"])
+    "-qt-zlib", "-qt-libjpeg", "-qt-libpng", "-qt-xcb", "-qt-xkbcommon", "-qt-pcre", "-qt-harfbuzz", "-system-freetype", "-fontconfig",
+    "-nomake", "tools", "-nomake", "examples", "-nomake", "tests",
+    "-skip", "qtdeclarative"])
 
     # Todo: Skip building more of the unneccessary stuff, see -skip here: http://doc.qt.io/qt-5.8/configure-options.html
     # https://forum.qt.io/topic/65629/qt-5-6-linux-compile-fails/3
@@ -58,7 +62,7 @@ def build_qt():
     # http://lists.qt-project.org/pipermail/interest/2016-April/022323.html
 
     subprocess.call(["make"])
-    subprocess.call(["make", "install"])
+    #subprocess.call(["make", "install"])
     os.chdir("../../")
 
 def build_vtk():
@@ -98,7 +102,7 @@ download_and_extract("build/jsoncons", "https://github.com/danielaparker/jsoncon
 download_and_extract("build/boost", "https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz")
 
 # Qt (https://www.qt.io/)
-download_and_extract("build/qt-source", "http://download.qt.io/official_releases/qt/5.7/5.7.1/single/qt-everywhere-opensource-src-5.7.1.tar.gz")
+download_and_extract("build/qt-source", "https://download.qt.io/development_releases/qt/5.9/5.9.0-beta4/single/qt-everywhere-opensource-src-5.9.0-beta4.tar.xz")
 build_qt()
 
 # VTK (http://www.vtk.org/)
