@@ -54,7 +54,8 @@ def build_qt():
     "-opensource", "-confirm-license", "-static", "-release", "-platform", "linux-g++",
     "-qt-zlib", "-qt-libjpeg", "-qt-libpng", "-qt-xcb", "-qt-xkbcommon", "-qt-pcre", "-qt-harfbuzz", "-system-freetype", "-fontconfig",
     "-nomake", "tools", "-nomake", "examples", "-nomake", "tests",
-    "-skip", "qtdeclarative"])
+    "-skip", "qtdeclarative",
+    "-skip", "qtwayland"])
 
     # Todo: Skip building more of the unneccessary stuff, see -skip here: http://doc.qt.io/qt-5.8/configure-options.html
     # https://forum.qt.io/topic/65629/qt-5-6-linux-compile-fails/3
@@ -102,7 +103,7 @@ download_and_extract("build/jsoncons", "https://github.com/danielaparker/jsoncon
 download_and_extract("build/boost", "https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz")
 
 # Qt (https://www.qt.io/)
-download_and_extract("build/qt-source", "https://download.qt.io/development_releases/qt/5.9/5.9.0-beta4/single/qt-everywhere-opensource-src-5.9.0-beta4.tar.xz")
+download_and_extract("build/qt-source", "http://download.qt.io/official_releases/qt/5.8/5.8.0/single/qt-everywhere-opensource-src-5.8.0.tar.gz")
 build_qt()
 
 # VTK (http://www.vtk.org/)

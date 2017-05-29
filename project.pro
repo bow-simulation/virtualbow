@@ -5,13 +5,13 @@ TEMPLATE = app
 
 # Todo: Remove opengl?
 QT += core gui widgets opengl printsupport
-QT += 3dcore 3drender 3dinput 3dlogic 3dextras 3danimation
+#QT += 3dcore 3drender 3dinput 3dlogic 3dextras 3danimation
 
 # Add project files
 
 RESOURCES += resources/resources.qrc
 INCLUDEPATH += source
-HEADERS += \ 
+HEADERS += \
     source/external/qcustomplot/qcustomplot.h \
     source/fem/elements/BarElement.hpp \
     source/fem/elements/BeamElement.hpp \
