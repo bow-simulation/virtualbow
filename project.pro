@@ -5,7 +5,8 @@ TEMPLATE = app
 
 # Todo: Remove opengl?
 QT += core gui widgets opengl printsupport
-#QT += 3dcore 3drender 3dinput 3dlogic 3dextras 3danimation
+# Todo: Remove what's not needed
+QT += 3dcore 3drender 3dinput 3dlogic 3dextras
 
 # Add project files
 

@@ -53,9 +53,7 @@ def build_qt():
     subprocess.call(["../qt-source/configure", "-prefix", os.path.abspath("../qt"),
     "-opensource", "-confirm-license", "-static", "-release", "-platform", "linux-g++",
     "-qt-zlib", "-qt-libjpeg", "-qt-libpng", "-qt-xcb", "-qt-xkbcommon", "-qt-pcre", "-qt-harfbuzz", "-system-freetype", "-fontconfig",
-    "-nomake", "tools", "-nomake", "examples", "-nomake", "tests",
-    "-skip", "qtdeclarative",
-    "-skip", "qtwayland"])
+    "-nomake", "tools", "-nomake", "examples", "-nomake", "tests"])
 
     # Todo: Skip building more of the unneccessary stuff, see -skip here: http://doc.qt.io/qt-5.8/configure-options.html
     # https://forum.qt.io/topic/65629/qt-5-6-linux-compile-fails/3
