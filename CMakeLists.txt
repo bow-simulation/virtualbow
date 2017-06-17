@@ -9,6 +9,9 @@ include_directories("build/catch/include")
 include_directories("build/jsoncons/src")
 include_directories("build/boost")
 
+find_package(VTK 7.1.0 REQUIRED PATHS "build/vtk")
+include(${VTK_USE_FILE})
+
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5X11Extras REQUIRED)
 find_package(Qt5PrintSupport REQUIRED)
@@ -46,7 +49,7 @@ add_executable(${PROJECT_NAME}
     source/gui/input/NumberGroup.cpp
     source/gui/input/SeriesView.cpp
     source/gui/input/LimbView.cpp
-    #source/gui/input/LimbSource.cpp
+    source/gui/input/LimbSource.cpp
     source/gui/input/SplineView.cpp
     source/gui/input/ProfileView.cpp
     source/gui/input/LimbView.cpp
@@ -70,6 +73,7 @@ add_executable(${PROJECT_NAME}
     source/numerics/Series.cpp
 )
 
+target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::PrintSupport)
 
 # Install
