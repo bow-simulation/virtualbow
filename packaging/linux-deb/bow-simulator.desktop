@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Bow Simulator
+Exec=bow-simulator
+Icon=icon.png
+Comment=Bow and arrow physics simulation
+Categories=Education;Science;NumericalAnalysis;Physics;Engineering;
+MimeType=application/json

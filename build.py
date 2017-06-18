@@ -3,6 +3,7 @@ import sys
 import urllib.request
 import tarfile
 import subprocess
+import shutil
 
 def download_and_extract(path, url):
     # If path already exists, do nothing. Otherwise create it and proceed.
@@ -64,6 +65,25 @@ def build_bow_simulator():
 
     subprocess.call(["make", "-C", "build/bow-simulator"])
 
+def package_linux_deb():
+    shutil.rmtree("build/package-deb")    # Remove    
+    
+    os.makedirs("build/package-deb/bow-simulator/usr/local/bin")
+    shutil.copy("build/bow-simulator/bow-simulator", "build/package-deb/bow-simulator/usr/local/bin")
+
+    os.makedirs("build/package-deb/bow-simulator/DEBIAN")
+    install = open("build/package-deb/bow-simulator/DEBIAN/control", "w")
+    
+    install.write("Package: bow-simulator\n"
+                  "Version: 0.2\n"
+                  "Section: base\n"
+                  "Priority: optional\n"
+                  "Architecture: amd64\n"
+                  "Maintainer: Stefan Pfeifer <s-pfeifer@gmx.net>\n"
+                  "Description: Bow and arrow physics simulation\n")
+    install.close()
+    
+    subprocess.call(["dpkg-deb", "--build", "build/package-deb/bow-simulator"])
 
 # Eigen (http://eigen.tuxfamily.org)
 download_and_extract("build/eigen", "http://bitbucket.org/eigen/eigen/get/3.3.3.tar.gz")
@@ -83,3 +103,5 @@ build_vtk()
 
 # Application
 build_bow_simulator()
+
+package_linux_deb()
