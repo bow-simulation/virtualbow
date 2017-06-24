@@ -1,15 +1,23 @@
 import os
 import sys
+import shutil
 import urllib.request
 import tarfile
-import subprocess
-import shutil
+import platform
 
+# Creates the directory 'path' if not present. Returns false if it already exists.
+def create_directory(path):
+    if os.path.exists(path):
+        return False
+    else:
+        os.makedirs(path)
+        return True
+
+# Download .tar.gz from url and extract it to path
 def download_and_extract(path, url):
     # If path already exists, do nothing. Otherwise create it and proceed.
-    if os.path.exists(path):
+    if not create_directory(path):
         return
-    os.makedirs(path)
 
     def write_progress(count, block_size, total_size):
        progress = round(100*count*block_size/total_size, 2)
@@ -33,75 +41,36 @@ def download_and_extract(path, url):
                 tarinfo.name = tarinfo.name[len(prefix):]
                 tar.extract(tarinfo, path)
 
-def build_vtk():
-    if os.path.exists("build/vtk"):
-        return
-    os.makedirs("build/vtk-build")
+# Download dependencies
 
-    subprocess.call(["apt", "install", "-y", "qtbase5-dev", "libqt5x11extras5-dev", "libxt-dev"])
+download_and_extract("build/eigen", "http://bitbucket.org/eigen/eigen/get/3.3.3.tar.gz")    # Eigen (http://eigen.tuxfamily.org)
+download_and_extract("build/catch", "https://github.com/philsquared/Catch/archive/v1.9.3.tar.gz")    # Catch (https://github.com/philsquared/Catch)
+download_and_extract("build/jsoncons", "https://github.com/danielaparker/jsoncons/archive/v0.99.7.2.tar.gz")    # Jsoncons (https://github.com/danielaparker/jsoncons)
+download_and_extract("build/boost", "https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz")    # Boost (http://www.boost.org/)
+download_and_extract("build/vtk/source", "https://gitlab.kitware.com/stfnp/vtk/repository/archive.tar.gz?ref=vtkcamera-horizontal-parallel-scale")    # VTK (http://www.vtk.org)
 
-    subprocess.call(["cmake",
-    "-Hbuild/vtk-source",
-    "-Bbuild/vtk-build",
-    "-DCMAKE_INSTALL_PREFIX=build/vtk",
-    "-DCMAKE_BUILD_TYPE=Release",
-    "-DBUILD_SHARED_LIBS=OFF",
-    "-DBUILD_TESTING=OFF",
-    "-DVTK_Group_Qt=ON",
-    "-DVTK_QT_VERSION=5"])
+# Build application depending on platform
 
-    subprocess.call(["make", "-C", "build/vtk-build"])
-    subprocess.call(["make", "install", "-C", "build/vtk-build"])
+if    platform.system() ==   "Linux": from platforms.linux.build   import *
+elif  platform.system() == "Windows": from platforms.windows.build import *
+elif  platform.system() ==  "Darwin": from platforms.mac_os.build  import *
+else: sys.exit(platform.system() + " is not a supported platform.");
 
-def build_bow_simulator():
-    if os.path.exists("build/bow-simulator"):
-        return
-    os.makedirs("build/bow-simulator")
+if create_directory("build/vtk/build"):
+    build_vtk("build/vtk/source", "build/vtk/build", "build/vtk")
 
-    subprocess.call(["cmake",
-    "-H.",
-    "-Bbuild/bow-simulator",
-    "-DCMAKE_BUILD_TYPE=Release"])
+if create_directory("build/bow-simulator/build"):
+    build_application(".", "build/bow-simulator/build", "build/bow-simulator")
 
-    subprocess.call(["make", "-C", "build/bow-simulator"])
+if create_directory("build/packages/build"):
+    build_packages("0.2", ".", "build/packages/build", "build/packages")
 
-def package_linux_deb():
-    shutil.rmtree("build/package-deb")    # Remove    
-    
-    os.makedirs("build/package-deb/bow-simulator/usr/local/bin")
-    shutil.copy("build/bow-simulator/bow-simulator", "build/package-deb/bow-simulator/usr/local/bin")
+# hello_world()
 
-    os.makedirs("build/package-deb/bow-simulator/DEBIAN")
-    install = open("build/package-deb/bow-simulator/DEBIAN/control", "w")
-    
-    install.write("Package: bow-simulator\n"
-                  "Version: 0.2\n"
-                  "Section: base\n"
-                  "Priority: optional\n"
-                  "Architecture: amd64\n"
-                  "Maintainer: Stefan Pfeifer <s-pfeifer@gmx.net>\n"
-                  "Description: Bow and arrow physics simulation\n")
-    install.close()
-    
-    subprocess.call(["dpkg-deb", "--build", "build/package-deb/bow-simulator"])
+# OS specifics
 
-# Eigen (http://eigen.tuxfamily.org)
-download_and_extract("build/eigen", "http://bitbucket.org/eigen/eigen/get/3.3.3.tar.gz")
+#build_vtk()
 
-# Catch (https://github.com/philsquared/Catch)
-download_and_extract("build/catch", "https://github.com/philsquared/Catch/archive/v1.9.3.tar.gz")
+#build_bow_simulator()
 
-# Jsoncons (https://github.com/danielaparker/jsoncons)
-download_and_extract("build/jsoncons", "https://github.com/danielaparker/jsoncons/archive/v0.99.7.2.tar.gz")
-
-# Boost (http://www.boost.org/)
-download_and_extract("build/boost", "https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz")
-
-# VTK (http://www.vtk.org/)
-download_and_extract("build/vtk-source", "https://gitlab.kitware.com/stfnp/vtk/repository/archive.tar.gz")
-build_vtk()
-
-# Application
-build_bow_simulator()
-
-package_linux_deb()
+#package_linux_deb()
