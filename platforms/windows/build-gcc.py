@@ -4,11 +4,10 @@ import subprocess
 import shutil
 
 def build_vtk(source_dir, build_dir, output_dir):
-    subprocess.call(["apt", "install", "-y", "qtbase5-dev", "libqt5x11extras5-dev", "libxt-dev"])
-
     subprocess.call(["cmake",
     "-H" + source_dir,
     "-B" + build_dir,
+	"-GMinGW Makefiles"
     "-DCMAKE_INSTALL_PREFIX=" + output_dir,
     "-DCMAKE_BUILD_TYPE=Release",
     "-DBUILD_SHARED_LIBS=OFF",

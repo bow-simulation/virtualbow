@@ -1,3 +1,17 @@
+#include <QApplication>
+#include <QPushButton>
+
+int main(int argc, char **argv)
+{
+ QApplication app (argc, argv);
+
+ QPushButton button ("Hello world !");
+ button.show();
+
+ return app.exec();
+}
+
+/*
 #include "gui/MainWindow.hpp"
 
 int main(int argc, char *argv[])
@@ -15,6 +29,7 @@ int main(int argc, char *argv[])
     
     return app.exec();
 }
+*/
 
 /*
 #include <iostream>

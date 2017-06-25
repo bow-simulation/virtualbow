@@ -12,8 +12,8 @@ include_directories("build/boost")
 find_package(VTK 7.1.0 REQUIRED PATHS "build/vtk")
 include(${VTK_USE_FILE})
 
+find_package(Qt5X11Extras)    # Why is this platform specific stuff needed on Linux? It's not even linked.
 find_package(Qt5Widgets REQUIRED)
-find_package(Qt5X11Extras REQUIRED)
 find_package(Qt5PrintSupport REQUIRED)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)   # Add resource files to sources, cmake does the rest

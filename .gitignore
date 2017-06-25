@@ -1,12 +1,12 @@
 # Build directory
+build/
 
-build
+# Python byte code
+__pycache__/
 
 # User settings for Qt creator
-
 *.user
 
 # Hidden files
-
 .*
 !/.gitignore
