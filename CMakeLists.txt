@@ -9,10 +9,10 @@ include_directories("build/catch/include")
 include_directories("build/jsoncons/src")
 include_directories("build/boost")
 
-find_package(VTK 7.1.0 REQUIRED PATHS "build/vtk")
+find_package(VTK REQUIRED PATHS "build/vtk")
 include(${VTK_USE_FILE})
 
-find_package(Qt5X11Extras)    # Why is this platform specific stuff needed on Linux? It's not even linked.
+# find_package(Qt5X11Extras)    # Why is this platform specific stuff needed on Linux? It's not even linked.
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5PrintSupport REQUIRED)
 set(CMAKE_AUTOMOC ON)

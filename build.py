@@ -52,7 +52,7 @@ download_and_extract("build/vtk/source", "https://gitlab.kitware.com/stfnp/vtk/r
 # Build application depending on platform
 
 if    platform.system() ==   "Linux": from platforms.linux.build   import *
-elif  platform.system() == "Windows": from platforms.windows.build import *
+elif  platform.system() == "Windows": from platforms.windows.build_nmake import *
 elif  platform.system() ==  "Darwin": from platforms.mac_os.build  import *
 else: sys.exit(platform.system() + " is not a supported platform.");
 

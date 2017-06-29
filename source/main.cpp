@@ -1,24 +1,10 @@
-#include <QApplication>
-#include <QPushButton>
-
-int main(int argc, char **argv)
-{
- QApplication app (argc, argv);
-
- QPushButton button ("Hello world !");
- button.show();
-
- return app.exec();
-}
-
-/*
 #include "gui/MainWindow.hpp"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     app.setApplicationDisplayName("Bow Simulator");
-    app.setApplicationVersion("0.2.0");
+    app.setApplicationVersion("0.2");
     app.setOrganizationDomain("https://bow-simulator.gitlab.io/");
     //app.setStyle("Windows");    // Todo: Use default style. Problem: GroupBox bug on Fusion theme (https://bugreports.qt.io/browse/QTBUG-44056)
     setlocale(LC_NUMERIC, "C");
@@ -29,7 +15,6 @@ int main(int argc, char *argv[])
     
     return app.exec();
 }
-*/
 
 /*
 #include <iostream>
