@@ -3,11 +3,11 @@ import sys
 import subprocess
 import shutil
 
-def build_vtk(source_dir, build_dir, output_dir):
+def build_vtk(build_dir, output_dir):
     subprocess.call(["apt", "install", "-y", "qtbase5-dev", "libqt5x11extras5-dev", "libxt-dev"])
 
     subprocess.call(["cmake",
-    "-H" + source_dir,
+    "-H" + ".",
     "-B" + build_dir,
     "-DCMAKE_INSTALL_PREFIX=" + output_dir,
     "-DCMAKE_BUILD_TYPE=Release",
@@ -29,20 +29,18 @@ def build_application(source_dir, build_dir, output_dir):
     subprocess.call(["make", "-C", build_dir])
     subprocess.call(["make", "install", "-C", build_dir])
 
-
-def build_packages(version, source_dir, build_dir, output_dir):
-    
+def build_install_files(output_dir):
     # Executable
-    os.makedirs(build_dir + "/package-deb/usr/local/bin")
-    shutil.copy("build/bow-simulator/bin/bow-simulator", build_dir + "/package-deb/usr/local/bin")
+    os.makedirs(output_dir + "/usr/local/bin")
+    shutil.copy("build/bow-simulator/bin/bow-simulator", output_dir + "/usr/local/bin")    # Todo: Repetition
     
     # Icon
-    os.makedirs(build_dir + "/package-deb/usr/share/pixmaps")
-    shutil.copyfile("resources/icons/logo.png", build_dir + "/package-deb/usr/share/pixmaps/bow-simulator.png")
+    os.makedirs(output_dir + "/usr/share/pixmaps")
+    shutil.copyfile("resources/icons/logo.png", output_dir + "/usr/share/pixmaps/bow-simulator.png")
 
     # Desktop file
-    os.makedirs(build_dir + "/package-deb/usr/share/applications")
-    desktop = open(build_dir + "/package-deb/usr/share/applications/bow-simulator.desktop", "w")
+    os.makedirs(output_dir + "/usr/share/applications")
+    desktop = open(output_dir + "/usr/share/applications/bow-simulator.desktop", "w")
     desktop.write("[Desktop Entry]\n"
                   "Type=Application\n"
                   "Name=Bow Simulator\n"
@@ -53,10 +51,13 @@ def build_packages(version, source_dir, build_dir, output_dir):
                   "MimeType=application/json\n")
     desktop.close()
 
-    # Debian control file
+def build_deb_package(version, build_dir, output_dir):
+    # Create directory structure that will be installed
+    build_install_files(build_dir)
 
-    os.makedirs(build_dir + "/package-deb/DEBIAN")
-    control = open(build_dir + "/package-deb/DEBIAN/control", "w")
+    # Create Debian control file
+    os.makedirs(build_dir + "/DEBIAN")
+    control = open(build_dir + "/DEBIAN/control", "w")
     control.write("Package: bow-simulator\n"
                   "Version: " + version + "\n"
                   "Architecture: " + "amd64" + "\n"
@@ -66,4 +67,12 @@ def build_packages(version, source_dir, build_dir, output_dir):
                   "Depends: qt5-default\n")
     control.close()
     
-    subprocess.call(["dpkg-deb", "--build", build_dir + "/package-deb", output_dir + "bow-simulator-" + version + "-" + "amd64" + ".deb"])
+    # Build package
+    subprocess.call(["dpkg-deb", "--build", build_dir, output_dir + "/bow-simulator-" + version + "-" + "amd64" + ".deb"])
+
+def build_rpm_package(version, build_dir, output_dir):
+    print("BUILD RPM PACKAGE")
+
+def build_packages(version, build_dir, output_dir):
+    build_deb_package(version, build_dir + "/build-deb", output_dir)
+    build_rpm_package(version, build_dir + "/build-rpm", output_dir)

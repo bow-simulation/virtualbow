@@ -60,17 +60,7 @@ if create_directory("build/vtk/build"):
     build_vtk("build/vtk/source", "build/vtk/build", "build/vtk")
 
 if create_directory("build/bow-simulator/build"):
-    build_application(".", "build/bow-simulator/build", "build/bow-simulator")
+    build_application("build/bow-simulator/build", "build/bow-simulator")
 
 if create_directory("build/packages/build"):
-    build_packages("0.2", ".", "build/packages/build", "build/packages")
-
-# hello_world()
-
-# OS specifics
-
-#build_vtk()
-
-#build_bow_simulator()
-
-#package_linux_deb()
+    build_packages("0.2", "build/packages/build", "build/packages")
