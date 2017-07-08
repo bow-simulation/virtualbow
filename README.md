@@ -5,4 +5,8 @@ Bow and arrow physics simulation. Visit https://bow-simulator.sourceforge.io/ fo
 
 # Prerequisites
 
-* Qt 5.7 (msvc2015 32bit)
+* Visual Studio Communitz 2015
+* Qt 5.8 (msvc2015 32bit)
+* Python
+* Cmake
+* Wix installer toolset
