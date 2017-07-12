@@ -23,7 +23,7 @@ set(CMAKE_AUTOUIC ON)
 
 include_directories(source)
 add_executable(${PROJECT_NAME}
-    source/main.cpp
+   source/main.cpp
    resources/resources.qrc
    source/external/qcustomplot/qcustomplot.cpp
 

@@ -29,11 +29,14 @@ def build_application(source_dir, build_dir, output_dir):
 	"-G" + generator,
     "-DCMAKE_INSTALL_PREFIX=" + output_dir,
 	"-DCMAKE_BUILD_TYPE=Release",
+    "-DCMAKE_WIN32_EXECUTABLE=ON",
 	"-DQt5Widgets_DIR=" + qt_path + "/lib/cmake/Qt5Widgets",
     "-DQt5PrintSupport_DIR=" + qt_path + "/lib/cmake/Qt5PrintSupport"])
 
     subprocess.call(["cmake", "--build", build_dir, "--target", "install"])
-    subprocess.call([qt_path + "/bin/windeployqt", output_dir + "/bin/bow-simulator.exe"])
-
+    subprocess.call([qt_path + "/bin/windeployqt", output_dir + "/bin/bow-simulator.exe",
+                     "--no-translations", "--no-compiler-runtime"])
+    subprocess.call(["rcedit", output_dir + "/bin/bow-simulator.exe", "--set-icon", "resources/icons/logo.ico"])
+    
 def build_packages(version, build_dir, output_dir):
     print("Build Packages")
