@@ -9,8 +9,8 @@ Bow and arrow physics simulation. Visit https://bow-simulator.sourceforge.io/ fo
 * Qt 5.9.1 (msvc2015 32bit)
 * Python
 * Cmake
-* Wix installer toolset
 * rcedit (https://github.com/electron/rcedit/releases)
+* Inno Setup (http://www.jrsoftware.org/isinfo.php)
 
 # Building
 

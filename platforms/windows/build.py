@@ -38,5 +38,8 @@ def build_application(source_dir, build_dir, output_dir):
                      "--no-translations", "--no-compiler-runtime"])
     subprocess.call(["rcedit", output_dir + "/bin/bow-simulator.exe", "--set-icon", "resources/icons/logo.ico"])
     
-def build_packages(version, build_dir, output_dir):
-    print("Build Packages")
+def build_packages(version, binary_dir, output_dir):
+    subprocess.call(["ISCC", "platforms/windows/setup.iss",
+                     "/O" + output_dir,
+                     "/F" + "bow_simulator-" + version  + "-win32",
+                     "/DBINARY_DIR=" + os.path.abspath(binary_dir)])
