@@ -35,7 +35,7 @@ def build_application(source_dir, build_dir, output_dir):
 
     subprocess.call(["cmake", "--build", build_dir, "--target", "install"])
     subprocess.call([qt_path + "/bin/windeployqt", output_dir + "/bin/bow-simulator.exe",
-                     "--no-translations", "--no-compiler-runtime"])
+                     "--no-translations"])
     subprocess.call(["rcedit", output_dir + "/bin/bow-simulator.exe", "--set-icon", "resources/icons/logo.ico"])
     
 def build_packages(version, binary_dir, output_dir):

@@ -26,7 +26,8 @@ UsePreviousTasks=no
 Name: english; MessagesFile: compiler:Default.isl
 
 [Files]
-Source: "{#BINARY_DIR}/*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#BINARY_DIR}/vcredist_x86.exe"; DestDir: {app}; Flags: deleteafterinstall
+Source: "{#BINARY_DIR}/*"; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: {group}\{#APP_NAME}; Filename: {app}\{#EXE_NAME}
@@ -43,4 +44,5 @@ Root: HKCR; Subkey: BowSimulatorModelFile\DefaultIcon; ValueType: string; ValueN
 Root: HKCR; Subkey: BowSimulatorModelFile\shell\open\command; ValueType: string; ValueName: ""; ValueData: "{app}\{#EXE_NAME} %1"; Tasks: FileAssociation 
 
 [Run]
+Filename: {app}\vcredist_x86.exe; Parameters: /quiet /install /norestart;
 Filename: {app}\{#EXE_NAME}; Description: "Launch Bow Simulator"; Flags: nowait postinstall skipifsilent
