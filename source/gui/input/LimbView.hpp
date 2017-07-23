@@ -40,7 +40,7 @@ public:
         actor_r->GetProperty()->SetFrontfaceCulling(false);    // Todo: Why is the face orientation wrong inside QVTKWidget?! (http://stackoverflow.com/questions/24131430/vtk-6-1-and-qt-5-3-3d-objects-in-qvtkwidget-with-bad-transparencies)
         actor_r->GetProperty()->SetBackfaceCulling(true);
         actor_r->GetProperty()->SetColor(1.0, 0.8, 0.4);
-        
+
         // Left limb
         actor_l = vtkSmartPointer<vtkActor>::New();
         actor_l->SetMapper(mapper);

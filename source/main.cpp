@@ -4,9 +4,9 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     app.setApplicationDisplayName("Bow Simulator");
-    app.setApplicationVersion("0.2.0");
+    app.setApplicationVersion("0.2");
     app.setOrganizationDomain("https://bow-simulator.gitlab.io/");
-    app.setStyle("Windows");    // Todo: Use default style. Problem: GroupBox bug on Fusion theme (https://bugreports.qt.io/browse/QTBUG-44056)
+    //app.setStyle("Windows");    // Todo: Use default style. Problem: GroupBox bug on Fusion theme (https://bugreports.qt.io/browse/QTBUG-44056)
     setlocale(LC_NUMERIC, "C");
 
     QStringList args = QApplication::arguments();

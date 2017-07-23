@@ -18,3 +18,4 @@ protected:
 private:
     LimbProperties limb;
 };
+

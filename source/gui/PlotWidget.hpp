@@ -32,7 +32,7 @@ public:
         QObject::connect(this, &QCustomPlot::customContextMenuRequested, [&](QPoint pos)
         {
             auto menu = new QMenu(this);
-            menu->addAction("Export as...", this, [&]
+            QObject::connect(menu->addAction("Export as..."), &QAction::triggered, [&]
             {
                 const char* PNG_FILE  = "PNG image (*.png)";
                 const char* BMP_FILE  = "BMP image (*.bmp)";
