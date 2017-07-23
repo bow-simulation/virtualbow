@@ -14,12 +14,12 @@ SplineView::SplineView(const QString& x_label, const QString& y_label, DocItem<S
 
     // Control points
     this->addGraph();
-    this->graph()->setScatterStyle({QCPScatterStyle::ssSquare, Qt::red, 6});
+    this->graph()->setScatterStyle({QCPScatterStyle::ssSquare, Qt::blue, 8});
     this->graph()->setLineStyle(QCPGraph::lsNone);
 
     // Selected points
     this->addGraph();
-    this->graph()->setScatterStyle({QCPScatterStyle::ssDisc, Qt::red, 8});
+    this->graph()->setScatterStyle({QCPScatterStyle::ssSquare, Qt::red, 8});
     this->graph()->setLineStyle(QCPGraph::lsNone);
 
 

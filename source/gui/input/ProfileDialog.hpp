@@ -17,7 +17,8 @@ public:
         // Widgets
 
         auto series_view = new SeriesView("Length [m]", "Curvature [m⁻¹]", data.profile_segments);
-        auto plot = new ProfileView(data);
+        auto profile_view = new ProfileView(data);
+        QObject::connect(series_view, &SeriesView::selectionChanged, profile_view, &ProfileView::setSelection);
 
         //QObject::connect()
 
@@ -44,7 +45,7 @@ public:
 
         auto vbox0 = new QVBoxLayout();
         //vbox0->setMargin(0);
-        vbox0->addWidget(plot, 1);
+        vbox0->addWidget(profile_view, 1);
         vbox0->addWidget(offsets);
 
         auto hbox1 = new QHBoxLayout();

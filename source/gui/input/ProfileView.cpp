@@ -18,7 +18,7 @@ ProfileView::ProfileView(InputData& data)
 
     // Segment nodes
     curve1 = new QCPCurve(this->xAxis, this->yAxis);
-    curve1->setScatterStyle({QCPScatterStyle::ssSquare, Qt::red, 6});
+    curve1->setScatterStyle({QCPScatterStyle::ssSquare, Qt::blue, 8});
     curve1->setLineStyle(QCPCurve::lsNone);
     curve1->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
 
@@ -29,6 +29,11 @@ ProfileView::ProfileView(InputData& data)
     connections.push_back(data.profile_y0.connect([this](const double&){ update(); }));
     connections.push_back(data.profile_phi0.connect([this](const double&){ update(); }));
     update();
+}
+
+void ProfileView::setSelection(const std::vector<int>& indices)
+{
+    // Todo: Do something
 }
 
 void ProfileView::update()
