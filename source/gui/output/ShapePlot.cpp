@@ -30,7 +30,7 @@ ShapePlot::ShapePlot(const BowSetup& setup, const BowStates& states, bool interm
     this->xAxis->setLabel("X [m]");
     this->yAxis->setLabel("Y [m]");
     this->yAxis->setRangeReversed(true);
-    this->setAspectPolicy(PlotWidget::SCALE_X);
+    this->setAspectPolicy(PlotWidget::SCALE_Y);
     setAxesRanges();
 }
 
