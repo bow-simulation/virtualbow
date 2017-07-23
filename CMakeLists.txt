@@ -16,9 +16,6 @@ include_directories(${JSONCONS_DIR}/src)
 set(BOOST_DIR CACHE FILEPATH "Boost 1.62.0 directory (http://www.boost.org)")
 include_directories(${BOOST_DIR})
 
-set(QWT_DIR CACHE FILEPATH "Qwt 6.1.3 directory (https://sourceforge.net/projects/qwt/)")
-include_directories(${QWT_DIR}/src)
-
 find_package(VTK 7.1.0 REQUIRED)
 include(${VTK_USE_FILE})
 
@@ -83,10 +80,8 @@ add_executable(${PROJECT_NAME}
     source/numerics/Series.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} ${QWT_DIR}/lib/libqwt.so)
 target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::PrintSupport)
-
 
 # Install
 

@@ -16,9 +16,9 @@ public:
     {    
         // Styling
 
-        this->xAxis2->setTickLabels(false);
+        this->xAxis2->setTicks(false);
+        this->yAxis2->setTicks(false);
         this->xAxis2->setVisible(true);
-        this->yAxis2->setTickLabels(false);
         this->yAxis2->setVisible(true);
 
         // Interaction
