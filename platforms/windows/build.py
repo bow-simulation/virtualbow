@@ -35,7 +35,9 @@ def build_application(source_dir, build_dir, output_dir):
 
     subprocess.call(["cmake", "--build", build_dir, "--target", "install"])
     subprocess.call([qt_path + "/bin/windeployqt", output_dir + "/bin/bow-simulator.exe",
-                     "--no-translations"])
+                     "--no-translations", "--no-compiler-runtime"])
+    shutil.copy("C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/redist/x86/Microsoft.VC140.CRT/msvcp140.dll", output_dir + "/bin")
+    shutil.copy("C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/redist/x86/Microsoft.VC140.CRT/vcruntime140.dll", output_dir + "/bin")
     subprocess.call(["rcedit", output_dir + "/bin/bow-simulator.exe", "--set-icon", "resources/icons/logo.ico"])
     
 def build_packages(version, build_dir, output_dir):
