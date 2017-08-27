@@ -4,6 +4,7 @@
 #include "output/OutputDialog.hpp"
 #include "model/BowModel.hpp"
 #include <thread>
+#include <json.hpp>
 
 MainWindow:: MainWindow(const QString& path)
     : input(path),
@@ -142,8 +143,20 @@ bool MainWindow::saveAs()
     return false;
 }
 
+#include <iostream>
+
 void MainWindow::runSimulation(bool dynamics)
 {
+    using nlohmann::json;
+
+    auto progress = [](unsigned p){
+        qInfo() << p;
+    };
+
+    json output = BowModel::run_dynamic_simulation(input, progress, progress);
+    std::cout << std::setw(4) << output;
+
+    /*
     OutputData output;
     BowModel model(input, output);
 
@@ -174,6 +187,7 @@ void MainWindow::runSimulation(bool dynamics)
     {
         QMessageBox::critical(this, "Error", e.what());
     }
+    */
 }
 
 void MainWindow::about()

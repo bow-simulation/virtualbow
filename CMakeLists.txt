@@ -6,7 +6,8 @@ project(bow-simulator)
 
 include_directories("build/eigen")
 include_directories("build/catch/include")
-include_directories("build/jsoncons/src")
+include_directories("build/jsoncons/src")    # Todo: Remove
+include_directories("build/json-develop/src")
 include_directories("build/boost")
 
 find_package(VTK REQUIRED PATHS "build/vtk")
@@ -30,7 +31,8 @@ add_executable(${PROJECT_NAME}
    source/fem/elements/BarElement.cpp
    source/fem/elements/BeamElement.cpp
    source/fem/elements/MassElement.cpp
-   source/fem/Element.cpp
+   source/fem/elements/ContactElement.cpp
+   source/fem/elements/ContactArea.cpp
    source/fem/Node.cpp
    source/fem/Solver.cpp
    source/fem/System.cpp
@@ -88,7 +90,8 @@ add_executable(tests
     source/fem/elements/BarElement.cpp
     source/fem/elements/BeamElement.cpp
     source/fem/elements/MassElement.cpp
-    source/fem/Element.cpp
+    source/fem/elements/ContactElement.cpp
+    source/fem/elements/ContactArea.cpp
     source/fem/Node.cpp
     source/fem/Solver.cpp
     source/fem/System.cpp

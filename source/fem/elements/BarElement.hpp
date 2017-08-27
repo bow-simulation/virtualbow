@@ -2,7 +2,7 @@
 #include "fem/Element.hpp"
 #include "fem/Node.hpp"
 
-class BarElement: public Element
+class BarElement: public ElementInterface
 {
 public:
     BarElement(Node nd0, Node nd1, double L, double EA, double etaA, double rhoA);

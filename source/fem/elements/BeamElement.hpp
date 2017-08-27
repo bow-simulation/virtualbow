@@ -2,7 +2,7 @@
 #include "fem/Element.hpp"
 #include "fem/Node.hpp"
 
-class BeamElement: public Element
+class BeamElement: public ElementInterface
 {
 public:
     BeamElement(Node nd0, Node nd1, double rhoA, double L);

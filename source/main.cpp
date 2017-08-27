@@ -1,3 +1,75 @@
+/*
+#include <json.hpp>
+#include <iostream>
+#include <fstream>
+
+using nlohmann::json;
+
+int main()
+{
+    json obj;
+    obj["test"]["b"] = {0.0, 1.0, 2.0, 3.0, 4.0};
+
+    std::cout << obj;
+
+    std::vector<uint8_t> buffer = json::to_msgpack(obj);
+
+    std::ofstream os("file.dat");
+    os.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
+
+    //os << json::to_msgpack(obj) << std::endl;
+
+    return 0;
+}
+*/
+
+/*
+#include "fem/System.hpp"
+#include "fem/Solver.hpp"
+#include "fem/elements/ContactElement.hpp"
+#include "fem/elements/MassElement.hpp"
+
+#include <Eigen/Dense>
+#include <iostream>
+
+int main()
+{
+    System system;
+    Node node_a = system.create_node({DofType::Fixed , DofType::Fixed , DofType::Fixed}, {-1.0, 0.0, 0.0});
+    Node node_b = system.create_node({DofType::Fixed , DofType::Fixed , DofType::Fixed}, { 1.0, 0.0, 0.0});
+    Node node_c = system.create_node({DofType::Active, DofType::Active, DofType::Fixed}, { 0.0, 1.0, 0.0});
+
+    system.add_element(ContactElement(node_a, node_b, node_c, 1.0, 0.0, 5000.0));
+
+    system.add_element(MassElement(node_c, 1.0, 0.0));
+    node_c[1].p_mut() = -10.0;
+
+    DynamicSolver solver(system, 0.1, 1e-3, [&]{ return system.t() >= 0.5; });
+    while(solver.step())
+    {
+        std::cout << node_c[0].u() << "," << node_c[1].u() << "\n";
+    }
+
+}
+*/
+
+
+/*
+Eigen::Vector2d p0{0.0, 0.0};
+Eigen::Vector2d p1{2.0, 1.0};
+Eigen::Vector2d p2{0.0, 1.0};
+
+auto orientation = [](auto p0, auto p2, auto p1)
+{
+    return (p1(0) - p0(0))*(p2(1) - p0(1)) - (p1(1) - p0(1))*(p2(0) - p0(0));
+};
+
+std::cout << orientation(p0, p1, p2);
+
+return 0;
+*/
+
+
 #include "gui/MainWindow.hpp"
 
 int main(int argc, char *argv[])
@@ -14,6 +86,7 @@ int main(int argc, char *argv[])
     
     return app.exec();
 }
+
 
 /*
 #include <iostream>
