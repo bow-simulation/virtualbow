@@ -1,37 +1,22 @@
 #pragma once
 #include <QtWidgets>
-#include <functional>
 
-class TaskState: public QObject
+class ProgressDialog: public QDialog
 {
     Q_OBJECT
 
 public:
-    TaskState();
-
-    bool isCanceled() const;
-    void setProgress(int value);
-    void cancel();
-
-signals:
-    void progressChanged(int value);
-
-private:
-    bool canceled;
-};
-
-typedef std::function<void(TaskState&)> TaskFunction;
-
-class ProgressDialog: public QDialog
-{
-public:
     ProgressDialog(QWidget* parent);
-    void closeEvent(QCloseEvent *event) override;
-    void addTask(const QString& name, TaskFunction task);
-    virtual int exec() override;
+    virtual void closeEvent(QCloseEvent *event) override;
+    virtual void reject() override;
+    bool isCanceled() const;
+    void addProgressBar(const QString& name);
+
+public slots:
+    void setProgress(int task, int value);
 
 private:
     QVBoxLayout* vbox;
     std::vector<QProgressBar*> pbars;
-    std::vector<TaskFunction> tasks;
+    bool canceled;
 };

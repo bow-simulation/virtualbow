@@ -40,6 +40,7 @@ add_executable(${PROJECT_NAME}
    source/gui/MainWindow.cpp
    source/gui/PlotWidget.cpp
    source/gui/ProgressDialog.cpp
+   source/gui/ProgressDialog.hpp    # moc
 
    source/gui/input/BowEditor.cpp
    source/gui/input/ModelTree.cpp
@@ -68,7 +69,7 @@ add_executable(${PROJECT_NAME}
    source/model/LimbProperties.cpp
    source/model/InputData.cpp
    source/model/OutputData.cpp
-   source/model/Document.hpp   # moc
+   source/model/Document.hpp    # moc
 
    source/numerics/ArcCurve.cpp
    source/numerics/CubicSpline.cpp

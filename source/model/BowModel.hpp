@@ -29,26 +29,26 @@ public:
     }
 
     template<typename F>
-    static json run_static_simulation(const InputData& input, const F& progress)
+    static json run_static_simulation(const InputData& input, const F& callback)
     {
         BowModel model(input);
 
         json output;
         model.simulate_setup(output);
-        model.simulate_statics(output, progress);
+        model.simulate_statics(output, callback);
 
         return output;
     }
 
-    template<typename F>
-    static json run_dynamic_simulation(const InputData& input, const F& progress1, const F& progress2)
+    template<typename F1, typename F2>
+    static json run_dynamic_simulation(const InputData& input, const F1& callback1, const F2& callback2)
     {
         BowModel model(input);
 
         json output;
         model.simulate_setup(output);
-        model.simulate_statics(output, progress1);
-        model.simulate_dynamics(output, progress2);
+        model.simulate_statics(output, callback1);
+        model.simulate_dynamics(output, callback2);
 
         return output;
     }
@@ -172,14 +172,17 @@ private:
     }
 
     template<typename F>
-    void simulate_statics(json& output, const F& progress)
+    void simulate_statics(json& output, const F& callback)
     {
         StaticSolverDC solver(system, nodes_string[0][1], input.operation_draw_length, input.settings_n_draw_steps);
         while(solver.step())
         {
             add_bow_state(output["statics"]["states"]);
-            progress((nodes_string[0][1].u() - input.operation_brace_height)/
-                     (input.operation_draw_length - input.operation_brace_height)*100.0);
+
+            int progress = (nodes_string[0][1].u() - input.operation_brace_height)/(input.operation_draw_length - input.operation_brace_height)*100.0;
+
+            if(!callback(progress))
+                return;
         }
 
         // Calculate scalar values
@@ -200,7 +203,7 @@ private:
     }
 
     template<typename F>
-    void simulate_dynamics(json& output, const F& progress)
+    void simulate_dynamics(json& output, const F& callback)
     {
         // Set draw force to zero    // Todo: Doesn't really belong in this method
         nodes_string[0][1].p_mut() = 0.0;
@@ -232,7 +235,8 @@ private:
             while(solver.step())
             {
                 add_bow_state(output["dynamics"]["states"]);
-                progress(100.0*system.t()/(alpha*T));
+                if(!callback(100.0*system.t()/(alpha*T)))
+                    return;
             }
         };
 
@@ -322,138 +326,12 @@ private:
         states["sigma upper"].push_back(limb.layers[0].sigma_upper(epsilon, kappa));
         states["sigma lower"].push_back(limb.layers[0].sigma_lower(epsilon, kappa));
     }
-/*
-    void simulate_dynamics2(TaskState& task)
-    {
-        // Set draw force to zero    // Todo: Doesn't really belong in this method
-        nodes_string[0][1].p_mut() = 0.0;
-
-        double T = std::numeric_limits<double>::max();
-        double alpha = input.settings_time_span_factor;     // Todo: Magic number // Todo: Make this a setting
-
-        DynamicSolver solver1(system, input.settings_time_step_factor, input.settings_sampling_time, [&]
-        {
-            double ut = node_arrow[1].u();
-            if(ut >= input.operation_brace_height)
-            {
-                double u0 = input.operation_draw_length;
-                double u1 = input.operation_brace_height;
-
-                if(ut != u0)
-                {
-                    T = system.t()*std::acos(u1/u0)/std::acos(ut/u0);    // Cosine approximation
-                    //T = system.get_time()*std::sqrt((u1 - u0)/(ut - u0));    // Quadratic approximation
-                }
-            }
-
-            return node_arrow[1].a() >= 0;
-            //return system.t() >= alpha*T;
-        });
-
-        BowStates states;
-        auto run_solver = [&](DynamicSolver& solver)
-        {
-            while(solver.step() && !task.isCanceled())
-            {
-                get_bow_state(states);
-                task.setProgress(100.0*system.t()/(alpha*T));
-            }
-        };
-
-        run_solver(solver1);
-
-        // Change model by giving the arrow an independent node with the initial position and velocity of the string center
-        // Todo: Would more elegant to remove the mass element from the system and create a new one with a new node.
-        node_arrow = system.create_node(nodes_string[0], {DofType::Fixed, DofType::Active, DofType::Fixed});
-        system.element_mut<MassElement>("mass arrow").set_node(node_arrow);
-
-        DynamicSolver solver2(system, input.settings_time_step_factor, input.settings_sampling_time, [&]
-        {
-            return system.t() >= alpha*T;
-        });
-
-        run_solver(solver2);
-
-        if(!task.isCanceled())
-            output.dynamics = std::make_unique<DynamicData>(states, *output.statics);
-    }
-*/
-
-/*
-    void get_bow_state(BowStates& states) const
-    {
-        states.time.push_back(system.t());
-        states.draw_force.push_back(2.0*nodes_string[0][1].p());
-        states.draw_length.push_back(nodes_string[0][1].u());
-
-        states.pos_arrow.push_back(input.operation_draw_length - node_arrow[1].u());
-        states.vel_arrow.push_back(-node_arrow[1].v());
-        states.acc_arrow.push_back(-node_arrow[1].a());
-
-        states.e_pot_limbs.push_back(2.0*system.get_potential_energy("limb", "mass limb tip"));
-        states.e_kin_limbs.push_back(2.0*system.get_kinetic_energy("limb", "mass limb tip"));
-        states.e_pot_string.push_back(2.0*system.get_potential_energy("string", "mass string tip", "mass string center"));
-        states.e_kin_string.push_back(2.0*system.get_kinetic_energy("string", "mass string tip", "mass string center"));
-        states.e_kin_arrow.push_back(2.0*system.get_kinetic_energy("mass arrow"));
-
-        // Arrow, limb and string coordinates
-
-        states.y_arrow.push_back(node_arrow[1].u());
-
-        states.x_limb.push_back(std::valarray<double>(nodes_limb.size()));
-        states.y_limb.push_back(std::valarray<double>(nodes_limb.size()));
-
-        for(size_t i = 0; i < nodes_limb.size(); ++i)
-        {
-            states.x_limb.back()[i] = nodes_limb[i][0].u();
-            states.y_limb.back()[i] = nodes_limb[i][1].u();
-        }
-
-        states.x_string.push_back(std::valarray<double>(nodes_string.size()));
-        states.y_string.push_back(std::valarray<double>(nodes_string.size()));
-
-        for(size_t i = 0; i < nodes_string.size(); ++i)
-        {
-            states.x_string.back()[i] = nodes_string[i][0].u();
-            states.y_string.back()[i] = nodes_string[i][1].u();
-        }
-
-        // Stresses
-
-        std::valarray<double> epsilon(nodes_limb.size());
-        std::valarray<double> kappa(nodes_limb.size());
-
-        auto elements = system.element_group<BeamElement>("limb");
-        for(size_t i = 0; i < nodes_limb.size(); ++i)
-        {
-            if(i == 0)
-            {
-                epsilon[i] = elements[i].get_epsilon(0.0);
-                kappa[i] = elements[i].get_kappa(0.0);
-            }
-            else if(i == nodes_limb.size()-1)
-            {
-                epsilon[i] = elements[i-1].get_epsilon(1.0);
-                kappa[i] = elements[i-1].get_kappa(1.0);
-            }
-            else
-            {
-                epsilon[i] = 0.5*(elements[i-1].get_epsilon(1.0) + elements[i].get_epsilon(0.0));
-                kappa[i] = 0.5*(elements[i-1].get_kappa(1.0) + elements[i].get_kappa(0.0));
-            }
-        }
-
-        states.sigma_upper.push_back(limb.layers[0].sigma_upper(epsilon, kappa));
-        states.sigma_lower.push_back(limb.layers[0].sigma_lower(epsilon, kappa));
-    }
-*/
 
 private:
     const InputData& input;
     LimbProperties limb;
 
     System system;
-
     std::vector<Node> nodes_limb;
     std::vector<Node> nodes_string;
     Node node_arrow;

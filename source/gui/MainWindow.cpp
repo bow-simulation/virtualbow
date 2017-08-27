@@ -5,6 +5,7 @@
 #include "model/BowModel.hpp"
 #include <thread>
 #include <json.hpp>
+#include "Thread.hpp"
 
 MainWindow:: MainWindow(const QString& path)
     : input(path),
@@ -144,17 +145,79 @@ bool MainWindow::saveAs()
 }
 
 #include <iostream>
+#include <thread>
 
 void MainWindow::runSimulation(bool dynamics)
 {
     using nlohmann::json;
 
-    auto progress = [](unsigned p){
-        qInfo() << p;
-    };
+    ProgressDialog dialog(this);
+    dialog.addProgressBar("Statics");
+    if(dynamics)
+    {
+        dialog.addProgressBar("Dynamics");
+    }
 
-    json output = BowModel::run_dynamic_simulation(input, progress, progress);
-    std::cout << std::setw(4) << output;
+    json output;
+    std::exception_ptr exception = nullptr;
+    std::thread thread([&]
+    {
+        auto progress0 = [&](int p){
+            QMetaObject::invokeMethod(&dialog, "setProgress", Qt::QueuedConnection, Q_ARG(int, 0), Q_ARG(int, p));
+            return !dialog.isCanceled();
+        };
+
+        auto progress1 = [&](int p){
+            QMetaObject::invokeMethod(&dialog, "setProgress", Qt::QueuedConnection, Q_ARG(int, 1), Q_ARG(int, p));
+            return !dialog.isCanceled();
+        };
+
+        try
+        {
+            output = dynamics ? BowModel::run_dynamic_simulation(input, progress0, progress1)
+                              : BowModel::run_static_simulation(input, progress0);
+
+            QMetaObject::invokeMethod(&dialog, "accept", Qt::QueuedConnection);
+        }
+        catch(...)
+        {
+            exception = std::current_exception();
+            QMetaObject::invokeMethod(&dialog, "reject", Qt::QueuedConnection);
+        }
+    });
+
+    dialog.exec();
+    thread.join();
+
+    //if(exception)
+    //    std::rethrow_exception(exception);
+
+    /*
+    switch(dialog.exec())
+    {
+    case QDialog::Accepted:
+
+    case QDialog::Rejected:
+    }
+    */
+
+    /*
+    try
+    {
+        if(dialog.exec() == QDialog::Accepted)
+        {
+            OutputDialog results(this, output);
+            results.exec();
+        }
+    }
+    catch(const std::runtime_error& e)
+    {
+        QMessageBox::critical(this, "Error", e.what());
+    }
+    */
+
+
+    //std::cout << std::setw(4) << output;
 
     /*
     OutputData output;
