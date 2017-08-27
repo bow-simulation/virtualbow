@@ -147,13 +147,13 @@ bool MainWindow::saveAs()
 #include <iostream>
 #include <thread>
 
-void MainWindow::runSimulation(bool dynamics)
+void MainWindow::runSimulation(bool dynamic)
 {
     using nlohmann::json;
 
     ProgressDialog dialog(this);
     dialog.addProgressBar("Statics");
-    if(dynamics)
+    if(dynamic)
     {
         dialog.addProgressBar("Dynamics");
     }
@@ -174,8 +174,8 @@ void MainWindow::runSimulation(bool dynamics)
 
         try
         {
-            output = dynamics ? BowModel::run_dynamic_simulation(input, progress0, progress1)
-                              : BowModel::run_static_simulation(input, progress0);
+            output = dynamic ? BowModel::run_dynamic_simulation(input, progress0, progress1)
+                             : BowModel::run_static_simulation(input, progress0);
 
             QMetaObject::invokeMethod(&dialog, "accept", Qt::QueuedConnection);
         }
@@ -186,71 +186,26 @@ void MainWindow::runSimulation(bool dynamics)
         }
     });
 
-    dialog.exec();
-    thread.join();
-
-    //if(exception)
-    //    std::rethrow_exception(exception);
-
-    /*
-    switch(dialog.exec())
-    {
-    case QDialog::Accepted:
-
-    case QDialog::Rejected:
-    }
-    */
-
-    /*
     try
     {
-        if(dialog.exec() == QDialog::Accepted)
+        dialog.exec();
+        thread.join();
+
+        if(exception)
         {
-            OutputDialog results(this, output);
-            results.exec();
+            std::rethrow_exception(exception);
         }
     }
-    catch(const std::runtime_error& e)
+    catch(const std::exception& e)
     {
         QMessageBox::critical(this, "Error", e.what());
     }
-    */
 
-
-    //std::cout << std::setw(4) << output;
-
-    /*
-    OutputData output;
-    BowModel model(input, output);
-
-    ProgressDialog dialog(this);
-    dialog.addTask("Statics", [&](TaskState& task)
+    if(!dialog.isCanceled())
     {
-        model.simulate_setup();
-        model.simulate_statics(task);
-    });
-
-    if(dynamics)
-    {
-        dialog.addTask("Dynamics", [&](TaskState& task)
-        {
-            model.simulate_dynamics(task);
-        });
+        //OutputDialog results(this, output);
+        //results.exec();
     }
-
-    try
-    {
-        if(dialog.exec() == QDialog::Accepted)
-        {
-            OutputDialog results(this, output);
-            results.exec();
-        }
-    }
-    catch(const std::runtime_error& e)
-    {
-        QMessageBox::critical(this, "Error", e.what());
-    }
-    */
 }
 
 void MainWindow::about()
