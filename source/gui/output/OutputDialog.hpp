@@ -1,5 +1,5 @@
 #pragma once
-#include "model/OutputData.hpp"
+#include "model/output/OutputData.hpp"
 #include <QtWidgets>
 
 class StaticOutput: public QWidget

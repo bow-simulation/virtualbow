@@ -1,4 +1,39 @@
 /*
+#include "utils/Json.hpp"
+#include <iostream>
+
+struct Point
+{
+    double x = 0.0;
+    double y = 0.0;
+};
+
+void to_json(json& j, const Point& p)
+{
+    j = json{{"x", p.x}, {"y", p.y}};
+
+    j["x"] = p.x;
+    j["y"] = p.y;
+}
+
+void from_json(const json& j, Point& p)
+{
+    p.x = j.at("x");
+    p.y = j.at("y");
+}
+
+int main()
+{
+    json j;
+    j["test"] = Point();
+
+    std::cout << j;
+
+    return 0;
+}
+*/
+
+/*
 #include <json.hpp>
 #include <iostream>
 #include <fstream>
@@ -69,7 +104,6 @@ std::cout << orientation(p0, p1, p2);
 return 0;
 */
 
-
 #include "gui/MainWindow.hpp"
 
 int main(int argc, char *argv[])
@@ -86,7 +120,6 @@ int main(int argc, char *argv[])
     
     return app.exec();
 }
-
 
 /*
 #include <iostream>

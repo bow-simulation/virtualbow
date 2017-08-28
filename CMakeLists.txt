@@ -6,8 +6,9 @@ project(bow-simulator)
 
 include_directories("build/eigen")
 include_directories("build/catch/include")
+include_directories("build/cereal/include")
 include_directories("build/jsoncons/src")    # Todo: Remove
-include_directories("build/json-develop/src")
+include_directories("build/json-develop/src")    # Todo: Remove
 include_directories("build/boost")
 
 find_package(VTK REQUIRED PATHS "build/vtk")
@@ -68,7 +69,6 @@ add_executable(${PROJECT_NAME}
    source/model/BowModel.cpp
    source/model/LimbProperties.cpp
    source/model/InputData.cpp
-   source/model/OutputData.cpp
    source/model/Document.hpp    # moc
 
    source/numerics/ArcCurve.cpp

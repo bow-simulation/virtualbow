@@ -1,6 +1,6 @@
 #pragma once
 #include "model/InputData.hpp"
-#include "model/OutputData.hpp"
+#include "model/output/OutputData.hpp"
 #include "model/LimbProperties.hpp"
 #include "fem/System.hpp"
 #include "fem/Solver.hpp"
