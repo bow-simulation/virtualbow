@@ -149,8 +149,6 @@ bool MainWindow::saveAs()
 
 void MainWindow::runSimulation(bool dynamic)
 {
-    using nlohmann::json;
-
     ProgressDialog dialog(this);
     dialog.addProgressBar("Statics");
     if(dynamic)
@@ -158,7 +156,7 @@ void MainWindow::runSimulation(bool dynamic)
         dialog.addProgressBar("Dynamics");
     }
 
-    json output;
+    OutputData output;
     std::exception_ptr exception = nullptr;
     std::thread thread([&]
     {
@@ -203,8 +201,8 @@ void MainWindow::runSimulation(bool dynamic)
 
     if(!dialog.isCanceled())
     {
-        //OutputDialog results(this, output);
-        //results.exec();
+        OutputDialog results(this, output);
+        results.exec();
     }
 }
 

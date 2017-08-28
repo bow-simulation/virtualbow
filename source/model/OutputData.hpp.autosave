@@ -7,7 +7,7 @@
 struct SetupData
 {
     LimbProperties limb;
-    double string_length;
+    double string_length = 0.0;
 };
 
 struct BowStates

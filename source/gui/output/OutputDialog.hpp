@@ -5,13 +5,13 @@
 class StaticOutput: public QWidget
 {
 public:
-    StaticOutput(const BowSetup& setup, const StaticData& statics);
+    StaticOutput(const SetupData& setup, const StaticData& statics);
 };
 
 class DynamicOutput: public QWidget
 {
 public:
-    DynamicOutput(const BowSetup& setup, const DynamicData& dynamics);
+    DynamicOutput(const SetupData& setup, const DynamicData& dynamics);
 };
 
 class OutputDialog: public QDialog

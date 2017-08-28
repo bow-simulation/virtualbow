@@ -1,6 +1,6 @@
 #include "ShapePlot.hpp"
 
-ShapePlot::ShapePlot(const BowSetup& setup, const BowStates& states, bool intermediate_states)
+ShapePlot::ShapePlot(const SetupData& setup, const BowStates& states, bool intermediate_states)
     : setup(setup),
       states(states)
 {

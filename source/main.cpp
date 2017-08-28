@@ -7,15 +7,15 @@ using nlohmann::json;
 
 int main()
 {
+
     json obj;
     obj["test"]["b"] = {0.0, 1.0, 2.0, 3.0, 4.0};
 
-    std::cout << obj;
+    std::cout << obj["xyz"].is_null();
 
-    std::vector<uint8_t> buffer = json::to_msgpack(obj);
-
-    std::ofstream os("file.dat");
-    os.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
+    //std::vector<uint8_t> buffer = json::to_msgpack(obj);
+    //std::ofstream os("file.dat");
+    //os.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
 
     //os << json::to_msgpack(obj) << std::endl;
 
