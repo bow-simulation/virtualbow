@@ -49,13 +49,7 @@ download_and_extract("build/jsoncons", "https://github.com/danielaparker/jsoncon
 download_and_extract("build/json", "https://github.com/nlohmann/json/archive/v2.1.1.tar.gz")    # Json for modern C++ (https://github.com/nlohmann/json)
 download_and_extract("build/boost", "http://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz")    # Boost (http://www.boost.org/)
 download_and_extract("build/vtk/source", "https://gitlab.kitware.com/stfnp/vtk/repository/archive.tar.gz?ref=vtkcamera-horizontal-parallel-scale")    # VTK (Fork) (http://www.vtk.org)
-download_and_extract("build/cereal", "https://gitlab.com/bow-simulator/cereal-msgpack/repository/master/archive.tar.gz")    # Cereal (Fork) (https://uscilab.github.io/cereal/)
-
-# Cereal with MsgPack support and support for valarray
-# https://github.com/USCiLab/cereal/pull/138
-# https://github.com/USCiLab/cereal/archive/352e23f1e14b04c4cc396d2c487a0c408c2c2d83.zip
-# https://github.com/USCiLab/cereal/commit/005d628652a71bbd0caa6cf5ee5e5dcfa59bed0a
-
+download_and_extract("build/tclap", "https://sourceforge.net/projects/tclap/files/tclap-1.2.1.tar.gz/download")    # TCLAP (http://tclap.sourceforge.net/)
 
 # Build application depending on platform
 

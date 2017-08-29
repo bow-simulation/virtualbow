@@ -201,7 +201,6 @@ void MainWindow::runSimulation(bool dynamic)
 
     if(!dialog.isCanceled())
     {
-        output.save(current_file.toStdString() + ".dat");
         OutputDialog results(this, output);
         results.exec();
     }

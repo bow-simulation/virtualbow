@@ -1,3 +1,94 @@
+#include "gui/MainWindow.hpp"
+
+#include "model/BowModel.hpp"
+#include <fstream>
+int run_cli(QString input_path, QString output_path, bool dynamic)
+{
+    InputData input(input_path);
+    OutputData output = dynamic ? BowModel::run_dynamic_simulation(input, [](int){return true;}, [](int){return true;})
+                                : BowModel::run_static_simulation(input, [](int){return true;});
+    output.save(output_path.toStdString());
+}
+
+int run_gui(QApplication& app, QString path)
+{
+    MainWindow window(path);
+    window.show();
+
+    return app.exec();
+}
+
+int main(int argc, char* argv[])
+{
+    QApplication app(argc, argv);
+    app.setApplicationDisplayName("Bow Simulator");
+    app.setApplicationVersion("0.2");
+    app.setOrganizationDomain("https://bow-simulator.gitlab.io/");
+    setlocale(LC_NUMERIC, "C");
+
+    // Parse command line arguments
+    QCommandLineOption statics({"s", "static"}, "Perform a static simulation.");
+    QCommandLineOption dynamics({"d", "dynamic"}, "Perform a dynamic simulation.");
+
+    QCommandLineParser parser;
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.addOption(statics);
+    parser.addOption(dynamics);
+    parser.addPositionalArgument("input", "Input file.");
+    parser.addPositionalArgument("output", "Output file.");
+    parser.process(app);
+
+    auto pos_args = parser.positionalArguments();
+    if(pos_args.size() > 2) {
+        qInfo() << "Too many arguments.";
+        return 1;
+    }
+
+    bool mode_set = (parser.isSet(statics) || parser.isSet(dynamics));
+    bool input_set = (pos_args.size() > 0);
+    bool output_set = (pos_args.size() > 1);
+
+    if(!mode_set)
+    {
+        if(output_set) {
+            qInfo() << "No simulation mode selected.";
+            return 1;
+        }
+
+        return run_gui(app, input_set ? pos_args[0] : ":/bows/default.bow");
+    }
+    else
+    {
+        if(!input_set) {
+            qInfo() << "No input file provided.";
+            return 1;
+        }
+
+        QString input_path = pos_args[0];
+        QString output_path;
+
+        if(output_set) {
+            output_path = pos_args[1];
+        }
+        else {
+            QFileInfo info(input_path);
+            output_path = info.absolutePath() + QDir::separator() + info.completeBaseName() + ".dat";
+        }
+
+        return run_cli(input_path, output_path, parser.isSet(dynamics));
+    }
+}
+
+/*
+#include "gui/GuiApplication.hpp"
+
+int main(int argc, char *argv[])
+{
+    return GuiApplication::start(argc, argv);
+}
+*/
+
 /*
 #include "utils/Json.hpp"
 #include <iostream>
@@ -103,23 +194,6 @@ std::cout << orientation(p0, p1, p2);
 
 return 0;
 */
-
-#include "gui/MainWindow.hpp"
-
-int main(int argc, char *argv[])
-{
-    QApplication app(argc, argv);
-    app.setApplicationDisplayName("Bow Simulator");
-    app.setApplicationVersion("0.2");
-    app.setOrganizationDomain("https://bow-simulator.gitlab.io/");
-    setlocale(LC_NUMERIC, "C");
-
-    QStringList args = QApplication::arguments();
-    MainWindow window(args.size() == 1 ? ":/bows/default.bow" : args.at(1));
-    window.show();
-    
-    return app.exec();
-}
 
 /*
 #include <iostream>
