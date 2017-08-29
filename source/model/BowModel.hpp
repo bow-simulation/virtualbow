@@ -1,6 +1,6 @@
 #pragma once
 #include "model/InputData.hpp"
-#include "model/OutputData.hpp"
+#include "model/output/OutputData.hpp"
 #include "model/LimbProperties.hpp"
 #include "fem/System.hpp"
 #include "fem/Solver.hpp"
@@ -10,17 +10,58 @@
 #include "numerics/SecantMethod.hpp"
 #include "gui/ProgressDialog.hpp"
 #include <algorithm>
+#include <json.hpp>
+
+using namespace nlohmann;
 
 class BowModel
 {
 public:
-    BowModel(const InputData& input, OutputData& output)
-        : input(input), output(output)
+    static OutputData run_setup_simulation(const InputData& input)
+    {
+        BowModel model(input);
+
+        OutputData output;
+        model.simulate_setup(output.setup);
+
+        return output;
+    }
+
+    template<typename F>
+    static OutputData run_static_simulation(const InputData& input, const F& callback)
+    {
+        BowModel model(input);
+
+        OutputData output;
+        model.simulate_setup(output.setup);
+        model.simulate_statics(output.statics, callback);
+
+        return output;
+    }
+
+    template<typename F1, typename F2>
+    static OutputData run_dynamic_simulation(const InputData& input, const F1& callback1, const F2& callback2)
+    {
+        BowModel model(input);
+
+        OutputData output;
+        model.simulate_setup(output.setup);
+        model.simulate_statics(output.statics, callback1);
+        model.simulate_dynamics(output.dynamics, output.statics, callback2);
+
+        return output;
+    }
+
+private:
+    BowModel(const InputData& input)
+        : input(input)
     {
 
     }
 
-    void simulate_setup()
+    // Implementation
+
+    void simulate_setup(SetupData& setup)
     {
         size_t n = input.settings_n_elements_limb;
         size_t k = input.settings_n_elements_string;
@@ -121,30 +162,47 @@ public:
         double string_length = 2.0*std::hypot(xc - xt, yc - yt);
         string_length = secant_method(try_string_length, 0.95*string_length, 0.9*string_length, 1e-8, 50);   // Todo: Magic numbers
 
-        // Store setup results
-        output.setup.limb = limb;
-        output.setup.string_length = string_length;
+        // Write setup results to output
+
+        setup.limb = limb;
+        setup.string_length = string_length;
     }
 
-    void simulate_statics(TaskState& task)
+    template<typename F>
+    void simulate_statics(StaticData& statics, const F& callback)
     {
-        BowStates states;
-
         StaticSolverDC solver(system, nodes_string[0][1], input.operation_draw_length, input.settings_n_draw_steps);
-        while(solver.step() && !task.isCanceled())
+        while(solver.step())
         {
-            get_bow_state(states);
-            task.setProgress((nodes_string[0][1].u() - input.operation_brace_height)/
-                             (input.operation_draw_length - input.operation_brace_height)*100.0);
+            add_bow_state(statics.states);
+
+            int progress = (nodes_string[0][1].u() - input.operation_brace_height)/(input.operation_draw_length - input.operation_brace_height)*100.0;
+
+            if(!callback(progress))
+                return;
         }
 
-        if(!task.isCanceled())
-            output.statics = std::make_unique<StaticData>(states);
+        // Calculate scalar values
+
+        double draw_length_front = statics.states.draw_length.front();
+        double draw_length_back = statics.states.draw_length.back();
+        double draw_force_back = statics.states.draw_force.back();
+
+        double e_pot_front = statics.states.e_pot_limbs.front()
+                           + statics.states.e_pot_string.front();
+
+        double e_pot_back = statics.states.e_pot_limbs.back()
+                          + statics.states.e_pot_string.back();
+
+        statics.final_draw_force = draw_force_back;
+        statics.drawing_work     = e_pot_back - e_pot_front;
+        statics.storage_ratio    = (e_pot_back - e_pot_front)/(0.5*(draw_length_back - draw_length_front)*draw_force_back);
     }
 
-    void simulate_dynamics(TaskState& task)
+    template<typename F>
+    void simulate_dynamics(DynamicData& dynamics, const StaticData& statics, const F& callback)
     {
-        // Remove draw force    // Todo: Doesn't really belong in this method
+        // Set draw force to zero    // Todo: Doesn't really belong in this method
         nodes_string[0][1].p_mut() = 0.0;
 
         double T = std::numeric_limits<double>::max();
@@ -169,13 +227,13 @@ public:
             //return system.t() >= alpha*T;
         });
 
-        BowStates states;
         auto run_solver = [&](DynamicSolver& solver)
         {
-            while(solver.step() && !task.isCanceled())
+            while(solver.step())
             {
-                get_bow_state(states);
-                task.setProgress(100.0*system.t()/(alpha*T));
+                add_bow_state(dynamics.states);
+                if(!callback(100.0*system.t()/(alpha*T)))
+                    return;
             }
         };
 
@@ -193,11 +251,14 @@ public:
 
         run_solver(solver2);
 
-        if(!task.isCanceled())
-            output.dynamics = std::make_unique<DynamicData>(states, *output.statics);
+        // Calculate scalar values
+
+        dynamics.final_arrow_velocity = std::abs(dynamics.states.vel_arrow.back());
+        dynamics.final_arrow_energy = std::abs(dynamics.states.e_kin_arrow.back());
+        dynamics.efficiency = dynamics.final_arrow_energy/statics.drawing_work;
     }
 
-    void get_bow_state(BowStates& states) const
+    void add_bow_state(BowStates& states) const
     {
         states.time.push_back(system.t());
         states.draw_force.push_back(2.0*nodes_string[0][1].p());
@@ -216,7 +277,6 @@ public:
         // Arrow, limb and string coordinates
 
         states.y_arrow.push_back(node_arrow[1].u());
-
         states.x_limb.push_back(std::valarray<double>(nodes_limb.size()));
         states.y_limb.push_back(std::valarray<double>(nodes_limb.size()));
 
@@ -266,11 +326,9 @@ public:
 
 private:
     const InputData& input;
-    OutputData& output;
     LimbProperties limb;
 
     System system;
-
     std::vector<Node> nodes_limb;
     std::vector<Node> nodes_string;
     Node node_arrow;

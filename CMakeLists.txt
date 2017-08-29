@@ -6,8 +6,11 @@ project(bow-simulator)
 
 include_directories("build/eigen")
 include_directories("build/catch/include")
-include_directories("build/jsoncons/src")
+include_directories("build/cereal/include")
+include_directories("build/jsoncons/src")    # Todo: Remove
+include_directories("build/json-develop/src")    # Todo: Remove
 include_directories("build/boost")
+include_directories("build/tclap/include")
 
 find_package(VTK REQUIRED PATHS "build/vtk")
 include(${VTK_USE_FILE})
@@ -30,7 +33,8 @@ add_executable(${PROJECT_NAME}
    source/fem/elements/BarElement.cpp
    source/fem/elements/BeamElement.cpp
    source/fem/elements/MassElement.cpp
-   source/fem/Element.cpp
+   source/fem/elements/ContactElement.cpp
+   source/fem/elements/ContactArea.cpp
    source/fem/Node.cpp
    source/fem/Solver.cpp
    source/fem/System.cpp
@@ -38,6 +42,7 @@ add_executable(${PROJECT_NAME}
    source/gui/MainWindow.cpp
    source/gui/PlotWidget.cpp
    source/gui/ProgressDialog.cpp
+   source/gui/ProgressDialog.hpp    # moc
 
    source/gui/input/BowEditor.cpp
    source/gui/input/ModelTree.cpp
@@ -65,8 +70,7 @@ add_executable(${PROJECT_NAME}
    source/model/BowModel.cpp
    source/model/LimbProperties.cpp
    source/model/InputData.cpp
-   source/model/OutputData.cpp
-   source/model/Document.hpp   # moc
+   source/model/Document.hpp    # moc
 
    source/numerics/ArcCurve.cpp
    source/numerics/CubicSpline.cpp
@@ -88,7 +92,8 @@ add_executable(tests
     source/fem/elements/BarElement.cpp
     source/fem/elements/BeamElement.cpp
     source/fem/elements/MassElement.cpp
-    source/fem/Element.cpp
+    source/fem/elements/ContactElement.cpp
+    source/fem/elements/ContactArea.cpp
     source/fem/Node.cpp
     source/fem/Solver.cpp
     source/fem/System.cpp

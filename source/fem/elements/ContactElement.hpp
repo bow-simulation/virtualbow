@@ -2,11 +2,10 @@
 #include "fem/Element.hpp"
 #include "fem/Node.hpp"
 
-class MassElement: public ElementInterface
+class ContactElement: public ElementInterface
 {
 public:
-    MassElement(Node nd, double m, double I = 0.0);
-    void set_node(Node nd);
+    ContactElement(Node nd0, Node nd1, Node nd2, double h0, double h1, double k);
 
     virtual void get_masses(VectorView<Dof> M) const override;
     virtual void get_internal_forces(VectorView<Dof> q) const override;
@@ -14,8 +13,9 @@ public:
     virtual double get_potential_energy() const override;
 
 private:
-    Node node;
-    double m;
-    double I;
+    std::array<Node, 3> nodes;
 
+    double h0;
+    double h1;
+    double k;
 };

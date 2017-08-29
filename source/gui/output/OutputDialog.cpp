@@ -6,7 +6,7 @@
 #include "ComboPlot.hpp"
 #include "Slider.hpp"
 
-StaticOutput::StaticOutput(const BowSetup& setup, const StaticData& statics)
+StaticOutput::StaticOutput(const SetupData& setup, const StaticData& statics)
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
@@ -43,7 +43,7 @@ StaticOutput::StaticOutput(const BowSetup& setup, const StaticData& statics)
     vbox->addWidget(slider);
 }
 
-DynamicOutput::DynamicOutput(const BowSetup& setup, const DynamicData& dynamics)
+DynamicOutput::DynamicOutput(const SetupData& setup, const DynamicData& dynamics)
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
@@ -93,11 +93,13 @@ OutputDialog::OutputDialog(QWidget* parent, const OutputData& output)
     this->setWindowFlags(this->windowFlags() | Qt::WindowMaximizeButtonHint);
     this->resize(800, 600);     // Todo: Magic numbers
 
+    bool enable_statics = !output.statics.states.time.empty();
+    bool enable_dynamics = !output.dynamics.states.time.empty();
     auto tabs = new QTabWidget();
-    tabs->addTab(output.statics ? new StaticOutput(output.setup, *output.statics) : new QWidget(), "Statics");
-    tabs->addTab(output.dynamics ? new DynamicOutput(output.setup, *output.dynamics) : new QWidget(), "Dynamics");
-    tabs->setTabEnabled(0, output.statics != nullptr);
-    tabs->setTabEnabled(1, output.dynamics != nullptr);
+    tabs->addTab(enable_statics ? new StaticOutput(output.setup, output.statics) : new QWidget(), "Statics");
+    tabs->addTab(enable_dynamics ? new DynamicOutput(output.setup, output.dynamics) : new QWidget(), "Dynamics");
+    tabs->setTabEnabled(0, enable_statics);
+    tabs->setTabEnabled(1, enable_dynamics);
     tabs->setIconSize({24, 24});    // Todo: Magic numbers
     tabs->setDocumentMode(true);
     vbox->addWidget(tabs, 1);

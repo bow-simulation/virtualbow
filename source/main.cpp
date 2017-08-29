@@ -1,6 +1,24 @@
 #include "gui/MainWindow.hpp"
 
-int main(int argc, char *argv[])
+#include "model/BowModel.hpp"
+#include <fstream>
+int run_cli(QString input_path, QString output_path, bool dynamic)
+{
+    InputData input(input_path);
+    OutputData output = dynamic ? BowModel::run_dynamic_simulation(input, [](int){return true;}, [](int){return true;})
+                                : BowModel::run_static_simulation(input, [](int){return true;});
+    output.save(output_path.toStdString());
+}
+
+int run_gui(QApplication& app, QString path)
+{
+    MainWindow window(path);
+    window.show();
+
+    return app.exec();
+}
+
+int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
     app.setApplicationDisplayName("Bow Simulator");
@@ -8,12 +26,174 @@ int main(int argc, char *argv[])
     app.setOrganizationDomain("https://bow-simulator.gitlab.io/");
     setlocale(LC_NUMERIC, "C");
 
-    QStringList args = QApplication::arguments();
-    MainWindow window(args.size() == 1 ? ":/bows/default.bow" : args.at(1));
-    window.show();
-    
-    return app.exec();
+    // Parse command line arguments
+    QCommandLineOption statics({"s", "static"}, "Perform a static simulation.");
+    QCommandLineOption dynamics({"d", "dynamic"}, "Perform a dynamic simulation.");
+
+    QCommandLineParser parser;
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.addOption(statics);
+    parser.addOption(dynamics);
+    parser.addPositionalArgument("input", "Input file.");
+    parser.addPositionalArgument("output", "Output file.");
+    parser.process(app);
+
+    auto pos_args = parser.positionalArguments();
+    if(pos_args.size() > 2) {
+        qInfo() << "Too many arguments.";
+        return 1;
+    }
+
+    bool mode_set = (parser.isSet(statics) || parser.isSet(dynamics));
+    bool input_set = (pos_args.size() > 0);
+    bool output_set = (pos_args.size() > 1);
+
+    if(!mode_set)
+    {
+        if(output_set) {
+            qInfo() << "No simulation mode selected.";
+            return 1;
+        }
+
+        return run_gui(app, input_set ? pos_args[0] : ":/bows/default.bow");
+    }
+    else
+    {
+        if(!input_set) {
+            qInfo() << "No input file provided.";
+            return 1;
+        }
+
+        QString input_path = pos_args[0];
+        QString output_path;
+
+        if(output_set) {
+            output_path = pos_args[1];
+        }
+        else {
+            QFileInfo info(input_path);
+            output_path = info.absolutePath() + QDir::separator() + info.completeBaseName() + ".dat";
+        }
+
+        return run_cli(input_path, output_path, parser.isSet(dynamics));
+    }
 }
+
+/*
+#include "gui/GuiApplication.hpp"
+
+int main(int argc, char *argv[])
+{
+    return GuiApplication::start(argc, argv);
+}
+*/
+
+/*
+#include "utils/Json.hpp"
+#include <iostream>
+
+struct Point
+{
+    double x = 0.0;
+    double y = 0.0;
+};
+
+void to_json(json& j, const Point& p)
+{
+    j = json{{"x", p.x}, {"y", p.y}};
+
+    j["x"] = p.x;
+    j["y"] = p.y;
+}
+
+void from_json(const json& j, Point& p)
+{
+    p.x = j.at("x");
+    p.y = j.at("y");
+}
+
+int main()
+{
+    json j;
+    j["test"] = Point();
+
+    std::cout << j;
+
+    return 0;
+}
+*/
+
+/*
+#include <json.hpp>
+#include <iostream>
+#include <fstream>
+
+using nlohmann::json;
+
+int main()
+{
+
+    json obj;
+    obj["test"]["b"] = {0.0, 1.0, 2.0, 3.0, 4.0};
+
+    std::cout << obj["xyz"].is_null();
+
+    //std::vector<uint8_t> buffer = json::to_msgpack(obj);
+    //std::ofstream os("file.dat");
+    //os.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
+
+    //os << json::to_msgpack(obj) << std::endl;
+
+    return 0;
+}
+*/
+
+/*
+#include "fem/System.hpp"
+#include "fem/Solver.hpp"
+#include "fem/elements/ContactElement.hpp"
+#include "fem/elements/MassElement.hpp"
+
+#include <Eigen/Dense>
+#include <iostream>
+
+int main()
+{
+    System system;
+    Node node_a = system.create_node({DofType::Fixed , DofType::Fixed , DofType::Fixed}, {-1.0, 0.0, 0.0});
+    Node node_b = system.create_node({DofType::Fixed , DofType::Fixed , DofType::Fixed}, { 1.0, 0.0, 0.0});
+    Node node_c = system.create_node({DofType::Active, DofType::Active, DofType::Fixed}, { 0.0, 1.0, 0.0});
+
+    system.add_element(ContactElement(node_a, node_b, node_c, 1.0, 0.0, 5000.0));
+
+    system.add_element(MassElement(node_c, 1.0, 0.0));
+    node_c[1].p_mut() = -10.0;
+
+    DynamicSolver solver(system, 0.1, 1e-3, [&]{ return system.t() >= 0.5; });
+    while(solver.step())
+    {
+        std::cout << node_c[0].u() << "," << node_c[1].u() << "\n";
+    }
+
+}
+*/
+
+
+/*
+Eigen::Vector2d p0{0.0, 0.0};
+Eigen::Vector2d p1{2.0, 1.0};
+Eigen::Vector2d p2{0.0, 1.0};
+
+auto orientation = [](auto p0, auto p2, auto p1)
+{
+    return (p1(0) - p0(0))*(p2(1) - p0(1)) - (p1(1) - p0(1))*(p2(0) - p0(0));
+};
+
+std::cout << orientation(p0, p1, p2);
+
+return 0;
+*/
 
 /*
 #include <iostream>

@@ -1,30 +1,10 @@
 #include "ProgressDialog.hpp"
 #include <thread>
 
-TaskState::TaskState()
-    : canceled(false)
-{
-
-}
-
-void TaskState::cancel()
-{
-    canceled = true;
-}
-
-bool TaskState::isCanceled() const
-{
-    return canceled;
-}
-
-void TaskState::setProgress(int value)
-{
-    emit progressChanged(value);
-}
-
 ProgressDialog::ProgressDialog(QWidget* parent)
     : QDialog(parent),
-      vbox(new QVBoxLayout)
+      vbox(new QVBoxLayout),
+      canceled(false)
 {
     this->setLayout(vbox);
     this->setWindowTitle("Simulation Progress");
@@ -42,7 +22,18 @@ void ProgressDialog::closeEvent(QCloseEvent *event)
     this->reject();
 }
 
-void ProgressDialog::addTask(const QString& name, TaskFunction task)
+void ProgressDialog::reject()
+{
+    canceled = true;
+    QDialog::reject();
+}
+
+bool ProgressDialog::isCanceled() const
+{
+    return canceled;
+}
+
+void ProgressDialog::addProgressBar(const QString& name)
 {
     // Create new progress bar
     auto pbar = new QProgressBar();
@@ -55,10 +46,14 @@ void ProgressDialog::addTask(const QString& name, TaskFunction task)
     vbox->insertWidget(i, new QLabel(name));
 
     pbars.push_back(pbar);
-    tasks.push_back(task);
 }
 
+void ProgressDialog::setProgress(int task, int value)
+{
+    pbars[task]->setValue(value);
+}
 
+/*
 int ProgressDialog::exec()
 {
     // Food for thought...
@@ -104,3 +99,4 @@ int ProgressDialog::exec()
 
     return result;
 }
+*/

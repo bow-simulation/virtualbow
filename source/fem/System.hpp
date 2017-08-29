@@ -29,7 +29,7 @@
 class System
 {
 private:
-    double m_t;
+    double m_t = 0.0;  // Todo: Really necessary here?
     VectorXd m_u;   // Active displacements
     VectorXd m_v;   // Active velocities
     VectorXd m_p;   // External forces
@@ -41,8 +41,8 @@ private:
 
     // Todo: Why mutable?
     // Todo: Use https://github.com/Tessil/ordered-map
-    mutable std::map<std::string, std::vector<Element*>> groups;
-    mutable std::vector<Element*> elements;
+    mutable std::map<std::string, std::vector<ElementInterface*>> groups;
+    mutable std::vector<ElementInterface*> elements;
 
 public:
     size_t dofs() const;
@@ -70,7 +70,7 @@ public:
     Node create_node(const Node& other, std::array<DofType, 3> type);
     Dof create_dof(DofType type, double u_dof, double v_dof);
 
-    template<typename ElementType = Element>
+    template<typename ElementType = ElementInterface>
     void add_element(ElementType element, const std::string& key = "")
     {
         m_a.set_valid(false);
@@ -78,7 +78,7 @@ public:
         m_M.set_valid(false);
         m_K.set_valid(false);
 
-        Element* ptr = new ElementType(element);
+        ElementInterface* ptr = new ElementType(element);
         groups[key].push_back(ptr);
         elements.push_back(ptr);
     }
@@ -86,10 +86,10 @@ public:
     // Iterating over groups of elements
 
     template<class ElementType>
-    using iterator = dynamic_cast_iterator<std::vector<Element*>::iterator, ElementType>;
+    using iterator = dynamic_cast_iterator<std::vector<ElementInterface*>::iterator, ElementType>;
 
     template<class ElementType>
-    using const_iterator = dynamic_cast_iterator<std::vector<Element*>::const_iterator, ElementType>;
+    using const_iterator = dynamic_cast_iterator<std::vector<ElementInterface*>::const_iterator, ElementType>;
 
     template<class ElementType>
     boost::iterator_range<iterator<ElementType>> element_group_mut(const std::string& key)

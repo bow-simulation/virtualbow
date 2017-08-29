@@ -1,15 +1,15 @@
 #pragma once
 #include "gui/PlotWidget.hpp"
-#include "model/OutputData.hpp"
+#include "model/output/OutputData.hpp"
 
 class StressPlot: public PlotWidget
 {
 public:
-    StressPlot(const BowSetup& setup, const BowStates& states);
+    StressPlot(const SetupData& setup, const BowStates& states);
     void setStateIndex(int index);
 
 private:
-    const BowSetup& setup;
+    const SetupData& setup;
     const BowStates& states;
 
     void setAxesRanges();

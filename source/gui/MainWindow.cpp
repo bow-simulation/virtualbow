@@ -4,6 +4,8 @@
 #include "output/OutputDialog.hpp"
 #include "model/BowModel.hpp"
 #include <thread>
+#include <json.hpp>
+#include "Thread.hpp"
 
 MainWindow:: MainWindow(const QString& path)
     : input(path),
@@ -142,37 +144,65 @@ bool MainWindow::saveAs()
     return false;
 }
 
-void MainWindow::runSimulation(bool dynamics)
+#include <iostream>
+#include <thread>
+
+void MainWindow::runSimulation(bool dynamic)
 {
-    OutputData output;
-    BowModel model(input, output);
-
     ProgressDialog dialog(this);
-    dialog.addTask("Statics", [&](TaskState& task)
+    dialog.addProgressBar("Statics");
+    if(dynamic)
     {
-        model.simulate_setup();
-        model.simulate_statics(task);
-    });
-
-    if(dynamics)
-    {
-        dialog.addTask("Dynamics", [&](TaskState& task)
-        {
-            model.simulate_dynamics(task);
-        });
+        dialog.addProgressBar("Dynamics");
     }
+
+    OutputData output;
+    std::exception_ptr exception = nullptr;
+    std::thread thread([&]
+    {
+        auto progress0 = [&](int p){
+            QMetaObject::invokeMethod(&dialog, "setProgress", Qt::QueuedConnection, Q_ARG(int, 0), Q_ARG(int, p));
+            return !dialog.isCanceled();
+        };
+
+        auto progress1 = [&](int p){
+            QMetaObject::invokeMethod(&dialog, "setProgress", Qt::QueuedConnection, Q_ARG(int, 1), Q_ARG(int, p));
+            return !dialog.isCanceled();
+        };
+
+        try
+        {
+            output = dynamic ? BowModel::run_dynamic_simulation(input, progress0, progress1)
+                             : BowModel::run_static_simulation(input, progress0);
+
+            QMetaObject::invokeMethod(&dialog, "accept", Qt::QueuedConnection);
+        }
+        catch(...)
+        {
+            exception = std::current_exception();
+            QMetaObject::invokeMethod(&dialog, "reject", Qt::QueuedConnection);
+        }
+    });
 
     try
     {
-        if(dialog.exec() == QDialog::Accepted)
+        dialog.exec();
+        thread.join();
+
+        if(exception)
         {
-            OutputDialog results(this, output);
-            results.exec();
+            std::rethrow_exception(exception);
         }
     }
-    catch(const std::runtime_error& e)
+    catch(const std::exception& e)
     {
         QMessageBox::critical(this, "Error", e.what());
+    }
+
+    if(!dialog.isCanceled())
+    {
+        OutputDialog results(this, output);
+        results.exec();
     }
 }
 

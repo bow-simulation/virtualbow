@@ -24,7 +24,7 @@ private:
     // Todo: settings, notes and about dialogs as lambdas in constructor?
     void settings();
     void comments();
-    void runSimulation(bool dynamics);
+    void runSimulation(bool dynamic);
     void about();
 
     void setCurrentFile(const QString& path);

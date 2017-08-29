@@ -1,6 +1,6 @@
 #include "StressPlot.hpp"
 
-StressPlot::StressPlot(const BowSetup& setup, const BowStates& states)
+StressPlot::StressPlot(const SetupData& setup, const BowStates& states)
     : setup(setup),
       states(states)
 {
