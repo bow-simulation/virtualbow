@@ -94,12 +94,10 @@ VectorXd StaticSolverDC::unit_vector(size_t n, size_t i) const
     return vec;
 }
 
-#include <iostream>
-
-DynamicSolver::DynamicSolver(System& system, double step_factor, double sampling_time, std::function<bool()> stop)
+DynamicSolver::DynamicSolver(System& system, double step_factor, double sampling_rate, std::function<bool()> stop)
     : system(system),
       stop(stop),
-      ts(sampling_time),
+      f(sampling_rate),
       t(0.0)
 {
     // Timestep estimation
@@ -110,7 +108,7 @@ DynamicSolver::DynamicSolver(System& system, double step_factor, double sampling
         throw std::runtime_error("Failed to compute eigenvalues of the system");
 
     double omega_max = std::sqrt(eigen_solver.eigenvalues().maxCoeff());
-    dt = (omega_max != 0.0) ? step_factor*2.0/omega_max : sampling_time/10.0;    // Todo: Magic number (1/10th of sampling time)
+    dt = (omega_max != 0.0) ? step_factor*2.0/omega_max : f/10.0;    // Todo: Magic number (Fraction of sampling time)
 
     // Initialise previous displacement
     u_p2 = system.u() - dt*system.v() + dt*dt/2.0*system.a();
@@ -125,7 +123,7 @@ bool DynamicSolver::step()
             return false;
     }
 
-    t = system.t() + ts;
+    t = system.t() + 1.0/f;
     return true;
 }
 

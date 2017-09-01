@@ -43,7 +43,7 @@ void InputData::load(const QString& path)
     settings_n_draw_steps = obj["settings"]["n_draw_steps"].get<int>();
     settings_time_span_factor = obj["settings"]["time_span_factor"].get<double>();
     settings_time_step_factor = obj["settings"]["time_step_factor"].get<double>();
-    settings_sampling_time = obj["settings"]["sampling_time"].get<double>();
+    settings_sampling_rate = obj["settings"]["sampling_rate"].get<double>();
 
     this->setModified(false);
 }
@@ -75,7 +75,7 @@ void InputData::save(const QString& path)
     obj["settings"]["n_draw_steps"] = int(settings_n_draw_steps);
     obj["settings"]["time_span_factor"] = double(settings_time_span_factor);
     obj["settings"]["time_step_factor"] = double(settings_time_step_factor);
-    obj["settings"]["sampling_time"] = double(settings_sampling_time);
+    obj["settings"]["sampling_rate"] = double(settings_sampling_rate);
 
     QFile file(path);
     if(!file.open(QFile::WriteOnly | QFile::Text))

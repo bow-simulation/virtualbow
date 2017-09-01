@@ -33,7 +33,7 @@ StaticOutput::StaticOutput(const SetupData& setup, const StaticData& statics)
     tabs->addTab(plot_stress, "Stress");
     tabs->addTab(plot_energy, "Energy");
     tabs->addTab(plot_combo, "Other Plots");
-    tabs->addTab(grid, "Numbers");
+    tabs->addTab(grid, "Special Values");
 
     auto slider = new Slider(statics.states.draw_length, "Draw length [m]:");
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
@@ -74,7 +74,7 @@ DynamicOutput::DynamicOutput(const SetupData& setup, const DynamicData& dynamics
     tabs->addTab(plot_stress, "Stress");
     tabs->addTab(plot_energy, "Energy");
     tabs->addTab(plot_combo, "Other Plots");
-    tabs->addTab(grid, "Numbers");
+    tabs->addTab(grid, "Special Values");
 
     auto slider = new Slider(dynamics.states.time, "Time [s]:");
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
