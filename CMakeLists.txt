@@ -6,11 +6,8 @@ project(bow-simulator)
 
 include_directories("build/eigen")
 include_directories("build/catch/include")
-include_directories("build/cereal/include")
-include_directories("build/jsoncons/src")    # Todo: Remove
-include_directories("build/json-develop/src")    # Todo: Remove
+include_directories("build/json/src")
 include_directories("build/boost")
-include_directories("build/tclap/include")
 
 find_package(VTK REQUIRED PATHS "build/vtk")
 include(${VTK_USE_FILE})
@@ -68,7 +65,6 @@ add_executable(${PROJECT_NAME}
    source/gui/output/StressPlot.cpp
 
    source/model/BowModel.cpp
-   source/model/LimbProperties.cpp
    source/model/InputData.cpp
    source/model/Document.hpp    # moc
 

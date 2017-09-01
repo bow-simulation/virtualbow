@@ -52,25 +52,3 @@ static void to_json(json& obj, const BowStates& val)
     obj["sigma_upper"] = val.sigma_upper;
     obj["sigma_lower"] = val.sigma_lower;
 }
-
-static void from_json(const json& obj, BowStates& val)
-{
-    val.time = obj["time"].get<std::vector<double>>();
-    val.draw_force = obj["draw_force"].get<std::vector<double>>();
-    val.draw_length = obj["draw_length"].get<std::vector<double>>();
-    val.pos_arrow = obj["pos_arrow"].get<std::vector<double>>();
-    val.vel_arrow = obj["vel_arrow"].get<std::vector<double>>();
-    val.acc_arrow = obj["acc_arrow"].get<std::vector<double>>();
-    val.e_pot_limbs = obj["e_pot_limbs"].get<std::vector<double>>();
-    val.e_kin_limbs = obj["e_kin_limbs"].get<std::vector<double>>();
-    val.e_pot_string = obj["e_pot_string"].get<std::vector<double>>();
-    val.e_kin_string = obj["e_kin_string"].get<std::vector<double>>();
-    val.e_kin_arrow = obj["e_kin_arrow"].get<std::vector<double>>();
-    val.y_arrow = obj["y_arrow"].get<std::vector<double>>();
-    val.x_limb = obj["x_limb"].get<std::vector<std::valarray<double>>>();
-    val.y_limb = obj["y_limb"].get<std::vector<std::valarray<double>>>();
-    val.x_string = obj["x_string"].get<std::vector<std::valarray<double>>>();
-    val.y_string = obj["y_string"].get<std::vector<std::valarray<double>>>();
-    val.sigma_upper = obj["sigma_upper"].get<std::vector<std::valarray<double>>>();
-    val.sigma_lower = obj["sigma_lower"].get<std::vector<std::valarray<double>>>();
-}

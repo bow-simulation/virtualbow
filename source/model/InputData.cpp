@@ -1,5 +1,7 @@
 #include "InputData.hpp"
-#include <jsoncons/json.hpp>
+#include <json.hpp>
+
+using nlohmann::json;
 
 InputData::InputData(const QString& path)
 {
@@ -15,50 +17,50 @@ void InputData::load(const QString& path)
     }
 
     std::string str = QTextStream(&file).readAll().toStdString();
-    jsoncons::ojson obj = jsoncons::ojson::parse_string(str);
+    json obj = json::parse(str);
 
-    meta_version = obj["meta"]["version"].as<std::string>();
-    meta_comments = obj["meta"]["comments"].as<std::string>();
-    profile_segments = obj["profile"]["segments"].as<Series>();
-    profile_x0 = obj["profile"]["offset_x"].as<double>();
-    profile_y0 = obj["profile"]["offset_y"].as<double>();
-    profile_phi0 = obj["profile"]["angle"].as<double>();
-    sections_width = obj["sections"]["width"].as<Series>();
-    sections_height = obj["sections"]["height"].as<Series>();
-    sections_rho = obj["sections"]["rho"].as<double>();
-    sections_E = obj["sections"]["E"].as<double>();
-    string_strand_stiffness = obj["string"]["strand_stiffness"].as<double>();
-    string_strand_density = obj["string"]["strand_density"].as<double>();
-    string_n_strands = obj["string"]["n_strands"].as<double>();
-    mass_string_center = obj["masses"]["string_center"].as<double>();
-    mass_string_tip = obj["masses"]["string_tip"].as<double>();
-    mass_limb_tip = obj["masses"]["limb_tip"].as<double>();
-    operation_brace_height = obj["operation"]["brace_height"].as<double>();
-    operation_draw_length = obj["operation"]["draw_length"].as<double>();
-    operation_mass_arrow = obj["operation"]["mass_arrow"].as<double>();
-    settings_n_elements_limb = obj["settings"]["n_elements_limb"].as<int>();
-    settings_n_elements_string = obj["settings"]["n_elements_string"].as<int>();
-    settings_n_draw_steps = obj["settings"]["n_draw_steps"].as<int>();
-    settings_time_span_factor = obj["settings"]["time_span_factor"].as<double>();
-    settings_time_step_factor = obj["settings"]["time_step_factor"].as<double>();
-    settings_sampling_time = obj["settings"]["sampling_time"].as<double>();
+    meta_version = obj["meta"]["version"].get<std::string>();
+    meta_comments = obj["meta"]["comments"].get<std::string>();
+    profile_segments = obj["profile"]["segments"].get<Series>();
+    profile_x0 = obj["profile"]["x0"].get<double>();
+    profile_y0 = obj["profile"]["y0"].get<double>();
+    profile_phi0 = obj["profile"]["phi0"].get<double>();
+    sections_width = obj["width"].get<Series>();
+    sections_height = obj["height"].get<Series>();
+    sections_rho = obj["material"]["rho"].get<double>();
+    sections_E = obj["material"]["E"].get<double>();
+    string_strand_stiffness = obj["string"]["strand_stiffness"].get<double>();
+    string_strand_density = obj["string"]["strand_density"].get<double>();
+    string_n_strands = obj["string"]["n_strands"].get<double>();
+    mass_string_center = obj["masses"]["string_center"].get<double>();
+    mass_string_tip = obj["masses"]["string_tip"].get<double>();
+    mass_limb_tip = obj["masses"]["limb_tip"].get<double>();
+    operation_brace_height = obj["operation"]["brace_height"].get<double>();
+    operation_draw_length = obj["operation"]["draw_length"].get<double>();
+    operation_mass_arrow = obj["operation"]["mass_arrow"].get<double>();
+    settings_n_elements_limb = obj["settings"]["n_elements_limb"].get<int>();
+    settings_n_elements_string = obj["settings"]["n_elements_string"].get<int>();
+    settings_n_draw_steps = obj["settings"]["n_draw_steps"].get<int>();
+    settings_time_span_factor = obj["settings"]["time_span_factor"].get<double>();
+    settings_time_step_factor = obj["settings"]["time_step_factor"].get<double>();
+    settings_sampling_time = obj["settings"]["sampling_time"].get<double>();
 
     this->setModified(false);
 }
 
 void InputData::save(const QString& path)
 {
-    jsoncons::ojson obj;
+    json obj;
     obj["meta"]["version"] = std::string(meta_version);
     obj["meta"]["comments"] = std::string(meta_comments);
     obj["profile"]["segments"] = Series(profile_segments);
-    obj["profile"]["offset_x"] = double(profile_x0);
-    obj["profile"]["offset_y"] = double(profile_y0);
-    obj["profile"]["angle"] = double(profile_phi0);
-    obj["sections"]["width"] = Series(sections_width);
-    obj["sections"]["height"] = Series(sections_height);
-    obj["sections"]["rho"] = double(sections_rho);
-    obj["sections"]["E"] = double(sections_E);
+    obj["profile"]["x0"] = double(profile_x0);
+    obj["profile"]["y0"] = double(profile_y0);
+    obj["profile"]["phi0"] = double(profile_phi0);
+    obj["width"] = Series(sections_width);
+    obj["height"] = Series(sections_height);
+    obj["material"]["rho"] = double(sections_rho);
+    obj["material"]["E"] = double(sections_E);
     obj["string"]["strand_stiffness"] = double(string_strand_stiffness);
     obj["string"]["strand_density"] = double(string_strand_density);
     obj["string"]["n_strands"] = double(string_n_strands);
@@ -78,11 +80,11 @@ void InputData::save(const QString& path)
     QFile file(path);
     if(!file.open(QFile::WriteOnly | QFile::Text))
     {
-        throw std::runtime_error("Could not open file");    // Todo: Better message with filename
+        throw std::runtime_error("Could not open file");    // Todo: Better message with filename and exact reason
     }
 
     std::ostringstream oss;
-    oss << jsoncons::pretty_print(obj);
+    oss << std::setw(4) << obj;
     QTextStream(&file) << QString::fromStdString(oss.str());
 
     this->setModified(false);

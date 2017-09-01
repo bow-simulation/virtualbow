@@ -28,10 +28,3 @@ static void to_json(json& obj, const OutputData& val)
     obj["statics"] = val.statics;
     obj["dynamics"] = val.dynamics;
 }
-
-static void from_json(const json& obj, OutputData& val)
-{
-    val.setup = obj["setup"];
-    val.statics = obj["statics"];
-    val.dynamics = obj["dynamics"];
-}

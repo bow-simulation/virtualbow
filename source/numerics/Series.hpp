@@ -1,6 +1,8 @@
 #pragma once
-#include <jsoncons/json.hpp>
 #include <vector>
+#include <json.hpp>
+
+using nlohmann::json;
 
 class Series
 {
@@ -29,35 +31,22 @@ public:
 
     Series flip(bool vertical);  // Todo: Use enum instead of bool and a better name
 
-
-//private:
+// Todo //private:
     std::vector<double> m_args;
     std::vector<double> m_vals;
 
-    //template<typename> friend class jsoncons::json_type_traits;
+    //friend void to_json(json&, const Series&);
+    //friend void from_json(const json&, Series&);
 };
 
-namespace jsoncons
+static void to_json(json& obj, const Series& val)
 {
-    template<class Json>
-    struct json_type_traits<Json, Series>
-    {
-        static Series as(const Json& rhs)
-        {
-            Series series;
-            series.m_args = rhs["args"].template as<std::vector<double>>();
-            series.m_vals = rhs["vals"].template as<std::vector<double>>();
+    obj["args"] = val.m_args;
+    obj["vals"] = val.m_vals;
+}
 
-            return series;
-        }
-
-        static Json to_json(const Series& series)
-        {
-            Json obj;
-            obj["args"] = series.m_args;
-            obj["vals"] = series.m_vals;
-
-            return obj;
-        }
-    };
+static void from_json(const json& obj, Series& val)
+{
+    val.m_args = obj["args"].get<std::vector<double>>();
+    val.m_vals = obj["vals"].get<std::vector<double>>();
 }

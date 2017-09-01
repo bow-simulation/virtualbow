@@ -19,11 +19,3 @@ static void to_json(json& obj, const DynamicData& val)
     obj["final_arrow_energy"] = val.final_arrow_energy;
     obj["efficiency"] = val.efficiency;
 }
-
-static void from_json(const json& obj, DynamicData& val)
-{
-    val.states = obj["states"];
-    val.final_arrow_velocity = obj["final_arrow_velocity"];
-    val.final_arrow_energy = obj["final_arrow_energy"];
-    val.efficiency = obj["efficiency"];
-}

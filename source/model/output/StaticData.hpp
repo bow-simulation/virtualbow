@@ -19,11 +19,3 @@ static void to_json(json& obj, const StaticData& val)
     obj["drawing_work"] = val.drawing_work;
     obj["storage_ratio"] = val.storage_ratio;
 }
-
-static void from_json(const json& obj, StaticData& val)
-{
-    val.states = obj["states"];
-    val.final_draw_force = obj["final_draw_force"];
-    val.drawing_work = obj["drawing_work"];
-    val.storage_ratio = obj["storage_ratio"];
-}

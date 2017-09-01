@@ -15,41 +15,25 @@ struct LayerProperties
 {
     double E;
     std::valarray<double> s;
-    std::valarray<double> y_upper;
-    std::valarray<double> y_lower;
+    std::valarray<double> y_back;
+    std::valarray<double> y_belly;
 
     LayerProperties(size_t n)
-        : s(n), y_upper(n), y_lower(n)
+        : s(n), y_back(n), y_belly(n)
     {
 
     }
 
     std::valarray<double> sigma_upper(const std::valarray<double>& epsilon, const std::valarray<double>& kappa) const
     {
-        return E*(y_upper*kappa - epsilon);    // Todo: Sign?
+        return E*(y_back*kappa - epsilon);    // Todo: Sign?
     }
 
     std::valarray<double> sigma_lower(const std::valarray<double>& epsilon, const std::valarray<double>& kappa) const
     {
-        return E*(y_lower*kappa - epsilon);    // Todo: Sign?
+        return E*(y_belly*kappa - epsilon);    // Todo: Sign?
     }
 };
-
-static void to_json(json& obj, const LayerProperties& val)
-{
-    obj["E"] = val.E;
-    obj["s"] = val.s;
-    obj["y_upper"] = val.y_upper;
-    obj["y_lower"] = val.y_lower;
-}
-
-static void from_json(const json& obj, LayerProperties& val)
-{
-    val.E = obj["E"];
-    val.s = obj["s"].get<std::valarray<double>>();
-    val.y_upper = obj["y_upper"].get<std::valarray<double>>();
-    val.y_lower = obj["y_lower"].get<std::valarray<double>>();
-}
 
 struct LimbProperties
 {
@@ -133,8 +117,8 @@ struct LimbProperties
         for(size_t i = 0; i < s.size(); ++i)
         {
             layers[0].s[i] = s[i];
-            layers[0].y_upper[i] = 0.0;
-            layers[0].y_lower[i] = -height.val(i);
+            layers[0].y_back[i] = 0.0;
+            layers[0].y_belly[i] = -height.val(i);
         }
     }
 
@@ -149,27 +133,4 @@ static void to_json(json& obj, const LimbProperties& val)
     obj["s"] = val.s;
     obj["x"] = val.x;
     obj["y"] = val.y;
-    obj["w"] = val.w;
-    obj["h"] = val.h;
-    obj["phi"] = val.phi;
-    obj["hc"] = val.hc;
-    obj["Cee"] = val.Cee;
-    obj["Ckk"] = val.Ckk;
-    obj["Cek"] = val.Cek;
-    obj["rhoA"] = val.rhoA;
-}
-
-static void from_json(const json& obj, LimbProperties& val)
-{
-    val.s = obj["s"].get<std::valarray<double>>();
-    val.x = obj["x"].get<std::valarray<double>>();
-    val.y = obj["y"].get<std::valarray<double>>();
-    val.w = obj["w"].get<std::valarray<double>>();
-    val.h = obj["h"].get<std::valarray<double>>();
-    val.phi = obj["phi"].get<std::valarray<double>>();;
-    val.hc = obj["hc"].get<std::valarray<double>>();
-    val.Cee = obj["Cee"].get<std::valarray<double>>();
-    val.Ckk = obj["Ckk"].get<std::valarray<double>>();
-    val.Cek = obj["Cek"].get<std::valarray<double>>();
-    val.rhoA = obj["rhoA"].get<std::valarray<double>>();
 }
