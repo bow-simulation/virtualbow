@@ -15,23 +15,23 @@ struct LayerProperties
 {
     double E;
     std::valarray<double> s;
-    std::valarray<double> y_upper;
-    std::valarray<double> y_lower;
+    std::valarray<double> y_back;
+    std::valarray<double> y_belly;
 
     LayerProperties(size_t n)
-        : s(n), y_upper(n), y_lower(n)
+        : s(n), y_back(n), y_belly(n)
     {
 
     }
 
     std::valarray<double> sigma_upper(const std::valarray<double>& epsilon, const std::valarray<double>& kappa) const
     {
-        return E*(y_upper*kappa - epsilon);    // Todo: Sign?
+        return E*(y_back*kappa - epsilon);    // Todo: Sign?
     }
 
     std::valarray<double> sigma_lower(const std::valarray<double>& epsilon, const std::valarray<double>& kappa) const
     {
-        return E*(y_lower*kappa - epsilon);    // Todo: Sign?
+        return E*(y_belly*kappa - epsilon);    // Todo: Sign?
     }
 };
 
@@ -117,8 +117,8 @@ struct LimbProperties
         for(size_t i = 0; i < s.size(); ++i)
         {
             layers[0].s[i] = s[i];
-            layers[0].y_upper[i] = 0.0;
-            layers[0].y_lower[i] = -height.val(i);
+            layers[0].y_back[i] = 0.0;
+            layers[0].y_belly[i] = -height.val(i);
         }
     }
 
