@@ -60,7 +60,7 @@ private:
     std::function<bool()> stop;
 
     double dt;    // Timestep
-    double ts;    // Sampling time
+    double f;     // Sampling rate
     double t;     // Time at which the system has to be sampled next
 
     VectorXd u_p2;

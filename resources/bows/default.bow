@@ -5,7 +5,7 @@
         "n_draw_steps": 150,
         "time_span_factor": 1.5,
         "time_step_factor": 0.5,
-        "sampling_time": 2.0e-05
+        "sampling_rate": 10000
     },
     "masses": {
         "string_center": 0.0,

@@ -48,7 +48,7 @@ public:
             dialog.addGroup("Dynamics");
             dialog.addField("Time span factor:", "", data.settings_time_span_factor);
             dialog.addField("Time step factor:", "", data.settings_time_step_factor);
-            dialog.addField("Sampling time:", "s", data.settings_sampling_time);
+            dialog.addField("Sampling rate:", "Hz", data.settings_sampling_rate);
 
             dialog.exec();
         });

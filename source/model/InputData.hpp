@@ -51,7 +51,7 @@ struct InputData: public Document
     DocItem<int>        settings_n_draw_steps{this, &Domain<int>::pos};
     DocItem<double> settings_time_span_factor{this, &Domain<double>::pos};
     DocItem<double> settings_time_step_factor{this, &Domain<double>::pos};
-    DocItem<double>    settings_sampling_time{this, &Domain<double>::pos};
+    DocItem<double>    settings_sampling_rate{this, &Domain<double>::pos};
 
     InputData(const QString& path);
     void load(const QString& path);
