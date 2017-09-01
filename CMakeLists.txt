@@ -65,7 +65,6 @@ add_executable(${PROJECT_NAME}
    source/gui/output/StressPlot.cpp
 
    source/model/BowModel.cpp
-   source/model/LimbProperties.cpp
    source/model/InputData.cpp
    source/model/Document.hpp    # moc
 
