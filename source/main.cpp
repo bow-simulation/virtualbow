@@ -1,4 +1,5 @@
 #include "gui/MainWindow.hpp"
+#include "Version.hpp"
 
 #include "model/BowModel.hpp"
 #include <fstream>
@@ -22,7 +23,7 @@ int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
     app.setApplicationDisplayName("Bow Simulator");
-    app.setApplicationVersion("0.2");
+    app.setApplicationVersion(QString::fromStdString(version));
     app.setOrganizationDomain("https://bow-simulator.gitlab.io/");
     setlocale(LC_NUMERIC, "C");
 

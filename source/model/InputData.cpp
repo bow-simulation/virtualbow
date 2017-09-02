@@ -1,4 +1,5 @@
 #include "InputData.hpp"
+#include "Version.hpp"
 #include <json.hpp>
 
 using nlohmann::json;
@@ -18,6 +19,8 @@ void InputData::load(const QString& path)
 
     std::string str = QTextStream(&file).readAll().toStdString();
     json obj = json::parse(str);
+
+    convert_to_current(obj);
 
     meta_version = obj["meta"]["version"].get<std::string>();
     meta_comments = obj["meta"]["comments"].get<std::string>();
@@ -51,7 +54,7 @@ void InputData::load(const QString& path)
 void InputData::save(const QString& path)
 {
     json obj;
-    obj["meta"]["version"] = std::string(meta_version);
+    obj["meta"]["version"] = version;
     obj["meta"]["comments"] = std::string(meta_comments);
     obj["profile"]["segments"] = Series(profile_segments);
     obj["profile"]["x0"] = double(profile_x0);

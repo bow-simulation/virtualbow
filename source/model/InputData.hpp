@@ -1,5 +1,6 @@
 #pragma once
 #include "model/Document.hpp"
+#include "model/Compatibility.hpp"
 #include "numerics/Series.hpp"
 
 #include <QtCore>
