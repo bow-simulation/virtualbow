@@ -305,23 +305,23 @@ private:
         {
             if(i == 0)
             {
-                epsilon[i] = elements[i].get_epsilon(0.0);
+                epsilon[i] = elements[i].get_epsilon();
                 kappa[i] = elements[i].get_kappa(0.0);
             }
             else if(i == nodes_limb.size()-1)
             {
-                epsilon[i] = elements[i-1].get_epsilon(1.0);
+                epsilon[i] = elements[i-1].get_epsilon();
                 kappa[i] = elements[i-1].get_kappa(1.0);
             }
             else
             {
-                epsilon[i] = 0.5*(elements[i-1].get_epsilon(1.0) + elements[i].get_epsilon(0.0));
+                epsilon[i] = 0.5*(elements[i-1].get_epsilon() + elements[i].get_epsilon());
                 kappa[i] = 0.5*(elements[i-1].get_kappa(1.0) + elements[i].get_kappa(0.0));
             }
         }
 
-        states.sigma_upper.push_back(limb.layers[0].sigma_upper(epsilon, kappa));
-        states.sigma_lower.push_back(limb.layers[0].sigma_lower(epsilon, kappa));
+        states.sigma_back.push_back(limb.layers[0].sigma_back(epsilon, kappa));
+        states.sigma_belly.push_back(limb.layers[0].sigma_belly(epsilon, kappa));
     }
 
 private:

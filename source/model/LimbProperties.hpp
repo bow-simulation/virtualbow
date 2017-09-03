@@ -24,12 +24,12 @@ struct LayerProperties
 
     }
 
-    std::valarray<double> sigma_upper(const std::valarray<double>& epsilon, const std::valarray<double>& kappa) const
+    std::valarray<double> sigma_back(const std::valarray<double>& epsilon, const std::valarray<double>& kappa) const
     {
         return E*(y_back*kappa - epsilon);    // Todo: Sign?
     }
 
-    std::valarray<double> sigma_lower(const std::valarray<double>& epsilon, const std::valarray<double>& kappa) const
+    std::valarray<double> sigma_belly(const std::valarray<double>& epsilon, const std::valarray<double>& kappa) const
     {
         return E*(y_belly*kappa - epsilon);    // Todo: Sign?
     }

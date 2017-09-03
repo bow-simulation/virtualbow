@@ -21,8 +21,8 @@ StressPlot::StressPlot(const SetupData& setup, const BowStates& states)
 
 void StressPlot::setStateIndex(int index)
 {
-    this->graph(0)->setData(setup.limb.s, states.sigma_upper[index]);
-    this->graph(1)->setData(setup.limb.s, states.sigma_lower[index]);
+    this->graph(0)->setData(setup.limb.s, states.sigma_back[index]);
+    this->graph(1)->setData(setup.limb.s, states.sigma_belly[index]);
     this->replot();
 }
 
@@ -33,8 +33,8 @@ void StressPlot::setAxesRanges()
 
     for(size_t i = 0; i < states.time.size(); ++i)
     {
-        y_range.expand(states.sigma_upper[i].max());
-        y_range.expand(states.sigma_lower[i].min());
+        y_range.expand(states.sigma_back[i].max());
+        y_range.expand(states.sigma_belly[i].min());
     }
 
     this->setAxesLimits(x_range, y_range);

@@ -28,7 +28,7 @@ void BeamElement::set_stiffness(double Cee, double Ckk, double Cek)
 }
 
 // p in [0, 1]
-double BeamElement::get_epsilon(double p) const
+double BeamElement::get_epsilon() const
 {
     auto e = get_e();
     return e(0)/L;

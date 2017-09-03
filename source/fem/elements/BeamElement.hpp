@@ -9,7 +9,7 @@ public:
 
     void set_reference_angles(double phi_ref_0, double phi_ref_1);
     void set_stiffness(double Cee, double Ckk, double Cek);
-    double get_epsilon(double p) const;
+    double get_epsilon() const;
     double get_kappa(double p) const;
 
     virtual void get_masses(VectorView<Dof> M) const override;
