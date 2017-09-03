@@ -5,6 +5,11 @@ using nlohmann::json;
 
 #include <QtCore>
 
+static void convert_0_1_0_to_0_2_0(json& obj)
+{
+    obj["meta"]["version"] = "0.2";
+}
+
 static void convert_0_2_0_to_0_3_0(json& obj)
 {
     json obj2;
@@ -33,6 +38,9 @@ static void convert_0_2_0_to_0_3_0(json& obj)
 
 static void convert_to_current(json& obj)
 {
+    if(obj["meta"]["version"] == "0.1" || obj["meta"]["version"] == "0.1.0")
+        convert_0_1_0_to_0_2_0(obj);
+
     if(obj["meta"]["version"] == "0.2" || obj["meta"]["version"] == "0.2.0")
         convert_0_2_0_to_0_3_0(obj);
 

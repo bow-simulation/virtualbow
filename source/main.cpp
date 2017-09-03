@@ -50,6 +50,40 @@ int main(int argc, char* argv[])
     bool input_set = (pos_args.size() > 0);
     bool output_set = (pos_args.size() > 1);
 
+    if(output_set || mode_set)  // Run Batch
+    {
+        if(!input_set) {
+            qInfo() << "No input file provided.";
+            return 1;
+        }
+
+        QString input_path = pos_args[0];
+        QString output_path;
+        bool dynamics_set;
+
+        if(output_set) {
+            output_path = pos_args[1];
+        }
+        else {
+            QFileInfo info(input_path);
+            output_path = info.absolutePath() + QDir::separator() + info.completeBaseName() + ".dat";
+        }
+
+        if(mode_set) {
+            dynamics_set = parser.isSet(dynamics);
+        }
+        else {
+            dynamics_set = true;
+        }
+
+        return run_cli(input_path, output_path, dynamics_set);
+    }
+    else // Run GUI
+    {
+        return run_gui(app, input_set ? pos_args[0] : ":/bows/default.bow");
+    }
+
+    /*
     if(!mode_set)
     {
         if(output_set) {
@@ -79,6 +113,7 @@ int main(int argc, char* argv[])
 
         return run_cli(input_path, output_path, parser.isSet(dynamics));
     }
+    */
 }
 
 /*
