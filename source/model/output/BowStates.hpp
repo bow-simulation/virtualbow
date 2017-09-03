@@ -27,8 +27,8 @@ struct BowStates
     std::vector<std::valarray<double>> x_string;
     std::vector<std::valarray<double>> y_string;
 
-    std::vector<std::valarray<double>> sigma_upper;
-    std::vector<std::valarray<double>> sigma_lower;
+    std::vector<std::valarray<double>> sigma_back;
+    std::vector<std::valarray<double>> sigma_belly;
 };
 
 static void to_json(json& obj, const BowStates& val)
@@ -49,6 +49,6 @@ static void to_json(json& obj, const BowStates& val)
     obj["y_limb"] = val.y_limb;
     obj["x_string"] = val.x_string;
     obj["y_string"] = val.y_string;
-    obj["sigma_upper"] = val.sigma_upper;
-    obj["sigma_lower"] = val.sigma_lower;
+    obj["sigma_back"] = val.sigma_back;
+    obj["sigma_belly"] = val.sigma_belly;
 }

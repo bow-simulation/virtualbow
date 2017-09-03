@@ -1,22 +1,38 @@
 #include "gui/MainWindow.hpp"
+#include "model/BowModel.hpp"
 #include "Version.hpp"
 
-#include "model/BowModel.hpp"
 #include <fstream>
+
 int run_cli(QString input_path, QString output_path, bool dynamic)
 {
-    InputData input(input_path);
-    OutputData output = dynamic ? BowModel::run_dynamic_simulation(input, [](int){return true;}, [](int){return true;})
-                                : BowModel::run_static_simulation(input, [](int){return true;});
-    output.save(output_path.toStdString());
+    try
+    {
+        InputData input(input_path);
+        OutputData output = dynamic ? BowModel::run_dynamic_simulation(input, [](int){return true;}, [](int){return true;})
+                                    : BowModel::run_static_simulation(input, [](int){return true;});
+        output.save(output_path.toStdString());
+    }
+    catch(const std::runtime_error& e)
+    {
+        qInfo() << "Error: " << e.what();
+        return 1;
+    }
 }
 
 int run_gui(QApplication& app, QString path)
 {
-    MainWindow window(path);
-    window.show();
-
-    return app.exec();
+    try
+    {
+        MainWindow window(path);
+        window.show();
+        return app.exec();
+    }
+    catch(const std::runtime_error& e)
+    {
+        qInfo() << "Error: " << e.what();
+        return 1;
+    }
 }
 
 int main(int argc, char* argv[])
@@ -41,27 +57,20 @@ int main(int argc, char* argv[])
     parser.process(app);
 
     auto pos_args = parser.positionalArguments();
-    if(pos_args.size() > 2) {
+    if(pos_args.size() > 2)
+    {
         qInfo() << "Too many arguments.";
         return 1;
     }
 
-    bool mode_set = (parser.isSet(statics) || parser.isSet(dynamics));
     bool input_set = (pos_args.size() > 0);
     bool output_set = (pos_args.size() > 1);
+    bool mode_set = (parser.isSet(statics) || parser.isSet(dynamics));
 
-    if(!mode_set)
+    if(output_set || mode_set)
     {
-        if(output_set) {
-            qInfo() << "No simulation mode selected.";
-            return 1;
-        }
-
-        return run_gui(app, input_set ? pos_args[0] : ":/bows/default.bow");
-    }
-    else
-    {
-        if(!input_set) {
+        if(!input_set)
+        {
             qInfo() << "No input file provided.";
             return 1;
         }
@@ -69,15 +78,22 @@ int main(int argc, char* argv[])
         QString input_path = pos_args[0];
         QString output_path;
 
-        if(output_set) {
+        if(output_set)
+        {
             output_path = pos_args[1];
         }
-        else {
+        else
+        {
             QFileInfo info(input_path);
             output_path = info.absolutePath() + QDir::separator() + info.completeBaseName() + ".dat";
         }
 
-        return run_cli(input_path, output_path, parser.isSet(dynamics));
+        bool perform_dynamics = mode_set ? parser.isSet(dynamics) : true;
+        return run_cli(input_path, output_path, perform_dynamics);
+    }
+    else
+    {
+        return run_gui(app, input_set ? pos_args[0] : ":/bows/default.bow");
     }
 }
 

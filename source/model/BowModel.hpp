@@ -320,8 +320,8 @@ private:
             }
         }
 
-        states.sigma_upper.push_back(limb.layers[0].sigma_upper(epsilon, kappa));
-        states.sigma_lower.push_back(limb.layers[0].sigma_lower(epsilon, kappa));
+        states.sigma_back.push_back(limb.layers[0].sigma_back(epsilon, kappa));
+        states.sigma_belly.push_back(limb.layers[0].sigma_belly(epsilon, kappa));
     }
 
 private:
