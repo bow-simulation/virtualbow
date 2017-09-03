@@ -4,6 +4,10 @@
 
 #include <fstream>
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 int run_cli(QString input_path, QString output_path, bool dynamic)
 {
     try
@@ -24,6 +28,10 @@ int run_gui(QApplication& app, QString path)
 {
     try
     {
+        #ifdef WIN32
+        FreeConsole();
+        #endif
+        
         MainWindow window(path);
         window.show();
         return app.exec();

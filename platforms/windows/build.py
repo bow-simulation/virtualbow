@@ -29,7 +29,6 @@ def build_application(source_dir, build_dir, output_dir):
 	"-G" + generator,
     "-DCMAKE_INSTALL_PREFIX=" + output_dir,
 	"-DCMAKE_BUILD_TYPE=Release",
-    "-DCMAKE_WIN32_EXECUTABLE=ON",
 	"-DQt5Widgets_DIR=" + qt_path + "/lib/cmake/Qt5Widgets",
     "-DQt5PrintSupport_DIR=" + qt_path + "/lib/cmake/Qt5PrintSupport"])
 
