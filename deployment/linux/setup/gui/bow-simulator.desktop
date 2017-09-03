@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Bow Simulator
-Exec=bow-simulator
-Icon=${SNAP}/meta/gui/icon.png
-Comment=Bow and arrow physics simulation
-Categories=Education;Science;NumericalAnalysis;Physics;Engineering;Qt
-MimeType=application/json
