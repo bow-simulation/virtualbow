@@ -78,22 +78,22 @@ target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::PrintSupport)
 
 # Build tests
 
-add_executable(tests
-    source/tests/main.cpp
-    source/tests/tangent_stiffness.cpp
-    source/tests/large_deformation_beams.cpp
-    source/tests/harmonic_oscillator.cpp
-    source/tests/bar_trusses.cpp
+#add_executable(tests
+#    source/tests/main.cpp
+#    source/tests/tangent_stiffness.cpp
+#    source/tests/large_deformation_beams.cpp
+#    source/tests/harmonic_oscillator.cpp
+#    source/tests/bar_trusses.cpp
 
-    source/fem/elements/BarElement.cpp
-    source/fem/elements/BeamElement.cpp
-    source/fem/elements/MassElement.cpp
-    source/fem/elements/ContactElement.cpp
-    source/fem/elements/ContactArea.cpp
-    source/fem/Node.cpp
-    source/fem/Solver.cpp
-    source/fem/System.cpp
-)
+#    source/fem/elements/BarElement.cpp
+#    source/fem/elements/BeamElement.cpp
+#    source/fem/elements/MassElement.cpp
+#    source/fem/elements/ContactElement.cpp
+#    source/fem/elements/ContactArea.cpp
+#    source/fem/Node.cpp
+#    source/fem/Solver.cpp
+#    source/fem/System.cpp
+#)
 
 # Install
 

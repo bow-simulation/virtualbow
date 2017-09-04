@@ -1,6 +1,6 @@
 #define APP_NAME "Bow Simulator"
 #define EXE_NAME "bow-simulator.exe"
-#define VERSION "0.2"
+#define VERSION "0.3"
 #define PUBLISHER "Stefan Pfeifer"
 #define WEBSITE "https://bow-simulator.gitlab.io/"
 #define BUILD_DIR
