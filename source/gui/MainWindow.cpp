@@ -5,7 +5,6 @@
 #include "model/BowModel.hpp"
 #include <thread>
 #include <json.hpp>
-#include "Thread.hpp"
 
 MainWindow:: MainWindow(const QString& path)
     : input(path),

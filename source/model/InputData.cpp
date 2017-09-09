@@ -1,5 +1,5 @@
 #include "InputData.hpp"
-#include "Version.hpp"
+#include "gui/Application.hpp"
 #include <json.hpp>
 
 using nlohmann::json;
@@ -54,7 +54,7 @@ void InputData::load(const QString& path)
 void InputData::save(const QString& path)
 {
     json obj;
-    obj["meta"]["version"] = version;
+    obj["meta"]["version"] = Application::version;
     obj["meta"]["comments"] = std::string(meta_comments);
     obj["profile"]["segments"] = Series(profile_segments);
     obj["profile"]["x0"] = double(profile_x0);

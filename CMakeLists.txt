@@ -36,6 +36,7 @@ add_executable(${PROJECT_NAME}
    source/fem/Solver.cpp
    source/fem/System.cpp
 
+   source/gui/Application.cpp
    source/gui/MainWindow.cpp
    source/gui/PlotWidget.cpp
    source/gui/ProgressDialog.cpp
