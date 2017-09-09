@@ -72,7 +72,7 @@ def build_deb_package(version, build_dir, output_dir):
     control.close()
     
     # Build package
-    subprocess.call(["dpkg-deb", "--build", build_dir, output_dir + "/bow_simulator-" + version + "-" + "amd64" + ".deb"])
+    subprocess.call(["dpkg-deb", "--build", build_dir, output_dir + "/bow_simulator-" + version + "-" + "linux64" + ".deb"])
 
 def build_snap_package(version, build_dir, output_dir):
     # Icon
@@ -111,7 +111,7 @@ def build_snap_package(version, build_dir, output_dir):
     subprocess.call(["snapcraft", "snap", "--output", "output.snap"])
     os.chdir(cwd)
 
-    shutil.move(build_dir + "/output.snap", output_dir + "/bow_simulator-" + version + "-" + "amd64" + ".snap")
+    shutil.move(build_dir + "/output.snap", output_dir + "/bow_simulator-" + version + "-" + "linux64" + ".snap")
 
 def build_packages(version, build_dir, output_dir):
     build_deb_package(version, build_dir + "/build-deb", output_dir)

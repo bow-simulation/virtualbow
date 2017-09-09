@@ -33,7 +33,7 @@ Name: {group}\{#APP_NAME}; Filename: {app}\{#EXE_NAME}
 Name: {commondesktop}\{#APP_NAME}; Filename: {app}\{#EXE_NAME}; Tasks: desktopicon
 
 [Tasks]
-Name: DesktopIcon; Description: "Create a desktop shortcut"; Flags: unchecked
+Name: DesktopIcon; Description: "Create a desktop shortcut";
 Name: FileAssociation; Description: "Associate .bow files with Bow Simulator";
 
 [Registry]
