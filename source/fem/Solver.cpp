@@ -94,6 +94,18 @@ VectorXd StaticSolverDC::unit_vector(size_t n, size_t i) const
     return vec;
 }
 
+DynamicSolver::DynamicSolver(System& system, double end_time, double time_step, double sampling_rate)
+    : system(system),
+      stop([&]{ return system.t() >= end_time; }),
+      f(sampling_rate),
+      dt(time_step),
+      t(0.0)
+{
+    // Initialise previous displacement
+    // Todo: Code duplication
+    u_p2 = system.u() - dt*system.v() + dt*dt/2.0*system.a();
+}
+
 DynamicSolver::DynamicSolver(System& system, double step_factor, double sampling_rate, std::function<bool()> stop)
     : system(system),
       stop(stop),

@@ -52,6 +52,7 @@ private:
 class DynamicSolver
 {
 public:
+    DynamicSolver(System& system, double end_time, double time_step, double sampling_rate);
     DynamicSolver(System& system, double step_factor, double sampling_time, std::function<bool()> stop);
     bool step();
 

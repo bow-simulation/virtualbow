@@ -5,6 +5,7 @@ int main(int argc, char* argv[])
     return Application::run(argc, argv);
 }
 
+
 /*
 #include "fem/System.hpp"
 #include "fem/Solver.hpp"
@@ -26,15 +27,13 @@ int main()
     system.add_element(MassElement(node_c, 1.0, 0.0));
     node_c[1].p_mut() = -10.0;
 
-    DynamicSolver solver(system, 0.1, 1e-3, [&]{ return system.t() >= 0.5; });
+    DynamicSolver solver(system, 0.2, 0.01, 1000.0);
     while(solver.step())
     {
         std::cout << node_c[0].u() << "," << node_c[1].u() << "\n";
     }
-
 }
 */
-
 
 /*
 Eigen::Vector2d p0{0.0, 0.0};

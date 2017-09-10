@@ -13,7 +13,7 @@ int Application::run(int argc, char* argv[])
     QApplication app(argc, argv);
     app.setApplicationDisplayName("Bow Simulator");
     app.setApplicationVersion(QString::fromStdString(version));
-    app.setOrganizationDomain("https://bow-simulator.gitlab.io/");
+    app.setOrganizationDomain("http://bow-simulator.org/");
     setlocale(LC_NUMERIC, "C");
 
     // Parse command line arguments
