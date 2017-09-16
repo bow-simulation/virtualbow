@@ -17,22 +17,12 @@ using namespace nlohmann;
 class BowModel
 {
 public:
-    static OutputData run_setup_simulation(const InputData& input)
-    {
-        BowModel model(input);
-
-        OutputData output;
-        model.simulate_setup(output.setup);
-
-        return output;
-    }
-
     template<typename F>
     static OutputData run_static_simulation(const InputData& input, const F& callback)
     {
         BowModel model(input);
-
         OutputData output;
+
         model.simulate_setup(output.setup);
         model.simulate_statics(output.statics, callback);
 
@@ -43,8 +33,8 @@ public:
     static OutputData run_dynamic_simulation(const InputData& input, const F1& callback1, const F2& callback2)
     {
         BowModel model(input);
-
         OutputData output;
+
         model.simulate_setup(output.setup);
         model.simulate_statics(output.statics, callback1);
         model.simulate_dynamics(output.dynamics, output.statics, callback2);

@@ -113,7 +113,7 @@ DynamicSolver::DynamicSolver(System& system, double step_factor, double sampling
       t(0.0)
 {
     // Timestep estimation
-    Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd>
+    Eigen::GeneralizedSelfAdjointEigenSolver<MatrixXd>
             eigen_solver(system.K(), system.M().asDiagonal(), Eigen::DecompositionOptions::EigenvaluesOnly);
 
     if(eigen_solver.info() != Eigen::Success)

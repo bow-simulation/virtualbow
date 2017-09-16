@@ -1,18 +1,7 @@
 #pragma once
-#include <Eigen/Core>
-
+#include "numerics/Math.hpp"
 #include <array>
 #include <functional>
-
-// Todo: Not actually needed here
-using Eigen::VectorXd;
-using Eigen::MatrixXd;
-
-template<std::size_t n>
-using Matrix = Eigen::Matrix<double, n, n>;
-
-template<std::size_t n>
-using Vector = Eigen::Matrix<double, n, 1>;
 
 //================================================================================================
 

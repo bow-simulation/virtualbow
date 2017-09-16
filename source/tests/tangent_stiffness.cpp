@@ -7,12 +7,12 @@
 #include <iostream>
 
 // Numeric tangent stiffness matrix using central differences
-Eigen::MatrixXd numeric_tangent_stiffness(System& system, double h = 1e-8)
+MatrixXd numeric_tangent_stiffness(System& system, double h = 1e-8)
 {
-    Eigen::MatrixXd K = Eigen::MatrixXd::Zero(system.dofs(), system.dofs());
+    MatrixXd K = MatrixXd::Zero(system.dofs(), system.dofs());
 
-    Eigen::VectorXd q_fwd = Eigen::VectorXd::Zero(system.dofs());
-    Eigen::VectorXd q_bwd = Eigen::VectorXd::Zero(system.dofs());
+    VectorXd q_fwd = VectorXd::Zero(system.dofs());
+    VectorXd q_bwd = VectorXd::Zero(system.dofs());
 
     for(std::size_t i = 0; i < system.dofs(); ++i)
     {
@@ -33,8 +33,8 @@ Eigen::MatrixXd numeric_tangent_stiffness(System& system, double h = 1e-8)
 
 void check_stiffness_matrix(System& system)
 {
-    Eigen::MatrixXd K_ana = system.K();
-    Eigen::MatrixXd K_num = numeric_tangent_stiffness(system);
+    MatrixXd K_ana = system.K();
+    MatrixXd K_num = numeric_tangent_stiffness(system);
 
     REQUIRE(K_ana.isApprox(K_num, 1e-5));                   // Equal to numeric derivatives
     REQUIRE(K_ana.isApprox(K_num.transpose(), 1e-5));       // Symmetric

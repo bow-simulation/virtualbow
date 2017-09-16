@@ -6,7 +6,7 @@ BeamElement::BeamElement(Node nd0, Node nd1, double rhoA, double L)
       phi_ref_1(0.0),
       rhoA(rhoA),
       L(L),
-      C(Eigen::Matrix<double, 3, 3>::Zero())
+      C(Matrix<3, 3>::Zero())
 {
 
 }
@@ -82,17 +82,17 @@ void BeamElement::get_tangent_stiffness(MatrixView<Dof> K) const
     double b4 = 2.0*a3*dy*dy - a1;
     double b5 = 2.0*a3*dx*dy;
 
-    Eigen::Matrix<double, 3, 6> dJ0;
+    Matrix<3, 6> dJ0;
     dJ0 << -b0, -b2, 0.0, b0,  b2, 0.0,
            -b5,  b3, 0.0, b5, -b3, 0.0,
            -b5,  b3, 0.0, b5, -b3, 0.0;
 
-    Eigen::Matrix<double, 3, 6> dJ1;
+    Matrix<3, 6> dJ1;
     dJ1 << -b2, -b1, 0.0, b2,  b1, 0.0,
            -b4,  b5, 0.0, b4, -b5, 0.0,
            -b4,  b5, 0.0, b4, -b5, 0.0;
 
-    Eigen::Matrix<double, 6, 6> Kn = Eigen::Matrix<double, 6, 6>::Zero();
+    Matrix<6, 6> Kn = Matrix<6, 6>::Zero();
     Kn.col(0) =  1.0/L*dJ0.transpose()*C*e;
     Kn.col(1) =  1.0/L*dJ1.transpose()*C*e;
     Kn.col(3) = -1.0/L*dJ0.transpose()*C*e;
@@ -107,7 +107,7 @@ double BeamElement::get_potential_energy() const
     return 0.5/L*e.transpose()*C*e;
 }
 
-Eigen::Matrix<double, 3, 1> BeamElement::get_e() const
+Matrix<3, 1> BeamElement::get_e() const
 {
     double dx = dofs[3].u() - dofs[0].u();
     double dy = dofs[4].u() - dofs[1].u();
@@ -123,7 +123,7 @@ Eigen::Matrix<double, 3, 1> BeamElement::get_e() const
     return {std::hypot(dx, dy) - L, std::atan(sin_e1/cos_e1), std::atan(sin_e2/cos_e2)};
 }
 
-Eigen::Matrix<double, 3, 6> BeamElement::get_J() const
+Matrix<3, 6> BeamElement::get_J() const
 {
     double dx = dofs[3].u() - dofs[0].u();
     double dy = dofs[4].u() - dofs[1].u();
@@ -136,7 +136,7 @@ Eigen::Matrix<double, 3, 6> BeamElement::get_J() const
     double j2 = a1*dx;
     double j3 = a1*dy;
 
-    Eigen::Matrix<double, 3, 6> J;
+    Matrix<3, 6> J;
     J << -j0, -j1, 0.0, j0,  j1, 0.0,
             -j3,  j2, 1.0, j3, -j2, 0.0,
             -j3,  j2, 0.0, j3, -j2, 1.0;

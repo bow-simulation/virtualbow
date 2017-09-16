@@ -38,7 +38,7 @@ private:
     const unsigned max_iter = 50;     // Todo: Magic number
     const double epsilon = 1e-6;      // Todo: Magic number
 
-    Eigen::LDLT<Eigen::MatrixXd> stiffness_dec;
+    Eigen::LDLT<MatrixXd> stiffness_dec;
     VectorXd delta;
     VectorXd alpha;
     VectorXd beta;

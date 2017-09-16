@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 #include "fem/elements/ContactElement.hpp"
 #include "fem/elements/MassElement.hpp"
 
-#include <Eigen/Dense>
+#include "numerics/Math.hpp"
 #include <iostream>
 
 int main()
@@ -37,9 +37,9 @@ int main()
 }
 
 /*
-Eigen::Vector2d p0{0.0, 0.0};
-Eigen::Vector2d p1{2.0, 1.0};
-Eigen::Vector2d p2{0.0, 1.0};
+Vector2d p0{0.0, 0.0};
+Vector2d p1{2.0, 1.0};
+Vector2d p2{0.0, 1.0};
 
 auto orientation = [](auto p0, auto p2, auto p1)
 {

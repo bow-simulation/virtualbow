@@ -24,10 +24,9 @@ private:
     double rhoA;
     double L;
 
-    Eigen::Matrix<double, 3, 3> C;
+    Matrix<3, 3> C;
 
-    Eigen::Matrix<double, 3, 1> get_e() const;
-    Eigen::Matrix<double, 3, 6> get_J() const;
-
+    Matrix<3, 1> get_e() const;
+    Matrix<3, 6> get_J() const;
 };
 

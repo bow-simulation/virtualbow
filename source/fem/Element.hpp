@@ -1,4 +1,5 @@
 #pragma once
+#include "numerics/Math.hpp"
 #include "fem/View.hpp"
 #include "fem/Node.hpp"
 

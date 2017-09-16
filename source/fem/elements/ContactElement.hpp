@@ -2,19 +2,6 @@
 #include "fem/Element.hpp"
 #include "fem/Node.hpp"
 
-struct AABB
-{
-    double x_min;
-    double x_max;
-    double y_min;
-    double y_max;
-
-    bool intersects(double x, double y) const
-    {
-        return x >= x_min && x <= x_max && y >= y_min && y <= y_max;
-    }
-};
-
 struct Kinematics
 {
     double e;
