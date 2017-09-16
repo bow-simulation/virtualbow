@@ -4,7 +4,7 @@
 #include "numerics/Linspace.hpp"
 
 #include <Eigen/Core>
-#include <Eigen/Dense>
+
 #include <functional>
 
 // Load controlled Newton-Raphson method

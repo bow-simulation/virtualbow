@@ -39,7 +39,7 @@ Curve2D ArcCurve::sample(const Series& segments, double x0, double y0, double ph
     Curve2D result(n + 1);
     for(unsigned i = 0; i < n + 1; ++i)
     {
-        double s = double(i)/double(n)*nodes.s.max();   // Todo: Last element of valarray?
+        double s = double(i)/double(n)*nodes.s.tail(1)(0);   // Todo: Better way for last element?
         result.set_point(i, eval_curve(s));
     }
 

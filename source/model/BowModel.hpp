@@ -267,8 +267,8 @@ private:
         // Arrow, limb and string coordinates
 
         states.y_arrow.push_back(node_arrow[1].u());
-        states.x_limb.push_back(std::valarray<double>(nodes_limb.size()));
-        states.y_limb.push_back(std::valarray<double>(nodes_limb.size()));
+        states.x_limb.push_back(VectorXd(nodes_limb.size()));
+        states.y_limb.push_back(VectorXd(nodes_limb.size()));
 
         for(size_t i = 0; i < nodes_limb.size(); ++i)
         {
@@ -276,8 +276,8 @@ private:
             states.y_limb.back()[i] = nodes_limb[i][1].u();
         }
 
-        states.x_string.push_back(std::valarray<double>(nodes_string.size()));
-        states.y_string.push_back(std::valarray<double>(nodes_string.size()));
+        states.x_string.push_back(VectorXd(nodes_string.size()));
+        states.y_string.push_back(VectorXd(nodes_string.size()));
 
         for(size_t i = 0; i < nodes_string.size(); ++i)
         {
@@ -287,8 +287,8 @@ private:
 
         // Stresses
 
-        std::valarray<double> epsilon(nodes_limb.size());
-        std::valarray<double> kappa(nodes_limb.size());
+        VectorXd epsilon(nodes_limb.size());
+        VectorXd kappa(nodes_limb.size());
 
         auto elements = system.element_group<BeamElement>("limb");
         for(size_t i = 0; i < nodes_limb.size(); ++i)

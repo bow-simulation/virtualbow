@@ -1,12 +1,11 @@
-/*
 #include "gui/Application.hpp"
 
 int main(int argc, char* argv[])
 {
     return Application::run(argc, argv);
 }
-*/
 
+/*
 #include "fem/System.hpp"
 #include "fem/Solver.hpp"
 #include "fem/elements/ContactElement.hpp"
@@ -35,6 +34,7 @@ int main()
 
     }
 }
+*/
 
 /*
 Vector2d p0{0.0, 0.0};

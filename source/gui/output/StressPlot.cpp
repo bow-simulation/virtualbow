@@ -28,13 +28,13 @@ void StressPlot::setStateIndex(int index)
 
 void StressPlot::setAxesRanges()
 {
-    QCPRange x_range(setup.limb.s.min(), setup.limb.s.max());
+    QCPRange x_range(setup.limb.s.minCoeff(), setup.limb.s.maxCoeff());
     QCPRange y_range;
 
     for(size_t i = 0; i < states.time.size(); ++i)
     {
-        y_range.expand(states.sigma_back[i].max());
-        y_range.expand(states.sigma_belly[i].min());
+        y_range.expand(states.sigma_back[i].maxCoeff());
+        y_range.expand(states.sigma_belly[i].minCoeff());
     }
 
     this->setAxesLimits(x_range, y_range);

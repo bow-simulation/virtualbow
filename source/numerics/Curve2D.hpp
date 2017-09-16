@@ -1,12 +1,12 @@
 #pragma once
-#include <valarray>
+#include "numerics/Math.hpp"
 
 struct Curve2D
 {
-    std::valarray<double> s;
-    std::valarray<double> x;
-    std::valarray<double> y;
-    std::valarray<double> phi;
+    VectorXd s;
+    VectorXd x;
+    VectorXd y;
+    VectorXd phi;
 
     Curve2D(size_t n)
         : s(n), x(n), y(n), phi(n)

@@ -93,17 +93,13 @@ void ShapePlot::setAxesRanges()
 {
     QCPRange x_range;
     QCPRange y_range;
-    auto expand = [&x_range, &y_range](const std::valarray<double>& x_values, const std::valarray<double>& y_values)
+    auto expand = [&x_range, &y_range](const VectorXd& x_values, const VectorXd& y_values)
     {
-        for(double x: x_values)
+        for(size_t i = 0; i < x_values.size(); ++i)
         {
-            x_range.expand(x);
-            x_range.expand(-x);
-        }
-
-        for(double y: y_values)
-        {
-            y_range.expand(y);
+            x_range.expand( x_values[i]);
+            x_range.expand(-x_values[i]);
+            y_range.expand( y_values[i]);
         }
     };
 

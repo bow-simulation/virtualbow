@@ -1,9 +1,9 @@
 #pragma once
 #include "model/InputData.hpp"
+#include "numerics/Math.hpp"
 #include "numerics/ArcCurve.hpp"
 #include "numerics/CubicSpline.hpp"
 #include <vector>
-#include <valarray>
 #include <array>
 #include <json.hpp>
 
@@ -14,9 +14,9 @@ using nlohmann::json;
 struct LayerProperties
 {
     double E;
-    std::valarray<double> s;
-    std::valarray<double> y_back;
-    std::valarray<double> y_belly;
+    VectorXd s;
+    VectorXd y_back;
+    VectorXd y_belly;
 
     LayerProperties(size_t n)
         : s(n), y_back(n), y_belly(n)
@@ -24,33 +24,33 @@ struct LayerProperties
 
     }
 
-    std::valarray<double> sigma_back(const std::valarray<double>& epsilon, const std::valarray<double>& kappa) const
+    VectorXd sigma_back(const VectorXd& epsilon, const VectorXd& kappa) const
     {
-        return E*(y_back*kappa - epsilon);    // Todo: Sign?
+        return E*(y_back.cwiseProduct(kappa) - epsilon);
     }
 
-    std::valarray<double> sigma_belly(const std::valarray<double>& epsilon, const std::valarray<double>& kappa) const
+    VectorXd sigma_belly(const VectorXd& epsilon, const VectorXd& kappa) const
     {
-        return E*(y_belly*kappa - epsilon);    // Todo: Sign?
+        return E*(y_belly.cwiseProduct(kappa) - epsilon);
     }
 };
 
 struct LimbProperties
 {
     // Nodes
-    std::valarray<double> s;
-    std::valarray<double> x;
-    std::valarray<double> y;
-    std::valarray<double> w;
-    std::valarray<double> h;
-    std::valarray<double> phi;
+    VectorXd s;
+    VectorXd x;
+    VectorXd y;
+    VectorXd w;
+    VectorXd h;
+    VectorXd phi;
 
     // Section properties
-    std::valarray<double> hc;          // Total cross section height (used for contact)
-    std::valarray<double> Cee;
-    std::valarray<double> Ckk;
-    std::valarray<double> Cek;
-    std::valarray<double> rhoA;
+    VectorXd hc;          // Total cross section height (used for contact)
+    VectorXd Cee;
+    VectorXd Ckk;
+    VectorXd Cek;
+    VectorXd rhoA;
 
     // Layer properties
     std::vector<LayerProperties> layers;
