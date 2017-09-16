@@ -83,7 +83,7 @@ TEST_CASE("large-deformation-circular-beam")
     {
         DofType type = (i == 0) ? DofType::Fixed : DofType::Active;
         double phi = double(i)/double(N)*M_PI;
-        nodes.push_back(system.create_node({type, type, type}, {R*std::sin(phi), R*(std::cos(phi) - 1.0), 0.0}));
+        nodes.push_back(system.create_node({type, type, type}, {R*sin(phi), R*(cos(phi) - 1.0), 0.0}));
     }
 
     // Create elements

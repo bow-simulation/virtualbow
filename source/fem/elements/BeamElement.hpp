@@ -2,7 +2,7 @@
 #include "fem/Element.hpp"
 #include "fem/Node.hpp"
 
-class BeamElement: public ElementInterface
+class BeamElement: public Element
 {
 public:
     BeamElement(Node nd0, Node nd1, double rhoA, double L);
@@ -12,6 +12,7 @@ public:
     double get_epsilon() const;
     double get_kappa(double p) const;
 
+    virtual void update_state() override;
     virtual void get_masses(VectorView<Dof> M) const override;
     virtual void get_internal_forces(VectorView<Dof> q) const override;
     virtual void get_tangent_stiffness(MatrixView<Dof> K) const override;
@@ -19,14 +20,16 @@ public:
 
 private:
     std::array<Dof, 6> dofs;
+
+    // Parameters
     double phi_ref_0;
     double phi_ref_1;
     double rhoA;
     double L;
-
     Matrix<3, 3> C;
 
-    Matrix<3, 1> get_e() const;
-    Matrix<3, 6> get_J() const;
+    // State
+    Matrix<3, 1> e;
+    Matrix<3, 6> J;
 };
 

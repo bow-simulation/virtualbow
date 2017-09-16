@@ -2,12 +2,13 @@
 #include "fem/Element.hpp"
 #include "fem/Node.hpp"
 
-class MassElement: public ElementInterface
+class MassElement: public Element
 {
 public:
     MassElement(Node nd, double m, double I = 0.0);
     void set_node(Node nd);
 
+    virtual void update_state() override;
     virtual void get_masses(VectorView<Dof> M) const override;
     virtual void get_internal_forces(VectorView<Dof> q) const override;
     virtual void get_tangent_stiffness(MatrixView<Dof> K) const override;
@@ -17,5 +18,4 @@ private:
     Node node;
     double m;
     double I;
-
 };

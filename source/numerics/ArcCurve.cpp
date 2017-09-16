@@ -56,13 +56,13 @@ Curve2D::Point ArcCurve::eval_arc(Curve2D::Point p0, double kappa, double ds)
 
     if(kappa == 0.0)
     {
-        p.x = p0.x + std::cos(p0.phi)*ds;
-        p.y = p0.y + std::sin(p0.phi)*ds;
+        p.x = p0.x + cos(p0.phi)*ds;
+        p.y = p0.y + sin(p0.phi)*ds;
     }
     else
     {
-        p.x = p0.x + (std::sin(p.phi) - std::sin(p0.phi))/kappa;
-        p.y = p0.y + (std::cos(p0.phi) - std::cos(p.phi))/kappa;
+        p.x = p0.x + (sin(p.phi) - sin(p0.phi))/kappa;
+        p.y = p0.y + (cos(p0.phi) - cos(p.phi))/kappa;
     }
 
     return p;

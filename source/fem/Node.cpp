@@ -84,7 +84,7 @@ double Node::distance(const Node& node_a, const Node& node_b)
     double dx = node_b[0].u() - node_a[0].u();
     double dy = node_b[1].u() - node_a[1].u();
 
-    return std::hypot(dx, dy);
+    return hypot(dx, dy);
 }
 
 double Node::angle(const Node& node_a, const Node& node_b)

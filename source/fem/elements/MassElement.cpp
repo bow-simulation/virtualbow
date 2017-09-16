@@ -14,6 +14,11 @@ void MassElement::set_node(Node nd)
     node = nd;
 }
 
+void MassElement::update_state()
+{
+
+}
+
 void MassElement::get_masses(VectorView<Dof> M) const
 {
     M(node[0]) += m;

@@ -26,6 +26,11 @@
 // 2. a recomputed
 // 3. a assigned to v, a now out of date
 
+// Another problem:
+// Element::update_state() is called too often (in q and K).
+// Perhaps abandon this whole approach for a simpler implementation that
+// requires the solution algorithms to do a bit more "book keeping".
+
 class System
 {
 private:
@@ -41,8 +46,8 @@ private:
 
     // Todo: Why mutable?
     // Todo: Use https://github.com/Tessil/ordered-map
-    mutable std::map<std::string, std::vector<ElementInterface*>> groups;
-    mutable std::vector<ElementInterface*> elements;
+    mutable std::map<std::string, std::vector<Element*>> groups;
+    mutable std::vector<Element*> elements;
 
 public:
     size_t dofs() const;
@@ -70,7 +75,7 @@ public:
     Node create_node(const Node& other, std::array<DofType, 3> type);
     Dof create_dof(DofType type, double u_dof, double v_dof);
 
-    template<typename ElementType = ElementInterface>
+    template<typename ElementType = Element>
     void add_element(ElementType element, const std::string& key = "")
     {
         m_a.set_valid(false);
@@ -78,7 +83,7 @@ public:
         m_M.set_valid(false);
         m_K.set_valid(false);
 
-        ElementInterface* ptr = new ElementType(element);
+        Element* ptr = new ElementType(element);
         groups[key].push_back(ptr);
         elements.push_back(ptr);
     }
@@ -86,10 +91,10 @@ public:
     // Iterating over groups of elements
 
     template<class ElementType>
-    using iterator = dynamic_cast_iterator<std::vector<ElementInterface*>::iterator, ElementType>;
+    using iterator = dynamic_cast_iterator<std::vector<Element*>::iterator, ElementType>;
 
     template<class ElementType>
-    using const_iterator = dynamic_cast_iterator<std::vector<ElementInterface*>::const_iterator, ElementType>;
+    using const_iterator = dynamic_cast_iterator<std::vector<Element*>::const_iterator, ElementType>;
 
     template<class ElementType>
     boost::iterator_range<iterator<ElementType>> element_group_mut(const std::string& key)

@@ -50,7 +50,7 @@ TEST_CASE("tangent-stiffness-bar-element")
         System system;
         Node node0 = system.create_node({DofType::Active, DofType::Active, DofType::Fixed}, {    dx0, dy0, 0.0});
         Node node1 = system.create_node({DofType::Active, DofType::Active, DofType::Fixed}, {L + dx1, dy1, 0.0});
-        system.add_element(BarElement(node0, node1, L, EA, 0.0, 0.0));
+        system.add_element(BarElement(node0, node1, L, EA, 0.0));
 
         check_stiffness_matrix(system);
     };

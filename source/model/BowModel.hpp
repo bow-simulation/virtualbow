@@ -116,7 +116,7 @@ private:
 
         for(size_t i = 0; i < k; ++i)
         {
-            BarElement element(nodes_string[i], nodes_string[i+1], 0.0, EA, 0.0, rhoA); // Element lengths are reset later when string length is determined
+            BarElement element(nodes_string[i], nodes_string[i+1], 0.0, EA, rhoA); // Element lengths are reset later when string length is determined
             system.add_element(element, "string");
         }
 
@@ -149,7 +149,7 @@ private:
         };
 
         // Todo: Perhaps limit the step size of the root finding algorithm to increase robustness.
-        double string_length = 2.0*std::hypot(xc - xt, yc - yt);
+        double string_length = 2.0*hypot(xc - xt, yc - yt);
         string_length = secant_method(try_string_length, 0.95*string_length, 0.9*string_length, 1e-8, 50);   // Todo: Magic numbers
 
         // Write setup results to output

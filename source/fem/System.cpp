@@ -83,6 +83,7 @@ const VectorXd& System::q() const
 
         for(auto e: elements)
         {
+            e->update_state();
             e->get_internal_forces(view);
         }
     }
@@ -130,6 +131,7 @@ const MatrixXd& System::K() const
 
         for(auto e: elements)
         {
+            e->update_state();  // Todo: Redundant if q has been called before
             e->get_tangent_stiffness(view);
         }
     }
