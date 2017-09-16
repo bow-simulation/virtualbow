@@ -120,7 +120,11 @@ DynamicSolver::DynamicSolver(System& system, double step_factor, double sampling
         throw std::runtime_error("Failed to compute eigenvalues of the system");
 
     double omega_max = std::sqrt(eigen_solver.eigenvalues().maxCoeff());
-    dt = (omega_max != 0.0) ? step_factor*2.0/omega_max : f/10.0;    // Todo: Magic number (Fraction of sampling time)
+
+    if(omega_max == 0.0)
+        throw std::runtime_error("Can't estimate timestep for system with zero eigenvalues");
+
+    dt = step_factor*2.0/omega_max;    // Todo: Magic number (Fraction of sampling time)
 
     // Initialise previous displacement
     u_p2 = system.u() - dt*system.v() + dt*dt/2.0*system.a();

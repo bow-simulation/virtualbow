@@ -1,12 +1,12 @@
+/*
 #include "gui/Application.hpp"
 
 int main(int argc, char* argv[])
 {
     return Application::run(argc, argv);
 }
+*/
 
-
-/*
 #include "fem/System.hpp"
 #include "fem/Solver.hpp"
 #include "fem/elements/ContactElement.hpp"
@@ -18,22 +18,23 @@ int main(int argc, char* argv[])
 int main()
 {
     System system;
-    Node node_a = system.create_node({DofType::Fixed , DofType::Fixed , DofType::Fixed}, {-1.0, 0.0, 0.0});
-    Node node_b = system.create_node({DofType::Fixed , DofType::Fixed , DofType::Fixed}, { 1.0, 0.0, 0.0});
-    Node node_c = system.create_node({DofType::Active, DofType::Active, DofType::Fixed}, { 0.0, 1.0, 0.0});
+    Node node_a = system.create_node({DofType::Fixed , DofType::Fixed , DofType::Fixed}, { 0.0, 0.0, M_PI_2});
+    Node node_b = system.create_node({DofType::Fixed , DofType::Fixed , DofType::Fixed}, { 0.0, 1.0, M_PI_2});
+    Node node_c = system.create_node({DofType::Active, DofType::Active, DofType::Fixed}, { 1.0, 0.5, 0.0});
 
-    system.add_element(ContactElement(node_a, node_b, node_c, 1.0, 0.0, 5000.0));
+    ContactElement contact(node_a, node_b, node_c, 0.5, 0.5, 5000.0);
+    system.add_element(contact);
 
     system.add_element(MassElement(node_c, 1.0, 0.0));
-    node_c[1].p_mut() = -10.0;
+    node_c[0].p_mut() = -10.0;
 
-    DynamicSolver solver(system, 0.2, 0.01, 1000.0);
+    DynamicSolver solver(system, 0.02, 0.01, 500.0);
     while(solver.step())
     {
-        std::cout << node_c[0].u() << "," << node_c[1].u() << "\n";
+        std::cout << "x = " << node_c[0].u() << ", y = " << node_c[1].u() << "\n";
+
     }
 }
-*/
 
 /*
 Eigen::Vector2d p0{0.0, 0.0};

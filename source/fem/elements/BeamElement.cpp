@@ -8,8 +8,7 @@ BeamElement::BeamElement(Node nd0, Node nd1, double rhoA, double L)
       L(L),
       C(Eigen::Matrix<double, 3, 3>::Zero())
 {
-    assert(rhoA > 0.0);
-    assert(L > 0.0);
+
 }
 
 void BeamElement::set_reference_angles(double phi_ref_0, double phi_ref_1)

@@ -2,6 +2,32 @@
 #include "fem/Element.hpp"
 #include "fem/Node.hpp"
 
+struct AABB
+{
+    double x_min;
+    double x_max;
+    double y_min;
+    double y_max;
+
+    bool intersects(double x, double y) const
+    {
+        return x >= x_min && x <= x_max && y >= y_min && y <= y_max;
+    }
+};
+
+struct Kinematics
+{
+    double e;
+    double b1;
+    double b2;
+    Eigen::Matrix<double, 8, 1> v1;
+    Eigen::Matrix<double, 8, 1> v2;
+    Eigen::Matrix<double, 8, 1> Db1;
+    Eigen::Matrix<double, 8, 1> Db2;
+    Eigen::Matrix<double, 8, 8> Dv1;
+    Eigen::Matrix<double, 8, 8> Dv2;
+};
+
 class ContactElement: public ElementInterface
 {
 public:
@@ -11,9 +37,10 @@ public:
     virtual void get_internal_forces(VectorView<Dof> q) const override;
     virtual void get_tangent_stiffness(MatrixView<Dof> K) const override;
     virtual double get_potential_energy() const override;
+    Kinematics get_kinematics() const;
 
 private:
-    std::array<Node, 3> nodes;
+    std::array<Dof, 8> dofs;
 
     double h0;
     double h1;

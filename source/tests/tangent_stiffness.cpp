@@ -1,6 +1,7 @@
 #include "fem/System.hpp"
 #include "fem/elements/BarElement.hpp"
 #include "fem/elements/BeamElement.hpp"
+#include "fem/elements/ContactElement.hpp"
 
 #include <catch.hpp>
 #include <iostream>
@@ -96,3 +97,25 @@ TEST_CASE("tangent-stiffness-beam-element")
     check_at(-4.0, -6.0, -4.0,  5.0,  0.0,  5.0);
 }
 
+TEST_CASE("tangent-stiffness-contact-element")
+{
+    auto check_at = [](double x0, double y0, double phi0, double x1, double y1, double phi1, double x2, double y2)
+    {
+        double L = 1.0;
+        double EA = 100.0;
+        double EI = 10.0;
+
+        System system;
+        Node node0 = system.create_node({DofType::Active, DofType::Active, DofType::Active}, {x0, y0, phi0});
+        Node node1 = system.create_node({DofType::Active, DofType::Active, DofType::Active}, {x1, y1, phi1});
+        Node node2 = system.create_node({DofType::Active, DofType::Active, DofType::Fixed }, {x2, y2, 0.0});
+
+        ContactElement element(node0, node1, node2, 0.5, 0.25, 5000.0);
+        system.add_element(element);
+
+        check_stiffness_matrix(system);
+    };
+
+    check_at(0.0, 0.0, M_PI_2, 0.0, 1.0, M_PI_2, 1.25, 0.5);  // No contact
+    check_at(0.0, 0.0, M_PI_2, 0.0, 1.0, M_PI_2, 0.25, 0.5);  // Contact
+}
