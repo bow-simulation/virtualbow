@@ -7,16 +7,11 @@
 #include "fem/elements/BeamElement.hpp"
 #include "fem/elements/BarElement.hpp"
 #include "fem/elements/MassElement.hpp"
+#include "fem/elements/ConstraintElement.hpp"
 #include "fem/elements/ContactSurface.hpp"
 #include "numerics/SecantMethod.hpp"
 #include "gui/ProgressDialog.hpp"
 #include <algorithm>
-#include <json.hpp>
-
-using namespace nlohmann;
-
-
-#include <iostream>
 
 class BowModel
 {
@@ -67,8 +62,6 @@ private:
             DofType type = (i == 0) ? DofType::Fixed : DofType::Active;
             Node node = system.create_node({type, type, type}, {limb.x[i], limb.y[i], limb.phi[i]});
             nodes_limb.push_back(node);
-
-            std::cout << limb.phi[i] << "\n";
         }
 
         // Create limb elements
@@ -93,15 +86,15 @@ private:
         }
 
         // Limb tip
-        double xt = nodes_limb.back()[0].u();
-        double yt = nodes_limb.back()[1].u();
+        double xt = nodes_limb.back()[0].u() + limb.h[n]*sin(nodes_limb.back()[2].u());
+        double yt = nodes_limb.back()[1].u() - limb.h[n]*cos(nodes_limb.back()[2].u());
 
         // String center at brace height
         double xc = 0.0;
         double yc = -input.operation_brace_height;
 
         // Create string nodes
-        for(size_t i = 0; i < k; ++i)
+        for(size_t i = 0; i <= k; ++i)
         {
             double p = double(i)/double(k);
             double x = xc*(1.0 - p) + xt*p;
@@ -111,10 +104,6 @@ private:
             Node node = system.create_node({type_x, DofType::Active, DofType::Fixed}, {x, y, 0.0});
             nodes_string.push_back(node);
         }
-        nodes_string.push_back(nodes_limb.back());
-
-        // Create arrow node
-        node_arrow = nodes_string[0];
 
         // Create string elements
         double EA = input.string_n_strands*input.string_strand_stiffness;
@@ -126,12 +115,19 @@ private:
             system.add_element(element, "string");
         }
 
+        // Contact/Constraint stiffness, estimated based on limb data
+        double kc = 10.0*limb.Ckk[0]/(limb.s[1] - limb.s[0]);    // Todo: Magic number
+
+        // Constraint element
+        ConstraintElement constraint(nodes_limb.back(), nodes_string.back(), kc);
+        system.add_element(constraint, "constraint");
+
         // Create contact surface
-        ContactSurface contact(nodes_limb, nodes_string, limb.h, EA/0.01);    // Todo: Magic number
+        ContactSurface contact(nodes_limb, nodes_string, limb.h, kc);    // Todo: Magic number
         system.add_element(contact, "contact");
 
         // Create mass elements
-        // MassElement(Node nd, double m, double I)
+        node_arrow = nodes_string[0];
         MassElement mass_limb_tip(nodes_limb.back(), input.mass_limb_tip);
         MassElement mass_string_tip(nodes_string.back(), input.mass_string_tip);
         MassElement mass_string_center(nodes_string.front(), 0.5*input.mass_string_center);   // 0.5 because of symmetric model

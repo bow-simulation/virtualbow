@@ -24,13 +24,19 @@ public:
         {
             double x_min = std::min(node0[0].u() - h0, node1[0].u() - h1);
             double x_max = std::max(node0[0].u() + h0, node1[0].u() + h1);
+            double x = p.node[0].u();
+
+            if(x < x_min || x > x_max)
+                return false;
+
             double y_min = std::min(node0[1].u() - h0, node1[1].u() - h1);
             double y_max = std::max(node0[1].u() + h0, node1[1].u() + h1);
-
-            double x = p.node[0].u();
             double y = p.node[1].u();
 
-            return x >= x_min && x <= x_max && y >= y_min && y <= y_max;
+            if(y < y_min || y > y_max)
+                return false;
+
+            return true;
         }
     };
 
@@ -40,7 +46,7 @@ public:
         : k(k)
     {
         for(size_t i = 1; i < master_nodes.size(); ++i)
-            segments.push_back({master_nodes[i], master_nodes[i-1], h[i], h[i-1]});
+            segments.push_back({master_nodes[i-1], master_nodes[i], h[i-1], h[i]});
 
         for(auto& node: slave_nodes)
             points.push_back({node});

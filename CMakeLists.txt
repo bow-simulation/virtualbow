@@ -32,6 +32,7 @@ add_executable(${PROJECT_NAME}
    source/fem/elements/MassElement.cpp
    source/fem/elements/ContactElement.cpp
    source/fem/elements/ContactSurface.cpp
+   source/fem/elements/ConstraintElement.cpp
    source/fem/Node.cpp
    source/fem/Solver.cpp
    source/fem/System.cpp
@@ -91,6 +92,7 @@ add_executable(tests
     source/fem/elements/MassElement.cpp
     source/fem/elements/ContactElement.cpp
     source/fem/elements/ContactSurface.cpp
+    source/fem/elements/ConstraintElement.cpp
     source/fem/Node.cpp
     source/fem/Solver.cpp
     source/fem/System.cpp

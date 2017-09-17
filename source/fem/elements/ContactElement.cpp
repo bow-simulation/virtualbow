@@ -33,8 +33,6 @@ void ContactElement::update_state()
         return;
     }
 
-    std::cout << "e = " << e << "\n";
-
     // Contact: Calculate kinematic expressions
 
     // 1. Penetration e
@@ -109,7 +107,7 @@ void ContactElement::get_internal_forces(VectorView<Dof> q) const
 
 void ContactElement::get_tangent_stiffness(MatrixView<Dof> K) const
 {
-    K(dofs) += k*De*De.transpose() + k*e*DDe;
+    K(dofs) += k*(De*De.transpose() + e*DDe);
 }
 
 double ContactElement::get_potential_energy() const
