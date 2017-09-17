@@ -17,12 +17,12 @@ void ConstraintElement::update_state()
     c2 = dx_rel*sin(dofs[2].u()) + dy_rel*cos(dofs[2].u()) + dofs[1].u() - dofs[4].u();
 }
 
-void ConstraintElement::get_masses(VectorView<Dof> M) const
+void ConstraintElement::get_masses(VectorView M) const
 {
 
 }
 
-void ConstraintElement::get_internal_forces(VectorView<Dof> q) const
+void ConstraintElement::get_internal_forces(VectorView q) const
 {
     Vector<5> Dc1, Dc2;
     Dc1 << 1.0, 0.0, -dx_rel*sin(dofs[2].u()) - dy_rel*cos(dofs[2].u()), -1.0,  0.0;
@@ -31,7 +31,7 @@ void ConstraintElement::get_internal_forces(VectorView<Dof> q) const
     q(dofs) += k*(c1*Dc1 + c2*Dc2);
 }
 
-void ConstraintElement::get_tangent_stiffness(MatrixView<Dof> K) const
+void ConstraintElement::get_tangent_stiffness(MatrixView K) const
 {
     // Todo: Code duplication
     Vector<5> Dc1, Dc2;

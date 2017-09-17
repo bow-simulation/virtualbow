@@ -74,7 +74,7 @@ const VectorXd& System::q() const
         m_q->conservativeResize(dofs());
         m_q->setZero();
 
-        VectorView<Dof> view(nullptr, nullptr,
+        VectorView view(nullptr, nullptr,
         [&](Dof dof, double val)
         {
             if(dof.type() == DofType::Active)
@@ -99,7 +99,7 @@ const VectorXd& System::M() const
         m_M->conservativeResize(dofs());
         m_M->setZero();
 
-        VectorView<Dof> view(nullptr, nullptr,
+        VectorView view(nullptr, nullptr,
         [&](Dof dof, double val)
         {
             if(dof.type() == DofType::Active)
@@ -123,7 +123,7 @@ const MatrixXd& System::K() const
         m_K->conservativeResize(dofs(), dofs());
         m_K->setZero();
 
-        MatrixView<Dof> view([&](Dof dof_row, Dof dof_col, double val)
+        MatrixView view([&](Dof dof_row, Dof dof_col, double val)
         {
             if(dof_row.type() == DofType::Active && dof_col.type() == DofType::Active)
                 (*m_K)(dof_row.index(), dof_col.index()) += val;

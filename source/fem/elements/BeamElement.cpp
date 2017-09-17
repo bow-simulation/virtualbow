@@ -67,7 +67,7 @@ void BeamElement::update_state()
          -j3,  j2, 0.0, j3, -j2, 1.0;
 }
 
-void BeamElement::get_masses(VectorView<Dof> M) const
+void BeamElement::get_masses(VectorView M) const
 {
     double alpha = 0.02;
     double m = 0.5*rhoA*L;
@@ -81,12 +81,12 @@ void BeamElement::get_masses(VectorView<Dof> M) const
     M(dofs[5]) += I;
 }
 
-void BeamElement::get_internal_forces(VectorView<Dof> q) const
+void BeamElement::get_internal_forces(VectorView q) const
 {
     q(dofs) += 1.0/L*J.transpose()*C*e;
 }
 
-void BeamElement::get_tangent_stiffness(MatrixView<Dof> K) const
+void BeamElement::get_tangent_stiffness(MatrixView K) const
 {
     double dx = dofs[3].u() - dofs[0].u();
     double dy = dofs[4].u() - dofs[1].u();

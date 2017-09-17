@@ -75,18 +75,18 @@ public:
         }
     }
 
-    virtual void get_masses(VectorView<Dof> M) const override
+    virtual void get_masses(VectorView M) const override
     {
 
     }
 
-    virtual void get_internal_forces(VectorView<Dof> q) const override
+    virtual void get_internal_forces(VectorView q) const override
     {
         for(auto& c: contacts)
             c.get_internal_forces(q);
     }
 
-    virtual void get_tangent_stiffness(MatrixView<Dof> K) const override
+    virtual void get_tangent_stiffness(MatrixView K) const override
     {
         for(auto& c: contacts)
             c.get_tangent_stiffness(K);

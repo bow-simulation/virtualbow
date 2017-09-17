@@ -31,7 +31,7 @@ void BarElement::update_state()
     L_new = hypot(dx, dy);
 }
 
-void BarElement::get_masses(VectorView<Dof> M) const
+void BarElement::get_masses(VectorView M) const
 {
     double m = 0.5*rhoA*L;
 
@@ -41,7 +41,7 @@ void BarElement::get_masses(VectorView<Dof> M) const
     M(nodes[1][1]) += m;
 }
 
-void BarElement::get_internal_forces(VectorView<Dof> q) const
+void BarElement::get_internal_forces(VectorView q) const
 {
     double N = get_normal_force();
 
@@ -51,7 +51,7 @@ void BarElement::get_internal_forces(VectorView<Dof> q) const
     q(nodes[1][1]) += N*dy/L_new;
 }
 
-void BarElement::get_tangent_stiffness(MatrixView<Dof> K) const
+void BarElement::get_tangent_stiffness(MatrixView K) const
 {
     double c0 = EA*(L_new - L)/(L_new*L);
     double c1 = EA/pow(L_new, 3);

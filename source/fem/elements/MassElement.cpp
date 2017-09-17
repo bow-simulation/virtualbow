@@ -19,19 +19,19 @@ void MassElement::update_state()
 
 }
 
-void MassElement::get_masses(VectorView<Dof> M) const
+void MassElement::get_masses(VectorView M) const
 {
     M(node[0]) += m;
     M(node[1]) += m;
     M(node[2]) += I;
 }
 
-void MassElement::get_internal_forces(VectorView<Dof> q) const
+void MassElement::get_internal_forces(VectorView q) const
 {
 
 }
 
-void MassElement::get_tangent_stiffness(MatrixView<Dof> K) const
+void MassElement::get_tangent_stiffness(MatrixView K) const
 {
 
 }

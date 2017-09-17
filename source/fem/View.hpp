@@ -1,18 +1,18 @@
 #pragma once
 #include "numerics/Math.hpp"
+#include "Node.hpp"
 #include <array>
 #include <functional>
 
 //================================================================================================
 
-template<class Key>
 class LocalVectorEntry
 {
 public:
-    std::function<double(Key)>& get;
-    std::function<void(Key, double)>& set;
-    std::function<void(Key, double)>& add;
-    Key key;
+    std::function<double(Dof)>& get;
+    std::function<void(Dof, double)>& set;
+    std::function<void(Dof, double)>& add;
+    Dof key;
 
     // Read
     operator double() const
@@ -21,7 +21,7 @@ public:
     }
 
     // Write
-    LocalVectorEntry<Key>& operator=(double rhs)
+    LocalVectorEntry& operator=(double rhs)
     {
         set(key, rhs);
         return *this;
@@ -38,14 +38,14 @@ public:
     }
 };
 
-template<class Key, size_t N>
+template<size_t N>
 class LocalVectorView
 {
 public:
-    std::function<double(Key)>& get;
-    std::function<void(Key, double)>& set;
-    std::function<void(Key, double)>& add;
-    const std::array<Key, N>& keys;
+    std::function<double(Dof)>& get;
+    std::function<void(Dof, double)>& set;
+    std::function<void(Dof, double)>& add;
+    const std::array<Dof, N>& keys;
 
     // Read
     operator Vector<N>() const
@@ -61,7 +61,7 @@ public:
 
     // Write
     template<class T>
-    LocalVectorView<Key, N>& operator=(const Eigen::MatrixBase<T>& rhs)
+    LocalVectorView<N>& operator=(const Eigen::MatrixBase<T>& rhs)
     {
         for(size_t i = 0; i < N; ++i)
         {
@@ -86,29 +86,28 @@ public:
     }
 
     // Index
-    LocalVectorEntry<Key> operator()(size_t i)
+    LocalVectorEntry operator()(size_t i)
     {
-        return LocalVectorEntry<Key>{get, set, add, keys[i]};
+        return LocalVectorEntry{get, set, add, keys[i]};
     }
 
-    const LocalVectorEntry<Key> operator()(size_t i) const
+    const LocalVectorEntry operator()(size_t i) const
     {
-        return LocalVectorEntry<Key>{get, set, add, keys[i]};
+        return LocalVectorEntry{get, set, add, keys[i]};
     }
 };
 
-template<typename Key>
 class VectorView
 {
 private:
-    mutable std::function<double(Key)> get;
-    mutable std::function<void(Key, double)> set;
-    mutable std::function<void(Key, double)> add;
+    mutable std::function<double(Dof)> get;
+    mutable std::function<void(Dof, double)> set;
+    mutable std::function<void(Dof, double)> add;
 
 public:
-    VectorView(std::function<double(Key)> get,
-               std::function<void(Key, double)> set,
-               std::function<void(Key, double)> add)
+    VectorView(std::function<double(Dof)> get,
+               std::function<void(Dof, double)> set,
+               std::function<void(Dof, double)> add)
         : get(get),
           set(set),
           add(add)
@@ -123,38 +122,37 @@ public:
 
     // Multi index
     template<size_t N>
-    LocalVectorView<Key, N> operator()(const std::array<Key, N>& keys)
+    LocalVectorView<N> operator()(const std::array<Dof, N>& keys)
     {
-        return LocalVectorView<Key, N>{get, set, add, keys};
+        return LocalVectorView<N>{get, set, add, keys};
     }
 
     template<size_t N>
-    const LocalVectorView<Key, N> operator()(const std::array<Key, N>& keys) const
+    const LocalVectorView<N> operator()(const std::array<Dof, N>& keys) const
     {
-        return LocalVectorView<Key, N>{get, set, add, keys};
+        return LocalVectorView<N>{get, set, add, keys};
     }
 
     // Single indices
-    LocalVectorEntry<Key> operator()(Key key)
+    LocalVectorEntry operator()(Dof key)
     {
-        return LocalVectorEntry<Key>{get, set, add, key};
+        return LocalVectorEntry{get, set, add, key};
     }
 
-    const LocalVectorEntry<Key> operator()(Key key) const
+    const LocalVectorEntry operator()(Dof key) const
     {
-        return LocalVectorEntry<Key>{get, set, add, key};
+        return LocalVectorEntry{get, set, add, key};
     }
 };
 
 //================================================================================================
 
-template<class Key>
 class LocalMatrixEntry
 {
 public:
-    std::function<void(Key, Key, double)>& add;
-    Key key_row;
-    Key key_col;
+    std::function<void(Dof, Dof, double)>& add;
+    Dof key_row;
+    Dof key_col;
 
     // Write symmetrically
     void operator+=(double rhs)
@@ -174,12 +172,12 @@ public:
 };
 
 
-template<class Key, size_t N>
+template<size_t N>
 class LocalMatrixView
 {
 public:
-    std::function<void(Key, Key, double)>& add;
-    const std::array<Key, N>& keys;
+    std::function<void(Dof, Dof, double)>& add;
+    const std::array<Dof, N>& keys;
 
     // Write
     template<class T>
@@ -200,25 +198,24 @@ public:
     }
 
     // Index
-    LocalMatrixEntry<Key> operator()(size_t i, size_t j)
+    LocalMatrixEntry operator()(size_t i, size_t j)
     {
-        return LocalMatrixEntry<Key>{add, keys[i], keys[j]};
+        return LocalMatrixEntry{add, keys[i], keys[j]};
     }
 
-    const LocalMatrixEntry<Key> operator()(size_t i, size_t j) const
+    const LocalMatrixEntry operator()(size_t i, size_t j) const
     {
-        return LocalMatrixEntry<Key>{add, keys[i], keys[j]};
+        return LocalMatrixEntry{add, keys[i], keys[j]};
     }
 };
 
-template<class Key>
 class MatrixView
 {
 private:
-    mutable std::function<void(Key, Key, double)> add;
+    mutable std::function<void(Dof, Dof, double)> add;
 
 public:
-    MatrixView(std::function<void(Key, Key, double)> add)
+    MatrixView(std::function<void(Dof, Dof, double)> add)
         : add(add)
     {
 
@@ -231,24 +228,24 @@ public:
 
     // Index
     template<size_t N>
-    LocalMatrixView<Key, N> operator()(const std::array<Key, N>& keys)
+    LocalMatrixView<N> operator()(const std::array<Dof, N>& keys)
     {
-        return LocalMatrixView<Key, N>{add, keys};
+        return LocalMatrixView<N>{add, keys};
     }
 
     template<size_t N>
-    const LocalMatrixView<Key, N> operator()(const std::array<Key, N>& keys) const
+    const LocalMatrixView<N> operator()(const std::array<Dof, N>& keys) const
     {
-        return LocalMatrixView<Key, N>{add, keys};
+        return LocalMatrixView<N>{add, keys};
     }
 
-    LocalMatrixEntry<Key> operator()(Key key_row, Key key_col)
+    LocalMatrixEntry operator()(Dof key_row, Dof key_col)
     {
-        return LocalMatrixEntry<Key>{add, key_row, key_col};
+        return LocalMatrixEntry{add, key_row, key_col};
     }
 
-    const LocalMatrixEntry<Key> operator()(Key key_row, Key key_col) const
+    const LocalMatrixEntry operator()(Dof key_row, Dof key_col) const
     {
-        return LocalMatrixEntry<Key>{add, key_row, key_col};
+        return LocalMatrixEntry{add, key_row, key_col};
     }
 };

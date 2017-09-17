@@ -146,7 +146,7 @@ public:
 
     double get_kinetic_energy(const std::string& key) const
     {
-        VectorView<Dof> get_v([&](Dof dof){ return dof.v(); }, nullptr, nullptr);  // Todo
+        VectorView get_v([&](Dof dof){ return dof.v(); }, nullptr, nullptr);  // Todo
 
         double e_kin = 0.0;
         for(auto e: groups[key])

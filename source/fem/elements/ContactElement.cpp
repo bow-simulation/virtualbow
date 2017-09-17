@@ -95,17 +95,17 @@ void ContactElement::update_state()
     DDe = Db1*v1.transpose() + Db2*v2.transpose() + b1*Dv1 + b2*Dv2;
 }
 
-void ContactElement::get_masses(VectorView<Dof> M) const
+void ContactElement::get_masses(VectorView M) const
 {
 
 }
 
-void ContactElement::get_internal_forces(VectorView<Dof> q) const
+void ContactElement::get_internal_forces(VectorView q) const
 {
     q(dofs) += k*e*De;
 }
 
-void ContactElement::get_tangent_stiffness(MatrixView<Dof> K) const
+void ContactElement::get_tangent_stiffness(MatrixView K) const
 {
     K(dofs) += k*(De*De.transpose() + e*DDe);
 }
