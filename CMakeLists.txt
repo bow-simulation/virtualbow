@@ -90,7 +90,7 @@ add_executable(tests
     source/fem/elements/BeamElement.cpp
     source/fem/elements/MassElement.cpp
     source/fem/elements/ContactElement.cpp
-    source/fem/elements/ContactArea.cpp
+    source/fem/elements/ContactSurface.cpp
     source/fem/Node.cpp
     source/fem/Solver.cpp
     source/fem/System.cpp

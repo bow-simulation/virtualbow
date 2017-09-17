@@ -7,12 +7,16 @@
 #include "fem/elements/BeamElement.hpp"
 #include "fem/elements/BarElement.hpp"
 #include "fem/elements/MassElement.hpp"
+#include "fem/elements/ContactSurface.hpp"
 #include "numerics/SecantMethod.hpp"
 #include "gui/ProgressDialog.hpp"
 #include <algorithm>
 #include <json.hpp>
 
 using namespace nlohmann;
+
+
+#include <iostream>
 
 class BowModel
 {
@@ -63,6 +67,8 @@ private:
             DofType type = (i == 0) ? DofType::Fixed : DofType::Active;
             Node node = system.create_node({type, type, type}, {limb.x[i], limb.y[i], limb.phi[i]});
             nodes_limb.push_back(node);
+
+            std::cout << limb.phi[i] << "\n";
         }
 
         // Create limb elements
@@ -119,6 +125,10 @@ private:
             BarElement element(nodes_string[i], nodes_string[i+1], 0.0, EA, rhoA); // Element lengths are reset later when string length is determined
             system.add_element(element, "string");
         }
+
+        // Create contact surface
+        ContactSurface contact(nodes_limb, nodes_string, limb.h, EA/0.01);    // Todo: Magic number
+        system.add_element(contact, "contact");
 
         // Create mass elements
         // MassElement(Node nd, double m, double I)

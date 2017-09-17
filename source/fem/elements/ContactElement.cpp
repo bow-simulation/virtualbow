@@ -8,6 +8,8 @@ ContactElement::ContactElement(Node node0, Node node1, Node node2, double h0, do
 
 }
 
+#include <iostream>
+
 void ContactElement::update_state()
 {
     Vector<2> P0{dofs[0].u(), dofs[1].u()};
@@ -22,12 +24,16 @@ void ContactElement::update_state()
         return (b(0) - a(0))*(c(1) - a(1)) - (b(1) - a(1))*(c(0) - a(0)) > 0;
     };
 
-    // If no contact, set e to zero and return
+    // If no contact, set kinematic expressions to zero and return
     if(!positive(P2, P0, Q0) || !positive(P2, P1, P0) || !positive(P2, Q0, Q1) || !positive(P2, Q1, P1))
     {
         e = 0.0;
+        De.setZero();
+        DDe.setZero();
         return;
     }
+
+    std::cout << "e = " << e << "\n";
 
     // Contact: Calculate kinematic expressions
 
