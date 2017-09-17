@@ -162,35 +162,35 @@ private:
         return {900, 600};    // Magic numbers  // Todo: Remove
     }
 
-     // phi: Azimuth, theta: elevation.
-     // Camera position: Ry(phi)*Rz(-theta)*[1, 0, 0].
-     // Camera view up: Ry(phi)*Rz(-theta)*[0,-1, 0].
-    void setCameraPosition(double phi, double theta)
+    // alpha: Azimuth, beta: elevation.
+    // Camera position: Ry(alpha)*Rz(beta)*[1, 0, 0].
+    // Camera view up: Ry(alpha)*Rz(beta)*[0, 1, 0].
+    void setCameraPosition(double alpha, double beta)
     {
         using namespace std;
 
         auto camera = renderer->GetActiveCamera();
         camera->SetFocalPoint(0.0, 0.0, 0.0);
-        camera->SetPosition(cos(phi)*cos(theta), -sin(theta), -sin(phi)*cos(theta));
-        camera->SetViewUp(-cos(phi)*sin(theta), -cos(theta), sin(phi)*sin(theta));
+        camera->SetPosition(cos(alpha)*cos(beta), sin(beta), -sin(alpha)*cos(beta));
+        camera->SetViewUp(-cos(alpha)*sin(beta), cos(beta), sin(alpha)*sin(beta));
     }
 
     void viewProfile()
     {
-        setCameraPosition(M_PI_2, 0.0);
+        setCameraPosition(-M_PI_2, 0.0);
         viewFit();
     }
 
     void viewTop()
     {
-        setCameraPosition(M_PI_2, M_PI_2);
+        setCameraPosition(-M_PI_2, M_PI_2);
         viewFit();
     }
 
     // Todo: Take window size into account and rotate so that the bow goes from the top left corner to bottom right
     void view3D()
     {
-        setCameraPosition(0.9, 0.5);
+        setCameraPosition(-0.9, 0.5);
         viewFit();
     }
 

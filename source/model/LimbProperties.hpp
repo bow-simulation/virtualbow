@@ -26,12 +26,12 @@ struct LayerProperties
 
     VectorXd sigma_back(const VectorXd& epsilon, const VectorXd& kappa) const
     {
-        return E*(y_back.cwiseProduct(kappa) - epsilon);
+        return E*(epsilon - y_back.cwiseProduct(kappa));
     }
 
     VectorXd sigma_belly(const VectorXd& epsilon, const VectorXd& kappa) const
     {
-        return E*(y_belly.cwiseProduct(kappa) - epsilon);
+        return E*(epsilon - y_belly.cwiseProduct(kappa));
     }
 };
 

@@ -6,7 +6,7 @@
 #include <windows.h>
 #endif
 
-const std::string Application::version = "0.3";
+const std::string Application::version = "0.4";
 
 int Application::run(int argc, char* argv[])
 {

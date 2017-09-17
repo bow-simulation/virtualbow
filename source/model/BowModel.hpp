@@ -98,7 +98,7 @@ private:
 
         // String center at brace height
         double xc = 0.0;
-        double yc = input.operation_brace_height;
+        double yc = -input.operation_brace_height;
 
         // Create string nodes
         for(size_t i = 0; i < k; ++i)
@@ -159,7 +159,7 @@ private:
         };
 
         // Todo: Perhaps limit the step size of the root finding algorithm to increase robustness.
-        double string_length = 2.0*hypot(xc - xt, yc - yt);
+        double string_length = 2.0*hypot(xc - xt, yc - yt);    // *2 because of symmetry
         string_length = secant_method(try_string_length, 0.95*string_length, 0.9*string_length, 1e-8, 50);   // Todo: Magic numbers
 
         // Write setup results to output
@@ -171,13 +171,13 @@ private:
     template<typename F>
     void simulate_statics(StaticData& statics, const F& callback)
     {
-        StaticSolverDC solver(system, nodes_string[0][1], input.operation_draw_length, input.settings_n_draw_steps);
+        StaticSolverDC solver(system, nodes_string[0][1], -input.operation_draw_length, input.settings_n_draw_steps);
         while(solver.step())
         {
             add_bow_state(statics.states);
 
-            int progress = (nodes_string[0][1].u() - input.operation_brace_height)/(input.operation_draw_length - input.operation_brace_height)*100.0;
-
+            // Todo: Progress could be based on number of iterations also
+            int progress = (-nodes_string[0][1].u() - input.operation_brace_height)/(input.operation_draw_length - input.operation_brace_height)*100.0;
             if(!callback(progress))
                 return;
         }
@@ -195,8 +195,8 @@ private:
                           + statics.states.e_pot_string.back();
 
         statics.final_draw_force = draw_force_back;
-        statics.drawing_work     = e_pot_back - e_pot_front;
-        statics.storage_ratio    = (e_pot_back - e_pot_front)/(0.5*(draw_length_back - draw_length_front)*draw_force_back);
+        statics.drawing_work = e_pot_back - e_pot_front;
+        statics.storage_ratio = (e_pot_back - e_pot_front)/(0.5*(draw_length_back - draw_length_front)*draw_force_back);
     }
 
     template<typename F>
@@ -206,25 +206,21 @@ private:
         nodes_string[0][1].p_mut() = 0.0;
 
         double T = std::numeric_limits<double>::max();
-        double alpha = input.settings_time_span_factor;     // Todo: Magic number // Todo: Make this a setting
+        double alpha = input.settings_time_span_factor;
 
         DynamicSolver solver1(system, input.settings_time_step_factor, input.settings_sampling_rate, [&]
         {
             double ut = node_arrow[1].u();
-            if(ut >= input.operation_brace_height)
+            if(ut < input.operation_brace_height)
             {
-                double u0 = input.operation_draw_length;
-                double u1 = input.operation_brace_height;
+                double u0 = -input.operation_draw_length;
+                double u1 = -input.operation_brace_height;
 
                 if(ut != u0)
-                {
-                    T = system.t()*std::acos(u1/u0)/std::acos(ut/u0);    // Cosine approximation
-                    //T = system.get_time()*std::sqrt((u1 - u0)/(ut - u0));    // Quadratic approximation
-                }
+                    T = system.t()*std::acos(u1/u0)/std::acos(ut/u0);
             }
 
-            return node_arrow[1].a() >= 0;
-            //return system.t() >= alpha*T;
+            return node_arrow[1].a() < 0;
         });
 
         auto run_solver = [&](DynamicSolver& solver)
@@ -261,22 +257,21 @@ private:
     void add_bow_state(BowStates& states) const
     {
         states.time.push_back(system.t());
-        states.draw_force.push_back(2.0*nodes_string[0][1].p());
-        states.draw_length.push_back(nodes_string[0][1].u());
+        states.draw_force.push_back(-2.0*nodes_string[0][1].p());    // *2 because of symmetry
+        states.draw_length.push_back(-nodes_string[0][1].u());
 
-        states.pos_arrow.push_back(input.operation_draw_length - node_arrow[1].u());
-        states.vel_arrow.push_back(-node_arrow[1].v());
-        states.acc_arrow.push_back(-node_arrow[1].a());
+        states.pos_arrow.push_back(node_arrow[1].u());
+        states.vel_arrow.push_back(node_arrow[1].v());
+        states.acc_arrow.push_back(node_arrow[1].a());
 
+        // *2 because of symmetry
         states.e_pot_limbs.push_back(2.0*system.get_potential_energy("limb", "mass limb tip"));
         states.e_kin_limbs.push_back(2.0*system.get_kinetic_energy("limb", "mass limb tip"));
         states.e_pot_string.push_back(2.0*system.get_potential_energy("string", "mass string tip", "mass string center"));
         states.e_kin_string.push_back(2.0*system.get_kinetic_energy("string", "mass string tip", "mass string center"));
         states.e_kin_arrow.push_back(2.0*system.get_kinetic_energy("mass arrow"));
 
-        // Arrow, limb and string coordinates
-
-        states.y_arrow.push_back(node_arrow[1].u());
+        // Limb and string coordinates
         states.x_limb.push_back(VectorXd(nodes_limb.size()));
         states.y_limb.push_back(VectorXd(nodes_limb.size()));
 

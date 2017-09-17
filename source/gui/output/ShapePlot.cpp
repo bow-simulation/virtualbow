@@ -29,7 +29,6 @@ ShapePlot::ShapePlot(const SetupData& setup, const BowStates& states, bool inter
 
     this->xAxis->setLabel("X [m]");
     this->yAxis->setLabel("Y [m]");
-    this->yAxis->setRangeReversed(true);
     this->setAspectPolicy(PlotWidget::SCALE_Y);
     setAxesRanges();
 }
@@ -42,7 +41,7 @@ void ShapePlot::setStateIndex(int index)
     string_right->setData(states.x_string[index], states.y_string[index]);
     string_left->setData(-states.x_string[index], states.y_string[index]);
 
-    arrow->setData(std::array<double, 1>{0.0}, std::array<double, 1>{states.y_arrow[index]});
+    arrow->setData(std::array<double, 1>{0.0}, std::array<double, 1>{states.pos_arrow[index]});
 
     this->replot();
 }
