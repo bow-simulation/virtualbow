@@ -116,7 +116,7 @@ private:
         }
 
         // Contact/Constraint stiffness, estimated based on limb data
-        double kc = 10.0*limb.Ckk[0]/(limb.s[1] - limb.s[0]);    // Todo: Magic number
+        double kc = limb.Cee[0]/(limb.s[1] - limb.s[0]);
 
         // Constraint element
         ConstraintElement constraint(nodes_limb.back(), nodes_string.back(), kc);
@@ -264,7 +264,7 @@ private:
         states.e_pot_limbs.push_back(2.0*system.get_potential_energy("limb", "mass limb tip"));
         states.e_kin_limbs.push_back(2.0*system.get_kinetic_energy("limb", "mass limb tip"));
         states.e_pot_string.push_back(2.0*system.get_potential_energy("string", "mass string tip", "mass string center"));
-        states.e_kin_string.push_back(2.0*system.get_kinetic_energy("string", "mass string tip", "mass string center"));
+        states.e_kin_string.push_back(2.0*system.get_kinetic_energy("string", "mass string tip", "mass string center", "contact", "constraint"));
         states.e_kin_arrow.push_back(2.0*system.get_kinetic_energy("mass arrow"));
 
         // Limb and string coordinates

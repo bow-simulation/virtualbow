@@ -18,7 +18,7 @@ public:
     virtual double get_potential_energy() const override;
 
 private:
-    std::array<Node, 2> nodes;
+    std::array<Dof, 4> dofs;
 
     // Parameters
     double L;
