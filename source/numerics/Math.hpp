@@ -12,6 +12,7 @@ using Vector = Eigen::Matrix<double, n, 1>;
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+using Eigen::VectorXi;
 
 namespace Eigen
 {

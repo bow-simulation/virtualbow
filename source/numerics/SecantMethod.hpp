@@ -2,7 +2,7 @@
 #include <functional>
 #include <stdexcept>
 
-// Find the root of the function f by using the secant method [1] with the initial values xa, xb
+// Find the root of the function f by using the secant method [1] with the initial values x0 and x1
 // [1] https://en.wikipedia.org/wiki/Secant_method
 // Todo: Can the lambda be called statically?
 template<class F>
