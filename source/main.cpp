@@ -1,4 +1,5 @@
 #include "numerics/Math.hpp"
+#include "numerics/RootFinding.hpp"
 #include <iostream>
 
 // Returns the real roots of the quadratic polynomial
@@ -10,141 +11,117 @@ Vector<2> solve_quadratic(double c0, double c1, double c2)
     return {(-c1 + s)/(2.0*c2), (-c1 - s)/(2.0*c2)};
 }
 
-Vector<2> find_by_distance(Vector<2> A, Vector<2> B, Vector<2> C, double d)
-{
-    double x_ab = B[0] - A[0];  double x_ac = C[0] - A[0];
-    double y_ab = B[1] - A[1];  double y_ac = C[1] - A[1];
-
-    return solve_quadratic(x_ac*x_ac + y_ac*y_ac - d*d,
-                          -2.0*(x_ac*x_ab + y_ac*y_ab),
-                           x_ab*x_ab+ y_ab*y_ab);
-}
-
 struct Points
 {
     VectorXd x;
     VectorXd y;
 };
 
-
-
-double equalize(Vector<2> A, Vector<2> B, Vector<2> C, Vector<2> D)
+// Partitions the curve of linear segments given by x_in, y_in into n_out points such that
+// the first and last point coincide with the start and end of the curve and all points
+// are evenly spaced out by euclidean distance.
+// Assumption: Euclidean distance between points is monotonously rising with the curve's arc length
+// (Only affects calculation of the error measure)
+Points equipartition(VectorXd x_in, VectorXd y_in, size_t n_out)
 {
-    return 0.5*(pow(A[0]-D[0], 2) + pow(A[1]-D[1], 2) - pow(A[0]-C[0], 2) - pow(A[1] - C[1], 2))
-              /((B[0]-A[0])*(D[0]-C[0]) + (B[1]-A[1])*(D[1]-C[1]));
-}
+    assert(x_in.size() == y_in.size());
+    assert(x_in.size() >= 2);
+    assert(n_out >= 2);
 
-Points equipartition(VectorXd x, VectorXd y, size_t k)
-{
-    assert(x.size() == y.size());
-    assert(x.size() > 1);
+    size_t n_in = x_in.size();      // Number of input points
+    VectorXd x_out(n_out);          // Output data
+    VectorXd y_out(n_out);
 
-    size_t n = x.size();    // Number of input points
+    // Calculate lenths of the input curve
+    VectorXd s_in(n_in);
+    s_in[0] = 0.0;
+    for(size_t i = 1; i < n_in; ++i)
+        s_in[i] = s_in[i-1] + hypot(x_in[i] - x_in[i-1], y_in[i] - y_in[i-1]);
 
-    // Calculate lenths of all input sections
-    VectorXd s(n);
-    s[0] = 0.0;
-    for(size_t i = 1; i < n; ++i)
+    // Assign first and last points
+    x_out[0] = x_in[0];
+    y_out[0] = y_in[0];
+
+    x_out[n_out-1] = x_in[n_in-1];
+    y_out[n_out-1] = y_in[n_in-1];
+
+    // Function that returns two values eta_1/2 such that
+    // ||A + eta_i*(B-A), C|| = d.
+    auto find_by_distance = [](Vector<2> A, Vector<2> B, Vector<2> C, double d)
     {
-        s[i] = s[i-1] + hypot(x[i] - x[i-1], y[i] - y[i-1]);
-    }
+        double x_ab = B[0] - A[0];  double x_ac = C[0] - A[0];
+        double y_ab = B[1] - A[1];  double y_ac = C[1] - A[1];
 
-    VectorXd xp(k);
-    VectorXd yp(k);
-    VectorXi ip(k);
+        return solve_quadratic(x_ac*x_ac + y_ac*y_ac - d*d,
+                              -2.0*(x_ac*x_ab + y_ac*y_ab),
+                               x_ab*x_ab+ y_ab*y_ab);
+    };
 
-    // i: Index of input curve points
-    // j: Index of output points
-    for(size_t i = 0, j = 0; j < k; ++j)
+    // Function that calculates the intermediate points for a fixed distance
+    // d and returns a measure of error. The real equipartition is done by finding
+    // the root of this function.
+    auto partition = [&](double d)
     {
-        double sj = double(j)/(k-1)*s[n-1];
-
-        // Change input index until s[i] <= sj <= s[i+1]
-        while(s[i+1] < sj && i < n-2)
+        // i: Input point index
+        // j: Output point index.
+        // Iterate over all intermediate output points...
+        for(size_t i = 0, j = 1; j < n_out; ++j)
         {
-            ++i;
-        }
-
-        double eta = (sj - s[i])/(s[i+1] - s[i]);
-        xp[j] = x[i] + eta*(x[i+1] - x[i]);
-        yp[j] = y[i] + eta*(y[i+1] - y[i]);
-        ip[j] = i;
-    }
-
-    for(size_t iter = 0; iter < 50; ++iter)
-    {
-        //std::cout << "xp0 = " << xp.transpose() << "\n";
-        //std::cout << "yp0 = " << yp.transpose() << "\n\n";
-
-        double delta_max = 0.0;
-
-        // Iterate
-        for(size_t j = 1; j < k-1; ++j)
-        {
-            size_t i = ip[j];
-            double eta = equalize({x[i], y[i]}, {x[i+1], y[i+1]}, {xp[j-1], yp[j-1]}, {xp[j+1], yp[j+1]});
-
-            while(eta < 0.0)
+            while(true)
             {
-                --i;
-                eta = equalize({x[i], y[i]}, {x[i+1], y[i+1]}, {xp[j-1], yp[j-1]}, {xp[j+1], yp[j+1]});
+                // Try to find a point on the current input segment (i, i+1)
+                // with distance d to the previous output point (j-1)
+                double eta = find_by_distance({x_in[i], y_in[i]}, {x_in[i+1], y_in[i+1]},
+                                              {x_out[j-1], y_out[j-1]}, d).maxCoeff();
+
+                if(eta > 1.0 && i < n_in-2)    // If eta lies outside the current segment and it's not the last segment: move to the next segment.
+                {
+                    ++i;
+                }
+                else if(j < n_out-1)    // Intermediate point: Calculate position and assign
+                {
+                    x_out[j] = x_in[i] + eta*(x_in[i+1] - x_in[i]);
+                    y_out[j] = y_in[i] + eta*(y_in[i+1] - y_in[i]);
+                    break;
+                }
+                else    // End point: Don't assign, calculate arc lenth to end of input curve
+                {
+                    double l = (1.0 - eta)*(s_in[i+1] - s_in[i]);
+                    for(i = i+1; i < n_in-1; ++i)
+                        l += s_in[i+1] - s_in[i];
+
+                    return l/s_in[n_in-1];    // Return arc length relative to total length as error
+                }
             }
-
-            while(eta > 1.0)
-            {
-                ++i;
-                eta = equalize({x[i], y[i]}, {x[i+1], y[i+1]}, {xp[j-1], yp[j-1]}, {xp[j+1], yp[j+1]});
-            }
-
-            double xp_new = x[i] + eta*(x[i+1] - x[i]);
-            double yp_new = y[i] + eta*(y[i+1] - y[i]);
-            delta_max = std::max(delta_max, hypot(xp[j] - xp_new, yp[j] - yp_new)/s[n-1]);
-
-            xp[j] = xp_new;
-            yp[j] = yp_new;
-            ip[j] = i;
         }
+    };
 
-        std::cout << "delta_max: " << delta_max << "\n";
-    }
+    // Find root of the partition function, use input curve lenth divided by number of
+    // output segments as a reasonable initial value for the distance d.
+    double d = s_in[n_in-1]/(n_out-1);
+    secant_method(partition, d, 1.1*d, 1e-6, 50);    // Magic numbers
+    //bracket_and_bisect<false>(partition, d, 2.0, 1e-6, 1e-6, 50);    // Magic numbers
 
-    return {xp, yp};
+    return {x_out, y_out};
 }
 
 
 
 int main()
 {
-    /*
-    Vector<2> A{0, 0};
-    Vector<2> B{1, 1};
-    Vector<2> C{1, 0};
-    Vector<2> D{2, 0};
+    VectorXd x(10), y(10);
+    x << 0.0, 0.0, 1.0, 3.0, 4.0, 4.0, 3.0, 2.0, 2.0, 3.0;
+    y << 0.0, 1.0, 3.0, 4.0, 3.0, 2.0, 1.0, 1.0, 2.0, 2.0;
 
-    std::cout << equalize(A, B, C, D);
-    */
+    Points out = equipartition(x, y, 12);
+    std::cout << "x = " << out.x.transpose() << "\n";
+    std::cout << "y = " << out.y.transpose() << "\n";
 
+    for(size_t i = 0; i < out.x.size()-1; ++i)
+    {
+        std::cout << hypot(out.x[i+1] - out.x[i], out.y[i+1] - out.y[i]) << "\n";
+    }
 
-    /*
-    Vector<2> A{-1, 0};
-    Vector<2> B{1, 0};
-    Vector<2> C{1, 1};
-    double d = 1.1;
-
-    std::cout << find_B[1]_distance(A, B, C, d);
-    */
-
-    VectorXd x(6), y(6);
-    x << 0.0, 1.0, 2.0, 3.0, 4.0, 5.0;
-    y << 0.0, 1.0, 4.0, 9.0, 16.0, 25.0;
-
-    Points out = equipartition(x, y, 50);
-
-    //std::cout << "x = " << out.x.transpose() << "\n";
-    //std::cout << "y = " << out.y.transpose() << "\n";
-
-    //std::cout << "x = " << output.x.transpose() << "\n";
-    //std::cout << "y = " << output.y.transpose() << "\n";
 }
 
 

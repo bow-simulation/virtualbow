@@ -9,7 +9,7 @@
 #include "fem/elements/MassElement.hpp"
 #include "fem/elements/ConstraintElement.hpp"
 #include "fem/elements/ContactSurface.hpp"
-#include "numerics/SecantMethod.hpp"
+#include "numerics/RootFinding.hpp"
 #include "gui/ProgressDialog.hpp"
 #include <algorithm>
 
