@@ -1,3 +1,11 @@
+#include "gui/Application.hpp"
+
+int main(int argc, char* argv[])
+{
+    return Application::run(argc, argv);
+}
+
+/*
 #include "numerics/Math.hpp"
 #include "numerics/RootFinding.hpp"
 #include <iostream>
@@ -105,8 +113,6 @@ Points equipartition(VectorXd x_in, VectorXd y_in, size_t n_out)
     return {x_out, y_out};
 }
 
-
-
 int main()
 {
     VectorXd x(10), y(10);
@@ -116,21 +122,6 @@ int main()
     Points out = equipartition(x, y, 12);
     std::cout << "x = " << out.x.transpose() << "\n";
     std::cout << "y = " << out.y.transpose() << "\n";
-
-    for(size_t i = 0; i < out.x.size()-1; ++i)
-    {
-        std::cout << hypot(out.x[i+1] - out.x[i], out.y[i+1] - out.y[i]) << "\n";
-    }
-
-}
-
-
-/*
-#include "gui/Application.hpp"
-
-int main(int argc, char* argv[])
-{
-    return Application::run(argc, argv);
 }
 */
 

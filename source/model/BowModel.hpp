@@ -50,13 +50,14 @@ private:
 
     // Implementation
 
-    void simulate_setup(SetupData& setup)
+    void create_limb()
     {
         size_t n = input.settings_n_elements_limb;
-        size_t k = input.settings_n_elements_string;
+
+        // Calculate discrete limb properties
+        limb = LimbProperties(input);
 
         // Create limb nodes
-        limb = LimbProperties(input);
         for(size_t i = 0; i < n+1; ++i)
         {
             DofType type = (i == 0) ? DofType::Fixed : DofType::Active;
@@ -85,6 +86,20 @@ private:
             system.add_element(element, "limb");
         }
 
+        StaticSolverLC solver(system);
+        solver.find_equilibrium();
+
+        qInfo() << "Here\n";
+    }
+
+    void simulate_setup(SetupData& setup)
+    {
+        //size_t n = input.settings_n_elements_limb;
+        //size_t k = input.settings_n_elements_string;
+
+        create_limb();
+
+        /*
         // Limb tip
         double xt = nodes_limb.back()[0].u() + limb.h[n]*sin(nodes_limb.back()[2].u());
         double yt = nodes_limb.back()[1].u() - limb.h[n]*cos(nodes_limb.back()[2].u());
@@ -162,6 +177,7 @@ private:
 
         setup.limb = limb;
         setup.string_length = string_length;
+        */
     }
 
     template<typename F>

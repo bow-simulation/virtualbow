@@ -5,29 +5,23 @@ StaticSolverLC::StaticSolverLC(System& system): system(system)
 
 }
 
+#include <iostream>
+
 void StaticSolverLC::find_equilibrium()
 {
     double norm_0 = (system.p() - system.q()).norm();
-
-    // With norm_0 = 0 the norm ratio criterion down below would be undefined,
-    // so return here as the system is already in equilibrium anyway
-    if(norm_0 == 0)
-        return;
 
     for(unsigned i = 0; i < max_iter; ++i)
     {
         stiffness_dec.compute(system.K());
         if(stiffness_dec.info() != Eigen::Success)
-        {
             throw std::runtime_error("Stiffness matrix decomposition failed");
-        }
 
         system.u_mut() += stiffness_dec.solve(system.p() - system.q());
         double norm_i = (system.p() - system.q()).norm();
 
-        if(norm_i/norm_0 < epsilon)
+        if(norm_i/norm_0 < epsilon_rel || norm_i < epsilon_abs)
             return;
-
     }
 
     throw std::runtime_error("Maximum number of iterations exceeded");
@@ -64,9 +58,7 @@ void StaticSolverDC::find_equilibrium(double displacement)
 
         stiffness_dec.compute(system.K());
         if(stiffness_dec.info() != Eigen::Success)
-        {
             throw std::runtime_error("Decomposition of the stiffness matrix failed");
-        }
 
         alpha = stiffness_dec.solve(delta);
         beta = stiffness_dec.solve(e);
@@ -76,9 +68,7 @@ void StaticSolverDC::find_equilibrium(double displacement)
         dof.p_mut() += df;
 
         if((alpha + df*beta).norm()/double(system.dofs()) < epsilon)    // Todo: Better convergence criterion
-        {
             return;
-        }
     }
 
     throw std::runtime_error("Maximum number of iterations exceeded");
