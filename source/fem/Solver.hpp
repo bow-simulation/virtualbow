@@ -18,9 +18,9 @@ private:
     System& system;
     Eigen::LDLT<Eigen::MatrixXd> stiffness_dec;
 
-    const unsigned max_iter = 50;     // Todo: Magic number
-    const double epsilon_rel = 1e-6;      // Todo: Magic number
-    const double epsilon_abs = 1e-9;      // Todo: Magic number
+    const unsigned max_iter = 50;         // Todo: Magic number
+    const double epsilon_rel = 1e-4;      // Todo: Magic number
+    const double epsilon_abs = 1e-6;      // Todo: Magic number
 };
 
 // Displacement controlled Newton-Raphson method

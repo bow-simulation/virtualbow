@@ -1,5 +1,6 @@
 #include "ContactElement.hpp"
 #include "numerics/Math.hpp"
+#include "numerics/Geometry.hpp"
 
 ContactElement::ContactElement(Node node0, Node node1, Node node2, double h0, double h1, double k)
     : dofs{node0[0], node0[1], node0[2], node1[0], node1[1], node1[2], node2[0], node2[1]},
@@ -18,14 +19,11 @@ void ContactElement::update_state()
     Vector<2> Q0{dofs[0].u() + h0*sin(dofs[2].u()), dofs[1].u() - h0*cos(dofs[2].u())};
     Vector<2> Q1{dofs[3].u() + h1*sin(dofs[5].u()), dofs[4].u() - h1*cos(dofs[5].u())};
 
-    // Tests if the triangle {a, b, c} is oriented counter-clockwise
-    auto positive = [](auto a, auto b, auto c)
-    {
-        return (b(0) - a(0))*(c(1) - a(1)) - (b(1) - a(1))*(c(0) - a(0)) > 0;
-    };
-
     // If no contact, set kinematic expressions to zero and return
-    if(!positive(P2, P0, Q0) || !positive(P2, P1, P0) || !positive(P2, Q0, Q1) || !positive(P2, Q1, P1))
+    if(!is_right_handed(P2, P0, Q0) ||
+       !is_right_handed(P2, P1, P0) ||
+       !is_right_handed(P2, Q0, Q1) ||
+       !is_right_handed(P2, Q1, P1))
     {
         e = 0.0;
         De.setZero();

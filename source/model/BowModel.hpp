@@ -87,9 +87,23 @@ private:
         }
 
         StaticSolverLC solver(system);
-        solver.find_equilibrium();
+        auto try_torque = [&](double torque)
+        {
+            qInfo() << "torque_test = " << torque;
 
-        qInfo() << "Here\n";
+            nodes_limb.back()[2].p_mut() = torque;
+            solver.find_equilibrium();
+
+            double y_min = std::numeric_limits<double>::max();
+            for(size_t i = 0; i < nodes_limb.size(); ++i)
+                y_min = std::min(y_min, nodes_limb[i][1].u() - limb.h[n]*cos(nodes_limb[i][2].u()));
+
+            qInfo() << "difference = " << y_min + input.operation_brace_height;
+
+            return y_min + input.operation_brace_height;    // Todo: Use dimensionless measure
+        };
+
+        secant_method(try_torque, -1.0, -2.0, 1e-4, 50);
     }
 
     void simulate_setup(SetupData& setup)

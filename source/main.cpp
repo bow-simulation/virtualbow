@@ -1,129 +1,38 @@
+/*
 #include "gui/Application.hpp"
 
 int main(int argc, char* argv[])
 {
     return Application::run(argc, argv);
 }
+*/
 
-/*
 #include "numerics/Math.hpp"
-#include "numerics/RootFinding.hpp"
+#include "numerics/Geometry.hpp"
 #include <iostream>
-
-// Returns the real roots of the quadratic polynomial
-// f(x) = c0 + c1*x + c2*x^2
-// or NaN if no real solutions exist.
-Vector<2> solve_quadratic(double c0, double c1, double c2)
-{
-    double s = sqrt(c1*c1 - 4.0*c2*c0);
-    return {(-c1 + s)/(2.0*c2), (-c1 - s)/(2.0*c2)};
-}
-
-struct Points
-{
-    VectorXd x;
-    VectorXd y;
-};
-
-// Partitions the curve of linear segments given by x_in, y_in into n_out points such that
-// the first and last point coincide with the start and end of the curve and all points
-// are evenly spaced out by euclidean distance.
-// Assumption: Euclidean distance between points is monotonously rising with the curve's arc length
-// (Only affects calculation of the error measure)
-Points equipartition(VectorXd x_in, VectorXd y_in, size_t n_out)
-{
-    assert(x_in.size() == y_in.size());
-    assert(x_in.size() >= 2);
-    assert(n_out >= 2);
-
-    size_t n_in = x_in.size();      // Number of input points
-    VectorXd x_out(n_out);          // Output data
-    VectorXd y_out(n_out);
-
-    // Calculate lenths of the input curve
-    VectorXd s_in(n_in);
-    s_in[0] = 0.0;
-    for(size_t i = 1; i < n_in; ++i)
-        s_in[i] = s_in[i-1] + hypot(x_in[i] - x_in[i-1], y_in[i] - y_in[i-1]);
-
-    // Assign first and last points
-    x_out[0] = x_in[0];
-    y_out[0] = y_in[0];
-
-    x_out[n_out-1] = x_in[n_in-1];
-    y_out[n_out-1] = y_in[n_in-1];
-
-    // Function that returns two values eta_1/2 such that
-    // ||A + eta_i*(B-A), C|| = d.
-    auto find_by_distance = [](Vector<2> A, Vector<2> B, Vector<2> C, double d)
-    {
-        double x_ab = B[0] - A[0];  double x_ac = C[0] - A[0];
-        double y_ab = B[1] - A[1];  double y_ac = C[1] - A[1];
-
-        return solve_quadratic(x_ac*x_ac + y_ac*y_ac - d*d,
-                              -2.0*(x_ac*x_ab + y_ac*y_ab),
-                               x_ab*x_ab+ y_ab*y_ab);
-    };
-
-    // Function that calculates the intermediate points for a fixed distance
-    // d and returns a measure of error. The real equipartition is done by finding
-    // the root of this function.
-    auto partition = [&](double d)
-    {
-        // i: Input point index
-        // j: Output point index.
-        // Iterate over all intermediate output points...
-        for(size_t i = 0, j = 1; j < n_out; ++j)
-        {
-            while(true)
-            {
-                // Try to find a point on the current input segment (i, i+1)
-                // with distance d to the previous output point (j-1)
-                double eta = find_by_distance({x_in[i], y_in[i]}, {x_in[i+1], y_in[i+1]},
-                                              {x_out[j-1], y_out[j-1]}, d).maxCoeff();
-
-                if(eta > 1.0 && i < n_in-2)    // If eta lies outside the current segment and it's not the last segment: move to the next segment.
-                {
-                    ++i;
-                }
-                else if(j < n_out-1)    // Intermediate point: Calculate position and assign
-                {
-                    x_out[j] = x_in[i] + eta*(x_in[i+1] - x_in[i]);
-                    y_out[j] = y_in[i] + eta*(y_in[i+1] - y_in[i]);
-                    break;
-                }
-                else    // End point: Don't assign, calculate arc lenth to end of input curve
-                {
-                    double l = (1.0 - eta)*(s_in[i+1] - s_in[i]);
-                    for(i = i+1; i < n_in-1; ++i)
-                        l += s_in[i+1] - s_in[i];
-
-                    return l/s_in[n_in-1];    // Return arc length relative to total length as error
-                }
-            }
-        }
-    };
-
-    // Find root of the partition function, use input curve lenth divided by number of
-    // output segments as a reasonable initial value for the distance d.
-    double d = s_in[n_in-1]/(n_out-1);
-    secant_method(partition, d, 1.1*d, 1e-6, 50);    // Magic numbers
-    //bracket_and_bisect<false>(partition, d, 2.0, 1e-6, 1e-6, 50);    // Magic numbers
-
-    return {x_out, y_out};
-}
 
 int main()
 {
-    VectorXd x(10), y(10);
-    x << 0.0, 0.0, 1.0, 3.0, 4.0, 4.0, 3.0, 2.0, 2.0, 3.0;
-    y << 0.0, 1.0, 3.0, 4.0, 3.0, 2.0, 1.0, 1.0, 2.0, 2.0;
+    std::vector<Vector<2>> input = {
+        { 0.0, -2.0},
+        { 0.0,  0.0},
+        { 2.0,  0.0},
+        { 6.0, -1.0},
+        { 9.0, -2.0},
+        {11.0, -2.0},
+        {12.0, -1.0},
+        {14.0,  0.0},
+        {16.0, -1.0},
+        {18.0,  0.0},
+        {19.0,  2.0},
+    };
 
-    Points out = equipartition(x, y, 12);
-    std::cout << "x = " << out.x.transpose() << "\n";
-    std::cout << "y = " << out.y.transpose() << "\n";
+    auto output = constant_orientation_subset(input, true);
+
+    for(auto& point: output)
+        std::cout << point.transpose() << "\n";
 }
-*/
+
 
 /*
 #include "fem/System.hpp"
