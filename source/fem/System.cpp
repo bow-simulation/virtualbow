@@ -44,7 +44,6 @@ const VectorXd& System::u() const
     return m_u;
 }
 
-
 const VectorXd& System::v() const
 {
     return m_v;

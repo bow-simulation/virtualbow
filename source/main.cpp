@@ -1,12 +1,11 @@
-/*
 #include "gui/Application.hpp"
 
 int main(int argc, char* argv[])
 {
     return Application::run(argc, argv);
 }
-*/
 
+/*
 #include "numerics/Math.hpp"
 #include "numerics/Geometry.hpp"
 #include <iostream>
@@ -32,7 +31,7 @@ int main()
     for(auto& point: output)
         std::cout << point.transpose() << "\n";
 }
-
+*/
 
 /*
 #include "fem/System.hpp"

@@ -10,6 +10,7 @@
 #include "fem/elements/ConstraintElement.hpp"
 #include "fem/elements/ContactSurface.hpp"
 #include "numerics/RootFinding.hpp"
+#include "numerics/Geometry.hpp"
 #include "gui/ProgressDialog.hpp"
 #include <algorithm>
 
@@ -20,60 +21,56 @@ public:
     static OutputData run_static_simulation(const InputData& input, const F& callback)
     {
         BowModel model(input);
-        OutputData output;
+        model.simulate_statics(callback);
 
-        model.simulate_setup(output.setup);
-        model.simulate_statics(output.statics, callback);
-
-        return output;
+        return model.output;
     }
 
     template<typename F1, typename F2>
     static OutputData run_dynamic_simulation(const InputData& input, const F1& callback1, const F2& callback2)
     {
         BowModel model(input);
-        OutputData output;
+        model.simulate_statics(callback1);
+        model.simulate_dynamics(callback2);
 
-        model.simulate_setup(output.setup);
-        model.simulate_statics(output.statics, callback1);
-        model.simulate_dynamics(output.dynamics, output.statics, callback2);
-
-        return output;
+        return model.output;
     }
 
 private:
     BowModel(const InputData& input)
         : input(input)
     {
+        init_limb();
+        init_string();
+        init_masses();
 
+        qInfo() << "Setup successful!";
     }
 
     // Implementation
 
-    void create_limb()
+    void init_limb()
     {
-        size_t n = input.settings_n_elements_limb;
-
         // Calculate discrete limb properties
-        limb = LimbProperties(input);
+        output.setup.limb = LimbProperties(input);
 
         // Create limb nodes
-        for(size_t i = 0; i < n+1; ++i)
+        for(size_t i = 0; i < input.settings_n_elements_limb + 1; ++i)
         {
             DofType type = (i == 0) ? DofType::Fixed : DofType::Active;
-            Node node = system.create_node({type, type, type}, {limb.x[i], limb.y[i], limb.phi[i]});
+            Node node = system.create_node({type, type, type}, {output.setup.limb.x[i], output.setup.limb.y[i], output.setup.limb.phi[i]});
             nodes_limb.push_back(node);
         }
 
         // Create limb elements
-        for(size_t i = 0; i < n; ++i)
+        for(size_t i = 0; i < input.settings_n_elements_limb; ++i)
         {
-            double rhoA = 0.5*(limb.rhoA[i] + limb.rhoA[i+1]);
+            double rhoA = 0.5*(output.setup.limb.rhoA[i] + output.setup.limb.rhoA[i+1]);
             double L = Node::distance(nodes_limb[i], nodes_limb[i+1]);
 
-            double Cee = 0.5*(limb.Cee[i] + limb.Cee[i+1]);
-            double Ckk = 0.5*(limb.Ckk[i] + limb.Ckk[i+1]);
-            double Cek = 0.5*(limb.Cek[i] + limb.Cek[i+1]);
+            double Cee = 0.5*(output.setup.limb.Cee[i] + output.setup.limb.Cee[i+1]);
+            double Ckk = 0.5*(output.setup.limb.Ckk[i] + output.setup.limb.Ckk[i+1]);
+            double Cek = 0.5*(output.setup.limb.Cek[i] + output.setup.limb.Cek[i+1]);
 
             // Todo: Document this
             double phi = Node::angle(nodes_limb[i], nodes_limb[i+1]);
@@ -86,51 +83,56 @@ private:
             system.add_element(element, "limb");
         }
 
+        // Function that applies a torque to the limb tip and returns the difference
+        // between limb belly and brace height in the direction of draw
         StaticSolverLC solver(system);
         auto try_torque = [&](double torque)
         {
-            qInfo() << "torque_test = " << torque;
-
+            // Apply torque, iterate to equilibrium, remove torque again
             nodes_limb.back()[2].p_mut() = torque;
             solver.find_equilibrium();
+            nodes_limb.back()[2].p_mut() = 0.0;
 
+            // Calculate point on the limb that is closest to brace height
             double y_min = std::numeric_limits<double>::max();
             for(size_t i = 0; i < nodes_limb.size(); ++i)
-                y_min = std::min(y_min, nodes_limb[i][1].u() - limb.h[n]*cos(nodes_limb[i][2].u()));
-
-            qInfo() << "difference = " << y_min + input.operation_brace_height;
+                y_min = std::min(y_min, nodes_limb[i][1].u() - output.setup.limb.h[i]*cos(nodes_limb[i][2].u()));
 
             return y_min + input.operation_brace_height;    // Todo: Use dimensionless measure
         };
 
-        secant_method(try_torque, -1.0, -2.0, 1e-4, 50);
+        // Apply a torque to the limb such that the difference to brace height is zero
+        secant_method(try_torque, -1.0, -10.0, 1e-5, 50);
     }
 
-    void simulate_setup(SetupData& setup)
+    void init_string()
     {
-        //size_t n = input.settings_n_elements_limb;
-        //size_t k = input.settings_n_elements_string;
+        std::vector<Vector<2>> points;
+        points.push_back({0.0, -input.operation_brace_height});
+        for(size_t i = 0; i < nodes_limb.size(); ++i)
+        {
+            points.push_back({
+                nodes_limb[i][0].u() + output.setup.limb.h[i]*sin(nodes_limb[i][2].u()),
+                nodes_limb[i][1].u() - output.setup.limb.h[i]*cos(nodes_limb[i][2].u())
+            });
+        }
 
-        create_limb();
+        points = constant_orientation_subset(points, true);
+        points = equipartition(points, input.settings_n_elements_string + 1);
 
-        /*
-        // Limb tip
-        double xt = nodes_limb.back()[0].u() + limb.h[n]*sin(nodes_limb.back()[2].u());
-        double yt = nodes_limb.back()[1].u() - limb.h[n]*cos(nodes_limb.back()[2].u());
-
-        // String center at brace height
-        double xc = 0.0;
-        double yc = -input.operation_brace_height;
+        //for(auto& pt: points)
+        //    qInfo() << pt[0] << ", " << pt[1];
 
         // Create string nodes
-        for(size_t i = 0; i <= k; ++i)
+        for(size_t i = 0; i < points.size(); ++i)
         {
-            double p = double(i)/double(k);
-            double x = xc*(1.0 - p) + xt*p;
-            double y = yc*(1.0 - p) + yt*p;
+            std::array<DofType, 3> dof_types = {
+                (i != 0) ? DofType::Active : DofType::Fixed,
+                           DofType::Active,
+                           DofType::Fixed
+            };
 
-            DofType type_x = (i == 0) ? DofType::Fixed : DofType::Active;
-            Node node = system.create_node({type_x, DofType::Active, DofType::Fixed}, {x, y, 0.0});
+            Node node = system.create_node(dof_types, {points[i][0], points[i][1], 0.0});
             nodes_string.push_back(node);
         }
 
@@ -138,69 +140,67 @@ private:
         double EA = input.string_n_strands*input.string_strand_stiffness;
         double rhoA = input.string_n_strands*input.string_strand_density;
 
-        for(size_t i = 0; i < k; ++i)
+        for(size_t i = 0; i < input.settings_n_elements_string; ++i)
         {
-            BarElement element(nodes_string[i], nodes_string[i+1], 0.0, EA, rhoA); // Element lengths are reset later when string length is determined
+            BarElement element(nodes_string[i], nodes_string[i+1], 0.0, EA, rhoA);    // Lengths are set later when determining string length
             system.add_element(element, "string");
         }
 
-        // Contact/Constraint stiffness, estimated based on limb data
-        double kc = limb.Cee[0]/(limb.s[1] - limb.s[0]);
+        // Create limb tip constraint and string to limb contact surface
+        double k = 0.05*output.setup.limb.Cee[0]/(output.setup.limb.s[1] - output.setup.limb.s[0]);    // Stiffness estimate based on limb data
+        system.add_element(ConstraintElement(nodes_limb.back(), nodes_string.back(), k), "constraint");
+        system.add_element(ContactSurface(nodes_limb, nodes_string, output.setup.limb.h, k), "contact");
 
-        // Constraint element
-        ConstraintElement constraint(nodes_limb.back(), nodes_string.back(), kc);
-        system.add_element(constraint, "constraint");
+        // Function that sets the sting element length and returns the
+        // resulting difference between actual and desired brace height
+        StaticSolverLC solver(system);
+        auto try_element_length = [&](double l)
+        {
+            for(auto& element: system.element_group_mut<BarElement>("string"))
+                element.set_length(l);
 
-        // Create contact surface
-        ContactSurface contact(nodes_limb, nodes_string, limb.h, kc);    // Todo: Magic number
-        system.add_element(contact, "contact");
+            qInfo() << "l = " << l << "...";
 
-        // Create mass elements
+            solver.find_equilibrium();
+
+            qInfo() << "...d = " << nodes_string[0][1].u() + input.operation_brace_height;
+
+
+            return nodes_string[0][1].u() + input.operation_brace_height;    // Todo: Use dimensionless measure
+        };
+
+        // Find a element length at which the brace height difference is zero
+        // Todo: Perhaps limit the step size of the root finding algorithm to increase robustness.
+        double l = (points[1] - points[0]).norm();
+        //l = secant_method(try_element_length, 0.99*l, 0.98*l, 1e-6, 50);
+
+        try_element_length(0.99*l);
+
+        // Assign setup data
+        output.setup.string_length = 2.0*l*input.settings_n_elements_string;    // *2 because of symmetry
+    }
+
+    void init_masses()
+    {
         node_arrow = nodes_string[0];
         MassElement mass_limb_tip(nodes_limb.back(), input.mass_limb_tip);
         MassElement mass_string_tip(nodes_string.back(), input.mass_string_tip);
-        MassElement mass_string_center(nodes_string.front(), 0.5*input.mass_string_center);   // 0.5 because of symmetric model
-        MassElement mass_arrow(node_arrow, 0.5*input.operation_mass_arrow);                   // 0.5 because of symmetric model
+        MassElement mass_string_center(nodes_string.front(), 0.5*input.mass_string_center);   // 0.5 because of symmetry
+        MassElement mass_arrow(node_arrow, 0.5*input.operation_mass_arrow);                   // 0.5 because of symmetry
 
         system.add_element(mass_limb_tip, "mass limb tip");
         system.add_element(mass_string_tip, "mass string tip");
         system.add_element(mass_string_center, "mass string center");
         system.add_element(mass_arrow, "mass arrow");
-
-        // Takes a string length, iterates to equilibrium with the constraint of the brace height
-        // and returns the angle of the string center
-        auto try_string_length = [&](double string_length)
-        {
-            double L = 0.5*string_length/double(k);
-            for(auto& element: system.element_group_mut<BarElement>("string"))
-            {
-                element.set_length(L);
-            }
-
-            StaticSolverDC solver(system, nodes_string[0][1], yc, 1);   // Todo: Reuse solver across function calls?
-            solver.step();
-
-            return Node::angle(nodes_string[0], nodes_string[1]);
-        };
-
-        // Todo: Perhaps limit the step size of the root finding algorithm to increase robustness.
-        double string_length = 2.0*hypot(xc - xt, yc - yt);    // *2 because of symmetry
-        string_length = secant_method(try_string_length, 0.95*string_length, 0.9*string_length, 1e-8, 50);   // Todo: Magic numbers
-
-        // Write setup results to output
-
-        setup.limb = limb;
-        setup.string_length = string_length;
-        */
     }
 
     template<typename F>
-    void simulate_statics(StaticData& statics, const F& callback)
+    void simulate_statics(const F& callback)
     {
         StaticSolverDC solver(system, nodes_string[0][1], -input.operation_draw_length, input.settings_n_draw_steps);
         while(solver.step())
         {
-            add_bow_state(statics.states);
+            add_bow_state(output.statics.states);
 
             // Todo: Progress could be based on number of iterations also
             int progress = (-nodes_string[0][1].u() - input.operation_brace_height)/(input.operation_draw_length - input.operation_brace_height)*100.0;
@@ -210,23 +210,23 @@ private:
 
         // Calculate scalar values
 
-        double draw_length_front = statics.states.draw_length.front();
-        double draw_length_back = statics.states.draw_length.back();
-        double draw_force_back = statics.states.draw_force.back();
+        double draw_length_front = output.statics.states.draw_length.front();
+        double draw_length_back = output.statics.states.draw_length.back();
+        double draw_force_back = output.statics.states.draw_force.back();
 
-        double e_pot_front = statics.states.e_pot_limbs.front()
-                           + statics.states.e_pot_string.front();
+        double e_pot_front = output.statics.states.e_pot_limbs.front()
+                           + output.statics.states.e_pot_string.front();
 
-        double e_pot_back = statics.states.e_pot_limbs.back()
-                          + statics.states.e_pot_string.back();
+        double e_pot_back = output.statics.states.e_pot_limbs.back()
+                          + output.statics.states.e_pot_string.back();
 
-        statics.final_draw_force = draw_force_back;
-        statics.drawing_work = e_pot_back - e_pot_front;
-        statics.storage_ratio = (e_pot_back - e_pot_front)/(0.5*(draw_length_back - draw_length_front)*draw_force_back);
+        output.statics.final_draw_force = draw_force_back;
+        output.statics.drawing_work = e_pot_back - e_pot_front;
+        output.statics.storage_ratio = (e_pot_back - e_pot_front)/(0.5*(draw_length_back - draw_length_front)*draw_force_back);
     }
 
     template<typename F>
-    void simulate_dynamics(DynamicData& dynamics, const StaticData& statics, const F& callback)
+    void simulate_dynamics(const F& callback)
     {
         // Set draw force to zero    // Todo: Doesn't really belong in this method
         nodes_string[0][1].p_mut() = 0.0;
@@ -253,7 +253,7 @@ private:
         {
             while(solver.step())
             {
-                add_bow_state(dynamics.states);
+                add_bow_state(output.dynamics.states);
                 if(!callback(100.0*system.t()/(alpha*T)))
                     return;
             }
@@ -275,9 +275,9 @@ private:
 
         // Calculate scalar values
 
-        dynamics.final_arrow_velocity = std::abs(dynamics.states.vel_arrow.back());
-        dynamics.final_arrow_energy = std::abs(dynamics.states.e_kin_arrow.back());
-        dynamics.efficiency = dynamics.final_arrow_energy/statics.drawing_work;
+        output.dynamics.final_arrow_velocity = output.dynamics.states.vel_arrow.back();
+        output.dynamics.final_arrow_energy = output.dynamics.states.e_kin_arrow.back();
+        output.dynamics.efficiency = output.dynamics.final_arrow_energy/output.statics.drawing_work;
     }
 
     void add_bow_state(BowStates& states) const
@@ -341,13 +341,13 @@ private:
             }
         }
 
-        states.sigma_back.push_back(limb.layers[0].sigma_back(epsilon, kappa));
-        states.sigma_belly.push_back(limb.layers[0].sigma_belly(epsilon, kappa));
+        states.sigma_back.push_back(output.setup.limb.layers[0].sigma_back(epsilon, kappa));
+        states.sigma_belly.push_back(output.setup.limb.layers[0].sigma_belly(epsilon, kappa));
     }
 
 private:
     const InputData& input;
-    LimbProperties limb;
+    OutputData output;
 
     System system;
     std::vector<Node> nodes_limb;

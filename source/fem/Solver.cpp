@@ -24,7 +24,7 @@ void StaticSolverLC::find_equilibrium()
             return;
     }
 
-    throw std::runtime_error("Maximum number of iterations exceeded");
+    throw std::runtime_error("Static equilibrium: Maximum number of iterations exceeded");
 }
 
 StaticSolverDC::StaticSolverDC(System& system, Dof dof, double u_end, unsigned steps)
