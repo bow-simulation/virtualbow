@@ -26,6 +26,11 @@ void BeamElement::set_stiffness(double Cee, double Ckk, double Cek)
     // Todo: Assert that C > 0
 }
 
+void BeamElement::set_length(double length)
+{
+    L = length;
+}
+
 // p in [0, 1]
 double BeamElement::get_epsilon() const
 {

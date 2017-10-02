@@ -9,6 +9,7 @@ public:
 
     void set_reference_angles(double phi_ref_0, double phi_ref_1);
     void set_stiffness(double Cee, double Ckk, double Cek);
+    void set_length(double length);
     double get_epsilon() const;
     double get_kappa(double p) const;
 
@@ -22,11 +23,11 @@ private:
     std::array<Dof, 6> dofs;
 
     // Parameters
+    Matrix<3, 3> C;
     double phi_ref_0;
     double phi_ref_1;
     double rhoA;
     double L;
-    Matrix<3, 3> C;
 
     // State
     Matrix<3, 1> e;

@@ -39,6 +39,8 @@ double secant_method(const F& f, double x0, double x1, double epsilon, unsigned 
     throw std::runtime_error("Secant method: Maximum number of iterations exceeded");
 }
 
+#include <iostream>
+
 template<bool rising, class F>
 double bisect(const F& f, double x_min, double x_max, double ftol, double xtol, unsigned iter)
 {
@@ -49,10 +51,12 @@ double bisect(const F& f, double x_min, double x_max, double ftol, double xtol, 
         double x_new = 0.5*(x_max + x_min);
         double f_new = f(x_new);
 
-        if(std::abs(f_new) < ftol && x_max - x_min < xtol)
+        if(std::abs(f_new) < ftol || x_max - x_min < xtol)
             return x_new;
 
-        if((!rising && f_new > 0) || (rising && f_new) < 0)
+        std::cout << "x_new: " << x_new << ", f_new: " << f_new << "\n";
+
+        if((!rising && f_new > 0) || (rising && f_new < 0))
             x_min = x_new;
         else
             x_max = x_new;

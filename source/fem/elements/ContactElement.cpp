@@ -28,6 +28,7 @@ void ContactElement::update_state()
         e = 0.0;
         De.setZero();
         DDe.setZero();
+
         return;
     }
 

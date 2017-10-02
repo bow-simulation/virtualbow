@@ -7,10 +7,9 @@ StaticSolverLC::StaticSolverLC(System& system): system(system)
 
 #include <iostream>
 
+/*
 void StaticSolverLC::find_equilibrium()
 {
-    double norm_0 = (system.p() - system.q()).norm();
-
     for(unsigned i = 0; i < max_iter; ++i)
     {
         stiffness_dec.compute(system.K());
@@ -20,12 +19,119 @@ void StaticSolverLC::find_equilibrium()
         system.u_mut() += stiffness_dec.solve(system.p() - system.q());
         double norm_i = (system.p() - system.q()).norm();
 
-        if(norm_i/norm_0 < epsilon_rel || norm_i < epsilon_abs)
+        if(norm_i < epsilon)
             return;
     }
 
-    throw std::runtime_error("Static equilibrium: Maximum number of iterations exceeded");
+    throw std::runtime_error("LC Solver: Maximum number of iterations exceeded");
 }
+*/
+
+#include "numerics/RootFinding.hpp"
+
+//Full newton raphson with line search
+void StaticSolverLC::find_equilibrium()
+{
+    for(unsigned int i = 0; i < max_iter; ++i)
+    {
+        stiffness_dec.compute(system.K());
+        if(stiffness_dec.info() != Eigen::Success)
+            throw std::runtime_error("Stiffness matrix decomposition failed");
+
+        VectorXd ui = system.u();
+        VectorXd fi = system.p() - system.q();
+        VectorXd delta_u = stiffness_dec.solve(fi);
+
+        //Line search
+        ///////////////////////////////////////////////////////////
+
+        auto s = [&](double alpha) -> double {
+            system.u_mut() = ui + alpha*delta_u;
+            VectorXd fi = system.p() - system.q();
+            return delta_u.transpose()*fi;
+        };
+
+        //double alpha0 = 0.0;
+        //double alpha1 = numerics::findSign<numerics::NEG>(s, 1.0, 1.5);
+        //numerics::root(s, alpha0, alpha1, 0.0, 0.05);
+
+        //for(double alpha = 0.0; alpha < 1.0; alpha += 0.01)
+        //    std::cout << alpha << " " << s(alpha) << "\n";
+
+        //std::cout << "=============================";
+
+        //secant_method(s, 0.1, 0.5, 1e-3, 50);    // Todo: Magic numbers
+
+        bracket_and_bisect<false>(s, 0.01, 1.5, 0.0, 0.01, 50);
+
+        //bisect<false>(s, 0.05, 0.15, 0.0, 0.01, 500);
+
+        ///////////////////////////////////////////////////////////
+
+        ++i;
+
+        double norm_i = (system.p() - system.q()).norm();
+        if(norm_i < epsilon)
+            return;
+    }
+
+    throw std::runtime_error("Model::staticEquilibrium() : No convergence to equilibrium state");
+    //return false;
+}
+
+/*
+//Full newton raphson with line search
+bool Model::staticEquilibrium(double epsilon, unsigned int i_max)
+{
+    dot_u.setZero();
+
+    for(unsigned int i = 0; i < i_max; ++i)
+    {
+        Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>> stiffness_dec(tangentStiffness());
+
+        if(stiffness_dec.info() != Eigen::Success)
+        {
+            throw std::runtime_error("Model::staticEquilibrium() : Stiffness matrix decomposition failed");
+        }
+
+        Eigen::VectorXd ui = u;
+        Eigen::VectorXd fi = f_ext - internalForces();
+        Eigen::VectorXd delta_u = stiffness_dec.solve(fi);
+
+        //Line search
+        ///////////////////////////////////////////////////////////
+
+        auto s = [&](double alpha)
+        {
+            u = ui + alpha*delta_u;
+            updateElements();
+            Eigen::VectorXd fi = f_ext - internalForces();
+
+            return delta_u.transpose()*fi;
+        };
+
+        double alpha0 = 0.0;
+        double alpha1 = numerics::findSign<numerics::NEG>(s, 1.0, 1.5);
+        numerics::root(s, alpha0, alpha1, 0.0, 0.05);
+
+        ///////////////////////////////////////////////////////////
+
+        ++i;
+
+        if(delta_u.isZero(epsilon))
+        {
+            return true;
+        }
+    }
+
+    throw std::runtime_error("Model::staticEquilibrium() : No convergence to equilibrium state");
+    //return false;
+}
+
+*/
+
+
+
 
 StaticSolverDC::StaticSolverDC(System& system, Dof dof, double u_end, unsigned steps)
     : system(system),
@@ -71,7 +177,7 @@ void StaticSolverDC::find_equilibrium(double displacement)
             return;
     }
 
-    throw std::runtime_error("Maximum number of iterations exceeded");
+    throw std::runtime_error("DC Solver: Maximum number of iterations exceeded");
 }
 
 VectorXd StaticSolverDC::unit_vector(size_t n, size_t i) const

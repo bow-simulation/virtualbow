@@ -1,9 +1,64 @@
+#include "fem/System.hpp"
+#include "fem/Solver.hpp"
+#include "fem/elements/ContactSurface.hpp"
+#include "fem/elements/BarElement.hpp"
+
+#include "numerics/Math.hpp"
+#include <iostream>
+#include <vector>
+
+int main()
+{
+    unsigned n = 10;    // Number of nodes on the contact surface
+    double r = 1.0;
+    double h = 0.2;
+
+    double ks = 1e1;
+    double kc = 1e5;
+
+    System system;
+    std::vector<Node> master_nodes;
+    std::vector<Node> slave_nodes;
+
+    for(unsigned i = 0; i < n; ++i)
+    {
+        double phi = double(i)/(n-1)*M_PI_2;
+        master_nodes.push_back(system.create_node({DofType::Fixed , DofType::Fixed , DofType::Fixed},
+        { 1.0 - r*sin(phi), 1.0 - r*cos(phi), M_PI-phi}));
+    }
+
+    Node origin = system.create_node({DofType::Fixed , DofType::Fixed , DofType::Fixed}, {0.0, 0.0, 0.0});
+    Node point = system.create_node({DofType::Active, DofType::Active, DofType::Fixed}, {0.95*r, 0.95*h, 0.0});
+
+    slave_nodes.push_back(point);
+    system.add_element(ContactSurface(master_nodes, slave_nodes, VectorXd::Constant(n, h), kc));
+
+    double l = (M_SQRT2 - 1.0)/2.0;
+    system.add_element(BarElement(origin, point, l, ks*l, 10.0), "bar");
+
+    /*
+    DynamicSolver solver(system, 0.2, 0.01, 500.0);
+    while(solver.step())
+        std::cout << "d = " << hypot(point1[0].u(), point1[1].u()) << "\n";
+    */
+
+    //system.q();
+
+    StaticSolverLC solver(system);
+    solver.find_equilibrium();
+
+    std::cout << "x = " << point[0].u() << ", y = " << point[1].u() << "\n";
+    //std::cout << "E = " << system.get_potential_energy("bar") << "\n";
+}
+
+/*
 #include "gui/Application.hpp"
 
 int main(int argc, char* argv[])
 {
     return Application::run(argc, argv);
 }
+*/
 
 /*
 #include "numerics/Math.hpp"

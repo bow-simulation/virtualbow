@@ -19,8 +19,7 @@ private:
     Eigen::LDLT<Eigen::MatrixXd> stiffness_dec;
 
     const unsigned max_iter = 50;         // Todo: Magic number
-    const double epsilon_rel = 1e-4;      // Todo: Magic number
-    const double epsilon_abs = 1e-6;      // Todo: Magic number
+    const double epsilon = 1e-8;      // Todo: Magic number
 };
 
 // Displacement controlled Newton-Raphson method
@@ -45,7 +44,7 @@ private:
     VectorXd e;
 
     void find_equilibrium(double displacement);
-    VectorXd unit_vector(size_t n, size_t i) const;
+    VectorXd unit_vector(size_t n, size_t i) const;    // Todo: Mode to numerics/Math.hpp
 };
 
 // Central difference method

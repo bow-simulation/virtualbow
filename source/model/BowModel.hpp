@@ -41,10 +41,10 @@ private:
         : input(input)
     {
         init_limb();
+        qInfo() << "Limb setup successful!";
         init_string();
+        qInfo() << "String setup successful!";
         init_masses();
-
-        qInfo() << "Setup successful!";
     }
 
     // Implementation
@@ -120,16 +120,13 @@ private:
         points = constant_orientation_subset(points, true);
         points = equipartition(points, input.settings_n_elements_string + 1);
 
-        //for(auto& pt: points)
-        //    qInfo() << pt[0] << ", " << pt[1];
-
         // Create string nodes
         for(size_t i = 0; i < points.size(); ++i)
         {
             std::array<DofType, 3> dof_types = {
                 (i != 0) ? DofType::Active : DofType::Fixed,
                            DofType::Active,
-                           DofType::Fixed
+                (i != 0) ? DofType::Active : DofType::Fixed
             };
 
             Node node = system.create_node(dof_types, {points[i][0], points[i][1], 0.0});
@@ -142,39 +139,37 @@ private:
 
         for(size_t i = 0; i < input.settings_n_elements_string; ++i)
         {
-            BarElement element(nodes_string[i], nodes_string[i+1], 0.0, EA, rhoA);    // Lengths are set later when determining string length
+            BeamElement element(nodes_string[i], nodes_string[i+1], rhoA, 0.0);    // Length is set later when determining string length
+            element.set_stiffness(EA, 1e-8, 0.0);
             system.add_element(element, "string");
         }
 
         // Create limb tip constraint and string to limb contact surface
-        double k = 0.05*output.setup.limb.Cee[0]/(output.setup.limb.s[1] - output.setup.limb.s[0]);    // Stiffness estimate based on limb data
+        //double k = 100.0*EA/output.setup.string_length;
+        double k = output.setup.limb.Cee[0]/(output.setup.limb.s[1] - output.setup.limb.s[0]);    // Stiffness estimate based on limb data
         system.add_element(ConstraintElement(nodes_limb.back(), nodes_string.back(), k), "constraint");
-        system.add_element(ContactSurface(nodes_limb, nodes_string, output.setup.limb.h, k), "contact");
+        // system.add_element(ContactSurface(nodes_limb, nodes_string, output.setup.limb.h, k), "contact");
 
         // Function that sets the sting element length and returns the
         // resulting difference between actual and desired brace height
         StaticSolverLC solver(system);
         auto try_element_length = [&](double l)
         {
-            for(auto& element: system.element_group_mut<BarElement>("string"))
+            for(auto& element: system.element_group_mut<BeamElement>("string"))
                 element.set_length(l);
 
-            qInfo() << "l = " << l << "...";
+            qInfo() << "l = " << l;
 
             solver.find_equilibrium();
-
-            qInfo() << "...d = " << nodes_string[0][1].u() + input.operation_brace_height;
-
-
             return nodes_string[0][1].u() + input.operation_brace_height;    // Todo: Use dimensionless measure
         };
 
         // Find a element length at which the brace height difference is zero
         // Todo: Perhaps limit the step size of the root finding algorithm to increase robustness.
         double l = (points[1] - points[0]).norm();
-        //l = secant_method(try_element_length, 0.99*l, 0.98*l, 1e-6, 50);
+        l = secant_method(try_element_length, 0.99*l, 0.98*l, 1e-6, 50);
 
-        try_element_length(0.99*l);
+        //try_element_length(0.99*l);
 
         // Assign setup data
         output.setup.string_length = 2.0*l*input.settings_n_elements_string;    // *2 because of symmetry
