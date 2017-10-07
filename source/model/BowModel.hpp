@@ -3,7 +3,8 @@
 #include "model/output/OutputData.hpp"
 #include "model/LimbProperties.hpp"
 #include "fem/System.hpp"
-#include "fem/Solver.hpp"
+#include "fem/StaticSolver.hpp"
+#include "fem/DynamicSolver.hpp"
 #include "fem/elements/BeamElement.hpp"
 #include "fem/elements/BarElement.hpp"
 #include "fem/elements/MassElement.hpp"
@@ -90,7 +91,7 @@ private:
         {
             // Apply torque, iterate to equilibrium, remove torque again
             nodes_limb.back()[2].p_mut() = torque;
-            solver.find_equilibrium();
+            solver.solve();
             nodes_limb.back()[2].p_mut() = 0.0;
 
             // Calculate point on the limb that is closest to brace height
@@ -148,7 +149,7 @@ private:
         //double k = 100.0*EA/output.setup.string_length;
         double k = output.setup.limb.Cee[0]/(output.setup.limb.s[1] - output.setup.limb.s[0]);    // Stiffness estimate based on limb data
         system.add_element(ConstraintElement(nodes_limb.back(), nodes_string.back(), k), "constraint");
-        // system.add_element(ContactSurface(nodes_limb, nodes_string, output.setup.limb.h, k), "contact");
+        system.add_element(ContactSurface(nodes_limb, nodes_string, output.setup.limb.h, k), "contact");
 
         // Function that sets the sting element length and returns the
         // resulting difference between actual and desired brace height
@@ -160,7 +161,7 @@ private:
 
             qInfo() << "l = " << l;
 
-            solver.find_equilibrium();
+            solver.solve();
             return nodes_string[0][1].u() + input.operation_brace_height;    // Todo: Use dimensionless measure
         };
 
@@ -192,14 +193,17 @@ private:
     template<typename F>
     void simulate_statics(const F& callback)
     {
-        StaticSolverDC solver(system, nodes_string[0][1], -input.operation_draw_length, input.settings_n_draw_steps);
-        while(solver.step())
+        nodes_string[0][1].p_mut() = 1.0;    // Will be scaled by the static algorithm
+        StaticSolverDC solver(system, nodes_string[0][1]);
+        for(unsigned i = 0; i < input.settings_n_draw_steps; ++i)
         {
+            double eta = double(i)/(input.settings_n_draw_steps - 1);
+            double draw_length = (1.0 - eta)*input.operation_brace_height + eta*input.operation_draw_length;
+
+            solver.solve(-draw_length);
             add_bow_state(output.statics.states);
 
-            // Todo: Progress could be based on number of iterations also
-            int progress = (-nodes_string[0][1].u() - input.operation_brace_height)/(input.operation_draw_length - input.operation_brace_height)*100.0;
-            if(!callback(progress))
+            if(!callback(100*eta))
                 return;
         }
 
@@ -223,7 +227,7 @@ private:
     template<typename F>
     void simulate_dynamics(const F& callback)
     {
-        // Set draw force to zero    // Todo: Doesn't really belong in this method
+        // Set draw force to zero
         nodes_string[0][1].p_mut() = 0.0;
 
         double T = std::numeric_limits<double>::max();

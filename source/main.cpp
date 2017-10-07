@@ -1,5 +1,6 @@
+/*
 #include "fem/System.hpp"
-#include "fem/Solver.hpp"
+#include "fem/StaticSolver.hpp"
 #include "fem/elements/ContactSurface.hpp"
 #include "fem/elements/BarElement.hpp"
 
@@ -36,29 +37,20 @@ int main()
     double l = (M_SQRT2 - 1.0)/2.0;
     system.add_element(BarElement(origin, point, l, ks*l, 10.0), "bar");
 
-    /*
-    DynamicSolver solver(system, 0.2, 0.01, 500.0);
-    while(solver.step())
-        std::cout << "d = " << hypot(point1[0].u(), point1[1].u()) << "\n";
-    */
-
-    //system.q();
-
     StaticSolverLC solver(system);
-    solver.find_equilibrium();
+    solver.solve();
 
     std::cout << "x = " << point[0].u() << ", y = " << point[1].u() << "\n";
-    //std::cout << "E = " << system.get_potential_energy("bar") << "\n";
+    std::cout << "E = " << system.get_potential_energy("bar") << "\n";
 }
+*/
 
-/*
 #include "gui/Application.hpp"
 
 int main(int argc, char* argv[])
 {
     return Application::run(argc, argv);
 }
-*/
 
 /*
 #include "numerics/Math.hpp"
@@ -90,7 +82,7 @@ int main()
 
 /*
 #include "fem/System.hpp"
-#include "fem/Solver.hpp"
+#include "fem/StaticSolver.hpp"
 #include "fem/elements/ContactElement.hpp"
 #include "fem/elements/MassElement.hpp"
 

@@ -30,3 +30,13 @@ namespace Eigen
             vec[i] = obj[i];
     }
 }
+
+static VectorXd unit_vector(size_t n, size_t i)
+{
+    assert(i < n);
+
+    VectorXd vec = VectorXd::Zero(n);
+    vec(i) = 1.0;
+
+    return vec;
+}

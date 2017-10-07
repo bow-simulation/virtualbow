@@ -54,8 +54,6 @@ double bisect(const F& f, double x_min, double x_max, double ftol, double xtol, 
         if(std::abs(f_new) < ftol || x_max - x_min < xtol)
             return x_new;
 
-        std::cout << "x_new: " << x_new << ", f_new: " << f_new << "\n";
-
         if((!rising && f_new > 0) || (rising && f_new < 0))
             x_min = x_new;
         else

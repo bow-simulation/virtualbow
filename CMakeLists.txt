@@ -34,7 +34,7 @@ add_executable(${PROJECT_NAME}
    source/fem/elements/ContactSurface.cpp
    source/fem/elements/ConstraintElement.cpp
    source/fem/Node.cpp
-   source/fem/Solver.cpp
+   source/fem/DynamicSolver.cpp
    source/fem/System.cpp
 
    source/gui/Application.cpp
@@ -94,7 +94,7 @@ add_executable(tests
     source/fem/elements/ContactSurface.cpp
     source/fem/elements/ConstraintElement.cpp
     source/fem/Node.cpp
-    source/fem/Solver.cpp
+    source/fem/DynamicSolver.cpp
     source/fem/System.cpp
 )
 

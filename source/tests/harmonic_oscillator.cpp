@@ -1,5 +1,5 @@
 #include "fem/System.hpp"
-#include "fem/Solver.hpp"
+#include "fem/DynamicSolver.hpp"
 #include "fem/elements/BarElement.hpp"
 #include "fem/elements/MassElement.hpp"
 
