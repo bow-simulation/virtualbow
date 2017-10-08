@@ -8,8 +8,12 @@ using nlohmann::json;
 struct BowStates
 {
     std::vector<double> time;
-    std::vector<double> draw_force;
     std::vector<double> draw_length;
+
+    std::vector<double> draw_force;
+    std::vector<double> string_force;
+    std::vector<double> strand_force;
+    std::vector<double> grip_force;
 
     std::vector<double> pos_arrow;
     std::vector<double> vel_arrow;
@@ -34,8 +38,11 @@ struct BowStates
 static void to_json(json& obj, const BowStates& val)
 {
     obj["time"] = val.time;
-    obj["draw_force"] = val.draw_force;
     obj["draw_length"] = val.draw_length;
+    obj["draw_force"] = val.draw_force;
+    obj["string_force"] = val.string_force;
+    obj["strand_force"] = val.strand_force;
+    obj["grip_force"] = val.grip_force;
     obj["pos_arrow"] = val.pos_arrow;
     obj["vel_arrow"] = val.vel_arrow;
     obj["acc_arrow"] = val.acc_arrow;

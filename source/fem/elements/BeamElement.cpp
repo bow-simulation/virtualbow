@@ -41,6 +41,16 @@ double BeamElement::get_kappa(double p) const
     return (6.0*p - 4.0)/L*e(1) + (6.0*p - 2.0)/L*e(2);
 }
 
+// Todo: Add to technical documentation
+// Q = M'
+// M = Cek*epsilon + Ckk*kappa
+// => Q = Ckk*kappa', (epsilon' = 0)
+double BeamElement::get_shear_force() const
+{
+    auto e = get_e();
+    return 6.0/4.0*C(2, 2)/(L*L)*(e(1) + e(2));
+}
+
 void BeamElement::get_masses(VectorView<Dof> M) const
 {
     double alpha = 0.02;    // Todo: Magic number

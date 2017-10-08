@@ -9,6 +9,7 @@
 #include "fem/elements/MassElement.hpp"
 #include "numerics/SecantMethod.hpp"
 #include "gui/ProgressDialog.hpp"
+#include <boost/range/algorithm.hpp>
 #include <algorithm>
 #include <json.hpp>
 
@@ -261,8 +262,17 @@ private:
     void add_bow_state(BowStates& states) const
     {
         states.time.push_back(system.t());
-        states.draw_force.push_back(2.0*nodes_string[0][1].p());
         states.draw_length.push_back(nodes_string[0][1].u());
+
+        states.draw_force.push_back(2.0*nodes_string[0][1].p());    // *2 because of symmetry
+
+        double string_force = 0.0;
+        for(auto& element: system.element_group<BarElement>("string"))
+            string_force = std::max(string_force, std::abs(element.get_normal_force()));
+
+        states.string_force.push_back(string_force);
+        states.strand_force.push_back(string_force/input.string_n_strands);
+        states.grip_force.push_back(-2.0*system.element_group<BeamElement>("limb").front().get_shear_force());    // *2 because of symmetry
 
         states.pos_arrow.push_back(input.operation_draw_length - node_arrow[1].u());
         states.vel_arrow.push_back(-node_arrow[1].v());
@@ -297,6 +307,7 @@ private:
 
         // Stresses
 
+        // Todo: Keep those allocated somewhere
         std::valarray<double> epsilon(nodes_limb.size());
         std::valarray<double> kappa(nodes_limb.size());
 

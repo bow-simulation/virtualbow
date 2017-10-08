@@ -17,6 +17,9 @@ StaticOutput::StaticOutput(const SetupData& setup, const StaticData& statics)
     auto plot_combo = new ComboPlot();
     plot_combo->addData("Draw length [m]", statics.states.draw_length);
     plot_combo->addData("Draw force [N]", statics.states.draw_force);
+    plot_combo->addData("String force (total) [N]", statics.states.string_force);
+    plot_combo->addData("String force (strand) [N]", statics.states.strand_force);
+    plot_combo->addData("Grip force [N]", statics.states.grip_force);
     plot_combo->addData("Pot. energy limbs [J]", statics.states.e_pot_limbs);
     plot_combo->addData("Pot. energy string [J]", statics.states.e_pot_string);
     plot_combo->setCombination(0, 1);
@@ -56,6 +59,9 @@ DynamicOutput::DynamicOutput(const SetupData& setup, const DynamicData& dynamics
     plot_combo->addData("Arrow position [m]", dynamics.states.pos_arrow);
     plot_combo->addData("Arrow velocity [m/s]", dynamics.states.vel_arrow);
     plot_combo->addData("Arrow acceleration [m/s²]", dynamics.states.acc_arrow);
+    plot_combo->addData("String force (total) [N]", dynamics.states.string_force);
+    plot_combo->addData("String force (strand) [N]", dynamics.states.strand_force);
+    plot_combo->addData("Grip force [N]", dynamics.states.grip_force);
     plot_combo->addData("Pot. energy limbs [J]", dynamics.states.e_pot_limbs);
     plot_combo->addData("Kin. energy limbs [J]", dynamics.states.e_kin_limbs);
     plot_combo->addData("Pot. energy string [J]", dynamics.states.e_pot_string);

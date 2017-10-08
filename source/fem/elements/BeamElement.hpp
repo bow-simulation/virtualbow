@@ -11,6 +11,7 @@ public:
     void set_stiffness(double Cee, double Ckk, double Cek);
     double get_epsilon() const;
     double get_kappa(double p) const;
+    double get_shear_force() const;
 
     virtual void get_masses(VectorView<Dof> M) const override;
     virtual void get_internal_forces(VectorView<Dof> q) const override;
