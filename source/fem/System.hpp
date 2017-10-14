@@ -1,7 +1,8 @@
 #pragma once
+#include "Node.hpp"
+#include "Element.hpp"
+#include "Dependent.hpp"
 #include "numerics/Math.hpp"
-#include "fem/Node.hpp"
-#include "fem/Element.hpp"
 #include "utils/DynamicCastIterator.hpp"
 #include "utils/Invalidatable.hpp"
 
@@ -10,46 +11,63 @@
 #include <vector>
 #include <map>
 
-// Todo: Weakness of the current approach:
-//
-// VectorXd& v = system.v_mut();    // Invalidation of a
-// VectorXd& a = system.a();        // Recomputation of a
-// v(3) = xyz;                      // a is now technically invalid, but will not be recomputed
-//
-// Solution 1: Don't store references
-// Solution 2: Don't return raw references, but some object Ref<T> that does the invalidation when it goes out of scope?
-//
-// Problem is also when it's done in one statement:
-//
-// system.v_mut() = system.a();
-//
-// 1. v_mut called, a invalidated
-// 2. a recomputed
-// 3. a assigned to v, a now out of date
-
 class System
 {
 private:
     // Independent variables
-    double t = 0.0;  // Todo: Really necessary here?
-    VectorXd u_a;    // Displacements (active)
-    VectorXd u_f;    // Displacements (fixed)
-    VectorXd v_a;    // Velocities (active)
-    VectorXd p_a;    // External forces (active)
+    double t;                   // Todo: Move to solver class?
+    Dependent<size_t> n_a;      // Number of active Dofs
+    Dependent<size_t> n_f;      // Number of fixed Dofs
+    Dependent<VectorXd> u_a;    // Displacements (active)
+    Dependent<VectorXd> u_f;    // Displacements (fixed)
+    Dependent<VectorXd> v_a;    // Velocities (active)
+    Dependent<VectorXd> p_a;    // External forces (active)
 
     // Dependent variables
-    mutable Invalidatable<VectorXd> a_a;    // Accelerations (active)
-    mutable Invalidatable<VectorXd> q_a;    // Internal forces (active)
-    mutable Invalidatable<VectorXd> q_f;    // Internal forces (fixed)
-    mutable Invalidatable<VectorXd> M_a;    // Diagonal masses (active)
-    mutable Invalidatable<MatrixXd> K_a;    // Stiffness matrix (active)
+    mutable Dependent<VectorXd> a_a;    // Accelerations (active)
+    mutable Dependent<VectorXd> q_a;    // Internal forces (active)
+    mutable Dependent<VectorXd> q_f;    // Internal forces (fixed)
+    mutable Dependent<VectorXd> M_a;    // Diagonal masses (active)
+    mutable Dependent<MatrixXd> K_a;    // Stiffness matrix (active)
 
     // Todo: Why mutable?
     // Todo: Use https://github.com/Tessil/ordered-map
     mutable std::map<std::string, std::vector<Element*>> groups;
-    mutable std::vector<Element*> elements;
+    mutable Dependent<std::vector<Element*>> elements;
 
 public:
+    System()
+        : t(0.0), n_a(0), n_f(0),
+          u_a(VectorXd()),
+          u_f(VectorXd()),
+          v_a(VectorXd()),
+          p_a(VectorXd())
+    {
+        a_a.depends_on(n_a);
+        a_a.depends_on(M_a);
+        a_a.depends_on(p_a);
+        a_a.depends_on(q_a);
+
+        q_a.depends_on(elements);
+        q_a.depends_on(n_a);
+        q_a.depends_on(u_a);
+        q_a.depends_on(u_f);
+        q_a.depends_on(v_a);
+
+        q_f.depends_on(elements);
+        q_f.depends_on(n_f);
+        q_f.depends_on(u_a);
+        q_f.depends_on(u_f);
+        q_f.depends_on(v_a);
+
+        M_a.depends_on(elements);
+        M_a.depends_on(n_a);
+
+        K_a.depends_on(elements);
+        K_a.depends_on(n_a);
+        K_a.depends_on(u_a);
+    }
+
     size_t dofs() const;
 
     double get_t() const
@@ -66,7 +84,7 @@ public:
 
     const VectorXd& get_u() const
     {
-        return u_a;
+        return u_a.get();
     }
 
     double get_u(Dof dof) const
@@ -77,27 +95,24 @@ public:
     template<size_t N>
     Vector<N> get_u(const std::array<Dof, N>& dofs) const
     {
-        return get_by_dof(u_a, u_f, dofs);
+        return get_by_dof(u_a.get(), u_f.get(), dofs);
     }
 
     void set_u(const VectorXd& u)
     {
-        u_a = u;
-        a_a.invalidate();
-        q_a.invalidate();
-        K_a.invalidate();
+        u_a.mut() = u;
     }
 
     // Get and set velocity
 
     const VectorXd& get_v() const
     {
-        return v_a;
+        return v_a.get();
     }
 
     double get_v(Dof dof) const
     {
-        return get_by_dof(v_a, dof);
+        return get_by_dof(v_a.get(), dof);
     }
 
     template<size_t N>
@@ -108,16 +123,14 @@ public:
 
     void set_v(const VectorXd& v)
     {
-        v_a = v;
-        a_a.invalidate();
-        q_a.invalidate();
+        v_a.mut() = v;
     }
 
     // Get and set external forces
 
     const VectorXd& get_p() const
     {
-        return p_a;
+        return p_a.get();
     }
 
     double get_p(Dof dof) const
@@ -127,14 +140,12 @@ public:
 
     void set_p(const VectorXd& p)
     {
-        p_a = p;
-        a_a.invalidate();
+        p_a.mut() = p;
     }
 
     void set_p(Dof dof, double p)
     {
-        set_by_dof(p_a, dof, p);
-        a_a.invalidate();
+        set_by_dof(p_a.mut(), dof, p);
     }
 
     // Helper functions
@@ -166,34 +177,34 @@ public:
 
     void add_q(Dof dof, double q)
     {
-        add_by_dof(*q_a, *q_f, dof, q);
+        add_by_dof(q_a.mut(), q_f.mut(), dof, q);    // Todo: One unneccessary call to mut()
     }
 
     template<size_t N, class T>
     void add_q(const std::array<Dof, N>& dofs, const T& q)    // Todo: Type of q too generic
     {
-        add_by_dof(*q_a, *q_f, dofs, q);
+        add_by_dof(q_a.mut(), q_f.mut(), dofs, q);    // Todo: One unneccessary call to mut()
     }
 
     void add_M(Dof dof, double m)
     {
-        add_by_dof(*M_a, dof, m);
+        add_by_dof(M_a.mut(), dof, m);
     }
 
     template<size_t N, class T>
     void add_M(const std::array<Dof, N>& dofs, const T& m)    // Todo: Type of m too generic
     {
-        add_by_dof(*M_a, dofs, m);
+        add_by_dof(M_a.mut(), dofs, m);
     }
 
     void add_K(Dof dof_row, Dof dof_col, double k)
     {
         if(dof_row.active && dof_col.active)
         {
-            (*K_a)(dof_row.index, dof_col.index) += k;
+            K_a.mut()(dof_row.index, dof_col.index) += k;
 
             if(dof_row.index != dof_col.index)
-                (*K_a)(dof_col.index, dof_row.index) += k;
+                K_a.mut()(dof_col.index, dof_row.index) += k;
         }
     }
 
@@ -205,7 +216,7 @@ public:
             for(size_t j = 0; j < N; ++j)
             {
                 if(dofs[i].active && dofs[j].active)
-                    (*K_a)(dofs[i].index, dofs[j].index) += k(i, j);
+                    K_a.mut()(dofs[i].index, dofs[j].index) += k(i, j);
             }
         }
     }
@@ -328,14 +339,9 @@ public:
     template<typename ElementType = Element>
     void add_element(ElementType element, const std::string& key = "")
     {
-        a_a.invalidate();
-        q_a.invalidate();
-        M_a.invalidate();
-        K_a.invalidate();
-
         Element* ptr = new ElementType(element);
         groups[key].push_back(ptr);
-        elements.push_back(ptr);
+        elements.mut().push_back(ptr);
     }
 
     // Iterating over groups of elements
@@ -349,11 +355,6 @@ public:
     template<class ElementType>
     boost::iterator_range<iterator<ElementType>> element_group_mut(const std::string& key)
     {
-        a_a.invalidate();
-        q_a.invalidate();
-        M_a.invalidate();
-        K_a.invalidate();
-
         return {groups[key].begin(), groups[key].end()};
     }
 
@@ -368,11 +369,6 @@ public:
     template<class ElementType>
     ElementType& element_mut(const std::string& key)
     {
-        a_a.invalidate();
-        q_a.invalidate();
-        M_a.invalidate();
-        K_a.invalidate();
-
         return dynamic_cast<ElementType&>(*groups[key][0]);
     }
 
