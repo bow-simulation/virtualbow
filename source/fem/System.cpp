@@ -23,15 +23,8 @@ const VectorXd& System::get_q() const
         m_q->conservativeResize(dofs());
         m_q->setZero();
 
-        VectorView<Dof> view(nullptr, nullptr,
-        [&](Dof dof, double val)
-        {
-            if(dof.type())
-                (*m_q)(dof.index()) += val;
-        });
-
         for(auto e: elements)
-            e->get_internal_forces(view);
+            e->add_internal_forces();
 
         m_q.set_valid();
     }
@@ -46,15 +39,8 @@ const VectorXd& System::get_M() const
         m_M->conservativeResize(dofs());
         m_M->setZero();
 
-        VectorView<Dof> view(nullptr, nullptr,
-        [&](Dof dof, double val)
-        {
-            if(dof.type())
-                (*m_M)(dof.index()) += val;
-        });
-
         for(auto e: elements)
-            e->get_masses(view);
+            e->add_masses();
 
         m_M.set_valid();
     }
@@ -69,14 +55,8 @@ const MatrixXd& System::get_K() const
         m_K->conservativeResize(dofs(), dofs());
         m_K->setZero();
 
-        MatrixView<Dof> view([&](Dof dof_row, Dof dof_col, double val)
-        {
-            if(dof_row.type() && dof_col.type())
-                (*m_K)(dof_row.index(), dof_col.index()) += val;
-        });
-
         for(auto e: elements)
-            e->get_tangent_stiffness(view);
+            e->add_tangent_stiffness();
 
         m_K.set_valid();
     }

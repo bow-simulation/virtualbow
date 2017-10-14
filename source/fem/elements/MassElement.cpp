@@ -1,4 +1,5 @@
 #include "MassElement.hpp"
+#include "fem/System.hpp"
 
 MassElement::MassElement(System& system, Node nd, double m, double I)
     : Element(system),
@@ -15,19 +16,19 @@ void MassElement::set_node(Node nd)
     node = nd;
 }
 
-void MassElement::get_masses(VectorView<Dof> M) const
+void MassElement::add_masses() const
 {
-    M(node.x) += m;
-    M(node.y) += m;
-    M(node.phi) += I;
+    system.add_M(node.x,   m);
+    system.add_M(node.y,   m);
+    system.add_M(node.phi, I);
 }
 
-void MassElement::get_internal_forces(VectorView<Dof> q) const
+void MassElement::add_internal_forces() const
 {
 
 }
 
-void MassElement::get_tangent_stiffness(MatrixView<Dof> K) const
+void MassElement::add_tangent_stiffness() const
 {
 
 }
@@ -35,4 +36,9 @@ void MassElement::get_tangent_stiffness(MatrixView<Dof> K) const
 double MassElement::get_potential_energy() const
 {
     return 0.0;
+}
+
+double MassElement::get_kinetic_energy() const
+{
+    return 0.0;    // Todo
 }

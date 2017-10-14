@@ -1,4 +1,5 @@
 #pragma once
+#include "numerics/Math.hpp"
 #include "fem/Node.hpp"
 #include "fem/Element.hpp"
 #include "utils/DynamicCastIterator.hpp"
@@ -176,19 +177,52 @@ public:
             (*m_q)(dof.index()) += q;
     }
 
-    template<size_t N>
-    void add_q(const std::array<Dof, N>& dof, const Vector<N>& q)
+    template<size_t N, class T>
+    void add_q(const std::array<Dof, N>& dofs, const T& q)    // Todo: Type of q too generic
     {
         for(size_t i = 0; i < N; ++i)
         {
-            if(dof.type())
-                (*m_q)(dof.index()) += q;
+            if(dofs[i].type())
+                (*m_q)(dofs[i].index()) += q[i];
         }
     }
 
+    void add_M(Dof dof, double m)
+    {
+        if(dof.type())
+            (*m_M)(dof.index()) += m;
+    }
 
+    template<size_t N, class T>
+    void add_M(const std::array<Dof, N>& dofs, const T& m)    // Todo: Type of m too generic
+    {
+        for(size_t i = 0; i < N; ++i)
+            add_M(dofs[i], m[i]);
+    }
 
+    void add_K(Dof dof_row, Dof dof_col, double k)
+    {
+        if(dof_row.type() && dof_col.type())
+        {
+            (*m_K)(dof_row.index(), dof_col.index()) += k;
 
+            if(dof_row.index() != dof_col.index())
+                (*m_K)(dof_col.index(), dof_row.index()) += k;
+        }
+    }
+
+    template<size_t N, class T>
+    void add_K(const std::array<Dof, N>& dofs, const T& k)    // Todo: Type of k too generic
+    {
+        for(size_t i = 0; i < N; ++i)
+        {
+            for(size_t j = 0; j < N; ++j)
+            {
+                if(dofs[i].type() && dofs[j].type())
+                    (*m_K)(dofs[i].index(), dofs[j].index()) += k(i, j);
+            }
+        }
+    }
 
 
 

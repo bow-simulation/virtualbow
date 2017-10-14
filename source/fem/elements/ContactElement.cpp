@@ -10,12 +10,12 @@ ContactElement::ContactElement(System& system, Node nd0, Node nd1, Node nd2, dou
 
 }
 
-void ContactElement::get_masses(VectorView<Dof> M) const
+void ContactElement::add_masses() const
 {
 
 }
 
-void ContactElement::get_internal_forces(VectorView<Dof> q) const
+void ContactElement::add_internal_forces() const
 {
     /*
     // Todo: Code duplication
@@ -33,7 +33,7 @@ void ContactElement::get_internal_forces(VectorView<Dof> q) const
     */
 }
 
-void ContactElement::get_tangent_stiffness(MatrixView<Dof> K) const
+void ContactElement::add_tangent_stiffness() const
 {
     /*
     // Todo: Code duplication
@@ -77,5 +77,10 @@ double ContactElement::get_potential_energy() const
     return 0.5*EA/L*std::pow(L_new - L, 2);
     */
 
+    return 0.0;
+}
+
+double ContactElement::get_kinetic_energy() const
+{
     return 0.0;
 }

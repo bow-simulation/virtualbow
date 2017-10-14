@@ -53,29 +53,29 @@ double BeamElement::get_shear_force() const
     return 6.0/4.0*C(2, 2)/(L*L)*(e(1) + e(2));
 }
 
-void BeamElement::get_masses(VectorView<Dof> M) const
+void BeamElement::add_masses() const
 {
     double alpha = 0.02;    // Todo: Magic number
     double m = 0.5*rhoA*L;
     double I = alpha*rhoA*std::pow(L, 3);
 
-    M(dofs[0]) += m;
-    M(dofs[1]) += m;
-    M(dofs[2]) += I;
-    M(dofs[3]) += m;
-    M(dofs[4]) += m;
-    M(dofs[5]) += I;
+    system.add_M(dofs[0], m);
+    system.add_M(dofs[1], m);
+    system.add_M(dofs[2], I);
+    system.add_M(dofs[3], m);
+    system.add_M(dofs[4], m);
+    system.add_M(dofs[5], I);
 }
 
-void BeamElement::get_internal_forces(VectorView<Dof> q) const
+void BeamElement::add_internal_forces() const
 {
     auto e = get_e();
     auto J = get_J();
 
-    q(dofs) += 1.0/L*J.transpose()*C*e;
+    system.add_q(dofs, 1.0/L*J.transpose()*C*e);
 }
 
-void BeamElement::get_tangent_stiffness(MatrixView<Dof> K) const
+void BeamElement::add_tangent_stiffness() const
 {
     auto e = get_e();
     auto J = get_J();
@@ -111,13 +111,18 @@ void BeamElement::get_tangent_stiffness(MatrixView<Dof> K) const
     Kn.col(3) = -1.0/L*dJ0.transpose()*C*e;
     Kn.col(4) = -1.0/L*dJ1.transpose()*C*e;
 
-    K(dofs) += Kn + 1.0/L*J.transpose()*C*J;
+    system.add_K(dofs, Kn + 1.0/L*J.transpose()*C*J);
 }
 
 double BeamElement::get_potential_energy() const
 {
     auto e = get_e();
     return 0.5/L*e.transpose()*C*e;
+}
+
+double BeamElement::get_kinetic_energy() const
+{
+    return 0.0;    // Todo
 }
 
 Eigen::Matrix<double, 3, 1> BeamElement::get_e() const

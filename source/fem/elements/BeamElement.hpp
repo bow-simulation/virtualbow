@@ -1,6 +1,7 @@
 #pragma once
 #include "fem/Element.hpp"
 #include "fem/Node.hpp"
+#include "numerics/Math.hpp"
 
 class BeamElement: public Element
 {
@@ -13,10 +14,11 @@ public:
     double get_kappa(double p) const;
     double get_shear_force() const;
 
-    virtual void get_masses(VectorView<Dof> M) const override;
-    virtual void get_internal_forces(VectorView<Dof> q) const override;
-    virtual void get_tangent_stiffness(MatrixView<Dof> K) const override;
+    virtual void add_masses() const override;
+    virtual void add_internal_forces() const override;
+    virtual void add_tangent_stiffness() const override;
     virtual double get_potential_energy() const override;
+    virtual double get_kinetic_energy() const override;
 
 private:
     std::array<Dof, 6> dofs;
