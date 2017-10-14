@@ -1,10 +1,9 @@
 #pragma once
 #include "Node.hpp"
 #include "Element.hpp"
+#include "ElementContainer.hpp"
 #include "Dependent.hpp"
 #include "numerics/Math.hpp"
-#include "utils/DynamicCastIterator.hpp"
-#include "utils/Invalidatable.hpp"
 
 #include <boost/range/iterator_range.hpp>
 #include <string>
@@ -30,10 +29,7 @@ private:
     mutable Dependent<VectorXd> M_a;    // Diagonal masses (active)
     mutable Dependent<MatrixXd> K_a;    // Stiffness matrix (active)
 
-    // Todo: Why mutable?
-    // Todo: Use https://github.com/Tessil/ordered-map
-    mutable std::map<std::string, std::vector<Element*>> groups;
-    mutable Dependent<std::vector<Element*>> elements;
+    mutable Dependent<ElementContainer> elements;
 
 public:
     System()
@@ -221,6 +217,18 @@ public:
         }
     }
 
+    // Element access
+
+    const ElementContainer& get_elements() const
+    {
+        return elements.get();
+    }
+
+    ElementContainer& mut_elements()
+    {
+        return elements.mut();
+    }
+
 private:
     // General access by Dofs
 
@@ -304,117 +312,8 @@ private:
 
 
 
-
-
-
-
-
-
-
-    // Old stuff below
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Calculated data
-
-    // Nodes and elements
-
 public:
     Node create_node(std::array<bool, 3> active, std::array<double, 3> u);
     Node create_node(const Node& other);
     Dof create_dof(bool active, double u);
-
-    template<typename ElementType = Element>
-    void add_element(ElementType element, const std::string& key = "")
-    {
-        Element* ptr = new ElementType(element);
-        groups[key].push_back(ptr);
-        elements.mut().push_back(ptr);
-    }
-
-    // Iterating over groups of elements
-
-    template<class ElementType>
-    using iterator = dynamic_cast_iterator<std::vector<Element*>::iterator, ElementType>;
-
-    template<class ElementType>
-    using const_iterator = dynamic_cast_iterator<std::vector<Element*>::const_iterator, ElementType>;
-
-    template<class ElementType>
-    boost::iterator_range<iterator<ElementType>> element_group_mut(const std::string& key)
-    {
-        return {groups[key].begin(), groups[key].end()};
-    }
-
-    template<class ElementType>
-    boost::iterator_range<const_iterator<ElementType>> element_group(const std::string& key) const
-    {
-        return {groups[key].begin(), groups[key].end()};
-    }
-
-    // Single element access
-
-    template<class ElementType>
-    ElementType& element_mut(const std::string& key)
-    {
-        return dynamic_cast<ElementType&>(*groups[key][0]);
-    }
-
-    template<class ElementType>
-    const ElementType& element(const std::string& key) const
-    {
-        return dynamic_cast<const ElementType&>(*groups[key][0]);
-    }
-
-    template<typename... Args>
-    double get_kinetic_energy(const std::string& key, Args... args) const
-    {
-        return get_kinetic_energy(key) + get_kinetic_energy(args...);
-    }
-
-    template<typename... Args>
-    double get_potential_energy(const std::string& key, Args... args) const
-    {
-        return get_potential_energy(key) + get_potential_energy(args...);
-    }
-
-    double get_kinetic_energy(const std::string& key) const
-    {
-        /*
-        VectorView<Dof> get_v([&](Dof dof){ return get_v(dof); }, nullptr, nullptr);  // Todo
-
-        double e_kin = 0.0;
-        for(auto e: groups[key])
-        {
-            e_kin += e->get_kinetic_energy(get_v);
-        }
-
-        return e_kin;
-        */
-
-        return 0.0;
-    }
-
-    double get_potential_energy(const std::string& key) const
-    {
-        double e_pot = 0.0;
-        for(auto e: groups[key])
-        {
-            e_pot += e->get_potential_energy();
-        }
-
-        return e_pot;
-    }
 };

@@ -33,6 +33,7 @@ add_executable(${PROJECT_NAME}
    source/fem/elements/ContactElement.cpp
    source/fem/elements/ContactArea.cpp
    source/fem/Node.cpp
+   source/fem/Element.cpp
    source/fem/Solver.cpp
    source/fem/System.cpp
 

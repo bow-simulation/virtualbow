@@ -22,8 +22,8 @@ const VectorXd& System::get_q() const
         q_a.mut().setZero();
         q_f.mut().setZero();
 
-        for(auto e: elements.get())
-            e->add_internal_forces();
+        for(auto& e: elements.get())
+            e.add_internal_forces();
     }
 
     return q_a.get();
@@ -36,8 +36,8 @@ const VectorXd& System::get_M() const
         M_a.mut().conservativeResize(dofs());
         M_a.mut().setZero();
 
-        for(auto e: elements.get())
-            e->add_masses();
+        for(auto& e: elements.get())
+            e.add_masses();
     }
 
     return M_a.get();
@@ -50,8 +50,8 @@ const MatrixXd& System::get_K() const
         K_a.mut().conservativeResize(dofs(), dofs());
         K_a.mut().setZero();
 
-        for(auto e: elements.get())
-            e->add_tangent_stiffness();
+        for(auto& e: elements.get())
+            e.add_tangent_stiffness();
     }
 
     return K_a.get();

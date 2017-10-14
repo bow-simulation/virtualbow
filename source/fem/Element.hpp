@@ -5,16 +5,8 @@ class System;
 class Element
 {
 public:
-    Element(System& system)
-        : system(system)
-    {
-
-    }
-
-    virtual ~Element()
-    {
-
-    }
+    Element(System& system);
+    virtual ~Element();
 
     virtual void add_masses() const = 0;
     virtual void add_internal_forces() const = 0;

@@ -94,7 +94,7 @@ private:
             BeamElement element(system, nodes_limb[i], nodes_limb[i+1], rhoA, L);
             element.set_reference_angles(phi0, phi1);
             element.set_stiffness(Cee, Ckk, Cek);
-            system.add_element(element, "limb");
+            system.mut_elements().push_back(element, "limb");
         }
 
         // Limb tip
@@ -128,7 +128,7 @@ private:
         for(size_t i = 0; i < k; ++i)
         {
             BarElement element(system, nodes_string[i], nodes_string[i+1], 0.0, EA, 0.0, rhoA); // Element lengths are reset later when string length is determined
-            system.add_element(element, "string");
+            system.mut_elements().push_back(element, "string");
         }
 
         // Create mass elements
@@ -138,17 +138,17 @@ private:
         MassElement mass_string_center(system, nodes_string.front(), 0.5*input.mass_string_center);   // 0.5 because of symmetric model
         MassElement mass_arrow(system, node_arrow, 0.5*input.operation_mass_arrow);                   // 0.5 because of symmetric model
 
-        system.add_element(mass_limb_tip, "mass limb tip");
-        system.add_element(mass_string_tip, "mass string tip");
-        system.add_element(mass_string_center, "mass string center");
-        system.add_element(mass_arrow, "mass arrow");
+        system.mut_elements().push_back(mass_limb_tip, "limb tip");
+        system.mut_elements().push_back(mass_string_tip, "string tip");
+        system.mut_elements().push_back(mass_string_center, "string center");
+        system.mut_elements().push_back(mass_arrow, "arrow");
 
         // Takes a string length, iterates to equilibrium with the constraint of the brace height
         // and returns the angle of the string center
         auto try_string_length = [&](double string_length)
         {
             double L = 0.5*string_length/double(k);
-            for(auto& element: system.element_group_mut<BarElement>("string"))
+            for(auto& element: system.mut_elements().group<BarElement>("string"))
             {
                 element.set_length(L);
             }
@@ -244,7 +244,7 @@ private:
         // Todo: Would more elegant to remove the mass element from the system and create a new one with a new node.
         node_arrow = system.create_node(nodes_string[0]);
 
-        system.element_mut<MassElement>("mass arrow").set_node(node_arrow);
+        system.mut_elements().front<MassElement>("arrow").set_node(node_arrow);
 
         DynamicSolver solver2(system, input.settings_time_step_factor, input.settings_sampling_rate, [&]
         {
@@ -268,22 +268,39 @@ private:
         states.draw_force.push_back(2.0*system.get_p(nodes_string[0].y));    // *2 because of symmetry
 
         double string_force = 0.0;
-        for(auto& element: system.element_group<BarElement>("string"))
+        for(auto& element: system.get_elements().group<BarElement>("string"))
             string_force = std::max(string_force, std::abs(element.get_normal_force()));
 
         states.string_force.push_back(string_force);
         states.strand_force.push_back(string_force/input.string_n_strands);
-        states.grip_force.push_back(-2.0*system.element_group<BeamElement>("limb").front().get_shear_force());    // *2 because of symmetry
+        states.grip_force.push_back(-2.0*system.get_elements().group<BeamElement>("limb").front().get_shear_force());    // *2 because of symmetry
 
         states.pos_arrow.push_back(input.operation_draw_length - system.get_u(node_arrow.y));
         states.vel_arrow.push_back(-system.get_v(node_arrow.y));
         states.acc_arrow.push_back(-system.get_a(node_arrow.y));
 
-        states.e_pot_limbs.push_back(2.0*system.get_potential_energy("limb", "mass limb tip"));
-        states.e_kin_limbs.push_back(2.0*system.get_kinetic_energy("limb", "mass limb tip"));
-        states.e_pot_string.push_back(2.0*system.get_potential_energy("string", "mass string tip", "mass string center"));
-        states.e_kin_string.push_back(2.0*system.get_kinetic_energy("string", "mass string tip", "mass string center"));
-        states.e_kin_arrow.push_back(2.0*system.get_kinetic_energy("mass arrow"));
+        double e_pot_limb = 2.0*system.get_elements().get_potential_energy("limb");
+        double e_kin_limb = 2.0*system.get_elements().get_kinetic_energy("limb");
+
+        double e_pot_limb_tip = 2.0*system.get_elements().get_potential_energy("limb tip");
+        double e_kin_limb_tip = 2.0*system.get_elements().get_kinetic_energy("limb tip");
+
+        double e_pot_string = 2.0*system.get_elements().get_potential_energy("string");
+        double e_kin_string = 2.0*system.get_elements().get_kinetic_energy("string");
+
+        double e_pot_string_tip = 2.0*system.get_elements().get_potential_energy("string tip");
+        double e_kin_string_tip = 2.0*system.get_elements().get_kinetic_energy("string tip");
+
+        double e_pot_string_center = 2.0*system.get_elements().get_potential_energy("string center");
+        double e_kin_string_center = 2.0*system.get_elements().get_kinetic_energy("string center");
+
+        double e_kin_arrow = 2.0*system.get_elements().get_kinetic_energy("arrow");
+
+        states.e_pot_limbs.push_back(e_pot_limb + e_pot_limb_tip);
+        states.e_kin_limbs.push_back(e_kin_limb + e_kin_limb_tip);
+        states.e_pot_string.push_back(e_pot_string + e_pot_string_tip + e_pot_string_center);
+        states.e_kin_string.push_back(e_kin_string + e_kin_string_tip + e_kin_string_center);
+        states.e_kin_arrow.push_back(e_kin_arrow);
 
         // Arrow, limb and string coordinates
 
@@ -312,7 +329,7 @@ private:
         std::valarray<double> epsilon(nodes_limb.size());
         std::valarray<double> kappa(nodes_limb.size());
 
-        auto elements = system.element_group<BeamElement>("limb");
+        auto elements = system.get_elements().group<BeamElement>("limb");
         for(size_t i = 0; i < nodes_limb.size(); ++i)
         {
             if(i == 0)
