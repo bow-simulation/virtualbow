@@ -35,11 +35,11 @@ TEST_CASE("harmonic-oscillator")
 
     //std::cout << "T = " << T << "\n";
 
-    DynamicSolver solver(system, 0.01, 1e-15, [&]{ return system.t() >= T; });
+    DynamicSolver solver(system, 0.01, 1e-15, [&]{ return system.get_t() >= T; });
     while(solver.step())
     {
         // Time
-        double t = system.t();
+        double t = system.get_t();
 
         //std::cout << "t = " << t << "\n";
 

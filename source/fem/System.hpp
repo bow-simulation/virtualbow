@@ -2,7 +2,7 @@
 #include "fem/Node.hpp"
 #include "fem/Element.hpp"
 #include "utils/DynamicCastIterator.hpp"
-#include "utils/Optional.hpp"
+#include "utils/Invalidatable.hpp"
 
 #include <boost/range/iterator_range.hpp>
 #include <string>
@@ -29,56 +29,203 @@
 class System
 {
 private:
+    // Independent quantities
     double m_t = 0.0;  // Todo: Really necessary here?
     VectorXd m_u;   // Active displacements
     VectorXd m_v;   // Active velocities
     VectorXd m_p;   // External forces
 
-    mutable Optional<VectorXd> m_a;    // Accelerations
-    mutable Optional<VectorXd> m_q;    // Internal forces
-    mutable Optional<VectorXd> m_M;    // Mass matrix (diagonal)
-    mutable Optional<MatrixXd> m_K;    // Tangent stiffness matrix
+    // Computed quantities
+    mutable Invalidatable<VectorXd> m_a;    // Accelerations
+    mutable Invalidatable<VectorXd> m_q;    // Internal forces
+    mutable Invalidatable<VectorXd> m_M;    // Mass matrix (diagonal)
+    mutable Invalidatable<MatrixXd> m_K;    // Tangent stiffness matrix
 
     // Todo: Why mutable?
     // Todo: Use https://github.com/Tessil/ordered-map
-    mutable std::map<std::string, std::vector<ElementInterface*>> groups;
-    mutable std::vector<ElementInterface*> elements;
+    mutable std::map<std::string, std::vector<Element*>> groups;
+    mutable std::vector<Element*> elements;
 
 public:
     size_t dofs() const;
 
-    double& t_mut();
-    VectorXd& u_mut();
-    VectorXd& v_mut();
-    VectorXd& p_mut();
+    double get_t() const
+    {
+        return m_t;
+    }
 
-    const double& t() const;
-    const VectorXd& u() const;
-    const VectorXd& v() const;
-    const VectorXd& p() const;
+    void set_t(double t)
+    {
+        m_t = t;
+    }
+
+    // Get and set displacements
+
+    const VectorXd& get_u() const
+    {
+        return m_u;
+    }
+
+    double get_u(Dof dof) const
+    {
+        return get_u(std::array<Dof, 1>{dof})[0];
+    }
+
+    template<size_t N>
+    Vector<N> get_u(const std::array<Dof, N>& dofs) const
+    {
+        Vector<N> u;
+        for(size_t i = 0; i < N; ++i)
+            u[i] = dofs[i].m_active ? get_u()(dofs[i].m_i) : dofs[i].m_u;
+
+        return u;
+    }
+
+    void set_u(const VectorXd& u)
+    {
+        m_u = u;
+        m_a.invalidate();
+        m_q.invalidate();
+        m_K.invalidate();
+    }
+
+    // Get and set velocity
+
+    const VectorXd& get_v() const
+    {
+        return m_v;
+    }
+
+    double get_v(Dof dof) const
+    {
+        return get_v(std::array<Dof, 1>{dof})[0];
+    }
+
+    template<size_t N>
+    Vector<N> get_v(const std::array<Dof, N>& dofs) const
+    {
+        Vector<N> v;
+        for(size_t i = 0; i < N; ++i)
+            v[i] = dofs[i].m_active ? get_v()(dofs[i].m_i) : 0.0;
+
+        return v;
+    }
+
+    void set_v(const VectorXd& v)
+    {
+        m_v = v;
+        m_a.invalidate();
+        m_q.invalidate();
+    }
+
+    // Get and set external forces
+
+    const VectorXd& get_p() const
+    {
+        return m_p;
+    }
+
+    double get_p(Dof dof) const
+    {
+        dof.m_active ? get_p()(dof.m_i) : 0.0;
+    }
+
+    void set_p(const VectorXd& p)
+    {
+        m_p = p;
+        m_a.invalidate();
+    }
+
+    void set_p(Dof dof, double p)
+    {
+        if(dof.m_active)
+            m_p(dof.m_i) = p;
+
+        m_a.invalidate();
+    }
+
+    // Helper functions
+
+    double distance(const Node& a, const Node& b)
+    {
+        return std::hypot(get_u(b.x) - get_u(a.x), get_u(b.y) - get_u(a.y));
+    }
+
+    double angle(const Node& a, const Node& b)
+    {
+        return std::atan2(get_u(b.y) - get_u(a.y), get_u(b.x) - get_u(a.x));
+    }
+
+    // Get calculated values
+
+    const VectorXd& get_a() const;
+    double get_a(Dof dof) const
+    {
+        return dof.m_active ? get_a()(dof.m_i) : 0.0;
+    }
+
+    const VectorXd& get_q() const;
+    const VectorXd& get_M() const;
+    const MatrixXd& get_K() const;
+
+    // Set calculated values (Element interface)
+
+    void add_q(Dof dof, double q)
+    {
+        if(dof.type())
+            (*m_q)(dof.index()) += q;
+    }
+
+    template<size_t N>
+    void add_q(const std::array<Dof, N>& dof, const Vector<N>& q)
+    {
+        for(size_t i = 0; i < N; ++i)
+        {
+            if(dof.type())
+                (*m_q)(dof.index()) += q;
+        }
+    }
+
+
+
+
+
+
+
+
+    // Old stuff below
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // Calculated data
 
-    const VectorXd& a() const;
-    const VectorXd& q() const;
-    const VectorXd& M() const;
-    const MatrixXd& K() const;
-
     // Nodes and elements
 
-    Node create_node(std::array<DofType, 3> type, std::array<double, 3> u_node, std::array<double, 3> v_node = {0.0, 0.0, 0.0});
-    Node create_node(const Node& other, std::array<DofType, 3> type);
-    Dof create_dof(DofType type, double u_dof, double v_dof);
+    Node create_node(std::array<bool, 3> active, std::array<double, 3> u_node, std::array<double, 3> v_node = {0.0, 0.0, 0.0});
+    Node create_node(const Node& other);
+    Dof create_dof(bool active, double u_dof, double v_dof);
 
-    template<typename ElementType = ElementInterface>
+    template<typename ElementType = Element>
     void add_element(ElementType element, const std::string& key = "")
     {
-        m_a.set_valid(false);
-        m_q.set_valid(false);
-        m_M.set_valid(false);
-        m_K.set_valid(false);
+        m_a.invalidate();
+        m_q.invalidate();
+        m_M.invalidate();
+        m_K.invalidate();
 
-        ElementInterface* ptr = new ElementType(element);
+        Element* ptr = new ElementType(element);
         groups[key].push_back(ptr);
         elements.push_back(ptr);
     }
@@ -86,18 +233,18 @@ public:
     // Iterating over groups of elements
 
     template<class ElementType>
-    using iterator = dynamic_cast_iterator<std::vector<ElementInterface*>::iterator, ElementType>;
+    using iterator = dynamic_cast_iterator<std::vector<Element*>::iterator, ElementType>;
 
     template<class ElementType>
-    using const_iterator = dynamic_cast_iterator<std::vector<ElementInterface*>::const_iterator, ElementType>;
+    using const_iterator = dynamic_cast_iterator<std::vector<Element*>::const_iterator, ElementType>;
 
     template<class ElementType>
     boost::iterator_range<iterator<ElementType>> element_group_mut(const std::string& key)
     {
-        m_a.set_valid(false);
-        m_q.set_valid(false);
-        m_M.set_valid(false);
-        m_K.set_valid(false);
+        m_a.invalidate();
+        m_q.invalidate();
+        m_M.invalidate();
+        m_K.invalidate();
 
         return {groups[key].begin(), groups[key].end()};
     }
@@ -113,10 +260,10 @@ public:
     template<class ElementType>
     ElementType& element_mut(const std::string& key)
     {
-        m_a.set_valid(false);
-        m_q.set_valid(false);
-        m_M.set_valid(false);
-        m_K.set_valid(false);
+        m_a.invalidate();
+        m_q.invalidate();
+        m_M.invalidate();
+        m_K.invalidate();
 
         return dynamic_cast<ElementType&>(*groups[key][0]);
     }
@@ -141,7 +288,8 @@ public:
 
     double get_kinetic_energy(const std::string& key) const
     {
-        VectorView<Dof> get_v([&](Dof dof){ return dof.v(); }, nullptr, nullptr);  // Todo
+        /*
+        VectorView<Dof> get_v([&](Dof dof){ return get_v(dof); }, nullptr, nullptr);  // Todo
 
         double e_kin = 0.0;
         for(auto e: groups[key])
@@ -150,6 +298,9 @@ public:
         }
 
         return e_kin;
+        */
+
+        return 0.0;
     }
 
     double get_potential_energy(const std::string& key) const

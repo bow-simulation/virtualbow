@@ -1,7 +1,9 @@
 #include "BeamElement.hpp"
+#include "fem/System.hpp"
 
-BeamElement::BeamElement(Node nd0, Node nd1, double rhoA, double L)
-    : dofs{nd0[0], nd0[1], nd0[2], nd1[0], nd1[1], nd1[2]},
+BeamElement::BeamElement(System& system, Node nd0, Node nd1, double rhoA, double L)
+    : Element(system),
+      dofs{nd0.x, nd0.y, nd0.phi, nd1.x, nd1.y, nd1.phi},
       phi_ref_0(0.0),
       phi_ref_1(0.0),
       rhoA(rhoA),
@@ -78,8 +80,8 @@ void BeamElement::get_tangent_stiffness(MatrixView<Dof> K) const
     auto e = get_e();
     auto J = get_J();
 
-    double dx = dofs[3].u() - dofs[0].u();
-    double dy = dofs[4].u() - dofs[1].u();
+    double dx = system.get_u(dofs[3]) - system.get_u(dofs[0]);
+    double dy = system.get_u(dofs[4]) - system.get_u(dofs[1]);
 
     double a0 = std::pow(dx*dx + dy*dy, -0.5);
     double a1 =     1.0/(dx*dx + dy*dy);
@@ -120,15 +122,15 @@ double BeamElement::get_potential_energy() const
 
 Eigen::Matrix<double, 3, 1> BeamElement::get_e() const
 {
-    double dx = dofs[3].u() - dofs[0].u();
-    double dy = dofs[4].u() - dofs[1].u();
+    double dx = system.get_u(dofs[3]) - system.get_u(dofs[0]);
+    double dy = system.get_u(dofs[4]) - system.get_u(dofs[1]);
     double phi = std::atan2(dy, dx);
 
     // Elastic coordinates
-    double sin_e1 = std::sin(dofs[2].u() + phi_ref_0 - phi);
-    double cos_e1 = std::cos(dofs[2].u() + phi_ref_0 - phi);
-    double sin_e2 = std::sin(dofs[5].u() + phi_ref_1 - phi);
-    double cos_e2 = std::cos(dofs[5].u() + phi_ref_1 - phi);
+    double sin_e1 = std::sin(system.get_u(dofs[2]) + phi_ref_0 - phi);
+    double cos_e1 = std::cos(system.get_u(dofs[2]) + phi_ref_0 - phi);
+    double sin_e2 = std::sin(system.get_u(dofs[5]) + phi_ref_1 - phi);
+    double cos_e2 = std::cos(system.get_u(dofs[5]) + phi_ref_1 - phi);
 
     // Todo: Replace atan(sin(x)/cos(x)) with a cheaper function
     return {std::hypot(dx, dy) - L, std::atan(sin_e1/cos_e1), std::atan(sin_e2/cos_e2)};
@@ -136,8 +138,8 @@ Eigen::Matrix<double, 3, 1> BeamElement::get_e() const
 
 Eigen::Matrix<double, 3, 6> BeamElement::get_J() const
 {
-    double dx = dofs[3].u() - dofs[0].u();
-    double dy = dofs[4].u() - dofs[1].u();
+    double dx = system.get_u(dofs[3]) - system.get_u(dofs[0]);
+    double dy = system.get_u(dofs[4]) - system.get_u(dofs[1]);
 
     double a0 = std::pow(dx*dx + dy*dy, -0.5);
     double a1 = 1.0/(dx*dx + dy*dy);

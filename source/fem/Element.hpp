@@ -2,9 +2,22 @@
 #include "fem/View.hpp"
 #include "fem/Node.hpp"
 
-class ElementInterface
+class System;
+
+class Element
 {
 public:
+    Element(System& system)
+        : system(system)
+    {
+
+    }
+
+    virtual ~Element()
+    {
+
+    }
+
     virtual void get_masses(VectorView<Dof> M) const = 0;
     virtual void get_internal_forces(VectorView<Dof> q) const = 0;
     virtual void get_tangent_stiffness(MatrixView<Dof> K) const = 0;
@@ -20,10 +33,7 @@ public:
 
         return e_kin;
     }
-};
 
-class Element
-{
-
-
+protected:
+    System& system;
 };

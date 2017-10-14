@@ -2,10 +2,10 @@
 #include "fem/Element.hpp"
 #include "fem/Node.hpp"
 
-class BeamElement: public ElementInterface
+class BeamElement: public Element
 {
 public:
-    BeamElement(Node nd0, Node nd1, double rhoA, double L);
+    BeamElement(System& system, Node nd0, Node nd1, double rhoA, double L);
 
     void set_reference_angles(double phi_ref_0, double phi_ref_1);
     void set_stiffness(double Cee, double Ckk, double Cek);

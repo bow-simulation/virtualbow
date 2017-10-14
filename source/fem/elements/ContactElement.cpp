@@ -1,7 +1,11 @@
 #include "ContactElement.hpp"
 
-ContactElement::ContactElement(Node nd0, Node nd1, Node nd2, double h0, double h1, double k)
-    : nodes{nd0, nd1, nd2}, h0(h0), h1(h1), k(k)
+ContactElement::ContactElement(System& system, Node nd0, Node nd1, Node nd2, double h0, double h1, double k)
+    : Element(system),
+      nodes{nd0, nd1, nd2},
+      h0(h0),
+      h1(h1),
+      k(k)
 {
 
 }

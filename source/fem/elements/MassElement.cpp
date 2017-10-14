@@ -1,7 +1,8 @@
 #include "MassElement.hpp"
 
-MassElement::MassElement(Node nd, double m, double I)
-    : node(nd),
+MassElement::MassElement(System& system, Node nd, double m, double I)
+    : Element(system),
+      node(nd),
       m(m),
       I(I)
 {
@@ -16,9 +17,9 @@ void MassElement::set_node(Node nd)
 
 void MassElement::get_masses(VectorView<Dof> M) const
 {
-    M(node[0]) += m;
-    M(node[1]) += m;
-    M(node[2]) += I;
+    M(node.x) += m;
+    M(node.y) += m;
+    M(node.phi) += I;
 }
 
 void MassElement::get_internal_forces(VectorView<Dof> q) const

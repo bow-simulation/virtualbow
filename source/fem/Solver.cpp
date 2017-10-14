@@ -7,7 +7,7 @@ StaticSolverLC::StaticSolverLC(System& system): system(system)
 
 void StaticSolverLC::find_equilibrium()
 {
-    double norm_0 = (system.p() - system.q()).norm();
+    double norm_0 = (system.get_p() - system.get_q()).norm();
 
     // With norm_0 = 0 the norm ratio criterion down below would be undefined,
     // so return here as the system is already in equilibrium anyway
@@ -16,14 +16,14 @@ void StaticSolverLC::find_equilibrium()
 
     for(unsigned i = 0; i < max_iter; ++i)
     {
-        stiffness_dec.compute(system.K());
+        stiffness_dec.compute(system.get_K());
         if(stiffness_dec.info() != Eigen::Success)
         {
             throw std::runtime_error("Stiffness matrix decomposition failed");
         }
 
-        system.u_mut() += stiffness_dec.solve(system.p() - system.q());
-        double norm_i = (system.p() - system.q()).norm();
+        system.set_u(system.get_u() + stiffness_dec.solve(system.get_p() - system.get_q()));
+        double norm_i = (system.get_p() - system.get_q()).norm();
 
         if(norm_i/norm_0 < epsilon)
             return;
@@ -36,7 +36,7 @@ void StaticSolverLC::find_equilibrium()
 StaticSolverDC::StaticSolverDC(System& system, Dof dof, double u_end, unsigned steps)
     : system(system),
       dof(dof),
-      displacements(system.u()(dof.index()), u_end, steps),
+      displacements(system.get_u()(dof.index()), u_end, steps),
       e(unit_vector(system.dofs(), dof.index()))
 {
 
@@ -60,9 +60,9 @@ void StaticSolverDC::find_equilibrium(double displacement)
     // Todo: Better control flow
     for(unsigned i = 0; i < max_iter; ++i)
     {
-        delta = system.p() - system.q();
+        delta = system.get_p() - system.get_q();
 
-        stiffness_dec.compute(system.K());
+        stiffness_dec.compute(system.get_K());
         if(stiffness_dec.info() != Eigen::Success)
         {
             throw std::runtime_error("Decomposition of the stiffness matrix failed");
@@ -70,10 +70,10 @@ void StaticSolverDC::find_equilibrium(double displacement)
 
         alpha = stiffness_dec.solve(delta);
         beta = stiffness_dec.solve(e);
-        double df = (displacement - system.u()(dof.index()) - alpha(dof.index()))/beta(dof.index());
+        double df = (displacement - system.get_u()(dof.index()) - alpha(dof.index()))/beta(dof.index());
 
-        system.u_mut() += alpha + df*beta;
-        dof.p_mut() += df;
+        system.set_u(system.get_u() + alpha + df*beta);
+        system.set_p(dof, system.get_p(dof) + df);
 
         if((alpha + df*beta).norm()/double(system.dofs()) < epsilon)    // Todo: Better convergence criterion
         {
@@ -102,7 +102,7 @@ DynamicSolver::DynamicSolver(System& system, double step_factor, double sampling
 {
     // Timestep estimation
     Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd>
-            eigen_solver(system.K(), system.M().asDiagonal(), Eigen::DecompositionOptions::EigenvaluesOnly);
+            eigen_solver(system.get_K(), system.get_M().asDiagonal(), Eigen::DecompositionOptions::EigenvaluesOnly);
 
     if(eigen_solver.info() != Eigen::Success)
         throw std::runtime_error("Failed to compute eigenvalues of the system");
@@ -111,29 +111,29 @@ DynamicSolver::DynamicSolver(System& system, double step_factor, double sampling
     dt = (omega_max != 0.0) ? step_factor*2.0/omega_max : f/10.0;    // Todo: Magic number (Fraction of sampling time)
 
     // Initialise previous displacement
-    u_p2 = system.u() - dt*system.v() + dt*dt/2.0*system.a();
+    u_p2 = system.get_u() - dt*system.get_v() + dt*dt/2.0*system.get_a();
 }
 
 bool DynamicSolver::step()
 {
-    while(system.t() < t)
+    while(system.get_t() < t)
     {
         sub_step();
         if(stop())
             return false;
     }
 
-    t = system.t() + 1.0/f;
+    t = system.get_t() + 1.0/f;
     return true;
 }
 
 void DynamicSolver::sub_step()
 {
-    u_p1 = system.u();
+    u_p1 = system.get_u();
 
-    system.u_mut() = 2.0*system.u() - u_p2 + dt*dt*system.a();
-    system.v_mut() = (1.5*system.u() - 2.0*u_p1 + 0.5*u_p2)/dt;
-    system.t_mut() += dt;
+    system.set_u(2.0*system.get_u() - u_p2 + dt*dt*system.get_a());
+    system.set_v((1.5*system.get_u() - 2.0*u_p1 + 0.5*u_p2)/dt);
+    system.set_t(system.get_t() + dt);
 
     u_p2 = u_p1;
 }

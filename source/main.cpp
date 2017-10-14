@@ -1,9 +1,152 @@
+/*
+#include <iostream>
+
+#include <string>
+#include <vector>
+
+template<typename T>
+class Invalidatable
+{
+public:
+    Invalidatable()
+        : valid(false)
+    {
+
+    }
+
+    void invalidate()
+    {
+        valid = false;
+    }
+
+    bool is_valid() const
+    {
+        return valid;
+    }
+
+    operator T&()
+    {
+        if(!valid)
+            throw std::runtime_error("Trying to access an invalid value");
+
+        return value;
+    }
+
+    operator const T&() const
+    {
+        if(!valid)
+            throw std::runtime_error("Trying to access an invalid value");
+
+        return value;
+    }
+
+    template<typename S>
+    Invalidatable& operator=(const S& rhs)
+    {
+        value = rhs;
+        valid = true;
+        return *this;
+    }
+
+private:
+    T value;
+    bool valid;
+};
+
+
+int main()
+{
+    Invalidatable<double> x;
+
+    x = 2.0;
+
+    std::cout << "valid: " << x.is_valid() << "\n";
+    std::cout << "value: " << x + 5.0 << "\n";
+
+    return 0;
+}
+*/
+
+/*
+struct Meta
+{
+    std::string version;
+    std::string comments;
+};
+
+struct Profile
+{
+    std::vector<double> length;
+    std::vector<double> curvature;
+    double x0;
+    double y0;
+    double phi0;
+};
+
+struct Spline
+{
+    std::vector<double> positions;
+    std::vector<double> values;
+};
+
+struct Material
+{
+    double rho;
+    double E;
+};
+
+struct String
+{
+    double strand_stiffness;
+    double strand_density;
+    double n_strands;
+};
+
+struct Masses
+{
+    double strin_center;
+    double string_tip;
+    double limb_tip;
+};
+
+struct Operation
+{
+    double brace_height;
+    double draw_length;
+    double arrow_mass;
+};
+
+struct Settings
+{
+    unsigned n_elements_limb;
+    unsigned n_elements_string;
+    unsigned n_draw_steps;
+    double time_span_factor;
+    double time_step_factor;
+    double sampling_rate;
+};
+
+struct InputData
+{
+    Meta meta;
+    Profile profile;
+    Spline width;
+    Spline height;
+    Material material;
+    String string;
+    Masses masses;
+    Operation operation;
+    Settings settings;
+};
+*/
+
 #include "gui/Application.hpp"
 
 int main(int argc, char* argv[])
 {
     return Application::run(argc, argv);
 }
+
 
 /*
 #include "fem/System.hpp"
@@ -26,7 +169,7 @@ int main()
     system.add_element(MassElement(node_c, 1.0, 0.0));
     node_c[1].p_mut() = -10.0;
 
-    DynamicSolver solver(system, 0.1, 1e-3, [&]{ return system.t() >= 0.5; });
+    DynamicSolver solver(system, 0.1, 1e-3, [&]{ return system.get_t() >= 0.5; });
     while(solver.step())
     {
         std::cout << node_c[0].u() << "," << node_c[1].u() << "\n";

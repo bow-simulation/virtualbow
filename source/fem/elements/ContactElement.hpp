@@ -2,10 +2,10 @@
 #include "fem/Element.hpp"
 #include "fem/Node.hpp"
 
-class ContactElement: public ElementInterface
+class ContactElement: public Element
 {
 public:
-    ContactElement(Node nd0, Node nd1, Node nd2, double h0, double h1, double k);
+    ContactElement(System& system, Node nd0, Node nd1, Node nd2, double h0, double h1, double k);
 
     virtual void get_masses(VectorView<Dof> M) const override;
     virtual void get_internal_forces(VectorView<Dof> q) const override;

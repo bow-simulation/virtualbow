@@ -2,10 +2,10 @@
 #include "fem/Element.hpp"
 #include "fem/Node.hpp"
 
-class BarElement: public ElementInterface
+class BarElement: public Element
 {
 public:
-    BarElement(Node nd0, Node nd1, double L, double EA, double etaA, double rhoA);
+    BarElement(System& system, Node nd0, Node nd1, double L, double EA, double etaA, double rhoA);
 
     double get_length() const;
     void set_length(double val);

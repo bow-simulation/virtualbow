@@ -71,8 +71,8 @@ private:
         limb = LimbProperties(input);
         for(size_t i = 0; i < n+1; ++i)
         {
-            DofType type = (i == 0) ? DofType::Fixed : DofType::Active;
-            Node node = system.create_node({type, type, type}, {limb.x[i], limb.y[i], limb.phi[i]});
+            bool active = (i != 0);
+            Node node = system.create_node({active, active, active}, {limb.x[i], limb.y[i], limb.phi[i]});
             nodes_limb.push_back(node);
         }
 
@@ -80,26 +80,26 @@ private:
         for(size_t i = 0; i < n; ++i)
         {
             double rhoA = 0.5*(limb.rhoA[i] + limb.rhoA[i+1]);
-            double L = Node::distance(nodes_limb[i], nodes_limb[i+1]);
+            double L = system.distance(nodes_limb[i], nodes_limb[i+1]);
 
             double Cee = 0.5*(limb.Cee[i] + limb.Cee[i+1]);
             double Ckk = 0.5*(limb.Ckk[i] + limb.Ckk[i+1]);
             double Cek = 0.5*(limb.Cek[i] + limb.Cek[i+1]);
 
             // Todo: Document this
-            double phi = Node::angle(nodes_limb[i], nodes_limb[i+1]);
-            double phi0 = phi - nodes_limb[i][2].u();
-            double phi1 = phi - nodes_limb[i+1][2].u();
+            double phi = system.angle(nodes_limb[i], nodes_limb[i+1]);
+            double phi0 = phi - system.get_u(nodes_limb[i].phi);
+            double phi1 = phi - system.get_u(nodes_limb[i+1].phi);
 
-            BeamElement element(nodes_limb[i], nodes_limb[i+1], rhoA, L);
+            BeamElement element(system, nodes_limb[i], nodes_limb[i+1], rhoA, L);
             element.set_reference_angles(phi0, phi1);
             element.set_stiffness(Cee, Ckk, Cek);
             system.add_element(element, "limb");
         }
 
         // Limb tip
-        double xt = nodes_limb.back()[0].u();
-        double yt = nodes_limb.back()[1].u();
+        double xt = system.get_u(nodes_limb.back().x);
+        double yt = system.get_u(nodes_limb.back().y);
 
         // String center at brace height
         double xc = 0.0;
@@ -112,8 +112,8 @@ private:
             double x = xc*(1.0 - p) + xt*p;
             double y = yc*(1.0 - p) + yt*p;
 
-            DofType type_x = (i == 0) ? DofType::Fixed : DofType::Active;
-            Node node = system.create_node({type_x, DofType::Active, DofType::Fixed}, {x, y, 0.0});
+            bool active_x = (i != 0);
+            Node node = system.create_node({active_x, true, true}, {x, y, 0.0});
             nodes_string.push_back(node);
         }
         nodes_string.push_back(nodes_limb.back());
@@ -127,16 +127,16 @@ private:
 
         for(size_t i = 0; i < k; ++i)
         {
-            BarElement element(nodes_string[i], nodes_string[i+1], 0.0, EA, 0.0, rhoA); // Element lengths are reset later when string length is determined
+            BarElement element(system, nodes_string[i], nodes_string[i+1], 0.0, EA, 0.0, rhoA); // Element lengths are reset later when string length is determined
             system.add_element(element, "string");
         }
 
         // Create mass elements
         // MassElement(Node nd, double m, double I)
-        MassElement mass_limb_tip(nodes_limb.back(), input.mass_limb_tip);
-        MassElement mass_string_tip(nodes_string.back(), input.mass_string_tip);
-        MassElement mass_string_center(nodes_string.front(), 0.5*input.mass_string_center);   // 0.5 because of symmetric model
-        MassElement mass_arrow(node_arrow, 0.5*input.operation_mass_arrow);                   // 0.5 because of symmetric model
+        MassElement mass_limb_tip(system, nodes_limb.back(), input.mass_limb_tip);
+        MassElement mass_string_tip(system, nodes_string.back(), input.mass_string_tip);
+        MassElement mass_string_center(system, nodes_string.front(), 0.5*input.mass_string_center);   // 0.5 because of symmetric model
+        MassElement mass_arrow(system, node_arrow, 0.5*input.operation_mass_arrow);                   // 0.5 because of symmetric model
 
         system.add_element(mass_limb_tip, "mass limb tip");
         system.add_element(mass_string_tip, "mass string tip");
@@ -153,10 +153,10 @@ private:
                 element.set_length(L);
             }
 
-            StaticSolverDC solver(system, nodes_string[0][1], yc, 1);   // Todo: Reuse solver across function calls?
+            StaticSolverDC solver(system, nodes_string[0].y, yc, 1);   // Todo: Reuse solver across function calls?
             solver.step();
 
-            return Node::angle(nodes_string[0], nodes_string[1]);
+            return system.angle(nodes_string[0], nodes_string[1]);
         };
 
         // Todo: Perhaps limit the step size of the root finding algorithm to increase robustness.
@@ -172,12 +172,12 @@ private:
     template<typename F>
     void simulate_statics(StaticData& statics, const F& callback)
     {
-        StaticSolverDC solver(system, nodes_string[0][1], input.operation_draw_length, input.settings_n_draw_steps);
+        StaticSolverDC solver(system, nodes_string[0].y, input.operation_draw_length, input.settings_n_draw_steps);
         while(solver.step())
         {
             add_bow_state(statics.states);
 
-            int progress = (nodes_string[0][1].u() - input.operation_brace_height)/(input.operation_draw_length - input.operation_brace_height)*100.0;
+            int progress = (system.get_u(nodes_string[0].y) - input.operation_brace_height)/(input.operation_draw_length - input.operation_brace_height)*100.0;
 
             if(!callback(progress))
                 return;
@@ -204,14 +204,14 @@ private:
     void simulate_dynamics(DynamicData& dynamics, const StaticData& statics, const F& callback)
     {
         // Set draw force to zero    // Todo: Doesn't really belong in this method
-        nodes_string[0][1].p_mut() = 0.0;
+        system.set_p(nodes_string[0].y, 0.0);
 
         double T = std::numeric_limits<double>::max();
         double alpha = input.settings_time_span_factor;     // Todo: Magic number // Todo: Make this a setting
 
         DynamicSolver solver1(system, input.settings_time_step_factor, input.settings_sampling_rate, [&]
         {
-            double ut = node_arrow[1].u();
+            double ut = system.get_u(node_arrow.y);
             if(ut >= input.operation_brace_height)
             {
                 double u0 = input.operation_draw_length;
@@ -219,13 +219,13 @@ private:
 
                 if(ut != u0)
                 {
-                    T = system.t()*std::acos(u1/u0)/std::acos(ut/u0);    // Cosine approximation
+                    T = system.get_t()*std::acos(u1/u0)/std::acos(ut/u0);    // Cosine approximation
                     //T = system.get_time()*std::sqrt((u1 - u0)/(ut - u0));    // Quadratic approximation
                 }
             }
 
-            return node_arrow[1].a() >= 0;
-            //return system.t() >= alpha*T;
+            return system.get_a(node_arrow.y) >= 0;
+            //return system.get_t() >= alpha*T;
         });
 
         auto run_solver = [&](DynamicSolver& solver)
@@ -233,7 +233,7 @@ private:
             while(solver.step())
             {
                 add_bow_state(dynamics.states);
-                if(!callback(100.0*system.t()/(alpha*T)))
+                if(!callback(100.0*system.get_t()/(alpha*T)))
                     return;
             }
         };
@@ -242,12 +242,13 @@ private:
 
         // Change model by giving the arrow an independent node with the initial position and velocity of the string center
         // Todo: Would more elegant to remove the mass element from the system and create a new one with a new node.
-        node_arrow = system.create_node(nodes_string[0], {DofType::Fixed, DofType::Active, DofType::Fixed});
+        node_arrow = system.create_node(nodes_string[0]);
+
         system.element_mut<MassElement>("mass arrow").set_node(node_arrow);
 
         DynamicSolver solver2(system, input.settings_time_step_factor, input.settings_sampling_rate, [&]
         {
-            return system.t() >= alpha*T;
+            return system.get_t() >= alpha*T;
         });
 
         run_solver(solver2);
@@ -261,10 +262,10 @@ private:
 
     void add_bow_state(BowStates& states) const
     {
-        states.time.push_back(system.t());
-        states.draw_length.push_back(nodes_string[0][1].u());
+        states.time.push_back(system.get_t());
+        states.draw_length.push_back(system.get_u(nodes_string[0].y));
 
-        states.draw_force.push_back(2.0*nodes_string[0][1].p());    // *2 because of symmetry
+        states.draw_force.push_back(2.0*system.get_p(nodes_string[0].y));    // *2 because of symmetry
 
         double string_force = 0.0;
         for(auto& element: system.element_group<BarElement>("string"))
@@ -274,9 +275,9 @@ private:
         states.strand_force.push_back(string_force/input.string_n_strands);
         states.grip_force.push_back(-2.0*system.element_group<BeamElement>("limb").front().get_shear_force());    // *2 because of symmetry
 
-        states.pos_arrow.push_back(input.operation_draw_length - node_arrow[1].u());
-        states.vel_arrow.push_back(-node_arrow[1].v());
-        states.acc_arrow.push_back(-node_arrow[1].a());
+        states.pos_arrow.push_back(input.operation_draw_length - system.get_u(node_arrow.y));
+        states.vel_arrow.push_back(-system.get_v(node_arrow.y));
+        states.acc_arrow.push_back(-system.get_a(node_arrow.y));
 
         states.e_pot_limbs.push_back(2.0*system.get_potential_energy("limb", "mass limb tip"));
         states.e_kin_limbs.push_back(2.0*system.get_kinetic_energy("limb", "mass limb tip"));
@@ -286,14 +287,14 @@ private:
 
         // Arrow, limb and string coordinates
 
-        states.y_arrow.push_back(node_arrow[1].u());
+        states.y_arrow.push_back(system.get_u(node_arrow.y));
         states.x_limb.push_back(std::valarray<double>(nodes_limb.size()));
         states.y_limb.push_back(std::valarray<double>(nodes_limb.size()));
 
         for(size_t i = 0; i < nodes_limb.size(); ++i)
         {
-            states.x_limb.back()[i] = nodes_limb[i][0].u();
-            states.y_limb.back()[i] = nodes_limb[i][1].u();
+            states.x_limb.back()[i] = system.get_u(nodes_limb[i].x);
+            states.y_limb.back()[i] = system.get_u(nodes_limb[i].y);
         }
 
         states.x_string.push_back(std::valarray<double>(nodes_string.size()));
@@ -301,8 +302,8 @@ private:
 
         for(size_t i = 0; i < nodes_string.size(); ++i)
         {
-            states.x_string.back()[i] = nodes_string[i][0].u();
-            states.y_string.back()[i] = nodes_string[i][1].u();
+            states.x_string.back()[i] = system.get_u(nodes_string[i].x);
+            states.y_string.back()[i] = system.get_u(nodes_string[i].y);
         }
 
         // Stresses
