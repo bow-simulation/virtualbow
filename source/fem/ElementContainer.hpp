@@ -47,6 +47,12 @@ public:
         elements.push_back(ptr);
     }
 
+    ~ElementContainer()
+    {
+        for(Element* e: elements)
+            delete e;
+    }
+
     template<class ElementType>
     using iterator = dynamic_cast_iterator<std::vector<Element*>::iterator, ElementType>;
 
