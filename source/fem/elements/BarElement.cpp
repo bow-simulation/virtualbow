@@ -98,7 +98,7 @@ double BarElement::get_potential_energy() const
     double dy = system.get_u(nodes[1].y) - system.get_u(nodes[0].y);
     double L_new = std::hypot(dx, dy);
     double L_dot = 1.0/L_new*(dx*(system.get_v(nodes[1].x) - system.get_v(nodes[0].x))
-            + dy*(system.get_v(nodes[1].y) - system.get_v(nodes[0].y)));
+                            + dy*(system.get_v(nodes[1].y) - system.get_v(nodes[0].y)));
 
     return 0.5*EA/L*std::pow(L_new - L, 2);
 }

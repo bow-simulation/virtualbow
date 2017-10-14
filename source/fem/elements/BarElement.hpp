@@ -2,6 +2,8 @@
 #include "fem/Element.hpp"
 #include "fem/Node.hpp"
 
+#include <array>
+
 class BarElement: public Element
 {
 public:

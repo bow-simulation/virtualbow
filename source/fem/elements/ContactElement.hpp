@@ -1,6 +1,7 @@
 #pragma once
 #include "fem/Element.hpp"
 #include "fem/Node.hpp"
+#include <array>
 
 class ContactElement: public Element
 {

@@ -1,22 +1,10 @@
 #pragma once
-#include <array>
+#include <cstddef>
 
-class System;
-
-class Dof
+struct Dof
 {
-public:
-    Dof(size_t i);
-    Dof(double u);
-    Dof();
-
-    size_t index() const;
-    bool type() const;
-
-    bool operator!=(const Dof& rhs) const;
-
-    bool m_active;
-    union{ size_t m_i; double m_u; };
+    bool active;
+    size_t index;
 };
 
 struct Node

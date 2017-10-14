@@ -30,17 +30,19 @@
 class System
 {
 private:
-    // Independent quantities
-    double m_t = 0.0;  // Todo: Really necessary here?
-    VectorXd m_u;   // Active displacements
-    VectorXd m_v;   // Active velocities
-    VectorXd m_p;   // External forces
+    // Independent variables
+    double t = 0.0;  // Todo: Really necessary here?
+    VectorXd u_a;    // Displacements (active)
+    VectorXd u_f;    // Displacements (fixed)
+    VectorXd v_a;    // Velocities (active)
+    VectorXd p_a;    // External forces (active)
 
-    // Computed quantities
-    mutable Invalidatable<VectorXd> m_a;    // Accelerations
-    mutable Invalidatable<VectorXd> m_q;    // Internal forces
-    mutable Invalidatable<VectorXd> m_M;    // Mass matrix (diagonal)
-    mutable Invalidatable<MatrixXd> m_K;    // Tangent stiffness matrix
+    // Dependent variables
+    mutable Invalidatable<VectorXd> a_a;    // Accelerations (active)
+    mutable Invalidatable<VectorXd> q_a;    // Internal forces (active)
+    mutable Invalidatable<VectorXd> q_f;    // Internal forces (fixed)
+    mutable Invalidatable<VectorXd> M_a;    // Diagonal masses (active)
+    mutable Invalidatable<MatrixXd> K_a;    // Stiffness matrix (active)
 
     // Todo: Why mutable?
     // Todo: Use https://github.com/Tessil/ordered-map
@@ -52,19 +54,19 @@ public:
 
     double get_t() const
     {
-        return m_t;
+        return t;
     }
 
     void set_t(double t)
     {
-        m_t = t;
+        this->t = t;
     }
 
     // Get and set displacements
 
     const VectorXd& get_u() const
     {
-        return m_u;
+        return u_a;
     }
 
     double get_u(Dof dof) const
@@ -75,74 +77,64 @@ public:
     template<size_t N>
     Vector<N> get_u(const std::array<Dof, N>& dofs) const
     {
-        Vector<N> u;
-        for(size_t i = 0; i < N; ++i)
-            u[i] = dofs[i].m_active ? get_u()(dofs[i].m_i) : dofs[i].m_u;
-
-        return u;
+        return get_by_dof(u_a, u_f, dofs);
     }
 
     void set_u(const VectorXd& u)
     {
-        m_u = u;
-        m_a.invalidate();
-        m_q.invalidate();
-        m_K.invalidate();
+        u_a = u;
+        a_a.invalidate();
+        q_a.invalidate();
+        K_a.invalidate();
     }
 
     // Get and set velocity
 
     const VectorXd& get_v() const
     {
-        return m_v;
+        return v_a;
     }
 
     double get_v(Dof dof) const
     {
-        return get_v(std::array<Dof, 1>{dof})[0];
+        return get_by_dof(v_a, dof);
     }
 
     template<size_t N>
     Vector<N> get_v(const std::array<Dof, N>& dofs) const
     {
-        Vector<N> v;
-        for(size_t i = 0; i < N; ++i)
-            v[i] = dofs[i].m_active ? get_v()(dofs[i].m_i) : 0.0;
-
-        return v;
+        return get_by_dof(v_a, dofs);
     }
 
     void set_v(const VectorXd& v)
     {
-        m_v = v;
-        m_a.invalidate();
-        m_q.invalidate();
+        v_a = v;
+        a_a.invalidate();
+        q_a.invalidate();
     }
 
     // Get and set external forces
 
     const VectorXd& get_p() const
     {
-        return m_p;
+        return p_a;
     }
 
     double get_p(Dof dof) const
     {
-        dof.m_active ? get_p()(dof.m_i) : 0.0;
+        dof.active ? get_p()(dof.index) : 0.0;
     }
 
     void set_p(const VectorXd& p)
     {
-        m_p = p;
-        m_a.invalidate();
+        p_a = p;
+        a_a.invalidate();
     }
 
     void set_p(Dof dof, double p)
     {
-        if(dof.m_active)
-            m_p(dof.m_i) = p;
-
-        m_a.invalidate();
+        set_by_dof(p_a, dof, p);
+        a_a.invalidate();
     }
 
     // Helper functions
@@ -160,9 +152,10 @@ public:
     // Get calculated values
 
     const VectorXd& get_a() const;
+
     double get_a(Dof dof) const
     {
-        return dof.m_active ? get_a()(dof.m_i) : 0.0;
+        return get_by_dof(get_a(), dof);
     }
 
     const VectorXd& get_q() const;
@@ -173,41 +166,34 @@ public:
 
     void add_q(Dof dof, double q)
     {
-        if(dof.type())
-            (*m_q)(dof.index()) += q;
+        add_by_dof(*q_a, *q_f, dof, q);
     }
 
     template<size_t N, class T>
     void add_q(const std::array<Dof, N>& dofs, const T& q)    // Todo: Type of q too generic
     {
-        for(size_t i = 0; i < N; ++i)
-        {
-            if(dofs[i].type())
-                (*m_q)(dofs[i].index()) += q[i];
-        }
+        add_by_dof(*q_a, *q_f, dofs, q);
     }
 
     void add_M(Dof dof, double m)
     {
-        if(dof.type())
-            (*m_M)(dof.index()) += m;
+        add_by_dof(*M_a, dof, m);
     }
 
     template<size_t N, class T>
     void add_M(const std::array<Dof, N>& dofs, const T& m)    // Todo: Type of m too generic
     {
-        for(size_t i = 0; i < N; ++i)
-            add_M(dofs[i], m[i]);
+        add_by_dof(*M_a, dofs, m);
     }
 
     void add_K(Dof dof_row, Dof dof_col, double k)
     {
-        if(dof_row.type() && dof_col.type())
+        if(dof_row.active && dof_col.active)
         {
-            (*m_K)(dof_row.index(), dof_col.index()) += k;
+            (*K_a)(dof_row.index, dof_col.index) += k;
 
-            if(dof_row.index() != dof_col.index())
-                (*m_K)(dof_col.index(), dof_row.index()) += k;
+            if(dof_row.index != dof_col.index)
+                (*K_a)(dof_col.index, dof_row.index) += k;
         }
     }
 
@@ -218,11 +204,98 @@ public:
         {
             for(size_t j = 0; j < N; ++j)
             {
-                if(dofs[i].type() && dofs[j].type())
-                    (*m_K)(dofs[i].index(), dofs[j].index()) += k(i, j);
+                if(dofs[i].active && dofs[j].active)
+                    (*K_a)(dofs[i].index, dofs[j].index) += k(i, j);
             }
         }
     }
+
+private:
+    // General access by Dofs
+
+    double get_by_dof(const VectorXd& vec_a, const VectorXd& vec_f, Dof dof) const
+    {
+        if(dof.active)
+            return vec_a[dof.index];
+        else
+            return vec_f[dof.index];
+    }
+
+    double get_by_dof(const VectorXd& vec_a, Dof dof) const
+    {
+        if(dof.active)
+            return vec_a[dof.index];
+        else
+            return 0.0;
+    }
+
+    template<size_t N>
+    Vector<N> get_by_dof(const VectorXd& vec_a, const VectorXd& vec_f, const std::array<Dof, N> dofs) const
+    {
+        Vector<N> vec;
+        for(size_t i = 0; i < N; ++i)
+            vec[i] = get_by_dof(vec_a, vec_f, dofs[i]);
+
+        return vec;
+    }
+
+    template<size_t N>
+    Vector<N> get_by_dof(const VectorXd& vec_a, const std::array<Dof, N> dofs) const
+    {
+        Vector<N> vec;
+        for(size_t i = 0; i < N; ++i)
+            vec[i] = get_by_dof(vec_a, dofs[i]);
+
+        return vec;
+    }
+
+    void set_by_dof(VectorXd& vec_a, VectorXd& vec_f, Dof dof, double value)
+    {
+        if(dof.active)
+            vec_a[dof.index] = value;
+        else
+            vec_f[dof.index] = value;
+    }
+
+    void set_by_dof(VectorXd& vec_a, Dof dof, double value)
+    {
+        if(dof.active)
+            vec_a[dof.index] = value;
+    }
+
+    template<size_t N, class T>
+    void set_by_dof(VectorXd& vec_a, VectorXd& vec_f, const std::array<Dof, N> dofs, const T& values)
+    {
+        for(size_t i = 0; i < N; ++i)
+            set_by_dof(vec_a, vec_f, dofs[i], values[i]);
+    }
+
+    void add_by_dof(VectorXd& vec_a, VectorXd& vec_f, Dof dof, double value)
+    {
+        if(dof.active)
+            vec_a[dof.index] += value;
+        else
+            vec_f[dof.index] += value;
+    }
+
+    void add_by_dof(VectorXd& vec_a, Dof dof, double value)
+    {
+        if(dof.active)
+            vec_a[dof.index] += value;
+    }
+
+    template<size_t N, class T>
+    void add_by_dof(VectorXd& vec_a, VectorXd& vec_f, const std::array<Dof, N> dofs, const T& values)
+    {
+        for(size_t i = 0; i < N; ++i)
+            add_by_dof(vec_a, vec_f, dofs[i], values[i]);
+    }
+
+
+
+
+
+
 
 
 
@@ -247,17 +320,18 @@ public:
 
     // Nodes and elements
 
-    Node create_node(std::array<bool, 3> active, std::array<double, 3> u_node, std::array<double, 3> v_node = {0.0, 0.0, 0.0});
+public:
+    Node create_node(std::array<bool, 3> active, std::array<double, 3> u);
     Node create_node(const Node& other);
-    Dof create_dof(bool active, double u_dof, double v_dof);
+    Dof create_dof(bool active, double u);
 
     template<typename ElementType = Element>
     void add_element(ElementType element, const std::string& key = "")
     {
-        m_a.invalidate();
-        m_q.invalidate();
-        m_M.invalidate();
-        m_K.invalidate();
+        a_a.invalidate();
+        q_a.invalidate();
+        M_a.invalidate();
+        K_a.invalidate();
 
         Element* ptr = new ElementType(element);
         groups[key].push_back(ptr);
@@ -275,10 +349,10 @@ public:
     template<class ElementType>
     boost::iterator_range<iterator<ElementType>> element_group_mut(const std::string& key)
     {
-        m_a.invalidate();
-        m_q.invalidate();
-        m_M.invalidate();
-        m_K.invalidate();
+        a_a.invalidate();
+        q_a.invalidate();
+        M_a.invalidate();
+        K_a.invalidate();
 
         return {groups[key].begin(), groups[key].end()};
     }
@@ -294,10 +368,10 @@ public:
     template<class ElementType>
     ElementType& element_mut(const std::string& key)
     {
-        m_a.invalidate();
-        m_q.invalidate();
-        m_M.invalidate();
-        m_K.invalidate();
+        a_a.invalidate();
+        q_a.invalidate();
+        M_a.invalidate();
+        K_a.invalidate();
 
         return dynamic_cast<ElementType&>(*groups[key][0]);
     }

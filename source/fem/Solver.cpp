@@ -36,8 +36,8 @@ void StaticSolverLC::find_equilibrium()
 StaticSolverDC::StaticSolverDC(System& system, Dof dof, double u_end, unsigned steps)
     : system(system),
       dof(dof),
-      displacements(system.get_u()(dof.index()), u_end, steps),
-      e(unit_vector(system.dofs(), dof.index()))
+      displacements(system.get_u()(dof.index), u_end, steps),
+      e(unit_vector(system.dofs(), dof.index))
 {
 
 }
@@ -70,7 +70,7 @@ void StaticSolverDC::find_equilibrium(double displacement)
 
         alpha = stiffness_dec.solve(delta);
         beta = stiffness_dec.solve(e);
-        double df = (displacement - system.get_u()(dof.index()) - alpha(dof.index()))/beta(dof.index());
+        double df = (displacement - system.get_u()(dof.index) - alpha(dof.index))/beta(dof.index);
 
         system.set_u(system.get_u() + alpha + df*beta);
         system.set_p(dof, system.get_p(dof) + df);
