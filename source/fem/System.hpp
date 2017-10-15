@@ -2,7 +2,7 @@
 #include "Node.hpp"
 #include "Element.hpp"
 #include "ElementContainer.hpp"
-#include "Dependent.hpp"
+#include "Dependency.hpp"
 #include "numerics/Math.hpp"
 
 #include <boost/range/iterator_range.hpp>
@@ -14,13 +14,15 @@ class System
 {
 private:
     // Independent variables
-    double t;                   // Todo: Move to solver class?
-    Dependent<size_t> n_a;      // Number of active Dofs
-    Dependent<size_t> n_f;      // Number of fixed Dofs
-    Dependent<VectorXd> u_a;    // Displacements (active)
-    Dependent<VectorXd> u_f;    // Displacements (fixed)
-    Dependent<VectorXd> v_a;    // Velocities (active)
-    Dependent<VectorXd> p_a;    // External forces (active)
+    Independent<ElementContainer> elements;
+
+    double t;                     // Todo: Move to solver class?
+    Independent<size_t> n_a;      // Number of active Dofs
+    Independent<size_t> n_f;      // Number of fixed Dofs
+    Independent<VectorXd> u_a;    // Displacements (active)
+    Independent<VectorXd> u_f;    // Displacements (fixed)
+    Independent<VectorXd> v_a;    // Velocities (active)
+    Independent<VectorXd> p_a;    // External forces (active)
 
     // Dependent variables
     mutable Dependent<VectorXd> a_a;    // Accelerations (active)
@@ -29,157 +31,63 @@ private:
     mutable Dependent<VectorXd> M_a;    // Diagonal masses (active)
     mutable Dependent<MatrixXd> K_a;    // Stiffness matrix (active)
 
-    mutable Dependent<ElementContainer> elements;
-
 public:
-    System()
-        : t(0.0), n_a(0), n_f(0),
-          u_a(VectorXd()),
-          u_f(VectorXd()),
-          v_a(VectorXd()),
-          p_a(VectorXd())
-    {
-        a_a.depends_on(n_a);
-        a_a.depends_on(M_a);
-        a_a.depends_on(p_a);
-        a_a.depends_on(q_a);
+    System();
 
-        q_a.depends_on(elements);
-        q_a.depends_on(n_a);
-        q_a.depends_on(u_a);
-        q_a.depends_on(u_f);
-        q_a.depends_on(v_a);
+    // Node creation
 
-        q_f.depends_on(elements);
-        q_f.depends_on(n_f);
-        q_f.depends_on(u_a);
-        q_f.depends_on(u_f);
-        q_f.depends_on(v_a);
+    Node create_node(std::array<bool, 3> active, std::array<double, 3> u);
+    Node create_node(const Node& other);
+    Dof create_dof(bool active, double u);
 
-        M_a.depends_on(elements);
-        M_a.depends_on(n_a);
+    // Element access
 
-        K_a.depends_on(elements);
-        K_a.depends_on(n_a);
-        K_a.depends_on(u_a);
-    }
+    const ElementContainer& get_elements() const;
+    ElementContainer& mut_elements();
+
+    // System data access
 
     size_t dofs() const;
 
-    double get_t() const
-    {
-        return t;
-    }
+    double get_t() const;
+    void set_t(double t);
 
-    void set_t(double t)
-    {
-        this->t = t;
-    }
+    const VectorXd& get_u() const;
+    void set_u(const VectorXd& u);
+    double get_u(Dof dof) const;
+    double get_angle(const Node& a, const Node& b);
+    double get_distance(const Node& a, const Node& b);
 
-    // Get and set displacements
+    const VectorXd& get_v() const;
+    void set_v(const VectorXd& v);
+    double get_v(Dof dof) const;
 
-    const VectorXd& get_u() const
-    {
-        return u_a.get();
-    }
-
-    double get_u(Dof dof) const
-    {
-        return get_u(std::array<Dof, 1>{dof})[0];
-    }
-
-    template<size_t N>
-    Vector<N> get_u(const std::array<Dof, N>& dofs) const
-    {
-        return get_by_dof(u_a.get(), u_f.get(), dofs);
-    }
-
-    void set_u(const VectorXd& u)
-    {
-        u_a.mut() = u;
-    }
-
-    // Get and set velocity
-
-    const VectorXd& get_v() const
-    {
-        return v_a.get();
-    }
-
-    double get_v(Dof dof) const
-    {
-        return get_by_dof(v_a.get(), dof);
-    }
-
-    template<size_t N>
-    Vector<N> get_v(const std::array<Dof, N>& dofs) const
-    {
-        return get_by_dof(v_a, dofs);
-    }
-
-    void set_v(const VectorXd& v)
-    {
-        v_a.mut() = v;
-    }
-
-    // Get and set external forces
-
-    const VectorXd& get_p() const
-    {
-        return p_a.get();
-    }
-
-    double get_p(Dof dof) const
-    {
-        dof.active ? get_p()(dof.index) : 0.0;
-    }
-
-    void set_p(const VectorXd& p)
-    {
-        p_a.mut() = p;
-    }
-
-    void set_p(Dof dof, double p)
-    {
-        set_by_dof(p_a.mut(), dof, p);
-    }
-
-    // Helper functions
-
-    double distance(const Node& a, const Node& b)
-    {
-        return std::hypot(get_u(b.x) - get_u(a.x), get_u(b.y) - get_u(a.y));
-    }
-
-    double angle(const Node& a, const Node& b)
-    {
-        return std::atan2(get_u(b.y) - get_u(a.y), get_u(b.x) - get_u(a.x));
-    }
-
-    // Get calculated values
+    const VectorXd& get_p() const;
+    void set_p(const VectorXd& p);
+    double get_p(Dof dof) const;
+    void set_p(Dof dof, double p);
 
     const VectorXd& get_a() const;
-
-    double get_a(Dof dof) const
-    {
-        return get_by_dof(get_a(), dof);
-    }
+    double get_a(Dof dof) const;
 
     const VectorXd& get_q() const;
+    double get_q(Dof dof) const;
+
     const VectorXd& get_M() const;
     const MatrixXd& get_K() const;
+
 
     // Set calculated values (Element interface)
 
     void add_q(Dof dof, double q)
     {
-        add_by_dof(q_a.mut(), q_f.mut(), dof, q);    // Todo: One unneccessary call to mut()
+        add_by_dof(q_a.mut(), q_f.mut(), dof, q);
     }
 
     template<size_t N, class T>
-    void add_q(const std::array<Dof, N>& dofs, const T& q)    // Todo: Type of q too generic
+    void add_q(const std::array<Dof, N>& dofs, const T& q)
     {
-        add_by_dof(q_a.mut(), q_f.mut(), dofs, q);    // Todo: One unneccessary call to mut()
+        add_by_dof(q_a.mut(), q_f.mut(), dofs, q);
     }
 
     void add_M(Dof dof, double m)
@@ -188,7 +96,7 @@ public:
     }
 
     template<size_t N, class T>
-    void add_M(const std::array<Dof, N>& dofs, const T& m)    // Todo: Type of m too generic
+    void add_M(const std::array<Dof, N>& dofs, const T& m)
     {
         add_by_dof(M_a.mut(), dofs, m);
     }
@@ -215,18 +123,6 @@ public:
                     K_a.mut()(dofs[i].index, dofs[j].index) += k(i, j);
             }
         }
-    }
-
-    // Element access
-
-    const ElementContainer& get_elements() const
-    {
-        return elements.get();
-    }
-
-    ElementContainer& mut_elements()
-    {
-        return elements.mut();
     }
 
 private:
@@ -309,11 +205,4 @@ private:
         for(size_t i = 0; i < N; ++i)
             add_by_dof(vec_a, vec_f, dofs[i], values[i]);
     }
-
-
-
-public:
-    Node create_node(std::array<bool, 3> active, std::array<double, 3> u);
-    Node create_node(const Node& other);
-    Dof create_dof(bool active, double u);
 };
