@@ -80,14 +80,14 @@ private:
         for(size_t i = 0; i < n; ++i)
         {
             double rhoA = 0.5*(limb.rhoA[i] + limb.rhoA[i+1]);
-            double L = system.distance(nodes_limb[i], nodes_limb[i+1]);
+            double L = system.get_distance(nodes_limb[i], nodes_limb[i+1]);
 
             double Cee = 0.5*(limb.Cee[i] + limb.Cee[i+1]);
             double Ckk = 0.5*(limb.Ckk[i] + limb.Ckk[i+1]);
             double Cek = 0.5*(limb.Cek[i] + limb.Cek[i+1]);
 
             // Todo: Document this
-            double phi = system.angle(nodes_limb[i], nodes_limb[i+1]);
+            double phi = system.get_angle(nodes_limb[i], nodes_limb[i+1]);
             double phi0 = phi - system.get_u(nodes_limb[i].phi);
             double phi1 = phi - system.get_u(nodes_limb[i+1].phi);
 
@@ -156,7 +156,7 @@ private:
             StaticSolverDC solver(system, nodes_string[0].y, yc, 1);   // Todo: Reuse solver across function calls?
             solver.step();
 
-            return system.angle(nodes_string[0], nodes_string[1]);
+            return system.get_angle(nodes_string[0], nodes_string[1]);
         };
 
         // Todo: Perhaps limit the step size of the root finding algorithm to increase robustness.
@@ -273,7 +273,7 @@ private:
 
         states.string_force.push_back(string_force);
         states.strand_force.push_back(string_force/input.string_n_strands);
-        states.grip_force.push_back(-2.0*system.get_elements().group<BeamElement>("limb").front().get_shear_force());    // *2 because of symmetry
+        states.grip_force.push_back(-2.0*system.get_q(nodes_limb[0].y));    // *2 because of symmetry
 
         states.pos_arrow.push_back(input.operation_draw_length - system.get_u(node_arrow.y));
         states.vel_arrow.push_back(-system.get_v(node_arrow.y));

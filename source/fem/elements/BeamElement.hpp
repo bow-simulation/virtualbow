@@ -12,7 +12,6 @@ public:
     void set_stiffness(double Cee, double Ckk, double Cek);
     double get_epsilon() const;
     double get_kappa(double p) const;
-    double get_shear_force() const;
 
     virtual void add_masses() const override;
     virtual void add_internal_forces() const override;
