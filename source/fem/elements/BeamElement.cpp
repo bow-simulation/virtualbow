@@ -43,28 +43,13 @@ double BeamElement::get_kappa(double p) const
     return (6.0*p - 4.0)/L*e(1) + (6.0*p - 2.0)/L*e(2);
 }
 
-// Todo: Add to technical documentation
-// Q = M'
-// M = Cek*epsilon + Ckk*kappa
-// => Q = Ckk*kappa', (epsilon' = 0)
-double BeamElement::get_shear_force() const
-{
-    auto e = get_e();
-    return 6.0/4.0*C(2, 2)/(L*L)*(e(1) + e(2));
-}
-
 void BeamElement::add_masses() const
 {
     double alpha = 0.02;    // Todo: Magic number
     double m = 0.5*rhoA*L;
     double I = alpha*rhoA*std::pow(L, 3);
 
-    system.add_M(dofs[0], m);
-    system.add_M(dofs[1], m);
-    system.add_M(dofs[2], I);
-    system.add_M(dofs[3], m);
-    system.add_M(dofs[4], m);
-    system.add_M(dofs[5], I);
+    system.add_M(dofs, (Vector<6>() << m, m, I, m, m, I).finished());
 }
 
 void BeamElement::add_internal_forces() const

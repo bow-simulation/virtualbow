@@ -20,7 +20,7 @@ public:
     virtual double get_kinetic_energy() const override;
 
 private:
-    std::array<Node, 2> nodes;
+    std::array<Dof, 4> dofs;
 
     double L;
     double EA;

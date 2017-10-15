@@ -1,7 +1,7 @@
 #pragma once
 #include "fem/Element.hpp"
 #include "fem/Node.hpp"
-#include "numerics/Math.hpp"
+#include "numerics/Eigen.hpp"
 
 class BeamElement: public Element
 {

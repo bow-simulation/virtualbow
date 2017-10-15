@@ -1,9 +1,9 @@
 #include "MassElement.hpp"
 #include "fem/System.hpp"
 
-MassElement::MassElement(System& system, Node nd, double m, double I)
+MassElement::MassElement(System& system, Node node, double m, double I)
     : Element(system),
-      node(nd),
+      dofs{node.x, node.y, node.phi},
       m(m),
       I(I)
 {
@@ -11,16 +11,14 @@ MassElement::MassElement(System& system, Node nd, double m, double I)
     assert(I >= 0.0);
 }
 
-void MassElement::set_node(Node nd)
+void MassElement::set_node(Node node)
 {
-    node = nd;
+    dofs = {node.x, node.y, node.phi};
 }
 
 void MassElement::add_masses() const
 {
-    system.add_M(node.x,   m);
-    system.add_M(node.y,   m);
-    system.add_M(node.phi, I);
+    system.add_M(dofs, Vector<3>{m, m, I});
 }
 
 void MassElement::add_internal_forces() const

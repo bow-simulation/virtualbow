@@ -94,6 +94,8 @@ VectorXd StaticSolverDC::unit_vector(size_t n, size_t i) const
     return vec;
 }
 
+#include <iostream>
+
 DynamicSolver::DynamicSolver(System& system, double step_factor, double sampling_rate, std::function<bool()> stop)
     : system(system),
       stop(stop),

@@ -28,7 +28,7 @@ public:
         return output;
     }
 
-    template<typename F>
+    template<class F>
     static OutputData run_static_simulation(const InputData& input, const F& callback)
     {
         BowModel model(input);
@@ -40,7 +40,7 @@ public:
         return output;
     }
 
-    template<typename F1, typename F2>
+    template<class F1, class F2>
     static OutputData run_dynamic_simulation(const InputData& input, const F1& callback1, const F2& callback2)
     {
         BowModel model(input);
@@ -113,7 +113,7 @@ private:
             double y = yc*(1.0 - p) + yt*p;
 
             bool active_x = (i != 0);
-            Node node = system.create_node({active_x, true, true}, {x, y, 0.0});
+            Node node = system.create_node({active_x, true, false}, {x, y, 0.0});
             nodes_string.push_back(node);
         }
         nodes_string.push_back(nodes_limb.back());
@@ -169,7 +169,7 @@ private:
         setup.string_length = string_length;
     }
 
-    template<typename F>
+    template<class F>
     void simulate_statics(StaticData& statics, const F& callback)
     {
         StaticSolverDC solver(system, nodes_string[0].y, input.operation_draw_length, input.settings_n_draw_steps);
@@ -200,11 +200,11 @@ private:
         statics.storage_ratio    = (e_pot_back - e_pot_front)/(0.5*(draw_length_back - draw_length_front)*draw_force_back);
     }
 
-    template<typename F>
+    template<class F>
     void simulate_dynamics(DynamicData& dynamics, const StaticData& statics, const F& callback)
     {
         // Set draw force to zero    // Todo: Doesn't really belong in this method
-        system.set_p(nodes_string[0].y, 0.0);
+        //system.set_p(nodes_string[0].y, 0.0);
 
         double T = std::numeric_limits<double>::max();
         double alpha = input.settings_time_span_factor;     // Todo: Magic number // Todo: Make this a setting
@@ -242,6 +242,7 @@ private:
 
         // Change model by giving the arrow an independent node with the initial position and velocity of the string center
         // Todo: Would more elegant to remove the mass element from the system and create a new one with a new node.
+        // Or initially add arrow mass to string center, then subtract that and give arrow its own node and element.
         node_arrow = system.create_node(nodes_string[0]);
 
         system.mut_elements().front<MassElement>("arrow").set_node(node_arrow);

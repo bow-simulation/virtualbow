@@ -12,7 +12,8 @@ using Vector = Eigen::Matrix<double, n, 1>;
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
-using Eigen::VectorXi;
+using Eigen::VectorXi;    // Todo: Remove?
+using Eigen::Ref;
 
 namespace Eigen
 {

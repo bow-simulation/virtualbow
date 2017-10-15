@@ -1,6 +1,7 @@
 #include "System.hpp"
 
-System::System(): t(0.0), n_a(0), n_f(0)
+System::System()
+    : t(0.0), n_a(0), n_f(0)
 {
     auto update_a = [&]()
     {
@@ -89,6 +90,16 @@ Dof System::create_dof(bool active, double u)
     }
 }
 
+double System::get_angle(const Node& a, const Node& b)
+{
+    return std::atan2(get_u(b.y) - get_u(a.y), get_u(b.x) - get_u(a.x));
+}
+
+double System::get_distance(const Node& a, const Node& b)
+{
+    return std::hypot(get_u(b.x) - get_u(a.x), get_u(b.y) - get_u(a.y));
+}
+
 const ElementContainer& System::get_elements() const
 {
     return elements.get();
@@ -119,39 +130,9 @@ const VectorXd& System::get_u() const
     return u_a.get();
 }
 
-void System::set_u(const VectorXd& u)
-{
-    u_a.mut() = u;
-}
-
-double System::get_u(Dof dof) const
-{
-    return get_by_dof(u_a.get(), u_f.get(), dof);
-}
-
-double System::get_angle(const Node& a, const Node& b)
-{
-    return std::atan2(get_u(b.y) - get_u(a.y), get_u(b.x) - get_u(a.x));
-}
-
-double System::get_distance(const Node& a, const Node& b)
-{
-    return std::hypot(get_u(b.x) - get_u(a.x), get_u(b.y) - get_u(a.y));
-}
-
 const VectorXd& System::get_v() const
 {
     return v_a.get();
-}
-
-void System::set_v(const VectorXd& v)
-{
-    v_a.mut() = v;
-}
-
-double System::get_v(Dof dof) const
-{
-    return get_by_dof(v_a.get(), dof);
 }
 
 const VectorXd& System::get_p() const
@@ -159,39 +140,14 @@ const VectorXd& System::get_p() const
     return p_a.get();
 }
 
-void System::set_p(const VectorXd& p)
-{
-    p_a.mut() = p;
-}
-
-double System::get_p(Dof dof) const
-{
-    dof.active ? get_p()(dof.index) : 0.0;
-}
-
-void System::set_p(Dof dof, double p)
-{
-    set_by_dof(p_a.mut(), dof, p);
-}
-
 const VectorXd& System::get_a() const
 {
     return a_a.get();
 }
 
-double System::get_a(Dof dof) const
-{
-    return get_by_dof(a_a.get(), dof);
-}
-
 const VectorXd& System::get_q() const
 {
     return q_a.get();
-}
-
-double System::get_q(Dof dof) const
-{
-    return get_by_dof(q_a.get(), q_f.get(), dof);
 }
 
 const VectorXd& System::get_M() const
@@ -202,4 +158,50 @@ const VectorXd& System::get_M() const
 const MatrixXd& System::get_K() const
 {
     return K_a.get();
+}
+
+
+double System::get_u(Dof dof) const
+{
+    return get_by_dof(&u_a.get(), &u_f.get(), dof);
+}
+
+double System::get_v(Dof dof) const
+{
+    return get_by_dof(&v_a.get(), nullptr, dof);
+}
+
+double System::get_p(Dof dof) const
+{
+    return get_by_dof(&p_a.get(), nullptr, dof);
+}
+
+double System::get_a(Dof dof) const
+{
+    return get_by_dof(&a_a.get(), nullptr, dof);
+}
+
+double System::get_q(Dof dof) const
+{
+    return get_by_dof(&q_a.get(), &q_f.get(), dof);
+}
+
+void System::set_u(const Ref<const VectorXd>& u)
+{
+    u_a.mut() = u;
+}
+
+void System::set_v(const Ref<const VectorXd>& v)
+{
+    v_a.mut() = v;
+}
+
+void System::set_p(const Ref<const VectorXd>& p)
+{
+    p_a.mut() = p;
+}
+
+void System::set_p(Dof dof, double p)
+{
+    set_by_dof(&p_a.mut(), nullptr, dof, p);
 }

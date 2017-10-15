@@ -1,6 +1,7 @@
 #pragma once
 #include "fem/Element.hpp"
 #include "fem/Node.hpp"
+#include <array>
 
 class MassElement: public Element
 {
@@ -15,7 +16,7 @@ public:
     virtual double get_kinetic_energy() const override;
 
 private:
-    Node node;
+    std::array<Dof, 3> dofs;
     double m;
     double I;
 
