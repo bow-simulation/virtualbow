@@ -6,7 +6,6 @@ BarElement::BarElement(System& system, Node node0, Node node1, double L, double 
       dofs{node0.x, node0.y, node1.x, node1.y},
       L(L),
       EA(EA),
-      etaA(etaA),
       rhoA(rhoA)
 {
 
@@ -28,10 +27,8 @@ double BarElement::get_normal_force() const
     double dx = system.get_u(dofs[2]) - system.get_u(dofs[0]);
     double dy = system.get_u(dofs[3]) - system.get_u(dofs[1]);
     double L_new = std::hypot(dx, dy);
-    double L_dot = 1.0/L_new*(dx*(system.get_v(dofs[2]) - system.get_v(dofs[0]))
-                            + dy*(system.get_v(dofs[3]) - system.get_v(dofs[1])));
 
-    return EA/L*(L_new - L) + etaA/L*L_dot;
+    return EA/L*(L_new - L);
 }
 
 void BarElement::add_masses() const
@@ -51,8 +48,6 @@ void BarElement::add_internal_forces() const
     double dx = system.get_u(dofs[2]) - system.get_u(dofs[0]);
     double dy = system.get_u(dofs[3]) - system.get_u(dofs[1]);
     double L_new = std::hypot(dx, dy);
-    double L_dot = 1.0/L_new*(dx*(system.get_v(dofs[2]) - system.get_v(dofs[0]))
-                            + dy*(system.get_v(dofs[3]) - system.get_v(dofs[1])));
 
     double N = get_normal_force();
 
@@ -70,11 +65,9 @@ void BarElement::add_tangent_stiffness() const
     double dx = system.get_u(dofs[2]) - system.get_u(dofs[0]);
     double dy = system.get_u(dofs[3]) - system.get_u(dofs[1]);
     double L_new = std::hypot(dx, dy);
-    double L_dot = 1.0/L_new*(dx*(system.get_v(dofs[2]) - system.get_v(dofs[0]))
-                            + dy*(system.get_v(dofs[3]) - system.get_v(dofs[1])));
 
     double c0 = EA*(L_new - L)/(L_new*L);
-    double c1 = EA/std::pow(L_new, 3);
+    double c1 = EA/pow(L_new, 3);
 
     Matrix<4> K;
     K << c1*dx*dx + c0,       c1*dx*dy, -c1*dx*dx - c0,      -c1*dx*dy,
@@ -91,8 +84,6 @@ double BarElement::get_potential_energy() const
     double dx = system.get_u(dofs[2]) - system.get_u(dofs[0]);
     double dy = system.get_u(dofs[3]) - system.get_u(dofs[1]);
     double L_new = std::hypot(dx, dy);
-    double L_dot = 1.0/L_new*(dx*(system.get_v(dofs[2]) - system.get_v(dofs[0]))
-                            + dy*(system.get_v(dofs[3]) - system.get_v(dofs[1])));
 
     return 0.5*EA/L*std::pow(L_new - L, 2);
 }

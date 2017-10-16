@@ -1,6 +1,6 @@
 #pragma once
+#include "numerics/Eigen.hpp"
 #include <vector>
-#include <valarray>
 #include <json.hpp>
 
 using nlohmann::json;
@@ -25,14 +25,13 @@ struct BowStates
     std::vector<double> e_kin_string;
     std::vector<double> e_kin_arrow;
 
-    std::vector<double> y_arrow;
-    std::vector<std::valarray<double>> x_limb;
-    std::vector<std::valarray<double>> y_limb;
-    std::vector<std::valarray<double>> x_string;
-    std::vector<std::valarray<double>> y_string;
+    std::vector<VectorXd> x_limb;
+    std::vector<VectorXd> y_limb;
+    std::vector<VectorXd> x_string;
+    std::vector<VectorXd> y_string;
 
-    std::vector<std::valarray<double>> sigma_back;
-    std::vector<std::valarray<double>> sigma_belly;
+    std::vector<VectorXd> sigma_back;
+    std::vector<VectorXd> sigma_belly;
 };
 
 static void to_json(json& obj, const BowStates& val)
@@ -51,7 +50,6 @@ static void to_json(json& obj, const BowStates& val)
     obj["e_pot_string"] = val.e_pot_string;
     obj["e_kin_string"] = val.e_kin_string;
     obj["e_kin_arrow"] = val.e_kin_arrow;
-    obj["y_arrow"] = val.y_arrow;
     obj["x_limb"] = val.x_limb;
     obj["y_limb"] = val.y_limb;
     obj["x_string"] = val.x_string;

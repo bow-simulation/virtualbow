@@ -8,7 +8,6 @@ ProfileView::ProfileView(InputData& data)
 {
     this->xAxis->setLabel("X [m]");
     this->yAxis->setLabel("Y [m]");
-    this->yAxis->setRangeReversed(true);
     this->setAspectPolicy(PlotWidget::SCALE_Y);
 
     // Line

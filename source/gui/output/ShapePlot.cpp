@@ -29,7 +29,6 @@ ShapePlot::ShapePlot(const SetupData& setup, const BowStates& states, bool inter
 
     this->xAxis->setLabel("X [m]");
     this->yAxis->setLabel("Y [m]");
-    this->yAxis->setRangeReversed(true);
     this->setAspectPolicy(PlotWidget::SCALE_Y);
     setAxesRanges();
 }
@@ -42,7 +41,7 @@ void ShapePlot::setStateIndex(int index)
     string_right->setData(states.x_string[index], states.y_string[index]);
     string_left->setData(-states.x_string[index], states.y_string[index]);
 
-    arrow->setData(std::array<double, 1>{0.0}, std::array<double, 1>{states.y_arrow[index]});
+    arrow->setData(std::array<double, 1>{0.0}, std::array<double, 1>{states.pos_arrow[index]});
 
     this->replot();
 }
@@ -93,17 +92,13 @@ void ShapePlot::setAxesRanges()
 {
     QCPRange x_range;
     QCPRange y_range;
-    auto expand = [&x_range, &y_range](const std::valarray<double>& x_values, const std::valarray<double>& y_values)
+    auto expand = [&x_range, &y_range](const VectorXd& x_values, const VectorXd& y_values)
     {
-        for(double x: x_values)
+        for(size_t i = 0; i < x_values.size(); ++i)
         {
-            x_range.expand(x);
-            x_range.expand(-x);
-        }
-
-        for(double y: y_values)
-        {
-            y_range.expand(y);
+            x_range.expand( x_values[i]);
+            x_range.expand(-x_values[i]);
+            y_range.expand( y_values[i]);
         }
     };
 

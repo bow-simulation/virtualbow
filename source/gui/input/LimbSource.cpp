@@ -11,7 +11,7 @@
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 
-#include <Eigen/Dense>
+#include "numerics/Eigen.hpp"
 #include <array>
 
 vtkStandardNewMacro(LimbSource)
@@ -39,15 +39,15 @@ int LimbSource::RequestData(vtkInformation* request, vtkInformationVector** inpu
     for(size_t i = 0; i < n_sections; ++i)   // Iterate over sections
     {
         // Curve point and normal
-        Eigen::Vector3d p{limb.x[i], limb.y[i], 0.0};
-        Eigen::Vector3d nw{0.0, 0.0, 0.5*limb.w[i]};
-        Eigen::Vector3d nh{-limb.h[i]*std::sin(limb.phi[i]), limb.h[i]*std::cos(limb.phi[i]), 0.0};
+        Vector<3> p{limb.x[i], limb.y[i], 0.0};
+        Vector<3> nw{0.0, 0.0, 0.5*limb.w[i]};
+        Vector<3> nh{-limb.h[i]*sin(limb.phi[i]), limb.h[i]*cos(limb.phi[i]), 0.0};
 
         // Cross section vertices
-        Eigen::Vector3d p0 = p + nw;
-        Eigen::Vector3d p1 = p + nw + nh;
-        Eigen::Vector3d p2 = p - nw + nh;
-        Eigen::Vector3d p3 = p - nw;
+        Vector<3> p0 = p + nw;
+        Vector<3> p1 = p + nw + nh;
+        Vector<3> p2 = p - nw + nh;
+        Vector<3> p3 = p - nw;
 
         points->InsertNextPoint(p0.data());
         points->InsertNextPoint(p1.data());
@@ -97,100 +97,3 @@ int LimbSource::RequestData(vtkInformation* request, vtkInformationVector** inpu
 
     return 1;
 }
-
-/*
-int LimbSource::RequestData(vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
-{
-    // Generate points
-
-    auto points = vtkSmartPointer<vtkPoints>::New();
-    points->SetDataType(VTK_DOUBLE);
-    //newPoints->Allocate(...);      // Todo: Preallocate
-
-    double XLength = 1.0;
-    double YLength = 1.0;
-    double ZLength = 1.0;
-
-    Eigen::Vector3d x;
-    int i, j, k;
-
-    for(x[0]=-XLength/2.0, i=0; i<2; i++, x[0]+=XLength)
-    {
-        for(x[1]=-YLength/2.0, j=0; j<2; j++, x[1]+=YLength)
-        {
-            for(x[2]=-ZLength/2.0, k=0; k<2; k++, x[2]+=ZLength)
-            {
-                points->InsertNextPoint(x.data());
-            }
-        }
-    }
-
-    for(x[1]=-YLength/2.0, i=0; i<2; i++, x[1]+=YLength)
-    {
-        for(x[0]=-XLength/2.0, j=0; j<2; j++, x[0]+=XLength)
-        {
-            for(x[2]=-ZLength/2.0, k=0; k<2; k++, x[2]+=ZLength)
-            {
-                points->InsertNextPoint(x.data());
-            }
-        }
-    }
-
-    for(x[2]=-ZLength/2.0, i=0; i<2; i++, x[2]+=ZLength)
-    {
-        for(x[1]=-YLength/2.0, j=0; j<2; j++, x[1]+=YLength)
-        {
-            for(x[0]=-XLength/2.0, k=0; k<2; k++, x[0]+=XLength)
-            {
-                points->InsertNextPoint(x.data());
-            }
-        }
-    }
-
-
-    auto polys = vtkSmartPointer<vtkCellArray>::New();
-    //newPolys->Allocate(...);        // Todo: Preallocate
-
-    // Generate indices
-
-    {
-        vtkIdType pts[] = {0, 1, 3, 2};
-        polys->InsertNextCell(4, pts);
-    }
-
-    {
-        vtkIdType pts[] = {4, 6, 7, 5};
-        polys->InsertNextCell(4, pts);
-    }
-
-    {
-        vtkIdType pts[] = {8, 10, 11, 9};
-        polys->InsertNextCell(4, pts);
-    }
-
-    {
-        vtkIdType pts[] = {12, 13, 15, 14};
-        polys->InsertNextCell(4, pts);
-    }
-
-    {
-        vtkIdType pts[] = {16, 18, 19, 17};
-        polys->InsertNextCell(4, pts);
-    }
-
-    {
-        vtkIdType pts[] = {20, 21, 23, 22};
-        polys->InsertNextCell(4, pts);
-    }
-
-    // Set output stuff
-
-    vtkInformation* info = outputVector->GetInformationObject(0);
-    vtkPolyData* output = vtkPolyData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
-    output->SetPoints(points);
-    output->SetPolys(polys);
-
-    return 1;
-}
-*/
-

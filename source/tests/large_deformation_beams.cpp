@@ -1,5 +1,5 @@
 #include "fem/System.hpp"
-#include "fem/Solver.hpp"
+#include "fem/StaticSolver.hpp"
 #include "fem/elements/BeamElement.hpp"
 
 #include <catch.hpp>
@@ -44,7 +44,7 @@ TEST_CASE("large-deformation-cantilever")
 
     nodes[N][1].p_mut() = F0;
     StaticSolverLC solver(system);
-    solver.find_equilibrium();
+    solver.solve();
 
     // Tip displacements
     double ux_num = L - nodes[N][0].u();
@@ -83,7 +83,7 @@ TEST_CASE("large-deformation-circular-beam")
     {
         DofType type = (i == 0) ? DofType::Fixed : DofType::Active;
         double phi = double(i)/double(N)*M_PI;
-        nodes.push_back(system.create_node({type, type, type}, {R*std::sin(phi), R*(std::cos(phi) - 1.0), 0.0}));
+        nodes.push_back(system.create_node({type, type, type}, {R*sin(phi), R*(cos(phi) - 1.0), 0.0}));
     }
 
     // Create elements
@@ -99,11 +99,9 @@ TEST_CASE("large-deformation-circular-beam")
         system.add_element(element);
     }
 
-    StaticSolverDC solver(system, nodes[N][2], -M_PI, 15);
-    while(solver.step())
-    {
-        //std::cout << "phi = " << nodes[N][2].u() << "\n";
-    }
+    StaticSolverDC solver(system, nodes[N][2]);
+    for(unsigned i = 0; i < 15; ++i)
+        solver.solve(-double(i)/15*M_PI);
 
     double M_num = -nodes[N][2].p();
     double M_ref = EI*R;
