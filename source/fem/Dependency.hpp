@@ -43,6 +43,12 @@ public:
     void set_valid(bool val) const
     {
         valid = val;
+
+        if(!valid)
+        {
+            for(auto d: dependents)
+                d->set_valid(false);
+        }
     }
 
 protected:
@@ -105,6 +111,9 @@ public:
 
     T& mut()
     {
+        for(auto d: dependents)
+            d->set_valid(false);
+
         return value;
     }
 

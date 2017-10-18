@@ -1,5 +1,7 @@
 #include "System.hpp"
 
+#include <QtCore>
+
 System::System()
     : t(0.0), n_a(0), n_f(0)
 {
@@ -40,7 +42,7 @@ System::System()
             e.add_tangent_stiffness();
     };
 
-    a_a.depends_on(n_a, M_a, p_a, q_a);
+    a_a.depends_on(M_a, p_a, q_a);
     a_a.on_update(update_a);
 
     q_a.depends_on(elements, n_a, u_a, u_f, v_a);
@@ -65,18 +67,18 @@ Node System::create_node(std::array<bool, 3> active, std::array<double, 3> u)
 
 Node System::create_node(const Node& other)
 {
-    return {create_dof(other.x.active  , get_u(other.x  )),
-            create_dof(other.y.active  , get_u(other.y  )),
-            create_dof(other.phi.active, get_u(other.phi))};
+    return {create_dof(other.x.active  , get_u(other.x  ), get_v(other.x  )),
+            create_dof(other.y.active  , get_u(other.y  ), get_v(other.y  )),
+            create_dof(other.phi.active, get_u(other.phi), get_v(other.phi))};
 }
 
-Dof System::create_dof(bool active, double u)
+Dof System::create_dof(bool active, double u, double v)
 {
     if(active)
     {
         n_a.mut() += 1;
         u_a.mut() = (VectorXd(n_a.get()) << u_a.get(), u).finished();
-        v_a.mut() = (VectorXd(n_a.get()) << v_a.get(), 0).finished();
+        v_a.mut() = (VectorXd(n_a.get()) << v_a.get(), v).finished();
         p_a.mut() = (VectorXd(n_a.get()) << p_a.get(), 0).finished();
 
         return Dof{active, n_a.get()-1};

@@ -37,7 +37,7 @@ public:
 
     Node create_node(std::array<bool, 3> active, std::array<double, 3> u);
     Node create_node(const Node& other);
-    Dof create_dof(bool active, double u);
+    Dof create_dof(bool active, double u, double v = 0.0);
 
     double get_angle(const Node& a, const Node& b);
     double get_distance(const Node& a, const Node& b);

@@ -46,12 +46,11 @@ double BeamElement::get_kappa(double p) const
     return (6.0*p - 4.0)/L*e(1) + (6.0*p - 2.0)/L*e(2);
 }
 
-
 void BeamElement::add_masses() const
 {
     double alpha = 0.02;
     double m = 0.5*rhoA*L;
-    double I = alpha*rhoA*pow(L, 3);
+    double I = alpha*rhoA*L*L*L;
 
     system.add_M(dofs, (Vector<6>() << m, m, I, m, m, I).finished());
 }

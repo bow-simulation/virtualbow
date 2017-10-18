@@ -33,9 +33,7 @@ BowModel::BowModel(const InputData& input)
     : input(input)
 {
     init_limb();
-    qInfo() << "Limb setup successful!";
     init_string();
-    qInfo() << "String setup successful!";
     init_masses();
 }
 
@@ -114,7 +112,7 @@ void BowModel::init_string()
     // Create string nodes
     for(size_t i = 0; i < points.size(); ++i)
     {
-        Node node = system.create_node({i != 0, true, true}, {points[i][0], points[i][1], 0.0});
+        Node node = system.create_node({i != 0, true, i != 0}, {points[i][0], points[i][1], 0.0});
         nodes_string.push_back(node);
     }
 
@@ -207,6 +205,8 @@ void BowModel::simulate_statics(const Callback& callback)
     output.statics.storage_ratio = (e_pot_back - e_pot_front)/(0.5*(draw_length_back - draw_length_front)*draw_force_back);
 }
 
+// Todo: Calculate timestep only once, use for both parts of the dynamic simulation
+
 void BowModel::simulate_dynamics(const Callback& callback)
 {
     // Set draw force to zero
@@ -227,7 +227,7 @@ void BowModel::simulate_dynamics(const Callback& callback)
                 T = system.get_t()*std::acos(u1/u0)/std::acos(ut/u0);
         }
 
-        return system.get_a(node_arrow.y) < 0;
+        return system.get_a(node_arrow.y) <= 0;
     });
 
     auto run_solver = [&](DynamicSolver& solver)

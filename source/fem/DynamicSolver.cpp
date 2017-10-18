@@ -24,8 +24,6 @@ DynamicSolver::DynamicSolver(System& system, double step_factor, double sampling
     Eigen::GeneralizedSelfAdjointEigenSolver<MatrixXd>
             eigen_solver(system.get_K(), system.get_M().asDiagonal(), Eigen::DecompositionOptions::EigenvaluesOnly);
 
-    std::cout << system.get_M() << "\n=========================\n";
-
     if(eigen_solver.info() != Eigen::Success)
         throw std::runtime_error("Failed to compute eigenvalues of the system");
 
@@ -57,8 +55,8 @@ void DynamicSolver::sub_step()
 {
     u_p1 = system.get_u();
 
-    system.set_u(system.get_u() + 2.0*system.get_u() - u_p2 + dt*dt*system.get_a());
-    system.set_v(system.get_v() + (1.5*system.get_u() - 2.0*u_p1 + 0.5*u_p2)/dt);
+    system.set_u(2.0*system.get_u() - u_p2 + dt*dt*system.get_a());
+    system.set_v((1.5*system.get_u() - 2.0*u_p1 + 0.5*u_p2)/dt);
     system.set_t(system.get_t() + dt);
 
     u_p2 = u_p1;
