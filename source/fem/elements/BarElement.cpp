@@ -1,7 +1,7 @@
 #include "BarElement.hpp"
 #include "fem/System.hpp"
 
-BarElement::BarElement(System& system, Node node0, Node node1, double L, double EA, double etaA, double rhoA)
+BarElement::BarElement(System& system, Node node0, Node node1, double L, double EA, double rhoA)
     : Element(system),
       dofs{node0.x, node0.y, node1.x, node1.y},
       L(L),

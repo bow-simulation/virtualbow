@@ -91,11 +91,14 @@ void BowModel::init_limb()
     };
 
     // Apply a torque to the limb such that the difference to brace height is zero
-    secant_method(try_torque, -1.0, -10.0, 1e-5, 50);
+    secant_method(try_torque, -1.0, -10.0, 1e-5, 50);    // Todo: Magic numbers
 }
 
 void BowModel::init_string()
 {
+    qInfo() << "kmax = " << system.get_K().maxCoeff();
+    double k = system.get_K().maxCoeff();
+
     std::vector<Vector<2>> points;
     points.push_back({0.0, -input.operation_brace_height});
     for(size_t i = 0; i < nodes_limb.size(); ++i)
@@ -128,8 +131,9 @@ void BowModel::init_string()
     }
 
     // Create limb tip constraint and string to limb contact surface
-    //double k = 100.0*EA/output.setup.string_length;
-    double k = output.setup.limb.Cee[0]/(output.setup.limb.s[1] - output.setup.limb.s[0]);    // Stiffness estimate based on limb data
+    //double k = EA/output.setup.string_length;    // Stiffness estimate based on string stiffness
+
+    //double k = output.setup.limb.Cee[0]/(output.setup.limb.s[1] - output.setup.limb.s[0]);    // Stiffness estimate based on limb data
     system.mut_elements().push_back(ConstraintElement(system, nodes_limb.back(), nodes_string.back(), k), "constraint");
     system.mut_elements().push_back(ContactSurface(system, nodes_limb, nodes_string, output.setup.limb.h, k), "contact");
 

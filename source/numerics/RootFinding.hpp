@@ -63,41 +63,56 @@ double bisect(const F& f, double x_min, double x_max, double ftol, double xtol, 
     throw std::runtime_error("Bisection: Maximum number of iterations exceeded");
 }
 
-template<bool rising, class F>
-double bracket_and_bisect(const F& f, double x0, double factor, double ftol, double xtol, unsigned iter)
+template<class F>
+double bracket_and_bisect(const F& f, double x0, double factor, double ftol, double xtol, unsigned int iter = 50)
 {
-    assert(x0 > 0);
-    assert(factor > 0);
+    assert(x0 > 0.0);
+    assert(factor > 1.0);
 
-    double x_min = x0;
-    double x_max = x0;
-    double f_min = f(x_min);
-    double f_max = f_min;
+    // Root bracketing
 
-    for(unsigned i = 0; i < iter; ++i)
+    double xl = x0;
+    double fl = f(xl);
+
+    double xu = factor*x0;
+    double fu = f(xu);
+
+    for(unsigned int i = 0; i < iter; ++i)
     {
-        if((rising && f(x_min) > 0) || (!rising && f(x_min) < 0))
-        {
-            x_max = x_min;
-            f_max = f_min;
+        if(fl*fu < 0)
+            break;
 
-            x_min /= factor;
-            f_min = f(x_min);
-        }
-        else if((rising && f(x_max) < 0) || (!rising && f(x_max) > 0))
-        {
-            x_min = x_max;
-            f_min = f_max;
+        if(i == iter-1)
+            throw std::runtime_error("Root bracketing: Maximum number of iterations exceeded");
 
-            x_max *= factor;
-            f_max = f(x_max);
+        xl = xu;
+        fl = fu;
+
+        xu *= factor;
+        fu = f(xu);
+    }
+
+    // Bisection
+
+    for(unsigned int i = 0; i < iter; ++i)
+    {
+        double x_new = 0.5*(xl + xu);
+        double f_new = f(x_new);
+
+        if(std::abs(f_new) < ftol || xu - xl < xtol)
+            return x_new;
+
+        if(fl*f_new > 0)
+        {
+            xl = x_new;
+            fl = f_new;
         }
         else
         {
-            return bisect<rising>(f, x_min, x_max, ftol, xtol, iter);
+            xu = x_new;
+            fu = f_new;
         }
     }
 
-    throw std::runtime_error("Root bracketing: Maximum number of iterations exceeded");
+    throw std::runtime_error("Bisection: Maximum number of iterations exceeded");
 }
-
