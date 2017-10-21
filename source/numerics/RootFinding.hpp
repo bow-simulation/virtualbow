@@ -39,6 +39,40 @@ double secant_method(const F& f, double x0, double x1, double epsilon, unsigned 
     throw std::runtime_error("Secant method: Maximum number of iterations exceeded");
 }
 
+template<class F>
+double restricted_secant_method(const F& f, double x0, double dx, double epsilon, unsigned iter)
+{
+    assert(dx > 0);
+
+    double x1 = x0 + dx;
+    double f0 = f(x0);
+    double f1 = f(x1);
+
+    for(unsigned i = 0; i < iter; ++i)
+    {
+        if(std::abs(f1) < epsilon)
+        {
+            return x1;
+        }
+
+        double delta =  - (x1 - x0)/(f1 - f0)*f1;
+        if(delta > 0)
+            delta = std::min(delta, dx);
+        else
+            delta = std::max(delta, -dx);
+
+        double x2 = x1 + delta;
+
+        x0 = x1;
+        f0 = f1;
+
+        x1 = x2;
+        f1 = f(x2);
+    }
+
+    throw std::runtime_error("Secant method: Maximum number of iterations exceeded");
+}
+
 #include <iostream>
 
 template<bool rising, class F>

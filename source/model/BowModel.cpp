@@ -34,6 +34,7 @@ BowModel::BowModel(const InputData& input)
 {
     init_limb();
     init_string();
+    qInfo() << "============== LIMB SETUP SUCCESSFUL ==============";
     init_masses();
 }
 
@@ -70,28 +71,6 @@ void BowModel::init_limb()
         element.set_stiffness(Cee, Ckk, Cek);
         system.mut_elements().push_back(element, "limb");
     }
-
-    // Function that applies a torque to the limb tip and returns the difference
-    // between limb belly and brace height in the direction of draw
-    StaticSolverLC solver(system);
-    auto try_torque = [&](double torque)
-    {
-        // Apply torque, iterate to equilibrium, remove torque again
-        system.set_p(nodes_limb.back().phi, torque);
-        solver.solve();
-        system.set_p(nodes_limb.back().phi, 0.0);
-
-        // Calculate point on the limb that is closest to brace height
-        double y_min = std::numeric_limits<double>::max();
-        for(size_t i = 0; i < nodes_limb.size(); ++i)
-            y_min = std::min(y_min, system.get_u(nodes_limb[i].y)
-                                  - output.setup.limb.h[i]*cos(system.get_u(nodes_limb[i].phi)));
-
-        return y_min + input.operation_brace_height;    // Todo: Use dimensionless measure
-    };
-
-    // Apply a torque to the limb such that the difference to brace height is zero
-    secant_method(try_torque, -1.0, -10.0, 1e-5, 50);    // Todo: Magic numbers
 }
 
 void BowModel::init_string()
@@ -111,6 +90,17 @@ void BowModel::init_string()
 
     points = constant_orientation_subset(points, true);
     points = equipartition(points, input.settings_n_elements_string + 1);
+
+    /*
+    qInfo() << "String nodes: ";
+    for(int i = 0; i < points.size(); ++i)
+    {
+        qInfo() << points[i][0] << "," << points[i][1];
+    }
+
+    exit(0);
+    */
+
 
     // Create string nodes
     for(size_t i = 0; i < points.size(); ++i)
@@ -139,6 +129,7 @@ void BowModel::init_string()
 
     // Function that sets the sting element length and returns the
     // resulting difference between actual and desired brace height
+    /*
     StaticSolverLC solver(system);
     auto try_element_length = [&](double l)
     {
@@ -150,13 +141,45 @@ void BowModel::init_string()
         solver.solve();
         return system.get_u(nodes_string[0].y) + input.operation_brace_height;    // Todo: Use dimensionless measure
     };
+    */
+
+    // Takes a string element length, iterates to equilibrium with the constraint of the brace height
+    // and returns the angle of the string center
+    system.set_p(nodes_string[0].y, 1.0);    // Will be scaled by the static algorithm
+    StaticSolverDC solver(system, nodes_string[0].y);   // Todo: Reuse solver across function calls?
+    auto try_element_length = [&](double l)
+    {
+        for(auto& element: system.mut_elements().group<BeamElement>("string"))
+            element.set_length(l);
+
+        solver.solve(-input.operation_brace_height);
+
+        qInfo() << "l = " << l << ", angle = " << system.get_angle(nodes_string[0], nodes_string[1]);
+
+        return system.get_angle(nodes_string[0], nodes_string[1]);
+    };
+
 
     // Find a element length at which the brace height difference is zero
     // Todo: Perhaps limit the step size of the root finding algorithm to increase robustness.
     double l = (points[1] - points[0]).norm();
-    l = secant_method(try_element_length, 0.99*l, 0.98*l, 1e-6, 50);
+    l = restricted_secant_method(try_element_length, l, 0.001*l, 1e-6, 500);
 
-    //try_element_length(0.99*l);
+    /*
+    qInfo() << try_element_length(1.000*l);
+    qInfo() << try_element_length(0.990*l);
+    qInfo() << try_element_length(0.985*l);
+    qInfo() << try_element_length(0.980*l);
+    qInfo() << try_element_length(0.975*l);
+    qInfo() << try_element_length(0.970*l);
+    qInfo() << try_element_length(0.965*l);
+    qInfo() << try_element_length(0.960*l);
+    qInfo() << try_element_length(0.955*l);
+    qInfo() << try_element_length(0.950*l);
+    qInfo() << try_element_length(0.945*l);
+    qInfo() << try_element_length(0.940*l);
+    qInfo() << try_element_length(0.935*l);
+    */
 
     // Assign setup data
     output.setup.string_length = 2.0*l*input.settings_n_elements_string;    // *2 because of symmetry

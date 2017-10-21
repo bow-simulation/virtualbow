@@ -62,8 +62,17 @@ protected:
 
             // Evaluate constraint
             constraint(system.get_u(), lambda, c, dcdl, dcdu);
-            double delta_l = -(c + dcdu.transpose()*alpha)/(dcdl + dcdu.transpose()*beta);
+            double delta_l;
+            if((dcdl + dcdu.transpose()*beta) != 0)    // Todo: Epsilon
+                delta_l = -(c + dcdu.transpose()*alpha)/(dcdl + dcdu.transpose()*beta);
+            else
+                delta_l = 0.0;
+
             delta_u = alpha + delta_l*beta;
+
+            //std::cout << "==================== delta l  ===================\n";
+            //std::cout << (dcdl + dcdu.transpose()*beta);
+
 
             // Line search
             VectorXd u_start = system.get_u();
@@ -75,6 +84,9 @@ protected:
                 return std::abs(delta_u.transpose()*(system.get_q() - lambda*system.get_p()));
             };
 
+            golden_section_search(f, 0.0, 1.0, 1e-2, 50);
+
+            /*
             try
             {
                 //std::cout << bracket_and_bisect(f, 0.1, 1.2, 1e-3, 1e-2) << "\n";
@@ -82,11 +94,15 @@ protected:
             }
             catch(...)
             {
-                for(double eta = 0.0; eta <= 1.0; eta += 0.01)
-                    std::cout << eta << "," << f(eta) << "\n";
 
                 exit(0);
             }
+            */
+
+            //std::cout << "====================" << golden_section_search(f, 0.0, 1.0, 1e-2, 50) << "\n";
+            //for(double eta = 0.0; eta <= 1.0; eta += 0.01)
+            //    std::cout << eta << "," << f(eta) << "\n";
+
 
             //exit(0);
 
