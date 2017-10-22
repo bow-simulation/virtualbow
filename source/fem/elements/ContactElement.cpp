@@ -18,19 +18,19 @@ void ContactElement::add_masses() const
 void ContactElement::add_internal_forces() const
 {
     State state = get_state();
-    system.add_q(dofs, k*state.e*state.De);
+    system.add_q(dofs, F(state.e)*state.De);
 }
 
 void ContactElement::add_tangent_stiffness() const
 {
     State state = get_state();
-    system.add_K(dofs, k*(state.De*state.De.transpose() + state.e*state.DDe));
+    system.add_K(dofs, dFde(state.e)*state.De*state.De.transpose() + F(state.e)*state.e*state.DDe);
 }
 
 double ContactElement::get_potential_energy() const
 {
     State state = get_state();
-    return 0.5*k*state.e*state.e;
+    return E(state.e);
 }
 
 double ContactElement::get_kinetic_energy() const

@@ -163,7 +163,7 @@ void BowModel::init_string()
     // Find a element length at which the brace height difference is zero
     // Todo: Perhaps limit the step size of the root finding algorithm to increase robustness.
     double l = (points[1] - points[0]).norm();
-    l = restricted_secant_method(try_element_length, l, 0.001*l, 1e-6, 500);
+    l = restricted_secant_method(try_element_length, l, 0.005*l, 1e-6, 500);
 
     /*
     qInfo() << try_element_length(1.000*l);

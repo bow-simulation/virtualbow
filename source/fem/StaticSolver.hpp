@@ -142,7 +142,7 @@ private:
     System& system;
 
     const unsigned max_iter = 150;    // Todo: Magic number
-    const double epsilon = 1e-6;      // Todo: Magic number
+    const double epsilon = 1e-5;      // Todo: Magic number
 
     Eigen::LDLT<MatrixXd> decomp;
     VectorXd delta_q;

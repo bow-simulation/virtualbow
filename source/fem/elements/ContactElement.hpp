@@ -31,4 +31,33 @@ private:
     };
 
     State get_state() const;
+
+    double F(double e) const
+    {
+        double h = 0.008/100.0;
+
+        if(e <= 0)
+            return 0.0;
+        if(e <= h)
+            return k/(2.0*h)*e*e;
+        else
+            return k*(e-0.5*h);
+    }
+
+    double dFde(double e) const
+    {
+        double h = 0.008/100.0;
+
+        if(e <= 0)
+            return 0.0;
+        if(e <= h)
+            return k/h*e;
+        else
+            return k;
+    }
+
+    double E(double e) const
+    {
+        return k*e*e;
+    }
 };
