@@ -35,6 +35,17 @@ double golden_section_search(const F& f, double xa, double xb, double xtol, unsi
 class StaticSolver
 {
 public:
+    // Todo: State for failed line search
+    struct Info
+    {
+        enum {
+            Success,
+            DecompFailed,
+            NoConvergence
+        } outcome;
+        unsigned iterations;
+    };
+
     StaticSolver(System& system)
         : system(system),
           delta_q(system.dofs()),
@@ -47,14 +58,14 @@ public:
     }
 
 protected:
-    void solve()
+    Info solve()
     {
         double lambda = 1.0;
         for(unsigned i = 0; i < max_iter; ++i)
         {
             decomp.compute(system.get_K());
             if(decomp.info() != Eigen::Success)
-                throw std::runtime_error("Decomposition of the stiffness matrix failed");
+                return {Info::DecompFailed, i+1};
 
             delta_q = system.get_q() - lambda*system.get_p();
             alpha = -decomp.solve(delta_q);
@@ -129,11 +140,11 @@ protected:
             {
                 // ...apply load factor to the system and return
                 system.set_p(lambda*system.get_p());
-                return;
+                return {Info::Success, i+1};
             }
         }
 
-        throw std::runtime_error("Static solver: Maximum number of iterations exceeded");
+        return {Info::NoConvergence, max_iter};
     }
 
     virtual void constraint(const VectorXd& u, double lambda, double& c, double& dcdl, VectorXd& dcdu) const = 0;
@@ -164,9 +175,9 @@ public:
 
     }
 
-    void solve()
+    Info solve()
     {
-        StaticSolver::solve();
+        return StaticSolver::solve();
     }
 
 protected:
@@ -190,10 +201,10 @@ public:
         assert(dof.active);
     }
 
-    void solve(double displacement)
+    Info solve(double displacement)
     {
         target = displacement;
-        StaticSolver::solve();
+        return StaticSolver::solve();
     }
 
 protected:

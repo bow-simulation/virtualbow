@@ -7,7 +7,7 @@
 class ContactElement: public Element
 {
 public:
-    ContactElement(System& system, Node node0, Node node1, Node node2, double h0, double h1, double k);
+    ContactElement(System& system, Node node0, Node node1, Node node2, double h0, double h1, double epsilon, double k);
 
     virtual void add_masses() const override;
     virtual void add_internal_forces() const override;
@@ -21,6 +21,7 @@ private:
 
     double h0;
     double h1;
+    double epsilon;
     double k;
 
     struct State
@@ -34,24 +35,20 @@ private:
 
     double F(double e) const
     {
-        double h = 0.008/100.0;
-
         if(e <= 0)
             return 0.0;
-        if(e <= h)
-            return k/(2.0*h)*e*e;
+        if(e <= epsilon)
+            return k/(2.0*epsilon)*e*e;
         else
-            return k*(e-0.5*h);
+            return k*(e-0.5*epsilon);
     }
 
     double dFde(double e) const
     {
-        double h = 0.008/100.0;
-
         if(e <= 0)
             return 0.0;
-        if(e <= h)
-            return k/h*e;
+        if(e <= epsilon)
+            return k/epsilon*e;
         else
             return k;
     }

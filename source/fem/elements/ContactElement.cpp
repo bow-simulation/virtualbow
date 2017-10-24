@@ -2,10 +2,10 @@
 #include "numerics/Geometry.hpp"
 #include "fem/System.hpp"
 
-ContactElement::ContactElement(System& system, Node node0, Node node1, Node node2, double h0, double h1, double k)
+ContactElement::ContactElement(System& system, Node node0, Node node1, Node node2, double h0, double h1, double epsilon, double k)
     : Element(system),
       dofs{node0.x, node0.y, node0.phi, node1.x, node1.y, node1.phi, node2.x, node2.y},
-      h0(h0), h1(h1), k(k)
+      h0(h0), h1(h1), epsilon(epsilon), k(k)
 {
 
 }

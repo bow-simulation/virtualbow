@@ -76,31 +76,21 @@ void BowModel::init_limb()
 void BowModel::init_string()
 {
     qInfo() << "kmax = " << system.get_K().maxCoeff();
-    double k = system.get_K().maxCoeff();
+    const double k = system.get_K().maxCoeff();
+    const double epsilon = 0.01*output.setup.limb.h[0];    // Small initial penetration of the string nodes into the limb surface  // Magic number
 
     std::vector<Vector<2>> points;
     points.push_back({0.0, -input.operation_brace_height});
     for(size_t i = 0; i < nodes_limb.size(); ++i)
     {
         points.push_back({
-            system.get_u(nodes_limb[i].x) + output.setup.limb.h[i]*sin(system.get_u(nodes_limb[i].phi)),
-            system.get_u(nodes_limb[i].y) - output.setup.limb.h[i]*cos(system.get_u(nodes_limb[i].phi))
+            system.get_u(nodes_limb[i].x) + (output.setup.limb.h[i] - epsilon)*sin(system.get_u(nodes_limb[i].phi)),
+            system.get_u(nodes_limb[i].y) - (output.setup.limb.h[i] - epsilon)*cos(system.get_u(nodes_limb[i].phi))
         });
     }
 
     points = constant_orientation_subset(points, true);
     points = equipartition(points, input.settings_n_elements_string + 1);
-
-    /*
-    qInfo() << "String nodes: ";
-    for(int i = 0; i < points.size(); ++i)
-    {
-        qInfo() << points[i][0] << "," << points[i][1];
-    }
-
-    exit(0);
-    */
-
 
     // Create string nodes
     for(size_t i = 0; i < points.size(); ++i)
@@ -125,7 +115,7 @@ void BowModel::init_string()
 
     //double k = output.setup.limb.Cee[0]/(output.setup.limb.s[1] - output.setup.limb.s[0]);    // Stiffness estimate based on limb data
     system.mut_elements().push_back(ConstraintElement(system, nodes_limb.back(), nodes_string.back(), k), "constraint");
-    system.mut_elements().push_back(ContactSurface(system, nodes_limb, nodes_string, output.setup.limb.h, k), "contact");
+    system.mut_elements().push_back(ContactSurface(system, nodes_limb, nodes_string, output.setup.limb.h, epsilon, k), "contact");
 
     // Function that sets the sting element length and returns the
     // resulting difference between actual and desired brace height
@@ -147,15 +137,13 @@ void BowModel::init_string()
     // and returns the angle of the string center
     system.set_p(nodes_string[0].y, 1.0);    // Will be scaled by the static algorithm
     StaticSolverDC solver(system, nodes_string[0].y);   // Todo: Reuse solver across function calls?
+    StaticSolverDC::Info info;
     auto try_element_length = [&](double l)
     {
         for(auto& element: system.mut_elements().group<BeamElement>("string"))
             element.set_length(l);
 
-        solver.solve(-input.operation_brace_height);
-
-        qInfo() << "l = " << l << ", angle = " << system.get_angle(nodes_string[0], nodes_string[1]);
-
+        info = solver.solve(-input.operation_brace_height);
         return system.get_angle(nodes_string[0], nodes_string[1]);
     };
 
@@ -163,7 +151,59 @@ void BowModel::init_string()
     // Find a element length at which the brace height difference is zero
     // Todo: Perhaps limit the step size of the root finding algorithm to increase robustness.
     double l = (points[1] - points[0]).norm();
-    l = restricted_secant_method(try_element_length, l, 0.005*l, 1e-6, 500);
+    if(!try_element_length(l) > 0)
+        throw std::runtime_error("Invalid input: Brace height is too low");
+
+    double dl = 1e-3*l;        // Initial step length, later adjusted by the algorithm    // Magic number
+    double dl_min = 1e-5*l;   // Minimum step length, abort if smaller                   // Magic number
+    unsigned iterations = 5;    // Desired number of iterations for the static solver      // Magic number
+    while(true)
+    {
+        // Try length = l + dl
+        double alpha = try_element_length(l + dl);
+
+        if(info.outcome == StaticSolverDC::Info::Success)
+        {
+            // Success. Apply step.
+            l -= dl;
+
+            // If sign change of alpha: Do the rest by root finding, done.
+            if(alpha <= 0.0)
+            {
+                //l = bisect<true>(try_element_length, l, l+dl, 1e-12, 1e-12, 50);    // Todo: Why doesn't this work as expected?
+                l = secant_method(try_element_length, l, l+dl, 1e-6, 50);    // Magic numbers
+                break;
+            }
+
+            // Adjust step length
+            dl *= double(iterations)/info.iterations;
+
+            qInfo() << "dl = " << dl << ", iterations = " << info.iterations;
+        }
+        else
+        {
+            // Reduce step length with generic factor
+            dl *= 0.5;
+        }
+
+        if(dl < dl_min)
+            throw std::runtime_error("Bracing failed: Step size too small");
+    }
+
+    /*
+    do
+    {
+        alpha = try_element_length
+
+    } while(alpha > 0);
+
+    {
+        l -= dl;
+        qInfo() << "l = " << l;
+    }
+    */
+
+    //l = restricted_secant_method(try_element_length, l, dl, 1e-6, 50);
 
     /*
     qInfo() << try_element_length(1.000*l);

@@ -45,8 +45,8 @@ public:
     ContactSurface(System& system,
                    const std::vector<Node>& master_nodes,
                    const std::vector<Node>& slave_nodes,
-                   VectorXd h, double k)
-        : Element(system), k(k)
+                   VectorXd h, double epsilon, double k)
+        : Element(system), epsilon(epsilon), k(k)
     {
         assert(master_nodes.size() >= 2);
         assert(master_nodes.size() == h.rows());
@@ -70,7 +70,7 @@ public:
             for(auto& p: points)
             {
                 if(aabb_intersects(s, p))
-                    contacts.push_back({system, s.node0, s.node1, p.node, s.h0, s.h1, k});
+                    contacts.push_back({system, s.node0, s.node1, p.node, s.h0, s.h1, epsilon, k});
             }
         }
     }
@@ -111,6 +111,7 @@ public:
 private:
     std::vector<Segment> segments;
     std::vector<Point> points;
+    double epsilon;
     double k;
 
     mutable std::vector<ContactElement> contacts;
