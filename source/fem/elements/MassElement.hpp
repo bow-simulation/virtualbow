@@ -6,7 +6,7 @@
 class MassElement: public Element
 {
 public:
-    MassElement(System& system, Node nd, double m, double I = 0.0);
+    MassElement(System& system, Node node, double m, double I = 0.0);
     void set_node(Node nd);
 
     virtual void add_masses() const override;

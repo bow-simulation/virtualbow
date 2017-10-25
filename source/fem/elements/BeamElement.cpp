@@ -110,7 +110,17 @@ double BeamElement::get_potential_energy() const
 
 double BeamElement::get_kinetic_energy() const
 {
-    return 0.0;    // Todo
+    // Todo: Code duplication
+    double alpha = 0.02;
+    double m = 0.5*rhoA*L;
+    double I = alpha*rhoA*L*L*L;
+
+    return 0.5*m*(pow(system.get_v(dofs[0]), 2)
+                + pow(system.get_v(dofs[1]), 2)
+                + pow(system.get_v(dofs[3]), 2)
+                + pow(system.get_v(dofs[4]), 2))
+         + 0.5*I*(pow(system.get_v(dofs[2]), 2)
+                + pow(system.get_v(dofs[5]), 2));
 }
 
 Vector<3> BeamElement::get_e() const

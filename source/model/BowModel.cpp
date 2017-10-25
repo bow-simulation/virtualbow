@@ -77,13 +77,14 @@ void BowModel::init_string()
 {
     qInfo() << "kmax = " << system.get_K().maxCoeff();
     const double k = system.get_K().maxCoeff();
-    const double epsilon = 0.01*output.setup.limb.h[0];    // Small initial penetration of the string nodes into the limb surface  // Magic number
+    const double epsilon = 0.01*output.setup.limb.h[0];    // Transition zone of the contact elements // Magic number
 
     std::vector<Vector<2>> points;
     points.push_back({0.0, -input.operation_brace_height});
     for(size_t i = 0; i < nodes_limb.size(); ++i)
     {
         points.push_back({
+            // Add small initial penetration epsilon to prevent slip-through on the first static solver iteration
             system.get_u(nodes_limb[i].x) + (output.setup.limb.h[i] - epsilon)*sin(system.get_u(nodes_limb[i].phi)),
             system.get_u(nodes_limb[i].y) - (output.setup.limb.h[i] - epsilon)*cos(system.get_u(nodes_limb[i].phi))
         });
