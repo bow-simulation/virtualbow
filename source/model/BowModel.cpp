@@ -121,7 +121,7 @@ void BowModel::init_string(const Callback& callback)
 
     //double k = output.setup.limb.Cee[0]/(output.setup.limb.s[1] - output.setup.limb.s[0]);    // Stiffness estimate based on limb data
     system.mut_elements().add(ConstraintElement(system, nodes_limb.back(), nodes_string.back(), k), "constraint");
-    system.mut_elements().add(ContactSurface(system, nodes_limb, nodes_string, output.setup.limb.h, epsilon, k), "contact");
+    system.mut_elements().add(ContactSurface(system, nodes_limb, nodes_string, output.setup.limb.h, {k, epsilon}), "contact");
 
     // Function that sets the sting element length and returns the
     // resulting difference between actual and desired brace height
