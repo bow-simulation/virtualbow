@@ -96,7 +96,7 @@ void BowModel::init_string()
     // Create string nodes
     for(size_t i = 0; i < points.size(); ++i)
     {
-        Node node = system.create_node({i != 0, true, i != 0}, {points[i][0], points[i][1], 0.0});
+        Node node = system.create_node({i != 0, true, false}, {points[i][0], points[i][1], 0.0});
         nodes_string.push_back(node);
     }
 
@@ -106,8 +106,7 @@ void BowModel::init_string()
 
     for(size_t i = 0; i < input.settings_n_elements_string; ++i)
     {
-        BeamElement element(system, nodes_string[i], nodes_string[i+1], rhoA, 0.0);    // Length is set later when determining string length
-        element.set_stiffness(EA, 1e-8, 0.0);
+        BarElement element(system, nodes_string[i], nodes_string[i+1], 0.0, EA, rhoA); // Element lengths are reset later when string length is determined
         system.mut_elements().push_back(element, "string");
     }
 
@@ -141,7 +140,7 @@ void BowModel::init_string()
     StaticSolverDC::Info info;
     auto try_element_length = [&](double l)
     {
-        for(auto& element: system.mut_elements().group<BeamElement>("string"))
+        for(auto& element: system.mut_elements().group<BarElement>("string"))
             element.set_length(l);
 
         info = solver.solve(-input.operation_brace_height);
