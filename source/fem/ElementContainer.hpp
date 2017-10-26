@@ -40,7 +40,7 @@ class ElementContainer
 {
 public:
     template<typename ElementType = Element>
-    void push_back(ElementType element, const std::string& key = "")
+    void add(ElementType element, const std::string& key = "")
     {
         Element* ptr = new ElementType(element);
         groups[key].push_back(ptr);

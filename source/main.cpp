@@ -157,10 +157,10 @@ int main()
     Node point = system.create_node({true, true, false}, {0.95*r, 0.95*h, 0.0});
 
     slave_nodes.push_back(point);
-    system.mut_elements().push_back(ContactSurface(system, master_nodes, slave_nodes, VectorXd::Constant(n, h), kc));
+    system.mut_elements().add(ContactSurface(system, master_nodes, slave_nodes, VectorXd::Constant(n, h), kc));
 
     double l = (M_SQRT2 - 1.0)/2.0;
-    system.mut_elements().push_back(BarElement(system, origin, point, l, ks*l, 10.0), "bar");
+    system.mut_elements().add(BarElement(system, origin, point, l, ks*l, 10.0), "bar");
 
     StaticSolverLC solver(system);
     solver.solve();

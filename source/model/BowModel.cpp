@@ -12,8 +12,10 @@
 
 OutputData BowModel::run_static_simulation(const InputData& input, const Callback& callback)
 {
-    BowModel model(input);
-    model.simulate_statics(callback);
+    BowModel model(input, callback);
+
+    if(callback(0))
+        model.simulate_statics(callback);
 
     return model.output;
 }
@@ -21,24 +23,28 @@ OutputData BowModel::run_static_simulation(const InputData& input, const Callbac
 
 OutputData BowModel::run_dynamic_simulation(const InputData& input, const Callback& callback1, const Callback& callback2)
 {
-    BowModel model(input);
-    model.simulate_statics(callback1);
-    model.simulate_dynamics(callback2);
+    BowModel model(input, callback1);
+
+    if(callback1(0))
+        model.simulate_statics(callback1);
+
+    if(callback2(0))
+        model.simulate_dynamics(callback2);
 
     return model.output;
 }
 
 
-BowModel::BowModel(const InputData& input)
+BowModel::BowModel(const InputData& input, const Callback& callback)
     : input(input)
 {
-    init_limb();
-    init_string();
+    init_limb(callback);
+    init_string(callback);
     qInfo() << "============== LIMB SETUP SUCCESSFUL ==============";
-    init_masses();
+    init_masses(callback);
 }
 
-void BowModel::init_limb()
+void BowModel::init_limb(const Callback& callback)
 {
     // Calculate discrete limb properties
     output.setup.limb = LimbProperties(input);
@@ -69,11 +75,11 @@ void BowModel::init_limb()
         BeamElement element(system, nodes_limb[i], nodes_limb[i+1], rhoA, L);
         element.set_reference_angles(phi0, phi1);
         element.set_stiffness(Cee, Ckk, Cek);
-        system.mut_elements().push_back(element, "limb");
+        system.mut_elements().add(element, "limb");
     }
 }
 
-void BowModel::init_string()
+void BowModel::init_string(const Callback& callback)
 {
     qInfo() << "kmax = " << system.get_K().maxCoeff();
     const double k = system.get_K().maxCoeff();
@@ -107,15 +113,15 @@ void BowModel::init_string()
     for(size_t i = 0; i < input.settings_n_elements_string; ++i)
     {
         BarElement element(system, nodes_string[i], nodes_string[i+1], 0.0, EA, rhoA); // Element lengths are reset later when string length is determined
-        system.mut_elements().push_back(element, "string");
+        system.mut_elements().add(element, "string");
     }
 
     // Create limb tip constraint and string to limb contact surface
     //double k = EA/output.setup.string_length;    // Stiffness estimate based on string stiffness
 
     //double k = output.setup.limb.Cee[0]/(output.setup.limb.s[1] - output.setup.limb.s[0]);    // Stiffness estimate based on limb data
-    system.mut_elements().push_back(ConstraintElement(system, nodes_limb.back(), nodes_string.back(), k), "constraint");
-    system.mut_elements().push_back(ContactSurface(system, nodes_limb, nodes_string, output.setup.limb.h, epsilon, k), "contact");
+    system.mut_elements().add(ConstraintElement(system, nodes_limb.back(), nodes_string.back(), k), "constraint");
+    system.mut_elements().add(ContactSurface(system, nodes_limb, nodes_string, output.setup.limb.h, epsilon, k), "contact");
 
     // Function that sets the sting element length and returns the
     // resulting difference between actual and desired brace height
@@ -157,17 +163,17 @@ void BowModel::init_string()
     double dl = 1e-3*l;        // Initial step length, later adjusted by the algorithm    // Magic number
     double dl_min = 1e-5*l;   // Minimum step length, abort if smaller                   // Magic number
     unsigned iterations = 5;    // Desired number of iterations for the static solver      // Magic number
-    while(true)
+    while(callback(0))
     {
         // Try length = l + dl
         double alpha = try_element_length(l + dl);
 
         if(info.outcome == StaticSolverDC::Info::Success)
         {
-            // Success. Apply step.
+            // Success: Apply step.
             l -= dl;
 
-            // If sign change of alpha: Do the rest by root finding, done.
+            // If sign change of alpha: Almost done, do the rest by root finding.
             if(alpha <= 0.0)
             {
                 //l = bisect<true>(try_element_length, l, l+dl, 1e-12, 1e-12, 50);    // Todo: Why doesn't this work as expected?
@@ -225,7 +231,7 @@ void BowModel::init_string()
     output.setup.string_length = 2.0*l*input.settings_n_elements_string;    // *2 because of symmetry
 }
 
-void BowModel::init_masses()
+void BowModel::init_masses(const Callback& callback)
 {
     node_arrow = nodes_string[0];
     MassElement mass_limb_tip(system, nodes_limb.back(), input.mass_limb_tip);
@@ -233,10 +239,10 @@ void BowModel::init_masses()
     MassElement mass_string_center(system, nodes_string.front(), 0.5*input.mass_string_center);   // 0.5 because of symmetry
     MassElement mass_arrow(system, node_arrow, 0.5*input.operation_mass_arrow);                   // 0.5 because of symmetry
 
-    system.mut_elements().push_back(mass_limb_tip, "limb tip");
-    system.mut_elements().push_back(mass_string_tip, "string tip");
-    system.mut_elements().push_back(mass_string_center, "string center");
-    system.mut_elements().push_back(mass_arrow, "arrow");
+    system.mut_elements().add(mass_limb_tip, "limb tip");
+    system.mut_elements().add(mass_string_tip, "string tip");
+    system.mut_elements().add(mass_string_center, "string center");
+    system.mut_elements().add(mass_arrow, "arrow");
 }
 
 void BowModel::simulate_statics(const Callback& callback)

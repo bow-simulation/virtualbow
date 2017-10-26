@@ -12,11 +12,11 @@ public:
     static OutputData run_dynamic_simulation(const InputData& input, const Callback& callback1, const Callback& callback2);
 
 private:
-    BowModel(const InputData& input);
+    BowModel(const InputData& input, const Callback& callback);
 
-    void init_limb();
-    void init_string();
-    void init_masses();
+    void init_limb(const Callback& callback);
+    void init_string(const Callback& callback);
+    void init_masses(const Callback& callback);
 
     void simulate_statics(const Callback& callback);
     void simulate_dynamics(const Callback& callback);
