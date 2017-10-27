@@ -38,5 +38,6 @@ double MassElement::get_potential_energy() const
 
 double MassElement::get_kinetic_energy() const
 {
-    return 0.0;    // Todo
+    return 0.5*m*(pow(system.get_v(dofs[0]), 2) + pow(system.get_v(dofs[1]), 2))
+         + 0.5*I*pow(system.get_v(dofs[2]), 2);
 }

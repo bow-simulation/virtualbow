@@ -1,7 +1,7 @@
 #include "BarElement.hpp"
 #include "fem/System.hpp"
 
-BarElement::BarElement(System& system, Node node0, Node node1, double L, double EA, double etaA, double rhoA)
+BarElement::BarElement(System& system, Node node0, Node node1, double L, double EA, double rhoA)
     : Element(system),
       dofs{node0.x, node0.y, node1.x, node1.y},
       L(L),
@@ -90,5 +90,8 @@ double BarElement::get_potential_energy() const
 
 double BarElement::get_kinetic_energy() const
 {
-    return 0.0;    // Todo
+    return 0.25*rhoA*L*(pow(system.get_v(dofs[0]), 2)
+                      + pow(system.get_v(dofs[1]), 2)
+                      + pow(system.get_v(dofs[2]), 2)
+                      + pow(system.get_v(dofs[3]), 2));
 }

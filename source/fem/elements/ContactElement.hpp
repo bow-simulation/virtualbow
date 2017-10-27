@@ -4,10 +4,23 @@
 #include "numerics/Eigen.hpp"
 #include <array>
 
+struct ContactForce
+{
+public:
+    ContactForce(double k, double epsilon);
+    double force(double e) const;
+    double stiffness(double e) const;
+    double energy(double e) const;
+
+private:
+    double k;
+    double epsilon;
+};
+
 class ContactElement: public Element
 {
 public:
-    ContactElement(System& system, Node node0, Node node1, Node node2, double h0, double h1, double k);
+    ContactElement(System& system, Node node0, Node node1, Node node2, double h0, double h1, ContactForce f);
 
     virtual void add_masses() const override;
     virtual void add_internal_forces() const override;
@@ -21,7 +34,7 @@ private:
 
     double h0;
     double h1;
-    double k;
+    ContactForce f;
 
     struct State
     {

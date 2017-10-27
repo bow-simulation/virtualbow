@@ -1,70 +1,172 @@
 /*
-<<<<<<< HEAD
 #include <iostream>
+#include "numerics/Eigen.hpp"
 
-#include <string>
-#include <vector>
+#include <cmath>
 
-template<typename T>
-class Invalidatable
+template<class F>
+double golden_section_search(const F& f, double xa, double xb, double xtol)
 {
-public:
-    Invalidatable()
-        : valid(false)
-    {
+    double gr = (sqrt(5) + 1)/2;
 
+    double xc = xb - (xb - xa)/gr;
+    double xd = xa + (xb - xa)/gr;
+
+    while(abs(xc - xd) > xtol)
+    {
+        if(f(xc) < f(xd))
+            xb = xd;
+        else
+            xa = xc;
+
+        xc = xb - (xb - xa)/gr;
+        xd = xa + (xb - xa)/gr;
     }
 
-    void invalidate()
-    {
-        valid = false;
-    }
-
-    bool is_valid() const
-    {
-        return valid;
-    }
-
-    operator T&()
-    {
-        if(!valid)
-            throw std::runtime_error("Trying to access an invalid value");
-
-        return value;
-    }
-
-    operator const T&() const
-    {
-        if(!valid)
-            throw std::runtime_error("Trying to access an invalid value");
-
-        return value;
-    }
-
-    template<typename S>
-    Invalidatable& operator=(const S& rhs)
-    {
-        value = rhs;
-        valid = true;
-        return *this;
-    }
-
-private:
-    T value;
-    bool valid;
-};
-
+    return (xb + xa)/2;
+}
 
 int main()
 {
-    Invalidatable<double> x;
+    auto f = [](double x){
+        return (x-5)*(x-5) + 1;
+    };
 
-    x = 2.0;
-
-    std::cout << "valid: " << x.is_valid() << "\n";
-    std::cout << "value: " << x + 5.0 << "\n";
+    //std::cout << bracket_root(f, 0.1, 2.0).transpose();
+    std::cout << golden_section_search(f, 0.0, 10.0, 0.01);
 
     return 0;
+}
+*/
+
+/*
+template<class F>
+Vector<2> bracket_root(const F& f, double x0, double factor, unsigned int iter = 50)
+{
+    assert(x0 > 0.0);
+    assert(factor > 1.0);
+
+    double xl = x0;
+    double fl = f(xl);
+
+    double xu = factor*x0;
+    double fu = f(xu);
+
+    for(unsigned int i = 0; i < iter; ++i)
+    {
+        if(fl*fu < 0)
+            return {xl, xu};
+
+        xl = xu;
+        fl = fu;
+
+        xu *= factor;
+        fu = f(xu);
+    }
+
+    throw std::runtime_error("Maximum number of iterations exceeded");
+}
+
+template<class F>
+double bracket_and_bisect(const F& f, double x0, double factor, double ftol, double xtol, unsigned int iter = 50)
+{
+    assert(x0 > 0.0);
+    assert(factor > 1.0);
+
+    // Root bracketing
+
+    double xl = x0;
+    double fl = f(xl);
+
+    double xu = factor*x0;
+    double fu = f(xu);
+
+    for(unsigned int i = 0; i < iter; ++i)
+    {
+        if(fl*fu < 0)
+            break;
+
+        if(i == iter-1)
+            throw std::runtime_error("Root bracketing failed: Maximum number of iterations exceeded");
+
+        xl = xu;
+        fl = fu;
+
+        xu *= factor;
+        fu = f(xu);
+    }
+
+    // Bisection
+
+    for(unsigned int i = 0; i < iter; ++i)
+    {
+        double x_new = 0.5*(xl + xu);
+        double f_new = f(x_new);
+
+        if(std::abs(f_new) < ftol || xu - xl < xtol)
+            return x_new;
+
+        if(fl*f_new > 0)
+        {
+            xl = x_new;
+            fl = f_new;
+        }
+        else
+        {
+            xu = x_new;
+            fu = f_new;
+        }
+    }
+
+    throw std::runtime_error("Bisection failed: Maximum number of iterations exceeded");
+}
+
+*/
+
+/*
+#include "fem/System.hpp"
+#include "fem/StaticSolver.hpp"
+#include "fem/elements/ContactSurface.hpp"
+#include "fem/elements/BarElement.hpp"
+
+#include "numerics/Eigen.hpp"
+#include <iostream>
+#include <vector>
+
+int main()
+{
+    unsigned n = 10;    // Number of nodes on the contact surface
+    double r = 1.0;
+    double h = 0.2;
+
+    double ks = 1e1;
+    double kc = 1e5;
+
+    System system;
+    std::vector<Node> master_nodes;
+    std::vector<Node> slave_nodes;
+
+    for(unsigned i = 0; i < n; ++i)
+    {
+        double phi = double(i)/(n-1)*M_PI_2;
+        master_nodes.push_back(system.create_node({false, false, false},
+        { 1.0 - r*sin(phi), 1.0 - r*cos(phi), M_PI-phi}));
+    }
+
+    Node origin = system.create_node({false, false, false}, {0.0, 0.0, 0.0});
+    Node point = system.create_node({true, true, false}, {0.95*r, 0.95*h, 0.0});
+
+    slave_nodes.push_back(point);
+    system.mut_elements().add(ContactSurface(system, master_nodes, slave_nodes, VectorXd::Constant(n, h), kc));
+
+    double l = (M_SQRT2 - 1.0)/2.0;
+    system.mut_elements().add(BarElement(system, origin, point, l, ks*l, 10.0), "bar");
+
+    StaticSolverLC solver(system);
+    solver.solve();
+
+    std::cout << "x = " << system.get_u(point.x) << ", y = " << system.get_u(point.y) << "\n";
+    std::cout << "E = " << system.get_elements().get_potential_energy("bar") << "\n";
 }
 */
 
@@ -141,60 +243,12 @@ struct InputData
 };
 */
 
-/*
-#include "fem/System.hpp"
-#include "fem/StaticSolver.hpp"
-#include "fem/elements/ContactSurface.hpp"
-#include "fem/elements/BarElement.hpp"
-
-#include "numerics/Math.hpp"
-#include <iostream>
-#include <vector>
-
-int main()
-{
-    unsigned n = 10;    // Number of nodes on the contact surface
-    double r = 1.0;
-    double h = 0.2;
-
-    double ks = 1e1;
-    double kc = 1e5;
-
-    System system;
-    std::vector<Node> master_nodes;
-    std::vector<Node> slave_nodes;
-
-    for(unsigned i = 0; i < n; ++i)
-    {
-        double phi = double(i)/(n-1)*M_PI_2;
-        master_nodes.push_back(system.create_node({DofType::Fixed , DofType::Fixed , DofType::Fixed},
-        { 1.0 - r*sin(phi), 1.0 - r*cos(phi), M_PI-phi}));
-    }
-
-    Node origin = system.create_node({DofType::Fixed , DofType::Fixed , DofType::Fixed}, {0.0, 0.0, 0.0});
-    Node point = system.create_node({DofType::Active, DofType::Active, DofType::Fixed}, {0.95*r, 0.95*h, 0.0});
-
-    slave_nodes.push_back(point);
-    system.add_element(ContactSurface(master_nodes, slave_nodes, VectorXd::Constant(n, h), kc));
-
-    double l = (M_SQRT2 - 1.0)/2.0;
-    system.add_element(BarElement(origin, point, l, ks*l, 10.0), "bar");
-
-    StaticSolverLC solver(system);
-    solver.solve();
-
-    std::cout << "x = " << point[0].u() << ", y = " << point[1].u() << "\n";
-    std::cout << "E = " << system.get_potential_energy("bar") << "\n";
-}
-*/
-
 #include "gui/Application.hpp"
 
 int main(int argc, char* argv[])
 {
     return Application::run(argc, argv);
 }
-
 
 /*
 #include "numerics/Math.hpp"

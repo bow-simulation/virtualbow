@@ -12,8 +12,10 @@
 
 OutputData BowModel::run_static_simulation(const InputData& input, const Callback& callback)
 {
-    BowModel model(input);
-    model.simulate_statics(callback);
+    BowModel model(input, callback);
+
+    if(callback(0))
+        model.simulate_statics(callback);
 
     return model.output;
 }
@@ -21,23 +23,28 @@ OutputData BowModel::run_static_simulation(const InputData& input, const Callbac
 
 OutputData BowModel::run_dynamic_simulation(const InputData& input, const Callback& callback1, const Callback& callback2)
 {
-    BowModel model(input);
-    model.simulate_statics(callback1);
-    model.simulate_dynamics(callback2);
+    BowModel model(input, callback1);
+
+    if(callback1(0))
+        model.simulate_statics(callback1);
+
+    if(callback2(0))
+        model.simulate_dynamics(callback2);
 
     return model.output;
 }
 
 
-BowModel::BowModel(const InputData& input)
+BowModel::BowModel(const InputData& input, const Callback& callback)
     : input(input)
 {
-    init_limb();
-    init_string();
-    init_masses();
+    init_limb(callback);
+    init_string(callback);
+    qInfo() << "============== LIMB SETUP SUCCESSFUL ==============";
+    init_masses(callback);
 }
 
-void BowModel::init_limb()
+void BowModel::init_limb(const Callback& callback)
 {
     // Calculate discrete limb properties
     output.setup.limb = LimbProperties(input);
@@ -68,41 +75,24 @@ void BowModel::init_limb()
         BeamElement element(system, nodes_limb[i], nodes_limb[i+1], rhoA, L);
         element.set_reference_angles(phi0, phi1);
         element.set_stiffness(Cee, Ckk, Cek);
-        system.mut_elements().push_back(element, "limb");
+        system.mut_elements().add(element, "limb");
     }
-
-    // Function that applies a torque to the limb tip and returns the difference
-    // between limb belly and brace height in the direction of draw
-    StaticSolverLC solver(system);
-    auto try_torque = [&](double torque)
-    {
-        // Apply torque, iterate to equilibrium, remove torque again
-        system.set_p(nodes_limb.back().phi, torque);
-        solver.solve();
-        system.set_p(nodes_limb.back().phi, 0.0);
-
-        // Calculate point on the limb that is closest to brace height
-        double y_min = std::numeric_limits<double>::max();
-        for(size_t i = 0; i < nodes_limb.size(); ++i)
-            y_min = std::min(y_min, system.get_u(nodes_limb[i].y)
-                                  - output.setup.limb.h[i]*cos(system.get_u(nodes_limb[i].phi)));
-
-        return y_min + input.operation_brace_height;    // Todo: Use dimensionless measure
-    };
-
-    // Apply a torque to the limb such that the difference to brace height is zero
-    secant_method(try_torque, -1.0, -10.0, 1e-5, 50);
 }
 
-void BowModel::init_string()
+void BowModel::init_string(const Callback& callback)
 {
+    qInfo() << "kmax = " << system.get_K().maxCoeff();
+    const double k = system.get_K().maxCoeff();
+    const double epsilon = 0.01*output.setup.limb.h[0];    // Transition zone of the contact elements // Magic number
+
     std::vector<Vector<2>> points;
     points.push_back({0.0, -input.operation_brace_height});
     for(size_t i = 0; i < nodes_limb.size(); ++i)
     {
         points.push_back({
-            system.get_u(nodes_limb[i].x) + output.setup.limb.h[i]*sin(system.get_u(nodes_limb[i].phi)),
-            system.get_u(nodes_limb[i].y) - output.setup.limb.h[i]*cos(system.get_u(nodes_limb[i].phi))
+            // Add small initial penetration epsilon to prevent slip-through on the first static solver iteration
+            system.get_u(nodes_limb[i].x) + (output.setup.limb.h[i] - epsilon)*sin(system.get_u(nodes_limb[i].phi)),
+            system.get_u(nodes_limb[i].y) - (output.setup.limb.h[i] - epsilon)*cos(system.get_u(nodes_limb[i].phi))
         });
     }
 
@@ -112,7 +102,7 @@ void BowModel::init_string()
     // Create string nodes
     for(size_t i = 0; i < points.size(); ++i)
     {
-        Node node = system.create_node({i != 0, true, i != 0}, {points[i][0], points[i][1], 0.0});
+        Node node = system.create_node({i != 0, true, false}, {points[i][0], points[i][1], 0.0});
         nodes_string.push_back(node);
     }
 
@@ -122,19 +112,21 @@ void BowModel::init_string()
 
     for(size_t i = 0; i < input.settings_n_elements_string; ++i)
     {
-        BeamElement element(system, nodes_string[i], nodes_string[i+1], rhoA, 0.0);    // Length is set later when determining string length
-        element.set_stiffness(EA, 1e-8, 0.0);
-        system.mut_elements().push_back(element, "string");
+        BarElement element(system, nodes_string[i], nodes_string[i+1], 0.0, EA, rhoA); // Element lengths are reset later when string length is determined
+        system.mut_elements().add(element, "string");
     }
 
     // Create limb tip constraint and string to limb contact surface
-    //double k = 100.0*EA/output.setup.string_length;
-    double k = output.setup.limb.Cee[0]/(output.setup.limb.s[1] - output.setup.limb.s[0]);    // Stiffness estimate based on limb data
-    system.mut_elements().push_back(ConstraintElement(system, nodes_limb.back(), nodes_string.back(), k), "constraint");
-    system.mut_elements().push_back(ContactSurface(system, nodes_limb, nodes_string, output.setup.limb.h, k), "contact");
+    //double k = EA/output.setup.string_length;    // Stiffness estimate based on string stiffness
+
+    //double k = output.setup.limb.Cee[0]/(output.setup.limb.s[1] - output.setup.limb.s[0]);    // Stiffness estimate based on limb data
+    system.mut_elements().add(ConstraintElement(system, nodes_limb.back(), nodes_string.back(), k), "constraint");
+    system.mut_elements().add(ContactSurface(system, nodes_limb, {nodes_string.begin(), nodes_string.end()-1},    // Todo: Unnecessary copy
+                                             output.setup.limb.h, {k, epsilon}), "contact");
 
     // Function that sets the sting element length and returns the
     // resulting difference between actual and desired brace height
+    /*
     StaticSolverLC solver(system);
     auto try_element_length = [&](double l)
     {
@@ -146,19 +138,100 @@ void BowModel::init_string()
         solver.solve();
         return system.get_u(nodes_string[0].y) + input.operation_brace_height;    // Todo: Use dimensionless measure
     };
+    */
+
+    // Takes a string element length, iterates to equilibrium with the constraint of the brace height
+    // and returns the angle of the string center
+    system.set_p(nodes_string[0].y, 1.0);    // Will be scaled by the static algorithm
+    StaticSolverDC solver(system, nodes_string[0].y);   // Todo: Reuse solver across function calls?
+    StaticSolverDC::Info info;
+    auto try_element_length = [&](double l)
+    {
+        for(auto& element: system.mut_elements().group<BarElement>("string"))
+            element.set_length(l);
+
+        info = solver.solve(-input.operation_brace_height);
+        return system.get_angle(nodes_string[0], nodes_string[1]);
+    };
+
 
     // Find a element length at which the brace height difference is zero
     // Todo: Perhaps limit the step size of the root finding algorithm to increase robustness.
     double l = (points[1] - points[0]).norm();
-    l = secant_method(try_element_length, 0.99*l, 0.98*l, 1e-6, 50);
+    if(!try_element_length(l) > 0)
+        throw std::runtime_error("Invalid input: Brace height is too low");
 
-    //try_element_length(0.99*l);
+    double dl = 1e-3*l;        // Initial step length, later adjusted by the algorithm    // Magic number
+    double dl_min = 1e-5*l;   // Minimum step length, abort if smaller                   // Magic number
+    unsigned iterations = 5;    // Desired number of iterations for the static solver      // Magic number
+    while(callback(0))
+    {
+        // Try length = l - dl
+        double alpha = try_element_length(l - dl);
+
+        if(info.outcome == StaticSolverDC::Info::Success)
+        {
+            // Success: Apply step.
+            l -= dl;
+
+            // If sign change of alpha: Almost done, do the rest by root finding.
+            if(alpha <= 0.0)
+            {
+                l = bisect<true>(try_element_length, l, l+dl, 1e-5, 1e-10, 20);    // Magic numbers
+                break;
+            }
+
+            // Adjust step length
+            dl *= double(iterations)/info.iterations;
+
+            qInfo() << "dl = " << dl << ", iterations = " << info.iterations;
+        }
+        else
+        {
+            // Reduce step length with generic factor
+            dl *= 0.5;
+        }
+
+        if(dl < dl_min)
+            throw std::runtime_error("Bracing failed: Step size too small");
+    }
+
+    /*
+    do
+    {
+        alpha = try_element_length
+
+    } while(alpha > 0);
+
+    {
+        l -= dl;
+        qInfo() << "l = " << l;
+    }
+    */
+
+    //l = restricted_secant_method(try_element_length, l, dl, 1e-6, 50);
+
+    /*
+    qInfo() << try_element_length(1.000*l);
+    qInfo() << try_element_length(0.990*l);
+    qInfo() << try_element_length(0.985*l);
+    qInfo() << try_element_length(0.980*l);
+    qInfo() << try_element_length(0.975*l);
+    qInfo() << try_element_length(0.970*l);
+    qInfo() << try_element_length(0.965*l);
+    qInfo() << try_element_length(0.960*l);
+    qInfo() << try_element_length(0.955*l);
+    qInfo() << try_element_length(0.950*l);
+    qInfo() << try_element_length(0.945*l);
+    qInfo() << try_element_length(0.940*l);
+    qInfo() << try_element_length(0.935*l);
+    */
 
     // Assign setup data
     output.setup.string_length = 2.0*l*input.settings_n_elements_string;    // *2 because of symmetry
 }
 
-void BowModel::init_masses()
+void BowModel::init_masses(const Callback& callback)
 {
     node_arrow = nodes_string[0];
     MassElement mass_limb_tip(system, nodes_limb.back(), input.mass_limb_tip);
@@ -166,10 +239,10 @@ void BowModel::init_masses()
     MassElement mass_string_center(system, nodes_string.front(), 0.5*input.mass_string_center);   // 0.5 because of symmetry
     MassElement mass_arrow(system, node_arrow, 0.5*input.operation_mass_arrow);                   // 0.5 because of symmetry
 
-    system.mut_elements().push_back(mass_limb_tip, "limb tip");
-    system.mut_elements().push_back(mass_string_tip, "string tip");
-    system.mut_elements().push_back(mass_string_center, "string center");
-    system.mut_elements().push_back(mass_arrow, "arrow");
+    system.mut_elements().add(mass_limb_tip, "limb tip");
+    system.mut_elements().add(mass_string_tip, "string tip");
+    system.mut_elements().add(mass_string_center, "string center");
+    system.mut_elements().add(mass_arrow, "arrow");
 }
 
 void BowModel::simulate_statics(const Callback& callback)

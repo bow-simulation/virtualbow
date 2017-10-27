@@ -35,6 +35,7 @@ add_executable(${PROJECT_NAME}
    source/fem/elements/ConstraintElement.cpp
    source/fem/Node.cpp
    source/fem/Element.cpp
+   source/fem/StaticSolver.cpp
    source/fem/DynamicSolver.cpp
    source/fem/System.cpp
 

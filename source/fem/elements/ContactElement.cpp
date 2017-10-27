@@ -2,10 +2,64 @@
 #include "numerics/Geometry.hpp"
 #include "fem/System.hpp"
 
-ContactElement::ContactElement(System& system, Node node0, Node node1, Node node2, double h0, double h1, double k)
+ContactForce::ContactForce(double k, double epsilon)
+    : k(k), epsilon(epsilon)
+{
+
+}
+
+double ContactForce::force(double e) const
+{
+    if(e <= 0.0)
+    {
+        return 0.0;
+    }
+    if(e <= epsilon)
+    {
+        return k/(2.0*epsilon)*e*e;
+    }
+    else
+    {
+        return k*(e-0.5*epsilon);
+    }
+}
+
+double ContactForce::stiffness(double e) const
+{
+    if(e <= 0.0)
+    {
+        return 0.0;
+    }
+    if(e <= epsilon)
+    {
+        return k/epsilon*e;
+    }
+    else
+    {
+        return k;
+    }
+}
+
+double ContactForce::energy(double e) const
+{
+    if(e <= 0.0)
+    {
+        return 0.0;
+    }
+    if(e <= epsilon)
+    {
+        return k/(6.0*epsilon)*e*e*e;
+    }
+    else
+    {
+        return 0.5*k*e*e - 0.5*k*epsilon*e + k/6.0*epsilon*epsilon;
+    }
+}
+
+ContactElement::ContactElement(System& system, Node node0, Node node1, Node node2, double h0, double h1, ContactForce f)
     : Element(system),
       dofs{node0.x, node0.y, node0.phi, node1.x, node1.y, node1.phi, node2.x, node2.y},
-      h0(h0), h1(h1), k(k)
+      h0(h0), h1(h1), f(f)
 {
 
 }
@@ -18,19 +72,19 @@ void ContactElement::add_masses() const
 void ContactElement::add_internal_forces() const
 {
     State state = get_state();
-    system.add_q(dofs, k*state.e*state.De);
+    system.add_q(dofs, f.force(state.e)*state.De);
 }
 
 void ContactElement::add_tangent_stiffness() const
 {
     State state = get_state();
-    system.add_K(dofs, k*(state.De*state.De.transpose() + state.e*state.DDe));
+    system.add_K(dofs, f.stiffness(state.e)*state.De*state.De.transpose() + f.force(state.e)*state.e*state.DDe);
 }
 
 double ContactElement::get_potential_energy() const
 {
     State state = get_state();
-    return 0.5*k*state.e*state.e;
+    return f.energy(state.e);
 }
 
 double ContactElement::get_kinetic_energy() const
