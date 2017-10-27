@@ -1,36 +1,8 @@
 #pragma once
 #include "fem/System.hpp"
 #include "fem/Node.hpp"
-#include "numerics/RootFinding.hpp"
+#include "numerics/Optimization.hpp"
 #include <Eigen/Core>
-
-#include <iostream>
-
-template<class F>
-double golden_section_search(const F& f, double xa, double xb, double xtol, unsigned iter)
-{
-    double gr = (sqrt(5) + 1)/2;
-
-    double xc = xb - (xb - xa)/gr;
-    double xd = xa + (xb - xa)/gr;
-
-    for(unsigned i = 0; i < iter; ++i)
-    {
-        if(std::abs(xc - xd) < xtol)
-            return (xb + xa)/2;
-
-        if(f(xc) < f(xd))
-            xb = xd;
-        else
-            xa = xc;
-
-        xc = xb - (xb - xa)/gr;
-        xd = xa + (xb - xa)/gr;
-    }
-
-    throw std::runtime_error("Golden section search: Maximum number of iterations exceeded");
-}
-
 
 class StaticSolver
 {
@@ -81,10 +53,6 @@ protected:
 
             delta_u = alpha + delta_l*beta;
 
-            //std::cout << "==================== delta l  ===================\n";
-            //std::cout << (dcdl + dcdu.transpose()*beta);
-
-
             // Line search
             VectorXd u_start = system.get_u();
             double l_start = lambda;
@@ -96,44 +64,6 @@ protected:
             };
 
             golden_section_search(f, 0.0, 1.0, 1e-2, 50);
-
-            /*
-            try
-            {
-                //std::cout << bracket_and_bisect(f, 0.1, 1.2, 1e-3, 1e-2) << "\n";
-                std::cout << golden_section_search(f, 0.0, 1.0, 1e-2, 50) << "\n";
-            }
-            catch(...)
-            {
-
-                exit(0);
-            }
-            */
-
-            //std::cout << "====================" << golden_section_search(f, 0.0, 1.0, 1e-2, 50) << "\n";
-            //for(double eta = 0.0; eta <= 1.0; eta += 0.01)
-            //    std::cout << eta << "," << f(eta) << "\n";
-
-
-            //exit(0);
-
-            /*
-            // Step size reduction
-            double eta = 1.0;
-            double delta_u_max = delta_u.maxCoeff();
-            if(delta_u_max > 0.04)
-            {
-                eta = 0.04/delta_u_max;
-
-                std::cout << "Step reduction, u_max = " << delta_u_max << ", eta = " << eta << "\n";
-            }
-            */
-
-            // Advance solution
-            //system.set_u(system.get_u() + delta_u);
-            //lambda += delta_l;
-
-            //std::cout << "error = " << std::abs(delta_u.transpose()*delta_q) + std::abs(delta_l*c) << "\n";
 
             // If convergence...
             if(std::abs(delta_u.transpose()*delta_q) + std::abs(delta_l*c) < epsilon)    // Todo: Better convergence criterion
