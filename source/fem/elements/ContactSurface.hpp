@@ -45,7 +45,8 @@ public:
     ContactSurface(System& system,
                    const std::vector<Node>& master_nodes,
                    const std::vector<Node>& slave_nodes,
-                   VectorXd h, ContactForce force)
+                   const VectorXd& h,
+                   ContactForce force)
         : Element(system), force(force)
     {
         assert(master_nodes.size() >= 2);
