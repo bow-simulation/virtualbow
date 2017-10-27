@@ -90,8 +90,8 @@ double BarElement::get_potential_energy() const
 
 double BarElement::get_kinetic_energy() const
 {
-    return 0.5*rhoA*L*(pow(system.get_v(dofs[0]), 2)
-                     + pow(system.get_v(dofs[1]), 2)
-                     + pow(system.get_v(dofs[2]), 2)
-                     + pow(system.get_v(dofs[3]), 2));
+    return 0.25*rhoA*L*(pow(system.get_v(dofs[0]), 2)
+                      + pow(system.get_v(dofs[1]), 2)
+                      + pow(system.get_v(dofs[2]), 2)
+                      + pow(system.get_v(dofs[3]), 2));
 }

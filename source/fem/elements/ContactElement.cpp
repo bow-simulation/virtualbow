@@ -42,13 +42,17 @@ double ContactForce::stiffness(double e) const
 
 double ContactForce::energy(double e) const
 {
-    if(e > 0)
+    if(e <= 0.0)
     {
-        return 0.5*k*e*e;
+        return 0.0;
+    }
+    if(e <= epsilon)
+    {
+        return k/(6.0*epsilon)*e*e*e;
     }
     else
     {
-        return 0.0;
+        return 0.5*k*e*e - 0.5*k*epsilon*e + k/6.0*epsilon*epsilon;
     }
 }
 
