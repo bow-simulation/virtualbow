@@ -166,8 +166,8 @@ void BowModel::init_string(const Callback& callback)
     unsigned iterations = 5;    // Desired number of iterations for the static solver      // Magic number
     while(callback(0))
     {
-        // Try length = l + dl
-        double alpha = try_element_length(l + dl);
+        // Try length = l - dl
+        double alpha = try_element_length(l - dl);
 
         if(info.outcome == StaticSolverDC::Info::Success)
         {
@@ -177,8 +177,7 @@ void BowModel::init_string(const Callback& callback)
             // If sign change of alpha: Almost done, do the rest by root finding.
             if(alpha <= 0.0)
             {
-                //l = bisect<true>(try_element_length, l, l+dl, 1e-12, 1e-12, 50);    // Todo: Why doesn't this work as expected?
-                l = secant_method(try_element_length, l, l+dl, 1e-6, 50);    // Magic numbers
+                l = bisect<true>(try_element_length, l, l+dl, 1e-5, 1e-10, 20);    // Magic numbers
                 break;
             }
 
