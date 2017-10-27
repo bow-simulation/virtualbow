@@ -33,15 +33,15 @@ ShapePlot::ShapePlot(const SetupData& setup, const BowStates& states, bool inter
     setAxesRanges();
 }
 
-void ShapePlot::setStateIndex(int index)
+void ShapePlot::setStateIndex(int i)
 {
-    limb_right->setData(states.x_limb[index], states.y_limb[index]);
-    limb_left->setData(-states.x_limb[index], states.y_limb[index]);
+    plotLimbOutline(limb_left, limb_right, states.x_limb[i], states.y_limb[i], states.phi_limb[i]);
 
-    string_right->setData(states.x_string[index], states.y_string[index]);
-    string_left->setData(-states.x_string[index], states.y_string[index]);
+    string_right->setData(states.x_string[i], states.y_string[i]);
+    string_left->setData(-states.x_string[i], states.y_string[i]);
 
-    arrow->setData(std::array<double, 1>{0.0}, std::array<double, 1>{states.pos_arrow[index]});
+    arrow->data()->clear();
+    arrow->addData(0.0, states.pos_arrow[i]);
 
     this->replot();
 }
@@ -49,42 +49,55 @@ void ShapePlot::setStateIndex(int index)
 void ShapePlot::plotIntermediateStates()
 {
     // Unbraced state
-    auto limb_right = new QCPCurve(this->xAxis, this->yAxis);
-    limb_right->setData(setup.limb.x, setup.limb.y);
-    limb_right->setPen({Qt::lightGray, 2});
-    limb_right->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
-
     auto limb_left = new QCPCurve(this->xAxis, this->yAxis);
-    limb_left->setData(-setup.limb.x, setup.limb.y);
-    limb_left->setPen({Qt::lightGray, 2});
-    limb_left->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
+    auto limb_right = new QCPCurve(this->xAxis, this->yAxis);
+    plotLimbOutline(limb_left, limb_right, setup.limb.x, setup.limb.y, setup.limb.phi);
 
+    limb_left->setPen({Qt::lightGray, 2});
+    limb_left->setScatterSkip(0);
+
+    limb_right->setPen({Qt::lightGray, 2});
+    limb_right->setScatterSkip(0);
 
     // Stroboscope-like plots during intermediate states
-    unsigned steps = 2; // Todo: Magic number
+    const unsigned steps = 2; // Todo: Magic number
     for(unsigned i = 0; i <= steps; ++i)
     {
         size_t j = i*(states.time.size()-1)/steps;
 
-        auto limb_right = new QCPCurve(this->xAxis, this->yAxis);
-        limb_right->setData(states.x_limb[j], states.y_limb[j]);
-        limb_right->setPen({Qt::lightGray, 2});
-        limb_right->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
-
         auto limb_left = new QCPCurve(this->xAxis, this->yAxis);
-        limb_left->setData(-states.x_limb[j], states.y_limb[j]);
+        auto limb_right = new QCPCurve(this->xAxis, this->yAxis);
+        plotLimbOutline(limb_left, limb_right, states.x_limb[j], states.y_limb[j], states.phi_limb[j]);
+
+        limb_right->setPen({Qt::lightGray, 2});
+        limb_right->setScatterSkip(0);
+
         limb_left->setPen({Qt::lightGray, 2});
-        limb_left->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
+        limb_left->setScatterSkip(0);
 
         auto string_right = new QCPCurve(this->xAxis, this->yAxis);
         string_right->setData(states.x_string[j], states.y_string[j]);
         string_right->setPen({Qt::lightGray, 1});
-        string_right->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
+        string_right->setScatterSkip(0);
 
         auto string_left = new QCPCurve(this->xAxis, this->yAxis);
         string_left->setData(-states.x_string[j], states.y_string[j]);
         string_left->setPen({Qt::lightGray, 1});
-        string_left->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
+        string_left->setScatterSkip(0);
+    }
+}
+
+void ShapePlot::plotLimbOutline(QCPCurve* left, QCPCurve* right, const VectorXd& x, const VectorXd& y, const VectorXd& phi)
+{
+    left->setData(-x, y);
+    right->setData(x, y);
+
+    for(int i = phi.size()-1; i >= 0; --i)
+    {
+        double xi = x[i] + setup.limb.h[i]*sin(phi[i]);
+        double yi = y[i] - setup.limb.h[i]*cos(phi[i]);
+        left->addData(-xi, yi);
+        right->addData(xi, yi);
     }
 }
 

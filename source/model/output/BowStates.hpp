@@ -27,6 +27,7 @@ struct BowStates
 
     std::vector<VectorXd> x_limb;
     std::vector<VectorXd> y_limb;
+    std::vector<VectorXd> phi_limb;
     std::vector<VectorXd> x_string;
     std::vector<VectorXd> y_string;
 
@@ -52,6 +53,7 @@ static void to_json(json& obj, const BowStates& val)
     obj["e_kin_arrow"] = val.e_kin_arrow;
     obj["x_limb"] = val.x_limb;
     obj["y_limb"] = val.y_limb;
+    obj["phi_limb"] = val.phi_limb;
     obj["x_string"] = val.x_string;
     obj["y_string"] = val.y_string;
     obj["sigma_back"] = val.sigma_back;

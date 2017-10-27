@@ -367,11 +367,13 @@ void BowModel::add_state(BowStates& states) const
     // Limb and string coordinates
     states.x_limb.push_back(VectorXd(nodes_limb.size()));
     states.y_limb.push_back(VectorXd(nodes_limb.size()));
+    states.phi_limb.push_back(VectorXd(nodes_limb.size()));
 
     for(size_t i = 0; i < nodes_limb.size(); ++i)
     {
         states.x_limb.back()[i] = system.get_u(nodes_limb[i].x);
         states.y_limb.back()[i] = system.get_u(nodes_limb[i].y);
+        states.phi_limb.back()[i] = system.get_u(nodes_limb[i].phi);
     }
 
     states.x_string.push_back(VectorXd(nodes_string.size()));

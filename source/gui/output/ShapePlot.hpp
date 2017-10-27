@@ -6,7 +6,7 @@ class ShapePlot: public PlotWidget
 {
 public:
     ShapePlot(const SetupData& setup, const BowStates& states, bool intermediate_steps);
-    void setStateIndex(int index);
+    void setStateIndex(int i);
 
 private:
     const SetupData& setup;
@@ -19,5 +19,6 @@ private:
     QCPCurve* arrow;    // Todo: Replace with other QCustomPlot object?
 
     void plotIntermediateStates();
+    void plotLimbOutline(QCPCurve* left, QCPCurve* right, const VectorXd& x, const VectorXd& y, const VectorXd& phi);
     void setAxesRanges();
 };
