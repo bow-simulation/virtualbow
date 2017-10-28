@@ -6,17 +6,18 @@
 class DynamicSolver
 {
 public:
-    DynamicSolver(System& system, double end_time, double time_step, double sampling_rate);
-    DynamicSolver(System& system, double step_factor, double sampling_time, std::function<bool()> stop);
+    using StopFn = std::function<bool()>;
+
+    DynamicSolver(System& system, double dt, double f, const StopFn& stop);
+    static double estimate_timestep(const System& system, double factor);
     bool step();
 
 private:
     System& system;
-    std::function<bool()> stop;
+    StopFn stop;
 
-    double dt;    // Timestep
-    double f;     // Sampling rate
-    double t;     // Time at which the system has to be sampled next
+    double dt;     // Substep size
+    unsigned n;    // Number of substeps per step
 
     VectorXd u_p2;
     VectorXd u_p1;

@@ -183,49 +183,16 @@ void BowModel::init_string(const Callback& callback)
 
             // Adjust step length
             dl *= double(iterations)/info.iterations;
-
-            qInfo() << "dl = " << dl << ", iterations = " << info.iterations;
         }
         else
         {
-            // Reduce step length with generic factor
+            // Reduce step length by generic factor
             dl *= 0.5;
         }
 
         if(dl < dl_min)
             throw std::runtime_error("Bracing failed: Step size too small");
     }
-
-    /*
-    do
-    {
-        alpha = try_element_length
-
-    } while(alpha > 0);
-
-    {
-        l -= dl;
-        qInfo() << "l = " << l;
-    }
-    */
-
-    //l = restricted_secant_method(try_element_length, l, dl, 1e-6, 50);
-
-    /*
-    qInfo() << try_element_length(1.000*l);
-    qInfo() << try_element_length(0.990*l);
-    qInfo() << try_element_length(0.985*l);
-    qInfo() << try_element_length(0.980*l);
-    qInfo() << try_element_length(0.975*l);
-    qInfo() << try_element_length(0.970*l);
-    qInfo() << try_element_length(0.965*l);
-    qInfo() << try_element_length(0.960*l);
-    qInfo() << try_element_length(0.955*l);
-    qInfo() << try_element_length(0.950*l);
-    qInfo() << try_element_length(0.945*l);
-    qInfo() << try_element_length(0.940*l);
-    qInfo() << try_element_length(0.935*l);
-    */
 
     // Assign setup data
     output.setup.string_length = 2.0*l*input.settings_n_elements_string;    // *2 because of symmetry
@@ -285,11 +252,11 @@ void BowModel::simulate_dynamics(const Callback& callback)
     // Set draw force to zero
     system.set_p(nodes_string[0].y, 0.0);
 
+    double dt = DynamicSolver::estimate_timestep(system, input.settings_time_step_factor);
     double T = std::numeric_limits<double>::max();
     double alpha = input.settings_time_span_factor;
 
-    DynamicSolver solver1(system, input.settings_time_step_factor, input.settings_sampling_rate, [&]
-    {
+    DynamicSolver solver1(system, dt, input.settings_sampling_rate, [&] {
         double ut = system.get_u(node_arrow.y);
         if(ut < input.operation_brace_height)
         {
@@ -303,8 +270,7 @@ void BowModel::simulate_dynamics(const Callback& callback)
         return system.get_a(node_arrow.y) <= 0;
     });
 
-    auto run_solver = [&](DynamicSolver& solver)
-    {
+    auto run_solver = [&](DynamicSolver& solver) {
         while(solver.step())
         {
             add_state(output.dynamics.states);
@@ -321,8 +287,7 @@ void BowModel::simulate_dynamics(const Callback& callback)
     node_arrow = system.create_node(nodes_string[0]);
     system.mut_elements().front<MassElement>("arrow").set_node(node_arrow);
 
-    DynamicSolver solver2(system, input.settings_time_step_factor, input.settings_sampling_rate, [&]
-    {
+    DynamicSolver solver2(system, dt, input.settings_sampling_rate, [&] {
         return system.get_t() >= alpha*T;
     });
 

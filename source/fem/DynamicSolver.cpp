@@ -1,26 +1,18 @@
 #include "DynamicSolver.hpp"
 
-DynamicSolver::DynamicSolver(System& system, double end_time, double time_step, double sampling_rate)
+DynamicSolver::DynamicSolver(System& system, double dt, double f, const StopFn& stop)
     : system(system),
-      stop([&]{ return system.get_t() >= end_time; }),
-      f(sampling_rate),
-      dt(time_step),
-      t(0.0)
+      stop(stop),
+      dt(dt),
+      n(std::max(1.0/(f*dt), 1.0))
 {
     // Initialise previous displacement
-    // Todo: Code duplication
     u_p2 = system.get_u() - dt*system.get_v() + dt*dt/2.0*system.get_a();
 }
 
-#include <iostream>
-
-DynamicSolver::DynamicSolver(System& system, double step_factor, double sampling_rate, std::function<bool()> stop)
-    : system(system),
-      stop(stop),
-      f(sampling_rate),
-      t(0.0)
+// Estimate timestep based on maximum eigen frequency and a safety factor to account for nonlinearity of the system
+double DynamicSolver::estimate_timestep(const System& system, double factor)
 {
-    // Timestep estimation
     Eigen::GeneralizedSelfAdjointEigenSolver<MatrixXd>
             eigen_solver(system.get_K(), system.get_M().asDiagonal(), Eigen::DecompositionOptions::EigenvaluesOnly);
 
@@ -28,26 +20,21 @@ DynamicSolver::DynamicSolver(System& system, double step_factor, double sampling
         throw std::runtime_error("Failed to compute eigenvalues of the system");
 
     double omega_max = std::sqrt(eigen_solver.eigenvalues().maxCoeff());
-
     if(omega_max == 0.0)
-        throw std::runtime_error("Can't estimate timestep for system with zero eigenvalues");
+        throw std::runtime_error("Can't estimate timestep for system with a zero eigenvalue");
 
-    dt = step_factor*2.0/omega_max;    // Todo: Magic number (Fraction of sampling time)
-
-    // Initialise previous displacement
-    u_p2 = system.get_u() - dt*system.get_v() + dt*dt/2.0*system.get_a();
+    return factor*2.0/omega_max;
 }
 
 bool DynamicSolver::step()
 {
-    while(system.get_t() < t)
+    for(unsigned i = 0; i < n; ++i)
     {
         sub_step();
         if(stop())
             return false;
     }
 
-    t = system.get_t() + 1.0/f;
     return true;
 }
 
