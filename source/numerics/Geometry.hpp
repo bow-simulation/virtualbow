@@ -9,12 +9,12 @@ static bool is_right_handed(Vector<2> a, Vector<2> b, Vector<2> c)
 }
 
 // Traverses a the curve given by a list of input points and returns a subset of points with
-// strictly right_handed or right_handed orientation.
+// strictly right handed or left handed orientation.
 // Implementation inspired by Graham scan for finding the convex hull of a point set
 // (https://de.wikipedia.org/wiki/Graham_Scan)
 //
 // Todo: Find a better name. What's a curve with strictly positive/negative curvature called?
-static std::vector<Vector<2>> constant_orientation_subset(std::vector<Vector<2>> input, bool right_handed)
+static std::vector<Vector<2>> one_sided_curvature_subset(std::vector<Vector<2>> input, bool right_handed)
 {
     assert(input.size() >= 2);
 

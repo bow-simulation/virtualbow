@@ -31,7 +31,7 @@ add_executable(${PROJECT_NAME}
    source/fem/elements/BeamElement.cpp
    source/fem/elements/MassElement.cpp
    source/fem/elements/ContactElement.cpp
-   source/fem/elements/ContactSurface.cpp
+   source/fem/elements/ContactHandler.cpp
    source/fem/elements/ConstraintElement.cpp
    source/fem/Node.cpp
    source/fem/Element.cpp

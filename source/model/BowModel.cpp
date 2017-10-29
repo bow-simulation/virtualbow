@@ -6,7 +6,7 @@
 #include "fem/elements/BarElement.hpp"
 #include "fem/elements/MassElement.hpp"
 #include "fem/elements/ConstraintElement.hpp"
-#include "fem/elements/ContactSurface.hpp"
+#include "fem/elements/ContactHandler.hpp"
 #include "numerics/RootFinding.hpp"
 #include "numerics/Geometry.hpp"
 
@@ -81,10 +81,10 @@ void BowModel::init_limb(const Callback& callback)
 
 void BowModel::init_string(const Callback& callback)
 {
-    qInfo() << "kmax = " << system.get_K().maxCoeff();
-    const double k = system.get_K().maxCoeff();
+    const double k = system.get_K().maxCoeff();            // Contact stiffness: Maximum stiffness already present in the system
     const double epsilon = 0.01*output.setup.limb.h[0];    // Transition zone of the contact elements // Magic number
 
+    // Calculate curve tangential to the limb na d calculate string node positions by equipartition
     std::vector<Vector<2>> points;
     points.push_back({0.0, -input.operation_brace_height});
     for(size_t i = 0; i < nodes_limb.size(); ++i)
@@ -96,7 +96,7 @@ void BowModel::init_string(const Callback& callback)
         });
     }
 
-    points = constant_orientation_subset(points, true);
+    points = one_sided_curvature_subset(points, true);
     points = equipartition(points, input.settings_n_elements_string + 1);
 
     // Create string nodes
@@ -116,13 +116,17 @@ void BowModel::init_string(const Callback& callback)
         system.mut_elements().add(element, "string");
     }
 
-    // Create limb tip constraint and string to limb contact surface
-    //double k = EA/output.setup.string_length;    // Stiffness estimate based on string stiffness
+    // Create string to limb contact surface and limb tip constraint
 
-    //double k = output.setup.limb.Cee[0]/(output.setup.limb.s[1] - output.setup.limb.s[0]);    // Stiffness estimate based on limb data
+    ContactHandler contact(system, ContactForce(k, epsilon));
+    for(size_t i = 1; i < nodes_limb.size(); ++i)
+        contact.add_segment(nodes_limb[i-1], nodes_limb[i], output.setup.limb.h[i-1], output.setup.limb.h[i]);
+
+    for(size_t i = 0; i < nodes_string.size()-1; ++i)    // Don't include the last string node (tip)
+        contact.add_point(nodes_string[i]);
+
+    system.mut_elements().add(contact, "contact");
     system.mut_elements().add(ConstraintElement(system, nodes_limb.back(), nodes_string.back(), k), "constraint");
-    system.mut_elements().add(ContactSurface(system, nodes_limb, {nodes_string.begin(), nodes_string.end()-1},    // Todo: Unnecessary copy
-                                             output.setup.limb.h, {k, epsilon}), "contact");
 
     // Function that sets the sting element length and returns the
     // resulting difference between actual and desired brace height
