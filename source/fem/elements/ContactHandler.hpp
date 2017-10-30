@@ -131,7 +131,16 @@ public:
 
     void sort_axis_list(std::vector<Coordinate>& axis) const
     {
-        /*
+        auto add_contact = [&](size_t i, size_t j) {
+            const Segment& s = segments[i];
+            const Point& p = points[j];
+            contacts.insert({{i, j}, {system, s.node0, s.node1, p.node, s.h0, s.h1, force}});
+        };
+
+        auto remove_contact = [&](size_t i, size_t j) {
+            contacts.erase({i, j});
+        };
+
         for(int j = 1; j < axis.size(); j++)
         {
             Coordinate keyelement = axis[j];
@@ -152,8 +161,8 @@ public:
                     {
                         if(aabb_intersects(segments[keyelement.index], points[swapper.index]))
                         {
-                            qInfo() << "Add Pair: Segment " << keyelement.index << ", Point " << swapper.index;
-                            add_contact({keyelement.index, swapper.index});
+                            //qInfo() << "Add Pair: Segment " << keyelement.index << ", Point " << swapper.index;
+                            add_contact(keyelement.index, swapper.index);
                         }
                     }
 
@@ -161,8 +170,8 @@ public:
                     {
                         if(aabb_intersects(segments[swapper.index], points[keyelement.index]))
                         {
-                            qInfo() << "Add Pair: Segment " << swapper.index << ", Point " << keyelement.index;
-                            add_contact({swapper.index, keyelement.index});
+                            //qInfo() << "Add Pair: Segment " << swapper.index << ", Point " << keyelement.index;
+                            add_contact(swapper.index, keyelement.index);
                         }
                     }
                 }
@@ -172,45 +181,35 @@ public:
                 {
                     if(keyelement.type == Coordinate::SegmentMax && swapper.type == Coordinate::PointMin)
                     {
-                        qInfo() << "Remove Pair: Segment " << keyelement.index << ", Point " << swapper.index;
-                        remove_contact({keyelement.index, swapper.index});
+                        //qInfo() << "Remove Pair: Segment " << keyelement.index << ", Point " << swapper.index;
+                        remove_contact(keyelement.index, swapper.index);
                     }
 
 
                     if(keyelement.type == Coordinate::PointMin && swapper.type == Coordinate::SegmentMax)
                     {
-                        qInfo() << "Remove Pair: Segment " << swapper.index << ", Point " << keyelement.index;
-                        remove_contact({swapper.index, keyelement.index});
+                        //qInfo() << "Remove Pair: Segment " << swapper.index << ", Point " << keyelement.index;
+                        remove_contact(swapper.index, keyelement.index);
                     }
                 }
             }
 
             axis[i + 1] = keyelement;
         }
-        */
     }
 
     void update_contacts() const
     {
-        /*
         update_coordinates();
         sort_axis_list(x_list);
         sort_axis_list(y_list);
+
+        /*
+        for(auto& e: contacts | boost::adaptors::map_keys)
+            qInfo() << "Contact: Segment " << e.first << ", Point " << e.second;
+
+        exit(0);
         */
-
-        for(size_t i = 0; i < segments.size(); ++i)
-        {
-            for(size_t j = 0; j < points.size(); ++j)
-            {
-                const Segment& s = segments[i];
-                const Point& p = points[j];
-
-                if(aabb_intersects(s, p))
-                    contacts.insert({{i, j}, {system, s.node0, s.node1, p.node, s.h0, s.h1, force}});
-                else
-                    contacts.erase({i, j});
-            }
-        }
     }
 
     virtual void add_masses() const override
