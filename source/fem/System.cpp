@@ -80,14 +80,12 @@ Dof System::create_dof(bool active, double u, double v)
         u_a.mut() = (VectorXd(n_a.get()) << u_a.get(), u).finished();
         v_a.mut() = (VectorXd(n_a.get()) << v_a.get(), v).finished();
         p_a.mut() = (VectorXd(n_a.get()) << p_a.get(), 0).finished();
-
         return Dof{active, n_a.get()-1};
     }
     else
     {
         n_f.mut() += 1;
         u_f.mut() = (VectorXd(n_f.get()) << u_f.get(), u).finished();
-
         return Dof{active, n_f.get()-1};
     }
 }

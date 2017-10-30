@@ -3,7 +3,9 @@
 #include "fem/Element.hpp"
 #include "fem/Node.hpp"
 #include "fem/System.hpp"
-#include <boost/variant.hpp>
+#include <boost/range/adaptor/map.hpp>
+
+#include <map>
 
 #include <QtCore>
 
@@ -23,13 +25,12 @@ public:
         double h1;
     };
 
-    /*
     struct Coordinate
     {
-        boost::variant<Segment&, Point&> object;
-        enum{ Min, Max } type;
+        size_t index;
+        enum{ SegmentMin, SegmentMax, PointMin, PointMax } type;
+        double value;
     };
-    */
 
     bool aabb_intersects(Segment s, Point p) const
     {
@@ -54,53 +55,160 @@ public:
     ContactHandler(System& system, ContactForce force)
         : Element(system), force(force)
     {
-        /*
-        assert(master_nodes.size() >= 2);
-        assert(master_nodes.size() == h.rows());
 
-        segments.reserve(master_nodes.size()-1);
-        for(size_t i = 1; i < master_nodes.size(); ++i)
-        {
-            segments.push_back({master_nodes[i-1], master_nodes[i], h[i-1], h[i]});
-            x_list.push_back({segments.back(), Coordinate::Min});
-            x_list.push_back({segments.back(), Coordinate::Max});
-            y_list.push_back({segments.back(), Coordinate::Min});
-            y_list.push_back({segments.back(), Coordinate::Max});
-        }
-
-        points.reserve(slave_nodes.size());
-        for(auto& node: slave_nodes)
-        {
-            points.push_back({node});
-            x_list.push_back({points.back(), Coordinate::Min});
-            y_list.push_back({points.back(), Coordinate::Min});
-        }
-        */
     }
 
     void add_segment(const Node& node_a, const Node& node_b, double ha, double hb)
     {
         segments.push_back({node_a, node_b, ha, hb});
+        x_list.push_back({segments.size()-1, Coordinate::SegmentMin, 0.0});
+        x_list.push_back({segments.size()-1, Coordinate::SegmentMax, 0.0});
+        y_list.push_back({segments.size()-1, Coordinate::SegmentMin, 0.0});
+        y_list.push_back({segments.size()-1, Coordinate::SegmentMax, 0.0});
     }
 
     void add_point(const Node& node)
     {
         points.push_back({node});
+        x_list.push_back({points.size()-1, Coordinate::PointMin, 0.0});
+        y_list.push_back({points.size()-1, Coordinate::PointMax, 0.0});
+    }
+
+    void update_coordinates() const
+    {
+        for(auto& coordinate: x_list)
+        {
+            switch(coordinate.type)
+            {
+                case Coordinate::SegmentMin: {
+                    const Segment& s = segments[coordinate.index];
+                    coordinate.value = std::min(system.get_u(s.node0.x) - s.h0, system.get_u(s.node1.x) - s.h1);
+                } break;
+
+                case Coordinate::SegmentMax: {
+                    const Segment& s = segments[coordinate.index];
+                    coordinate.value = std::max(system.get_u(s.node0.x) + s.h0, system.get_u(s.node1.x) + s.h1);
+                } break;
+
+                case Coordinate::PointMin: {
+                    const Point& p = points[coordinate.index];
+                    coordinate.value = system.get_u(p.node.x);
+                } break;
+
+                case Coordinate::PointMax: {
+                    const Point& p = points[coordinate.index];
+                    coordinate.value = system.get_u(p.node.x);
+                } break;
+            }
+        }
+
+        for(auto& coordinate: y_list)
+        {
+            switch(coordinate.type)
+            {
+                case Coordinate::SegmentMin: {
+                    const Segment& s = segments[coordinate.index];
+                    coordinate.value = std::min(system.get_u(s.node0.y) - s.h0, system.get_u(s.node1.y) - s.h1);
+                } break;
+
+                case Coordinate::SegmentMax: {
+                    const Segment& s = segments[coordinate.index];
+                    coordinate.value = std::max(system.get_u(s.node0.y) + s.h0, system.get_u(s.node1.y) + s.h1);
+                } break;
+
+                case Coordinate::PointMin: {
+                    const Point& p = points[coordinate.index];
+                    coordinate.value = system.get_u(p.node.y);
+                } break;
+
+                case Coordinate::PointMax: {
+                    const Point& p = points[coordinate.index];
+                    coordinate.value = system.get_u(p.node.y);
+                } break;
+            }
+        }
+    }
+
+    void sort_axis_list(std::vector<Coordinate>& axis) const
+    {
+        /*
+        for(int j = 1; j < axis.size(); j++)
+        {
+            Coordinate keyelement = axis[j];
+            double key = keyelement.value;
+
+            int i = j - 1;
+            while (i >= 0 && axis[i].value > key)
+            {
+                Coordinate swapper = axis[i];
+
+                axis[i + 1] = swapper;
+                i -= 1;
+
+                if((keyelement.type == Coordinate::SegmentMin || keyelement.type == Coordinate::PointMin)
+                  && (swapper.type == Coordinate::SegmentMax || swapper.type == Coordinate::PointMax))
+                {
+                    if(keyelement.type == Coordinate::SegmentMin && swapper.type == Coordinate::PointMax)
+                    {
+                        if(aabb_intersects(segments[keyelement.index], points[swapper.index]))
+                        {
+                            qInfo() << "Add Pair: Segment " << keyelement.index << ", Point " << swapper.index;
+                            add_contact({keyelement.index, swapper.index});
+                        }
+                    }
+
+                    if(keyelement.type == Coordinate::PointMin && swapper.type == Coordinate::SegmentMax)
+                    {
+                        if(aabb_intersects(segments[swapper.index], points[keyelement.index]))
+                        {
+                            qInfo() << "Add Pair: Segment " << swapper.index << ", Point " << keyelement.index;
+                            add_contact({swapper.index, keyelement.index});
+                        }
+                    }
+                }
+
+                if((keyelement.type == Coordinate::SegmentMax || keyelement.type == Coordinate::PointMax)
+                        && (swapper.type == Coordinate::SegmentMin || swapper.type == Coordinate::PointMin))
+                {
+                    if(keyelement.type == Coordinate::SegmentMax && swapper.type == Coordinate::PointMin)
+                    {
+                        qInfo() << "Remove Pair: Segment " << keyelement.index << ", Point " << swapper.index;
+                        remove_contact({keyelement.index, swapper.index});
+                    }
+
+
+                    if(keyelement.type == Coordinate::PointMin && swapper.type == Coordinate::SegmentMax)
+                    {
+                        qInfo() << "Remove Pair: Segment " << swapper.index << ", Point " << keyelement.index;
+                        remove_contact({swapper.index, keyelement.index});
+                    }
+                }
+            }
+
+            axis[i + 1] = keyelement;
+        }
+        */
     }
 
     void update_contacts() const
     {
-        // Todo: Make sure this doesn't change the underlying storage
-        contacts.clear();
+        /*
+        update_coordinates();
+        sort_axis_list(x_list);
+        sort_axis_list(y_list);
+        */
 
-        // Create a contact element for every combination of segment and point that potentially overlap
-        // Todo: Proper broadphase algorthm
-        for(auto& s: segments)
+        for(size_t i = 0; i < segments.size(); ++i)
         {
-            for(auto& p: points)
+            for(size_t j = 0; j < points.size(); ++j)
             {
+                const Segment& s = segments[i];
+                const Point& p = points[j];
+
                 if(aabb_intersects(s, p))
-                    contacts.push_back({system, s.node0, s.node1, p.node, s.h0, s.h1, force});
+                    contacts.insert({{i, j}, {system, s.node0, s.node1, p.node, s.h0, s.h1, force}});
+                else
+                    contacts.erase({i, j});
             }
         }
     }
@@ -114,23 +222,23 @@ public:
     {
         update_contacts();
 
-        for(auto& c: contacts)
-            c.add_internal_forces();
+        for(auto& e: contacts | boost::adaptors::map_values)
+            e.add_internal_forces();
     }
 
     virtual void add_tangent_stiffness() const override
     {
         update_contacts();    // Todo: Avoid Recomputation.
 
-        for(auto& c: contacts)
-            c.add_tangent_stiffness();
+        for(auto& e: contacts | boost::adaptors::map_values)
+            e.add_tangent_stiffness();
     }
 
     virtual double get_potential_energy() const override
     {
         double T = 0.0;
-        for(auto& c: contacts)
-            T += c.get_potential_energy();
+        for(auto& e: contacts | boost::adaptors::map_values)
+            T += e.get_potential_energy();
     }
 
     virtual double get_kinetic_energy() const override
@@ -143,9 +251,8 @@ private:
     std::vector<Point> points;
     ContactForce force;
 
-    // mutable std::vector<Coordinate> x_list;
-    // mutable std::vector<Coordinate> y_list;
-
-    mutable std::vector<ContactElement> contacts;
+    mutable std::vector<Coordinate> x_list;
+    mutable std::vector<Coordinate> y_list;
+    mutable std::map<std::pair<size_t, size_t>, ContactElement> contacts;
 };
 

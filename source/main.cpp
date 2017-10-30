@@ -1,3 +1,30 @@
+/*
+#include <map>
+#include <unordered_map>
+#include <string>
+#include <iostream>
+#include <utility>
+
+
+using ContactPair = std::pair<size_t, size_t>;
+using ContactMap = std::map<ContactPair, ContactElement>;
+
+using Map = std::map<std::pair<size_t, size_t>, std::string>;
+
+int main()
+{
+    Map map;
+
+    map.insert({{0, 0}, "0, 0"});
+    map.insert({{0, 1}, "0, 1"});
+    map.insert({{0, 2}, "0, 2"});
+
+    std::cout << map[{0, 2}];
+
+    return 0;
+}
+*/
+
 #include "gui/Application.hpp"
 
 int main(int argc, char* argv[])
