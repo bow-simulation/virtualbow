@@ -5,6 +5,10 @@ CubicSpline::CubicSpline(Series data)
 {
     // Check validity
     size_t n = data.size();
+
+    if(n < 2)
+        throw std::runtime_error("Cubic spline needs at least two data points");
+
     for(size_t i = 0; i < n - 1; ++i)
     {
         if(data.arg(i) >= data.arg(i+1))

@@ -3,6 +3,9 @@
 
 Curve2D ArcCurve::nodes(const Series& segments, double x0, double y0, double phi0)
 {
+    if(segments.size() < 1)
+        throw std::runtime_error("Arc curve needs at least one segment");
+
     Curve2D nodes(segments.size() + 1);
     nodes.set_point(0, {0.0, x0, y0, phi0});
 
