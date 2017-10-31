@@ -128,22 +128,6 @@ void BowModel::init_string(const Callback& callback)
     system.mut_elements().add(contact, "contact");
     system.mut_elements().add(ConstraintElement(system, nodes_limb.back(), nodes_string.back(), k), "constraint");
 
-    // Function that sets the sting element length and returns the
-    // resulting difference between actual and desired brace height
-    /*
-    StaticSolverLC solver(system);
-    auto try_element_length = [&](double l)
-    {
-        for(auto& element: system.mut_elements().group<BeamElement>("string"))
-            element.set_length(l);
-
-        qInfo() << "l = " << l;
-
-        solver.solve();
-        return system.get_u(nodes_string[0].y) + input.operation_brace_height;    // Todo: Use dimensionless measure
-    };
-    */
-
     // Takes a string element length, iterates to equilibrium with the constraint of the brace height
     // and returns the angle of the string center
     system.set_p(nodes_string[0].y, 1.0);    // Will be scaled by the static algorithm
