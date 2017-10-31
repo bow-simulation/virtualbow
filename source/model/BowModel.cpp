@@ -40,7 +40,6 @@ BowModel::BowModel(const InputData& input, const Callback& callback)
 {
     init_limb(callback);
     init_string(callback);
-    qInfo() << "============== LIMB SETUP SUCCESSFUL ==============";
     init_masses(callback);
 }
 
@@ -96,7 +95,7 @@ void BowModel::init_string(const Callback& callback)
         });
     }
 
-    points = one_sided_curvature_subset(points, true);
+    points = one_sided_orientation_subset(points, true);
     points = equipartition(points, input.settings_n_elements_string + 1);
 
     // Create string nodes
