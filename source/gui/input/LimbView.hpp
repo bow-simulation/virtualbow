@@ -164,11 +164,9 @@ private:
 
     // alpha: Azimuth, beta: elevation.
     // Camera position: Ry(alpha)*Rz(beta)*[1, 0, 0].
-    // Camera view up: Ry(alpha)*Rz(beta)*[0, 1, 0].
+    // Camera view up : Ry(alpha)*Rz(beta)*[0, 1, 0].
     void setCameraPosition(double alpha, double beta)
     {
-        using namespace std;
-
         auto camera = renderer->GetActiveCamera();
         camera->SetFocalPoint(0.0, 0.0, 0.0);
         camera->SetPosition(cos(alpha)*cos(beta), sin(beta), -sin(alpha)*cos(beta));

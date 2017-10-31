@@ -151,7 +151,7 @@ void BowModel::init_string(const Callback& callback)
 
     double dl = 1e-3*l;        // Initial step length, later adjusted by the algorithm    // Magic number
     double dl_min = 1e-5*l;   // Minimum step length, abort if smaller                   // Magic number
-    unsigned iterations = 5;    // Desired number of iterations for the static solver      // Magic number
+    const unsigned iterations = 5;    // Desired number of iterations for the static solver      // Magic number
     while(callback(0))
     {
         // Try length = l - dl
@@ -215,6 +215,50 @@ void BowModel::simulate_statics(const Callback& callback)
         if(!callback(100*eta))
             return;
     }
+
+    /*
+    // Alternative using step size control
+
+    double draw_step = (input.operation_draw_length - input.operation_brace_height)/input.settings_n_draw_steps;
+    double draw_length = input.operation_brace_height + draw_step;
+    const double min_step = 0.01*draw_step;
+    const double max_step = draw_step;
+    const unsigned iterations = 10;    // Desired number of iterations for the static solver      // Magic number
+
+    add_state(output.statics.states);     // Add first state at draw_length
+    while(true)
+    {
+        // Try draw_length + draw_step
+        StaticSolverDC::Info info = solver.solve(-draw_length);
+
+        qInfo() <<  "step: " << draw_step << ", iterations: " << info.iterations << ", draw length: " << draw_length;
+
+        if(info.outcome == StaticSolverDC::Info::Success)
+        {
+            // Success: Apply step.
+            draw_length += draw_step;
+            add_state(output.statics.states);
+
+            if(!callback(100*(draw_length - input.operation_brace_height)/(input.operation_draw_length - input.operation_brace_height)))
+                return;
+
+            // If finished: Return
+            if(draw_length >= input.operation_draw_length)
+                return;
+
+            // Adjust step length, but not over max_step
+            draw_step = std::min(max_step, draw_step*double(iterations)/info.iterations);
+        }
+        else
+        {
+            // Reduce step length by generic factor
+            draw_step *= 0.5;
+        }
+
+        if(draw_step < min_step)
+            throw std::runtime_error("Static simulation: Step size too small");
+    }
+    */
 
     // Calculate scalar values
 
