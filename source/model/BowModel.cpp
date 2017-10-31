@@ -38,6 +38,10 @@ OutputData BowModel::run_dynamic_simulation(const InputData& input, const Callba
 BowModel::BowModel(const InputData& input, const Callback& callback)
     : input(input)
 {
+    // Input validation
+    if(input.operation_brace_height >= input.operation_draw_length)
+        throw std::runtime_error("The draw length must be greater than the brace height");
+
     init_limb(callback);
     init_string(callback);
     init_masses(callback);
