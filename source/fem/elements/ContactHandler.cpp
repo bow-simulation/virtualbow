@@ -147,6 +147,8 @@ double ContactHandler::get_potential_energy() const
     double T = 0.0;
     for(auto& e: contacts | boost::adaptors::map_values)
         T += e.get_potential_energy();
+
+    return T;
 }
 
 double ContactHandler::get_kinetic_energy() const
