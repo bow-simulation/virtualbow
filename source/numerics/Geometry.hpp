@@ -68,7 +68,7 @@ static std::vector<Vector<2>> equipartition(const std::vector<Vector<2>>& input,
 
     // Function that returns two values eta_1/2 such that
     // ||A + eta_i*(B-A), C|| = d.
-    auto find_by_distance = [](Vector<2> A, Vector<2> B, Vector<2> C, double d)
+    auto find_by_distance = [](const Vector<2>& A, const Vector<2>& B, const Vector<2>& C, double d)
     {
         double x_ab = B[0] - A[0];  double x_ac = C[0] - A[0];
         double y_ab = B[1] - A[1];  double y_ac = C[1] - A[1];
