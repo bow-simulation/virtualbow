@@ -3,7 +3,7 @@
 #include <algorithm>
 
 // Checks if the triangle {a, b, c} is right-handed
-static bool is_right_handed(Vector<2> a, Vector<2> b, Vector<2> c)
+static bool is_right_handed(const Vector<2>& a, const Vector<2>& b, const Vector<2>& c)
 {
     return (b[0] - a[0])*(c[1] - a[1]) - (b[1] - a[1])*(c[0] - a[0]) > 0;
 }
