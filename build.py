@@ -69,4 +69,4 @@ if create_directory("build/bow-simulator/build"):
     build_application(".", "build/bow-simulator/build", "build/bow-simulator")
 
 if create_directory("build/packages"):
-    build_packages("0.3", "build/packages/build", "build/packages")
+    build_packages("0.4", "build/packages/build", "build/packages")
