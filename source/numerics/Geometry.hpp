@@ -22,16 +22,15 @@ static std::vector<Vector<2>> one_sided_orientation_subset(const std::vector<Vec
     output.reserve(input.size());
 
     output.push_back(input[0]);
-    output.push_back(input[1]);
 
-    size_t i = 2;
+    size_t i = 1;
     while(i < input.size())
     {
         auto p1 = output[output.size()-2];
         auto p2 = output[output.size()-1];
         auto p3 = input[i];
 
-        if(is_right_handed(p1, p2, p3) == right_handed)
+        if(is_right_handed(p1, p2, p3) == right_handed || output.size() == 1)
         {
             output.push_back(p3);
             ++i;
