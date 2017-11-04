@@ -25,6 +25,7 @@ include_directories(source)
 add_executable(${PROJECT_NAME}
    source/main.cpp
    resources/resources.qrc
+
    source/external/qcustomplot/qcustomplot.cpp
 
    source/fem/elements/BarElement.cpp
@@ -47,7 +48,6 @@ add_executable(${PROJECT_NAME}
 
    source/gui/input/BowEditor.cpp
    source/gui/input/ModelTree.cpp
-
    source/gui/input/CommentsDialog.cpp
    source/gui/input/ProfileDialog.cpp
    source/gui/input/DoubleView.cpp

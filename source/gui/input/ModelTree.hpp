@@ -120,5 +120,4 @@ public:
         this->setHeaderLabel("Model Tree");
         this->expandAll();
     }
-
 };

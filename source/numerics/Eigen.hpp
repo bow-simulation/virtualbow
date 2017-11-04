@@ -1,5 +1,5 @@
 #pragma once
-#define EIGEN_MAX_ALIGN_BYTES 0
+#define EIGEN_MAX_ALIGN_BYTES 0    // Turn off alignment
 #include <Eigen/Dense>
 
 #include<json.hpp>
