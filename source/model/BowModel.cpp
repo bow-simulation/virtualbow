@@ -357,12 +357,19 @@ void BowModel::add_state(BowStates& states) const
     double e_kin_string_center = 2.0*system.get_elements().get_kinetic_energy("string center");
     double e_kin_arrow = 2.0*system.get_elements().get_kinetic_energy("arrow");
 
+    double string_force = 0.0;
+    for(auto& element: system.get_elements().group<BarElement>("string"))
+        string_force = std::max(string_force, std::abs(element.get_normal_force()));
+
+    states.string_force.push_back(string_force);
+    states.strand_force.push_back(string_force/input.string_n_strands);
+    states.grip_force.push_back(-2.0*system.get_q(nodes_limb[0].y));    // *2 because of symmetry
+
     states.e_pot_limbs.push_back(e_pot_limb + e_pot_limb_tip);
     states.e_kin_limbs.push_back(e_kin_limb + e_kin_limb_tip);
     states.e_pot_string.push_back(e_pot_string + e_pot_string_tip + e_pot_string_center);
     states.e_kin_string.push_back(e_kin_string + e_kin_string_tip + e_kin_string_center);
     states.e_kin_arrow.push_back(e_kin_arrow);
-
 
     // Limb and string coordinates
     states.x_limb.push_back(VectorXd(nodes_limb.size()));
