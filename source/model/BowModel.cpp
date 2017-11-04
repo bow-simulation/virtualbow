@@ -84,7 +84,7 @@ void BowModel::init_limb(const Callback& callback)
 
 void BowModel::init_string(const Callback& callback)
 {
-    const double k = system.get_K().maxCoeff();            // Contact stiffness: Maximum stiffness already present in the system
+    const double k = 0.1*system.get_K().maxCoeff();        // Contact stiffness in terms of maximum stiffness already present // Todo: Magic number
     const double epsilon = 0.01*output.setup.limb.h[0];    // Transition zone of the contact elements // Magic number
 
     // Calculate curve tangential to the limb na d calculate string node positions by equipartition

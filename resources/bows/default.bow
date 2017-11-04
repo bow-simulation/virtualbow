@@ -43,7 +43,7 @@
     "settings": {
         "n_draw_steps": 150,
         "n_elements_limb": 40,
-        "n_elements_string": 50,
+        "n_elements_string": 45,
         "sampling_rate": 10000.0,
         "time_span_factor": 1.5,
         "time_step_factor": 0.5
