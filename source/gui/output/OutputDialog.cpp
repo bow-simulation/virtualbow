@@ -97,51 +97,47 @@ OutputDialog::OutputDialog(QWidget* parent, const OutputData& output)
     this->setLayout(vbox);
     this->setWindowTitle("Simulation results");
     this->setWindowFlags(this->windowFlags() | Qt::WindowMaximizeButtonHint);
-    this->resize(800, 600);     // Todo: Magic numbers
+    this->resize(1000, 800);     // Todo: Magic numbers
 
     bool enable_statics = !output.statics.states.time.empty();
     bool enable_dynamics = !output.dynamics.states.time.empty();
-    auto tabs = new QTabWidget();
-    tabs->addTab(enable_statics ? new StaticOutput(output.setup, output.statics) : new QWidget(), "Statics");
-    tabs->addTab(enable_dynamics ? new DynamicOutput(output.setup, output.dynamics) : new QWidget(), "Dynamics");
-    tabs->setTabEnabled(0, enable_statics);
-    tabs->setTabEnabled(1, enable_dynamics);
-    tabs->setIconSize({24, 24});    // Todo: Magic numbers
-    tabs->setDocumentMode(true);
-    vbox->addWidget(tabs, 1);
 
-    // Todo: Better solution?
-    // When a tab is set as disabled the icons are somehow converted to grayscale internally.
-    // Look at Qt source how they do that, maybe there is no need to have an extra grey version of the icon.
-    auto set_icons = [tabs](int index)
-    {
-        switch(index)
-        {
-        case 0:
-            tabs->setTabIcon(0, QIcon(":/icons/circle-yellow"));
-            tabs->setTabIcon(1, QIcon(":/icons/circle-grey"));
-            break;
-        case 1:
-            tabs->setTabIcon(0, QIcon(":/icons/circle-grey"));
-            tabs->setTabIcon(1, QIcon(":/icons/circle-green"));
-            break;
-        }
-    };
+    auto stack = new QStackedLayout();
+    vbox->addLayout(stack, 1);
+    if(enable_statics)
+        stack->addWidget(new StaticOutput(output.setup, output.statics));
+    if(enable_dynamics)
+        stack->addWidget(new DynamicOutput(output.setup, output.dynamics));
 
-    QObject::connect(tabs, &QTabWidget::currentChanged, set_icons);
-    set_icons(0);
+    auto bt_statics = new QPushButton("Statics");
+    bt_statics->setIcon(QIcon(":/icons/circle-yellow"));
+    bt_statics->setCheckable(true);
+    bt_statics->setChecked(true);
+    bt_statics->setEnabled(enable_statics);
+    bt_statics->setAutoExclusive(true);
 
-    auto btbox = new QDialogButtonBox(QDialogButtonBox::Close);
-    QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::close);
+    auto bt_dynamics = new QPushButton("Dynamics");
+    bt_dynamics->setIcon(QIcon(":/icons/circle-green"));
+    bt_dynamics->setCheckable(true);
+    bt_dynamics->setChecked(false);
+    bt_dynamics->setEnabled(enable_dynamics);
+    bt_dynamics->setAutoExclusive(true);
+
+    auto btbox = new QDialogButtonBox();
     vbox->addWidget(btbox);
-}
+    btbox->addButton(QDialogButtonBox::Close)->setAutoDefault(false);    // Prevent close on enter
+    btbox->addButton(bt_statics, QDialogButtonBox::ActionRole);
+    btbox->addButton(bt_dynamics, QDialogButtonBox::ActionRole);
 
-// Keep dialog from closing on enter
-// http://stackoverflow.com/questions/15845487/how-do-i-prevent-the-enter-key-from-closing-my-qdialog-qt-4-8-1
-void OutputDialog::keyPressEvent(QKeyEvent *evt)
-{
-    if(evt->key() == Qt::Key_Enter || evt->key() == Qt::Key_Return)
-        return;
+    QObject::connect(bt_statics, &QPushButton::toggled, [=](bool checked){
+        if(checked)
+            stack->setCurrentIndex(0);
+    });
 
-    QDialog::keyPressEvent(evt);
+    QObject::connect(bt_dynamics, &QPushButton::toggled, [=](bool checked){
+        if(checked)
+            stack->setCurrentIndex(1);
+    });
+
+    QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::close);
 }

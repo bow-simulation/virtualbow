@@ -18,5 +18,4 @@ class OutputDialog: public QDialog
 {
 public:
     OutputDialog(QWidget* parent, const OutputData& output);
-    virtual void keyPressEvent(QKeyEvent *evt) override;
 };

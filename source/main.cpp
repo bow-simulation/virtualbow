@@ -1,9 +1,97 @@
+/*
+#include <iostream>
+#include <string>
+#include <vector>
+#include "numerics/Eigen.hpp"
+
+struct Meta
+{
+    std::string version;
+    std::string comments;
+};
+
+struct Profile
+{
+    std::vector<Vector<2>> segments;
+    double x0;
+    double y0;
+    double phi0;
+};
+
+struct Material
+{
+    double rho;
+    double E;
+};
+
+struct String
+{
+    double strand_stiffness;
+    double strand_density;
+    double n_strands;
+};
+
+struct Masses
+{
+    double strin_center;
+    double string_tip;
+    double limb_tip;
+};
+
+struct Operation
+{
+    double brace_height;
+    double draw_length;
+    double arrow_mass;
+};
+
+struct Settings
+{
+    unsigned n_elements_limb;
+    unsigned n_elements_string;
+    unsigned n_draw_steps;
+    double time_span_factor;
+    double time_step_factor;
+    double sampling_rate;
+};
+
+struct Layer
+{
+    std::string name;
+    std::vector<Vector<2>> height;
+    double rho;
+    double E;
+};
+
+using SplineInput = std::vector<Vector<2>>;
+using ProfileInput = std::vector<Vector<2>>;
+
+struct InputData
+{
+    Meta meta;
+    Profile profile;
+    std::vector<Vector<2>> width;
+    std::vector<Vector<2>> height;
+    Material material;
+    String string;
+    Masses masses;
+    Operation operation;
+    Settings settings;
+};
+
+int main()
+{
+    return 0;
+}
+*/
+
 #include "gui/Application.hpp"
 
 int main(int argc, char* argv[])
 {
     return Application::run(argc, argv);
 }
+
 
 /*
 #include "fem/System.hpp"
@@ -52,78 +140,6 @@ int main()
 }
 */
 
-/*
-struct Meta
-{
-    std::string version;
-    std::string comments;
-};
-
-struct Profile
-{
-    std::vector<double> length;
-    std::vector<double> curvature;
-    double x0;
-    double y0;
-    double phi0;
-};
-
-struct Spline
-{
-    std::vector<double> positions;
-    std::vector<double> values;
-};
-
-struct Material
-{
-    double rho;
-    double E;
-};
-
-struct String
-{
-    double strand_stiffness;
-    double strand_density;
-    double n_strands;
-};
-
-struct Masses
-{
-    double strin_center;
-    double string_tip;
-    double limb_tip;
-};
-
-struct Operation
-{
-    double brace_height;
-    double draw_length;
-    double arrow_mass;
-};
-
-struct Settings
-{
-    unsigned n_elements_limb;
-    unsigned n_elements_string;
-    unsigned n_draw_steps;
-    double time_span_factor;
-    double time_step_factor;
-    double sampling_rate;
-};
-
-struct InputData
-{
-    Meta meta;
-    Profile profile;
-    Spline width;
-    Spline height;
-    Material material;
-    String string;
-    Masses masses;
-    Operation operation;
-    Settings settings;
-};
-*/
 
 /*
 #include "numerics/Math.hpp"
