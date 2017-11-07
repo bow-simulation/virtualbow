@@ -15,8 +15,7 @@ int Application::run(int argc, char* argv[])
     app.setApplicationName("bow-simulator");
     app.setApplicationDisplayName("Bow Simulator");
     app.setApplicationVersion(QString::fromStdString(version));
-    app.setOrganizationName("bow-simulator.org");
-    app.setOrganizationDomain("http://bow-simulator.org/");
+    app.setOrganizationDomain("bow-simulator.org");
     setlocale(LC_NUMERIC, "C");
 
     // Load settings
