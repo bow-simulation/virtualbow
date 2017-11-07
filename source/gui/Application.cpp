@@ -11,8 +11,10 @@ const std::string Application::version = "0.4";
 int Application::run(int argc, char* argv[])
 {
     QApplication app(argc, argv);
+    app.setApplicationName("bow-simulator");
     app.setApplicationDisplayName("Bow Simulator");
     app.setApplicationVersion(QString::fromStdString(version));
+    app.setOrganizationName("bow-simulator.org");
     app.setOrganizationDomain("http://bow-simulator.org/");
     setlocale(LC_NUMERIC, "C");
 

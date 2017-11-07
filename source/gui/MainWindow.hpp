@@ -8,6 +8,7 @@ class MainWindow: public QMainWindow
 {
 public:
     MainWindow(const QString& path);   // Todo: Consistent naming: path, file_path, file, path, ...
+    ~MainWindow();
 
 private:
     InputData input;

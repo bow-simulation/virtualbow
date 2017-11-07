@@ -95,6 +95,7 @@ MainWindow:: MainWindow(const QString& path)
 
 MainWindow::~MainWindow()
 {
+    // Save state and geometry
     QSettings settings;
     settings.setValue("MainWindow/geometry", saveGeometry());
     settings.setValue("MainWindow/state", saveState());

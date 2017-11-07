@@ -5,6 +5,8 @@ class Application
 {
 public:
     static const std::string version;
+    static QSettings settings;
+
     static int run(int argc, char* argv[]);
 
 private:

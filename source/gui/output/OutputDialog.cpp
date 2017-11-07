@@ -95,9 +95,9 @@ OutputDialog::OutputDialog(QWidget* parent, const OutputData& output)
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
-    this->setWindowTitle("Simulation results");
+    this->setWindowTitle("Simulation Results");
     this->setWindowFlags(this->windowFlags() | Qt::WindowMaximizeButtonHint);
-    this->resize(1000, 800);     // Todo: Magic numbers
+    this->resize(1000, 700);     // Todo: Magic numbers
 
     bool enable_statics = !output.statics.states.time.empty();
     bool enable_dynamics = !output.dynamics.states.time.empty();
