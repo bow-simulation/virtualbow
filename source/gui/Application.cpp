@@ -7,6 +7,7 @@
 #endif
 
 const std::string Application::version = "0.4";
+Settings Application::settings = Settings();
 
 int Application::run(int argc, char* argv[])
 {
@@ -17,6 +18,9 @@ int Application::run(int argc, char* argv[])
     app.setOrganizationName("bow-simulator.org");
     app.setOrganizationDomain("http://bow-simulator.org/");
     setlocale(LC_NUMERIC, "C");
+
+    // Load settings
+    settings.load();
 
     // Parse command line arguments
     QCommandLineOption statics({"s", "static"}, "Perform a static simulation.");
@@ -41,6 +45,8 @@ int Application::run(int argc, char* argv[])
     bool input_set = (pos_args.size() > 0);
     bool output_set = (pos_args.size() > 1);
     bool mode_set = (parser.isSet(statics) || parser.isSet(dynamics));
+
+    int success;    // Return value
 
     if(output_set || mode_set)  // Run Batch
     {
@@ -68,12 +74,17 @@ int Application::run(int argc, char* argv[])
             dynamics_set = true;
         }
 
-        return run_cli(input_path, output_path, dynamics_set);
+        success = run_cli(input_path, output_path, dynamics_set);
     }
     else // Run GUI
     {
-        return run_gui(app, input_set ? pos_args[0] : ":/bows/default.bow");
+        success = run_gui(app, input_set ? pos_args[0] : ":/bows/default.bow");
     }
+
+    // Save settings
+    settings.save();
+
+    return success;
 }
 
 int Application::run_cli(QString input_path, QString output_path, bool dynamic)

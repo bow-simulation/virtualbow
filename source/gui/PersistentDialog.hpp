@@ -1,7 +1,6 @@
 #pragma once
+#include "Application.hpp"
 #include <QDialog>
-
-#include <QtCore>
 
 class PersistentDialog: public QDialog
 {
@@ -10,15 +9,13 @@ public:
         : QDialog(parent), name(name)
     {
         // Load size
-        QSettings settings;
-        resize(settings.value(name + "/size", size).toSize());
+        resize(Application::settings.value(name + "/size", size).toSize());
     }
 
     virtual ~PersistentDialog()
     {
         // Save size
-        QSettings settings;
-        settings.setValue(name + "/size", size());
+        Application::settings.setValue(name + "/size", size());
     }
 
 private:
