@@ -1,15 +1,14 @@
-#include "CommentsDialog.hpp"
+#include "CommentDialog.hpp"
 #include "model/InputData.hpp"
 
-CommentsDialog::CommentsDialog(QWidget* parent, InputData& data)
-    : QDialog(parent),
+CommentDialog::CommentDialog(QWidget* parent, InputData& data)
+    : PersistentDialog(parent, "CommentDialog", {600, 300}),
       data(data)
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
     this->setWindowTitle("Comments");
     this->setWindowFlags(this->windowFlags() | Qt::WindowMaximizeButtonHint);
-    this->resize(600, 300);     // Todo: Magic numbers
 
     edit = new QTextEdit();
     edit->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));    // Set to system's default monospace font

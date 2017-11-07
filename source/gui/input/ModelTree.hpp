@@ -1,6 +1,6 @@
 #pragma once
 #include "model/InputData.hpp"
-#include "gui/input/CommentsDialog.hpp"
+#include "gui/input/CommentDialog.hpp"
 #include "gui/input/ProfileDialog.hpp"
 #include "gui/input/WidthDialog.hpp"
 #include "gui/input/HeightDialog.hpp"
@@ -30,7 +30,7 @@ public:
     {
         new TreeItem(this, "Comments", QIcon(":/icons/model-tree/comments"), [&]
         {
-            CommentsDialog dialog(this, data);
+            CommentDialog dialog(this, data);
             dialog.exec();
         });
 

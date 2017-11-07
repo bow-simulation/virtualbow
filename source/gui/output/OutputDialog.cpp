@@ -91,13 +91,12 @@ DynamicOutput::DynamicOutput(const SetupData& setup, const DynamicData& dynamics
 }
 
 OutputDialog::OutputDialog(QWidget* parent, const OutputData& output)
-    : QDialog(parent)
+    : PersistentDialog(parent, "OutputDialog", {1000, 700})    // Magic numbers
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
     this->setWindowTitle("Simulation Results");
     this->setWindowFlags(this->windowFlags() | Qt::WindowMaximizeButtonHint);
-    this->resize(1000, 700);     // Todo: Magic numbers
 
     bool enable_statics = !output.statics.states.time.empty();
     bool enable_dynamics = !output.dynamics.states.time.empty();

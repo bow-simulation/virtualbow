@@ -1,4 +1,5 @@
 #pragma once
+#include "gui/PersistentDialog.hpp"
 #include "gui/input/SeriesView.hpp"
 #include "gui/input/ProfileView.hpp"
 #include "gui/input/DoubleView.hpp"
@@ -8,11 +9,11 @@
 
 class InputData;
 
-class ProfileDialog: public QDialog
+class ProfileDialog: public PersistentDialog
 {
 public:
     ProfileDialog(QWidget* parent, InputData& data)
-        : QDialog(parent)
+        : PersistentDialog(parent, "ProfileDialog", {800, 400})    // Magic numbers
     {
         // Widgets
 

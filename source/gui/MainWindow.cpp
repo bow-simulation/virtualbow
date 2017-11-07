@@ -89,15 +89,16 @@ MainWindow:: MainWindow(const QString& path)
 
     // Load geometry and state
     QSettings settings;
-    restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
     restoreState(settings.value("MainWindow/state").toByteArray());
+    restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
 }
 
 MainWindow::~MainWindow()
 {
+    // Save state and geometry
     QSettings settings;
-    settings.setValue("MainWindow/geometry", saveGeometry());
     settings.setValue("MainWindow/state", saveState());
+    settings.setValue("MainWindow/geometry", saveGeometry());
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

@@ -1,4 +1,5 @@
 #pragma once
+#include "gui/PersistentDialog.hpp"
 #include "model/output/OutputData.hpp"
 #include <QtWidgets>
 
@@ -14,7 +15,7 @@ public:
     DynamicOutput(const SetupData& setup, const DynamicData& dynamics);
 };
 
-class OutputDialog: public QDialog
+class OutputDialog: public PersistentDialog
 {
 public:
     OutputDialog(QWidget* parent, const OutputData& output);

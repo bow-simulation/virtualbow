@@ -42,13 +42,14 @@ add_executable(${PROJECT_NAME}
 
    source/gui/Application.cpp
    source/gui/MainWindow.cpp
+   source/gui/PersistentDialog.cpp
    source/gui/PlotWidget.cpp
    source/gui/ProgressDialog.cpp
    source/gui/ProgressDialog.hpp    # moc
 
    source/gui/input/BowEditor.cpp
    source/gui/input/ModelTree.cpp
-   source/gui/input/CommentsDialog.cpp
+   source/gui/input/CommentDialog.cpp
    source/gui/input/ProfileDialog.cpp
    source/gui/input/DoubleView.cpp
    source/gui/input/IntegerView.cpp

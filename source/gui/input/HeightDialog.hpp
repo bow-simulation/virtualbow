@@ -1,4 +1,5 @@
 #pragma once
+#include "gui/PersistentDialog.hpp"
 #include "gui/input/SeriesView.hpp"
 #include "gui/input/SplineView.hpp"
 #include "model/InputData.hpp"
@@ -7,11 +8,11 @@
 
 class InputData;
 
-class HeightDialog: public QDialog
+class HeightDialog: public PersistentDialog
 {
 public:
     HeightDialog(QWidget* parent, InputData& data)
-        : QDialog(parent)
+        : PersistentDialog(parent, "HeightDialog", {800, 300})    // Magic numbers
     {
         // Widgets
 
