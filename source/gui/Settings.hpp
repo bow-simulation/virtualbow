@@ -28,7 +28,7 @@ public:
         data[key] = value;
     }
 
-    QVariant value(const QString& key, const QVariant& default_value = QVariant()) const
+    QVariant getValue(const QString& key, const QVariant& default_value = QVariant()) const
     {
         return data.contains(key) ? data[key] : default_value;
     }

@@ -1,4 +1,5 @@
 #include "MainWindow.hpp"
+#include "Application.hpp"
 #include "ProgressDialog.hpp"
 #include "input/BowEditor.hpp"
 #include "output/OutputDialog.hpp"
@@ -88,17 +89,15 @@ MainWindow:: MainWindow(const QString& path)
     setCurrentFile(QString());
 
     // Load geometry and state
-    QSettings settings;
-    restoreState(settings.value("MainWindow/state").toByteArray());
-    restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
+    restoreState(Application::settings.getValue("MainWindow/state").toByteArray());
+    restoreGeometry(Application::settings.getValue("MainWindow/geometry").toByteArray());
 }
 
 MainWindow::~MainWindow()
 {
     // Save state and geometry
-    QSettings settings;
-    settings.setValue("MainWindow/state", saveState());
-    settings.setValue("MainWindow/geometry", saveGeometry());
+    Application::settings.setValue("MainWindow/state", saveState());
+    Application::settings.setValue("MainWindow/geometry", saveGeometry());
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
