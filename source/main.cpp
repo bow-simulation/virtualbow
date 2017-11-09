@@ -1,3 +1,93 @@
+#include <iostream>
+#include <boost/signals2.hpp>
+
+class DocumentNode
+{
+public:
+    DocumentNode() = default;
+
+    DocumentNode(DocumentNode& parent)
+    {
+        sig_value_changed.connect(parent.sig_value_changed);
+    }
+
+    template<class F>
+    void on_value_changed(const F& f)
+    {
+        sig_value_changed.connect(f);
+    }
+
+protected:
+    boost::signals2::signal<void(void)> sig_value_changed;
+};
+
+template<typename T>
+class DocumentValue: public DocumentNode
+{
+public:
+    DocumentValue(DocumentNode& parent, const T& value)
+        : DocumentNode(parent),
+          value(value)
+    {
+
+    }
+
+    const T& get_value()
+    {
+        return value;
+    }
+
+    void set_value(const T& v)
+    {
+        value = v;
+        sig_value_changed();
+    }
+
+private:
+    T value;
+};
+
+struct Material: public DocumentNode
+{
+    Material(DocumentNode& parent)
+        : DocumentNode(parent)
+    {
+
+    }
+
+    DocumentValue<double> stiffness{*this, 10.0};
+    DocumentValue<double> density{*this, 1.6};
+};
+
+struct Input: public DocumentNode
+{
+    Material material{*this};
+};
+
+int main()
+{
+    Input input;
+
+    input.on_value_changed([]()
+    {
+        std::cout << "input changed!\n";
+    });
+
+    input.material.on_value_changed([]()
+    {
+        std::cout << "material changed!\n";
+    });
+
+    input.material.stiffness.on_value_changed([]()
+    {
+        std::cout << "stiffness changed!\n";
+    });
+
+    input.material.stiffness.set_value(3.54);
+
+    return 0;
+}
+
 /*
 #include <iostream>
 #include <string>
@@ -85,12 +175,14 @@ int main()
 }
 */
 
+/*
 #include "gui/Application.hpp"
 
 int main(int argc, char* argv[])
 {
     return Application::run(argc, argv);
 }
+*/
 
 /*
 #include "fem/System.hpp"
