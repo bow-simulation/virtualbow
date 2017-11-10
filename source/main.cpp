@@ -8,7 +8,10 @@ public:
 
     DocumentNode(DocumentNode& parent)
     {
-        sig_value_changed.connect(parent.sig_value_changed);
+        sig_value_changed.connect(parent.sig_value_changed);             // Propagate upwards
+        parent.sig_store_backup.connect(sig_store_backup);               // Propagate downwards
+        parent.sig_reset_to_backup.connect(sig_reset_to_backup);         // Propagate downwards
+        parent.sig_reset_to_default.connect(sig_reset_to_default);       // Propagate downwards
     }
 
     template<class F>
@@ -17,8 +20,26 @@ public:
         sig_value_changed.connect(f);
     }
 
+    void store_backup()
+    {
+        sig_store_backup();
+    }
+
+    void reset_to_backup()
+    {
+        sig_reset_to_backup();
+    }
+
+    void reset_to_default()
+    {
+        sig_reset_to_default();
+    }
+
 protected:
-    boost::signals2::signal<void(void)> sig_value_changed;
+    boost::signals2::signal<void()> sig_value_changed;
+    boost::signals2::signal<void()> sig_store_backup;
+    boost::signals2::signal<void()> sig_reset_to_backup;
+    boost::signals2::signal<void()> sig_reset_to_default;
 };
 
 template<typename T>
@@ -27,24 +48,38 @@ class DocumentValue: public DocumentNode
 public:
     DocumentValue(DocumentNode& parent, const T& value)
         : DocumentNode(parent),
-          value(value)
+          current_value(value),
+          backup_value(value),
+          default_value(value)
     {
+        sig_store_backup.connect([&](){
+            backup_value = current_value;
+        });
 
+        sig_reset_to_backup.connect([&](){
+            set_value(backup_value);
+        });
+
+        sig_reset_to_default.connect([&](){
+            set_value(default_value);
+        });
     }
 
     const T& get_value()
     {
-        return value;
+        return current_value;
     }
 
-    void set_value(const T& v)
+    void set_value(const T& value)
     {
-        value = v;
+        current_value = value;
         sig_value_changed();
     }
 
 private:
-    T value;
+    T current_value;
+    T backup_value;
+    T default_value;
 };
 
 struct Material: public DocumentNode
@@ -84,6 +119,14 @@ int main()
     });
 
     input.material.stiffness.set_value(3.54);
+
+    std::cout << "stiffness = " << input.material.stiffness.get_value() << "\n";
+
+    input.store_backup();
+
+    input.reset_to_backup();
+
+    std::cout << "stiffness = " << input.material.stiffness.get_value() << "\n";
 
     return 0;
 }
