@@ -8,8 +8,7 @@
 #include <json.hpp>
 
 MainWindow:: MainWindow(const QString& path)
-    : input(path),
-      editor(new BowEditor(input))
+    : editor(new BowEditor(input))
 {
     // Actions
     auto action_new = new QAction(QIcon(":/icons/document-new"), "&New", this);
@@ -83,7 +82,7 @@ MainWindow:: MainWindow(const QString& path)
     menu_help->addAction(action_about);
 
     // Main window
-    input.on_value_changed([&]{ this->setWindowModified(true); });
+    QObject::connect(&input, &DocumentNode::modified, [&]{ this->setWindowModified(true); });
     this->setWindowIcon(QIcon(":/icons/logo"));
     this->setCentralWidget(editor);
     setCurrentFile(QString());
@@ -117,7 +116,6 @@ void MainWindow::newFile()
     if(!optionalSave())
         return;
 
-    input.load(":/bows/default.bow");
     setCurrentFile(QString());
 }
 

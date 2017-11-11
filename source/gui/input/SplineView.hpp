@@ -16,5 +16,7 @@ private:
     Series input;
     Series output;
     std::vector<int> selection;
+
+    void update();
     void updatePlot();
 };

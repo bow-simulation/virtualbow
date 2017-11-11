@@ -22,24 +22,27 @@ SplineView::SplineView(const QString& x_label, const QString& y_label, DocumentI
     this->graph()->setScatterStyle({QCPScatterStyle::ssSquare, Qt::red, 8});
     this->graph()->setLineStyle(QCPGraph::lsNone);
 
-
-    this->doc_item.on_value_changed([&]{
-        try
-        {
-            output = CubicSpline::sample(this->doc_item, 150);    // Magic number
-        }
-        catch(std::runtime_error& e)
-        {
-            output = Series();
-        }
-
-        updatePlot();
-    });
+    QObject::connect(&doc_item, &DocumentNode::modified, this, &SplineView::update);
+    update();
 }
 
 void SplineView::setSelection(const std::vector<int>& indices)
 {
     selection = indices;
+    updatePlot();
+}
+
+void SplineView::update()
+{
+    try
+    {
+        output = CubicSpline::sample(this->doc_item, 150);    // Magic number
+    }
+    catch(std::runtime_error& e)
+    {
+        output = Series();
+    }
+
     updatePlot();
 }
 

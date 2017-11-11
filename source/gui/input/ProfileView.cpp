@@ -21,12 +21,12 @@ ProfileView::ProfileView(InputData& data)
     curve1->setLineStyle(QCPCurve::lsNone);
     curve1->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
 
-    // Todo: Use std::bind?
-    // Todo: Inefficient and ugly
-    data.profile_segments.on_value_changed([&]{ update(); });
-    data.profile_x0.on_value_changed      ([&]{ update(); });
-    data.profile_y0.on_value_changed      ([&]{ update(); });
-    data.profile_phi0.on_value_changed    ([&]{ update(); });
+    // Event handling
+    QObject::connect(&data.profile_segments, &DocumentNode::modified, [&]{ update(); });
+    QObject::connect(&data.profile_x0,       &DocumentNode::modified, [&]{ update(); });
+    QObject::connect(&data.profile_y0,       &DocumentNode::modified, [&]{ update(); });
+    QObject::connect(&data.profile_phi0,     &DocumentNode::modified, [&]{ update(); });
+
     update();
 }
 

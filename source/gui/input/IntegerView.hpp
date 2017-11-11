@@ -9,4 +9,5 @@ public:
 
 private:
     DocumentItem<int>& doc_item;
+    void update();
 };

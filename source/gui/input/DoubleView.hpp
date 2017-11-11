@@ -10,6 +10,7 @@ public:
 private:
     DocumentItem<double>& doc_item;
 
+    void update();
     void setValue(double value);
     void getValue(bool correct);
 };

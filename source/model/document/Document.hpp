@@ -1,73 +1,23 @@
 #pragma once
+#include <QtCore>
 #include "Validators.hpp"
-#include <boost/signals2.hpp>
 #include <boost/optional.hpp>
-#include <string>
-#include <set>
 
-class DocumentNode
+class DocumentNode: public QObject
 {
+    Q_OBJECT
+
 public:
-    DocumentNode() = default;
-
     DocumentNode(DocumentNode& parent)
-        : parent(&parent)
     {
-        this->parent->children.insert(this);
-        this->parent->sig_value_changed();
-
-        sig_value_changed.connect([&]()
-        {
-            // Search children for errors, use the first one found
-            for(auto child: children)
-            {
-                if(child->error_state())
-                    error = child->error_state();
-            }
-
-            // Children have no errors, call own validation function
-            error = validate();
-
-            // Propagate change upwards
-            this->parent->sig_value_changed();
-        });
+        QObject::connect(this, &DocumentNode::modified, &parent, &DocumentNode::modified);    // Propagate modifications upwards
     }
 
-    virtual ~DocumentNode()
-    {
-        if(parent)
-        {
-            this->parent->children.erase(this);
-            this->parent->sig_value_changed();
-        }
-    }
+    DocumentNode() = default;
+    virtual ~DocumentNode() = default;
 
-    template<class F>
-    void on_value_changed(const F& f)
-    {
-        sig_value_changed.connect(f);
-    }
-
-    virtual boost::optional<std::string> validate()
-    {
-        return boost::none;
-    }
-
-    const boost::optional<std::string>& error_state() const
-    {
-        return error;
-    }
-
-protected:
-    // Tree stuff
-    DocumentNode* parent = nullptr;
-    std::set<DocumentNode*> children;
-
-    // Error handling
-    boost::optional<std::string> error = boost::none;
-
-    // Signals
-    boost::signals2::signal<void()> sig_value_changed;
+signals:
+    void modified();
 };
 
 template<typename T>
@@ -81,7 +31,7 @@ public:
           current_value(value),
           validator(validator)
     {
-        sig_value_changed();
+        emit modified();
     }
 
     operator const T&() const
@@ -92,14 +42,9 @@ public:
     DocumentItem& operator=(const T& rhs)
     {
         current_value = rhs;
-        sig_value_changed();
+        emit modified();
 
         return *this;
-    }
-
-    virtual boost::optional<std::string> validate()
-    {
-        return validator(current_value);
     }
 
 private:

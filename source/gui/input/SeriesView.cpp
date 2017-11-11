@@ -35,7 +35,7 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentI
     vbox->addLayout(hbox);
 
     // Event handling
-    this->doc_item.on_value_changed([&]{
+    QObject::connect(&doc_item, &DocumentNode::modified, [&]{
         setData(this->doc_item);
     });
 
@@ -108,6 +108,8 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentI
         }
     });
     */
+
+    setData(this->doc_item);
 }
 
 void SeriesView::keyPressEvent(QKeyEvent* event)

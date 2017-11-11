@@ -3,30 +3,24 @@
 DoubleView::DoubleView(DocumentItem<double>& doc_item)
     : doc_item(doc_item)
 {
-    this->doc_item.on_value_changed([&]{
-        if(!this->hasFocus())
-        {
-            setValue(this->doc_item);
-        }
-    });
+    QObject::connect(&doc_item, &DocumentNode::modified, this, &DoubleView::update);
+    QObject::connect(this, &QLineEdit::textEdited, [this]{ getValue(false); });
+    QObject::connect(this, &QLineEdit::editingFinished, [this]{ getValue(true); });
 
-    QObject::connect(this, &QLineEdit::textEdited, [this]
-    {
-        getValue(false);
-    });
+    setValue(this->doc_item);
+}
 
-    QObject::connect(this, &QLineEdit::editingFinished, [this]
-    {
-        getValue(true);
-    });
+void DoubleView::update()
+{
+    if(!this->hasFocus())
+        setValue(this->doc_item);
 }
 
 void DoubleView::setValue(double value)
 {
-    this->setText(QLocale::c().toString(value, 'g'));    // Todo: Magic number
+    this->setText(QLocale::c().toString(value, 'g'));
 }
 
-// Todo: Rewrite control structure
 void DoubleView::getValue(bool correct)
 {
     bool success;
@@ -34,15 +28,7 @@ void DoubleView::getValue(bool correct)
 
     if(success)
     {
-        try
-        {
-            this->doc_item = value;
-        }
-        catch(const std::runtime_error&)
-        {
-            if(correct)
-                setValue(this->doc_item);
-        }
+        this->doc_item = value;
     }
     else if(correct)
     {

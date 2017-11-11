@@ -90,7 +90,8 @@ int Application::run_cli(QString input_path, QString output_path, bool dynamic)
 {
     try
     {
-        InputData input(input_path);
+        InputData input;
+        input.load(input_path);
         OutputData output = dynamic ? BowModel::run_dynamic_simulation(input, [](int){return true;}, [](int){return true;})
                                     : BowModel::run_static_simulation(input, [](int){return true;});
         output.save(output_path.toStdString());

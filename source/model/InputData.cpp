@@ -4,9 +4,9 @@
 
 using nlohmann::json;
 
-InputData::InputData(const QString& path)
+InputData::InputData()
 {
-    load(path);
+
 }
 
 void InputData::load(const QString& path)
