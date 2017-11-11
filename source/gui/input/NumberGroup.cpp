@@ -15,12 +15,12 @@ NumberGroup::NumberGroup(const QString& title)
     this->setLayout(grid);
 }
 
-void NumberGroup::addRow(const QString& name, const QString& unit, DocItem<double>& item)
+void NumberGroup::addRow(const QString& name, const QString& unit, DocumentItem<double>& item)
 {
     addRow(name, unit, new DoubleView(item));
 }
 
-void NumberGroup::addRow(const QString& name, const QString& unit, DocItem<int>& item)
+void NumberGroup::addRow(const QString& name, const QString& unit, DocumentItem<int>& item)
 {
     addRow(name, unit, new IntegerView(item));
 }

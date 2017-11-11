@@ -1,6 +1,6 @@
 #pragma once
 #include "gui/PlotWidget.hpp"
-#include "model/Document.hpp"
+#include "model/document/Document.hpp"
 
 class InputData;
 
@@ -12,7 +12,6 @@ public:
 
 private:
     InputData& data;
-    std::vector<Connection> connections;
     QCPCurve* curve0;
     QCPCurve* curve1;
 

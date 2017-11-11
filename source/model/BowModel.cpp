@@ -291,7 +291,7 @@ void BowModel::simulate_dynamics(const Callback& callback)
     double T = std::numeric_limits<double>::max();
     double alpha = input.settings_time_span_factor;
 
-    DynamicSolver solver1(system, dt, input.settings_sampling_rate, [&] {
+    DynamicSolver solver1(system, dt, input.settings_sampling_rate, [&]{
         double ut = system.get_u(node_arrow.y);
         if(ut < input.operation_brace_height)
         {
@@ -322,7 +322,7 @@ void BowModel::simulate_dynamics(const Callback& callback)
     node_arrow = system.create_node(nodes_string[0]);
     system.mut_elements().front<MassElement>("arrow").set_node(node_arrow);
 
-    DynamicSolver solver2(system, dt, input.settings_sampling_rate, [&] {
+    DynamicSolver solver2(system, dt, input.settings_sampling_rate, [&]{
         return system.get_t() >= alpha*T;
     });
 

@@ -52,12 +52,12 @@ public:
         vbox->insertWidget(vbox->count()-1, group, 1);
     }
 
-    void addField(const QString& name, const QString& unit, DocItem<double>& item)
+    void addField(const QString& name, const QString& unit, DocumentItem<double>& item)
     {
         addField(name, unit, new DoubleView(item));
     }
 
-    void addField(const QString& name, const QString& unit, DocItem<int>& item)
+    void addField(const QString& name, const QString& unit, DocumentItem<int>& item)
     {
         addField(name, unit, new IntegerView(item));
     }

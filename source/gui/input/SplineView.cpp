@@ -2,8 +2,8 @@
 #include "model/InputData.hpp"
 #include "numerics/CubicSpline.hpp"
 
-SplineView::SplineView(const QString& x_label, const QString& y_label, DocItem<Series>& doc_item)
-    : PlotWidget({750, 250})    // Todo: Magic number
+SplineView::SplineView(const QString& x_label, const QString& y_label, DocumentItem<Series>& doc_item)
+    : doc_item(doc_item)
 {
     this->xAxis->setLabel(x_label);
     this->yAxis->setLabel(y_label);
@@ -23,12 +23,10 @@ SplineView::SplineView(const QString& x_label, const QString& y_label, DocItem<S
     this->graph()->setLineStyle(QCPGraph::lsNone);
 
 
-    connection = doc_item.connect([this](const Series& points)
-    {
+    this->doc_item.on_value_changed([&]{
         try
         {
-            input = points;
-            output = CubicSpline::sample(input, 150);    // Todo: Magic number
+            output = CubicSpline::sample(this->doc_item, 150);    // Magic number
         }
         catch(std::runtime_error& e)
         {

@@ -39,11 +39,11 @@ EnergyPlot::EnergyPlot(const BowStates& states, const std::vector<double>& param
 
     cb_stacked->setChecked(true);
 
-    QObject::connect(cb_part, &QCheckBox::clicked, [&]() {
+    QObject::connect(cb_part, &QCheckBox::clicked, [&]{
         cb_type->setChecked(false);
     });
 
-    QObject::connect(cb_type, &QCheckBox::clicked, [&]() {
+    QObject::connect(cb_type, &QCheckBox::clicked, [&]{
         cb_part->setChecked(false);
     });
 

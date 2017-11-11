@@ -1,7 +1,7 @@
 #include "SeriesView.hpp"
 #include "numerics/Series.hpp"
 
-SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocItem<Series>& doc_item)
+SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentItem<Series>& doc_item)
     : doc_item(doc_item)
 {
     // Widgets and Layout
@@ -35,13 +35,11 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocItem<S
     vbox->addLayout(hbox);
 
     // Event handling
-    connection = doc_item.connect([this](const Series& series)
-    {
-        setData(series);
+    this->doc_item.on_value_changed([&]{
+        setData(this->doc_item);
     });
 
-    QObject::connect(table, &QTableWidget::cellChanged, [this](int i, int j)
-    {
+    QObject::connect(table, &QTableWidget::cellChanged, [this](int i, int j) {
         if(!table->item(i, j)->isSelected())    // Make sure the cell was changed by the user
             return;
 

@@ -23,10 +23,10 @@ ProfileView::ProfileView(InputData& data)
 
     // Todo: Use std::bind?
     // Todo: Inefficient and ugly
-    connections.push_back(data.profile_segments.connect([this](const Series&){ update(); }));
-    connections.push_back(data.profile_x0.connect([this](const double&){ update(); }));
-    connections.push_back(data.profile_y0.connect([this](const double&){ update(); }));
-    connections.push_back(data.profile_phi0.connect([this](const double&){ update(); }));
+    data.profile_segments.on_value_changed([&]{ update(); });
+    data.profile_x0.on_value_changed      ([&]{ update(); });
+    data.profile_y0.on_value_changed      ([&]{ update(); });
+    data.profile_phi0.on_value_changed    ([&]{ update(); });
     update();
 }
 

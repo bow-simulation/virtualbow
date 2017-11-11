@@ -1,5 +1,5 @@
 #pragma once
-#include "model/Document.hpp"
+#include "model/document/Document.hpp"
 #include <QtWidgets>
 
 class InputData;
@@ -8,8 +8,8 @@ class NumberGroup: public QGroupBox
 {
 public:
     NumberGroup(const QString& title);
-    void addRow(const QString& name, const QString& unit, DocItem<double>& item);
-    void addRow(const QString& name, const QString& unit, DocItem<int>& item);
+    void addRow(const QString& name, const QString& unit, DocumentItem<double>& item);
+    void addRow(const QString& name, const QString& unit, DocumentItem<int>& item);
 
 private:
     QGridLayout* grid;

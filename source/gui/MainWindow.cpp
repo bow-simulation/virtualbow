@@ -83,7 +83,7 @@ MainWindow:: MainWindow(const QString& path)
     menu_help->addAction(action_about);
 
     // Main window
-    QObject::connect(&input, &Document::stateChanged, this, &QMainWindow::setWindowModified);
+    input.on_value_changed([&]{ this->setWindowModified(true); });
     this->setWindowIcon(QIcon(":/icons/logo"));
     this->setCentralWidget(editor);
     setCurrentFile(QString());
@@ -234,20 +234,16 @@ void MainWindow::setCurrentFile(const QString &path)
 
 bool MainWindow::optionalSave()    // true: Discard, false: Cancel
 {
-    if(!input.isModified())
+    if(!this->isWindowModified())
         return true;
 
     auto pick = QMessageBox::warning(this, "", "The document has been modified.\nDo you want to save your changes?",
-                                     QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-
+                QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     switch(pick)
     {
-    case QMessageBox::Save:
-        return save();
-    case QMessageBox::Discard:
-        return true;
-    case QMessageBox::Cancel:
-        return false;
+        case QMessageBox::Save: return save();
+        case QMessageBox::Discard: return true;
+        case QMessageBox::Cancel: return false;
     }
 }
 

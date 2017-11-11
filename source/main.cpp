@@ -1,5 +1,13 @@
+/*
 #include <iostream>
+
+#include "Validators.hpp"
+
+#include <vector>
+#include <set>
 #include <boost/signals2.hpp>
+#include <boost/optional.hpp>
+#include <boost/optional/optional_io.hpp>
 
 class DocumentNode
 {
@@ -7,11 +15,35 @@ public:
     DocumentNode() = default;
 
     DocumentNode(DocumentNode& parent)
+        : parent(&parent)
     {
-        sig_value_changed.connect(parent.sig_value_changed);             // Propagate upwards
-        parent.sig_store_backup.connect(sig_store_backup);               // Propagate downwards
-        parent.sig_reset_to_backup.connect(sig_reset_to_backup);         // Propagate downwards
-        parent.sig_reset_to_default.connect(sig_reset_to_default);       // Propagate downwards
+        this->parent->children.insert(this);
+        this->parent->sig_value_changed();
+
+        sig_value_changed.connect([&]()
+        {
+            // Search children for errors, use the first one found
+            for(auto child: children)
+            {
+                if(child->error_state())
+                    error = child->error_state();
+            }
+
+            // Children have no errors, call own validation function
+            error = validate();
+
+            // Propagate change upwards
+            this->parent->sig_value_changed();
+        });
+    }
+
+    virtual ~DocumentNode()
+    {
+        if(parent)
+        {
+            this->parent->children.erase(this);
+            this->parent->sig_value_changed();
+        }
     }
 
     template<class F>
@@ -20,49 +52,40 @@ public:
         sig_value_changed.connect(f);
     }
 
-    void store_backup()
+    virtual boost::optional<std::string> validate()
     {
-        sig_store_backup();
+        return boost::none;
     }
 
-    void reset_to_backup()
+    const boost::optional<std::string>& error_state() const
     {
-        sig_reset_to_backup();
-    }
-
-    void reset_to_default()
-    {
-        sig_reset_to_default();
+        return error;
     }
 
 protected:
+    // Tree stuff
+    DocumentNode* parent = nullptr;
+    std::set<DocumentNode*> children;
+
+    // Error handling
+    boost::optional<std::string> error = boost::none;
+
+    // Signals
     boost::signals2::signal<void()> sig_value_changed;
-    boost::signals2::signal<void()> sig_store_backup;
-    boost::signals2::signal<void()> sig_reset_to_backup;
-    boost::signals2::signal<void()> sig_reset_to_default;
 };
 
 template<typename T>
 class DocumentValue: public DocumentNode
 {
 public:
-    DocumentValue(DocumentNode& parent, const T& value)
+    using Validator = std::function<boost::optional<std::string>(const T&)>;
+
+    DocumentValue(DocumentNode& parent, const Validator& validator, const T& value)
         : DocumentNode(parent),
           current_value(value),
-          backup_value(value),
-          default_value(value)
+          validator(validator)
     {
-        sig_store_backup.connect([&](){
-            backup_value = current_value;
-        });
-
-        sig_reset_to_backup.connect([&](){
-            set_value(backup_value);
-        });
-
-        sig_reset_to_default.connect([&](){
-            set_value(default_value);
-        });
+        sig_value_changed();
     }
 
     const T& get_value()
@@ -76,12 +99,18 @@ public:
         sig_value_changed();
     }
 
-private:
-    T current_value;
-    T backup_value;
-    T default_value;
-};
+    virtual boost::optional<std::string> validate()
+    {
+        return validator(current_value);
+    }
 
+private:
+    Validator validator;
+    T current_value;
+};
+*/
+
+/*
 struct Material: public DocumentNode
 {
     Material(DocumentNode& parent)
@@ -92,44 +121,38 @@ struct Material: public DocumentNode
 
     DocumentValue<double> stiffness{*this, 10.0};
     DocumentValue<double> density{*this, 1.6};
+
+    virtual boost::optional<std::string> validate()
+    {
+        if(stiffness.get_value() > density.get_value())
+            return std::string("Density must be larger than stiffness!!1");
+
+        return boost::none;
+    }
 };
 
 struct Input: public DocumentNode
 {
     Material material{*this};
 };
+*/
 
+/*
 int main()
 {
-    Input input;
+    DocumentNode node;
 
-    input.on_value_changed([]()
-    {
-        std::cout << "input changed!\n";
-    });
+    DocumentValue<double> stiffness{node, validators::pos, -10.0};
 
-    input.material.on_value_changed([]()
-    {
-        std::cout << "material changed!\n";
-    });
+    std::cout << "Error state: " << stiffness.error_state() << "\n";
 
-    input.material.stiffness.on_value_changed([]()
-    {
-        std::cout << "stiffness changed!\n";
-    });
+    stiffness.set_value(10.0);
 
-    input.material.stiffness.set_value(3.54);
-
-    std::cout << "stiffness = " << input.material.stiffness.get_value() << "\n";
-
-    input.store_backup();
-
-    input.reset_to_backup();
-
-    std::cout << "stiffness = " << input.material.stiffness.get_value() << "\n";
+    std::cout << "Error state: " << stiffness.error_state();
 
     return 0;
 }
+*/
 
 /*
 #include <iostream>
@@ -218,14 +241,12 @@ int main()
 }
 */
 
-/*
 #include "gui/Application.hpp"
 
 int main(int argc, char* argv[])
 {
     return Application::run(argc, argv);
 }
-*/
 
 /*
 #include "fem/System.hpp"
@@ -462,7 +483,7 @@ int main()
 */
 
 /*
-    DocItem(value, unit, name);
+    DocumentItem(value, unit, name);
     double get_base() const;    // Replace with conversion operator to T.
     double get_scaled() const;
     void set_scaled(double value)

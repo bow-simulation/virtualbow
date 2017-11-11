@@ -47,8 +47,6 @@ void InputData::load(const QString& path)
     settings_time_span_factor = obj["settings"]["time_span_factor"].get<double>();
     settings_time_step_factor = obj["settings"]["time_step_factor"].get<double>();
     settings_sampling_rate = obj["settings"]["sampling_rate"].get<double>();
-
-    this->setModified(false);
 }
 
 void InputData::save(const QString& path)
@@ -89,6 +87,4 @@ void InputData::save(const QString& path)
     std::ostringstream oss;
     oss << std::setw(4) << obj;
     QTextStream(&file) << QString::fromStdString(oss.str());
-
-    this->setModified(false);
 }

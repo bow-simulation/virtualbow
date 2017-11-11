@@ -71,7 +71,7 @@ add_executable(${PROJECT_NAME}
 
    source/model/BowModel.cpp
    source/model/InputData.cpp
-   source/model/Document.hpp    # moc
+   source/model/document/Document.hpp    # moc
 
    source/numerics/ArcCurve.cpp
    source/numerics/CubicSpline.cpp

@@ -1,15 +1,14 @@
 #pragma once
-#include "model/Document.hpp"
+#include "model/document/Document.hpp"
 #include <QtWidgets>
 
 class DoubleView: public QLineEdit
 {
 public:
-    DoubleView(DocItem<double>& doc_item);
+    DoubleView(DocumentItem<double>& doc_item);
 
 private:
-    DocItem<double>& doc_item;
-    Connection connection;
+    DocumentItem<double>& doc_item;
 
     void setValue(double value);
     void getValue(bool correct);

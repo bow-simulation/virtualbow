@@ -1,5 +1,5 @@
 #pragma once
-#include "model/Document.hpp"
+#include "model/document/Document.hpp"
 #include "model/Compatibility.hpp"
 #include "numerics/Series.hpp"
 
@@ -13,47 +13,48 @@ struct Layer
     double E;
 };
 
-struct InputData: public Document
+struct InputData: public DocumentNode
 {
     // Meta
-    DocItem<std::string>  meta_version{this};
-    DocItem<std::string> meta_comments{this};
+    DocumentItem<std::string>  meta_version{*this, validators::any<std::string>, ""};
+    DocumentItem<std::string> meta_comments{*this, validators::any<std::string>, ""};
 
     // Profile
-    DocItem<Series> profile_segments{this};
-    DocItem<double>       profile_x0{this};
-    DocItem<double>       profile_y0{this};
-    DocItem<double>     profile_phi0{this};
+    DocumentItem<Series> profile_segments{*this, validators::any<Series>, Series()};
+    DocumentItem<double>       profile_x0{*this, validators::any<double>, 0.0};
+    DocumentItem<double>       profile_y0{*this, validators::any<double>, 0.0};
+    DocumentItem<double>     profile_phi0{*this, validators::any<double>, 0.0};
 
     // Sections
-    DocItem<Series>  sections_width{this};
-    DocItem<Series> sections_height{this};
-    DocItem<double>   sections_rho {this, &Domain<double>::pos};
-    DocItem<double>      sections_E{this, &Domain<double>::pos};
+    DocumentItem<Series>  sections_width{*this, validators::any<Series>, Series()};
+    DocumentItem<Series> sections_height{*this, validators::any<Series>, Series()};
+    DocumentItem<double>    sections_rho{*this, validators::pos<double>, 3.14};
+    DocumentItem<double>      sections_E{*this, validators::pos<double>, 3.14};
 
     // String
-    DocItem<double> string_strand_stiffness{this, &Domain<double>::pos};
-    DocItem<double>   string_strand_density{this, &Domain<double>::pos};
-    DocItem<double>        string_n_strands{this, &Domain<double>::pos};
+    DocumentItem<double> string_strand_stiffness{*this, validators::pos<double>, 1.14};
+    DocumentItem<double>   string_strand_density{*this, validators::pos<double>, 2.14};
+    DocumentItem<double>        string_n_strands{*this, validators::pos<double>, 3.14};
 
     // Additional masses
-    DocItem<double> mass_string_center{this, &Domain<double>::non_neg};
-    DocItem<double>    mass_string_tip{this, &Domain<double>::non_neg};
-    DocItem<double>      mass_limb_tip{this, &Domain<double>::non_neg};
+    DocumentItem<double> mass_string_center{*this, validators::non_neg<double>, 4.14};
+    DocumentItem<double>    mass_string_tip{*this, validators::non_neg<double>, 5.14};
+    DocumentItem<double>      mass_limb_tip{*this, validators::non_neg<double>, 6.14};
 
     // Operation
-    DocItem<double> operation_brace_height{this};
-    DocItem<double>  operation_draw_length{this, &Domain<double>::pos};
-    DocItem<double>   operation_mass_arrow{this, &Domain<double>::pos};
+    DocumentItem<double> operation_brace_height{*this, validators::any<double>, 10.0};
+    DocumentItem<double>  operation_draw_length{*this, validators::any<double>, 10.0};
+    DocumentItem<double>   operation_mass_arrow{*this, validators::pos<double>, 50.0};
 
     // Settings
-    DocItem<int>     settings_n_elements_limb{this, &Domain<int>::pos};
-    DocItem<int>   settings_n_elements_string{this, &Domain<int>::pos};
-    DocItem<int>        settings_n_draw_steps{this, &Domain<int>::pos};
-    DocItem<double> settings_time_span_factor{this, &Domain<double>::pos};
-    DocItem<double> settings_time_step_factor{this, &Domain<double>::pos};
-    DocItem<double>    settings_sampling_rate{this, &Domain<double>::pos};
+    DocumentItem<int>     settings_n_elements_limb{*this, validators::pos<int>, 40};
+    DocumentItem<int>   settings_n_elements_string{*this, validators::pos<int>, 45};
+    DocumentItem<int>        settings_n_draw_steps{*this, validators::pos<int>, 150};
+    DocumentItem<double> settings_time_span_factor{*this, validators::pos<double>, 1.5};
+    DocumentItem<double> settings_time_step_factor{*this, validators::pos<double>, 0.5};
+    DocumentItem<double>    settings_sampling_rate{*this, validators::pos<double>, 1e4};
 
+    // Todo: Use std library
     InputData(const QString& path);
     void load(const QString& path);
     void save(const QString& path);

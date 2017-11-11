@@ -1,13 +1,12 @@
 #include "DoubleView.hpp"
 
-DoubleView::DoubleView(DocItem<double>& doc_item)
+DoubleView::DoubleView(DocumentItem<double>& doc_item)
     : doc_item(doc_item)
 {
-    connection = doc_item.connect([this](const double& value)
-    {
+    this->doc_item.on_value_changed([&]{
         if(!this->hasFocus())
         {
-            setValue(value);
+            setValue(this->doc_item);
         }
     });
 

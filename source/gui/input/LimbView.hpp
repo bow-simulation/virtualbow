@@ -1,6 +1,6 @@
 #pragma once
 #include "gui/input/LimbSource.hpp"
-#include "model/Document.hpp"
+#include "model/document/Document.hpp"
 #include "model/LimbProperties.hpp"
 #include <QtWidgets>
 
@@ -115,13 +115,12 @@ public:
         this->setLayout(hbox);
 
         // Event handling
-        // Todo: Use std::bind or something...
-        connections.push_back(data.profile_segments.connect([&](const Series&){ updateLimbSource(); }));
-        connections.push_back(      data.profile_x0.connect([&](const double&){ updateLimbSource(); }));
-        connections.push_back(      data.profile_y0.connect([&](const double&){ updateLimbSource(); }));
-        connections.push_back(    data.profile_phi0.connect([&](const double&){ updateLimbSource(); }));
-        connections.push_back(  data.sections_width.connect([&](const Series&){ updateLimbSource(); }));
-        connections.push_back( data.sections_height.connect([&](const Series&){ updateLimbSource(); }));
+        data.profile_segments.on_value_changed([&]{ updateLimbSource(); });
+        data.profile_x0.on_value_changed      ([&]{ updateLimbSource(); });
+        data.profile_y0.on_value_changed      ([&]{ updateLimbSource(); });
+        data.profile_phi0.on_value_changed    ([&]{ updateLimbSource(); });
+        data.sections_width.on_value_changed  ([&]{ updateLimbSource(); });
+        data.sections_height.on_value_changed ([&]{ updateLimbSource(); });
 
         // Default view
         view3D();
@@ -135,7 +134,6 @@ private:
     vtkSmartPointer<vtkOrientationMarkerWidget> widget;
 
     InputData& data;
-    std::vector<Connection> connections;
 
     void updateLimbSource()
     {
