@@ -1,6 +1,6 @@
 #pragma once
-#include "gui/input/DoubleView.hpp"
-#include "gui/input/IntegerView.hpp"
+#include "gui/views/DoubleView.hpp"
+#include "gui/views/IntegerView.hpp"
 
 #include <QtWidgets>
 

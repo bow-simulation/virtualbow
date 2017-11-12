@@ -39,7 +39,7 @@ BowModel::BowModel(const InputData& input, const Callback& callback)
     : input(input)
 {
     // Input validation
-    if(input.operation_brace_height >= input.operation_draw_length)
+    if(input.operation.brace_height >= input.operation.draw_length)
         throw std::runtime_error("The draw length must be greater than the brace height");
 
     init_limb(callback);
@@ -53,7 +53,7 @@ void BowModel::init_limb(const Callback& callback)
     output.setup.limb = LimbProperties(input);
 
     // Create limb nodes
-    for(size_t i = 0; i < input.settings_n_elements_limb + 1; ++i)
+    for(size_t i = 0; i < input.settings.n_elements_limb + 1; ++i)
     {
         bool active = (i != 0);
         Node node = system.create_node({active, active, active}, {output.setup.limb.x[i], output.setup.limb.y[i], output.setup.limb.phi[i]});
@@ -61,7 +61,7 @@ void BowModel::init_limb(const Callback& callback)
     }
 
     // Create limb elements
-    for(size_t i = 0; i < input.settings_n_elements_limb; ++i)
+    for(size_t i = 0; i < input.settings.n_elements_limb; ++i)
     {
         double rhoA = 0.5*(output.setup.limb.rhoA[i] + output.setup.limb.rhoA[i+1]);
         double L = system.get_distance(nodes_limb[i], nodes_limb[i+1]);
@@ -89,7 +89,7 @@ void BowModel::init_string(const Callback& callback)
 
     // Calculate curve tangential to the limb na d calculate string node positions by equipartition
     std::vector<Vector<2>> points;
-    points.push_back({0.0, -input.operation_brace_height});
+    points.push_back({0.0, -input.operation.brace_height});
     for(size_t i = 0; i < nodes_limb.size(); ++i)
     {
         points.push_back({
@@ -100,7 +100,7 @@ void BowModel::init_string(const Callback& callback)
     }
 
     points = one_sided_orientation_subset(points, true);
-    points = equipartition(points, input.settings_n_elements_string + 1);
+    points = equipartition(points, input.settings.n_elements_string + 1);
 
     // Create string nodes
     for(size_t i = 0; i < points.size(); ++i)
@@ -110,10 +110,10 @@ void BowModel::init_string(const Callback& callback)
     }
 
     // Create string elements
-    double EA = input.string_n_strands*input.string_strand_stiffness;
-    double rhoA = input.string_n_strands*input.string_strand_density;
+    double EA = input.string.n_strands*input.string.strand_stiffness;
+    double rhoA = input.string.n_strands*input.string.strand_density;
 
-    for(size_t i = 0; i < input.settings_n_elements_string; ++i)
+    for(size_t i = 0; i < input.settings.n_elements_string; ++i)
     {
         BarElement element(system, nodes_string[i], nodes_string[i+1], 0.0, EA, rhoA); // Element lengths are reset later when string length is determined
         system.mut_elements().add(element, "string");
@@ -141,7 +141,7 @@ void BowModel::init_string(const Callback& callback)
         for(auto& element: system.mut_elements().group<BarElement>("string"))
             element.set_length(l);
 
-        info = solver.solve(-input.operation_brace_height);
+        info = solver.solve(-input.operation.brace_height);
         return system.get_angle(nodes_string[0], nodes_string[1]);
     };
 
@@ -186,16 +186,16 @@ void BowModel::init_string(const Callback& callback)
     }
 
     // Assign setup data
-    output.setup.string_length = 2.0*l*input.settings_n_elements_string;    // *2 because of symmetry
+    output.setup.string_length = 2.0*l*input.settings.n_elements_string;    // *2 because of symmetry
 }
 
 void BowModel::init_masses(const Callback& callback)
 {
     node_arrow = nodes_string[0];
-    MassElement mass_limb_tip(system, nodes_limb.back(), input.mass_limb_tip);
-    MassElement mass_string_tip(system, nodes_string.back(), input.mass_string_tip);
-    MassElement mass_string_center(system, nodes_string.front(), 0.5*input.mass_string_center);   // 0.5 because of symmetry
-    MassElement mass_arrow(system, node_arrow, 0.5*input.operation_mass_arrow);                   // 0.5 because of symmetry
+    MassElement mass_limb_tip(system, nodes_limb.back(), input.masses.limb_tip);
+    MassElement mass_string_tip(system, nodes_string.back(), input.masses.string_tip);
+    MassElement mass_string_center(system, nodes_string.front(), 0.5*input.masses.string_center);   // 0.5 because of symmetry
+    MassElement mass_arrow(system, node_arrow, 0.5*input.operation.mass_arrow);                   // 0.5 because of symmetry
 
     system.mut_elements().add(mass_limb_tip, "limb tip");
     system.mut_elements().add(mass_string_tip, "string tip");
@@ -207,10 +207,10 @@ void BowModel::simulate_statics(const Callback& callback)
 {
     system.set_p(nodes_string[0].y, 1.0);    // Will be scaled by the static algorithm
     StaticSolverDC solver(system, nodes_string[0].y);
-    for(unsigned i = 0; i < input.settings_n_draw_steps; ++i)
+    for(unsigned i = 0; i < input.settings.n_draw_steps; ++i)
     {
-        double eta = double(i)/(input.settings_n_draw_steps - 1);
-        double draw_length = (1.0 - eta)*input.operation_brace_height + eta*input.operation_draw_length;
+        double eta = double(i)/(input.settings.n_draw_steps - 1);
+        double draw_length = (1.0 - eta)*input.operation.brace_height + eta*input.operation.draw_length;
 
         solver.solve(-draw_length);
         add_state(output.statics.states);
@@ -287,16 +287,16 @@ void BowModel::simulate_dynamics(const Callback& callback)
     // Set draw force to zero
     system.set_p(nodes_string[0].y, 0.0);
 
-    double dt = DynamicSolver::estimate_timestep(system, input.settings_time_step_factor);
+    double dt = DynamicSolver::estimate_timestep(system, input.settings.time_step_factor);
     double T = std::numeric_limits<double>::max();
-    double alpha = input.settings_time_span_factor;
+    double alpha = input.settings.time_span_factor;
 
-    DynamicSolver solver1(system, dt, input.settings_sampling_rate, [&]{
+    DynamicSolver solver1(system, dt, input.settings.sampling_rate, [&]{
         double ut = system.get_u(node_arrow.y);
-        if(ut < input.operation_brace_height)
+        if(ut < input.operation.brace_height)
         {
-            double u0 = -input.operation_draw_length;
-            double u1 = -input.operation_brace_height;
+            double u0 = -input.operation.draw_length;
+            double u1 = -input.operation.brace_height;
 
             if(ut != u0)
                 T = system.get_t()*std::acos(u1/u0)/std::acos(ut/u0);
@@ -322,7 +322,7 @@ void BowModel::simulate_dynamics(const Callback& callback)
     node_arrow = system.create_node(nodes_string[0]);
     system.mut_elements().front<MassElement>("arrow").set_node(node_arrow);
 
-    DynamicSolver solver2(system, dt, input.settings_sampling_rate, [&]{
+    DynamicSolver solver2(system, dt, input.settings.sampling_rate, [&]{
         return system.get_t() >= alpha*T;
     });
 
@@ -362,7 +362,7 @@ void BowModel::add_state(BowStates& states) const
         string_force = std::max(string_force, std::abs(element.get_normal_force()));
 
     states.string_force.push_back(string_force);
-    states.strand_force.push_back(string_force/input.string_n_strands);
+    states.strand_force.push_back(string_force/input.string.n_strands);
     states.grip_force.push_back(-2.0*system.get_q(nodes_limb[0].y));    // *2 because of symmetry
 
     states.e_pot_limbs.push_back(e_pot_limb + e_pot_limb_tip);

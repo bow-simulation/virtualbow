@@ -266,7 +266,7 @@ bool MainWindow::saveFile(const QString& path)
 {
     try
     {
-        input.meta_version = QGuiApplication::applicationVersion().toStdString();
+        input.meta.version = QGuiApplication::applicationVersion().toStdString();
         input.save(path);
 
         setCurrentFile(path);

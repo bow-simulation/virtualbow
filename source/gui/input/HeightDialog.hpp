@@ -1,7 +1,7 @@
 #pragma once
 #include "gui/PersistentDialog.hpp"
-#include "gui/input/SeriesView.hpp"
-#include "gui/input/SplineView.hpp"
+#include "gui/views/SeriesView.hpp"
+#include "gui/views/SplineView.hpp"
 #include "model/InputData.hpp"
 
 #include <QtWidgets>
@@ -16,8 +16,8 @@ public:
     {
         // Widgets
 
-        auto series_view = new SeriesView("Rel. position", "Height [m]", data.sections_height);
-        auto spline_view = new SplineView("Relative position", "Height [m]", data.sections_height);
+        auto series_view = new SeriesView("Rel. position", "Height [m]", data.sections.height);
+        auto spline_view = new SplineView("Relative position", "Height [m]", data.sections.height);
         QObject::connect(series_view, &SeriesView::selectionChanged, spline_view, &SplineView::setSelection);
 
         auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok);

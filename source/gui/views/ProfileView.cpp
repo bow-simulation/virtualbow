@@ -22,10 +22,10 @@ ProfileView::ProfileView(InputData& data)
     curve1->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
 
     // Event handling
-    QObject::connect(&data.profile_segments, &DocumentNode::modified, [&]{ update(); });
-    QObject::connect(&data.profile_x0,       &DocumentNode::modified, [&]{ update(); });
-    QObject::connect(&data.profile_y0,       &DocumentNode::modified, [&]{ update(); });
-    QObject::connect(&data.profile_phi0,     &DocumentNode::modified, [&]{ update(); });
+    QObject::connect(&data.profile.segments, &DocumentNode::modified, [&]{ update(); });
+    QObject::connect(&data.profile.x0,       &DocumentNode::modified, [&]{ update(); });
+    QObject::connect(&data.profile.y0,       &DocumentNode::modified, [&]{ update(); });
+    QObject::connect(&data.profile.phi0,     &DocumentNode::modified, [&]{ update(); });
 
     update();
 }
@@ -39,16 +39,16 @@ void ProfileView::update()
 {
     try
     {
-        Curve2D curve = ArcCurve::sample(data.profile_segments,
-                                         data.profile_x0,
-                                         data.profile_y0,
-                                         data.profile_phi0,
+        Curve2D curve = ArcCurve::sample(data.profile.segments,
+                                         data.profile.x0,
+                                         data.profile.y0,
+                                         data.profile.phi0,
                                          150);  // Todo: Magic number
 
-        Curve2D nodes = ArcCurve::nodes(data.profile_segments,
-                                        data.profile_x0,
-                                        data.profile_y0,
-                                        data.profile_phi0);
+        Curve2D nodes = ArcCurve::nodes(data.profile.segments,
+                                        data.profile.x0,
+                                        data.profile.y0,
+                                        data.profile.phi0);
 
         curve0->setData(curve.x, curve.y);
         curve1->setData(nodes.x, nodes.y);

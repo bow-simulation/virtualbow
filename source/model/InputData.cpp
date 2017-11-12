@@ -4,13 +4,9 @@
 
 using nlohmann::json;
 
-InputData::InputData()
-{
-
-}
-
 void InputData::load(const QString& path)
 {
+    /*
     QFile file(path);
     if(!file.open(QFile::ReadOnly | QFile::Text))
     {
@@ -47,10 +43,12 @@ void InputData::load(const QString& path)
     settings_time_span_factor = obj["settings"]["time_span_factor"].get<double>();
     settings_time_step_factor = obj["settings"]["time_step_factor"].get<double>();
     settings_sampling_rate = obj["settings"]["sampling_rate"].get<double>();
+    */
 }
 
 void InputData::save(const QString& path)
 {
+    /*
     json obj;
     obj["meta"]["version"] = Application::version;
     obj["meta"]["comments"] = std::string(meta_comments);
@@ -87,4 +85,5 @@ void InputData::save(const QString& path)
     std::ostringstream oss;
     oss << std::setw(4) << obj;
     QTextStream(&file) << QString::fromStdString(oss.str());
+    */
 }

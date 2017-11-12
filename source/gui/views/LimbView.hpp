@@ -1,5 +1,5 @@
 #pragma once
-#include "gui/input/LimbSource.hpp"
+#include "LimbSource.hpp"
 #include "model/document/Document.hpp"
 #include "model/LimbProperties.hpp"
 #include <QtWidgets>
@@ -115,12 +115,12 @@ public:
         this->setLayout(hbox);
 
         // Event handling
-        QObject::connect(&data.profile_segments, &DocumentNode::modified, [&]{ updateLimbSource(); });
-        QObject::connect(&data.profile_x0,       &DocumentNode::modified, [&]{ updateLimbSource(); });
-        QObject::connect(&data.profile_y0,       &DocumentNode::modified, [&]{ updateLimbSource(); });
-        QObject::connect(&data.profile_phi0,     &DocumentNode::modified, [&]{ updateLimbSource(); });
-        QObject::connect(&data.sections_width,   &DocumentNode::modified, [&]{ updateLimbSource(); });
-        QObject::connect(&data.sections_height,  &DocumentNode::modified, [&]{ updateLimbSource(); });
+        QObject::connect(&data.profile.segments, &DocumentNode::modified, [&]{ updateLimbSource(); });
+        QObject::connect(&data.profile.x0,       &DocumentNode::modified, [&]{ updateLimbSource(); });
+        QObject::connect(&data.profile.y0,       &DocumentNode::modified, [&]{ updateLimbSource(); });
+        QObject::connect(&data.profile.phi0,     &DocumentNode::modified, [&]{ updateLimbSource(); });
+        QObject::connect(&data.sections.width,   &DocumentNode::modified, [&]{ updateLimbSource(); });
+        QObject::connect(&data.sections.height,  &DocumentNode::modified, [&]{ updateLimbSource(); });
 
         updateLimbSource();
         view3D();

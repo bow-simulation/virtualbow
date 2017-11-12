@@ -13,7 +13,7 @@ CommentDialog::CommentDialog(QWidget* parent, InputData& data)
     edit = new QTextEdit();
     edit->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));    // Set to system's default monospace font
     edit->setAcceptRichText(false);                                        // Limit to plain text
-    edit->setText(QString::fromStdString(data.meta_comments));
+    edit->setText(QString::fromStdString(data.meta.comments));
     vbox->addWidget(edit);
 
     auto btbox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -21,7 +21,7 @@ CommentDialog::CommentDialog(QWidget* parent, InputData& data)
 
     QObject::connect(btbox, &QDialogButtonBox::accepted, [this]
     {
-        this->data.meta_comments = edit->toPlainText().toStdString();
+        this->data.meta.comments = edit->toPlainText().toStdString();
         this->accept();
     });
 

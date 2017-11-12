@@ -1,12 +1,12 @@
 #pragma once
-#include "Settings.hpp"
+#include "UserSettings.hpp"
 #include <QtGui>
 
 class Application
 {
 public:
     static const std::string version;
-    static Settings settings;
+    static UserSettings settings;
 
     static int run(int argc, char* argv[]);
 

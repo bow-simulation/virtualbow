@@ -7,7 +7,7 @@
 #endif
 
 const std::string Application::version = "0.4";
-Settings Application::settings = Settings();
+UserSettings Application::settings = UserSettings();
 
 int Application::run(int argc, char* argv[])
 {

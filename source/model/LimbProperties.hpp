@@ -56,7 +56,7 @@ struct LimbProperties
     std::vector<LayerProperties> layers;
 
     LimbProperties(const InputData& input)
-        : LimbProperties(input, input.settings_n_elements_limb)
+        : LimbProperties(input, input.settings.n_elements_limb)
     {
 
     }
@@ -75,10 +75,10 @@ struct LimbProperties
           rhoA(n_elements_limb + 1)
     {
         // 1. Nodes
-        Curve2D curve = ArcCurve::sample(input.profile_segments,
-                                         input.profile_x0,
-                                         input.profile_y0,
-                                         input.profile_phi0,
+        Curve2D curve = ArcCurve::sample(input.profile.segments,
+                                         input.profile.x0,
+                                         input.profile.y0,
+                                         input.profile.phi0,
                                          n_elements_limb);
 
         // Todo: Is there a more elegant way? Maybe have a Curve2D member?
@@ -88,8 +88,8 @@ struct LimbProperties
         phi = curve.phi;
 
         // 2. Sections
-        Series width = CubicSpline::sample(input.sections_width, n_elements_limb);
-        Series height = CubicSpline::sample(input.sections_height, n_elements_limb);
+        Series width = CubicSpline::sample(input.sections.width, n_elements_limb);
+        Series height = CubicSpline::sample(input.sections.height, n_elements_limb);
 
         for(size_t i = 0; i < s.size(); ++i)
         {
@@ -103,16 +103,16 @@ struct LimbProperties
             h[i] = h_i;
 
             hc[i] = h_i;
-            Cee[i] = input.sections_E*A;
-            Ckk[i] = input.sections_E*I;
-            Cek[i] = input.sections_E*A*h_i/2.0;
-            rhoA[i] = input.sections_rho*A;
+            Cee[i] = input.sections.E*A;
+            Ckk[i] = input.sections.E*I;
+            Cek[i] = input.sections.E*A*h_i/2.0;
+            rhoA[i] = input.sections.rho*A;
         }
 
         // 3. Layers
 
         layers.push_back({n_elements_limb + 1});
-        layers[0].E = input.sections_E;
+        layers[0].E = input.sections.E;
 
         for(size_t i = 0; i < s.size(); ++i)
         {

@@ -1,6 +1,6 @@
 #include "NumberGroup.hpp"
-#include "DoubleView.hpp"
-#include "IntegerView.hpp"
+#include "gui/views/DoubleView.hpp"
+#include "gui/views/IntegerView.hpp"
 #include "model/InputData.hpp"
 
 NumberGroup::NumberGroup(const QString& title)

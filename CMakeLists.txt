@@ -51,15 +51,15 @@ add_executable(${PROJECT_NAME}
    source/gui/input/ModelTree.cpp
    source/gui/input/CommentDialog.cpp
    source/gui/input/ProfileDialog.cpp
-   source/gui/input/DoubleView.cpp
-   source/gui/input/IntegerView.cpp
    source/gui/input/NumberGroup.cpp
-   source/gui/input/SeriesView.cpp
-   source/gui/input/LimbView.cpp
-   source/gui/input/LimbSource.cpp
-   source/gui/input/SplineView.cpp
-   source/gui/input/ProfileView.cpp
-   source/gui/input/LimbView.cpp
+
+   source/gui/views/DoubleView.cpp
+   source/gui/views/IntegerView.cpp
+   source/gui/views/SeriesView.cpp
+   source/gui/views/SplineView.cpp
+   source/gui/views/ProfileView.cpp
+   source/gui/views/LimbView.cpp
+   source/gui/views/LimbSource.cpp
 
    source/gui/output/ComboPlot.cpp
    source/gui/output/EnergyPlot.cpp
