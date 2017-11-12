@@ -15,22 +15,22 @@ struct Settings: public DocumentNode
 
     void load(const json& obj)
     {
-        n_elements_limb.load(obj["n_elements_limb"]);
-        n_elements_string.load(obj["n_elements_string"]);
-        n_draw_steps.load(obj["n_draw_steps"]);
-        time_span_factor.load(obj["time_span_factor"]);
-        time_step_factor.load(obj["time_step_factor"]);
-        sampling_rate.load(obj["sampling_rate"]);
+        n_elements_limb   = (int)    obj["n_elements_limb"];
+        n_elements_string = (int)    obj["n_elements_string"];
+        n_draw_steps      = (int)    obj["n_draw_steps"];
+        time_span_factor  = (double) obj["time_span_factor"];
+        time_step_factor  = (double) obj["time_step_factor"];
+        sampling_rate     = (double) obj["sampling_rate"];
     }
 
     void save(json& obj) const
     {
-        n_elements_limb.save(obj["n_elements_limb"]);
-        n_elements_string.save(obj["n_elements_string"]);
-        n_draw_steps.save(obj["n_draw_steps"]);
-        time_span_factor.save(obj["time_span_factor"]);
-        time_step_factor.save(obj["time_step_factor"]);
-        sampling_rate.save(obj["sampling_rate"]);
+        obj["n_elements_limb"]   = (int)    n_elements_limb;
+        obj["n_elements_string"] = (int)    n_elements_string;
+        obj["n_draw_steps"]      = (int)    n_draw_steps;
+        obj["time_span_factor"]  = (double) time_span_factor;
+        obj["time_step_factor"]  = (double) time_step_factor;
+        obj["sampling_rate"]     = (double) sampling_rate;
     }
 };
 

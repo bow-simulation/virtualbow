@@ -12,15 +12,15 @@ struct String: public DocumentNode
 
     void load(const json& obj)
     {
-        strand_stiffness.load(obj["strand_stiffness"]);
-        strand_density.load(obj["strand_density"]);
-        n_strands.load(obj["n_strands"]);
+        strand_stiffness = (double) obj["strand_stiffness"];
+        strand_density   = (double) obj["strand_density"];
+        n_strands        = (double) obj["n_strands"];
     }
 
     void save(json& obj) const
     {
-        strand_stiffness.save(obj["strand_stiffness"]);
-        strand_density.save(obj["strand_density"]);
-        n_strands.save(obj["n_strands"]);
+        obj["strand_stiffness"] = (double) strand_stiffness;
+        obj["strand_density"]   = (double) strand_density;
+        obj["n_strands"]        = (double) n_strands;
     }
 };

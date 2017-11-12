@@ -24,18 +24,18 @@ struct Sections: public DocumentNode
 
     void load(const json& obj)
     {
-        width.load(obj["width"]);
-        height.load(obj["height"]);
-        rho.load(obj["rho"]);
-        E.load(obj["E"]);
+        width  = (Series) obj["width"];
+        height = (Series) obj["height"];
+        rho    = (double) obj["rho"];
+        E      = (double) obj["E"];
     }
 
     void save(json& obj) const
     {
-        width.save(obj["width"]);
-        height.save(obj["height"]);
-        rho.save(obj["rho"]);
-        E.save(obj["E"]);
+        obj["width"]  = (Series) width;
+        obj["height"] = (Series) height;
+        obj["rho"]    = (double) rho;
+        obj["E"]      = (double) E;
     }
 };
 

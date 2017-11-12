@@ -14,17 +14,17 @@ struct Profile: public DocumentNode
 
     void load(const json& obj)
     {
-        segments.load(obj["segments"]);
-        x0.load(obj["x0"]);
-        y0.load(obj["y0"]);
-        phi0.load(obj["phi0"]);
+        segments = (Series) obj["segments"];
+        x0       = (double) obj["x0"];
+        y0       = (double) obj["y0"];
+        phi0     = (double) obj["phi0"];
     }
 
     void save(json& obj) const
     {
-        segments.save(obj["segments"]);
-        x0.save(obj["x0"]);
-        y0.save(obj["y0"]);
-        phi0.save(obj["phi0"]);
+        obj["segments"] = (Series) segments;
+        obj["x0"]       = (double) x0;
+        obj["y0"]       = (double) y0;
+        obj["phi0"]     = (double) phi0;
     }
 };

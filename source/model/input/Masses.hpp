@@ -12,15 +12,15 @@ struct Masses: public DocumentNode
 
     void load(const json& obj)
     {
-        string_center.load(obj["string_center"]);
-        string_tip.load(obj["string_tip"]);
-        limb_tip.load(obj["limb_tip"]);
+        string_center = (double) obj["string_center"];
+        string_tip    = (double) obj["string_tip"];
+        limb_tip      = (double) obj["limb_tip"];
     }
 
     void save(json& obj) const
     {
-        string_center.save(obj["string_center"]);
-        string_tip.save(obj["string_tip"]);
-        limb_tip.save(obj["limb_tip"]);
+        obj["string_center"] = (double) string_center;
+        obj["string_tip"]    = (double) string_tip;
+        obj["limb_tip"]      = (double) limb_tip;
     }
 };

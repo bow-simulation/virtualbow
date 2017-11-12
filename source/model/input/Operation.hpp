@@ -12,16 +12,16 @@ struct Operation: public DocumentNode
 
     void load(const json& obj)
     {
-        brace_height.load(obj["brace_height"]);
-        draw_length.load(obj["draw_length"]);
-        mass_arrow.load(obj["mass_arrow"]);
+        brace_height = (double) obj["brace_height"];
+        draw_length  = (double) obj["draw_length"];
+        mass_arrow   = (double) obj["mass_arrow"];
     }
 
     void save(json& obj) const
     {
-        brace_height.save(obj["brace_height"]);
-        draw_length.save(obj["draw_length"]);
-        mass_arrow.save(obj["mass_arrow"]);
+        obj["brace_height"] = (double) brace_height;
+        obj["draw_length"]  = (double) draw_length;
+        obj["mass_arrow"]   = (double) mass_arrow;
     }
 };
 

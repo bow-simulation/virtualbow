@@ -12,14 +12,14 @@ struct Meta: public DocumentNode
 
     void load(const json& obj)
     {
-        version.load(obj["version"]);
-        comments.load(obj["comments"]);
+        version  = obj["version"].get<std::string>();
+        comments = obj["comments"].get<std::string>();
     }
 
     void save(json& obj) const
     {
-        version.save(obj["version"]);
-        comments.save(obj["comments"]);
+        obj["version"]  = (std::string) version;
+        obj["comments"] = (std::string) comments;
     }
 };
 

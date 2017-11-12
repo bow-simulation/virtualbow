@@ -2,9 +2,6 @@
 #include <QtCore>
 #include "Validators.hpp"
 #include <boost/optional.hpp>
-#include <json.hpp>
-
-using nlohmann::json;
 
 class DocumentNode: public QObject
 {
@@ -53,16 +50,6 @@ public:
         emit modified();
 
         return *this;
-    }
-
-    void load(const json& obj)
-    {
-        this->operator=(obj.get<T>());
-    }
-
-    void save(json& obj) const
-    {
-        obj = current_value;    // Todo: Use operator const T&()
     }
 
 private:
