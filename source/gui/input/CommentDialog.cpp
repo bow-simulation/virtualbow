@@ -1,5 +1,5 @@
 #include "CommentDialog.hpp"
-#include "model/InputData.hpp"
+#include "model/input/InputData.hpp"
 
 CommentDialog::CommentDialog(QWidget* parent, InputData& data)
     : PersistentDialog(parent, "CommentDialog", {600, 300}),

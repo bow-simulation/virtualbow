@@ -1,5 +1,5 @@
 #include "SplineView.hpp"
-#include "model/InputData.hpp"
+#include "model/input/InputData.hpp"
 #include "numerics/CubicSpline.hpp"
 
 SplineView::SplineView(const QString& x_label, const QString& y_label, DocumentItem<Series>& doc_item)

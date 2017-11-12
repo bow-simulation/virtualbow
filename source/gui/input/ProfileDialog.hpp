@@ -3,7 +3,7 @@
 #include "gui/views/SeriesView.hpp"
 #include "gui/views/ProfileView.hpp"
 #include "gui/views/DoubleView.hpp"
-#include "model/InputData.hpp"
+#include "model/input/InputData.hpp"
 
 #include <QtWidgets>
 

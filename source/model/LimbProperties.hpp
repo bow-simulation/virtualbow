@@ -1,5 +1,5 @@
 #pragma once
-#include "model/InputData.hpp"
+#include "model/input/InputData.hpp"
 #include "numerics/Eigen.hpp"
 #include "numerics/ArcCurve.hpp"
 #include "numerics/CubicSpline.hpp"

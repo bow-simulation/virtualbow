@@ -7,7 +7,7 @@
 #include <thread>
 #include <json.hpp>
 
-MainWindow:: MainWindow(const QString& path)
+MainWindow::MainWindow()
     : editor(new BowEditor(input))
 {
     // Actions
@@ -97,6 +97,39 @@ MainWindow::~MainWindow()
     // Save state and geometry
     Application::settings.setValue("MainWindow/state", saveState());
     Application::settings.setValue("MainWindow/geometry", saveGeometry());
+}
+
+// Todo: Unify loadFile and saveFile?
+bool MainWindow::loadFile(const QString& path)
+{
+    try
+    {
+        input.load(path.toStdString());
+        setCurrentFile(path);
+        return true;
+    }
+    catch(const std::exception& e)  // Todo
+    {
+        QMessageBox::warning(this, "", QString("Failed to load file: ") + e.what());  // Todo: Detailed error message
+        return false;
+    }
+}
+
+bool MainWindow::saveFile(const QString& path)
+{
+    try
+    {
+        input.meta.version = QGuiApplication::applicationVersion().toStdString();
+        input.save(path.toStdString());
+
+        setCurrentFile(path);
+        return true;
+    }
+    catch(...)  // Todo
+    {
+        QMessageBox::warning(this, "", "Failed to save file");  // Todo: Detailed error message
+        return false;
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -242,40 +275,6 @@ bool MainWindow::optionalSave()    // true: Discard, false: Cancel
         case QMessageBox::Save: return save();
         case QMessageBox::Discard: return true;
         case QMessageBox::Cancel: return false;
-    }
-}
-
-// Todo: Unify loadFile and saveFile?
-bool MainWindow::loadFile(const QString& path)
-{
-    try
-    {
-        input.load(path);
-
-        setCurrentFile(path);
-        return true;
-    }
-    catch(const std::exception& e)  // Todo
-    {
-        QMessageBox::warning(this, "", QString("Failed to load file: ") + e.what());  // Todo: Detailed error message
-        return false;
-    }
-}
-
-bool MainWindow::saveFile(const QString& path)
-{
-    try
-    {
-        input.meta.version = QGuiApplication::applicationVersion().toStdString();
-        input.save(path);
-
-        setCurrentFile(path);
-        return true;
-    }
-    catch(...)  // Todo
-    {
-        QMessageBox::warning(this, "", "Failed to save file");  // Todo: Detailed error message
-        return false;
     }
 }
 

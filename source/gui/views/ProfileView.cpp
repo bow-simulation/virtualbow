@@ -1,5 +1,5 @@
 #include "ProfileView.hpp"
-#include "model/InputData.hpp"
+#include "model/input/InputData.hpp"
 #include "numerics/ArcCurve.hpp"
 
 ProfileView::ProfileView(InputData& data)

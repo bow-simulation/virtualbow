@@ -77,31 +77,13 @@ int Application::run(int argc, char* argv[])
     }
     else // Run GUI
     {
-        success = run_gui(app, input_set ? pos_args[0] : ":/bows/default.bow");
+        success = run_gui(app, input_set ? pos_args[0] : "");
     }
 
     // Save settings
     settings.save();
 
     return success;
-}
-
-int Application::run_cli(QString input_path, QString output_path, bool dynamic)
-{
-    try
-    {
-        InputData input;
-        input.load(input_path);
-        OutputData output = dynamic ? BowModel::run_dynamic_simulation(input, [](int){return true;}, [](int){return true;})
-                                    : BowModel::run_static_simulation(input, [](int){return true;});
-        output.save(output_path.toStdString());
-        return 0;
-    }
-    catch(const std::runtime_error& e)
-    {
-        qInfo() << "Error: " << e.what();
-        return 1;
-    }
 }
 
 int Application::run_gui(QApplication& app, QString path)
@@ -112,9 +94,30 @@ int Application::run_gui(QApplication& app, QString path)
         FreeConsole();
         #endif
 
-        MainWindow window(path);
+        MainWindow window;
+        if(!path.isEmpty())
+            window.loadFile(path);
+
         window.show();
         return app.exec();
+    }
+    catch(const std::runtime_error& e)
+    {
+        qInfo() << "Error: " << e.what();
+        return 1;
+    }
+}
+
+int Application::run_cli(QString input_path, QString output_path, bool dynamic)
+{
+    try
+    {
+        InputData input;
+        input.load(input_path.toStdString());
+        OutputData output = dynamic ? BowModel::run_dynamic_simulation(input, [](int){return true;}, [](int){return true;})
+                                    : BowModel::run_static_simulation(input, [](int){return true;});
+        output.save(output_path.toStdString());
+        return 0;
     }
     catch(const std::runtime_error& e)
     {

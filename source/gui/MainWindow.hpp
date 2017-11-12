@@ -1,5 +1,5 @@
 #pragma once
-#include "model/InputData.hpp"
+#include "model/input/InputData.hpp"
 #include <QtWidgets>
 
 class BowEditor;
@@ -7,8 +7,11 @@ class BowEditor;
 class MainWindow: public QMainWindow
 {
 public:
-    MainWindow(const QString& path);   // Todo: Consistent naming: path, file_path, file, path, ...
+    MainWindow();
     ~MainWindow();
+
+    bool loadFile(const QString& path);
+    bool saveFile(const QString& path);
 
 private:
     InputData input;
@@ -30,6 +33,4 @@ private:
 
     void setCurrentFile(const QString& path);
     bool optionalSave();
-    bool loadFile(const QString& path);
-    bool saveFile(const QString& path);
 };

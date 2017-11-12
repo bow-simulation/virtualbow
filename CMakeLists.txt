@@ -70,7 +70,7 @@ add_executable(${PROJECT_NAME}
    source/gui/output/StressPlot.cpp
 
    source/model/BowModel.cpp
-   source/model/InputData.cpp
+   source/model/input/InputData.cpp
    source/model/document/Document.hpp    # moc
 
    source/numerics/ArcCurve.cpp
