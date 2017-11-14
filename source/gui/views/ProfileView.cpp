@@ -22,10 +22,10 @@ ProfileView::ProfileView(InputData& data)
     curve1->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
 
     // Event handling
-    QObject::connect(&data.profile.segments, &DocumentNode::modified, [&]{ update(); });
-    QObject::connect(&data.profile.x0,       &DocumentNode::modified, [&]{ update(); });
-    QObject::connect(&data.profile.y0,       &DocumentNode::modified, [&]{ update(); });
-    QObject::connect(&data.profile.phi0,     &DocumentNode::modified, [&]{ update(); });
+    QObject::connect(&data.profile.segments, &DocumentNode::modified, this, &ProfileView::update);
+    QObject::connect(&data.profile.x0,       &DocumentNode::modified, this, &ProfileView::update);
+    QObject::connect(&data.profile.y0,       &DocumentNode::modified, this, &ProfileView::update);
+    QObject::connect(&data.profile.phi0,     &DocumentNode::modified, this, &ProfileView::update);
 
     update();
 }

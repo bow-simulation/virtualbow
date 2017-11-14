@@ -20,6 +20,8 @@ private:
 
     virtual void keyPressEvent(QKeyEvent* event) override;
 
+    void update();
+
     void setData(const Series& series);
     void setCellValue(int i, int j, double value);
     double getCellValue(int i, int j) const;

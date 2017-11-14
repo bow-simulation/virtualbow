@@ -35,35 +35,23 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentI
     vbox->addLayout(hbox);
 
     // Event handling
-    QObject::connect(&doc_item, &DocumentNode::modified, [&]{
-        setData(this->doc_item);
-    });
 
-    QObject::connect(table, &QTableWidget::cellChanged, [this](int i, int j) {
+    QObject::connect(&doc_item, &DocumentNode::modified, this, &SeriesView::update);
+
+    QObject::connect(table, &QTableWidget::cellChanged, [this](int i, int j)
+    {
         if(!table->item(i, j)->isSelected())    // Make sure the cell was changed by the user
             return;
 
-        try
-        {
-            double value = getCellValue(i, j);
-            Series series = this->doc_item;
+        double value = getCellValue(i, j);
+        Series series = this->doc_item;
 
-            if(j == 0)
-                series.arg(i) = value;
-            else if(j == 1)
-                series.val(i) = value;
+        if(j == 0)
+            series.arg(i) = value;
+        else if(j == 1)
+            series.val(i) = value;
 
-            this->doc_item = series;
-        }
-        catch(const std::runtime_error&)
-        {
-            const Series& series = this->doc_item;
-
-            if(j == 0)
-                setCellValue(i, j, series.arg(i));
-            else if(j == 1)
-                setCellValue(i, j, series.val(i));
-        }
+        this->doc_item = series;
     });
 
     QObject::connect(bt_insert_below, &QPushButton::clicked, [this]
@@ -96,20 +84,7 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentI
         emit this->selectionChanged(rows);
     });
 
-    /*
-    QObject::connect(table->selectionModel(), &QItemSelectionModel::selectionChanged, [&](const QItemSelection& selected, const QItemSelection& deselected)
-    {
-        for(auto model_index: selected.indexes())
-        {
-            int row = model_index.row();
-            int col = model_index.column();
-
-
-        }
-    });
-    */
-
-    setData(this->doc_item);
+    update();
 }
 
 void SeriesView::keyPressEvent(QKeyEvent* event)
@@ -118,6 +93,11 @@ void SeriesView::keyPressEvent(QKeyEvent* event)
     {
         deleteSelectedRows();
     }
+}
+
+void SeriesView::update()
+{
+    setData(this->doc_item);
 }
 
 void SeriesView::setData(const Series& series)

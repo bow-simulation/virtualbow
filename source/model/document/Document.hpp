@@ -26,11 +26,6 @@ class DocumentItem: public DocumentNode
 public:
     using Validator = std::function<boost::optional<std::string>(const T&)>;
 
-    /*
-    friend void to_json(json&, const DocumentItem<T>&);
-    friend void from_json(const json&, DocumentItem<T>&);
-    */
-
     DocumentItem(DocumentNode& parent, const Validator& validator, const T& value)
         : DocumentNode(parent),
           current_value(value),
