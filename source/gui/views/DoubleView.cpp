@@ -3,36 +3,58 @@
 DoubleView::DoubleView(DocumentItem<double>& doc_item)
     : doc_item(doc_item)
 {
-    QObject::connect(&doc_item, &DocumentNode::value_changed, this, &DoubleView::update);
-    QObject::connect(this, &QLineEdit::textEdited, [this]{ getValue(false); });
-    QObject::connect(this, &QLineEdit::editingFinished, [this]{ getValue(true); });
+    this->setValidator(new DoubleValidator(doc_item));
+    QObject::connect(&doc_item, &DocumentNode::value_changed, this, &DoubleView::update_value);
+    QObject::connect(&doc_item, &DocumentNode::error_changed, this, &DoubleView::update_error);
 
-    setValue(this->doc_item);
+    update_value();
+    update_error();
 }
 
-void DoubleView::update()
+void DoubleView::update_value()
 {
     if(!this->hasFocus())
-        setValue(this->doc_item);
+        this->setText(QLocale::c().toString(doc_item, 'g'));
 }
 
-void DoubleView::setValue(double value)
+void DoubleView::update_error()
 {
-    this->setText(QLocale::c().toString(value, 'g'));
-}
-
-void DoubleView::getValue(bool correct)
-{
-    bool success;
-    double value = QLocale::c().toDouble(this->text(), &success);
-
-    if(success)
+    if(doc_item.get_errors().size() == 0)
     {
-        this->doc_item = value;
+        QPalette palette;
+        palette.setColor(this->backgroundRole(), Qt::white);
+        this->setPalette(palette);
+        this->setToolTip("No errors");
     }
-    else if(correct)
+    else
     {
-        setValue(this->doc_item);
+        QPalette palette;
+        palette.setColor(this->backgroundRole(), Qt::red);
+        this->setPalette(palette);
+        this->setToolTip(QString::fromStdString(this->doc_item.get_errors().front()));
     }
 }
 
+DoubleValidator::DoubleValidator(DocumentItem<double>& doc_item)
+    : doc_item(doc_item)
+{
+
+}
+
+// Set document value if input valid
+QValidator::State DoubleValidator::validate(QString &input, int &pos) const
+{
+    State state = QDoubleValidator::validate(input, pos);
+    if(state == QValidator::Acceptable)
+    {
+        doc_item = QLocale::c().toDouble(input);
+    }
+
+    return state;
+}
+
+// Reset to document value if input invalid after editing finished
+void DoubleValidator::fixup(QString& input) const
+{
+    input = QLocale::c().toString(doc_item, 'g');
+}

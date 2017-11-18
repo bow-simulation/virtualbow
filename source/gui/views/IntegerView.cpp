@@ -22,12 +22,12 @@ IntegerView::IntegerView(DocumentItem<int>& doc_item)
 void IntegerView::update_value()
 {
     if(!this->hasFocus())
-        this->setValue(this->doc_item);
+        this->setValue(doc_item);
 }
 
 void IntegerView::update_error()
 {
-    if(this->doc_item.get_errors().size() == 0)
+    if(doc_item.get_errors().size() == 0)
     {
         QPalette palette;
         palette.setColor(this->backgroundRole(), Qt::white);

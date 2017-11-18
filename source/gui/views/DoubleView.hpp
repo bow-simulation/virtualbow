@@ -10,7 +10,17 @@ public:
 private:
     DocumentItem<double>& doc_item;
 
-    void update();
-    void setValue(double value);
-    void getValue(bool correct);
+    void update_value();
+    void update_error();
+};
+
+class DoubleValidator: public QDoubleValidator
+{
+public:
+    DoubleValidator(DocumentItem<double>& doc_item);
+    virtual State validate(QString &input, int &pos) const override;
+    virtual void fixup(QString& input) const override;
+
+private:
+    DocumentItem<double>& doc_item;
 };
