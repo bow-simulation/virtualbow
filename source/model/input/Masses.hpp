@@ -10,6 +10,13 @@ struct Masses: public DocumentNode
     DocumentItem<double>    string_tip{*this, 0.005};
     DocumentItem<double>      limb_tip{*this, 0.005};
 
+    Masses()
+    {
+        create_constraint(string_center, "String center mass must be positive", [](double x){ return x > 0; });
+        create_constraint(string_tip,    "String tip mass must be positive",    [](double x){ return x > 0; });
+        create_constraint(limb_tip,      "Limb tip mass must be positive",      [](double x){ return x > 0; });
+    }
+
     void load(const json& obj)
     {
         string_center = (double) obj["string_center"];

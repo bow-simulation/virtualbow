@@ -10,6 +10,12 @@ struct Operation: public DocumentNode
     DocumentItem<double>  draw_length{*this, 0.7};
     DocumentItem<double>   mass_arrow{*this, 0.025};
 
+    Operation()
+    {
+        create_constraint(draw_length, brace_height, "Draw length must be larger than brace height", [](double x, double y){ return x > y; });
+        create_constraint(mass_arrow, "Arrow mass must be positive", [](double x){ return x > 0; });
+    }
+
     void load(const json& obj)
     {
         brace_height = (double) obj["brace_height"];

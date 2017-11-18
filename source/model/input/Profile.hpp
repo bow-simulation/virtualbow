@@ -12,6 +12,14 @@ struct Profile: public DocumentNode
     DocumentItem<double>       y0{*this, 0.0};
     DocumentItem<double>     phi0{*this, 0.0};
 
+    Profile()
+    {
+        /*
+        create_constraint(rho, "Density must be positive",         [](double x){ return x > 0; });
+        create_constraint(E,   "Elastic modulus must be positive", [](double x){ return x > 0; });
+        */
+    }
+
     void load(const json& obj)
     {
         segments = (Series) obj["segments"];

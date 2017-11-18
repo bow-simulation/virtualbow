@@ -10,6 +10,13 @@ struct String: public DocumentNode
     DocumentItem<double>   strand_density{*this, 0.0005};
     DocumentItem<double>        n_strands{*this, 12.0};
 
+    String()
+    {
+        create_constraint(strand_stiffness, "Strand stiffness must be positive",  [](double x){ return x > 0; });
+        create_constraint(strand_density,   "Strand density must be positive",    [](double x){ return x > 0; });
+        create_constraint(n_strands,        "Number of strands must be positive", [](double x){ return x > 0; });
+    }
+
     void load(const json& obj)
     {
         strand_stiffness = (double) obj["strand_stiffness"];
