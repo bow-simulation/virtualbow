@@ -10,6 +10,11 @@ struct Meta: public DocumentNode
     DocumentItem<std::string>  version{*this, Application::version};
     DocumentItem<std::string> comments{*this, ""};
 
+    Meta(DocumentNode& parent): DocumentNode(parent)
+    {
+
+    }
+
     void load(const json& obj)
     {
         version  = obj["version"].get<std::string>();

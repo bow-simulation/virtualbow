@@ -10,7 +10,7 @@ struct Masses: public DocumentNode
     DocumentItem<double>    string_tip{*this, 0.005};
     DocumentItem<double>      limb_tip{*this, 0.005};
 
-    Masses()
+    Masses(DocumentNode& parent): DocumentNode(parent)
     {
         create_constraint(string_center, "String center mass must be positive", [](double x){ return x > 0; });
         create_constraint(string_tip,    "String tip mass must be positive",    [](double x){ return x > 0; });

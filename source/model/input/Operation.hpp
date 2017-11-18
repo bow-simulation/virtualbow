@@ -10,7 +10,7 @@ struct Operation: public DocumentNode
     DocumentItem<double>  draw_length{*this, 0.7};
     DocumentItem<double>   mass_arrow{*this, 0.025};
 
-    Operation()
+    Operation(DocumentNode& parent): DocumentNode(parent)
     {
         create_constraint(draw_length, brace_height, "Draw length must be larger than brace height", [](double x, double y){ return x > y; });
         create_constraint(mass_arrow, "Arrow mass must be positive", [](double x){ return x > 0; });

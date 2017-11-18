@@ -12,7 +12,7 @@ struct Profile: public DocumentNode
     DocumentItem<double>       y0{*this, 0.0};
     DocumentItem<double>     phi0{*this, 0.0};
 
-    Profile()
+    Profile(DocumentNode& parent): DocumentNode(parent)
     {
         /*
         create_constraint(rho, "Density must be positive",         [](double x){ return x > 0; });

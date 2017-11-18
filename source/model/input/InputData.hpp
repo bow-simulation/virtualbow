@@ -8,20 +8,19 @@
 #include "Operation.hpp"
 #include "Settings.hpp"
 #include <json.hpp>
+#include <fstream>
 
 using nlohmann::json;
 
-#include <QtCore>
-
 struct InputData: public DocumentNode
 {
-    Meta meta;
-    Profile profile;
-    Sections sections;
-    String string;
-    Masses masses;
-    Operation operation;
-    Settings settings;
+    Meta           meta{*this};
+    Profile     profile{*this};
+    Sections   sections{*this};
+    String       string{*this};
+    Masses       masses{*this};
+    Operation operation{*this};
+    Settings   settings{*this};
 
     void load(const json& obj)
     {
@@ -45,6 +44,22 @@ struct InputData: public DocumentNode
         settings.save(obj["settings"]);
     }
 
-    void load(const std::string& path);
-    void save(const std::string& path);
+    void load(const std::string& path)
+    {
+        std::ifstream stream(path);
+
+        json obj;
+        obj << stream;
+
+        load(obj);
+    }
+
+    void save(const std::string& path)
+    {
+        json obj;
+        save(obj);
+
+        std::ofstream stream(path);
+        stream << std::setw(4) << obj << std::endl;
+    }
 };

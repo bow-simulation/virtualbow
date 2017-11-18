@@ -13,7 +13,7 @@ struct Settings: public DocumentNode
     DocumentItem<double> time_step_factor{*this, 0.5};
     DocumentItem<double>    sampling_rate{*this, 1e4};
 
-    Settings()
+    Settings(DocumentNode& parent): DocumentNode(parent)
     {
         create_constraint(n_elements_limb,   "Number of limb elements must be positive",   [](int x){ return x > 0; });
         create_constraint(n_elements_string, "Number of string elements must be positive", [](int x){ return x > 0; });
