@@ -39,6 +39,6 @@ void IntegerView::update_error()
         QPalette palette;
         palette.setColor(QPalette::Base, QColor(255, 102, 102));    // Magic numbers
         this->setPalette(palette);
-        this->setToolTip(QString::fromStdString(this->doc_item.get_errors().front()));
+        this->setToolTip(QString::fromStdString(doc_item.get_errors().front()));
     }
 }

@@ -50,6 +50,7 @@ add_executable(${PROJECT_NAME}
 
    source/gui/input/BowEditor.cpp
    source/gui/input/ModelTree.cpp
+   source/gui/input/ModelTree.hpp    # moc
    source/gui/input/CommentDialog.cpp
    source/gui/input/ProfileDialog.cpp
    source/gui/input/NumberGroup.cpp
