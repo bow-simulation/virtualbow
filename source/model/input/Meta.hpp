@@ -7,8 +7,8 @@ using nlohmann::json;
 
 struct Meta: public DocumentNode
 {
-    DocumentItem<std::string>  version{*this, validators::any<std::string>, Application::version};
-    DocumentItem<std::string> comments{*this, validators::any<std::string>, ""};
+    DocumentItem<std::string>  version{*this, Application::version};
+    DocumentItem<std::string> comments{*this, ""};
 
     void load(const json& obj)
     {

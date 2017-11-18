@@ -6,9 +6,9 @@ using nlohmann::json;
 
 struct Masses: public DocumentNode
 {
-    DocumentItem<double> string_center{*this, validators::non_neg<double>, 0.005};
-    DocumentItem<double>    string_tip{*this, validators::non_neg<double>, 0.005};
-    DocumentItem<double>      limb_tip{*this, validators::non_neg<double>, 0.005};
+    DocumentItem<double> string_center{*this, 0.005};
+    DocumentItem<double>    string_tip{*this, 0.005};
+    DocumentItem<double>      limb_tip{*this, 0.005};
 
     void load(const json& obj)
     {

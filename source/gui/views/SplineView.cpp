@@ -22,7 +22,7 @@ SplineView::SplineView(const QString& x_label, const QString& y_label, DocumentI
     this->graph()->setScatterStyle({QCPScatterStyle::ssSquare, Qt::red, 8});
     this->graph()->setLineStyle(QCPGraph::lsNone);
 
-    QObject::connect(&doc_item, &DocumentNode::modified, this, &SplineView::update);
+    QObject::connect(&doc_item, &DocumentNode::value_changed, this, &SplineView::update);
     update();
 }
 

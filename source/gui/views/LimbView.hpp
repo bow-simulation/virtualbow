@@ -115,12 +115,12 @@ public:
         this->setLayout(hbox);
 
         // Event handling
-        QObject::connect(&data.profile.segments, &DocumentNode::modified, [&]{ updateLimbSource(); });
-        QObject::connect(&data.profile.x0,       &DocumentNode::modified, [&]{ updateLimbSource(); });
-        QObject::connect(&data.profile.y0,       &DocumentNode::modified, [&]{ updateLimbSource(); });
-        QObject::connect(&data.profile.phi0,     &DocumentNode::modified, [&]{ updateLimbSource(); });
-        QObject::connect(&data.sections.width,   &DocumentNode::modified, [&]{ updateLimbSource(); });
-        QObject::connect(&data.sections.height,  &DocumentNode::modified, [&]{ updateLimbSource(); });
+        QObject::connect(&data.profile.segments, &DocumentNode::value_changed, [&]{ updateLimbSource(); });
+        QObject::connect(&data.profile.x0,       &DocumentNode::value_changed, [&]{ updateLimbSource(); });
+        QObject::connect(&data.profile.y0,       &DocumentNode::value_changed, [&]{ updateLimbSource(); });
+        QObject::connect(&data.profile.phi0,     &DocumentNode::value_changed, [&]{ updateLimbSource(); });
+        QObject::connect(&data.sections.width,   &DocumentNode::value_changed, [&]{ updateLimbSource(); });
+        QObject::connect(&data.sections.height,  &DocumentNode::value_changed, [&]{ updateLimbSource(); });
 
         updateLimbSource();
         view3D();

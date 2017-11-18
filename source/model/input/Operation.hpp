@@ -6,9 +6,9 @@ using nlohmann::json;
 
 struct Operation: public DocumentNode
 {
-    DocumentItem<double> brace_height{*this, validators::any<double>, 0.2};
-    DocumentItem<double>  draw_length{*this, validators::any<double>, 0.7};
-    DocumentItem<double>   mass_arrow{*this, validators::pos<double>, 0.025};
+    DocumentItem<double> brace_height{*this, 0.2};
+    DocumentItem<double>  draw_length{*this, 0.7};
+    DocumentItem<double>   mass_arrow{*this, 0.025};
 
     void load(const json& obj)
     {

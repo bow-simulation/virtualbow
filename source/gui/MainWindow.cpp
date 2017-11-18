@@ -82,7 +82,7 @@ MainWindow::MainWindow()
     menu_help->addAction(action_about);
 
     // Main window
-    QObject::connect(&input, &DocumentNode::modified, [&]{ this->setWindowModified(true); });
+    QObject::connect(&input, &DocumentNode::value_changed, [&]{ this->setWindowModified(true); });
     this->setWindowIcon(QIcon(":/icons/logo"));
     this->setCentralWidget(editor);
     setCurrentFile(QString());

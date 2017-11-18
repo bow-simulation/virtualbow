@@ -17,10 +17,10 @@ struct Layer
 
 struct Sections: public DocumentNode
 {
-    DocumentItem<Series>  width{*this, validators::any<Series>, Series({0.0, 0.5, 1.0}, {0.04, 0.035, 0.01})};
-    DocumentItem<Series> height{*this, validators::any<Series>, Series({0.0, 1.0}, {0.0128, 0.008})};
-    DocumentItem<double>    rho{*this, validators::pos<double>, 600.0};
-    DocumentItem<double>      E{*this, validators::pos<double>, 15e9};
+    DocumentItem<Series>  width{*this, Series({0.0, 0.5, 1.0}, {0.04, 0.035, 0.01})};
+    DocumentItem<Series> height{*this, Series({0.0, 1.0}, {0.0128, 0.008})};
+    DocumentItem<double>    rho{*this, 600.0};
+    DocumentItem<double>      E{*this, 15e9};
 
     void load(const json& obj)
     {

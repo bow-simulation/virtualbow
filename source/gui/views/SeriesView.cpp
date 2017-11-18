@@ -36,7 +36,7 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentI
 
     // Event handling
 
-    QObject::connect(&doc_item, &DocumentNode::modified, this, &SeriesView::update);
+    QObject::connect(&doc_item, &DocumentNode::value_changed, this, &SeriesView::update);
 
     QObject::connect(table, &QTableWidget::cellChanged, [this](int i, int j)
     {

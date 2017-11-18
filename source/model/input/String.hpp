@@ -6,9 +6,9 @@ using nlohmann::json;
 
 struct String: public DocumentNode
 {
-    DocumentItem<double> strand_stiffness{*this, validators::pos<double>, 3500.0};
-    DocumentItem<double>   strand_density{*this, validators::pos<double>, 0.0005};
-    DocumentItem<double>        n_strands{*this, validators::pos<double>, 12.0};
+    DocumentItem<double> strand_stiffness{*this, 3500.0};
+    DocumentItem<double>   strand_density{*this, 0.0005};
+    DocumentItem<double>        n_strands{*this, 12.0};
 
     void load(const json& obj)
     {

@@ -3,7 +3,7 @@
 DoubleView::DoubleView(DocumentItem<double>& doc_item)
     : doc_item(doc_item)
 {
-    QObject::connect(&doc_item, &DocumentNode::modified, this, &DoubleView::update);
+    QObject::connect(&doc_item, &DocumentNode::value_changed, this, &DoubleView::update);
     QObject::connect(this, &QLineEdit::textEdited, [this]{ getValue(false); });
     QObject::connect(this, &QLineEdit::editingFinished, [this]{ getValue(true); });
 

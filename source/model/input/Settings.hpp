@@ -6,12 +6,22 @@ using nlohmann::json;
 
 struct Settings: public DocumentNode
 {
-    DocumentItem<int>     n_elements_limb{*this, validators::pos<int>, 40};
-    DocumentItem<int>   n_elements_string{*this, validators::pos<int>, 45};
-    DocumentItem<int>        n_draw_steps{*this, validators::pos<int>, 150};
-    DocumentItem<double> time_span_factor{*this, validators::pos<double>, 1.5};
-    DocumentItem<double> time_step_factor{*this, validators::pos<double>, 0.5};
-    DocumentItem<double>    sampling_rate{*this, validators::pos<double>, 1e4};
+    DocumentItem<int>     n_elements_limb{*this, 40};
+    DocumentItem<int>   n_elements_string{*this, 45};
+    DocumentItem<int>        n_draw_steps{*this, 150};
+    DocumentItem<double> time_span_factor{*this, 1.5};
+    DocumentItem<double> time_step_factor{*this, 0.5};
+    DocumentItem<double>    sampling_rate{*this, 1e4};
+
+    Settings()
+    {
+        create_constraint(n_elements_limb, "Number of limb elements must be positive", &validators::pos<int>);
+        create_constraint(n_elements_string, "Number of string elements must be positive", [](int x){ return x > 0; });
+        create_constraint(n_draw_steps, "Number of draw steps must be positive", [](int x){ return x > 0; });
+        create_constraint(time_span_factor, "Time span factor must be positive", [](double x){ return x > 0; });
+        create_constraint(time_step_factor, "Time step factor must be between 0 and 1", [](double x){ return x > 0.0 && x < 1.0; });
+        create_constraint(sampling_rate, "Sampling rate must be positive", [](double x){ return x > 0; });
+    }
 
     void load(const json& obj)
     {
