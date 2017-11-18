@@ -17,7 +17,7 @@ public:
     std::function<void()> action;
 
     template<class parent_t>
-    TreeItem(parent_t* parent, const QString& name, const QIcon& icon, DocumentNode& doc_node, const std::function<void()>& action = []{})
+    TreeItem(parent_t* parent, DocumentNode& doc_node, const QString& name, const QIcon& icon, const std::function<void()>& action = []{})
         : QTreeWidgetItem(parent, {name}),
           action(action),
           doc_node(doc_node)
@@ -50,13 +50,13 @@ class ModelTree: public QTreeWidget
 public:
     ModelTree(InputData& data)
     {
-        new TreeItem(this, "Comments", QIcon(":/icons/model-tree/comments"), data.meta.comments, [&]
+        new TreeItem(this, data.meta.comments, "Comments", QIcon(":/icons/model-tree/comments"), [&]
         {
             CommentDialog dialog(this, data);
             dialog.exec();
         });
 
-        new TreeItem(this, "Settings", QIcon(":/icons/model-tree/settings"), data.settings, [&]
+        new TreeItem(this, data.settings, "Settings", QIcon(":/icons/model-tree/settings"), [&]
         {
             NumberDialog dialog(this, "Settings");
 
@@ -75,27 +75,28 @@ public:
             dialog.exec();
         });
 
-        auto item_parameters = new TreeItem(this, "Parameters", QIcon(":/icons/model-tree/parameters"), data.meta.comments);
+        auto item_parameters = new QTreeWidgetItem(this, {"Parameters"});
+        item_parameters->setIcon(0, QIcon(":/icons/model-tree/parameters"));
 
-        new TreeItem(item_parameters, "Profile", QIcon(":/icons/model-tree/profile"), data.profile, [&]
+        new TreeItem(item_parameters, data.profile, "Profile", QIcon(":/icons/model-tree/profile"), [&]
         {
             ProfileDialog dialog(this, data);
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, "Width", QIcon(":/icons/model-tree/width"), data.sections.width, [&]
+        new TreeItem(item_parameters, data.sections.width, "Width", QIcon(":/icons/model-tree/width"), [&]
         {
             WidthDialog dialog(this, data);
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, "Height", QIcon(":/icons/model-tree/height"), data.sections.height, [&]
+        new TreeItem(item_parameters, data.sections.height, "Height", QIcon(":/icons/model-tree/height"), [&]
         {
             HeightDialog dialog(this, data);
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, "Material", QIcon(":/icons/model-tree/material"), data.sections, [&]
+        new TreeItem(item_parameters, data.sections, "Material", QIcon(":/icons/model-tree/material"), [&]
         {
             NumberDialog dialog(this, "Material");
             dialog.addField("rho:", "kg/m³", data.sections.rho);    // Todo: Use unicode character (\u2374). Problem: Windows
@@ -103,7 +104,7 @@ public:
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, "String", QIcon(":/icons/model-tree/string"), data.string, [&]
+        new TreeItem(item_parameters, data.string, "String", QIcon(":/icons/model-tree/string"), [&]
         {
             NumberDialog dialog(this, "String");
             dialog.addField("Strand stiffness:", "N/100%", data.string.strand_stiffness);
@@ -112,7 +113,7 @@ public:
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, "Masses", QIcon(":/icons/model-tree/masses"), data.masses, [&]
+        new TreeItem(item_parameters, data.masses, "Masses", QIcon(":/icons/model-tree/masses"), [&]
         {
             NumberDialog dialog(this, "Masses");
             dialog.addField("String center:", "kg", data.masses.string_center);
@@ -121,7 +122,7 @@ public:
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, "Operation", QIcon(":/icons/model-tree/operation"), data.operation, [&]
+        new TreeItem(item_parameters, data.operation, "Operation", QIcon(":/icons/model-tree/operation"), [&]
         {
             NumberDialog dialog(this, "Operation");
             dialog.addField("Brace height:", "m", data.operation.brace_height);
@@ -141,5 +142,6 @@ public:
 
         this->setHeaderLabel("Model Tree");
         this->expandAll();
+        this->setItemsExpandable(false);    // Todo: Why is the expansion symbol still visible? (on KDE Desktop at least)
     }
 };
