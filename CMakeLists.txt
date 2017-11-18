@@ -42,6 +42,7 @@ add_executable(${PROJECT_NAME}
 
    source/gui/Application.cpp
    source/gui/MainWindow.cpp
+   source/gui/DialogBase.cpp
    source/gui/PersistentDialog.cpp
    source/gui/PlotWidget.cpp
    source/gui/ProgressDialog.cpp
@@ -52,6 +53,7 @@ add_executable(${PROJECT_NAME}
    source/gui/input/CommentDialog.cpp
    source/gui/input/ProfileDialog.cpp
    source/gui/input/NumberGroup.cpp
+   source/gui/input/NumberDialog.cpp
 
    source/gui/views/DoubleView.cpp
    source/gui/views/IntegerView.cpp

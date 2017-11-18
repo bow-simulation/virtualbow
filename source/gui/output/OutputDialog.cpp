@@ -124,7 +124,6 @@ OutputDialog::OutputDialog(QWidget* parent, const OutputData& output)
 
     auto btbox = new QDialogButtonBox();
     vbox->addWidget(btbox);
-    btbox->addButton(QDialogButtonBox::Close)->setAutoDefault(false);    // Prevent close on enter
     btbox->addButton(bt_statics, QDialogButtonBox::ActionRole);
     btbox->addButton(bt_dynamics, QDialogButtonBox::ActionRole);
 
