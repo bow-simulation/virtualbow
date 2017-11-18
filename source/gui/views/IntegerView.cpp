@@ -6,7 +6,7 @@ IntegerView::IntegerView(DocumentItem<int>& doc_item)
 {
     this->setMinimum(std::numeric_limits<int>::min());
     this->setMaximum(std::numeric_limits<int>::max());
-    this->setAutoFillBackground(true);    // https://stackoverflow.com/a/1572358/4692009
+    // this->setAutoFillBackground(true);    // https://stackoverflow.com/a/1572358/4692009
 
     QObject::connect(this, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this](int value) {
             this->doc_item = value;
@@ -30,14 +30,14 @@ void IntegerView::update_error()
     if(doc_item.get_errors().size() == 0)
     {
         QPalette palette;
-        palette.setColor(this->backgroundRole(), Qt::white);
+        palette.setColor(QPalette::Base, Qt::white);
         this->setPalette(palette);
-        this->setToolTip("No errors");
+        this->setToolTip("");
     }
     else
     {
         QPalette palette;
-        palette.setColor(this->backgroundRole(), Qt::red);
+        palette.setColor(QPalette::Base, QColor(255, 102, 102));    // Magic numbers
         this->setPalette(palette);
         this->setToolTip(QString::fromStdString(this->doc_item.get_errors().front()));
     }

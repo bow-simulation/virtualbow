@@ -4,6 +4,7 @@ DoubleView::DoubleView(DocumentItem<double>& doc_item)
     : doc_item(doc_item)
 {
     this->setValidator(new DoubleValidator(doc_item));
+
     QObject::connect(&doc_item, &DocumentNode::value_changed, this, &DoubleView::update_value);
     QObject::connect(&doc_item, &DocumentNode::error_changed, this, &DoubleView::update_error);
 
@@ -22,14 +23,14 @@ void DoubleView::update_error()
     if(doc_item.get_errors().size() == 0)
     {
         QPalette palette;
-        palette.setColor(this->backgroundRole(), Qt::white);
+        palette.setColor(QPalette::Base, Qt::white);
         this->setPalette(palette);
-        this->setToolTip("No errors");
+        this->setToolTip("");
     }
     else
     {
         QPalette palette;
-        palette.setColor(this->backgroundRole(), Qt::red);
+        palette.setColor(QPalette::Base, QColor(255, 102, 102));    // Magic number
         this->setPalette(palette);
         this->setToolTip(QString::fromStdString(this->doc_item.get_errors().front()));
     }

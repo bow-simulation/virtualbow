@@ -88,6 +88,10 @@ public:
 
 private:
     T current_value;
+
+    std::string name;
+    std::string unit;
+    std::string tooltip;
 };
 
 template<typename T, typename F>
