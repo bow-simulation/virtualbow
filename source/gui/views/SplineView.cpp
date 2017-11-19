@@ -36,7 +36,8 @@ void SplineView::update()
 {
     try
     {
-        output = CubicSpline::sample(this->doc_item, 150);    // Magic number
+        input = doc_item;
+        output = CubicSpline::sample(input, 150);    // Magic number
     }
     catch(std::runtime_error& e)
     {
