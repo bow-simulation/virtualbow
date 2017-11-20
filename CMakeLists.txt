@@ -45,6 +45,7 @@ add_executable(${PROJECT_NAME}
    source/gui/DialogBase.cpp
    source/gui/PersistentDialog.cpp
    source/gui/PlotWidget.cpp
+   source/gui/TableWidget.cpp
    source/gui/ProgressDialog.cpp
    source/gui/ProgressDialog.hpp    # moc
 
