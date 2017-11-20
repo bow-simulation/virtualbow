@@ -1,26 +1,24 @@
 #pragma once
 #include <QtWidgets>
 
-// Validator that retains the last valid input and resets to that if the widget is left in an invalid state
-class TableValidator: public QDoubleValidator
+class TableItem: public QTableWidgetItem
 {
-public:
-    State validate(QString &input, int &pos) const
+    double old_value = 0.0;
+    virtual void setData(int role, const QVariant& data)
     {
-        State state = QDoubleValidator::validate(input, pos);
-        if(state == QValidator::Acceptable)
-            value = QLocale::c().toDouble(input);
+        bool valid;
+        double new_value = data.toDouble(&valid);
 
-        return state;
+        if(valid)
+        {
+            old_value = new_value;
+            QTableWidgetItem::setData(role, data);
+        }
+        else
+        {
+            QTableWidgetItem::setData(role, old_value);
+        }
     }
-
-    void fixup(QString& input) const
-    {
-        input = QLocale::c().toString(value, 'g');
-    }
-
-private:
-    mutable double value = 0.0;
 };
 
 class TableWidget: public QTableWidget
@@ -39,7 +37,7 @@ public:
 
     double getValue(int row, int col) const
     {
-        QLocale::c().toDouble(cellEdit(row, col)->text());
+        QLocale::c().toDouble(item(row, col)->text());
     }
 
     void setValue(int row, int col, double value)
@@ -50,7 +48,7 @@ public:
         if(col >= columnCount())
             addCols(col - columnCount() + 1);
 
-        cellEdit(row, col)->setText(QLocale::c().toString(value, 'g'));
+        item(row, col)->setText(QLocale::c().toString(value, 'g'));
     }
 
 private:
@@ -62,7 +60,7 @@ private:
         for(int i = old_rows; i < rowCount(); ++i)
         {
             for(int j = 0; j < columnCount(); ++j)
-                setCellWidget(i, j, createWidget());
+                setItem(i, j, new TableItem());
         }
     }
 
@@ -74,20 +72,8 @@ private:
         for(int i = 0; i < rowCount(); ++i)
         {
             for(int j = old_cols; j < columnCount(); ++j)
-                setCellWidget(i, j, createWidget());
+                setItem(i, j, new TableItem());
         }
-    }
-
-    QLineEdit* createWidget()
-    {
-        QLineEdit *edit = new QLineEdit();
-        edit->setValidator(new TableValidator());
-        return edit;
-    }
-
-    QLineEdit* cellEdit(int row, int col) const
-    {
-        return dynamic_cast<QLineEdit*>(cellWidget(row, col));
     }
 };
 

@@ -1,5 +1,5 @@
+/*
 #include <QtWidgets>
-
 #include "gui/TableWidget.hpp"
 
 int main(int argc, char **argv)
@@ -15,15 +15,14 @@ int main(int argc, char **argv)
 
     return app.exec();
 }
+*/
 
-/*
 #include "gui/Application.hpp"
 
 int main(int argc, char* argv[])
 {
     return Application::run(argc, argv);
 }
-*/
 
 /*
 #include <QtWidgets>

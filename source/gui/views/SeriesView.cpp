@@ -2,22 +2,10 @@
 #include "numerics/Series.hpp"
 
 SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentItem<Series>& doc_item)
-    : doc_item(doc_item)
+    : doc_item(doc_item),
+      table(new TableWidget({lb_args, lb_vals}))
 {
     // Widgets and Layout
-
-    auto vbox = new QVBoxLayout();
-    vbox->setMargin(0);
-    this->setLayout(vbox);
-
-    table = new QTableWidget(1, 2);
-    table->setHorizontalHeaderLabels({{lb_args, lb_vals}});
-    table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    table->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
-    table->verticalHeader()->sectionResizeMode(QHeaderView::Fixed);
-    table->verticalHeader()->setDefaultSectionSize(table->horizontalHeader()->height());    // Todo: Better way?
-    table->verticalHeader()->hide();
-    vbox->addWidget(table);
 
     //table->setSelectionBehavior(QAbstractItemView::SelectRows);
 
@@ -32,6 +20,11 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentI
     hbox->addWidget(bt_insert_below);
     hbox->addWidget(bt_insert_above);
     hbox->addWidget(bt_delete);
+
+    auto vbox = new QVBoxLayout();
+    this->setLayout(vbox);
+    vbox->setMargin(0);
+    vbox->addWidget(table);
     vbox->addLayout(hbox);
 
     // Event handling
@@ -43,7 +36,7 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentI
         if(!table->item(i, j)->isSelected())    // Make sure the cell was changed by the user
             return;
 
-        double value = getCellValue(i, j);
+        double value = table->getValue(i, j);
         Series series = this->doc_item;
 
         if(j == 0)
@@ -102,34 +95,11 @@ void SeriesView::update()
 
 void SeriesView::setData(const Series& series)
 {
-    table->setRowCount(series.size());
-
     for(size_t i = 0; i < series.size(); ++i)
     {
-        setCellValue(i, 0, series.arg(i));
-        setCellValue(i, 1, series.val(i));
+        table->setValue(i, 0, series.arg(i));
+        table->setValue(i, 1, series.val(i));
     }
-}
-
-void SeriesView::setCellValue(int i, int j, double value)
-{
-    if(table->item(i, j) == nullptr)
-        table->setItem(i, j,  new QTableWidgetItem);
-
-    table->item(i, j)->setText(QLocale::c().toString(value, 'g'));    // Todo: Magic number
-}
-
-double SeriesView::getCellValue(int i, int j) const
-{
-    bool ok;
-    double value = QLocale::c().toDouble(table->item(i, j)->text(), &ok);
-
-    if(!ok)
-    {
-        throw std::runtime_error("Cannot convert input to number");
-    }
-
-    return value;
 }
 
 void SeriesView::insertRow(bool above)
@@ -153,7 +123,7 @@ void SeriesView::insertRow(bool above)
 
             // Move selection
             QTableWidgetSelectionRange new_range(selection[0].topRow() + 1, selection[0].leftColumn(),
-                    selection[0].bottomRow() + 1, selection[0].rightColumn());
+                                                 selection[0].bottomRow() + 1, selection[0].rightColumn());
             table->setRangeSelected(selection[0], false);
             table->setRangeSelected(new_range, true);
         }
