@@ -28,7 +28,7 @@ void DoubleView::update_error()
     }
     else
     {
-        palette.setColor(QPalette::Base, QColor(255, 102, 102));    // Magic number
+        palette.setColor(QPalette::Base, QColor(0xFF6666));    // Magic number
         this->setToolTip(QString::fromStdString(doc_item.get_errors().front()));
     }
 

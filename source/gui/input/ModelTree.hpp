@@ -36,7 +36,7 @@ public:
         }
         else
         {
-            this->setBackgroundColor(0, QColor(255, 102, 102));
+            this->setBackgroundColor(0, QColor(0xFF6666));    // Magic number
             this->setToolTip(0, QString::fromStdString(doc_node.get_errors().front()));
         }
     }

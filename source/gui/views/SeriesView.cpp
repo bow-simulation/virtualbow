@@ -113,8 +113,6 @@ void SeriesView::update_error()
         palette.setColor(QPalette::Base, QColor(255, 102, 102));    // Magic number
         this->setToolTip(QString::fromStdString(doc_item.get_errors().front()));
     }
-
-    this->setPalette(palette);
 }
 
 void SeriesView::insertRow(bool above)
