@@ -142,3 +142,33 @@ void create_constraint(DocumentItem<T>& item1, DocumentItem<T>& item2, const std
         }
     });
 }
+
+// Watches item and node, but pins error only on item.
+template<typename T, typename F>
+void create_constraint(DocumentItem<T>& item, DocumentNode& node, const std::string& message, const F& validator)
+{
+    QObject::connect(&item, &DocumentNode::value_changed, [&item, message, validator]()
+    {
+        if(validator(item))
+        {
+            item.remove_error(message);
+        }
+        else
+        {
+            item.add_error(message);
+        }
+    });
+
+    // Todo: Code duplication
+    QObject::connect(&node, &DocumentNode::value_changed, [&item, message, validator]()
+    {
+        if(validator(item))
+        {
+            item.remove_error(message);
+        }
+        else
+        {
+            item.add_error(message);
+        }
+    });
+}

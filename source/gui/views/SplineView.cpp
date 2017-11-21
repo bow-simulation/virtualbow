@@ -10,7 +10,6 @@ SplineView::SplineView(const QString& x_label, const QString& y_label, DocumentI
 
     // Line
     this->addGraph();
-    this->graph()->setPen({Qt::blue, 2});
 
     // Control points
     this->addGraph();
@@ -22,17 +21,17 @@ SplineView::SplineView(const QString& x_label, const QString& y_label, DocumentI
     this->graph()->setScatterStyle({QCPScatterStyle::ssSquare, Qt::red, 8});
     this->graph()->setLineStyle(QCPGraph::lsNone);
 
-    QObject::connect(&doc_item, &DocumentNode::value_changed, this, &SplineView::update);
-    update();
+    QObject::connect(&doc_item, &DocumentNode::value_changed, this, &SplineView::update_value);
+    update_value();
 }
 
 void SplineView::setSelection(const std::vector<int>& indices)
 {
     selection = indices;
-    updatePlot();
+    update_plot();
 }
 
-void SplineView::update()
+void SplineView::update_value()
 {
     try
     {
@@ -44,10 +43,10 @@ void SplineView::update()
         output = Series();
     }
 
-    updatePlot();
+    update_plot();
 }
 
-void SplineView::updatePlot()
+void SplineView::update_plot()
 {
     std::vector<double> x_selected;
     std::vector<double> y_selected;

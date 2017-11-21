@@ -20,20 +20,19 @@ void DoubleView::update_value()
 
 void DoubleView::update_error()
 {
+    QPalette palette;
     if(doc_item.get_errors().size() == 0)
     {
-        QPalette palette;
         palette.setColor(QPalette::Base, Qt::white);
-        this->setPalette(palette);
         this->setToolTip("");
     }
     else
     {
-        QPalette palette;
         palette.setColor(QPalette::Base, QColor(255, 102, 102));    // Magic number
-        this->setPalette(palette);
-        this->setToolTip(QString::fromStdString(this->doc_item.get_errors().front()));
+        this->setToolTip(QString::fromStdString(doc_item.get_errors().front()));
     }
+
+    this->setPalette(palette);
 }
 
 DoubleValidator::DoubleValidator(DocumentItem<double>& doc_item)

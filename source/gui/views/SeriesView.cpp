@@ -7,8 +7,6 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentI
 {
     // Widgets and Layout
 
-    //table->setSelectionBehavior(QAbstractItemView::SelectRows);
-
     auto bt_insert_below = new QPushButton(QIcon(":/icons/series-view/insert-below"), "");
     auto bt_insert_above = new QPushButton(QIcon(":/icons/series-view/insert-above"), "");
     auto bt_delete = new QPushButton(QIcon(":/icons/series-view/edit-delete"), "");
@@ -29,7 +27,8 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentI
 
     // Event handling
 
-    QObject::connect(&doc_item, &DocumentNode::value_changed, this, &SeriesView::update);
+    QObject::connect(&doc_item, &DocumentNode::value_changed, this, &SeriesView::update_value);
+    QObject::connect(&doc_item, &DocumentNode::error_changed, this, &SeriesView::update_error);
 
     QObject::connect(table, &QTableWidget::cellChanged, [this](int i, int j)
     {
@@ -77,7 +76,8 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentI
         emit this->selectionChanged(rows);
     });
 
-    update();
+    update_value();
+    update_error();
 }
 
 void SeriesView::keyPressEvent(QKeyEvent* event)
@@ -88,13 +88,11 @@ void SeriesView::keyPressEvent(QKeyEvent* event)
     }
 }
 
-void SeriesView::update()
+void SeriesView::update_value()
 {
-    setData(this->doc_item);
-}
+    const Series& series = doc_item;
+    table->setRowCount(series.size());
 
-void SeriesView::setData(const Series& series)
-{
     for(size_t i = 0; i < series.size(); ++i)
     {
         table->setValue(i, 0, series.arg(i));
@@ -102,10 +100,27 @@ void SeriesView::setData(const Series& series)
     }
 }
 
+void SeriesView::update_error()
+{
+    QPalette palette;
+    if(doc_item.get_errors().size() == 0)
+    {
+        palette.setColor(QPalette::Base, Qt::white);
+        this->setToolTip("");
+    }
+    else
+    {
+        palette.setColor(QPalette::Base, QColor(255, 102, 102));    // Magic number
+        this->setToolTip(QString::fromStdString(doc_item.get_errors().front()));
+    }
+
+    this->setPalette(palette);
+}
+
 void SeriesView::insertRow(bool above)
 {
     auto selection = table->selectedRanges();
-    Series series = this->doc_item;
+    Series series = doc_item;
 
     size_t index;
     switch(selection.size())
@@ -140,14 +155,14 @@ void SeriesView::insertRow(bool above)
     }
 
     series.insert(index, 0.0, 0.0);  // Todo: Magic numbers
-    this->doc_item = series;
+    doc_item = series;
 }
 
 void SeriesView::deleteLastRow()
 {
-    Series series = this->doc_item;
+    Series series = doc_item;
     series.remove();
-    this->doc_item = series;
+    doc_item = series;
 }
 
 bool SeriesView::deleteSelectedRows()
@@ -156,7 +171,7 @@ bool SeriesView::deleteSelectedRows()
     if(selection.isEmpty())
         return false;
 
-    Series series = this->doc_item;
+    Series series = doc_item;
     for(int i = selection.size()-1; i >= 0; --i)
     {
         for(int j = selection[i].bottomRow(); j >= selection[i].topRow(); --j)
@@ -165,6 +180,6 @@ bool SeriesView::deleteSelectedRows()
         }
     }
 
-    this->doc_item = series;
+    doc_item = series;
     return true;
 }

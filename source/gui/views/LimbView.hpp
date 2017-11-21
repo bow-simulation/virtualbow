@@ -2,6 +2,7 @@
 #include "LimbSource.hpp"
 #include "model/document/Document.hpp"
 #include "model/LimbProperties.hpp"
+#include "model/input/InputData.hpp"
 #include <QtWidgets>
 
 #include <QVTKWidget.h>
@@ -119,8 +120,8 @@ public:
         QObject::connect(&data.profile.x0,       &DocumentNode::value_changed, [&]{ updateLimbSource(); });
         QObject::connect(&data.profile.y0,       &DocumentNode::value_changed, [&]{ updateLimbSource(); });
         QObject::connect(&data.profile.phi0,     &DocumentNode::value_changed, [&]{ updateLimbSource(); });
-        QObject::connect(&data.sections.width,   &DocumentNode::value_changed, [&]{ updateLimbSource(); });
-        QObject::connect(&data.sections.height,  &DocumentNode::value_changed, [&]{ updateLimbSource(); });
+        QObject::connect(&data.width,   &DocumentNode::value_changed, [&]{ updateLimbSource(); });
+        QObject::connect(&data.height,  &DocumentNode::value_changed, [&]{ updateLimbSource(); });
 
         updateLimbSource();
         view3D();

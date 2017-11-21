@@ -51,11 +51,27 @@ public:
         item(row, col)->setText(QLocale::c().toString(value, 'g'));
     }
 
+    void setRowCount(int rows)
+    {
+        if(rows > rowCount())
+            addRows(rows - rowCount());
+        else
+            QTableWidget::setRowCount(rows);
+    }
+
+    void setColumnCount(int cols)
+    {
+        if(cols > columnCount())
+            addCols(cols - columnCount());
+        else
+            QTableWidget::setColumnCount(cols);
+    }
+
 private:
     void addRows(int n)
     {
         int old_rows = rowCount();
-        setRowCount(old_rows + n);
+        QTableWidget::setRowCount(old_rows + n);
 
         for(int i = old_rows; i < rowCount(); ++i)
         {
@@ -67,7 +83,7 @@ private:
     void addCols(int n)
     {
         int old_cols = columnCount();
-        setColumnCount(old_cols + n);
+        QTableWidget::setColumnCount(old_cols + n);
 
         for(int i = 0; i < rowCount(); ++i)
         {

@@ -16,8 +16,8 @@ public:
     {
         // Widgets
 
-        auto series_view = new SeriesView("Rel. position", "Height [m]", data.sections.height);
-        auto spline_view = new SplineView("Relative position", "Height [m]", data.sections.height);
+        auto series_view = new SeriesView("Rel. position", "Height [m]", data.height);
+        auto spline_view = new SplineView("Relative position", "Height [m]", data.height);
         QObject::connect(series_view, &SeriesView::selectionChanged, spline_view, &SplineView::setSelection);
 
         auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok);

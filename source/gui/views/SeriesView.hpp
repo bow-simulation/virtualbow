@@ -20,9 +20,8 @@ private:
 
     virtual void keyPressEvent(QKeyEvent* event) override;
 
-    void update();
-
-    void setData(const Series& series);
+    void update_value();
+    void update_error();
 
     void insertRow(bool above);
     void deleteLastRow();

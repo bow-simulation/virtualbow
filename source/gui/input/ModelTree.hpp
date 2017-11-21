@@ -84,23 +84,23 @@ public:
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, data.sections.width, "Width", QIcon(":/icons/model-tree/width"), [&]
+        new TreeItem(item_parameters, data.width, "Width", QIcon(":/icons/model-tree/width"), [&]
         {
             WidthDialog dialog(this, data);
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, data.sections.height, "Height", QIcon(":/icons/model-tree/height"), [&]
+        new TreeItem(item_parameters, data.height, "Height", QIcon(":/icons/model-tree/height"), [&]
         {
             HeightDialog dialog(this, data);
             dialog.exec();
         });
 
-        new TreeItem(item_parameters, data.sections, "Material", QIcon(":/icons/model-tree/material"), [&]
+        new TreeItem(item_parameters, data.material, "Material", QIcon(":/icons/model-tree/material"), [&]
         {
             NumberDialog dialog(this, "Material");
-            dialog.addField("rho:", "kg/m³", data.sections.rho);    // Todo: Use unicode character (\u2374). Problem: Windows
-            dialog.addField("E:", "N/m²", data.sections.E);
+            dialog.addField("rho:", "kg/m³", data.material.rho);    // Todo: Use unicode character (\u2374). Problem: Windows
+            dialog.addField("E:", "N/m²", data.material.E);
             dialog.exec();
         });
 
