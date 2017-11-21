@@ -50,30 +50,51 @@ struct InputData: public DocumentNode
         });
 
         create_constraint(width, "Minimum width must be positive", [](const Series& width) {
-            Series output = CubicSpline::sample(width, 150);    // Magic number
-            for(double w: output.vals()) {
-                if(w <= 0)
-                    return false;
+            try
+            {
+                Series output = CubicSpline::sample(width, 150);    // Magic number
+                for(double w: output.vals()) {
+                    if(w <= 0)
+                        return false;
+                }
+            }
+            catch(...)
+            {
+                return false;
             }
 
             return true;
         });
 
         create_constraint(height, "Minimum height must be positive", [](const Series& width) {
-            Series output = CubicSpline::sample(width, 150);    // Magic number
-            for(double h: output.vals()) {
-                if(h <= 0)
-                    return false;
+            try
+            {
+                Series output = CubicSpline::sample(width, 150);    // Magic number
+                for(double h: output.vals()) {
+                    if(h <= 0)
+                        return false;
+                }
+            }
+            catch(...)
+            {
+                return false;
             }
 
             return true;
         });
 
         create_constraint(operation.brace_height, profile, "Brace height too low for current limb profile", [&](double brace_height) {
-            LimbProperties limb(*this);
-            for(size_t i = 0; i < limb.y.size(); ++i) {
-                if(limb.y[i] <= -brace_height)
-                    return false;
+            try
+            {
+                LimbProperties limb(*this);
+                for(size_t i = 0; i < limb.y.size(); ++i) {
+                    if(limb.y[i] <= -brace_height)
+                        return false;
+                }
+            }
+            catch(...)
+            {
+                return false;
             }
 
             return true;

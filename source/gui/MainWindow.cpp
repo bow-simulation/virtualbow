@@ -193,7 +193,7 @@ void MainWindow::runSimulation(bool dynamic)
 {
     if(input.get_errors().size() != 0)
     {
-        QMessageBox::critical(this, "Error", QString::fromStdString(input.get_errors().front()));
+        QMessageBox::critical(this, "Error", "Model contains invalid input:\n" + QString::fromStdString(input.get_errors().front()));
         return;
     }
 
