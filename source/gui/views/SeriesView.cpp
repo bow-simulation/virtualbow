@@ -105,16 +105,16 @@ void SeriesView::update_error()
     QPalette palette;
     if(doc_item.get_errors().size() == 0)
     {
-        palette.setColor(QPalette::Base, Qt::white);
+        palette.setColor(QPalette::Button, Qt::white);
         this->setToolTip("");
     }
     else
     {
-        palette.setColor(QPalette::Base, QColor(0xFF6666));    // Magic number
+        palette.setColor(QPalette::Button, QColor(0xFF6666));    // Magic number
         this->setToolTip(QString::fromStdString(doc_item.get_errors().front()));
     }
 
-    this->setPalette(palette);
+    table->horizontalHeader()->setPalette(palette);
 }
 
 void SeriesView::insertRow(bool above)
