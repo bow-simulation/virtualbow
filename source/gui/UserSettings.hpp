@@ -3,7 +3,7 @@
 
 // Wrapper around QSettings to load and save all values at once
 
-class Settings
+class UserSettings
 {
 private:
     QMap<QString, QVariant> data;

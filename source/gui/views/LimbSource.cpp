@@ -40,8 +40,8 @@ int LimbSource::RequestData(vtkInformation* request, vtkInformationVector** inpu
     {
         // Curve point and normals
         Vector<3> p{limb.x[i], limb.y[i], 0.0};
-        Vector<3> nw{0.0, 0.0, 0.5*limb.w[i]};
-        Vector<3> nh{-limb.h[i]*sin(limb.phi[i]), limb.h[i]*cos(limb.phi[i]), 0.0};
+        Vector<3> nw{0.0, 0.0, 0.5*abs(limb.w[i])};
+        Vector<3> nh{-abs(limb.h[i])*sin(limb.phi[i]), abs(limb.h[i])*cos(limb.phi[i]), 0.0};
 
         // Cross section vertices
         Vector<3> p0 = p + nw;

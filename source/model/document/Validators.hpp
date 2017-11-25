@@ -1,49 +1,34 @@
 #pragma once
 
-#include <string>
-#include <boost/optional.hpp>
-
 namespace validators
 {
     template<typename T>
-    static boost::optional<std::string> any(const T& value)
+    static bool any(const T& x)
     {
-        return boost::none;
+        return true;
     }
 
     template<typename T>
-    static boost::optional<std::string> pos(const T& value)
+    static bool pos(const T& x)
     {
-        if(value > 0)
-            return boost::none;
-
-        return std::string("Value must be positive");
+        return x > 0;
     }
 
     template<typename T>
-    static boost::optional<std::string> neg(const T& value)
+    static bool neg(const T& x)
     {
-        if(value < 0)
-            return boost::none;
-
-        return std::string("Value must be negative");
+        return x < 0;
     }
 
     template<typename T>
-    static boost::optional<std::string> non_pos(const T& value)
+    static bool non_pos(const T& x)
     {
-        if(value <= 0)
-            return boost::none;
-
-        return std::string("Value must not be positive");
+        return x <= 0;
     }
 
     template<typename T>
-    static boost::optional<std::string> non_neg(const T& value)
+    static bool non_neg(const T& x)
     {
-        if(value >= 0)
-            return boost::none;
-
-        return std::string("Value must not be negative");
+        return x >= 0;
     }
 }

@@ -123,10 +123,10 @@ OutputDialog::OutputDialog(QWidget* parent, const OutputData& output)
     bt_dynamics->setAutoExclusive(true);
 
     auto btbox = new QDialogButtonBox();
-    vbox->addWidget(btbox);
-    btbox->addButton(QDialogButtonBox::Close)->setAutoDefault(false);    // Prevent close on enter
     btbox->addButton(bt_statics, QDialogButtonBox::ActionRole);
     btbox->addButton(bt_dynamics, QDialogButtonBox::ActionRole);
+    btbox->addButton(QDialogButtonBox::Close);
+    vbox->addWidget(btbox);
 
     QObject::connect(bt_statics, &QPushButton::toggled, [=](bool checked){
         if(checked)

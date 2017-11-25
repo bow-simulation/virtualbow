@@ -1,5 +1,5 @@
 #include "ProfileView.hpp"
-#include "model/InputData.hpp"
+#include "model/input/InputData.hpp"
 #include "numerics/ArcCurve.hpp"
 
 ProfileView::ProfileView(InputData& data)
@@ -21,12 +21,12 @@ ProfileView::ProfileView(InputData& data)
     curve1->setLineStyle(QCPCurve::lsNone);
     curve1->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
 
-    // Todo: Use std::bind?
-    // Todo: Inefficient and ugly
-    data.profile_segments.on_value_changed([&]{ update(); });
-    data.profile_x0.on_value_changed      ([&]{ update(); });
-    data.profile_y0.on_value_changed      ([&]{ update(); });
-    data.profile_phi0.on_value_changed    ([&]{ update(); });
+    // Event handling
+    QObject::connect(&data.profile.segments, &DocumentNode::value_changed, this, &ProfileView::update);
+    QObject::connect(&data.profile.x0,       &DocumentNode::value_changed, this, &ProfileView::update);
+    QObject::connect(&data.profile.y0,       &DocumentNode::value_changed, this, &ProfileView::update);
+    QObject::connect(&data.profile.phi0,     &DocumentNode::value_changed, this, &ProfileView::update);
+
     update();
 }
 
@@ -39,16 +39,16 @@ void ProfileView::update()
 {
     try
     {
-        Curve2D curve = ArcCurve::sample(data.profile_segments,
-                                         data.profile_x0,
-                                         data.profile_y0,
-                                         data.profile_phi0,
+        Curve2D curve = ArcCurve::sample(data.profile.segments,
+                                         data.profile.x0,
+                                         data.profile.y0,
+                                         data.profile.phi0,
                                          150);  // Todo: Magic number
 
-        Curve2D nodes = ArcCurve::nodes(data.profile_segments,
-                                        data.profile_x0,
-                                        data.profile_y0,
-                                        data.profile_phi0);
+        Curve2D nodes = ArcCurve::nodes(data.profile.segments,
+                                        data.profile.x0,
+                                        data.profile.y0,
+                                        data.profile.phi0);
 
         curve0->setData(curve.x, curve.y);
         curve1->setData(nodes.x, nodes.y);

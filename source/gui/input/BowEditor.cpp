@@ -1,6 +1,6 @@
 #include "BowEditor.hpp"
 #include "ModelTree.hpp"
-#include "LimbView.hpp"
+#include "gui/views/LimbView.hpp"
 
 BowEditor::BowEditor(InputData& data)
     : QSplitter(Qt::Horizontal)

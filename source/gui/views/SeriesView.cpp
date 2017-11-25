@@ -2,24 +2,10 @@
 #include "numerics/Series.hpp"
 
 SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentItem<Series>& doc_item)
-    : doc_item(doc_item)
+    : doc_item(doc_item),
+      table(new TableWidget({lb_args, lb_vals}))
 {
     // Widgets and Layout
-
-    auto vbox = new QVBoxLayout();
-    vbox->setMargin(0);
-    this->setLayout(vbox);
-
-    table = new QTableWidget(1, 2);
-    table->setHorizontalHeaderLabels({{lb_args, lb_vals}});
-    table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    table->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
-    table->verticalHeader()->sectionResizeMode(QHeaderView::Fixed);
-    table->verticalHeader()->setDefaultSectionSize(table->horizontalHeader()->height());    // Todo: Better way?
-    table->verticalHeader()->hide();
-    vbox->addWidget(table);
-
-    //table->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     auto bt_insert_below = new QPushButton(QIcon(":/icons/series-view/insert-below"), "");
     auto bt_insert_above = new QPushButton(QIcon(":/icons/series-view/insert-above"), "");
@@ -32,38 +18,32 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentI
     hbox->addWidget(bt_insert_below);
     hbox->addWidget(bt_insert_above);
     hbox->addWidget(bt_delete);
+
+    auto vbox = new QVBoxLayout();
+    this->setLayout(vbox);
+    vbox->setMargin(0);
+    vbox->addWidget(table);
     vbox->addLayout(hbox);
 
     // Event handling
-    this->doc_item.on_value_changed([&]{
-        setData(this->doc_item);
-    });
 
-    QObject::connect(table, &QTableWidget::cellChanged, [this](int i, int j) {
+    QObject::connect(&doc_item, &DocumentNode::value_changed, this, &SeriesView::update_value);
+    QObject::connect(&doc_item, &DocumentNode::error_changed, this, &SeriesView::update_error);
+
+    QObject::connect(table, &QTableWidget::cellChanged, [this](int i, int j)
+    {
         if(!table->item(i, j)->isSelected())    // Make sure the cell was changed by the user
             return;
 
-        try
-        {
-            double value = getCellValue(i, j);
-            Series series = this->doc_item;
+        double value = table->getValue(i, j);
+        Series series = this->doc_item;
 
-            if(j == 0)
-                series.arg(i) = value;
-            else if(j == 1)
-                series.val(i) = value;
+        if(j == 0)
+            series.arg(i) = value;
+        else if(j == 1)
+            series.val(i) = value;
 
-            this->doc_item = series;
-        }
-        catch(const std::runtime_error&)
-        {
-            const Series& series = this->doc_item;
-
-            if(j == 0)
-                setCellValue(i, j, series.arg(i));
-            else if(j == 1)
-                setCellValue(i, j, series.val(i));
-        }
+        this->doc_item = series;
     });
 
     QObject::connect(bt_insert_below, &QPushButton::clicked, [this]
@@ -96,18 +76,8 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentI
         emit this->selectionChanged(rows);
     });
 
-    /*
-    QObject::connect(table->selectionModel(), &QItemSelectionModel::selectionChanged, [&](const QItemSelection& selected, const QItemSelection& deselected)
-    {
-        for(auto model_index: selected.indexes())
-        {
-            int row = model_index.row();
-            int col = model_index.column();
-
-
-        }
-    });
-    */
+    update_value();
+    update_error();
 }
 
 void SeriesView::keyPressEvent(QKeyEvent* event)
@@ -118,42 +88,39 @@ void SeriesView::keyPressEvent(QKeyEvent* event)
     }
 }
 
-void SeriesView::setData(const Series& series)
+void SeriesView::update_value()
 {
+    const Series& series = doc_item;
     table->setRowCount(series.size());
 
     for(size_t i = 0; i < series.size(); ++i)
     {
-        setCellValue(i, 0, series.arg(i));
-        setCellValue(i, 1, series.val(i));
+        table->setValue(i, 0, series.arg(i));
+        table->setValue(i, 1, series.val(i));
     }
 }
 
-void SeriesView::setCellValue(int i, int j, double value)
+void SeriesView::update_error()
 {
-    if(table->item(i, j) == nullptr)
-        table->setItem(i, j,  new QTableWidgetItem);
-
-    table->item(i, j)->setText(QLocale::c().toString(value, 'g'));    // Todo: Magic number
-}
-
-double SeriesView::getCellValue(int i, int j) const
-{
-    bool ok;
-    double value = QLocale::c().toDouble(table->item(i, j)->text(), &ok);
-
-    if(!ok)
+    QPalette palette;
+    if(doc_item.get_errors().size() == 0)
     {
-        throw std::runtime_error("Cannot convert input to number");
+        palette.setColor(QPalette::Button, Qt::white);
+        this->setToolTip("");
+    }
+    else
+    {
+        palette.setColor(QPalette::Button, QColor(0xFF6666));    // Magic number
+        this->setToolTip(QString::fromStdString(doc_item.get_errors().front()));
     }
 
-    return value;
+    table->horizontalHeader()->setPalette(palette);
 }
 
 void SeriesView::insertRow(bool above)
 {
     auto selection = table->selectedRanges();
-    Series series = this->doc_item;
+    Series series = doc_item;
 
     size_t index;
     switch(selection.size())
@@ -171,7 +138,7 @@ void SeriesView::insertRow(bool above)
 
             // Move selection
             QTableWidgetSelectionRange new_range(selection[0].topRow() + 1, selection[0].leftColumn(),
-                    selection[0].bottomRow() + 1, selection[0].rightColumn());
+                                                 selection[0].bottomRow() + 1, selection[0].rightColumn());
             table->setRangeSelected(selection[0], false);
             table->setRangeSelected(new_range, true);
         }
@@ -188,14 +155,14 @@ void SeriesView::insertRow(bool above)
     }
 
     series.insert(index, 0.0, 0.0);  // Todo: Magic numbers
-    this->doc_item = series;
+    doc_item = series;
 }
 
 void SeriesView::deleteLastRow()
 {
-    Series series = this->doc_item;
+    Series series = doc_item;
     series.remove();
-    this->doc_item = series;
+    doc_item = series;
 }
 
 bool SeriesView::deleteSelectedRows()
@@ -204,7 +171,7 @@ bool SeriesView::deleteSelectedRows()
     if(selection.isEmpty())
         return false;
 
-    Series series = this->doc_item;
+    Series series = doc_item;
     for(int i = selection.size()-1; i >= 0; --i)
     {
         for(int j = selection[i].bottomRow(); j >= selection[i].topRow(); --j)
@@ -213,6 +180,6 @@ bool SeriesView::deleteSelectedRows()
         }
     }
 
-    this->doc_item = series;
+    doc_item = series;
     return true;
 }

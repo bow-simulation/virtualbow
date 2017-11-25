@@ -7,9 +7,8 @@
 #include <thread>
 #include <json.hpp>
 
-MainWindow:: MainWindow(const QString& path)
-    : input(path),
-      editor(new BowEditor(input))
+MainWindow::MainWindow()
+    : editor(new BowEditor(input))
 {
     // Actions
     auto action_new = new QAction(QIcon(":/icons/document-new"), "&New", this);
@@ -83,7 +82,7 @@ MainWindow:: MainWindow(const QString& path)
     menu_help->addAction(action_about);
 
     // Main window
-    input.on_value_changed([&]{ this->setWindowModified(true); });
+    QObject::connect(&input, &DocumentNode::value_changed, [&]{ this->setWindowModified(true); });
     this->setWindowIcon(QIcon(":/icons/logo"));
     this->setCentralWidget(editor);
     setCurrentFile(QString());
@@ -98,6 +97,39 @@ MainWindow::~MainWindow()
     // Save state and geometry
     Application::settings.setValue("MainWindow/state", saveState());
     Application::settings.setValue("MainWindow/geometry", saveGeometry());
+}
+
+// Todo: Unify loadFile and saveFile?
+bool MainWindow::loadFile(const QString& path)
+{
+    try
+    {
+        input.load(path.toStdString());
+        setCurrentFile(path);
+        return true;
+    }
+    catch(const std::exception& e)  // Todo
+    {
+        QMessageBox::warning(this, "", QString("Failed to load file: ") + e.what());  // Todo: Detailed error message
+        return false;
+    }
+}
+
+bool MainWindow::saveFile(const QString& path)
+{
+    try
+    {
+        input.meta.version = QGuiApplication::applicationVersion().toStdString();
+        input.save(path.toStdString());
+
+        setCurrentFile(path);
+        return true;
+    }
+    catch(...)  // Todo
+    {
+        QMessageBox::warning(this, "", "Failed to save file");  // Todo: Detailed error message
+        return false;
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -117,7 +149,6 @@ void MainWindow::newFile()
     if(!optionalSave())
         return;
 
-    input.load(":/bows/default.bow");
     setCurrentFile(QString());
 }
 
@@ -160,6 +191,12 @@ bool MainWindow::saveAs()
 
 void MainWindow::runSimulation(bool dynamic)
 {
+    if(input.get_errors().size() != 0)
+    {
+        QMessageBox::critical(this, "Error", "Model contains invalid input:\n" + QString::fromStdString(input.get_errors().front()));
+        return;
+    }
+
     ProgressDialog dialog(this);
     dialog.addProgressBar("Statics");
     if(dynamic)
@@ -244,40 +281,6 @@ bool MainWindow::optionalSave()    // true: Discard, false: Cancel
         case QMessageBox::Save: return save();
         case QMessageBox::Discard: return true;
         case QMessageBox::Cancel: return false;
-    }
-}
-
-// Todo: Unify loadFile and saveFile?
-bool MainWindow::loadFile(const QString& path)
-{
-    try
-    {
-        input.load(path);
-
-        setCurrentFile(path);
-        return true;
-    }
-    catch(const std::exception& e)  // Todo
-    {
-        QMessageBox::warning(this, "", QString("Failed to load file: ") + e.what());  // Todo: Detailed error message
-        return false;
-    }
-}
-
-bool MainWindow::saveFile(const QString& path)
-{
-    try
-    {
-        input.meta_version = QGuiApplication::applicationVersion().toStdString();
-        input.save(path);
-
-        setCurrentFile(path);
-        return true;
-    }
-    catch(...)  // Todo
-    {
-        QMessageBox::warning(this, "", "Failed to save file");  // Todo: Detailed error message
-        return false;
     }
 }
 

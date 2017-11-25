@@ -42,24 +42,28 @@ add_executable(${PROJECT_NAME}
 
    source/gui/Application.cpp
    source/gui/MainWindow.cpp
+   source/gui/DialogBase.cpp
    source/gui/PersistentDialog.cpp
    source/gui/PlotWidget.cpp
+   source/gui/TableWidget.cpp
    source/gui/ProgressDialog.cpp
    source/gui/ProgressDialog.hpp    # moc
 
    source/gui/input/BowEditor.cpp
    source/gui/input/ModelTree.cpp
+   source/gui/input/ModelTree.hpp    # moc
    source/gui/input/CommentDialog.cpp
    source/gui/input/ProfileDialog.cpp
-   source/gui/input/DoubleView.cpp
-   source/gui/input/IntegerView.cpp
    source/gui/input/NumberGroup.cpp
-   source/gui/input/SeriesView.cpp
-   source/gui/input/LimbView.cpp
-   source/gui/input/LimbSource.cpp
-   source/gui/input/SplineView.cpp
-   source/gui/input/ProfileView.cpp
-   source/gui/input/LimbView.cpp
+   source/gui/input/NumberDialog.cpp
+
+   source/gui/views/DoubleView.cpp
+   source/gui/views/IntegerView.cpp
+   source/gui/views/SeriesView.cpp
+   source/gui/views/SplineView.cpp
+   source/gui/views/ProfileView.cpp
+   source/gui/views/LimbView.cpp
+   source/gui/views/LimbSource.cpp
 
    source/gui/output/ComboPlot.cpp
    source/gui/output/EnergyPlot.cpp
@@ -70,7 +74,7 @@ add_executable(${PROJECT_NAME}
    source/gui/output/StressPlot.cpp
 
    source/model/BowModel.cpp
-   source/model/InputData.cpp
+   source/model/LimbProperties.cpp
    source/model/document/Document.hpp    # moc
 
    source/numerics/ArcCurve.cpp

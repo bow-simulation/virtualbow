@@ -1,8 +1,7 @@
 #pragma once
-#include "gui/input/DoubleView.hpp"
-#include "gui/input/IntegerView.hpp"
-
-#include <QtWidgets>
+#include "gui/views/DoubleView.hpp"
+#include "gui/views/IntegerView.hpp"
+#include "gui/DialogBase.hpp"
 
 class WidthGroup
 {
@@ -21,11 +20,11 @@ private:
     int width = 0;
 };
 
-class NumberDialog: public QDialog
+class NumberDialog: public DialogBase
 {
 public:
     NumberDialog(QWidget* parent, const QString& title)
-        : QDialog(parent),
+        : DialogBase(parent),
           vbox(new QVBoxLayout()),
           grid(nullptr),
           group(nullptr)

@@ -1,5 +1,5 @@
 #pragma once
-#include "model/InputData.hpp"
+#include "model/input/InputData.hpp"
 #include "model/output/OutputData.hpp"
 #include "fem/System.hpp"
 #include <functional>

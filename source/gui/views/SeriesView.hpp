@@ -1,6 +1,6 @@
 #pragma once
 #include "model/document/Document.hpp"
-#include <QtWidgets>
+#include "gui/TableWidget.hpp"
 
 class Series;
 
@@ -16,13 +16,12 @@ signals:
 
 private:
     DocumentItem<Series>& doc_item;
-    QTableWidget* table;
+    TableWidget* table;
 
     virtual void keyPressEvent(QKeyEvent* event) override;
 
-    void setData(const Series& series);
-    void setCellValue(int i, int j, double value);
-    double getCellValue(int i, int j) const;
+    void update_value();
+    void update_error();
 
     void insertRow(bool above);
     void deleteLastRow();
