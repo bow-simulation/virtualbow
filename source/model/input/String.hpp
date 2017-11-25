@@ -12,9 +12,7 @@ struct String: public DocumentNode
 
     String(DocumentNode& parent): DocumentNode(parent)
     {
-        create_constraint(strand_stiffness, "Strand stiffness must be positive",  [](double x){ return x > 0; });
-        create_constraint(strand_density,   "Strand density must be positive",    [](double x){ return x > 0; });
-        create_constraint(n_strands,        "Number of strands must be positive", [](double x){ return x > 0; });
+
     }
 
     void load(const json& obj)

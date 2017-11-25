@@ -31,6 +31,7 @@ public:
         {
             errors.push_back(e);
             emit error_changed();
+            qInfo() << "Emit error changed, e = " << QString::fromStdString(e);
         }
 
         if(parent)
@@ -88,87 +89,4 @@ public:
 
 private:
     T current_value;
-
-    std::string name;
-    std::string unit;
-    std::string tooltip;
 };
-
-template<typename T, typename F>
-void create_constraint(DocumentItem<T>& item, const std::string& message, const F& validator)
-{
-    QObject::connect(&item, &DocumentNode::value_changed, [&item, message, validator]()
-    {
-        if(validator(item))
-        {
-            item.remove_error(message);
-        }
-        else
-        {
-            item.add_error(message);
-        }
-    });
-}
-
-template<typename T, typename F>
-void create_constraint(DocumentItem<T>& item1, DocumentItem<T>& item2, const std::string& message, const F& validator)
-{
-    QObject::connect(&item1, &DocumentNode::value_changed, [&item1, &item2, message, validator]()
-    {
-        if(validator(item1, item2))
-        {
-            item1.remove_error(message);
-            item2.remove_error(message);
-        }
-        else
-        {
-            item1.add_error(message);
-            item2.add_error(message);
-        }
-    });
-
-    // Todo: Code duplication
-    QObject::connect(&item2, &DocumentNode::value_changed, [&item1, &item2, message, validator]()
-    {
-        if(validator(item1, item2))
-        {
-            item1.remove_error(message);
-            item2.remove_error(message);
-        }
-        else
-        {
-            item1.add_error(message);
-            item2.add_error(message);
-        }
-    });
-}
-
-// Watches item and node, but pins error only on item.
-template<typename T, typename F>
-void create_constraint(DocumentItem<T>& item, DocumentNode& node, const std::string& message, const F& validator)
-{
-    QObject::connect(&item, &DocumentNode::value_changed, [&item, message, validator]()
-    {
-        if(validator(item))
-        {
-            item.remove_error(message);
-        }
-        else
-        {
-            item.add_error(message);
-        }
-    });
-
-    // Todo: Code duplication
-    QObject::connect(&node, &DocumentNode::value_changed, [&item, message, validator]()
-    {
-        if(validator(item))
-        {
-            item.remove_error(message);
-        }
-        else
-        {
-            item.add_error(message);
-        }
-    });
-}

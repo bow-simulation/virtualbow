@@ -11,8 +11,7 @@ struct Material: public DocumentNode
 
     Material(DocumentNode& parent): DocumentNode(parent)
     {
-        create_constraint(rho, "Density must be positive",         [](double x){ return x > 0; });
-        create_constraint(E,   "Elastic modulus must be positive", [](double x){ return x > 0; });
+
     }
 
     void load(const json& obj)

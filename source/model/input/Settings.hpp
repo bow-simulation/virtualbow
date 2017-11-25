@@ -15,12 +15,7 @@ struct Settings: public DocumentNode
 
     Settings(DocumentNode& parent): DocumentNode(parent)
     {
-        create_constraint(n_elements_limb,   "Number of limb elements must be positive",   [](int x){ return x > 0; });
-        create_constraint(n_elements_string, "Number of string elements must be positive", [](int x){ return x > 0; });
-        create_constraint(n_draw_steps,      "Number of draw steps must be positive",      [](int x){ return x > 0; });
-        create_constraint(time_span_factor,  "Time span factor must be positive",          [](double x){ return x > 0; });
-        create_constraint(time_step_factor,  "Time step factor must be between 0 and 1",   [](double x){ return x > 0.0 && x < 1.0; });
-        create_constraint(sampling_rate,     "Sampling rate must be positive",             [](double x){ return x > 0; });
+
     }
 
     void load(const json& obj)
