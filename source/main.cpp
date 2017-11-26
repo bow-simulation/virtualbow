@@ -1,107 +1,48 @@
 /*
-#include <QtWidgets>
-#include "gui/TableWidget.hpp"
-
-int main(int argc, char **argv)
-{
-    QApplication app(argc, argv);
-
-    auto table = new TableWidget({"X", "Y", "Z"});
-    table->show();
-
-    table->setValue(2, 3, 3.1451);
-
-    qInfo() << table->getValue(1, 1);
-
-    return app.exec();
-}
-*/
-
 #include "gui/Application.hpp"
 
 int main(int argc, char* argv[])
 {
     return Application::run(argc, argv);
 }
+*/
 
 /*
-#include <QtWidgets>
+#include <QtCore>
 
-class TabBarPlus: public QTabBar
+int main()
 {
-public:
-    TabBarPlus()
-    {
-        button = new QPushButton("+", this);
-        button->setMaximumSize(20, 20);
-        button->setMinimumSize(20, 20);
+    QString t = "La&yer0";
+    t.remove('L');
 
-        setTabsClosable(true);
-        movePlusButton();
+    qInfo() << t;
 
-        QObject::connect(this, &QTabBar::tabBarDoubleClicked, [&](int index)
-        {
-            qInfo() << "Double click";
-        });
+    return 0;
+}
+*/
 
-        QObject::connect(button, &QPushButton::clicked, [&]
-        {
-            qInfo() << "Add tab";
-        });
-    }
-
-    virtual QSize sizeHint() const override
-    {
-        // Return the size of the TabBar with increased width for the plus button."""
-        QSize sizeHint = QTabBar::sizeHint();
-        sizeHint += {25, 0};
-
-        return sizeHint;
-    }
-
-    virtual void resizeEvent(QResizeEvent * event) override
-    {
-        // Resize the widget and make sure the plus button is in the correct location.
-        QTabBar::resizeEvent(event);
-        movePlusButton();
-    }
-
-    virtual void tabLA[1]outChange()
-    {
-        // This virtual handler is called whenever the tab lA[1]out changes.
-        // If anything changes make sure the plus button is in the correct location.
-        QTabBar::tabLA[1]outChange();
-        movePlusButton();
-    }
-
-    void movePlusButton()
-    {
-        // Move the plus button to the correct location.
-        // Find the width of all of the tabs
-        int size = 0;
-        for(int i = 0; i < count(); ++i)
-            size += tabRect(i).width();
-
-        // Set the plus button location in a visible area
-        int h = 0;  // geometry().top();
-
-        button->move(size, h);
-    }
-
-private:
-    QPushButton* button;
-};
-
+#include "gui/EditableTabBar.hpp"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+    // QApplication::setStyle("windows");
 
-    TabBarPlus tb;
-    tb.addTab("A");
-    tb.addTab("B");
+    EditableTabBar tb;
+    tb.addTab("Layer0");
+    tb.addTab("Layer1");
+    tb.addTab("Layer2");
     tb.show();
+
+    QObject::connect(&tb, &EditableTabBar::addTabRequested, []()
+    {
+        qInfo() << "Add Tab!";
+    });
+
+    QObject::connect(&tb, &EditableTabBar::tabRenamed, [](int index, const QString& name)
+    {
+        qInfo() << index << " renamed to " << name;
+    });
 
     return app.exec();
 }
-*/

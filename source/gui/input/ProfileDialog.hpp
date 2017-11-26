@@ -21,8 +21,6 @@ public:
         auto profile_view = new ProfileView(data);
         QObject::connect(series_view, &SeriesView::selectionChanged, profile_view, &ProfileView::setSelection);
 
-        //QObject::connect()
-
         auto hbox0 = new QHBoxLayout();
         hbox0->addStretch();
         hbox0->addWidget(new QLabel("X0 [m]:")); hbox0->addSpacing(10); hbox0->addWidget(new DoubleView(data.profile.x0));
@@ -34,10 +32,8 @@ public:
         hbox0->addWidget(new QLabel("Angle [rad]:")); hbox0->addSpacing(10); hbox0->addWidget(new DoubleView(data.profile.phi0));
         hbox0->addStretch();
 
-        auto offsets = new QGroupBox();
+        auto offsets = new QGroupBox("Offsets");
         offsets->setLayout(hbox0);
-
-        // QGroupBox{ margin-top: 0; }
 
         auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok);
         QObject::connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -45,9 +41,8 @@ public:
         // Layout
 
         auto vbox0 = new QVBoxLayout();
-        //vbox0->setMargin(0);
-        vbox0->addWidget(profile_view, 1);
         vbox0->addWidget(offsets);
+        vbox0->addWidget(profile_view, 1);
 
         auto hbox1 = new QHBoxLayout();
         hbox1->addWidget(series_view);

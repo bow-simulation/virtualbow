@@ -48,6 +48,8 @@ add_executable(${PROJECT_NAME}
    source/gui/TableWidget.cpp
    source/gui/ProgressDialog.cpp
    source/gui/ProgressDialog.hpp    # moc
+   source/gui/EditableTabBar.cpp
+   source/gui/EditableTabBar.hpp    # moc
 
    source/gui/input/BowEditor.cpp
    source/gui/input/ModelTree.cpp
