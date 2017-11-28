@@ -14,18 +14,19 @@ struct Masses: public DocumentNode
     {
 
     }
-
-    void load(const json& obj)
-    {
-        string_center = (double) obj["string_center"];
-        string_tip    = (double) obj["string_tip"];
-        limb_tip      = (double) obj["limb_tip"];
-    }
-
-    void save(json& obj) const
-    {
-        obj["string_center"] = (double) string_center;
-        obj["string_tip"]    = (double) string_tip;
-        obj["limb_tip"]      = (double) limb_tip;
-    }
 };
+
+static void to_json(json& obj, const Masses& value)
+{
+    to_json(obj["string_center"], value.string_center);
+    to_json(obj["string_tip"], value.string_tip);
+    to_json(obj["limb_tip"], value.limb_tip);
+}
+
+static void from_json(const json& obj, Masses& value)
+{
+    from_json(obj["string_center"], value.string_center);
+    from_json(obj["string_tip"], value.string_tip);
+    from_json(obj["limb_tip"], value.limb_tip);
+}
+

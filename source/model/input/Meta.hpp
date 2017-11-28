@@ -14,18 +14,16 @@ struct Meta: public DocumentNode
     {
 
     }
-
-    void load(const json& obj)
-    {
-        version  = obj["version"].get<std::string>();
-        comments = obj["comments"].get<std::string>();
-    }
-
-    void save(json& obj) const
-    {
-        obj["version"]  = (std::string) version;
-        obj["comments"] = (std::string) comments;
-    }
 };
 
+static void to_json(json& obj, const Meta& value)
+{
+    to_json(obj["version"], value.version);
+    to_json(obj["comments"], value.comments);
+}
 
+static void from_json(const json& obj, Meta& value)
+{
+    from_json(obj["version"], value.version);
+    from_json(obj["comments"], value.comments);
+}

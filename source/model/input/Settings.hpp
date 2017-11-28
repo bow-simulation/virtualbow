@@ -17,25 +17,25 @@ struct Settings: public DocumentNode
     {
 
     }
-
-    void load(const json& obj)
-    {
-        n_elements_limb   = (int)    obj["n_elements_limb"];
-        n_elements_string = (int)    obj["n_elements_string"];
-        n_draw_steps      = (int)    obj["n_draw_steps"];
-        time_span_factor  = (double) obj["time_span_factor"];
-        time_step_factor  = (double) obj["time_step_factor"];
-        sampling_rate     = (double) obj["sampling_rate"];
-    }
-
-    void save(json& obj) const
-    {
-        obj["n_elements_limb"]   = (int)    n_elements_limb;
-        obj["n_elements_string"] = (int)    n_elements_string;
-        obj["n_draw_steps"]      = (int)    n_draw_steps;
-        obj["time_span_factor"]  = (double) time_span_factor;
-        obj["time_step_factor"]  = (double) time_step_factor;
-        obj["sampling_rate"]     = (double) sampling_rate;
-    }
 };
+
+static void to_json(json& obj, const Settings& value)
+{
+    to_json(obj["n_elements_limb"], value.n_elements_limb);
+    to_json(obj["n_elements_string"], value.n_elements_string);
+    to_json(obj["n_draw_steps"], value.n_draw_steps);
+    to_json(obj["time_span_factor"], value.time_span_factor);
+    to_json(obj["time_step_factor"], value.time_step_factor);
+    to_json(obj["sampling_rate"], value.sampling_rate);
+}
+
+static void from_json(const json& obj, Settings& value)
+{
+    from_json(obj["n_elements_limb"], value.n_elements_limb);
+    from_json(obj["n_elements_string"], value.n_elements_string);
+    from_json(obj["n_draw_steps"], value.n_draw_steps);
+    from_json(obj["time_span_factor"], value.time_span_factor);
+    from_json(obj["time_step_factor"], value.time_step_factor);
+    from_json(obj["sampling_rate"], value.sampling_rate);
+}
 

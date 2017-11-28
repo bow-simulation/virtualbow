@@ -14,19 +14,19 @@ struct Operation: public DocumentNode
     {
 
     }
-
-    void load(const json& obj)
-    {
-        brace_height = (double) obj["brace_height"];
-        draw_length  = (double) obj["draw_length"];
-        mass_arrow   = (double) obj["mass_arrow"];
-    }
-
-    void save(json& obj) const
-    {
-        obj["brace_height"] = (double) brace_height;
-        obj["draw_length"]  = (double) draw_length;
-        obj["mass_arrow"]   = (double) mass_arrow;
-    }
 };
+
+static void to_json(json& obj, const Operation& value)
+{
+    to_json(obj["brace_height"], value.brace_height);
+    to_json(obj["draw_length"], value.draw_length);
+    to_json(obj["mass_arrow"], value.mass_arrow);
+}
+
+static void from_json(const json& obj, Operation& value)
+{
+    from_json(obj["brace_height"], value.brace_height);
+    from_json(obj["draw_length"], value.draw_length);
+    from_json(obj["mass_arrow"], value.mass_arrow);
+}
 

@@ -6,6 +6,7 @@ project(bow-simulator)
 
 include_directories("build/eigen")
 include_directories("build/catch/include")
+include_directories("build/cereal/include")
 include_directories("build/json/src")
 include_directories("build/boost")
 
@@ -23,66 +24,67 @@ set(CMAKE_AUTOUIC ON)
 
 include_directories(source)
 add_executable(${PROJECT_NAME}
-   source/main.cpp
-   resources/resources.qrc
+    source/main.cpp
+    resources/resources.qrc
 
-   source/external/qcustomplot/qcustomplot.cpp
+    source/external/qcustomplot/qcustomplot.cpp
 
-   source/fem/elements/BarElement.cpp
-   source/fem/elements/BeamElement.cpp
-   source/fem/elements/MassElement.cpp
-   source/fem/elements/ContactElement.cpp
-   source/fem/elements/ContactHandler.cpp
-   source/fem/elements/ConstraintElement.cpp
-   source/fem/Node.cpp
-   source/fem/Element.cpp
-   source/fem/StaticSolver.cpp
-   source/fem/DynamicSolver.cpp
-   source/fem/System.cpp
+    source/fem/elements/BarElement.cpp
+    source/fem/elements/BeamElement.cpp
+    source/fem/elements/MassElement.cpp
+    source/fem/elements/ContactElement.cpp
+    source/fem/elements/ContactHandler.cpp
+    source/fem/elements/ConstraintElement.cpp
+    source/fem/Node.cpp
+    source/fem/Element.cpp
+    source/fem/StaticSolver.cpp
+    source/fem/DynamicSolver.cpp
+    source/fem/System.cpp
 
-   source/gui/Application.cpp
-   source/gui/MainWindow.cpp
-   source/gui/DialogBase.cpp
-   source/gui/PersistentDialog.cpp
-   source/gui/PlotWidget.cpp
-   source/gui/TableWidget.cpp
-   source/gui/ProgressDialog.cpp
-   source/gui/ProgressDialog.hpp    # moc
-   source/gui/EditableTabBar.cpp
-   source/gui/EditableTabBar.hpp    # moc
+    source/gui/Application.cpp
+    source/gui/MainWindow.cpp
+    source/gui/DialogBase.cpp
+    source/gui/PersistentDialog.cpp
+    source/gui/PlotWidget.cpp
+    source/gui/TableWidget.cpp
+    source/gui/ProgressDialog.cpp
+    source/gui/ProgressDialog.hpp    # moc
+    source/gui/EditableTabBar.cpp
+    source/gui/EditableTabBar.hpp    # moc
 
-   source/gui/input/BowEditor.cpp
-   source/gui/input/ModelTree.cpp
-   source/gui/input/ModelTree.hpp    # moc
-   source/gui/input/CommentDialog.cpp
-   source/gui/input/ProfileDialog.cpp
-   source/gui/input/NumberGroup.cpp
-   source/gui/input/NumberDialog.cpp
+    source/gui/input/BowEditor.cpp
+    source/gui/input/ModelTree.cpp
+    source/gui/input/ModelTree.hpp    # moc
+    source/gui/input/CommentDialog.cpp
+    source/gui/input/ProfileDialog.cpp
+    source/gui/input/NumberGroup.cpp
+    source/gui/input/NumberDialog.cpp
 
-   source/gui/views/DoubleView.cpp
-   source/gui/views/IntegerView.cpp
-   source/gui/views/SeriesView.cpp
-   source/gui/views/SplineView.cpp
-   source/gui/views/ProfileView.cpp
-   source/gui/views/LimbView.cpp
-   source/gui/views/LimbSource.cpp
+    source/gui/views/DoubleView.cpp
+    source/gui/views/IntegerView.cpp
+    source/gui/views/SeriesView.cpp
+    source/gui/views/SplineView.cpp
+    source/gui/views/ProfileView.cpp
+    source/gui/views/LimbView.cpp
+    source/gui/views/LimbSource.cpp
 
-   source/gui/output/ComboPlot.cpp
-   source/gui/output/EnergyPlot.cpp
-   source/gui/output/OutputDialog.cpp
-   source/gui/output/OutputGrid.cpp
-   source/gui/output/ShapePlot.cpp
-   source/gui/output/Slider.cpp
-   source/gui/output/StressPlot.cpp
+    source/gui/output/ComboPlot.cpp
+    source/gui/output/EnergyPlot.cpp
+    source/gui/output/OutputDialog.cpp
+    source/gui/output/OutputGrid.cpp
+    source/gui/output/ShapePlot.cpp
+    source/gui/output/Slider.cpp
+    source/gui/output/StressPlot.cpp
 
-   source/model/BowModel.cpp
-   source/model/LimbProperties.cpp
-   source/model/document/Document.hpp    # moc
+    source/model/BowModel.cpp
+    source/model/LimbProperties.cpp
+    source/model/document/Document.hpp    # moc
+    source/model/input/InputData.cpp
 
-   source/numerics/ArcCurve.cpp
-   source/numerics/CubicSpline.cpp
-   source/numerics/Series.cpp
-)
+    source/numerics/ArcCurve.cpp
+    source/numerics/CubicSpline.cpp
+    source/numerics/Series.cpp
+    )
 
 target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::PrintSupport)

@@ -121,8 +121,9 @@ bool MainWindow::saveFile(const QString& path)
     {
         input.meta.version = QGuiApplication::applicationVersion().toStdString();
         input.save(path.toStdString());
-
+        setWindowModified(false);
         setCurrentFile(path);
+
         return true;
     }
     catch(...)  // Todo

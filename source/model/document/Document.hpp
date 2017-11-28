@@ -5,6 +5,9 @@
 #include <boost/range/algorithm_ext/erase.hpp>
 #include <boost/range/algorithm.hpp>
 #include <string>
+#include <json.hpp>
+
+using nlohmann::json;
 
 class DocumentNode: public QObject
 {
@@ -90,3 +93,15 @@ public:
 private:
     T current_value;
 };
+
+template<typename T>
+static void to_json(json& obj, const DocumentItem<T>& value)
+{
+    obj = T(value);
+}
+
+template<typename T>
+static void from_json(const json& obj, DocumentItem<T>& value)
+{
+    value = obj.get<T>();
+}

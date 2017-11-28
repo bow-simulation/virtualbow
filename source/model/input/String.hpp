@@ -14,18 +14,18 @@ struct String: public DocumentNode
     {
 
     }
-
-    void load(const json& obj)
-    {
-        strand_stiffness = (double) obj["strand_stiffness"];
-        strand_density   = (double) obj["strand_density"];
-        n_strands        = (double) obj["n_strands"];
-    }
-
-    void save(json& obj) const
-    {
-        obj["strand_stiffness"] = (double) strand_stiffness;
-        obj["strand_density"]   = (double) strand_density;
-        obj["n_strands"]        = (double) n_strands;
-    }
 };
+
+static void to_json(json& obj, const String& value)
+{
+    to_json(obj["strand_stiffness"], value.strand_stiffness);
+    to_json(obj["strand_density"], value.strand_density);
+    to_json(obj["n_strands"], value.n_strands);
+}
+
+static void from_json(const json& obj, String& value)
+{
+    from_json(obj["strand_stiffness"], value.strand_stiffness);
+    from_json(obj["strand_density"], value.strand_density);
+    from_json(obj["n_strands"], value.n_strands);
+}

@@ -18,6 +18,7 @@ using nlohmann::json;
 struct InputData: public DocumentNode
 {
     Meta                   meta{*this};
+    Settings           settings{*this};
     Profile             profile{*this};
     DocumentItem<Series>  width{*this, Series({0.0, 0.5, 1.0}, {0.04, 0.035, 0.01})};
     DocumentItem<Series> height{*this, Series({0.0, 1.0}, {0.0128, 0.008})};
@@ -25,155 +26,14 @@ struct InputData: public DocumentNode
     String               string{*this};
     Masses               masses{*this};
     Operation         operation{*this};
-    Settings           settings{*this};
 
-    InputData()
-    {
-        // Set up constraints for input validation here
-        // Todo: Lots of code duplication below
-
-        create_constraint(material.rho, "Density must be positive",         [](double x){ return x > 0; });
-        create_constraint(material.E,   "Elastic modulus must be positive", [](double x){ return x > 0; });
-
-        create_constraint(string.strand_stiffness, "Strand stiffness must be positive",  [](double x){ return x > 0; });
-        create_constraint(string.strand_density,   "Strand density must be positive",    [](double x){ return x > 0; });
-        create_constraint(string.n_strands,        "Number of strands must be positive", [](double x){ return x > 0; });
-
-        create_constraint(masses.string_center, "String center mass must be positive", [](double x){ return x > 0; });
-        create_constraint(masses.string_tip,    "String tip mass must be positive",    [](double x){ return x > 0; });
-        create_constraint(masses.limb_tip,      "Limb tip mass must be positive",      [](double x){ return x > 0; });
-
-        create_constraint(operation.draw_length, operation.brace_height, "Draw length must be larger than brace height", [](double x, double y){ return x > y; });
-        create_constraint(operation.mass_arrow, "Arrow mass must be positive", [](double x){ return x > 0; });
-
-        create_constraint(settings.n_elements_limb,   "Number of limb elements must be positive",   [](int x){ return x > 0; });
-        create_constraint(settings.n_elements_string, "Number of string elements must be positive", [](int x){ return x > 0; });
-        create_constraint(settings.n_draw_steps,      "Number of draw steps must be positive",      [](int x){ return x > 0; });
-        create_constraint(settings.time_span_factor,  "Time span factor must be positive",          [](double x){ return x > 0; });
-        create_constraint(settings.time_step_factor,  "Time step factor must be between 0 and 1",   [](double x){ return x > 0.0 && x < 1.0; });
-        create_constraint(settings.sampling_rate,     "Sampling rate must be positive",             [](double x){ return x > 0; });
-
-        create_constraint(width, "Supplied widths must be positive", [](const Series& width)
-        {
-            for(double w: width.vals()) {
-                if(w <= 0)
-                    return false;
-            }
-
-            return true;
-        });
-
-        create_constraint(height, "Supplied heights must be positive", [](const Series& height) {
-            for(double h: height.vals()) {
-                if(h <= 0)
-                    return false;
-            }
-
-            return true;
-        });
-
-        create_constraint(width, "Minimum width must be positive", [](const Series& width)
-        {
-            try
-            {
-                Series output = CubicSpline::sample(width, 150);    // Magic number
-                for(double w: output.vals()) {
-                    if(w <= 0)
-                        return false;
-                }
-            }
-            catch(...)
-            {
-                // Carry on, don't treat other problems here
-            }
-
-            return true;
-        });
-
-        create_constraint(height, "Minimum height must be positive", [](const Series& width)
-        {
-            try
-            {
-                Series output = CubicSpline::sample(width, 150);    // Magic number
-                for(double h: output.vals()) {
-                    if(h <= 0)
-                        return false;
-                }
-            }
-            catch(...)
-            {
-                // Carry on, don't treat other problems here
-            }
-
-            return true;
-        });
-
-        create_constraint(operation.brace_height, "Brace height too low for current limb profile",
-            [&](double brace_height)
-        {
-            try
-            {
-                LimbProperties limb(*this);
-                for(size_t i = 0; i < limb.y.size(); ++i) {
-                    if(limb.y[i] <= -brace_height)
-                        return false;
-                }
-            }
-            catch(...)
-            {
-                // Carry on, don't treat other problems here
-            }
-
-            return true;
-        });
-    }
-
-    void load(const json& obj)
-    {
-        meta.load(obj["meta"]);
-        profile.load(obj["profile"]);
-        width  = (Series) obj["width"];    // Todo: Unify interface
-        height = (Series) obj["height"];
-        material.load(obj["sections"]);
-        string.load(obj["string"]);
-        masses.load(obj["masses"]);
-        operation.load(obj["operation"]);
-        settings.load(obj["settings"]);
-    }
-
-    void save(json& obj) const
-    {
-        meta.save(obj["meta"]);
-        profile.save(obj["profile"]);
-        obj["width"]  = (Series) width;    // Todo: Unify interface
-        obj["height"] = (Series) height;
-        material.save(obj["sections"]);
-        string.save(obj["string"]);
-        masses.save(obj["masses"]);
-        operation.save(obj["operation"]);
-        settings.save(obj["settings"]);
-    }
-
-    void load(const std::string& path)
-    {
-        std::ifstream stream(path);
-
-        json obj;
-        obj << stream;
-
-        load(obj);
-    }
-
-    void save(const std::string& path)
-    {
-        json obj;
-        save(obj);
-
-        std::ofstream stream(path);
-        stream << std::setw(4) << obj << std::endl;
-    }
+    InputData();
+    void load(const std::string& path);
+    void save(const std::string& path) const;
 
 private:
+    // Todo: Put constraint functions somewhere else, maybe in separate file next to document.
+
     template<typename T, typename F>
     void create_constraint(DocumentItem<T>& item, const std::string& message, const F& validator)
     {
@@ -223,3 +83,29 @@ private:
         });
     }
 };
+
+static void to_json(json& obj, const InputData& value)
+{
+    to_json(obj["meta"], value.meta);
+    to_json(obj["settings"], value.settings);
+    to_json(obj["profile"], value.profile);
+    to_json(obj["width"], value.width);
+    to_json(obj["height"], value.height);
+    to_json(obj["material"], value.material);
+    to_json(obj["string"], value.string);
+    to_json(obj["masses"], value.masses);
+    to_json(obj["operation"], value.operation);
+}
+
+static void from_json(const json& obj, InputData& value)
+{
+    from_json(obj["meta"], value.meta);
+    from_json(obj["settings"], value.settings);
+    from_json(obj["profile"], value.profile);
+    from_json(obj["width"], value.width);
+    from_json(obj["height"], value.height);
+    from_json(obj["material"], value.material);
+    from_json(obj["string"], value.string);
+    from_json(obj["masses"], value.masses);
+    from_json(obj["operation"], value.operation);
+}

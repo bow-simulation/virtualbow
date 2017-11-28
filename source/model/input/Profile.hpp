@@ -14,25 +14,22 @@ struct Profile: public DocumentNode
 
     Profile(DocumentNode& parent): DocumentNode(parent)
     {
-        /*
-        create_constraint(rho, "Density must be positive",         [](double x){ return x > 0; });
-        create_constraint(E,   "Elastic modulus must be positive", [](double x){ return x > 0; });
-        */
-    }
 
-    void load(const json& obj)
-    {
-        segments = (Series) obj["segments"];
-        x0       = (double) obj["x0"];
-        y0       = (double) obj["y0"];
-        phi0     = (double) obj["phi0"];
-    }
-
-    void save(json& obj) const
-    {
-        obj["segments"] = (Series) segments;
-        obj["x0"]       = (double) x0;
-        obj["y0"]       = (double) y0;
-        obj["phi0"]     = (double) phi0;
     }
 };
+
+static void to_json(json& obj, const Profile& value)
+{
+    to_json(obj["segments"], value.segments);
+    to_json(obj["x0"], value.x0);
+    to_json(obj["y0"], value.y0);
+    to_json(obj["phi0"], value.phi0);
+}
+
+static void from_json(const json& obj, Profile& value)
+{
+    from_json(obj["segments"], value.segments);
+    from_json(obj["x0"], value.x0);
+    from_json(obj["y0"], value.y0);
+    from_json(obj["phi0"], value.phi0);
+}

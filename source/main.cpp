@@ -1,26 +1,11 @@
-/*
 #include "gui/Application.hpp"
 
 int main(int argc, char* argv[])
 {
     return Application::run(argc, argv);
 }
-*/
 
 /*
-#include <QtCore>
-
-int main()
-{
-    QString t = "La&yer0";
-    t.remove('L');
-
-    qInfo() << t;
-
-    return 0;
-}
-*/
-
 #include "gui/EditableTabBar.hpp"
 
 int main(int argc, char *argv[])
@@ -46,3 +31,4 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
+*/
