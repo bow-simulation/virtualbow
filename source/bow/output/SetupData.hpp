@@ -1,5 +1,5 @@
 #pragma once
-#include "model/LimbProperties.hpp"
+#include "bow/LimbProperties.hpp"
 #include <json.hpp>
 
 using nlohmann::json;

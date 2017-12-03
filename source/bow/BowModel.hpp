@@ -1,6 +1,6 @@
 #pragma once
-#include "model/input/InputData.hpp"
-#include "model/output/OutputData.hpp"
+#include "bow/input/InputData.hpp"
+#include "bow/output/OutputData.hpp"
 #include "fem/System.hpp"
 #include <functional>
 

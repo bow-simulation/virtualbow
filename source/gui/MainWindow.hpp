@@ -1,5 +1,5 @@
 #pragma once
-#include "model/input/InputData.hpp"
+#include "bow/input/InputData.hpp"
 #include <QtWidgets>
 
 class BowEditor;

@@ -3,7 +3,7 @@
 #include "ProgressDialog.hpp"
 #include "input/BowEditor.hpp"
 #include "output/OutputDialog.hpp"
-#include "model/BowModel.hpp"
+#include "bow/BowModel.hpp"
 #include <thread>
 #include <json.hpp>
 

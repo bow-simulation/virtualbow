@@ -1,5 +1,5 @@
 #pragma once
-#include "model/document/Document.hpp"
+#include "bow/document/Document.hpp"
 #include "numerics/Series.hpp"
 #include <json.hpp>
 

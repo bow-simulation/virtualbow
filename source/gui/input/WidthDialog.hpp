@@ -2,7 +2,7 @@
 #include "gui/PersistentDialog.hpp"
 #include "gui/views/SeriesView.hpp"
 #include "gui/views/SplineView.hpp"
-#include "model/input/InputData.hpp"
+#include "bow/input/InputData.hpp"
 
 #include <QtWidgets>
 

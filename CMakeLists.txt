@@ -76,15 +76,15 @@ add_executable(${PROJECT_NAME}
     source/gui/output/Slider.cpp
     source/gui/output/StressPlot.cpp
 
-    source/model/BowModel.cpp
-    source/model/LimbProperties.cpp
-    source/model/document/Document.hpp    # moc
-    source/model/input/InputData.cpp
+    source/bow/BowModel.cpp
+    source/bow/LimbProperties.cpp
+    source/bow/document/Document.hpp    # moc
+    source/bow/input/InputData.cpp
 
     source/numerics/ArcCurve.cpp
     source/numerics/CubicSpline.cpp
     source/numerics/Series.cpp
-    )
+)
 
 target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::PrintSupport)

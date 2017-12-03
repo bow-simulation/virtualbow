@@ -1,6 +1,6 @@
 #pragma once
 #include <vtkPolyDataAlgorithm.h>
-#include "model/LimbProperties.hpp"
+#include "bow/LimbProperties.hpp"
 
 // Adapted from vtkCubeSource.h
 class LimbSource: public vtkPolyDataAlgorithm

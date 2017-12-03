@@ -2,6 +2,9 @@
 
 InputData::InputData()
 {
+    // Todo: inline initialization like the others?
+    // layers.emplace_back(*this);
+
     // Set up constraints for input validation here
     // Todo: Lots of code duplication below
 

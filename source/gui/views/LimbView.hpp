@@ -1,8 +1,8 @@
 #pragma once
 #include "LimbSource.hpp"
-#include "model/document/Document.hpp"
-#include "model/LimbProperties.hpp"
-#include "model/input/InputData.hpp"
+#include "bow/document/Document.hpp"
+#include "bow/LimbProperties.hpp"
+#include "bow/input/InputData.hpp"
 #include <QtWidgets>
 
 #include <QVTKWidget.h>

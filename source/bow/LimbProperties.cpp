@@ -1,5 +1,5 @@
 #include "LimbProperties.hpp"
-#include "model/input/InputData.hpp"
+#include "bow/input/InputData.hpp"
 
 LayerProperties::LayerProperties(size_t n)
     : s(n), y_back(n), y_belly(n)

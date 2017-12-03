@@ -1,5 +1,5 @@
 #include "BowModel.hpp"
-#include "model/LimbProperties.hpp"
+#include "bow/LimbProperties.hpp"
 #include "fem/StaticSolver.hpp"
 #include "fem/DynamicSolver.hpp"
 #include "fem/elements/BeamElement.hpp"

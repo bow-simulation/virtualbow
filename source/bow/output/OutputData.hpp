@@ -1,7 +1,7 @@
 #pragma once
-#include "model/output/SetupData.hpp"
-#include "model/output/StaticData.hpp"
-#include "model/output/DynamicData.hpp"
+#include "bow/output/SetupData.hpp"
+#include "bow/output/StaticData.hpp"
+#include "bow/output/DynamicData.hpp"
 #include <json.hpp>
 #include <fstream>
 #include <vector>

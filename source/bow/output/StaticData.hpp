@@ -1,5 +1,5 @@
 #pragma once
-#include "model/output/BowStates.hpp"
+#include "bow/output/BowStates.hpp"
 #include <json.hpp>
 
 using nlohmann::json;

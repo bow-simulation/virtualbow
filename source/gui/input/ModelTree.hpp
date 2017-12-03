@@ -1,5 +1,5 @@
 #pragma once
-#include "model/input/InputData.hpp"
+#include "bow/input/InputData.hpp"
 #include "gui/input/CommentDialog.hpp"
 #include "gui/input/ProfileDialog.hpp"
 #include "gui/input/WidthDialog.hpp"

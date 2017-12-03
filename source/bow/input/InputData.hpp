@@ -1,7 +1,8 @@
 #pragma once
-#include "model/document/Document.hpp"
+#include "bow/document/Document.hpp"
 #include "Meta.hpp"
 #include "Profile.hpp"
+#include "Layer.hpp"
 #include "Material.hpp"
 #include "String.hpp"
 #include "Masses.hpp"
@@ -9,9 +10,10 @@
 #include "Settings.hpp"
 #include <json.hpp>
 #include <fstream>
+#include <memory>
 
 #include "numerics/CubicSpline.hpp"
-#include "model/LimbProperties.hpp"
+#include "bow/LimbProperties.hpp"
 
 using nlohmann::json;
 
@@ -22,6 +24,9 @@ struct InputData: public DocumentNode
     Profile             profile{*this};
     DocumentItem<Series>  width{*this, Series({0.0, 0.5, 1.0}, {0.04, 0.035, 0.01})};
     DocumentItem<Series> height{*this, Series({0.0, 1.0}, {0.0128, 0.008})};
+
+    //std::list<Layer>     layers; //{1, Layer{*this}};
+
     Material           material{*this};
     String               string{*this};
     Masses               masses{*this};
