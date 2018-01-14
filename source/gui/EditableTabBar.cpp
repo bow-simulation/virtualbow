@@ -11,14 +11,21 @@ EditableTabBar::EditableTabBar()
     QObject::connect(button, &QPushButton::clicked, this, &EditableTabBar::addTabRequested);
     QObject::connect(this, &QTabBar::tabBarDoubleClicked, [&](int index)
     {
+        QString old_text = this->tabText(index);
+        this->setTabText(index, "...");
+
         RenameDialog dialog(this);
-        dialog.setText(tabText(index));
+        dialog.setText(old_text);
 
         if(dialog.exec() == QDialog::Accepted)
         {
-            QString text = dialog.getText();
-            setTabText(index, text);
-            emit tabRenamed(index, text);
+            QString new_text = dialog.getText();
+            this->setTabText(index, new_text);
+            emit tabRenamed(index, new_text);
+        }
+        else
+        {
+            this->setTabText(index, old_text);
         }
     });
 }

@@ -1,60 +1,13 @@
 /*
-template<typename T>
-class View
-{
-public:
-    View(T& data): data(data), cache(data)
-    {
-
-    }
-
-    void update()
-    {
-        if(data != cache)
-        {
-            updateView(data);
-            cache = data;
-        }
-    }
-
-protected:
-    void updateData(const T& data)
-    {
-        this->data = data;
-        cache = data;
-    }
-
-    virtual void updateView(const T& data) = 0;
-
-private:
-    T& data;
-    T cache;
-};
-
-
-class DataView: public View<Data>
-{
-public:
-    DataView(Data& data): View(data)
-    {
-
-    }
-
-    virtual void updateView(const Data& data) override
-    {
-
-    }
-};
-*/
-
 #include "gui/Application.hpp"
 
 int main(int argc, char* argv[])
 {
     return Application::run(argc, argv);
 }
+*/
 
-/*
+
 #include "gui/EditableTabBar.hpp"
 
 int main(int argc, char *argv[])
@@ -80,4 +33,3 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
-*/
