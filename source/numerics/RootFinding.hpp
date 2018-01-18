@@ -16,7 +16,6 @@ static Vector<2> solve_quadratic(double c0, double c1, double c2)
 
 // Find the root of the function f by using the secant method [1] with the initial values x0 and x1
 // [1] https://en.wikipedia.org/wiki/Secant_method
-// Todo: Can the lambda be called statically?
 template<class F>
 double secant_method(const F& f, double x0, double x1, double epsilon, unsigned iter)
 {
@@ -38,8 +37,6 @@ double secant_method(const F& f, double x0, double x1, double epsilon, unsigned 
 
     throw std::runtime_error("Secant method: Maximum number of iterations exceeded");
 }
-
-#include <iostream>
 
 template<bool rising, class F>
 double bisect(const F& f, double x_min, double x_max, double ftol, double xtol, unsigned iter)

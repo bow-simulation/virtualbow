@@ -3,7 +3,7 @@
 
 SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentItem<Series>& doc_item)
     : doc_item(doc_item),
-      table(new TableWidget({lb_args, lb_vals}))
+      table(new TableWidget(lb_args, lb_vals, 25))
 {
     // Widgets and Layout
 
@@ -32,6 +32,7 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentI
 
     QObject::connect(table, &QTableWidget::cellChanged, [this](int i, int j)
     {
+        /*
         if(!table->item(i, j)->isSelected())    // Make sure the cell was changed by the user
             return;
 
@@ -44,6 +45,7 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentI
             series.val(i) = value;
 
         this->doc_item = series;
+        */
     });
 
     QObject::connect(bt_insert_below, &QPushButton::clicked, [this]
@@ -90,6 +92,7 @@ void SeriesView::keyPressEvent(QKeyEvent* event)
 
 void SeriesView::update_value()
 {
+    /*
     const Series& series = doc_item;
     table->setRowCount(series.size());
 
@@ -98,6 +101,7 @@ void SeriesView::update_value()
         table->setValue(i, 0, series.arg(i));
         table->setValue(i, 1, series.val(i));
     }
+    */
 }
 
 void SeriesView::update_error()

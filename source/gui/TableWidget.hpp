@@ -1,95 +1,69 @@
 #pragma once
 #include <QtWidgets>
+#include "numerics/Series.hpp"
 
 class TableItem: public QTableWidgetItem
 {
-    double old_value = 0.0;
     virtual void setData(int role, const QVariant& data)
     {
         bool valid;
         double new_value = data.toDouble(&valid);
 
-        if(valid)
-        {
-            old_value = new_value;
+        if(valid || data.toString().isEmpty())
             QTableWidgetItem::setData(role, data);
-        }
-        else
-        {
-            QTableWidgetItem::setData(role, old_value);
-        }
     }
 };
 
 class TableWidget: public QTableWidget
 {
 public:
-    TableWidget(const QStringList& labels)
-        : QTableWidget(0, labels.size())
+    TableWidget(const QString& x_label, const QString& y_label, int rows)
+        : QTableWidget(rows, 2)
     {
-        setHorizontalHeaderLabels(labels);
-        horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-        horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
-        verticalHeader()->sectionResizeMode(QHeaderView::Fixed);
-        verticalHeader()->setDefaultSectionSize(horizontalHeader()->height());    // Todo: Better way?
-        verticalHeader()->hide();
-    }
-
-    double getValue(int row, int col) const
-    {
-        QLocale::c().toDouble(item(row, col)->text());
-    }
-
-    void setValue(int row, int col, double value)
-    {
-        if(row >= rowCount())
-            addRows(row - rowCount() + 1);
-
-        if(col >= columnCount())
-            addCols(col - columnCount() + 1);
-
-        item(row, col)->setText(QLocale::c().toString(value, 'g'));
-    }
-
-    void setRowCount(int rows)
-    {
-        if(rows > rowCount())
-            addRows(rows - rowCount());
-        else
-            QTableWidget::setRowCount(rows);
-    }
-
-    void setColumnCount(int cols)
-    {
-        if(cols > columnCount())
-            addCols(cols - columnCount());
-        else
-            QTableWidget::setColumnCount(cols);
-    }
-
-private:
-    void addRows(int n)
-    {
-        int old_rows = rowCount();
-        QTableWidget::setRowCount(old_rows + n);
-
-        for(int i = old_rows; i < rowCount(); ++i)
-        {
-            for(int j = 0; j < columnCount(); ++j)
-                setItem(i, j, new TableItem());
-        }
-    }
-
-    void addCols(int n)
-    {
-        int old_cols = columnCount();
-        QTableWidget::setColumnCount(old_cols + n);
+        this->setHorizontalHeaderLabels({x_label, y_label});
+        this->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        this->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
+        this->verticalHeader()->sectionResizeMode(QHeaderView::Fixed);
+        this->verticalHeader()->setDefaultSectionSize(horizontalHeader()->height());    // Todo: Better way?
+        this->verticalHeader()->hide();
 
         for(int i = 0; i < rowCount(); ++i)
         {
-            for(int j = old_cols; j < columnCount(); ++j)
-                setItem(i, j, new TableItem());
+            for(int j = 0; j < columnCount(); ++j)
+                this->setItem(i, j, new TableItem());
+        }
+    }
+
+    Series getData() const
+    {
+        Series data;
+        for(int i = 0; i < rowCount(); ++i)
+        {
+            bool arg_valid, val_valid;
+            double arg = QLocale::c().toDouble(this->item(i, 0)->text(), &arg_valid);
+            double val = QLocale::c().toDouble(this->item(i, 1)->text(), &val_valid);
+
+            if(arg_valid && val_valid)
+                data.push_back(arg, val);
+        }
+
+        return data;
+    }
+
+    void setData(const Series& data)
+    {
+        for(int i = 0; i < rowCount(); ++i)
+        {
+            if(i < data.size())
+            {
+                this->item(i, 0)->setText(QLocale::c().toString(data.arg(i), 'g'));
+                this->item(i, 1)->setText(QLocale::c().toString(data.val(i), 'g'));
+            }
+            else
+            {
+                this->item(i, 0)->setText("");
+                this->item(i, 1)->setText("");
+            }
         }
     }
 };
-

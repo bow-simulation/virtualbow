@@ -1,3 +1,25 @@
+#include "gui/TableWidget.hpp"
+
+int main(int argc, char* argv[])
+{
+    QApplication app(argc, argv);
+
+    TableWidget table("x", "y", 25);
+    table.show();
+
+    Series s;
+    s.push_back(0.0, 0.0);
+    s.push_back(1.0, 1.0);
+    s.push_back(2.0, 4.0);
+    s.push_back(3.0, 9.0);
+    s.push_back(4.0, 16.0);
+    s.push_back(5.0, 25.0);
+
+    table.setData(s);
+
+    return app.exec();
+}
+
 /*
 #include "gui/Application.hpp"
 
@@ -7,10 +29,10 @@ int main(int argc, char* argv[])
 }
 */
 
-
+/*
 #include "gui/EditableTabBar.hpp"
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
     // QApplication::setStyle("windows");
@@ -33,3 +55,4 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
+*/
