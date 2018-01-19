@@ -2,14 +2,18 @@
 
 EditableTabBar::EditableTabBar()
 {
-    button = new QPushButton("+", this);
-    layout();
+    auto button = new QToolButton();
+    int height = this->tabBar()->size().height();
+    button->setIcon(QIcon(":/icons/plus"));
+    button->setIconSize({height, height});
+    button->setToolTip("Add Layer");
 
-    setTabsClosable(true);
-    setMovable(true);
+    this->setTabsClosable(true);
+    this->setMovable(true);
+    this->setCornerWidget(button, Qt::TopLeftCorner);
 
     QObject::connect(button, &QPushButton::clicked, this, &EditableTabBar::addTabRequested);
-    QObject::connect(this, &QTabBar::tabBarDoubleClicked, [&](int index)
+    QObject::connect(this, &QTabWidget::tabBarDoubleClicked, [&](int index)
     {
         QString old_text = this->tabText(index);
         this->setTabText(index, "...");
@@ -21,46 +25,12 @@ EditableTabBar::EditableTabBar()
         {
             QString new_text = dialog.getText();
             this->setTabText(index, new_text);
-            emit tabRenamed(index, new_text);
         }
         else
         {
             this->setTabText(index, old_text);
         }
     });
-}
-
-void EditableTabBar::layout()
-{
-    int x = 0;
-    for(int i = 0; i < count(); ++i)
-        x += tabRect(i).width();
-
-    int h = QTabBar::sizeHint().height();
-
-    button->setFixedSize(h, h);
-    button->move(x, 0);
-}
-
-QSize EditableTabBar::sizeHint() const
-{
-    // Return the size of the TabBar with increased width for the plus button.
-    QSize sizeHint = QTabBar::sizeHint();
-    sizeHint += {button->width(), 0};
-
-    return sizeHint;
-}
-
-void EditableTabBar::resizeEvent(QResizeEvent * event)
-{
-    QTabBar::resizeEvent(event);
-    layout();
-}
-
-void EditableTabBar::tabLayoutChange()
-{
-    QTabBar::tabLayoutChange();
-    layout();
 }
 
 RenameDialog::RenameDialog(QWidget* parent)

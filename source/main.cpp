@@ -1,21 +1,65 @@
+#include <string>
+#include <vector>
+
 #include "gui/TableWidget.hpp"
+#include "gui/PersistentDialog.hpp"
+#include "gui/EditableTabBar.hpp"
+
+struct Layer
+{
+    std::string name;
+    Series height;
+    double rho;
+    double E;
+};
+
+using Layers = std::vector<Layer>;
+
+class LayerDialog: public PersistentDialog
+{
+public:
+    LayerDialog(QWidget* parent)
+        : PersistentDialog(parent, "LayerDialog", {800, 400})    // Magic numbers
+    {
+        // Widgets
+
+        tabs = new EditableTabBar();
+
+        // Layout
+
+        auto vbox = new QVBoxLayout();
+        vbox->addWidget(tabs);
+
+        this->setWindowTitle("Layers");
+        this->setLayout(vbox);
+
+        // Event handling
+    }
+
+    void setData(const Layers& layers)
+    {
+        for(auto& layer: layers)
+            tabs->addTab(new QLabel("Content"), QString::fromStdString(layer.name));
+    }
+
+private:
+    QTabWidget* tabs;
+};
+
+
 
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
 
-    TableWidget table("x", "y", 25);
-    table.show();
+    Layers layers;
+    layers.push_back({"layer 0", {{0.0, 1.0}, {0.01, 0.01}}, 1000, 5});
+    layers.push_back({"layer 1", {{0.0, 1.0}, {0.01, 0.02}}, 2000, 7});
+    layers.push_back({"layer 2", {{0.0, 1.0}, {0.01, 0.03}}, 3000, 9});
 
-    Series s;
-    s.push_back(0.0, 0.0);
-    s.push_back(1.0, 1.0);
-    s.push_back(2.0, 4.0);
-    s.push_back(3.0, 9.0);
-    s.push_back(4.0, 16.0);
-    s.push_back(5.0, 25.0);
-
-    table.setData(s);
+    LayerDialog dialog(nullptr);
+    dialog.setData(layers);
+    dialog.exec();
 
     return app.exec();
 }

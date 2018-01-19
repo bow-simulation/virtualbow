@@ -6,12 +6,13 @@
         <file>icons/arrow-green.png</file>
         <file>icons/circle-yellow.png</file>
         <file>icons/circle-green.png</file>
-	<file>icons/circle-grey.png</file>
+	    <file>icons/circle-grey.png</file>
         <file>icons/dialog-information.png</file>
         <file>icons/document-new.png</file>
         <file>icons/document-open.png</file>
         <file>icons/document-save.png</file>
         <file>icons/document-save-as.png</file>
+        <file>icons/plus.png</file>
 
         <file>icons/series-view/edit-delete.png</file>
         <file>icons/series-view/insert-above.png</file>
