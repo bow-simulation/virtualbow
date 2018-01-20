@@ -8,9 +8,9 @@ EditableTabBar::EditableTabBar()
     button->setIconSize({height, height});
     button->setToolTip("Add Layer");
 
+    this->setCornerWidget(button, Qt::TopLeftCorner);
     this->setTabsClosable(true);
     this->setMovable(true);
-    this->setCornerWidget(button, Qt::TopLeftCorner);
 
     QObject::connect(button, &QPushButton::clicked, this, &EditableTabBar::addTabRequested);
     QObject::connect(this, &QTabWidget::tabBarDoubleClicked, [&](int index)
