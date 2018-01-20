@@ -14,10 +14,12 @@ class TableItem: public QTableWidgetItem
     }
 };
 
-class TableWidget: public QTableWidget
+class SeriesEditor: public QTableWidget
 {
+    Q_OBJECT
+
 public:
-    TableWidget(const QString& x_label, const QString& y_label, int rows)
+    SeriesEditor(const QString& x_label, const QString& y_label, int rows)
         : QTableWidget(rows, 2)
     {
         this->setHorizontalHeaderLabels({x_label, y_label});
@@ -32,6 +34,11 @@ public:
             for(int j = 0; j < columnCount(); ++j)
                 this->setItem(i, j, new TableItem());
         }
+
+        QObject::connect(this, &SeriesEditor::cellChanged, [&]{
+            if(this->state() == QAbstractItemView::EditingState)
+                emit modified();
+        });
     }
 
     Series getData() const
@@ -66,4 +73,8 @@ public:
             }
         }
     }
+
+signals:
+    void modified();
 };
+

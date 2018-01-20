@@ -1,6 +1,6 @@
 #pragma once
 #include "bow/document/Document.hpp"
-#include "gui/TableWidget.hpp"
+#include <QtWidgets>
 
 class Series;
 
@@ -16,7 +16,7 @@ signals:
 
 private:
     DocumentItem<Series>& doc_item;
-    TableWidget* table;
+    //TableWidget* table;
 
     virtual void keyPressEvent(QKeyEvent* event) override;
 

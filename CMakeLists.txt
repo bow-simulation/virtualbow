@@ -25,9 +25,6 @@ set(CMAKE_AUTOUIC ON)
 include_directories(source)
 add_executable(${PROJECT_NAME}
     source/main.cpp
-    resources/resources.qrc
-
-    source/external/qcustomplot/qcustomplot.cpp
 
     source/fem/elements/BarElement.cpp
     source/fem/elements/BeamElement.cpp
@@ -41,41 +38,6 @@ add_executable(${PROJECT_NAME}
     source/fem/DynamicSolver.cpp
     source/fem/System.cpp
 
-    source/gui/Application.cpp
-    source/gui/MainWindow.cpp
-    source/gui/DialogBase.cpp
-    source/gui/PersistentDialog.cpp
-    source/gui/PlotWidget.cpp
-    source/gui/TableWidget.cpp
-    source/gui/ProgressDialog.cpp
-    source/gui/ProgressDialog.hpp    # moc
-    source/gui/EditableTabBar.cpp
-    source/gui/EditableTabBar.hpp    # moc
-
-    source/gui/input/BowEditor.cpp
-    source/gui/input/ModelTree.cpp
-    source/gui/input/ModelTree.hpp    # moc
-    source/gui/input/CommentDialog.cpp
-    source/gui/input/ProfileDialog.cpp
-    source/gui/input/NumberGroup.cpp
-    source/gui/input/NumberDialog.cpp
-
-    source/gui/views/DoubleView.cpp
-    source/gui/views/IntegerView.cpp
-    source/gui/views/SeriesView.cpp
-    source/gui/views/SplineView.cpp
-    source/gui/views/ProfileView.cpp
-    source/gui/views/LimbView.cpp
-    source/gui/views/LimbSource.cpp
-
-    source/gui/output/ComboPlot.cpp
-    source/gui/output/EnergyPlot.cpp
-    source/gui/output/OutputDialog.cpp
-    source/gui/output/OutputGrid.cpp
-    source/gui/output/ShapePlot.cpp
-    source/gui/output/Slider.cpp
-    source/gui/output/StressPlot.cpp
-
     source/bow/BowModel.cpp
     source/bow/LimbProperties.cpp
     source/bow/document/Document.hpp    # moc
@@ -84,6 +46,74 @@ add_executable(${PROJECT_NAME}
     source/numerics/ArcCurve.cpp
     source/numerics/CubicSpline.cpp
     source/numerics/Series.cpp
+
+    source/gui/Application.cpp
+    source/gui/Application.hpp
+    source/gui/MainWindow.cpp
+    source/gui/MainWindow.hpp
+    source/gui/DialogBase.cpp
+    source/gui/DialogBase.hpp
+    source/gui/PersistentDialog.cpp
+    source/gui/PersistentDialog.hpp
+    source/gui/PlotWidget.cpp
+    source/gui/PlotWidget.hpp
+    source/gui/ProgressDialog.cpp
+    source/gui/ProgressDialog.hpp
+    source/gui/EditableTabBar.cpp
+    source/gui/EditableTabBar.hpp
+
+    source/gui/input/BowEditor.cpp
+    source/gui/input/BowEditor.hpp
+    source/gui/input/ModelTree.cpp
+    source/gui/input/ModelTree.hpp
+    source/gui/input/CommentDialog.cpp
+    source/gui/input/CommentDialog.hpp
+    source/gui/input/ProfileDialog.cpp
+    source/gui/input/ProfileDialog.hpp
+    source/gui/input/NumberGroup.cpp
+    source/gui/input/NumberGroup.hpp
+    source/gui/input/NumberDialog.cpp
+    source/gui/input/NumberDialog.cpp
+
+    source/gui/input2/SplinePlot.hpp
+    source/gui/input2/LayerEditor.hpp
+    source/gui/input2/SeriesEditor.hpp
+    source/gui/input2/LayerDialog.hpp
+    source/gui/input2/DoubleEditor.hpp
+    source/gui/input2/InputData2.hpp
+
+    source/gui/views/DoubleView.cpp
+    source/gui/views/DoubleView.hpp
+    source/gui/views/IntegerView.cpp
+    source/gui/views/IntegerView.hpp
+    source/gui/views/SeriesView.cpp
+    source/gui/views/SeriesView.hpp
+    source/gui/views/SplineView.cpp
+    source/gui/views/SplineView.hpp
+    source/gui/views/ProfileView.cpp
+    source/gui/views/ProfileView.hpp
+    source/gui/views/LimbView.cpp
+    source/gui/views/LimbView.hpp
+    source/gui/views/LimbSource.cpp
+    source/gui/views/LimbSource.hpp
+
+    source/gui/output/ComboPlot.cpp
+    source/gui/output/ComboPlot.hpp
+    source/gui/output/EnergyPlot.cpp
+    source/gui/output/EnergyPlot.hpp
+    source/gui/output/OutputDialog.cpp
+    source/gui/output/OutputDialog.hpp
+    source/gui/output/OutputGrid.cpp
+    source/gui/output/OutputGrid.hpp
+    source/gui/output/ShapePlot.cpp
+    source/gui/output/ShapePlot.hpp
+    source/gui/output/Slider.cpp
+    source/gui/output/Slider.hpp
+    source/gui/output/StressPlot.cpp
+    source/gui/output/StressPlot.hpp
+
+    resources/resources.qrc
+    source/external/qcustomplot/qcustomplot.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES})

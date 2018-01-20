@@ -13,6 +13,7 @@ public:
 
 signals:
     void addTabRequested();
+    void tabRenamed(int index);
 };
 
 // Dialog used for renaming tabs.

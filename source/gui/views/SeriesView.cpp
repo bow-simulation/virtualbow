@@ -2,8 +2,7 @@
 #include "numerics/Series.hpp"
 
 SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentItem<Series>& doc_item)
-    : doc_item(doc_item),
-      table(new TableWidget(lb_args, lb_vals, 25))
+    : doc_item(doc_item)
 {
     // Widgets and Layout
 
@@ -22,31 +21,12 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentI
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
     vbox->setMargin(0);
-    vbox->addWidget(table);
     vbox->addLayout(hbox);
 
     // Event handling
 
     QObject::connect(&doc_item, &DocumentNode::value_changed, this, &SeriesView::update_value);
     QObject::connect(&doc_item, &DocumentNode::error_changed, this, &SeriesView::update_error);
-
-    QObject::connect(table, &QTableWidget::cellChanged, [this](int i, int j)
-    {
-        /*
-        if(!table->item(i, j)->isSelected())    // Make sure the cell was changed by the user
-            return;
-
-        double value = table->getValue(i, j);
-        Series series = this->doc_item;
-
-        if(j == 0)
-            series.arg(i) = value;
-        else if(j == 1)
-            series.val(i) = value;
-
-        this->doc_item = series;
-        */
-    });
 
     QObject::connect(bt_insert_below, &QPushButton::clicked, [this]
     {
@@ -64,18 +44,6 @@ SeriesView::SeriesView(const QString& lb_args, const QString& lb_vals, DocumentI
         {
             deleteLastRow();
         }
-    });
-
-    QObject::connect(table, &QTableWidget::itemSelectionChanged, [&]
-    {
-        std::vector<int> rows;
-        for(int i = 0; i < table->rowCount(); ++i)
-        {
-            if(table->item(i, 0)->isSelected() || table->item(i, 1)->isSelected())
-                rows.push_back(i);
-        }
-
-        emit this->selectionChanged(rows);
     });
 
     update_value();
@@ -118,11 +86,11 @@ void SeriesView::update_error()
         this->setToolTip(QString::fromStdString(doc_item.get_errors().front()));
     }
 
-    table->horizontalHeader()->setPalette(palette);
 }
 
 void SeriesView::insertRow(bool above)
 {
+    /*
     auto selection = table->selectedRanges();
     Series series = doc_item;
 
@@ -160,6 +128,7 @@ void SeriesView::insertRow(bool above)
 
     series.insert(index, 0.0, 0.0);  // Todo: Magic numbers
     doc_item = series;
+    */
 }
 
 void SeriesView::deleteLastRow()
@@ -171,6 +140,7 @@ void SeriesView::deleteLastRow()
 
 bool SeriesView::deleteSelectedRows()
 {
+    /*
     auto selection = table->selectedRanges();
     if(selection.isEmpty())
         return false;
@@ -185,5 +155,8 @@ bool SeriesView::deleteSelectedRows()
     }
 
     doc_item = series;
+    return true;
+    */
+
     return true;
 }

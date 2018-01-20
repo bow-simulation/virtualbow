@@ -25,6 +25,7 @@ EditableTabBar::EditableTabBar()
         {
             QString new_text = dialog.getText();
             this->setTabText(index, new_text);
+            emit tabRenamed(index);
         }
         else
         {
