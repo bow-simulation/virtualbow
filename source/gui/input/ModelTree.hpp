@@ -1,7 +1,13 @@
 #pragma once
 #include "bow/input2/InputData.hpp"
-#include "gui/input2/CommentDialog.hpp"
-#include "gui/input2/LayerDialog.hpp"
+#include "gui/input2/dialogs/CommentDialog.hpp"
+#include "gui/input2/dialogs/LayerDialog.hpp"
+#include "gui/input2/dialogs/SettingsDialog.hpp"
+#include "gui/input2/dialogs/StringDialog.hpp"
+#include "gui/input2/dialogs/MassesDialog.hpp"
+#include "gui/input2/dialogs/OperationDialog.hpp"
+#include "gui/input2/GroupDialog.hpp"
+#include "gui/input2/IntegerEditor.hpp"
 
 #include <QtWidgets>
 #include <functional>
@@ -48,7 +54,15 @@ public:
             */
         });
 
-        new TreeItem(this, "Layers", QIcon(":/icons/model-tree/layers"), [&]{
+        new TreeItem(this, "Settings", QIcon(":/icons/model-tree/settings"), [&]{
+            auto dialog = new SettingsDialog(this);
+            dialog->exec();
+        });
+
+        auto item_parameters = new QTreeWidgetItem(this, {"Parameters"});
+        item_parameters->setIcon(0, QIcon(":/icons/model-tree/parameters"));
+
+        new TreeItem(item_parameters, "Layers", QIcon(":/icons/model-tree/layers"), [&]{
             if(layers == nullptr)
                 layers = new LayerDialog(this);
 
@@ -63,87 +77,23 @@ public:
             */
         });
 
-        /*
-        new TreeItem(this, data.meta.comments, "Comments", QIcon(":/icons/model-tree/comments"), [&]
+        new TreeItem(item_parameters, "String", QIcon(":/icons/model-tree/string"), [&]
         {
-            auto dialog = new CommentDialog(this, data);
-            return dialog;
+            auto dialog = new StringDialog(this);
+            dialog->exec();
         });
 
-        new TreeItem(this, data.settings, "Settings", QIcon(":/icons/model-tree/settings"), [&]
+        new TreeItem(item_parameters, "Masses", QIcon(":/icons/model-tree/masses"), [&]
         {
-            auto dialog = new NumberDialog(this, "Settings");
-            dialog->addGroup("General");
-            dialog->addField("Limb elements:", "", data.settings.n_elements_limb);
-            dialog->addField("String elements:", "", data.settings.n_elements_string);
-
-            dialog->addGroup("Statics");
-            dialog->addField("Draw steps:", "", data.settings.n_draw_steps);
-
-            dialog->addGroup("Dynamics");
-            dialog->addField("Time span factor:", "", data.settings.time_span_factor);
-            dialog->addField("Time step factor:", "", data.settings.time_step_factor);
-            dialog->addField("Sampling rate:", "Hz", data.settings.sampling_rate);
-
-            return dialog;
+            auto dialog = new MassesDialog(this);
+            dialog->exec();
         });
 
-        auto item_parameters = new QTreeWidgetItem(this, {"Parameters"});
-        item_parameters->setIcon(0, QIcon(":/icons/model-tree/parameters"));
-
-        new TreeItem(item_parameters, data.profile, "Profile", QIcon(":/icons/model-tree/profile"), [&]
+        new TreeItem(item_parameters, "Operation", QIcon(":/icons/model-tree/operation"), [&]
         {
-            auto dialog = new ProfileDialog(this, data);
-            return dialog;
+            auto dialog = new OperationDialog(this);
+            dialog->exec();
         });
-
-        new TreeItem(item_parameters, data.width, "Width", QIcon(":/icons/model-tree/width"), [&]
-        {
-            auto dialog = new WidthDialog(this, data);
-            return dialog;
-        });
-
-        new TreeItem(item_parameters, data.height, "Height", QIcon(":/icons/model-tree/height"), [&]
-        {
-            auto dialog = new HeightDialog(this, data);
-            return dialog;
-        });
-
-        new TreeItem(item_parameters, data.material, "Material", QIcon(":/icons/model-tree/material"), [&]
-        {
-            auto dialog = new NumberDialog(this, "Material");
-            dialog->addField("rho:", "kg/m³", data.material.rho);    // Todo: Use unicode character (\u2374). Problem: Windows
-            dialog->addField("E:", "N/m²", data.material.E);
-            return dialog;
-        });
-
-        new TreeItem(item_parameters, data.string, "String", QIcon(":/icons/model-tree/string"), [&]
-        {
-            auto dialog = new NumberDialog(this, "String");
-            dialog->addField("Strand stiffness:", "N/100%", data.string.strand_stiffness);
-            dialog->addField("Strand density:", "kg/m", data.string.strand_density);
-            dialog->addField("Number of strands:", "", data.string.n_strands);
-            return dialog;
-        });
-
-        new TreeItem(item_parameters, data.masses, "Masses", QIcon(":/icons/model-tree/masses"), [&]
-        {
-            auto dialog = new NumberDialog(this, "Masses");
-            dialog->addField("String center:", "kg", data.masses.string_center);
-            dialog->addField("String tip:", "kg", data.masses.string_tip);
-            dialog->addField("Limb tip:", "kg", data.masses.limb_tip);
-            return dialog;
-        });
-
-        new TreeItem(item_parameters, data.operation, "Operation", QIcon(":/icons/model-tree/operation"), [&]
-        {
-            auto dialog = new NumberDialog(this, "Operation");
-            dialog->addField("Brace height:", "m", data.operation.brace_height);
-            dialog->addField("Draw length:", "m", data.operation.draw_length);
-            dialog->addField("Arrow mass:", "kg", data.operation.mass_arrow);
-            return dialog;
-        });
-        */
 
         QObject::connect(this, &QTreeWidget::itemActivated, [](QTreeWidgetItem* base_item, int column)
         {

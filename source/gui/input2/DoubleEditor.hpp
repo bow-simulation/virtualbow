@@ -11,11 +11,14 @@ public:
           edit(new QLineEdit()),
           changed(false)
     {
+        label->setAlignment(Qt::AlignRight);
         edit->setValidator(new QDoubleValidator());
+        edit->setFixedWidth(160);    // Magic number, equal to IntegerView
 
         auto hbox = new QHBoxLayout();
-        hbox->addWidget(label);
-        hbox->addWidget(edit);
+        hbox->setContentsMargins(10, 0, 10, 0);
+        hbox->addWidget(label, 1);
+        hbox->addWidget(edit, 0);
         this->setLayout(hbox);
 
         QObject::connect(edit, &QLineEdit::textEdited, [&]{

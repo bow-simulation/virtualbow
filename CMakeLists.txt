@@ -70,16 +70,21 @@ add_executable(${PROJECT_NAME}
     source/gui/input/ProfileDialog.hpp
     source/gui/input/NumberGroup.cpp
     source/gui/input/NumberGroup.hpp
-    source/gui/input/NumberDialog.cpp
-    source/gui/input/NumberDialog.cpp
 
-    source/gui/input2/CommentDialog.cpp
-    source/gui/input2/CommentDialog.hpp
     source/gui/input2/SplineView.hpp
     source/gui/input2/LayerEditor.hpp
     source/gui/input2/SeriesEditor.hpp
-    source/gui/input2/LayerDialog.hpp
     source/gui/input2/DoubleEditor.hpp
+    source/gui/input2/IntegerEditor.hpp
+    source/gui/input2/GroupDialog.cpp
+    source/gui/input2/GroupDialog.hpp
+    source/gui/input2/dialogs/CommentDialog.cpp
+    source/gui/input2/dialogs/CommentDialog.hpp
+    source/gui/input2/dialogs/LayerDialog.hpp
+    source/gui/input2/dialogs/SettingsDialog.hpp
+    source/gui/input2/dialogs/StringDialog.hpp
+    source/gui/input2/dialogs/MassesDialog.hpp
+    source/gui/input2/dialogs/OperationDialog.hpp
 
     source/gui/views/DoubleView.cpp
     source/gui/views/DoubleView.hpp

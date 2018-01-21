@@ -16,10 +16,11 @@ public:
           edit_E(new DoubleEditor("E [Pa]"))
     {
         auto hbox1 = new QHBoxLayout();
-        hbox1->setContentsMargins(10, 0, 10, 0);
-        hbox1->addWidget(edit_E);
-        hbox1->addWidget(edit_rho);
-        hbox1->addStretch();
+        hbox1->setContentsMargins(10, 5, 10, 5);
+        hbox1->addWidget(edit_E, 0);
+        hbox1->addSpacing(10);
+        hbox1->addWidget(edit_rho, 0);
+        hbox1->addStretch(1);
 
         auto hbox2 = new QHBoxLayout();
         hbox2->setMargin(0);

@@ -7,7 +7,7 @@ struct String2
 {
     double strand_stiffness = 3500.0;
     double strand_density = 0.0005;
-    double n_strands = 12.0;
+    int n_strands = 12;
 };
 
 static void to_json(json& obj, const String2& value)
