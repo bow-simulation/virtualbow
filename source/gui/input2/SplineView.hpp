@@ -2,10 +2,10 @@
 #include "gui/PlotWidget.hpp"
 #include "numerics/CubicSpline.hpp"
 
-class SplinePlot: public PlotWidget
+class SplineView: public PlotWidget
 {
 public:
-    SplinePlot(const QString& x_label, const QString& y_label)
+    SplineView(const QString& x_label, const QString& y_label)
     {
         this->xAxis->setLabel(x_label);
         this->yAxis->setLabel(y_label);

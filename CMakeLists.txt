@@ -66,8 +66,6 @@ add_executable(${PROJECT_NAME}
     source/gui/input/BowEditor.hpp
     source/gui/input/ModelTree.cpp
     source/gui/input/ModelTree.hpp
-    source/gui/input/CommentDialog.cpp
-    source/gui/input/CommentDialog.hpp
     source/gui/input/ProfileDialog.cpp
     source/gui/input/ProfileDialog.hpp
     source/gui/input/NumberGroup.cpp
@@ -75,12 +73,13 @@ add_executable(${PROJECT_NAME}
     source/gui/input/NumberDialog.cpp
     source/gui/input/NumberDialog.cpp
 
-    source/gui/input2/SplinePlot.hpp
+    source/gui/input2/CommentDialog.cpp
+    source/gui/input2/CommentDialog.hpp
+    source/gui/input2/SplineView.hpp
     source/gui/input2/LayerEditor.hpp
     source/gui/input2/SeriesEditor.hpp
     source/gui/input2/LayerDialog.hpp
     source/gui/input2/DoubleEditor.hpp
-    source/gui/input2/InputData2.hpp
 
     source/gui/views/DoubleView.cpp
     source/gui/views/DoubleView.hpp
@@ -88,8 +87,6 @@ add_executable(${PROJECT_NAME}
     source/gui/views/IntegerView.hpp
     source/gui/views/SeriesView.cpp
     source/gui/views/SeriesView.hpp
-    source/gui/views/SplineView.cpp
-    source/gui/views/SplineView.hpp
     source/gui/views/ProfileView.cpp
     source/gui/views/ProfileView.hpp
     source/gui/views/LimbView.cpp

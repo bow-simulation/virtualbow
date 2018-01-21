@@ -1,7 +1,7 @@
 #pragma once
 #include "gui/PersistentDialog.hpp"
 #include "gui/EditableTabBar.hpp"
-#include "gui/input2/InputData2.hpp"
+#include "bow/input2/InputData.hpp"
 #include "gui/input2/LayerEditor.hpp"
 
 class LayerDialog: public PersistentDialog
@@ -46,7 +46,7 @@ public:
     void setData(const std::vector<Layer2>& layers)
     {
         while(tabs->count() < layers.size())
-            createDefaultTab();
+            createEmptyTab();
 
         while(tabs->count() > layers.size())
             tabs->removeTab(0);
@@ -77,11 +77,21 @@ signals:
 private:
     EditableTabBar* tabs;
 
+    void createEmptyTab()
+    {
+        auto editor = new LayerEditor();
+        QObject::connect(editor, &LayerEditor::modified, this, &LayerDialog::modified);
+
+        tabs->addTab(editor, "");
+    }
+
     void createDefaultTab()
     {
         auto editor = new LayerEditor();
         QObject::connect(editor, &LayerEditor::modified, this, &LayerDialog::modified);
-        editor->setData(Layer2());
-        tabs->addTab(editor, "unnamed");
+
+        Layer2 layer;
+        tabs->addTab(editor, QString::fromStdString(layer.name));
+        editor->setData(layer);
     }
 };

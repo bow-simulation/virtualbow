@@ -1,8 +1,8 @@
 #pragma once
 #include "gui/input2/SeriesEditor.hpp"
-#include "gui/input2/SplinePlot.hpp"
+#include "gui/input2/SplineView.hpp"
 #include "gui/input2/DoubleEditor.hpp"
-#include "gui/input2/InputData2.hpp"
+#include "bow/input2/InputData.hpp"
 
 class LayerEditor: public QWidget
 {
@@ -11,7 +11,7 @@ class LayerEditor: public QWidget
 public:
     LayerEditor()
         : table(new SeriesEditor("Position", "Height [m]", 25)),
-          plot(new SplinePlot("Position", "Height [m]")),
+          plot(new SplineView("Position", "Height [m]")),
           edit_rho(new DoubleEditor("rho [kg/m³]")),
           edit_E(new DoubleEditor("E [Pa]"))
     {
@@ -51,14 +51,6 @@ public:
         });
     }
 
-    void setData(const Layer2& layer)
-    {
-        table->setData(layer.height);
-        plot->setData(layer.height);
-        edit_E->setData(layer.E);
-        edit_rho->setData(layer.rho);
-    }
-
     Layer2 getData() const
     {
         Layer2 layer;
@@ -69,12 +61,20 @@ public:
         return layer;
     }
 
+    void setData(const Layer2& layer)
+    {
+        table->setData(layer.height);
+        plot->setData(layer.height);
+        edit_E->setData(layer.E);
+        edit_rho->setData(layer.rho);
+    }
+
 signals:
     void modified();
 
 private:
     SeriesEditor* table;
-    SplinePlot* plot;
+    SplineView* plot;
     DoubleEditor* edit_rho;
     DoubleEditor* edit_E;
 };
