@@ -59,24 +59,6 @@ class ModelTree: public QTreeWidget
 public:
     ModelTree(InputData& data)
     {
-        new TreeItem(this, data.settings, "Settings", QIcon(":/icons/model-tree/settings"), [&]
-        {
-            auto dialog = new NumberDialog(this, "Settings");
-            dialog->addGroup("General");
-            dialog->addField("Limb elements:", "", data.settings.n_elements_limb);
-            dialog->addField("String elements:", "", data.settings.n_elements_string);
-
-            dialog->addGroup("Statics");
-            dialog->addField("Draw steps:", "", data.settings.n_draw_steps);
-
-            dialog->addGroup("Dynamics");
-            dialog->addField("Time span factor:", "", data.settings.time_span_factor);
-            dialog->addField("Time step factor:", "", data.settings.time_step_factor);
-            dialog->addField("Sampling rate:", "Hz", data.settings.sampling_rate);
-
-            return dialog;
-        });
-
         new TreeItem(this, data.meta.comments, "Comments", QIcon(":/icons/model-tree/comments"), [&]
         {
             auto dialog = new CommentDialog(this, data);

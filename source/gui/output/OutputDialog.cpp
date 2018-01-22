@@ -109,22 +109,22 @@ OutputDialog::OutputDialog(QWidget* parent, const OutputData& output)
         stack->addWidget(new DynamicOutput(output.setup, output.dynamics));
 
     auto bt_statics = new QPushButton("Statics");
-    bt_statics->setIcon(QIcon(":/icons/circle-yellow"));
+    bt_statics->setIcon(QIcon(":/icons/disk-yellow"));
     bt_statics->setCheckable(true);
     bt_statics->setChecked(true);
     bt_statics->setEnabled(enable_statics);
     bt_statics->setAutoExclusive(true);
 
     auto bt_dynamics = new QPushButton("Dynamics");
-    bt_dynamics->setIcon(QIcon(":/icons/circle-green"));
+    bt_dynamics->setIcon(QIcon(":/icons/disk-green"));
     bt_dynamics->setCheckable(true);
     bt_dynamics->setChecked(false);
     bt_dynamics->setEnabled(enable_dynamics);
     bt_dynamics->setAutoExclusive(true);
 
     auto btbox = new QDialogButtonBox();
-    btbox->addButton(bt_statics, QDialogButtonBox::ActionRole);
-    btbox->addButton(bt_dynamics, QDialogButtonBox::ActionRole);
+    btbox->addButton(bt_statics, QDialogButtonBox::ResetRole);
+    btbox->addButton(bt_dynamics, QDialogButtonBox::ResetRole);
     btbox->addButton(QDialogButtonBox::Close);
     vbox->addWidget(btbox);
 

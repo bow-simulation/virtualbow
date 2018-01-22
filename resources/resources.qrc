@@ -4,34 +4,27 @@
         <file>icons/application-exit.png</file>
         <file>icons/arrow-yellow.png</file>
         <file>icons/arrow-green.png</file>
-        <file>icons/circle-yellow.png</file>
-        <file>icons/circle-green.png</file>
-	<file>icons/circle-grey.png</file>
+        <file>icons/disk-yellow.png</file>
+        <file>icons/disk-green.png</file>
         <file>icons/dialog-information.png</file>
         <file>icons/document-new.png</file>
         <file>icons/document-open.png</file>
         <file>icons/document-save.png</file>
         <file>icons/document-save-as.png</file>
-
-        <file>icons/series-view/edit-delete.png</file>
-        <file>icons/series-view/insert-above.png</file>
-        <file>icons/series-view/insert-below.png</file>
-
-	<file>icons/limb-view/view-profile.png</file>
+    	<file>icons/limb-view/view-profile.png</file>
         <file>icons/limb-view/view-top.png</file>
         <file>icons/limb-view/view-3d.png</file>
         <file>icons/limb-view/view-fit.png</file>
         <file>icons/limb-view/view-symmetric.png</file>
-
         <file>icons/model-tree/comments.png</file>
         <file>icons/model-tree/settings.png</file>
         <file>icons/model-tree/parameters.png</file>
         <file>icons/model-tree/profile.png</file>
         <file>icons/model-tree/width.png</file>
         <file>icons/model-tree/height.png</file>
-        <file>icons/model-tree/material.png</file>
         <file>icons/model-tree/string.png</file>
         <file>icons/model-tree/masses.png</file>
         <file>icons/model-tree/operation.png</file>
+        <file>icons/model-tree/material.png</file>
     </qresource>
 </RCC>
