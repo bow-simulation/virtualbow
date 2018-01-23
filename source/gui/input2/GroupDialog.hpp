@@ -1,13 +1,13 @@
 #pragma once
 #include "gui/views/DoubleView.hpp"
 #include "gui/views/IntegerView.hpp"
-#include "gui/DialogBase.hpp"
+#include "gui/BaseDialog.hpp"
 
-class GroupDialog: public DialogBase
+class GroupDialog: public BaseDialog
 {
 public:
     GroupDialog(QWidget* parent, const QString& title, bool enable_reset)
-        : DialogBase(parent),
+        : BaseDialog(parent),
           vbox1(new QVBoxLayout()),
           vbox2(nullptr)
     {

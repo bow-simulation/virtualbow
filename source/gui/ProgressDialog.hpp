@@ -1,7 +1,7 @@
 #pragma once
-#include <QtWidgets>
+#include "BaseDialog.hpp"
 
-class ProgressDialog: public QDialog
+class ProgressDialog: public BaseDialog
 {
     Q_OBJECT
 

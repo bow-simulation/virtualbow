@@ -51,8 +51,8 @@ add_executable(${PROJECT_NAME}
     source/gui/Application.hpp
     source/gui/MainWindow.cpp
     source/gui/MainWindow.hpp
-    source/gui/DialogBase.cpp
-    source/gui/DialogBase.hpp
+    source/gui/BaseDialog.cpp
+    source/gui/BaseDialog.hpp
     source/gui/PersistentDialog.cpp
     source/gui/PersistentDialog.hpp
     source/gui/PlotWidget.cpp

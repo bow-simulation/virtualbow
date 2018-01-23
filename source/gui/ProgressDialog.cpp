@@ -2,7 +2,7 @@
 #include <thread>
 
 ProgressDialog::ProgressDialog(QWidget* parent)
-    : QDialog(parent),
+    : BaseDialog(parent),
       vbox(new QVBoxLayout),
       canceled(false)
 {
