@@ -1,5 +1,4 @@
 #include "EnergyPlot.hpp"
-#include "gui/HorizontalLine.hpp"
 #include <algorithm>
 #include <functional>
 
@@ -20,9 +19,6 @@ EnergyPlot::EnergyPlot(const BowStates& states, const std::vector<double>& param
     vbox->setContentsMargins({});
     vbox->setSpacing(0);
     vbox->addWidget(plot, 1);
-    vbox->addSpacing(10);    // Magic number
-
-    vbox->addWidget(new HorizontalLine());
     vbox->addSpacing(10);    // Magic number
 
     auto hbox = new QHBoxLayout();

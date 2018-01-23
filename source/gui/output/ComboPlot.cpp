@@ -1,5 +1,4 @@
 #include "ComboPlot.hpp"
-#include "gui/HorizontalLine.hpp"
 
 // http://stackoverflow.com/questions/23139820/how-to-get-data-back-from-qvariant-for-a-usertype
 Q_DECLARE_METATYPE(const std::vector<double>*)
@@ -15,9 +14,6 @@ ComboPlot::ComboPlot()
     vbox->setContentsMargins({});
     vbox->setSpacing(0);
     vbox->addWidget(plot, 1);
-    vbox->addSpacing(10);    // Magic number
-
-    vbox->addWidget(new HorizontalLine());
     vbox->addSpacing(10);    // Magic number
 
     auto hbox = new QHBoxLayout();

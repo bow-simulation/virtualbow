@@ -10,6 +10,7 @@ StaticOutput::StaticOutput(const SetupData& setup, const StaticData& statics)
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
+    vbox->setMargin(0);
 
     auto plot_shapes = new ShapePlot(setup, statics.states, true);
     auto plot_stress = new StressPlot(setup, statics.states);
@@ -50,6 +51,7 @@ DynamicOutput::DynamicOutput(const SetupData& setup, const DynamicData& dynamics
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
+    vbox->setMargin(0);
 
     auto plot_shapes = new ShapePlot(setup, dynamics.states, false);
     auto plot_stress = new StressPlot(setup, dynamics.states);

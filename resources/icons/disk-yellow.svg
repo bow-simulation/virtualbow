@@ -7,7 +7,6 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="26.722431mm"
@@ -21,30 +20,7 @@
    inkscape:version="0.92.1 r15371"
    sodipodi:docname="disk-yellow.svg">
   <defs
-     id="defs2">
-    <linearGradient
-       inkscape:collect="always"
-       id="linearGradient4487">
-      <stop
-         style="stop-color:#f4bb50;stop-opacity:1;"
-         offset="0"
-         id="stop4483" />
-      <stop
-         style="stop-color:#f4bb50;stop-opacity:0.66"
-         offset="1"
-         id="stop4485" />
-    </linearGradient>
-    <radialGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient4487"
-       id="radialGradient4491"
-       cx="19.711126"
-       cy="17.569708"
-       fx="19.711126"
-       fy="17.569708"
-       r="13.361216"
-       gradientUnits="userSpaceOnUse" />
-  </defs>
+     id="defs2" />
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -53,7 +29,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6"
-     inkscape:cx="51.923173"
+     inkscape:cx="23.173173"
      inkscape:cy="42.461201"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
@@ -85,7 +61,7 @@
      id="layer1"
      transform="translate(-6.3499107,-4.2084923)">
     <circle
-       style="fill:url(#radialGradient4491);fill-opacity:1;stroke:#6e6e6e;stroke-width:2;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="fill:#f4bb50;fill-opacity:1;stroke:#6e6e6e;stroke-width:2;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="path4485"
        cx="19.711126"
        cy="17.569708"

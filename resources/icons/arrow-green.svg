@@ -7,7 +7,6 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="32mm"
@@ -21,29 +20,7 @@
    inkscape:version="0.92.1 r15371"
    sodipodi:docname="arrow-green.svg">
   <defs
-     id="defs2">
-    <linearGradient
-       inkscape:collect="always"
-       id="linearGradient6604">
-      <stop
-         style="stop-color:#92bd6c;stop-opacity:1;"
-         offset="0"
-         id="stop6600" />
-      <stop
-         style="stop-color:#92bd6c;stop-opacity:0.53456223"
-         offset="1"
-         id="stop6602" />
-    </linearGradient>
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient6604"
-       id="linearGradient6606"
-       x1="46.095746"
-       y1="16.114257"
-       x2="68.526993"
-       y2="16.378843"
-       gradientUnits="userSpaceOnUse" />
-  </defs>
+     id="defs2" />
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -52,7 +29,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="6.4492187"
-     inkscape:cx="57.526348"
+     inkscape:cx="32.562084"
      inkscape:cy="60.472441"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
@@ -80,7 +57,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -90,7 +67,7 @@
      id="layer1"
      transform="translate(-42.391577,0.0691878)">
     <path
-       style="fill:url(#linearGradient6606);fill-opacity:1;stroke:#6e6e6e;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;opacity:1"
+       style="fill:#92bd6c;fill-opacity:1;stroke:#6e6e6e;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;opacity:1"
        d="M 47.095746,29.343423 V 2.88509 l 22.224997,13.229167 z"
        id="path5118"
        inkscape:connector-curvature="0"

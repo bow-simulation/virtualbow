@@ -7,7 +7,6 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="32mm"
@@ -21,29 +20,7 @@
    inkscape:version="0.92.1 r15371"
    sodipodi:docname="arrow-yellow.svg">
   <defs
-     id="defs2">
-    <linearGradient
-       inkscape:collect="always"
-       id="linearGradient4488">
-      <stop
-         style="stop-color:#f4bb50;stop-opacity:1;"
-         offset="0"
-         id="stop4484" />
-      <stop
-         style="stop-color:#f4bb50;stop-opacity:0.52941179"
-         offset="1"
-         id="stop4486" />
-    </linearGradient>
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient4488"
-       id="linearGradient4490"
-       x1="46.095746"
-       y1="16.114257"
-       x2="67.204079"
-       y2="16.378841"
-       gradientUnits="userSpaceOnUse" />
-  </defs>
+     id="defs2" />
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -52,7 +29,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6"
-     inkscape:cx="32.168517"
+     inkscape:cx="3.418517"
      inkscape:cy="53.844783"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
@@ -90,7 +67,7 @@
      id="layer1"
      transform="translate(-42.391577,0.0691878)">
     <path
-       style="fill:url(#linearGradient4490);fill-opacity:1;stroke:#6e6e6e;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#f4bb50;fill-opacity:1;stroke:#6e6e6e;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 47.095746,29.343423 V 2.88509 l 22.224997,13.229167 z"
        id="path5118"
        inkscape:connector-curvature="0"
