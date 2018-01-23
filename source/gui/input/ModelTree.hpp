@@ -1,6 +1,7 @@
 #pragma once
 #include "bow/input2/InputData.hpp"
 #include "gui/input2/dialogs/CommentDialog.hpp"
+#include "gui/input2/dialogs/WidthDialog.hpp"
 #include "gui/input2/dialogs/LayerDialog.hpp"
 #include "gui/input2/dialogs/SettingsDialog.hpp"
 #include "gui/input2/dialogs/StringDialog.hpp"
@@ -56,11 +57,19 @@ public:
 
         new TreeItem(this, "Settings", QIcon(":/icons/model-tree/settings"), [&]{
             auto dialog = new SettingsDialog(this);
+            dialog->setData(input.settings);
             dialog->exec();
         });
 
         auto item_parameters = new QTreeWidgetItem(this, {"Parameters"});
         item_parameters->setIcon(0, QIcon(":/icons/model-tree/parameters"));
+
+        new TreeItem(item_parameters, "Width", QIcon(":/icons/model-tree/profile"), [&]
+        {
+            auto dialog = new WidthDialog(this);
+            dialog->setData(input.width);
+            dialog->exec();
+        });
 
         new TreeItem(item_parameters, "Layers", QIcon(":/icons/model-tree/layers"), [&]{
             if(layers == nullptr)
@@ -80,18 +89,21 @@ public:
         new TreeItem(item_parameters, "String", QIcon(":/icons/model-tree/string"), [&]
         {
             auto dialog = new StringDialog(this);
+            dialog->setData(input.string);
             dialog->exec();
         });
 
         new TreeItem(item_parameters, "Masses", QIcon(":/icons/model-tree/masses"), [&]
         {
             auto dialog = new MassesDialog(this);
+            dialog->setData(input.masses);
             dialog->exec();
         });
 
         new TreeItem(item_parameters, "Operation", QIcon(":/icons/model-tree/operation"), [&]
         {
             auto dialog = new OperationDialog(this);
+            dialog->setData(input.operation);
             dialog->exec();
         });
 

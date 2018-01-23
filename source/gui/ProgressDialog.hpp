@@ -7,7 +7,7 @@ class ProgressDialog: public BaseDialog
 
 public:
     ProgressDialog(QWidget* parent);
-    virtual void closeEvent(QCloseEvent *event) override;
+    // virtual void closeEvent(QCloseEvent *event) override;
     virtual void reject() override;
     bool isCanceled() const;
     void addProgressBar(const QString& name);

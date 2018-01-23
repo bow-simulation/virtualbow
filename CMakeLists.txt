@@ -81,6 +81,7 @@ add_executable(${PROJECT_NAME}
     source/gui/input2/dialogs/CommentDialog.cpp
     source/gui/input2/dialogs/CommentDialog.hpp
     source/gui/input2/dialogs/LayerDialog.hpp
+    source/gui/input2/dialogs/WidthDialog.hpp
     source/gui/input2/dialogs/SettingsDialog.hpp
     source/gui/input2/dialogs/StringDialog.hpp
     source/gui/input2/dialogs/MassesDialog.hpp
