@@ -115,11 +115,13 @@ int Application::run_cli(QString input_path, QString output_path, bool dynamic)
         InputData input;
         input.load(input_path.toStdString());
 
+        /*
         if(input.get_errors().size() != 0)
         {
             qInfo() << "Error: " << QString::fromStdString(input.get_errors().front());
             return 1;
         }
+        */
 
         OutputData output = dynamic ? BowModel::run_dynamic_simulation(input, [](int){return true;}, [](int){return true;})
                                     : BowModel::run_static_simulation(input, [](int){return true;});

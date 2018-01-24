@@ -1,29 +1,23 @@
 #pragma once
-#include "bow/document/Document.hpp"
-#include "gui/Application.hpp"
+#include <string>
 #include <json.hpp>
 
 using nlohmann::json;
 
-struct Meta: public DocumentNode
+struct Meta2
 {
-    DocumentItem<std::string>  version{*this, Application::version};
-    DocumentItem<std::string> comments{*this, ""};
-
-    Meta(DocumentNode& parent): DocumentNode(parent)
-    {
-
-    }
+    std::string version = "";
+    std::string comments = "";
 };
 
-static void to_json(json& obj, const Meta& value)
+static void to_json(json& obj, const Meta2& value)
 {
-    to_json(obj["version"], value.version);
-    to_json(obj["comments"], value.comments);
+    obj["version"] = value.version;
+    obj["comments"] = value.comments;
 }
 
-static void from_json(const json& obj, Meta& value)
+static void from_json(const json& obj, Meta2& value)
 {
-    from_json(obj["version"], value.version);
-    from_json(obj["comments"], value.comments);
+    value.version = obj["version"];
+    value.comments = obj["comments"];
 }

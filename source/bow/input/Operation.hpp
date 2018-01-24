@@ -1,32 +1,25 @@
 #pragma once
-#include "bow/document/Document.hpp"
 #include <json.hpp>
 
 using nlohmann::json;
 
-struct Operation: public DocumentNode
+struct Operation2
 {
-    DocumentItem<double> brace_height{*this, 0.2};
-    DocumentItem<double>  draw_length{*this, 0.7};
-    DocumentItem<double>   mass_arrow{*this, 0.025};
-
-    Operation(DocumentNode& parent): DocumentNode(parent)
-    {
-
-    }
+    double brace_height = 0.2;
+    double draw_length = 0.7;
+    double mass_arrow = 0.025;
 };
 
-static void to_json(json& obj, const Operation& value)
+static void to_json(json& obj, const Operation2& value)
 {
-    to_json(obj["brace_height"], value.brace_height);
-    to_json(obj["draw_length"], value.draw_length);
-    to_json(obj["mass_arrow"], value.mass_arrow);
+    obj["brace_height"] = value.brace_height;
+    obj["draw_length"] = value.draw_length;
+    obj["mass_arrow"] = value.mass_arrow;
 }
 
-static void from_json(const json& obj, Operation& value)
+static void from_json(const json& obj, Operation2& value)
 {
-    from_json(obj["brace_height"], value.brace_height);
-    from_json(obj["draw_length"], value.draw_length);
-    from_json(obj["mass_arrow"], value.mass_arrow);
+    value.brace_height = obj["brace_height"];
+    value.draw_length = obj["draw_length"];
+    value.mass_arrow = obj["mass_arrow"];
 }
-

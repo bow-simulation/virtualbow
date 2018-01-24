@@ -1,32 +1,26 @@
 #pragma once
-#include "bow/document/Document.hpp"
 #include <json.hpp>
 
 using nlohmann::json;
 
-struct Masses: public DocumentNode
+struct Masses2
 {
-    DocumentItem<double> string_center{*this, 0.005};
-    DocumentItem<double>    string_tip{*this, 0.005};
-    DocumentItem<double>      limb_tip{*this, 0.005};
-
-    Masses(DocumentNode& parent): DocumentNode(parent)
-    {
-
-    }
+    double string_center = 0.005;
+    double string_tip = 0.005;
+    double limb_tip = 0.005;
 };
 
-static void to_json(json& obj, const Masses& value)
+static void to_json(json& obj, const Masses2& value)
 {
-    to_json(obj["string_center"], value.string_center);
-    to_json(obj["string_tip"], value.string_tip);
-    to_json(obj["limb_tip"], value.limb_tip);
+    obj["string_center"] = value.string_center;
+    obj["string_tip"] = value.string_tip;
+    obj["limb_tip"] = value.limb_tip;
 }
 
-static void from_json(const json& obj, Masses& value)
+static void from_json(const json& obj, Masses2& value)
 {
-    from_json(obj["string_center"], value.string_center);
-    from_json(obj["string_tip"], value.string_tip);
-    from_json(obj["limb_tip"], value.limb_tip);
+    value.string_center = obj["string_center"];
+    value.string_tip = obj["string_tip"];
+    value.limb_tip = obj["limb_tip"];
 }
 

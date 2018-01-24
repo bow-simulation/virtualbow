@@ -1,8 +1,8 @@
 #pragma once
 #include "gui/PersistentDialog.hpp"
 #include "gui/EditableTabBar.hpp"
-#include "bow/input2/InputData.hpp"
-#include "gui/input2/LayerEditor.hpp"
+#include "gui/input/editors/LayerEditor.hpp"
+#include "bow/input/InputData.hpp"
 
 class LayerDialog: public PersistentDialog
 {

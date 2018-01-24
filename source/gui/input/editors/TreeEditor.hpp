@@ -1,16 +1,13 @@
 #pragma once
-#include "bow/input2/InputData.hpp"
-#include "gui/input2/dialogs/CommentDialog.hpp"
-#include "gui/input2/dialogs/ProfileDialog.hpp"
-#include "gui/input2/dialogs/WidthDialog.hpp"
-#include "gui/input2/dialogs/LayerDialog.hpp"
-#include "gui/input2/dialogs/SettingsDialog.hpp"
-#include "gui/input2/dialogs/StringDialog.hpp"
-#include "gui/input2/dialogs/MassesDialog.hpp"
-#include "gui/input2/dialogs/OperationDialog.hpp"
-#include "gui/input2/GroupDialog.hpp"
-#include "gui/input2/IntegerEditor.hpp"
-
+#include "bow/input/InputData.hpp"
+#include "gui/input/dialogs/CommentDialog.hpp"
+#include "gui/input/dialogs/ProfileDialog.hpp"
+#include "gui/input/dialogs/WidthDialog.hpp"
+#include "gui/input/dialogs/LayerDialog.hpp"
+#include "gui/input/dialogs/SettingsDialog.hpp"
+#include "gui/input/dialogs/StringDialog.hpp"
+#include "gui/input/dialogs/MassesDialog.hpp"
+#include "gui/input/dialogs/OperationDialog.hpp"
 #include <QtWidgets>
 #include <functional>
 
@@ -36,10 +33,10 @@ private:
     std::function<void()> action;
 };
 
-class ModelTree: public QTreeWidget
+class TreeEditor: public QTreeWidget
 {
 public:
-    ModelTree()
+    TreeEditor()
     {
         new TreeItem(this, "Comments", QIcon(":/icons/model-tree/comments"), [&]{
             if(comments == nullptr)
@@ -130,7 +127,7 @@ public:
     }
 
 private:
-    InputData2 input;
+    InputData input;
 
     LayerDialog* layers = nullptr;
     CommentDialog* comments = nullptr;

@@ -1,8 +1,8 @@
 #pragma once
-#include "gui/input2/SeriesEditor.hpp"
-#include "gui/input2/SplineView.hpp"
-#include "gui/input2/DoubleEditor.hpp"
-#include "bow/input2/InputData.hpp"
+#include "gui/input/editors/SeriesEditor.hpp"
+#include "gui/input/editors/DoubleEditor.hpp"
+#include "gui/input/views/SplineView.hpp"
+#include "bow/input/InputData.hpp"
 
 class LayerEditor: public QWidget
 {

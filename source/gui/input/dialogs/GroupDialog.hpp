@@ -1,6 +1,4 @@
 #pragma once
-#include "gui/views/DoubleView.hpp"
-#include "gui/views/IntegerView.hpp"
 #include "gui/BaseDialog.hpp"
 
 class GroupDialog: public BaseDialog

@@ -1,6 +1,5 @@
 #pragma once
 #include "LimbSource.hpp"
-#include "bow/document/Document.hpp"
 #include "bow/LimbProperties.hpp"
 #include "bow/input/InputData.hpp"
 #include <QtWidgets>
@@ -17,7 +16,6 @@
 #include <vtkOrientationMarkerWidget.h>
 
 // Todo
-// - Anti-aliasing
 // - Edge tracing
 // - Coordinate axes
 // - ...
@@ -27,8 +25,7 @@ class InputData;
 class LimbView: public QVTKWidget
 {
 public:
-    LimbView(InputData& data)
-        : data(data)
+    LimbView()
     {
         source = vtkSmartPointer<LimbSource>::New();
 
@@ -115,28 +112,10 @@ public:
         hbox->addWidget(button4);
         this->setLayout(hbox);
 
-        // Event handling
-        QObject::connect(&data.profile.segments, &DocumentNode::value_changed, [&]{ updateLimbSource(); });
-        QObject::connect(&data.profile.x0,       &DocumentNode::value_changed, [&]{ updateLimbSource(); });
-        QObject::connect(&data.profile.y0,       &DocumentNode::value_changed, [&]{ updateLimbSource(); });
-        QObject::connect(&data.profile.phi0,     &DocumentNode::value_changed, [&]{ updateLimbSource(); });
-        QObject::connect(&data.width,   &DocumentNode::value_changed, [&]{ updateLimbSource(); });
-        QObject::connect(&data.height,  &DocumentNode::value_changed, [&]{ updateLimbSource(); });
-
-        updateLimbSource();
         view3D();
     }
 
-private:
-    vtkSmartPointer<LimbSource> source;
-    vtkSmartPointer<vtkActor> actor_r;
-    vtkSmartPointer<vtkActor> actor_l;
-    vtkSmartPointer<vtkRenderer> renderer;
-    vtkSmartPointer<vtkOrientationMarkerWidget> widget;
-
-    InputData& data;
-
-    void updateLimbSource()
+    void setData(const InputData& data)
     {
         try
         {
@@ -149,6 +128,13 @@ private:
         }
     }
 
+private:
+    vtkSmartPointer<LimbSource> source;
+    vtkSmartPointer<vtkActor> actor_r;
+    vtkSmartPointer<vtkActor> actor_l;
+    vtkSmartPointer<vtkRenderer> renderer;
+    vtkSmartPointer<vtkOrientationMarkerWidget> widget;
+
     // Adjust orientation widget's viewport on resize to keep it at a constant screen size
     virtual void resizeEvent(QResizeEvent* event) override
     {
@@ -156,12 +142,7 @@ private:
         widget->SetViewport(0.0, 0.0, double(size)/event->size().width(), double(size)/event->size().height());
     }
 
-    virtual QSize sizeHint() const
-    {
-        return {900, 600};    // Magic numbers  // Todo: Remove
-    }
-
-    // alpha: Azimuth, beta: elevation.
+    // alpha: azimuth, beta: elevation.
     // Camera position: Ry(alpha)*Rz(beta)*[1, 0, 0].
     // Camera view up : Ry(alpha)*Rz(beta)*[0, 1, 0].
     void setCameraPosition(double alpha, double beta)
@@ -184,7 +165,6 @@ private:
         viewFit();
     }
 
-    // Todo: Take window size into account and rotate so that the bow goes from the top left corner to bottom right
     void view3D()
     {
         setCameraPosition(-0.9, 0.5);
@@ -201,7 +181,6 @@ private:
     {
         renderer->ResetCamera();
         renderer->GetActiveCamera()->Zoom(0.98);   // Magic number
-
         this->GetInteractor()->Render();    // http://vtk.markmail.org/message/nyq3dwlyfrivrqac
     }
 };

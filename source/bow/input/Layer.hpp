@@ -1,35 +1,29 @@
 #pragma once
-#include "bow/document/Document.hpp"
 #include "numerics/Series.hpp"
 #include <json.hpp>
 
 using nlohmann::json;
 
-struct Layer: public DocumentNode
+struct Layer2
 {
-    DocumentItem<std::string> name{*this, ""};
-    DocumentItem<Series>    height{*this, Series({0.0, 1.0}, {0.0128, 0.008})};
-    DocumentItem<double>       rho{*this, 600.0};
-    DocumentItem<double>         E{*this, 15e9};
-
-    Layer(DocumentNode& parent): DocumentNode(parent)
-    {
-
-    }
+    std::string name = "unnamed";
+    Series height = {{0.0, 1.0}, {0.0128, 0.008}};
+    double rho = 600.0;
+    double E = 15e9;
 };
 
-static void to_json(json& obj, const Layer& value)
+static void to_json(json& obj, const Layer2& value)
 {
-    to_json(obj["name"], value.name);
-    to_json(obj["height"], value.height);
-    to_json(obj["rho"], value.rho);
-    to_json(obj["E"], value.E);
+    obj["name"] = value.name;
+    obj["height"] = value.height;
+    obj["rho"] = value.rho;
+    obj["E"] = value.E;
 }
 
-static void from_json(const json& obj, Layer& value)
+static void from_json(const json& obj, Layer2& value)
 {
-    from_json(obj["name"], value.name);
-    from_json(obj["height"], value.height);
-    from_json(obj["rho"], value.rho);
-    from_json(obj["E"], value.E);
+    value.name = obj["name"];
+    value.height = obj["height"];
+    value.rho = obj["rho"];
+    value.E = obj["E"];
 }

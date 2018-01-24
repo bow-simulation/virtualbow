@@ -40,7 +40,6 @@ add_executable(${PROJECT_NAME}
 
     source/bow/BowModel.cpp
     source/bow/LimbProperties.cpp
-    source/bow/document/Document.hpp    # moc
     source/bow/input/InputData.cpp
 
     source/numerics/ArcCurve.cpp
@@ -62,43 +61,33 @@ add_executable(${PROJECT_NAME}
     source/gui/EditableTabBar.cpp
     source/gui/EditableTabBar.hpp
 
-    source/gui/input/BowEditor.cpp
-    source/gui/input/BowEditor.hpp
-    source/gui/input/ProfileDialog.cpp
-    source/gui/input/ProfileDialog.hpp
-    source/gui/input/NumberGroup.cpp
-    source/gui/input/NumberGroup.hpp
+    source/gui/input/editors/BowEditor.cpp
+    source/gui/input/editors/BowEditor.hpp
+    source/gui/input/editors/DoubleEditor.hpp
+    source/gui/input/editors/IntegerEditor.hpp
+    source/gui/input/editors/LayerEditor.hpp
+    source/gui/input/editors/SeriesEditor.hpp
+    source/gui/input/editors/TreeEditor.cpp
+    source/gui/input/editors/TreeEditor.hpp
 
-    source/gui/input2/ModelTree.cpp
-    source/gui/input2/ModelTree.hpp
-    source/gui/input2/SplineView.hpp
-    source/gui/input2/ProfileView.hpp
-    source/gui/input2/LayerEditor.hpp
-    source/gui/input2/SeriesEditor.hpp
-    source/gui/input2/DoubleEditor.hpp
-    source/gui/input2/IntegerEditor.hpp
-    source/gui/input2/GroupDialog.cpp
-    source/gui/input2/GroupDialog.hpp
-    source/gui/input2/dialogs/CommentDialog.cpp
-    source/gui/input2/dialogs/CommentDialog.hpp
-    source/gui/input2/dialogs/LayerDialog.hpp
-    source/gui/input2/dialogs/WidthDialog.hpp
-    source/gui/input2/dialogs/ProfileDialog.hpp
-    source/gui/input2/dialogs/SettingsDialog.hpp
-    source/gui/input2/dialogs/StringDialog.hpp
-    source/gui/input2/dialogs/MassesDialog.hpp
-    source/gui/input2/dialogs/OperationDialog.hpp
+    source/gui/input/views/LimbSource.cpp
+    source/gui/input/views/LimbSource.hpp
+    source/gui/input/views/LimbView.cpp
+    source/gui/input/views/LimbView.hpp
+    source/gui/input/views/ProfileView.hpp
+    source/gui/input/views/SplineView.hpp
 
-    source/gui/views/DoubleView.cpp
-    source/gui/views/DoubleView.hpp
-    source/gui/views/IntegerView.cpp
-    source/gui/views/IntegerView.hpp
-    source/gui/views/SeriesView.cpp
-    source/gui/views/SeriesView.hpp
-    source/gui/views/LimbView.cpp
-    source/gui/views/LimbView.hpp
-    source/gui/views/LimbSource.cpp
-    source/gui/views/LimbSource.hpp
+    source/gui/input/dialogs/CommentDialog.cpp
+    source/gui/input/dialogs/CommentDialog.hpp
+    source/gui/input/dialogs/GroupDialog.cpp
+    source/gui/input/dialogs/GroupDialog.hpp
+    source/gui/input/dialogs/LayerDialog.hpp
+    source/gui/input/dialogs/MassesDialog.hpp
+    source/gui/input/dialogs/OperationDialog.hpp
+    source/gui/input/dialogs/ProfileDialog.hpp
+    source/gui/input/dialogs/SettingsDialog.hpp
+    source/gui/input/dialogs/StringDialog.hpp
+    source/gui/input/dialogs/WidthDialog.hpp
 
     source/gui/output/ComboPlot.cpp
     source/gui/output/ComboPlot.hpp

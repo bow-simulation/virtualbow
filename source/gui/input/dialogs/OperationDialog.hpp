@@ -1,8 +1,8 @@
 #pragma once
-#include "bow/input2/Operation.hpp"
-#include "../GroupDialog.hpp"
-#include "../IntegerEditor.hpp"
-#include "../DoubleEditor.hpp"
+#include "bow/input/Operation.hpp"
+#include "gui/input/editors/IntegerEditor.hpp"
+#include "gui/input/editors/DoubleEditor.hpp"
+#include "GroupDialog.hpp"
 
 class OperationDialog: public GroupDialog
 {

@@ -1,6 +1,6 @@
 #pragma once
 #include "gui/PlotWidget.hpp"
-#include "bow/input2/InputData.hpp"
+#include "bow/input/InputData.hpp"
 #include "numerics/ArcCurve.hpp"
 
 class ProfileView: public PlotWidget

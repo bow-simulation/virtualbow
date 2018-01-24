@@ -53,7 +53,7 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n_elements_limb)
 
     // 2. Sections
     Series width = CubicSpline::sample(input.width, n_elements_limb);
-    Series height = CubicSpline::sample(input.height, n_elements_limb);
+    Series height = CubicSpline::sample(input.layers[0].height, n_elements_limb);
 
     for(size_t i = 0; i < s.size(); ++i)
     {
@@ -67,16 +67,16 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n_elements_limb)
         h[i] = h_i;
 
         hc[i] = h_i;
-        Cee[i] = input.material.E*A;
-        Ckk[i] = input.material.E*I;
-        Cek[i] = input.material.E*A*h_i/2.0;
-        rhoA[i] = input.material.rho*A;
+        Cee[i] = input.layers[0].E*A;
+        Ckk[i] = input.layers[0].E*I;
+        Cek[i] = input.layers[0].E*A*h_i/2.0;
+        rhoA[i] = input.layers[0].rho*A;
     }
 
     // 3. Layers
 
     layers.push_back({n_elements_limb + 1});
-    layers[0].E = input.material.E;
+    layers[0].E = input.layers[0].E;
 
     for(size_t i = 0; i < s.size(); ++i)
     {
