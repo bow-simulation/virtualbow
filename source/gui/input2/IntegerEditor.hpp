@@ -11,7 +11,7 @@ public:
           edit(new QSpinBox())
     {
         label->setAlignment(Qt::AlignRight);
-        edit->setFixedWidth(160);    // Magic number, equal to DoubleView
+        edit->setFixedWidth(140);    // Magic number, equal to DoubleEditor
         edit->setMinimum(std::numeric_limits<int>::min());
         edit->setMaximum(std::numeric_limits<int>::max());
 

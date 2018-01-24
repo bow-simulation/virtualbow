@@ -64,14 +64,15 @@ add_executable(${PROJECT_NAME}
 
     source/gui/input/BowEditor.cpp
     source/gui/input/BowEditor.hpp
-    source/gui/input/ModelTree.cpp
-    source/gui/input/ModelTree.hpp
     source/gui/input/ProfileDialog.cpp
     source/gui/input/ProfileDialog.hpp
     source/gui/input/NumberGroup.cpp
     source/gui/input/NumberGroup.hpp
 
+    source/gui/input2/ModelTree.cpp
+    source/gui/input2/ModelTree.hpp
     source/gui/input2/SplineView.hpp
+    source/gui/input2/ProfileView.hpp
     source/gui/input2/LayerEditor.hpp
     source/gui/input2/SeriesEditor.hpp
     source/gui/input2/DoubleEditor.hpp
@@ -82,6 +83,7 @@ add_executable(${PROJECT_NAME}
     source/gui/input2/dialogs/CommentDialog.hpp
     source/gui/input2/dialogs/LayerDialog.hpp
     source/gui/input2/dialogs/WidthDialog.hpp
+    source/gui/input2/dialogs/ProfileDialog.hpp
     source/gui/input2/dialogs/SettingsDialog.hpp
     source/gui/input2/dialogs/StringDialog.hpp
     source/gui/input2/dialogs/MassesDialog.hpp
@@ -93,8 +95,6 @@ add_executable(${PROJECT_NAME}
     source/gui/views/IntegerView.hpp
     source/gui/views/SeriesView.cpp
     source/gui/views/SeriesView.hpp
-    source/gui/views/ProfileView.cpp
-    source/gui/views/ProfileView.hpp
     source/gui/views/LimbView.cpp
     source/gui/views/LimbView.hpp
     source/gui/views/LimbSource.cpp

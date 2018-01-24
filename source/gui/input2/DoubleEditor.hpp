@@ -13,7 +13,7 @@ public:
     {
         label->setAlignment(Qt::AlignRight);
         edit->setValidator(new QDoubleValidator());
-        edit->setFixedWidth(160);    // Magic number, equal to IntegerView
+        edit->setFixedWidth(140);    // Magic number, equal to IntegerEditor
 
         auto hbox = new QHBoxLayout();
         hbox->setContentsMargins(10, 0, 10, 0);

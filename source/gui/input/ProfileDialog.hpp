@@ -1,7 +1,6 @@
 #pragma once
 #include "gui/PersistentDialog.hpp"
 #include "gui/views/SeriesView.hpp"
-#include "gui/views/ProfileView.hpp"
 #include "gui/views/DoubleView.hpp"
 #include "bow/input/InputData.hpp"
 
@@ -18,8 +17,6 @@ public:
         // Widgets
 
         auto series_view = new SeriesView("Length [m]", "Curvature [m⁻¹]", data.profile.segments);
-        auto profile_view = new ProfileView(data);
-        QObject::connect(series_view, &SeriesView::selectionChanged, profile_view, &ProfileView::setSelection);
 
         auto hbox0 = new QHBoxLayout();
         hbox0->addStretch();
@@ -42,7 +39,6 @@ public:
 
         auto vbox0 = new QVBoxLayout();
         vbox0->addWidget(offsets);
-        vbox0->addWidget(profile_view, 1);
 
         auto hbox1 = new QHBoxLayout();
         hbox1->addWidget(series_view);

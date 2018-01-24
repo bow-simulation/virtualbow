@@ -11,35 +11,28 @@ class LayerEditor: public QWidget
 public:
     LayerEditor()
         : table(new SeriesEditor("Position", "Height [m]", 25)),
-          plot(new SplineView("Position", "Height [m]")),
+          view(new SplineView("Position", "Height [m]")),
           edit_rho(new DoubleEditor("rho [kg/m³]")),
           edit_E(new DoubleEditor("E [Pa]"))
     {
         auto hbox1 = new QHBoxLayout();
         hbox1->setContentsMargins(10, 5, 10, 5);
-        hbox1->addWidget(edit_E, 0);
-        hbox1->addSpacing(10);
-        hbox1->addWidget(edit_rho, 0);
+        hbox1->addWidget(new QLabel("Offsets:"));
+        hbox1->addWidget(edit_E);
+        hbox1->addWidget(edit_rho);
         hbox1->addStretch(1);
 
+        auto group = new QGroupBox();
+        group->setLayout(hbox1);
+
+        auto vbox1 = new QVBoxLayout();
+        vbox1->addWidget(group, 0);
+        vbox1->addWidget(view, 1);
+
         auto hbox2 = new QHBoxLayout();
-        hbox2->setMargin(0);
-        hbox2->addWidget(plot);
-
-        auto gbox1 = new QGroupBox();
-        gbox1->setLayout(hbox1);
-
-        auto gbox2 = new QGroupBox();
-        gbox2->setLayout(hbox2);
-
-        auto vbox = new QVBoxLayout();
-        vbox->addWidget(gbox1, 0);
-        vbox->addWidget(gbox2, 1);
-
-        auto hbox = new QHBoxLayout();
-        hbox->addWidget(table, 0);
-        hbox->addLayout(vbox, 1);
-        this->setLayout(hbox);
+        hbox2->addWidget(table, 0);
+        hbox2->addLayout(vbox1, 1);
+        this->setLayout(hbox2);
 
         // Event handling
 
@@ -47,7 +40,7 @@ public:
         QObject::connect(edit_rho, &DoubleEditor::modified, this, &LayerEditor::modified);
 
         QObject::connect(table, &SeriesEditor::modified, [&]{
-            plot->setData(table->getData());
+            view->setData(table->getData());
             emit modified();
         });
     }
@@ -65,7 +58,7 @@ public:
     void setData(const Layer2& layer)
     {
         table->setData(layer.height);
-        plot->setData(layer.height);
+        view->setData(layer.height);
         edit_E->setData(layer.E);
         edit_rho->setData(layer.rho);
     }
@@ -75,7 +68,7 @@ signals:
 
 private:
     SeriesEditor* table;
-    SplineView* plot;
+    SplineView* view;
     DoubleEditor* edit_rho;
     DoubleEditor* edit_E;
 };

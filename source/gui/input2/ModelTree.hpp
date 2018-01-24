@@ -1,6 +1,7 @@
 #pragma once
 #include "bow/input2/InputData.hpp"
 #include "gui/input2/dialogs/CommentDialog.hpp"
+#include "gui/input2/dialogs/ProfileDialog.hpp"
 #include "gui/input2/dialogs/WidthDialog.hpp"
 #include "gui/input2/dialogs/LayerDialog.hpp"
 #include "gui/input2/dialogs/SettingsDialog.hpp"
@@ -64,7 +65,14 @@ public:
         auto item_parameters = new QTreeWidgetItem(this, {"Parameters"});
         item_parameters->setIcon(0, QIcon(":/icons/model-tree/parameters"));
 
-        new TreeItem(item_parameters, "Width", QIcon(":/icons/model-tree/profile"), [&]
+        new TreeItem(item_parameters, "Profile", QIcon(":/icons/model-tree/profile"), [&]
+        {
+            auto dialog = new ProfileDialog(this);
+            dialog->setData(input.profile);
+            dialog->exec();
+        });
+
+        new TreeItem(item_parameters, "Width", QIcon(":/icons/model-tree/width"), [&]
         {
             auto dialog = new WidthDialog(this);
             dialog->setData(input.width);

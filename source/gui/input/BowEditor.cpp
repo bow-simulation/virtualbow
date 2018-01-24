@@ -1,5 +1,5 @@
 #include "BowEditor.hpp"
-#include "ModelTree.hpp"
+#include "gui/input2/ModelTree.hpp"
 #include "gui/views/LimbView.hpp"
 
 BowEditor::BowEditor(InputData& data)

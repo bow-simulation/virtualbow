@@ -36,15 +36,15 @@ public:
         });
     }
 
+    Series getData() const
+    {
+        return edit->getData();
+    }
+
     void setData(const Series& width)
     {
         edit->setData(width);
         view->setData(width);
-    }
-
-    Series getData() const
-    {
-        return edit->getData();
     }
 
 signals:
