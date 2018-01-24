@@ -3,7 +3,7 @@
 
 // TabBar with a plus button for adding tabs and the ability to rename tabs.
 // Moving tabs enabled by default.
-
+// Todo: Find a way to use an inline QLineEdit for renaming tabs
 class EditableTabBar: public QTabWidget
 {
     Q_OBJECT
@@ -14,18 +14,4 @@ public:
 signals:
     void addTabRequested();
     void tabRenamed(int index);
-};
-
-// Dialog used for renaming tabs.
-// Todo: Use inline QLineEdit for renaming
-class RenameDialog: public QDialog
-{
-public:
-    RenameDialog(QWidget* parent);
-
-    QString getText() const;
-    void setText(QString text);
-
-private:
-    QLineEdit* editor;
 };

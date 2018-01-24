@@ -18,12 +18,10 @@ EditableTabBar::EditableTabBar()
         QString old_text = this->tabText(index);
         this->setTabText(index, "...");
 
-        RenameDialog dialog(this);
-        dialog.setText(old_text);
-
-        if(dialog.exec() == QDialog::Accepted)
+        // Problem on KDE: auto-mnemonics (https://stackoverflow.com/q/32688153/4692009)
+        QString new_text = QInputDialog::getText(this, "Rename", "New name:", QLineEdit::Normal, old_text);
+        if(new_text != nullptr)
         {
-            QString new_text = dialog.getText();
             this->setTabText(index, new_text);
             emit tabRenamed(index);
         }
@@ -32,31 +30,4 @@ EditableTabBar::EditableTabBar()
             this->setTabText(index, old_text);
         }
     });
-}
-
-RenameDialog::RenameDialog(QWidget* parent)
-    : QDialog(parent),
-      editor(new QLineEdit())
-{
-    auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    QObject::connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    QObject::connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-
-    auto vbox = new QVBoxLayout();
-    vbox->addWidget(editor);
-    vbox->addWidget(buttons);
-
-    this->setWindowTitle("Rename");
-    this->setLayout(vbox);
-}
-
-QString RenameDialog::getText() const
-{
-    return editor->text();
-}
-
-void RenameDialog::setText(QString text)
-{
-    editor->setText(text.remove('&'));    // Remove auto-mnemonics on KDE (https://stackoverflow.com/questions/32688153/how-to-disable-automatic-mnemonics-in-a-qt-application-on-kde)
-    editor->selectAll();
 }
