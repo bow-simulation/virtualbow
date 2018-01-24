@@ -4,21 +4,21 @@ import subprocess
 import shutil
 import tarfile
 
-def build_vtk(build_dir, output_dir):
+def build_vtk(source_dir, build_dir, output_dir):
     subprocess.call(["apt", "install", "-y", "qtbase5-dev", "libqt5x11extras5-dev", "libxt-dev"])
-
+    
     subprocess.call(["cmake",
-    "-H" + ".",
+    "-H" + source_dir,
     "-B" + build_dir,
     "-DCMAKE_INSTALL_PREFIX=" + output_dir,
-    "-DCMAKE_BUILD_TYPE=Release",
+	"-DCMAKE_BUILD_TYPE=Release",
     "-DBUILD_SHARED_LIBS=OFF",
     "-DBUILD_TESTING=OFF",
     "-DVTK_Group_Qt=ON",
     "-DVTK_QT_VERSION=5"])
 
     subprocess.call(["make", "-C", build_dir])
-    subprocess.call(["make", "install", "-C", build_dir])
+    subprocess.call(["make", "install", "-C", build_dir])    
 
 def build_application(source_dir, build_dir, output_dir):
     subprocess.call(["cmake",
