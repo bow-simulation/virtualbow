@@ -69,6 +69,7 @@ add_executable(${PROJECT_NAME}
     source/gui/input/editors/SeriesEditor.hpp
     source/gui/input/editors/TreeEditor.cpp
     source/gui/input/editors/TreeEditor.hpp
+    source/gui/input/editors/TreeItem.hpp
 
     source/gui/input/views/LimbSource.cpp
     source/gui/input/views/LimbSource.hpp
