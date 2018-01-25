@@ -12,6 +12,14 @@ struct Layer2
     double E = 15e9;
 };
 
+static bool operator==(const Layer2& lhs, const Layer2& rhs)
+{
+    return lhs.name == rhs.name
+        && lhs.height == rhs.height
+        && lhs.rho == rhs.rho
+        && lhs.E == rhs.E;
+}
+
 static void to_json(json& obj, const Layer2& value)
 {
     obj["name"] = value.name;

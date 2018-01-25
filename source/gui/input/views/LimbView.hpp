@@ -120,7 +120,12 @@ public:
         try
         {
             source->SetLimbData(LimbProperties(data, 150));    // Magic number
-            this->GetInteractor()->Render();
+            // this->GetInteractor()->Render();
+
+            // Temporary solution. Shouldn't reset zoom after every modification.
+            // Maybe define the camera position relative to the limb's size and
+            // preserve that during the reset happening here.
+            viewFit();
         }
         catch(std::runtime_error& e)
         {

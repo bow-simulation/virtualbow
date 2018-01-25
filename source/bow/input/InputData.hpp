@@ -22,10 +22,28 @@ struct InputData
     Masses2 masses;
     Operation2 operation;
 
-    // Todo: Move those somewhere else, maybe in Application class. Interface of InputData is json.
+    // Todo: Move those somewhere else, maybe in Application class. Interface of InputData can be just json.
     void load(const std::string& path);
     void save(const std::string& path) const;
 };
+
+// Todo: Use "= default" in case it should make it into C++20
+static bool operator==(const InputData& lhs, const InputData& rhs)
+{
+    return lhs.meta == rhs.meta
+        && lhs.settings == rhs.settings
+        && lhs.profile == rhs.profile
+        && lhs.width == rhs.width
+        && lhs.layers == rhs.layers
+        && lhs.string == rhs.string
+        && lhs.masses == rhs.masses
+        && lhs.operation == rhs.operation;
+}
+
+static bool operator!=(const InputData& lhs, const InputData& rhs)
+{
+    return !operator==(lhs, rhs);
+}
 
 static void to_json(json& obj, const InputData& value)
 {

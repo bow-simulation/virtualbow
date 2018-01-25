@@ -82,7 +82,6 @@ MainWindow::MainWindow()
     menu_help->addAction(action_about);
 
     // Main window
-    // QObject::connect(&input, &DocumentNode::value_changed, [&]{ this->setWindowModified(true); });
     this->setWindowIcon(QIcon(":/icons/logo"));
     this->setCentralWidget(editor);
     setCurrentFile(QString());
@@ -90,6 +89,15 @@ MainWindow::MainWindow()
     // Load geometry and state
     restoreState(Application::settings.getValue("MainWindow/state").toByteArray());
     restoreGeometry(Application::settings.getValue("MainWindow/geometry").toByteArray());
+
+    // Set input data of the bow editor
+    data.meta.version = QGuiApplication::applicationVersion().toStdString();
+    editor->setData(data);
+
+    QObject::connect(editor, &BowEditor::modified, [&]{
+        InputData new_data = editor->getData();
+        this->setWindowModified(new_data != data);
+    });
 }
 
 MainWindow::~MainWindow()
@@ -104,7 +112,7 @@ bool MainWindow::loadFile(const QString& path)
 {
     try
     {
-        input.load(path.toStdString());
+        data.load(path.toStdString());
         setCurrentFile(path);
         return true;
     }
@@ -119,8 +127,7 @@ bool MainWindow::saveFile(const QString& path)
 {
     try
     {
-        input.meta.version = QGuiApplication::applicationVersion().toStdString();
-        input.save(path.toStdString());
+        data.save(path.toStdString());
         setWindowModified(false);
         setCurrentFile(path);
 
@@ -223,8 +230,8 @@ void MainWindow::runSimulation(bool dynamic)
 
         try
         {
-            output = dynamic ? BowModel::run_dynamic_simulation(input, progress0, progress1)
-                             : BowModel::run_static_simulation(input, progress0);
+            output = dynamic ? BowModel::run_dynamic_simulation(data, progress0, progress1)
+                             : BowModel::run_static_simulation(data, progress0);
 
             QMetaObject::invokeMethod(&dialog, "accept", Qt::QueuedConnection);
         }

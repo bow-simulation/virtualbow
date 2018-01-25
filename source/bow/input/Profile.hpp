@@ -12,6 +12,15 @@ struct Profile2
     double phi0 = 0.0;
 };
 
+static bool operator==(const Profile2& lhs, const Profile2& rhs)
+{
+    return lhs.segments == rhs.segments
+        && lhs.x0 == rhs.x0
+        && lhs.y0 == rhs.y0
+        && lhs.phi0 == rhs.phi0;
+}
+
+
 static void to_json(json& obj, const Profile2& value)
 {
     obj["segments"] = value.segments;

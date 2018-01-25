@@ -10,6 +10,13 @@ struct String2
     int n_strands = 12;
 };
 
+static bool operator==(const String2& lhs, const String2& rhs)
+{
+    return lhs.strand_stiffness == rhs.strand_stiffness
+        && lhs.strand_density == rhs.strand_density
+        && lhs.n_strands == rhs.n_strands;
+}
+
 static void to_json(json& obj, const String2& value)
 {
     obj["strand_stiffness"] = value.strand_stiffness;

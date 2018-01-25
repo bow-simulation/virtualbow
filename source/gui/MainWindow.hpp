@@ -14,7 +14,7 @@ public:
     bool saveFile(const QString& path);
 
 private:
-    InputData input;
+    InputData data;
     BowEditor* editor;
     QString current_file;
 

@@ -10,6 +10,13 @@ struct Operation2
     double mass_arrow = 0.025;
 };
 
+static bool operator==(const Operation2& lhs, const Operation2& rhs)
+{
+    return lhs.brace_height == rhs.brace_height
+        && lhs.draw_length == rhs.draw_length
+        && lhs.mass_arrow == rhs.mass_arrow;
+}
+
 static void to_json(json& obj, const Operation2& value)
 {
     obj["brace_height"] = value.brace_height;

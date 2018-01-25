@@ -42,10 +42,12 @@ public:
 
             QObject::connect(dialog, &DialogType::modified, [&]{
                 data = dialog->getData();
+                parent->modified();
             });
 
             QObject::connect(dialog, &DialogType::rejected, [&]{
                 data = backup;
+                parent->modified();
             });
         }
 
