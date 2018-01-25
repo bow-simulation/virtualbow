@@ -26,9 +26,9 @@ public:
         QObject::connect(edit2, &IntegerEditor::modified, this, &StringDialog::modified);
     }
 
-    String2 getData() const
+    String getData() const
     {
-        String2 data;
+        String data;
         data.strand_stiffness = edit0->getData();
         data.strand_density = edit1->getData();
         data.n_strands = edit2->getData();
@@ -36,7 +36,7 @@ public:
         return data;
     }
 
-    void setData(const String2& data)
+    void setData(const String& data)
     {
         edit0->setData(data.strand_stiffness);
         edit1->setData(data.strand_density);

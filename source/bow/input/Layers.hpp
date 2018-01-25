@@ -4,7 +4,7 @@
 
 using nlohmann::json;
 
-struct Layer2
+struct Layer
 {
     std::string name = "unnamed";
     Series height = {{0.0, 1.0}, {0.0128, 0.008}};
@@ -12,7 +12,9 @@ struct Layer2
     double E = 15e9;
 };
 
-static bool operator==(const Layer2& lhs, const Layer2& rhs)
+using Layers = std::vector<Layer>;
+
+static bool operator==(const Layer& lhs, const Layer& rhs)
 {
     return lhs.name == rhs.name
         && lhs.height == rhs.height
@@ -20,7 +22,7 @@ static bool operator==(const Layer2& lhs, const Layer2& rhs)
         && lhs.E == rhs.E;
 }
 
-static void to_json(json& obj, const Layer2& value)
+static void to_json(json& obj, const Layer& value)
 {
     obj["name"] = value.name;
     obj["height"] = value.height;
@@ -28,7 +30,7 @@ static void to_json(json& obj, const Layer2& value)
     obj["E"] = value.E;
 }
 
-static void from_json(const json& obj, Layer2& value)
+static void from_json(const json& obj, Layer& value)
 {
     value.name = obj["name"];
     value.height = obj["height"];

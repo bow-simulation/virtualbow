@@ -26,9 +26,9 @@ public:
         QObject::connect(edit2, &DoubleEditor::modified, this, &OperationDialog::modified);
     }
 
-    Operation2 getData() const
+    Operation getData() const
     {
-        Operation2 data;
+        Operation data;
         data.brace_height = edit0->getData();
         data.draw_length = edit1->getData();
         data.mass_arrow = edit2->getData();
@@ -36,7 +36,7 @@ public:
         return data;
     }
 
-    void setData(const Operation2& data)
+    void setData(const Operation& data)
     {
         edit0->setData(data.brace_height);
         edit1->setData(data.draw_length);

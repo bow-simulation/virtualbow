@@ -3,7 +3,7 @@
 
 using nlohmann::json;
 
-struct Settings2
+struct Settings
 {
     int n_elements_limb = 40;
     int n_elements_string = 45;
@@ -13,7 +13,7 @@ struct Settings2
     double sampling_rate = 1e4;
 };
 
-static bool operator==(const Settings2& lhs, const Settings2& rhs)
+static bool operator==(const Settings& lhs, const Settings& rhs)
 {
     return lhs.n_elements_limb == rhs.n_elements_limb
         && lhs.n_elements_string == rhs.n_elements_string
@@ -23,7 +23,7 @@ static bool operator==(const Settings2& lhs, const Settings2& rhs)
         && lhs.sampling_rate == rhs.sampling_rate;
 }
 
-static void to_json(json& obj, const Settings2& value)
+static void to_json(json& obj, const Settings& value)
 {
     obj["n_elements_limb"] = value.n_elements_limb;
     obj["n_elements_string"] = value.n_elements_string;
@@ -33,7 +33,7 @@ static void to_json(json& obj, const Settings2& value)
     obj["sampling_rate"] = value.sampling_rate;
 }
 
-static void from_json(const json& obj, Settings2& value)
+static void from_json(const json& obj, Settings& value)
 {
     value.n_elements_limb = obj["n_elements_limb"];
     value.n_elements_string = obj["n_elements_string"];

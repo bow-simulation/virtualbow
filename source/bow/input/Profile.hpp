@@ -4,7 +4,7 @@
 
 using nlohmann::json;
 
-struct Profile2
+struct Profile
 {
     Series segments = {{0.7}, {0.0}};
     double x0 = 0.0;
@@ -12,7 +12,7 @@ struct Profile2
     double phi0 = 0.0;
 };
 
-static bool operator==(const Profile2& lhs, const Profile2& rhs)
+static bool operator==(const Profile& lhs, const Profile& rhs)
 {
     return lhs.segments == rhs.segments
         && lhs.x0 == rhs.x0
@@ -21,7 +21,7 @@ static bool operator==(const Profile2& lhs, const Profile2& rhs)
 }
 
 
-static void to_json(json& obj, const Profile2& value)
+static void to_json(json& obj, const Profile& value)
 {
     obj["segments"] = value.segments;
     obj["x0"] = value.x0;
@@ -29,7 +29,7 @@ static void to_json(json& obj, const Profile2& value)
     obj["phi0"] = value.phi0;
 }
 
-static void from_json(const json& obj, Profile2& value)
+static void from_json(const json& obj, Profile& value)
 {
     value.segments = obj["segments"];
     value.x0 = obj["x0"];

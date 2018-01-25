@@ -12,17 +12,17 @@
 TreeEditor::TreeEditor()
 {
     new TreeItem<CommentDialog, std::string>(this, data.meta.comments, "Comments", QIcon(":/icons/model-tree/comments"));
-    new TreeItem<SettingsDialog, Settings2>(this, data.settings, "Settings", QIcon(":/icons/model-tree/settings"));
+    new TreeItem<SettingsDialog, Settings>(this, data.settings, "Settings", QIcon(":/icons/model-tree/settings"));
 
     auto parameters = new QTreeWidgetItem(this, {"Parameters"});
     parameters->setIcon(0, QIcon(":/icons/model-tree/parameters"));
 
-    new TreeItem<ProfileDialog, Profile2>(parameters, data.profile, "Profile", QIcon(":/icons/model-tree/profile"));
+    new TreeItem<ProfileDialog, Profile>(parameters, data.profile, "Profile", QIcon(":/icons/model-tree/profile"));
     new TreeItem<WidthDialog, Series>(parameters, data.width, "Width", QIcon(":/icons/model-tree/width"));
-    new TreeItem<LayerDialog, std::vector<Layer2>>(parameters, data.layers, "Layers", QIcon(":/icons/model-tree/layers"));
-    new TreeItem<StringDialog, String2>(parameters, data.string, "String", QIcon(":/icons/model-tree/string"));
-    new TreeItem<MassesDialog, Masses2>(parameters, data.masses, "Masses", QIcon(":/icons/model-tree/masses"));
-    new TreeItem<OperationDialog, Operation2>(parameters, data.operation, "Operation", QIcon(":/icons/model-tree/operation"));
+    new TreeItem<LayerDialog, Layers>(parameters, data.layers, "Layers", QIcon(":/icons/model-tree/layers"));
+    new TreeItem<StringDialog, String>(parameters, data.string, "String", QIcon(":/icons/model-tree/string"));
+    new TreeItem<MassesDialog, Masses>(parameters, data.masses, "Masses", QIcon(":/icons/model-tree/masses"));
+    new TreeItem<OperationDialog, Operation>(parameters, data.operation, "Operation", QIcon(":/icons/model-tree/operation"));
 
     QObject::connect(this, &QTreeWidget::itemActivated, [](QTreeWidgetItem* item, int column)
     {

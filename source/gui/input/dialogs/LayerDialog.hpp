@@ -43,7 +43,7 @@ public:
         });
     }
 
-    void setData(const std::vector<Layer2>& layers)
+    void setData(const Layers& layers)
     {
         while(tabs->count() < layers.size())
             createEmptyTab();
@@ -58,12 +58,12 @@ public:
         }
     }
 
-    std::vector<Layer2> getData() const
+    Layers getData() const
     {
-        std::vector<Layer2> layers;
+        Layers layers;
         for(int i = 0; i < tabs->count(); ++i)
         {
-            Layer2 layer = static_cast<LayerEditor*>(tabs->widget(i))->getData();
+            Layer layer = static_cast<LayerEditor*>(tabs->widget(i))->getData();
             layer.name = tabs->tabText(i).toStdString();
             layers.push_back(layer);
         }
@@ -90,7 +90,7 @@ private:
         auto editor = new LayerEditor();
         QObject::connect(editor, &LayerEditor::modified, this, &LayerDialog::modified);
 
-        Layer2 layer;
+        Layer layer;
         tabs->addTab(editor, QString::fromStdString(layer.name));
         editor->setData(layer);
     }

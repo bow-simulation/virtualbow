@@ -45,9 +45,9 @@ public:
         });
     }
 
-    Layer2 getData() const
+    Layer getData() const
     {
-        Layer2 layer;
+        Layer layer;
         layer.height = table->getData();
         layer.rho = edit_rho->getData();
         layer.E = edit_E->getData();
@@ -55,7 +55,7 @@ public:
         return layer;
     }
 
-    void setData(const Layer2& layer)
+    void setData(const Layer& layer)
     {
         table->setData(layer.height);
         view->setData(layer.height);

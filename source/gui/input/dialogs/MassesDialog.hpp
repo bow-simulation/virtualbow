@@ -26,9 +26,9 @@ public:
         QObject::connect(edit2, &DoubleEditor::modified, this, &MassesDialog::modified);
     }
 
-    Masses2 getData() const
+    Masses getData() const
     {
-        Masses2 data;
+        Masses data;
         data.string_center = edit0->getData();
         data.string_tip = edit1->getData();
         data.limb_tip = edit2->getData();
@@ -36,7 +36,7 @@ public:
         return data;
     }
 
-    void setData(const Masses2& data)
+    void setData(const Masses& data)
     {
         edit0->setData(data.string_center);
         edit1->setData(data.string_tip);

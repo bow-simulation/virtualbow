@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
     EditableTabBar tb;
     tb.addTab("Layer0");
     tb.addTab("Layer1");
-    tb.addTab("Layer2");
+    tb.addTab("Layer");
     tb.show();
 
     QObject::connect(&tb, &EditableTabBar::addTabRequested, []()

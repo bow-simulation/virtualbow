@@ -60,9 +60,9 @@ public:
         });
     }
 
-    Profile2 getData() const
+    Profile getData() const
     {
-        Profile2 profile;
+        Profile profile;
         profile.segments = table->getData();
         profile.x0 = edit_x0->getData();
         profile.y0 = edit_y0->getData();
@@ -71,7 +71,7 @@ public:
         return profile;
     }
 
-    void setData(const Profile2& profile)
+    void setData(const Profile& profile)
     {
         view->setData(profile);
         table->setData(profile.segments);

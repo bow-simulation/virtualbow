@@ -3,28 +3,28 @@
 
 using nlohmann::json;
 
-struct String2
+struct String
 {
     double strand_stiffness = 3500.0;
     double strand_density = 0.0005;
     int n_strands = 12;
 };
 
-static bool operator==(const String2& lhs, const String2& rhs)
+static bool operator==(const String& lhs, const String& rhs)
 {
     return lhs.strand_stiffness == rhs.strand_stiffness
         && lhs.strand_density == rhs.strand_density
         && lhs.n_strands == rhs.n_strands;
 }
 
-static void to_json(json& obj, const String2& value)
+static void to_json(json& obj, const String& value)
 {
     obj["strand_stiffness"] = value.strand_stiffness;
     obj["strand_density"] = value.strand_density;
     obj["n_strands"] = value.n_strands;
 }
 
-static void from_json(const json& obj, String2& value)
+static void from_json(const json& obj, String& value)
 {
     value.strand_stiffness = obj["strand_stiffness"];
     value.strand_density = obj["strand_density"];

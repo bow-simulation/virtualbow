@@ -24,7 +24,7 @@ public:
         curve1->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
     }
 
-    void setData(Profile2 profile)
+    void setData(Profile profile)
     {
         try
         {

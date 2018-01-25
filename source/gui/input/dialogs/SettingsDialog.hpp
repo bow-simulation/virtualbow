@@ -40,9 +40,9 @@ public:
         QObject::connect(edit5, &DoubleEditor::modified, this, &SettingsDialog::modified);
     }
 
-    Settings2 getData() const
+    Settings getData() const
     {
-        Settings2 data;
+        Settings data;
         data.n_elements_limb = edit0->getData();
         data.n_elements_string = edit1->getData();
         data.n_draw_steps = edit2->getData();
@@ -53,7 +53,7 @@ public:
         return data;
     }
 
-    void setData(const Settings2& data)
+    void setData(const Settings& data)
     {
         edit0->setData(data.n_elements_limb);
         edit1->setData(data.n_elements_string);

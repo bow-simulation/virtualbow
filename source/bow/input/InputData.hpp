@@ -1,7 +1,7 @@
 #pragma once
 #include "Meta.hpp"
 #include "Profile.hpp"
-#include "Layer.hpp"
+#include "Layers.hpp"
 #include "String.hpp"
 #include "Masses.hpp"
 #include "Operation.hpp"
@@ -13,14 +13,14 @@ using nlohmann::json;
 
 struct InputData
 {
-    Meta2 meta;
-    Settings2 settings;
-    Profile2 profile;
+    Meta meta;
+    Settings settings;
+    Profile profile;
     Series width = {{0.0, 1.0}, {0.05, 0.01}};
-    std::vector<Layer2> layers = {Layer2()};
-    String2 string;
-    Masses2 masses;
-    Operation2 operation;
+    Layers layers = {Layer()};
+    String string;
+    Masses masses;
+    Operation operation;
 
     // Todo: Move those somewhere else, maybe in Application class. Interface of InputData can be just json.
     void load(const std::string& path);
@@ -63,7 +63,7 @@ static void from_json(const json& obj, InputData& value)
     value.settings = obj["settings"];
     value.profile = obj["profile"];
     value.width = obj["width"];
-    value.layers = obj["layers"].get<std::vector<Layer2>>();
+    value.layers = obj["layers"].get<Layers>();
     value.string = obj["string"];
     value.masses = obj["masses"];
     value.operation = obj["operation"];
