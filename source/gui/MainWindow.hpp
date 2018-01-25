@@ -1,5 +1,5 @@
 #pragma once
-#include "model/input/InputData.hpp"
+#include "bow/input/InputData.hpp"
 #include <QtWidgets>
 
 class BowEditor;
@@ -14,7 +14,7 @@ public:
     bool saveFile(const QString& path);
 
 private:
-    InputData input;
+    InputData data;
     BowEditor* editor;
     QString current_file;
 

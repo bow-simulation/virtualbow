@@ -1,13 +1,13 @@
 #pragma once
-#include <QtWidgets>
+#include "BaseDialog.hpp"
 
-class ProgressDialog: public QDialog
+class ProgressDialog: public BaseDialog
 {
     Q_OBJECT
 
 public:
     ProgressDialog(QWidget* parent);
-    virtual void closeEvent(QCloseEvent *event) override;
+    // virtual void closeEvent(QCloseEvent *event) override;
     virtual void reject() override;
     bool isCanceled() const;
     void addProgressBar(const QString& name);

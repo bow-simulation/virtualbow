@@ -1,12 +1,12 @@
 #pragma once
-#include "gui/DialogBase.hpp"
+#include "gui/BaseDialog.hpp"
 #include "Application.hpp"
 
-class PersistentDialog: public DialogBase
+class PersistentDialog: public BaseDialog
 {
 public:
     PersistentDialog(QWidget* parent, const QString& name, const QSize& size)
-        : DialogBase(parent), name(name)
+        : BaseDialog(parent), name(name)
     {
         // Load size
         resize(Application::settings.getValue(name + "/size", size).toSize());

@@ -1,14 +1,14 @@
 #include "MainWindow.hpp"
 #include "Application.hpp"
 #include "ProgressDialog.hpp"
-#include "input/BowEditor.hpp"
+#include "input/editors/BowEditor.hpp"
 #include "output/OutputDialog.hpp"
-#include "model/BowModel.hpp"
+#include "bow/BowModel.hpp"
 #include <thread>
 #include <json.hpp>
 
 MainWindow::MainWindow()
-    : editor(new BowEditor(input))
+    : editor(new BowEditor())
 {
     // Actions
     auto action_new = new QAction(QIcon(":/icons/document-new"), "&New", this);
@@ -82,7 +82,6 @@ MainWindow::MainWindow()
     menu_help->addAction(action_about);
 
     // Main window
-    QObject::connect(&input, &DocumentNode::value_changed, [&]{ this->setWindowModified(true); });
     this->setWindowIcon(QIcon(":/icons/logo"));
     this->setCentralWidget(editor);
     setCurrentFile(QString());
@@ -90,6 +89,15 @@ MainWindow::MainWindow()
     // Load geometry and state
     restoreState(Application::settings.getValue("MainWindow/state").toByteArray());
     restoreGeometry(Application::settings.getValue("MainWindow/geometry").toByteArray());
+
+    // Set input data of the bow editor
+    data.meta.version = QGuiApplication::applicationVersion().toStdString();
+    editor->setData(data);
+
+    QObject::connect(editor, &BowEditor::modified, [&]{
+        InputData new_data = editor->getData();
+        this->setWindowModified(new_data != data);
+    });
 }
 
 MainWindow::~MainWindow()
@@ -104,7 +112,7 @@ bool MainWindow::loadFile(const QString& path)
 {
     try
     {
-        input.load(path.toStdString());
+        data.load(path.toStdString());
         setCurrentFile(path);
         return true;
     }
@@ -119,10 +127,10 @@ bool MainWindow::saveFile(const QString& path)
 {
     try
     {
-        input.meta.version = QGuiApplication::applicationVersion().toStdString();
-        input.save(path.toStdString());
-
+        data.save(path.toStdString());
+        setWindowModified(false);
         setCurrentFile(path);
+
         return true;
     }
     catch(...)  // Todo
@@ -191,11 +199,13 @@ bool MainWindow::saveAs()
 
 void MainWindow::runSimulation(bool dynamic)
 {
+    /*
     if(input.get_errors().size() != 0)
     {
         QMessageBox::critical(this, "Error", "Model contains invalid input:\n" + QString::fromStdString(input.get_errors().front()));
         return;
     }
+    */
 
     ProgressDialog dialog(this);
     dialog.addProgressBar("Statics");
@@ -220,8 +230,8 @@ void MainWindow::runSimulation(bool dynamic)
 
         try
         {
-            output = dynamic ? BowModel::run_dynamic_simulation(input, progress0, progress1)
-                             : BowModel::run_static_simulation(input, progress0);
+            output = dynamic ? BowModel::run_dynamic_simulation(data, progress0, progress1)
+                             : BowModel::run_static_simulation(data, progress0);
 
             QMetaObject::invokeMethod(&dialog, "accept", Qt::QueuedConnection);
         }

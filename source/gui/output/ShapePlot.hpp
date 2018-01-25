@@ -1,6 +1,6 @@
 #pragma once
 #include "gui/PlotWidget.hpp"
-#include "model/output/OutputData.hpp"
+#include "bow/output/OutputData.hpp"
 
 class ShapePlot: public PlotWidget
 {

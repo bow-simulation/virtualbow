@@ -2,7 +2,7 @@
 #include <thread>
 
 ProgressDialog::ProgressDialog(QWidget* parent)
-    : QDialog(parent),
+    : BaseDialog(parent),
       vbox(new QVBoxLayout),
       canceled(false)
 {
@@ -12,14 +12,9 @@ ProgressDialog::ProgressDialog(QWidget* parent)
     this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 
     auto btbox = new QDialogButtonBox(QDialogButtonBox::Cancel);
-    vbox->addSpacing(8);    // Todo: Magic number
+    vbox->addSpacing(8);    // Magic number
     vbox->addWidget(btbox);
     QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-}
-
-void ProgressDialog::closeEvent(QCloseEvent *event)
-{
-    this->reject();
 }
 
 void ProgressDialog::reject()
