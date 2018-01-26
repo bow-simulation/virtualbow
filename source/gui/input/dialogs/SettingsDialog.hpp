@@ -38,6 +38,11 @@ public:
         QObject::connect(edit3, &DoubleEditor::modified, this, &SettingsDialog::modified);
         QObject::connect(edit4, &DoubleEditor::modified, this, &SettingsDialog::modified);
         QObject::connect(edit5, &DoubleEditor::modified, this, &SettingsDialog::modified);
+
+        QObject::connect(this, &GroupDialog::reset, [&]{
+            setData(Settings());
+            emit modified();
+        });
     }
 
     Settings getData() const

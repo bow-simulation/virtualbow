@@ -3,23 +3,26 @@
 
 class GroupDialog: public BaseDialog
 {
+    Q_OBJECT
+
 public:
     GroupDialog(QWidget* parent, const QString& title, bool enable_reset)
         : BaseDialog(parent),
           vbox1(new QVBoxLayout()),
           vbox2(nullptr)
     {
-        auto flags = QDialogButtonBox::Ok | QDialogButtonBox::Cancel;
-        if(enable_reset)
-        {
-            flags = flags | QDialogButtonBox::Reset;
-        }
+        auto flags = enable_reset ? QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Reset
+                                  : QDialogButtonBox::Ok | QDialogButtonBox::Cancel;
 
         auto buttons = new QDialogButtonBox(flags);
         QObject::connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
         QObject::connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+        QObject::connect(buttons, &QDialogButtonBox::clicked, [&, buttons](QAbstractButton* button){
+            if(buttons->standardButton(button) == QDialogButtonBox::Reset)
+                emit reset();
+        });
 
-        vbox1->addWidget(buttons); // , 0, Qt::AlignBottom);
+        vbox1->addWidget(buttons);
         vbox1->setSizeConstraint(QLayout::SetFixedSize);    // Make dialog fixed-size
         this->setWindowTitle(title);
         this->setLayout(vbox1);
@@ -43,6 +46,9 @@ public:
 
         vbox2->addWidget(widget);
     }
+
+signals:
+    void reset();
 
 private:
     QVBoxLayout* vbox1;
