@@ -18,7 +18,6 @@ EditableTabBar::EditableTabBar()
         QString old_text = this->tabText(index);
         this->setTabText(index, "...");
 
-        // Problem on KDE: auto-mnemonics (https://stackoverflow.com/q/32688153/4692009)
         QString new_text = QInputDialog::getText(this, "Rename", "New name:", QLineEdit::Normal, old_text);
         if(new_text != nullptr)
         {
@@ -30,4 +29,10 @@ EditableTabBar::EditableTabBar()
             this->setTabText(index, old_text);
         }
     });
+}
+
+// Removes auto-mnemonics inserted by KDE, https://stackoverflow.com/q/32688153/4692009
+QString EditableTabBar::tabText(int index) const
+{
+    return QTabWidget::tabText(index).remove('&');
 }

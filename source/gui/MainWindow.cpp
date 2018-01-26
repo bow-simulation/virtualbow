@@ -46,7 +46,7 @@ MainWindow::MainWindow()
     action_run_dynamics->setMenuRole(QAction::NoRole);
     QObject::connect(action_run_dynamics, &QAction::triggered, [&]{ runSimulation(true); });    // Todo: Use std::bind
 
-    auto action_about = new QAction(QIcon::fromTheme("dialog-information"), "&About...", this);
+    auto action_about = new QAction(QIcon(":/icons/dialog-information"), "&About...", this);
     connect(action_about, &QAction::triggered, this, &MainWindow::about);
     action_about->setMenuRole(QAction::AboutRole);
 

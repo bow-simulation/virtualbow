@@ -10,6 +10,7 @@ class EditableTabBar: public QTabWidget
 
 public:
     EditableTabBar();
+    QString tabText(int index) const;
 
 signals:
     void addTabRequested();
