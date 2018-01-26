@@ -13,16 +13,12 @@ TreeEditor::TreeEditor()
 {
     new TreeItem<CommentDialog, std::string>(this, data.meta.comments, "Comments", QIcon(":/icons/model-tree/comments"));
     new TreeItem<SettingsDialog, Settings>(this, data.settings, "Settings", QIcon(":/icons/model-tree/settings"));
-
-    auto parameters = new QTreeWidgetItem(this, {"Parameters"});
-    parameters->setIcon(0, QIcon(":/icons/model-tree/parameters"));
-
-    new TreeItem<ProfileDialog, Profile>(parameters, data.profile, "Profile", QIcon(":/icons/model-tree/profile"));
-    new TreeItem<WidthDialog, Series>(parameters, data.width, "Width", QIcon(":/icons/model-tree/width"));
-    new TreeItem<LayerDialog, Layers>(parameters, data.layers, "Layers", QIcon(":/icons/model-tree/layers"));
-    new TreeItem<StringDialog, String>(parameters, data.string, "String", QIcon(":/icons/model-tree/string"));
-    new TreeItem<MassesDialog, Masses>(parameters, data.masses, "Masses", QIcon(":/icons/model-tree/masses"));
-    new TreeItem<OperationDialog, Operation>(parameters, data.operation, "Operation", QIcon(":/icons/model-tree/operation"));
+    new TreeItem<ProfileDialog, Profile>(this, data.profile, "Profile", QIcon(":/icons/model-tree/profile"));
+    new TreeItem<WidthDialog, Series>(this, data.width, "Width", QIcon(":/icons/model-tree/width"));
+    new TreeItem<LayerDialog, Layers>(this, data.layers, "Layers", QIcon(":/icons/model-tree/layers"));
+    new TreeItem<StringDialog, String>(this, data.string, "String", QIcon(":/icons/model-tree/string"));
+    new TreeItem<MassesDialog, Masses>(this, data.masses, "Masses", QIcon(":/icons/model-tree/masses"));
+    new TreeItem<OperationDialog, Operation>(this, data.operation, "Operation", QIcon(":/icons/model-tree/operation"));
 
     QObject::connect(this, &QTreeWidget::itemActivated, [](QTreeWidgetItem* item, int column)
     {
@@ -31,9 +27,9 @@ TreeEditor::TreeEditor()
             action->performAction();
     });
 
-    this->setHeaderLabel("Model Tree");
+    this->setHeaderLabel("Model");
     this->expandAll();
-    // this->setItemsExpandable(false);    // Todo: Why is the expansion symbol still visible? (on KDE Desktop at least)
+    this->setItemsExpandable(false);    // Todo: Why is the expansion symbol still visible? (on KDE Desktop at least)
 }
 
 const InputData& TreeEditor::getData() const

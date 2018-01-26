@@ -22,17 +22,6 @@ public:
         this->setIcon(0, icon);
     }
 
-    // Todo: Code duplication
-    // Requirement: Item must have a TreeEditor as parent
-    TreeItem(QTreeWidgetItem* parent, DataType& data, const QString& name, const QIcon& icon)
-        : QTreeWidgetItem(parent, {name}),
-          parent(static_cast<TreeEditor*>(parent->treeWidget())),
-          dialog(nullptr),
-          data(data)
-    {
-        this->setIcon(0, icon);
-    }
-
     void performAction() override
     {
         if(dialog == nullptr)
