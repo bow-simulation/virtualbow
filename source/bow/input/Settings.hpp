@@ -23,6 +23,11 @@ static bool operator==(const Settings& lhs, const Settings& rhs)
         && lhs.sampling_rate == rhs.sampling_rate;
 }
 
+static bool operator!=(const Settings& lhs, const Settings& rhs)
+{
+    return !operator==(lhs, rhs);
+}
+
 static void to_json(json& obj, const Settings& value)
 {
     obj["n_elements_limb"] = value.n_elements_limb;

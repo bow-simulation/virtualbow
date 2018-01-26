@@ -17,6 +17,11 @@ static bool operator==(const String& lhs, const String& rhs)
         && lhs.n_strands == rhs.n_strands;
 }
 
+static bool operator!=(const String& lhs, const String& rhs)
+{
+    return !operator==(lhs, rhs);
+}
+
 static void to_json(json& obj, const String& value)
 {
     obj["strand_stiffness"] = value.strand_stiffness;

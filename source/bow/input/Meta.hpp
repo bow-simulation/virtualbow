@@ -16,6 +16,11 @@ static bool operator==(const Meta& lhs, const Meta& rhs)
         && lhs.comments == rhs.comments;
 }
 
+static bool operator!=(const Meta& lhs, const Meta& rhs)
+{
+    return !operator==(lhs, rhs);
+}
+
 static void to_json(json& obj, const Meta& value)
 {
     obj["version"] = value.version;

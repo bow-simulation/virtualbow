@@ -17,6 +17,11 @@ static bool operator==(const Operation& lhs, const Operation& rhs)
         && lhs.mass_arrow == rhs.mass_arrow;
 }
 
+static bool operator!=(const Operation& lhs, const Operation& rhs)
+{
+    return !operator==(lhs, rhs);
+}
+
 static void to_json(json& obj, const Operation& value)
 {
     obj["brace_height"] = value.brace_height;

@@ -17,6 +17,11 @@ static bool operator==(const Masses& lhs, const Masses& rhs)
         && lhs.limb_tip == rhs.limb_tip;
 }
 
+static bool operator!=(const Masses& lhs, const Masses& rhs)
+{
+    return !operator==(lhs, rhs);
+}
+
 static void to_json(json& obj, const Masses& value)
 {
     obj["string_center"] = value.string_center;

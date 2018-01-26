@@ -35,8 +35,11 @@ public:
             });
 
             QObject::connect(dialog, &DialogType::rejected, [&]{
-                data = backup;
-                parent->modified();
+                if(data != backup)
+                {
+                    data = backup;
+                    parent->modified();
+                }
             });
         }
 

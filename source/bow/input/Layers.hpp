@@ -22,6 +22,11 @@ static bool operator==(const Layer& lhs, const Layer& rhs)
         && lhs.E == rhs.E;
 }
 
+static bool operator!=(const Layer& lhs, const Layer& rhs)
+{
+    return !operator==(lhs, rhs);
+}
+
 static void to_json(json& obj, const Layer& value)
 {
     obj["name"] = value.name;

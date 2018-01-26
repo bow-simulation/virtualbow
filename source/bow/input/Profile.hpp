@@ -20,6 +20,10 @@ static bool operator==(const Profile& lhs, const Profile& rhs)
         && lhs.phi0 == rhs.phi0;
 }
 
+static bool operator!=(const Profile& lhs, const Profile& rhs)
+{
+    return !operator==(lhs, rhs);
+}
 
 static void to_json(json& obj, const Profile& value)
 {
