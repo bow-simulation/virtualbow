@@ -110,6 +110,7 @@ public:
         hbox->addWidget(button3);
         hbox->addSpacing(20);
         hbox->addWidget(button4);
+        hbox->addStretch();
         this->setLayout(hbox);
 
         view3D();
