@@ -305,13 +305,16 @@ void BowModel::simulate_dynamics(const Callback& callback)
         return system.get_a(node_arrow.y) <= 0;
     });
 
-    auto run_solver = [&](DynamicSolver& solver) {
-        while(solver.step())
+    auto run_solver = [&](DynamicSolver& solver)
+    {
+        do
         {
             add_state(output.dynamics.states);
             if(!callback(100.0*system.get_t()/(alpha*T)))
+            {
                 return;
-        }
+            }
+        } while(solver.step());
     };
 
     run_solver(solver1);
