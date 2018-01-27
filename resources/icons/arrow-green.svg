@@ -15,8 +15,8 @@
    version="1.1"
    id="svg8"
    inkscape:export-filename="/home/s/Desktop/Repositories/bow-simulator/resources/icons/arrow-green.png"
-   inkscape:export-xdpi="25.4"
-   inkscape:export-ydpi="25.4"
+   inkscape:export-xdpi="38.099998"
+   inkscape:export-ydpi="38.099998"
    inkscape:version="0.92.1 r15371"
    sodipodi:docname="arrow-green.svg">
   <defs
@@ -28,9 +28,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="6.4492187"
-     inkscape:cx="32.562084"
-     inkscape:cy="60.472441"
+     inkscape:zoom="4.5602863"
+     inkscape:cx="27.042506"
+     inkscape:cy="67.458668"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -67,7 +67,7 @@
      id="layer1"
      transform="translate(-42.391577,0.0691878)">
     <path
-       style="fill:#92bd6c;fill-opacity:1;stroke:#6e6e6e;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;opacity:1"
+       style="fill:#14b313;fill-opacity:1;stroke:#000003;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;opacity:1"
        d="M 47.095746,29.343423 V 2.88509 l 22.224997,13.229167 z"
        id="path5118"
        inkscape:connector-curvature="0"

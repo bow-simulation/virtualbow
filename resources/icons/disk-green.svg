@@ -15,8 +15,8 @@
    version="1.1"
    id="svg8"
    inkscape:export-filename="/home/s/Desktop/Repositories/bow-simulator/resources/icons/disk-green.png"
-   inkscape:export-xdpi="30.416395"
-   inkscape:export-ydpi="30.416395"
+   inkscape:export-xdpi="47.398319"
+   inkscape:export-ydpi="47.398319"
    inkscape:version="0.92.1 r15371"
    sodipodi:docname="disk-green.svg">
   <defs
@@ -28,9 +28,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.6"
-     inkscape:cx="6.92226"
-     inkscape:cy="45.172452"
+     inkscape:zoom="3.959798"
+     inkscape:cx="6.9793021"
+     inkscape:cy="33.779044"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -61,7 +61,7 @@
      id="layer1"
      transform="translate(-6.3499107,-4.2084923)">
     <circle
-       style="fill:#92bd6c;fill-opacity:1;stroke:#6e6e6e;stroke-width:2;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="fill:#14b313;fill-opacity:1;stroke:#00001b;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="path4485"
        cx="19.711126"
        cy="17.569708"
