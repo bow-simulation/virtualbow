@@ -17,8 +17,13 @@
    inkscape:version="0.92.1 r15371"
    sodipodi:docname="application-exit.svg"
    inkscape:export-filename="/home/s/Desktop/Repositories/bow-simulator/resources/icons/application-exit.png"
+<<<<<<< HEAD
    inkscape:export-xdpi="7.9552922"
    inkscape:export-ydpi="7.9552922">
+=======
+   inkscape:export-xdpi="7.20327"
+   inkscape:export-ydpi="7.20327">
+>>>>>>> bdda75afb4da8e977a28f32954865ffb60b5911d
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -29,7 +34,11 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.98994949"
+<<<<<<< HEAD
      inkscape:cx="452.2587"
+=======
+     inkscape:cx="471.4516"
+>>>>>>> bdda75afb4da8e977a28f32954865ffb60b5911d
      inkscape:cy="261.9228"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
