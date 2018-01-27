@@ -24,14 +24,14 @@ static bool operator!=(const String& lhs, const String& rhs)
 
 static void to_json(json& obj, const String& value)
 {
-    obj["strand_stiffness"] = value.strand_stiffness;
-    obj["strand_density"] = value.strand_density;
-    obj["n_strands"] = value.n_strands;
+    obj.at("strand_stiffness") = value.strand_stiffness;
+    obj.at("strand_density") = value.strand_density;
+    obj.at("n_strands") = value.n_strands;
 }
 
 static void from_json(const json& obj, String& value)
 {
-    value.strand_stiffness = obj["strand_stiffness"];
-    value.strand_density = obj["strand_density"];
-    value.n_strands = obj["n_strands"];
+    value.strand_stiffness = obj.at("strand_stiffness");
+    value.strand_density = obj.at("strand_density");
+    value.n_strands = obj.at("n_strands");
 }

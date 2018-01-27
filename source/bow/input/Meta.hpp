@@ -23,12 +23,12 @@ static bool operator!=(const Meta& lhs, const Meta& rhs)
 
 static void to_json(json& obj, const Meta& value)
 {
-    obj["version"] = value.version;
-    obj["comments"] = value.comments;
+    obj.at("version") = value.version;
+    obj.at("comments") = value.comments;
 }
 
 static void from_json(const json& obj, Meta& value)
 {
-    value.version = obj["version"];
-    value.comments = obj["comments"];
+    value.version = obj.at("version");
+    value.comments = obj.at("comments");
 }

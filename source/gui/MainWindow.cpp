@@ -113,12 +113,14 @@ bool MainWindow::loadFile(const QString& path)
     try
     {
         data.load(path.toStdString());
+        editor->setData(data);
         setCurrentFile(path);
+        setWindowModified(false);
         return true;
     }
     catch(const std::exception& e)  // Todo
     {
-        QMessageBox::warning(this, "", QString("Failed to load file: ") + e.what());  // Todo: Detailed error message
+        QMessageBox::critical(this, "", "Failed to load " + path + "\n" + e.what());  // Todo: Detailed error message
         return false;
     }
 }
@@ -127,15 +129,16 @@ bool MainWindow::saveFile(const QString& path)
 {
     try
     {
+        data = editor->getData();
         data.save(path.toStdString());
-        setWindowModified(false);
         setCurrentFile(path);
+        setWindowModified(false);
 
         return true;
     }
-    catch(...)  // Todo
+    catch(const std::exception& e)  // Todo
     {
-        QMessageBox::warning(this, "", "Failed to save file");  // Todo: Detailed error message
+        QMessageBox::critical(this, "", "Failed to save " + path + "\n" + e.what());  // Todo: Detailed error message
         return false;
     }
 }
@@ -158,6 +161,7 @@ void MainWindow::newFile()
         return;
 
     setCurrentFile(QString());
+    setWindowModified(false);
 }
 
 void MainWindow::open()
@@ -279,7 +283,7 @@ void MainWindow::setCurrentFile(const QString &path)
     setWindowFilePath(current_file.isEmpty() ? "untitled.bow" : current_file);
 }
 
-bool MainWindow::optionalSave()    // true: Discard, false: Cancel
+bool MainWindow::optionalSave()    // true: Discard and save, false: Cancel and don't save
 {
     if(!this->isWindowModified())
         return true;

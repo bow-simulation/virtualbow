@@ -47,24 +47,24 @@ static bool operator!=(const InputData& lhs, const InputData& rhs)
 
 static void to_json(json& obj, const InputData& value)
 {
-    obj["meta"] = value.meta;
-    obj["settings"] = value.settings;
-    obj["profile"] = value.profile;
-    obj["width"] = value.width;
-    obj["layers"] = value.layers;
-    obj["string"] = value.string;
-    obj["masses"] = value.masses;
-    obj["operation"] = value.operation;
+    obj.at("meta") = value.meta;
+    obj.at("settings") = value.settings;
+    obj.at("profile") = value.profile;
+    obj.at("width") = value.width;
+    obj.at("layers") = value.layers;
+    obj.at("string") = value.string;
+    obj.at("masses") = value.masses;
+    obj.at("operation") = value.operation;
 }
 
 static void from_json(const json& obj, InputData& value)
 {
-    value.meta = obj["meta"];
-    value.settings = obj["settings"];
-    value.profile = obj["profile"];
-    value.width = obj["width"];
-    value.layers = obj["layers"].get<Layers>();
-    value.string = obj["string"];
-    value.masses = obj["masses"];
-    value.operation = obj["operation"];
+    value.meta = obj.at("meta");
+    value.settings = obj.at("settings");
+    value.profile = obj.at("profile");
+    value.width = obj.at("width");
+    value.layers = obj.at("layers").get<Layers>();
+    value.string = obj.at("string");
+    value.masses = obj.at("masses");
+    value.operation = obj.at("operation");
 }

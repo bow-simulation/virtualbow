@@ -95,10 +95,11 @@ int Application::run_gui(QApplication& app, QString path)
         #endif
 
         MainWindow window;
+        window.show();
+
         if(!path.isEmpty())
             window.loadFile(path);
 
-        window.show();
         return app.exec();
     }
     catch(const std::runtime_error& e)

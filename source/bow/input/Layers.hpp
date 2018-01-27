@@ -29,16 +29,16 @@ static bool operator!=(const Layer& lhs, const Layer& rhs)
 
 static void to_json(json& obj, const Layer& value)
 {
-    obj["name"] = value.name;
-    obj["height"] = value.height;
-    obj["rho"] = value.rho;
-    obj["E"] = value.E;
+    obj.at("name") = value.name;
+    obj.at("height") = value.height;
+    obj.at("rho") = value.rho;
+    obj.at("E") = value.E;
 }
 
 static void from_json(const json& obj, Layer& value)
 {
-    value.name = obj["name"];
-    value.height = obj["height"];
-    value.rho = obj["rho"];
-    value.E = obj["E"];
+    value.name = obj.at("name");
+    value.height = obj.at("height");
+    value.rho = obj.at("rho");
+    value.E = obj.at("E");
 }
