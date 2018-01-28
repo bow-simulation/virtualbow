@@ -90,14 +90,13 @@ MainWindow::MainWindow()
     restoreState(Application::settings.getValue("MainWindow/state").toByteArray());
     restoreGeometry(Application::settings.getValue("MainWindow/geometry").toByteArray());
 
-    // Set input data of the bow editor
-    data.meta.version = QGuiApplication::applicationVersion().toStdString();
-    editor->setData(data);
-
     QObject::connect(editor, &BowEditor::modified, [&]{
         InputData new_data = editor->getData();
         this->setWindowModified(new_data != data);
     });
+
+    // Set initial input data
+    newFile();
 }
 
 MainWindow::~MainWindow()
@@ -159,6 +158,11 @@ void MainWindow::newFile()
 {
     if(!optionalSave())
         return;
+
+    // Create new file and set version correctly
+    data = InputData();
+    data.meta.version = QGuiApplication::applicationVersion().toStdString();
+    editor->setData(data);
 
     setCurrentFile(QString());
     setWindowModified(false);
