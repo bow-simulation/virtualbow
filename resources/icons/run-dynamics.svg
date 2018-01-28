@@ -7,6 +7,7 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="32mm"
@@ -14,13 +15,35 @@
    viewBox="0 0 32 32"
    version="1.1"
    id="svg8"
-   inkscape:export-filename="/home/s/Desktop/Repositories/bow-simulator/resources/icons/arrow-green.png"
+   inkscape:export-filename="/home/s/Desktop/Repositories/bow-simulator-develop/resources/icons/run-dynamics.png"
    inkscape:export-xdpi="38.099998"
    inkscape:export-ydpi="38.099998"
    inkscape:version="0.92.1 r15371"
-   sodipodi:docname="arrow-green.svg">
+   sodipodi:docname="run-dynamics.svg">
   <defs
-     id="defs2" />
+     id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4505">
+      <stop
+         style="stop-color:#12a311;stop-opacity:1"
+         offset="0"
+         id="stop4501" />
+      <stop
+         style="stop-color:#68ee65;stop-opacity:1"
+         offset="1"
+         id="stop4503" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4505"
+       id="linearGradient4507"
+       x1="58.208244"
+       y1="22.728842"
+       x2="47.360325"
+       y2="3.1496751"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -28,9 +51,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4.5602863"
-     inkscape:cx="27.042506"
-     inkscape:cy="67.458668"
+     inkscape:zoom="5.6568543"
+     inkscape:cx="20.361367"
+     inkscape:cy="55.567604"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -67,7 +90,7 @@
      id="layer1"
      transform="translate(-42.391577,0.0691878)">
     <path
-       style="fill:#14b313;fill-opacity:1;stroke:#000003;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;opacity:1"
+       style="fill:url(#linearGradient4507);fill-opacity:1;stroke:#000003;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;opacity:1"
        d="M 47.095746,29.343423 V 2.88509 l 22.224997,13.229167 z"
        id="path5118"
        inkscape:connector-curvature="0"

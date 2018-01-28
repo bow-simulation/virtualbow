@@ -7,6 +7,7 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="23.536459mm"
@@ -14,13 +15,35 @@
    viewBox="0 0 23.536459 23.536459"
    version="1.1"
    id="svg8"
-   inkscape:export-filename="/home/s/Desktop/Repositories/bow-simulator-develop/resources/icons/disk-green.png"
+   inkscape:export-filename="/home/s/Desktop/Repositories/bow-simulator-develop/resources/icons/show-dynamics.png"
    inkscape:export-xdpi="51.800484"
    inkscape:export-ydpi="51.800484"
    inkscape:version="0.92.1 r15371"
-   sodipodi:docname="disk-green.svg">
+   sodipodi:docname="show-dynamics.svg">
   <defs
-     id="defs2" />
+     id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4487">
+      <stop
+         style="stop-color:#11a311;stop-opacity:1"
+         offset="0"
+         id="stop4483" />
+      <stop
+         style="stop-color:#69ee66;stop-opacity:1"
+         offset="1"
+         id="stop4485" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4487"
+       id="linearGradient4489"
+       x1="19.795771"
+       y1="25.863262"
+       x2="19.795771"
+       y2="9.526412"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -28,9 +51,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.6"
-     inkscape:cx="26.864635"
-     inkscape:cy="36.986728"
+     inkscape:zoom="7.9195959"
+     inkscape:cx="-19.480411"
+     inkscape:cy="41.708922"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -51,7 +74,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -61,7 +84,7 @@
      id="layer1"
      transform="translate(-8.009285,-5.9099035)">
     <rect
-       style="opacity:0.98999999;fill:#14b313;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
+       style="opacity:0.98999999;fill:url(#linearGradient4489);fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
        id="rect4483"
        width="16.536459"
        height="16.536459"
