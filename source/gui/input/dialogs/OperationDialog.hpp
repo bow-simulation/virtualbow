@@ -15,7 +15,7 @@ private:
 
 public:
     OperationDialog(QWidget* parent)
-        : GroupDialog(parent, "Settings", false)
+        : GroupDialog(parent, "Operation", false)
     {
         this->addWidget(edit0);
         this->addWidget(edit1);
