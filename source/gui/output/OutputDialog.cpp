@@ -111,14 +111,14 @@ OutputDialog::OutputDialog(QWidget* parent, const OutputData& output)
         stack->addWidget(new DynamicOutput(output.setup, output.dynamics));
 
     auto bt_statics = new QPushButton("Statics");
-    bt_statics->setIcon(QIcon(":/icons/disk-yellow"));
+    bt_statics->setIcon(QIcon(":/icons/show-statics"));
     bt_statics->setCheckable(true);
     bt_statics->setChecked(true);
     bt_statics->setEnabled(enable_statics);
     bt_statics->setAutoExclusive(true);
 
     auto bt_dynamics = new QPushButton("Dynamics");
-    bt_dynamics->setIcon(QIcon(":/icons/disk-green"));
+    bt_dynamics->setIcon(QIcon(":/icons/show-dynamics"));
     bt_dynamics->setCheckable(true);
     bt_dynamics->setChecked(false);
     bt_dynamics->setEnabled(enable_dynamics);

@@ -19,7 +19,7 @@ public:
 
         // Nodes
         curve1 = new QCPCurve(this->xAxis, this->yAxis);
-        curve1->setScatterStyle({QCPScatterStyle::ssSquare, Qt::blue, 8});
+        curve1->setScatterStyle({QCPScatterStyle::ssSquare, Qt::red, 8});
         curve1->setLineStyle(QCPCurve::lsNone);
         curve1->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
     }
