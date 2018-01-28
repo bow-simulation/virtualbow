@@ -4,7 +4,7 @@ EditableTabBar::EditableTabBar()
 {
     auto button = new QToolButton();
     int height = this->tabBar()->size().height();
-    button->setIcon(QIcon(":/icons/plus"));
+    button->setIcon(QIcon(":/icons/list-add"));
     button->setIconSize({height, height});
     button->setToolTip("Add Layer");
 
