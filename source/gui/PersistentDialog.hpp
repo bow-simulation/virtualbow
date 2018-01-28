@@ -9,7 +9,7 @@ public:
         : BaseDialog(parent), name(name)
     {
         // Load size
-        resize(Application::settings.getValue(name + "/size", size).toSize());
+        resize(Application::settings.value(name + "/size", size).toSize());
     }
 
     virtual ~PersistentDialog()

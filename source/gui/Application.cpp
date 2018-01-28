@@ -6,8 +6,8 @@
 #include <windows.h>
 #endif
 
-const std::string Application::version = "0.4";
-UserSettings Application::settings = UserSettings();
+const std::string Application::version{"0.4"};
+QSettings Application::settings{"bow-simulator.org", "bow-simulator"};
 
 int Application::run(int argc, char* argv[])
 {
@@ -17,9 +17,6 @@ int Application::run(int argc, char* argv[])
     app.setApplicationVersion(QString::fromStdString(version));
     app.setOrganizationDomain("bow-simulator.org");
     setlocale(LC_NUMERIC, "C");
-
-    // Load settings
-    settings.load();
 
     // Parse command line arguments
     QCommandLineOption statics({"s", "static"}, "Perform a static simulation.");
@@ -44,8 +41,6 @@ int Application::run(int argc, char* argv[])
     bool input_set = (pos_args.size() > 0);
     bool output_set = (pos_args.size() > 1);
     bool mode_set = (parser.isSet(statics) || parser.isSet(dynamics));
-
-    int success;    // Return value
 
     if(output_set || mode_set)  // Run Batch
     {
@@ -73,20 +68,15 @@ int Application::run(int argc, char* argv[])
             dynamics_set = true;
         }
 
-        success = run_cli(input_path, output_path, dynamics_set);
+        return runCLI(input_path, output_path, dynamics_set);
     }
-    else // Run GUI
+    else
     {
-        success = run_gui(app, input_set ? pos_args[0] : "");
+        return runGUI(app, input_set ? pos_args[0] : "");
     }
-
-    // Save settings
-    settings.save();
-
-    return success;
 }
 
-int Application::run_gui(QApplication& app, QString path)
+int Application::runGUI(QApplication& app, QString path)
 {
     try
     {
@@ -109,7 +99,7 @@ int Application::run_gui(QApplication& app, QString path)
     }
 }
 
-int Application::run_cli(QString input_path, QString output_path, bool dynamic)
+int Application::runCLI(QString input_path, QString output_path, bool dynamic)
 {
     try
     {

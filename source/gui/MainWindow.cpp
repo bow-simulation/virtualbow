@@ -87,8 +87,8 @@ MainWindow::MainWindow()
     setCurrentFile(QString());
 
     // Load geometry and state
-    restoreState(Application::settings.getValue("MainWindow/state").toByteArray());
-    restoreGeometry(Application::settings.getValue("MainWindow/geometry").toByteArray());
+    restoreState(Application::settings.value("MainWindow/state").toByteArray());
+    restoreGeometry(Application::settings.value("MainWindow/geometry").toByteArray());
 
     QObject::connect(editor, &BowEditor::modified, [&]{
         InputData new_data = editor->getData();
