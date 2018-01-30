@@ -6,6 +6,9 @@ import shutil
 generator = "NMake Makefiles"    # "Visual Studio 15 2017 Win64"
 qt_path = "C:/Qt/5.9.1/msvc2015"
 
+def ensure_os_specific_dependencies():
+   return
+
 def build_vtk(source_dir, build_dir, output_dir):
     subprocess.call(["cmake",
     "-H" + source_dir,
@@ -20,7 +23,7 @@ def build_vtk(source_dir, build_dir, output_dir):
     "-DQt5_DIR=" + qt_path + "/lib/cmake/Qt5"])
 
     subprocess.call(["cmake", "--build", build_dir, "--target", "install"])
-    
+
 # Todo: Parametrize over Qt directory
 def build_application(source_dir, build_dir, output_dir):
     subprocess.call(["cmake",
@@ -38,7 +41,7 @@ def build_application(source_dir, build_dir, output_dir):
     shutil.copy("C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/redist/x86/Microsoft.VC140.CRT/msvcp140.dll", output_dir + "/bin")
     shutil.copy("C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/redist/x86/Microsoft.VC140.CRT/vcruntime140.dll", output_dir + "/bin")
     subprocess.call(["rcedit", output_dir + "/bin/bow-simulator.exe", "--set-icon", "resources/icons/logo.ico"])
-    
+
 def build_packages(version, build_dir, output_dir):
     subprocess.call(["ISCC", "platforms/windows/setup.iss",
                      "/O" + output_dir,
