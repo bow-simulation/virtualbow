@@ -47,14 +47,14 @@ static bool operator!=(const InputData& lhs, const InputData& rhs)
 
 static void to_json(json& obj, const InputData& value)
 {
-    obj.at("meta") = value.meta;
-    obj.at("settings") = value.settings;
-    obj.at("profile") = value.profile;
-    obj.at("width") = value.width;
-    obj.at("layers") = value.layers;
-    obj.at("string") = value.string;
-    obj.at("masses") = value.masses;
-    obj.at("operation") = value.operation;
+    obj["meta"] = value.meta;
+    obj["settings"] = value.settings;
+    obj["profile"] = value.profile;
+    obj["width"] = value.width;
+    obj["layers"] = value.layers;
+    obj["string"] = value.string;
+    obj["masses"] = value.masses;
+    obj["operation"] = value.operation;
 }
 
 static void from_json(const json& obj, InputData& value)

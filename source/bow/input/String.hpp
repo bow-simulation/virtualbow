@@ -24,9 +24,9 @@ static bool operator!=(const String& lhs, const String& rhs)
 
 static void to_json(json& obj, const String& value)
 {
-    obj.at("strand_stiffness") = value.strand_stiffness;
-    obj.at("strand_density") = value.strand_density;
-    obj.at("n_strands") = value.n_strands;
+    obj["strand_stiffness"] = value.strand_stiffness;
+    obj["strand_density"] = value.strand_density;
+    obj["n_strands"] = value.n_strands;
 }
 
 static void from_json(const json& obj, String& value)

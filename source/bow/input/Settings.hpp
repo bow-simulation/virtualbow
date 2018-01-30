@@ -30,12 +30,12 @@ static bool operator!=(const Settings& lhs, const Settings& rhs)
 
 static void to_json(json& obj, const Settings& value)
 {
-    obj.at("n_elements_limb") = value.n_elements_limb;
-    obj.at("n_elements_string") = value.n_elements_string;
-    obj.at("n_draw_steps") = value.n_draw_steps;
-    obj.at("time_span_factor") = value.time_span_factor;
-    obj.at("time_step_factor") = value.time_step_factor;
-    obj.at("sampling_rate") = value.sampling_rate;
+    obj["n_elements_limb"] = value.n_elements_limb;
+    obj["n_elements_string"] = value.n_elements_string;
+    obj["n_draw_steps"] = value.n_draw_steps;
+    obj["time_span_factor"] = value.time_span_factor;
+    obj["time_step_factor"] = value.time_step_factor;
+    obj["sampling_rate"] = value.sampling_rate;
 }
 
 static void from_json(const json& obj, Settings& value)

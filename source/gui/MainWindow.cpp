@@ -238,8 +238,8 @@ void MainWindow::runSimulation(bool dynamic)
 
         try
         {
-            output = dynamic ? BowModel::run_dynamic_simulation(data, progress0, progress1)
-                             : BowModel::run_static_simulation(data, progress0);
+            output = dynamic ? BowModel::run_dynamic_simulation(editor->getData(), progress0, progress1)
+                             : BowModel::run_static_simulation(editor->getData(), progress0);
 
             QMetaObject::invokeMethod(&dialog, "accept", Qt::QueuedConnection);
         }
@@ -294,6 +294,7 @@ bool MainWindow::optionalSave()    // true: Discard and save, false: Cancel and 
 
     auto pick = QMessageBox::warning(this, "", "The document has been modified.\nDo you want to save your changes?",
                 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+
     switch(pick)
     {
         case QMessageBox::Save: return save();

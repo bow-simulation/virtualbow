@@ -47,6 +47,6 @@ static void to_json(json& obj, const Series& val)
 
 static void from_json(const json& obj, Series& val)
 {
-    val.m_args = obj["args"].get<std::vector<double>>();
-    val.m_vals = obj["vals"].get<std::vector<double>>();
+    val.m_args = obj.at("args").get<std::vector<double>>();
+    val.m_vals = obj.at("vals").get<std::vector<double>>();
 }

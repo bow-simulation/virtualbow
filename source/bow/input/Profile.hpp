@@ -27,10 +27,10 @@ static bool operator!=(const Profile& lhs, const Profile& rhs)
 
 static void to_json(json& obj, const Profile& value)
 {
-    obj.at("segments") = value.segments;
-    obj.at("x0") = value.x0;
-    obj.at("y0") = value.y0;
-    obj.at("phi0") = value.phi0;
+    obj["segments"] = value.segments;
+    obj["x0"] = value.x0;
+    obj["y0"] = value.y0;
+    obj["phi0"] = value.phi0;
 }
 
 static void from_json(const json& obj, Profile& value)

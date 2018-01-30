@@ -24,9 +24,9 @@ static bool operator!=(const Masses& lhs, const Masses& rhs)
 
 static void to_json(json& obj, const Masses& value)
 {
-    obj.at("string_center") = value.string_center;
-    obj.at("string_tip") = value.string_tip;
-    obj.at("limb_tip") = value.limb_tip;
+    obj["string_center"] = value.string_center;
+    obj["string_tip"] = value.string_tip;
+    obj["limb_tip"] = value.limb_tip;
 }
 
 static void from_json(const json& obj, Masses& value)
