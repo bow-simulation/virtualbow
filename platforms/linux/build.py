@@ -4,9 +4,12 @@ import subprocess
 import shutil
 import tarfile
 
+def ensure_os_specific_dependencies():
+    subprocess.call(["sudo", "apt", "install", "-y",
+                     "cmake", "qtbase5-dev", "libqt5x11extras5-dev", "libxt-dev"
+    ])
+
 def build_vtk(source_dir, build_dir, output_dir):
-    subprocess.call(["apt", "install", "-y", "qtbase5-dev", "libqt5x11extras5-dev", "libxt-dev"])
-    
     subprocess.call(["cmake",
     "-H" + source_dir,
     "-B" + build_dir,
@@ -46,7 +49,7 @@ def create_install_tree(output_dir):
     # Executable
     os.makedirs(output_dir + "/usr/local/bin")
     shutil.copy("build/bow-simulator/bin/bow-simulator", output_dir + "/usr/local/bin")    # Todo: Repetition
-    
+
     # Icon
     os.makedirs(output_dir + "/usr/share/pixmaps")
     shutil.copyfile("resources/icons/logo.png", output_dir + "/usr/share/pixmaps/bow-simulator.png")
@@ -70,7 +73,7 @@ def build_deb_package(version, build_dir, output_dir):
                   "Description: Bow and arrow physics simulation\n"
                   "Depends: qt5-default\n")
     control.close()
-    
+
     # Build package
     subprocess.call(["dpkg-deb", "--build", build_dir, output_dir + "/bow_simulator-" + version + "-" + "linux64" + ".deb"])
 
@@ -104,7 +107,7 @@ def build_snap_package(version, build_dir, output_dir):
                "    configflags: [-DCMAKE_BUILD_TYPE=Release]\n"
                "    after: [desktop-qt5]\n")
     file.close()
-    
+
     # Build package    # Todo: Set input and output folders for snapcraft
     cwd = os.getcwd()
     os.chdir(build_dir)
