@@ -66,6 +66,7 @@ add_executable(${PROJECT_NAME}
     source/gui/input/editors/DoubleEditor.hpp
     source/gui/input/editors/IntegerEditor.hpp
     source/gui/input/editors/LayerEditor.hpp
+    source/gui/input/editors/SeriesEditor.cpp
     source/gui/input/editors/SeriesEditor.hpp
     source/gui/input/editors/TreeEditor.cpp
     source/gui/input/editors/TreeEditor.hpp
