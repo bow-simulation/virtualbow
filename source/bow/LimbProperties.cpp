@@ -69,7 +69,7 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n_elements_limb)
         hc[i] = h_i;
         Cee[i] = input.layers[0].E*A;
         Ckk[i] = input.layers[0].E*I;
-        Cek[i] = input.layers[0].E*A*h_i/2.0;
+        Cek[i] = 0.0;
         rhoA[i] = input.layers[0].rho*A;
     }
 
@@ -81,8 +81,8 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n_elements_limb)
     for(size_t i = 0; i < s.size(); ++i)
     {
         layers[0].s[i] = s[i];
-        layers[0].y_back[i] = 0.0;
-        layers[0].y_belly[i] = -height.val(i);
+        layers[0].y_back[i] = 0.5*height.val(i);
+        layers[0].y_belly[i] = -0.5*height.val(i);
     }
 }
 

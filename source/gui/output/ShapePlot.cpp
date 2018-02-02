@@ -89,13 +89,23 @@ void ShapePlot::plotIntermediateStates()
 
 void ShapePlot::plotLimbOutline(QCPCurve* left, QCPCurve* right, const VectorXd& x, const VectorXd& y, const VectorXd& phi)
 {
-    left->setData(-x, y);
-    right->setData(x, y);
+    left->data()->clear();
+    right->data()->clear();
 
+    // Iterate forward and draw back
+    for(int i = 0; i < phi.size(); ++i)
+    {
+        double xi = x[i] - 0.5*setup.limb.h[i]*sin(phi[i]);
+        double yi = y[i] + 0.5*setup.limb.h[i]*cos(phi[i]);
+        left->addData(-xi, yi);
+        right->addData(xi, yi);
+    }
+
+    // Iterate backward and plot belly
     for(int i = phi.size()-1; i >= 0; --i)
     {
-        double xi = x[i] + setup.limb.h[i]*sin(phi[i]);
-        double yi = y[i] - setup.limb.h[i]*cos(phi[i]);
+        double xi = x[i] + 0.5*setup.limb.h[i]*sin(phi[i]);
+        double yi = y[i] - 0.5*setup.limb.h[i]*cos(phi[i]);
         left->addData(-xi, yi);
         right->addData(xi, yi);
     }
@@ -118,8 +128,9 @@ void ShapePlot::setAxesRanges()
     expand(setup.limb.x, setup.limb.y);
     for(size_t i = 0; i < states.time.size(); ++i)
     {
-        expand(states.x_limb[i], states.y_limb[i]);
-        expand(states.x_string[i], states.y_string[i]);
+        // Add 0.5*height as an estimated upper bound
+        expand(states.x_limb[i] + 0.5*setup.limb.h, states.y_limb[i] + 0.5*setup.limb.h);
+        expand(states.x_string[i] + 0.5*setup.limb.h, states.y_string[i] + 0.5*setup.limb.h);
     }
 
     this->setAxesLimits(x_range, y_range);

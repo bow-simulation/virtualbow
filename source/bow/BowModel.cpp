@@ -94,8 +94,8 @@ void BowModel::init_string(const Callback& callback)
     {
         points.push_back({
             // Add small initial penetration epsilon to prevent slip-through on the first static solver iteration
-            system.get_u(nodes_limb[i].x) + (output.setup.limb.h[i] - epsilon)*sin(system.get_u(nodes_limb[i].phi)),
-            system.get_u(nodes_limb[i].y) - (output.setup.limb.h[i] - epsilon)*cos(system.get_u(nodes_limb[i].phi))
+            system.get_u(nodes_limb[i].x) + (0.5*output.setup.limb.h[i] - epsilon)*sin(system.get_u(nodes_limb[i].phi)),
+            system.get_u(nodes_limb[i].y) - (0.5*output.setup.limb.h[i] - epsilon)*cos(system.get_u(nodes_limb[i].phi))
         });
     }
 
@@ -123,7 +123,7 @@ void BowModel::init_string(const Callback& callback)
 
     ContactHandler contact(system, ContactForce(k, epsilon));
     for(size_t i = 1; i < nodes_limb.size(); ++i)
-        contact.add_segment(nodes_limb[i-1], nodes_limb[i], output.setup.limb.h[i-1], output.setup.limb.h[i]);
+        contact.add_segment(nodes_limb[i-1], nodes_limb[i], 0.5*output.setup.limb.h[i-1], 0.5*output.setup.limb.h[i]);
 
     for(size_t i = 0; i < nodes_string.size()-1; ++i)    // Don't include the last string node (tip)
         contact.add_point(nodes_string[i]);
