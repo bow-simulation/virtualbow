@@ -1,50 +1,48 @@
 /*
 #include "numerics/Eigen.hpp"
 #include "bow/input/InputData.hpp"
+#include "bow/LimbProperties.hpp"
 #include "numerics/ArcCurve.hpp"
-
-struct LimbProperties2
-{
-    // Geometry
-    VectorXd s;
-    VectorXd x;
-    VectorXd y;
-    VectorXd phi;
-    VectorXd w;
-    VectorXd h;
-
-    // Section properties
-    VectorXd rhoA;   // Linear density
-    VectorXd Cee;    // Longitudinal stiffness
-    VectorXd Ckk;    // Bending stiffness
-    VectorXd Cek;    // Coupling term
-
-    // n: Number of points
-    LimbProperties2(const InputData& input, unsigned n)
-        : s(n), x(n), y(n), phi(n), w(n), h(n), rhoA(n), Cee(n), Ckk(n), Cek(n)
-    {
-        // 1. Profile curve
-        Curve2D curve = ArcCurve::sample(input.profile.segments, input.profile.x0,
-                                         input.profile.y0, input.profile.phi0, n-1);
-
-        // Todo: Is there a more elegant way? Maybe have a Curve2D member?
-        s = curve.s;
-        x = curve.x;
-        y = curve.y;
-        phi = curve.phi;
-
-        // 2. Section properties
-        Series width = CubicSpline::sample(input.width, n_elements_limb);
-    }
-};
-
 
 int main()
 {
     InputData input;
-    LimbProperties2 limb(input, 10);
+    LimbProperties limb(input, 10);
+
+    return 0;
+}
+*/
+
+/*
+#include <vector>
+#include <numeric>
+#include <iostream>
+
+std::vector<double> get_section_centers(const std::vector<double>& heights)
+{
+    double h_total = std::accumulate(heights.begin(), heights.end(), 0.0);
+
+    std::vector<double> z_center;
+
+    double z_bottom = -0.5*h_total;
+    for(double h: heights)
+    {
+        z_center.push_back(z_bottom + 0.5*h);
+        z_bottom += h;
+    }
+
+    return z_center;
+}
 
 
+int main()
+{
+    std::vector<double> heights{1.0, 2.0, 3.0, 4.0, 5.0};
+
+    std::vector<double> z_center = get_section_centers(heights);
+
+    for(double z: z_center)
+        std::cout << z << "\n";
 
     return 0;
 }

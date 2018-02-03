@@ -420,6 +420,6 @@ void BowModel::add_state(BowStates& states) const
         }
     }
 
-    states.sigma_back.push_back(output.setup.limb.layers[0].sigma_back(epsilon, kappa));
-    states.sigma_belly.push_back(output.setup.limb.layers[0].sigma_belly(epsilon, kappa));
+    // states.sigma_back.push_back(output.setup.limb.layers[0].sigma_back(epsilon, kappa));
+    // states.sigma_belly.push_back(output.setup.limb.layers[0].sigma_belly(epsilon, kappa));
 }

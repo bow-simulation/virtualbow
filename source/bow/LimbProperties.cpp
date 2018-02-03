@@ -1,23 +1,7 @@
 #include "LimbProperties.hpp"
 #include "bow/input/InputData.hpp"
-
-LayerProperties::LayerProperties(size_t n)
-    : s(n), y_back(n), y_belly(n)
-{
-
-}
-
-VectorXd LayerProperties::sigma_back(const VectorXd& epsilon, const VectorXd& kappa) const
-{
-    return E*(epsilon - y_back.cwiseProduct(kappa));
-}
-
-VectorXd LayerProperties::sigma_belly(const VectorXd& epsilon, const VectorXd& kappa) const
-{
-    return E*(epsilon - y_belly.cwiseProduct(kappa));
-}
-
-
+#include "numerics/ArcCurve.hpp"
+#include "numerics/CubicSpline.hpp"
 
 LimbProperties::LimbProperties(const InputData& input)
     : LimbProperties(input, input.settings.n_elements_limb)
@@ -26,17 +10,16 @@ LimbProperties::LimbProperties(const InputData& input)
 }
 
 LimbProperties::LimbProperties(const InputData& input, unsigned n_elements_limb)
-    : s(n_elements_limb + 1),
-      x(n_elements_limb + 1),
-      y(n_elements_limb + 1),
-      w(n_elements_limb + 1),
-      h(n_elements_limb + 1),
-      phi(n_elements_limb + 1),
-      hc(n_elements_limb + 1),
-      Cee(n_elements_limb + 1),
-      Ckk(n_elements_limb + 1),
-      Cek(n_elements_limb + 1),
-      rhoA(n_elements_limb + 1)
+    : s(VectorXd::Zero(n_elements_limb + 1)),
+      x(VectorXd::Zero(n_elements_limb + 1)),
+      y(VectorXd::Zero(n_elements_limb + 1)),
+      phi(VectorXd::Zero(n_elements_limb + 1)),
+      w(VectorXd::Zero(n_elements_limb + 1)),
+      h(VectorXd::Zero(n_elements_limb + 1)),
+      Cee(VectorXd::Zero(n_elements_limb + 1)),
+      Ckk(VectorXd::Zero(n_elements_limb + 1)),
+      Cek(VectorXd::Zero(n_elements_limb + 1)),
+      rhoA(VectorXd::Zero(n_elements_limb + 1))
 {
     // 1. Nodes
     Curve2D curve = ArcCurve::sample(input.profile.segments,
@@ -45,35 +28,49 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n_elements_limb)
                                      input.profile.phi0,
                                      n_elements_limb);
 
-    // Todo: Is there a more elegant way? Maybe have a Curve2D member?
+    // Todo: Is there a more elegant way? Maybe have a Curve2D member? C++17 structured bindings?
     s = curve.s;
     x = curve.x;
     y = curve.y;
     phi = curve.phi;
 
-    // 2. Sections
+    // 2. Sections properties
     Series width = CubicSpline::sample(input.width, n_elements_limb);
-    Series height = CubicSpline::sample(input.layers[0].height, n_elements_limb);
 
+    std::vector<Series> heights;
+    for(auto& layer: input.layers)
+        heights.push_back(CubicSpline::sample(layer.height, n_elements_limb));
+
+    // i: Limb index
     for(size_t i = 0; i < s.size(); ++i)
     {
-        double w_i = width.val(i);
-        double h_i = height.val(i);
+        // Width
+        w[i] = width.val(i);
 
-        double A = w_i*h_i;
-        double I = A*h_i*h_i/3.0;
+        // Total height
+        for(auto& height: heights)
+            h[i] += height.val(i);
 
-        w[i] = w_i;
-        h[i] = h_i;
+        // j: Layer index
+        double y_bottom = -0.5*h[i];
+        for(size_t j = 0; j < input.layers.size(); ++j)
+        {
+            double h = heights[j].val(i);
+            double y = y_bottom + 0.5*h;
+            double A = w[i]*h;
+            double I = A*(h*h/12.0 + y*y);
 
-        hc[i] = h_i;
-        Cee[i] = input.layers[0].E*A;
-        Ckk[i] = input.layers[0].E*I;
-        Cek[i] = 0.0;
-        rhoA[i] = input.layers[0].rho*A;
+            Cee[i] += input.layers[j].E*A;
+            Ckk[i] += input.layers[j].E*I;
+            Cek[i] -= input.layers[j].E*A*y;
+            rhoA[i] += input.layers[j].rho*A;
+
+            y_bottom += h;
+        }
     }
 
-    // 3. Layers
+    /*
+    // 3. Layer properties
 
     layers.push_back({n_elements_limb + 1});
     layers[0].E = input.layers[0].E;
@@ -84,6 +81,7 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n_elements_limb)
         layers[0].y_back[i] = 0.5*height.val(i);
         layers[0].y_belly[i] = -0.5*height.val(i);
     }
+    */
 }
 
 LimbProperties::LimbProperties()

@@ -13,7 +13,7 @@ StaticOutput::StaticOutput(const SetupData& setup, const StaticData& statics)
     vbox->setMargin(0);
 
     auto plot_shapes = new ShapePlot(setup, statics.states, true);
-    auto plot_stress = new StressPlot(setup, statics.states);
+    // auto plot_stress = new StressPlot(setup, statics.states);
     auto plot_energy = new EnergyPlot(statics.states, statics.states.draw_length, "Draw length [m]");
     auto plot_combo = new ComboPlot();
     plot_combo->addData("Draw length [m]", statics.states.draw_length);
@@ -34,14 +34,14 @@ StaticOutput::StaticOutput(const SetupData& setup, const StaticData& statics)
     auto tabs = new QTabWidget();
     vbox->addWidget(tabs);
     tabs->addTab(plot_shapes, "Shape");
-    tabs->addTab(plot_stress, "Stress");
+    // tabs->addTab(plot_stress, "Stress");
     tabs->addTab(plot_energy, "Energy");
     tabs->addTab(plot_combo, "Other Plots");
     tabs->addTab(grid, "Special Values");
 
     auto slider = new Slider(statics.states.draw_length, "Draw length [m]:");
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
-    QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
+    // QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_energy, &EnergyPlot::setStateIndex);
     emit slider->valueChanged(0);
     vbox->addWidget(slider);
@@ -54,7 +54,7 @@ DynamicOutput::DynamicOutput(const SetupData& setup, const DynamicData& dynamics
     vbox->setMargin(0);
 
     auto plot_shapes = new ShapePlot(setup, dynamics.states, false);
-    auto plot_stress = new StressPlot(setup, dynamics.states);
+    // auto plot_stress = new StressPlot(setup, dynamics.states);
     auto plot_energy = new EnergyPlot(dynamics.states, dynamics.states.time, "Time [s]");
     auto plot_combo = new ComboPlot();
     plot_combo->addData("Time [s]", dynamics.states.time);
@@ -79,14 +79,14 @@ DynamicOutput::DynamicOutput(const SetupData& setup, const DynamicData& dynamics
     auto tabs = new QTabWidget();
     vbox->addWidget(tabs);
     tabs->addTab(plot_shapes, "Shape");
-    tabs->addTab(plot_stress, "Stress");
+    // tabs->addTab(plot_stress, "Stress");
     tabs->addTab(plot_energy, "Energy");
     tabs->addTab(plot_combo, "Other Plots");
     tabs->addTab(grid, "Special Values");
 
     auto slider = new Slider(dynamics.states.time, "Time [s]:");
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
-    QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
+    // QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_energy, &EnergyPlot::setStateIndex);
     emit slider->valueChanged(0);
     vbox->addWidget(slider);
