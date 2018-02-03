@@ -11,7 +11,7 @@ public:
           edit(new QLineEdit()),
           changed(false)
     {
-        label->setAlignment(Qt::AlignRight);
+        label->setAlignment(Qt::AlignRight | Qt::AlignCenter);
         edit->setValidator(new QDoubleValidator());
         edit->setFixedWidth(140);    // Magic number, equal to IntegerEditor
 

@@ -10,7 +10,7 @@ public:
         : label(new QLabel(text)),
           edit(new QSpinBox())
     {
-        label->setAlignment(Qt::AlignRight);
+        label->setAlignment(Qt::AlignRight | Qt::AlignCenter);
         edit->setFixedWidth(140);    // Magic number, equal to DoubleEditor
         edit->setMinimum(std::numeric_limits<int>::min());
         edit->setMaximum(std::numeric_limits<int>::max());
