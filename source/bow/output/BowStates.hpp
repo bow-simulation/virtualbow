@@ -31,8 +31,8 @@ struct BowStates
     std::vector<VectorXd> x_string;
     std::vector<VectorXd> y_string;
 
-    std::vector<VectorXd> sigma_back;
-    std::vector<VectorXd> sigma_belly;
+    std::vector<VectorXd> epsilon;
+    std::vector<VectorXd> kappa;
 };
 
 static void to_json(json& obj, const BowStates& val)
@@ -56,6 +56,6 @@ static void to_json(json& obj, const BowStates& val)
     obj["phi_limb"] = val.phi_limb;
     obj["x_string"] = val.x_string;
     obj["y_string"] = val.y_string;
-    obj["sigma_back"] = val.sigma_back;
-    obj["sigma_belly"] = val.sigma_belly;
+    obj["epsilon"] = val.epsilon;
+    obj["kappa"] = val.kappa;
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include "LayerProperties.hpp"
 #include "numerics/Eigen.hpp"
 #include <json.hpp>
 
@@ -13,6 +14,8 @@ struct LimbProperties
     VectorXd x;
     VectorXd y;
     VectorXd phi;
+
+    // Section geometry
     VectorXd w;
     VectorXd h;
 
@@ -23,10 +26,10 @@ struct LimbProperties
     VectorXd rhoA;
 
     // Layer properties
-    // std::vector<LayerProperties> layers;
+    std::vector<LayerProperties> layers;
 
     LimbProperties(const InputData& input);
-    LimbProperties(const InputData& input, unsigned n_elements_limb);
+    LimbProperties(const InputData& input, unsigned n);
     LimbProperties();
 };
 

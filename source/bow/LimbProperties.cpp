@@ -4,29 +4,29 @@
 #include "numerics/CubicSpline.hpp"
 
 LimbProperties::LimbProperties(const InputData& input)
-    : LimbProperties(input, input.settings.n_elements_limb)
+    : LimbProperties(input, input.settings.n_elements_limb + 1)
 {
 
 }
 
-LimbProperties::LimbProperties(const InputData& input, unsigned n_elements_limb)
-    : s(VectorXd::Zero(n_elements_limb + 1)),
-      x(VectorXd::Zero(n_elements_limb + 1)),
-      y(VectorXd::Zero(n_elements_limb + 1)),
-      phi(VectorXd::Zero(n_elements_limb + 1)),
-      w(VectorXd::Zero(n_elements_limb + 1)),
-      h(VectorXd::Zero(n_elements_limb + 1)),
-      Cee(VectorXd::Zero(n_elements_limb + 1)),
-      Ckk(VectorXd::Zero(n_elements_limb + 1)),
-      Cek(VectorXd::Zero(n_elements_limb + 1)),
-      rhoA(VectorXd::Zero(n_elements_limb + 1))
+LimbProperties::LimbProperties(const InputData& input, unsigned n)
+    : s(VectorXd::Zero(n)),
+      x(VectorXd::Zero(n)),
+      y(VectorXd::Zero(n)),
+      phi(VectorXd::Zero(n)),
+      w(VectorXd::Zero(n)),
+      h(VectorXd::Zero(n)),
+      Cee(VectorXd::Zero(n)),
+      Ckk(VectorXd::Zero(n)),
+      Cek(VectorXd::Zero(n)),
+      rhoA(VectorXd::Zero(n))
 {
     // 1. Nodes
     Curve2D curve = ArcCurve::sample(input.profile.segments,
                                      input.profile.x0,
                                      input.profile.y0,
                                      input.profile.phi0,
-                                     n_elements_limb);
+                                     n-1);
 
     // Todo: Is there a more elegant way? Maybe have a Curve2D member? C++17 structured bindings?
     s = curve.s;
@@ -35,11 +35,11 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n_elements_limb)
     phi = curve.phi;
 
     // 2. Sections properties
-    Series width = CubicSpline::sample(input.width, n_elements_limb);
+    Series width = CubicSpline::sample(input.width, n-1);
 
     std::vector<Series> heights;
     for(auto& layer: input.layers)
-        heights.push_back(CubicSpline::sample(layer.height, n_elements_limb));
+        heights.push_back(CubicSpline::sample(layer.height, n-1));
 
     // i: Limb index
     for(size_t i = 0; i < s.size(); ++i)
@@ -69,19 +69,30 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n_elements_limb)
         }
     }
 
-    /*
     // 3. Layer properties
 
-    layers.push_back({n_elements_limb + 1});
-    layers[0].E = input.layers[0].E;
+    LayerProperties layer;
 
-    for(size_t i = 0; i < s.size(); ++i)
+    layer.s = VectorXd::Zero(n);
+    layer.y_back = VectorXd::Zero(n);
+    layer.y_belly = VectorXd::Zero(n);
+    layer.He_back = MatrixXd::Zero(n, n);
+    layer.He_belly = MatrixXd::Zero(n, n);
+    layer.Hk_back = MatrixXd::Zero(n, n);
+    layer.Hk_belly = MatrixXd::Zero(n, n);
+
+    for(size_t i = 0; i < n; ++i)
     {
-        layers[0].s[i] = s[i];
-        layers[0].y_back[i] = 0.5*height.val(i);
-        layers[0].y_belly[i] = -0.5*height.val(i);
+        layer.s(i) = s(i);
+
+        layer.He_back(i, i) =  input.layers[0].E;
+        layer.Hk_back(i, i) = -input.layers[0].E*0.5*heights[0].val(i);
+
+        layer.He_belly(i, i) = input.layers[0].E;
+        layer.Hk_belly(i, i) = input.layers[0].E*0.5*heights[0].val(i);
     }
-    */
+
+    layers.push_back(layer);
 }
 
 LimbProperties::LimbProperties()
