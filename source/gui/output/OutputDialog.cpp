@@ -26,10 +26,10 @@ StaticOutput::StaticOutput(const SetupData& setup, const StaticData& statics)
     plot_combo->setCombination(0, 1);
 
     auto grid = new OutputGrid();
-    grid->add(0, 0, "String length:", "m", setup.string_length);
-    grid->add(1, 0, "Final draw force:", "N", statics.final_draw_force);
-    grid->add(0, 2, "Drawing work:", "J", statics.drawing_work);
-    grid->add(1, 2, "Storage ratio:", "", statics.storage_ratio);
+    grid->add(0, 0, "String length [m]", setup.string_length);
+    grid->add(1, 0, "Final draw force [N]", statics.final_draw_force);
+    grid->add(2, 0, "Drawing work [J]", statics.drawing_work);
+    grid->add(3, 0, "Storage ratio", statics.storage_ratio);
 
     auto tabs = new QTabWidget();
     vbox->addWidget(tabs);
@@ -72,9 +72,9 @@ DynamicOutput::DynamicOutput(const SetupData& setup, const DynamicData& dynamics
     plot_combo->setCombination(0, 1);
 
     auto grid = new OutputGrid();
-    grid->add(0, 0, "Final arrow velocity:", "m/s", dynamics.final_arrow_velocity);
-    grid->add(1, 0, "Final arrow energy:", "J", dynamics.final_arrow_energy);
-    grid->add(0, 1, "Efficiency:", "", dynamics.efficiency);
+    grid->add(0, 0, "Final arrow velocity [m/s]", dynamics.final_arrow_velocity);
+    grid->add(1, 0, "Final arrow energy [J]", dynamics.final_arrow_energy);
+    grid->add(2, 0, "Efficiency", dynamics.efficiency);
 
     auto tabs = new QTabWidget();
     vbox->addWidget(tabs);
