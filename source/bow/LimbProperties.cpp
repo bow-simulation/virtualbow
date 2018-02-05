@@ -3,6 +3,9 @@
 #include "numerics/ArcCurve.hpp"
 #include "numerics/CubicSpline.hpp"
 
+#include <QtCore>
+#include <iostream>
+
 LimbProperties::LimbProperties(const InputData& input)
     : LimbProperties(input, input.settings.n_elements_limb + 1)
 {
@@ -39,9 +42,12 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
 
     std::vector<Series> heights;
     for(auto& layer: input.layers)
+    {
         heights.push_back(CubicSpline::sample(layer.height, n-1));
+        layers.push_back(LayerProperties(n, n));
+    }
 
-    // i: Limb index
+    // i: Section index
     for(size_t i = 0; i < s.size(); ++i)
     {
         // Width
@@ -60,39 +66,51 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
             double A = w[i]*h;
             double I = A*(h*h/12.0 + y*y);
 
+            // Limb properties
+
             Cee[i] += input.layers[j].E*A;
             Ckk[i] += input.layers[j].E*I;
             Cek[i] -= input.layers[j].E*A*y;
             rhoA[i] += input.layers[j].rho*A;
+
+            // Layer properties
+
+            layers[j].s(i) = s[i];
+
+            layers[j].y_back(i) = y + 0.5*h;
+            layers[j].y_belly(i) = y - 0.5*h;
+
+            layers[j].He_back(i, i) =  input.layers[j].E;
+            layers[j].He_belly(i, i) = input.layers[j].E;
+
+            layers[j].Hk_back(i, i) = -input.layers[j].E*layers[j].y_back(i);
+            layers[j].Hk_belly(i, i) = -input.layers[j].E*layers[j].y_belly(i);
+
+            // Next layer
 
             y_bottom += h;
         }
     }
 
     // 3. Layer properties
-
-    LayerProperties layer;
-
-    layer.s = VectorXd::Zero(n);
-    layer.y_back = VectorXd::Zero(n);
-    layer.y_belly = VectorXd::Zero(n);
-    layer.He_back = MatrixXd::Zero(n, n);
-    layer.He_belly = MatrixXd::Zero(n, n);
-    layer.Hk_back = MatrixXd::Zero(n, n);
-    layer.Hk_belly = MatrixXd::Zero(n, n);
-
+    /*
+    LayerProperties layer(n, n);
     for(size_t i = 0; i < n; ++i)
     {
         layer.s(i) = s(i);
 
-        layer.He_back(i, i) =  input.layers[0].E;
-        layer.Hk_back(i, i) = -input.layers[0].E*0.5*heights[0].val(i);
+        layer.y_back(i) = 0.5*heights[0].val(i);
+        layer.y_belly(i) = -0.5*heights[0].val(i);
 
+        layer.He_back(i, i) =  input.layers[0].E;
         layer.He_belly(i, i) = input.layers[0].E;
-        layer.Hk_belly(i, i) = input.layers[0].E*0.5*heights[0].val(i);
+
+        layer.Hk_back(i, i) = input.layers[0].E*layer.y_back(i);
+        layer.Hk_belly(i, i) = input.layers[0].E*layer.y_belly(i);
     }
 
     layers.push_back(layer);
+    */
 }
 
 LimbProperties::LimbProperties()

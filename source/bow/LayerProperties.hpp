@@ -17,6 +17,19 @@ struct LayerProperties
     MatrixXd Hk_back;
     MatrixXd Hk_belly;
 
+    // n: Limb nodex, k: Layer nodes
+    LayerProperties(unsigned n, unsigned k)
+        : s(VectorXd::Zero(k)),
+          y_back(VectorXd::Zero(k)),
+          y_belly(VectorXd::Zero(k)),
+          He_back(MatrixXd::Zero(k, n)),
+          He_belly(MatrixXd::Zero(k, n)),
+          Hk_back(MatrixXd::Zero(k, n)),
+          Hk_belly(MatrixXd::Zero(k, n))
+    {
+
+    }
+
     VectorXd sigma_back(const VectorXd& epsilon, const VectorXd& kappa) const
     {
         return He_back*epsilon + Hk_back*kappa;
