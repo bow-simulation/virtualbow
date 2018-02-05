@@ -121,17 +121,43 @@ public:
         try
         {
             source->SetLimbData(LimbProperties(data, 150));    // Magic number
-            // this->GetInteractor()->Render();
-
-            // Temporary solution. Shouldn't reset zoom after every modification.
-            // Maybe define the camera position relative to the limb's size and
-            // preserve that during the reset happening here.
-            viewFit();
+            this->GetInteractor()->Render();
         }
         catch(std::runtime_error& e)
         {
             // Input data invalid, do nothing. Leave geometry in previous state until the input is valid again.
         }
+    }
+
+    void viewProfile()
+    {
+        setCameraPosition(-M_PI_2, 0.0);
+        viewFit();
+    }
+
+    void viewTop()
+    {
+        setCameraPosition(-M_PI_2, M_PI_2);
+        viewFit();
+    }
+
+    void view3D()
+    {
+        setCameraPosition(-0.9, 0.5);
+        viewFit();
+    }
+
+    void viewSymmetric(bool checked)
+    {
+        actor_l->SetVisibility(checked);
+        this->GetInteractor()->Render();
+    }
+
+    void viewFit()
+    {
+        renderer->ResetCamera();
+        renderer->GetActiveCamera()->Zoom(0.98);    // Magic number
+        this->GetInteractor()->Render();    // http://vtk.markmail.org/message/nyq3dwlyfrivrqac
     }
 
 private:
@@ -157,36 +183,5 @@ private:
         camera->SetFocalPoint(0.0, 0.0, 0.0);
         camera->SetPosition(cos(alpha)*cos(beta), sin(beta), -sin(alpha)*cos(beta));
         camera->SetViewUp(-cos(alpha)*sin(beta), cos(beta), sin(alpha)*sin(beta));
-    }
-
-    void viewProfile()
-    {
-        setCameraPosition(-M_PI_2, 0.0);
-        viewFit();
-    }
-
-    void viewTop()
-    {
-        setCameraPosition(-M_PI_2, M_PI_2);
-        viewFit();
-    }
-
-    void view3D()
-    {
-        setCameraPosition(-0.9, 0.5);
-        viewFit();
-    }
-
-    void viewSymmetric(bool checked)
-    {
-        actor_l->SetVisibility(checked);
-        viewFit();
-    }
-
-    void viewFit()
-    {
-        renderer->ResetCamera();
-        renderer->GetActiveCamera()->Zoom(0.98);   // Magic number
-        this->GetInteractor()->Render();    // http://vtk.markmail.org/message/nyq3dwlyfrivrqac
     }
 };

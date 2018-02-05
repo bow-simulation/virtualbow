@@ -26,4 +26,5 @@ void BowEditor::setData(const InputData& data)
 {
     edit->setData(data);
     view->setData(data);
+    view->view3D();
 }
