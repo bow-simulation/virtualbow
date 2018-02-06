@@ -17,9 +17,9 @@ public:
     {
         auto hbox1 = new QHBoxLayout();
         hbox1->setContentsMargins(10, 5, 10, 5);
-        hbox1->addWidget(new QLabel("Offsets:"));
-        hbox1->addWidget(edit_E);
+        hbox1->addWidget(new QLabel("Material:"));
         hbox1->addWidget(edit_rho);
+        hbox1->addWidget(edit_E);
         hbox1->addStretch(1);
 
         auto group = new QGroupBox();
