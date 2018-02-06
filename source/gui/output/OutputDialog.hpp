@@ -1,22 +1,23 @@
 #pragma once
 #include "gui/PersistentDialog.hpp"
 #include "bow/output/OutputData.hpp"
+#include "bow/input/InputData.hpp"
 #include <QtWidgets>
 
 class StaticOutput: public QWidget
 {
 public:
-    StaticOutput(const SetupData& setup, const StaticData& statics);
+    StaticOutput(const InputData& input, const SetupData& setup, const StaticData& statics);
 };
 
 class DynamicOutput: public QWidget
 {
 public:
-    DynamicOutput(const SetupData& setup, const DynamicData& dynamics);
+    DynamicOutput(const InputData& input, const SetupData& setup, const DynamicData& dynamics);
 };
 
 class OutputDialog: public PersistentDialog
 {
 public:
-    OutputDialog(QWidget* parent, const OutputData& output);
+    OutputDialog(QWidget* parent, const InputData& input, const OutputData& output);
 };

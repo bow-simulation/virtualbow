@@ -1,22 +1,27 @@
 #include "StressPlot.hpp"
+#include "gui/input/views/LayerColors.hpp"
 
-StressPlot::StressPlot(const SetupData& setup, const BowStates& states)
-    : setup(setup),
+StressPlot::StressPlot(const InputData& input, const SetupData& setup, const BowStates& states)
+    : input(input),
+      setup(setup),
       states(states)
 {
     this->xAxis->setLabel("Arc length [m]");
     this->yAxis->setLabel("Stress [N/m²]");
     this->setupTopLegend();
 
-    for(int i = 0; i < setup.limb.layers.size(); ++i)
+    for(int i = 0; i < input.layers.size(); ++i)
     {
-        this->addGraph();
-        this->graph(2*i)->setPen({Qt::blue});
-        this->graph(2*i)->setName("Back");
+        QString name = QString::fromStdString(input.layers[i].name);
+        QColor color = getLayerColor(input.layers[i]);
 
         this->addGraph();
-        this->graph(2*i+1)->setPen({Qt::red});
-        this->graph(2*i+1)->setName("Belly");
+        this->graph(2*i)->setName(name + " (back)");
+        this->graph(2*i)->setPen({QBrush(color), 1.0, Qt::SolidLine});
+
+        this->addGraph();
+        this->graph(2*i+1)->setName(name + " (belly)");
+        this->graph(2*i+1)->setPen({QBrush(color), 1.0, Qt::DashLine});
     }
 
     setAxesRanges();
