@@ -6,6 +6,36 @@ int main(int argc, char* argv[])
 }
 
 /*
+#include <QtWidgets>
+#include <random>
+
+QColor getColor(double rho, double E)
+{
+    std::mt19937 rng(rho*E);    // random-number engine used (Mersenne-Twister in this case)
+    std::uniform_int_distribution<int> uni(0, 255); // guaranteed unbiased
+
+    return QColor(uni(rng), uni(rng), uni(rng));
+}
+
+int main(int argc, char* argv[])
+{
+    QApplication app(argc, argv);
+
+    QLabel label("ThisIsATestWithVeryLongText");
+    label.show();
+
+    double E = 1.2e12;
+    double rho = 7500;
+
+    QPalette palette = label.palette();
+    palette.setColor(label.backgroundRole(), getColor(rho, E));
+    label.setPalette(palette);
+
+    return app.exec();
+}
+*/
+
+/*
 #include "gui/EditableTabBar.hpp"
 
 int main(int argc, char* argv[])

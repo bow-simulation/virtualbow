@@ -222,7 +222,9 @@ void MainWindow::runSimulation(bool dynamic)
         dialog.addProgressBar("Dynamics");
     }
 
+    const InputData& input = editor->getData();
     OutputData output;
+
     std::exception_ptr exception = nullptr;
     std::thread thread([&]
     {
@@ -238,8 +240,8 @@ void MainWindow::runSimulation(bool dynamic)
 
         try
         {
-            output = dynamic ? BowModel::run_dynamic_simulation(editor->getData(), progress0, progress1)
-                             : BowModel::run_static_simulation(editor->getData(), progress0);
+            output = dynamic ? BowModel::run_dynamic_simulation(input, progress0, progress1)
+                             : BowModel::run_static_simulation(input, progress0);
 
             QMetaObject::invokeMethod(&dialog, "accept", Qt::QueuedConnection);
         }
@@ -267,7 +269,7 @@ void MainWindow::runSimulation(bool dynamic)
 
     if(!dialog.isCanceled())
     {
-        OutputDialog results(this, output);
+        OutputDialog results(this, input, output);
         results.exec();
     }
 }

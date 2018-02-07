@@ -40,6 +40,7 @@ add_executable(${PROJECT_NAME}
 
     source/bow/BowModel.cpp
     source/bow/LimbProperties.cpp
+    source/bow/LayerProperties.cpp
     source/bow/input/InputData.cpp
 
     source/numerics/ArcCurve.cpp
@@ -76,6 +77,7 @@ add_executable(${PROJECT_NAME}
     source/gui/input/views/LimbSource.hpp
     source/gui/input/views/LimbView.cpp
     source/gui/input/views/LimbView.hpp
+    source/gui/input/views/LayerColors.hpp
     source/gui/input/views/ProfileView.hpp
     source/gui/input/views/SplineView.hpp
 

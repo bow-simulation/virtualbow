@@ -6,14 +6,14 @@
 #include "ComboPlot.hpp"
 #include "Slider.hpp"
 
-StaticOutput::StaticOutput(const SetupData& setup, const StaticData& statics)
+StaticOutput::StaticOutput(const InputData& input, const SetupData& setup, const StaticData& statics)
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
     vbox->setMargin(0);
 
     auto plot_shapes = new ShapePlot(setup, statics.states, true);
-    auto plot_stress = new StressPlot(setup, statics.states);
+    auto plot_stress = new StressPlot(input, setup, statics.states);
     auto plot_energy = new EnergyPlot(statics.states, statics.states.draw_length, "Draw length [m]");
     auto plot_combo = new ComboPlot();
     plot_combo->addData("Draw length [m]", statics.states.draw_length);
@@ -47,14 +47,14 @@ StaticOutput::StaticOutput(const SetupData& setup, const StaticData& statics)
     vbox->addWidget(slider);
 }
 
-DynamicOutput::DynamicOutput(const SetupData& setup, const DynamicData& dynamics)
+DynamicOutput::DynamicOutput(const InputData& input, const SetupData& setup, const DynamicData& dynamics)
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
     vbox->setMargin(0);
 
     auto plot_shapes = new ShapePlot(setup, dynamics.states, false);
-    auto plot_stress = new StressPlot(setup, dynamics.states);
+    auto plot_stress = new StressPlot(input, setup, dynamics.states);
     auto plot_energy = new EnergyPlot(dynamics.states, dynamics.states.time, "Time [s]");
     auto plot_combo = new ComboPlot();
     plot_combo->addData("Time [s]", dynamics.states.time);
@@ -92,7 +92,7 @@ DynamicOutput::DynamicOutput(const SetupData& setup, const DynamicData& dynamics
     vbox->addWidget(slider);
 }
 
-OutputDialog::OutputDialog(QWidget* parent, const OutputData& output)
+OutputDialog::OutputDialog(QWidget* parent, const InputData& input, const OutputData& output)
     : PersistentDialog(parent, "OutputDialog", {1000, 700})    // Magic numbers
 {
     auto vbox = new QVBoxLayout();
@@ -106,9 +106,9 @@ OutputDialog::OutputDialog(QWidget* parent, const OutputData& output)
     auto stack = new QStackedLayout();
     vbox->addLayout(stack, 1);
     if(enable_statics)
-        stack->addWidget(new StaticOutput(output.setup, output.statics));
+        stack->addWidget(new StaticOutput(input, output.setup, output.statics));
     if(enable_dynamics)
-        stack->addWidget(new DynamicOutput(output.setup, output.dynamics));
+        stack->addWidget(new DynamicOutput(input, output.setup, output.dynamics));
 
     auto bt_statics = new QPushButton("Statics");
     bt_statics->setIcon(QIcon(":/icons/show-statics"));

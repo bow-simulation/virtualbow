@@ -94,8 +94,8 @@ void BowModel::init_string(const Callback& callback)
     {
         points.push_back({
             // Add small initial penetration epsilon to prevent slip-through on the first static solver iteration
-            system.get_u(nodes_limb[i].x) + (output.setup.limb.h[i] - epsilon)*sin(system.get_u(nodes_limb[i].phi)),
-            system.get_u(nodes_limb[i].y) - (output.setup.limb.h[i] - epsilon)*cos(system.get_u(nodes_limb[i].phi))
+            system.get_u(nodes_limb[i].x) + (0.5*output.setup.limb.h[i] - epsilon)*sin(system.get_u(nodes_limb[i].phi)),
+            system.get_u(nodes_limb[i].y) - (0.5*output.setup.limb.h[i] - epsilon)*cos(system.get_u(nodes_limb[i].phi))
         });
     }
 
@@ -123,7 +123,7 @@ void BowModel::init_string(const Callback& callback)
 
     ContactHandler contact(system, ContactForce(k, epsilon));
     for(size_t i = 1; i < nodes_limb.size(); ++i)
-        contact.add_segment(nodes_limb[i-1], nodes_limb[i], output.setup.limb.h[i-1], output.setup.limb.h[i]);
+        contact.add_segment(nodes_limb[i-1], nodes_limb[i], 0.5*output.setup.limb.h[i-1], 0.5*output.setup.limb.h[i]);
 
     for(size_t i = 0; i < nodes_string.size()-1; ++i)    // Don't include the last string node (tip)
         contact.add_point(nodes_string[i]);
@@ -219,50 +219,6 @@ void BowModel::simulate_statics(const Callback& callback)
             return;
     }
 
-    /*
-    // Alternative using step size control
-
-    double draw_step = (input.operation_draw_length - input.operation_brace_height)/input.settings_n_draw_steps;
-    double draw_length = input.operation_brace_height + draw_step;
-    const double min_step = 0.01*draw_step;
-    const double max_step = draw_step;
-    const unsigned iterations = 10;    // Desired number of iterations for the static solver      // Magic number
-
-    add_state(output.statics.states);     // Add first state at draw_length
-    while(true)
-    {
-        // Try draw_length + draw_step
-        StaticSolverDC::Info info = solver.solve(-draw_length);
-
-        qInfo() <<  "step: " << draw_step << ", iterations: " << info.iterations << ", draw length: " << draw_length;
-
-        if(info.outcome == StaticSolverDC::Info::Success)
-        {
-            // Success: Apply step.
-            draw_length += draw_step;
-            add_state(output.statics.states);
-
-            if(!callback(100*(draw_length - input.operation_brace_height)/(input.operation_draw_length - input.operation_brace_height)))
-                return;
-
-            // If finished: Return
-            if(draw_length >= input.operation_draw_length)
-                return;
-
-            // Adjust step length, but not over max_step
-            draw_step = std::min(max_step, draw_step*double(iterations)/info.iterations);
-        }
-        else
-        {
-            // Reduce step length by generic factor
-            draw_step *= 0.5;
-        }
-
-        if(draw_step < min_step)
-            throw std::runtime_error("Static simulation: Step size too small");
-    }
-    */
-
     // Calculate scalar values
 
     double draw_length_front = output.statics.states.draw_length.front();
@@ -279,8 +235,6 @@ void BowModel::simulate_statics(const Callback& callback)
     output.statics.drawing_work = e_pot_back - e_pot_front;
     output.statics.storage_ratio = (e_pot_back - e_pot_front)/(0.5*(draw_length_back - draw_length_front)*draw_force_back);
 }
-
-// Todo: Calculate timestep only once, use for both parts of the dynamic simulation
 
 void BowModel::simulate_dynamics(const Callback& callback)
 {
@@ -395,7 +349,7 @@ void BowModel::add_state(BowStates& states) const
         states.y_string.back()[i] = system.get_u(nodes_string[i].y);
     }
 
-    // Stresses
+    // Limb deformation
 
     VectorXd epsilon(nodes_limb.size());
     VectorXd kappa(nodes_limb.size());
@@ -420,6 +374,6 @@ void BowModel::add_state(BowStates& states) const
         }
     }
 
-    states.sigma_back.push_back(output.setup.limb.layers[0].sigma_back(epsilon, kappa));
-    states.sigma_belly.push_back(output.setup.limb.layers[0].sigma_belly(epsilon, kappa));
+    states.epsilon.push_back(epsilon);
+    states.kappa.push_back(kappa);
 }
