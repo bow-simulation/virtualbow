@@ -10,14 +10,14 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="21.036459mm"
-   height="21.036459mm"
-   viewBox="0 0 21.036459 21.036459"
+   width="20.036459mm"
+   height="20.036459mm"
+   viewBox="0 0 20.036459 20.036459"
    version="1.1"
    id="svg8"
    inkscape:export-filename="/home/s/Desktop/Repositories/bow-simulator-develop/resources/icons/show-dynamics.png"
-   inkscape:export-xdpi="57.956524"
-   inkscape:export-ydpi="57.956524"
+   inkscape:export-xdpi="60.849075"
+   inkscape:export-ydpi="60.849075"
    inkscape:version="0.92.1 r15371"
    sodipodi:docname="show-dynamics.svg">
   <defs
@@ -52,15 +52,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6"
-     inkscape:cx="21.913526"
-     inkscape:cy="33.815328"
+     inkscape:cx="-8.7262377"
+     inkscape:cy="31.925564"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
-     fit-margin-top="2"
-     fit-margin-left="2"
-     fit-margin-right="2"
-     fit-margin-bottom="2"
+     fit-margin-top="1.5"
+     fit-margin-left="1.5"
+     fit-margin-right="1.5"
+     fit-margin-bottom="1.5"
      inkscape:window-width="1920"
      inkscape:window-height="997"
      inkscape:window-x="0"
@@ -82,7 +82,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-9.259285,-7.1599035)">
+     transform="translate(-9.759285,-7.6599035)">
     <rect
        style="opacity:0.98999999;fill:url(#linearGradient4489);fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
        id="rect4483"
@@ -90,6 +90,6 @@
        height="16.536459"
        x="11.509285"
        y="9.4099035"
-       rx="3" />
+       rx="53.799999" />
   </g>
 </svg>
