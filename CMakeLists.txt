@@ -77,6 +77,8 @@ add_executable(${PROJECT_NAME}
     source/gui/input/views/LimbSource.hpp
     source/gui/input/views/LimbView.cpp
     source/gui/input/views/LimbView.hpp
+    source/gui/input/views/LayerLegend.cpp
+    source/gui/input/views/LayerLegend.hpp
     source/gui/input/views/LayerColors.hpp
     source/gui/input/views/ProfileView.hpp
     source/gui/input/views/SplineView.hpp

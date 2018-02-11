@@ -2,6 +2,7 @@
 #include "gui/input/editors/SeriesEditor.hpp"
 #include "gui/input/editors/DoubleEditor.hpp"
 #include "gui/input/views/SplineView.hpp"
+#include "gui/input/views/LayerColors.hpp"
 #include "bow/input/InputData.hpp"
 
 class LayerEditor: public QWidget
@@ -9,8 +10,9 @@ class LayerEditor: public QWidget
     Q_OBJECT
 
 public:
-    LayerEditor()
-        : table(new SeriesEditor("Position", "Height [m]", 25)),
+    LayerEditor(QTabWidget* tabs)
+        : tabs(tabs),
+          table(new SeriesEditor("Position", "Height [m]", 25)),
           view(new SplineView("Position", "Height [m]")),
           edit_rho(new DoubleEditor("rho [kg/m³]")),
           edit_E(new DoubleEditor("E [Pa]"))
@@ -36,6 +38,8 @@ public:
 
         // Event handling
 
+        QObject::connect(this, &LayerEditor::modified, this, &LayerEditor::updateTabIcon);
+
         QObject::connect(edit_E, &DoubleEditor::modified, this, &LayerEditor::modified);
         QObject::connect(edit_rho, &DoubleEditor::modified, this, &LayerEditor::modified);
 
@@ -48,6 +52,8 @@ public:
     Layer getData() const
     {
         Layer layer;
+        LayerEditor* wtf = const_cast<LayerEditor*>(this);
+        layer.name = tabs->tabText(tabs->indexOf(wtf)).toStdString();
         layer.height = table->getData();
         layer.rho = edit_rho->getData();
         layer.E = edit_E->getData();
@@ -57,6 +63,8 @@ public:
 
     void setData(const Layer& layer)
     {
+        tabs->setTabText(tabs->indexOf(this), QString::fromStdString(layer.name));
+        tabs->setTabIcon(tabs->indexOf(this), QIcon(getLayerPixmap(layer)));
         table->setData(layer.height);
         view->setData(layer.height);
         edit_E->setData(layer.E);
@@ -67,8 +75,14 @@ signals:
     void modified();
 
 private:
+    QTabWidget* tabs;
     SeriesEditor* table;
     SplineView* view;
     DoubleEditor* edit_rho;
     DoubleEditor* edit_E;
+
+    void updateTabIcon()
+    {
+        tabs->setTabIcon(tabs->indexOf(this), QIcon(getLayerPixmap(getData())));
+    }
 };

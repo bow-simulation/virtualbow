@@ -1,5 +1,6 @@
 #pragma once
 #include "LimbSource.hpp"
+#include "LayerLegend.hpp"
 #include "bow/LimbProperties.hpp"
 #include "bow/input/InputData.hpp"
 #include <QtWidgets>
@@ -25,7 +26,7 @@ class InputData;
 class LimbView: public QVTKWidget
 {
 public:
-    LimbView()
+    LimbView(): legend(new LayerLegend())
     {
         source = vtkSmartPointer<LimbSource>::New();
 
@@ -102,7 +103,8 @@ public:
         button4->setCheckable(true);
 
         auto hbox = new QHBoxLayout();
-        hbox->setAlignment(Qt::AlignBottom);
+        hbox->setAlignment(Qt::AlignTop);
+        hbox->addWidget(legend);
         hbox->addStretch();
         hbox->addWidget(button0);
         hbox->addWidget(button1);
@@ -110,7 +112,6 @@ public:
         hbox->addWidget(button3);
         hbox->addSpacing(20);
         hbox->addWidget(button4);
-        hbox->addStretch();
         this->setLayout(hbox);
 
         view3D();
@@ -121,6 +122,7 @@ public:
         try
         {
             source->SetLimbData(LimbProperties(data, 150));    // Magic number
+            legend->setData(data.layers);
             this->GetInteractor()->Render();
         }
         catch(std::runtime_error& e)
@@ -161,6 +163,7 @@ public:
     }
 
 private:
+    LayerLegend* legend;
     vtkSmartPointer<LimbSource> source;
     vtkSmartPointer<vtkActor> actor_r;
     vtkSmartPointer<vtkActor> actor_l;

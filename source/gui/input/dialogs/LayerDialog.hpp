@@ -52,10 +52,7 @@ public:
             tabs->removeTab(0);
 
         for(int i = 0; i < layers.size(); ++i)
-        {
-            tabs->setTabText(i, QString::fromStdString(layers[i].name));
             static_cast<LayerEditor*>(tabs->widget(i))->setData(layers[i]);
-        }
     }
 
     Layers getData() const
@@ -64,7 +61,6 @@ public:
         for(int i = 0; i < tabs->count(); ++i)
         {
             Layer layer = static_cast<LayerEditor*>(tabs->widget(i))->getData();
-            layer.name = tabs->tabText(i).toStdString();
             layers.push_back(layer);
         }
 
@@ -77,21 +73,18 @@ signals:
 private:
     EditableTabBar* tabs;
 
-    void createEmptyTab()
+    LayerEditor* createEmptyTab()
     {
-        auto editor = new LayerEditor();
+        auto editor = new LayerEditor(tabs);
         QObject::connect(editor, &LayerEditor::modified, this, &LayerDialog::modified);
-
         tabs->addTab(editor, "");
+
+        return editor;
     }
 
-    void createDefaultTab()
+    LayerEditor* createDefaultTab()
     {
-        auto editor = new LayerEditor();
-        QObject::connect(editor, &LayerEditor::modified, this, &LayerDialog::modified);
-
         Layer layer;
-        tabs->addTab(editor, QString::fromStdString(layer.name));
-        editor->setData(layer);
+        createEmptyTab()->setData(layer);
     }
 };
