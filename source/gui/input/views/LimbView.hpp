@@ -15,6 +15,7 @@
 #include <vtkCamera.h>
 #include <vtkAxesActor.h>
 #include <vtkOrientationMarkerWidget.h>
+#include <vtkLookupTable.h>
 
 // Todo
 // - Edge tracing
@@ -30,22 +31,32 @@ public:
     {
         source = vtkSmartPointer<LimbSource>::New();
 
+        // Color table
+        auto table = vtkSmartPointer<vtkLookupTable>::New();
+        table->SetNumberOfTableValues(3);
+        table->Build();
+        table->SetTableValue(0, 0, 0, 0);
+        table->SetTableValue(1, 0.8900, 0.8100, 0.3400);
+        table->SetTableValue(2, 1.0000, 0.3882, 0.2784);
+
         auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
         mapper->SetInputConnection(source->GetOutputPort());
+        mapper->SetScalarRange(0, 2);
+        mapper->SetLookupTable(table);
 
         // Right limb
         actor_r = vtkSmartPointer<vtkActor>::New();
         actor_r->SetMapper(mapper);
-        actor_r->GetProperty()->SetFrontfaceCulling(false);    // Todo: Why is the face orientation wrong inside QVTKWidget?! (http://stackoverflow.com/questions/24131430/vtk-6-1-and-qt-5-3-3d-objects-in-qvtkwidget-with-bad-transparencies)
-        actor_r->GetProperty()->SetBackfaceCulling(true);
-        actor_r->GetProperty()->SetColor(1.0, 0.8, 0.4);
+        //actor_r->GetProperty()->SetFrontfaceCulling(false);    // Todo: Why is the face orientation wrong inside QVTKWidget?! (http://stackoverflow.com/questions/24131430/vtk-6-1-and-qt-5-3-3d-objects-in-qvtkwidget-with-bad-transparencies)
+        //actor_r->GetProperty()->SetBackfaceCulling(true);
+        //actor_r->GetProperty()->SetColor(1.0, 0.8, 0.4);
 
         // Left limb
         actor_l = vtkSmartPointer<vtkActor>::New();
         actor_l->SetMapper(mapper);
-        actor_l->GetProperty()->SetFrontfaceCulling(false);
-        actor_l->GetProperty()->SetBackfaceCulling(true);
-        actor_l->GetProperty()->SetColor(1.0, 0.8, 0.4);
+        //actor_l->GetProperty()->SetFrontfaceCulling(false);
+        //actor_l->GetProperty()->SetBackfaceCulling(true);
+        //actor_l->GetProperty()->SetColor(1.0, 0.8, 0.4);
         actor_l->SetOrientation(0.0, 180.0, 0.0);
         actor_l->SetVisibility(false);
 

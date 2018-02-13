@@ -10,6 +10,8 @@
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
+#include <vtkFloatArray.h>
+#include <vtkCellData.h>
 
 #include "numerics/Eigen.hpp"
 #include <array>
@@ -35,57 +37,36 @@ int LimbSource::RequestData(vtkInformation* request, vtkInformationVector** inpu
     points->SetDataType(VTK_DOUBLE);
     //newPoints->Allocate(...);      // Todo: Preallocate
 
-    size_t n_sections = limb.s.size();
-    for(size_t i = 0; i < n_sections; ++i)   // Iterate over sections
-    {
-        // Curve point and normals
-        Vector<3> p{limb.x[i], limb.y[i], 0.0};
-        Vector<3> nw{0.0, 0.0, 0.5*abs(limb.w[i])};
-        Vector<3> nh{-abs(limb.h[i])*sin(limb.phi[i]), abs(limb.h[i])*cos(limb.phi[i]), 0.0};
+    Vector<3> p0 = (Vector<3>() << 0.0, 0.0).finished();
+    Vector<3> p1 = (Vector<3>() << 1.0, 0.0).finished();
+    Vector<3> p2 = (Vector<3>() << 1.0, 0.5).finished();
+    Vector<3> p3 = (Vector<3>() << 1.0, 1.0).finished();
+    Vector<3> p4 = (Vector<3>() << 0.0, 1.0).finished();
+    Vector<3> p5 = (Vector<3>() << 0.0, 0.5).finished();
 
-        // Cross section vertices
-        Vector<3> p0 = p + nw;
-        Vector<3> p1 = p + nw + nh;
-        Vector<3> p2 = p - nw + nh;
-        Vector<3> p3 = p - nw;
-
-        points->InsertNextPoint(p0.data());
-        points->InsertNextPoint(p1.data());
-        points->InsertNextPoint(p2.data());
-        points->InsertNextPoint(p3.data());
-    }
+    points->InsertNextPoint(p0.data());
+    points->InsertNextPoint(p1.data());
+    points->InsertNextPoint(p2.data());
+    points->InsertNextPoint(p3.data());
+    points->InsertNextPoint(p4.data());
+    points->InsertNextPoint(p5.data());
 
     // Generate indices
 
     auto polys = vtkSmartPointer<vtkCellArray>::New();
     //newPolys->Allocate(...);        // Todo: Preallocate
 
-    size_t n_segments = (n_sections > 0) ? n_sections-1 : 0;
-    for(size_t i = 0; i < n_segments; ++i)
+    vtkIdType quad1[] = {0, 1, 2, 5};
+    polys->InsertNextCell(4, quad1);
+
+    vtkIdType quad2[] = {5, 2, 3, 4};
+    polys->InsertNextCell(4, quad2);
+
+    // Cell data
+    auto cellData = vtkSmartPointer<vtkFloatArray>::New();
+    for(int i = 0; i < 2; i++)
     {
-        vtkIdType i0 = 4*i;        // Beginning index of first section
-        vtkIdType i1 = i0 + 4;     // Beginning index of second section
-
-        if(i == 0)
-        {
-            vtkIdType pts_front[] = {i0 + 0, i0 + 1, i0 + 2, i0 + 3};
-            polys->InsertNextCell(4, pts_front);
-        }
-        else if(i == n_segments - 1)
-        {
-            vtkIdType pts_back[] = {i1 + 0, i1 + 3, i1 + 2, i1 + 1};
-            polys->InsertNextCell(4, pts_back);
-        }
-
-        vtkIdType pts_top[] = {i0 + 0, i0 + 3, i1 + 3, i1 + 0};
-        vtkIdType pts_bottom[] = {i0 + 1, i1 + 1, i1 + 2, i0 + 2};
-        vtkIdType pts_left[] = {i0 + 0, i1 + 0, i1 + 1, i0 + 1};
-        vtkIdType pts_right[] = {i0 + 2, i1 + 2, i1 + 3, i0 + 3};
-
-        polys->InsertNextCell(4, pts_top);
-        polys->InsertNextCell(4, pts_bottom);
-        polys->InsertNextCell(4, pts_left);
-        polys->InsertNextCell(4, pts_right);
+        cellData->InsertNextValue(i + 1);
     }
 
     // Set output stuff
@@ -94,6 +75,7 @@ int LimbSource::RequestData(vtkInformation* request, vtkInformationVector** inpu
     vtkPolyData* output = vtkPolyData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
     output->SetPoints(points);
     output->SetPolys(polys);
+    output->GetCellData()->SetScalars(cellData);
 
     return 1;
 }
