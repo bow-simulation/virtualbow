@@ -103,8 +103,8 @@ public:
         button4->setCheckable(true);
 
         auto hbox = new QHBoxLayout();
-        hbox->setAlignment(Qt::AlignTop);
-        hbox->addWidget(legend);
+        hbox->setAlignment(Qt::AlignBottom);
+        // hbox->addWidget(legend);
         hbox->addStretch();
         hbox->addWidget(button0);
         hbox->addWidget(button1);

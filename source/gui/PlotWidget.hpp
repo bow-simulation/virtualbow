@@ -184,6 +184,60 @@ protected:
     {
         QCustomPlot::resizeEvent(event);
 
+        // Reflow legend
+
+        int legend_width = this->legend->rect().width();    // this->axisRect(0)->width();
+        int items_width = 0;
+        int item_index;
+
+        for(item_index = 0; item_index < this->legend->itemCount(); ++item_index)
+        {
+            auto item = this->legend->item(item_index);
+            if(item == nullptr)
+                break;
+
+            items_width += item->minimumSizeHint().width()
+                         + this->legend->margins().left()
+                         + this->legend->margins().right();
+
+            if(items_width > legend_width)
+                break;
+        }
+
+        this->legend->setWrap(item_index);
+        this->legend->setFillOrder(QCPLayoutGrid::foColumnsFirst, true);
+
+        /*
+        int legend_width = this->legend->rect().width();    // this->axisRect(0)->width();
+        int items_width = 0;
+
+        qInfo() << "Number of Items: " << this->legend->itemCount();
+        for(int i = 0; i < this->legend->itemCount(); ++i)
+        {
+            auto item = this->legend->item(i);
+
+            if(item == nullptr)
+            {
+                this->legend->setWrap(i);
+                this->legend->setFillOrder(QCPLayoutGrid::foColumnsFirst, true);
+                break;
+            }
+
+            items_width += item->minimumSizeHint().width();
+
+            if(items_width + 100 > legend_width)    // Todo: Magic number
+            {
+                qInfo() << "Set wrap: " << i;
+                this->legend->setWrap(i);
+                this->legend->setFillOrder(QCPLayoutGrid::foColumnsFirst, true);
+                break;
+            }
+        }
+        */
+
+        // this->legend->setWrap(6);
+
+        // Axis scaling
         if(aspect_policy != NONE)
             this->replot();
     }
