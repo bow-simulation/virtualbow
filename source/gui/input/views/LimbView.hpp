@@ -35,23 +35,22 @@ public:
 
         auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
         mapper->SetInputConnection(source->GetOutputPort());
-        // mapper->SetScalarRange(0, 2);
         mapper->SetUseLookupTableScalarRange(true);
         mapper->SetLookupTable(colors);
 
         // Right limb
         actor_r = vtkSmartPointer<vtkActor>::New();
+        // Todo: Why is the face orientation wrong inside QVTKWidget? (http://stackoverflow.com/questions/24131430/vtk-6-1-and-qt-5-3-3d-objects-in-qvtkwidget-with-bad-transparencies)
+        actor_r->GetProperty()->SetFrontfaceCulling(false);
+        actor_r->GetProperty()->SetBackfaceCulling(true);
         actor_r->SetMapper(mapper);
-        //actor_r->GetProperty()->SetFrontfaceCulling(false);    // Todo: Why is the face orientation wrong inside QVTKWidget?! (http://stackoverflow.com/questions/24131430/vtk-6-1-and-qt-5-3-3d-objects-in-qvtkwidget-with-bad-transparencies)
-        //actor_r->GetProperty()->SetBackfaceCulling(true);
-        //actor_r->GetProperty()->SetColor(1.0, 0.8, 0.4);
 
         // Left limb
         actor_l = vtkSmartPointer<vtkActor>::New();
+        // Todo: Why is the face orientation wrong inside QVTKWidget? (http://stackoverflow.com/questions/24131430/vtk-6-1-and-qt-5-3-3d-objects-in-qvtkwidget-with-bad-transparencies)
+        actor_l->GetProperty()->SetFrontfaceCulling(false);
+        actor_l->GetProperty()->SetBackfaceCulling(true);
         actor_l->SetMapper(mapper);
-        //actor_l->GetProperty()->SetFrontfaceCulling(false);
-        //actor_l->GetProperty()->SetBackfaceCulling(true);
-        //actor_l->GetProperty()->SetColor(1.0, 0.8, 0.4);
         actor_l->SetOrientation(0.0, 180.0, 0.0);
         actor_l->SetVisibility(false);
 
