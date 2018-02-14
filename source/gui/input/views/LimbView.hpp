@@ -1,6 +1,7 @@
 #pragma once
 #include "LimbSource.hpp"
 #include "LayerLegend.hpp"
+#include "LayerColors.hpp"
 #include "bow/LimbProperties.hpp"
 #include "bow/input/InputData.hpp"
 #include <QtWidgets>
@@ -30,19 +31,13 @@ public:
     LimbView(): legend(new LayerLegend())
     {
         source = vtkSmartPointer<LimbSource>::New();
-
-        // Color table
-        auto table = vtkSmartPointer<vtkLookupTable>::New();
-        table->SetNumberOfTableValues(3);
-        table->Build();
-        table->SetTableValue(0, 0, 0, 0);
-        table->SetTableValue(1, 0.8900, 0.8100, 0.3400);
-        table->SetTableValue(2, 1.0000, 0.3882, 0.2784);
+        colors = vtkSmartPointer<vtkLookupTable>::New();
 
         auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
         mapper->SetInputConnection(source->GetOutputPort());
-        mapper->SetScalarRange(0, 2);
-        mapper->SetLookupTable(table);
+        // mapper->SetScalarRange(0, 2);
+        mapper->SetUseLookupTableScalarRange(true);
+        mapper->SetLookupTable(colors);
 
         // Right limb
         actor_r = vtkSmartPointer<vtkActor>::New();
@@ -132,8 +127,23 @@ public:
     {
         try
         {
+            // Geometry
             source->SetLimbData(LimbProperties(data, 150));    // Magic number
+
+            // Colors
+            colors->SetNumberOfColors(data.layers.size());
+            colors->SetTableRange(0, data.layers.size());
+            colors->Build();
+            for(int i = 0; i < data.layers.size(); ++i)
+            {
+                QColor color = getLayerColor(data.layers[i]);
+                colors->SetTableValue(i, color.redF(), color.greenF(), color.blueF(), color.alphaF());
+            }
+
+            // Legend
             legend->setData(data.layers);
+
+            // Update
             this->GetInteractor()->Render();
         }
         catch(std::runtime_error& e)
@@ -176,6 +186,7 @@ public:
 private:
     LayerLegend* legend;
     vtkSmartPointer<LimbSource> source;
+    vtkSmartPointer<vtkLookupTable> colors;
     vtkSmartPointer<vtkActor> actor_r;
     vtkSmartPointer<vtkActor> actor_l;
     vtkSmartPointer<vtkRenderer> renderer;

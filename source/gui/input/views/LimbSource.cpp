@@ -54,20 +54,17 @@ int LimbSource::RequestData(vtkInformation* request, vtkInformationVector** inpu
     // Generate indices
 
     auto polys = vtkSmartPointer<vtkCellArray>::New();
+    auto cellData = vtkSmartPointer<vtkFloatArray>::New();
+
     //newPolys->Allocate(...);        // Todo: Preallocate
 
     vtkIdType quad1[] = {0, 1, 2, 5};
     polys->InsertNextCell(4, quad1);
+    cellData->InsertNextValue(0);
 
     vtkIdType quad2[] = {5, 2, 3, 4};
     polys->InsertNextCell(4, quad2);
-
-    // Cell data
-    auto cellData = vtkSmartPointer<vtkFloatArray>::New();
-    for(int i = 0; i < 2; i++)
-    {
-        cellData->InsertNextValue(i + 1);
-    }
+    cellData->InsertNextValue(1);
 
     // Set output stuff
 
