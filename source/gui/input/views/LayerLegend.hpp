@@ -36,5 +36,6 @@ protected:
         this->SetBorder(false);
         this->SetBox(true);    // For layout reasons
         this->GetBoxProperty()->SetOpacity(0.0);
+        this->SetLockBorder(false);
     }
 };

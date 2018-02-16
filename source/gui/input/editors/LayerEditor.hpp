@@ -3,6 +3,7 @@
 #include "gui/input/editors/DoubleEditor.hpp"
 #include "gui/input/views/SplineView.hpp"
 #include "gui/input/views/LayerColors.hpp"
+#include "gui/EditableTabBar.hpp"
 #include "bow/input/InputData.hpp"
 
 class LayerEditor: public QWidget
@@ -10,7 +11,7 @@ class LayerEditor: public QWidget
     Q_OBJECT
 
 public:
-    LayerEditor(QTabWidget* tabs)
+    LayerEditor(EditableTabBar* tabs)
         : tabs(tabs),
           table(new SeriesEditor("Position", "Height [m]", 25)),
           view(new SplineView("Position", "Height [m]")),
@@ -75,7 +76,7 @@ signals:
     void modified();
 
 private:
-    QTabWidget* tabs;
+    EditableTabBar* tabs;
     SeriesEditor* table;
     SplineView* view;
     DoubleEditor* edit_rho;

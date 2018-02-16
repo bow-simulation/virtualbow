@@ -218,14 +218,16 @@ private:
 
     void updateLegendPosition(const QSize& screen)
     {
+        int width = 300;    // magic number
         int height = 2*legend->GetPadding() + 20*legend->GetNumberOfEntries();   // Magic number
         int margin = 20;    // Magic number
 
+        double rw = double(width)/screen.width();
         double rh = double(height)/screen.height();
         double rm = double(margin)/screen.height();
 
         legend->SetPosition(0.0, 1.0 - rh - rm);
-        legend->SetPosition2(1.0, rh);
+        legend->SetPosition2(rw, rh);
     }
 
     // alpha: azimuth, beta: elevation.
