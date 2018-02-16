@@ -28,7 +28,7 @@ class InputData;
 class LimbView: public QVTKWidget
 {
 public:
-    LimbView(): legend(new LayerLegend())
+    LimbView()
     {
         source = vtkSmartPointer<LimbSource>::New();
         colors = vtkSmartPointer<vtkLookupTable>::New();
@@ -54,25 +54,36 @@ public:
         actor_l->SetOrientation(0.0, 180.0, 0.0);
         actor_l->SetVisibility(false);
 
+        // Legend
+        legend = vtkSmartPointer<LayerLegend>::New();
+
+        // Renderer
         renderer = vtkSmartPointer<vtkRenderer>::New();
         this->GetRenderWindow()->AddRenderer(renderer);
+        renderer->SetBackground(0.2, 0.3, 0.4);
         renderer->AddActor(actor_l);
         renderer->AddActor(actor_r);
-        renderer->SetBackground(0.2, 0.3, 0.4);
-        renderer->SetUseFXAA(true);    // Todo: What if this is not supported (or can that be reasonably assumed?)
+        renderer->AddActor2D(legend);
+        // renderer->SetUseFXAA(true);    // Todo: What if this is not supported (or can that be reasonably assumed?)
 
         // Integration of vtkOrientationMarkerWidget and QVTKWidget
         // http://vtk.markmail.org/message/cgkqlbz3jgmn6h3z?q=vtkOrientationMarkerWidget+qvtkwidget
-        widget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
-        widget->SetInteractor(this->GetInteractor());
-        widget->SetDefaultRenderer(renderer);
-        widget->SetOrientationMarker(vtkSmartPointer<vtkAxesActor>::New());
-        widget->SetEnabled(true);
-        widget->SetInteractive(false);
+        indicator = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
+        indicator->SetInteractor(this->GetInteractor());
+        indicator->SetDefaultRenderer(renderer);
+        indicator->SetOrientationMarker(vtkSmartPointer<vtkAxesActor>::New());
+        indicator->SetEnabled(true);
+        indicator->SetInteractive(false);
 
         auto camera = renderer->GetActiveCamera();
         camera->SetParallelProjection(true);
         camera->SetUseHorizontalParallelScale(true);
+
+        // Why doesn't this work?
+        this->GetRenderWindow()->SetMultiSamples(5);
+        this->GetRenderWindow()->SetLineSmoothing(true);
+        this->GetRenderWindow()->SetPolygonSmoothing(true);
+        this->GetRenderWindow()->SetPointSmoothing(true);
 
         // Buttons
 
@@ -109,7 +120,7 @@ public:
 
         auto hbox = new QHBoxLayout();
         hbox->setAlignment(Qt::AlignBottom);
-        // hbox->addWidget(legend);
+        hbox->setMargin(15);
         hbox->addStretch();
         hbox->addWidget(button0);
         hbox->addWidget(button1);
@@ -141,6 +152,7 @@ public:
 
             // Legend
             legend->setData(data.layers);
+            updateLegendPosition(this->size());
 
             // Update
             this->GetInteractor()->Render();
@@ -183,19 +195,37 @@ public:
     }
 
 private:
-    LayerLegend* legend;
     vtkSmartPointer<LimbSource> source;
     vtkSmartPointer<vtkLookupTable> colors;
     vtkSmartPointer<vtkActor> actor_r;
     vtkSmartPointer<vtkActor> actor_l;
+    vtkSmartPointer<LayerLegend> legend;
     vtkSmartPointer<vtkRenderer> renderer;
-    vtkSmartPointer<vtkOrientationMarkerWidget> widget;
+    vtkSmartPointer<vtkOrientationMarkerWidget> indicator;
 
     // Adjust orientation widget's viewport on resize to keep it at a constant screen size
     virtual void resizeEvent(QResizeEvent* event) override
     {
+        updateIndicatorPosition(event->size());
+        updateLegendPosition(event->size());
+    }
+
+    void updateIndicatorPosition(const QSize& screen)
+    {
         const int size = 200;   // Magic number
-        widget->SetViewport(0.0, 0.0, double(size)/event->size().width(), double(size)/event->size().height());
+        indicator->SetViewport(0.0, 0.0, double(size)/screen.width(), double(size)/screen.height());
+    }
+
+    void updateLegendPosition(const QSize& screen)
+    {
+        int height = 2*legend->GetPadding() + 20*legend->GetNumberOfEntries();   // Magic number
+        int margin = 20;    // Magic number
+
+        double rh = double(height)/screen.height();
+        double rm = double(margin)/screen.height();
+
+        legend->SetPosition(0.0, 1.0 - rh - rm);
+        legend->SetPosition2(1.0, rh);
     }
 
     // alpha: azimuth, beta: elevation.

@@ -1,81 +1,79 @@
 /*
-#include <vtkSmartPointer.h>
+#include <vtkVersion.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
-
-#include <vtkLookupTable.h>
-#include <vtkFloatArray.h>
-#include <vtkCellData.h>
 #include <vtkPolyData.h>
-#include <vtkPlaneSource.h>
+#include <vtkCubeSource.h>
+#include <vtkSphereSource.h>
+#include <vtkLegendBoxActor.h>
+#include <vtkNamedColors.h>
 
-#include <algorithm>
+#include <vtkSmartPointer.h>
 
-int main(int , char *[])
+int main (int, char *[])
 {
-  // Provide some geometry
-  int resolution = 3;
-  vtkSmartPointer<vtkPlaneSource> aPlane =
-    vtkSmartPointer<vtkPlaneSource>::New();
-  aPlane->SetXResolution(resolution);
-  aPlane->SetYResolution(resolution);
+  vtkSmartPointer<vtkSphereSource> sphereSource =
+    vtkSmartPointer<vtkSphereSource>::New();
+  sphereSource->SetCenter(0.0, 0.0, 0.0);
+  sphereSource->SetRadius(5000.0);
+  sphereSource->Update();
 
-  // Create cell data
-  vtkSmartPointer<vtkFloatArray> cellData =
-    vtkSmartPointer<vtkFloatArray>::New();
-  for (int i = 0; i < resolution * resolution; i++)
-    {
-    cellData->InsertNextValue(i + 1);
-    }
+  vtkPolyData* polydata = sphereSource->GetOutput();
 
-  // Create a lookup table to map cell data to colors
-  vtkSmartPointer<vtkLookupTable> lut =
-    vtkSmartPointer<vtkLookupTable>::New();
-  int tableSize = std::max(resolution*resolution + 1, 10);
-  lut->SetNumberOfTableValues(tableSize);
-  lut->Build();
-
-  // Fill in a few known colors, the rest will be generated if needed
-  lut->SetTableValue(0     , 0     , 0     , 0, 1);  //Black
-  lut->SetTableValue(1, 0.8900, 0.8100, 0.3400, 1); // Banana
-  lut->SetTableValue(2, 1.0000, 0.3882, 0.2784, 1); // Tomato
-  lut->SetTableValue(3, 0.9608, 0.8706, 0.7020, 1); // Wheat
-  lut->SetTableValue(4, 0.9020, 0.9020, 0.9804, 1); // Lavender
-  lut->SetTableValue(5, 1.0000, 0.4900, 0.2500, 1); // Flesh
-  lut->SetTableValue(6, 0.5300, 0.1500, 0.3400, 1); // Raspberry
-  lut->SetTableValue(7, 0.9804, 0.5020, 0.4471, 1); // Salmon
-  lut->SetTableValue(8, 0.7400, 0.9900, 0.7900, 1); // Mint
-  lut->SetTableValue(9, 0.2000, 0.6300, 0.7900, 1); // Peacock
-
-  aPlane->Update(); // Force an update so we can set cell data
-  aPlane->GetOutput()->GetCellData()->SetScalars(cellData);
-
-  // Setup actor and mapper
+  // Create a mapper
   vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  mapper->SetInputConnection(aPlane->GetOutputPort());
-  mapper->SetScalarRange(0, tableSize - 1);
-  mapper->SetLookupTable(lut);
+  mapper->SetInputData(polydata);
 
+  // Create an actor
   vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
-  // Setup render window, renderer, and interactor
+  // A renderer and render window
   vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkRenderWindow> renderWindow =
     vtkSmartPointer<vtkRenderWindow>::New();
   renderWindow->AddRenderer(renderer);
-  vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
-      vtkSmartPointer<vtkRenderWindowInteractor>::New();
+
+  // An interactor
+  auto renderWindowInteractor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   renderWindowInteractor->SetRenderWindow(renderWindow);
+
+  auto legend = vtkSmartPointer<vtkLegendBoxActor>::New();
+  legend->SetNumberOfEntries(2);
+
+  auto legendBox = vtkSmartPointer<vtkCubeSource>::New();
+  legendBox->Update();
+
+  vtkImageData* symbol = nullptr;
+  double color[3] = {1.0, 1.0, 1.0};
+
+  legend->SetEntry(0, symbol, "Layer 0", color);
+  legend->SetEntry(1, symbol, "Layer 1", color);
+
+  // place legend in lower right
+  legend->GetPositionCoordinate()->SetCoordinateSystemToView();
+  legend->GetPosition2Coordinate()->SetCoordinateSystemToView();
+
+  legend->GetPositionCoordinate()->SetValue(.5, -1.0);
+  legend->GetPosition2Coordinate()->SetValue(1.0, -0.5);
+
+  //legend->SetBorder(false);
+
+  // Add the actors to the scene
   renderer->AddActor(actor);
-  renderer->SetBackground(.1,.2,.3);
+  renderer->AddActor(legend);
+  renderer->SetBackground(0, 0, 1); // Background color cyan
+
+  // Render an image (lights and cameras are created automatically)
   renderWindow->Render();
+
+  // Begin mouse interaction
   renderWindowInteractor->Start();
 
   return EXIT_SUCCESS;
@@ -162,7 +160,6 @@ int main(int argc, char* argv[])
 {
     return Application::run(argc, argv);
 }
-
 
 /*
 #include <QtWidgets>
