@@ -1,5 +1,19 @@
 #include "Slider.hpp"
 
+ToolButton::ToolButton(QWidget* parent): QToolButton(parent)
+{
+
+}
+
+void ToolButton::paintEvent(QPaintEvent*)
+{
+    QStylePainter p(this);
+    QStyleOptionToolButton opt;
+    initStyleOption(&opt);
+    opt.features &= (~ QStyleOptionToolButton::HasMenu);
+    p.drawComplexControl(QStyle::CC_ToolButton, opt);
+}
+
 Slider::Slider(const std::vector<double>& values, const QString& text)
 {
     auto hbox = new QHBoxLayout();

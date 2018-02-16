@@ -1,4 +1,5 @@
 #include "LimbSource.hpp"
+#include "numerics/Eigen.hpp"
 
 #include <vtkCellArray.h>
 #include <vtkFloatArray.h>
@@ -10,10 +11,8 @@
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
-#include <vtkFloatArray.h>
 #include <vtkCellData.h>
 
-#include "numerics/Eigen.hpp"
 #include <array>
 
 vtkStandardNewMacro(LimbSource)

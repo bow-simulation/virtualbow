@@ -62,10 +62,32 @@ add_executable(${PROJECT_NAME}
     source/gui/EditableTabBar.cpp
     source/gui/EditableTabBar.hpp
 
+    source/gui/input/dialogs/CommentDialog.cpp
+    source/gui/input/dialogs/CommentDialog.hpp
+    source/gui/input/dialogs/GroupDialog.cpp
+    source/gui/input/dialogs/GroupDialog.hpp
+    source/gui/input/dialogs/LayerDialog.cpp
+    source/gui/input/dialogs/LayerDialog.hpp
+    source/gui/input/dialogs/MassesDialog.cpp
+    source/gui/input/dialogs/MassesDialog.hpp
+    source/gui/input/dialogs/OperationDialog.cpp
+    source/gui/input/dialogs/OperationDialog.hpp
+    source/gui/input/dialogs/ProfileDialog.cpp
+    source/gui/input/dialogs/ProfileDialog.hpp
+    source/gui/input/dialogs/SettingsDialog.cpp
+    source/gui/input/dialogs/SettingsDialog.hpp
+    source/gui/input/dialogs/StringDialog.cpp
+    source/gui/input/dialogs/StringDialog.hpp
+    source/gui/input/dialogs/WidthDialog.cpp
+    source/gui/input/dialogs/WidthDialog.hpp
+
     source/gui/input/editors/BowEditor.cpp
     source/gui/input/editors/BowEditor.hpp
+    source/gui/input/editors/DoubleEditor.cpp
     source/gui/input/editors/DoubleEditor.hpp
+    source/gui/input/editors/IntegerEditor.cpp
     source/gui/input/editors/IntegerEditor.hpp
+    source/gui/input/editors/LayerEditor.cpp
     source/gui/input/editors/LayerEditor.hpp
     source/gui/input/editors/SeriesEditor.cpp
     source/gui/input/editors/SeriesEditor.hpp
@@ -79,21 +101,12 @@ add_executable(${PROJECT_NAME}
     source/gui/input/views/LimbView.hpp
     source/gui/input/views/LayerLegend.cpp
     source/gui/input/views/LayerLegend.hpp
+    source/gui/input/views/LayerColors.cpp
     source/gui/input/views/LayerColors.hpp
+    source/gui/input/views/ProfileView.cpp
     source/gui/input/views/ProfileView.hpp
+    source/gui/input/views/SplineView.cpp
     source/gui/input/views/SplineView.hpp
-
-    source/gui/input/dialogs/CommentDialog.cpp
-    source/gui/input/dialogs/CommentDialog.hpp
-    source/gui/input/dialogs/GroupDialog.cpp
-    source/gui/input/dialogs/GroupDialog.hpp
-    source/gui/input/dialogs/LayerDialog.hpp
-    source/gui/input/dialogs/MassesDialog.hpp
-    source/gui/input/dialogs/OperationDialog.hpp
-    source/gui/input/dialogs/ProfileDialog.hpp
-    source/gui/input/dialogs/SettingsDialog.hpp
-    source/gui/input/dialogs/StringDialog.hpp
-    source/gui/input/dialogs/WidthDialog.hpp
 
     source/gui/output/ComboPlot.cpp
     source/gui/output/ComboPlot.hpp

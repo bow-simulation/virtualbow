@@ -1,6 +1,6 @@
 #pragma once
-#include <QtWidgets>
 #include "numerics/Series.hpp"
+#include <QtWidgets>
 
 class TableItem: public QTableWidgetItem
 {
