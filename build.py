@@ -42,18 +42,16 @@ def download_and_extract(path, url):
                 tar.extract(tarinfo, path)
 
 def ensure_source_dependencies():
-   # Download dependencies
-   # Eigen (http://eigen.tuxfamily.org)
-   download_and_extract("build/eigen", "http://bitbucket.org/eigen/eigen/get/3.3.3.tar.gz")
-   # Catch (https://github.com/philsquared/Catch)
-   download_and_extract("build/catch", "https://github.com/philsquared/Catch/archive/v1.9.3.tar.gz")
-   # Json for modern C++ (https://github.com/nlohmann/json)
-   # Use latest develop branch (zip): https://github.com/nlohmann/json/archive/develop.zip
-   download_and_extract("build/json", "https://github.com/nlohmann/json/archive/v2.1.1.tar.gz")
-   # Boost (http://www.boost.org/)
-   download_and_extract("build/boost", "http://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz")
-   # VTK (Fork) (http://www.vtk.org)
-   download_and_extract("build/vtk/source", "https://gitlab.kitware.com/stfnp/vtk/repository/archive.tar.gz?ref=vtkcamera-horizontal-parallel-scale")
+    # Eigen (http://eigen.tuxfamily.org)
+    download_and_extract("build/eigen", "http://bitbucket.org/eigen/eigen/get/3.3.4.tar.gz")
+    # Catch (https://github.com/philsquared/Catch)
+    download_and_extract("build/catch", "https://github.com/philsquared/Catch/archive/v1.9.3.tar.gz")
+    # Json for modern C++ (https://github.com/nlohmann/json)
+    download_and_extract("build/json", "https://github.com/nlohmann/json/archive/v3.0.1.tar.gz")
+    # Boost (http://www.boost.org/)
+    download_and_extract("build/boost", "http://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz")
+    # VTK (Fork) (http://www.vtk.org)
+    download_and_extract("build/vtk/source", "https://gitlab.com/bow-simulator/vtk-custom/repository/archive.tar.gz?ref=vtkcamera-horizontal-parallel-scale")
 
 # Build application depending on platform
 
@@ -72,4 +70,4 @@ if create_directory("build/bow-simulator/build"):
     build_application(".", "build/bow-simulator/build", "build/bow-simulator")
 
 if create_directory("build/packages"):
-    build_packages("0.4", "build/packages/build", "build/packages")
+    build_packages("0.5", "build/packages/build", "build/packages")

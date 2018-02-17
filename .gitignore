@@ -2,7 +2,7 @@
 build/
 
 # Python byte code
-__pycache__/
+**/__pycache__/
 
 # User settings for Qt creator
 *.user
