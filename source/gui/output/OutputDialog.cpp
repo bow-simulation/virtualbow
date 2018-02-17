@@ -111,6 +111,7 @@ OutputDialog::OutputDialog(QWidget* parent, const InputData& input, const Output
         stack->addWidget(new DynamicOutput(input, output.setup, output.dynamics));
 
     auto bt_statics = new QPushButton("Statics");
+    // bt_statics->setStyleSheet("background-color: rgb(249, 217, 111);");
     bt_statics->setIcon(QIcon(":/icons/show-statics"));
     bt_statics->setCheckable(true);
     bt_statics->setChecked(true);
@@ -118,6 +119,7 @@ OutputDialog::OutputDialog(QWidget* parent, const InputData& input, const Output
     bt_statics->setAutoExclusive(true);
 
     auto bt_dynamics = new QPushButton("Dynamics");
+    // bt_dynamics->setStyleSheet("background-color: rgb(170, 243, 117);");
     bt_dynamics->setIcon(QIcon(":/icons/show-dynamics"));
     bt_dynamics->setCheckable(true);
     bt_dynamics->setChecked(false);

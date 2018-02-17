@@ -52,8 +52,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6"
-     inkscape:cx="-0.217546"
-     inkscape:cy="29.947779"
+     inkscape:cx="41.727309"
+     inkscape:cy="46.464977"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -90,6 +90,7 @@
        height="16.536459"
        x="11.509285"
        y="9.4099035"
-       rx="123.5" />
+       rx="2"
+       ry="2" />
   </g>
 </svg>
