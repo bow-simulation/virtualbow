@@ -25,6 +25,7 @@ set(CMAKE_AUTOUIC ON)
 include_directories(source)
 add_executable(${PROJECT_NAME}
     source/main.cpp
+    source/config.hpp
 
     source/fem/elements/BarElement.cpp
     source/fem/elements/BeamElement.cpp

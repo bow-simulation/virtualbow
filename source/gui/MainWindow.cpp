@@ -4,6 +4,7 @@
 #include "input/editors/BowEditor.hpp"
 #include "output/OutputDialog.hpp"
 #include "bow/BowModel.hpp"
+#include "config.hpp"
 #include <thread>
 #include <json.hpp>
 
@@ -161,7 +162,7 @@ void MainWindow::newFile()
 
     // Create new file and set version correctly
     data = InputData();
-    data.meta.version = QGuiApplication::applicationVersion().toStdString();
+    data.meta.version = Config::VERSION;
     editor->setData(data);
 
     setCurrentFile(QString());
@@ -276,11 +277,12 @@ void MainWindow::runSimulation(bool dynamic)
 
 void MainWindow::about()
 {
-    QMessageBox::about(this, "About", "<h2>" + QApplication::applicationDisplayName() + " v" + QApplication::applicationVersion() + "</h2>"
-                   "Bow and arrow physics simulation<br>"
-                   "<a href=\"" + QApplication::organizationDomain() + "\">" + QApplication::organizationDomain() + "</a><br><br>"
-                   "<small>Copyright (C) 2016 Stefan Pfeifer<br>"
-                   "Distributed under the GNU General Public License v3.0</small>");
+    QMessageBox::about(this, "About",
+                       QString("<h2>") + Config::APP_NAME + " v" + Config::VERSION + "</h2>"
+                       "Bow and arrow physics simulation<br>"
+                       "<a href=\"" + Config::WEBSITE + "\">" + Config::WEBSITE + "</a><br><br>"
+                       "<small>" + Config::COPYRIGHT + "<br>"
+                       "Distributed under the " + Config::LICENSE + "</small>");
 }
 
 void MainWindow::setCurrentFile(const QString &path)

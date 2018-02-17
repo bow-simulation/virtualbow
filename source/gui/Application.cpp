@@ -1,21 +1,21 @@
 #include "Application.hpp"
 #include "MainWindow.hpp"
 #include "bow/BowModel.hpp"
+#include "config.hpp"
 
 #ifdef WIN32
 #include <windows.h>
 #endif
 
-const std::string Application::version{"0.4"};
-QSettings Application::settings{"bow-simulator.org", "bow-simulator"};
+QSettings Application::settings{Config::WEBSITE, Config::EXE_NAME};
 
 int Application::run(int argc, char* argv[])
 {
     QApplication app(argc, argv);
-    app.setApplicationName("bow-simulator");
-    app.setApplicationDisplayName("Bow Simulator");
-    app.setApplicationVersion(QString::fromStdString(version));
-    app.setOrganizationDomain("bow-simulator.org");
+    app.setApplicationName(Config::EXE_NAME);
+    app.setApplicationDisplayName(Config::APP_NAME);
+    app.setApplicationVersion(Config::VERSION);
+    app.setOrganizationDomain(Config::WEBSITE);
     setlocale(LC_NUMERIC, "C");
 
     // Parse command line arguments
