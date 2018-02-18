@@ -23,14 +23,23 @@ namespace Eigen
     {
         obj = json::array();
         for(size_t i = 0; i < vec.size(); ++i)
+        {
             obj.push_back(vec[i]);
+        }
     }
 
-    static void from_json(const json& obj, VectorXd& vec)
+    // Uses row major order, like numpy
+    static void to_json(json& obj, const MatrixXd& mat)
     {
-        vec = VectorXd(obj.size());
-        for(size_t i = 0; i < vec.size(); ++i)
-            vec[i] = obj[i];
+        obj = json::array();
+        for(size_t i = 0; i < mat.rows(); ++i)
+        {
+            obj.push_back(json::array());
+            for(size_t j = 0; j < mat.cols(); ++j)
+            {
+                obj[i][j] = mat(i, j);
+            }
+        }
     }
 }
 

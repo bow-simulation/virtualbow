@@ -28,6 +28,7 @@ struct BowStates
     std::vector<VectorXd> x_pos_limb;
     std::vector<VectorXd> y_pos_limb;
     std::vector<VectorXd> angle_limb;
+
     std::vector<VectorXd> x_pos_string;
     std::vector<VectorXd> y_pos_string;
 
