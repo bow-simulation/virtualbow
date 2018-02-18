@@ -10,14 +10,14 @@ class InputData;
 struct LimbProperties
 {
     // Nodes
-    VectorXd s;
-    VectorXd x;
-    VectorXd y;
-    VectorXd phi;
+    VectorXd length;
+    VectorXd angle;
+    VectorXd x_pos;
+    VectorXd y_pos;
 
     // Section geometry
-    VectorXd w;
-    VectorXd h;
+    VectorXd width;
+    VectorXd height;
 
     // Section properties
     VectorXd Cee;
@@ -35,7 +35,15 @@ struct LimbProperties
 
 static void to_json(json& obj, const LimbProperties& val)
 {
-    obj["s"] = val.s;
-    obj["x"] = val.x;
-    obj["y"] = val.y;
+    obj["length"] = val.length;
+    obj["angle"] = val.angle;
+    obj["x_pos"] = val.x_pos;
+    obj["y_pos"] = val.y_pos;
+    obj["width"] = val.width;
+    obj["height"] = val.height;
+    obj["Cee"] = val.Cee;
+    obj["Ckk"] = val.Ckk;
+    obj["Cek"] = val.Cek;
+    obj["rhoA"] = val.rhoA;
+    obj["layers"] = val.layers;
 }

@@ -7,17 +7,17 @@ using nlohmann::json;
 struct Profile
 {
     Series segments = {{0.7}, {0.0}};
-    double x0 = 0.0;
-    double y0 = 0.0;
-    double phi0 = 0.0;
+    double x_pos = 0.0;
+    double y_pos = 0.0;
+    double angle = 0.0;
 };
 
 static bool operator==(const Profile& lhs, const Profile& rhs)
 {
     return lhs.segments == rhs.segments
-        && lhs.x0 == rhs.x0
-        && lhs.y0 == rhs.y0
-        && lhs.phi0 == rhs.phi0;
+        && lhs.x_pos == rhs.x_pos
+        && lhs.y_pos == rhs.y_pos
+        && lhs.angle == rhs.angle;
 }
 
 static bool operator!=(const Profile& lhs, const Profile& rhs)
@@ -28,15 +28,15 @@ static bool operator!=(const Profile& lhs, const Profile& rhs)
 static void to_json(json& obj, const Profile& value)
 {
     obj["segments"] = value.segments;
-    obj["x0"] = value.x0;
-    obj["y0"] = value.y0;
-    obj["phi0"] = value.phi0;
+    obj["x_pos"] = value.x_pos;
+    obj["y_pos"] = value.y_pos;
+    obj["angle"] = value.angle;
 }
 
 static void from_json(const json& obj, Profile& value)
 {
     value.segments = obj.at("segments");
-    value.x0 = obj.at("x0");
-    value.y0 = obj.at("y0");
-    value.phi0 = obj.at("phi0");
+    value.x_pos = obj.at("x_pos");
+    value.y_pos = obj.at("y_pos");
+    value.angle = obj.at("angle");
 }

@@ -6,14 +6,14 @@
 #include "ComboPlot.hpp"
 #include "Slider.hpp"
 
-StaticOutput::StaticOutput(const InputData& input, const SetupData& setup, const StaticData& statics)
+StaticOutput::StaticOutput(const InputData& input, const LimbProperties& limb, const StaticData& statics)
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
     vbox->setMargin(0);
 
-    auto plot_shapes = new ShapePlot(setup, statics.states, true);
-    auto plot_stress = new StressPlot(input, setup, statics.states);
+    auto plot_shapes = new ShapePlot(limb, statics.states, true);
+    auto plot_stress = new StressPlot(input, limb, statics.states);
     auto plot_energy = new EnergyPlot(statics.states, statics.states.draw_length, "Draw length [m]");
     auto plot_combo = new ComboPlot();
     plot_combo->addData("Draw length [m]", statics.states.draw_length);
@@ -26,7 +26,7 @@ StaticOutput::StaticOutput(const InputData& input, const SetupData& setup, const
     plot_combo->setCombination(0, 1);
 
     auto grid = new OutputGrid();
-    grid->add(0, 0, "String length [m]", setup.string_length);
+    grid->add(0, 0, "String length [m]", statics.string_length);
     grid->add(1, 0, "Final draw force [N]", statics.final_draw_force);
     grid->add(2, 0, "Drawing work [J]", statics.drawing_work);
     grid->add(3, 0, "Storage ratio", statics.storage_ratio);
@@ -47,14 +47,14 @@ StaticOutput::StaticOutput(const InputData& input, const SetupData& setup, const
     vbox->addWidget(slider);
 }
 
-DynamicOutput::DynamicOutput(const InputData& input, const SetupData& setup, const DynamicData& dynamics)
+DynamicOutput::DynamicOutput(const InputData& input, const LimbProperties& limb, const DynamicData& dynamics)
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
     vbox->setMargin(0);
 
-    auto plot_shapes = new ShapePlot(setup, dynamics.states, false);
-    auto plot_stress = new StressPlot(input, setup, dynamics.states);
+    auto plot_shapes = new ShapePlot(limb, dynamics.states, false);
+    auto plot_stress = new StressPlot(input, limb, dynamics.states);
     auto plot_energy = new EnergyPlot(dynamics.states, dynamics.states.time, "Time [s]");
     auto plot_combo = new ComboPlot();
     plot_combo->addData("Time [s]", dynamics.states.time);
@@ -106,9 +106,9 @@ OutputDialog::OutputDialog(QWidget* parent, const InputData& input, const Output
     auto stack = new QStackedLayout();
     vbox->addLayout(stack, 1);
     if(enable_statics)
-        stack->addWidget(new StaticOutput(input, output.setup, output.statics));
+        stack->addWidget(new StaticOutput(input, output.limb_properties, output.statics));
     if(enable_dynamics)
-        stack->addWidget(new DynamicOutput(input, output.setup, output.dynamics));
+        stack->addWidget(new DynamicOutput(input, output.limb_properties, output.dynamics));
 
     auto bt_statics = new QPushButton("Statics");
     // bt_statics->setStyleSheet("background-color: rgb(249, 217, 111);");

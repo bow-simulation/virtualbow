@@ -1,5 +1,5 @@
 #pragma once
-#include "bow/output/SetupData.hpp"
+#include "bow/LimbProperties.hpp"
 #include "bow/output/StaticData.hpp"
 #include "bow/output/DynamicData.hpp"
 #include <json.hpp>
@@ -10,7 +10,7 @@ using nlohmann::json;
 
 struct OutputData
 {
-    SetupData setup;
+    LimbProperties limb_properties;
     StaticData statics;
     DynamicData dynamics;
 
@@ -24,7 +24,7 @@ struct OutputData
 
 static void to_json(json& obj, const OutputData& val)
 {
-    obj["setup"] = val.setup;
+    obj["limb_properties"] = val.limb_properties;
     obj["statics"] = val.statics;
     obj["dynamics"] = val.dynamics;
 }

@@ -1,9 +1,9 @@
 #include "StressPlot.hpp"
 #include "gui/input/views/LayerColors.hpp"
 
-StressPlot::StressPlot(const InputData& input, const SetupData& setup, const BowStates& states)
+StressPlot::StressPlot(const InputData& input, const LimbProperties& limb, const BowStates& states)
     : input(input),
-      setup(setup),
+      limb(limb),
       states(states)
 {
     this->xAxis->setLabel("Arc length [m]");
@@ -29,24 +29,22 @@ StressPlot::StressPlot(const InputData& input, const SetupData& setup, const Bow
 
 void StressPlot::setStateIndex(int index)
 {
-    for(int i = 0; i < setup.limb.layers.size(); ++i)
+    for(int i = 0; i < limb.layers.size(); ++i)
     {
-        const LayerProperties& layer = setup.limb.layers[i];
-        this->graph(2*i)->setData(layer.s, layer.sigma_back(states.epsilon[index], states.kappa[index]));
-        this->graph(2*i+1)->setData(layer.s, layer.sigma_belly(states.epsilon[index], states.kappa[index]));
+        const LayerProperties& layer = limb.layers[i];
+        this->graph(2*i)->setData(layer.length, layer.sigma_back(states.epsilon[index], states.kappa[index]));
+        this->graph(2*i+1)->setData(layer.length, layer.sigma_belly(states.epsilon[index], states.kappa[index]));
     }
 
     this->replot();
 }
 
-#include <QtCore>
-
 void StressPlot::setAxesRanges()
 {
-    QCPRange x_range(setup.limb.s.minCoeff(), setup.limb.s.maxCoeff());
+    QCPRange x_range(limb.length.minCoeff(), limb.length.maxCoeff());
     QCPRange y_range(0.0, 0.0);
 
-    for(auto& layer: setup.limb.layers)
+    for(auto& layer: limb.layers)
     {
         for(size_t i = 0; i < states.time.size(); ++i)
         {

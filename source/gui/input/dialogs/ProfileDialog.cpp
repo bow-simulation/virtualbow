@@ -4,9 +4,9 @@ ProfileDialog::ProfileDialog(QWidget* parent)
     : PersistentDialog(parent, "ProfileDialog", {800, 400}),    // Magic numbers
       table(new SeriesEditor("Length [m]", "Curvature [1/m]", 25)),
       view(new ProfileView()),
-      edit_x0(new DoubleEditor("X [m]")),
-      edit_y0(new DoubleEditor("Y [m]")),
-      edit_phi0(new DoubleEditor("Phi [rad]"))
+      edit_x_pos(new DoubleEditor("X [m]")),
+      edit_y_pos(new DoubleEditor("Y [m]")),
+      edit_angle(new DoubleEditor("Angle [rad]"))
 {
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     QObject::connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -16,9 +16,9 @@ ProfileDialog::ProfileDialog(QWidget* parent)
     hbox1->setContentsMargins(10, 5, 10, 5);
     hbox1->addWidget(new QLabel("Offsets:"));
     hbox1->addSpacing(10);
-    hbox1->addWidget(edit_x0);
-    hbox1->addWidget(edit_y0);
-    hbox1->addWidget(edit_phi0);
+    hbox1->addWidget(edit_x_pos);
+    hbox1->addWidget(edit_y_pos);
+    hbox1->addWidget(edit_angle);
     hbox1->addStretch(1);
 
     auto group = new QGroupBox();
@@ -42,9 +42,9 @@ ProfileDialog::ProfileDialog(QWidget* parent)
     // Event handling
 
     QObject::connect(table, &SeriesEditor::modified, this, &ProfileDialog::modified);
-    QObject::connect(edit_x0, &DoubleEditor::modified, this, &ProfileDialog::modified);
-    QObject::connect(edit_y0, &DoubleEditor::modified, this, &ProfileDialog::modified);
-    QObject::connect(edit_phi0, &DoubleEditor::modified, this, &ProfileDialog::modified);
+    QObject::connect(edit_x_pos, &DoubleEditor::modified, this, &ProfileDialog::modified);
+    QObject::connect(edit_y_pos, &DoubleEditor::modified, this, &ProfileDialog::modified);
+    QObject::connect(edit_angle, &DoubleEditor::modified, this, &ProfileDialog::modified);
 
     QObject::connect(this, &ProfileDialog::modified, [&]{
         view->setData(this->getData());
@@ -55,9 +55,9 @@ Profile ProfileDialog::getData() const
 {
     Profile profile;
     profile.segments = table->getData();
-    profile.x0 = edit_x0->getData();
-    profile.y0 = edit_y0->getData();
-    profile.phi0 = edit_phi0->getData();
+    profile.x_pos = edit_x_pos->getData();
+    profile.y_pos = edit_y_pos->getData();
+    profile.angle = edit_angle->getData();
 
     return profile;
 }
@@ -66,7 +66,7 @@ void ProfileDialog::setData(const Profile& profile)
 {
     view->setData(profile);
     table->setData(profile.segments);
-    edit_x0->setData(profile.x0);
-    edit_y0->setData(profile.y0);
-    edit_phi0->setData(profile.phi0);
+    edit_x_pos->setData(profile.x_pos);
+    edit_y_pos->setData(profile.y_pos);
+    edit_angle->setData(profile.angle);
 }

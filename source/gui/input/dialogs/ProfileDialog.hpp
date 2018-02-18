@@ -20,7 +20,7 @@ signals:
 private:
     SeriesEditor* table;
     ProfileView* view;
-    DoubleEditor* edit_x0;
-    DoubleEditor* edit_y0;
-    DoubleEditor* edit_phi0;
+    DoubleEditor* edit_x_pos;
+    DoubleEditor* edit_y_pos;
+    DoubleEditor* edit_angle;
 };

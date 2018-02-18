@@ -22,8 +22,8 @@ void ProfileView::setData(Profile profile)
 {
     try
     {
-        Curve2D curve = ArcCurve::sample(profile.segments, profile.x0, profile.y0, profile.phi0, 150);  // Magic number
-        Curve2D nodes = ArcCurve::nodes(profile.segments, profile.x0, profile.y0, profile.phi0);
+        Curve2D curve = ArcCurve::sample(profile.segments, profile.x_pos, profile.y_pos, profile.angle, 150);  // Magic number
+        Curve2D nodes = ArcCurve::nodes(profile.segments, profile.x_pos, profile.y_pos, profile.angle);
 
         curve0->setData(curve.x, curve.y);
         curve1->setData(nodes.x, nodes.y);

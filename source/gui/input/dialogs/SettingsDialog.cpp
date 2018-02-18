@@ -31,8 +31,8 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 Settings SettingsDialog::getData() const
 {
     Settings data;
-    data.n_elements_limb = edit0->getData();
-    data.n_elements_string = edit1->getData();
+    data.n_limb_elements = edit0->getData();
+    data.n_string_elements = edit1->getData();
     data.n_draw_steps = edit2->getData();
     data.time_span_factor = edit3->getData();
     data.time_step_factor = edit4->getData();
@@ -43,8 +43,8 @@ Settings SettingsDialog::getData() const
 
 void SettingsDialog::setData(const Settings& data)
 {
-    edit0->setData(data.n_elements_limb);
-    edit1->setData(data.n_elements_string);
+    edit0->setData(data.n_limb_elements);
+    edit1->setData(data.n_string_elements);
     edit2->setData(data.n_draw_steps);
     edit3->setData(data.time_span_factor);
     edit4->setData(data.time_step_factor);

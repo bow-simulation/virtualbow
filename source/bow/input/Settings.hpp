@@ -5,8 +5,8 @@ using nlohmann::json;
 
 struct Settings
 {
-    int n_elements_limb = 40;
-    int n_elements_string = 45;
+    int n_limb_elements = 40;
+    int n_string_elements = 45;
     int n_draw_steps = 150;
     double time_span_factor = 1.5;
     double time_step_factor = 0.5;
@@ -15,8 +15,8 @@ struct Settings
 
 static bool operator==(const Settings& lhs, const Settings& rhs)
 {
-    return lhs.n_elements_limb == rhs.n_elements_limb
-        && lhs.n_elements_string == rhs.n_elements_string
+    return lhs.n_limb_elements == rhs.n_limb_elements
+        && lhs.n_string_elements == rhs.n_string_elements
         && lhs.n_draw_steps == rhs.n_draw_steps
         && lhs.time_span_factor == rhs.time_span_factor
         && lhs.time_step_factor == rhs.time_step_factor
@@ -30,8 +30,8 @@ static bool operator!=(const Settings& lhs, const Settings& rhs)
 
 static void to_json(json& obj, const Settings& value)
 {
-    obj["n_elements_limb"] = value.n_elements_limb;
-    obj["n_elements_string"] = value.n_elements_string;
+    obj["n_limb_elements"] = value.n_limb_elements;
+    obj["n_string_elements"] = value.n_string_elements;
     obj["n_draw_steps"] = value.n_draw_steps;
     obj["time_span_factor"] = value.time_span_factor;
     obj["time_step_factor"] = value.time_step_factor;
@@ -40,8 +40,8 @@ static void to_json(json& obj, const Settings& value)
 
 static void from_json(const json& obj, Settings& value)
 {
-    value.n_elements_limb = obj.at("n_elements_limb");
-    value.n_elements_string = obj.at("n_elements_string");
+    value.n_limb_elements = obj.at("n_limb_elements");
+    value.n_string_elements = obj.at("n_string_elements");
     value.n_draw_steps = obj.at("n_draw_steps");
     value.time_span_factor = obj.at("time_span_factor");
     value.time_step_factor = obj.at("time_step_factor");

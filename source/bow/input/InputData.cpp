@@ -33,10 +33,10 @@ create_constraint(masses.string_tip,    "String tip mass must be positive",    [
 create_constraint(masses.limb_tip,      "Limb tip mass must be positive",      [](double x){ return x > 0; });
 
 create_constraint(operation.draw_length, operation.brace_height, "Draw length must be larger than brace height", [](double x, double y){ return x > y; });
-create_constraint(operation.mass_arrow, "Arrow mass must be positive", [](double x){ return x > 0; });
+create_constraint(operation.arrow_mass, "Arrow mass must be positive", [](double x){ return x > 0; });
 
-create_constraint(settings.n_elements_limb,   "Number of limb elements must be positive",   [](int x){ return x > 0; });
-create_constraint(settings.n_elements_string, "Number of string elements must be positive", [](int x){ return x > 0; });
+create_constraint(settings.n_limb_elements,   "Number of limb elements must be positive",   [](int x){ return x > 0; });
+create_constraint(settings.n_string_elements, "Number of string elements must be positive", [](int x){ return x > 0; });
 create_constraint(settings.n_draw_steps,      "Number of draw steps must be positive",      [](int x){ return x > 0; });
 create_constraint(settings.time_span_factor,  "Time span factor must be positive",          [](double x){ return x > 0; });
 create_constraint(settings.time_step_factor,  "Time step factor must be between 0 and 1",   [](double x){ return x > 0.0 && x < 1.0; });

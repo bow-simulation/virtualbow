@@ -7,18 +7,18 @@
 #include <iostream>
 
 LimbProperties::LimbProperties(const InputData& input)
-    : LimbProperties(input, input.settings.n_elements_limb + 1)
+    : LimbProperties(input, input.settings.n_limb_elements + 1)
 {
 
 }
 
 LimbProperties::LimbProperties(const InputData& input, unsigned n)
-    : s(VectorXd::Zero(n)),
-      x(VectorXd::Zero(n)),
-      y(VectorXd::Zero(n)),
-      phi(VectorXd::Zero(n)),
-      w(VectorXd::Zero(n)),
-      h(VectorXd::Zero(n)),
+    : length(VectorXd::Zero(n)),
+      angle(VectorXd::Zero(n)),
+      x_pos(VectorXd::Zero(n)),
+      y_pos(VectorXd::Zero(n)),
+      width(VectorXd::Zero(n)),
+      height(VectorXd::Zero(n)),
       Cee(VectorXd::Zero(n)),
       Ckk(VectorXd::Zero(n)),
       Cek(VectorXd::Zero(n)),
@@ -26,16 +26,16 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
 {
     // 1. Nodes
     Curve2D curve = ArcCurve::sample(input.profile.segments,
-                                     input.profile.x0,
-                                     input.profile.y0,
-                                     input.profile.phi0,
+                                     input.profile.x_pos,
+                                     input.profile.y_pos,
+                                     input.profile.angle,
                                      n-1);
 
     // Todo: Is there a more elegant way? Maybe have a Curve2D member? C++17 structured bindings?
-    s = curve.s;
-    x = curve.x;
-    y = curve.y;
-    phi = curve.phi;
+    length = curve.s;
+    angle = curve.phi;
+    x_pos = curve.x;
+    y_pos = curve.y;
 
     // 2. Sections properties
     Series width = CubicSpline::sample(input.width, n-1);
@@ -48,22 +48,22 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
     }
 
     // i: Section index
-    for(size_t i = 0; i < s.size(); ++i)
+    for(size_t i = 0; i < length.size(); ++i)
     {
         // Width
-        w[i] = width.val(i);
+        this->width[i] = width.val(i);
 
         // Total height
         for(auto& height: heights)
-            h[i] += height.val(i);
+            this->height[i] += height.val(i);
 
         // j: Layer index
-        double y_bottom = -0.5*h[i];
+        double y_bottom = -0.5*height[i];
         for(size_t j = 0; j < input.layers.size(); ++j)
         {
             double h = heights[j].val(i);
             double y = y_bottom + 0.5*h;
-            double A = w[i]*h;
+            double A = this->width[i]*h;
             double I = A*(h*h/12.0 + y*y);
 
             // Limb properties
@@ -75,7 +75,7 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
 
             // Layer properties
 
-            layers[j].s(i) = s[i];
+            layers[j].length(i) = length[i];
 
             layers[j].y_back(i) = y + 0.5*h;
             layers[j].y_belly(i) = y - 0.5*h;

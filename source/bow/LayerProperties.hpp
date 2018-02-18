@@ -1,25 +1,26 @@
 #pragma once
 #include "numerics/Eigen.hpp"
+#include <json.hpp>
 
-// sigma_upper = He_upper*epsilon + Hk_upper*kappa
-// sigma_lower = He_lower*epsilon + Hk_lower*kappa
+using nlohmann::json;
 
 struct LayerProperties
 {
-    VectorXd s;
+    VectorXd length;
 
+    // Todo: Remove when limb view doesn't use this anymore
     VectorXd y_back;
     VectorXd y_belly;
 
     MatrixXd He_back;
-    MatrixXd He_belly;
-
     MatrixXd Hk_back;
+
+    MatrixXd He_belly;
     MatrixXd Hk_belly;
 
     // n: Limb nodex, k: Layer nodes
     LayerProperties(unsigned n, unsigned k)
-        : s(VectorXd::Zero(k)),
+        : length(VectorXd::Zero(k)),
           y_back(VectorXd::Zero(k)),
           y_belly(VectorXd::Zero(k)),
           He_back(MatrixXd::Zero(k, n)),
@@ -40,3 +41,12 @@ struct LayerProperties
         return He_belly*epsilon + Hk_belly*kappa;
     }
 };
+
+static void to_json(json& obj, const LayerProperties& val)
+{
+    obj["length"] = val.length;
+    obj["He_back"] = val.He_back;
+    obj["Hk_back"] = val.Hk_back;
+    obj["He_belly"] = val.He_belly;
+    obj["Hk_belly"] = val.Hk_belly;
+}

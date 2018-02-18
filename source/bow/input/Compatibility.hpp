@@ -24,8 +24,8 @@ static void convert_0_2_0_to_0_3_0(json& obj)
     obj2.at("string") = obj.at("string");
     obj2.at("masses") = obj.at("masses");
     obj2.at("operation") = obj.at("operation");
-    obj2.at("settings").at("n_elements_limb") = obj.at("settings").at("n_elements_limb");
-    obj2.at("settings").at("n_elements_string") = obj.at("settings").at("n_elements_string");
+    obj2.at("settings").at("n_limb_elements") = obj.at("settings").at("n_limb_elements");
+    obj2.at("settings").at("n_string_elements") = obj.at("settings").at("n_string_elements");
     obj2.at("settings").at("n_draw_steps") = obj.at("settings").at("n_draw_steps");
     obj2.at("settings").at("time_span_factor") = obj.at("settings").at("time_span_factor");
     obj2.at("settings").at("time_step_factor") = obj.at("settings").at("time_step_factor");
@@ -62,9 +62,9 @@ static void convert_0_3_0_to_0_4_0(json& obj)
     obj2.at("masses").at("limb_tip") = obj.at("masses").at("limb_tip");
     obj2.at("operation").at("brace_height") = obj.at("operation").at("brace_height");
     obj2.at("operation").at("draw_length") = obj.at("operation").at("draw_length");
-    obj2.at("operation").at("mass_arrow") = obj.at("operation").at("mass_arrow");
-    obj2.at("settings").at("n_elements_limb") = obj.at("settings").at("n_elements_limb");
-    obj2.at("settings").at("n_elements_string") = obj.at("settings").at("n_elements_string");
+    obj2.at("operation").at("arrow_mass") = obj.at("operation").at("arrow_mass");
+    obj2.at("settings").at("n_limb_elements") = obj.at("settings").at("n_limb_elements");
+    obj2.at("settings").at("n_string_elements") = obj.at("settings").at("n_string_elements");
     obj2.at("settings").at("n_draw_steps") = obj.at("settings").at("n_draw_steps");
     obj2.at("settings").at("time_span_factor") = obj.at("settings").at("time_span_factor");
     obj2.at("settings").at("time_step_factor") = obj.at("settings").at("time_step_factor");

@@ -25,11 +25,11 @@ struct BowStates
     std::vector<double> e_kin_string;
     std::vector<double> e_kin_arrow;
 
-    std::vector<VectorXd> x_limb;
-    std::vector<VectorXd> y_limb;
-    std::vector<VectorXd> phi_limb;
-    std::vector<VectorXd> x_string;
-    std::vector<VectorXd> y_string;
+    std::vector<VectorXd> x_pos_limb;
+    std::vector<VectorXd> y_pos_limb;
+    std::vector<VectorXd> angle_limb;
+    std::vector<VectorXd> x_pos_string;
+    std::vector<VectorXd> y_pos_string;
 
     std::vector<VectorXd> epsilon;
     std::vector<VectorXd> kappa;
@@ -51,11 +51,11 @@ static void to_json(json& obj, const BowStates& val)
     obj["e_pot_string"] = val.e_pot_string;
     obj["e_kin_string"] = val.e_kin_string;
     obj["e_kin_arrow"] = val.e_kin_arrow;
-    obj["x_limb"] = val.x_limb;
-    obj["y_limb"] = val.y_limb;
-    obj["phi_limb"] = val.phi_limb;
-    obj["x_string"] = val.x_string;
-    obj["y_string"] = val.y_string;
+    obj["x_pos_limb"] = val.x_pos_limb;
+    obj["y_pos_limb"] = val.y_pos_limb;
+    obj["angle_limb"] = val.angle_limb;
+    obj["x_pos_string"] = val.x_pos_string;
+    obj["y_pos_string"] = val.y_pos_string;
     obj["epsilon"] = val.epsilon;
     obj["kappa"] = val.kappa;
 }

@@ -49,26 +49,26 @@ BowModel::BowModel(const InputData& input, const Callback& callback)
 
 void BowModel::init_limb(const Callback& callback)
 {
-    // Calculate discrete limb properties
-    output.setup.limb = LimbProperties(input);
+    LimbProperties limb_properties(input);
 
     // Create limb nodes
-    for(size_t i = 0; i < input.settings.n_elements_limb + 1; ++i)
+    for(size_t i = 0; i < input.settings.n_limb_elements + 1; ++i)
     {
         bool active = (i != 0);
-        Node node = system.create_node({active, active, active}, {output.setup.limb.x[i], output.setup.limb.y[i], output.setup.limb.phi[i]});
+        Node node = system.create_node({active, active, active},
+                        {limb_properties.x_pos[i], limb_properties.y_pos[i], limb_properties.angle[i]});
         nodes_limb.push_back(node);
     }
 
     // Create limb elements
-    for(size_t i = 0; i < input.settings.n_elements_limb; ++i)
+    for(size_t i = 0; i < input.settings.n_limb_elements; ++i)
     {
-        double rhoA = 0.5*(output.setup.limb.rhoA[i] + output.setup.limb.rhoA[i+1]);
+        double rhoA = 0.5*(limb_properties.rhoA[i] + limb_properties.rhoA[i+1]);
         double L = system.get_distance(nodes_limb[i], nodes_limb[i+1]);
 
-        double Cee = 0.5*(output.setup.limb.Cee[i] + output.setup.limb.Cee[i+1]);
-        double Ckk = 0.5*(output.setup.limb.Ckk[i] + output.setup.limb.Ckk[i+1]);
-        double Cek = 0.5*(output.setup.limb.Cek[i] + output.setup.limb.Cek[i+1]);
+        double Cee = 0.5*(limb_properties.Cee[i] + limb_properties.Cee[i+1]);
+        double Ckk = 0.5*(limb_properties.Ckk[i] + limb_properties.Ckk[i+1]);
+        double Cek = 0.5*(limb_properties.Cek[i] + limb_properties.Cek[i+1]);
 
         // Todo: Document this
         double phi = system.get_angle(nodes_limb[i], nodes_limb[i+1]);
@@ -80,12 +80,17 @@ void BowModel::init_limb(const Callback& callback)
         element.set_stiffness(Cee, Ckk, Cek);
         system.mut_elements().add(element, "limb");
     }
+
+    // Assign discrete limb properties
+    output.limb_properties = limb_properties;
 }
 
 void BowModel::init_string(const Callback& callback)
 {
+    LimbProperties& limb_properties = output.limb_properties;
+
     const double k = 0.1*system.get_K().maxCoeff();        // Contact stiffness in terms of maximum stiffness already present // Todo: Magic number
-    const double epsilon = 0.01*output.setup.limb.h[0];    // Transition zone of the contact elements // Magic number
+    const double epsilon = 0.01*limb_properties.height[0];    // Transition zone of the contact elements // Magic number
 
     // Calculate curve tangential to the limb na d calculate string node positions by equipartition
     std::vector<Vector<2>> points;
@@ -94,13 +99,13 @@ void BowModel::init_string(const Callback& callback)
     {
         points.push_back({
             // Add small initial penetration epsilon to prevent slip-through on the first static solver iteration
-            system.get_u(nodes_limb[i].x) + (0.5*output.setup.limb.h[i] - epsilon)*sin(system.get_u(nodes_limb[i].phi)),
-            system.get_u(nodes_limb[i].y) - (0.5*output.setup.limb.h[i] - epsilon)*cos(system.get_u(nodes_limb[i].phi))
+            system.get_u(nodes_limb[i].x) + (0.5*limb_properties.height[i] - epsilon)*sin(system.get_u(nodes_limb[i].phi)),
+            system.get_u(nodes_limb[i].y) - (0.5*limb_properties.height[i] - epsilon)*cos(system.get_u(nodes_limb[i].phi))
         });
     }
 
     points = one_sided_orientation_subset(points, true);
-    points = equipartition(points, input.settings.n_elements_string + 1);
+    points = equipartition(points, input.settings.n_string_elements + 1);
 
     // Create string nodes
     for(size_t i = 0; i < points.size(); ++i)
@@ -113,7 +118,7 @@ void BowModel::init_string(const Callback& callback)
     double EA = input.string.n_strands*input.string.strand_stiffness;
     double rhoA = input.string.n_strands*input.string.strand_density;
 
-    for(size_t i = 0; i < input.settings.n_elements_string; ++i)
+    for(size_t i = 0; i < input.settings.n_string_elements; ++i)
     {
         BarElement element(system, nodes_string[i], nodes_string[i+1], 0.0, EA, rhoA); // Element lengths are reset later when string length is determined
         system.mut_elements().add(element, "string");
@@ -123,7 +128,7 @@ void BowModel::init_string(const Callback& callback)
 
     ContactHandler contact(system, ContactForce(k, epsilon));
     for(size_t i = 1; i < nodes_limb.size(); ++i)
-        contact.add_segment(nodes_limb[i-1], nodes_limb[i], 0.5*output.setup.limb.h[i-1], 0.5*output.setup.limb.h[i]);
+        contact.add_segment(nodes_limb[i-1], nodes_limb[i], 0.5*limb_properties.height[i-1], 0.5*limb_properties.height[i]);
 
     for(size_t i = 0; i < nodes_string.size()-1; ++i)    // Don't include the last string node (tip)
         contact.add_point(nodes_string[i]);
@@ -185,8 +190,8 @@ void BowModel::init_string(const Callback& callback)
             throw std::runtime_error("Bracing failed: Step size too small");
     }
 
-    // Assign setup data
-    output.setup.string_length = 2.0*l*input.settings.n_elements_string;    // *2 because of symmetry
+    // Assign output data
+    output.statics.string_length = 2.0*l*input.settings.n_string_elements;    // *2 because of symmetry
 }
 
 void BowModel::init_masses(const Callback& callback)
@@ -195,12 +200,12 @@ void BowModel::init_masses(const Callback& callback)
     MassElement mass_limb_tip(system, nodes_limb.back(), input.masses.limb_tip);
     MassElement mass_string_tip(system, nodes_string.back(), input.masses.string_tip);
     MassElement mass_string_center(system, nodes_string.front(), 0.5*input.masses.string_center);   // 0.5 because of symmetry
-    MassElement mass_arrow(system, node_arrow, 0.5*input.operation.mass_arrow);                   // 0.5 because of symmetry
+    MassElement arrow_mass(system, node_arrow, 0.5*input.operation.arrow_mass);                   // 0.5 because of symmetry
 
     system.mut_elements().add(mass_limb_tip, "limb tip");
     system.mut_elements().add(mass_string_tip, "string tip");
     system.mut_elements().add(mass_string_center, "string center");
-    system.mut_elements().add(mass_arrow, "arrow");
+    system.mut_elements().add(arrow_mass, "arrow");
 }
 
 void BowModel::simulate_statics(const Callback& callback)
@@ -329,24 +334,24 @@ void BowModel::add_state(BowStates& states) const
     states.e_kin_arrow.push_back(e_kin_arrow);
 
     // Limb and string coordinates
-    states.x_limb.push_back(VectorXd(nodes_limb.size()));
-    states.y_limb.push_back(VectorXd(nodes_limb.size()));
-    states.phi_limb.push_back(VectorXd(nodes_limb.size()));
+    states.x_pos_limb.push_back(VectorXd(nodes_limb.size()));
+    states.y_pos_limb.push_back(VectorXd(nodes_limb.size()));
+    states.angle_limb.push_back(VectorXd(nodes_limb.size()));
 
     for(size_t i = 0; i < nodes_limb.size(); ++i)
     {
-        states.x_limb.back()[i] = system.get_u(nodes_limb[i].x);
-        states.y_limb.back()[i] = system.get_u(nodes_limb[i].y);
-        states.phi_limb.back()[i] = system.get_u(nodes_limb[i].phi);
+        states.x_pos_limb.back()[i] = system.get_u(nodes_limb[i].x);
+        states.y_pos_limb.back()[i] = system.get_u(nodes_limb[i].y);
+        states.angle_limb.back()[i] = system.get_u(nodes_limb[i].phi);
     }
 
-    states.x_string.push_back(VectorXd(nodes_string.size()));
-    states.y_string.push_back(VectorXd(nodes_string.size()));
+    states.x_pos_string.push_back(VectorXd(nodes_string.size()));
+    states.y_pos_string.push_back(VectorXd(nodes_string.size()));
 
     for(size_t i = 0; i < nodes_string.size(); ++i)
     {
-        states.x_string.back()[i] = system.get_u(nodes_string[i].x);
-        states.y_string.back()[i] = system.get_u(nodes_string[i].y);
+        states.x_pos_string.back()[i] = system.get_u(nodes_string[i].x);
+        states.y_pos_string.back()[i] = system.get_u(nodes_string[i].y);
     }
 
     // Limb deformation

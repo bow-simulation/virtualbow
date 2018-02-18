@@ -7,13 +7,13 @@
 class StaticOutput: public QWidget
 {
 public:
-    StaticOutput(const InputData& input, const SetupData& setup, const StaticData& statics);
+    StaticOutput(const InputData& input, const LimbProperties& limb, const StaticData& statics);
 };
 
 class DynamicOutput: public QWidget
 {
 public:
-    DynamicOutput(const InputData& input, const SetupData& setup, const DynamicData& dynamics);
+    DynamicOutput(const InputData& input, const LimbProperties& limb, const DynamicData& dynamics);
 };
 
 class OutputDialog: public PersistentDialog

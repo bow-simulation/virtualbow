@@ -1,7 +1,7 @@
 #include "ShapePlot.hpp"
 
-ShapePlot::ShapePlot(const SetupData& setup, const BowStates& states, bool intermediate_states)
-    : setup(setup),
+ShapePlot::ShapePlot(const LimbProperties& limb, const BowStates& states, bool intermediate_states)
+    : limb(limb),
       states(states)
 {
     if(intermediate_states)
@@ -35,10 +35,10 @@ ShapePlot::ShapePlot(const SetupData& setup, const BowStates& states, bool inter
 
 void ShapePlot::setStateIndex(int i)
 {
-    plotLimbOutline(limb_left, limb_right, states.x_limb[i], states.y_limb[i], states.phi_limb[i]);
+    plotLimbOutline(limb_left, limb_right, states.x_pos_limb[i], states.y_pos_limb[i], states.angle_limb[i]);
 
-    string_right->setData(states.x_string[i], states.y_string[i]);
-    string_left->setData(-states.x_string[i], states.y_string[i]);
+    string_right->setData(states.x_pos_string[i], states.y_pos_string[i]);
+    string_left->setData(-states.x_pos_string[i], states.y_pos_string[i]);
 
     arrow->data()->clear();
     arrow->addData(0.0, states.pos_arrow[i]);
@@ -51,7 +51,7 @@ void ShapePlot::plotIntermediateStates()
     // Unbraced state
     auto limb_left = new QCPCurve(this->xAxis, this->yAxis);
     auto limb_right = new QCPCurve(this->xAxis, this->yAxis);
-    plotLimbOutline(limb_left, limb_right, setup.limb.x, setup.limb.y, setup.limb.phi);
+    plotLimbOutline(limb_left, limb_right, limb.x_pos, limb.y_pos, limb.angle);
 
     limb_left->setPen({Qt::lightGray, 2});
     limb_left->setScatterSkip(0);
@@ -67,7 +67,7 @@ void ShapePlot::plotIntermediateStates()
 
         auto limb_left = new QCPCurve(this->xAxis, this->yAxis);
         auto limb_right = new QCPCurve(this->xAxis, this->yAxis);
-        plotLimbOutline(limb_left, limb_right, states.x_limb[j], states.y_limb[j], states.phi_limb[j]);
+        plotLimbOutline(limb_left, limb_right, states.x_pos_limb[j], states.y_pos_limb[j], states.angle_limb[j]);
 
         limb_right->setPen({Qt::lightGray, 2});
         limb_right->setScatterSkip(0);
@@ -76,12 +76,12 @@ void ShapePlot::plotIntermediateStates()
         limb_left->setScatterSkip(0);
 
         auto string_right = new QCPCurve(this->xAxis, this->yAxis);
-        string_right->setData(states.x_string[j], states.y_string[j]);
+        string_right->setData(states.x_pos_string[j], states.y_pos_string[j]);
         string_right->setPen({Qt::lightGray, 1});
         string_right->setScatterSkip(0);
 
         auto string_left = new QCPCurve(this->xAxis, this->yAxis);
-        string_left->setData(-states.x_string[j], states.y_string[j]);
+        string_left->setData(-states.x_pos_string[j], states.y_pos_string[j]);
         string_left->setPen({Qt::lightGray, 1});
         string_left->setScatterSkip(0);
     }
@@ -95,8 +95,8 @@ void ShapePlot::plotLimbOutline(QCPCurve* left, QCPCurve* right, const VectorXd&
     // Iterate forward and draw back
     for(int i = 0; i < phi.size(); ++i)
     {
-        double xi = x[i] - 0.5*setup.limb.h[i]*sin(phi[i]);
-        double yi = y[i] + 0.5*setup.limb.h[i]*cos(phi[i]);
+        double xi = x[i] - 0.5*limb.height[i]*sin(phi[i]);
+        double yi = y[i] + 0.5*limb.height[i]*cos(phi[i]);
         left->addData(-xi, yi);
         right->addData(xi, yi);
     }
@@ -104,8 +104,8 @@ void ShapePlot::plotLimbOutline(QCPCurve* left, QCPCurve* right, const VectorXd&
     // Iterate backward and plot belly
     for(int i = phi.size()-1; i >= 0; --i)
     {
-        double xi = x[i] + 0.5*setup.limb.h[i]*sin(phi[i]);
-        double yi = y[i] - 0.5*setup.limb.h[i]*cos(phi[i]);
+        double xi = x[i] + 0.5*limb.height[i]*sin(phi[i]);
+        double yi = y[i] - 0.5*limb.height[i]*cos(phi[i]);
         left->addData(-xi, yi);
         right->addData(xi, yi);
     }
@@ -115,6 +115,7 @@ void ShapePlot::setAxesRanges()
 {
     QCPRange x_range;
     QCPRange y_range;
+
     auto expand = [&x_range, &y_range](const VectorXd& x_values, const VectorXd& y_values)
     {
         for(size_t i = 0; i < x_values.size(); ++i)
@@ -125,12 +126,12 @@ void ShapePlot::setAxesRanges()
         }
     };
 
-    expand(setup.limb.x, setup.limb.y);
+    expand(limb.x_pos, limb.y_pos);
     for(size_t i = 0; i < states.time.size(); ++i)
     {
         // Add 0.5*height as an estimated upper bound
-        expand(states.x_limb[i] + 0.5*setup.limb.h, states.y_limb[i] + 0.5*setup.limb.h);
-        expand(states.x_string[i] + 0.5*setup.limb.h, states.y_string[i] + 0.5*setup.limb.h);
+        expand(states.x_pos_limb[i] + 0.5*limb.height, states.y_pos_limb[i] + 0.5*limb.height);
+        expand(states.x_pos_string[i] + 0.5*limb.height, states.y_pos_string[i] + 0.5*limb.height);
     }
 
     this->setAxesLimits(x_range, y_range);

@@ -120,7 +120,7 @@ bool MainWindow::loadFile(const QString& path)
     }
     catch(const std::exception& e)  // Todo
     {
-        QMessageBox::critical(this, "", "Failed to load " + path + "\n" + e.what());  // Todo: Detailed error message
+        QMessageBox::critical(this, "", "Failed to open " + path + "\n" + e.what());  // Todo: Detailed error message
         return false;
     }
 }

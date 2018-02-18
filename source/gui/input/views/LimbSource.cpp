@@ -40,8 +40,9 @@ int LimbSource::RequestData(vtkInformation* request, vtkInformationVector** inpu
 
     //points->Allocate(...);    // Todo: Preallocate
     //polys->Allocate(...);    // Todo: Preallocate
+    //data->Allocate(...);    // Todo: Preallocate
 
-    size_t n_sections = limb.s.size();
+    size_t n_sections = limb.length.size();
     size_t n_layers = limb.layers.size();
 
     std::vector<int> indices_l0(n_layers + 1);
@@ -57,22 +58,22 @@ int LimbSource::RequestData(vtkInformation* request, vtkInformationVector** inpu
         for(size_t j = 0; j < n_layers; ++j)
         {
             // Curve point (center) and normals in width and height direction
-            Vector<3> center  { limb.x[i], limb.y[i], 0.0 };
+            Vector<3> center  { limb.x_pos[i], limb.y_pos[i], 0.0 };
             Vector<3> normal_w{ 0.0, 0.0, 1.0 };
-            Vector<3> normal_h{-sin(limb.phi[i]), cos(limb.phi[i]), 0.0 };
+            Vector<3> normal_h{-sin(limb.angle[i]), cos(limb.angle[i]), 0.0 };
 
-            Vector<3> pl = center + normal_w*limb.w[i] + normal_h*limb.layers[j].y_belly[i];
+            Vector<3> pl = center + normal_w*limb.width[i] + normal_h*limb.layers[j].y_belly[i];
             indices_l1[j] = points->InsertNextPoint(pl.data());
 
-            Vector<3> pr = center - normal_w*limb.w[i] + normal_h*limb.layers[j].y_belly[i];
+            Vector<3> pr = center - normal_w*limb.width[i] + normal_h*limb.layers[j].y_belly[i];
             indices_r1[j] = points->InsertNextPoint(pr.data());
 
             if(j == n_layers-1)
             {
-                Vector<3> pl = center + normal_w*limb.w[i] + normal_h*limb.layers[j].y_back[i];
+                Vector<3> pl = center + normal_w*limb.width[i] + normal_h*limb.layers[j].y_back[i];
                 indices_l1[j+1] = points->InsertNextPoint(pl.data());
 
-                Vector<3> pr = center - normal_w*limb.w[i] + normal_h*limb.layers[j].y_back[i];
+                Vector<3> pr = center - normal_w*limb.width[i] + normal_h*limb.layers[j].y_back[i];
                 indices_r1[j+1] = points->InsertNextPoint(pr.data());
             }
         }
@@ -131,7 +132,6 @@ int LimbSource::RequestData(vtkInformation* request, vtkInformationVector** inpu
                 }
             }
         }
-
     }
 
     // Set output stuff

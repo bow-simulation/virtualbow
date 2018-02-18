@@ -17,7 +17,7 @@ Operation OperationDialog::getData() const
     Operation data;
     data.brace_height = edit0->getData();
     data.draw_length = edit1->getData();
-    data.mass_arrow = edit2->getData();
+    data.arrow_mass = edit2->getData();
 
     return data;
 }
@@ -26,5 +26,5 @@ void OperationDialog::setData(const Operation& data)
 {
     edit0->setData(data.brace_height);
     edit1->setData(data.draw_length);
-    edit2->setData(data.mass_arrow);
+    edit2->setData(data.arrow_mass);
 }

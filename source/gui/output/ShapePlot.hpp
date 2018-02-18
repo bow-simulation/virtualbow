@@ -5,11 +5,11 @@
 class ShapePlot: public PlotWidget
 {
 public:
-    ShapePlot(const SetupData& setup, const BowStates& states, bool intermediate_steps);
+    ShapePlot(const LimbProperties& limb, const BowStates& states, bool intermediate_steps);
     void setStateIndex(int i);
 
 private:
-    const SetupData& setup;
+    const LimbProperties& limb;
     const BowStates& states;
 
     QCPCurve* limb_right;
