@@ -41,12 +41,22 @@ public:
 
 static void to_json(json& obj, const Series& val)
 {
-    obj.push_back(val.m_args);
-    obj.push_back(val.m_vals);
+    for(size_t i = 0; i < val.size(); ++i)
+    {
+        obj.push_back(json::array());
+        obj[i].push_back(val.m_args[i]);
+        obj[i].push_back(val.m_vals[i]);
+    }
 }
 
 static void from_json(const json& obj, Series& val)
 {
-    val.m_args = obj.at(0).get<std::vector<double>>();
-    val.m_vals = obj.at(1).get<std::vector<double>>();
+    val.m_args = std::vector<double>();
+    val.m_vals = std::vector<double>();
+
+    for(size_t i = 0; i < obj.size(); ++i)
+    {
+        val.m_args.push_back(obj.at(i).at(0));
+        val.m_vals.push_back(obj.at(i).at(1));
+    }
 }
