@@ -62,18 +62,18 @@ int LimbSource::RequestData(vtkInformation* request, vtkInformationVector** inpu
             Vector<3> normal_w{ 0.0, 0.0, 1.0 };
             Vector<3> normal_h{-sin(limb.angle[i]), cos(limb.angle[i]), 0.0 };
 
-            Vector<3> pl = center + normal_w*limb.width[i] + normal_h*limb.layers[j].y_belly[i];
+            Vector<3> pl = center - normal_w*limb.width[i] + normal_h*limb.layers[j].y_back[i];
             indices_l1[j] = points->InsertNextPoint(pl.data());
 
-            Vector<3> pr = center - normal_w*limb.width[i] + normal_h*limb.layers[j].y_belly[i];
+            Vector<3> pr = center + normal_w*limb.width[i] + normal_h*limb.layers[j].y_back[i];
             indices_r1[j] = points->InsertNextPoint(pr.data());
 
             if(j == n_layers-1)
             {
-                Vector<3> pl = center + normal_w*limb.width[i] + normal_h*limb.layers[j].y_back[i];
+                Vector<3> pl = center - normal_w*limb.width[i] + normal_h*limb.layers[j].y_belly[i];
                 indices_l1[j+1] = points->InsertNextPoint(pl.data());
 
-                Vector<3> pr = center - normal_w*limb.width[i] + normal_h*limb.layers[j].y_back[i];
+                Vector<3> pr = center + normal_w*limb.width[i] + normal_h*limb.layers[j].y_belly[i];
                 indices_r1[j+1] = points->InsertNextPoint(pr.data());
             }
         }

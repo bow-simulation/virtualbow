@@ -58,11 +58,11 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
             this->height[i] += height.val(i);
 
         // j: Layer index
-        double y_bottom = -0.5*height[i];
+        double y_top = 0.5*this->height[i];
         for(size_t j = 0; j < input.layers.size(); ++j)
         {
             double h = heights[j].val(i);
-            double y = y_bottom + 0.5*h;
+            double y = y_top - 0.5*h;
             double A = this->width[i]*h;
             double I = A*(h*h/12.0 + y*y);
 
@@ -88,7 +88,7 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
 
             // Next layer
 
-            y_bottom += h;
+            y_top -= h;
         }
     }
 
