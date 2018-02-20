@@ -1,29 +1,87 @@
-cmake_minimum_required(VERSION 3.5.1)
+# https://pabloariasal.github.io/2018/02/19/its-time-to-do-cmake-right/
+# https://stackoverflow.com/questions/15175318/cmake-how-to-build-external-projects-and-include-their-targets
+# https://stackoverflow.com/questions/21223163/how-to-tell-cmake-to-download-some-necessary-header-files-more-precisely-glm-ma
+
+cmake_minimum_required(VERSION 3.7.2)
+include(ExternalProject)
+
 set(CMAKE_CXX_STANDARD 14)
 project(bow-simulator)
 
-# Dependencies
+# Download and build external dependencies
 
-include_directories("build/eigen")
-include_directories("build/catch/include")
-include_directories("build/cereal/include")
-include_directories("build/json/src")
-include_directories("build/boost")
+ExternalProject_Add(
+    vtk
+    URL "https://gitlab.com/bow-simulator/vtk-custom/repository/archive.tar.gz?ref=vtkcamera-horizontal-parallel-scale"
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/vtk_build
+    CMAKE_ARGS
+        -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/vtk_install
+        -DCMAKE_BUILD_TYPE=Release
+        -DBUILD_SHARED_LIBS=OFF
+        -DBUILD_TESTING=OFF
+        -DVTK_Group_Qt=ON
+        -DVTK_QT_VERSION=5
+)
 
-find_package(VTK REQUIRED PATHS "build/vtk")
+ExternalProject_Add(
+    eigen
+    URL "http://bitbucket.org/eigen/eigen/get/3.3.4.tar.gz"
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/eigen
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+)
+
+ExternalProject_Add(
+    catch
+    URL "https://github.com/philsquared/Catch/archive/v1.9.3.tar.gz"
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/catch
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+)
+
+ExternalProject_Add(
+    json
+    URL "https://github.com/nlohmann/json/archive/v3.0.1.tar.gz"
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/json
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+)
+
+ExternalProject_Add(
+    boost
+    URL "https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.gz"
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/boost
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+)
+
+# Include external dependencies
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/eigen/src/eigen)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/catch/src/catch/include)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/json/src/json/src)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/boost/src/boost)
+
+find_package(VTK REQUIRED PATHS ${CMAKE_CURRENT_BINARY_DIR}/vtk_install)
 include(${VTK_USE_FILE})
 
 find_package(Qt5X11Extras)    # Why is this platform specific stuff needed on Linux? It's not even linked.
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5PrintSupport REQUIRED)
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)   # Add resource files to sources, cmake does the rest
+set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 # Build main executable
 
 include_directories(source)
-add_executable(${PROJECT_NAME}
+add_executable(
+    bow-simulator
+
     source/main.cpp
     source/config.hpp
 
@@ -128,8 +186,12 @@ add_executable(${PROJECT_NAME}
     source/external/qcustomplot/qcustomplot.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::PrintSupport)
+# Link dependencies
+target_link_libraries(bow-simulator ${VTK_LIBRARIES})
+target_link_libraries(bow-simulator Qt5::Widgets Qt5::PrintSupport)
+
+# Declare dependencies
+add_dependencies(bow-simulator vtk eigen catch json boost)
 
 # Build tests
 
@@ -153,4 +215,4 @@ target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::PrintSupport)
 
 # Install
 
-install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+install(TARGETS bow-simulator DESTINATION bin)
