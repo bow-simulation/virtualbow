@@ -20,6 +20,7 @@ set(CMAKE_AUTOUIC ON)
 ExternalProject_Add(
     vtk
     URL "https://gitlab.com/bow-simulator/vtk-custom/repository/archive.tar.gz?ref=vtkcamera-horizontal-parallel-scale"
+    URL_MD5 "7636bca3cada9c6039b0bce44c41a469"
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/vtk_build
     CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/vtk_install
@@ -38,6 +39,7 @@ include(${VTK_USE_FILE})
 ExternalProject_Add(
     eigen
     URL "http://bitbucket.org/eigen/eigen/get/3.3.4.tar.gz"
+    URL_MD5 "1a47e78efe365a97de0c022d127607c3"
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/eigen
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
@@ -52,6 +54,7 @@ include_directories(${SOURCE_DIR})
 ExternalProject_Add(
     catch
     URL "https://github.com/philsquared/Catch/archive/v1.9.3.tar.gz"
+    URL_MD5 "ca8817b67031d8e5c134a3cb36ed8397"
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/catch
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
@@ -66,6 +69,7 @@ include_directories(${SOURCE_DIR}/include)
 ExternalProject_Add(
     json
     URL "https://github.com/nlohmann/json/archive/v3.0.1.tar.gz"
+    URL_MD5 "b03467284d9f608bd1b432315dc08d7d"
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/json
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
@@ -80,6 +84,7 @@ include_directories(${SOURCE_DIR}/src)
 ExternalProject_Add(
     boost
     URL "https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.gz"
+    URL_MD5 "d275cd85b00022313c171f602db59fc5"
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/boost
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
