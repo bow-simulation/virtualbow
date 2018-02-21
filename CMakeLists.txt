@@ -1,14 +1,21 @@
-# https://pabloariasal.github.io/2018/02/19/its-time-to-do-cmake-right/
-# https://stackoverflow.com/questions/15175318/cmake-how-to-build-external-projects-and-include-their-targets
-# https://stackoverflow.com/questions/21223163/how-to-tell-cmake-to-download-some-necessary-header-files-more-precisely-glm-ma
-
-cmake_minimum_required(VERSION 3.7.2)
+cmake_minimum_required(VERSION 3.5.1)
 include(ExternalProject)
 
-set(CMAKE_CXX_STANDARD 14)
 project(bow-simulator)
+set(CMAKE_CXX_STANDARD 14)
 
-# Download and build external dependencies
+# External libraries
+
+# Qt (must be provided by the system/developer)
+
+find_package(Qt5X11Extras)    # Why is this platform specific stuff needed on Linux? It's not even linked.
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5PrintSupport REQUIRED)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+# VTK (download from url and build)
 
 ExternalProject_Add(
     vtk
@@ -23,6 +30,11 @@ ExternalProject_Add(
         -DVTK_QT_VERSION=5
 )
 
+find_package(VTK REQUIRED PATHS ${CMAKE_CURRENT_BINARY_DIR}/vtk_install)
+include(${VTK_USE_FILE})
+
+# Eigen (download from url)
+
 ExternalProject_Add(
     eigen
     URL "http://bitbucket.org/eigen/eigen/get/3.3.4.tar.gz"
@@ -31,6 +43,11 @@ ExternalProject_Add(
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
 )
+
+ExternalProject_Get_Property(eigen SOURCE_DIR)
+include_directories(${SOURCE_DIR})
+
+# Catch (download from url)
 
 ExternalProject_Add(
     catch
@@ -41,6 +58,11 @@ ExternalProject_Add(
     INSTALL_COMMAND ""
 )
 
+ExternalProject_Get_Property(catch SOURCE_DIR)
+include_directories(${SOURCE_DIR}/include)
+
+# Json (download from url)
+
 ExternalProject_Add(
     json
     URL "https://github.com/nlohmann/json/archive/v3.0.1.tar.gz"
@@ -49,6 +71,11 @@ ExternalProject_Add(
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
 )
+
+externalproject_Get_Property(json SOURCE_DIR)
+include_directories(${SOURCE_DIR}/src)
+
+# Boost (download from url)
 
 ExternalProject_Add(
     boost
@@ -59,24 +86,10 @@ ExternalProject_Add(
     INSTALL_COMMAND ""
 )
 
-# Include external dependencies
+externalproject_get_property(boost SOURCE_DIR)
+include_directories(${SOURCE_DIR})
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/eigen/src/eigen)
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/catch/src/catch/include)
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/json/src/json/src)
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/boost/src/boost)
-
-find_package(VTK REQUIRED PATHS ${CMAKE_CURRENT_BINARY_DIR}/vtk_install)
-include(${VTK_USE_FILE})
-
-find_package(Qt5X11Extras)    # Why is this platform specific stuff needed on Linux? It's not even linked.
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5PrintSupport REQUIRED)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
-
-# Build main executable
+# Main executable
 
 include_directories(source)
 add_executable(
@@ -186,14 +199,17 @@ add_executable(
     source/external/qcustomplot/qcustomplot.cpp
 )
 
-# Link dependencies
+# Declare dependency on libraries to ensure correct build order
+# https://stackoverflow.com/questions/15175318/cmake-how-to-build-external-projects-and-include-their-targets
+
+add_dependencies(bow-simulator vtk eigen catch json boost)
+
+# Link external libraries
+
 target_link_libraries(bow-simulator ${VTK_LIBRARIES})
 target_link_libraries(bow-simulator Qt5::Widgets Qt5::PrintSupport)
 
-# Declare dependencies
-add_dependencies(bow-simulator vtk eigen catch json boost)
-
-# Build tests
+# Test executable
 
 #add_executable(tests
 #    source/tests/main.cpp
