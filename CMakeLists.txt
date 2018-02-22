@@ -4,6 +4,15 @@ include(ExternalProject)
 project(bow-simulator)
 set(CMAKE_CXX_STANDARD 14)
 
+# Project properties (used for configuring files)
+
+set(PROJECT_EXE_NAME "bow-simulator")
+set(PROJECT_APP_NAME "Bow Simulator")
+set(PROJECT_VERSION "0.5")
+set(PROJECT_WEBSITE "bow-simulator.org")
+set(PROJECT_COPYRIGHT "Copyright (C) 2016-2018 Stefan Pfeifer")
+set(PROJECT_LICENSE "GNU General Public License v3.0")
+
 # External libraries
 
 # Qt (must be provided by the system/developer)
@@ -96,12 +105,15 @@ include_directories(${SOURCE_DIR})
 
 # Main executable
 
+configure_file(source/config.hpp.in ${CMAKE_BINARY_DIR}/config.hpp)
+include_directories(${PROJECT_BINARY_DIR})
+
 include_directories(source)
 add_executable(
-    bow-simulator
+    ${PROJECT_EXE_NAME}
 
     source/main.cpp
-    source/config.hpp
+    ${CMAKE_BINARY_DIR}/config.hpp
 
     source/fem/elements/BarElement.cpp
     source/fem/elements/BeamElement.cpp
@@ -207,12 +219,12 @@ add_executable(
 # Declare dependency on libraries to ensure correct build order
 # https://stackoverflow.com/questions/15175318/cmake-how-to-build-external-projects-and-include-their-targets
 
-add_dependencies(bow-simulator vtk eigen catch json boost)
+add_dependencies(${PROJECT_EXE_NAME} vtk eigen catch json boost)
 
 # Link external libraries
 
-target_link_libraries(bow-simulator ${VTK_LIBRARIES})
-target_link_libraries(bow-simulator Qt5::Widgets Qt5::PrintSupport)
+target_link_libraries(${PROJECT_EXE_NAME} ${VTK_LIBRARIES})
+target_link_libraries(${PROJECT_EXE_NAME} Qt5::Widgets Qt5::PrintSupport)
 
 # Test executable
 
@@ -236,4 +248,4 @@ target_link_libraries(bow-simulator Qt5::Widgets Qt5::PrintSupport)
 
 # Install
 
-install(TARGETS bow-simulator DESTINATION bin)
+install(TARGETS ${PROJECT_EXE_NAME} DESTINATION bin)

@@ -1,0 +1,11 @@
+#pragma once
+
+namespace Config
+{
+    static const char* EXE_NAME = "@PROJECT_EXE_NAME@";
+    static const char* APP_NAME = "@PROJECT_APP_NAME@";
+    static const char* VERSION = "@PROJECT_VERSION@";
+    static const char* WEBSITE = "@PROJECT_WEBSITE@";
+    static const char* COPYRIGHT = "@PROJECT_COPYRIGHT@";
+    static const char* LICENSE = "@PROJECT_LICENSE@";
+}
