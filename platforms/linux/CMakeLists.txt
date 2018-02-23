@@ -1,7 +1,5 @@
 # https://stackoverflow.com/questions/33769077/executing-multiple-post-build-commands-in-cmake-depending-on-condition
 
-message("Building Linux packages...")
-
 # Create linux directory layout
 configure_file(
     ${CMAKE_SOURCE_DIR}/resources/icons/logo.png
@@ -10,11 +8,11 @@ configure_file(
 )
 
 configure_file(
-    bow-simulator.desktop
+    desktop.in
     ${CMAKE_BINARY_DIR}/deb/usr/share/applications/bow-simulator.desktop
 )
 
-configure_file(control ${CMAKE_BINARY_DIR}/deb/DEBIAN/control)
+configure_file(control.in ${CMAKE_BINARY_DIR}/deb/DEBIAN/control)
 
 # Create deb package
 add_custom_command(

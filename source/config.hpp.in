@@ -2,10 +2,11 @@
 
 namespace Config
 {
-    static const char* EXE_NAME = "@PROJECT_EXE_NAME@";
-    static const char* APP_NAME = "@PROJECT_APP_NAME@";
-    static const char* VERSION = "@PROJECT_VERSION@";
-    static const char* WEBSITE = "@PROJECT_WEBSITE@";
-    static const char* COPYRIGHT = "@PROJECT_COPYRIGHT@";
-    static const char* LICENSE = "@PROJECT_LICENSE@";
+    static const char* NAME = "@APPLICATION_NAME@";
+    static const char* TITLE = "@APPLICATION_TITLE@";
+    static const char* VERSION = "@APPLICATION_VERSION@";
+    static const char* WEBSITE = "@APPLICATION_WEBSITE@";
+    static const char* COPYRIGHT = "@APPLICATION_COPYRIGHT@";
+    static const char* LICENSE = "@APPLICATION_LICENSE@";
+    static const char* DESCRIPTION = "@APPLICATION_DESCRIPTION_SHORT@";
 }

@@ -1,7 +1,0 @@
-Package: bow-simulator
-Version: 0.5
-Architecture: amd64
-Maintainer: Stefan Pfeifer <s-pfeifer@gmx.net>
-Homepage: bow-simulator.org
-Description: Bow and arrow physics simulation
-Depends: qt5-default

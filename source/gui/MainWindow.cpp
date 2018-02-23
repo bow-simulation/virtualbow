@@ -278,11 +278,12 @@ void MainWindow::runSimulation(bool dynamic)
 void MainWindow::about()
 {
     QMessageBox::about(this, "About",
-                       QString("<h2>") + Config::APP_NAME + " v" + Config::VERSION + "</h2>"
-                       "Bow and arrow physics simulation<br>"
-                       "<a href=\"" + Config::WEBSITE + "\">" + Config::WEBSITE + "</a><br><br>"
-                       "<small>" + Config::COPYRIGHT + "<br>"
-                       "Distributed under the " + Config::LICENSE + "</small>");
+        QString("<h2>") + Config::TITLE + " v" + Config::VERSION + "</h2>"
+        + Config::DESCRIPTION + "<br>"
+        "<a href=\"" + Config::WEBSITE + "\">" + Config::WEBSITE + "</a><br><br>"
+        "<small>" + Config::COPYRIGHT + "<br>"
+        "Distributed under the " + Config::LICENSE + "</small>"
+    );
 }
 
 void MainWindow::setCurrentFile(const QString &path)

@@ -1,17 +1,20 @@
 cmake_minimum_required(VERSION 3.5.1)
 include(ExternalProject)
 
-project(bow-simulator)
+# Parameters used for configuring files
+
+set(APPLICATION_NAME "bow-simulator")
+set(APPLICATION_TITLE "Bow Simulator")
+set(APPLICATION_VERSION "0.5")
+set(APPLICATION_WEBSITE "bow-simulator.org")
+set(APPLICATION_MAINTAINER "Stefan Pfeifer")
+set(APPLICATION_COPYRIGHT "Copyright (C) 2016-2018 Stefan Pfeifer")
+set(APPLICATION_LICENSE "GNU General Public License v3.0")
+set(APPLICATION_DESCRIPTION_SHORT "Bow and arrow physics simulation")
+set(APPLICATION_DESCRIPTION_LONG "Software tool for simulating the static and dynamic performance of user-defined bow designs")
+
+project(PROJECT_NAME)
 set(CMAKE_CXX_STANDARD 14)
-
-# Project properties (used for configuring files)
-
-set(PROJECT_EXE_NAME "bow-simulator")
-set(PROJECT_APP_NAME "Bow Simulator")
-set(PROJECT_VERSION "0.5")
-set(PROJECT_WEBSITE "bow-simulator.org")
-set(PROJECT_COPYRIGHT "Copyright (C) 2016-2018 Stefan Pfeifer")
-set(PROJECT_LICENSE "GNU General Public License v3.0")
 
 # External libraries
 
@@ -110,7 +113,7 @@ include_directories(${PROJECT_BINARY_DIR})
 
 include_directories(source)
 add_executable(
-    ${PROJECT_EXE_NAME}
+    bow-simulator
 
     source/main.cpp
     ${CMAKE_BINARY_DIR}/config.hpp
@@ -219,13 +222,14 @@ add_executable(
 # Link libraries, declare dependencies on others
 # https://stackoverflow.com/questions/15175318/cmake-how-to-build-external-projects-and-include-their-targets
 
-target_link_libraries(${PROJECT_EXE_NAME} ${VTK_LIBRARIES})
-target_link_libraries(${PROJECT_EXE_NAME} Qt5::Widgets Qt5::PrintSupport)
-add_dependencies(${PROJECT_EXE_NAME} eigen catch json boost)
+target_link_libraries(bow-simulator ${VTK_LIBRARIES})
+target_link_libraries(bow-simulator Qt5::Widgets Qt5::PrintSupport)
+add_dependencies(bow-simulator eigen catch json boost)
 
 # Test executable
 
-#add_executable(tests
+#add_executable(
+#    bow-simulator-tests
 #    source/tests/main.cpp
 #    source/tests/tangent_stiffness.cpp
 #    source/tests/large_deformation_beams.cpp

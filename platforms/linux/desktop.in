@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=Bow Simulator
-Exec=bow-simulator
-Comment=Bow and arrow physics simulation
+Name=@APPLICATION_TITLE@
+Exec=@APPLICATION_NAME@
+Comment=@APPLICATION_DESCRIPTION_SHORT@
 Icon=/usr/share/pixmaps/bow-simulator.png
 Categories=Education;Science;NumericalAnalysis;Physics;Engineering;
 MimeType=application/json

@@ -7,13 +7,13 @@
 #include <windows.h>
 #endif
 
-QSettings Application::settings{Config::WEBSITE, Config::EXE_NAME};
+QSettings Application::settings{Config::WEBSITE, Config::NAME};
 
 int Application::run(int argc, char* argv[])
 {
     QApplication app(argc, argv);
-    app.setApplicationName(Config::EXE_NAME);
-    app.setApplicationDisplayName(Config::APP_NAME);
+    app.setApplicationName(Config::NAME);
+    app.setApplicationDisplayName(Config::TITLE);
     app.setApplicationVersion(Config::VERSION);
     app.setOrganizationDomain(Config::WEBSITE);
     setlocale(LC_NUMERIC, "C");
