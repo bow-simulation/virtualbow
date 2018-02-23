@@ -1,6 +1,6 @@
 Package: @APPLICATION_NAME@
 Version: @APPLICATION_VERSION@
-Architecture: any
+Architecture: amd64
 Maintainer: @APPLICATION_MAINTAINER@
 Homepage: @APPLICATION_WEBSITE@
 Description: @APPLICATION_DESCRIPTION_SHORT@
