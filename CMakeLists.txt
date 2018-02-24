@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.5.1)
 include(ExternalProject)
+project(bow-simulator)
+set(CMAKE_CXX_STANDARD 14)
 
 # Parameters used for configuring files
 
@@ -12,9 +14,6 @@ set(APPLICATION_COPYRIGHT "Copyright (C) 2016-2018 Stefan Pfeifer")
 set(APPLICATION_LICENSE "GNU General Public License v3.0")
 set(APPLICATION_DESCRIPTION_SHORT "Bow and arrow physics simulation")
 set(APPLICATION_DESCRIPTION_LONG "Software tool for simulating the static and dynamic performance of user-defined bow designs")
-
-project(PROJECT_NAME)
-set(CMAKE_CXX_STANDARD 14)
 
 # External libraries
 

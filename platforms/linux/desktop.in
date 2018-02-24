@@ -2,7 +2,7 @@
 Type=Application
 Name=@APPLICATION_TITLE@
 Exec=@APPLICATION_NAME@
+Icon=bow-simulator
 Comment=@APPLICATION_DESCRIPTION_SHORT@
-Icon=/usr/share/pixmaps/bow-simulator.png
 Categories=Education;Science;NumericalAnalysis;Physics;Engineering;
-MimeType=application/json
+MimeType=application/json;
