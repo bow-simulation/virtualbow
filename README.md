@@ -5,6 +5,22 @@ Bow and arrow physics simulation. Visit https://bow-simulator.sourceforge.io/ fo
 
 ## Prerequisites
 
+### Tools
+
+* Cmake
+* C++14 Compiler
+
+### Libraries
+
+rpm-based Distros:
+
+```
+sudo yum install qt5-devel libXt-devel
+```
+
+
+
+
 * Visual Studio Community 2015
 * Qt 5.9.1 (msvc2015 32bit)
 * Python

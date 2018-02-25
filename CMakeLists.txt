@@ -42,7 +42,14 @@ ExternalProject_Add(
         -DVTK_QT_VERSION=5
 )
 
-find_package(VTK REQUIRED PATHS ${CMAKE_BINARY_DIR}/vtk_install)
+# https://stackoverflow.com/questions/17446981/cmake-externalproject-add-and-findpackage
+if(VTK_FOUND)
+    add_custom_target(rescan)
+else()
+    add_custom_target(rescan ${CMAKE_COMMAND} ${CMAKE_SOURCE_DIR} DEPENDS vtk)
+endif()
+
+find_package(VTK PATHS ${CMAKE_BINARY_DIR}/vtk_install)
 include(${VTK_USE_FILE})
 
 # Eigen (download from url)
