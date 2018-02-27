@@ -19,38 +19,41 @@ set(APPLICATION_DESCRIPTION_LONG "Software tool for simulating the static and dy
 
 # Qt (must be provided by the system/developer)
 
-find_package(Qt5X11Extras)    # Why is this platform specific stuff needed on Linux? It's not even linked.
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5PrintSupport REQUIRED)
+find_package(Qt5 COMPONENTS X11Extras Widgets PrintSupport)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 # VTK (download from url and build)
 
-ExternalProject_Add(
-    vtk
-    URL "https://gitlab.com/bow-simulator/vtk-custom/repository/archive.tar.gz?ref=vtkcamera-horizontal-parallel-scale"
-    URL_MD5 "7636bca3cada9c6039b0bce44c41a469"
-    PREFIX ${CMAKE_BINARY_DIR}/vtk_build
-    CMAKE_ARGS
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/vtk_install
-        -DCMAKE_BUILD_TYPE=Release
-        -DBUILD_SHARED_LIBS=OFF
-        -DBUILD_TESTING=OFF
-        -DVTK_Group_Qt=ON
-        -DVTK_QT_VERSION=5
-)
+#ExternalProject_Add(
+#    vtk
+#    URL "https://gitlab.com/bow-simulator/vtk-custom/repository/archive.tar.gz?ref=vtkcamera-horizontal-parallel-scale"
+#    URL_MD5 "7636bca3cada9c6039b0bce44c41a469"
+#    PREFIX ${CMAKE_BINARY_DIR}/vtk_download
+#    CONFIGURE_COMMAND ""
+#    BUILD_COMMAND ""
+#    INSTALL_COMMAND ""
+#)
 
-# https://stackoverflow.com/questions/17446981/cmake-externalproject-add-and-findpackage
-if(VTK_FOUND)
-    add_custom_target(rescan)
-else()
-    add_custom_target(rescan ${CMAKE_COMMAND} ${CMAKE_SOURCE_DIR} DEPENDS vtk)
-endif()
+#ExternalProject_Get_Property(vtk SOURCE_DIR)
+#execute_process(
+#    COMMAND ${CMAKE_COMMAND} --build . SOURCE_DIR
+#    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/vtk_build
+#)
+
+#    CMAKE_ARGS
+#        -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/vtk_install
+#        -DCMAKE_BUILD_TYPE=Release
+#        -DBUILD_SHARED_LIBS=OFF
+#        -DBUILD_TESTING=OFF
+#        -DVTK_Group_Qt=ON
+#        -DVTK_QT_VERSION=5
+#        -DQt5_DIR=${Qt5_DIR}
 
 find_package(VTK PATHS ${CMAKE_BINARY_DIR}/vtk_install)
-include(${VTK_USE_FILE})
+# include(${VTK_USE_FILE})
+include_directories(${CMAKE_BINARY_DIR}/vtk_install/include/vtk-9.0)
 
 # Eigen (download from url)
 

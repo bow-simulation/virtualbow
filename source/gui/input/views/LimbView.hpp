@@ -1,4 +1,10 @@
 #pragma once
+
+#include "vtkAutoInit.h"
+VTK_MODULE_INIT(vtkRenderingOpenGL2)
+VTK_MODULE_INIT(vtkInteractionStyle)
+VTK_MODULE_INIT(vtkRenderingFreeType)
+
 #include "bow/input/InputData.hpp"
 #include "LimbSource.hpp"
 #include "LayerLegend.hpp"
