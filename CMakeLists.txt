@@ -26,34 +26,29 @@ set(CMAKE_AUTOUIC ON)
 
 # VTK (download from url and build)
 
-#ExternalProject_Add(
-#    vtk
-#    URL "https://gitlab.com/bow-simulator/vtk-custom/repository/archive.tar.gz?ref=vtkcamera-horizontal-parallel-scale"
-#    URL_MD5 "7636bca3cada9c6039b0bce44c41a469"
-#    PREFIX ${CMAKE_BINARY_DIR}/vtk_download
-#    CONFIGURE_COMMAND ""
-#    BUILD_COMMAND ""
-#    INSTALL_COMMAND ""
-#)
+ExternalProject_Add(
+    vtk
+    URL "https://gitlab.com/bow-simulator/vtk-custom/repository/archive.tar.gz?ref=vtkcamera-horizontal-parallel-scale"
+    URL_MD5 "7636bca3cada9c6039b0bce44c41a469"
+    PREFIX ${CMAKE_BINARY_DIR}/vtk_download
+    CMAKE_ARGS
+        -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/vtk_install
+        -DCMAKE_BUILD_TYPE=Release
+        -DBUILD_SHARED_LIBS=OFF
+        -DBUILD_TESTING=OFF
+        -DVTK_Group_Qt=ON
+        -DVTK_QT_VERSION=5
+        -DQt5_DIR=${Qt5_DIR}
+)
 
-#ExternalProject_Get_Property(vtk SOURCE_DIR)
-#execute_process(
-#    COMMAND ${CMAKE_COMMAND} --build . SOURCE_DIR
-#    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/vtk_build
-#)
-
-#    CMAKE_ARGS
-#        -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/vtk_install
-#        -DCMAKE_BUILD_TYPE=Release
-#        -DBUILD_SHARED_LIBS=OFF
-#        -DBUILD_TESTING=OFF
-#        -DVTK_Group_Qt=ON
-#        -DVTK_QT_VERSION=5
-#        -DQt5_DIR=${Qt5_DIR}
-
+# https://stackoverflow.com/questions/17446981/cmake-externalproject-add-and-findpackage
 find_package(VTK PATHS ${CMAKE_BINARY_DIR}/vtk_install)
-# include(${VTK_USE_FILE})
-include_directories(${CMAKE_BINARY_DIR}/vtk_install/include/vtk-9.0)
+if(${VTK_FOUND})
+    add_custom_target(rescan)
+    include(${VTK_USE_FILE})
+else()
+    add_custom_target(rescan ${CMAKE_COMMAND} ${CMAKE_SOURCE_DIR} DEPENDS vtk)
+endif()
 
 # Eigen (download from url)
 
@@ -228,12 +223,21 @@ add_executable(
     source/external/qcustomplot/qcustomplot.cpp
 )
 
-# Link libraries, declare dependencies on others
-# https://stackoverflow.com/questions/15175318/cmake-how-to-build-external-projects-and-include-their-targets
 
+# Declare dependencies, link libraries
+
+add_dependencies(bow-simulator rescan eigen catch json boost)
 target_link_libraries(bow-simulator ${VTK_LIBRARIES})
 target_link_libraries(bow-simulator Qt5::Widgets Qt5::PrintSupport)
-add_dependencies(bow-simulator eigen catch json boost)
+
+
+# Link VTK libraries
+#target_link_libraries(
+#    bow-simulator
+#    vtksys-9.0 vtkCommonCore-9.0 vtkCommonMath-9.0 vtkCommonMisc-9.0 vtkCommonSystem-9.0 vtkCommonTransforms-9.0 vtkCommonDataModel-9.0 vtkCommonColor-9.0 vtkCommonExecutionModel-9.0 vtkCommonComputationalGeometry-9.0 vtkFiltersCore-9.0 vtkFiltersGeneral-9.0 vtkImagingCore-9.0 vtkImagingFourier-9.0 vtkFiltersStatistics-9.0 vtkFiltersExtraction-9.0 vtkInfovisCore-9.0 vtkFiltersGeometry-9.0 vtkFiltersSources-9.0 vtkRenderingCore-9.0 vtkzlib-9.0 vtkfreetype-9.0 vtkRenderingFreeType-9.0 vtkRenderingContext2D-9.0 vtkChartsCore-9.0 vtkDICOMParser-9.0 vtklz4-9.0 vtklzma-9.0 vtkIOCore-9.0 vtkIOLegacy-9.0 vtkexpat-9.0 vtkIOXMLParser-9.0 vtkDomainsChemistry-9.0 vtkglew-9.0 vtkRenderingOpenGL2-9.0 vtkDomainsChemistryOpenGL2-9.0 vtkIOXML-9.0 vtkParallelCore-9.0 vtkFiltersAMR-9.0 vtkFiltersFlowPaths-9.0 vtkFiltersGeneric-9.0 vtkImagingSources-9.0 vtkFiltersHybrid-9.0 vtkFiltersHyperTree-9.0 vtkImagingGeneral-9.0 vtkFiltersImaging-9.0 vtkFiltersModeling-9.0 vtkFiltersParallel-9.0 vtkFiltersParallelImaging-9.0 vtkFiltersPoints-9.0 vtkFiltersProgrammable-9.0 vtkFiltersSMP-9.0 vtkFiltersSelection-9.0 vtkFiltersTexture-9.0 vtkFiltersTopology-9.0 vtkFiltersVerdict-9.0 vtkInteractionStyle-9.0 vtkGUISupportQt-9.0 vtksqlite-9.0 vtkIOSQL-9.0 vtkGUISupportQtSQL-9.0 vtkmetaio-9.0 vtkjpeg-9.0 vtkpng-9.0 vtktiff-9.0 vtkIOImage-9.0 vtkImagingHybrid-9.0 vtkInfovisLayout-9.0 vtkImagingColor-9.0 vtkRenderingAnnotation-9.0 vtkRenderingVolume-9.0 vtkInteractionWidgets-9.0 vtkViewsCore-9.0 vtkproj4-9.0 vtkGeovisCore-9.0 vtkhdf5_src-9.0 vtkhdf5_hl_src-9.0 vtkIOAMR-9.0 vtkIOEnSight-9.0 vtknetcdf-9.0 vtkexodusII-9.0 vtkIOExodus-9.0 vtkgl2ps-9.0 vtkRenderingGL2PSOpenGL2-9.0 vtklibharu-9.0 vtkIOExport-9.0 vtkIOExportOpenGL2-9.0 vtkIOGeometry-9.0 vtkIOImport-9.0 vtklibxml2-9.0 vtkIOInfovis-9.0 vtkIOLSDyna-9.0 vtkIOMINC-9.0 vtkogg-9.0 vtktheora-9.0 vtkIOMovie-9.0 vtknetcdfcpp-9.0 vtkIONetCDF-9.0 vtkIOPLY-9.0 vtkjsoncpp-9.0 vtkIOParallel-9.0 vtkIOParallelXML-9.0 vtkIOTecplotTable-9.0 vtkIOVideo-9.0 vtkImagingMath-9.0 vtkImagingMorphological-9.0 vtkImagingStatistics-9.0 vtkImagingStencil-9.0 vtkInteractionImage-9.0 vtkRenderingContextOpenGL2-9.0 vtkRenderingImage-9.0 vtkRenderingLOD-9.0 vtkRenderingLabel-9.0 vtkRenderingQt-9.0 vtkRenderingVolumeOpenGL2-9.0 vtkViewsContext2D-9.0 vtkViewsInfovis-9.0 vtkViewsQt-9.0
+#)
+
+# vtksys vtkCommonCore vtkCommonMath vtkCommonMisc vtkCommonSystem vtkCommonTransforms vtkCommonDataModel vtkCommonColor vtkCommonExecutionModel vtkCommonComputationalGeometry vtkFiltersCore vtkFiltersGeneral vtkImagingCore vtkImagingFourier vtkFiltersStatistics vtkFiltersExtraction vtkInfovisCore vtkFiltersGeometry vtkFiltersSources vtkRenderingCore vtkzlib vtkfreetype vtkRenderingFreeType vtkRenderingContext2D vtkChartsCore vtkDICOMParser vtklz4 vtklzma vtkIOCore vtkIOLegacy vtkexpat vtkIOXMLParser vtkDomainsChemistry vtkglew vtkRenderingOpenGL2 vtkDomainsChemistryOpenGL2 vtkIOXML vtkParallelCore vtkFiltersAMR vtkFiltersFlowPaths vtkFiltersGeneric vtkImagingSources vtkFiltersHybrid vtkFiltersHyperTree vtkImagingGeneral vtkFiltersImaging vtkFiltersModeling vtkFiltersParallel vtkFiltersParallelImaging vtkFiltersPoints vtkFiltersProgrammable vtkFiltersSMP vtkFiltersSelection vtkFiltersTexture vtkFiltersTopology vtkFiltersVerdict vtkInteractionStyle vtkGUISupportQt vtksqlite vtkIOSQL vtkGUISupportQtSQL vtkmetaio vtkjpeg vtkpng vtktiff vtkIOImage vtkImagingHybrid vtkInfovisLayout vtkImagingColor vtkRenderingAnnotation vtkRenderingVolume vtkInteractionWidgets vtkViewsCore vtkproj4 vtkGeovisCore vtkhdf5_src vtkhdf5_hl_src vtkIOAMR vtkIOEnSight vtknetcdf vtkexodusII vtkIOExodus vtkgl2ps vtkRenderingGL2PSOpenGL2 vtklibharu vtkIOExport vtkIOExportOpenGL2 vtkIOGeometry vtkIOImport vtklibxml2 vtkIOInfovis vtkIOLSDyna vtkIOMINC vtkogg vtktheora vtkIOMovie vtknetcdfcpp vtkIONetCDF vtkIOPLY vtkjsoncpp vtkIOParallel vtkIOParallelXML vtkIOTecplotTable vtkIOVideo vtkImagingMath vtkImagingMorphological vtkImagingStatistics vtkImagingStencil vtkInteractionImage vtkRenderingContextOpenGL2 vtkRenderingImage vtkRenderingLOD vtkRenderingLabel vtkRenderingQt vtkRenderingVolumeOpenGL2 vtkViewsContext2D vtkViewsInfovis vtkViewsQt
 
 # Test executable
 
