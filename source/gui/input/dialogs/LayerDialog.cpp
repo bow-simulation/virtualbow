@@ -70,5 +70,8 @@ LayerEditor* LayerDialog::createEmptyTab()
 LayerEditor* LayerDialog::createDefaultTab()
 {
     Layer layer;
-    createEmptyTab()->setData(layer);
+    auto editor = createEmptyTab();
+    editor->setData(layer);
+
+    return editor;
 }
