@@ -1,11 +1,10 @@
 #pragma once
+#include "bow/input/InputData.hpp"
 #include "LayerProperties.hpp"
 #include "numerics/Eigen.hpp"
 #include <json.hpp>
 
 using nlohmann::json;
-
-class InputData;
 
 struct LimbProperties
 {
@@ -28,9 +27,9 @@ struct LimbProperties
     // Layer properties
     std::vector<LayerProperties> layers;
 
+    LimbProperties() = default;
     LimbProperties(const InputData& input);
     LimbProperties(const InputData& input, unsigned n);
-    LimbProperties();
 };
 
 static void to_json(json& obj, const LimbProperties& val)

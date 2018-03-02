@@ -1,10 +1,6 @@
 #include "LimbProperties.hpp"
-#include "bow/input/InputData.hpp"
 #include "numerics/ArcCurve.hpp"
 #include "numerics/CubicSpline.hpp"
-
-#include <QtCore>
-#include <iostream>
 
 LimbProperties::LimbProperties(const InputData& input)
     : LimbProperties(input, input.settings.n_limb_elements + 1)
@@ -111,9 +107,4 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
 
     layers.push_back(layer);
     */
-}
-
-LimbProperties::LimbProperties()
-{
-
 }
