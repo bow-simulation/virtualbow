@@ -1,1 +1,1 @@
-message("Build Mac OS dmg installer") 
+message("Build MacOS dmg")

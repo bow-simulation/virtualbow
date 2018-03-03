@@ -251,7 +251,7 @@ target_link_libraries(bow-simulator Qt5::Widgets Qt5::PrintSupport)
 #    source/fem/System.cpp
 #)
 
-# Build release packages for the respective platform
+# Release packages for different platforms
 
 if(UNIX)
     add_subdirectory(platforms/linux)
