@@ -7,6 +7,7 @@ add_custom_command(
     DEPENDS bow-simulator
     # Program executable
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/bow-simulator.exe ${CMAKE_BINARY_DIR}/windows-files/bow-simulator.exe
+    COMMAND rcedit ${CMAKE_BINARY_DIR}/windows-files/bow-simulator.exe --set-icon ${CMAKE_SOURCE_DIR}/platforms/windows/logo.ico
     # Qt libraries
     COMMAND ${QT_BINARY_DIR}/windeployqt ${CMAKE_BINARY_DIR}/windows-files/bow-simulator.exe --no-translations --no-compiler-runtime
     # MSVC runtime libraries
