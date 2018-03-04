@@ -13,27 +13,28 @@ configure_file(
     ${CMAKE_BINARY_DIR}/linux-files/usr/share/applications/bow-simulator.desktop
 )
 
+add_custom_target(linux-files DEPENDS ${CMAKE_BINARY_DIR}/linux-files/usr/bin/bow-simulator)
 add_custom_command(
     OUTPUT ${CMAKE_BINARY_DIR}/linux-files/usr/bin/bow-simulator
     DEPENDS bow-simulator
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/bow-simulator ${CMAKE_BINARY_DIR}/linux-files/usr/bin/bow-simulator
 )
-add_custom_target(linux-files ALL DEPENDS ${CMAKE_BINARY_DIR}/linux-files/usr/bin/bow-simulator)
 
 # Create deb package
 
 configure_file(control.in ${CMAKE_BINARY_DIR}/deb/DEBIAN/control)
 
+add_custom_target(deb-package DEPENDS package.deb)
 add_custom_command(
-    OUTPUT bow_simulator.deb
+    OUTPUT package.deb
     DEPENDS linux-files
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/linux-files ${CMAKE_BINARY_DIR}/deb
-    COMMAND dpkg-deb --build ${CMAKE_BINARY_DIR}/deb ${CMAKE_BINARY_DIR}/bow_simulator.deb
+    COMMAND dpkg-deb --build ${CMAKE_BINARY_DIR}/deb ${CMAKE_BINARY_DIR}/package.deb
 )
-add_custom_target(deb-package DEPENDS bow_simulator.deb)
 
 # Create AppImage
 
+add_custom_target(appimage DEPENDS Bow_Simulator-x86_64.AppImage)
 add_custom_command(
     OUTPUT Bow_Simulator-x86_64.AppImage
     DEPENDS linux-files
@@ -41,4 +42,3 @@ add_custom_command(
     COMMAND linuxdeployqt ${CMAKE_BINARY_DIR}/appimage/usr/share/applications/bow-simulator.desktop -appimage
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
-add_custom_target(appimage DEPENDS Bow_Simulator-x86_64.AppImage)
