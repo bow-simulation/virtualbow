@@ -1,7 +1,14 @@
 # About
 
-Bow Simulator is a tool for simulating the physics of bow and arrow.
-Visit https://bow-simulator.org for more information.
+Bow Simulator is a tool for simulating the statics and dynamics of user-defined bow designs.
+It is released under the GNU General Public License v3.0.
+Visit https://bow-simulator.org for more information about the project.
+
+# How to Contribute
+
+Contributions are very welcome.
+Fork this repository on GitLab and create a new branch from `develop` in which you implement your changes.
+When you're done you create a merge request from your new branch against the `develop` branch of this repository and add a short description of what's been changed.
 
 # Build instructions
 
@@ -30,6 +37,8 @@ Download or clone this repository and open `CMakeLists.txt` with Qt Creator.
 
 Todo: Configuring Kits (Compiler, CMake, ...)
 
+Todo: Don't add cmake to path?
+
 Todo: Generators, adding `[Qt-install-dir]\Tools\QtCreator\bin` to the system path.
 
 Select the build type (e.g. *Release*) and perform a build.
@@ -42,7 +51,7 @@ Building the Windows installer requires some additional tools,
 
 * [rcedit 1.0.0](https://github.com/electron/rcedit/releases). Download the executable, rename it to `rcedit` and add its location to the system path.
 
-Open the project in Qt Creator and check the optional target `iss-installer` under *Projects*, *Build Steps*, *Details*.
+In Qt Creator, check the target `iss-installer` under *Projects*, *Build Steps*, *Details* and perform a build.
 
 ## Linux
 
@@ -55,15 +64,11 @@ Open the project in Qt Creator and check the optional target `iss-installer` und
 ### Compiling with Qt Creator
 
 Download or clone this repository and open `CMakeLists.txt` with Qt Creator.
-Pick the default *Desktop* kit and configure the project.
-
-Select the build type (e.g. *Release*) and perform a build.
+Pick the default *Desktop* kit and configure the project. Select the build type (e.g. *Release*) and perform a build.
 
 ### Building the deb Package
 
-Building the debian package requires `dpkg` to be installed. 
-
-Open the project in Qt Creator and check the optional target `deb-package` under *Projects*, *Build Steps*, *Details*.
+Building the debian package requires `dpkg` to be installed. In Qt Creator, check the target `deb-package` under *Projects*, *Build Steps*, *Details* and perform a build.
 
 ### Building the AppImage
 
@@ -71,4 +76,4 @@ Building the AppImage requires the [linuxdeployqt](https://github.com/probonopd/
 Download it from github, rename it to `linuxdeployqt` and make it make it executable (`chmod a+x linuxdeployqt`).
 Make sure it is found by the command line, e.g. by dropping it into your `/usr/local/bin/` folder.
 
-Open the project in Qt Creator and check the optional target `appimage` under *Projects*, *Build Steps*, *Details*.
+In Qt Creator, check the target `appimage` under *Projects*, *Build Steps*, *Details* and perform a build.
