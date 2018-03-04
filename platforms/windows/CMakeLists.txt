@@ -26,7 +26,7 @@ add_custom_command(
     DEPENDS windows-files
     COMMAND ISCC
         ${CMAKE_BINARY_DIR}/iss/setup.iss
-        /O${CMAKE_BINARY_DIR}/iss
-        /F"installer"
-        /D"BINARY_DIR="${CMAKE_BINARY_DIR}"/windows-files"
+        /O${CMAKE_BINARY_DIR}
+        /Finstaller
+        /DBINARY_DIR=${CMAKE_BINARY_DIR}/windows-files
 )
