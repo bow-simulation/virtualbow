@@ -7,8 +7,8 @@ Visit https://bow-simulator.org for more information about the project.
 # How to Contribute
 
 Contributions are very welcome.
-Fork this repository on GitLab and create a new branch from `develop` in which you implement your changes.
-When you're done you create a merge request from your new branch against the `develop` branch of this repository and add a short description of what's been changed.
+Fork this repository on GitLab, create a new branch from `develop` and implement your changes there.
+When you're done you create a merge request from your new branch against the `develop` branch of this repository.
 
 # Build instructions
 
@@ -25,11 +25,11 @@ This is because some necessary external dependencies will be downloaded and comp
 
 * [Microsoft Visual Studio 2017](https://www.visualstudio.com/downloads/) or alternatively the [Build Tools for Visual Studio 2017](https://www.visualstudio.com/downloads/#build-tools-for-visual-studio-2017) if you don't want the whole Visual Studio IDE.
 
-* [Open Source edition of Qt](https://www.qt.io/download). The necessary components depend on the target architecture:
+* [CMake 3.10.2](https://cmake.org/download/). Check the installer option to add CMake to the system path.
+
+* [Qt 5.10.1 (Open Source)](https://www.qt.io/download). The necessary components depend on the target architecture:
     * Qt 5.10.1 32-bit (MSVC 2015)
     * Qt 5.10.1 64-bit (MSVC 2015)
-
-* [CMake 3.10.2](https://cmake.org/download/). Check the installer option to add CMake to the system path.
 
 ### Compiling with Qt Creator
 
@@ -57,14 +57,20 @@ In Qt Creator, check the target `iss-installer` under *Projects*, *Build Steps*,
 
 ### Prerequisites
 
-* CMake and Qt-Creator (`cmake`, `qtcreator` on Ubuntu)
+* GCC C and C++ Compilers. Package `build-essentials` on Ubuntu.
 
-* Development libraries for Qt (`qtbase5-dev`, `libqt5x11extras-dev`, `libxt-dev` on Ubuntu)
+* CMake. Package `cmake` on Ubuntu.
+
+* [Qt 5.10.1 (Open Source)](https://www.qt.io/download). Install the following components:
+    * Qt 5.10.1 Desktop gcc 64-bit
+
+* Additional graphics libraries. On Ubuntu those are `mesa-common-dev`, `libglu1-mesa-dev` and `libxt-dev`.
 
 ### Compiling with Qt Creator
 
 Download or clone this repository and open `CMakeLists.txt` with Qt Creator.
-Pick the default *Desktop* kit and configure the project. Select the build type (e.g. *Release*) and perform a build.
+Pick the kit *Desktop Qt 5.10.1 GCC 64bit* and configure the project.
+Select the build type (e.g. *Release*) and perform a build.
 
 ### Building the deb Package
 
@@ -72,8 +78,9 @@ Building the debian package requires `dpkg` to be installed. In Qt Creator, chec
 
 ### Building the AppImage
 
-Building the AppImage requires the [linuxdeployqt](https://github.com/probonopd/linuxdeployqt/releases), which is itself an AppImage.
-Download it from github, rename it to `linuxdeployqt` and make it make it executable (`chmod a+x linuxdeployqt`).
-Make sure it is found by the command line, e.g. by dropping it into your `/usr/local/bin/` folder.
+Building the AppImage requires [linuxdeployqt](https://github.com/probonopd/linuxdeployqt/releases), which is itself an AppImage.
+Download it from github and make it make it executable via `chmod a+x ...`.
+Ensure that it is found as `linuxdeployqt` by the command line, for example by dropping or linking it in your `/usr/local/bin/` folder.
+Also make sure that the `qmake` executable is found and points to the correct Qt installation (e.g. `/home/Qt/5.10.1/gcc_64/bin/qmake`).
 
 In Qt Creator, check the target `appimage` under *Projects*, *Build Steps*, *Details* and perform a build.

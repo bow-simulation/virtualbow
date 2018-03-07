@@ -39,6 +39,6 @@ add_custom_command(
     OUTPUT Bow_Simulator-x86_64.AppImage
     DEPENDS linux-files
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/linux-files ${CMAKE_BINARY_DIR}/appimage
-    COMMAND linuxdeployqt ${CMAKE_BINARY_DIR}/appimage/usr/share/applications/bow-simulator.desktop -appimage
+    COMMAND linuxdeployqt ${CMAKE_BINARY_DIR}/appimage/usr/share/applications/bow-simulator.desktop -appimage -no-plugins -no-translations
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
