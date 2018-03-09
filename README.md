@@ -34,20 +34,18 @@ This is because some necessary external dependencies will be downloaded and comp
 ### Compiling with Qt Creator
 
 Download or clone this repository and open `CMakeLists.txt` with Qt Creator.
-
-Todo: Configuring Kits (Compiler, CMake, ...)
-
-Todo: Don't add cmake to path?
-
-Todo: Generators, adding `[Qt-install-dir]\Tools\QtCreator\bin` to the system path.
-
+Pick the kit *Desktop Qt 5.10.1 MSVC2015 32bit* or *64bit* and configure the project.
+If Qt Creator doesn't auto-detect the C++ compiler or CMake, go to *Projects*, *Manage Kits...* and set them manually (*Microsoft Visual C++ Compiler 15.0 x86* for the 32bit Kit, *amd64* for the 64bit one).
 Select the build type (e.g. *Release*) and perform a build.
+
+Using the default CMake generator (*NMake Makefiles JOM*) might give you an error like this: "The C compiler ... is not able to compile a simple test program".
+This can be solved by adding the directory `Qt/Tools/QtCreator/bin` of the Qt installation to the system path.
 
 ### Building the installer
 
 Building the Windows installer requires some additional tools,
 
-* [Inno Setup 5.5.9](http://www.jrsoftware.org/isdl.php). Add the installation directory `[...]\Inno Setup 5\` to the system path.
+* [Inno Setup 5.5.9](http://www.jrsoftware.org/isdl.php). Add the installation directory to the system path.
 
 * [rcedit 1.0.0](https://github.com/electron/rcedit/releases). Download the executable, rename it to `rcedit` and add its location to the system path.
 
