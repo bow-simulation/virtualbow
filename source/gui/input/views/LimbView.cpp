@@ -45,7 +45,6 @@ LimbView::LimbView()
     renderer->AddActor(actor_l);
     renderer->AddActor(actor_r);
     renderer->AddActor2D(legend);
-    // renderer->SetUseFXAA(true);    // Todo: What if this is not supported (or can that be reasonably assumed?)
 
     // Integration of vtkOrientationMarkerWidget and QVTKWidget
     // http://vtk.markmail.org/message/cgkqlbz3jgmn6h3z?q=vtkOrientationMarkerWidget+qvtkwidget
@@ -62,9 +61,6 @@ LimbView::LimbView()
 
     // Why doesn't this work?
     this->GetRenderWindow()->SetMultiSamples(5);
-    this->GetRenderWindow()->SetLineSmoothing(true);
-    this->GetRenderWindow()->SetPolygonSmoothing(true);
-    this->GetRenderWindow()->SetPointSmoothing(true);
 
     // Buttons
 
@@ -175,11 +171,11 @@ void LimbView::viewFit()
     this->GetInteractor()->Render();    // http://vtk.markmail.org/message/nyq3dwlyfrivrqac
 }
 
-// Adjust orientation widget's viewport on resize to keep it at a constant screen size
-void LimbView::resizeEvent(QResizeEvent* event)
+// Adjusts widget's viewports on resize to keep it at a constant screen size
+void LimbView::resizeGL(int w, int h)
 {
-    updateIndicatorPosition(event->size());
-    updateLegendPosition(event->size());
+    updateIndicatorPosition({w, h});
+    updateLegendPosition({w, h});
 }
 
 void LimbView::updateIndicatorPosition(const QSize& screen)

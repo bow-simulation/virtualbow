@@ -1,7 +1,7 @@
 #include "BaseDialog.hpp"
 
 BaseDialog::BaseDialog(QWidget* parent)
-    : QDialog(parent)
+    : QDialog(parent, Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowTitleHint)
 {
 
 }

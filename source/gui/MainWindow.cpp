@@ -12,27 +12,27 @@ MainWindow::MainWindow()
     : editor(new BowEditor())
 {
     // Actions
-    auto action_new = new QAction(QIcon::fromTheme("document-new"), "&New", this);
+    auto action_new = new QAction(QIcon::fromTheme("document-new", QIcon(":/icons/document-new.png")), "&New", this);
     QObject::connect(action_new, &QAction::triggered, this, &MainWindow::newFile);
     action_new->setShortcuts(QKeySequence::New);
     action_new->setMenuRole(QAction::NoRole);
 
-    auto action_open = new QAction(QIcon::fromTheme("document-open"), "&Open...", this);
+    auto action_open = new QAction(QIcon::fromTheme("document-open", QIcon(":/icons/document-open.png")), "&Open...", this);
     QObject::connect(action_open, &QAction::triggered, this, &MainWindow::open);
     action_open->setShortcuts(QKeySequence::Open);
     action_open->setMenuRole(QAction::NoRole);
 
-    auto action_save = new QAction(QIcon::fromTheme("document-save"), "&Save", this);
+    auto action_save = new QAction(QIcon::fromTheme("document-save", QIcon(":/icons/document-save.png")), "&Save", this);
     QObject::connect(action_save, &QAction::triggered, this, &MainWindow::save);
     action_save->setShortcuts(QKeySequence::Save);
     action_save->setMenuRole(QAction::NoRole);
 
-    auto action_save_as = new QAction(QIcon::fromTheme("document-save-as"), "Save &As...", this);
+    auto action_save_as = new QAction(QIcon::fromTheme("document-save-as", QIcon(":/icons/document-save-as.png")), "Save &As...", this);
     QObject::connect(action_save_as, &QAction::triggered, this, &MainWindow::saveAs);
     action_save_as->setShortcuts(QKeySequence::SaveAs);
     action_save_as->setMenuRole(QAction::NoRole);
 
-    auto action_exit = new QAction(QIcon::fromTheme("application-exit"), "&Quit", this);
+    auto action_exit = new QAction(QIcon::fromTheme("application-exit", QIcon(":/icons/application-exit.png")), "&Quit", this);
     QObject::connect(action_exit, &QAction::triggered, this, &QWidget::close);
     action_exit->setShortcuts(QKeySequence::Quit);
     action_exit->setMenuRole(QAction::QuitRole);
@@ -47,7 +47,7 @@ MainWindow::MainWindow()
     action_run_dynamics->setMenuRole(QAction::NoRole);
     QObject::connect(action_run_dynamics, &QAction::triggered, [&]{ runSimulation(true); });    // Todo: Use std::bind
 
-    auto action_about = new QAction(QIcon::fromTheme("dialog-information"), "&About...", this);
+    auto action_about = new QAction(QIcon::fromTheme("dialog-information", QIcon(":/icons/dialog-information.png")), "&About...", this);
     connect(action_about, &QAction::triggered, this, &MainWindow::about);
     action_about->setMenuRole(QAction::AboutRole);
 

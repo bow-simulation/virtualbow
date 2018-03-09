@@ -23,7 +23,7 @@ This is because some necessary external dependencies will be downloaded and comp
 
 ### Prerequisites
 
-* [Microsoft Visual Studio 2017](https://www.visualstudio.com/downloads/) or alternatively the [Build Tools for Visual Studio 2017](https://www.visualstudio.com/downloads/#build-tools-for-visual-studio-2017) if you don't want the whole Visual Studio IDE.
+* [Microsoft Visual Studio 2017](https://www.visualstudio.com/downloads/) or just the [Build Tools for Visual Studio 2017](https://www.visualstudio.com/downloads/#build-tools-for-visual-studio-2017) if you don't want the whole Visual Studio IDE.
 
 * [CMake 3.10.2](https://cmake.org/download/). Check the installer option to add CMake to the system path.
 
@@ -57,7 +57,7 @@ In Qt Creator, check the target `iss-installer` under *Projects*, *Build Steps*,
 
 ### Prerequisites
 
-* GCC C and C++ Compilers. Package `build-essentials` on Ubuntu.
+* GCC C and C++ Compilers. On Ubuntu they're in the `build-essentials` package.
 
 * CMake. Package `cmake` on Ubuntu.
 
