@@ -28,7 +28,7 @@ private:
     vtkSmartPointer<vtkRenderer> renderer;
     vtkSmartPointer<vtkOrientationMarkerWidget> indicator;
 
-    // virtual void resizeEvent(QResizeEvent* event) override;
+    virtual QSize sizeHint() const;
     virtual void resizeGL(int w, int h) override;
 
     void updateIndicatorPosition(const QSize& screen);

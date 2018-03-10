@@ -171,6 +171,12 @@ void LimbView::viewFit()
     this->GetInteractor()->Render();    // http://vtk.markmail.org/message/nyq3dwlyfrivrqac
 }
 
+// Default size. Only used on the first start.
+QSize LimbView::sizeHint() const
+{
+    return {900, 600};    // Magic number
+}
+
 // Adjusts widget's viewports on resize to keep it at a constant screen size
 void LimbView::resizeGL(int w, int h)
 {

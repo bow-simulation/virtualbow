@@ -8,7 +8,7 @@ Visit https://bow-simulator.org for more information about the project.
 
 Contributions are very welcome.
 Fork this repository on GitLab, create a new branch from `develop` and implement your changes there.
-When you're done you create a merge request from your new branch against the `develop` branch of this repository.
+When you're done you create a merge request from your new branch to the `develop` branch of this repository.
 
 # Build instructions
 
@@ -35,8 +35,10 @@ This is because some necessary external dependencies will be downloaded and comp
 
 Download or clone this repository and open `CMakeLists.txt` with Qt Creator.
 Pick the kit *Desktop Qt 5.10.1 MSVC2015 32bit* or *64bit* and configure the project.
-If Qt Creator doesn't auto-detect the C++ compiler or CMake, go to *Projects*, *Manage Kits...* and set them manually (*Microsoft Visual C++ Compiler 15.0 x86* for the 32bit Kit, *amd64* for the 64bit one).
+
 Select the build type (e.g. *Release*) and perform a build.
+
+If Qt Creator didn't auto-detect the C++ compiler or CMake, go to *Projects*, *Manage Kits...* and set them manually (*Microsoft Visual C++ Compiler 15.0 x86* for the 32bit Kit, *amd64* for the 64bit one).
 
 Using the default CMake generator (*NMake Makefiles JOM*) might give you an error like this: "The C compiler ... is not able to compile a simple test program".
 This can be solved by adding the directory `Qt/Tools/QtCreator/bin` of the Qt installation to the system path.
@@ -68,6 +70,7 @@ In Qt Creator, check the target `iss-installer` under *Projects*, *Build Steps*,
 
 Download or clone this repository and open `CMakeLists.txt` with Qt Creator.
 Pick the kit *Desktop Qt 5.10.1 GCC 64bit* and configure the project.
+
 Select the build type (e.g. *Release*) and perform a build.
 
 ### Building the deb Package
