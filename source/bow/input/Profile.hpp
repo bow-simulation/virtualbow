@@ -6,7 +6,7 @@ using nlohmann::json;
 
 struct Profile
 {
-    Series segments = {{0.85}, {0.0}};
+    Series segments = {{0.8}, {0.0}};
     double x_pos = 0.0;
     double y_pos = 0.0;
     double angle = 0.0;
