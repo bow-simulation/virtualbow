@@ -9,8 +9,13 @@
 #include <vtkAxesActor.h>
 #include <vtkCamera.h>
 
+#include <vtkGenericOpenGLRenderWindow.h>
+
 LimbView::LimbView()
 {
+    // Todo: Why doesn't it create a default render window?
+    // this->SetRenderWindow(vtkGenericOpenGLRenderWindow::New());
+
     source = vtkSmartPointer<LimbSource>::New();
     colors = vtkSmartPointer<vtkLookupTable>::New();
 
@@ -40,7 +45,6 @@ LimbView::LimbView()
 
     // Renderer
     renderer = vtkSmartPointer<vtkRenderer>::New();
-    this->GetRenderWindow()->AddRenderer(renderer);
     renderer->SetBackground(0.2, 0.3, 0.4);
     renderer->AddActor(actor_l);
     renderer->AddActor(actor_r);
@@ -49,17 +53,17 @@ LimbView::LimbView()
     // Integration of vtkOrientationMarkerWidget and QVTKWidget
     // http://vtk.markmail.org/message/cgkqlbz3jgmn6h3z?q=vtkOrientationMarkerWidget+qvtkwidget
     indicator = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
-    indicator->SetInteractor(this->GetInteractor());
-    indicator->SetDefaultRenderer(renderer);
     indicator->SetOrientationMarker(vtkSmartPointer<vtkAxesActor>::New());
-    indicator->SetEnabled(true);
+    indicator->SetInteractor(this->GetInteractor());
     indicator->SetInteractive(false);
+    indicator->SetEnabled(true);
+    // indicator->SetDefaultRenderer(renderer);
 
     auto camera = renderer->GetActiveCamera();
     camera->SetParallelProjection(true);
     camera->SetUseHorizontalParallelScale(true);
 
-    // Why doesn't this work?
+    this->GetRenderWindow()->AddRenderer(renderer);
     this->GetRenderWindow()->SetMultiSamples(5);
 
     // Buttons
@@ -178,10 +182,10 @@ QSize LimbView::sizeHint() const
 }
 
 // Adjusts widget's viewports on resize to keep it at a constant screen size
-void LimbView::resizeGL(int w, int h)
+void LimbView::resizeEvent(QResizeEvent* event)
 {
-    updateIndicatorPosition({w, h});
-    updateLegendPosition({w, h});
+    updateIndicatorPosition(event->size());
+    updateLegendPosition(event->size());
 }
 
 void LimbView::updateIndicatorPosition(const QSize& screen)

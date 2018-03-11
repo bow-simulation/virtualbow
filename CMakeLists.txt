@@ -28,14 +28,15 @@ set(CMAKE_AUTOUIC ON)
 
 ExternalProject_Add(
     vtk
-    URL "https://gitlab.com/bow-simulator/vtk-custom/repository/archive.tar.gz?ref=vtkcamera-horizontal-parallel-scale"
-    URL_MD5 "7636bca3cada9c6039b0bce44c41a469"
+    URL "https://gitlab.com/bow-simulator/vtk-custom/repository/a0b51337f6294a6fcb095a9300ad12dadceaf2c3/archive.tar.gz"
+    URL_MD5 "9fc69f053ff5e506695d8833a175f9ea"
     PREFIX ${CMAKE_BINARY_DIR}/vtk_download
     CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/vtk_install
         -DCMAKE_BUILD_TYPE=Release
         -DBUILD_SHARED_LIBS=OFF
         -DBUILD_TESTING=OFF
+        -DVTK_RENDERING_BACKEND=OpenGL2
         -DVTK_Group_Qt=ON
         -DVTK_QT_VERSION=5
         -DQt5_DIR=${Qt5_DIR}

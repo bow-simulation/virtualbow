@@ -2,12 +2,12 @@
 #include "bow/input/InputData.hpp"
 #include "LimbSource.hpp"
 #include "LayerLegend.hpp"
-#include <QVTKOpenGLWidget.h>
+#include <QVTKWidget.h>
 #include <vtkSmartPointer.h>
 #include <vtkActor.h>
 #include <vtkOrientationMarkerWidget.h>
 
-class LimbView: public QVTKOpenGLWidget
+class LimbView: public QVTKWidget
 {
 public:
     LimbView();
@@ -28,8 +28,8 @@ private:
     vtkSmartPointer<vtkRenderer> renderer;
     vtkSmartPointer<vtkOrientationMarkerWidget> indicator;
 
-    virtual QSize sizeHint() const;
-    virtual void resizeGL(int w, int h) override;
+    virtual QSize sizeHint() const override;
+    virtual void resizeEvent(QResizeEvent* event) override;
 
     void updateIndicatorPosition(const QSize& screen);
     void updateLegendPosition(const QSize& screen);
