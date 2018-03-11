@@ -28,22 +28,22 @@ SeriesEditor::SeriesEditor(const QString& x_label, const QString& y_label, int r
 
     // Actions
 
-    auto action_cut = new QAction(QIcon::fromTheme("edit-cut"), "&Cut");
+    auto action_cut = new QAction(QIcon::fromTheme("edit-cut", QIcon(":icons/edit-cut.png")), "&Cut");
     QObject::connect(action_cut, &QAction::triggered, this, &SeriesEditor::cutSelection);
     action_cut->setShortcuts(QKeySequence::Cut);
     this->addAction(action_cut);
 
-    auto action_copy = new QAction(QIcon::fromTheme("edit-copy"), "Cop&y");
+    auto action_copy = new QAction(QIcon::fromTheme("edit-copy", QIcon(":icons/edit-copy.png")), "Cop&y");
     QObject::connect(action_copy, &QAction::triggered, this, &SeriesEditor::copySelection);
     action_copy->setShortcuts(QKeySequence::Copy);
     this->addAction(action_copy);
 
-    auto action_paste = new QAction(QIcon::fromTheme("edit-paste"), "&Paste");
+    auto action_paste = new QAction(QIcon::fromTheme("edit-paste", QIcon(":icons/edit-paste.png")), "&Paste");
     QObject::connect(action_paste, &QAction::triggered, this, &SeriesEditor::pasteToSelection);
     action_paste->setShortcuts(QKeySequence::Paste);
     this->addAction(action_paste);
 
-    auto action_delete = new QAction(QIcon::fromTheme("edit-delete"), "&Delete");
+    auto action_delete = new QAction(QIcon::fromTheme("edit-delete", QIcon(":icons/edit-delete.png")), "&Delete");
     QObject::connect(action_delete, &QAction::triggered, this, &SeriesEditor::deleteSelection);
     action_delete->setShortcuts(QKeySequence::Delete);
     this->addAction(action_delete);

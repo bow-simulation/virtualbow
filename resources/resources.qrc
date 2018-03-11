@@ -12,6 +12,10 @@
         <file>icons/document-save.png</file>
         <file>icons/document-save-as.png</file>
         <file>icons/list-add.png</file>
+        <file>icons/edit-copy.png</file>
+        <file>icons/edit-cut.png</file>
+        <file>icons/edit-paste.png</file>
+        <file>icons/edit-delete.png</file>
         <file>icons/limb-view/view-profile.png</file>
         <file>icons/limb-view/view-top.png</file>
         <file>icons/limb-view/view-3d.png</file>
