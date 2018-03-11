@@ -9,10 +9,12 @@ ShapePlot::ShapePlot(const LimbProperties& limb, const BowStates& states, bool i
 
     limb_right = new QCPCurve(this->xAxis, this->yAxis);
     limb_right->setPen({Qt::blue, 2});
+    //limb_right->setBrush(Qt::white);
     limb_right->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
 
     limb_left = new QCPCurve(this->xAxis, this->yAxis);
     limb_left->setPen({Qt::blue, 2});
+    //limb_left->setBrush(Qt::white);
     limb_left->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
 
     string_right = new QCPCurve(this->xAxis, this->yAxis);
@@ -53,10 +55,10 @@ void ShapePlot::plotIntermediateStates()
     auto limb_right = new QCPCurve(this->xAxis, this->yAxis);
     plotLimbOutline(limb_left, limb_right, limb.x_pos, limb.y_pos, limb.angle);
 
-    limb_left->setPen({Qt::lightGray, 2});
+    limb_left->setPen({Qt::lightGray, 1});
     limb_left->setScatterSkip(0);
 
-    limb_right->setPen({Qt::lightGray, 2});
+    limb_right->setPen({Qt::lightGray, 1});
     limb_right->setScatterSkip(0);
 
     // Stroboscope-like plots during intermediate states
@@ -69,21 +71,21 @@ void ShapePlot::plotIntermediateStates()
         auto limb_right = new QCPCurve(this->xAxis, this->yAxis);
         plotLimbOutline(limb_left, limb_right, states.x_pos_limb[j], states.y_pos_limb[j], states.angle_limb[j]);
 
-        limb_right->setPen({Qt::lightGray, 2});
-        limb_right->setScatterSkip(0);
-
-        limb_left->setPen({Qt::lightGray, 2});
+        limb_left->setPen({Qt::lightGray, 1});
         limb_left->setScatterSkip(0);
 
-        auto string_right = new QCPCurve(this->xAxis, this->yAxis);
-        string_right->setData(states.x_pos_string[j], states.y_pos_string[j]);
-        string_right->setPen({Qt::lightGray, 1});
-        string_right->setScatterSkip(0);
+        limb_right->setPen({Qt::lightGray, 1});
+        limb_right->setScatterSkip(0);
 
         auto string_left = new QCPCurve(this->xAxis, this->yAxis);
         string_left->setData(-states.x_pos_string[j], states.y_pos_string[j]);
         string_left->setPen({Qt::lightGray, 1});
         string_left->setScatterSkip(0);
+
+        auto string_right = new QCPCurve(this->xAxis, this->yAxis);
+        string_right->setData(states.x_pos_string[j], states.y_pos_string[j]);
+        string_right->setPen({Qt::lightGray, 1});
+        string_right->setScatterSkip(0);
     }
 }
 
