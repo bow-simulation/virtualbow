@@ -1,0 +1,67 @@
+{
+    "layers": [
+        {
+            "E": 15000000000.0,
+            "height": [
+                [
+                    0.0,
+                    0.015
+                ],
+                [
+                    1.0,
+                    0.01
+                ]
+            ],
+            "name": "unnamed",
+            "rho": 600.0
+        }
+    ],
+    "masses": {
+        "limb_tip": 0.005,
+        "string_center": 0.005,
+        "string_tip": 0.005
+    },
+    "meta": {
+        "comments": "",
+        "version": "0.5"
+    },
+    "operation": {
+        "arrow_mass": 0.025,
+        "brace_height": 0.2,
+        "draw_length": 0.7
+    },
+    "profile": {
+        "angle": 0.0,
+        "segments": [
+            [
+                0.85,
+                0.0
+            ]
+        ],
+        "x_pos": 0.0,
+        "y_pos": 0.0
+    },
+    "settings": {
+        "n_draw_steps": 150,
+        "n_limb_elements": 40,
+        "n_string_elements": 45,
+        "sampling_rate": 10000.0,
+        "time_span_factor": 1.5,
+        "time_step_factor": 0.5
+    },
+    "string": {
+        "n_strands": 12,
+        "strand_density": 0.0005,
+        "strand_stiffness": 3500.0
+    },
+    "width": [
+        [
+            0.0,
+            0.035
+        ],
+        [
+            1.0,
+            0.008
+        ]
+    ]
+}

@@ -9,12 +9,7 @@ QColor getLayerColor(const Layer& layer)
 {
     std::mt19937 rng(unsigned(layer.rho)*unsigned(layer.E));
     std::uniform_real_distribution<qreal> uni(0.0, 1.0);
-
-    qreal h = uni(rng);
-
-    qInfo() << "h = " << h;
-
-    return QColor::fromHsvF(h, 0.8, 1.0);
+    return QColor::fromHsvF(uni(rng), 0.8, 1.0);
 }
 
 /*
