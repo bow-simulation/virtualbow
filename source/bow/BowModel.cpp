@@ -38,13 +38,104 @@ OutputData BowModel::run_dynamic_simulation(const InputData& input, const Callba
 BowModel::BowModel(const InputData& input, const Callback& callback)
     : input(input)
 {
-    // Input validation
-    if(input.operation.brace_height >= input.operation.draw_length)
-        throw std::runtime_error("The draw length must be greater than the brace height");
-
+    check_input(input);
     init_limb(callback);
     init_string(callback);
     init_masses(callback);
+}
+
+void BowModel::check_input(const InputData& input)
+{
+    // Check Settings
+
+    if(input.settings.n_limb_elements < 1)
+        throw std::runtime_error("Settings: Number of limb elements must be positive");
+
+    if(input.settings.n_string_elements < 1)
+        throw std::runtime_error("Settings: Number of string elements must be positive");
+
+    if(input.settings.n_draw_steps < 1)
+        throw std::runtime_error("Settings: Number of draw steps must be positive");
+
+    if(input.settings.time_span_factor <= 0.0)
+        throw std::runtime_error("Settings: Time span factor must be positive");
+
+    if(input.settings.time_step_factor <= 0.0)
+        throw std::runtime_error("Settings: Time step factor must be positive");
+
+    if(input.settings.sampling_rate <= 0.0)
+        throw std::runtime_error("Settings: Sampling rate must be positive");
+
+    // Check Profile
+
+    for(double arg: input.profile.segments.args())
+    {
+        if(arg <= 0.0)
+            throw std::runtime_error("Profile: Segment lengths must be positive");
+    }
+
+    // Check width
+
+    if(input.width.size() < 2)
+        throw std::runtime_error("Width: At least two data points are needed");
+
+    for(double w: input.width.vals())
+    {
+        if(w <= 0.0)
+            throw std::runtime_error("Width must be positive");
+    }
+
+    // Check Layers
+
+    for(size_t i = 0; i < input.layers.size(); ++i)
+    {
+        const Layer& layer = input.layers[i];
+
+        if(layer.rho <= 0.0)
+            throw std::runtime_error("Layer " + std::to_string(i) + " (" + layer.name + ")" + ": rho must be positive");
+
+        if(layer.E <= 0.0)
+            throw std::runtime_error("Layer " + std::to_string(i) + " (" + layer.name + ")" + ": E must be positive");
+
+        if(layer.height.size() < 2)
+            throw std::runtime_error("Layer " + std::to_string(i) + " (" + layer.name + ")" + ": At least two data points for height are needed");
+
+        for(double h: layer.height.vals())
+        {
+            if(h <= 0.0)
+                throw std::runtime_error("Layer " + std::to_string(i) + " (" + layer.name + ")" + ": Height must be positive");
+        }
+    }
+
+    // Check String
+
+    if(input.string.strand_stiffness <= 0.0)
+        throw std::runtime_error("String: Strand stiffness must be positive");
+
+    if(input.string.strand_density <= 0.0)
+        throw std::runtime_error("String: Strand density must be positive");
+
+    if(input.string.n_strands < 1)
+        throw std::runtime_error("String: Number of strands must be positive");
+
+    // Check Masses
+
+    if(input.masses.string_center < 0.0)
+        throw std::runtime_error("Masses: String center mass must not be negative");
+
+    if(input.masses.string_tip < 0.0)
+        throw std::runtime_error("Masses: String tip mass must not be negative");
+
+    if(input.masses.limb_tip < 0.0)
+        throw std::runtime_error("Masses: Limb tip mass must not be negative");
+
+    // Check Operation
+
+    if(input.operation.brace_height >= input.operation.draw_length)
+        throw std::runtime_error("Operation: Draw length must be greater than brace height");
+
+    if(input.operation.arrow_mass <= 0.0)
+        throw std::runtime_error("Operation: Arrow mass must be positive");
 }
 
 void BowModel::init_limb(const Callback& callback)

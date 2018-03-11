@@ -14,6 +14,7 @@ public:
 private:
     BowModel(const InputData& input, const Callback& callback);
 
+    void check_input(const InputData& input);
     void init_limb(const Callback& callback);
     void init_string(const Callback& callback);
     void init_masses(const Callback& callback);

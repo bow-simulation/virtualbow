@@ -1,11 +1,11 @@
 #pragma once
 #include "Meta.hpp"
+#include "Settings.hpp"
 #include "Profile.hpp"
 #include "Layers.hpp"
 #include "String.hpp"
 #include "Masses.hpp"
 #include "Operation.hpp"
-#include "Settings.hpp"
 #include <json.hpp>
 #include <vector>
 
