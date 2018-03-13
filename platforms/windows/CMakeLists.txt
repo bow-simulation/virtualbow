@@ -21,6 +21,12 @@ configure_file(setup.iss.in ${CMAKE_BINARY_DIR}/iss/setup.iss)
 configure_file(license.rtf ${CMAKE_BINARY_DIR}/iss/license.rtf COPYONLY)
 configure_file(logo.ico ${CMAKE_BINARY_DIR}/iss/logo.ico COPYONLY)
 
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(ISS_INSTALL_DIR "{pf64}")    # Program Files
+else()
+    set(ISS_INSTALL_DIR "{pf32}")    # Program Files (x86)
+endif()
+
 add_custom_target(iss-installer DEPENDS installer.exe)
 add_custom_command(
     OUTPUT installer.exe
@@ -30,4 +36,5 @@ add_custom_command(
         /O${CMAKE_BINARY_DIR}
         /Finstaller
         /DBINARY_DIR=${CMAKE_BINARY_DIR}/windows-files
+        /DINSTALL_DIR=${ISS_INSTALL_DIR}
 )

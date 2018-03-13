@@ -6,9 +6,10 @@ Visit https://bow-simulator.org for more information about the project.
 
 # How to Contribute
 
-Contributions are very welcome.
-Fork this repository on GitLab, create a new branch from `develop` and implement your changes there.
-When you're done you create a merge request from your new branch to the `develop` branch of this repository.
+1. Fork this repository on GitLab and create a new branch from `develop`
+2. Implement and commit your changes on your new branch
+3. Create a merge request back to the `develop` branch of this repository. Add a short summary of the changes and [link any relevant issues](https://docs.gitlab.com/ce/user/project/issues/crosslinking_issues.html).
+4. Your changes will be reviewed as soon as possible
 
 # Build instructions
 
@@ -16,14 +17,14 @@ Bow Simulator is built with CMake.
 The instructions below use the Qt-Creator IDE, which has built-in CMake support.
 This is however not strictly necessary, you can just as well run CMake yourself.
 
-The first build may take an hour or two, depending on your hardware.
+The first build may take an hour or longer, depending on your hardware.
 This is because some necessary external dependencies will be downloaded and compiled first (see `CMakeLists.txt` for details).
 
 ## Windows
 
 ### Prerequisites
 
-* [Microsoft Visual Studio 2017](https://www.visualstudio.com/downloads/) or just the [Build Tools for Visual Studio 2017](https://www.visualstudio.com/downloads/#build-tools-for-visual-studio-2017) if you don't want the whole Visual Studio IDE.
+* [Microsoft Visual Studio 2017](https://www.visualstudio.com/downloads/). Select *Build Tools for Visual Studio 2017* if you don't want to install the whole Visual Studio IDE.
 
 * [CMake 3.10.2](https://cmake.org/download/). Check the installer option to add CMake to the system path.
 
