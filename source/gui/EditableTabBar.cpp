@@ -2,13 +2,15 @@
 
 EditableTabBar::EditableTabBar()
 {
-    int height = this->tabBar()->size().height();
+    int tab_height = this->tabBar()->size().height();
+    int font_height = this->fontMetrics().height();
 
     auto button = new QToolButton();
     button->setIcon(QIcon(":/icons/list-add"));
-    button->setIconSize({height, height});
+    button->setIconSize({tab_height, tab_height});        // Setting button size instead somehow makes the layout ugly
     button->setToolTip("Add Layer");
 
+    this->setIconSize({font_height, font_height});
     this->setCornerWidget(button, Qt::TopLeftCorner);
     this->setTabsClosable(true);
     this->setMovable(true);

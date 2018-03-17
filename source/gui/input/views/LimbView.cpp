@@ -13,9 +13,6 @@
 
 LimbView::LimbView()
 {
-    // Todo: Why doesn't it create a default render window?
-    // this->SetRenderWindow(vtkGenericOpenGLRenderWindow::New());
-
     source = vtkSmartPointer<LimbSource>::New();
     colors = vtkSmartPointer<vtkLookupTable>::New();
 
@@ -45,17 +42,18 @@ LimbView::LimbView()
 
     // Renderer
     renderer = vtkSmartPointer<vtkRenderer>::New();
-    this->GetRenderWindow()->AddRenderer(renderer);
     renderer->SetBackground(0.2, 0.3, 0.4);
     renderer->AddActor(actor_l);
     renderer->AddActor(actor_r);
     renderer->AddActor2D(legend);
 
-    // Integration of vtkOrientationMarkerWidget and QVTKWidget
-    // http://vtk.markmail.org/message/cgkqlbz3jgmn6h3z?q=vtkOrientationMarkerWidget+qvtkwidget
+    // Render window
+    this->GetRenderWindow()->AddRenderer(renderer);
+    this->GetRenderWindow()->SetMultiSamples(5);
+
+    // Orientation marker (http://vtk.markmail.org/message/cgkqlbz3jgmn6h3z?q=vtkOrientationMarkerWidget+qvtkwidget)
     indicator = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
     indicator->SetInteractor(this->GetInteractor());
-    indicator->SetDefaultRenderer(renderer);
     indicator->SetOrientationMarker(vtkSmartPointer<vtkAxesActor>::New());
     indicator->SetEnabled(true);
     indicator->SetInteractive(false);
