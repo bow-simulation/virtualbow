@@ -47,7 +47,6 @@ EnergyPlot::EnergyPlot(const BowStates& states, const std::vector<double>& param
     QObject::connect(cb_type, &QCheckBox::toggled, this, &EnergyPlot::updatePlot);
     QObject::connect(cb_part, &QCheckBox::toggled, this, &EnergyPlot::updatePlot);
 
-
     updatePlot();
 }
 
@@ -75,14 +74,15 @@ void EnergyPlot::updatePlot()
 {
     // Function plot_energy adds a single energy to the plot
     std::function<void(const std::vector<double>& energy, const QString& name, const QColor& color)> plot_energy;
-    int alpha;    // Transparency
 
-    // Select plot_energy for plotting either stacked or single lines
+    // Select plot_energy and alpha for plotting either stacked or single lines
     if(cb_stacked->isChecked())
     {
         std::vector<double> e_lower, e_upper(parameter.size());
-        plot_energy = [&, e_lower, e_upper](const std::vector<double>& energy, const QString& name, const QColor& color) mutable
+        plot_energy = [&, e_lower, e_upper](const std::vector<double>& energy, const QString& name, QColor color) mutable
         {
+            color.setAlpha(155);
+
             // Test if energy is nonzero
             if(std::none_of(energy.begin(), energy.end(), [](double e) { return e > 0.0; }))
                 return;
@@ -106,13 +106,13 @@ void EnergyPlot::updatePlot()
                 graph_upper->setChannelFillGraph(graph_lower);
             }
         };
-
-        alpha = 155;
     }
     else
     {
-        plot_energy = [&](const std::vector<double>& energy, const QString& name, const QColor& color)
+        plot_energy = [&](const std::vector<double>& energy, const QString& name, QColor color)
         {
+            color.setAlpha(255);
+
             // Test if energy is nonzero
             if(std::none_of(energy.begin(), energy.end(), [](double e) { return e > 0.0; }))
                 return;
@@ -122,8 +122,6 @@ void EnergyPlot::updatePlot()
             graph->setName(name);
             graph->setPen(color);
         };
-
-        alpha = 0;
     }
 
     // Clear plot
@@ -141,9 +139,9 @@ void EnergyPlot::updatePlot()
         for(size_t i = 0; i < parameter.size(); ++i)
             e_string[i] = states.e_pot_string[i] + states.e_kin_string[i];
 
-        plot_energy(e_limbs, "Limbs (Total)", QColor(0, 0, 255, alpha));
-        plot_energy(e_string, "String (Total)", QColor(128, 0, 128, alpha));
-        plot_energy(states.e_kin_arrow, "Arrow (Total)", QColor(255, 0, 0, alpha));
+        plot_energy(e_limbs, "Limbs (Total)", QColor(0, 0, 255));
+        plot_energy(e_string, "String (Total)", QColor(128, 0, 128));
+        plot_energy(states.e_kin_arrow, "Arrow (Total)", QColor(255, 0, 0));
     }
     else if(cb_type->isChecked())
     {
@@ -156,16 +154,16 @@ void EnergyPlot::updatePlot()
         for(size_t i = 0; i < parameter.size(); ++i)
             e_kin[i] = states.e_kin_limbs[i] + states.e_kin_string[i] + states.e_kin_arrow[i];
 
-        plot_energy(e_pot, "Potential", QColor(0, 0, 255, alpha));
-        plot_energy(e_kin, "Kinetic", QColor(255, 0, 0, alpha));
+        plot_energy(e_pot, "Potential", QColor(0, 0, 255));
+        plot_energy(e_kin, "Kinetic", QColor(255, 0, 0));
     }
     else
     {
-        plot_energy(states.e_pot_limbs, "Limbs (Pot)", QColor(0, 0, 255, alpha));
-        plot_energy(states.e_kin_limbs, "Limbs (Kin)", QColor(40, 40, 255, alpha));
-        plot_energy(states.e_pot_string, "String (Pot)", QColor(128, 0, 128, alpha));
-        plot_energy(states.e_kin_string, "String (Kin)", QColor(128, 40, 128, alpha));
-        plot_energy(states.e_kin_arrow, "Arrow (Kin)", QColor(255, 0, 0, alpha));
+        plot_energy(states.e_pot_limbs, "Limbs (Pot)", QColor(0, 0, 255));
+        plot_energy(states.e_kin_limbs, "Limbs (Kin)", QColor(40, 40, 255));
+        plot_energy(states.e_pot_string, "String (Pot)", QColor(128, 0, 128));
+        plot_energy(states.e_kin_string, "String (Kin)", QColor(128, 40, 128));
+        plot_energy(states.e_kin_arrow, "Arrow (Kin)", QColor(255, 0, 0));
     }
 
     // Update plot
