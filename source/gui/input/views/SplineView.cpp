@@ -7,6 +7,7 @@ SplineView::SplineView(const QString& x_label, const QString& y_label)
 
     // Line
     this->addGraph();
+    this->graph()->setPen({Qt::blue, 2});
 
     // Control points
     this->addGraph();
