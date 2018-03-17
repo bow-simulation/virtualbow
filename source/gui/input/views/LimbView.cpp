@@ -45,6 +45,7 @@ LimbView::LimbView()
 
     // Renderer
     renderer = vtkSmartPointer<vtkRenderer>::New();
+    this->GetRenderWindow()->AddRenderer(renderer);
     renderer->SetBackground(0.2, 0.3, 0.4);
     renderer->AddActor(actor_l);
     renderer->AddActor(actor_r);
@@ -53,18 +54,15 @@ LimbView::LimbView()
     // Integration of vtkOrientationMarkerWidget and QVTKWidget
     // http://vtk.markmail.org/message/cgkqlbz3jgmn6h3z?q=vtkOrientationMarkerWidget+qvtkwidget
     indicator = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
-    indicator->SetOrientationMarker(vtkSmartPointer<vtkAxesActor>::New());
     indicator->SetInteractor(this->GetInteractor());
-    indicator->SetInteractive(false);
+    indicator->SetDefaultRenderer(renderer);
+    indicator->SetOrientationMarker(vtkSmartPointer<vtkAxesActor>::New());
     indicator->SetEnabled(true);
-    // indicator->SetDefaultRenderer(renderer);
+    indicator->SetInteractive(false);
 
     auto camera = renderer->GetActiveCamera();
     camera->SetParallelProjection(true);
     camera->SetUseHorizontalParallelScale(true);
-
-    this->GetRenderWindow()->AddRenderer(renderer);
-    this->GetRenderWindow()->SetMultiSamples(5);
 
     // Buttons
 
