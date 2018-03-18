@@ -21,7 +21,7 @@ The first build may take an hour or longer, depending on your hardware.
 This is because some necessary external dependencies will be downloaded and compiled first (see `CMakeLists.txt` for details).
 
 The instructions mention exact version numbers for all the tools and libraries used.
-This is more of a reference than a strict requirement in most cases.
+These aren't strict requirements, just a reference for how the official releases were built.
 
 ## Windows
 
@@ -31,18 +31,18 @@ This is more of a reference than a strict requirement in most cases.
 
 * [CMake 3.10.2](https://cmake.org/download/). Check the installer option to add CMake to the system path.
 
-* [Qt 5.10.1 (Open Source)](https://www.qt.io/download). The necessary components depend on the target architecture:
-    * Qt 5.10.1 32-bit (MSVC 2015)
-    * Qt 5.10.1 64-bit (MSVC 2015)
+* [Qt (Open Source)](https://www.qt.io/download). The necessary components depend on the target architecture:
+    * Qt 5.7.1 32-bit (MSVC 2015)
+    * Qt 5.7.1 64-bit (MSVC 2015)
 
 ### Compiling with Qt Creator
 
 Download or clone this repository and open `CMakeLists.txt` with Qt Creator.
-Pick the kit *Desktop Qt 5.10.1 MSVC2015 32bit* or *64bit* and configure the project.
+Pick the kit *Desktop Qt 5.7.1 MSVC2015 32bit* or *64bit* and configure the project.
 
 Select the build type (e.g. *Release*) and perform a build.
 
-If Qt Creator didn't auto-detect the C++ compiler or CMake, go to *Projects*, *Manage Kits...* and set them manually (*Microsoft Visual C++ Compiler 15.0 x86* for the 32bit Kit, *amd64* for the 64bit one).
+If Qt Creator didn't auto-detect the C and C++ compiler or CMake, go to *Projects*, *Manage Kits...* and set them manually (*Microsoft Visual C++ Compiler 15.0 x86* for the 32bit Kit, *amd64* for the 64bit one).
 
 Using the default CMake generator (*NMake Makefiles JOM*) might give you an error like this: "The C compiler ... is not able to compile a simple test program".
 This can be solved by adding the directory `Qt/Tools/QtCreator/bin` of the Qt installation to the system path.
@@ -57,23 +57,17 @@ Building the Windows installer requires some additional tools,
 
 In Qt Creator, check the target `iss-installer` under *Projects*, *Build Steps*, *Details* and perform a build.
 
-## Linux
+## Linux (Debian 9.4.0)
 
 ### Prerequisites
 
-* GCC C and C++ Compilers. On Ubuntu they're in the `build-essentials` package.
-
-* CMake. Package `cmake` on Ubuntu.
-
-* [Qt 5.10.1 (Open Source)](https://www.qt.io/download). Install the following components:
-    * Qt 5.10.1 Desktop gcc 64-bit
-
-* Additional graphics libraries. On Ubuntu those are `mesa-common-dev`, `libglu1-mesa-dev` and `libxt-dev`.
+* Tools: `qtcreator`, `cmake`
+* Libraries: `qtbase5-dev`, `libqt5x11extras5-dev`
 
 ### Compiling with Qt Creator
 
 Download or clone this repository and open `CMakeLists.txt` with Qt Creator.
-Pick the kit *Desktop Qt 5.10.1 GCC 64bit* and configure the project.
+Pick the kit *Desktop* and configure the project.
 
 Select the build type (e.g. *Release*) and perform a build.
 
@@ -86,10 +80,5 @@ Building the debian package requires `dpkg` to be installed. In Qt Creator, chec
 Building the AppImage requires [linuxdeployqt](https://github.com/probonopd/linuxdeployqt/releases), which is itself an AppImage.
 Download it from github and make it make it executable via `chmod a+x ...`.
 Ensure that it is found as `linuxdeployqt` by the command line, for example by dropping or linking it in your `/usr/local/bin/` folder.
-Also make sure that the `qmake` executable is found and points to the correct Qt installation (e.g. `/home/Qt/5.10.1/gcc_64/bin/qmake`).
 
 In Qt Creator, check the target `appimage` under *Projects*, *Build Steps*, *Details* and perform a build.
-
-Linuxdeployqt might [for some reason](https://github.com/probonopd/linuxdeployqt/issues/235) give you an error about *libmysqlclient.so.18* not being found.
-This library belongs to the `libmysqlclient18` package, which is no longer available in the repositories for newer versions of Ubuntu.
-It can however still be downloaded from [launchpad](https://launchpad.net/ubuntu/xenial/amd64/libmysqlclient18/5.6.25-0ubuntu1).
