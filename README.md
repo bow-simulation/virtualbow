@@ -20,6 +20,9 @@ This is however not strictly necessary, you can just as well run CMake yourself.
 The first build may take an hour or longer, depending on your hardware.
 This is because some necessary external dependencies will be downloaded and compiled first (see `CMakeLists.txt` for details).
 
+The instructions mention exact version numbers for all the tools and libraries used.
+This is more of a reference than a strict requirement in most cases.
+
 ## Windows
 
 ### Prerequisites
@@ -86,3 +89,7 @@ Ensure that it is found as `linuxdeployqt` by the command line, for example by d
 Also make sure that the `qmake` executable is found and points to the correct Qt installation (e.g. `/home/Qt/5.10.1/gcc_64/bin/qmake`).
 
 In Qt Creator, check the target `appimage` under *Projects*, *Build Steps*, *Details* and perform a build.
+
+Linuxdeployqt might [for some reason](https://github.com/probonopd/linuxdeployqt/issues/235) give you an error about *libmysqlclient.so.18* not being found.
+This library belongs to the `libmysqlclient18` package, which is no longer available in the repositories for newer versions of Ubuntu.
+It can however still be downloaded from [launchpad](https://launchpad.net/ubuntu/xenial/amd64/libmysqlclient18/5.6.25-0ubuntu1).
