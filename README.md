@@ -1,7 +1,9 @@
 # About
 
-Bow Simulator is a tool for simulating the statics and dynamics of user-defined bow designs.
-It is released under the GNU General Public License v3.0.
+Bow Simulator is a software tool for bow and arrow physics simulation.
+It allows users to design virtual bows and simulate their static and dynamic performance.
+Results include things like deformation, draw curve, material stresses, arrow velocity, degree of efficiency and more.
+
 Visit https://bow-simulator.org for more information about the project.
 
 # License
