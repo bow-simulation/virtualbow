@@ -1,4 +1,4 @@
-# Bow Simulator
+# About
 
 Bow Simulator is a tool for simulating the statics and dynamics of user-defined bow designs.
 It is released under the GNU General Public License v3.0.
@@ -8,7 +8,7 @@ Visit https://bow-simulator.org for more information about the project.
 
 Bow Simulator is licensed under the GNU General Public License v3.0.
 
-# How to Contribute
+# Contributing
 
 1. Fork this repository on GitLab and create a new branch from `develop`
 2. Implement and commit your changes on your new branch
