@@ -1,8 +1,12 @@
-# About
+# Bow Simulator
 
 Bow Simulator is a tool for simulating the statics and dynamics of user-defined bow designs.
 It is released under the GNU General Public License v3.0.
 Visit https://bow-simulator.org for more information about the project.
+
+# License
+
+Bow Simulator is licensed under the GNU General Public License v3.0.
 
 # How to Contribute
 
@@ -20,7 +24,7 @@ This is however not strictly necessary, you can just as well run CMake yourself.
 The first build may take an hour or longer, depending on your hardware.
 This is because some necessary external dependencies will be downloaded and compiled first (see `CMakeLists.txt` for details).
 
-The instructions mention exact version numbers for all the tools and libraries used.
+The instructions below mention exact version numbers for all the tools and libraries used.
 These aren't strict requirements, just a reference for how the official releases were built.
 
 ## Windows
@@ -31,7 +35,7 @@ These aren't strict requirements, just a reference for how the official releases
 
 * [CMake 3.10.2](https://cmake.org/download/). Check the installer option to add CMake to the system path.
 
-* [Qt (Open Source)](https://www.qt.io/download). The necessary components depend on the target architecture:
+* [Qt 5.7.1 (Open Source)](https://www.qt.io/download). The necessary components depend on the target architecture:
     * Qt 5.7.1 32-bit (MSVC 2015)
     * Qt 5.7.1 64-bit (MSVC 2015)
 
