@@ -1,9 +1,13 @@
 #include "SeriesEditor.hpp"
 
 void TableItem::setData(int role, const QVariant& data)
-{
+{  
     bool valid;
-    double new_value = data.toDouble(&valid);
+    QLocale().toDouble(data.toString(), &valid);
+
+    if(!valid)
+        qInfo() << "Not valid: " << data;
+
 
     if(valid || data.toString().isEmpty())
         QTableWidgetItem::setData(role, data);
@@ -75,8 +79,8 @@ Series SeriesEditor::getData() const
     for(int i = 0; i < rowCount(); ++i)
     {
         bool arg_valid, val_valid;
-        double arg = QLocale::c().toDouble(this->item(i, 0)->text(), &arg_valid);
-        double val = QLocale::c().toDouble(this->item(i, 1)->text(), &val_valid);
+        double arg = QLocale().toDouble(this->item(i, 0)->text(), &arg_valid);
+        double val = QLocale().toDouble(this->item(i, 1)->text(), &val_valid);
 
         if(arg_valid && val_valid)
             data.push_back(arg, val);
@@ -91,8 +95,8 @@ void SeriesEditor::setData(const Series& data)
     {
         if(i < data.size())
         {
-            this->item(i, 0)->setText(QLocale::c().toString(data.arg(i), 'g'));
-            this->item(i, 1)->setText(QLocale::c().toString(data.val(i), 'g'));
+            this->item(i, 0)->setText(QLocale().toString(data.arg(i), 'g'));
+            this->item(i, 1)->setText(QLocale().toString(data.val(i), 'g'));
         }
         else
         {
