@@ -16,7 +16,9 @@ int Application::run(int argc, char* argv[])
     app.setApplicationDisplayName(Config::TITLE);
     app.setApplicationVersion(Config::VERSION);
     app.setOrganizationDomain(Config::WEBSITE);
-    setlocale(LC_NUMERIC, "C");
+
+    // Set default locale to C (English, US)
+    QLocale::setDefault(QLocale::C);
 
     // Parse command line arguments
     QCommandLineOption statics({"s", "static"}, "Perform a static simulation.");

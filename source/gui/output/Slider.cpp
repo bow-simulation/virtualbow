@@ -22,7 +22,6 @@ Slider::Slider(const std::vector<double>& values, const QString& text)
 
     auto edit = new QLineEdit();
     auto validator = new QDoubleValidator(values.front(), values.back(), 10); // Todo: Magic number
-    validator->setLocale(QLocale::c());
     edit->setValidator(validator);
     hbox->addWidget(edit);
 
@@ -45,13 +44,13 @@ Slider::Slider(const std::vector<double>& values, const QString& text)
 
     QObject::connect(slider, &QSlider::valueChanged, [=](int index)
     {
-        edit->setText(QLocale::c().toString(values[index]));
+        edit->setText(QLocale().toString(values[index]));
         emit valueChanged(index);
     });
 
     QObject::connect(edit, &QLineEdit::editingFinished, [=]
     {
-        double val= QLocale::c().toDouble(edit->text());
+        double val= QLocale().toDouble(edit->text());
         double min = values.front();
         double max = values.back();
         double p = (val - min)/(max - min);

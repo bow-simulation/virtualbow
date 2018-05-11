@@ -18,7 +18,7 @@ OutputGrid::OutputGrid()
 
 void OutputGrid::add(int i, int j, const QString& text, double value)
 {
-    auto edit = new QLineEdit(QLocale::c().toString(value));
+    auto edit = new QLineEdit(QLocale().toString(value));
     edit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     edit->setReadOnly(true);
 

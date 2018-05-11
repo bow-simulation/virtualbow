@@ -30,10 +30,10 @@ DoubleEditor::DoubleEditor(const QString& text)
 
 void DoubleEditor::setData(double data)
 {
-    edit->setText(QLocale::c().toString(data, 'g'));
+    edit->setText(QLocale().toString(data, 'g'));
 }
 
 double DoubleEditor::getData() const
 {
-    return QLocale::c().toDouble(edit->text());
+    return QLocale().toDouble(edit->text());
 }
