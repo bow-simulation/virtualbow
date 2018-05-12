@@ -34,12 +34,12 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
     y_pos = curve.y;
 
     // 2. Sections properties
-    Series width = CubicSpline::sample(input.width, n-1);
+    Series width = CubicSpline(input.width).sample(n-1);
 
     std::vector<Series> heights;
     for(auto& layer: input.layers)
     {
-        heights.push_back(CubicSpline::sample(layer.height, n-1));
+        heights.push_back(CubicSpline(layer.height).sample(n-1));
         layers.push_back(LayerProperties(n, n));
     }
 

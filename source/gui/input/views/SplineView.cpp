@@ -21,7 +21,7 @@ void SplineView::setData(Series input)
 
     try
     {
-        output = CubicSpline::sample(input, 150);    // Magic number
+        output = CubicSpline(input).sample(150);    // Magic number
     }
     catch(std::runtime_error& e)
     {

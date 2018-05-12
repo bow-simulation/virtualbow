@@ -220,8 +220,10 @@ add_executable(
     source/gui/output/StressPlot.cpp
     source/gui/output/StressPlot.hpp
 
-    resources/resources.qrc
     source/external/qcustomplot/qcustomplot.cpp
+    source/external/akima_spline/akima_spline.cpp
+
+    resources/resources.qrc
 )
 
 
