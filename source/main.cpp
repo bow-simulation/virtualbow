@@ -1,17 +1,15 @@
 /*
 #include <iostream>
+#include "numerics/CubicSpline.hpp"
 
 int main()
 {
-    std::vector<double> x = {0.0, 0.0, 2.0, 3.0};
-    std::vector<double> y = {0.0, 1.0, 4.0, 9.0};
+    std::vector<double> x = {0.0, 1.0, 2.0, 3.0};
+    std::vector<double> y = {1.0, 1.1, -1.0, -1.1};
 
-    CubicSpline spline = CubicSpline(x, y);
+    Series data = CubicSpline(Series(x, y)).sample(6);
 
-    std::vector<double> xi = {0.5, 1.5, 2.5};
-    std::vector<double> yi = spline.interpolate(xi);
-
-    for(auto& val: yi)
+    for(auto& val: data.vals())
         std::cout << val << "\n";
 
     return 0;
