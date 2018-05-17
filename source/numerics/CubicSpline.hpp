@@ -4,54 +4,69 @@
 #include <vector>
 #include <stdexcept>
 #include <algorithm>
-#include <cassert>
 
-#include <iostream>
+// Cubic spline that preserves monotonicity of the input data.
+// Implementation adapted from https://en.wikipedia.org/wiki/Monotone_cubic_interpolation
 
 class CubicSpline
 {
 public:
     CubicSpline(Series data)
-        : x(data.args()),
-          y(data.vals())
+        : xs(data.args()),
+          ys(data.vals())
     {
-        if(!is_strictly_increasing(data.args()))
+        if(data.size() < 2)
+            throw std::runtime_error("at least two data points are needed");
+
+        if(!is_strictly_increasing(xs))
             throw std::runtime_error("function arguments must be strictly increasing");
 
+        // Get consecutive differences and slopes
+        std::vector<double> dys;
+        std::vector<double> dxs;
+        std::vector<double> ms;
 
-        size_t n = data.size();                 // Data size
+        size_t length = xs.size();
 
-        m.resize(n);
-
-        // First point
-        x[0] = data.args().front();
-        y[0] = data.vals().front();
-        m[0] = (data.val(1) - data.val(0))/(data.arg(1) - data.arg(0));
-
-        // Last point
-        x[n-1] = data.args().back();
-        y[n-1] = data.vals().back();
-        m[n-1] = (data.val(n-1) - data.val(n-2))/(data.arg(n-1) - data.arg(n-2));
-
-        // Intermediate points (line centers)
-        for(size_t i = 1; i < n - 2; ++i)
+        for(size_t i = 0; i < length-1; ++i)
         {
-            double m_fwd = (data.val(i+1) - data.val(i))/(data.arg(i+1) - data.arg(i));
-            double m_bwd = (data.val(i) - data.val(i-1))/(data.arg(i) - data.arg(i-1));
-            m[i] = 0.5*(m_fwd + m_bwd);
+            double dx = xs[i+1] - xs[i];
+            double dy = ys[i+1] - ys[i];
+
+            dxs.push_back(dx);
+            dys.push_back(dy);
+            ms.push_back(dy/dx);
         }
 
-        for(size_t i = 0; i < m.size(); ++i)
+        // Get degree-1 coefficients
+        c1s.push_back(ms[0]);
+        for(size_t i = 0; i < dxs.size() - 1; ++i)
         {
-            std::cout << "mi = " << m[i] << "\n";
+            if (ms[i]*ms[i+1] <= 0.0)
+            {
+                c1s.push_back(0.0);
+            }
+            else
+            {
+                double common = dxs[i] + dxs[i+1];
+                c1s.push_back(3*common/((common + dxs[i+1])/ms[i] + (common + dxs[i])/ms[i+1]));
+            }
         }
+        c1s.push_back(ms.back());
 
+        // Get degree-2 and degree-3 coefficients
+        for(size_t i = 0; i < c1s.size() - 1; ++i)
+        {
+            double common = c1s[i] + c1s[i+1] - 2.0*ms[i];
+            c2s.push_back((ms[i] - c1s[i] - common)/dxs[i]);
+            c3s.push_back(common/(dxs[i]*dxs[i]));
+        }
     }
 
     Series sample(size_t n)
     {
-        double x0 = x.front();
-        double x1 = x.back();
+        double x0 = xs.front();
+        double x1 = xs.back();
 
         Series result;
 
@@ -70,9 +85,6 @@ public:
 private:
     bool is_strictly_increasing(const std::vector<double>& args)
     {
-        if(args.size() < 2)
-            return false;
-
         for(size_t i = 0; i < args.size()-1; ++i)
         {
             if(args[i] >= args[i+1])
@@ -93,18 +105,11 @@ private:
         size_t j = 0; // Last segment index
         auto eval_ascending = [&](double arg)
         {
-            while(arg > x[j+1])    // Advance segment index such that x[j] < arg < x[j + 1]
+            while(arg > xs[j+1])    // Advance segment index such that x[j] < arg < x[j + 1]
                 ++j;
 
-            double h = x[j+1] - x[j];
-            double t = (arg - x[j])/h;
-
-            double h00 = 2.0*t*t*t - 3.0*t*t + 1.0;
-            double h10 = t*t*t - 2.0*t*t + t;
-            double h01 = -2.0*t*t*t + 3.0*t*t;
-            double h11 = t*t*t - t*t;
-
-            return h00*y[j] + h10*h*m[j] + h01*y[j+1] + h11*h*m[j+1];
+            double h = arg - xs[j];
+            return c3s[j]*h*h*h + c2s[j]*h*h + c1s[j]*h + ys[j];
         };
 
         for(size_t i = 0; i < args.size(); ++i)
@@ -113,7 +118,9 @@ private:
         return vals;
     }
 
-    std::vector<double> x;
-    std::vector<double> y;
-    std::vector<double> m;
+    std::vector<double> xs;
+    std::vector<double> ys;
+    std::vector<double> c1s;
+    std::vector<double> c2s;
+    std::vector<double> c3s;
 };

@@ -221,7 +221,6 @@ add_executable(
     source/gui/output/StressPlot.hpp
 
     source/external/qcustomplot/qcustomplot.cpp
-    source/external/akima_spline/akima_spline.cpp
 
     resources/resources.qrc
 )
