@@ -28,6 +28,6 @@
         <file>icons/model-tree/layers.png</file>
         <file>icons/model-tree/string.png</file>
         <file>icons/model-tree/masses.png</file>
-        <file>icons/model-tree/operation.png</file>
+        <file>icons/model-tree/dimensions.png</file>
     </qresource>
 </RCC>

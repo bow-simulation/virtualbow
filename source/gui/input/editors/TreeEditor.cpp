@@ -7,18 +7,18 @@
 #include "gui/input/dialogs/SettingsDialog.hpp"
 #include "gui/input/dialogs/StringDialog.hpp"
 #include "gui/input/dialogs/MassesDialog.hpp"
-#include "gui/input/dialogs/OperationDialog.hpp"
+#include "gui/input/dialogs/DimensionsDialog.hpp"
 
 TreeEditor::TreeEditor()
 {
     new TreeItem<CommentDialog, std::string>(this, data.meta.comments, "Comments", QIcon(":/icons/model-tree/comments"));
     new TreeItem<SettingsDialog, Settings>(this, data.settings, "Settings", QIcon(":/icons/model-tree/settings"));
-    new TreeItem<ProfileDialog, Profile>(this, data.profile, "Profile", QIcon(":/icons/model-tree/profile"));
+    new TreeItem<ProfileDialog, Series>(this, data.profile, "Profile", QIcon(":/icons/model-tree/profile"));
     new TreeItem<WidthDialog, Series>(this, data.width, "Width", QIcon(":/icons/model-tree/width"));
     new TreeItem<LayerDialog, Layers>(this, data.layers, "Layers", QIcon(":/icons/model-tree/layers"));
     new TreeItem<StringDialog, String>(this, data.string, "String", QIcon(":/icons/model-tree/string"));
     new TreeItem<MassesDialog, Masses>(this, data.masses, "Masses", QIcon(":/icons/model-tree/masses"));
-    new TreeItem<OperationDialog, Operation>(this, data.operation, "Operation", QIcon(":/icons/model-tree/operation"));
+    new TreeItem<DimensionsDialog, Dimensions>(this, data.dimensions, "Dimensions", QIcon(":/icons/model-tree/dimensions"));
 
     QObject::connect(this, &QTreeWidget::itemActivated, [](QTreeWidgetItem* item, int column)
     {

@@ -21,10 +21,10 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
       rhoA(VectorXd::Zero(n))
 {
     // 1. Nodes
-    Curve2D curve = ArcCurve::sample(input.profile.segments,
-                                     input.profile.x_pos,
-                                     input.profile.y_pos,
-                                     input.profile.angle,
+    Curve2D curve = ArcCurve::sample(input.profile,
+                                     input.dimensions.handle_length/2.0,
+                                     input.dimensions.handle_setback,
+                                     input.dimensions.handle_angle,
                                      n-1);
 
     // Todo: Is there a more elegant way? Maybe have a Curve2D member? C++17 structured bindings?

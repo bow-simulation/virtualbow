@@ -28,7 +28,9 @@ CubicSpline::CubicSpline(const Series& data)
         double dy = ys[i+1] - ys[i];
 
         if(dx == 0.0)
+        {
             throw std::runtime_error("argument values must be unique");
+        }
 
         dxs.push_back(dx);
         dys.push_back(dy);

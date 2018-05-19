@@ -167,8 +167,8 @@ add_executable(
     source/gui/input/dialogs/LayerDialog.hpp
     source/gui/input/dialogs/MassesDialog.cpp
     source/gui/input/dialogs/MassesDialog.hpp
-    source/gui/input/dialogs/OperationDialog.cpp
-    source/gui/input/dialogs/OperationDialog.hpp
+    source/gui/input/dialogs/DimensionsDialog.cpp
+    source/gui/input/dialogs/DimensionsDialog.hpp
     source/gui/input/dialogs/ProfileDialog.cpp
     source/gui/input/dialogs/ProfileDialog.hpp
     source/gui/input/dialogs/SettingsDialog.cpp

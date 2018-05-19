@@ -18,12 +18,12 @@ ProfileView::ProfileView()
     curve1->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
 }
 
-void ProfileView::setData(Profile profile)
+void ProfileView::setData(Series data)
 {
     try
     {
-        Curve2D curve = ArcCurve::sample(profile.segments, profile.x_pos, profile.y_pos, profile.angle, 150);  // Magic number
-        Curve2D nodes = ArcCurve::nodes(profile.segments, profile.x_pos, profile.y_pos, profile.angle);
+        Curve2D curve = ArcCurve::sample(data, 0.0, 0.0, 0.0, 150);  // Magic number
+        Curve2D nodes = ArcCurve::nodes(data, 0.0, 0.0, 0.0);
 
         curve0->setData(curve.x, curve.y);
         curve1->setData(nodes.x, nodes.y);

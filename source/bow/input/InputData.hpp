@@ -1,11 +1,10 @@
 #pragma once
 #include "Meta.hpp"
 #include "Settings.hpp"
-#include "Profile.hpp"
 #include "Layers.hpp"
 #include "String.hpp"
 #include "Masses.hpp"
-#include "Operation.hpp"
+#include "Dimensions.hpp"
 #include <json.hpp>
 #include <vector>
 
@@ -15,12 +14,12 @@ struct InputData
 {
     Meta meta;
     Settings settings;
-    Profile profile;
+    Series profile = {{0.8}, {0.0}};
     Series width = {{0.0, 1.0}, {0.06, 0.01}};
     Layers layers = {Layer()};
     String string;
     Masses masses;
-    Operation operation;
+    Dimensions dimensions;
 
     // Todo: Move those somewhere else, maybe in Application class. Interface of InputData can be just json.
     void load(const std::string& path);
@@ -37,7 +36,7 @@ static bool operator==(const InputData& lhs, const InputData& rhs)
         && lhs.layers == rhs.layers
         && lhs.string == rhs.string
         && lhs.masses == rhs.masses
-        && lhs.operation == rhs.operation;
+        && lhs.dimensions == rhs.dimensions;
 }
 
 static bool operator!=(const InputData& lhs, const InputData& rhs)
@@ -54,7 +53,7 @@ static void to_json(json& obj, const InputData& value)
     obj["layers"] = value.layers;
     obj["string"] = value.string;
     obj["masses"] = value.masses;
-    obj["operation"] = value.operation;
+    obj["dimensions"] = value.dimensions;
 }
 
 static void from_json(const json& obj, InputData& value)
@@ -66,5 +65,5 @@ static void from_json(const json& obj, InputData& value)
     value.layers = obj.at("layers").get<Layers>();
     value.string = obj.at("string");
     value.masses = obj.at("masses");
-    value.operation = obj.at("operation");
+    value.dimensions = obj.at("dimensions");
 }

@@ -17,7 +17,8 @@ signals:
     void modified();
 
 private:
-    DoubleEditor* edit0 = new DoubleEditor("String center [kg]");
-    DoubleEditor* edit1 = new DoubleEditor("String tip [kg]");
-    DoubleEditor* edit2 = new DoubleEditor("Limb tip [kg]");
+    DoubleEditor* edit0 = new DoubleEditor("Arrow [kg]");
+    DoubleEditor* edit1 = new DoubleEditor("String center [kg]");
+    DoubleEditor* edit2 = new DoubleEditor("String tip [kg]");
+    DoubleEditor* edit3 = new DoubleEditor("Limb tip [kg]");
 };
