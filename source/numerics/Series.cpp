@@ -26,7 +26,6 @@ void Series::insert(size_t i, double arg, double val)
 
 void Series::remove(size_t i)
 {
-    // Todo: Seriously?
     m_args.erase(m_args.begin() + i);
     m_vals.erase(m_vals.begin() + i);
 }
