@@ -4,7 +4,6 @@ project(bow-simulator)
 set(CMAKE_CXX_STANDARD 14)
 
 # Parameters used for configuring files
-
 set(APPLICATION_NAME "bow-simulator")
 set(APPLICATION_TITLE "Bow Simulator")
 set(APPLICATION_VERSION "0.5")
@@ -18,41 +17,12 @@ set(APPLICATION_DESCRIPTION_LONG "Software tool for simulating the static and dy
 # External libraries
 
 # Qt (must be provided by the system/developer)
-
 find_package(Qt5 COMPONENTS X11Extras Widgets PrintSupport)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-# VTK (download from url and build)
-
-ExternalProject_Add(
-    vtk
-    URL "https://gitlab.com/bow-simulator/vtk-custom/repository/a0b51337f6294a6fcb095a9300ad12dadceaf2c3/archive.tar.gz"
-    URL_MD5 "9fc69f053ff5e506695d8833a175f9ea"
-    PREFIX ${CMAKE_BINARY_DIR}/vtk_download
-    CMAKE_ARGS
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/vtk_install
-        -DCMAKE_BUILD_TYPE=Release
-        -DBUILD_SHARED_LIBS=OFF
-        -DBUILD_TESTING=OFF
-        -DVTK_RENDERING_BACKEND=OpenGL2
-        -DVTK_Group_Qt=ON
-        -DVTK_QT_VERSION=5
-        -DQt5_DIR=${Qt5_DIR}
-)
-
-# https://stackoverflow.com/questions/17446981/cmake-externalproject-add-and-findpackage
-find_package(VTK PATHS ${CMAKE_BINARY_DIR}/vtk_install)
-if(${VTK_FOUND})
-    add_custom_target(rescan)
-    include(${VTK_USE_FILE})
-else()
-    add_custom_target(rescan ${CMAKE_COMMAND} ${CMAKE_SOURCE_DIR} DEPENDS vtk)
-endif()
-
 # Eigen (download from url)
-
 ExternalProject_Add(
     eigen
     URL "http://bitbucket.org/eigen/eigen/get/3.3.4.tar.gz"
@@ -67,7 +37,6 @@ ExternalProject_Get_Property(eigen SOURCE_DIR)
 include_directories(${SOURCE_DIR})
 
 # Catch (download from url)
-
 ExternalProject_Add(
     catch
     URL "https://github.com/philsquared/Catch/archive/v1.9.3.tar.gz"
@@ -82,7 +51,6 @@ ExternalProject_Get_Property(catch SOURCE_DIR)
 include_directories(${SOURCE_DIR}/include)
 
 # Json (download from url)
-
 ExternalProject_Add(
     json
     URL "https://github.com/nlohmann/json/archive/v3.0.1.tar.gz"
@@ -97,7 +65,6 @@ externalproject_Get_Property(json SOURCE_DIR)
 include_directories(${SOURCE_DIR}/src)
 
 # Boost (download from url)
-
 ExternalProject_Add(
     boost
     URL "https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.gz"
@@ -110,6 +77,9 @@ ExternalProject_Add(
 
 externalproject_get_property(boost SOURCE_DIR)
 include_directories(${SOURCE_DIR})
+
+# System thread library (https://stackoverflow.com/a/39547577)
+find_package(Threads REQUIRED)
 
 # Main executable
 
@@ -192,12 +162,8 @@ add_executable(
     source/gui/input/editors/TreeEditor.hpp
     source/gui/input/editors/TreeItem.hpp
 
-    source/gui/input/views/LimbSource.cpp
-    source/gui/input/views/LimbSource.hpp
     source/gui/input/views/LimbView.cpp
     source/gui/input/views/LimbView.hpp
-    source/gui/input/views/LayerLegend.cpp
-    source/gui/input/views/LayerLegend.hpp
     source/gui/input/views/LayerColors.cpp
     source/gui/input/views/LayerColors.hpp
     source/gui/input/views/ProfileView.cpp
@@ -228,9 +194,8 @@ add_executable(
 
 # Declare dependencies, link libraries
 
-add_dependencies(bow-simulator rescan eigen catch json boost)
-target_link_libraries(bow-simulator ${VTK_LIBRARIES})
-target_link_libraries(bow-simulator Qt5::Widgets Qt5::PrintSupport)
+add_dependencies(bow-simulator eigen catch json boost)
+target_link_libraries(bow-simulator Qt5::Widgets Qt5::PrintSupport Threads::Threads)
 
 # Test executable
 
