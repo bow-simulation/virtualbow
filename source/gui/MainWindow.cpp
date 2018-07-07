@@ -203,9 +203,6 @@ bool MainWindow::saveAs()
     return false;
 }
 
-#include <iostream>
-#include <thread>
-
 void MainWindow::runSimulation(bool dynamic)
 {
     /*

@@ -1,16 +1,22 @@
 #pragma once
 #include "bow/input/InputData.hpp"
-#include "LimbSource.hpp"
-#include "LayerLegend.hpp"
-#include <QVTKWidget.h>
-#include <vtkSmartPointer.h>
-#include <vtkActor.h>
-#include <vtkOrientationMarkerWidget.h>
+#include <QtWidgets>
 
-class LimbView: public QVTKWidget
+#include <QOpenGLWidget>
+#include <QOpenGLFunctions>
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLBuffer>
+#include <QMatrix4x4>
+#include "Logo.hpp"
+
+QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
+
+class LimbView: public QOpenGLWidget, protected QOpenGLFunctions
 {
 public:
     LimbView();
+    ~LimbView();
+
     void setData(const InputData& data);
 
     void viewProfile();
@@ -20,18 +26,31 @@ public:
     void viewFit();
 
 private:
-    vtkSmartPointer<LimbSource> source;
-    vtkSmartPointer<vtkLookupTable> colors;
-    vtkSmartPointer<vtkActor> actor_r;
-    vtkSmartPointer<vtkActor> actor_l;
-    vtkSmartPointer<LayerLegend> legend;
-    vtkSmartPointer<vtkRenderer> renderer;
-    vtkSmartPointer<vtkOrientationMarkerWidget> indicator;
+    void setXRotation(int angle);
+    void setYRotation(int angle);
+    void setZRotation(int angle);
+    void cleanup();
 
-    virtual QSize sizeHint() const override;
-    virtual void resizeEvent(QResizeEvent* event) override;
+    void setupVertexAttribs();
+    void initializeGL() override;
+    void paintGL() override;
+    void resizeGL(int width, int height) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
-    void updateIndicatorPosition(const QSize& screen);
-    void updateLegendPosition(const QSize& screen);
-    void setCameraPosition(double alpha, double beta);
+    int m_xRot;
+    int m_yRot;
+    int m_zRot;
+    QPoint m_lastPos;
+    Logo m_logo;
+    QOpenGLVertexArrayObject m_vao;
+    QOpenGLBuffer m_logoVbo;
+    QOpenGLShaderProgram *m_program;
+    int m_projMatrixLoc;
+    int m_mvMatrixLoc;
+    int m_normalMatrixLoc;
+    int m_lightPosLoc;
+    QMatrix4x4 m_proj;
+    QMatrix4x4 m_camera;
+    QMatrix4x4 m_world;
 };
