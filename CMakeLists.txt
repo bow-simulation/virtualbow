@@ -164,8 +164,8 @@ add_executable(
 
     source/gui/input/views/LimbView.cpp
     source/gui/input/views/LimbView.hpp
-    source/gui/input/views/Logo.cpp
-    source/gui/input/views/Logo.hpp
+    source/gui/input/views/LimbMesh.cpp
+    source/gui/input/views/LimbMesh.hpp
     source/gui/input/views/LayerColors.cpp
     source/gui/input/views/LayerColors.hpp
     source/gui/input/views/ProfileView.cpp

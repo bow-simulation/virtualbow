@@ -65,7 +65,13 @@ LimbView::~LimbView()
 
 void LimbView::setData(const InputData& data)
 {
+    m_logo.setData(data);
 
+    m_logoVbo.create();
+    m_logoVbo.bind();
+    m_logoVbo.allocate(m_logo.constData(), m_logo.count() * sizeof(GLfloat));
+
+    update();
 }
 
 void LimbView::viewProfile()
