@@ -142,41 +142,36 @@ void LimbView::cleanup()
 }
 
 static const char *vertexShaderSource =
-    "attribute vec4 vertex;\n"
-    "attribute vec3 normal;\n"
-    "varying vec3 vert;\n"
-    "varying vec3 vertNormal;\n"
+    "#version 130\n"
+    "in vec3 vertex;\n"
+    "in vec3 normal;\n"
+    "in vec3 color;\n"
+    "out vec3 vertPos;\n"
+    "out vec3 vertNormal;\n"
+    "out vec3 vertColor;"
     "uniform mat4 projMatrix;\n"
     "uniform mat4 mvMatrix;\n"
     "uniform mat3 normalMatrix;\n"
     "void main() {\n"
-    "   vert = vertex.xyz;\n"
+    "   vertPos = vertex;\n"
     "   vertNormal = normalMatrix * normal;\n"
-    "   gl_Position = projMatrix * mvMatrix * vertex;\n"
+    "   vertColor = color;\n"
+    "   gl_Position = projMatrix * mvMatrix*vec4(vertex.xyz, 1.0);\n"
     "}\n";
 
 static const char *fragmentShaderSource =
-    "varying highp vec3 vert;\n"
-    "varying highp vec3 vertNormal;\n"
+    "#version 130\n"
+    "in highp vec3 vertPos;\n"
+    "in highp vec3 vertNormal;\n"
+    "in highp vec3 vertColor;\n"
+    "out highp vec4 fragColor;\n"
     "uniform highp vec3 lightPos;\n"
     "void main() {\n"
-    "   highp vec3 L = normalize(lightPos - vert);\n"
+    "   highp vec3 L = normalize(lightPos - vertPos);\n"
     "   highp float NL = max(dot(normalize(vertNormal), L), 0.0);\n"
-    "   highp vec3 color = vec3(0.39, 1.0, 0.0);\n"
-    "   highp vec3 col = clamp(color * 0.2 + color * 0.8 * NL, 0.0, 1.0);\n"
-    "   gl_FragColor = vec4(col, 1.0);\n"
+    "   highp vec3 col = clamp(vertColor * 0.2 + vertColor * 0.8 * NL, 0.0, 1.0);\n"
+    "   fragColor = vec4(col, 1.0);\n"
     "}\n";
-
-void LimbView::setupVertexAttribs()
-{
-    m_logoVbo.bind();
-    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-    f->glEnableVertexAttribArray(0);
-    f->glEnableVertexAttribArray(1);
-    f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
-    f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
-    m_logoVbo.release();
-}
 
 void LimbView::initializeGL()
 {
@@ -197,6 +192,7 @@ void LimbView::initializeGL()
     m_program->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderSource);
     m_program->bindAttributeLocation("vertex", 0);
     m_program->bindAttributeLocation("normal", 1);
+    m_program->bindAttributeLocation("color", 2);
     m_program->link();
 
     m_program->bind();
@@ -215,10 +211,17 @@ void LimbView::initializeGL()
     // Setup our vertex buffer object.
     m_logoVbo.create();
     m_logoVbo.bind();
-    m_logoVbo.allocate(m_logo.constData(), m_logo.count() * sizeof(GLfloat));
+    m_logoVbo.allocate(m_logo.constData(), m_logo.count()*sizeof(GLfloat));
 
     // Store the vertex attribute bindings for the program.
-    setupVertexAttribs();
+    m_logoVbo.bind();
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(0*sizeof(GLfloat)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    m_logoVbo.release();
 
     // Our camera never changes in this example.
     m_camera.setToIdentity();
@@ -226,7 +229,6 @@ void LimbView::initializeGL()
 
     // Light position is fixed.
     m_program->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 70));
-
     m_program->release();
 }
 

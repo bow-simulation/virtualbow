@@ -31,7 +31,6 @@ private:
     void setZRotation(int angle);
     void cleanup();
 
-    void setupVertexAttribs();
     void initializeGL() override;
     void paintGL() override;
     void resizeGL(int width, int height) override;
@@ -41,7 +40,9 @@ private:
     int m_xRot;
     int m_yRot;
     int m_zRot;
+
     QPoint m_lastPos;
+
     LimbMesh m_logo;
     QOpenGLVertexArrayObject m_vao;
     QOpenGLBuffer m_logoVbo;

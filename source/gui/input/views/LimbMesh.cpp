@@ -49,11 +49,18 @@ void LimbMesh::quad(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat x3, 
 void LimbMesh::add(const QVector3D& v, const QVector3D& n)
 {
     GLfloat* p = m_data.data() + m_count;
+
     *p++ = v.x();
     *p++ = v.y();
     *p++ = v.z();
+
     *p++ = n.x();
     *p++ = n.y();
     *p++ = n.z();
-    m_count += 6;
+
+    *p++ = 0.3f;
+    *p++ = 0.1f;
+    *p++ = 0.1f;
+
+    m_count += 9;
 }
