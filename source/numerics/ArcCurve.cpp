@@ -49,6 +49,35 @@ Curve2D ArcCurve::sample(const Series& segments, double x0, double y0, double ph
     return result;
 }
 
+// Todo: Code duplication
+Curve2D ArcCurve::sample(const Series& segments, double x0, double y0, double phi0, const std::vector<double>& s)
+{
+    Curve2D nodes = ArcCurve::nodes(segments, x0, y0, phi0);
+
+    unsigned j = 0; // Segment index
+    auto eval_curve = [&](double s)
+    {
+        // Make sure that s[j] <= s <= s[j + 1]
+        while(s > nodes.s[j+1])
+            ++j;
+
+        assert(s >= nodes.s[j]);
+
+        // Todo: Add get_point(size_t) method to Curve2D?
+        double kappa = segments.val(j);
+        double ds = s - nodes.s[j];
+        return eval_arc({nodes.s[j], nodes.x[j], nodes.y[j], nodes.phi[j]}, kappa, ds);
+    };
+
+    Curve2D result(s.size());
+    for(unsigned i = 0; i < s.size(); ++i)
+    {
+        result.set_point(i, eval_curve(s[i]));
+    }
+
+    return result;
+}
+
 // Calculates the end point of an arc segment with staring point p0, curvature kappa and arc length ds.
 Curve2D::Point ArcCurve::eval_arc(Curve2D::Point p0, double kappa, double ds)
 {

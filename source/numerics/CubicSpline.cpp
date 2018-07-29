@@ -62,6 +62,25 @@ CubicSpline::CubicSpline(const Series& data)
     }
 }
 
+double CubicSpline::operator()(double x, double y_default) const
+{
+    if(x < xs.front() || x > xs.back())
+        return y_default;
+
+    // Todo: Inefficient, use bisection
+    size_t j = 0; // Last segment index
+    auto eval_ascending = [&](double arg)
+    {
+        while(arg > xs[j+1])    // Advance segment index such that x[j] < arg < x[j + 1]
+            ++j;
+
+        double h = arg - xs[j];
+        return ((c3s[j]*h + c2s[j])*h + c1s[j])*h + ys[j];
+    };
+
+    return eval_ascending(x);
+}
+
 // n: Number of intervals
 Series CubicSpline::sample(size_t n)
 {

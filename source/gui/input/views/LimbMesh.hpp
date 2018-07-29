@@ -3,6 +3,7 @@
 #include <qopengl.h>
 #include <QVector>
 #include <QVector3D>
+#include <QColor>
 
 class LimbMesh
 {
@@ -15,8 +16,10 @@ public:
     int vertexCount() const;
 
 private:
-    void quad(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat x3, GLfloat y3, GLfloat x4, GLfloat y4);
-    void add(const QVector3D& v, const QVector3D& n);
+    void addQuad(const QVector3D& p0, const QVector3D& p1, const QVector3D& p2, const QVector3D& p3, const QColor& color);
+    void addVertex(const QVector3D& position, const QVector3D& normal, const QColor& color);
+
+    std::vector<double> getEvalLengths(const InputData& data, unsigned n);
 
     QVector<GLfloat> m_data;
     int m_count;

@@ -14,6 +14,7 @@ class CubicSpline
 {
 public:
     CubicSpline(const Series& data);
+    double operator()(double x, double y_default = 0.0) const;
     Series sample(size_t n);
 
 private:

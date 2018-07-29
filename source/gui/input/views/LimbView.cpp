@@ -156,7 +156,7 @@ static const char *vertexShaderSource =
     "   vertPos = vertex;\n"
     "   vertNormal = normalMatrix * normal;\n"
     "   vertColor = color;\n"
-    "   gl_Position = projMatrix * mvMatrix*vec4(vertex.xyz, 1.0);\n"
+    "   gl_Position = projMatrix * mvMatrix * vec4(vertex.xyz, 1.0);\n"
     "}\n";
 
 static const char *fragmentShaderSource =
