@@ -22,8 +22,9 @@ static std::vector<Vector<2>> one_sided_orientation_subset(const std::vector<Vec
     output.reserve(input.size());
 
     output.push_back(input[0]);
+    output.push_back(input[1]);
 
-    size_t i = 1;
+    size_t i = 2;
     while(i < input.size())
     {
         auto p1 = output[output.size()-2];
