@@ -15,7 +15,7 @@ class LimbView: public QOpenGLWidget, protected QOpenGLFunctions
 {
 public:
     LimbView();
-    ~LimbView();
+    ~LimbView() override;
 
     void setData(const InputData& data);
 

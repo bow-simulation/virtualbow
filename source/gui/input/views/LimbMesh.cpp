@@ -33,45 +33,78 @@ void LimbMesh::setData(const InputData& data)
                                        data.dimensions.handle_angle,
                                        lengths);
 
-    // Width and heigt distributions
+    // Calculate splined for width and heigt distributions
     CubicSpline width(data.width);
     std::vector<CubicSpline> heights;
     for(auto& layer: data.layers)
         heights.push_back(CubicSpline(layer.height));
 
-    unsigned n_layers = data.layers.size();
-    unsigned n_sections = lengths.size();
+    size_t n_layers = data.layers.size();
+    size_t n_sections = lengths.size()-1;
 
-    std::vector<QVector3D> points_l_prev(n_layers + 1);
-    std::vector<QVector3D> points_l_next(n_layers + 1);
-    std::vector<QVector3D> points_r_prev(n_layers + 1);
-    std::vector<QVector3D> points_r_next(n_layers + 1);
+    std::vector<QVector3D> points_l_prev(n_layers+1);
+    std::vector<QVector3D> points_l_next(n_layers+1);
+    std::vector<QVector3D> points_r_prev(n_layers+1);
+    std::vector<QVector3D> points_r_next(n_layers+1);
+    std::vector<size_t> layer_indices(n_layers);
 
-    for(unsigned i = 0; i < n_sections; ++i)
+    for(size_t i = 0; i < n_sections; ++i)
     {
-        QVector3D center  { profile.x[i], profile.y[i], 0.0 };
-        QVector3D normal_w{ 0.0, 0.0, 1.0 };
-        QVector3D normal_h{-sin(profile.phi[i]), cos(profile.phi[i]), 0.0 };
+        QVector3D center_prev  ( profile.x[i], profile.y[i], 0.0 );
+        QVector3D normal_w_prev( 0.0, 0.0, 1.0 );
+        QVector3D normal_h_prev(-sin(profile.phi[i]), cos(profile.phi[i]), 0.0 );
 
-        double p = profile.s[i]/profile.s.maxCoeff();
-        double w = width(p);
-        double h = 0.0;
+        QVector3D center_next  ( profile.x[i+1], profile.y[i+1], 0.0 );
+        QVector3D normal_w_next( 0.0, 0.0, 1.0 );
+        QVector3D normal_h_next(-sin(profile.phi[i+1]), cos(profile.phi[i+1]), 0.0 );
 
-        for(unsigned j = 0; j < n_layers + 1; ++j)
+        double p_prev = profile.s[i]/profile.s.maxCoeff();
+        double p_next = profile.s[i+1]/profile.s.maxCoeff();
+
+        double w_prev = width(p_prev);
+        double w_next = width(p_next);
+
+        points_l_prev.clear();
+        points_l_next.clear();
+        points_r_prev.clear();
+        points_r_next.clear();
+        layer_indices.clear();
+
+        auto add_points = [&](double h_prev, double h_next)
         {
-            points_r_next[j] = center + 0.5*w*normal_w + h*normal_h;
-            points_l_next[j] = center - 0.5*w*normal_w + h*normal_h;
+            points_r_prev.push_back(center_prev + 0.5*w_prev*normal_w_prev + h_prev*normal_h_prev);
+            points_r_next.push_back(center_next + 0.5*w_next*normal_w_next + h_next*normal_h_next);
+            points_l_prev.push_back(center_prev - 0.5*w_prev*normal_w_prev + h_prev*normal_h_prev);
+            points_l_next.push_back(center_next - 0.5*w_next*normal_w_next + h_next*normal_h_next);
+        };
 
-            if(j < n_layers)
-                h += heights[j](p);
+        double h_sum_prev = 0.0;
+        double h_sum_next = 0.0;
+        for(size_t j = 0; j < n_layers; ++j)
+        {
+            double h_prev = heights[j](p_prev, 0.0);
+            double h_next = heights[j](p_next, 0.0);
+
+            if(h_prev != 0.0 || h_next != 0.0)
+            {
+                if(layer_indices.empty())
+                    add_points(h_sum_prev, h_sum_next);
+
+                h_sum_prev += h_prev;
+                h_sum_next += h_next;
+
+                add_points(h_sum_prev, h_sum_next);
+                layer_indices.push_back(j);
+            }
         }
 
-        for(unsigned j = 0; j < n_layers; ++j)
+        for(size_t j = 0; j < layer_indices.size(); ++j)
         {
-            QColor color = getLayerColor(data.layers[j]);
+            QColor color = getLayerColor(data.layers[layer_indices[j]]);
 
             if(i == 0)
             {
+                qInfo() << "First section";
                 addQuad(points_r_next[j], points_l_next[j], points_l_next[j+1], points_r_next[j+1], color);
             }
 
@@ -89,43 +122,20 @@ void LimbMesh::setData(const InputData& data)
                 // Right
                 addQuad(points_r_prev[j], points_r_prev[j+1], points_r_next[j+1], points_r_next[j], color);
 
-                // Bottom
+                // Top
                 if(j == 0)
                 {
                     addQuad(points_l_prev[j], points_r_prev[j], points_r_next[j], points_l_next[j], color);
                 }
 
-                // Top
-                if(j == n_layers  - 1)
+                // Bottom
+                if(j == layer_indices.size()  - 1)
                 {
                     addQuad(points_l_prev[j+1], points_l_next[j+1], points_r_next[j+1], points_r_prev[j+1], color);
                 }
             }
         }
-
-        /*
-
-
-        if(i > 0)
-        {
-            // Left
-            addQuad(points_l_prev[0], points_l_next[0], points_l_next[1], points_l_prev[1], color);
-
-            // Right
-            addQuad(points_r_prev[0], points_r_prev[1], points_r_next[1], points_r_next[0], color);
-
-            // Top
-            addQuad(points_l_prev[0], points_r_prev[0], points_r_next[0], points_l_next[0], color);
-
-            // Bottom
-            addQuad(points_l_prev[1], points_l_next[1], points_r_next[1], points_r_prev[1], color);
-        }
-        */
-
-        points_l_prev = points_l_next;
-        points_r_prev = points_r_next;
     }
-
 }
 
 std::vector<double> LimbMesh::getEvalLengths(const InputData& data, unsigned n)

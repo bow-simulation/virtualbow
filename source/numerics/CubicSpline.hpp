@@ -14,8 +14,12 @@ class CubicSpline
 {
 public:
     CubicSpline(const Series& data);
-    double operator()(double x, double y_default = 0.0) const;
+    double operator()(double x) const;
+    double operator()(double x, double y_default) const;
     Series sample(size_t n);
+
+    double arg_min() const;
+    double arg_max() const;
 
 private:
     bool is_strictly_increasing(const std::vector<double>& args);

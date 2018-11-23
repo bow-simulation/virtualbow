@@ -62,10 +62,10 @@ CubicSpline::CubicSpline(const Series& data)
     }
 }
 
-double CubicSpline::operator()(double x, double y_default) const
+double CubicSpline::operator()(double x) const
 {
-    if(x < xs.front() || x > xs.back())
-        return y_default;
+    assert(x >= xs.front());
+    assert(x <= xs.back());
 
     // Todo: Inefficient, use bisection
     size_t j = 0; // Last segment index
@@ -79,6 +79,14 @@ double CubicSpline::operator()(double x, double y_default) const
     };
 
     return eval_ascending(x);
+}
+
+double CubicSpline::operator()(double x, double y_default) const
+{
+    if(x >= xs.front() && x <= xs.back())
+        return operator()(x);
+    else
+        return y_default;
 }
 
 // n: Number of intervals
@@ -132,4 +140,14 @@ std::vector<double> CubicSpline::interpolate(const std::vector<double>& args)
         vals[i] = eval_ascending(args[i]);
 
     return vals;
+}
+
+double CubicSpline::arg_min() const
+{
+    return xs.front();
+}
+
+double CubicSpline::arg_max() const
+{
+    return xs.back();
 }
