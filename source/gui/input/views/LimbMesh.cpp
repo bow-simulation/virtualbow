@@ -10,21 +10,6 @@ void LimbMesh::setData(const InputData& data)
     m_data.resize(2500*500);
     m_count = 0;
 
-    // Todo: Remove
-    /*
-    InputData data = data2;
-    data.layers = {Layer(), Layer()};
-    data.layers[0].height = {{0.0, 0.6}, {0.015, 0.0}};
-    data.layers[0].E = 1.0;
-    data.layers[1].height = {{0.0, 1.0}, {0.01, 0.01}};
-    data.layers[1].E = 2.0;
-    */
-
-    // data.layers[2].height = {{0.4, 1.0}, {0.0, 0.01}};
-    // data.layers[2].E = 3.0;
-
-
-
     // Todo: Abstract away the conversion data -> profile curve
     std::vector<double> lengths = getEvalLengths(data, 100);
     Curve2D profile = ArcCurve::sample(data.profile,

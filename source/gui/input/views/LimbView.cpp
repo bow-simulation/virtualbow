@@ -10,6 +10,7 @@ LimbView::LimbView()
     : m_xRot(0),
       m_yRot(0),
       m_zRot(0),
+      m_zoom(1.0f),
       m_program(nullptr)
 {
     auto button0 = new QToolButton();
@@ -129,6 +130,12 @@ void LimbView::setZRotation(int angle)
     update();
 }
 
+void LimbView::zoom(float factor)
+{
+    m_zoom *= factor;
+    update();
+}
+
 void LimbView::cleanup()
 {
     if(m_program == nullptr)
@@ -239,19 +246,18 @@ void LimbView::paintGL()
     glEnable(GL_CULL_FACE);
 
     m_world.setToIdentity();
-    m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
-    m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
-    m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
+    m_world.rotate(180.0f - (m_xRot/16.0f), 1, 0, 0);
+    m_world.rotate(m_yRot/16.0f, 0, 1, 0);
+    m_world.rotate(m_zRot/16.0f, 0, 0, 1);
+    m_world.scale(m_zoom);
 
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
     m_program->bind();
     m_program->setUniformValue(m_projMatrixLoc, m_proj);
-    m_program->setUniformValue(m_mvMatrixLoc, m_camera * m_world);
-    QMatrix3x3 normalMatrix = m_world.normalMatrix();
-    m_program->setUniformValue(m_normalMatrixLoc, normalMatrix);
+    m_program->setUniformValue(m_mvMatrixLoc, m_camera*m_world);
+    m_program->setUniformValue(m_normalMatrixLoc, m_world.normalMatrix());
 
     glDrawArrays(GL_TRIANGLES, 0, m_logo.vertexCount());
-
     m_program->release();
 }
 
@@ -283,4 +289,19 @@ void LimbView::mouseMoveEvent(QMouseEvent *event)
     }
 
     m_lastPos = event->pos();
+}
+
+void LimbView::wheelEvent(QWheelEvent* event)
+{
+    const float zoom_factor = 1.25;
+    float delta = event->angleDelta().y()/120.0f;
+
+    if(delta > 0.0f)
+    {
+        zoom( delta*zoom_factor);
+    }
+    else
+    {
+        zoom(-delta/zoom_factor);
+    }
 }

@@ -29,6 +29,8 @@ private:
     void setXRotation(int angle);
     void setYRotation(int angle);
     void setZRotation(int angle);
+    void zoom(float factor);
+
     void cleanup();
 
     void initializeGL() override;
@@ -36,10 +38,12 @@ private:
     void resizeGL(int width, int height) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent* event) override;
 
     int m_xRot;
     int m_yRot;
     int m_zRot;
+    float m_zoom;
 
     QPoint m_lastPos;
 
