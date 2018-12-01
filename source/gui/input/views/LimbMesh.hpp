@@ -1,7 +1,7 @@
 #pragma once
 #include "bow/input/InputData.hpp"
+#include "numerics/Eigen.hpp"
 #include <qopengl.h>
-#include <QVector>
 #include <QVector3D>
 #include <QColor>
 
@@ -11,15 +11,13 @@ public:
     LimbMesh() = default;
     void setData(const InputData& data);
 
-    const GLfloat* data() const;
-    int count() const;
-    int vertexCount() const;
+    const std::vector<GLfloat>& vertexData() const;
+    size_t vertexCount() const;
 
 private:
-    void addQuad(const QVector3D& p0, const QVector3D& p1, const QVector3D& p2, const QVector3D& p3, const QColor& color);
-    void addVertex(const QVector3D& position, const QVector3D& normal, const QColor& color);
-
+    void addQuad(const Vector<3>& p0, const Vector<3>& p1, const Vector<3>& p2, const Vector<3>& p3, const QColor& color);
+    void addVertex(const Vector<3>& position, const Vector<3>& normal, const QColor& color);
     std::vector<double> getEvalLengths(const InputData& data, unsigned n);
 
-    QVector<GLfloat> m_data;
-}; 
+    std::vector<GLfloat> vertex_data;
+};

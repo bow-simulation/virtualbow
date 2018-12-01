@@ -24,21 +24,21 @@ void LimbMesh::setData(const InputData& data)
     size_t n_layers = data.layers.size();
     size_t n_sections = lengths.size()-1;
 
-    std::vector<QVector3D> points_l_prev(n_layers+1);
-    std::vector<QVector3D> points_l_next(n_layers+1);
-    std::vector<QVector3D> points_r_prev(n_layers+1);
-    std::vector<QVector3D> points_r_next(n_layers+1);
+    std::vector<Vector<3>> points_l_prev(n_layers+1);
+    std::vector<Vector<3>> points_l_next(n_layers+1);
+    std::vector<Vector<3>> points_r_prev(n_layers+1);
+    std::vector<Vector<3>> points_r_next(n_layers+1);
     std::vector<size_t> layer_indices(n_layers);
 
     for(size_t i = 0; i < n_sections; ++i)
     {
-        QVector3D center_prev  ( profile.x[i], profile.y[i], 0.0 );
-        QVector3D normal_w_prev( 0.0, 0.0, 1.0 );
-        QVector3D normal_h_prev(-sin(profile.phi[i]), cos(profile.phi[i]), 0.0 );
+        Vector<3> center_prev  {profile.x[i], profile.y[i], 0.0 };
+        Vector<3> normal_w_prev{ 0.0, 0.0, 1.0 };
+        Vector<3> normal_h_prev{-sin(profile.phi[i]), cos(profile.phi[i]), 0.0 };
 
-        QVector3D center_next  ( profile.x[i+1], profile.y[i+1], 0.0 );
-        QVector3D normal_w_next( 0.0, 0.0, 1.0 );
-        QVector3D normal_h_next(-sin(profile.phi[i+1]), cos(profile.phi[i+1]), 0.0 );
+        Vector<3> center_next  { profile.x[i+1], profile.y[i+1], 0.0 };
+        Vector<3> normal_w_next{ 0.0, 0.0, 1.0 };
+        Vector<3> normal_h_next{-sin(profile.phi[i+1]), cos(profile.phi[i+1]), 0.0 };
 
         double p_prev = profile.s[i]/profile.s.maxCoeff();
         double p_next = profile.s[i+1]/profile.s.maxCoeff();
@@ -151,27 +151,22 @@ std::vector<double> LimbMesh::getEvalLengths(const InputData& data, unsigned n)
     return lengths;
 }
 
-const GLfloat* LimbMesh::data() const
+const std::vector<GLfloat>& LimbMesh::vertexData() const
 {
-    return m_data.constData();
+    return vertex_data;
 }
 
-int LimbMesh::count() const
+size_t LimbMesh::vertexCount() const
 {
-    return m_data.size();
+    return vertex_data.size()/9;
 }
 
-int LimbMesh::vertexCount() const
+void LimbMesh::addQuad(const Vector<3>& p0, const Vector<3>& p1, const Vector<3>& p2, const Vector<3>& p3, const QColor& color)
 {
-    return m_data.size()/9;
-}
-
-void LimbMesh::addQuad(const QVector3D& p0, const QVector3D& p1, const QVector3D& p2, const QVector3D& p3, const QColor& color)
-{
-    QVector3D n0 = QVector3D::normal(p1 - p0, p3 - p0);
-    QVector3D n1 = QVector3D::normal(p2 - p1, p0 - p1);
-    QVector3D n2 = QVector3D::normal(p3 - p2, p1 - p2);
-    QVector3D n3 = QVector3D::normal(p0 - p3, p2 - p3);
+    Vector<3> n0 = (p1 - p0).cross(p3 - p0).normalized();
+    Vector<3> n1 = (p2 - p1).cross(p0 - p1).normalized();
+    Vector<3> n2 = (p3 - p2).cross(p1 - p2).normalized();
+    Vector<3> n3 = (p0 - p3).cross(p2 - p3).normalized();
 
     addVertex(p0, n0, color);
     addVertex(p1, n1, color);
@@ -182,17 +177,17 @@ void LimbMesh::addQuad(const QVector3D& p0, const QVector3D& p1, const QVector3D
     addVertex(p3, n3, color);
 }
 
-void LimbMesh::addVertex(const QVector3D& position, const QVector3D& normal, const QColor& color)
+void LimbMesh::addVertex(const Vector<3>& position, const Vector<3>& normal, const QColor& color)
 {
-    m_data.push_back(position.x());
-    m_data.push_back(position.y());
-    m_data.push_back(position.z());
+    vertex_data.push_back(position.x());
+    vertex_data.push_back(position.y());
+    vertex_data.push_back(position.z());
 
-    m_data.push_back(normal.x());
-    m_data.push_back(normal.y());
-    m_data.push_back(normal.z());
+    vertex_data.push_back(normal.x());
+    vertex_data.push_back(normal.y());
+    vertex_data.push_back(normal.z());
 
-    m_data.push_back(color.redF());
-    m_data.push_back(color.greenF());
-    m_data.push_back(color.blueF());
+    vertex_data.push_back(color.redF());
+    vertex_data.push_back(color.greenF());
+    vertex_data.push_back(color.blueF());
 }
