@@ -149,13 +149,13 @@ void LimbView::cleanup()
 }
 
 static const char *vertexShaderSource =
-    "#version 130\n"
-    "in vec3 vertex;\n"
-    "in vec3 normal;\n"
-    "in vec3 color;\n"
-    "out vec3 vertPos;\n"
-    "out vec3 vertNormal;\n"
-    "out vec3 vertColor;"
+    "#version 120\n"
+    "attribute vec3 vertex;\n"
+    "attribute vec3 normal;\n"
+    "attribute vec3 color;\n"
+    "varying vec3 vertPos;\n"
+    "varying vec3 vertNormal;\n"
+    "varying vec3 vertColor;"
     "uniform mat4 projMatrix;\n"
     "uniform mat4 mvMatrix;\n"
     "uniform mat3 normalMatrix;\n"
@@ -163,21 +163,20 @@ static const char *vertexShaderSource =
     "   vertPos = vertex;\n"
     "   vertNormal = normalMatrix * normal;\n"
     "   vertColor = color;\n"
-    "   gl_Position = projMatrix * mvMatrix * vec4(vertex.xyz, 1.0);\n"
+    "   gl_Position = projMatrix*mvMatrix*vec4(vertex.xyz, 1.0);\n"
     "}\n";
 
 static const char *fragmentShaderSource =
-    "#version 130\n"
-    "in highp vec3 vertPos;\n"
-    "in highp vec3 vertNormal;\n"
-    "in highp vec3 vertColor;\n"
-    "out highp vec4 fragColor;\n"
+    "#version 120\n"
+    "varying highp vec3 vertPos;\n"
+    "varying highp vec3 vertNormal;\n"
+    "varying highp vec3 vertColor;\n"
     "uniform highp vec3 lightPos;\n"
     "void main() {\n"
     "   highp vec3 L = normalize(lightPos - vertPos);\n"
     "   highp float NL = max(dot(normalize(vertNormal), L), 0.0);\n"
-    "   highp vec3 col = clamp(vertColor * 0.2 + vertColor * 0.8 * NL, 0.0, 1.0);\n"
-    "   fragColor = vec4(col, 1.0);\n"
+    "   highp vec3 col = clamp(vertColor*0.2 + vertColor*0.8*NL, 0.0, 1.0);\n"
+    "   gl_FragColor = vec4(col, 1.0);\n"
     "}\n";
 
 void LimbView::initializeGL()
@@ -253,7 +252,7 @@ void LimbView::paintGL()
 
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
     m_program->bind();
-    m_program->setUniformValue(m_projMatrixLoc, m_proj);
+    m_program->setUniformValue(m_projMatrixLoc, m_projection);
     m_program->setUniformValue(m_mvMatrixLoc, m_camera*m_world);
     m_program->setUniformValue(m_normalMatrixLoc, m_world.normalMatrix());
 
@@ -263,8 +262,8 @@ void LimbView::paintGL()
 
 void LimbView::resizeGL(int width, int height)
 {
-    m_proj.setToIdentity();
-    m_proj.perspective(45.0f, GLfloat(width)/height, 0.01f, 100.0f);
+    m_projection.setToIdentity();
+    m_projection.perspective(45.0f, GLfloat(width)/height, 0.01f, 100.0f);
 }
 
 void LimbView::mousePressEvent(QMouseEvent *event)

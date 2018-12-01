@@ -55,7 +55,7 @@ private:
     int m_mvMatrixLoc;
     int m_normalMatrixLoc;
     int m_lightPosLoc;
-    QMatrix4x4 m_proj;
+    QMatrix4x4 m_projection;
     QMatrix4x4 m_camera;
     QMatrix4x4 m_world;
 };
