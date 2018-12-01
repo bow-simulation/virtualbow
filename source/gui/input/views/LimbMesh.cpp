@@ -7,9 +7,6 @@
 
 void LimbMesh::setData(const InputData& data)
 {
-    m_data.resize(2500*500);
-    m_count = 0;
-
     // Todo: Abstract away the conversion data -> profile curve
     std::vector<double> lengths = getEvalLengths(data, 100);
     Curve2D profile = ArcCurve::sample(data.profile,
@@ -18,7 +15,7 @@ void LimbMesh::setData(const InputData& data)
                                        data.dimensions.handle_angle,
                                        lengths);
 
-    // Calculate splined for width and heigt distributions
+    // Calculate splines for width and heigt distributions
     CubicSpline width(data.width);
     std::vector<CubicSpline> heights;
     for(auto& layer: data.layers)
@@ -154,19 +151,19 @@ std::vector<double> LimbMesh::getEvalLengths(const InputData& data, unsigned n)
     return lengths;
 }
 
-const GLfloat* LimbMesh::constData() const
+const GLfloat* LimbMesh::data() const
 {
     return m_data.constData();
 }
 
 int LimbMesh::count() const
 {
-    return m_count;
+    return m_data.size();
 }
 
 int LimbMesh::vertexCount() const
 {
-    return m_count/6;
+    return m_data.size()/9;
 }
 
 void LimbMesh::addQuad(const QVector3D& p0, const QVector3D& p1, const QVector3D& p2, const QVector3D& p3, const QColor& color)
@@ -187,19 +184,15 @@ void LimbMesh::addQuad(const QVector3D& p0, const QVector3D& p1, const QVector3D
 
 void LimbMesh::addVertex(const QVector3D& position, const QVector3D& normal, const QColor& color)
 {
-    GLfloat* p = m_data.data() + m_count;
+    m_data.push_back(position.x());
+    m_data.push_back(position.y());
+    m_data.push_back(position.z());
 
-    *p++ = position.x();
-    *p++ = position.y();
-    *p++ = position.z();
+    m_data.push_back(normal.x());
+    m_data.push_back(normal.y());
+    m_data.push_back(normal.z());
 
-    *p++ = normal.x();
-    *p++ = normal.y();
-    *p++ = normal.z();
-
-    *p++ = color.redF();
-    *p++ = color.greenF();
-    *p++ = color.blueF();
-
-    m_count += 9;
+    m_data.push_back(color.redF());
+    m_data.push_back(color.greenF());
+    m_data.push_back(color.blueF());
 }

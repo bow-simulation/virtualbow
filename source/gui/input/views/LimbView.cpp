@@ -70,7 +70,7 @@ void LimbView::setData(const InputData& data)
 
     m_logoVbo.create();
     m_logoVbo.bind();
-    m_logoVbo.allocate(m_logo.constData(), m_logo.count() * sizeof(GLfloat));
+    m_logoVbo.allocate(m_logo.data(), m_logo.count()*sizeof(GLfloat));
 
     update();
 }
@@ -217,7 +217,7 @@ void LimbView::initializeGL()
     // Setup our vertex buffer object.
     m_logoVbo.create();
     m_logoVbo.bind();
-    m_logoVbo.allocate(m_logo.constData(), m_logo.count()*sizeof(GLfloat));
+    m_logoVbo.allocate(m_logo.data(), m_logo.count()*sizeof(GLfloat));
 
     // Store the vertex attribute bindings for the program.
     m_logoVbo.bind();

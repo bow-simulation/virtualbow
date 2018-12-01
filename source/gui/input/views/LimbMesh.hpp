@@ -11,7 +11,7 @@ public:
     LimbMesh() = default;
     void setData(const InputData& data);
 
-    const GLfloat* constData() const;
+    const GLfloat* data() const;
     int count() const;
     int vertexCount() const;
 
@@ -22,5 +22,4 @@ private:
     std::vector<double> getEvalLengths(const InputData& data, unsigned n);
 
     QVector<GLfloat> m_data;
-    int m_count;
 }; 
