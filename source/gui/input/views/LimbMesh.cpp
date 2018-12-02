@@ -86,13 +86,11 @@ void LimbMesh::setData(const InputData& data)
 
             if(i == 0)
             {
-                qInfo() << "First section";
                 addQuad(points_r_next[j], points_l_next[j], points_l_next[j+1], points_r_next[j+1], color);
             }
 
             if(i == n_sections - 1)
             {
-                qInfo() << "Last section";
                 addQuad(points_r_next[j], points_r_next[j+1], points_l_next[j+1], points_l_next[j], color);
             }
 

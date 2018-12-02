@@ -40,21 +40,22 @@ private:
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent* event) override;
 
+    QPoint m_lastPos;
+
     int m_xRot;
     int m_yRot;
     int m_zRot;
     float m_zoom;
 
-    QPoint m_lastPos;
+    LimbMesh m_mesh;
+    QOpenGLBuffer m_meshVbo;
 
-    LimbMesh m_logo;
-    QOpenGLVertexArrayObject m_vao;
-    QOpenGLBuffer m_logoVbo;
-    QOpenGLShaderProgram *m_program;
-    int m_projMatrixLoc;
-    int m_mvMatrixLoc;
+    QOpenGLShaderProgram* m_program;
+    int m_projectionMatrixLoc;
+    int m_modelViewMatrixLoc;
     int m_normalMatrixLoc;
-    int m_lightPosLoc;
+    int m_lightPositionLoc;
+
     QMatrix4x4 m_projection;
     QMatrix4x4 m_camera;
     QMatrix4x4 m_world;
