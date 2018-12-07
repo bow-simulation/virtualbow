@@ -5,8 +5,6 @@
 #include "fem/System.hpp"
 #include <map>
 
-#include <QtCore>
-
 // Holds a collection of segments (two nodes, two distances) and points (one node) and creates/removes
 // contact elements for them as needed. It uses the Sweep and Prune broadphase algorithm [1],[2] along
 // both axes for determining which points and segments can actually come into contact.

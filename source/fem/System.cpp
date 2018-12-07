@@ -1,7 +1,5 @@
 #include "System.hpp"
 
-#include <QtCore>
-
 System::System()
     : t(0.0), n_a(0), n_f(0)
 {

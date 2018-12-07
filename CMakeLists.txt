@@ -81,12 +81,13 @@ include_directories(${SOURCE_DIR})
 # System thread library (https://stackoverflow.com/a/39547577)
 find_package(Threads REQUIRED)
 
-# Source files
+# Build application library
 
 configure_file(source/config.hpp ${CMAKE_BINARY_DIR}/config.hpp)
 include_directories(source ${PROJECT_BINARY_DIR})
 
-set(MAIN_SOURCES
+add_library(
+    main-library
     source/fem/elements/BarElement.cpp
     source/fem/elements/BeamElement.cpp
     source/fem/elements/MassElement.cpp
@@ -175,29 +176,30 @@ set(MAIN_SOURCES
     source/gui/output/StressPlot.cpp
     source/gui/output/StressPlot.hpp
     source/external/qcustomplot/qcustomplot.cpp
-    resources/resources.qrc
 )
 
-set(TEST_SOURCES
+add_dependencies(main-library eigen catch json boost)
+target_link_libraries(main-library Qt5::Widgets Qt5::PrintSupport Threads::Threads)
+
+# Build application executable
+
+add_executable(bow-simulator source/main.cpp resources/resources.qrc)
+target_link_libraries(bow-simulator main-library)
+
+# Build test executable
+
+add_executable(
+    bow-simulator-test
+    tests/main.cpp
     tests/fem/BarTrusses.cpp
     tests/fem/HarmonicOscillator.cpp
     tests/fem/LargeDeformationBeams.cpp
     tests/fem/TangentStiffness.cpp
 )
 
-# Application executable
+add_dependencies(bow-simulator-test main-library)
 
-add_executable(bow-simulator source/main.cpp ${MAIN_SOURCES})
-add_dependencies(bow-simulator eigen catch json boost)
-target_link_libraries(bow-simulator Qt5::Widgets Qt5::PrintSupport Threads::Threads)
-
-# Test executable
-
-add_executable(bow-simulator-test tests/main.cpp ${MAIN_SOURCES} ${TEST_SOURCES})
-add_dependencies(bow-simulator-test eigen catch json boost)
-target_link_libraries(bow-simulator-test Qt5::Widgets Qt5::PrintSupport Threads::Threads)
-
-# Release packages for different platforms
+# Build release packages for different platforms
 
 if(UNIX)
     add_subdirectory(platforms/linux)
