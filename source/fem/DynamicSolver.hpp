@@ -8,7 +8,7 @@ class DynamicSolver
 public:
     using StopFn = std::function<bool()>;
 
-    DynamicSolver(System& system, double dt, double f, const StopFn& stop);
+    DynamicSolver(System& system, double dt, double f_sample, const StopFn& stop);
     static double estimate_timestep(const System& system, double factor);
     bool step();
 

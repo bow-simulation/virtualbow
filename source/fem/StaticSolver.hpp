@@ -4,6 +4,7 @@
 #include "numerics/Optimization.hpp"
 #include <Eigen/Core>
 
+// Todo: Make constraint function a member with templated type instead of using inheritance.
 class StaticSolver
 {
 public:

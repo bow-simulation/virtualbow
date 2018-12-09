@@ -245,7 +245,7 @@ void BowModel::init_string(const Callback& callback)
     // Find a element length at which the brace height difference is zero
     // Todo: Perhaps limit the step size of the root finding algorithm to increase robustness.
     double l = (points[1] - points[0]).norm();
-    if(!try_element_length(l) > 0)
+    if(try_element_length(l) <= 0.0)
         throw std::runtime_error("Invalid input: Brace height is too low");
 
     double dl = 1e-3*l;        // Initial step length, later adjusted by the algorithm    // Magic number

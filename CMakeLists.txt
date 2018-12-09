@@ -6,10 +6,10 @@ set(CMAKE_CXX_STANDARD 14)
 # Parameters used for configuring files
 set(APPLICATION_NAME "bow-simulator")
 set(APPLICATION_TITLE "Bow Simulator")
-set(APPLICATION_VERSION "0.5")
+set(APPLICATION_VERSION "0.6")
 set(APPLICATION_WEBSITE "bow-simulator.org")
 set(APPLICATION_MAINTAINER "Stefan Pfeifer")
-set(APPLICATION_COPYRIGHT "Copyright (C) 2016-2018 Stefan Pfeifer")
+set(APPLICATION_COPYRIGHT "Copyright (C) 2016-2019 Stefan Pfeifer")
 set(APPLICATION_LICENSE "GNU General Public License v3.0")
 set(APPLICATION_DESCRIPTION_SHORT "Bow and arrow physics simulation")
 set(APPLICATION_DESCRIPTION_LONG "Software tool for simulating the static and dynamic performance of bow designs")
@@ -81,18 +81,13 @@ include_directories(${SOURCE_DIR})
 # System thread library (https://stackoverflow.com/a/39547577)
 find_package(Threads REQUIRED)
 
-# Main executable
+# Build application library
 
-configure_file(source/config.hpp.in ${CMAKE_BINARY_DIR}/config.hpp)
-include_directories(${PROJECT_BINARY_DIR})
+configure_file(source/config.hpp ${CMAKE_BINARY_DIR}/config.hpp)
+include_directories(source ${PROJECT_BINARY_DIR})
 
-include_directories(source)
-add_executable(
-    bow-simulator
-
-    source/main.cpp
-    ${CMAKE_BINARY_DIR}/config.hpp
-
+add_library(
+    main-library
     source/fem/elements/BarElement.cpp
     source/fem/elements/BeamElement.cpp
     source/fem/elements/MassElement.cpp
@@ -104,16 +99,13 @@ add_executable(
     source/fem/StaticSolver.cpp
     source/fem/DynamicSolver.cpp
     source/fem/System.cpp
-
     source/bow/LimbProperties.cpp
     source/bow/LayerProperties.cpp
     source/bow/input/InputData.cpp
     source/bow/BowModel.cpp
-
     source/numerics/ArcCurve.cpp
     source/numerics/CubicSpline.cpp
     source/numerics/Series.cpp
-
     source/gui/Application.cpp
     source/gui/Application.hpp
     source/gui/MainWindow.cpp
@@ -128,7 +120,6 @@ add_executable(
     source/gui/ProgressDialog.hpp
     source/gui/EditableTabBar.cpp
     source/gui/EditableTabBar.hpp
-
     source/gui/input/dialogs/CommentDialog.cpp
     source/gui/input/dialogs/CommentDialog.hpp
     source/gui/input/dialogs/GroupDialog.cpp
@@ -147,7 +138,6 @@ add_executable(
     source/gui/input/dialogs/StringDialog.hpp
     source/gui/input/dialogs/WidthDialog.cpp
     source/gui/input/dialogs/WidthDialog.hpp
-
     source/gui/input/editors/BowEditor.cpp
     source/gui/input/editors/BowEditor.hpp
     source/gui/input/editors/DoubleEditor.cpp
@@ -161,7 +151,6 @@ add_executable(
     source/gui/input/editors/TreeEditor.cpp
     source/gui/input/editors/TreeEditor.hpp
     source/gui/input/editors/TreeItem.hpp
-
     source/gui/input/views/LimbView.cpp
     source/gui/input/views/LimbView.hpp
     source/gui/input/views/LimbMesh.cpp
@@ -172,7 +161,6 @@ add_executable(
     source/gui/input/views/ProfileView.hpp
     source/gui/input/views/SplineView.cpp
     source/gui/input/views/SplineView.hpp
-
     source/gui/output/ComboPlot.cpp
     source/gui/output/ComboPlot.hpp
     source/gui/output/EnergyPlot.cpp
@@ -187,40 +175,31 @@ add_executable(
     source/gui/output/Slider.hpp
     source/gui/output/StressPlot.cpp
     source/gui/output/StressPlot.hpp
-
     source/external/qcustomplot/qcustomplot.cpp
-
-    resources/resources.qrc
 )
 
+add_dependencies(main-library eigen catch json boost)
+target_link_libraries(main-library Qt5::Widgets Qt5::PrintSupport Threads::Threads)
 
-# Declare dependencies, link libraries
+# Build application executable
 
-add_dependencies(bow-simulator eigen catch json boost)
-target_link_libraries(bow-simulator Qt5::Widgets Qt5::PrintSupport Threads::Threads)
+add_executable(bow-simulator source/main.cpp resources/resources.qrc)
+target_link_libraries(bow-simulator main-library)
 
-# Test executable
+# Build test executable
 
-#add_executable(
-#    bow-simulator-tests
-#    source/tests/main.cpp
-#    source/tests/tangent_stiffness.cpp
-#    source/tests/large_deformation_beams.cpp
-#    source/tests/harmonic_oscillator.cpp
-#    source/tests/bar_trusses.cpp
+add_executable(
+    bow-simulator-test
+    tests/main.cpp
+    tests/fem/BarTrusses.cpp
+    tests/fem/HarmonicOscillator.cpp
+    tests/fem/LargeDeformationBeams.cpp
+    tests/fem/TangentStiffness.cpp
+)
 
-#    source/fem/elements/BarElement.cpp
-#    source/fem/elements/BeamElement.cpp
-#    source/fem/elements/MassElement.cpp
-#    source/fem/elements/ContactElement.cpp
-#    source/fem/elements/ContactSurface.cpp
-#    source/fem/elements/ConstraintElement.cpp
-#    source/fem/Node.cpp
-#    source/fem/DynamicSolver.cpp
-#    source/fem/System.cpp
-#)
+target_link_libraries(bow-simulator-test main-library)
 
-# Release packages for different platforms
+# Build release packages for different platforms
 
 if(UNIX)
     add_subdirectory(platforms/linux)
