@@ -1,10 +1,10 @@
 #include "DynamicSolver.hpp"
 
-DynamicSolver::DynamicSolver(System& system, double dt, double f, const StopFn& stop)
+DynamicSolver::DynamicSolver(System& system, double dt, double f_sample, const StopFn& stop)
     : system(system),
       stop(stop),
       dt(dt),
-      n(std::max(std::ceil(1.0/(f*dt)), 1.0))
+      n(std::max(std::ceil(1.0/(f_sample*dt)), 1.0))
 {
     // Initialise previous displacement
     u_p2 = system.get_u() - dt*system.get_v() + dt*dt/2.0*system.get_a();

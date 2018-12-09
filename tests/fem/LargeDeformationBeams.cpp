@@ -8,7 +8,6 @@
 
 TEST_CASE("large-deformation-cantilever")
 {
-    /*
     // "Large deformation of a cantilever beam subjected to a vertical tip load" as described in [1]
     // [1] On the correct representation of bending and axial deformation in the absolute nodal coordinate formulation with an elastic line approach
     // Johannes Gerstmayr, Hans Irschik, Journal of Sound and Vibration 318 (2008) 461-487
@@ -31,37 +30,34 @@ TEST_CASE("large-deformation-cantilever")
     // Create nodes
     for(unsigned i = 0; i < N+1; ++i)
     {
-        DofType type = (i == 0) ? DofType::Fixed : DofType::Active;
-        nodes.push_back(system.create_node({type, type, type}, {double(i)/double(N)*L, 0.0, 0.0}));
+        bool active = (i != 0);
+        nodes.push_back(system.create_node({active, active, active}, {double(i)/double(N)*L, 0.0, 0.0}));
     }
 
     // Create elements
     for(unsigned i = 0; i < N; ++i)
     {
-        BeamElement element(nodes[i], nodes[i+1], 0.0, L/double(N));
+        BeamElement element(system, nodes[i], nodes[i+1], 0.0, L/double(N));
         element.set_stiffness(E*A, E*I, 0.0);
-        system.add_element(element);
+        system.mut_elements().add(element);
     }
 
-    nodes[N][1].p_mut() = F0;
+    system.set_p(nodes[N].y, F0);
     StaticSolverLC solver(system);
     solver.solve();
 
-    // Tip displacements
-    double ux_num = L - nodes[N][0].u();
-    double uy_num = nodes[N][1].u();
+    // Numerical tip displacements
+    double ux_num = L - system.get_u(nodes[N].x);
+    double uy_num = system.get_u(nodes[N].y);
 
-    // Reference displacements according to [1]
+    // Reference tip displacements according to [1]
     double ux_ref = 0.5089228704;
     double uy_ref = 1.2083981311;
 
-    double error_x = std::abs((ux_num - ux_ref)/ux_ref);
-    double error_y = std::abs((uy_num - uy_ref)/uy_ref);
-
+    // Error
     // Todo: Why is the precision not better?
-    REQUIRE(error_x < 1.08e-3);
-    REQUIRE(error_y < 5.79e-4);
-    */
+    REQUIRE(std::abs((ux_num - ux_ref)/ux_ref) < 1.08e-3);
+    REQUIRE(std::abs((uy_num - uy_ref)/uy_ref) < 5.79e-4);
 }
 
 TEST_CASE("large-deformation-circular-beam")
@@ -84,39 +80,43 @@ TEST_CASE("large-deformation-circular-beam")
     // Create nodes
     for(unsigned i = 0; i < N+1; ++i)
     {
-        DofType type = (i == 0) ? DofType::Fixed : DofType::Active;
+        bool active = (i != 0);
         double phi = double(i)/double(N)*M_PI;
-        nodes.push_back(system.create_node({type, type, type}, {R*sin(phi), R*(cos(phi) - 1.0), 0.0}));
+        nodes.push_back(system.create_node({active, active, active}, {R*sin(phi), R*(cos(phi) - 1.0), 0.0}));
     }
 
     // Create elements
     for(unsigned i = 0; i < N; ++i)
     {
-        double dist = Node::distance(nodes[i], nodes[i+1]);
-        double angle = Node::angle(nodes[i], nodes[i+1]);
+        double dist = system.get_distance(nodes[i], nodes[i+1]);
+        double angle = system.get_angle(nodes[i], nodes[i+1]);
 
-        BeamElement element(nodes[i], nodes[i+1], 0.0, dist);
+        BeamElement element(system, nodes[i], nodes[i+1], 0.0, dist);
         element.set_stiffness(EA, EI, 0.0);
-        element.set_reference_angles(angle - nodes[i][2].u(), angle - nodes[i+1][2].u());
+        element.set_reference_angles(angle - system.get_u(nodes[i].phi), angle - system.get_u(nodes[i+1].phi));
 
-        system.add_element(element);
+        system.mut_elements().add(element);
     }
 
-    StaticSolverDC solver(system, nodes[N][2]);
+    StaticSolverDC solver(system, nodes[N].phi);
     for(unsigned i = 0; i < 15; ++i)
         solver.solve(-double(i)/15*M_PI);
 
-    double M_num = -nodes[N][2].p();
+    // Numerical solution
+    double M_num = -system.get_p(nodes[N].phi);
+    double x_num = system.get_u(nodes[N].x);
+    double y_num = system.get_u(nodes[N].y);
+
+    // Reference solution
     double M_ref = EI*R;
+    double x_ref = 0.0;
+    double y_ref = 0.0;
 
-    double error_M = std::abs((M_num - M_ref)/M_ref);
-    double error_x = std::abs(nodes[N][0].u());
-    double error_y = std::abs(nodes[N][1].u());
-
-    // Todo: Why is the error in the torque so much higher than the displacement error?
-    REQUIRE(error_M < 1.03e-03);
-    REQUIRE(error_x < 7.82e-16);
-    REQUIRE(error_y < 3.58e-14);
+    // Error
+    // Todo: Why is the torque so much more off than the displacements?
+    REQUIRE(std::abs((M_num - M_ref)/M_ref) < 1.03e-03);
+    REQUIRE(std::abs(x_num - x_ref) < 7.82e-16);
+    REQUIRE(std::abs(y_num - y_ref) < 3.58e-14);
     */
 }
 

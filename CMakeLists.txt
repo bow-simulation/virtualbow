@@ -197,7 +197,7 @@ add_executable(
     tests/fem/TangentStiffness.cpp
 )
 
-add_dependencies(bow-simulator-test main-library)
+target_link_libraries(bow-simulator-test main-library)
 
 # Build release packages for different platforms
 
