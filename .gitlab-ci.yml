@@ -9,9 +9,9 @@ main-job:
     - sudo apt update -qq
 
     # Install needed packages and set up development environment
-    - sudo apt install cmake build-essential gcc-6 g++-6 qt59base libqt5x11extras5-dev -y
+    - sudo apt install -y cmake build-essential gcc-6 g++-6 qt59base libqt5x11extras5-dev
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 60 --slave /usr/bin/g++ g++ /usr/bin/g++-6
-    - . /opt/qt59/bin/qt59-env.sh
+    - /opt/qt59/bin/qt59-env.sh
 
     # Build application
     - mkdir build && cd build
