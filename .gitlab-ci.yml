@@ -1,16 +1,16 @@
-main-job:
+build-linux:
   image: ubuntu:trusty
   script:
     #  Set up third-party repositories
-    - sudo apt-get update -qq && sudo apt-get -y install software-properties-common    # https://askubuntu.com/a/639431
-    - sudo add-apt-repository -y ppa:george-edison55/cmake-3.x                         # https://askubuntu.com/a/610352
-    - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test                           # https://askubuntu.com/a/581497
-    - sudo add-apt-repository -y ppa:beineri/opt-qt593-trusty                          # https://gitlab.com/probono/QtQuickApp/blob/master/.gitlab-ci.yml
-    - sudo apt update -qq
+    - apt update -qq && apt install -y software-properties-common    # add-apt-repository, https://askubuntu.com/a/639431
+    - add-apt-repository -y ppa:george-edison55/cmake-3.x            # cmake, https://askubuntu.com/a/610352
+    - add-apt-repository -y ppa:ubuntu-toolchain-r/test              # gcc-6, https://askubuntu.com/a/581497
+    - add-apt-repository -y ppa:beineri/opt-qt593-trusty             # qt5.9, https://gitlab.com/probono/QtQuickApp/blob/master/.gitlab-ci.yml
+    - apt update -qq
 
-    # Install needed packages and set up development environment
-    - sudo apt install -y cmake wget build-essential gcc-6 g++-6 qt59base libqt5x11extras5-dev
-    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 60 --slave /usr/bin/g++ g++ /usr/bin/g++-6
+    # Install necessary packages and set up development environment
+    - apt install -y wget fuse cmake make dpkg gcc-6 g++-6 qt59base qt59x11extras libgl1-mesa-dev
+    - update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 60 --slave /usr/bin/g++ g++ /usr/bin/g++-6
     - . /opt/qt*/bin/qt*-env.sh || true
 
     # Build application
@@ -21,7 +21,15 @@ main-job:
     # Run tests
     - ./bow-simulator-test
 
-    # Build release packages
-    - sudo wget -O /usr/local/bin/linuxdeployqt "https://github.com/probonopd/linuxdeployqt/releases/download/5/linuxdeployqt-5-x86_64.AppImage"
-    - sudo chmod a+x /usr/local/bin/linuxdeployqt
+    # Build AppImage
+    - wget -O /usr/local/bin/linuxdeployqt "https://github.com/probonopd/linuxdeployqt/releases/download/5/linuxdeployqt-5-x86_64.AppImage"
+    - chmod a+x /usr/local/bin/linuxdeployqt
     - make appimage
+    
+    # Build deb-package
+    - make deb-package
+    
+  artifacts:
+    paths:
+      - build/*.AppImage
+      - build/*.deb
