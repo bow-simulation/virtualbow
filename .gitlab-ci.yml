@@ -29,7 +29,11 @@ build-linux:
     # Build deb-package
     - make deb-package
     
+    # Build rpm-package
+    - make rpm-package
+    
   artifacts:
     paths:
       - build/*.AppImage
       - build/*.deb
+      - build/*.rpm
