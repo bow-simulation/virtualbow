@@ -9,7 +9,7 @@ build-linux:
     - apt update -qq
 
     # Install necessary packages and set up development environment
-    - apt install -y wget fuse cmake make dpkg gcc-6 g++-6 qt59base qt59x11extras libgl1-mesa-dev
+    - apt install -y wget fuse cmake make dpkg rpm gcc-6 g++-6 qt59base qt59x11extras libgl1-mesa-dev
     - update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 60 --slave /usr/bin/g++ g++ /usr/bin/g++-6
     - . /opt/qt*/bin/qt*-env.sh || true
 
