@@ -1,4 +1,4 @@
-#define APP_NAME "${APPLICATION_TITLE}"
+#define APP_NAME "${APPLICATION_DISPLAY_NAME}"
 #define EXE_NAME "${APPLICATION_NAME}.exe"
 
 [Setup]

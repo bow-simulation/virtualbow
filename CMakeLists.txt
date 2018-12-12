@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 # Parameters used for configuring files
 set(APPLICATION_NAME "bow-simulator")
-set(APPLICATION_TITLE "Bow Simulator")
+set(APPLICATION_DISPLAY_NAME "Bow Simulator")
 set(APPLICATION_VERSION "0.6")
 set(APPLICATION_WEBSITE "bow-simulator.org")
 set(APPLICATION_MAINTAINER "Stefan Pfeifer")

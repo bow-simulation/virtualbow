@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=@APPLICATION_TITLE@
+Name=@APPLICATION_DISPLAY_NAME@
 Exec=@APPLICATION_NAME@
 Icon=bow-simulator
 Comment=@APPLICATION_DESCRIPTION_SHORT@

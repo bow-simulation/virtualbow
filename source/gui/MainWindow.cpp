@@ -162,7 +162,7 @@ void MainWindow::newFile()
 
     // Create new file and set version correctly
     data = InputData();
-    data.meta.version = Config::VERSION;
+    data.meta.version = Config::APPLICATION_VERSION;
     editor->setData(data);
 
     setCurrentFile(QString());
@@ -275,11 +275,11 @@ void MainWindow::runSimulation(bool dynamic)
 void MainWindow::about()
 {
     QMessageBox::about(this, "About",
-        QString("<h2>") + Config::TITLE + " v" + Config::VERSION + "</h2>"
-        + Config::DESCRIPTION + "<br>"
-        "<a href=\"" + Config::WEBSITE + "\">" + Config::WEBSITE + "</a><br><br>"
-        "<small>" + Config::COPYRIGHT + "<br>"
-        "Distributed under the " + Config::LICENSE + "</small>"
+        QString("<h2>") + Config::APPLICATION_DISPLAY_NAME + " v" + Config::APPLICATION_VERSION + "</h2>"
+        + Config::APPLICATION_DESCRIPTION + "<br>"
+        "<a href=\"" + Config::APPLICATION_WEBSITE + "\">" + Config::APPLICATION_WEBSITE + "</a><br><br>"
+        "<small>" + Config::APPLICATION_COPYRIGHT + "<br>"
+        "Distributed under the " + Config::APPLICATION_LICENSE + "</small>"
     );
 }
 

@@ -7,15 +7,15 @@
 #include <windows.h>
 #endif
 
-QSettings Application::settings{Config::WEBSITE, Config::NAME};
+QSettings Application::settings(Config::APPLICATION_WEBSITE, Config::APPLICATION_NAME);
 
 int Application::run(int argc, char* argv[])
 {
     QApplication app(argc, argv);
-    app.setApplicationName(Config::NAME);
-    app.setApplicationDisplayName(Config::TITLE);
-    app.setApplicationVersion(Config::VERSION);
-    app.setOrganizationDomain(Config::WEBSITE);
+    app.setApplicationName(Config::APPLICATION_NAME);
+    app.setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME);
+    app.setApplicationVersion(Config::APPLICATION_VERSION);
+    app.setOrganizationDomain(Config::APPLICATION_WEBSITE);
 
     // Set default locale to C (English, US)
     QLocale::setDefault(QLocale::C);
