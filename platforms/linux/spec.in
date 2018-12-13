@@ -8,9 +8,10 @@ Summary: @APPLICATION_DESCRIPTION_SHORT@
 Name: @APPLICATION_NAME@
 Version: @APPLICATION_VERSION@
 Release: 1
-License: @APPLICATION_LICENSE@
+License: GPL
 SOURCE0 : %{name}-%{version}.tar.gz
-URL: http://bow-simulator.org/
+URL: @APPLICATION_WEBSITE@
+Requires: qt5-qtbase
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 

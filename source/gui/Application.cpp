@@ -1,7 +1,6 @@
 #include "Application.hpp"
 #include "MainWindow.hpp"
 #include "bow/BowModel.hpp"
-#include "config.hpp"
 
 #ifdef WIN32
 #include <windows.h>
