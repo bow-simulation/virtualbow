@@ -7,6 +7,8 @@
 
 void LimbMesh::setData(const InputData& data)
 {
+    vertex_data.clear();
+
     // Todo: Abstract away the conversion data -> profile curve
     std::vector<double> lengths = getEvalLengths(data, 100);
     Curve2D profile = ArcCurve::sample(data.profile,
