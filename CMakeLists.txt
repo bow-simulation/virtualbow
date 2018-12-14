@@ -17,7 +17,7 @@ set(APPLICATION_DESCRIPTION_LONG "Software tool for simulating the static and dy
 # External libraries
 
 # Qt (must be provided by the system/developer)
-find_package(Qt5 COMPONENTS X11Extras Widgets PrintSupport)
+find_package(Qt5 COMPONENTS Widgets PrintSupport)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -197,6 +197,7 @@ add_executable(
     tests/fem/TangentStiffness.cpp
 )
 
+target_compile_definitions(bow-simulator-test PRIVATE _USE_MATH_DEFINES)    # Defines math constants on MSVC
 target_link_libraries(bow-simulator-test main-library)
 
 # Build release packages for different platforms
