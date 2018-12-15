@@ -195,7 +195,7 @@ void BowModel::init_string(const Callback& callback)
         });
     }
 
-    points = one_sided_orientation_subset(points, true);
+    points = constant_orientation_subset<Orientation::RightHanded>(points);
     points = equipartition(points, input.settings.n_string_elements + 1);
 
     // Create string nodes

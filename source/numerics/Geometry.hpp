@@ -2,19 +2,32 @@
 #include "RootFinding.hpp"
 #include <algorithm>
 
-// Checks if the triangle {a, b, c} is right-handed
-static bool is_right_handed(const Vector<2>& a, const Vector<2>& b, const Vector<2>& c)
+enum class Orientation
 {
-    return (b[0] - a[0])*(c[1] - a[1]) - (b[1] - a[1])*(c[0] - a[0]) > 0;
+    LeftHanded,
+    RightHanded,
+    Collinear
+};
+
+// Calculates the orientation of the triangle {a, b, c}.
+static Orientation get_orientation(const Vector<2>& a, const Vector<2>& b, const Vector<2>& c)
+{
+    double product = (b[0] - a[0])*(c[1] - a[1]) - (b[1] - a[1])*(c[0] - a[0]);
+
+    if(product < 0.0)
+        return Orientation::LeftHanded;
+    else if(product > 0.0)
+        return Orientation::RightHanded;
+    else
+        return Orientation::Collinear;
 }
 
 // Traverses a curve given by a list of input points and returns a subset of points with
-// strictly right handed or left handed orientation.
+// strictly right handed or left handed orientation that contains the start- and endpoints.
 // Implementation inspired by Graham scan for finding the convex hull of a point set
-// (https://de.wikipedia.org/wiki/Graham_Scan)
-//
-// Todo: Find a better name. What's a curve with strictly positive/negative curvature called?
-static std::vector<Vector<2>> one_sided_orientation_subset(const std::vector<Vector<2>>& input, bool right_handed)
+// (https://en.wikipedia.org/wiki/Graham_scan)
+template <Orientation orientation>
+static std::vector<Vector<2>> constant_orientation_subset(const std::vector<Vector<2>>& input)
 {
     assert(input.size() >= 2);
 
@@ -24,22 +37,23 @@ static std::vector<Vector<2>> one_sided_orientation_subset(const std::vector<Vec
     output.push_back(input[0]);
     output.push_back(input[1]);
 
-    size_t i = 2;
-    while(i < input.size())
+    for(size_t i = 2; i < input.size(); ++i)
     {
-        auto p1 = output[output.size()-2];
-        auto p2 = output[output.size()-1];
-        auto p3 = input[i];
+        auto fits_as_next = [&](Vector<2> p3)
+        {
+            if(output.size() == 1)
+                return true;
 
-        if(is_right_handed(p1, p2, p3) == right_handed || output.size() == 1)
-        {
-            output.push_back(p3);
-            ++i;
-        }
-        else
-        {
+            auto p1 = output[output.size()-2];
+            auto p2 = output[output.size()-1];
+
+            return get_orientation(p1, p2, p3) == orientation;
+        };
+
+        while(!fits_as_next(input[i]))
             output.pop_back();
-        }
+
+        output.push_back(input[i]);
     }
 
     return output;

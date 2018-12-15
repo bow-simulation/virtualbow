@@ -103,8 +103,10 @@ ContactElement::State ContactElement::get_state() const
                  system.get_u(dofs[4]) - h1*cos(system.get_u(dofs[5]))};
 
     // If no contact, set kinematic expressions to zero and return
-    if(!is_right_handed(P2, P0, Q0) || !is_right_handed(P2, P1, P0) ||
-       !is_right_handed(P2, Q0, Q1) || !is_right_handed(P2, Q1, P1))
+    if(get_orientation(P2, P0, Q0) == Orientation::LeftHanded ||
+       get_orientation(P2, P1, P0) == Orientation::LeftHanded ||
+       get_orientation(P2, Q0, Q1) == Orientation::LeftHanded ||
+       get_orientation(P2, Q1, P1) == Orientation::LeftHanded)
     {
         return {0.0, Vector<8>::Zero(), Matrix<8>::Zero()};
     }

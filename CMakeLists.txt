@@ -195,6 +195,7 @@ add_executable(
     tests/fem/HarmonicOscillator.cpp
     tests/fem/LargeDeformationBeams.cpp
     tests/fem/TangentStiffness.cpp
+    tests/numerics/Geometry.cpp
 )
 
 target_compile_definitions(bow-simulator-test PRIVATE _USE_MATH_DEFINES)    # Defines math constants on MSVC
