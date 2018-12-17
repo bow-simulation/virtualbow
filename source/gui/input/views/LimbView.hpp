@@ -35,7 +35,6 @@ private:
 
     void initializeGL() override;
     void paintGL() override;
-    void resizeGL(int width, int height) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent* event) override;
@@ -46,6 +45,8 @@ private:
     int m_yRot;
     int m_zRot;
     float m_zoom;
+    float shift_x;
+    float shift_y;
 
     LimbMesh m_mesh;
     QOpenGLBuffer m_meshVbo;

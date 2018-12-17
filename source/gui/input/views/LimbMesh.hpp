@@ -14,10 +14,15 @@ public:
     const std::vector<GLfloat>& vertexData() const;
     size_t vertexCount() const;
 
+    QVector3D aabbCenter() const;
+    float aabbDiagonal() const;
+
 private:
-    void addQuad(const Vector<3>& p0, const Vector<3>& p1, const Vector<3>& p2, const Vector<3>& p3, const QColor& color);
-    void addVertex(const Vector<3>& position, const Vector<3>& normal, const QColor& color);
+    void addQuad(const QVector3D& p0, const QVector3D& p1, const QVector3D& p2, const QVector3D& p3, const QColor& color);
+    void addVertex(const QVector3D& position, const QVector3D& normal, const QColor& color);
     std::vector<double> getEvalLengths(const InputData& data, unsigned n);
 
     std::vector<GLfloat> vertex_data;
+    QVector3D aabb_min;
+    QVector3D aabb_max;
 };

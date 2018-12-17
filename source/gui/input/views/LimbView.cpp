@@ -11,6 +11,8 @@ LimbView::LimbView()
       m_yRot(0),
       m_zRot(0),
       m_zoom(1.0f),
+      shift_x(0.0f),
+      shift_y(0.0f),
       m_program(nullptr)
 {
     auto button0 = new QToolButton();
@@ -132,8 +134,7 @@ void LimbView::setZRotation(int angle)
 
 void LimbView::zoom(float factor)
 {
-    m_zoom *= factor;
-    update();
+
 }
 
 void LimbView::cleanup()
@@ -237,13 +238,22 @@ void LimbView::paintGL()
     m_world.rotate(180.0f - (m_xRot/16.0f), 1.0f, 0.0f, 0.0f);
     m_world.rotate(m_yRot/16.0f, 0.0f, 1.0f, 0.0f);
     m_world.rotate(m_zRot/16.0f, 0.0f, 0.0f, 1.0f);
-
-    QVector3D modelCenter(0.4f, 0.0f, 0.0f);    // Todo: Get from limb mesh
-    m_world.translate(-modelCenter);
+    m_world.scale(1.0f/m_mesh.aabbDiagonal());
+    m_world.translate(-m_mesh.aabbCenter());
 
     m_camera.setToIdentity();
     m_camera.translate(0.0f, 0.0f, -1.0f);
-    m_camera.scale(m_zoom);
+
+    m_projection.setToIdentity();
+    float aspect_ratio = float(this->height())/this->width();
+    m_projection.ortho(-0.5f*m_zoom + shift_x,
+                        0.5f*m_zoom + shift_x,
+                       -0.5f*m_zoom*aspect_ratio + shift_y,
+                        0.5f*m_zoom*aspect_ratio + shift_y,
+                        0.001f, 100.0f);
+
+    // m_projection.translate(shift_x, shift_y*aspect_ratio, 0.0f);
+    // m_projection.scale(m_zoom);
 
     m_program->bind();
     m_program->setUniformValue(m_projectionMatrixLoc, m_projection);
@@ -252,16 +262,6 @@ void LimbView::paintGL()
 
     glDrawArrays(GL_TRIANGLES, 0, m_mesh.vertexCount());
     m_program->release();
-}
-
-void LimbView::resizeGL(int width, int height)
-{
-    float extent = 0.8f;    // Todo: Get from limb mesh
-    float rw = extent/2.0f;
-    float rh = rw*float(height)/width;
-
-    m_projection.setToIdentity();
-    m_projection.ortho(-rw, rw, -rh, rh, 0.01f, 100.0f);
 }
 
 void LimbView::mousePressEvent(QMouseEvent *event)
@@ -279,10 +279,11 @@ void LimbView::mouseMoveEvent(QMouseEvent *event)
         setXRotation(m_xRot + 8*dy);
         setYRotation(m_yRot + 8*dx);
     }
-    else if(event->buttons() & Qt::RightButton)
+    else if(event->buttons() & Qt::MiddleButton)
     {
-        setXRotation(m_xRot + 8*dy);
-        setZRotation(m_zRot + 8*dx);
+        shift_x -= float(dx)/this->width()*m_zoom;
+        shift_y += float(dy)/this->width()*m_zoom;
+        update();
     }
 
     m_lastPos = event->pos();
@@ -290,11 +291,11 @@ void LimbView::mouseMoveEvent(QMouseEvent *event)
 
 void LimbView::wheelEvent(QWheelEvent* event)
 {
-    const float zoom_factor = 1.25;
-    float delta = event->angleDelta().y()/120.0f;
+    const float zoom_speed = 1.25;
 
-    if(delta > 0.0f)
-        zoom( delta*zoom_factor);
-    else
-        zoom(-delta/zoom_factor);
+    float delta = event->angleDelta().y()/120.0f;
+    float factor = (delta > 0.0f) ? delta*zoom_speed : -delta/zoom_speed;
+    m_zoom /= factor;
+
+    update();
 }

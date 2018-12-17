@@ -8,6 +8,8 @@
 void LimbMesh::setData(const InputData& data)
 {
     vertex_data.clear();
+    aabb_min = QVector3D();
+    aabb_max = QVector3D();
 
     // Todo: Abstract away the conversion data -> profile curve
     std::vector<double> lengths = getEvalLengths(data, 100);
@@ -26,21 +28,21 @@ void LimbMesh::setData(const InputData& data)
     size_t n_layers = data.layers.size();
     size_t n_sections = lengths.size()-1;
 
-    std::vector<Vector<3>> points_l_prev(n_layers+1);
-    std::vector<Vector<3>> points_l_next(n_layers+1);
-    std::vector<Vector<3>> points_r_prev(n_layers+1);
-    std::vector<Vector<3>> points_r_next(n_layers+1);
+    std::vector<QVector3D> points_l_prev(n_layers+1);
+    std::vector<QVector3D> points_l_next(n_layers+1);
+    std::vector<QVector3D> points_r_prev(n_layers+1);
+    std::vector<QVector3D> points_r_next(n_layers+1);
     std::vector<size_t> layer_indices(n_layers);
 
     for(size_t i = 0; i < n_sections; ++i)
     {
-        Vector<3> center_prev  {profile.x[i], profile.y[i], 0.0 };
-        Vector<3> normal_w_prev{ 0.0, 0.0, 1.0 };
-        Vector<3> normal_h_prev{-sin(profile.phi[i]), cos(profile.phi[i]), 0.0 };
+        QVector3D center_prev  (profile.x[i], profile.y[i], 0.0 );
+        QVector3D normal_w_prev( 0.0, 0.0, 1.0 );
+        QVector3D normal_h_prev(-sin(profile.phi[i]), cos(profile.phi[i]), 0.0 );
 
-        Vector<3> center_next  { profile.x[i+1], profile.y[i+1], 0.0 };
-        Vector<3> normal_w_next{ 0.0, 0.0, 1.0 };
-        Vector<3> normal_h_next{-sin(profile.phi[i+1]), cos(profile.phi[i+1]), 0.0 };
+        QVector3D center_next  ( profile.x[i+1], profile.y[i+1], 0.0 );
+        QVector3D normal_w_next( 0.0, 0.0, 1.0 );
+        QVector3D normal_h_next(-sin(profile.phi[i+1]), cos(profile.phi[i+1]), 0.0 );
 
         double p_prev = profile.s[i]/profile.s.maxCoeff();
         double p_next = profile.s[i+1]/profile.s.maxCoeff();
@@ -161,12 +163,22 @@ size_t LimbMesh::vertexCount() const
     return vertex_data.size()/9;
 }
 
-void LimbMesh::addQuad(const Vector<3>& p0, const Vector<3>& p1, const Vector<3>& p2, const Vector<3>& p3, const QColor& color)
+QVector3D LimbMesh::aabbCenter() const
 {
-    Vector<3> n0 = (p1 - p0).cross(p3 - p0).normalized();
-    Vector<3> n1 = (p2 - p1).cross(p0 - p1).normalized();
-    Vector<3> n2 = (p3 - p2).cross(p1 - p2).normalized();
-    Vector<3> n3 = (p0 - p3).cross(p2 - p3).normalized();
+    return (aabb_min + aabb_max)/2.0f;
+}
+
+float LimbMesh::aabbDiagonal() const
+{
+    return (aabb_max - aabb_min).length();
+}
+
+void LimbMesh::addQuad(const QVector3D& p0, const QVector3D& p1, const QVector3D& p2, const QVector3D& p3, const QColor& color)
+{
+    QVector3D n0 = QVector3D::normal(p1 - p0, p3 - p0);
+    QVector3D n1 = QVector3D::normal(p2 - p1, p0 - p1);
+    QVector3D n2 = QVector3D::normal(p3 - p2, p1 - p2);
+    QVector3D n3 = QVector3D::normal(p0 - p3, p2 - p3);
 
     addVertex(p0, n0, color);
     addVertex(p1, n1, color);
@@ -177,7 +189,7 @@ void LimbMesh::addQuad(const Vector<3>& p0, const Vector<3>& p1, const Vector<3>
     addVertex(p3, n3, color);
 }
 
-void LimbMesh::addVertex(const Vector<3>& position, const Vector<3>& normal, const QColor& color)
+void LimbMesh::addVertex(const QVector3D& position, const QVector3D& normal, const QColor& color)
 {
     vertex_data.push_back(position.x());
     vertex_data.push_back(position.y());
@@ -190,4 +202,14 @@ void LimbMesh::addVertex(const Vector<3>& position, const Vector<3>& normal, con
     vertex_data.push_back(color.redF());
     vertex_data.push_back(color.greenF());
     vertex_data.push_back(color.blueF());
+
+    // Todo: Is there a vector operation for this in Eigen?
+    aabb_min.setX(std::min(aabb_min.x(), position.x()));
+    aabb_min.setY(std::min(aabb_min.y(), position.y()));
+    aabb_min.setZ(std::min(aabb_min.z(), position.z()));
+
+    // Todo: Is there a vector operation for this in Eigen?
+    aabb_max.setX(std::max(aabb_max.x(), position.x()));
+    aabb_max.setY(std::max(aabb_max.y(), position.y()));
+    aabb_max.setZ(std::max(aabb_max.z(), position.z()));
 }
