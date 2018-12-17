@@ -293,9 +293,20 @@ void LimbView::wheelEvent(QWheelEvent* event)
 {
     const float zoom_speed = 1.25;
 
+    float zoom_before = m_zoom;
+
     float delta = event->angleDelta().y()/120.0f;
     float factor = (delta > 0.0f) ? delta*zoom_speed : -delta/zoom_speed;
     m_zoom /= factor;
+
+    float zoom_after = m_zoom;
+
+    float mx = float(event->x())/this->width();
+    float my = float(event->y())/this->height();
+    float aspect_ratio = float(this->height())/this->width();
+
+    shift_x += (mx - 0.5f)*(zoom_before - zoom_after);
+    shift_y -= (my - 0.5f)*(zoom_before - zoom_after)*aspect_ratio;
 
     update();
 }
