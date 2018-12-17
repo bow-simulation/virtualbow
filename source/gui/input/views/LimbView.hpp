@@ -11,9 +11,13 @@
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 
+// Based on Qt's "Hello GL2" example, http://doc.qt.io/qt-5/qtopengl-hellogl2-example.html
 class LimbView: public QOpenGLWidget, protected QOpenGLFunctions
 {
 private:
+    const float DEFAULT_ROT_X = 20.0f;  // Magic number
+    const float DEFAULT_ROT_Y = -30.0f;  // Magic number
+    const float DEFAULT_ZOOM = 1.1f;  // Magic number
     const float ZOOM_SPEED = 0.2f;    // Magic number
     const float ROT_SPEED = 0.15f;    // Magic number
 
@@ -38,24 +42,23 @@ private:
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent* event) override;
 
-    QPoint last_mouse_pos;
+    LimbMesh limb_mesh;
+    QOpenGLBuffer limb_mesh_vbo;
 
-    float rot_x;
-    float rot_y;
-    float shift_x;
-    float shift_y;
-    float zoom;
-
-    LimbMesh m_mesh;
-    QOpenGLBuffer m_meshVbo;
-
-    QOpenGLShaderProgram* m_program;
-    int m_projectionMatrixLoc;
-    int m_modelViewMatrixLoc;
-    int m_normalMatrixLoc;
-    int m_lightPositionLoc;
+    QOpenGLShaderProgram* shader_program;
+    int loc_projectionMatrix;
+    int loc_modelViewMatrix;
+    int loc_normalMatrix;
+    int loc_lightPosition;
 
     QMatrix4x4 m_projection;
     QMatrix4x4 m_camera;
     QMatrix4x4 m_world;
+
+    QPoint mouse_pos;
+    float shift_x;
+    float shift_y;
+    float rot_x;
+    float rot_y;
+    float zoom;
 };
