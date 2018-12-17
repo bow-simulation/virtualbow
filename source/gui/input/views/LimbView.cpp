@@ -7,10 +7,9 @@
 #include <math.h>
 
 LimbView::LimbView()
-    : m_xRot(0),
-      m_yRot(0),
-      m_zRot(0),
-      m_zoom(1.0f),
+    : rot_x(0.0f),
+      rot_y(0.0f),
+      zoom(1.0f),
       shift_x(0.0f),
       shift_y(0.0f),
       m_program(nullptr)
@@ -102,41 +101,6 @@ void LimbView::viewFit()
 
 }
 
-static void normalizeAngle(int &angle)
-{
-    while(angle < 0)
-        angle += 360 * 16;
-
-    while(angle > 360 * 16)
-        angle -= 360 * 16;
-}
-
-void LimbView::setXRotation(int angle)
-{
-    normalizeAngle(angle);
-    m_xRot = angle;
-    update();
-}
-
-void LimbView::setYRotation(int angle)
-{
-    normalizeAngle(angle);
-    m_yRot = angle;
-    update();
-}
-
-void LimbView::setZRotation(int angle)
-{
-    normalizeAngle(angle);
-    m_zRot = angle;
-    update();
-}
-
-void LimbView::zoom(float factor)
-{
-
-}
-
 void LimbView::cleanup()
 {
     if(m_program == nullptr)
@@ -224,7 +188,7 @@ void LimbView::initializeGL()
     m_meshVbo.release();
 
     // Light position is fixed.
-    m_program->setUniformValue(m_lightPositionLoc, QVector3D(0, 0, 70));
+    m_program->setUniformValue(m_lightPositionLoc, QVector3D(0.0f, 0.0f, 50.0f));
     m_program->release();
 }
 
@@ -235,25 +199,21 @@ void LimbView::paintGL()
     glEnable(GL_CULL_FACE);
 
     m_world.setToIdentity();
-    m_world.rotate(180.0f - (m_xRot/16.0f), 1.0f, 0.0f, 0.0f);
-    m_world.rotate(m_yRot/16.0f, 0.0f, 1.0f, 0.0f);
-    m_world.rotate(m_zRot/16.0f, 0.0f, 0.0f, 1.0f);
+    m_world.rotate(180.0f - rot_x, 1.0f, 0.0f, 0.0f);
+    m_world.rotate(rot_y, 0.0f, 1.0f, 0.0f);
     m_world.scale(1.0f/m_mesh.aabbDiagonal());
     m_world.translate(-m_mesh.aabbCenter());
 
     m_camera.setToIdentity();
     m_camera.translate(0.0f, 0.0f, -1.0f);
 
-    m_projection.setToIdentity();
     float aspect_ratio = float(this->height())/this->width();
-    m_projection.ortho(-0.5f*m_zoom + shift_x,
-                        0.5f*m_zoom + shift_x,
-                       -0.5f*m_zoom*aspect_ratio + shift_y,
-                        0.5f*m_zoom*aspect_ratio + shift_y,
-                        0.001f, 100.0f);
-
-    // m_projection.translate(shift_x, shift_y*aspect_ratio, 0.0f);
-    // m_projection.scale(m_zoom);
+    m_projection.setToIdentity();
+    m_projection.ortho((-0.5f*zoom + shift_x),
+                       ( 0.5f*zoom + shift_x),
+                       (-0.5f*zoom + shift_y)*aspect_ratio,
+                       ( 0.5f*zoom + shift_y)*aspect_ratio,
+                       0.001f, 100.0f);
 
     m_program->bind();
     m_program->setUniformValue(m_projectionMatrixLoc, m_projection);
@@ -266,47 +226,39 @@ void LimbView::paintGL()
 
 void LimbView::mousePressEvent(QMouseEvent *event)
 {
-    m_lastPos = event->pos();
+    last_mouse_pos = event->pos();
 }
 
 void LimbView::mouseMoveEvent(QMouseEvent *event)
 {
-    int dx = event->x() - m_lastPos.x();
-    int dy = event->y() - m_lastPos.y();
+    int delta_x = event->x() - last_mouse_pos.x();
+    int delta_y = event->y() - last_mouse_pos.y();
 
     if(event->buttons() & Qt::LeftButton)
     {
-        setXRotation(m_xRot + 8*dy);
-        setYRotation(m_yRot + 8*dx);
+        rot_x += ROT_SPEED*delta_y;
+        rot_y += ROT_SPEED*delta_x;
+        update();
     }
     else if(event->buttons() & Qt::MiddleButton)
     {
-        shift_x -= float(dx)/this->width()*m_zoom;
-        shift_y += float(dy)/this->width()*m_zoom;
+        shift_x -= float(delta_x)/this->width()*zoom;
+        shift_y += float(delta_y)/this->height()*zoom;
         update();
     }
 
-    m_lastPos = event->pos();
+    last_mouse_pos = event->pos();
 }
 
 void LimbView::wheelEvent(QWheelEvent* event)
 {
-    const float zoom_speed = 1.25;
+    float delta_zoom = -ZOOM_SPEED*event->angleDelta().y()/120.0f*zoom;    // dividing by 120 gives the number of 15 degree steps on a standard mouse
+    float mouse_ratio_x = float(event->x())/this->width();
+    float mouse_ratio_y = float(event->y())/this->height();
 
-    float zoom_before = m_zoom;
-
-    float delta = event->angleDelta().y()/120.0f;
-    float factor = (delta > 0.0f) ? delta*zoom_speed : -delta/zoom_speed;
-    m_zoom /= factor;
-
-    float zoom_after = m_zoom;
-
-    float mx = float(event->x())/this->width();
-    float my = float(event->y())/this->height();
-    float aspect_ratio = float(this->height())/this->width();
-
-    shift_x += (mx - 0.5f)*(zoom_before - zoom_after);
-    shift_y -= (my - 0.5f)*(zoom_before - zoom_after)*aspect_ratio;
+    shift_x -= (mouse_ratio_x - 0.5f)*delta_zoom;
+    shift_y += (mouse_ratio_y - 0.5f)*delta_zoom;
+    zoom += delta_zoom;
 
     update();
 }

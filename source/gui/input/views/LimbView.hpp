@@ -1,18 +1,22 @@
 #pragma once
 #include "bow/input/InputData.hpp"
-#include <QtWidgets>
+#include "LimbMesh.hpp"
 
+#include <QtWidgets>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
-#include "LimbMesh.hpp"
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 
 class LimbView: public QOpenGLWidget, protected QOpenGLFunctions
 {
+private:
+    const float ZOOM_SPEED = 0.2f;    // Magic number
+    const float ROT_SPEED = 0.15f;    // Magic number
+
 public:
     LimbView();
     ~LimbView() override;
@@ -26,11 +30,6 @@ public:
     void viewFit();
 
 private:
-    void setXRotation(int angle);
-    void setYRotation(int angle);
-    void setZRotation(int angle);
-    void zoom(float factor);
-
     void cleanup();
 
     void initializeGL() override;
@@ -39,14 +38,13 @@ private:
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent* event) override;
 
-    QPoint m_lastPos;
+    QPoint last_mouse_pos;
 
-    int m_xRot;
-    int m_yRot;
-    int m_zRot;
-    float m_zoom;
+    float rot_x;
+    float rot_y;
     float shift_x;
     float shift_y;
+    float zoom;
 
     LimbMesh m_mesh;
     QOpenGLBuffer m_meshVbo;
