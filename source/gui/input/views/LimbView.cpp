@@ -210,7 +210,7 @@ void LimbView::paintGL()
     glEnable(GL_CULL_FACE);
 
     m_world.setToIdentity();
-    m_world.rotate(180.0f - rot_x, 1.0f, 0.0f, 0.0f);
+    m_world.rotate(rot_x, 1.0f, 0.0f, 0.0f);
     m_world.rotate(rot_y, 0.0f, 1.0f, 0.0f);
     m_world.scale(1.0f/limb_mesh.aabbDiagonal());
     m_world.translate(-limb_mesh.aabbCenter());
@@ -247,8 +247,8 @@ void LimbView::mouseMoveEvent(QMouseEvent *event)
 
     if(event->buttons() & Qt::LeftButton)
     {
-        rot_x += ROT_SPEED*delta_y;
-        rot_y += ROT_SPEED*delta_x;
+        rot_x -= ROT_SPEED*delta_y;
+        rot_y -= ROT_SPEED*delta_x;
         update();
     }
     else if(event->buttons() & Qt::MiddleButton)
