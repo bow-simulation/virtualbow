@@ -4,20 +4,17 @@ LayerEntry::LayerEntry()
     : symbol(new QLabel()),
       label(new QLabel())
 {
-    int size = symbol->sizeHint().height();
-    symbol->setFixedWidth(size);
-    symbol->setFixedHeight(size);
+    symbol->setFixedWidth(18);    // Magic number
+    symbol->setFixedHeight(18);    // Magic number
     symbol->setScaledContents(true);
-
-    label->setAutoFillBackground(false);
-    label->setStyleSheet("background-color: rgba(0, 0, 0, 0)");
+    label->setStyleSheet("color: white; font: 18px; max-height: 18px; background-color: transparent;");
 
     auto hbox = new QHBoxLayout();
-    hbox->setMargin(0);
+    hbox->setMargin(2);   // Magic number
     hbox->addWidget(symbol, 0);
+    hbox->addSpacing(10); // Magic number
     hbox->addWidget(label, 1);
     this->setLayout(hbox);
-    this->setStyleSheet("background-color: rgba(0, 0, 0, 0)");
 }
 
 void LayerEntry::setData(const Layer& layer)
@@ -30,7 +27,6 @@ LayerLegend::LayerLegend()
     : vbox(new QVBoxLayout())
 {
     this->setLayout(vbox);
-    this->setStyleSheet("background-color: rgba(0, 0, 0, 0)");
 }
 
 void LayerLegend::setData(const Layers& layers)

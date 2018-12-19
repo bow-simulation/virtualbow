@@ -53,7 +53,7 @@ LimbView::LimbView()
 
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
-    vbox->setMargin(20);
+    vbox->setMargin(25);
     vbox->addWidget(legend);
     vbox->addStretch();
     vbox->addLayout(hbox);
