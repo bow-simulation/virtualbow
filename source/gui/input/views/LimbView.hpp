@@ -1,6 +1,7 @@
 #pragma once
 #include "bow/input/InputData.hpp"
 #include "LimbMesh.hpp"
+#include "LayerLegend.hpp"
 
 #include <QtWidgets>
 #include <QOpenGLWidget>
@@ -15,11 +16,11 @@ QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 class LimbView: public QOpenGLWidget, protected QOpenGLFunctions
 {
 private:
-    const float DEFAULT_ROT_X = 20.0f;  // Magic number
+    const float DEFAULT_ROT_X = 20.0f;   // Magic number
     const float DEFAULT_ROT_Y = -30.0f;  // Magic number
-    const float DEFAULT_ZOOM = 1.1f;  // Magic number
-    const float ZOOM_SPEED = 0.2f;    // Magic number
-    const float ROT_SPEED = 0.15f;    // Magic number
+    const float DEFAULT_ZOOM = 1.1f;     // Magic number
+    const float ZOOM_SPEED = 0.2f;       // Magic number
+    const float ROT_SPEED = 0.15f;       // Magic number
 
 public:
     LimbView();
@@ -41,6 +42,8 @@ private:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent* event) override;
+
+    LayerLegend* legend;
 
     LimbMesh limb_mesh;
     QOpenGLBuffer limb_mesh_vbo;

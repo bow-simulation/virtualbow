@@ -7,7 +7,8 @@
 #include <math.h>
 
 LimbView::LimbView()
-    : shader_program(nullptr)
+    : legend(new LayerLegend()),
+      shader_program(nullptr)
 {
     auto button0 = new QToolButton();
     QObject::connect(button0, &QPushButton::clicked, this, &LimbView::viewProfile);
@@ -42,7 +43,6 @@ LimbView::LimbView()
 
     auto hbox = new QHBoxLayout();
     hbox->setAlignment(Qt::AlignBottom);
-    hbox->setMargin(15);
     hbox->addStretch();
     hbox->addWidget(button0);
     hbox->addWidget(button1);
@@ -50,7 +50,13 @@ LimbView::LimbView()
     hbox->addWidget(button3);
     hbox->addSpacing(20);
     hbox->addWidget(button4);
-    this->setLayout(hbox);
+
+    auto vbox = new QVBoxLayout();
+    this->setLayout(vbox);
+    vbox->setMargin(20);
+    vbox->addWidget(legend);
+    vbox->addStretch();
+    vbox->addLayout(hbox);
 
     view3D();
 }
@@ -62,7 +68,9 @@ LimbView::~LimbView()
 
 void LimbView::setData(const InputData& data)
 {
+    legend->setData(data.layers);
     limb_mesh.setData(data);
+
     limb_mesh_vbo.create();
     limb_mesh_vbo.bind();
     limb_mesh_vbo.allocate(limb_mesh.vertexData().data(), limb_mesh.vertexData().size()*sizeof(GLfloat));
@@ -241,9 +249,6 @@ void LimbView::mouseMoveEvent(QMouseEvent *event)
     {
         rot_x += ROT_SPEED*delta_y;
         rot_y += ROT_SPEED*delta_x;
-
-        qInfo() << rot_x << ", " << rot_y;
-
         update();
     }
     else if(event->buttons() & Qt::MiddleButton)
