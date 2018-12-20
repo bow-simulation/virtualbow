@@ -10,6 +10,10 @@ LimbView::LimbView()
     : legend(new LayerLegend()),
       shader_program(nullptr)
 {
+    QSurfaceFormat format = QSurfaceFormat::defaultFormat();
+    format.setSamples(32);
+    setFormat(format);
+
     auto button0 = new QToolButton();
     QObject::connect(button0, &QPushButton::clicked, this, &LimbView::viewProfile);
     button0->setIcon(QIcon(":/icons/limb-view/view-profile"));
@@ -87,7 +91,7 @@ void LimbView::viewProfile()
 
 void LimbView::viewTop()
 {
-    rot_x = 90.0f;
+    rot_x = -90.0f;
     rot_y = 0.0f;
     viewFit();
 }
@@ -208,6 +212,7 @@ void LimbView::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_MULTISAMPLE);
 
     m_world.setToIdentity();
     m_world.rotate(rot_x, 1.0f, 0.0f, 0.0f);
