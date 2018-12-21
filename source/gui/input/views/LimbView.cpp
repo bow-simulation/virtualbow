@@ -8,6 +8,8 @@
 
 LimbView::LimbView()
     : legend(new LayerLegend()),
+      limb_mesh_left(true),
+      limb_mesh_right(false),
       shader_program(nullptr)
 {
     QSurfaceFormat format = QSurfaceFormat::defaultFormat();
@@ -73,11 +75,14 @@ LimbView::~LimbView()
 void LimbView::setData(const InputData& data)
 {
     legend->setData(data.layers);
-    limb_mesh.setData(data);
+    limb_mesh_left.setData(data);
+    limb_mesh_right.setData(data);
 
-    limb_mesh_vbo.create();
-    limb_mesh_vbo.bind();
-    limb_mesh_vbo.allocate(limb_mesh.vertexData().data(), limb_mesh.vertexData().size()*sizeof(GLfloat));
+    //limb_mesh_left_vbo.bind();
+    //limb_mesh_left_vbo.allocate(limb_mesh_left.vertexData().data(), limb_mesh_left.vertexData().size()*sizeof(GLfloat));
+
+    limb_mesh_right_vbo.bind();
+    limb_mesh_right_vbo.allocate(limb_mesh_right.vertexData().data(), limb_mesh_right.vertexData().size()*sizeof(GLfloat));
 
     update();
 }
@@ -122,7 +127,8 @@ void LimbView::cleanup()
         return;
 
     makeCurrent();
-    limb_mesh_vbo.destroy();
+    //limb_mesh_left_vbo.destroy();
+    limb_mesh_right_vbo.destroy();
     delete shader_program;
     shader_program = nullptr;
     doneCurrent();
@@ -188,19 +194,34 @@ void LimbView::initializeGL()
     loc_lightPosition = shader_program->uniformLocation("lightPosition");
 
     // Setup vertex buffer object.
-    limb_mesh_vbo.create();
-    limb_mesh_vbo.bind();
-    limb_mesh_vbo.allocate(limb_mesh.vertexData().data(), limb_mesh.vertexData().size()*sizeof(GLfloat));
+    // limb_mesh_left_vbo.create();
+    // limb_mesh_left_vbo.bind();
+    // limb_mesh_left_vbo.allocate(limb_mesh_left.vertexData().data(), limb_mesh_left.vertexData().size()*sizeof(GLfloat));
 
     // Store the vertex attribute bindings for the program.
-    limb_mesh_vbo.bind();
+    // limb_mesh_left_vbo.bind();
+    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(0*sizeof(GLfloat)));
+    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+    // glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+    // glEnableVertexAttribArray(0);
+    // glEnableVertexAttribArray(1);
+    // glEnableVertexAttribArray(2);
+    // limb_mesh_left_vbo.release();
+
+    // Setup vertex buffer object.
+    limb_mesh_right_vbo.create();
+    limb_mesh_right_vbo.bind();
+    limb_mesh_right_vbo.allocate(limb_mesh_right.vertexData().data(), limb_mesh_right.vertexData().size()*sizeof(GLfloat));
+
+    // Store the vertex attribute bindings for the program.
+    limb_mesh_right_vbo.bind();
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(0*sizeof(GLfloat)));
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
-    limb_mesh_vbo.release();
+    limb_mesh_right_vbo.release();
 
     // Set fixed light position
     shader_program->setUniformValue(loc_lightPosition, QVector3D(0.0f, 0.0f, 50.0f));
@@ -217,8 +238,8 @@ void LimbView::paintGL()
     m_world.setToIdentity();
     m_world.rotate(rot_x, 1.0f, 0.0f, 0.0f);
     m_world.rotate(rot_y, 0.0f, 1.0f, 0.0f);
-    m_world.scale(1.0f/limb_mesh.aabbDiagonal());
-    m_world.translate(-limb_mesh.aabbCenter());
+    m_world.scale(1.0f/limb_mesh_right.aabbDiagonal());
+    m_world.translate(-limb_mesh_right.aabbCenter());
 
     m_camera.setToIdentity();
     m_camera.translate(0.0f, 0.0f, -1.0f);
@@ -236,7 +257,8 @@ void LimbView::paintGL()
     shader_program->setUniformValue(loc_modelViewMatrix, m_camera*m_world);
     shader_program->setUniformValue(loc_normalMatrix, m_world.normalMatrix());
 
-    glDrawArrays(GL_TRIANGLES, 0, limb_mesh.vertexCount());
+    // glDrawArrays(GL_TRIANGLES, 0, limb_mesh_left.vertexCount());
+    glDrawArrays(GL_TRIANGLES, 0, limb_mesh_right.vertexCount());
     shader_program->release();
 }
 
@@ -252,8 +274,8 @@ void LimbView::mouseMoveEvent(QMouseEvent *event)
 
     if(event->buttons() & Qt::LeftButton)
     {
-        rot_x -= ROT_SPEED*delta_y;
-        rot_y -= ROT_SPEED*delta_x;
+        rot_x += ROT_SPEED*delta_y;
+        rot_y += ROT_SPEED*delta_x;
         update();
     }
     else if(event->buttons() & Qt::MiddleButton)

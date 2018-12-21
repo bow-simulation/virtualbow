@@ -3,7 +3,12 @@
 #include "bow/LimbProperties.hpp"
 #include "numerics/ArcCurve.hpp"
 #include "numerics/CubicSpline.hpp"
-#include <qmath.h>
+
+LimbMesh::LimbMesh(bool inverted)
+    : inverted(inverted)
+{
+
+}
 
 void LimbMesh::setData(const InputData& data)
 {
@@ -76,8 +81,8 @@ void LimbMesh::setData(const InputData& data)
                 if(layer_indices.empty())
                     add_points(h_sum_prev, h_sum_next);
 
-                h_sum_prev += h_prev;
-                h_sum_next += h_next;
+                h_sum_prev -= h_prev;
+                h_sum_next -= h_next;
 
                 add_points(h_sum_prev, h_sum_next);
                 layer_indices.push_back(j);
@@ -173,8 +178,17 @@ float LimbMesh::aabbDiagonal() const
     return (aabb_max - aabb_min).length();
 }
 
-void LimbMesh::addQuad(const QVector3D& p0, const QVector3D& p1, const QVector3D& p2, const QVector3D& p3, const QColor& color)
+void LimbMesh::addQuad(QVector3D p0, QVector3D p1, QVector3D p2, QVector3D p3, const QColor& color)
 {
+    if(inverted)
+    {
+        p0.setX(-p0.x());
+        p1.setX(-p1.x());
+        p2.setX(-p2.x());
+        p3.setX(-p3.x());
+        std::swap(p1, p3);
+    }
+
     QVector3D n0 = QVector3D::normal(p1 - p0, p3 - p0);
     QVector3D n1 = QVector3D::normal(p2 - p1, p0 - p1);
     QVector3D n2 = QVector3D::normal(p3 - p2, p1 - p2);
