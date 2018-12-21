@@ -66,17 +66,18 @@ MainWindow::MainWindow()
     menu_simulation->addAction(action_run_statics);
     menu_simulation->addAction(action_run_dynamics);
 
-    // File toolbar
-    auto toolbar_file = this->addToolBar("File");
-    toolbar_file->addAction(action_new);
-    toolbar_file->addAction(action_open);
-    toolbar_file->addAction(action_save);
-    toolbar_file->addAction(action_save_as);
-
-    // Simulation toolbar
-    auto toolbar_simulation = this->addToolBar("Simulate");
-    toolbar_simulation->addAction(action_run_statics);
-    toolbar_simulation->addAction(action_run_dynamics);
+    // Toolbar
+    this->setContextMenuPolicy(Qt::NoContextMenu);    // Disables context menu for hiding the toolbar
+    auto toolbar = this->addToolBar("Tools");
+    toolbar->setObjectName("MainToolBar");            // Necessary for saving the window state
+    toolbar->setMovable(false);
+    toolbar->addAction(action_new);
+    toolbar->addAction(action_open);
+    toolbar->addAction(action_save);
+    toolbar->addAction(action_save_as);
+    toolbar->addSeparator();
+    toolbar->addAction(action_run_statics);
+    toolbar->addAction(action_run_dynamics);
 
     // Help menu
     auto menu_help = this->menuBar()->addMenu("&Help");
@@ -91,6 +92,7 @@ MainWindow::MainWindow()
     restoreState(Application::settings.value("MainWindow/state").toByteArray());
     restoreGeometry(Application::settings.value("MainWindow/geometry").toByteArray());
 
+    // Set Window's modification indicator when data has changed
     QObject::connect(editor, &BowEditor::modified, [&]{
         InputData new_data = editor->getData();
         this->setWindowModified(new_data != data);
