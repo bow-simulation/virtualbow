@@ -2,7 +2,6 @@
 #include "LayerColors.hpp"
 
 #include <QMouseEvent>
-#include <QOpenGLShaderProgram>
 #include <QCoreApplication>
 
 LimbView::LimbView()
@@ -161,22 +160,29 @@ static const char *fragmentShaderSource =
     "varying highp vec3 vertexNormal;\n"
     "varying highp vec3 vertexColor;\n"
     "uniform highp vec3 lightPosition;\n"
+    "uniform highp vec3 cameraPosition;\n"
+    "uniform highp float ambientStrength;\n"
+    "uniform highp float diffuseStrength;\n"
+    "uniform highp float specularStrength;\n"
+    "uniform highp float materialShininess;\n"
     "void main() {\n"
-    "   highp vec3 L = normalize(lightPosition - vertexPosition);\n"
-    "   highp float NL = max(dot(normalize(vertexNormal), L), 0.0);\n"
-    "   highp vec3 color = clamp(vertexColor*0.2 + vertexColor*0.8*NL, 0.0, 1.0);\n"
-    "   gl_FragColor = vec4(color, 1.0);\n"
+    "   highp vec3 normalDirection = normalize(vertexNormal);\n"
+    "   highp vec3 lightDirection = normalize(lightPosition - vertexPosition);\n"
+    "   highp vec3 viewDirection = normalize(cameraPosition - vertexPosition);\n"
+    "   highp vec3 reflectDirection = reflect(-lightDirection, normalDirection);\n"
+    "   highp float diffuse = max(dot(lightDirection, normalDirection), 0.0);\n"
+    "   highp float specular = pow(max(dot(viewDirection, reflectDirection), 0.0), materialShininess);\n"
+    "   highp vec3 result = (ambientStrength + diffuseStrength*diffuse + specularStrength*specular)*vertexColor;\n"
+    "   gl_FragColor = vec4(result, 1.0);\n"
     "}\n";
 
 void LimbView::initializeGL()
 {
-    // In this example the widget's corresponding top-level window can change
-    // several times during the widget's lifetime. Whenever this happens, the
-    // QOpenGLWidget's associated context is destroyed and a new one is created.
-    // Therefore we have to be prepared to clean up the resources on the
-    // aboutToBeDestroyed() signal, instead of the destructor. The emission of
-    // the signal will be followed by an invocation of initializeGL() where we
-    // can recreate all resources.
+    // Comment from the Qt "Hello GL2" example:
+    // In this example the widget's corresponding top-level window can change several times during the widget's lifetime.
+    // Whenever this happens, the QOpenGLWidget's associated context is destroyed and a new one is created.
+    // Therefore we have to be prepared to clean up the resources on the aboutToBeDestroyed() signal, instead of the destructor.
+    // The emission of the signal will be followed by an invocation of initializeGL() where we can recreate all resources.
     connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &LimbView::cleanup);
 
     initializeOpenGLFunctions();
@@ -196,6 +202,19 @@ void LimbView::initializeGL()
     loc_modelViewMatrix = shader_program->uniformLocation("modelViewMatrix");
     loc_normalMatrix = shader_program->uniformLocation("normalMatrix");
     loc_lightPosition = shader_program->uniformLocation("lightPosition");
+    loc_cameraPosition = shader_program->uniformLocation("cameraPosition");
+    loc_materialAmbient = shader_program->uniformLocation("ambientStrength");
+    loc_materialDiffuse = shader_program->uniformLocation("diffuseStrength");
+    loc_materialSpecular = shader_program->uniformLocation("specularStrength");
+    loc_materialShininess = shader_program->uniformLocation("materialShininess");
+
+    shader_program->setUniformValue(loc_lightPosition, LIGHT_POSITION);
+    shader_program->setUniformValue(loc_cameraPosition, CAMERA_POSITION);
+    shader_program->setUniformValue(loc_materialAmbient, MATERIAL_AMBIENT);
+    shader_program->setUniformValue(loc_materialDiffuse, MATERIAL_DIFFUSE);
+    shader_program->setUniformValue(loc_materialSpecular, MATERIAL_SPECULAR);
+    shader_program->setUniformValue(loc_materialShininess, MATERIAL_SHININESS);
+    shader_program->release();
 
     // Setup vertex buffer object for left limb
     limb_mesh_left_vbo.create();
@@ -208,10 +227,6 @@ void LimbView::initializeGL()
     limb_mesh_right_vbo.bind();
     limb_mesh_right_vbo.allocate(limb_mesh_right.vertexData().data(), limb_mesh_right.vertexData().size()*sizeof(GLfloat));
     limb_mesh_right_vbo.release();
-
-    // Set fixed light position
-    shader_program->setUniformValue(loc_lightPosition, QVector3D(0.0f, 0.0f, 50.0f));
-    shader_program->release();
 }
 
 void LimbView::paintGL()
@@ -233,7 +248,7 @@ void LimbView::paintGL()
     m_world.scale(1.0f/content_bounds.diagonal());
     m_world.translate(-content_bounds.center());
     m_camera.setToIdentity();
-    m_camera.translate(0.0f, 0.0f, -1.5f);
+    m_camera.translate(CAMERA_POSITION);
 
     float aspect_ratio = float(this->height())/this->width();
     m_projection.setToIdentity();

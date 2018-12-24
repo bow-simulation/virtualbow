@@ -2,25 +2,33 @@
 #include "bow/input/InputData.hpp"
 #include "LimbMesh.hpp"
 #include "LayerLegend.hpp"
-
 #include <QtWidgets>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
+#include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
 
-QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
+// This widget was based on Qt's "Hello GL2" example: http://doc.qt.io/qt-5/qtopengl-hellogl2-example.html
+// Uses the Phong lighting model as described here: https://learnopengl.com/Lighting/Basic-Lighting
 
-// Based on Qt's "Hello GL2" example, http://doc.qt.io/qt-5/qtopengl-hellogl2-example.html
 class LimbView: public QOpenGLWidget, protected QOpenGLFunctions
 {
 private:
+    const QVector3D LIGHT_POSITION = {0.0f, 1.0f, 10.0f};
+    const QVector3D CAMERA_POSITION = {0.0f, 0.0f, -1.5f};
+
+    const float MATERIAL_AMBIENT = 0.2f;
+    const float MATERIAL_DIFFUSE = 0.8f;
+    const float MATERIAL_SPECULAR = 0.1f;
+    const float MATERIAL_SHININESS = 8.0f;
+
     const float DEFAULT_ROT_X = 31.0f;   // Trimetric view
     const float DEFAULT_ROT_Y = -28.0f;  // Trimetric view
-    const float DEFAULT_ZOOM = 1.1f;     // Magic number
-    const float ZOOM_SPEED = 0.2f;       // Magic number
-    const float ROT_SPEED = 0.15f;       // Magic number
+    const float DEFAULT_ZOOM = 1.05f;
+    const float ZOOM_SPEED = 0.2f;
+    const float ROT_SPEED = 0.15f;
 
 public:
     LimbView();
@@ -54,6 +62,11 @@ private:
     int loc_modelViewMatrix;
     int loc_normalMatrix;
     int loc_lightPosition;
+    int loc_cameraPosition;
+    int loc_materialAmbient;
+    int loc_materialDiffuse;
+    int loc_materialSpecular;
+    int loc_materialShininess;
 
     QMatrix4x4 m_projection;
     QMatrix4x4 m_camera;

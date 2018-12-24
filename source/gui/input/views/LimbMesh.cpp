@@ -93,36 +93,27 @@ void LimbMesh::setData(const InputData& data)
         {
             QColor color = getLayerColor(data.layers[layer_indices[j]]);
 
+            // Top side (back)
+            if(j == 0)
+                addQuad(points_l_prev[j], points_r_prev[j], points_r_next[j], points_l_next[j], color);
+
+            // Bottom side (belly)
+            if(j == layer_indices.size()  - 1)
+                addQuad(points_l_prev[j+1], points_l_next[j+1], points_r_next[j+1], points_r_prev[j+1], color);
+
+            // Limb start
             if(i == 0)
-            {
-                addQuad(points_r_next[j], points_l_next[j], points_l_next[j+1], points_r_next[j+1], color);
-            }
+                addQuad(points_r_prev[j], points_l_prev[j], points_l_prev[j+1], points_r_prev[j+1], color);
 
+            // Limb end
             if(i == n_sections - 1)
-            {
                 addQuad(points_r_next[j], points_r_next[j+1], points_l_next[j+1], points_l_next[j], color);
-            }
 
-            if(i > 0)
-            {
-                // Left
-                addQuad(points_l_prev[j], points_l_next[j], points_l_next[j+1], points_l_prev[j+1], color);
+            // Left side
+            addQuad(points_l_prev[j], points_l_next[j], points_l_next[j+1], points_l_prev[j+1], color);
 
-                // Right
-                addQuad(points_r_prev[j], points_r_prev[j+1], points_r_next[j+1], points_r_next[j], color);
-
-                // Top
-                if(j == 0)
-                {
-                    addQuad(points_l_prev[j], points_r_prev[j], points_r_next[j], points_l_next[j], color);
-                }
-
-                // Bottom
-                if(j == layer_indices.size()  - 1)
-                {
-                    addQuad(points_l_prev[j+1], points_l_next[j+1], points_r_next[j+1], points_r_prev[j+1], color);
-                }
-            }
+            // Right side
+            addQuad(points_r_prev[j], points_r_prev[j+1], points_r_next[j+1], points_r_next[j], color);
         }
     }
 }
