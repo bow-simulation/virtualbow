@@ -4,7 +4,6 @@
 #include <QMouseEvent>
 #include <QOpenGLShaderProgram>
 #include <QCoreApplication>
-#include <math.h>
 
 LimbView::LimbView()
     : legend(new LayerLegend()),
@@ -64,6 +63,7 @@ LimbView::LimbView()
     vbox->addStretch();
     vbox->addLayout(hbox);
 
+    viewSymmetric(false);
     view3D();
 }
 
@@ -78,8 +78,8 @@ void LimbView::setData(const InputData& data)
     limb_mesh_left.setData(data);
     limb_mesh_right.setData(data);
 
-    //limb_mesh_left_vbo.bind();
-    //limb_mesh_left_vbo.allocate(limb_mesh_left.vertexData().data(), limb_mesh_left.vertexData().size()*sizeof(GLfloat));
+    limb_mesh_left_vbo.bind();
+    limb_mesh_left_vbo.allocate(limb_mesh_left.vertexData().data(), limb_mesh_left.vertexData().size()*sizeof(GLfloat));
 
     limb_mesh_right_vbo.bind();
     limb_mesh_right_vbo.allocate(limb_mesh_right.vertexData().data(), limb_mesh_right.vertexData().size()*sizeof(GLfloat));
@@ -110,7 +110,9 @@ void LimbView::view3D()
 
 void LimbView::viewSymmetric(bool checked)
 {
-
+    limb_mesh_left.setVisible(checked);
+    limb_mesh_right.setVisible(true);
+    update();
 }
 
 void LimbView::viewFit()
@@ -127,7 +129,7 @@ void LimbView::cleanup()
         return;
 
     makeCurrent();
-    //limb_mesh_left_vbo.destroy();
+    limb_mesh_left_vbo.destroy();
     limb_mesh_right_vbo.destroy();
     delete shader_program;
     shader_program = nullptr;
@@ -193,34 +195,40 @@ void LimbView::initializeGL()
     loc_normalMatrix = shader_program->uniformLocation("normalMatrix");
     loc_lightPosition = shader_program->uniformLocation("lightPosition");
 
-    // Setup vertex buffer object.
-    // limb_mesh_left_vbo.create();
-    // limb_mesh_left_vbo.bind();
-    // limb_mesh_left_vbo.allocate(limb_mesh_left.vertexData().data(), limb_mesh_left.vertexData().size()*sizeof(GLfloat));
 
-    // Store the vertex attribute bindings for the program.
-    // limb_mesh_left_vbo.bind();
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(0*sizeof(GLfloat)));
-    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-    // glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
-    // glEnableVertexAttribArray(0);
-    // glEnableVertexAttribArray(1);
-    // glEnableVertexAttribArray(2);
-    // limb_mesh_left_vbo.release();
+    // Create a vertex array object. In OpenGL ES 2.0 and OpenGL 2.x
+    // implementations this is optional and support may not be present
+    // at all. Nonetheless the below code works in all cases and makes
+    // sure there is a VAO when one is needed.
+    m_vao.create();
+    QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 
-    // Setup vertex buffer object.
-    limb_mesh_right_vbo.create();
-    limb_mesh_right_vbo.bind();
-    limb_mesh_right_vbo.allocate(limb_mesh_right.vertexData().data(), limb_mesh_right.vertexData().size()*sizeof(GLfloat));
-
-    // Store the vertex attribute bindings for the program.
-    limb_mesh_right_vbo.bind();
+    // Setup vertex buffer object and vertex attributes for right limb
+    limb_mesh_left_vbo.create();
+    limb_mesh_left_vbo.bind();
+    limb_mesh_left_vbo.allocate(limb_mesh_left.vertexData().data(), limb_mesh_left.vertexData().size()*sizeof(GLfloat));
+    /*
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(0*sizeof(GLfloat)));
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
+    */
+    limb_mesh_left_vbo.release();
+
+    // Setup vertex buffer object and vertex attributes for right limb
+    limb_mesh_right_vbo.create();
+    limb_mesh_right_vbo.bind();
+    limb_mesh_right_vbo.allocate(limb_mesh_right.vertexData().data(), limb_mesh_right.vertexData().size()*sizeof(GLfloat));
+    /*
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(0*sizeof(GLfloat)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    */
     limb_mesh_right_vbo.release();
 
     // Set fixed light position
@@ -235,12 +243,17 @@ void LimbView::paintGL()
     glEnable(GL_CULL_FACE);
     glEnable(GL_MULTISAMPLE);
 
+    AABB content_bounds;
+    if(limb_mesh_left.isVisible())
+        content_bounds = content_bounds.extend(limb_mesh_left.aabb());
+    if(limb_mesh_right.isVisible())
+        content_bounds = content_bounds.extend(limb_mesh_right.aabb());
+
     m_world.setToIdentity();
     m_world.rotate(rot_x, 1.0f, 0.0f, 0.0f);
     m_world.rotate(rot_y, 0.0f, 1.0f, 0.0f);
-    m_world.scale(1.0f/limb_mesh_right.aabbDiagonal());
-    m_world.translate(-limb_mesh_right.aabbCenter());
-
+    m_world.scale(1.0f/content_bounds.diagonal());
+    m_world.translate(-content_bounds.center());
     m_camera.setToIdentity();
     m_camera.translate(0.0f, 0.0f, -1.0f);
 
@@ -252,13 +265,39 @@ void LimbView::paintGL()
                        ( 0.5f*zoom + shift_y)*aspect_ratio,
                        0.001f, 100.0f);
 
+    QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
+
     shader_program->bind();
     shader_program->setUniformValue(loc_projectionMatrix, m_projection);
     shader_program->setUniformValue(loc_modelViewMatrix, m_camera*m_world);
     shader_program->setUniformValue(loc_normalMatrix, m_world.normalMatrix());
 
-    // glDrawArrays(GL_TRIANGLES, 0, limb_mesh_left.vertexCount());
-    glDrawArrays(GL_TRIANGLES, 0, limb_mesh_right.vertexCount());
+    if(limb_mesh_left.isVisible())
+    {
+        limb_mesh_left_vbo.bind();
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(0*sizeof(GLfloat)));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+        glDrawArrays(GL_TRIANGLES, 0, limb_mesh_left.vertexCount());
+        limb_mesh_left_vbo.release();
+    }
+
+    if(limb_mesh_right.isVisible())
+    {
+        limb_mesh_right_vbo.bind();
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(0*sizeof(GLfloat)));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+        glDrawArrays(GL_TRIANGLES, 0, limb_mesh_right.vertexCount());
+        limb_mesh_right_vbo.release();
+    }
+
     shader_program->release();
 }
 

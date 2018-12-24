@@ -46,7 +46,8 @@ private:
     LayerLegend* legend;
     LimbMesh limb_mesh_left;
     LimbMesh limb_mesh_right;
-    //QOpenGLBuffer limb_mesh_left_vbo;
+    QOpenGLVertexArrayObject m_vao;
+    QOpenGLBuffer limb_mesh_left_vbo;
     QOpenGLBuffer limb_mesh_right_vbo;
 
     QOpenGLShaderProgram* shader_program;

@@ -5,7 +5,8 @@
 #include "numerics/CubicSpline.hpp"
 
 LimbMesh::LimbMesh(bool inverted)
-    : inverted(inverted)
+    : visible(true),
+      inverted(inverted)
 {
 
 }
@@ -13,8 +14,7 @@ LimbMesh::LimbMesh(bool inverted)
 void LimbMesh::setData(const InputData& data)
 {
     vertex_data.clear();
-    aabb_min = QVector3D();
-    aabb_max = QVector3D();
+    bounding_box = AABB();
 
     // Todo: Abstract away the conversion data -> profile curve
     std::vector<double> lengths = getEvalLengths(data, 100);
@@ -168,14 +168,19 @@ size_t LimbMesh::vertexCount() const
     return vertex_data.size()/9;
 }
 
-QVector3D LimbMesh::aabbCenter() const
+const AABB LimbMesh::aabb() const
 {
-    return (aabb_min + aabb_max)/2.0f;
+    return bounding_box;
 }
 
-float LimbMesh::aabbDiagonal() const
+bool LimbMesh::isVisible() const
 {
-    return (aabb_max - aabb_min).length();
+    return visible;
+}
+
+void LimbMesh::setVisible(bool value)
+{
+    visible = value;
 }
 
 void LimbMesh::addQuad(QVector3D p0, QVector3D p1, QVector3D p2, QVector3D p3, const QColor& color)
@@ -217,13 +222,5 @@ void LimbMesh::addVertex(const QVector3D& position, const QVector3D& normal, con
     vertex_data.push_back(color.greenF());
     vertex_data.push_back(color.blueF());
 
-    // Todo: Is there a vector operation for this in Eigen?
-    aabb_min.setX(std::min(aabb_min.x(), position.x()));
-    aabb_min.setY(std::min(aabb_min.y(), position.y()));
-    aabb_min.setZ(std::min(aabb_min.z(), position.z()));
-
-    // Todo: Is there a vector operation for this in Eigen?
-    aabb_max.setX(std::max(aabb_max.x(), position.x()));
-    aabb_max.setY(std::max(aabb_max.y(), position.y()));
-    aabb_max.setZ(std::max(aabb_max.z(), position.z()));
+    bounding_box = bounding_box.extend(position);
 }
