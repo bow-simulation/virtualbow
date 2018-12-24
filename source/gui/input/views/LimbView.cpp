@@ -30,19 +30,19 @@ LimbView::LimbView()
     auto button2 = new QToolButton();
     QObject::connect(button2, &QPushButton::clicked, this, &LimbView::view3D);
     button2->setIcon(QIcon(":/icons/limb-view/view-3d"));
-    button2->setToolTip("3D view");
+    button2->setToolTip("Default view");
     button2->setIconSize({32, 32});
 
     auto button3 = new QToolButton();
     QObject::connect(button3, &QPushButton::clicked, this, &LimbView::viewFit);
     button3->setIcon(QIcon(":/icons/limb-view/view-fit"));
-    button3->setToolTip("Fit view");
+    button3->setToolTip("Reset zoom");
     button3->setIconSize({32, 32});
 
     auto button4 = new QToolButton();
     QObject::connect(button4, &QToolButton::toggled, this, &LimbView::viewSymmetric);
     button4->setIcon(QIcon(":/icons/limb-view/view-symmetric"));
-    button4->setToolTip("Show complete bow");
+    button4->setToolTip("Show second limb");
     button4->setIconSize({32, 32});
     button4->setCheckable(true);
 
@@ -63,6 +63,7 @@ LimbView::LimbView()
     vbox->addStretch();
     vbox->addLayout(hbox);
 
+    // Initialize view parameters
     viewSymmetric(false);
     view3D();
 }
@@ -96,7 +97,7 @@ void LimbView::viewProfile()
 
 void LimbView::viewTop()
 {
-    rot_x = -90.0f;
+    rot_x = 90.0f;
     rot_y = 0.0f;
     viewFit();
 }
@@ -180,6 +181,7 @@ void LimbView::initializeGL()
 
     initializeOpenGLFunctions();
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
+    glLineWidth(2.0f);
 
     shader_program = new QOpenGLShaderProgram;
     shader_program->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderSource);
@@ -195,40 +197,16 @@ void LimbView::initializeGL()
     loc_normalMatrix = shader_program->uniformLocation("normalMatrix");
     loc_lightPosition = shader_program->uniformLocation("lightPosition");
 
-
-    // Create a vertex array object. In OpenGL ES 2.0 and OpenGL 2.x
-    // implementations this is optional and support may not be present
-    // at all. Nonetheless the below code works in all cases and makes
-    // sure there is a VAO when one is needed.
-    m_vao.create();
-    QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
-
-    // Setup vertex buffer object and vertex attributes for right limb
+    // Setup vertex buffer object for left limb
     limb_mesh_left_vbo.create();
     limb_mesh_left_vbo.bind();
     limb_mesh_left_vbo.allocate(limb_mesh_left.vertexData().data(), limb_mesh_left.vertexData().size()*sizeof(GLfloat));
-    /*
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(0*sizeof(GLfloat)));
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    */
     limb_mesh_left_vbo.release();
 
-    // Setup vertex buffer object and vertex attributes for right limb
+    // Setup vertex buffer object for right limb
     limb_mesh_right_vbo.create();
     limb_mesh_right_vbo.bind();
     limb_mesh_right_vbo.allocate(limb_mesh_right.vertexData().data(), limb_mesh_right.vertexData().size()*sizeof(GLfloat));
-    /*
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(0*sizeof(GLfloat)));
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    */
     limb_mesh_right_vbo.release();
 
     // Set fixed light position
@@ -255,7 +233,7 @@ void LimbView::paintGL()
     m_world.scale(1.0f/content_bounds.diagonal());
     m_world.translate(-content_bounds.center());
     m_camera.setToIdentity();
-    m_camera.translate(0.0f, 0.0f, -1.0f);
+    m_camera.translate(0.0f, 0.0f, -1.5f);
 
     float aspect_ratio = float(this->height())/this->width();
     m_projection.setToIdentity();
@@ -264,8 +242,6 @@ void LimbView::paintGL()
                        (-0.5f*zoom + shift_y)*aspect_ratio,
                        ( 0.5f*zoom + shift_y)*aspect_ratio,
                        0.001f, 100.0f);
-
-    QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 
     shader_program->bind();
     shader_program->setUniformValue(loc_projectionMatrix, m_projection);

@@ -14,9 +14,9 @@
    viewBox="0 0 71.773902 71.7739"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="view-symmetric.svg"
-   inkscape:export-filename="/mnt/Daten/Projekte/Bow-Simulator/Repositories/bow-simulator/resources/icons/view-symmetric.png"
+   inkscape:export-filename="/home/stefan/Desktop/Repositories/bow-simulator/resources/icons/limb-view/view-symmetric.png"
    inkscape:export-xdpi="60.189007"
    inkscape:export-ydpi="60.189007">
   <defs
@@ -28,21 +28,25 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.6"
-     inkscape:cx="33.635362"
-     inkscape:cy="33.403729"
+     inkscape:zoom="11.2"
+     inkscape:cx="39.541315"
+     inkscape:cy="39.629024"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
-     showgrid="false"
+     showgrid="true"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
      inkscape:window-width="1920"
-     inkscape:window-height="1013"
+     inkscape:window-height="1001"
      inkscape:window-x="0"
      inkscape:window-y="0"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid843" />
+  </sodipodi:namedview>
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -62,13 +66,7 @@
      transform="translate(-56.604637,-807.62746)">
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 92.465052,808.96353 0,12.78474"
-       id="path4151"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 92.489835,826.83716 0,5.30577"
+       d="m 92.229639,828.77636 v 5.30577"
        id="path4153"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
@@ -86,20 +84,26 @@
        sodipodi:nodetypes="cccc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 92.414309,854.65466 0,5.30577"
+       d="m 92.229639,853.15136 v 5.30577"
        id="path4153-6"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 92.465051,836.76977 0,12.78474"
+       d="m 92.229639,837.71679 v 11.48259"
        id="path4151-6"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 92.338783,865.30658 0,12.78474"
-       id="path4151-6-1"
+       d="m 92.229639,814.71386 0,10.3125"
+       id="path4151-6-3"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 92.229639,861.58886 0,10.3125"
+       id="path4151-6-6"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
   </g>

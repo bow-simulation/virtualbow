@@ -16,8 +16,8 @@ QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 class LimbView: public QOpenGLWidget, protected QOpenGLFunctions
 {
 private:
-    const float DEFAULT_ROT_X = 20.0f;   // Magic number
-    const float DEFAULT_ROT_Y = -30.0f;  // Magic number
+    const float DEFAULT_ROT_X = 31.0f;   // Trimetric view
+    const float DEFAULT_ROT_Y = -28.0f;  // Trimetric view
     const float DEFAULT_ZOOM = 1.1f;     // Magic number
     const float ZOOM_SPEED = 0.2f;       // Magic number
     const float ROT_SPEED = 0.15f;       // Magic number
@@ -46,7 +46,6 @@ private:
     LayerLegend* legend;
     LimbMesh limb_mesh_left;
     LimbMesh limb_mesh_right;
-    QOpenGLVertexArrayObject m_vao;
     QOpenGLBuffer limb_mesh_left_vbo;
     QOpenGLBuffer limb_mesh_right_vbo;
 
