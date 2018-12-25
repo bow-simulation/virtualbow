@@ -2,17 +2,18 @@
 #include "LayerColors.hpp"
 
 #include <QMouseEvent>
-#include <QOpenGLShaderProgram>
 #include <QCoreApplication>
-#include <math.h>
 
 LimbView::LimbView()
-    : m_xRot(0),
-      m_yRot(0),
-      m_zRot(0),
-      m_zoom(1.0f),
-      m_program(nullptr)
+    : legend(new LayerLegend()),
+      limb_mesh_left(true),
+      limb_mesh_right(false),
+      shader_program(nullptr)
 {
+    QSurfaceFormat format = QSurfaceFormat::defaultFormat();
+    format.setSamples(32);
+    setFormat(format);
+
     auto button0 = new QToolButton();
     QObject::connect(button0, &QPushButton::clicked, this, &LimbView::viewProfile);
     button0->setIcon(QIcon(":/icons/limb-view/view-profile"));
@@ -28,25 +29,24 @@ LimbView::LimbView()
     auto button2 = new QToolButton();
     QObject::connect(button2, &QPushButton::clicked, this, &LimbView::view3D);
     button2->setIcon(QIcon(":/icons/limb-view/view-3d"));
-    button2->setToolTip("3D view");
+    button2->setToolTip("Default view");
     button2->setIconSize({32, 32});
 
     auto button3 = new QToolButton();
     QObject::connect(button3, &QPushButton::clicked, this, &LimbView::viewFit);
     button3->setIcon(QIcon(":/icons/limb-view/view-fit"));
-    button3->setToolTip("Fit view");
+    button3->setToolTip("Reset zoom");
     button3->setIconSize({32, 32});
 
     auto button4 = new QToolButton();
     QObject::connect(button4, &QToolButton::toggled, this, &LimbView::viewSymmetric);
     button4->setIcon(QIcon(":/icons/limb-view/view-symmetric"));
-    button4->setToolTip("Show complete bow");
+    button4->setToolTip("Show second limb");
     button4->setIconSize({32, 32});
     button4->setCheckable(true);
 
     auto hbox = new QHBoxLayout();
     hbox->setAlignment(Qt::AlignBottom);
-    hbox->setMargin(15);
     hbox->addStretch();
     hbox->addWidget(button0);
     hbox->addWidget(button1);
@@ -54,8 +54,16 @@ LimbView::LimbView()
     hbox->addWidget(button3);
     hbox->addSpacing(20);
     hbox->addWidget(button4);
-    this->setLayout(hbox);
 
+    auto vbox = new QVBoxLayout();
+    this->setLayout(vbox);
+    vbox->setMargin(25);
+    vbox->addWidget(legend);
+    vbox->addStretch();
+    vbox->addLayout(hbox);
+
+    // Initialize view parameters
+    viewSymmetric(false);
     view3D();
 }
 
@@ -66,85 +74,65 @@ LimbView::~LimbView()
 
 void LimbView::setData(const InputData& data)
 {
-    m_mesh.setData(data);
+    legend->setData(data.layers);
+    limb_mesh_left.setData(data);
+    limb_mesh_right.setData(data);
 
-    m_meshVbo.create();
-    m_meshVbo.bind();
-    m_meshVbo.allocate(m_mesh.vertexData().data(), m_mesh.vertexData().size()*sizeof(GLfloat));
+    limb_mesh_left_vbo.bind();
+    limb_mesh_left_vbo.allocate(limb_mesh_left.vertexData().data(), limb_mesh_left.vertexData().size()*sizeof(GLfloat));
+
+    limb_mesh_right_vbo.bind();
+    limb_mesh_right_vbo.allocate(limb_mesh_right.vertexData().data(), limb_mesh_right.vertexData().size()*sizeof(GLfloat));
 
     update();
 }
 
 void LimbView::viewProfile()
 {
-
+    rot_x = 0.0f;
+    rot_y = 0.0f;
+    viewFit();
 }
 
 void LimbView::viewTop()
 {
-
+    rot_x = 90.0f;
+    rot_y = 0.0f;
+    viewFit();
 }
 
 void LimbView::view3D()
 {
-
+    rot_x = DEFAULT_ROT_X;
+    rot_y = DEFAULT_ROT_Y;
+    viewFit();
 }
 
 void LimbView::viewSymmetric(bool checked)
 {
-
+    limb_mesh_left.setVisible(checked);
+    limb_mesh_right.setVisible(true);
+    update();
 }
 
 void LimbView::viewFit()
 {
-
-}
-
-static void normalizeAngle(int &angle)
-{
-    while(angle < 0)
-        angle += 360 * 16;
-
-    while(angle > 360 * 16)
-        angle -= 360 * 16;
-}
-
-void LimbView::setXRotation(int angle)
-{
-    normalizeAngle(angle);
-    m_xRot = angle;
-    update();
-}
-
-void LimbView::setYRotation(int angle)
-{
-    normalizeAngle(angle);
-    m_yRot = angle;
-    update();
-}
-
-void LimbView::setZRotation(int angle)
-{
-    normalizeAngle(angle);
-    m_zRot = angle;
-    update();
-}
-
-void LimbView::zoom(float factor)
-{
-    m_zoom *= factor;
+    shift_x = 0.0f;
+    shift_y = 0.0f;
+    zoom = DEFAULT_ZOOM;
     update();
 }
 
 void LimbView::cleanup()
 {
-    if(m_program == nullptr)
+    if(shader_program == nullptr)
         return;
 
     makeCurrent();
-    m_meshVbo.destroy();
-    delete m_program;
-    m_program = nullptr;
+    limb_mesh_left_vbo.destroy();
+    limb_mesh_right_vbo.destroy();
+    delete shader_program;
+    shader_program = nullptr;
     doneCurrent();
 }
 
@@ -172,59 +160,73 @@ static const char *fragmentShaderSource =
     "varying highp vec3 vertexNormal;\n"
     "varying highp vec3 vertexColor;\n"
     "uniform highp vec3 lightPosition;\n"
+    "uniform highp vec3 cameraPosition;\n"
+    "uniform highp float ambientStrength;\n"
+    "uniform highp float diffuseStrength;\n"
+    "uniform highp float specularStrength;\n"
+    "uniform highp float materialShininess;\n"
     "void main() {\n"
-    "   highp vec3 L = normalize(lightPosition - vertexPosition);\n"
-    "   highp float NL = max(dot(normalize(vertexNormal), L), 0.0);\n"
-    "   highp vec3 color = clamp(vertexColor*0.2 + vertexColor*0.8*NL, 0.0, 1.0);\n"
-    "   gl_FragColor = vec4(color, 1.0);\n"
+    "   highp vec3 normalDirection = normalize(vertexNormal);\n"
+    "   highp vec3 lightDirection = normalize(lightPosition - vertexPosition);\n"
+    "   highp vec3 viewDirection = normalize(cameraPosition - vertexPosition);\n"
+    "   highp vec3 reflectDirection = reflect(-lightDirection, normalDirection);\n"
+    "   highp float diffuse = max(dot(lightDirection, normalDirection), 0.0);\n"
+    "   highp float specular = pow(max(dot(viewDirection, reflectDirection), 0.0), materialShininess);\n"
+    "   highp vec3 result = (ambientStrength + diffuseStrength*diffuse + specularStrength*specular)*vertexColor;\n"
+    "   gl_FragColor = vec4(result, 1.0);\n"
     "}\n";
 
 void LimbView::initializeGL()
 {
-    // In this example the widget's corresponding top-level window can change
-    // several times during the widget's lifetime. Whenever this happens, the
-    // QOpenGLWidget's associated context is destroyed and a new one is created.
-    // Therefore we have to be prepared to clean up the resources on the
-    // aboutToBeDestroyed() signal, instead of the destructor. The emission of
-    // the signal will be followed by an invocation of initializeGL() where we
-    // can recreate all resources.
+    // Comment from the Qt "Hello GL2" example:
+    // In this example the widget's corresponding top-level window can change several times during the widget's lifetime.
+    // Whenever this happens, the QOpenGLWidget's associated context is destroyed and a new one is created.
+    // Therefore we have to be prepared to clean up the resources on the aboutToBeDestroyed() signal, instead of the destructor.
+    // The emission of the signal will be followed by an invocation of initializeGL() where we can recreate all resources.
     connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &LimbView::cleanup);
 
     initializeOpenGLFunctions();
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
+    glLineWidth(2.0f);
 
-    m_program = new QOpenGLShaderProgram;
-    m_program->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderSource);
-    m_program->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderSource);
-    m_program->bindAttributeLocation("modelPosition", 0);
-    m_program->bindAttributeLocation("modelNormal", 1);
-    m_program->bindAttributeLocation("modelColor", 2);
-    m_program->link();
+    shader_program = new QOpenGLShaderProgram;
+    shader_program->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderSource);
+    shader_program->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderSource);
+    shader_program->bindAttributeLocation("modelPosition", 0);
+    shader_program->bindAttributeLocation("modelNormal", 1);
+    shader_program->bindAttributeLocation("modelColor", 2);
+    shader_program->link();
 
-    m_program->bind();
-    m_projectionMatrixLoc = m_program->uniformLocation("projectionMatrix");
-    m_modelViewMatrixLoc = m_program->uniformLocation("modelViewMatrix");
-    m_normalMatrixLoc = m_program->uniformLocation("normalMatrix");
-    m_lightPositionLoc = m_program->uniformLocation("lightPosition");
+    shader_program->bind();
+    loc_projectionMatrix = shader_program->uniformLocation("projectionMatrix");
+    loc_modelViewMatrix = shader_program->uniformLocation("modelViewMatrix");
+    loc_normalMatrix = shader_program->uniformLocation("normalMatrix");
+    loc_lightPosition = shader_program->uniformLocation("lightPosition");
+    loc_cameraPosition = shader_program->uniformLocation("cameraPosition");
+    loc_materialAmbient = shader_program->uniformLocation("ambientStrength");
+    loc_materialDiffuse = shader_program->uniformLocation("diffuseStrength");
+    loc_materialSpecular = shader_program->uniformLocation("specularStrength");
+    loc_materialShininess = shader_program->uniformLocation("materialShininess");
 
-    // Setup our vertex buffer object.
-    m_meshVbo.create();
-    m_meshVbo.bind();
-    m_meshVbo.allocate(m_mesh.vertexData().data(), m_mesh.vertexData().size()*sizeof(GLfloat));
+    shader_program->setUniformValue(loc_lightPosition, LIGHT_POSITION);
+    shader_program->setUniformValue(loc_cameraPosition, CAMERA_POSITION);
+    shader_program->setUniformValue(loc_materialAmbient, MATERIAL_AMBIENT);
+    shader_program->setUniformValue(loc_materialDiffuse, MATERIAL_DIFFUSE);
+    shader_program->setUniformValue(loc_materialSpecular, MATERIAL_SPECULAR);
+    shader_program->setUniformValue(loc_materialShininess, MATERIAL_SHININESS);
+    shader_program->release();
 
-    // Store the vertex attribute bindings for the program.
-    m_meshVbo.bind();
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(0*sizeof(GLfloat)));
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    m_meshVbo.release();
+    // Setup vertex buffer object for left limb
+    limb_mesh_left_vbo.create();
+    limb_mesh_left_vbo.bind();
+    limb_mesh_left_vbo.allocate(limb_mesh_left.vertexData().data(), limb_mesh_left.vertexData().size()*sizeof(GLfloat));
+    limb_mesh_left_vbo.release();
 
-    // Light position is fixed.
-    m_program->setUniformValue(m_lightPositionLoc, QVector3D(0, 0, 70));
-    m_program->release();
+    // Setup vertex buffer object for right limb
+    limb_mesh_right_vbo.create();
+    limb_mesh_right_vbo.bind();
+    limb_mesh_right_vbo.allocate(limb_mesh_right.vertexData().data(), limb_mesh_right.vertexData().size()*sizeof(GLfloat));
+    limb_mesh_right_vbo.release();
 }
 
 void LimbView::paintGL()
@@ -232,69 +234,99 @@ void LimbView::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_MULTISAMPLE);
+
+    AABB content_bounds;
+    if(limb_mesh_left.isVisible())
+        content_bounds = content_bounds.extend(limb_mesh_left.aabb());
+    if(limb_mesh_right.isVisible())
+        content_bounds = content_bounds.extend(limb_mesh_right.aabb());
 
     m_world.setToIdentity();
-    m_world.rotate(180.0f - (m_xRot/16.0f), 1.0f, 0.0f, 0.0f);
-    m_world.rotate(m_yRot/16.0f, 0.0f, 1.0f, 0.0f);
-    m_world.rotate(m_zRot/16.0f, 0.0f, 0.0f, 1.0f);
-
-    QVector3D modelCenter(0.4f, 0.0f, 0.0f);    // Todo: Get from limb mesh
-    m_world.translate(-modelCenter);
-
+    m_world.rotate(rot_x, 1.0f, 0.0f, 0.0f);
+    m_world.rotate(rot_y, 0.0f, 1.0f, 0.0f);
+    m_world.scale(1.0f/content_bounds.diagonal());
+    m_world.translate(-content_bounds.center());
     m_camera.setToIdentity();
-    m_camera.translate(0.0f, 0.0f, -1.0f);
-    m_camera.scale(m_zoom);
+    m_camera.translate(CAMERA_POSITION);
 
-    m_program->bind();
-    m_program->setUniformValue(m_projectionMatrixLoc, m_projection);
-    m_program->setUniformValue(m_modelViewMatrixLoc, m_camera*m_world);
-    m_program->setUniformValue(m_normalMatrixLoc, m_world.normalMatrix());
-
-    glDrawArrays(GL_TRIANGLES, 0, m_mesh.vertexCount());
-    m_program->release();
-}
-
-void LimbView::resizeGL(int width, int height)
-{
-    float extent = 0.8f;    // Todo: Get from limb mesh
-    float rw = extent/2.0f;
-    float rh = rw*float(height)/width;
-
+    float aspect_ratio = float(this->height())/this->width();
     m_projection.setToIdentity();
-    m_projection.ortho(-rw, rw, -rh, rh, 0.01f, 100.0f);
+    m_projection.ortho((-0.5f*zoom + shift_x),
+                       ( 0.5f*zoom + shift_x),
+                       (-0.5f*zoom + shift_y)*aspect_ratio,
+                       ( 0.5f*zoom + shift_y)*aspect_ratio,
+                       0.001f, 100.0f);
+
+    shader_program->bind();
+    shader_program->setUniformValue(loc_projectionMatrix, m_projection);
+    shader_program->setUniformValue(loc_modelViewMatrix, m_camera*m_world);
+    shader_program->setUniformValue(loc_normalMatrix, m_world.normalMatrix());
+
+    if(limb_mesh_left.isVisible())
+    {
+        limb_mesh_left_vbo.bind();
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(0*sizeof(GLfloat)));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+        glDrawArrays(GL_TRIANGLES, 0, limb_mesh_left.vertexCount());
+        limb_mesh_left_vbo.release();
+    }
+
+    if(limb_mesh_right.isVisible())
+    {
+        limb_mesh_right_vbo.bind();
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(0*sizeof(GLfloat)));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void*)(6*sizeof(GLfloat)));
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+        glDrawArrays(GL_TRIANGLES, 0, limb_mesh_right.vertexCount());
+        limb_mesh_right_vbo.release();
+    }
+
+    shader_program->release();
 }
 
 void LimbView::mousePressEvent(QMouseEvent *event)
 {
-    m_lastPos = event->pos();
+    mouse_pos = event->pos();
 }
 
 void LimbView::mouseMoveEvent(QMouseEvent *event)
 {
-    int dx = event->x() - m_lastPos.x();
-    int dy = event->y() - m_lastPos.y();
+    int delta_x = event->x() - mouse_pos.x();
+    int delta_y = event->y() - mouse_pos.y();
 
     if(event->buttons() & Qt::LeftButton)
     {
-        setXRotation(m_xRot + 8*dy);
-        setYRotation(m_yRot + 8*dx);
+        rot_x += ROT_SPEED*delta_y;
+        rot_y += ROT_SPEED*delta_x;
+        update();
     }
-    else if(event->buttons() & Qt::RightButton)
+    else if(event->buttons() & Qt::MiddleButton)
     {
-        setXRotation(m_xRot + 8*dy);
-        setZRotation(m_zRot + 8*dx);
+        shift_x -= float(delta_x)/this->width()*zoom;
+        shift_y += float(delta_y)/this->height()*zoom;
+        update();
     }
 
-    m_lastPos = event->pos();
+    mouse_pos = event->pos();
 }
 
 void LimbView::wheelEvent(QWheelEvent* event)
 {
-    const float zoom_factor = 1.25;
-    float delta = event->angleDelta().y()/120.0f;
+    float delta_zoom = -ZOOM_SPEED*event->angleDelta().y()/120.0f*zoom;    // Dividing by 120 gives the number of 15 degree steps on a standard mouse
+    float mouse_ratio_x = float(event->x())/this->width();
+    float mouse_ratio_y = float(event->y())/this->height();
 
-    if(delta > 0.0f)
-        zoom( delta*zoom_factor);
-    else
-        zoom(-delta/zoom_factor);
+    shift_x -= (mouse_ratio_x - 0.5f)*delta_zoom;
+    shift_y += (mouse_ratio_y - 0.5f)*delta_zoom;
+    zoom += delta_zoom;
+
+    update();
 }
