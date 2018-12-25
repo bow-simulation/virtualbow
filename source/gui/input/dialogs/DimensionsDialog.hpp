@@ -21,5 +21,5 @@ private:
     DoubleEditor* edit1 = new DoubleEditor("Draw length [m]");
     DoubleEditor* edit2 = new DoubleEditor("Length [m]");
     DoubleEditor* edit3 = new DoubleEditor("Setback [m]");
-    DoubleEditor* edit4 = new DoubleEditor("Angle [m]");
+    DoubleEditor* edit4 = new DoubleEditor("Angle [rad]");
 };
