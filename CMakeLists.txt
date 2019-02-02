@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.2.2)
 include(ExternalProject)
-project(bow-simulator)
+project(virtualbow)
 set(CMAKE_CXX_STANDARD 14)
 
 # Parameters used for configuring files
-set(APPLICATION_NAME "bow-simulator")
-set(APPLICATION_DISPLAY_NAME "Bow Simulator")
+set(APPLICATION_NAME "virtualbow")
+set(APPLICATION_DISPLAY_NAME "VirtualBow")
 set(APPLICATION_VERSION "0.6")
 set(APPLICATION_WEBSITE "http://bow-simulator.org")
 set(APPLICATION_MAINTAINER "Stefan Pfeifer")
@@ -187,13 +187,13 @@ target_link_libraries(main-library Qt5::Widgets Qt5::PrintSupport Threads::Threa
 
 # Build application executable
 
-add_executable(bow-simulator source/main.cpp resources/resources.qrc)
-target_link_libraries(bow-simulator main-library)
+add_executable(virtualbow source/main.cpp resources/resources.qrc)
+target_link_libraries(virtualbow main-library)
 
 # Build test executable
 
 add_executable(
-    bow-simulator-test
+    virtualbow-tests
     tests/main.cpp
     tests/fem/BarTrusses.cpp
     tests/fem/HarmonicOscillator.cpp
@@ -202,8 +202,8 @@ add_executable(
     tests/numerics/Geometry.cpp
 )
 
-target_compile_definitions(bow-simulator-test PRIVATE _USE_MATH_DEFINES)    # Defines math constants on MSVC
-target_link_libraries(bow-simulator-test main-library)
+target_compile_definitions(virtualbow-tests PRIVATE _USE_MATH_DEFINES)    # Defines math constants on MSVC
+target_link_libraries(virtualbow-tests main-library)
 
 # Build release packages for different platforms
 

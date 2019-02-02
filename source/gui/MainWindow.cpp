@@ -276,12 +276,13 @@ void MainWindow::runSimulation(bool dynamic)
 
 void MainWindow::about()
 {
-    QMessageBox::about(this, "About",
-        QString("<h2>") + Config::APPLICATION_DISPLAY_NAME + " v" + Config::APPLICATION_VERSION + "</h2>"
+    QMessageBox::about(this, "About", QString()
+        + "<strong><font size=\"6\">" + Config::APPLICATION_DISPLAY_NAME + "</font></strong><br>"
+        + "Version " + Config::APPLICATION_VERSION + "<br><br>"
         + Config::APPLICATION_DESCRIPTION + "<br>"
-        "<a href=\"" + Config::APPLICATION_WEBSITE + "\">" + Config::APPLICATION_WEBSITE + "</a><br><br>"
-        "<small>" + Config::APPLICATION_COPYRIGHT + "<br>"
-        "Distributed under the " + Config::APPLICATION_LICENSE + "</small>"
+        + "<a href=\"" + Config::APPLICATION_WEBSITE + "\">" + Config::APPLICATION_WEBSITE + "</a><br><br>"
+        + "<small>" + Config::APPLICATION_COPYRIGHT + "<br>"
+        + "Distributed under the " + Config::APPLICATION_LICENSE + "</small>"
     );
 }
 

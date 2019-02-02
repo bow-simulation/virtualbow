@@ -34,7 +34,7 @@ rm -rf %{buildroot}
 
 %files
 %defattr(755,root,root)
-/usr/bin/bow-simulator
+/usr/bin/virtualbow
 %defattr(644,root,root)
-/usr/share/applications/bow-simulator.desktop
-/usr/share/icons/hicolor/scalable/apps/bow-simulator.svg
+/usr/share/applications/virtualbow.desktop
+/usr/share/icons/hicolor/scalable/apps/virtualbow.svg

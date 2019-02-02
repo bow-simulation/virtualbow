@@ -1,33 +1,29 @@
 # About
 
-Bow Simulator is a software tool for bow and arrow physics simulation.
-It allows users to design virtual bows and simulate their static and dynamic performance.
+VirtualBow is a software tool for simulating the statics and dynamics of bow and arrow.
 Results include things like deformation, draw curve, material stresses, arrow velocity, degree of efficiency and more.
 
 Visit http://bow-simulator.org for more information about the project.
 
 # License
 
-Bow Simulator is licensed under the GNU General Public License v3.0.
+VirtualBow is licensed under the GNU General Public License v3.0.
 
 # Contributing
 
-1. Fork this repository on GitLab and create a new branch from `develop`
-2. Implement and commit your changes on your new branch
-3. Create a merge request back to the `develop` branch of this repository. Add a short summary of the changes and [link any relevant issues](https://docs.gitlab.com/ce/user/project/issues/crosslinking_issues.html).
-4. Your changes will be reviewed as soon as possible
+1. Fork this repository and create a new branch from `develop`
+2. Implement and commit your changes on this new branch
+3. Create a merge request back to the `develop` branch of this repository
+4. Your changes will be reviewed and merged as soon as possible
 
 # Build instructions
 
-Bow Simulator is built with CMake.
+VirtualBow is built with CMake.
 The instructions below use the Qt-Creator IDE, which has built-in CMake support.
 This is however not strictly necessary, you can just as well run CMake yourself.
 
-The first build may take an hour or longer, depending on your hardware.
-This is because some necessary external dependencies will be downloaded and compiled first (see `CMakeLists.txt` for details).
-
-The instructions below mention exact version numbers for all the tools and libraries used.
-These aren't strict requirements, just a reference for how the official releases were built.
+The instructions below mention exact version numbers for all the tools and libraries.
+These aren't strict requirements however, just a reference for how the official releases were built.
 
 ## Windows
 
