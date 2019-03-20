@@ -80,6 +80,9 @@ void ComboPlot::updatePlot()
     curve->setData(*x, *y);
     plot->xAxis->setLabel(combo_x->currentText());
     plot->yAxis->setLabel(combo_y->currentText());
-    plot->rescaleAxes();
+    bool include_zero_x = false;
+    bool include_zero_y = false;
+    if (combo_x->currentIndex()==0&&combo_y->currentIndex()==1) {include_zero_x=true; include_zero_y=true; }
+    plot->rescaleAxes(include_zero_x,include_zero_y);
     plot->replot();
 }
