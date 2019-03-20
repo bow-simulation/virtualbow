@@ -15,7 +15,7 @@ QColor getLayerColor(const Layer& layer)
 QPixmap getLayerPixmap(const Layer& layer)
 {
     const int size = 48;
-    const int line_width = 2;
+    const qreal line_width = 2;
     const qreal rounding = 0.2;
 
     QPixmap pixmap(size, size);
