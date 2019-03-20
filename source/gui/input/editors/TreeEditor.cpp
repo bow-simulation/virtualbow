@@ -11,6 +11,8 @@
 
 TreeEditor::TreeEditor()
 {
+    setObjectName("tree_editor");
+
     new TreeItem<CommentDialog, std::string>(this, data.meta.comments, "Comments", QIcon(":/icons/model-tree/comments"));
     new TreeItem<SettingsDialog, Settings>(this, data.settings, "Settings", QIcon(":/icons/model-tree/settings"));
     new TreeItem<ProfileDialog, Series>(this, data.profile, "Profile", QIcon(":/icons/model-tree/profile"));

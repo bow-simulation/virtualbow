@@ -28,6 +28,13 @@ void SplineView::setData(Series input)
         output = Series();
     }
 
+    for(size_t i=0; i<input.args().size(); i++) {
+        input.arg(i) *= limb_length;
+    }
+    for(size_t i=0; i<output.args().size(); i++) {
+        output.arg(i) *= limb_length;
+    }
+
     this->graph(0)->setData(output.args(), output.vals());
     this->graph(1)->setData(input.args(), input.vals());
 

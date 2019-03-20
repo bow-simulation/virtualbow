@@ -1,4 +1,5 @@
 #include "LayerEditor.hpp"
+#include "TreeEditor.hpp"
 
 LayerEditor::LayerEditor(EditableTabBar* tabs)
     : tabs(tabs),
@@ -53,6 +54,19 @@ Layer LayerEditor::getData() const
 
 void LayerEditor::setData(const Layer& layer)
 {
+    QObject* p = parent();
+    while (p) {
+        if (p->objectName() == "tree_editor") {
+            const std::vector<double>& args = static_cast<TreeEditor*>(p)->getData().profile.args();
+            qreal limb_length = *std::max_element(args.begin(), args.end());
+            table->setHorizontalHeaderLabels({"Position [m]", "Height [m]"});
+            table->limb_length = limb_length;
+            view->xAxis->setLabel("Position [m]");
+            view->limb_length = limb_length;
+            break;
+        }
+        p = p->parent();
+    }
     tabs->setTabText(tabs->indexOf(this), QString::fromStdString(layer.name));
     tabs->setTabIcon(tabs->indexOf(this), QIcon(getLayerPixmap(layer)));
     table->setData(layer.height);
