@@ -169,6 +169,8 @@ add_library(
     source/gui/output/ComboPlot.hpp
     source/gui/output/EnergyPlot.cpp
     source/gui/output/EnergyPlot.hpp
+	source/gui/output/CurvaturePlot.cpp
+    source/gui/output/CurvaturePlot.hpp
     source/gui/output/OutputDialog.cpp
     source/gui/output/OutputDialog.hpp
     source/gui/output/OutputGrid.cpp

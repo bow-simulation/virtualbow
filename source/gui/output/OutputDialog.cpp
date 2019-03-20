@@ -2,6 +2,7 @@
 #include "OutputGrid.hpp"
 #include "ShapePlot.hpp"
 #include "StressPlot.hpp"
+#include "CurvaturePlot.hpp"
 #include "EnergyPlot.hpp"
 #include "ComboPlot.hpp"
 #include "Slider.hpp"
@@ -14,6 +15,7 @@ StaticOutput::StaticOutput(const InputData& input, const LimbProperties& limb, c
 
     auto plot_shapes = new ShapePlot(limb, statics.states, true);
     auto plot_stress = new StressPlot(input, limb, statics.states);
+    auto plot_curvature = new CurvaturePlot(input, limb, statics.states);
     auto plot_energy = new EnergyPlot(statics.states, statics.states.draw_length, "Draw length [m]");
     auto plot_combo = new ComboPlot();
     plot_combo->addData("Draw length [m]", statics.states.draw_length);
@@ -37,6 +39,7 @@ StaticOutput::StaticOutput(const InputData& input, const LimbProperties& limb, c
     vbox->addWidget(tabs);
     tabs->addTab(plot_shapes, "Shape");
     tabs->addTab(plot_stress, "Stress");
+    tabs->addTab(plot_curvature, "Curvature");
     tabs->addTab(plot_energy, "Energy");
     tabs->addTab(plot_combo, "Other Plots");
     tabs->addTab(grid, "Special Values");
@@ -44,6 +47,7 @@ StaticOutput::StaticOutput(const InputData& input, const LimbProperties& limb, c
     auto slider = new Slider(statics.states.draw_length, "Draw length [m]:");
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
+    QObject::connect(slider, &Slider::valueChanged, plot_curvature, &CurvaturePlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_energy, &EnergyPlot::setStateIndex);
     emit slider->valueChanged(0);
     vbox->addWidget(slider);
@@ -57,6 +61,7 @@ DynamicOutput::DynamicOutput(const InputData& input, const LimbProperties& limb,
 
     auto plot_shapes = new ShapePlot(limb, dynamics.states, false);
     auto plot_stress = new StressPlot(input, limb, dynamics.states);
+    auto plot_curvature = new CurvaturePlot(input, limb, dynamics.states);
     auto plot_energy = new EnergyPlot(dynamics.states, dynamics.states.time, "Time [s]");
     auto plot_combo = new ComboPlot();
     plot_combo->addData("Time [s]", dynamics.states.time);
@@ -84,6 +89,7 @@ DynamicOutput::DynamicOutput(const InputData& input, const LimbProperties& limb,
     vbox->addWidget(tabs);
     tabs->addTab(plot_shapes, "Shape");
     tabs->addTab(plot_stress, "Stress");
+    tabs->addTab(plot_curvature, "Curvature");
     tabs->addTab(plot_energy, "Energy");
     tabs->addTab(plot_combo, "Other Plots");
     tabs->addTab(grid, "Special Values");
@@ -91,6 +97,7 @@ DynamicOutput::DynamicOutput(const InputData& input, const LimbProperties& limb,
     auto slider = new Slider(dynamics.states.time, "Time [s]:");
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
+    QObject::connect(slider, &Slider::valueChanged, plot_curvature, &CurvaturePlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_energy, &EnergyPlot::setStateIndex);
     emit slider->valueChanged(0);
     vbox->addWidget(slider);
