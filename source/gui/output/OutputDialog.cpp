@@ -76,8 +76,9 @@ DynamicOutput::DynamicOutput(const InputData& input, const LimbProperties& limb,
     auto grid = new OutputGrid();
     grid->add(0, 0, "Final arrow velocity [m/s]", dynamics.final_arrow_velocity);
     grid->add(0, 1, "Final arrow velocity [f/s]", dynamics.final_arrow_velocity * 3.28084);
-    grid->add(1, 0, "Final arrow energy [J]", dynamics.final_arrow_energy);
-    grid->add(2, 0, "Efficiency", dynamics.efficiency);
+    grid->add(1, 0, "Maximum arrow height [m]", dynamics.final_arrow_velocity*dynamics.final_arrow_velocity/2/9.81);
+    grid->add(2, 0, "Final arrow energy [J]", dynamics.final_arrow_energy);
+    grid->add(3, 0, "Efficiency", dynamics.efficiency);
 
     auto tabs = new QTabWidget();
     vbox->addWidget(tabs);
