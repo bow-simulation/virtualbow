@@ -83,7 +83,7 @@ Series SeriesEditor::getData() const
         double val = QLocale().toDouble(this->item(i, 1)->text(), &val_valid);
 
         if(arg_valid && val_valid)
-            data.push_back(arg / limb_length, val / limb_length);
+            data.push_back(arg / limb_length, val);
     }
 
     return data;
@@ -96,7 +96,7 @@ void SeriesEditor::setData(const Series& data)
         if(i < data.size())
         {
             this->item(i, 0)->setText(QLocale().toString(data.arg(i) * limb_length, 'g'));
-            this->item(i, 1)->setText(QLocale().toString(data.val(i) * limb_length, 'g'));
+            this->item(i, 1)->setText(QLocale().toString(data.val(i), 'g'));
         }
         else
         {
