@@ -27,7 +27,9 @@ StaticOutput::StaticOutput(const InputData& input, const LimbProperties& limb, c
 
     auto grid = new OutputGrid();
     grid->add(0, 0, "String length [m]", statics.string_length);
+    grid->add(0, 1, "String length [\"]", statics.string_length * 100 / 2.54);
     grid->add(1, 0, "Final draw force [N]", statics.final_draw_force);
+    grid->add(1, 1, "Final draw force [#]", statics.final_draw_force * 0.224809);
     grid->add(2, 0, "Drawing work [J]", statics.drawing_work);
     grid->add(3, 0, "Storage ratio", statics.storage_ratio);
 
@@ -73,6 +75,7 @@ DynamicOutput::DynamicOutput(const InputData& input, const LimbProperties& limb,
 
     auto grid = new OutputGrid();
     grid->add(0, 0, "Final arrow velocity [m/s]", dynamics.final_arrow_velocity);
+    grid->add(0, 1, "Final arrow velocity [f/s]", dynamics.final_arrow_velocity * 3.28084);
     grid->add(1, 0, "Final arrow energy [J]", dynamics.final_arrow_energy);
     grid->add(2, 0, "Efficiency", dynamics.efficiency);
 
