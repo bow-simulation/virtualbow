@@ -1,6 +1,6 @@
 # Create windows directory layout
 
-get_filename_component(QT_BINARY_DIR ${QT_QMAKE_EXECUTABLE} PATH)
+get_filename_component(QT_BINARY_DIR $ENV{QTDIR}/qmake PATH)
 add_custom_target(windows-files DEPENDS ${CMAKE_BINARY_DIR}/windows-files/bow-simulator.exe)
 add_custom_command(
     OUTPUT ${CMAKE_BINARY_DIR}/windows-files/bow-simulator.exe
