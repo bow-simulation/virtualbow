@@ -2,8 +2,7 @@
 #include "gui/input/views/LayerColors.hpp"
 
 StressPlot::StressPlot(const InputData& input, const LimbProperties& limb, const BowStates& states)
-    : input(input),
-      limb(limb),
+    : limb(limb),
       states(states)
 {
     this->xAxis->setLabel("Arc length [m]");
