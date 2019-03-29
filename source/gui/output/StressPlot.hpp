@@ -11,7 +11,6 @@ public:
 
 private:
     const LimbProperties& limb;
-    const InputData& input;
     const BowStates& states;
 
     void setAxesRanges();

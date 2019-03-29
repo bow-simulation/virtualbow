@@ -15,7 +15,7 @@ StaticOutput::StaticOutput(const InputData& input, const LimbProperties& limb, c
 
     auto plot_shapes = new ShapePlot(limb, statics.states, true);
     auto plot_stress = new StressPlot(input, limb, statics.states);
-    auto plot_curvature = new CurvaturePlot(input, limb, statics.states);
+    auto plot_curvature = new CurvaturePlot(limb, statics.states);
     auto plot_energy = new EnergyPlot(statics.states, statics.states.draw_length, "Draw length [m]");
     auto plot_combo = new ComboPlot();
     plot_combo->addData("Draw length [m]", statics.states.draw_length);
@@ -61,7 +61,7 @@ DynamicOutput::DynamicOutput(const InputData& input, const LimbProperties& limb,
 
     auto plot_shapes = new ShapePlot(limb, dynamics.states, false);
     auto plot_stress = new StressPlot(input, limb, dynamics.states);
-    auto plot_curvature = new CurvaturePlot(input, limb, dynamics.states);
+    auto plot_curvature = new CurvaturePlot(limb, dynamics.states);
     auto plot_energy = new EnergyPlot(dynamics.states, dynamics.states.time, "Time [s]");
     auto plot_combo = new ComboPlot();
     plot_combo->addData("Time [s]", dynamics.states.time);
