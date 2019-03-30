@@ -3,7 +3,8 @@ include(ExternalProject)
 project(virtualbow)
 set(CMAKE_CXX_STANDARD 14)
 
-# Parameters used for configuring files
+# Parameters
+
 set(APPLICATION_NAME "virtualbow")
 set(APPLICATION_DISPLAY_NAME "VirtualBow")
 set(APPLICATION_VERSION "0.6")
@@ -16,72 +17,19 @@ set(APPLICATION_DESCRIPTION_LONG "Software tool for simulating the static and dy
 
 # External libraries
 
-# Qt (must be provided by the system/developer)
-find_package(Qt5 COMPONENTS Widgets PrintSupport)
+find_package(Boost 1.69.0 REQUIRED)
+find_package(Catch2 2.6.0 REQUIRED)
+find_package(Eigen3 3.3.7 REQUIRED)
+find_package(nlohmann_json 3.6.1 REQUIRED)
+find_package(Qt5 5.9.5 COMPONENTS Widgets PrintSupport)
+find_package(Threads REQUIRED)                # System thread library (https://stackoverflow.com/a/39547577)
+
+include_directories(${Boost_INCLUDE_DIRS})
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-# Eigen (download from url)
-ExternalProject_Add(
-    eigen
-    URL "http://bitbucket.org/eigen/eigen/get/3.3.4.tar.gz"
-    URL_MD5 "1a47e78efe365a97de0c022d127607c3"
-    PREFIX ${CMAKE_BINARY_DIR}/eigen
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-)
-
-ExternalProject_Get_Property(eigen SOURCE_DIR)
-include_directories(${SOURCE_DIR})
-
-# Catch (download from url)
-ExternalProject_Add(
-    catch
-    URL "https://github.com/philsquared/Catch/archive/v1.9.3.tar.gz"
-    URL_MD5 "ca8817b67031d8e5c134a3cb36ed8397"
-    PREFIX ${CMAKE_BINARY_DIR}/catch
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-)
-
-ExternalProject_Get_Property(catch SOURCE_DIR)
-include_directories(${SOURCE_DIR}/include)
-
-# Json (download from url)
-ExternalProject_Add(
-    json
-    URL "https://github.com/nlohmann/json/archive/v3.0.1.tar.gz"
-    URL_MD5 "b03467284d9f608bd1b432315dc08d7d"
-    PREFIX ${CMAKE_BINARY_DIR}/json
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-)
-
-externalproject_Get_Property(json SOURCE_DIR)
-include_directories(${SOURCE_DIR}/src)
-
-# Boost (download from url)
-ExternalProject_Add(
-    boost
-    URL "https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.gz"
-    URL_MD5 "d275cd85b00022313c171f602db59fc5"
-    PREFIX ${CMAKE_BINARY_DIR}/boost
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-)
-
-externalproject_get_property(boost SOURCE_DIR)
-include_directories(${SOURCE_DIR})
-
-# System thread library (https://stackoverflow.com/a/39547577)
-find_package(Threads REQUIRED)
-
-# Build application library
+# Main library
 
 configure_file(source/config.hpp.in ${CMAKE_BINARY_DIR}/config.hpp)
 include_directories(source ${PROJECT_BINARY_DIR})
@@ -102,6 +50,7 @@ add_library(
     source/bow/LimbProperties.cpp
     source/bow/LayerProperties.cpp
     source/bow/input/InputData.cpp
+    source/bow/output/OutputData.cpp
     source/bow/BowModel.cpp
     source/numerics/ArcCurve.cpp
     source/numerics/CubicSpline.cpp
@@ -169,7 +118,7 @@ add_library(
     source/gui/output/ComboPlot.hpp
     source/gui/output/EnergyPlot.cpp
     source/gui/output/EnergyPlot.hpp
-	source/gui/output/CurvaturePlot.cpp
+    source/gui/output/CurvaturePlot.cpp
     source/gui/output/CurvaturePlot.hpp
     source/gui/output/OutputDialog.cpp
     source/gui/output/OutputDialog.hpp
@@ -184,15 +133,22 @@ add_library(
     source/external/qcustomplot/qcustomplot.cpp
 )
 
-add_dependencies(main-library eigen catch json boost)
-target_link_libraries(main-library Qt5::Widgets Qt5::PrintSupport Threads::Threads)
+target_link_libraries(
+    main-library
+    Threads::Threads
+    Qt5::Widgets
+    Qt5::PrintSupport
+    ${Boost_LIBRARIES}
+    Eigen3::Eigen
+    nlohmann_json::nlohmann_json
+)
 
-# Build application executable
+# Main executable
 
 add_executable(virtualbow source/main.cpp resources/resources.qrc)
 target_link_libraries(virtualbow main-library)
 
-# Build test executable
+# Test executable
 
 add_executable(
     virtualbow-tests
@@ -203,11 +159,10 @@ add_executable(
     tests/fem/TangentStiffness.cpp
     tests/numerics/Geometry.cpp
 )
-
 target_compile_definitions(virtualbow-tests PRIVATE _USE_MATH_DEFINES)    # Defines math constants on MSVC
-target_link_libraries(virtualbow-tests main-library)
+target_link_libraries(virtualbow-tests main-library Catch2::Catch2)
 
-# Build release packages for different platforms
+# Release packages
 
 if(UNIX)
     add_subdirectory(platforms/linux)

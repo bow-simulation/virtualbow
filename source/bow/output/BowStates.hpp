@@ -1,7 +1,7 @@
 #pragma once
 #include "numerics/Eigen.hpp"
 #include <vector>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 using nlohmann::json;
 

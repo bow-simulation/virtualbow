@@ -2,8 +2,7 @@
 #include "bow/LimbProperties.hpp"
 #include "bow/output/StaticData.hpp"
 #include "bow/output/DynamicData.hpp"
-#include <json.hpp>
-#include <fstream>
+#include <nlohmann/json.hpp>
 #include <vector>
 
 using nlohmann::json;
@@ -14,12 +13,8 @@ struct OutputData
     StaticData statics;
     DynamicData dynamics;
 
-    void save(const std::string& path) const
-    {
-        std::vector<uint8_t> buffer = json::to_msgpack(*this);
-        std::ofstream file(path);
-        file.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
-    }
+    // Todo: Move this somewhere else, maybe in Application class. Interface of OutputData can be just json.
+    void save(const std::string& path) const;
 };
 
 static void to_json(json& obj, const OutputData& val)

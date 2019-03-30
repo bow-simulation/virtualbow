@@ -5,7 +5,7 @@
 #include "String.hpp"
 #include "Masses.hpp"
 #include "Dimensions.hpp"
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <vector>
 
 using nlohmann::json;

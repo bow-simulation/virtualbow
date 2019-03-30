@@ -6,7 +6,7 @@
 #include "bow/BowModel.hpp"
 #include "config.hpp"
 #include <thread>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 MainWindow::MainWindow()
     : editor(new BowEditor())

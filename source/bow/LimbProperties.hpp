@@ -2,7 +2,7 @@
 #include "bow/input/InputData.hpp"
 #include "LayerProperties.hpp"
 #include "numerics/Eigen.hpp"
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 using nlohmann::json;
 
