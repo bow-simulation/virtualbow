@@ -1,6 +1,6 @@
 #pragma once
 #include "numerics/Series.hpp"
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 using nlohmann::json;
 

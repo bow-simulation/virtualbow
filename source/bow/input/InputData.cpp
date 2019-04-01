@@ -1,6 +1,7 @@
 #include "InputData.hpp"
 #include "Compatibility.hpp"
 #include <fstream>
+#include <iomanip>
 
 void InputData::load(const std::string& path)
 {
