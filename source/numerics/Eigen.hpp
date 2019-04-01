@@ -1,8 +1,7 @@
 #pragma once
 #define EIGEN_MAX_ALIGN_BYTES 0    // Turn off alignment
 #include <Eigen/Dense>
-
-#include<json.hpp>
+#include <nlohmann/json.hpp>
 
 using nlohmann::json;
 

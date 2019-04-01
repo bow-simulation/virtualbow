@@ -1,86 +1,49 @@
-# About
+# VirtualBow
 
-VirtualBow is a software tool for simulating the statics and dynamics of bow and arrow.
-Results include things like deformation, draw curve, material stresses, arrow velocity, degree of efficiency and more.
+## About
+
+VirtualBow is a free, open-source software tool for designing and simulating bows. It is written in C++ and has a Qt user interface.
 
 Visit http://bow-simulator.org for more information about the project.
 
-# License
+## Building
 
-VirtualBow is licensed under the GNU General Public License v3.0.
+VirtualBow requires a C++14 compiler and uses the CMake build system. The following instructions also use the cross platform [vcpkg](https://github.com/Microsoft/vcpkg) package manager for convenience, although not strictly necessary. After setting up vcpkg, the required dependencies can be installed as
 
-# Contributing
+    ./vcpkg install boost catch2 eigen3 nlohmann-json qt5-base
+
+Add vcpkg's toolchain file to any `cmake` calls via
+
+`-DCMAKE_TOOLCHAIN_FILE=[...]/vcpkg/scripts/buildsystems/vcpkg.cmake`
+
+in order to make them available. (If you're using Qt Creator you can define this under *Projects* - *Build Steps* - *Details* - *Tool arguments*)
+
+### Windows
+
+...
+
+### Linux
+
+On linux you can optionally save some time by installing Qt and boost as pre-compiled packages via your system's package manager instead,
+
+    sudo apt install qtbase5-dev libqt5x11extras5-dev libboost-all-dev
+
+Build the application
+
+    cmake [...]/virtualbow -DCMAKE_TOOLCHAIN_FILE=[...]/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
+    make
+
+### MacOS
+
+...
+
+## Contributing
 
 1. Fork this repository and create a new branch from `develop`
 2. Implement and commit your changes on this new branch
-3. Create a merge request back to the `develop` branch of this repository
-4. Your changes will be reviewed and merged as soon as possible
+3. Create a merge request against the `develop` branch of this repository
+4. Your changes will be reviewed as soon as possible
 
-# Build instructions
+## License
 
-VirtualBow is built with CMake.
-The instructions below use the Qt-Creator IDE, which has built-in CMake support.
-This is however not strictly necessary, you can just as well run CMake yourself.
-
-The instructions below mention exact version numbers for all the tools and libraries.
-These aren't strict requirements however, just a reference for how the official releases were built.
-
-## Windows
-
-### Prerequisites
-
-* [Microsoft Visual Studio 2017](https://www.visualstudio.com/downloads/). Select *Build Tools for Visual Studio 2017* if you don't want to install the whole Visual Studio IDE.
-
-* [CMake 3.10.2](https://cmake.org/download/). Check the installer option to add CMake to the system path.
-
-* [Qt 5.7.1 (Open Source)](https://www.qt.io/download). The necessary components depend on the target architecture:
-    * Qt 5.7.1 32-bit (MSVC 2015)
-    * Qt 5.7.1 64-bit (MSVC 2015)
-
-### Compiling with Qt Creator
-
-Download or clone this repository and open `CMakeLists.txt` with Qt Creator.
-Pick the kit *Desktop Qt 5.7.1 MSVC2015 32bit* or *64bit* and configure the project.
-
-Select the build type (e.g. *Release*) and perform a build.
-
-If Qt Creator didn't auto-detect the C and C++ compiler or CMake, go to *Projects*, *Manage Kits...* and set them manually (*Microsoft Visual C++ Compiler 15.0 x86* for the 32bit Kit, *amd64* for the 64bit one).
-
-Using the default CMake generator (*NMake Makefiles JOM*) might give you an error like this: "The C compiler ... is not able to compile a simple test program".
-This can be solved by adding the directory `Qt/Tools/QtCreator/bin` of the Qt installation to the system path.
-
-### Building the installer
-
-Building the Windows installer requires some additional tools,
-
-* [Inno Setup 5.5.9](http://www.jrsoftware.org/isdl.php). Add the installation directory to the system path.
-
-* [rcedit 1.0.0](https://github.com/electron/rcedit/releases). Download the executable, rename it to `rcedit` and add its location to the system path.
-
-In Qt Creator, check the target `iss-installer` under *Projects*, *Build Steps*, *Details* and perform a build.
-
-## Linux (Debian 9.4.0)
-
-### Prerequisites
-
-* Tools: `qtcreator`, `cmake`
-* Libraries: `qtbase5-dev`, `libqt5x11extras5-dev`
-
-### Compiling with Qt Creator
-
-Download or clone this repository and open `CMakeLists.txt` with Qt Creator.
-Pick the kit *Desktop* and configure the project.
-
-Select the build type (e.g. *Release*) and perform a build.
-
-### Building the deb Package
-
-Building the debian package requires `dpkg` to be installed. In Qt Creator, check the target `deb-package` under *Projects*, *Build Steps*, *Details* and perform a build.
-
-### Building the AppImage
-
-Building the AppImage requires [linuxdeployqt](https://github.com/probonopd/linuxdeployqt/releases), which is itself an AppImage.
-Download it from github and make it make it executable via `chmod a+x ...`.
-Ensure that it is found as `linuxdeployqt` by the command line, for example by dropping or linking it in your `/usr/local/bin/` folder.
-
-In Qt Creator, check the target `appimage` under *Projects*, *Build Steps*, *Details* and perform a build.
+VirtualBow is licensed under the GNU General Public License v3.0.
