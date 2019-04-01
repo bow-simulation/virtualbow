@@ -1,4 +1,6 @@
 # User settings for Qt creator
 *.user
 build
+deps
 setenv.bat
+setenv
