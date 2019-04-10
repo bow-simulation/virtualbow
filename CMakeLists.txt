@@ -166,7 +166,6 @@ target_link_libraries(virtualbow-tests main-library Catch2::Catch2)
 # Platform specifics
 
 if(WIN32)
-	target_link_libraries(main-library imm32)    # Fixes error when linking against static Qt
 	target_compile_definitions(virtualbow-tests PRIVATE _USE_MATH_DEFINES)    # Defines math constants on MSVC
 endif()
 
