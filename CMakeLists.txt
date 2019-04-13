@@ -166,7 +166,7 @@ target_link_libraries(virtualbow-tests main-library Catch2::Catch2)
 # Platform specifics
 
 if(WIN32)
-	target_compile_definitions(virtualbow-tests PRIVATE _USE_MATH_DEFINES)    # Defines math constants on MSVC
+	add_subdirectory(platforms/windows)
 endif()
 
 if(UNIX)
