@@ -18,7 +18,13 @@ When compiling, we need to specify the target triplet for selecting the correct 
 	cmake --build . --config Release
 	
 For the 32 bit build, x64 has to be replaced with x86 in the commands above. (If you run into a bug "This project doesn't contain the Configuration and Platform combination of Debug|Win32", remove the -A flag from cmake. It will then use x86 by default.)
+
+Building the installer requires Inno Setup and can be done by running
+
+    ISCC setup.iss /O. /Finstaller
 	
+in the output directory.
+
 ## Linux
 
 ## MacOS
