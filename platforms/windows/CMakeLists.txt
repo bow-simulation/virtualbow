@@ -1,40 +1,12 @@
-# Create windows directory layout
+target_compile_definitions(virtualbow-tests PRIVATE _USE_MATH_DEFINES)    # Defines math constants on MSVC
+target_sources(virtualbow PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icon.rc)     # Add resource file to set executable icon
 
-get_filename_component(QT_BINARY_DIR $ENV{QTDIR}/qmake PATH)
-add_custom_target(windows-files DEPENDS ${CMAKE_BINARY_DIR}/windows-files/bow-simulator.exe)
-add_custom_command(
-    OUTPUT ${CMAKE_BINARY_DIR}/windows-files/bow-simulator.exe
-    DEPENDS bow-simulator
-    # Program executable
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/bow-simulator.exe ${CMAKE_BINARY_DIR}/windows-files/bow-simulator.exe
-    COMMAND rcedit ${CMAKE_BINARY_DIR}/windows-files/bow-simulator.exe --set-icon ${CMAKE_CURRENT_LIST_DIR}/logo.ico
-    # Qt libraries
-    COMMAND ${QT_BINARY_DIR}/windeployqt ${CMAKE_BINARY_DIR}/windows-files/bow-simulator.exe --no-translations --no-compiler-runtime
-    # MSVC runtime libraries
-    COMMAND ${CMAKE_COMMAND} -E copy $ENV{VCToolsRedistDir}/$ENV{VSCMD_ARG_TGT_ARCH}/Microsoft.VC141.CRT/msvcp140.dll ${CMAKE_BINARY_DIR}/windows-files/msvcp140.dll
-    COMMAND ${CMAKE_COMMAND} -E copy $ENV{VCToolsRedistDir}/$ENV{VSCMD_ARG_TGT_ARCH}/Microsoft.VC141.CRT/vcruntime140.dll ${CMAKE_BINARY_DIR}/windows-files/vcruntime140.dll
-)
-
-# Build installer using Inno Setup
-
-configure_file(setup.iss.in ${CMAKE_BINARY_DIR}/iss/setup.iss)
-configure_file(license.rtf ${CMAKE_BINARY_DIR}/iss/license.rtf COPYONLY)
-configure_file(logo.ico ${CMAKE_BINARY_DIR}/iss/logo.ico COPYONLY)
+# Create .iss installer source file
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(ISS_INSTALL_DIR "{pf64}")    # Program Files
+    set(ISS_PROGRAM_DIR "{pf64}")    # Program Files
 else()
-    set(ISS_INSTALL_DIR "{pf32}")    # Program Files (x86)
+    set(ISS_PROGRAM_DIR "{pf32}")    # Program Files (x86)
 endif()
 
-add_custom_target(iss-installer DEPENDS installer.exe)
-add_custom_command(
-    OUTPUT installer.exe
-    DEPENDS windows-files
-    COMMAND ISCC
-        ${CMAKE_BINARY_DIR}/iss/setup.iss
-        /O${CMAKE_BINARY_DIR}
-        /Finstaller
-        /DBINARY_DIR=${CMAKE_BINARY_DIR}/windows-files
-        /DINSTALL_DIR=${ISS_INSTALL_DIR}
-)
+configure_file(setup.iss ${CMAKE_BINARY_DIR}/setup.iss)

@@ -6,6 +6,16 @@
 #include <windows.h>
 #endif
 
+#ifdef QT_STATIC_WINDOWS
+    #include <QtPlugin>
+    Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
+#endif
+
+#ifdef QT_STATIC_MACOS
+    #include <QtPlugin>
+	Q_IMPORT_PLUGIN(QCocoaIntegrationPlugin);
+#endif
+
 QSettings Application::settings(Config::APPLICATION_WEBSITE, Config::APPLICATION_NAME);
 
 int Application::run(int argc, char* argv[])

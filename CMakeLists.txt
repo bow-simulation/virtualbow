@@ -23,6 +23,7 @@ find_package(Eigen3 3.3.7 REQUIRED)
 find_package(nlohmann_json 3.6.1 REQUIRED)
 find_package(Qt5 5.9.5 COMPONENTS Widgets PrintSupport)
 find_package(Threads REQUIRED)                # System thread library (https://stackoverflow.com/a/39547577)
+find_package(OpenGL REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
 set(CMAKE_AUTOMOC ON)
@@ -136,6 +137,7 @@ add_library(
 target_link_libraries(
     main-library
     Threads::Threads
+    ${OPENGL_gl_LIBRARY}
     Qt5::Widgets
     Qt5::PrintSupport
     ${Boost_LIBRARIES}
@@ -159,19 +161,18 @@ add_executable(
     tests/fem/TangentStiffness.cpp
     tests/numerics/Geometry.cpp
 )
-target_compile_definitions(virtualbow-tests PRIVATE _USE_MATH_DEFINES)    # Defines math constants on MSVC
 target_link_libraries(virtualbow-tests main-library Catch2::Catch2)
 
-# Release packages
-
-if(UNIX)
-    add_subdirectory(platforms/linux)
-endif()
+# Platform specifics
 
 if(WIN32)
-    add_subdirectory(platforms/windows)
+	add_subdirectory(platforms/windows)
+endif()
+
+if(UNIX)
+    # ...
 endif()
 
 if(APPLE)
-    add_subdirectory(platforms/mac-os)
+    # ...
 endif()
