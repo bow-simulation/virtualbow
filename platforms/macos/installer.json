@@ -1,0 +1,11 @@
+{
+  "title": "VirtualBow",
+  "icon": "${CMAKE_CURRENT_SOURCE_DIR}/icon.icns",
+  "background": "${CMAKE_CURRENT_SOURCE_DIR}/background.png",
+  "window": { "size": { "width": 600, "height": 400 }},
+  "icon-size": 100,
+  "contents": [
+    { "x": 140, "y": 190, "type": "file", "path": "${CMAKE_BINARY_DIR}/VirtualBow.app" },
+    { "x": 455, "y": 190, "type": "link", "path": "/Applications" }
+  ]
+}

@@ -6,14 +6,13 @@
 #include <windows.h>
 #endif
 
-#ifdef QT_STATIC_WINDOWS
+#ifdef QT_STATIC_PLUGINS
     #include <QtPlugin>
-    Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
-#endif
-
-#ifdef QT_STATIC_MACOS
-    #include <QtPlugin>
-	Q_IMPORT_PLUGIN(QCocoaIntegrationPlugin);
+    #ifdef _WIN32
+        Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
+    #elif __APPLE__
+        Q_IMPORT_PLUGIN(QCocoaIntegrationPlugin);
+    #endif
 #endif
 
 QSettings Application::settings(Config::APPLICATION_WEBSITE, Config::APPLICATION_NAME);
