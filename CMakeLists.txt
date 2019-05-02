@@ -21,16 +21,15 @@ find_package(Boost 1.69.0 REQUIRED)
 find_package(Catch2 2.6.0 REQUIRED)
 find_package(Eigen3 3.3.7 REQUIRED)
 find_package(nlohmann_json 3.6.1 REQUIRED)
-find_package(Qt5 5.9.5 COMPONENTS Widgets PrintSupport)
+find_package(Qt5 REQUIRED COMPONENTS Widgets PrintSupport)
 find_package(Threads REQUIRED)                # System thread library (https://stackoverflow.com/a/39547577)
 find_package(OpenGL REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
 
-# Main library
+# Target: Main library
 
 configure_file(source/config.hpp.in ${CMAKE_BINARY_DIR}/config.hpp)
 include_directories(source ${PROJECT_BINARY_DIR})
@@ -145,12 +144,12 @@ target_link_libraries(
     nlohmann_json::nlohmann_json
 )
 
-# Main executable
+# Target: Main executable
 
-add_executable(virtualbow source/main.cpp resources/resources.qrc)
+add_executable(virtualbow MACOSX_BUNDLE source/main.cpp resources/resources.qrc)
 target_link_libraries(virtualbow main-library)
 
-# Test executable
+# Target: Test executable
 
 add_executable(
     virtualbow-tests
@@ -166,13 +165,9 @@ target_link_libraries(virtualbow-tests main-library Catch2::Catch2)
 # Platform specifics
 
 if(WIN32)
-	add_subdirectory(platforms/windows)
-endif()
-
-if(UNIX)
-    # ...
-endif()
-
-if(APPLE)
-    # ...
+    add_subdirectory(platforms/windows)
+elseif(APPLE)
+    add_subdirectory(platforms/macos)
+elseif(UNIX)
+    add_subdirectory(platforms/linux)
 endif()
