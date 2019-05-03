@@ -1,0 +1,84 @@
+jobs:
+- job: Win32
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - script: |
+      mkdir build && cd build
+      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.0/vcpkg-export-x86-windows-static-v140.zip
+      7z x vcpkg-export-x86-windows-static-v140.zip
+      cmake ../ -DCMAKE_TOOLCHAIN_FILE=vcpkg-export/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x86-windows-static-v140 -DCMAKE_CXX_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG /DQT_STATIC_PLUGINS" -T v140
+      cmake --build . --config Release
+      Release\virtualbow-tests
+      cmake --build . --config Release --target iss-installer
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: 'build/virtualbow-setup.exe'
+      artifactName: 'Win32_Artifacts'
+
+- job: Win64
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - script: |
+      mkdir build && cd build
+      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.0/vcpkg-export-x64-windows-static-v140.zip
+      7z x vcpkg-export-x64-windows-static-v140.zip
+      cmake ../ -DCMAKE_TOOLCHAIN_FILE=vcpkg-export/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static-v140 -DCMAKE_CXX_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG /DQT_STATIC_PLUGINS" -A x64 -T v140
+      cmake --build . --config Release
+      Release\virtualbow-tests
+      cmake --build . --config Release --target iss-installer
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: 'build/virtualbow-setup.exe'
+      artifactName: 'Win64_Artifacts'
+
+- job: MacOS
+  pool:
+    vmImage: 'macOS-10.13'
+  steps:
+  - script: |
+      mkdir build && cd build
+      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.0/vcpkg-export-x64-osx.zip
+      unzip vcpkg-export-x64-osx.zip
+      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.0/qt-5.11.2-x64-osx.zip
+      unzip qt-5.11.2-x64-osx.zip
+      cmake ../ -DCMAKE_TOOLCHAIN_FILE=vcpkg-export/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-osx -DCMAKE_PREFIX_PATH=$(Build.Repository.LocalPath)/build/qt-5.11.2-x64-osx -DCMAKE_OSX_DEPLOYMENT_TARGET=10.11 -DCMAKE_BUILD_TYPE=Release
+      cmake --build .
+      ./virtualbow-tests
+      npm install -g appdmg
+      cmake --build . --target dmg-installer
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: 'build/virtualbow.dmg'
+      artifactName: 'MacOS_Artifacts'
+
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - script: |
+      sudo apt update -qq && sudo apt install -y qt5-default
+      sudo curl -o /usr/local/bin/linuxdeployqt -LO https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
+      sudo chmod a+x /usr/local/bin/linuxdeployqt
+      mkdir build && cd build
+      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.0/vcpkg-export-x64-linux.zip
+      unzip vcpkg-export-x64-linux.zip
+      cmake ../ -DCMAKE_TOOLCHAIN_FILE=vcpkg-export/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DCMAKE_BUILD_TYPE=Release
+      cmake --build .
+      ./virtualbow-tests
+      cmake --build . --target deb-package
+      cmake --build . --target rpm-package
+      cmake --build . --target appimage
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: 'build/virtualbow.deb'
+      artifactName: 'Linux_Artifacts'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: 'build/virtualbow.rpm'
+      artifactName: 'Linux_Artifacts'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: 'build/virtualbow.AppImage'
+      artifactName: 'Linux_Artifacts'

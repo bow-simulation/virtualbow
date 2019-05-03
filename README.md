@@ -1,49 +1,58 @@
-# VirtualBow
+# About
 
-## About
+[![Build Status](https://dev.azure.com/virtualbow/virtualbow/_apis/build/status/virtualbow.virtualbow?branchName=develop)](https://dev.azure.com/virtualbow/virtualbow/_build/latest?definitionId=1&branchName=develop)
 
-VirtualBow is a free, open-source software tool for designing and simulating bows. It is written in C++ and has a Qt user interface.
-
+VirtualBow is a free, open-source software tool for designing and simulating bows.
 Visit http://bow-simulator.org for more information about the project.
 
-## Building
+# Building
 
-VirtualBow requires a C++14 compiler and uses the CMake build system. The following instructions also use the cross platform [vcpkg](https://github.com/Microsoft/vcpkg) package manager for convenience, although not strictly necessary. After setting up vcpkg, the required dependencies can be installed as
+Building VirtualBow requires CMake and a C++14 compiler.
+External dependencies are handled with [vcpkg](https://github.com/Microsoft/vcpkg), a cross-platform C++ package manager.
+(The following instructions are slightly different from the official release builds.
+For more information on those please refer to [RELEASE.md](RELEASE.md) and [azure-pipelines.yml](azure-pipelines.yml).)
+
+After setting up vcpkg, the required dependencies can be installed as
 
     ./vcpkg install boost catch2 eigen3 nlohmann-json qt5-base
 
-Add vcpkg's toolchain file to any `cmake` calls via
+Add vcpkg's toolchain file to any subsequent `cmake` calls in order to make them available
 
-`-DCMAKE_TOOLCHAIN_FILE=[...]/vcpkg/scripts/buildsystems/vcpkg.cmake`
+`-DCMAKE_TOOLCHAIN_FILE=[VCPKG_ROOT]/scripts/buildsystems/vcpkg.cmake`
 
-in order to make them available. (If you're using Qt Creator you can define this under *Projects* - *Build Steps* - *Details* - *Tool arguments*)
+If you're using Qt Creator you can set this under *Projects* - *Build Settings* - *CMake*.
+(If the configuration step keeps failing, try manually creating the folder specified as *Build directory* and then run CMake again.)
 
-### Windows
+## Windows
 
-...
+    mkdir build && cd build
+    cmake ../ -DCMAKE_TOOLCHAIN_FILE=[VCPKG_ROOT]/scripts/buildsystems/vcpkg.cmake
+    cmake --build . --config Release
 
-### Linux
+## Linux
 
-On linux you can optionally save some time by installing Qt and boost as pre-compiled packages via your system's package manager instead,
+On linux you can optionally save some time by installing Qt and boost as pre-compiled packages via your system's package manager instead
 
     sudo apt install qtbase5-dev libqt5x11extras5-dev libboost-all-dev
 
-Build the application
+Then build the application
 
-    cmake [...]/virtualbow -DCMAKE_TOOLCHAIN_FILE=[...]/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
-    make
+    mkdir build && cd build
+    cmake ../ -DCMAKE_TOOLCHAIN_FILE=[VCPKG_ROOT]/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
+    cmake --build .
 
-### MacOS
+## MacOS
 
-...
+See [RELEASE.md](RELEASE.md)
 
-## Contributing
+# Contributing
 
 1. Fork this repository and create a new branch from `develop`
-2. Implement and commit your changes on this new branch
-3. Create a merge request against the `develop` branch of this repository
-4. Your changes will be reviewed as soon as possible
+2. Implement, commit and push your changes
+3. Create a pull request back to the `develop` branch of this repository
+4. See if all checks pass. Keep updating your branch until they do.
+5. Your changes will be reviewed as soon as possible
 
-## License
+# License
 
 VirtualBow is licensed under the GNU General Public License v3.0.
