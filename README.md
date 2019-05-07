@@ -1,4 +1,4 @@
-# About
+# About VirtualBow
 
 [![Build Status](https://dev.azure.com/virtualbow/virtualbow/_apis/build/status/virtualbow.virtualbow?branchName=develop)](https://dev.azure.com/virtualbow/virtualbow/_build/latest?definitionId=1&branchName=develop)
 
@@ -16,9 +16,9 @@ After setting up vcpkg, the required dependencies can be installed as
 
     ./vcpkg install boost catch2 eigen3 nlohmann-json qt5-base
 
-Add vcpkg's toolchain file to any subsequent `cmake` calls in order to make them available
+Add vcpkg's toolchain file to any subsequent `cmake` calls in order to make them available.
 
-`-DCMAKE_TOOLCHAIN_FILE=[VCPKG_ROOT]/scripts/buildsystems/vcpkg.cmake`
+    -DCMAKE_TOOLCHAIN_FILE=[VCPKG_ROOT]/scripts/buildsystems/vcpkg.cmake
 
 If you're using Qt Creator you can set this under *Projects* - *Build Settings* - *CMake*.
 (If the configuration step keeps failing, try manually creating the folder specified as *Build directory* and then run CMake again.)
@@ -29,9 +29,9 @@ If you're using Qt Creator you can set this under *Projects* - *Build Settings* 
     cmake ../ -DCMAKE_TOOLCHAIN_FILE=[VCPKG_ROOT]/scripts/buildsystems/vcpkg.cmake
     cmake --build . --config Release
 
-## Linux
+## Linux and MacOS
 
-On linux you can optionally save some time by installing Qt and boost as pre-compiled packages via your system's package manager instead
+On linux you can optionally save some time by installing pre-compiled releases of Qt and Boost via your system's package manager.
 
     sudo apt install qtbase5-dev libqt5x11extras5-dev libboost-all-dev
 
@@ -41,16 +41,15 @@ Then build the application
     cmake ../ -DCMAKE_TOOLCHAIN_FILE=[VCPKG_ROOT]/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
     cmake --build .
 
-## MacOS
-
-See [RELEASE.md](RELEASE.md)
-
 # Contributing
 
-1. Fork this repository and create a new branch from `develop`
+Any contribution is very much appreciated.
+Follow the steps below to get your changes included in this repository.
+
+1. Fork the repository and create a new branch from `develop`
 2. Implement, commit and push your changes
-3. Create a pull request back to the `develop` branch of this repository
-4. See if all checks pass. Keep updating your branch until they do.
+3. Create a pull request back to the `develop` branch of this repository. Link any relevant [issues](https://github.com/bow-simulation/virtualbow/issues).
+4. Wait and see if all checks pass. Keep updating your branch until they do.
 5. Your changes will be reviewed as soon as possible
 
 # License
