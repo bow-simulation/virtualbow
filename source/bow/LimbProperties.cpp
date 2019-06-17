@@ -2,6 +2,8 @@
 #include "numerics/ArcCurve.hpp"
 #include "numerics/CubicSpline.hpp"
 
+#define CROWN_COMPENSATION_ENABLED 1
+
 LimbProperties::LimbProperties(const InputData& input)
     : LimbProperties(input, input.settings.n_limb_elements + 1)
 {
@@ -33,6 +35,10 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
     x_pos = curve.x;
     y_pos = curve.y;
 
+#if CROWN_COMPENSATION_ENABLED
+    double R = 0.04; // radius of the tree the stave came from
+#endif
+
     // 2. Sections properties
     Series width = CubicSpline(input.width).sample(n-1);
 
@@ -58,10 +64,19 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
         for(size_t j = 0; j < input.layers.size(); ++j)
         {
             double h = heights[j].val(i);
+            double w = this->width[i];
             double y = y_top - 0.5*h;
-            double A = this->width[i]*h;
+            double A = w*h;
             double I = A*(h*h/12.0 + y*y);
 
+#if CROWN_COMPENSATION_ENABLED
+            // correction for "crown" of the back
+            if (R>0)
+            {
+                A -= w*w*w/24/R;
+                I -= w*w*w*h*h/96/R;
+            }
+#endif
             // Limb properties
 
             Cee[i] += input.layers[j].E*A;
@@ -87,24 +102,4 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
             y_top -= h;
         }
     }
-
-    // 3. Layer properties
-    /*
-    LayerProperties layer(n, n);
-    for(size_t i = 0; i < n; ++i)
-    {
-        layer.s(i) = s(i);
-
-        layer.y_back(i) = 0.5*heights[0].val(i);
-        layer.y_belly(i) = -0.5*heights[0].val(i);
-
-        layer.He_back(i, i) =  input.layers[0].E;
-        layer.He_belly(i, i) = input.layers[0].E;
-
-        layer.Hk_back(i, i) = input.layers[0].E*layer.y_back(i);
-        layer.Hk_belly(i, i) = input.layers[0].E*layer.y_belly(i);
-    }
-
-    layers.push_back(layer);
-    */
 }
