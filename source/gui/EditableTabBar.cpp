@@ -19,9 +19,8 @@ EditableTabBar::EditableTabBar()
     QObject::connect(this, &QTabWidget::tabBarDoubleClicked, [&](int index)
     {
         QString old_text = this->tabText(index);
-        this->setTabText(index, "...");
-
         QString new_text = QInputDialog::getText(this, "Rename", "New name:", QLineEdit::Normal, old_text);
+
         if(new_text != nullptr)
         {
             this->setTabText(index, new_text);
