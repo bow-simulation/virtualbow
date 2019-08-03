@@ -17,10 +17,10 @@ set(APPLICATION_DESCRIPTION_LONG "Software tool for simulating the static and dy
 
 # External libraries
 
-find_package(Boost 1.69.0 REQUIRED)
-find_package(Catch2 2.6.0 REQUIRED)
-find_package(Eigen3 3.3.7 REQUIRED)
-find_package(nlohmann_json 3.6.1 REQUIRED)
+find_package(Boost REQUIRED)
+find_package(Catch2 REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(nlohmann_json REQUIRED)
 find_package(Qt5 REQUIRED COMPONENTS Widgets PrintSupport)
 find_package(Threads REQUIRED)                # System thread library (https://stackoverflow.com/a/39547577)
 find_package(OpenGL REQUIRED)

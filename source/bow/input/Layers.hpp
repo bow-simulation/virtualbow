@@ -6,7 +6,7 @@ using nlohmann::json;
 
 struct Layer
 {
-    std::string name = "unnamed";
+    std::string name = "Unnamed";
     Series height = {{0.0, 1.0}, {0.015, 0.01}};
     double rho = 600.0;
     double E = 15e9;

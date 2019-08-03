@@ -2,6 +2,8 @@
 
 ## Windows
 
+(This section is not up to date, the Windows build was temporarily reverted to dynamic linking. See issue #140 for details.)
+
 The Windows release uses custom `x86-windows-static-v140` and `x64-windows-static-v140` target triplets for the 32 bit and 64 bit versions respectively. They build static libraries and also link the msvc runtime statically, i.e. no Visual C++ Redistributable has to be installed on the target system. The `v140` platform toolset (Visual Studio 2015) is used because newer toolsets assume the UCRT to be present which is (out of the box) only the case for Windows 8 and later.
 
     .\vcpkg install boost catch2 eigen3 nlohmann-json qt5-base --triplet x64-windows-static-v140
@@ -27,7 +29,7 @@ in the output directory.
 
 ## Linux
 
-The linux build is done with the static default triplet, but Qt is linked dynamically by using the system package,
+The linux build is done with the static `x64-linux` default triplet, but Qt is linked dynamically by using the system package.
 
     `sudo apt install qt5-default`
     
