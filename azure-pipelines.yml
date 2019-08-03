@@ -19,7 +19,7 @@ jobs:
       cmake --build . --config Release --target iss-installer
   - task: PublishBuildArtifacts@1
     inputs:
-      pathToPublish: 'build/Release'
+      pathToPublish: 'build/virtualbow-setup.exe'
       artifactName: 'Win32_Artifacts'
 
 - job: Win64
@@ -38,7 +38,7 @@ jobs:
       cmake --build . --config Release --target iss-installer
   - task: PublishBuildArtifacts@1
     inputs:
-      pathToPublish: 'build/Release'
+      pathToPublish: 'build/virtualbow-setup.exe'
       artifactName: 'Win64_Artifacts'
 
 - job: MacOS
