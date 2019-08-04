@@ -15,19 +15,17 @@ QColor getLayerColor(const Layer& layer)
 QPixmap getLayerPixmap(const Layer& layer)
 {
     const int size = 48;
-    const qreal line_width = 2;
-    const qreal rounding = 0.2;
+	const int offset = 6;
 
     QPixmap pixmap(size, size);
     pixmap.fill(Qt::transparent);
 
+    QPainterPath path;
+    path.addRect(offset, offset, size - 2*offset, size - 2*offset);
+
     QPainter painter(&pixmap);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.setPen({Qt::black, line_width});
-    painter.setBrush(getLayerColor(layer));
-    QPainterPath path;
-    path.addRoundedRect({line_width/2, line_width/2, size - line_width, size - line_width},
-                         rounding*size, rounding*size);
+	painter.fillPath(path, getLayerColor(layer));
     painter.drawPath(path);
 
     return pixmap;
