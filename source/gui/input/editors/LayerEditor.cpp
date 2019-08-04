@@ -54,7 +54,9 @@ Layer LayerEditor::getData() const
 void LayerEditor::setData(const Layer& layer)
 {
     tabs->setTabText(tabs->indexOf(this), QString::fromStdString(layer.name));
+    #ifndef __APPLE__
     tabs->setTabIcon(tabs->indexOf(this), QIcon(getLayerPixmap(layer)));
+    #endif
     table->setData(layer.height);
     view->setData(layer.height);
     edit_E->setData(layer.E);
@@ -63,5 +65,7 @@ void LayerEditor::setData(const Layer& layer)
 
 void LayerEditor::updateTabIcon()
 {
+    #ifndef __APPLE__
     tabs->setTabIcon(tabs->indexOf(this), QIcon(getLayerPixmap(getData())));
+    #endif
 }
