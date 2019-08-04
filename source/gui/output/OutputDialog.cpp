@@ -134,10 +134,11 @@ OutputDialog::OutputDialog(QWidget* parent, const InputData& input, const Output
     bt_dynamics->setAutoExclusive(true);
 
     auto btbox = new QDialogButtonBox();
-    btbox->addButton(bt_statics, QDialogButtonBox::ResetRole);
-    btbox->addButton(bt_dynamics, QDialogButtonBox::ResetRole);
-    btbox->addButton(QDialogButtonBox::Close);
     vbox->addWidget(btbox);
+    btbox->addButton(QDialogButtonBox::Close);
+    btbox->button(QDialogButtonBox::Close)->setDefault(true);    // Only works after btbox added to vbox
+    btbox->addButton(bt_statics, QDialogButtonBox::ActionRole);
+    btbox->addButton(bt_dynamics, QDialogButtonBox::ActionRole);
 
     QObject::connect(bt_statics, &QPushButton::toggled, [=](bool checked){
         if(checked)
