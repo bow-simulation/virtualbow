@@ -7,12 +7,6 @@ jobs:
       mkdir build && cd build
       curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.0/vcpkg-export-x86-windows.zip
       unzip vcpkg-export-x86-windows.zip
-      set PATH=vcpkg-export-x86-windows\installed\x86-windows\tools\qt5;%PATH%
-      set PATH=vcpkg-export-x86-windows\installed\x86-windows\tools\qt5-tools;%PATH%
-      echo "=========="
-      echo %PATH%
-      qmake
-      echo "=========="
       cmake ../ -DCMAKE_TOOLCHAIN_FILE=vcpkg-export-x86-windows/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x86-windows -A Win32
       cmake --build . --config Release
       Release\virtualbow-tests
@@ -30,8 +24,6 @@ jobs:
       mkdir build && cd build
       curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.0/vcpkg-export-x64-windows.zip
       unzip vcpkg-export-x64-windows.zip
-      set PATH=%PATH%;vcpkg-export-x64-windows\installed\x64-windows\tools\qt5
-      set PATH=%PATH%;vcpkg-export-x64-windows\installed\x64-windows\tools\qt5-tools
       cmake ../ -DCMAKE_TOOLCHAIN_FILE=vcpkg-export-x64-windows/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -A x64
       cmake --build . --config Release
       Release\virtualbow-tests
