@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.6.0 (10.08.2018)
 
 ### Added
 * Support for MacOS
@@ -15,7 +15,7 @@
 * Crash when loading an invalid `.bow` file from the command line
 * Problem with face orientation of the limb geometry in the 3D view
 
-## Version 0.5 - 18.03.2018
+## 0.5.0 (18.03.2018)
 
 ### Added
 * Possibility to define laminated bows
@@ -32,7 +32,7 @@
 * Initial state `t = 0` missing from the dynamic output data
 * Program terminates when GUI is started with invalid file
 
-## Version 0.4 - 04.11.2017
+## 0.4.0 (04.11.2017)
 
 ### Added
 * More robust static simulation by using line searching
@@ -43,7 +43,7 @@
 ### Changed
 * Don't start the simulation when draw length is smaller than brace height
 
-## Version 0.3 - 04.09.2017
+## 0.3.0 (04.09.2017)
 
 ### Added
 * Command line interface for starting simulations without the GUI
@@ -53,7 +53,7 @@
 ### Changed
 * Replace sampling time with sampling rate/frequency in the dynamics settings
 
-## Version 0.2 - 06.08.2017
+## 0.2.0 (06.08.2017)
 
 ### Added
 * Tree based bow editor
@@ -68,7 +68,7 @@
 * Crash when section height is zero
 * Crash when cancel is clicked right after starting the simulation
 
-## Version 0.1 - 25.12.2016
+## 0.1.0 (25.12.2016)
 
 ### Added
 * Platform support for Windows, Linux and MacOS
