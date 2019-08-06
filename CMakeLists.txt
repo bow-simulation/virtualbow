@@ -8,12 +8,12 @@ set(CMAKE_CXX_STANDARD 14)
 set(APPLICATION_NAME "virtualbow")
 set(APPLICATION_DISPLAY_NAME "VirtualBow")
 set(APPLICATION_VERSION "0.6")
-set(APPLICATION_WEBSITE "https://virtualbow.org")
+set(APPLICATION_WEBSITE "https://www.virtualbow.org")
 set(APPLICATION_MAINTAINER "Stefan Pfeifer")
 set(APPLICATION_COPYRIGHT "Copyright (C) 2016-2019 Stefan Pfeifer")
 set(APPLICATION_LICENSE "GNU General Public License v3.0")
 set(APPLICATION_DESCRIPTION_SHORT "Bow and arrow physics simulation")
-set(APPLICATION_DESCRIPTION_LONG "Software tool for simulating the static and dynamic performance of bow designs")
+set(APPLICATION_DESCRIPTION_LONG "Software tool for simulating the static and dynamic performance of bows")
 
 # External libraries
 

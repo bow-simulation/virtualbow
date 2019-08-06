@@ -3,14 +3,14 @@
 [![Build Status](https://bow-simulation.visualstudio.com/virtualbow/_apis/build/status/bow-simulation.virtualbow?branchName=develop)](https://bow-simulation.visualstudio.com/virtualbow/_build/latest?definitionId=1&branchName=develop)
 
 VirtualBow is a free, open-source software tool for designing and simulating bows.
-Visit http://bow-simulator.org for more information about the project.
+Visit http://www.virtualbow.org for more information about the project.
 
 # Building
 
 Building VirtualBow requires CMake and a C++14 compiler.
 External dependencies are handled with [vcpkg](https://github.com/Microsoft/vcpkg), a cross-platform C++ package manager.
 (The following instructions are slightly different from the official release builds.
-For more information on those please refer to [RELEASE.md](RELEASE.md) and [azure-pipelines.yml](azure-pipelines.yml).)
+For more information on those please refer to [Release.md](Release.md) and [azure-pipelines.yml](azure-pipelines.yml).)
 
 After setting up vcpkg, the required dependencies can be installed as
 
