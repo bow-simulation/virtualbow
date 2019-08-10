@@ -1,0 +1,51 @@
+\documentclass[12pt]{report}
+
+% Style
+\usepackage{parskip}	% Blank line between paragraphs
+\usepackage[top=1in, bottom=1.25in, left=1.25in, right=1.25in]{geometry} % Page margins
+\usepackage{float} % Placement of figures with H
+\renewcommand{\familydefault}{\sfdefault} % Use sans-serif font (https://tex.stackexchange.com/a/2097)
+
+
+% Maths
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{units}
+\usepackage{relsize}    % \mathlarger
+
+\usepackage[hidelinks, pdfusetitle]{hyperref}
+\usepackage{color}
+
+% Settings
+% \allowdisplaybreaks		% Break aligned equations over pages
+
+% Parameters
+\newcommand{\swtitle}{VirtualBow}
+\newcommand{\version}{0.6}
+\newcommand{\website}{\href{http://www.virtualbow.org/}{\texttt{\textcolor{blue}{http://www.virtualbow.org/}}}}
+
+\begin{document}
+
+\input{latex/titlepage.tex}
+
+\tableofcontents
+
+\input{latex/introduction.tex}
+\input{latex/model.tex}
+\input{latex/equations.tex}
+\input{latex/solution.tex}
+\input{latex/validation.tex}
+
+\appendix
+
+\input{latex/appendix.tex}
+\input{latex/bibliography.tex}
+
+\end{document}
+
+% Todo:
+% - Set version number and website.
+%   Perhaps define them somewhere central.
+% - Add metadata?
+% - Unify Bib entries. How to mark entries as german properly?
