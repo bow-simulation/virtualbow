@@ -1,11 +1,11 @@
 # Changelog
 
-## v0.6 (11.08.2018)
+## v0.6 (11.08.2019)
 
 ### Added
 * Support for MacOS
 * Support for `rpm` based Linux distributions
-* New output result: Limb curvature
+* Output limb curvature
 
 ### Changed
 * Use monotonic cubic splines for layer width and height interpolation
