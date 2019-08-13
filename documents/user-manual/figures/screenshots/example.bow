@@ -1,0 +1,111 @@
+{
+    "dimensions": {
+        "brace_height": 0.2,
+        "draw_length": 0.7,
+        "handle_angle": 0.0,
+        "handle_length": 0.0,
+        "handle_setback": 0.0
+    },
+    "layers": [
+        {
+            "E": 15000000000.0,
+            "height": [
+                [
+                    0.0,
+                    0.003
+                ],
+                [
+                    1.0,
+                    0.003
+                ]
+            ],
+            "name": "Layer 1",
+            "rho": 600.0
+        },
+        {
+            "E": 15000000000.0,
+            "height": [
+                [
+                    0.0,
+                    0.01
+                ],
+                [
+                    1.0,
+                    0.006
+                ]
+            ],
+            "name": "Layer 2",
+            "rho": 637.0
+        },
+        {
+            "E": 15000000000.0,
+            "height": [
+                [
+                    0.0,
+                    0.003
+                ],
+                [
+                    1.0,
+                    0.003
+                ]
+            ],
+            "name": "Layer 3",
+            "rho": 600.0
+        }
+    ],
+    "masses": {
+        "arrow": 0.025,
+        "limb_tip": 0.005,
+        "string_center": 0.005,
+        "string_tip": 0.005
+    },
+    "meta": {
+        "comments": "",
+        "version": "0.6"
+    },
+    "profile": [
+        [
+            0.4,
+            0.0
+        ],
+        [
+            0.2,
+            1.0
+        ],
+        [
+            0.2,
+            2.0
+        ]
+    ],
+    "settings": {
+        "n_draw_steps": 150,
+        "n_limb_elements": 40,
+        "n_string_elements": 45,
+        "sampling_rate": 10000.0,
+        "time_span_factor": 1.5,
+        "time_step_factor": 0.5
+    },
+    "string": {
+        "n_strands": 12,
+        "strand_density": 0.0005,
+        "strand_stiffness": 3500.0
+    },
+    "width": [
+        [
+            0.0,
+            0.04
+        ],
+        [
+            0.5,
+            0.031
+        ],
+        [
+            0.75,
+            0.023
+        ],
+        [
+            1.0,
+            0.01
+        ]
+    ]
+}

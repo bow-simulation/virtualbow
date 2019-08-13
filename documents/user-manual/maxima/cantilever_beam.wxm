@@ -1,0 +1,39 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 13.04.2 ] */
+
+/* [wxMaxima: input   start ] */
+h: h0*(1-x/L) + h1*(x/L);
+I: b/12*h^3;
+M: -F*(L-x);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+Dw: integrate(-M/(E*I), x)$
+w: integrate(Dw, x)$
+ratsimp(w);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+C0: solve([ev(Dw + c0, x=0) = 0], [c0]);
+C1: solve([ev(w + c1, x=0) = 0], [c1]);
+W: w + rhs(C0)*x + rhs(C1);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+WL: ratsimp(ev(W, x=L));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+e: ratsimp(solve([WL = s], [E]));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+logcontract(%);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+factor(%);
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
