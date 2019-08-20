@@ -36,7 +36,7 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
     y_pos = curve.y;
 
 #if CROWN_COMPENSATION_ENABLED
-    double R = 0.04; // radius of the tree the stave came from
+    double R = input.dimensions.stave_radius; // radius of the tree the stave came from
 #endif
 
     // 2. Sections properties

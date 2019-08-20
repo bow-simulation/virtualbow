@@ -10,6 +10,7 @@ struct Dimensions
     double handle_length = 0.0;
     double handle_setback = 0.0;
     double handle_angle = 0.0;
+    double stave_radius = 0.0;
 };
 
 static bool operator==(const Dimensions& lhs, const Dimensions& rhs)
@@ -18,7 +19,8 @@ static bool operator==(const Dimensions& lhs, const Dimensions& rhs)
         && lhs.draw_length == rhs.draw_length
         && lhs.handle_length == rhs.handle_length
         && lhs.handle_setback == rhs.handle_setback
-        && lhs.handle_angle == rhs.handle_angle;
+        && lhs.handle_angle == rhs.handle_angle
+        && lhs.stave_radius == rhs.stave_radius;
 }
 
 static bool operator!=(const Dimensions& lhs, const Dimensions& rhs)
@@ -33,6 +35,9 @@ static void to_json(json& obj, const Dimensions& value)
     obj["handle_length"] = value.handle_length;
     obj["handle_setback"] = value.handle_setback;
     obj["handle_angle"] = value.handle_angle;
+    if (value.stave_radius>0) {
+        obj["stave_radius"] = value.stave_radius;
+    }
 }
 
 static void from_json(const json& obj, Dimensions& value)
@@ -42,4 +47,5 @@ static void from_json(const json& obj, Dimensions& value)
     value.handle_length = obj.at("handle_length");
     value.handle_setback = obj.at("handle_setback");
     value.handle_angle = obj.at("handle_angle");
+    value.stave_radius = obj.value("stave_radius", 0.0);
 }

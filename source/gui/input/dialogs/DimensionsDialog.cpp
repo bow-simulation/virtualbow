@@ -12,11 +12,15 @@ DimensionsDialog::DimensionsDialog(QWidget* parent)
     this->addWidget(edit3);
     this->addWidget(edit4);
 
+    this->addGroup("Stave");
+    this->addWidget(edit10);
+
     QObject::connect(edit0, &DoubleEditor::modified, this, &DimensionsDialog::modified);
     QObject::connect(edit1, &DoubleEditor::modified, this, &DimensionsDialog::modified);
     QObject::connect(edit2, &DoubleEditor::modified, this, &DimensionsDialog::modified);
     QObject::connect(edit3, &DoubleEditor::modified, this, &DimensionsDialog::modified);
     QObject::connect(edit4, &DoubleEditor::modified, this, &DimensionsDialog::modified);
+    QObject::connect(edit10, &DoubleEditor::modified, this, &DimensionsDialog::modified);
 }
 
 Dimensions DimensionsDialog::getData() const
@@ -27,6 +31,7 @@ Dimensions DimensionsDialog::getData() const
     data.handle_length = edit2->getData();
     data.handle_setback = edit3->getData();
     data.handle_angle = edit4->getData();
+    data.stave_radius = edit10->getData();
 
     return data;
 }
@@ -38,4 +43,5 @@ void DimensionsDialog::setData(const Dimensions& data)
     edit2->setData(data.handle_length);
     edit3->setData(data.handle_setback);
     edit4->setData(data.handle_angle);
+    edit10->setData(data.stave_radius);
 }
