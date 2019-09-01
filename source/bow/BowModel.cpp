@@ -47,7 +47,6 @@ BowModel::BowModel(const InputData& input, const Callback& callback)
 void BowModel::check_input(const InputData& input)
 {
     // Check Settings
-
     if(input.settings.n_limb_elements < 1)
         throw std::runtime_error("Settings: Number of limb elements must be positive");
 
@@ -67,15 +66,9 @@ void BowModel::check_input(const InputData& input)
         throw std::runtime_error("Settings: Sampling rate must be positive");
 
     // Check Profile
-
-    for(double arg: input.profile.args())
-    {
-        if(arg <= 0.0)
-            throw std::runtime_error("Profile: Segment lengths must be positive");
-    }
+    // ...
 
     // Check width
-
     if(input.width.size() < 2)
         throw std::runtime_error("Width: At least two data points are needed");
 
@@ -86,7 +79,6 @@ void BowModel::check_input(const InputData& input)
     }
 
     // Check Layers
-
     for(size_t i = 0; i < input.layers.size(); ++i)
     {
         const Layer& layer = input.layers[i];
@@ -108,7 +100,6 @@ void BowModel::check_input(const InputData& input)
     }
 
     // Check String
-
     if(input.string.strand_stiffness <= 0.0)
         throw std::runtime_error("String: Strand stiffness must be positive");
 
@@ -119,7 +110,6 @@ void BowModel::check_input(const InputData& input)
         throw std::runtime_error("String: Number of strands must be positive");
 
     // Check Masses
-
     if(input.masses.string_center < 0.0)
         throw std::runtime_error("Masses: String center mass must not be negative");
 
@@ -130,7 +120,6 @@ void BowModel::check_input(const InputData& input)
         throw std::runtime_error("Masses: Limb tip mass must not be negative");
 
     // Check Operation
-
     if(input.dimensions.brace_height >= input.dimensions.draw_length)
         throw std::runtime_error("Operation: Draw length must be greater than brace height");
 

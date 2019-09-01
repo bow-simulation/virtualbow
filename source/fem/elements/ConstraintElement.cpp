@@ -46,10 +46,10 @@ void ConstraintElement::add_tangent_stiffness() const
     Dc2 << 0.0, 1.0,  dx_rel*cos(system.get_u(dofs[2])) - dy_rel*sin(system.get_u(dofs[2])),  0.0, -1.0;
 
     // Todo: Don't actually create sparse matrices DDc1, DDc2
-    Matrix<5> DDc1 = Matrix<5>::Zero();
+    Matrix<5, 5> DDc1 = Matrix<5, 5>::Zero();
     DDc1(2, 2) = dy_rel*sin(system.get_u(dofs[2])) - dx_rel*cos(system.get_u(dofs[2]));
 
-    Matrix<5> DDc2 = Matrix<5>::Zero();
+    Matrix<5, 5> DDc2 = Matrix<5, 5>::Zero();
     DDc2(2, 2) = -dy_rel*cos(system.get_u(dofs[2])) - dx_rel*sin(system.get_u(dofs[2]));
 
     system.add_K(dofs, k*(Dc1*Dc1.transpose() + Dc2*Dc2.transpose() + c1*DDc1 + c2*DDc2));

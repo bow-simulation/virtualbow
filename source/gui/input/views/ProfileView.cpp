@@ -1,4 +1,6 @@
 #include "ProfileView.hpp"
+#include "bow/ProfileCurve.hpp"
+#include "numerics/Linspace.hpp"
 
 ProfileView::ProfileView()
 {
@@ -22,13 +24,25 @@ void ProfileView::setData(Series data)
 {
     try
     {
-        Curve2D curve = ArcCurve::sample(data, 0.0, 0.0, 0.0, 150);  // Magic number
-        Curve2D nodes = ArcCurve::nodes(data, 0.0, 0.0, 0.0);
+        ProfileCurve profile(data.args(), data.vals(), 0.0, 0.0, 0.0);
 
-        curve0->setData(curve.x, curve.y);
-        curve1->setData(nodes.x, nodes.y);
+        // Add interpolated points of the profile curve
+        curve0->data()->clear();
+        for(double s: Linspace<double>(profile.arg_min(), profile.arg_max(), 150))    // Magic number
+        {
+            Vector<3> point = profile(s);
+            curve0->addData(point[0], point[1]);
+        }
+
+        // Add control points on the profile curve
+        curve1->data()->clear();
+        for(double s: data.args())
+        {
+            Vector<3> point = profile(s);
+            curve1->addData(point[0], point[1]);
+        }
     }
-    catch(const std::runtime_error&)
+    catch(const std::invalid_argument&)
     {
         curve0->data()->clear();
         curve1->data()->clear();

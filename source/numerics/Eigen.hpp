@@ -5,8 +5,11 @@
 
 using nlohmann::json;
 
-template<size_t n, size_t k = n>
+template<size_t n, size_t k>
 using Matrix = Eigen::Matrix<double, n, k>;
+
+template<size_t n, size_t k>
+using Array = Eigen::Array<double, n, k>;
 
 template<std::size_t n>
 using Vector = Eigen::Matrix<double, n, 1>;

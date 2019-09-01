@@ -14,7 +14,7 @@ struct InputData
 {
     Meta meta;
     Settings settings;
-    Series profile = {{0.8}, {0.0}};
+    Series profile = {{0.1, 0.8}, {0.0, 0.5}};
     Series width = {{0.0, 1.0}, {0.06, 0.01}};
     Layers layers = {Layer()};
     String string;

@@ -108,7 +108,7 @@ ContactElement::State ContactElement::get_state() const
        get_orientation(P2, Q0, Q1) == Orientation::LeftHanded ||
        get_orientation(P2, Q1, P1) == Orientation::LeftHanded)
     {
-        return {0.0, Vector<8>::Zero(), Matrix<8>::Zero()};
+        return {0.0, Vector<8>::Zero(), Matrix<8, 8>::Zero()};
     }
 
     // Contact: Calculate kinematic expressions
@@ -141,18 +141,18 @@ ContactElement::State ContactElement::get_state() const
     // 3. Second derivative of e
     // Todo: Don't actually create sparse matrices DDa1 ... DDa4
 
-    Matrix<8> DDa1 = Matrix<8>::Zero();
+    Matrix<8, 8> DDa1 = Matrix<8, 8>::Zero();
     DDa1(2, 2) = h0*sin(system.get_u(dofs[2]));
     DDa1(5, 5) = -h1*sin(system.get_u(dofs[5]));
 
-    Matrix<8> DDa2 = Matrix<8>::Zero();
+    Matrix<8, 8> DDa2 = Matrix<8, 8>::Zero();
     DDa2(2, 2) = -h0*cos(system.get_u(dofs[2]));
     DDa2(5, 5) = h1*cos(system.get_u(dofs[5]));
 
-    Matrix<8> DDa3 = Matrix<8>::Zero();
+    Matrix<8, 8> DDa3 = Matrix<8, 8>::Zero();
     DDa3(2, 2) = h0*sin(system.get_u(dofs[2]));
 
-    Matrix<8> DDa4 = Matrix<8>::Zero();
+    Matrix<8, 8> DDa4 = Matrix<8, 8>::Zero();
     DDa4(2, 2) = -h0*cos(system.get_u(dofs[2]));
 
     auto Db1 = -(a1*Da1 + a2*Da2)/pow(a1*a1 + a2*a2, 1.5);
@@ -170,7 +170,7 @@ ContactElement::State ContactElement::get_state() const
     auto Dv2 = Da1*Da1.transpose() + Da2*Da2.transpose()
              + a1*DDa1 + a2*DDa2;
 
-    Matrix<8> DDe = Db1*v1.transpose() + Db2*v2.transpose() + b1*Dv1 + b2*Dv2;
+    Matrix<8, 8> DDe = Db1*v1.transpose() + Db2*v2.transpose() + b1*Dv1 + b2*Dv2;
 
     return {e, De, DDe};
 }

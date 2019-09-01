@@ -1,6 +1,6 @@
 #pragma once
 #include "gui/PlotWidget.hpp"
-#include "numerics/ArcCurve.hpp"
+#include "numerics/Series.hpp"
 
 class ProfileView: public PlotWidget
 {

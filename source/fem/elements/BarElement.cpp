@@ -69,7 +69,7 @@ void BarElement::add_tangent_stiffness() const
     double c0 = EA*(L_new - L)/(L_new*L);
     double c1 = EA/pow(L_new, 3);
 
-    Matrix<4> K;
+    Matrix<4, 4> K;
     K << c1*dx*dx + c0,       c1*dx*dy, -c1*dx*dx - c0,      -c1*dx*dy,
               c1*dx*dy,  c1*dy*dy + c0,      -c1*dx*dy, -c1*dy*dy - c0,
         -c1*dx*dx - c0,      -c1*dx*dy,  c1*dx*dx + c0,       c1*dx*dy,
