@@ -5,9 +5,9 @@ using nlohmann::json;
 
 struct Settings
 {
-    int n_limb_elements = 40;
-    int n_string_elements = 45;
-    int n_draw_steps = 150;
+    unsigned n_limb_elements = 40;
+    unsigned n_string_elements = 45;
+    unsigned n_draw_steps = 150;
     double time_span_factor = 1.5;
     double time_step_factor = 0.5;
     double sampling_rate = 1e4;

@@ -1,5 +1,6 @@
 #pragma once
 #include "bow/input/InputData.hpp"
+#include "bow/ContinuousLimb.hpp"
 #include "numerics/Eigen.hpp"
 #include "AABB.hpp"
 #include <qopengl.h>
@@ -22,7 +23,7 @@ public:
 private:
     void addQuad(QVector3D p0, QVector3D p1, QVector3D p2, QVector3D p3, const QColor& color);
     void addVertex(const QVector3D& position, const QVector3D& normal, const QColor& color);
-    std::vector<double> getEvalLengths(const InputData& data, unsigned n);
+    std::vector<double> getEvalLengths(const ContinuousLimb& limb, unsigned n);
 
     bool visible;
     bool inverted;

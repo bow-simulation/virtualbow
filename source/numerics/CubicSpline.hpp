@@ -9,7 +9,7 @@
 
 // Cubic spline that preserves monotonicity of the input data.
 // Implementation adapted from https://en.wikipedia.org/wiki/Monotone_cubic_interpolation
-
+// Throws std::invalid_argument on invalid input
 class CubicSpline
 {
 public:
@@ -22,7 +22,6 @@ public:
     double arg_max() const;
 
 private:
-    bool is_strictly_increasing(const std::vector<double>& args);
     std::vector<double> interpolate(const std::vector<double>& args);
 
     std::vector<double> xs;

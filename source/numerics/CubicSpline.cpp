@@ -6,7 +6,7 @@ CubicSpline::CubicSpline(const Series& data)
 {
     // Check for minimum number of points
     if(data.size() < 2)
-        throw std::runtime_error("at least two data points are needed");
+        throw std::invalid_argument("At least two data points are needed");
 
     // Find sort permutation
     std::vector<size_t> p(xs.size());
@@ -27,9 +27,8 @@ CubicSpline::CubicSpline(const Series& data)
         double dx = xs[i+1] - xs[i];
         double dy = ys[i+1] - ys[i];
 
-        if(dx == 0.0)
-        {
-            throw std::runtime_error("argument values must be unique");
+        if(dx == 0.0) {
+            throw std::invalid_argument("Argument values must be unique");
         }
 
         dxs.push_back(dx);
@@ -107,21 +106,10 @@ Series CubicSpline::sample(size_t n)
     return Series(args, interpolate(args));
 }
 
-bool CubicSpline::is_strictly_increasing(const std::vector<double>& args)
-{
-    for(size_t i = 0; i < args.size()-1; ++i)
-    {
-        if(args[i] >= args[i+1])
-            return false;
-    }
-
-    return true;
-}
-
 std::vector<double> CubicSpline::interpolate(const std::vector<double>& args)
 {
-    if(!is_strictly_increasing(args))
-        throw std::runtime_error("function arguments must be strictly increasing");
+    if(!std::is_sorted(args.begin(), args.end()))
+        throw std::invalid_argument("Arguments must be sorted");
 
     std::vector<double> vals;
     vals.resize(args.size());
