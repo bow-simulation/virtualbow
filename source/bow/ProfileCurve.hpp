@@ -8,7 +8,7 @@ public:
     // k: Curvature of the profile curve at the specified arc lengths
     // x0, y0, phi0: Starting point and angle
     // Throws std::invalid_argument on invalid input
-    ProfileCurve(const std::vector<double>& s, const std::vector<double>& k, double x0, double y0, double phi0);
+    ProfileCurve(std::vector<double> s, std::vector<double> k, double x0, double y0, double phi0);
 
     // Arc length at start and end of the curve
     double s_min() const;

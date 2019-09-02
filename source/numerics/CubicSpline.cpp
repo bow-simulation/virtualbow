@@ -1,5 +1,6 @@
 #include "CubicSpline.hpp"
 #include "numerics/FindInterval.hpp"
+#include "numerics/Sorting.hpp"
 #include <stdexcept>
 #include <algorithm>
 #include <numeric>
@@ -13,14 +14,8 @@ CubicSpline::CubicSpline(const std::vector<double>& x, const std::vector<double>
     if(xs.size() != ys.size())
         throw std::invalid_argument("Argument length mismatch");
 
-    // Find sort permutation
-    std::vector<size_t> p(xs.size());
-    std::iota(p.begin(), p.end(), 0);
-    std::sort(p.begin(), p.end(), [&](size_t i, size_t j){ return xs[i] < xs[j]; });
-
-    // Apply sort permutation
-    std::transform(p.begin(), p.end(), xs.begin(), [&](size_t i){ return xs[i]; });
-    std::transform(p.begin(), p.end(), ys.begin(), [&](size_t i){ return ys[i]; });
+    // Sort inputs
+    sort_by_argument(xs, ys);
 
     // Get consecutive differences and slopes
     std::vector<double> dys;

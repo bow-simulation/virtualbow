@@ -2,16 +2,18 @@
 #include "numerics/Eigen.hpp"
 #include "numerics/Fresnel.hpp"
 #include "numerics/FindInterval.hpp"
+#include "numerics/Sorting.hpp"
 
-ProfileCurve::ProfileCurve(const std::vector<double>& s, const std::vector<double>& k, double x0, double y0, double phi0)
-    : s(s)
+ProfileCurve::ProfileCurve(std::vector<double> s, std::vector<double> k, double x0, double y0, double phi0)
 {
     if(s.size() < 2)
         throw std::invalid_argument("At least two arc lengths are needed");
     if(s.size() != k.size())
         throw std::invalid_argument("Argument length mismatch");
-    if(!std::is_sorted(s.begin(), s.end()))
-        throw std::invalid_argument("Arc lengths must be sorted in ascending order");
+
+    // Sort inputs
+    sort_by_argument(s, k);
+    this->s = s;
 
     Vector<3> r0 = {x0, y0, phi0};
     for(size_t i = 0; i < s.size() - 1; ++i)
