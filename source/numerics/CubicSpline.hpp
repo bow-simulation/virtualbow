@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <cstddef>
 
 // Cubic spline that preserves monotonicity of the input data.
 // Implementation adapted from https://en.wikipedia.org/wiki/Monotone_cubic_interpolation
