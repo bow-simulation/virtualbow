@@ -1,5 +1,5 @@
-add_definitions(-D_USE_MATH_DEFINES)    # Define math constants on MSVC
-target_sources(virtualbow PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icon.rc)     # Add resource file to set executable icon
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_USE_MATH_DEFINES")    # Define math constants on MSVC
+target_sources(virtualbow PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icon.rc)    # Add resource file to set executable icon
 set_target_properties(virtualbow PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/windows)
 set_target_properties(virtualbow PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/windows)
 
