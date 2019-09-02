@@ -4,7 +4,7 @@
 
 // Returns n linearly spaced samples from start to end
 template<typename T>
-std::vector<T> linspace(T start, T end, unsigned n)
+static std::vector<T> linspace(T start, T end, unsigned n)
 {
     assert(n >= 2);
 

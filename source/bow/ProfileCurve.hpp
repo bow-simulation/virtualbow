@@ -11,8 +11,8 @@ public:
     ProfileCurve(const std::vector<double>& s, const std::vector<double>& k, double x0, double y0, double phi0);
 
     // Arc length at start and end of the curve
-    double arg_min() const;
-    double arg_max() const;
+    double s_min() const;
+    double s_max() const;
 
     // Evaluate curve at a specific arc length. Returns {x, y, phi}.
     Vector<3> operator()(double arg) const;

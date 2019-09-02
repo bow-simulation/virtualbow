@@ -2,7 +2,7 @@
 
 ContinuousLayer::ContinuousLayer(const ContinuousLimb& limb, const Layer& layer)
     : limb(limb),
-      height(layer.height),
+      height(layer.height.args(), layer.height.vals()),
       rho(layer.rho),
       E(layer.E)
 {
@@ -40,7 +40,7 @@ ContinuousLimb::ContinuousLimb(const InputData& input)
               0.5*input.dimensions.handle_length,
               input.dimensions.handle_setback,
               input.dimensions.handle_angle),
-      width(input.width)
+      width(input.width.args(), input.width.vals())
 {
     for(const Layer& layer: input.layers) {
         layers.push_back(ContinuousLayer(*this, layer));
@@ -54,22 +54,22 @@ const std::vector<ContinuousLayer>& ContinuousLimb::get_layers() const
 
 double ContinuousLimb::s_min() const
 {
-    return profile.arg_min();
+    return profile.s_min();
 }
 
 double ContinuousLimb::s_max() const
 {
-    return profile.arg_max();
+    return profile.s_max();
 }
 
 double ContinuousLimb::get_p(double s) const
 {
-    return (s - profile.arg_min())/(profile.arg_max() - profile.arg_min());
+    return (s - profile.s_min())/(profile.s_max() - profile.s_min());
 }
 
 double ContinuousLimb::get_s(double p) const
 {
-    return profile.arg_min() + p*(profile.arg_max() - profile.arg_min());
+    return profile.s_min() + p*(profile.s_max() - profile.s_min());
 }
 
 double ContinuousLimb::get_w(double s) const

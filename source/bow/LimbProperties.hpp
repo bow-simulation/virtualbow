@@ -1,10 +1,40 @@
 #pragma once
 #include "bow/input/InputData.hpp"
-#include "LayerProperties.hpp"
 #include "numerics/Eigen.hpp"
 #include <nlohmann/json.hpp>
 
 using nlohmann::json;
+
+struct LayerProperties
+{
+    VectorXd length;
+
+    MatrixXd He_back;
+    MatrixXd Hk_back;
+
+    MatrixXd He_belly;
+    MatrixXd Hk_belly;
+
+    // n: Limb nodex, k: Layer nodes
+    LayerProperties(unsigned n, unsigned k)
+        : length(VectorXd::Zero(k)),
+          He_back(MatrixXd::Zero(k, n)),
+          He_belly(MatrixXd::Zero(k, n)),
+          Hk_back(MatrixXd::Zero(k, n)),
+          Hk_belly(MatrixXd::Zero(k, n))
+    {
+
+    }
+};
+
+static void to_json(json& obj, const LayerProperties& val)
+{
+    obj["length"] = val.length;
+    obj["He_back"] = val.He_back;
+    obj["Hk_back"] = val.Hk_back;
+    obj["He_belly"] = val.He_belly;
+    obj["Hk_belly"] = val.Hk_belly;
+}
 
 struct LimbProperties
 {

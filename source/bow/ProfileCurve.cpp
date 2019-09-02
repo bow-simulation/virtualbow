@@ -22,20 +22,20 @@ ProfileCurve::ProfileCurve(const std::vector<double>& s, const std::vector<doubl
     }
 }
 
-double ProfileCurve::arg_min() const
+double ProfileCurve::s_min() const
 {
     return s.front();
 }
 
-double ProfileCurve::arg_max() const
+double ProfileCurve::s_max() const
 {
     return s.back();
 }
 
 Vector<3> ProfileCurve::operator()(double arg) const
 {
-    assert(arg >= arg_min());
-    assert(arg <= arg_max());
+    assert(arg >= s_min());
+    assert(arg <= s_max());
 
     index = find_interval(s, arg, index);
     return f[index](arg);
