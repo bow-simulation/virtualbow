@@ -31,8 +31,8 @@ void StressPlot::setStateIndex(int index)
     for(int i = 0; i < limb.layers.size(); ++i)
     {
         const LayerProperties& layer = limb.layers[i];
-        this->graph(2*i)->setData(layer.length, layer.sigma_back(states.epsilon[index], states.kappa[index]));
-        this->graph(2*i+1)->setData(layer.length, layer.sigma_belly(states.epsilon[index], states.kappa[index]));
+        this->graph(2*i)->setData(layer.length, layer.He_back*states.epsilon[index] + layer.Hk_back*states.kappa[index]);
+        this->graph(2*i+1)->setData(layer.length, layer.He_belly*states.epsilon[index] + layer.Hk_belly*states.kappa[index]);
     }
 
     this->replot();
@@ -47,8 +47,8 @@ void StressPlot::setAxesRanges()
     {
         for(size_t i = 0; i < states.time.size(); ++i)
         {
-            VectorXd sigma_back = layer.sigma_back(states.epsilon[i], states.kappa[i]);
-            VectorXd sigma_belly = layer.sigma_belly(states.epsilon[i], states.kappa[i]);
+            VectorXd sigma_back = layer.He_back*states.epsilon[i] + layer.Hk_back*states.kappa[i];
+            VectorXd sigma_belly = layer.He_belly*states.epsilon[i] + layer.Hk_belly*states.kappa[i];
 
             y_range.expand(sigma_back.minCoeff());
             y_range.expand(sigma_back.maxCoeff());

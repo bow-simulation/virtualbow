@@ -50,15 +50,12 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
         {
             layers[j].length(i) = s[i];
 
-            layers[j].y_back(i) = y[j];
-            layers[j].y_belly(i) = y[j+1];
-
             // Todo: Add method to ContinuousLimb to calculate those
             layers[j].He_back(i, i) =  input.layers[j].E;
             layers[j].He_belly(i, i) = input.layers[j].E;
 
-            layers[j].Hk_back(i, i) = -input.layers[j].E*layers[j].y_back(i);
-            layers[j].Hk_belly(i, i) = -input.layers[j].E*layers[j].y_belly(i);
+            layers[j].Hk_back(i, i) = -input.layers[j].E*y[j];
+            layers[j].Hk_belly(i, i) = -input.layers[j].E*y[j+1];
         }
     }
 

@@ -28,7 +28,7 @@ void ProfileView::setData(Series data)
 
         // Add interpolated points of the profile curve
         curve0->data()->clear();
-        for(double s: Linspace<double>(profile.arg_min(), profile.arg_max(), 150))    // Magic number
+        for(double s: Linspace<double>(profile.s_min(), profile.s_max(), 150))    // Magic number
         {
             Vector<3> point = profile(s);
             curve0->addData(point[0], point[1]);

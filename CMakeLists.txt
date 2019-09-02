@@ -50,7 +50,6 @@ add_library(
     source/bow/BeamUtils.cpp
     source/bow/ContinuousLimb.cpp
     source/bow/LimbProperties.cpp
-    source/bow/LayerProperties.cpp
     source/bow/ProfileCurve.cpp
     source/bow/input/InputData.cpp
     source/bow/output/OutputData.cpp
