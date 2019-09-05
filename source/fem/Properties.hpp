@@ -3,34 +3,39 @@
 #include <stdexcept>
 #include <functional>
 
+// Properties and Bindings model the relationship between independent states (properties)
+// and dependent computed values (bindings). Bindings compute and cache their value from
+// their assigned properties when accessed. Changes to those properties invalidate the
+// cached values of the dependent bindings. Their values are lazily recomputed on the next access.
+//
+// Naming inspired by JavaFX properties and bindings system.
 // Todo: Remove is_valid() and set_valid() from public interface
-// Todo: Make depends_on(...) variadic
 
-class DependentBase;
+class BindingBase;
 
-class IndependentBase
+class PropertyBase
 {
 public:
-    void add_dependent(DependentBase& dependent)
+    void add_dependent(BindingBase& dependent)
     {
         dependents.push_back(&dependent);
     }
 
 protected:
-    std::vector<DependentBase*> dependents;
+    std::vector<BindingBase*> dependents;
 };
 
-class DependentBase: public IndependentBase
+class BindingBase: public PropertyBase
 {
 public:
     template<typename... Args>
-    void depends_on(IndependentBase& other, Args&... args)
+    void depends_on(PropertyBase& other, Args&... args)
     {
         depends_on(other);
         depends_on(args...);
     }
 
-    void depends_on(IndependentBase& other)
+    void depends_on(PropertyBase& other)
     {
         other.add_dependent(*this);
     }
@@ -56,16 +61,16 @@ protected:
 };
 
 template<typename T>
-class Independent: public IndependentBase
+class Property: public PropertyBase
 {
 public:
-    Independent(const T& value)
+    Property(const T& value)
         : value(value)
     {
 
     }
 
-    Independent()
+    Property()
     {
 
     }
@@ -88,7 +93,7 @@ private:
 };
 
 template<typename T>
-class Dependent: public DependentBase
+class Binding: public BindingBase
 {
 public:
     using F = std::function<void(void)>;

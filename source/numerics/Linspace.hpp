@@ -2,22 +2,10 @@
 #include <vector>
 #include <cassert>
 
-// Returns n linearly spaced samples from start to end
-template<typename T>
-static std::vector<T> linspace(T start, T end, unsigned n)
-{
-    assert(n >= 2);
-
-    std::vector<T> values(n);
-    for(unsigned i = 0; i < n; ++i)
-    {
-        T delta = (end - start)/double(n - 1);
-        values[i] = start + i*delta;
-    }
-
-    return values;
-}
-
+// Class for lazy generation of linearly spaced values.
+// n: Number of values
+// a: First value
+// b: Last value
 template<typename T>
 class Linspace
 {
@@ -52,9 +40,6 @@ public:
        unsigned index;
     };
 
-    // a: First value (inclusive)
-    // b: Last value (inclusive)
-    // n: Number of points
     Linspace(T a, T b, unsigned n)
         : a(a), b(b), n(n)
     {
@@ -79,6 +64,18 @@ public:
     Iterator end() const
     {
         return Iterator(*this, n);
+    }
+
+    std::vector<T> collect()
+    {
+        std::vector<T> result;
+        result.reserve(n);
+        for(const T& value: *this)
+        {
+            result.push_back(value);
+        }
+
+        return result;
     }
 
 private:

@@ -3,7 +3,7 @@
 #include "DofView.hpp"
 #include "Element.hpp"
 #include "ElementContainer.hpp"
-#include "Dependency.hpp"
+#include "Properties.hpp"
 #include "numerics/Eigen.hpp"
 
 #include <boost/range/iterator_range.hpp>
@@ -13,27 +13,8 @@
 
 class System
 {
-private:
-    Independent<ElementContainer> elements;
-
-    double t;                     // Time
-    Independent<size_t> n_a;      // Number of active Dofs
-    Independent<size_t> n_f;      // Number of fixed Dofs
-    Independent<VectorXd> u_a;    // Displacements (active)
-    Independent<VectorXd> u_f;    // Displacements (fixed)
-    Independent<VectorXd> v_a;    // Velocities (active)
-    Independent<VectorXd> p_a;    // External forces (active)
-
-    mutable Dependent<VectorXd> a_a;    // Accelerations (active)
-    mutable Dependent<VectorXd> q_a;    // Internal forces (active)
-    mutable Dependent<VectorXd> q_f;    // Internal forces (fixed)
-    mutable Dependent<VectorXd> M_a;    // Diagonal masses (active)
-    mutable Dependent<MatrixXd> K_a;    // Stiffness matrix (active)
-
 public:
     System();
-
-    // Nodes and elements
 
     Node create_node(std::array<bool, 3> active, std::array<double, 3> u);
     Node create_node(const Node& other);
@@ -44,8 +25,6 @@ public:
 
     const ElementContainer& get_elements() const;
     ElementContainer& mut_elements();
-
-    // System data
 
     size_t dofs() const;
 
@@ -73,12 +52,27 @@ public:
 
     template<size_t N, class T>
     void add_q(const std::array<Dof, N>& dofs, const T& q);
-
     template<size_t N, class T>
     void add_M(const std::array<Dof, N>& dofs, const T& M);
-
     template<size_t N, class T>
     void add_K(const std::array<Dof, N>& dofs, const T& K);
+
+private:
+    Property<ElementContainer> elements;
+
+    double t;                     // Time
+    Property<size_t> n_a;      // Number of active Dofs
+    Property<size_t> n_f;      // Number of fixed Dofs
+    Property<VectorXd> u_a;    // Displacements (active)
+    Property<VectorXd> u_f;    // Displacements (fixed)
+    Property<VectorXd> v_a;    // Velocities (active)
+    Property<VectorXd> p_a;    // External forces (active)
+
+    mutable Binding<VectorXd> a_a;    // Accelerations (active)
+    mutable Binding<VectorXd> q_a;    // Internal forces (active)
+    mutable Binding<VectorXd> q_f;    // Internal forces (fixed)
+    mutable Binding<VectorXd> M_a;    // Diagonal masses (active)
+    mutable Binding<MatrixXd> K_a;    // Stiffness matrix (active)
 };
 
 template<size_t N, class T>

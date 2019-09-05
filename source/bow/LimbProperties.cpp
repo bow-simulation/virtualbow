@@ -23,7 +23,7 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
 {
     ContinuousLimb limb(input);
 
-    std::vector<double> s = linspace(limb.s_min(), limb.s_max(), n);
+    std::vector<double> s = Linspace<double>(limb.s_min(), limb.s_max(), n).collect();
     for(size_t i = 0; i < n; ++i)
     {
         // Profile

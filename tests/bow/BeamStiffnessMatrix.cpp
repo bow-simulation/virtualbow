@@ -37,7 +37,7 @@ Matrix<6, 6> beam_stiffness_matrix_fem(const F1& r, const F2& EA, const F3& EI, 
     // Create total stiffness matrix for all nodes
     MatrixXd K_total = MatrixXd::Zero(n_dofs, n_dofs);
 
-    std::vector<double> s = linspace(l0, l1, n_nodes);
+    std::vector<double> s = Linspace<double>(l0, l1, n_nodes).collect();
     for(unsigned i = 0; i < n_elements; ++i)
     {
         Vector<3> r_prev = r(s[i]);

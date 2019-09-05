@@ -1,16 +1,16 @@
 #pragma once
 #include "Eigen.hpp"
 #include <cassert>
-
-// f: double -> T
-// xa: Lower bound
-// xb: Upper bound
-
 #include <cmath>
-#include <iostream>
+
+// Integrate functions by using the adaptive Simpson's method.
+// https://en.wikipedia.org/wiki/Adaptive_Simpson%27s_method
 class AdaptiveSimpson
 {
 public:
+    // f: double -> T
+    // a: Lower bound
+    // b: Upper bound
     template<typename T, typename F>
     static T integrate(const F& f, double a, double b, double epsilon)
     {

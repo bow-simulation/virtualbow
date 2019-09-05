@@ -15,11 +15,11 @@ ProfileCurve::ProfileCurve(std::vector<double> s, std::vector<double> k, double 
     sort_by_argument(s, k);
     this->s = s;
 
-    Vector<3> r0 = {x0, y0, phi0};
+    Vector<3> r = {x0, y0, phi0};
     for(size_t i = 0; i < s.size() - 1; ++i)
     {
-        segment_fn spiral = euler_spiral(s[i], s[i+1], k[i], k[i+1], r0[0], r0[1], r0[2]);
-        r0 = spiral(s[i+1]);
+        segment_fn spiral = euler_spiral(s[i], s[i+1], k[i], k[i+1], r[0], r[1], r[2]);
+        r = spiral(s[i+1]);
         f.push_back(spiral);
     }
 }
@@ -74,14 +74,14 @@ ProfileCurve::segment_fn ProfileCurve::euler_spiral(double s0, double s1, double
             return {
                 x0 + sqrt(M_PI_2/a)*(cos(b*b/(4.0*a) - c)*(Cs - Cc) + sin(b*b/(4.0*a) - c)*(Ss - Sc)),
                 y0 + sqrt(M_PI_2/a)*(sin(b*b/(4.0*a) - c)*(Cc - Cs) + cos(b*b/(4.0*a) - c)*(Ss - Sc)),
-                a*s*s + b*s + c
+                (a*s + b)*s + c
             };
         };
     }
     else if(a < 0.0)
     {
         // Euler spiral with decreasing curvature
-        // Solution from above, but with k0 = -k0, k1 = -k1, y = -y
+        // Solution from above, but with k0' = -k0, k1' = -k1, x' = -x
         return [=](double s) -> Vector<3> {
             double Ss, Cs, Sc, Cc;
             std::tie(Ss, Cs) = fresnel((b + 2.0*a*s)/sqrt(-2.0*M_PI*a));
@@ -89,7 +89,7 @@ ProfileCurve::segment_fn ProfileCurve::euler_spiral(double s0, double s1, double
             return {
                 x0 - sqrt(-M_PI_2/a)*(cos(c - b*b/(4.0*a))*(Cs - Cc) + sin(c - b*b/(4.0*a))*(Ss - Sc)),
                 y0 + sqrt(-M_PI_2/a)*(sin(c - b*b/(4.0*a))*(Cc - Cs) + cos(c - b*b/(4.0*a))*(Ss - Sc)),
-                a*s*s + b*s + c
+                (a*s + b)*s + c
             };
         };
     }
