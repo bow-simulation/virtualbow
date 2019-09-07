@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.2.2)
 include(ExternalProject)
 project(virtualbow)
-set(CMAKE_CXX_STANDARD 17)
 
 # Parameters
 
@@ -168,11 +167,13 @@ target_link_libraries(virtualbow-tests main-library Catch2::Catch2)
 # Platform specifics
 
 if(WIN32)
-    add_compile_options("/std:c++latest")
+    set(CMAKE_CXX_STANDARD 20)
     add_compile_definitions("_USE_MATH_DEFINES")
     add_subdirectory(platforms/windows)
 elseif(APPLE)
+    set(CMAKE_CXX_STANDARD 17)
     add_subdirectory(platforms/macos)
 elseif(UNIX)
+    set(CMAKE_CXX_STANDARD 17)
     add_subdirectory(platforms/linux)
 endif()
