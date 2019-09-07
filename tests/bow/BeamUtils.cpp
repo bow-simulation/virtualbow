@@ -1,7 +1,6 @@
 #include "bow/BeamUtils.hpp"
 #include "numerics/Linspace.hpp"
 #include <catch.hpp>
-#include <iostream>
 
 // Returns the stiffness matrix of a straight Euler-Bernoulli beam with orientation angle alpha
 Matrix<6, 6> element_stiffness_matrix(double EA, double EI, double L, double alpha)
@@ -119,7 +118,7 @@ TEST_CASE("stiffness-matrix-straight")
         return (Matrix<2, 2>() << EA, 0.0, 0.0, EI).finished();
     };
 
-    Matrix<6, 6> K_num = beam_stiffness_matrix(r, C, 0.0, L);
+    Matrix<6, 6> K_num = BeamUtils::stiffness_matrix(r, C, 0.0, L);
     Matrix<6, 6> K_ref = element_stiffness_matrix(EA, EI, L, alpha);
     REQUIRE(K_num.isApprox(K_ref, 1e-8));
 }
@@ -148,7 +147,7 @@ TEST_CASE("stiffness-matrix-curved")
         return (Matrix<2, 2>() << EA_fn(s), 0.0, 0.0, EI_fn(s)).finished();
     };
 
-    Matrix<6, 6> K_num = beam_stiffness_matrix(r, C, 0.0, L);
+    Matrix<6, 6> K_num = BeamUtils::stiffness_matrix(r, C, 0.0, L);
     Matrix<6, 6> K_ref = beam_stiffness_matrix_fem(r, EA_fn, EI_fn, 0.0, L, 500);
     REQUIRE(K_num.isApprox(K_ref, 1e-4));
 }
@@ -181,7 +180,62 @@ TEST_CASE("stiffness-matrix-curved-non-uniform")
         return (Matrix<2, 2>() << EA_fn(s), 0.0, 0.0, EI_fn(s)).finished();
     };
 
-    Matrix<6, 6> K_num = beam_stiffness_matrix(r, C, 0.0, L);
+    Matrix<6, 6> K_num = BeamUtils::stiffness_matrix(r, C, 0.0, L);
     Matrix<6, 6> K_ref = beam_stiffness_matrix_fem(r, EA_fn, EI_fn, 0.0, L, 500);
     REQUIRE(K_num.isApprox(K_ref, 1e-4));
+}
+
+TEST_CASE("mass-properties-straight")
+{
+    double rhoA = 1e3;
+    double L = 1.5;
+    double alpha = M_PI/4.0;
+
+    auto r = [&](double s) {
+        return (Vector<3>() << s*cos(alpha), s*sin(alpha), alpha).finished();
+    };
+
+    auto rhoA_fn = [&](double s) {
+        return rhoA;
+    };
+
+    BeamUtils::MassProperties properties = BeamUtils::mass_properties(r, rhoA_fn, 0.0, L);
+
+    double m_ref = rhoA*L;
+    double I_ref = rhoA*L*L*L/12.0;
+    double x_ref = r(0.5*L)[0];
+    double y_ref = r(0.5*L)[1];
+
+    REQUIRE(std::abs(properties.m - m_ref) < 1e-9);
+    REQUIRE(std::abs(properties.I - I_ref) < 1e-9);
+    REQUIRE(std::abs(properties.x - x_ref) < 1e-9);
+    REQUIRE(std::abs(properties.y - y_ref) < 1e-9);
+}
+
+#include <iostream>
+TEST_CASE("mass-properties-circle")
+{
+    double rhoA = 1e3;
+    double R = 1.5;
+    double L = 2.0*M_PI*R;
+
+    auto r = [&](double s) {
+        return (Vector<3>() << R*cos(s/R), R*sin(s/R), s/R).finished();
+    };
+
+    auto rhoA_fn = [&](double s) {
+        return rhoA;
+    };
+
+    BeamUtils::MassProperties properties = BeamUtils::mass_properties(r, rhoA_fn, 0.0, L);
+
+    double m_ref = rhoA*L;
+    double I_ref = m_ref*R*R;
+    double x_ref = 0.0;
+    double y_ref = 0.0;
+
+    REQUIRE(std::abs(properties.m - m_ref) < 1e-9);
+    REQUIRE(std::abs(properties.I - I_ref) < 1e-9);
+    REQUIRE(std::abs(properties.x - x_ref) < 1e-9);
+    REQUIRE(std::abs(properties.y - y_ref) < 1e-9);
 }

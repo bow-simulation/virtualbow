@@ -18,11 +18,11 @@ class PropertyBase
 public:
     void add_dependent(BindingBase& dependent)
     {
-        dependents.push_back(&dependent);
+        bindings.push_back(&dependent);
     }
 
 protected:
-    std::vector<BindingBase*> dependents;
+    std::vector<BindingBase*> bindings;
 };
 
 class BindingBase: public PropertyBase
@@ -51,7 +51,7 @@ public:
 
         if(!valid)
         {
-            for(auto d: dependents)
+            for(auto d: bindings)
                 d->set_valid(false);
         }
     }
@@ -64,25 +64,24 @@ template<typename T>
 class Property: public PropertyBase
 {
 public:
+    Property() = default;
+
     Property(const T& value)
         : value(value)
     {
 
     }
 
-    Property()
-    {
-
-    }
-
+    // Immutable access, does not invalidate bindings
     const T& get() const
     {
         return value;
     }
 
+    // Mutable access, invalidates dependent all bindings
     T& mut()
     {
-        for(auto d: dependents)
+        for(auto d: bindings)
             d->set_valid(false);
 
         return value;
@@ -116,7 +115,7 @@ public:
 
     T& mut()
     {
-        for(auto d: dependents)
+        for(auto d: bindings)
             d->set_valid(false);
 
         return value;

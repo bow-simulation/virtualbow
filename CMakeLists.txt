@@ -156,7 +156,7 @@ target_link_libraries(virtualbow main-library)
 add_executable(
     virtualbow-tests
     tests/main.cpp
-    tests/bow/BeamStiffnessMatrix.cpp
+    tests/bow/BeamUtils.cpp
     tests/fem/BarTrusses.cpp
     tests/fem/HarmonicOscillator.cpp
     tests/fem/LargeDeformationBeams.cpp
