@@ -168,6 +168,8 @@ target_link_libraries(virtualbow-tests main-library Catch2::Catch2)
 # Platform specifics
 
 if(WIN32)
+    add_compile_options("/std:c++latest")
+    add_compile_definitions("_USE_MATH_DEFINES")
     add_subdirectory(platforms/windows)
 elseif(APPLE)
     add_subdirectory(platforms/macos)
