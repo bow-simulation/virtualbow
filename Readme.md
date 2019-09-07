@@ -7,7 +7,7 @@ Visit http://www.virtualbow.org for more information about the project.
 
 # Building
 
-Building VirtualBow requires CMake and a C++17 compiler.
+Building VirtualBow requires CMake and a C++ compiler.
 External dependencies are handled with [vcpkg](https://github.com/Microsoft/vcpkg), a cross-platform C++ package manager.
 (The following instructions are slightly different from the official release builds.
 For more information on those please refer to [Release.md](Release.md) and [azure-pipelines.yml](azure-pipelines.yml).)
