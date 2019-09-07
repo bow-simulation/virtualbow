@@ -172,5 +172,9 @@ ContactElement::State ContactElement::get_state() const
 
     Matrix<8, 8> DDe = Db1*v1.transpose() + Db2*v2.transpose() + b1*Dv1 + b2*Dv2;
 
-    return {e, De, DDe};
+    return State{
+        .e = e,
+        .De = De,
+        .DDe = DDe
+    };
 }

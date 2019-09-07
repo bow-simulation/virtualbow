@@ -33,7 +33,11 @@ private:
     {
         double m = (a + b)/2.0;
         T fm = f(m);
-        return {m, fm, std::abs(b - a)/6.0*(fa + 4.0*fm + fb)};
+        return Triple<T>{
+            .m = m,
+            .fm = fm,
+            .result = std::abs(b - a)/6.0*(fa + 4.0*fm + fb)
+        };
     }
 
     template<typename T, typename F>

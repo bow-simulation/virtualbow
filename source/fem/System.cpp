@@ -58,16 +58,20 @@ System::System()
 
 Node System::create_node(std::array<bool, 3> active, std::array<double, 3> u)
 {
-    return Node({create_dof(active[0], u[0]),
-                 create_dof(active[1], u[1]),
-                 create_dof(active[2], u[2])});
+    return Node{
+        .x   = create_dof(active[0], u[0]),
+        .y   = create_dof(active[1], u[1]),
+        .phi = create_dof(active[2], u[2])
+    };
 }
 
 Node System::create_node(const Node& other)
 {
-    return {create_dof(other.x.active  , get_u(other.x  ), get_v(other.x  )),
-            create_dof(other.y.active  , get_u(other.y  ), get_v(other.y  )),
-            create_dof(other.phi.active, get_u(other.phi), get_v(other.phi))};
+    return Node{
+        .x   = create_dof(other.x.active  , get_u(other.x  ), get_v(other.x  )),
+        .y   = create_dof(other.y.active  , get_u(other.y  ), get_v(other.y  )),
+        .phi = create_dof(other.phi.active, get_u(other.phi), get_v(other.phi))
+    };
 }
 
 Dof System::create_dof(bool active, double u, double v)
@@ -78,13 +82,13 @@ Dof System::create_dof(bool active, double u, double v)
         u_a.mut() = (VectorXd(n_a.get()) << u_a.get(), u).finished();
         v_a.mut() = (VectorXd(n_a.get()) << v_a.get(), v).finished();
         p_a.mut() = (VectorXd(n_a.get()) << p_a.get(), 0).finished();
-        return Dof{active, n_a.get()-1};
+        return Dof{ .active = active, .index = n_a.get()-1 };
     }
     else
     {
         n_f.mut() += 1;
         u_f.mut() = (VectorXd(n_f.get()) << u_f.get(), u).finished();
-        return Dof{active, n_f.get()-1};
+        return Dof{ .active = active, .index = n_f.get()-1};
     }
 }
 

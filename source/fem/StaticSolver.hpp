@@ -38,7 +38,7 @@ protected:
         {
             decomp.compute(system.get_K());
             if(decomp.info() != Eigen::Success)
-                return {Info::DecompFailed, i+1};
+                return { .outcome = Info::DecompFailed, .iterations = i+1 };
 
             delta_q = system.get_q() - lambda*system.get_p();
             alpha = -decomp.solve(delta_q);
