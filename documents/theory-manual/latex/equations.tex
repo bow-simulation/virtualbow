@@ -600,9 +600,9 @@ A structure composed of many such elements can still undergo large deformations 
 \label{fig:beam-element-1}
 \end{figure}
 
-Let's apply this approach to the beam element shown in figure~\ref{fig:beam-element-1}. It has two nodes with the (arbitrarily large) nodal displacements~$\boldsymbol{u} = (u_0,\,\ldots,u_5)$ measured against the~$\{x,\,y\}$ coordinate system. The angle $\overline{\varphi}$ is a simple offset so that the rotation angles~$u_2$ and~$u_5$ don't necessarily have to correspond to the beam axis. This helps in practice when two adjacent elements share a node but are not tangential to each other.
+Let's apply this approach to the beam element shown in figure~\ref{fig:beam-element-1}. It has two nodes with the (arbitrarily large) nodal displacements~$\boldsymbol{u} = (u_0,\,\ldots,u_5)$ measured against the~$\{x,\,y\}$ coordinate system.
 
-We now introduce a floating frame of reference~$\{x',\,y'\}$ as shown in figure~\ref{fig:beam-element-2}. The $x'$-axis passes through both of the nodes (secant system) and the coordinate origin is placed at the left node. Within this reference system we now describe the elastic deformation with the three displacements~$\boldsymbol{e} = (e_0,\,e_1,\,e_2)^\mathsf{T}$, where~$e_0$ is the longitudinal extension of the beam and~$e_1$,~$e_2$ are the rotation angles of the nodes with respect to the~$x'$-axis.
+We now introduce a floating frame of reference~$\{x',\,y'\}$ as shown in figure~\ref{fig:beam-element-2}. The $x'$-axis passes through both of the nodes (secant system) and the coordinate origin is placed at the left node. Within this reference system we now describe the elastic deformation with the three displacements~$\boldsymbol{e} = (e_0,\,e_1,\,e_2)^\mathsf{T}$, where~$e_0$ is the longitudinal extension of the beam and~$e_1$,~$e_2$ are the rotation angles with respect to the~$x'$-axis. The beam has the undeformed reference displacements $\overline{\boldsymbol{e}} = (\overline{e}_0,\,\overline{e}_1,\,\overline{e}_2)^\mathsf{T}$ within the same system.
 
 \begin{figure}[h]
 \centering
@@ -623,22 +623,21 @@ Here, $\varphi$ is the rotation angle of the floating reference frame. Using the
 
 \begin{align}
 \intertext{Calculating $e_0$:}
-&e_0 = \sqrt{\Delta x^2 + \Delta y^2} - L\\
+&e_0 = \sqrt{\Delta x^2 + \Delta y^2} - \overline{e}_0\\
 \intertext{Calculating $e_1$:}
-&\sin{(e_1)} = \sin{(u_2 + \overline{\varphi} - \varphi)} = \sin{(u_2)}\cos{(\overline{\varphi} - \varphi)} + \cos{(u_2)}\sin{(\overline{\varphi} - \varphi)}
-\notag\\
-&\cos{(e_1)} = \cos{(u_2 + \overline{\varphi} - \varphi)} = \cos{(u_2)}\cos{(\overline{\varphi} - \varphi)} - \sin{(u_2)}\sin{(\overline{\varphi} - \varphi)}\notag\\
+&\sin{(e_1)} = \sin{(u_2 - \overline{e}_1 - \varphi)}\notag\\
+&\cos{(e_1)} = \cos{(u_2 - \overline{e}_1 - \varphi)}\notag\\
 &e_1 = \arctan{\left( \frac{\sin{(e_1)}}{\cos{(e_1)}} \right)}
 \intertext{Calculating $e_2$:}
-&\sin{(e_2)} = \sin{(u_5 + \overline{\varphi} - \varphi)} = \sin{(u_5)}\cos{(\overline{\varphi} - \varphi)} + \cos{(u_5)}\sin{(\overline{\varphi} - \varphi)}\notag\\
-&\cos{(e_2)} = \cos{(u_5 + \overline{\varphi} - \varphi)} = \cos{(u_5)}\cos{(\overline{\varphi} - \varphi)} - \sin{(u_5)}\sin{(\overline{\varphi} - \varphi)}\notag\\
+&\sin{(e_2)} = \sin{(u_5 - \overline{e}_2 - \varphi)}\notag\\
+&\cos{(e_2)} = \cos{(u_5 + \overline{\varphi} - \varphi)}\notag\\
 &e_2 = \arctan{\left( \frac{\sin{(e_2)}}{\cos{(e_2)}} \right)}
 \intertext{Putting all those together, the elastic deformations can be written as}
 &\boldsymbol{e}(\boldsymbol{u}) =
 \begin{bmatrix}
-\sqrt{\Delta x^2 + \Delta y^2} - L\\
-\arctan{\left(\frac{\sin{(u_2)}\cos{(\overline{\varphi} - \varphi)}+\cos{(u_2)}\sin{(\overline{\varphi} - \varphi)}}{\cos{(u_2)}\cos{(\overline{\varphi} - \varphi)}-\sin{(u_2)}\sin{(\overline{\varphi} - \varphi)}}\right)}\\
-\arctan{\left(\frac{\sin{(u_5)}\cos{(\overline{\varphi} - \varphi)}+\cos{(u_5)}\sin{(\overline{\varphi} - \varphi)}}{\cos{(u_5)}\cos{(\overline{\varphi} - \varphi)}-\sin{(u_5)}\sin{(\overline{\varphi} - \varphi)}}\right)}
+\sqrt{\Delta x^2 + \Delta y^2} - \overline{e}_0\\
+\arctan{\left(\frac{\sin{(u_2 - \overline{e}_1 - \varphi)}}{\cos{(u_2 - \overline{e}_1 - \varphi)}}\right)}\\
+\arctan{\left(\frac{\sin{(u_5 - \overline{e}_2 - \varphi)}}{\cos{(u_5 - \overline{e}_2 - \varphi)}}\right)}
 \end{bmatrix}.\label{eq:beam-kinematics}
 \end{align}
 

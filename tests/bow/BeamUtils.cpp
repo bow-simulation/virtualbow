@@ -2,27 +2,6 @@
 #include "numerics/Linspace.hpp"
 #include <catch.hpp>
 
-// Returns the stiffness matrix of a straight Euler-Bernoulli beam with orientation angle alpha
-Matrix<6, 6> element_stiffness_matrix(double EA, double EI, double L, double alpha)
-{
-    Matrix<6, 6> K, T;
-    K << EA/L,              0,           0, -EA/L,              0,           0,
-            0,  12*EI/(L*L*L),  6*EI/(L*L),     0, -12*EI/(L*L*L),  6*EI/(L*L),
-            0,     6*EI/(L*L),      4*EI/L,     0,    -6*EI/(L*L),      2*EI/L,
-        -EA/L,              0,           0,  EA/L,              0,           0,
-            0, -12*EI/(L*L*L), -6*EI/(L*L),     0,  12*EI/(L*L*L), -6*EI/(L*L),
-            0,     6*EI/(L*L),      2*EI/L,     0,    -6*EI/(L*L),      4*EI/L;
-
-    T << cos(alpha), sin(alpha), 0,           0,          0, 0,
-        -sin(alpha), cos(alpha), 0,           0,          0, 0,
-                  0,          0, 1,           0,          0, 0,
-                  0,          0, 0,  cos(alpha), sin(alpha), 0,
-                  0,          0, 0, -sin(alpha), cos(alpha), 0,
-                  0,          0, 0,           0,          0, 1;
-
-    return T.transpose()*K*T;
-}
-
 // Approximates the stiffness matrix of a curved, non-uniform beam segment by using a number of straight elements
 // and reducing the resulting stiffness matrix to the relevant displacements (first and last node)
 template<class F1, class F2, class F3>
@@ -45,7 +24,7 @@ Matrix<6, 6> beam_stiffness_matrix_fem(const F1& r, const F2& EA, const F3& EI, 
         double dx = r_next[0] - r_prev[0];
         double dy = r_next[1] - r_prev[1];
 
-        K_total.block(3*i, 3*i, 6, 6) += element_stiffness_matrix(
+        K_total.block(3*i, 3*i, 6, 6) += BeamUtils::stiffness_matrix(
             0.5*(EA(s[i]) + EA(s[i+1])),    // Element longitudinal stiffness
             0.5*(EI(s[i]) + EI(s[i+1])),    // Element bending stiffness
             hypot(dx, dy),                  // Element legth
@@ -119,7 +98,7 @@ TEST_CASE("stiffness-matrix-straight")
     };
 
     Matrix<6, 6> K_num = BeamUtils::stiffness_matrix(r, C, 0.0, L);
-    Matrix<6, 6> K_ref = element_stiffness_matrix(EA, EI, L, alpha);
+    Matrix<6, 6> K_ref = BeamUtils::stiffness_matrix(EA, EI, L, alpha);
     REQUIRE(K_num.isApprox(K_ref, 1e-8));
 }
 

@@ -5,7 +5,7 @@
 class BeamUtils
 {
 public:
-    // Calculates the analytical stiffness matrix of a curved beam with varying cross section properties
+    // Calculates the stiffness matrix of a curved beam with varying cross section properties
     // by using Castigliano's theorem and numerical integration. Method inspired by [1]. The stiffness matrix
     // corresponds to the displacements {x0, y0, phi0, x1, y1, phi1} of the start and endpoints of the beam,
     // respecitvely (same coordinate system as r).
@@ -48,6 +48,39 @@ public:
                                   Kba, Kbb).finished();
     }
 
+    // Returns the stiffness matrix of a straight Euler-Bernoulli beam with orientation angle alpha
+    static Matrix<6, 6> stiffness_matrix(double EA, double EI, double L, double alpha)
+    {
+        Matrix<6, 6> K, T;
+        K << EA/L,              0,           0, -EA/L,              0,           0,
+                0,  12*EI/(L*L*L),  6*EI/(L*L),     0, -12*EI/(L*L*L),  6*EI/(L*L),
+                0,     6*EI/(L*L),      4*EI/L,     0,    -6*EI/(L*L),      2*EI/L,
+            -EA/L,              0,           0,  EA/L,              0,           0,
+                0, -12*EI/(L*L*L), -6*EI/(L*L),     0,  12*EI/(L*L*L), -6*EI/(L*L),
+                0,     6*EI/(L*L),      2*EI/L,     0,    -6*EI/(L*L),      4*EI/L;
+
+        T << cos(alpha), sin(alpha), 0,           0,          0, 0,
+            -sin(alpha), cos(alpha), 0,           0,          0, 0,
+                      0,          0, 1,           0,          0, 0,
+                      0,          0, 0,  cos(alpha), sin(alpha), 0,
+                      0,          0, 0, -sin(alpha), cos(alpha), 0,
+                      0,          0, 0,           0,          0, 1;
+
+        return T.transpose()*K*T;
+    }
+
+    // Returns the mass matrix of a straight Euler-Bernoulli beam with mass m and inertia I at the center
+    static Vector<6> mass_matrix(double rhoA, double L)
+    {
+        const double alpha = 0.02;
+
+        double m = 0.5*rhoA*L;
+        double I = alpha*rhoA*L*L*L;
+
+        return (Vector<6>() << m, m, I, m, m, I ).finished();
+    }
+
+
     struct MassProperties {
         double m;
         double I;
@@ -57,7 +90,7 @@ public:
 
     // Calculates the mass properties of a curved beam with varying cross section properties.
     //
-    // m    = integrate rhoA(t) dt from s0 to s1
+    // m_cg = integrate rhoA(t) dt from s0 to s1
     // x_cg = 1/m * integrate x(t)*rhoA(t) dt from s0 to s1
     // y_cg = 1/m * integrate y(t)*rhoA(t) dt from s0 to s1
     // I_cg = integrate ((x(t) - x_cg)^2 + (y(t) - y_cg)^2)*rhoA(t) dt from s0 to s1
@@ -84,7 +117,7 @@ public:
             return rhoA(s)*(pow(rs[0] - x_cg, 2) + pow(rs[1] - y_cg, 2));
         }, s0, s1, EPSILON);
 
-        return {
+        return MassProperties {
             .m = m_cg,
             .I = I_cg,
             .x = x_cg,

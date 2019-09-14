@@ -2,6 +2,7 @@
 #include "fem/elements/BarElement.hpp"
 #include "fem/elements/BeamElement.hpp"
 #include "fem/elements/ContactElement.hpp"
+#include "bow/BeamUtils.hpp"
 
 #include <catch.hpp>
 #include <iostream>
@@ -84,8 +85,8 @@ TEST_CASE("tangent-stiffness-beam-element")
         Node node0 = system.create_node({true, true, true}, {x0, y0, phi0});
         Node node1 = system.create_node({true, true, true}, {x1, y1, phi1});
 
-        BeamElement element01(system, node0, node1, 0.0, L);
-        element01.set_stiffness(EA, EI, 0.0);
+        Matrix<6, 6> K = BeamUtils::stiffness_matrix(EA, EI, L, 0.0);
+        BeamElement element01(system, node0, node1, K, Vector<6>::Zero());
         system.mut_elements().add(element01);
 
         check_stiffness_matrix(system);

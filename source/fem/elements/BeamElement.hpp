@@ -6,13 +6,7 @@
 class BeamElement: public Element
 {
 public:
-    BeamElement(System& system, Node node0, Node node1, double rhoA, double L);
-
-    void set_reference_angles(double phi_ref_0, double phi_ref_1);
-    void set_stiffness(double Cee, double Ckk, double Cek);
-    void set_length(double length);
-    double get_epsilon() const;
-    double get_kappa(double p) const;
+    BeamElement(System& system, Node node0, Node node1, const Matrix<6, 6>& K, const Vector<6>& M);
 
     virtual void add_masses() const override;
     virtual void add_internal_forces() const override;
@@ -24,11 +18,9 @@ public:
 private:
     std::array<Dof, 6> dofs;
 
-    Matrix<3, 3> C;
-    double phi_ref_0;
-    double phi_ref_1;
-    double rhoA;
-    double L;
+    Matrix<3, 3> Ke;
+    Vector<6> M;
+    Vector<3> e_ref;
 
     Vector<3> get_e() const;
     Matrix<3, 6> get_J() const;

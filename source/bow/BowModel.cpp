@@ -143,21 +143,7 @@ void BowModel::init_limb(const Callback& callback)
     // Create limb elements
     for(size_t i = 0; i < input.settings.n_limb_elements; ++i)
     {
-        double rhoA = 0.5*(limb_properties.rhoA[i] + limb_properties.rhoA[i+1]);
-        double L = system.get_distance(nodes_limb[i], nodes_limb[i+1]);
-
-        double Cee = 0.5*(limb_properties.Cee[i] + limb_properties.Cee[i+1]);
-        double Ckk = 0.5*(limb_properties.Ckk[i] + limb_properties.Ckk[i+1]);
-        double Cek = 0.5*(limb_properties.Cek[i] + limb_properties.Cek[i+1]);
-
-        // Todo: Document this
-        double phi = system.get_angle(nodes_limb[i], nodes_limb[i+1]);
-        double phi0 = phi - system.get_u(nodes_limb[i].phi);
-        double phi1 = phi - system.get_u(nodes_limb[i+1].phi);
-
-        BeamElement element(system, nodes_limb[i], nodes_limb[i+1], rhoA, L);
-        element.set_reference_angles(phi0, phi1);
-        element.set_stiffness(Cee, Ckk, Cek);
+        BeamElement element(system, nodes_limb[i], nodes_limb[i+1], limb_properties.segments[i].K, limb_properties.segments[i].M);
         system.mut_elements().add(element, "limb");
     }
 
@@ -444,6 +430,7 @@ void BowModel::add_state(BowStates& states) const
     auto elements = system.get_elements().group<BeamElement>("limb");
     for(size_t i = 0; i < nodes_limb.size(); ++i)
     {
+        /*
         if(i == 0)
         {
             epsilon[i] = elements[i].get_epsilon();
@@ -459,6 +446,7 @@ void BowModel::add_state(BowStates& states) const
             epsilon[i] = 0.5*(elements[i-1].get_epsilon() + elements[i].get_epsilon());
             kappa[i] = 0.5*(elements[i-1].get_kappa(1.0) + elements[i].get_kappa(0.0));
         }
+        */
     }
 
     states.epsilon.push_back(epsilon);

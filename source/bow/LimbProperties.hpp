@@ -5,6 +5,12 @@
 
 using nlohmann::json;
 
+struct SegmentProperties
+{
+    Matrix<6, 6> K;    // Stiffness matrix
+    Vector<6> M;       // Mass matrix
+};
+
 struct LayerProperties
 {
     VectorXd length;
@@ -55,15 +61,14 @@ struct LimbProperties
     VectorXd Cek;
 
     // Segment properties
-    std::vector<Matrix<6, 6>> K;
-    std::vector<double> m;
+    std::vector<SegmentProperties> segments;
 
     // Layer properties
     std::vector<LayerProperties> layers;
 
     LimbProperties() = default;
     LimbProperties(const InputData& input);
-    LimbProperties(const InputData& input, unsigned n);
+    LimbProperties(const InputData& input, unsigned n);    // n: Number of limb points
 };
 
 static void to_json(json& obj, const LimbProperties& val)

@@ -1,4 +1,5 @@
 #include "LimbProperties.hpp"
+#include "BeamUtils.hpp"
 #include "bow/ContinuousLimb.hpp"
 #include "numerics/Linspace.hpp"
 
@@ -10,15 +11,15 @@ LimbProperties::LimbProperties(const InputData& input)
 
 LimbProperties::LimbProperties(const InputData& input, unsigned n)
     : length(VectorXd::Zero(n)),
-      angle(VectorXd::Zero(n)),
       x_pos(VectorXd::Zero(n)),
       y_pos(VectorXd::Zero(n)),
+      angle(VectorXd::Zero(n)),
       width(VectorXd::Zero(n)),
       height(VectorXd::Zero(n)),
+      rhoA(VectorXd::Zero(n)),
       Cee(VectorXd::Zero(n)),
       Ckk(VectorXd::Zero(n)),
       Cek(VectorXd::Zero(n)),
-      rhoA(VectorXd::Zero(n)),
       layers(input.layers.size(), LayerProperties(n, n))
 {
     ContinuousLimb limb(input);
@@ -57,6 +58,32 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
             layers[j].Hk_back(i, i) = -input.layers[j].E*y[j];
             layers[j].Hk_belly(i, i) = -input.layers[j].E*y[j+1];
         }
+    }
+
+    // Segment properties
+    for(size_t i = 0; i < n-1; ++i)
+    {
+        // Stiffness matrix
+        Matrix<6, 6> K = BeamUtils::stiffness_matrix(
+                    [&](double s){ return limb.get_r(s); },
+                    [&](double s){ return limb.get_C(s); },
+                    s[i], s[i+1]);
+
+        // Mass properties
+        BeamUtils::MassProperties masses = BeamUtils::mass_properties(
+                    [&](double s){ return limb.get_r(s); },
+                    [&](double s){ return limb.get_rhoA(s); },
+                    s[i], s[i+1]);
+
+        const double alpha = 0.24;
+        Vector<6> M;
+        M << 0.5*masses.m, 0.5*masses.m, alpha*masses.I,
+             0.5*masses.m, 0.5*masses.m, alpha*masses.I;
+
+        segments.push_back(SegmentProperties {
+            .K = K,
+            .M = M
+        });
     }
 
     // 3. Layer properties

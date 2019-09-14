@@ -1,6 +1,7 @@
 #include "fem/System.hpp"
 #include "fem/StaticSolver.hpp"
 #include "fem/elements/BeamElement.hpp"
+#include "bow/BeamUtils.hpp"
 
 #include <catch.hpp>
 #include <vector>
@@ -12,7 +13,7 @@ TEST_CASE("large-deformation-cantilever")
     // [1] On the correct representation of bending and axial deformation in the absolute nodal coordinate formulation with an elastic line approach
     // Johannes Gerstmayr, Hans Irschik, Journal of Sound and Vibration 318 (2008) 461-487
 
-    unsigned N = 15; // Number of elements
+    unsigned N = 15;    // Number of elements
 
     double L = 2.0;
     double b = 0.1;
@@ -37,8 +38,8 @@ TEST_CASE("large-deformation-cantilever")
     // Create elements
     for(unsigned i = 0; i < N; ++i)
     {
-        BeamElement element(system, nodes[i], nodes[i+1], 0.0, L/double(N));
-        element.set_stiffness(E*A, E*I, 0.0);
+        Matrix<6, 6> K = BeamUtils::stiffness_matrix(E*A, E*I, L/double(N), 0.0);
+        BeamElement element(system, nodes[i], nodes[i+1], K, Vector<6>::Zero());
         system.mut_elements().add(element);
     }
 

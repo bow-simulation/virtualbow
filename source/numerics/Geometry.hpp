@@ -59,6 +59,34 @@ static std::vector<Vector<2>> constant_orientation_subset(const std::vector<Vect
     return output;
 }
 
+// Given the line A + eta*(B-A) through points A and B, find the values eta_{1,2} at which the line has
+// distance d to point C, i.e. ||A + eta_{1,2}*(B-A) - C|| = d.
+// Results are be NaN if d is larger than the minimum distance between the line and C.
+static Vector<2> points_by_distance_to_line(const Vector<2>& A, const Vector<2>& B, const Vector<2>& C, double d)
+{
+    double x_ab = B[0] - A[0];
+    double x_ac = C[0] - A[0];
+    double y_ab = B[1] - A[1];
+    double y_ac = C[1] - A[1];
+
+    return solve_quadratic(x_ac*x_ac + y_ac*y_ac - d*d,
+                          -2.0*(x_ac*x_ab + y_ac*y_ab),
+                           x_ab*x_ab+ y_ab*y_ab);
+};
+
+// Given the line A + eta*(B-A), find the value eta at which the line has minimum distance to point C.
+// Result are NaN for A = B.
+static double point_by_min_distance_to_line(const Vector<2>& A, const Vector<2>& B, const Vector<2>& C)
+{
+    double x_ab = B[0] - A[0];
+    double x_ac = C[0] - A[0];
+    double y_ab = B[1] - A[1];
+    double y_ac = C[1] - A[1];
+
+    return (x_ab*x_ac + y_ab*y_ac)/(x_ab*x_ab + y_ab*y_ab);
+}
+
+
 // Partitions a curve of linear segments given by a list of points into n_out points such that
 // the first and last point coincide with the start and end of the curve and all points
 // are evenly spaced out by euclidean distance.
@@ -80,18 +108,6 @@ static std::vector<Vector<2>> equipartition(const std::vector<Vector<2>>& input,
     output[0] = input[0];
     output[n_out-1] = input[n_in-1];
 
-    // Function that returns two values eta_1/2 such that
-    // ||A + eta_i*(B-A), C|| = d.
-    auto find_by_distance = [](const Vector<2>& A, const Vector<2>& B, const Vector<2>& C, double d)
-    {
-        double x_ab = B[0] - A[0];  double x_ac = C[0] - A[0];
-        double y_ab = B[1] - A[1];  double y_ac = C[1] - A[1];
-
-        return solve_quadratic(x_ac*x_ac + y_ac*y_ac - d*d,
-                              -2.0*(x_ac*x_ab + y_ac*y_ab),
-                               x_ab*x_ab+ y_ab*y_ab);
-    };
-
     // Function that calculates the intermediate points for a fixed distance
     // d and returns a measure of error. The real equipartition is done by finding
     // the root of this function.
@@ -106,7 +122,7 @@ static std::vector<Vector<2>> equipartition(const std::vector<Vector<2>>& input,
             {
                 // Try to find a point on the current input segment (i, i+1)
                 // with distance d to the previous output point (j-1)
-                double eta = find_by_distance(input[i], input[i+1], output[j-1], d).maxCoeff();
+                double eta = points_by_distance_to_line(input[i], input[i+1], output[j-1], d).maxCoeff();
 
                 if(eta > 1.0 && i < n_in-2)    // If eta lies outside the current segment and it's not the last segment: move to the next segment.
                 {
