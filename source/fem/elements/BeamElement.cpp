@@ -1,6 +1,8 @@
 #include "BeamElement.hpp"
 #include "fem/System.hpp"
 
+#include <iostream>
+
 BeamElement::BeamElement(System& system, Node node0, Node node1, const Matrix<6, 6>& K, const Vector<6>& M)
     : Element(system),
       dofs{node0.x, node0.y, node0.phi, node1.x, node1.y, node1.phi},

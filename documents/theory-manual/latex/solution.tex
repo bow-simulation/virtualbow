@@ -64,30 +64,28 @@ A solution to this is displacement control, where we prescribe a value for one o
 The following derivation has been adapted from \cite{fem_script_uni_bochum}. Displacement control is a special case of a wider class of methods where the equilibrium equations are modified as
 %
 \begin{align}
-\boldsymbol{q}(\boldsymbol{u}) - \lambda\,\boldsymbol{p} &= 0,\label{eq:equilibrium_dc}\\
+\boldsymbol{q}(\boldsymbol{u}) - \boldsymbol{p}(\lambda) &= 0,\label{eq:equilibrium_dc}\\
 c(\boldsymbol{u},\,\lambda) &= 0.\label{eq:constraint_dc}
 \end{align}
 %
-Here the external forces are scaled by the unknown load factor $\lambda$. To compensate for this additional unknown, a scalar constraint~$c(\boldsymbol{u},\,\lambda) = 0$ on the displacements and the load parameter is introduced. Depending on the choice of constraint the method can be turned into load control, displacement control or other more sophisticated schemes like the arc-length method. We will carry out the derivation for the general case and specify the constraints later. This is also how these methods are implemented in \swtitle: A general implementation for arbitrary constraints that is then specialized into load controlled and displacement controlled methods by providing the necessary constraints.
+Here the external forces are modified by the unknown load parameter $\lambda$. To compensate for this additional unknown, a scalar constraint~$c(\boldsymbol{u},\,\lambda) = 0$ on the displacements and the load parameter is introduced. Depending on the choice of constraint the method can be turned into load control, displacement control or other more sophisticated schemes like the arc-length method. We will carry out the derivation for the general case and specify the constraints later. This is also how these methods are implemented in \swtitle: A general implementation for arbitrary constraints that is then specialized into load controlled and displacement controlled methods by providing the necessary constraints.
 
 The system of nonlinear equations (\ref{eq:equilibrium_dc}), (\ref{eq:constraint_dc}) has to be solved for the displacements~$\boldsymbol{u}$ and the load parameter~$\lambda$. Like before, the Newton-Raphson method is used: The equations are linearised around a given approximation~$\{\boldsymbol{u}_i,\,\lambda_i\}$ and solved to obtain an improved approximiation~$\{\boldsymbol{u}_{i+1},\,\lambda_{i+1}\}$. This is repeated iteratively until displacements and load parameter satisfy the equilibrium equations~(\ref{eq:equilibrium_dc}) as well as the constraint equation~(\ref{eq:constraint_dc}) reasonably well as determined by some convergence criterion.
 
 Carrying out the linearisation leads to the two equations
 %
 \begin{align}
-\boldsymbol{q}(\boldsymbol{u}) - \lambda\,\boldsymbol{p}\:&\approx\:\boldsymbol{q}(\boldsymbol{u_{i}}) - \lambda_i\,\boldsymbol{p} + 
-\underbrace{
+\boldsymbol{q}(\boldsymbol{u}) - \boldsymbol{p}(\lambda)\:&\approx\:\boldsymbol{q}(\boldsymbol{u_{i}}) + \underbrace{
 \frac{\partial \boldsymbol{q}}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}})
 }_{\boldsymbol{K_{i}}}
 \underbrace{
 (\boldsymbol{u_{i+1}} - \boldsymbol{u_{i}})
-}_{\Delta\boldsymbol{u_{i}}}
-- \boldsymbol{p}
+}_{\Delta\boldsymbol{u_{i}}} - \boldsymbol{p}(\lambda_i) - \frac{\partial \boldsymbol{p}}{\partial \lambda}(\lambda_i)
 \underbrace{
 \,(\lambda_{i+1} - \lambda_{i})
 }_{\Delta \lambda_{i}}
 \notag\\
-&\approx\ \boldsymbol{q}(\boldsymbol{u_{i}}) - \lambda_i\,\boldsymbol{p} + \boldsymbol{K_{i}}\,\Delta\boldsymbol{u_{i}} - \boldsymbol{p}\,\Delta \lambda_{i}\label{eq:equilibrium_dc_lin}\\
+&\approx\ \boldsymbol{q}(\boldsymbol{u_{i}}) - \boldsymbol{p}(\lambda_i) + \boldsymbol{K_{i}}\,\Delta\boldsymbol{u_{i}} - \boldsymbol{p}(\lambda_i) - \frac{\partial \boldsymbol{p}}{\partial \lambda}(\lambda_i)\,\Delta \lambda_{i}\label{eq:equilibrium_dc_lin}\\
 \notag\\
 c(\boldsymbol{u},\,\lambda) \ &\approx\ c(\boldsymbol{u_{i}},\,\lambda_{i}) + \frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})(\boldsymbol{u_{i+1}} - \boldsymbol{u_{i}}) + \frac{\partial c}{\partial \lambda}(\boldsymbol{u_{i}},\,\lambda_{i})(\lambda_{i+1} - \lambda_{i})\notag\\
 &\approx\ c(\boldsymbol{u_{i}},\,\lambda_{i}) + \frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})\,\Delta\boldsymbol{u_{i}} + \frac{\partial c}{\partial \lambda}(\boldsymbol{u_{i}},\,\lambda_{i})\,\Delta \lambda_{i}\label{eq:constraints_dc_lin}
@@ -97,7 +95,7 @@ Equations~(\ref{eq:equilibrium_dc_lin}) and~(\ref{eq:constraints_dc_lin}) can wr
 %
 \begin{align}
 \begin{bmatrix}
-\boldsymbol{K_{i}} & -\boldsymbol{p}\\
+\boldsymbol{K_{i}} & -\frac{\partial \boldsymbol{p}}{\partial \lambda}(\lambda_i)\\
 \frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i}) & \frac{\partial c}{\partial \lambda}(\boldsymbol{u_{i}},\,\lambda_{i})
 \end{bmatrix}
 \begin{bmatrix}
@@ -106,8 +104,8 @@ Equations~(\ref{eq:equilibrium_dc_lin}) and~(\ref{eq:constraints_dc_lin}) can wr
 \end{bmatrix}
 =
 \begin{bmatrix}
-\lambda_i\,\boldsymbol{p} - \boldsymbol{q}(\boldsymbol{u_{i}})\\
--\boldsymbol{c}(\boldsymbol{u_{i}},\,f_{i})
+\boldsymbol{p}(\lambda_i) - \boldsymbol{q}(\boldsymbol{u_{i}})\\
+-\boldsymbol{c}(\boldsymbol{u_{i}},\,\lambda_{i})
 \end{bmatrix}.\label{eq:total_dc_lin}
 \end{align}
 %
@@ -127,8 +125,8 @@ However, directly solving~(\ref{eq:total_dc_lin}) is not  numerically efficient 
 With the auxiliary vectors
 %
 \begin{align}
-\boldsymbol{\alpha} &= \boldsymbol{K_{i}^{-1}}(\lambda_i\,\boldsymbol{p} - \boldsymbol{q}(\boldsymbol{u_{i}}))\label{eq:auxiliary_1}\\
-\boldsymbol{\beta} &= \boldsymbol{K_{i}^{-1}}\,\boldsymbol{p}\label{eq:auxiliary_2}
+\boldsymbol{\alpha} &= \boldsymbol{K_{i}^{-1}}(\boldsymbol{p}(\lambda_i) - \boldsymbol{q}(\boldsymbol{u_{i}}))\label{eq:auxiliary_1}\\
+\boldsymbol{\beta} &= \boldsymbol{K_{i}^{-1}}\,\frac{\partial \boldsymbol{p}}{\partial \lambda}(\lambda_i)\label{eq:auxiliary_2}
 \end{align}
 %
 These can be computed efficiently by exploiting the symmetry of the stiffness matrix $\boldsymbol{K_{i}}$.

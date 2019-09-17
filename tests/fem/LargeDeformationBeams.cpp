@@ -2,6 +2,7 @@
 #include "fem/StaticSolver.hpp"
 #include "fem/elements/BeamElement.hpp"
 #include "bow/BeamUtils.hpp"
+#include "numerics/Linspace.hpp"
 
 #include <catch.hpp>
 #include <vector>
@@ -56,68 +57,92 @@ TEST_CASE("large-deformation-cantilever")
     double uy_ref = 1.2083981311;
 
     // Error
-    // Todo: Why is the precision not better?
-    REQUIRE(std::abs((ux_num - ux_ref)/ux_ref) < 1.08e-3);
-    REQUIRE(std::abs((uy_num - uy_ref)/uy_ref) < 5.79e-4);
+    REQUIRE(std::abs((ux_num - ux_ref)/ux_ref) < 1e-3);
+    REQUIRE(std::abs((uy_num - uy_ref)/uy_ref) < 1e-3);
 }
 
 TEST_CASE("large-deformation-circular-beam")
 {
-    /*
     // Static test "Bending of a pre-curved beam into a full circle" from [1]
     // [1] On the correct representation of bending and axial deformation in the absolute nodal coordinate formulation with an elastic line approach
     // Johannes Gerstmayr, Hans Irschik. Journal of Sound and Vibration 318 (2008) 461-487
 
-    unsigned N = 20;    // Number of elements
+    unsigned N = 10;    // Number of elements
 
     double R = 1.0;
-    double EA = 5.0e8;
-    double EI = 10.0e5;
+    double L = M_PI*R;
+    double EA = 1.0e6;
+    double EI = 1.0e3;
 
     System system;
     std::vector<Node> nodes;
-    std::vector<BeamElement> elements;
+
+    auto r_fn = [&](double s) {
+        return (Vector<3>() << R*sin(s/R), R*cos(s/R) - R, -s/R).finished();
+    };
+
+    auto C_fn = [&](double s) {
+        return (Matrix<2, 2>() << EA, 0.0, 0.0, EI).finished();
+    };
 
     // Create nodes
-    for(unsigned i = 0; i < N+1; ++i)
+    std::cout << "Shape:\n";
+    std::vector<double> s = Linspace<double>(0.0, L, N+1).collect();
+    for(unsigned i = 0; i < s.size(); ++i)
     {
         bool active = (i != 0);
-        double phi = double(i)/double(N)*M_PI;
-        nodes.push_back(system.create_node({active, active, active}, {R*sin(phi), R*(cos(phi) - 1.0), 0.0}));
+        Vector<3> r = r_fn(s[i]);
+        std::cout << r[0] << ", " << r[1] << ", " << r[2] << "\n";
+
+        nodes.push_back(system.create_node({active, active, active}, {r[0], r[1], r[2]}));
     }
+
+    //return;
 
     // Create elements
     for(unsigned i = 0; i < N; ++i)
     {
-        double dist = system.get_distance(nodes[i], nodes[i+1]);
-        double angle = system.get_angle(nodes[i], nodes[i+1]);
+        //Matrix<6, 6> K = BeamUtils::stiffness_matrix(EA, EI, system.get_distance(nodes[i], nodes[i+1]),
+        //        system.get_angle(nodes[i], nodes[i+1]));
 
-        BeamElement element(system, nodes[i], nodes[i+1], 0.0, dist);
-        element.set_stiffness(EA, EI, 0.0);
-        element.set_reference_angles(angle - system.get_u(nodes[i].phi), angle - system.get_u(nodes[i+1].phi));
-
+        Matrix<6, 6> K = BeamUtils::stiffness_matrix(r_fn, C_fn, s[i], s[i+1]);
+        BeamElement element(system, nodes[i], nodes[i+1], K, Vector<6>::Zero());
         system.mut_elements().add(element);
     }
 
-    StaticSolverDC solver(system, nodes[N].phi);
-    for(unsigned i = 0; i < 15; ++i)
-        solver.solve(-double(i)/15*M_PI);
+
+    StaticSolverLC solver(system);
+
+    std::cout << "Trajectory:\n";
+    unsigned steps = 100;
+    for(double M: Linspace<double>(0.0, EI*R, steps))
+    {
+        system.set_p(nodes.back().phi, -M);
+        solver.solve();
+
+        std::cout << system.get_u(nodes.back().x) << ", " << system.get_u(nodes.back().y) << "\n";
+    }
 
     // Numerical solution
-    double M_num = -system.get_p(nodes[N].phi);
-    double x_num = system.get_u(nodes[N].x);
-    double y_num = system.get_u(nodes[N].y);
+    double x_num = system.get_u(nodes.back().x);
+    double y_num = system.get_u(nodes.back().y);
+    double phi_num = system.get_u(nodes.back().phi);
 
     // Reference solution
-    double M_ref = EI*R;
     double x_ref = 0.0;
     double y_ref = 0.0;
+    double phi_ref = -2*M_PI;
+
+    std::cout << "\n\n";
+    std::cout << "phi_num = " << phi_num << "\n";
+    std::cout << "x_num = " << x_num << "\n";
+    std::cout << "y_num = " << y_num << "\n";
+
+    return;
 
     // Error
-    // Todo: Why is the torque so much more off than the displacements?
-    REQUIRE(std::abs((M_num - M_ref)/M_ref) < 1.03e-03);
-    REQUIRE(std::abs(x_num - x_ref) < 7.82e-16);
-    REQUIRE(std::abs(y_num - y_ref) < 3.58e-14);
-    */
+    REQUIRE(std::abs(x_num - x_ref) < 1e-6);
+    REQUIRE(std::abs(y_num - y_ref) < 1e-6);
+    REQUIRE(std::abs(phi_num - phi_ref) < 1e-6);
 }
 

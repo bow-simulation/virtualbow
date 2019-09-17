@@ -87,19 +87,21 @@ TEST_CASE("stiffness-matrix-straight")
     double EA = 1e6;
     double EI = 1e3;
     double L = 1.5;
-    double alpha = M_PI/4.0;
 
-    auto r = [&](double s) {
-        return (Vector<3>() << s*cos(alpha), s*sin(alpha), alpha).finished();
-    };
+    for(double alpha: Linspace<double>(-2.0*M_PI, 2.0*M_PI, 10))
+    {
+        auto r = [&](double s) {
+            return (Vector<3>() << s*cos(alpha), s*sin(alpha), alpha).finished();
+        };
 
-    auto C = [&](double s) {
-        return (Matrix<2, 2>() << EA, 0.0, 0.0, EI).finished();
-    };
+        auto C = [&](double s) {
+            return (Matrix<2, 2>() << EA, 0.0, 0.0, EI).finished();
+        };
 
-    Matrix<6, 6> K_num = BeamUtils::stiffness_matrix(r, C, 0.0, L);
-    Matrix<6, 6> K_ref = BeamUtils::stiffness_matrix(EA, EI, L, alpha);
-    REQUIRE(K_num.isApprox(K_ref, 1e-8));
+        Matrix<6, 6> K_num = BeamUtils::stiffness_matrix(r, C, 0.0, L);
+        Matrix<6, 6> K_ref = BeamUtils::stiffness_matrix(EA, EI, L, alpha);
+        REQUIRE(K_num.isApprox(K_ref, 1e-8));
+    }
 }
 
 // Compare stiffness matrix of a quarter-circle with uniform section properties to the fem approximation
@@ -191,8 +193,7 @@ TEST_CASE("mass-properties-straight")
     REQUIRE(std::abs(properties.y - y_ref) < 1e-9);
 }
 
-#include <iostream>
-TEST_CASE("mass-properties-circle")
+TEST_CASE("mass-properties-circular")
 {
     double rhoA = 1e3;
     double R = 1.5;
@@ -217,4 +218,43 @@ TEST_CASE("mass-properties-circle")
     REQUIRE(std::abs(properties.I - I_ref) < 1e-9);
     REQUIRE(std::abs(properties.x - x_ref) < 1e-9);
     REQUIRE(std::abs(properties.y - y_ref) < 1e-9);
+}
+
+#include <iostream>
+TEST_CASE("straight-curved-convergence")
+{
+    double EA = 1e6;
+    double EI = 1e3;
+    double R = 10.0;
+    double L = 0.1;
+
+    for(double alpha: Linspace<double>(M_PI/2.0, 2.0*M_PI, 10))
+    {
+        double s0 = R*alpha;
+        double s1 = s0 + L;
+
+        auto r_fn = [&](double s) {
+            return (Vector<3>() << R*cos(s/R), R*sin(s/R), s/R + M_PI_2).finished();
+        };
+
+        auto C_fn = [&](double s) {
+            return (Matrix<2, 2>() << EA, 0.0, 0.0, EI).finished();
+        };
+
+        Vector<3> r0 = r_fn(s0);
+        Vector<3> r1 = r_fn(s1);
+
+        Matrix<6, 6> K_straight = BeamUtils::stiffness_matrix(EA, EI, std::hypot(r1[0]-r0[0], r1[1] - r0[1]),
+                std::atan2(r1[1] - r0[1], r1[0]-r0[0]));
+
+        Matrix<6, 6> K_curved = BeamUtils::stiffness_matrix(r_fn, C_fn, s0, s1);
+
+        std::cout << K_straight << "\n\n";
+        std::cout << K_curved << "\n\n";
+        std::cout << ((K_straight - K_curved).array()/K_straight.array()).maxCoeff() << "\n\n";
+
+        return;
+
+        //std::cout << (K_straight - K_curved).maxCoeff() << "\n\n";
+    }
 }

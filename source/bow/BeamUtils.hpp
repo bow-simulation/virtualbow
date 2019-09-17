@@ -18,6 +18,8 @@ public:
     template<class F1, class F2>
     static Matrix<6, 6> stiffness_matrix(const F1& r, const F2& C, double s0, double s1)
     {
+        const double epsilon = 1e-9;    // Magic number
+
         Vector<3> r0 = r(s0);
         Vector<3> r1 = r(s1);
 
@@ -37,7 +39,7 @@ public:
             return H.transpose()*C(s).inverse()*H;
         };
 
-        Matrix<3, 3> Kbb_inv = AdaptiveSimpson::integrate<Matrix<3, 3>>(f, s0, s1, 1e-9);    // Todo: Magic number
+        Matrix<3, 3> Kbb_inv = AdaptiveSimpson::integrate<Matrix<3, 3>>(f, s0, s1, epsilon);
         Matrix<3, 3> Kaa_inv = Sba.transpose()*Kbb_inv*Sba;
 
         Matrix<3, 3> Kaa = Kaa_inv.inverse();
@@ -52,19 +54,19 @@ public:
     static Matrix<6, 6> stiffness_matrix(double EA, double EI, double L, double alpha)
     {
         Matrix<6, 6> K, T;
-        K << EA/L,              0,           0, -EA/L,              0,           0,
-                0,  12*EI/(L*L*L),  6*EI/(L*L),     0, -12*EI/(L*L*L),  6*EI/(L*L),
-                0,     6*EI/(L*L),      4*EI/L,     0,    -6*EI/(L*L),      2*EI/L,
-            -EA/L,              0,           0,  EA/L,              0,           0,
-                0, -12*EI/(L*L*L), -6*EI/(L*L),     0,  12*EI/(L*L*L), -6*EI/(L*L),
-                0,     6*EI/(L*L),      2*EI/L,     0,    -6*EI/(L*L),      4*EI/L;
+        K << EA/L,              0.0,           0.0, -EA/L,              0.0,           0.0,
+              0.0,  12.0*EI/(L*L*L),  6.0*EI/(L*L),   0.0, -12.0*EI/(L*L*L),  6.0*EI/(L*L),
+              0.0,     6.0*EI/(L*L),      4.0*EI/L,   0.0,    -6.0*EI/(L*L),      2.0*EI/L,
+            -EA/L,              0.0,           0.0,  EA/L,              0.0,           0.0,
+              0.0, -12.0*EI/(L*L*L), -6.0*EI/(L*L),   0.0,  12.0*EI/(L*L*L), -6.0*EI/(L*L),
+              0.0,     6.0*EI/(L*L),      2.0*EI/L,   0.0,    -6.0*EI/(L*L),      4.0*EI/L;
 
-        T << cos(alpha), sin(alpha), 0,           0,          0, 0,
-            -sin(alpha), cos(alpha), 0,           0,          0, 0,
-                      0,          0, 1,           0,          0, 0,
-                      0,          0, 0,  cos(alpha), sin(alpha), 0,
-                      0,          0, 0, -sin(alpha), cos(alpha), 0,
-                      0,          0, 0,           0,          0, 1;
+        T << cos(alpha), sin(alpha), 0.0,         0.0,        0.0, 0.0,
+            -sin(alpha), cos(alpha), 0.0,         0.0,        0.0, 0.0,
+                    0.0,        0.0, 1.0,         0.0,        0.0, 0.0,
+                    0.0,        0.0, 0.0,  cos(alpha), sin(alpha), 0.0,
+                    0.0,        0.0, 0.0, -sin(alpha), cos(alpha), 0.0,
+                    0.0,        0.0, 0.0,         0.0,        0.0, 1.0;
 
         return T.transpose()*K*T;
     }
@@ -100,22 +102,22 @@ public:
     template<class F1, class F2>
     static MassProperties mass_properties(const F1& r, const F2& rhoA, double s0, double s1)
     {
-        const double EPSILON = 1e-9;    // Magic number
+        const double epsilon = 1e-9;    // Magic number
 
-        double m_cg = AdaptiveSimpson::integrate<double>(rhoA, s0, s1, EPSILON);
+        double m_cg = AdaptiveSimpson::integrate<double>(rhoA, s0, s1, epsilon);
 
         double x_cg = AdaptiveSimpson::integrate<double>([&](double s){
             return rhoA(s)*r(s)[0];
-        }, s0, s1, EPSILON)/m_cg;
+        }, s0, s1, epsilon)/m_cg;
 
         double y_cg = AdaptiveSimpson::integrate<double>([&](double s){
             return rhoA(s)*r(s)[1];
-        }, s0, s1, EPSILON)/m_cg;
+        }, s0, s1, epsilon)/m_cg;
 
         double I_cg = AdaptiveSimpson::integrate<double>([&](double s){
             Vector<3> rs = r(s);
             return rhoA(s)*(pow(rs[0] - x_cg, 2) + pow(rs[1] - y_cg, 2));
-        }, s0, s1, EPSILON);
+        }, s0, s1, epsilon);
 
         return MassProperties {
             .m = m_cg,

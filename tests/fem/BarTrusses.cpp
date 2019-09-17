@@ -1,6 +1,7 @@
 #include "fem/System.hpp"
 #include "fem/StaticSolver.hpp"
 #include "fem/elements/BarElement.hpp"
+#include "numerics/Linspace.hpp"
 
 #include <catch.hpp>
 #include <iostream>
@@ -56,13 +57,81 @@ TEST_CASE("small-deformation-bar-truss")
     REQUIRE(std::abs(s_num - s_ref) < 1e-6);
 }
 
+void solve_statics_dc(System& system, Dof dof, double u_target)
+{
+    auto constraint = [&](const VectorXd& u, double lambda, double& c, VectorXd& dcdu, double& dcdl) {
+        c = u(dof.index) - u_target;
+        dcdu = unit_vector(system.dofs(), dof.index);
+        dcdl = 0.0;
+    };
+
+    auto load_vector = [&](double lambda, VectorXd& p, VectorXd& dpdl) {
+        p = system.get_p();
+        p(dof.index) = lambda;
+        dpdl = unit_vector(system.dofs(), dof.index);
+    };
+
+    const unsigned max_iter = 150;    // Todo: Magic number
+    const double epsilon = 1e-5;      // Todo: Magic number
+
+    Eigen::LDLT<MatrixXd> decomp;
+    VectorXd delta_q(system.dofs());
+    VectorXd delta_u(system.dofs());
+    VectorXd alpha(system.dofs());
+    VectorXd beta(system.dofs());
+    VectorXd loads(system.dofs());
+
+    double c;
+    double dcdl;
+    VectorXd dcdu(system.dofs());
+    VectorXd dpdl(system.dofs());
+
+    double lambda = system.get_p(dof);
+
+            decomp.compute(system.get_K());
+    for(unsigned i = 0; i < max_iter; ++i)
+    {
+
+        if(decomp.info() != Eigen::Success)
+            throw std::runtime_error("Decomposition failed!");
+
+        load_vector(lambda, loads, dpdl);
+
+        delta_q = system.get_q() - loads;
+        alpha = -decomp.solve(delta_q);
+        beta = decomp.solve(dpdl);
+
+        // Evaluate constraint
+        constraint(system.get_u(), lambda, c, dcdu, dcdl);
+
+        double delta_l;
+        if((dcdl + dcdu.transpose()*beta) != 0)    // Todo: Epsilon
+            delta_l = -(c + dcdu.transpose()*alpha)/(dcdl + dcdu.transpose()*beta);
+        else
+            delta_l = 0.0;
+
+        system.set_u(system.get_u() + alpha + delta_l*beta);
+        lambda = lambda + delta_l;
+        load_vector(lambda, loads, dpdl);
+        system.set_p(loads);
+
+        // If convergence...
+        if(std::abs(delta_u.transpose()*delta_q) + std::abs(delta_l*c) < epsilon)    // Todo: Better convergence criterion
+        {
+            return;
+        }
+    }
+
+    throw std::runtime_error("Iterations exceeded!");
+}
+
+
 // Todo: Why does the displacement control not allow passing the point 0.5*H?
 // Read section on displacement control in 'Nonlinear Finite Element Analysis of Solids and Structures (René De Borst,Mike A. Crisfield,Joris J. C.)
 TEST_CASE("large-deformation-bar-truss")
 {
     double H = 1.0;
     double EA = 10000.0;
-    double F = 1500.0;
 
     System system;
 
@@ -74,19 +143,21 @@ TEST_CASE("large-deformation-bar-truss")
     system.mut_elements().add(BarElement(system, node02, node03, M_SQRT2*H, EA, 0.0));
 
     StaticSolverDC solver(system, node02.y);
-    for(double d = H; d > 0.6*H; d -= 0.05*H)
+    for(double d: Linspace<double>(H, -H, 100))
     {
         // Numerical solution
-        solver.solve(d);
+        solve_statics_dc(system, node02.y, d);
         double s = system.get_u(node02.y);
-        double f_num = system.get_p(node02.y);
+        double F_num = system.get_p(node02.y);
 
         // Analytical solution
         double L0 = M_SQRT2*H;
         double L = hypot(H, s);
-        double f_ref = 2.0*EA*s*(L - L0)/(L*L0);
+        double F_ref = 2.0*EA*s*(L - L0)/(L*L0);
+
+        std::cout << F_ref << ", " << F_num << "\n";
 
         // Error
-        REQUIRE(std::abs(f_num - f_ref) < 1e-9);
+        REQUIRE(std::abs(F_num - F_ref) < 1e-9);
     }
 }
