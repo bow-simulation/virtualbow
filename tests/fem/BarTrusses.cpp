@@ -57,74 +57,110 @@ TEST_CASE("small-deformation-bar-truss")
     REQUIRE(std::abs(s_num - s_ref) < 1e-6);
 }
 
-void solve_statics_dc(System& system, Dof dof, double u_target)
+class StaticSolverBase
 {
-    auto constraint = [&](const VectorXd& u, double lambda, double& c, VectorXd& dcdu, double& dcdl) {
+public:
+
+protected:
+    virtual void eval_constraint(const VectorXd& u, double lambda, double& c, VectorXd& dcdu, double& dcdl) const = 0;
+    virtual void eval_load_vector(double lambda, VectorXd& p, VectorXd& dpdl) const = 0;
+
+private:
+    mutable VectorXd returnc;
+};
+
+struct SolverSettings
+{
+    unsigned iter_max = 150;
+    unsigned iter_ref = 5;
+    double epsilon_q = 1e-6;
+    double epsilon_c = 1e-6;
+    bool full_update = true;
+    bool line_search = false;
+};
+
+void solve_statics_dc(System& system, Dof dof, double u_target, SolverSettings settings = SolverSettings())
+{
+    auto eval_constraint = [&](const VectorXd& u, double lambda, double& c, VectorXd& dcdu, double& dcdl) {
         c = u(dof.index) - u_target;
         dcdu = unit_vector(system.dofs(), dof.index);
         dcdl = 0.0;
     };
 
-    auto load_vector = [&](double lambda, VectorXd& p, VectorXd& dpdl) {
-        p = system.get_p();
-        p(dof.index) = lambda;
+    VectorXd p_initial = system.get_p();
+    auto eval_load_vector = [&](double lambda, VectorXd& p, VectorXd& dpdl) {
+        p = p_initial + lambda*unit_vector(system.dofs(), dof.index);
         dpdl = unit_vector(system.dofs(), dof.index);
     };
-
-    const unsigned max_iter = 150;    // Todo: Magic number
-    const double epsilon = 1e-5;      // Todo: Magic number
 
     Eigen::LDLT<MatrixXd> decomp;
     VectorXd delta_q(system.dofs());
     VectorXd delta_u(system.dofs());
     VectorXd alpha(system.dofs());
     VectorXd beta(system.dofs());
-    VectorXd loads(system.dofs());
+
+    double lambda = 0.0;
 
     double c;
     double dcdl;
     VectorXd dcdu(system.dofs());
+
+    VectorXd p(system.dofs());
     VectorXd dpdl(system.dofs());
+    eval_load_vector(lambda, p, dpdl);
 
-    double lambda = system.get_p(dof);
+    double energy_q_0;
+    double energy_c_0;
+    bool convergence = false;
 
-            decomp.compute(system.get_K());
-    for(unsigned i = 0; i < max_iter; ++i)
+    for(unsigned i = 0; (i < settings.iter_max) && !convergence; ++i)
     {
+        // Calculate factorization of the system's tangent stiffness matrix
+        // Always in the first iteration, in subsequent ones only for the full Newton-Raphson method
+        if(i == 0 || settings.full_update) {
+            decomp.compute(system.get_K());
+            if(decomp.info() != Eigen::Success)
+                throw std::runtime_error("Decomposition failed!");
+        }
 
-        if(decomp.info() != Eigen::Success)
-            throw std::runtime_error("Decomposition failed!");
-
-        load_vector(lambda, loads, dpdl);
-
-        delta_q = system.get_q() - loads;
+        // Calculate out of balance loads and auxiliary vectors alpha and beta
+        delta_q = system.get_q() - p;
         alpha = -decomp.solve(delta_q);
         beta = decomp.solve(dpdl);
 
-        // Evaluate constraint
-        constraint(system.get_u(), lambda, c, dcdu, dcdl);
+        // Evaluate constraint and calculate change in lambda
+        eval_constraint(system.get_u(), lambda, c, dcdu, dcdl);
+        double delta_l = -(c + dcdu.transpose()*alpha)/(dcdl + dcdu.transpose()*beta);
+        delta_u = alpha + delta_l*beta;
 
-        double delta_l;
-        if((dcdl + dcdu.transpose()*beta) != 0)    // Todo: Epsilon
-            delta_l = -(c + dcdu.transpose()*alpha)/(dcdl + dcdu.transpose()*beta);
-        else
-            delta_l = 0.0;
+        // Check for convergence
+        double energy_q_i = delta_u.transpose()*delta_q;
+        double energy_c_i = delta_l*c;
 
-        system.set_u(system.get_u() + alpha + delta_l*beta);
-        lambda = lambda + delta_l;
-        load_vector(lambda, loads, dpdl);
-        system.set_p(loads);
-
-        // If convergence...
-        if(std::abs(delta_u.transpose()*delta_q) + std::abs(delta_l*c) < epsilon)    // Todo: Better convergence criterion
-        {
-            return;
+        if(i == 0) {
+            energy_q_0 = energy_q_i;
+            energy_c_0 = energy_c_i;
         }
+
+        if((energy_q_0 == 0.0 || energy_q_i/energy_q_0 < settings.epsilon_q)
+            && (energy_c_0 == 0.0 || energy_c_i/energy_c_0 < settings.epsilon_c))
+        {
+            convergence = true;
+        }
+
+        // Apply changes
+        lambda = lambda + delta_l;
+        system.set_u(system.get_u() + delta_u);
+        eval_load_vector(lambda, p, dpdl);
+        system.set_p(p);
     }
 
-    throw std::runtime_error("Iterations exceeded!");
+    if(!convergence) {
+        throw std::runtime_error("Iterations exceeded!");
+    }
 }
 
+#include <chrono>
 
 // Todo: Why does the displacement control not allow passing the point 0.5*H?
 // Read section on displacement control in 'Nonlinear Finite Element Analysis of Solids and Structures (René De Borst,Mike A. Crisfield,Joris J. C.)
@@ -142,11 +178,14 @@ TEST_CASE("large-deformation-bar-truss")
     system.mut_elements().add(BarElement(system, node01, node02, M_SQRT2*H, EA, 0.0));
     system.mut_elements().add(BarElement(system, node02, node03, M_SQRT2*H, EA, 0.0));
 
+    auto t1 = std::chrono::high_resolution_clock::now();
+
     StaticSolverDC solver(system, node02.y);
-    for(double d: Linspace<double>(H, -H, 100))
+    for(double d: Linspace<double>(H, -H, 10000))
     {
         // Numerical solution
         solve_statics_dc(system, node02.y, d);
+
         double s = system.get_u(node02.y);
         double F_num = system.get_p(node02.y);
 
@@ -160,4 +199,8 @@ TEST_CASE("large-deformation-bar-truss")
         // Error
         REQUIRE(std::abs(F_num - F_ref) < 1e-9);
     }
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    std::cout << "Duration: " << duration << "\n";
 }

@@ -25,7 +25,8 @@ public:
           delta_u(system.dofs()),
           alpha(system.dofs()),
           beta(system.dofs()),
-          dcdu(system.dofs())
+          dcdu(system.dofs()),
+          u_start(system.dofs())
     {
 
     }
@@ -55,7 +56,7 @@ protected:
             delta_u = alpha + delta_l*beta;
 
             // Line search
-            VectorXd u_start = system.get_u();
+            u_start = system.get_u();
             double l_start = lambda;
             auto f = [&](double eta)
             {
@@ -91,6 +92,7 @@ private:
     VectorXd delta_u;
     VectorXd alpha;
     VectorXd beta;
+    VectorXd u_start;
 
     double c;
     double dcdl;

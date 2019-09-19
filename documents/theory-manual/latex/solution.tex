@@ -47,12 +47,6 @@ Solving for $\Delta\boldsymbol{u}_i$ leads to the iterative procedure
 
 In the implementation the tangent stiffness matrix is not actually inverted, because that's expensive and potentially inaccurate. Instead,~$\Delta\boldsymbol{u}_i$ is obtained by solving the equivalent linear system of equations using a decomposition of the stiffness matrix. The symmetry of the tangent stiffness can be used here. (It isn't necessarily positive definite though, like the stiffness matrices of linear mechanical systems.)
 
-Convergence criteria are usually formulated in terms of change in displacement~$\Delta\boldsymbol{u}$, the residuum $\boldsymbol{p} - \boldsymbol{q}$ or their product $\Delta\boldsymbol{u}^\mathsf{T}(\boldsymbol{p}-\boldsymbol{q})$ (which has the dimension of an energy). We will use the energy criterion
-
-\begin{equation*}
-\Delta\boldsymbol{u}_{i}^\mathsf{T}(\boldsymbol{p}-\boldsymbol{q}(\boldsymbol{u}_i)) < \varepsilon
-\end{equation*}
-
 The basic Newton-Raphson method can be improved and extended in many ways, for example by combining it with a line search or by avoiding the calculation of the tangent stiffness matrix at every iteration (simplified Newton-Raphson method, BFGS method \textcolor{red}{[Source]}).
 
 \subsection{Constrained Newton-Raphson method}
@@ -144,31 +138,48 @@ The Newton-Raphson iteration is now complete. To summarize: First, calculate $\b
 
 \subsection{Constraints for load- and displacement control}
 
-Finally, the constraint function and the parametrisation of the load vector have to be chosen. To get a displacement controlled method as initially stated we choose the constraint function as
+Finally, the constraint function and the parametrisation of the load vector have to be chosen. To get a displacement controlled method as initially stated we choose
 %
 \begin{align}
-\boldsymbol{c}(\boldsymbol{u},\,\lambda) = u^{(k)} - \overline{u}
+\boldsymbol{p} = \boldsymbol{p}_{0} + \lambda\,\boldsymbol{e}_k,\quad\boldsymbol{c}(\boldsymbol{u},\,\lambda) = u^{(k)} - \overline{u}^{(k)}
 \end{align}
 %
-where~$u^k$ is the $k$-th component of the displacement vector that we want to control and $\overline{u}$ is the prescribed value for it. The partial derivatives are
+where $\boldsymbol{p}_{0}$ is the initial load vector on the system, $\boldsymbol{e}_k$ is the k-th unit vector and $u^k$ and $\overline{u}^{(k)}$ are the actual and desired values of the controlled displacement. The partial derivatives are
 %
 \begin{align*}
-\frac{\partial c}{\partial \boldsymbol{u}} &= \boldsymbol{e}_k,\quad
+\frac{\partial p}{\partial \lambda} &= \boldsymbol{e}_k,\quad
+\frac{\partial c}{\partial \boldsymbol{u}} = \boldsymbol{e}_k,\quad
 \frac{\partial c}{\partial \lambda} = 0,
 \end{align*}
 %
-with $\boldsymbol{e}_k$ being the $k$-th unit vector. If a load controlled method is needed instead, the constraint becomes
+with $\boldsymbol{e}_k$ being the $k$-th unit vector. If a load controlled method is needed instead, the constraint instead becomes
 %
 \begin{align}
 \boldsymbol{c}(\boldsymbol{u},\,\lambda) = \lambda - \overline{\lambda},
 \end{align}
 %
-with the desired load factor $\overline{\lambda}$. Partial derivatives:
+with the desired load factor $\overline{\lambda}$ and the partial derivatives
 %
 \begin{align*}
-\frac{\partial c}{\partial \boldsymbol{u}} &= \boldsymbol{0},\quad
-\frac{\partial c}{\partial \lambda} = 1,
+\frac{\partial c}{\partial \boldsymbol{u}} = 0,\quad
+\frac{\partial c}{\partial \lambda} = 1.
 \end{align*}
+
+\subsection{Convergence criterion}
+
+Convergence criteria are often formulated either in terms of the residuum forces $\boldsymbol{p} - \boldsymbol{q}$, change in displacement~$\Delta\boldsymbol{u}$, or their product $\Delta\boldsymbol{u}^\mathsf{T}(\boldsymbol{p}-\boldsymbol{q})$, which has the dimension of an energy. Compared to force and displacement, energy criteria have the advantage that scaling between different types of quantities (forces and torques, lengths and angles) doesn't have to be accounted for explicitly. We therefore use the relative energy criterion
+%
+\begin{equation*}
+\frac{\Delta\boldsymbol{u}_{i}^\mathsf{T}(\boldsymbol{p}(\lambda_i)-\boldsymbol{q}(\boldsymbol{u}_i))}{\Delta\boldsymbol{u}_{0}^\mathsf{T}(\boldsymbol{p}(\lambda_0)-\boldsymbol{q}(\boldsymbol{u}_0))} < \varepsilon_q.
+\end{equation*}
+%
+It takes the energy ratio between current and first iteration and compares it to a numerical tolerance. By using a ratio the tolerance can be a more generic value, because it doesn't depend on the actual magnitude of the energies. An analogous criterion is used for the constraint equation,
+%
+\begin{equation*}
+\frac{\Delta\lambda_{i}\,c(\boldsymbol{u}_{i},\,\lambda_i)}{\Delta\lambda_{0}\,c(\boldsymbol{u}_{0},\,\lambda_0)} < \varepsilon_c.
+\end{equation*}
+%
+Both criteria have to be satisfied to indicate convergence.
 
 \subsection{Line search}
 
