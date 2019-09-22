@@ -2,6 +2,7 @@
 #include "fem/StaticSolver.hpp"
 #include "fem/elements/BarElement.hpp"
 #include "numerics/Linspace.hpp"
+#include "numerics/Sign.hpp"
 
 #include <catch.hpp>
 #include <iostream>
@@ -71,7 +72,7 @@ private:
 
 struct SolverSettings
 {
-    unsigned iter_max = 150;
+    unsigned iter_max = 15;
     unsigned iter_ref = 5;
     double epsilon_q = 1e-6;
     double epsilon_c = 1e-6;
@@ -79,7 +80,13 @@ struct SolverSettings
     bool line_search = false;
 };
 
-void solve_statics_dc(System& system, Dof dof, double u_target, SolverSettings settings = SolverSettings())
+struct SolverInfo
+{
+    unsigned iterations;
+    bool success;
+};
+
+SolverInfo solve_statics_dc(System& system, Dof dof, double u_target, SolverSettings settings = SolverSettings())
 {
     auto eval_constraint = [&](const VectorXd& u, double lambda, double& c, VectorXd& dcdu, double& dcdl) {
         c = u(dof.index) - u_target;
@@ -120,7 +127,12 @@ void solve_statics_dc(System& system, Dof dof, double u_target, SolverSettings s
         if(i == 0 || settings.full_update) {
             decomp.compute(system.get_K());
             if(decomp.info() != Eigen::Success)
-                throw std::runtime_error("Decomposition failed!");
+            {
+                return SolverInfo {
+                    .iterations = i,
+                    .success = false
+                };
+            }
         }
 
         // Calculate out of balance loads and auxiliary vectors alpha and beta
@@ -133,19 +145,12 @@ void solve_statics_dc(System& system, Dof dof, double u_target, SolverSettings s
         double delta_l = -(c + dcdu.transpose()*alpha)/(dcdl + dcdu.transpose()*beta);
         delta_u = alpha + delta_l*beta;
 
-        // Check for convergence
+        // Calculate energies
         double energy_q_i = delta_u.transpose()*delta_q;
         double energy_c_i = delta_l*c;
-
         if(i == 0) {
             energy_q_0 = energy_q_i;
             energy_c_0 = energy_c_i;
-        }
-
-        if((energy_q_0 == 0.0 || energy_q_i/energy_q_0 < settings.epsilon_q)
-            && (energy_c_0 == 0.0 || energy_c_i/energy_c_0 < settings.epsilon_c))
-        {
-            convergence = true;
         }
 
         // Apply changes
@@ -153,10 +158,147 @@ void solve_statics_dc(System& system, Dof dof, double u_target, SolverSettings s
         system.set_u(system.get_u() + delta_u);
         eval_load_vector(lambda, p, dpdl);
         system.set_p(p);
+
+        // Check for convergence
+        if((energy_q_0 == 0.0 || energy_q_i/energy_q_0 < settings.epsilon_q)
+            && (energy_c_0 == 0.0 || energy_c_i/energy_c_0 < settings.epsilon_c))
+        {
+            return SolverInfo {
+                .iterations = i + 1,
+                .success = true
+            };
+        }
     }
 
-    if(!convergence) {
-        throw std::runtime_error("Iterations exceeded!");
+    return SolverInfo {
+        .iterations = settings.iter_max,
+        .success = false
+    };
+}
+
+// n_steps: Minimium number of steps performed
+template<class F>
+void solve_equilibrium_path2(System& system, Dof dof, double u_target, unsigned n_steps, const F& callback)
+{
+    SolverSettings settings = SolverSettings();
+
+    double u_current = system.get_u(dof);
+    double delta_u_max = (u_target - u_current)/double(n_steps);    // Maximum step size such that the total number of steps is >= n_steps
+    double delta_u_min = delta_u_max/100.0;
+
+    assert(delta_u_max != 0.0);
+
+    // Solve initial state
+    SolverInfo info = solve_statics_dc(system, dof, u_current, settings);
+    if(!info.success) {
+        throw std::runtime_error("Failed to find equilibrium for first displacement");
+    }
+
+    double delta_u = delta_u_max;
+    while(sgn(u_target - u_current) == sgn(delta_u))
+    {
+        VectorXd u_backup = system.get_u();
+        VectorXd p_backup = system.get_p();
+
+        std::cout << "delta: " << delta_u << "\n";
+
+        SolverInfo info = solve_statics_dc(system, dof, u_current + delta_u, settings);
+        if(info.success)
+        {
+            // Apply step, cap displacement at target
+            u_current += delta_u;
+            if(sgn(u_target - u_current) != sgn(delta_u)) {
+                u_current = u_target;
+            }
+
+            // Adapt step size
+            delta_u *= sqrt(double(settings.iter_ref)/info.iterations);    // Todo: sqrt or not?
+            if(std::abs(delta_u) > std::abs(delta_u_max)) {
+                delta_u = delta_u_max;
+            }
+
+            // Notify caller
+            callback();
+        }
+        else
+        {
+            // Undo changes to the system by the solver
+            // Todo: Move this to the solver itself?
+            system.set_u(u_backup);
+            system.set_p(p_backup);
+
+            // Decrease step size by constant factor
+            delta_u *= 0.5;
+        }
+
+        // Abort when step size got too small
+        if(std::abs(delta_u) < std::abs(delta_u_min))
+        {
+            throw std::runtime_error("Adaptive stepsize reached lower limit");
+        }
+    }
+}
+
+// n_steps: Minimium number of steps performed
+template<class F>
+void solve_equilibrium_path(System& system, Dof dof, double u_target, unsigned n_steps, const F& callback)
+{
+    SolverSettings settings = SolverSettings();
+
+    double delta_u_max = (u_target - system.get_u(dof))/double(n_steps);    // Maximum step size such that the total number of steps is >= n_steps
+    double delta_u_min = delta_u_max/100.0;
+
+    double delta_u = delta_u_max;
+    double u_last = system.get_u(dof);    // Last successful step (excep initially)
+    double u_test = system.get_u(dof);    // Next step to try, may be unsuccessful
+
+    while(u_last != u_target)
+    {
+        VectorXd u_backup = system.get_u();
+        VectorXd p_backup = system.get_p();
+
+        SolverInfo info = solve_statics_dc(system, dof, u_test, settings);
+        if(info.success)
+        {
+            // Notify caller
+            callback();
+
+            // Adapt step size
+            delta_u *= sqrt(double(settings.iter_ref)/info.iterations);    // Todo: sqrt or not?
+
+            // Remember successfull displacement
+            u_last = u_test;
+        }
+        else
+        {
+            // Undo changes to the system by the solver
+            // Todo: Move this to the solver itself?
+            system.set_u(u_backup);
+            system.set_p(p_backup);
+
+            // Abort if step size is already equal to the minimum, because there
+            // was no convergence and the step size can't be decreased anymore
+            if(delta_u == delta_u_min) {
+                throw std::runtime_error("Can't decrease adaptive step size beyond lower limit");
+            }
+
+            // Decrease step size by constant factor
+            delta_u *= 0.5;
+        }
+
+        // Cap step size at minimum and maximum values
+        if(std::abs(delta_u) > std::abs(delta_u_max)) {
+            delta_u = delta_u_max;
+        }
+        if(std::abs(delta_u) < std::abs(delta_u_min)) {
+            delta_u = delta_u_min;
+        }
+
+        // Apply step to last successful displacement, cap result at target
+        u_test = u_last + delta_u;
+        if(sgn(u_target - u_test) != sgn(delta_u)) {
+            u_test = u_target;
+        }
     }
 }
 
@@ -180,12 +322,7 @@ TEST_CASE("large-deformation-bar-truss")
 
     auto t1 = std::chrono::high_resolution_clock::now();
 
-    StaticSolverDC solver(system, node02.y);
-    for(double d: Linspace<double>(H, -H, 10000))
-    {
-        // Numerical solution
-        solve_statics_dc(system, node02.y, d);
-
+    solve_equilibrium_path(system, node02.y, 2.0*H, 10, [&](){
         double s = system.get_u(node02.y);
         double F_num = system.get_p(node02.y);
 
@@ -194,11 +331,11 @@ TEST_CASE("large-deformation-bar-truss")
         double L = hypot(H, s);
         double F_ref = 2.0*EA*s*(L - L0)/(L*L0);
 
-        std::cout << F_ref << ", " << F_num << "\n";
+        std::cout << "F_ref = " << F_ref << ", " << "F_num = " << F_num << "\n";
 
         // Error
         REQUIRE(std::abs(F_num - F_ref) < 1e-9);
-    }
+    });
 
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
