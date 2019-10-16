@@ -33,9 +33,10 @@ private:
     void about();
 
     void setCurrentFile(const QString& path);
+    void setModified(bool modified);
     bool optionalSave();
 
-    QList<QAction*> recentFileActionList;
+    QList<QAction*> recentFileActions;
     QStringList recentFilePaths;
     void updateRecentActionList();
     void readRecentFilePaths();
