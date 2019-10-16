@@ -63,7 +63,7 @@ MainWindow::MainWindow()
         QAction* action_recentfile = new QAction(this);
         action_recentfile->setVisible(false);
         QObject::connect(action_recentfile, &QAction::triggered, this, &MainWindow::openRecent);
-        recentFileActionList.append(action_recentfile);
+        recentFileActions.append(action_recentfile);
         menu_recentfiles->addAction(action_recentfile);
     }
     menu_file->addSeparator();
@@ -106,7 +106,7 @@ MainWindow::MainWindow()
     // Set Window's modification indicator when data has changed
     QObject::connect(editor, &BowEditor::modified, [&]{
         InputData new_data = editor->getData();
-        this->setWindowModified(new_data != data);
+        this->setModified(new_data != data);
     });
 
     // Populate the recent files menu
@@ -133,7 +133,7 @@ bool MainWindow::loadFile(const QString& path)
         data.load(path.toStdString());
         editor->setData(data);
         setCurrentFile(path);
-        setWindowModified(false);
+        setModified(false);
         return true;
     }
     catch(const std::exception& e)  // Todo
@@ -150,7 +150,7 @@ bool MainWindow::saveFile(const QString& path)
         data = editor->getData();
         data.save(path.toStdString());
         setCurrentFile(path);
-        setWindowModified(false);
+        setModified(false);
 
         return true;
     }
@@ -184,7 +184,7 @@ void MainWindow::newFile()
     editor->setData(data);
 
     setCurrentFile(QString());
-    setWindowModified(false);
+    setModified(false);
 }
 
 void MainWindow::open()
@@ -232,14 +232,6 @@ bool MainWindow::saveAs()
 
 void MainWindow::runSimulation(bool dynamic)
 {
-    /*
-    if(input.get_errors().size() != 0)
-    {
-        QMessageBox::critical(this, "Error", "Model contains invalid input:\n" + QString::fromStdString(input.get_errors().front()));
-        return;
-    }
-    */
-
     ProgressDialog dialog(this);
     dialog.addProgressBar("Statics");
     if(dynamic)
@@ -311,15 +303,24 @@ void MainWindow::about()
     );
 }
 
+void MainWindow::setModified(bool modified)
+{
+    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME);
+    setWindowModified(modified);
+    QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
+}
+
 void MainWindow::setCurrentFile(const QString &path)
 {
     current_file = path;
+    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME);
     setWindowFilePath(current_file.isEmpty() ? "untitled.bow" : current_file);
-
-    if (!path.isEmpty())
+    if(!path.isEmpty())
     {
         updateRecentFilePaths(path);
     }
+
+    QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
 }
 
 bool MainWindow::optionalSave()    // true: Discard and save, false: Cancel and don't save
@@ -342,7 +343,7 @@ void MainWindow::readRecentFilePaths()
 {
     recentFilePaths.clear();
     int numfiles = Application::settings.beginReadArray("MainWindow/recentFiles");
-    for (int i = 0; i < numfiles; i++) {
+    for(int i = 0; i < numfiles; i++) {
         Application::settings.setArrayIndex(i);
         recentFilePaths.append(Application::settings.value("path").toString());
     }
@@ -353,14 +354,14 @@ void MainWindow::updateRecentFilePaths(const QString& path)
 {
     recentFilePaths.removeAll(path);
     recentFilePaths.prepend(path);
-    while (recentFilePaths.size() > recentFileActionList.size())
+    while(recentFilePaths.size() > recentFileActions.size())
         recentFilePaths.removeLast();
 }
 
 void MainWindow::saveRecentFilePaths()
 {
     Application::settings.beginWriteArray("MainWindow/recentFiles");
-    for (int i = 0; i < recentFilePaths.size(); i++) {
+    for(int i = 0; i < recentFilePaths.size(); i++) {
         Application::settings.setArrayIndex(i);
         Application::settings.setValue("path", recentFilePaths.at(i));
     }
@@ -369,10 +370,10 @@ void MainWindow::saveRecentFilePaths()
 
 void MainWindow::updateRecentActionList()
 {
-    auto actionIter = recentFileActionList.begin();
+    auto actionIter = recentFileActions.begin();
     auto fileIter = recentFilePaths.begin();
 
-    for ( ; actionIter != recentFileActionList.end() && fileIter != recentFilePaths.end(); actionIter++, fileIter++) {
+    for(; actionIter != recentFileActions.end() && fileIter != recentFilePaths.end(); actionIter++, fileIter++) {
         QString strippedName = QFileInfo(*fileIter).fileName();
         (*actionIter)->setText(strippedName);
         (*actionIter)->setToolTip(*fileIter);
@@ -380,11 +381,11 @@ void MainWindow::updateRecentActionList()
         (*actionIter)->setVisible(true);
     }
 
-    for (; actionIter != recentFileActionList.end(); actionIter++)
+    for(; actionIter != recentFileActions.end(); actionIter++)
         (*actionIter)->setVisible(false);
 
     auto menu_recentfiles = MainWindow::findChild<QMenu*>("menu_recentfiles");
-    if (menu_recentfiles) {
-        menu_recentfiles->setEnabled(recentFilePaths.size()>0);
+    if(menu_recentfiles) {
+        menu_recentfiles->setEnabled(recentFilePaths.size() > 0);
     }
 }

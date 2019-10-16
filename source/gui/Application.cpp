@@ -21,7 +21,7 @@ int Application::run(int argc, char* argv[])
 {
     QApplication app(argc, argv);
     app.setApplicationName(Config::APPLICATION_NAME);
-    app.setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME);
+    app.setApplicationDisplayName(QString::null);
     app.setApplicationVersion(Config::APPLICATION_VERSION);
     app.setOrganizationDomain(Config::APPLICATION_WEBSITE);
 
