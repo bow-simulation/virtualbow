@@ -95,7 +95,7 @@ MainWindow::MainWindow()
     // Set Window's modification indicator when data has changed
     QObject::connect(editor, &BowEditor::modified, [&]{
         InputData new_data = editor->getData();
-        this->setWindowModified(new_data != data);
+        this->setModified(new_data != data);
     });
 
     // Set initial input data
@@ -117,7 +117,7 @@ bool MainWindow::loadFile(const QString& path)
         data.load(path.toStdString());
         editor->setData(data);
         setCurrentFile(path);
-        setWindowModified(false);
+        setModified(false);
         return true;
     }
     catch(const std::exception& e)  // Todo
@@ -134,7 +134,7 @@ bool MainWindow::saveFile(const QString& path)
         data = editor->getData();
         data.save(path.toStdString());
         setCurrentFile(path);
-        setWindowModified(false);
+        setModified(false);
 
         return true;
     }
@@ -168,7 +168,7 @@ void MainWindow::newFile()
     editor->setData(data);
 
     setCurrentFile(QString());
-    setWindowModified(false);
+    setModified(false);
 }
 
 void MainWindow::open()
@@ -286,10 +286,19 @@ void MainWindow::about()
     );
 }
 
+void MainWindow::setModified(bool modified)
+{
+    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME);
+    setWindowModified(modified);
+    QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
+}
+
 void MainWindow::setCurrentFile(const QString &path)
 {
     current_file = path;
+    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME);
     setWindowFilePath(current_file.isEmpty() ? "untitled.bow" : current_file);
+    QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
 }
 
 bool MainWindow::optionalSave()    // true: Discard and save, false: Cancel and don't save

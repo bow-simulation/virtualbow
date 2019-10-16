@@ -32,5 +32,6 @@ private:
     void about();
 
     void setCurrentFile(const QString& path);
+    void setModified(bool modified);
     bool optionalSave();
 };
