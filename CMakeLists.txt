@@ -47,13 +47,15 @@ add_library(
     source/fem/StaticSolver.cpp
     source/fem/DynamicSolver.cpp
     source/fem/System.cpp
+    source/bow/BeamUtils.cpp
+    source/bow/ContinuousLimb.cpp
     source/bow/LimbProperties.cpp
-    source/bow/LayerProperties.cpp
+    source/bow/ProfileCurve.cpp
     source/bow/input/InputData.cpp
     source/bow/output/OutputData.cpp
     source/bow/BowModel.cpp
-    source/numerics/ArcCurve.cpp
     source/numerics/CubicSpline.cpp
+    source/numerics/Fresnel.cpp
     source/numerics/Series.cpp
     source/gui/Application.cpp
     source/gui/Application.hpp
@@ -154,6 +156,7 @@ target_link_libraries(virtualbow main-library)
 add_executable(
     virtualbow-tests
     tests/main.cpp
+    tests/bow/BeamStiffnessMatrix.cpp
     tests/fem/BarTrusses.cpp
     tests/fem/HarmonicOscillator.cpp
     tests/fem/LargeDeformationBeams.cpp

@@ -40,7 +40,7 @@ private:
     {
         double e;
         Vector<8> De;
-        Matrix<8> DDe;
+        Matrix<8, 8> DDe;
     };
 
     State get_state() const;

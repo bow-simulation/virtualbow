@@ -6,7 +6,7 @@
 // Implementation based on https://en.wikipedia.org/wiki/Golden-section_search
 
 template<class F>
-double golden_section_search(const F& f, double xa, double xb, double xtol, unsigned iter)
+static double golden_section_search(const F& f, double xa, double xb, double xtol, unsigned iter)
 {
     const double ratio = (sqrt(5) + 1)/2;
 

@@ -1,21 +1,21 @@
 #include "CubicSpline.hpp"
+#include "numerics/FindInterval.hpp"
+#include "numerics/Sorting.hpp"
+#include <stdexcept>
+#include <algorithm>
+#include <numeric>
 
-CubicSpline::CubicSpline(const Series& data)
-    : xs(data.args()),
-      ys(data.vals())
+CubicSpline::CubicSpline(const std::vector<double>& x, const std::vector<double>& y)
+    : xs(x),
+      ys(y)
 {
-    // Check for minimum number of points
-    if(data.size() < 2)
-        throw std::runtime_error("at least two data points are needed");
+    if(xs.size() < 2)
+        throw std::invalid_argument("At least two data points are needed");
+    if(xs.size() != ys.size())
+        throw std::invalid_argument("Argument length mismatch");
 
-    // Find sort permutation
-    std::vector<size_t> p(xs.size());
-    std::iota(p.begin(), p.end(), 0);
-    std::sort(p.begin(), p.end(), [&](size_t i, size_t j){ return xs[i] < xs[j]; });
-
-    // Apply sort permutation
-    std::transform(p.begin(), p.end(), xs.begin(), [&](size_t i){ return data.arg(i); });
-    std::transform(p.begin(), p.end(), ys.begin(), [&](size_t i){ return data.val(i); });
+    // Sort inputs
+    sort_by_argument(xs, ys);
 
     // Get consecutive differences and slopes
     std::vector<double> dys;
@@ -27,9 +27,8 @@ CubicSpline::CubicSpline(const Series& data)
         double dx = xs[i+1] - xs[i];
         double dy = ys[i+1] - ys[i];
 
-        if(dx == 0.0)
-        {
-            throw std::runtime_error("argument values must be unique");
+        if(dx == 0.0) {
+            throw std::invalid_argument("Argument values must be unique");
         }
 
         dxs.push_back(dx);
@@ -64,21 +63,12 @@ CubicSpline::CubicSpline(const Series& data)
 
 double CubicSpline::operator()(double x) const
 {
-    assert(x >= xs.front());
-    assert(x <= xs.back());
+    assert(x >= arg_min());
+    assert(x <= arg_max());
 
-    // Todo: Inefficient, use bisection
-    size_t j = 0; // Last segment index
-    auto eval_ascending = [&](double arg)
-    {
-        while(arg > xs[j+1])    // Advance segment index such that x[j] < arg < x[j + 1]
-            ++j;
-
-        double h = arg - xs[j];
-        return ((c3s[j]*h + c2s[j])*h + c1s[j])*h + ys[j];
-    };
-
-    return eval_ascending(x);
+    index = find_interval(xs, x, index);
+    double h = x - xs[index];
+    return ((c3s[index]*h + c2s[index])*h + c1s[index])*h + ys[index];
 }
 
 double CubicSpline::operator()(double x, double y_default) const
@@ -87,59 +77,6 @@ double CubicSpline::operator()(double x, double y_default) const
         return operator()(x);
     else
         return y_default;
-}
-
-// n: Number of intervals
-Series CubicSpline::sample(size_t n)
-{
-    std::vector<double> args;
-    args.resize(n+1);
-
-    args[0] = xs.front();
-    args[n] = xs.back();
-
-    for(size_t i = 1; i < n; ++i)
-    {
-        double p = double(i)/double(n);
-        args[i] = xs.front()*(1.0 - p) + xs.back()*p;
-    }
-
-    return Series(args, interpolate(args));
-}
-
-bool CubicSpline::is_strictly_increasing(const std::vector<double>& args)
-{
-    for(size_t i = 0; i < args.size()-1; ++i)
-    {
-        if(args[i] >= args[i+1])
-            return false;
-    }
-
-    return true;
-}
-
-std::vector<double> CubicSpline::interpolate(const std::vector<double>& args)
-{
-    if(!is_strictly_increasing(args))
-        throw std::runtime_error("function arguments must be strictly increasing");
-
-    std::vector<double> vals;
-    vals.resize(args.size());
-
-    size_t j = 0; // Last segment index
-    auto eval_ascending = [&](double arg)
-    {
-        while(j < vals.size()-1 && arg > xs[j+1])    // Advance segment index such that x[j] < arg < x[j + 1]
-            ++j;
-
-        double h = arg - xs[j];
-        return ((c3s[j]*h + c2s[j])*h + c1s[j])*h + ys[j];
-    };
-
-    for(size_t i = 0; i < args.size(); ++i)
-        vals[i] = eval_ascending(args[i]);
-
-    return vals;
 }
 
 double CubicSpline::arg_min() const
