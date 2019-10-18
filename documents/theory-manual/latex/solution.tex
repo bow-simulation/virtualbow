@@ -106,8 +106,8 @@ Equations~(\ref{eq:equilibrium_dc_lin}) and~(\ref{eq:constraints_dc_lin}) can wr
 Solving this for the increments in displacement and load factor $\{\Delta\boldsymbol{u_{i}},\,\Delta \lambda_{i}\}$ allows us to calculate the next values as
 %
 \begin{align}
-\boldsymbol{u_{i+1}} = \boldsymbol{u_{i}} + \Delta\boldsymbol{u_{i}}\\
-\lambda_{i+1} = \lambda_{i} + \Delta \lambda_{i}.
+\boldsymbol{u_{i+1}} = \boldsymbol{u_{i}} + \Delta\boldsymbol{u_{i}}\label{eq:step_u}\\
+\lambda_{i+1} = \lambda_{i} + \Delta \lambda_{i}.\label{eq:step_lambda}
 \end{align}
 %
 However, directly solving~(\ref{eq:total_dc_lin}) is not  numerically efficient because the augmented stiffness matrix is no longer symmetric. A much better way to solve this is block elimination. We use the first row of~(\ref{eq:total_dc_lin}) to express~$\Delta\boldsymbol{u_{i}}$ as
@@ -183,9 +183,29 @@ Both criteria have to be satisfied to indicate convergence.
 
 \subsection{Line search}
 
-There is one last extension to the Newton-Raphson method that is needed for our purposes and that is line search. 
+There is one last extension to the Newton-Raphson method that is needed for our purposes, which is called line search. The idea is to introduce a line search parameter $s \in [0,\,1]$ and modify equations (\ref{eq:step_u}) and (\ref{eq:step_lambda}) to
+%
+\begin{align}
+\boldsymbol{u_{i+1}} &= \boldsymbol{u_{i}} + s\,\Delta\boldsymbol{u_{i}},\\
+\lambda_{i+1} &= \lambda_{i} + s\,\Delta \lambda_{i}.
+\end{align}
+%
+With $s$ determinig how far to advance the solution in the direction $\Delta\boldsymbol{u_{i}}$ and $\Delta \lambda_{i}$ obtained by the Newton-Raphson step. The actual line search consists of finding the root of the scalar function
+
+\begin{equation}
+g(s) =
+\begin{bmatrix}
+\Delta \boldsymbol{u}_i \\ \Delta \lambda_i
+\end{bmatrix}^T
+\begin{bmatrix}
+\boldsymbol{q}(\boldsymbol{u}_i + s\,\Delta \boldsymbol{u}_i) - \boldsymbol{p}(\lambda_i + s\,\Delta \lambda_i) \\ c(\boldsymbol{u}_i + s\,\Delta \boldsymbol{u}_i,\,\lambda_i + s\,\Delta \lambda_i)
+\end{bmatrix}\label{eq:line_search_function}
+\end{equation}
+
+i.e. to find the zero of the residuum projected in the initial search direction. Using line search can greatly improve the convergence and robustness of the Newton-Raphson method, especially in the presence of sharp changes in the objective funtion. For the bow model this is the case when string to limb contact (recurve) is involved.
 
 \textcolor{red}{Todo: Explain line search and why it helps with contact handling}
+
 
 \newpage
 \subsection{Finding the Braced Equilibrium State}

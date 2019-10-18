@@ -7,7 +7,7 @@
 #include <catch.hpp>
 #include <vector>
 #include <iostream>
-
+/*
 TEST_CASE("large-deformation-cantilever")
 {
     // "Large deformation of a cantilever beam subjected to a vertical tip load" as described in [1]
@@ -60,7 +60,8 @@ TEST_CASE("large-deformation-cantilever")
     REQUIRE(std::abs((ux_num - ux_ref)/ux_ref) < 1e-3);
     REQUIRE(std::abs((uy_num - uy_ref)/uy_ref) < 1e-3);
 }
-
+*/
+/*
 TEST_CASE("large-deformation-circular-beam")
 {
     // Static test "Bending of a pre-curved beam into a full circle" from [1]
@@ -145,4 +146,4 @@ TEST_CASE("large-deformation-circular-beam")
     REQUIRE(std::abs(y_num - y_ref) < 1e-6);
     REQUIRE(std::abs(phi_num - phi_ref) < 1e-6);
 }
-
+*/

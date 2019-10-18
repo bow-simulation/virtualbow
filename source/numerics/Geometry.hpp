@@ -69,9 +69,8 @@ static Vector<2> points_by_distance_to_line(const Vector<2>& A, const Vector<2>&
     double y_ab = B[1] - A[1];
     double y_ac = C[1] - A[1];
 
-    return solve_quadratic(x_ac*x_ac + y_ac*y_ac - d*d,
-                          -2.0*(x_ac*x_ab + y_ac*y_ab),
-                           x_ab*x_ab+ y_ab*y_ab);
+    return RootFinding::solve_quadratic(x_ac*x_ac + y_ac*y_ac - d*d,
+        -2.0*(x_ac*x_ab + y_ac*y_ab), x_ab*x_ab+ y_ab*y_ab);
 };
 
 // Given the line A + eta*(B-A), find the value eta at which the line has minimum distance to point C.
@@ -148,8 +147,7 @@ static std::vector<Vector<2>> equipartition(const std::vector<Vector<2>>& input,
     // Find root of the partition function, use input curve lenth divided by number of
     // output segments as a reasonable initial value for the distance d.
     double d = s_in[n_in-1]/(n_out-1);
-    secant_method(partition, d, 1.1*d, 1e-6, 50);    // Magic numbers
-    //bracket_and_bisect<false>(partition, d, 2.0, 1e-6, 1e-6, 50);    // Magic numbers
+    RootFinding::secant_method(partition, d, 1.1*d, 1e-6, 50);    // Magic numbers
 
     return output;
 }

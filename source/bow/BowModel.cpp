@@ -205,14 +205,14 @@ void BowModel::init_string(const Callback& callback)
     // Takes a string element length, iterates to equilibrium with the constraint of the brace height
     // and returns the angle of the string center
     system.set_p(nodes_string[0].y, 1.0);    // Will be scaled by the static algorithm
-    StaticSolverDC solver(system, nodes_string[0].y);   // Todo: Reuse solver across function calls?
-    StaticSolverDC::Info info;
+    StaticSolverDC solver(system, nodes_string[0].y, StaticSolverDC::Settings());   // Todo: Reuse solver across function calls?
+    StaticSolverDC::Outcome info;
     auto try_element_length = [&](double l)
     {
         for(auto& element: system.mut_elements().group<BarElement>("string"))
             element.set_length(l);
 
-        info = solver.solve(-input.dimensions.brace_height);
+        info = solver.solve_equilibrium(-input.dimensions.brace_height);
         return system.get_angle(nodes_string[0], nodes_string[1]);
     };
 
@@ -231,7 +231,7 @@ void BowModel::init_string(const Callback& callback)
         // Try length = l - dl
         double alpha = try_element_length(l - dl);
 
-        if(info.outcome == StaticSolverDC::Info::Success)
+        if(info.success)
         {
             // Success: Apply step.
             l -= dl;
@@ -239,7 +239,7 @@ void BowModel::init_string(const Callback& callback)
             // If sign change of alpha: Almost done, do the rest by root finding.
             if(alpha <= 0.0)
             {
-                l = bisect<true>(try_element_length, l, l+dl, 1e-5, 1e-10, 20);    // Magic numbers
+                l = RootFinding::regula_falsi(try_element_length, l, l+dl, 1e-5, 1e-10, 20);    // Magic numbers
                 break;
             }
 
@@ -276,22 +276,15 @@ void BowModel::init_masses(const Callback& callback)
 
 void BowModel::simulate_statics(const Callback& callback)
 {
-    system.set_p(nodes_string[0].y, 1.0);    // Will be scaled by the static algorithm
-    StaticSolverDC solver(system, nodes_string[0].y);
-    for(unsigned i = 0; i < input.settings.n_draw_steps; ++i)
-    {
-        double eta = double(i)/(input.settings.n_draw_steps - 1);
-        double draw_length = (1.0 - eta)*input.dimensions.brace_height + eta*input.dimensions.draw_length;
-
-        solver.solve(-draw_length);
+    StaticSolverDC solver(system, nodes_string[0].y, StaticSolverDC::Settings());
+    solver.solve_equilibrium_path(-input.dimensions.draw_length, input.settings.n_draw_steps, [&](){
         add_state(output.statics.states);
-
-        if(!callback(100*eta))
-            return;
-    }
+        int progress = 100*(-system.get_u(nodes_string[0].y) - input.dimensions.brace_height)
+                          /(input.dimensions.draw_length - input.dimensions.brace_height);
+        return callback(progress);
+    });
 
     // Calculate scalar values
-
     double draw_length_front = output.statics.states.draw_length.front();
     double draw_length_back = output.statics.states.draw_length.back();
     double draw_force_back = output.statics.states.draw_force.back();

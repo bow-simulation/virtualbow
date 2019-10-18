@@ -162,6 +162,7 @@ add_executable(
     tests/fem/TangentStiffness.cpp
     tests/numerics/Geometry.cpp
     tests/numerics/Integration.cpp
+    tests/numerics/Utils.cpp
 )
 target_link_libraries(virtualbow-tests main-library Catch2::Catch2)
 

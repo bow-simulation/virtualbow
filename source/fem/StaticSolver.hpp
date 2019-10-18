@@ -1,155 +1,195 @@
 #pragma once
 #include "fem/System.hpp"
 #include "fem/Node.hpp"
-#include "numerics/Optimization.hpp"
-#include <Eigen/Core>
+#include "numerics/Eigen.hpp"
+#include "numerics/Utils.hpp"
+#include "numerics/RootFinding.hpp"
 
-// Todo: Make constraint function a member with templated type instead of using inheritance.
-class StaticSolver
+#include <iostream>
+
+class StaticSolverDC
 {
 public:
-    // Todo: State for failed line search
-    struct Info
+    struct Settings
     {
-        enum {
-            Success,
-            DecompFailed,
-            NoConvergence
-        } outcome;
-        unsigned iterations;
+        unsigned iter_max = 150;
+        unsigned iter_ref = 5;
+        double epsilon_rel = 1e-4;
+        double epsilon_abs = 1e-12;
+        bool full_update = true;
+        bool line_search = false;
     };
 
-    StaticSolver(System& system)
-        : system(system),
-          delta_q(system.dofs()),
-          delta_u(system.dofs()),
-          alpha(system.dofs()),
-          beta(system.dofs()),
-          dcdu(system.dofs()),
-          u_start(system.dofs())
+    struct Outcome
+    {
+        unsigned iterations;
+        bool success;
+    };
+
+    StaticSolverDC(System& system, Dof dof, Settings settings)
+        : system(system), dof(dof), settings(settings)
     {
 
     }
 
-protected:
-    Info solve()
+    Outcome solve_equilibrium(double u_target)
     {
-        double lambda = 1.0;
-        for(unsigned i = 0; i < max_iter; ++i)
+        backup_system_state();
+
+        double lambda = 0.0;
+        p0 = system.get_p();
+        ek = unit_vector(system.dofs(), dof.index);
+
+        double energy_g_0;
+        for(unsigned i = 0; i < settings.iter_max; ++i)
         {
-            decomp.compute(system.get_K());
-            if(decomp.info() != Eigen::Success)
-                return { .outcome = Info::DecompFailed, .iterations = i+1 };
+            // Calculate factorization of the system's tangent stiffness matrix
+            // Always in the first iteration, in subsequent ones only for the full Newton-Raphson method
+            if(i == 0 || settings.full_update) {
+                decomp.compute(system.get_K());
+                if(decomp.info() != Eigen::Success)
+                {
+                    restore_system_state();
+                    return Outcome { .iterations = i, .success = false };
+                }
+            }
 
-            delta_q = system.get_q() - lambda*system.get_p();
+            // Calculate out of balance loads and auxiliary vectors alpha and beta
+            delta_q = system.get_q() - system.get_p();
             alpha = -decomp.solve(delta_q);
-            beta = decomp.solve(system.get_p());
+            beta = decomp.solve(ek);
 
-            // Evaluate constraint
-            constraint(system.get_u(), lambda, c, dcdl, dcdu);
-            double delta_l;
-            if((dcdl + dcdu.transpose()*beta) != 0)    // Todo: Epsilon
-                delta_l = -(c + dcdu.transpose()*alpha)/(dcdl + dcdu.transpose()*beta);
-            else
-                delta_l = 0.0;
-
+            // Evaluate constraint and calculate change in load parameter and displacement
+            double c = system.get_u(dof) - u_target;
+            double delta_l = -(c + ek.transpose()*alpha)/(ek.transpose()*beta);
             delta_u = alpha + delta_l*beta;
 
-            // Line search
-            u_start = system.get_u();
-            double l_start = lambda;
-            auto f = [&](double eta)
+            // Calculate energies
+            double energy_g_i = delta_u.transpose()*delta_q + delta_l*c;
+            if(i == 0) {
+                energy_g_0 = energy_g_i;
+            }
+
+            // Check for convergence
+            if(std::abs(energy_g_0) < settings.epsilon_abs || energy_g_i/energy_g_0 < settings.epsilon_rel)
             {
-                system.set_u(u_start + eta*delta_u);
-                lambda = l_start + eta*delta_l;
-                return std::abs(delta_u.transpose()*(system.get_q() - lambda*system.get_p()));
+                // Apply changes
+                lambda = lambda + delta_l;
+                system.set_u(system.get_u() + delta_u);
+                system.set_p(p0 + lambda*ek);
+
+                return Outcome { .iterations = i + 1, .success = true };
+            }
+
+            // Perform line search
+
+            ui = system.get_u();
+            double lambda_i = lambda;
+            auto g = [&](double s)
+            {
+                lambda = lambda_i + s*delta_l;
+                system.set_u(ui + s*delta_u);
+                system.set_p(p0 + lambda*ek);
+
+                delta_q = system.get_q() - system.get_p();
+                double c = system.get_u(dof) - u_target;
+
+                return delta_u.transpose()*delta_q + delta_l*c;
             };
 
-            golden_section_search(f, 0.0, 1.0, 1e-2, 50);
-
-            // If convergence...
-            if(std::abs(delta_u.transpose()*delta_q) + std::abs(delta_l*c) < epsilon)    // Todo: Better convergence criterion
+            double g0 = g(0.0);
+            double g1 = g(1.0);
+            if(g0*g1 < 0.0)
             {
-                // ...apply load factor to the system and return
-                system.set_p(lambda*system.get_p());
-                return {Info::Success, i+1};
+                double s = RootFinding::regula_falsi(g, 0.0, 1.0, g0, g1, 1e-10, 1e-3, 150);
+                std::cout << "s = " << s << "\n";
             }
+
+            //std::cout << "g(0) = " << g(0.0) << "\n";
+            //std::cout << "g(1) = " << g(1.0) << "\n";
         }
 
-        return {Info::NoConvergence, max_iter};
+        restore_system_state();
+        return Outcome { .iterations = settings.iter_max, .success = false };
     }
 
-    virtual void constraint(const VectorXd& u, double lambda, double& c, double& dcdl, VectorXd& dcdu) const = 0;
+    template<class F>
+    void solve_equilibrium_path(double u_target, unsigned n_steps, const F& callback)
+    {
+        double delta_u_max = (u_target - system.get_u(dof))/double(n_steps);    // Maximum step size such that the total number of steps is >= n_steps
+        double delta_u_min = delta_u_max/100.0;
+
+        double delta_u = delta_u_max;
+        double u_last = system.get_u(dof);    // Last successful step (excep initially)
+        double u_test = system.get_u(dof);    // Next step to try, may be unsuccessful
+
+        while(u_last != u_target)
+        {
+            Outcome outcome = solve_equilibrium(u_test);
+            if(outcome.success)
+            {
+                // Notify caller, abort on false return value
+                if(!callback()) {
+                    return;
+                }
+
+                // Remember successfull displacement
+                u_last = u_test;
+
+                // Adapt step size and cap at minnimum and maximum
+                // Todo: sqrt or not?
+                delta_u = clamp(delta_u*sqrt(double(settings.iter_ref)/outcome.iterations),
+                                        delta_u_min, delta_u_max);
+
+                // Apply step to last successful displacement, cap result at target displacement
+                u_test = u_last + delta_u;
+                if(sgn(u_target - u_test) != sgn(delta_u)) {
+                    u_test = u_target;
+                }
+            }
+            else
+            {
+                // Abort if step size is already equal to the minimum:
+                // No convergence + step size can't be decreased anymore
+                if(delta_u == delta_u_min) {
+                    throw std::runtime_error("Can't decrease adaptive step size beyond lower limit");
+                }
+
+                // Decrease step size by constant factor, cap at minimum and maximum values
+                delta_u = clamp(0.5*delta_u, delta_u_min, delta_u_max);
+            }
+        }
+    }
+
+private:
+    void backup_system_state()
+    {
+        u_backup = system.get_u();
+        p_backup = system.get_p();
+    }
+
+    void restore_system_state()
+    {
+        system.set_u(u_backup);
+        system.set_p(p_backup);
+    }
 
 private:
     System& system;
+    Dof dof;
 
-    const unsigned max_iter = 150;    // Todo: Magic number
-    const double epsilon = 1e-5;      // Todo: Magic number
-
+    Settings settings;
     Eigen::LDLT<MatrixXd> decomp;
     VectorXd delta_q;
     VectorXd delta_u;
     VectorXd alpha;
     VectorXd beta;
-    VectorXd u_start;
 
-    double c;
-    double dcdl;
-    VectorXd dcdu;
-};
+    VectorXd ui;
+    VectorXd p0;
+    VectorXd ek;
 
-class StaticSolverLC: public StaticSolver
-{
-public:
-    StaticSolverLC(System& system)
-        : StaticSolver(system)
-    {
-
-    }
-
-    Info solve()
-    {
-        return StaticSolver::solve();
-    }
-
-protected:
-    virtual void constraint(const VectorXd& u, double lambda, double& c, double& dcdl, VectorXd& dcdu) const override
-    {
-        c = lambda - 1.0;
-        dcdl = 1.0;
-        dcdu.setZero();
-    }
-};
-
-class StaticSolverDC: public StaticSolver
-{
-public:
-    StaticSolverDC(System& system, Dof dof)
-        : StaticSolver(system),
-          dof(dof),
-          target(0.0),
-          e_dof(unit_vector(system.dofs(), dof.index))
-    {
-        assert(dof.active);
-    }
-
-    Info solve(double displacement)
-    {
-        target = displacement;
-        return StaticSolver::solve();
-    }
-
-protected:
-    virtual void constraint(const VectorXd& u, double lambda, double& c, double& dcdl, VectorXd& dcdu) const override
-    {
-        c = u(dof.index) - target;
-        dcdl = 0.0;
-        dcdu = e_dof;
-    }
-
-private:
-    Dof dof;
-    double target;
-    VectorXd e_dof;
+    // State backup
+    VectorXd u_backup;
+    VectorXd p_backup;
 };
