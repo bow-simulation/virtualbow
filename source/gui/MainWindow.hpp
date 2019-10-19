@@ -22,6 +22,7 @@ private:
 
     void newFile();
     void open();
+    void openRecent();
     bool save();
     bool saveAs();
 
@@ -33,4 +34,11 @@ private:
 
     void setCurrentFile(const QString& path);
     bool optionalSave();
+
+    QList<QAction*> recentFileActionList;
+    QStringList recentFilePaths;
+    void updateRecentActionList();
+    void readRecentFilePaths();
+    void updateRecentFilePaths(const QString& path);
+    void saveRecentFilePaths();
 };

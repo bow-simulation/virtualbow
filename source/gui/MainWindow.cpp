@@ -55,6 +55,17 @@ MainWindow::MainWindow()
     auto menu_file = this->menuBar()->addMenu("&File");
     menu_file->addAction(action_new);
     menu_file->addAction(action_open);
+    auto menu_recentfiles = menu_file->addMenu("&Recent Files");
+    menu_recentfiles->setObjectName("menu_recentfiles");
+    menu_recentfiles->setToolTipsVisible(true);
+    int maxFileNr = 10;
+    for(auto i = 0; i < maxFileNr; ++i) {
+        QAction* action_recentfile = new QAction(this);
+        action_recentfile->setVisible(false);
+        QObject::connect(action_recentfile, &QAction::triggered, this, &MainWindow::openRecent);
+        recentFileActionList.append(action_recentfile);
+        menu_recentfiles->addAction(action_recentfile);
+    }
     menu_file->addSeparator();
     menu_file->addAction(action_save);
     menu_file->addAction(action_save_as);
@@ -98,6 +109,10 @@ MainWindow::MainWindow()
         this->setWindowModified(new_data != data);
     });
 
+    // Populate the recent files menu
+    readRecentFilePaths();
+    updateRecentActionList();
+
     // Set initial input data
     newFile();
 }
@@ -107,6 +122,7 @@ MainWindow::~MainWindow()
     // Save state and geometry
     Application::settings.setValue("MainWindow/state", saveState());
     Application::settings.setValue("MainWindow/geometry", saveGeometry());
+    saveRecentFilePaths();
 }
 
 // Todo: Unify loadFile and saveFile?
@@ -182,6 +198,15 @@ void MainWindow::open()
 
     if(dialog.exec() == QDialog::Accepted)
         loadFile(dialog.selectedFiles().first());
+}
+
+void MainWindow::openRecent(){
+    if(!optionalSave())
+        return;
+
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (action)
+        loadFile(action->data().toString());
 }
 
 bool MainWindow::save()
@@ -290,6 +315,11 @@ void MainWindow::setCurrentFile(const QString &path)
 {
     current_file = path;
     setWindowFilePath(current_file.isEmpty() ? "untitled.bow" : current_file);
+
+    if (!path.isEmpty())
+    {
+        updateRecentFilePaths(path);
+    }
 }
 
 bool MainWindow::optionalSave()    // true: Discard and save, false: Cancel and don't save
@@ -308,3 +338,53 @@ bool MainWindow::optionalSave()    // true: Discard and save, false: Cancel and 
     }
 }
 
+void MainWindow::readRecentFilePaths()
+{
+    recentFilePaths.clear();
+    int numfiles = Application::settings.beginReadArray("MainWindow/recentFiles");
+    for (int i = 0; i < numfiles; i++) {
+        Application::settings.setArrayIndex(i);
+        recentFilePaths.append(Application::settings.value("path").toString());
+    }
+    Application::settings.endArray();
+}
+
+void MainWindow::updateRecentFilePaths(const QString& path)
+{
+    recentFilePaths.removeAll(path);
+    recentFilePaths.prepend(path);
+    while (recentFilePaths.size() > recentFileActionList.size())
+        recentFilePaths.removeLast();
+}
+
+void MainWindow::saveRecentFilePaths()
+{
+    Application::settings.beginWriteArray("MainWindow/recentFiles");
+    for (int i = 0; i < recentFilePaths.size(); i++) {
+        Application::settings.setArrayIndex(i);
+        Application::settings.setValue("path", recentFilePaths.at(i));
+    }
+    Application::settings.endArray();
+}
+
+void MainWindow::updateRecentActionList()
+{
+    auto actionIter = recentFileActionList.begin();
+    auto fileIter = recentFilePaths.begin();
+
+    for ( ; actionIter != recentFileActionList.end() && fileIter != recentFilePaths.end(); actionIter++, fileIter++) {
+        QString strippedName = QFileInfo(*fileIter).fileName();
+        (*actionIter)->setText(strippedName);
+        (*actionIter)->setToolTip(*fileIter);
+        (*actionIter)->setData(*fileIter);
+        (*actionIter)->setVisible(true);
+    }
+
+    for (; actionIter != recentFileActionList.end(); actionIter++)
+        (*actionIter)->setVisible(false);
+
+    auto menu_recentfiles = MainWindow::findChild<QMenu*>("menu_recentfiles");
+    if (menu_recentfiles) {
+        menu_recentfiles->setEnabled(recentFilePaths.size()>0);
+    }
+}
