@@ -51,3 +51,21 @@ The release package is built with
     cmake --build . --target dmg-installer
 
 and requires [node-appdmg](https://github.com/LinusU/node-appdmg) for creating the installer image.
+
+## Release Checklist
+
+* Update user manual
+* Implement conversion of bow files between versions
+* Update version number in
+    * User manual
+    * Theory manual
+    * CMakeLists.txt
+* Create new changelog entry
+* Create commit, merge to master and possibly develop
+* Download artifacts from the CI-Pipeline and test manually
+* On GitHub, create a new tag and release from the master branch, upload artifacts, user manual and theory manual
+* Update website
+    * Links on the download page
+    * User manual and theory manual
+    * Release announcement
+* Post to r/VirtualBow
