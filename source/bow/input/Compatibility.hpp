@@ -139,6 +139,11 @@ static void convert_0_5_0_to_0_6_0(json& obj)
     obj = obj2;
 }
 
+static void convert_0_6_0_to_0_6_1(json& obj)
+{
+    obj["meta"]["version"] = "0.6.1";
+}
+
 static void convert_to_current(json& obj)
 {
     if(obj.at("meta").at("version") == "0.1")
@@ -157,6 +162,9 @@ static void convert_to_current(json& obj)
         convert_0_5_0_to_0_6_0(obj);
 
     if(obj.at("meta").at("version") == "0.6")
+        convert_0_6_0_to_0_6_1(obj);
+
+    if(obj.at("meta").at("version") == "0.6.1")
         return;
 
     throw std::runtime_error("Version not recognized.");
