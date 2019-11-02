@@ -1,6 +1,11 @@
 # Changelog
 
-## v0.6 (11.08.2018)
+## v0.6.1 (02.11.2019)
+
+### Fixed
+* Error when trying to read the simulation output on Windows with the Python example script
+
+## v0.6 (11.08.2019)
 
 ### Added
 * Support for MacOS
