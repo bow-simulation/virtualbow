@@ -32,7 +32,6 @@
 \renewcommand{\labelitemiii}{$\bullet$}
 
 % Parameters
-\newcommand{\swtitle}{VirtualBow}
 \newcommand{\version}{0.6}
 \newcommand{\website}{\href{http://www.virtualbow.org/}{\texttt{\textcolor{blue}{http://www.virtualbow.org/}}}}
 \newcommand{\copyrights}{Copyright (C) 2016-2018 Stefan Pfeifer}
@@ -42,7 +41,7 @@
 \begin{titlepage}
 
 \vspace*{5em}
-\centering{\Huge\textbf{\swtitle~v\version \\[1em] User Manual}}
+\centering{\Huge\textbf{VirtualBow~v\version \\[1em] User Manual}}
 
 \vspace{5em}
 
@@ -62,7 +61,7 @@
 \section{Introduction}
 \bigskip
 
-This is the user manual for \swtitle, a software tool for bow and arrow physics simulation.
+This is the user manual for VirtualBow, a software tool for bow and arrow physics simulation.
 It shows how to use the program, explains the various input parameters and results and also contains some additional background information.
 
 For the latest version of the software and this manual visit the project's website at\\
@@ -338,7 +337,7 @@ It describes the amount of energy stored by the bow's draw curve in relation to 
 \section{Command Line Interface}
 
 The command line interface can be used to start simulations in batch mode, without opening the GUI.
-This way \swtitle can be called from other programs for performing more advanced computations like parameter studies and optimizations.
+This way VirtualBow can be called from other programs for performing more advanced computations.
 
 The command line parameters are as follows:
 
@@ -357,7 +356,7 @@ The command line parameters are as follows:
 \smallskip
 
 All of the arguments are optional.
-Calling \swtitle with either no arguments or only an input file will open the GUI.
+Calling VirtualBow with either no arguments or only an input file will open the GUI.
 If in addition to that either an output file or simulation options are provided, the simulation is carried out silently and the results are written to disk.
 If not specified, a default output file named after the input file is created.
 
@@ -365,17 +364,17 @@ If not specified, a default output file named after the input file is created.
 
 \subsection*{Input and Output Files}
 
-\swtitle's input files use the JSON\footnote{\url{http://json.org/}} format, a human readable text format that stores different types of data in a hierarchical way.
+VirtualBow's input files use the JSON\footnote{\url{http://json.org/}} format, a human readable text format that stores different types of data in a hierarchical way.
 The output files use MessagePack\footnote{\url{http://msgpack.org/}}, a more compact binary format that is otherwise very similar to JSON.
 Both are very common formats with implementations available in many programming languages.
-An example for using \swtitle with Python can be found in Appendix~\ref{sec:scripting-examples}.
+An example for using VirtualBow with Python can be found in Appendix~\ref{sec:scripting-examples}.
 
-The exact definition and layout of the data contained in the input and output files is documented in Appendix~\ref{sec:input-structure} and~\ref{sec:output-structure}, respectively. However please note that those aren't stable yet. Future releases are very likely to introduce breaking changes.
+The exact definition and layout of the data contained in the input and output files is documented in Appendix~\ref{sec:input-structure} and~\ref{sec:output-structure}, respectively. Please note that those aren't stable yet. Future releases are very likely to introduce breaking changes.
 
 \newpage
 \section{Background Information}
 
-This section is intended to give interested users an overview of the mathematical bow model behind \swtitle, i.e. how the different components of the bow are modeled and what the assumptions and limitations are.
+This section is intended to give interested users an overview of the mathematical bow model behind VirtualBow, i.e. how the different components of the bow are modeled and what the assumptions and limitations are.
 This section will eventually be replaced by a separate technical documentation of the simulation model.\\
 
 \textbf{Limb:} The limb is regarded as an Euler-Bernoulli beam.
@@ -411,7 +410,7 @@ It also allows the program to simulate only one half of the bow, which reduces t
 
 \begin{table}[H]
 \resizebox{35em}{!}{\begin{tabular}{ l | l | l | l }
-\textbf{Field} & \textbf{Type} & \textbf{Units} & \textbf{Description} \\
+\textbf{Field} & \textbf{Type} & \textbf{Unit} & \textbf{Description} \\
 \hline
 \tablespace meta & & & \\
 \quad  version & \texttt{string} & -- & Internally used version string \\
@@ -546,13 +545,13 @@ It also allows the program to simulate only one half of the bow, which reduces t
 The result is a vector of stresses corresponding to the nodes of the layer.
 
 %\textbf{Note:} Matrices are stored in row major order. This is also what Pythons \texttt{numpy} package uses.
-%MATLAB for example uses column major order, which means that matrices loaded from \swtitle output will probably have to be transposed first.
+%MATLAB for example uses column major order, which means that matrices loaded from VirtualBow output will probably have to be transposed first.
 
 \newpage
 \section{Python Scripting Example}
 \label{sec:scripting-examples}
 
-The code example below shows how simulations can be automated with the Python programming language. The script loads, modifies and saves an input file, runs a static simulation with it, loads the output results and calculates the maximum stress of the first layer.
+The code example below shows how simulations can be automated with Python. It loads, modifies and saves an input file, runs a static simulation with it, loads the output results and calculates the maximum stress of the first layer at full draw.
 
 Two external packages are needed: \texttt{msgpack} for reading the output files and \texttt{numpy} for evaluating stresses (matrix multiplication). They can be installed via
 
@@ -563,7 +562,7 @@ Two external packages are needed: \texttt{msgpack} for reading the output files 
 \texttt{pip install numpy}
 \end{framed}
 
-Reading and writing the input file is possible out of the box by using Python's \texttt{json} standard library module. \swtitle is called like any other command line tool either with \texttt{os.system} or \texttt{subprocess.call}.
+Reading and writing the input file is possible out of the box by using Python's \texttt{json} standard library module. VirtualBow is called as an external process via \texttt{subprocess.call}.
 
 \definecolor{myblue}{rgb}{0,0,0.5}
 \definecolor{myred}{rgb}{0.4,0.4,0.4}
@@ -590,7 +589,7 @@ Reading and writing the input file is possible out of the box by using Python's 
 import json               # Loading and saving input files
 import msgpack            # Loading output files
 import numpy              # Evaluating stresses
-import os                 # Runnig the simulation command
+import subprocess         # Runnig the simulation
 
 # Load input file
 with open("input.bow", "r") as file:
@@ -604,21 +603,20 @@ with open("input.bow", "w") as file:
     json.dump(input, file)
 
 # Run a static simulation
-os.system("virtualbow input.bow output.dat --static")
+subprocess.call(["virtualbow", "input.bow", "output.dat", "--static"])
 
 # Load the output file
 with open("output.dat", "rb") as file:
-    output = msgpack.unpackb(file.read())
+    output = msgpack.unpack(file, raw=False)
 
-# Calculate the maximum stress at the back of layer 0
-He_back = numpy.array(output[b"limb_properties"][b"layers"][0][b"He_back"])
-Hk_back = numpy.array(output[b"limb_properties"][b"layers"][0][b"Hk_back"])
-
-epsilon = numpy.array(output[b"statics"][b"states"][b"epsilon"][-1])
-kappa   = numpy.array(output[b"statics"][b"states"][b"kappa"][-1])
+# Calculate maximum stress for layer 0 at full draw
+He_back = numpy.array(output["limb_properties"]["layers"][0]["He_back"])
+Hk_back = numpy.array(output["limb_properties"]["layers"][0]["Hk_back"])
+epsilon = numpy.array(output["statics"]["states"]["epsilon"][-1])
+kappa   = numpy.array(output["statics"]["states"]["kappa"][-1])
 
 sigma_back = He_back.dot(epsilon) + Hk_back.dot(kappa)
-print(sigma_back.max())
+print(sigma_back.max()) 
 \end{lstlisting}
 \end{framed}
 
