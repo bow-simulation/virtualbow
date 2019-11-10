@@ -4,6 +4,7 @@
 class Action
 {
 public:
+    virtual ~Action() = default;
     virtual void performAction() = 0;
 };
 

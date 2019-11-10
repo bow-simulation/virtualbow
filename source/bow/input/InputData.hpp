@@ -4,6 +4,7 @@
 #include "Layers.hpp"
 #include "String.hpp"
 #include "Masses.hpp"
+#include "Damping.hpp"
 #include "Dimensions.hpp"
 #include <nlohmann/json.hpp>
 #include <vector>
@@ -19,6 +20,7 @@ struct InputData
     Layers layers = {Layer()};
     String string;
     Masses masses;
+    Damping damping;
     Dimensions dimensions;
 
     // Todo: Move those somewhere else, maybe in Application class. Interface of InputData can be just json.
@@ -35,6 +37,7 @@ static bool operator==(const InputData& lhs, const InputData& rhs)
         && lhs.width == rhs.width
         && lhs.layers == rhs.layers
         && lhs.string == rhs.string
+        && lhs.damping == rhs.damping
         && lhs.masses == rhs.masses
         && lhs.dimensions == rhs.dimensions;
 }
@@ -53,6 +56,7 @@ static void to_json(json& obj, const InputData& value)
     obj["layers"] = value.layers;
     obj["string"] = value.string;
     obj["masses"] = value.masses;
+    obj["damping"] = value.damping;
     obj["dimensions"] = value.dimensions;
 }
 
@@ -65,5 +69,6 @@ static void from_json(const json& obj, InputData& value)
     value.layers = obj.at("layers").get<Layers>();
     value.string = obj.at("string");
     value.masses = obj.at("masses");
+    value.damping = obj.at("damping");
     value.dimensions = obj.at("dimensions");
 }

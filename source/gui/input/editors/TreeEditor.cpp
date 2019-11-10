@@ -7,6 +7,7 @@
 #include "gui/input/dialogs/SettingsDialog.hpp"
 #include "gui/input/dialogs/StringDialog.hpp"
 #include "gui/input/dialogs/MassesDialog.hpp"
+#include "gui/input/dialogs/DampingDialog.hpp"
 #include "gui/input/dialogs/DimensionsDialog.hpp"
 
 TreeEditor::TreeEditor()
@@ -18,6 +19,7 @@ TreeEditor::TreeEditor()
     new TreeItem<LayerDialog, Layers>(this, data.layers, "Layers", QIcon(":/icons/model-tree/layers"));
     new TreeItem<StringDialog, String>(this, data.string, "String", QIcon(":/icons/model-tree/string"));
     new TreeItem<MassesDialog, Masses>(this, data.masses, "Masses", QIcon(":/icons/model-tree/masses"));
+    new TreeItem<DampingDialog, Damping>(this, data.damping, "Damping", QIcon(":/icons/model-tree/damping"));
     new TreeItem<DimensionsDialog, Dimensions>(this, data.dimensions, "Dimensions", QIcon(":/icons/model-tree/dimensions"));
 
     QObject::connect(this, &QTreeWidget::itemActivated, [](QTreeWidgetItem* item, int column)
@@ -36,7 +38,6 @@ const InputData& TreeEditor::getData() const
 {
     return data;
 }
-
 
 void TreeEditor::setData(const InputData& data)
 {

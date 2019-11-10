@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(APPLICATION_NAME "virtualbow")
 set(APPLICATION_DISPLAY_NAME "VirtualBow")
-set(APPLICATION_VERSION "0.6.1")
+set(APPLICATION_VERSION "0.7")
 set(APPLICATION_WEBSITE "https://www.virtualbow.org")
 set(APPLICATION_MAINTAINER "Stefan Pfeifer")
 set(APPLICATION_COPYRIGHT "Copyright (C) 2016-2019 Stefan Pfeifer")
@@ -79,6 +79,8 @@ add_library(
     source/gui/input/dialogs/LayerDialog.hpp
     source/gui/input/dialogs/MassesDialog.cpp
     source/gui/input/dialogs/MassesDialog.hpp
+    source/gui/input/dialogs/DampingDialog.cpp
+    source/gui/input/dialogs/DampingDialog.hpp
     source/gui/input/dialogs/DimensionsDialog.cpp
     source/gui/input/dialogs/DimensionsDialog.hpp
     source/gui/input/dialogs/ProfileDialog.cpp
