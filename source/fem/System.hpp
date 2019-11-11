@@ -66,6 +66,17 @@ public:
     double get_a(Dof dof) const;
     double get_q(Dof dof) const;
 
+    template<size_t N>
+    Vector<N> get_u(const std::array<Dof, N>& dofs) const;
+    template<size_t N>
+    Vector<N> get_v(const std::array<Dof, N>& dofs) const;
+    template<size_t N>
+    Vector<N> get_p(const std::array<Dof, N>& dofs) const;
+    template<size_t N>
+    Vector<N> get_a(const std::array<Dof, N>& dofs) const;
+    template<size_t N>
+    Vector<N> get_q(const std::array<Dof, N>& dofs) const;
+
     void set_u(const Ref<const VectorXd>& u);
     void set_v(const Ref<const VectorXd>& v);
     void set_p(const Ref<const VectorXd>& p);
@@ -73,13 +84,66 @@ public:
 
     template<size_t N, class T>
     void add_q(const std::array<Dof, N>& dofs, const T& q);
-
     template<size_t N, class T>
     void add_M(const std::array<Dof, N>& dofs, const T& M);
-
     template<size_t N, class T>
     void add_K(const std::array<Dof, N>& dofs, const T& K);
 };
+
+template<size_t N>
+Vector<N> System::get_u(const std::array<Dof, N>& dofs) const
+{
+    Vector<N> result;
+    for(size_t i = 0; i < N; ++i) {
+        result(i) = get_u(dofs[i]);
+    }
+
+    return result;
+}
+
+template<size_t N>
+Vector<N> System::get_v(const std::array<Dof, N>& dofs) const
+{
+    Vector<N> result;
+    for(size_t i = 0; i < N; ++i) {
+        result(i) = get_v(dofs[i]);
+    }
+
+    return result;
+}
+
+template<size_t N>
+Vector<N> System::get_p(const std::array<Dof, N>& dofs) const
+{
+    Vector<N> result;
+    for(size_t i = 0; i < N; ++i) {
+        result(i) = get_p(dofs[i]);
+    }
+
+    return result;
+}
+
+template<size_t N>
+Vector<N> System::get_a(const std::array<Dof, N>& dofs) const
+{
+    Vector<N> result;
+    for(size_t i = 0; i < N; ++i) {
+        result(i) = get_a(dofs[i]);
+    }
+
+    return result;
+}
+
+template<size_t N>
+Vector<N> System::get_q(const std::array<Dof, N>& dofs) const
+{
+    Vector<N> result;
+    for(size_t i = 0; i < N; ++i) {
+        result(i) = get_q(dofs[i]);
+    }
+
+    return result;
+}
 
 template<size_t N, class T>
 void System::add_q(const std::array<Dof, N>& dofs, const T& q)

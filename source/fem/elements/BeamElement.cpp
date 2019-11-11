@@ -1,36 +1,32 @@
 #include "BeamElement.hpp"
 #include "fem/System.hpp"
 
-BeamElement::BeamElement(System& system, Node node0, Node node1, double rhoA, double L)
+#include <iostream>
+#include <cstdlib>
+
+BeamElement::BeamElement(System& system, Node node0, Node node1, double rhoA, double L, double Cee, double Ckk, double Cek, double beta)
     : Element(system),
       dofs{node0.x, node0.y, node0.phi, node1.x, node1.y, node1.phi},
       phi_ref_0(0.0),
       phi_ref_1(0.0),
-      rhoA(rhoA),
-      L(L),
-      C(Matrix<3, 3>::Zero())
+      L(L)
 {
+    double m = 0.5*rhoA*L;
+    double I = 0.02*rhoA*L*L*L;
 
+    M << m, m, I, m, m, I;
+
+    K << Cee/L,    -Cek/L,     Cek/L,
+        -Cek/L, 4.0*Ckk/L, 2.0*Ckk/L,
+         Cek/L, 2.0*Ckk/L, 4.0*Ckk/L;
+
+    D = beta*K;
 }
 
 void BeamElement::set_reference_angles(double phi_ref_0, double phi_ref_1)
 {
     this->phi_ref_0 = phi_ref_0;
     this->phi_ref_1 = phi_ref_1;
-}
-
-void BeamElement::set_stiffness(double Cee, double Ckk, double Cek)
-{
-    C << Cee,    -Cek,     Cek,
-        -Cek, 4.0*Ckk, 2.0*Ckk,
-         Cek, 2.0*Ckk, 4.0*Ckk;
-
-    // Todo: Assert that C > 0
-}
-
-void BeamElement::set_length(double length)
-{
-    L = length;
 }
 
 // p in [0, 1]
@@ -48,25 +44,22 @@ double BeamElement::get_kappa(double p) const
 
 void BeamElement::add_masses() const
 {
-    double alpha = 0.02;
-    double m = 0.5*rhoA*L;
-    double I = alpha*rhoA*L*L*L;
-
-    system.add_M(dofs, (Vector<6>() << m, m, I, m, m, I).finished());
+    system.add_M(dofs, M);
 }
 
 void BeamElement::add_internal_forces() const
 {
-    auto e = get_e();
-    auto J = get_J();
+    Matrix<3, 6> J = get_J();
+    Vector<3> e = get_e();
+    Vector<6> u_dot = system.get_v(dofs);
 
-    system.add_q(dofs, 1.0/L*J.transpose()*C*e);
+    system.add_q(dofs, J.transpose()*(K*e + D*J*u_dot));
 }
 
 void BeamElement::add_tangent_stiffness() const
 {
-    auto e = get_e();
-    auto J = get_J();
+    Vector<3> e = get_e();
+    Matrix<3, 6> J = get_J();
 
     double dx = system.get_u(dofs[3]) - system.get_u(dofs[0]);
     double dy = system.get_u(dofs[4]) - system.get_u(dofs[1]);
@@ -94,33 +87,24 @@ void BeamElement::add_tangent_stiffness() const
            -b4,  b5, 0.0, b4, -b5, 0.0;
 
     Matrix<6, 6> Kn = Matrix<6, 6>::Zero();
-    Kn.col(0) =  1.0/L*dJ0.transpose()*C*e;
-    Kn.col(1) =  1.0/L*dJ1.transpose()*C*e;
-    Kn.col(3) = -1.0/L*dJ0.transpose()*C*e;
-    Kn.col(4) = -1.0/L*dJ1.transpose()*C*e;
+    Kn.col(0) =  dJ0.transpose()*K*e;
+    Kn.col(1) =  dJ1.transpose()*K*e;
+    Kn.col(3) = -dJ0.transpose()*K*e;
+    Kn.col(4) = -dJ1.transpose()*K*e;
 
-    system.add_K(dofs, Kn + 1.0/L*J.transpose()*C*J);
+    system.add_K(dofs, Kn + J.transpose()*K*J);
 }
 
 double BeamElement::get_potential_energy() const
 {
     Vector<3> e = get_e();
-    return 0.5/L*e.transpose()*C*e;
+    return 0.5*e.transpose()*K*e;
 }
 
 double BeamElement::get_kinetic_energy() const
 {
-    // Todo: Code duplication
-    double alpha = 0.02;
-    double m = 0.5*rhoA*L;
-    double I = alpha*rhoA*L*L*L;
-
-    return 0.5*m*(pow(system.get_v(dofs[0]), 2)
-                + pow(system.get_v(dofs[1]), 2)
-                + pow(system.get_v(dofs[3]), 2)
-                + pow(system.get_v(dofs[4]), 2))
-         + 0.5*I*(pow(system.get_v(dofs[2]), 2)
-                + pow(system.get_v(dofs[5]), 2));
+    Vector<6> u_dot = system.get_v(dofs);
+    return 0.5*u_dot.transpose()*M.asDiagonal()*u_dot;
 }
 
 Vector<3> BeamElement::get_e() const

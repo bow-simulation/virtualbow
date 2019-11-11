@@ -155,9 +155,8 @@ void BowModel::init_limb(const Callback& callback)
         double phi0 = phi - system.get_u(nodes_limb[i].phi);
         double phi1 = phi - system.get_u(nodes_limb[i+1].phi);
 
-        BeamElement element(system, nodes_limb[i], nodes_limb[i+1], rhoA, L);
+        BeamElement element(system, nodes_limb[i], nodes_limb[i+1], rhoA, L, Cee, Ckk, Cek, input.damping.damping_ratio_limbs);
         element.set_reference_angles(phi0, phi1);
-        element.set_stiffness(Cee, Ckk, Cek);
         system.mut_elements().add(element, "limb");
     }
 

@@ -5,8 +5,8 @@ using nlohmann::json;
 
 struct Damping
 {
-    double damping_ratio_limbs = 0.0;
-    double damping_ratio_string = 0.0;
+    double damping_ratio_limbs = 0.1;
+    double damping_ratio_string = 0.1;
 };
 
 static bool operator==(const Damping& lhs, const Damping& rhs)
