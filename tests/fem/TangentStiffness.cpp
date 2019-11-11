@@ -54,7 +54,7 @@ TEST_CASE("tangent-stiffness-bar-element")
         System system;
         Node node0 = system.create_node({true, true, false}, {    dx0, dy0, 0.0});
         Node node1 = system.create_node({true, true, false}, {L + dx1, dy1, 0.0});
-        system.mut_elements().add(BarElement(system, node0, node1, L, EA, 0.0));
+        system.mut_elements().add(BarElement(system, node0, node1, L, EA, 0.0, 0.0));
 
         check_stiffness_matrix(system);
     };
