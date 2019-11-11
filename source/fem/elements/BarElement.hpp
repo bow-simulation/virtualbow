@@ -7,7 +7,7 @@
 class BarElement: public Element
 {
 public:
-    BarElement(System& system, Node node0, Node node1, double L, double EA, double rhoA);
+    BarElement(System& system, Node node0, Node node1, double L, double EA, double etaA, double rhoA);
 
     double get_length() const;
     void set_length(double val);
@@ -25,5 +25,6 @@ private:
 
     double L;
     double EA;
+    double etaA;
     double rhoA;
 };

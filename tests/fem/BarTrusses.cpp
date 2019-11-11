@@ -23,26 +23,26 @@ TEST_CASE("small-deformation-bar-truss")
     Node node_09 = system.create_node({ true,  true, false}, {3.0*L,   L, 0.0});
     Node node_10 = system.create_node({ true,  true, false}, {4.0*L,   L, 0.0});
 
-    system.mut_elements().add(BarElement(system, node_01, node_02, L, EA, 0.0));
-    system.mut_elements().add(BarElement(system, node_02, node_03, L, EA, 0.0));
-    system.mut_elements().add(BarElement(system, node_03, node_04, L, EA, 0.0));
-    system.mut_elements().add(BarElement(system, node_04, node_05, L, EA, 0.0));
+    system.mut_elements().add(BarElement(system, node_01, node_02, L, EA, 0.0, 0.0));
+    system.mut_elements().add(BarElement(system, node_02, node_03, L, EA, 0.0, 0.0));
+    system.mut_elements().add(BarElement(system, node_03, node_04, L, EA, 0.0, 0.0));
+    system.mut_elements().add(BarElement(system, node_04, node_05, L, EA, 0.0, 0.0));
 
-    system.mut_elements().add(BarElement(system, node_06, node_07, L, EA, 0.0));
-    system.mut_elements().add(BarElement(system, node_07, node_08, L, EA, 0.0));
-    system.mut_elements().add(BarElement(system, node_08, node_09, L, EA, 0.0));
-    system.mut_elements().add(BarElement(system, node_09, node_10, L, EA, 0.0));
+    system.mut_elements().add(BarElement(system, node_06, node_07, L, EA, 0.0, 0.0));
+    system.mut_elements().add(BarElement(system, node_07, node_08, L, EA, 0.0, 0.0));
+    system.mut_elements().add(BarElement(system, node_08, node_09, L, EA, 0.0, 0.0));
+    system.mut_elements().add(BarElement(system, node_09, node_10, L, EA, 0.0, 0.0));
 
-    system.mut_elements().add(BarElement(system, node_01, node_06, L, EA, 0.0));
-    system.mut_elements().add(BarElement(system, node_02, node_07, L, EA, 0.0));
-    system.mut_elements().add(BarElement(system, node_03, node_08, L, EA, 0.0));
-    system.mut_elements().add(BarElement(system, node_04, node_09, L, EA, 0.0));
-    system.mut_elements().add(BarElement(system, node_05, node_10, L, EA, 0.0));
+    system.mut_elements().add(BarElement(system, node_01, node_06, L, EA, 0.0, 0.0));
+    system.mut_elements().add(BarElement(system, node_02, node_07, L, EA, 0.0, 0.0));
+    system.mut_elements().add(BarElement(system, node_03, node_08, L, EA, 0.0, 0.0));
+    system.mut_elements().add(BarElement(system, node_04, node_09, L, EA, 0.0, 0.0));
+    system.mut_elements().add(BarElement(system, node_05, node_10, L, EA, 0.0, 0.0));
 
-    system.mut_elements().add(BarElement(system, node_01, node_07, std::sqrt(2)*L, EA, 0.0));
-    system.mut_elements().add(BarElement(system, node_07, node_03, std::sqrt(2)*L, EA, 0.0));
-    system.mut_elements().add(BarElement(system, node_03, node_09, std::sqrt(2)*L, EA, 0.0));
-    system.mut_elements().add(BarElement(system, node_09, node_05, std::sqrt(2)*L, EA, 0.0));
+    system.mut_elements().add(BarElement(system, node_01, node_07, std::sqrt(2)*L, EA, 0.0, 0.0));
+    system.mut_elements().add(BarElement(system, node_07, node_03, std::sqrt(2)*L, EA, 0.0, 0.0));
+    system.mut_elements().add(BarElement(system, node_03, node_09, std::sqrt(2)*L, EA, 0.0, 0.0));
+    system.mut_elements().add(BarElement(system, node_09, node_05, std::sqrt(2)*L, EA, 0.0, 0.0));
 
     system.set_p(node_02.y, -F);
     system.set_p(node_04.y, -F);
@@ -70,8 +70,8 @@ TEST_CASE("large-deformation-bar-truss")
     Node node02 = system.create_node({false,  true, false}, {    H,   H, 0.0});
     Node node03 = system.create_node({false, false, false}, {2.0*H, 0.0, 0.0});
 
-    system.mut_elements().add(BarElement(system, node01, node02, M_SQRT2*H, EA, 0.0));
-    system.mut_elements().add(BarElement(system, node02, node03, M_SQRT2*H, EA, 0.0));
+    system.mut_elements().add(BarElement(system, node01, node02, M_SQRT2*H, EA, 0.0, 0.0));
+    system.mut_elements().add(BarElement(system, node02, node03, M_SQRT2*H, EA, 0.0, 0.0));
 
     StaticSolverDC solver(system, node02.y);
     for(double d = H; d > 0.6*H; d -= 0.05*H)

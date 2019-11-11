@@ -1,11 +1,12 @@
 #include "BarElement.hpp"
 #include "fem/System.hpp"
 
-BarElement::BarElement(System& system, Node node0, Node node1, double L, double EA, double rhoA)
+BarElement::BarElement(System& system, Node node0, Node node1, double L, double EA, double etaA, double rhoA)
     : Element(system),
       dofs{node0.x, node0.y, node1.x, node1.y},
       L(L),
       EA(EA),
+      etaA(etaA),
       rhoA(rhoA)
 {
 
@@ -28,7 +29,11 @@ double BarElement::get_normal_force() const
     double dy = system.get_u(dofs[3]) - system.get_u(dofs[1]);
     double L_new = std::hypot(dx, dy);
 
-    return EA/L*(L_new - L);
+    double dvx = system.get_v(dofs[2]) - system.get_v(dofs[0]);
+    double dvy = system.get_v(dofs[3]) - system.get_v(dofs[1]);
+    double L_dot = (dx*dvx + dy*dvy)/L_new;
+
+    return EA/L*(L_new - L) + etaA/L*L_dot;
 }
 
 void BarElement::add_masses() const
