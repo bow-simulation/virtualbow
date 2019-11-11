@@ -51,9 +51,9 @@ void BeamElement::add_internal_forces() const
 {
     Matrix<3, 6> J = get_J();
     Vector<3> e = get_e();
-    Vector<6> u_dot = system.get_v(dofs);
+    Vector<6> v = system.get_v(dofs);
 
-    system.add_q(dofs, J.transpose()*(K*e + D*J*u_dot));
+    system.add_q(dofs, J.transpose()*(K*e + D*J*v));
 }
 
 void BeamElement::add_tangent_stiffness() const
@@ -103,8 +103,8 @@ double BeamElement::get_potential_energy() const
 
 double BeamElement::get_kinetic_energy() const
 {
-    Vector<6> u_dot = system.get_v(dofs);
-    return 0.5*u_dot.transpose()*M.asDiagonal()*u_dot;
+    Vector<6> v = system.get_v(dofs);
+    return 0.5*v.transpose()*M.asDiagonal()*v;
 }
 
 Vector<3> BeamElement::get_e() const
