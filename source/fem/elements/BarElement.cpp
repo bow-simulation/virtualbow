@@ -39,12 +39,7 @@ double BarElement::get_normal_force() const
 void BarElement::add_masses() const
 {
     double m = 0.5*rhoA*L;
-    system.add_M(dofs, Vector<4>{
-        m,
-        m,
-        m,
-        m
-    });
+    system.add_M(dofs, Vector<4>{ m, m, m, m });
 }
 
 void BarElement::add_internal_forces() const
@@ -55,13 +50,7 @@ void BarElement::add_internal_forces() const
     double L_new = std::hypot(dx, dy);
 
     double N = get_normal_force();
-
-    system.add_q(dofs, Vector<4>{
-        -N*dx/L_new,
-        -N*dy/L_new,
-         N*dx/L_new,
-         N*dy/L_new
-    });
+    system.add_q(dofs, N/L_new*Vector<4>{-dx, -dy, dx, dy});
 }
 
 void BarElement::add_tangent_stiffness() const
@@ -72,7 +61,7 @@ void BarElement::add_tangent_stiffness() const
     double L_new = std::hypot(dx, dy);
 
     double c0 = EA*(L_new - L)/(L_new*L);
-    double c1 = EA/pow(L_new, 3);
+    double c1 = EA/(L_new*L_new*L_new);
 
     Matrix<4, 4> K;
     K << c1*dx*dx + c0,       c1*dx*dy, -c1*dx*dx - c0,      -c1*dx*dy,
@@ -90,11 +79,11 @@ double BarElement::get_potential_energy() const
     double dy = system.get_u(dofs[3]) - system.get_u(dofs[1]);
     double L_new = std::hypot(dx, dy);
 
-    return 0.5*EA/L*std::pow(L_new - L, 2);
+    return 0.5*EA/L*(L_new - L)*(L_new - L);
 }
 
 double BarElement::get_kinetic_energy() const
 {
-    Vector<4> u_dot = system.get_v(dofs);
-    return 0.25*rhoA*L*u_dot.dot(u_dot);
+    Vector<4> v = system.get_v(dofs);
+    return 0.25*rhoA*L*v.dot(v);
 }
