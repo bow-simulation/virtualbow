@@ -36,8 +36,32 @@ System::System()
         K_a.mut().conservativeResize(dofs(), dofs());
         K_a.mut().setZero();
 
+        /*
         for(auto& e: elements.get())
             e.add_tangent_stiffness();
+        */
+
+        // Numerical stiffness matrix
+        const double h = 1e-8;
+        VectorXd q_fwd = VectorXd::Zero(dofs());
+        VectorXd q_bwd = VectorXd::Zero(dofs());
+        for(size_t i = 0; i < dofs(); ++i)
+        {
+            VectorXd u = get_u();
+            double ui = u(i);
+
+            u(i) = ui + h;
+            set_u(u);
+            q_fwd = get_q();
+
+            u(i) = ui - h;
+            set_u(u);
+            q_bwd = get_q();
+
+            u(i) = ui;
+            set_u(u);
+            K_a.mut().col(i) = (q_fwd - q_bwd)/(2.0*h);
+        }
     };
 
     a_a.depends_on(M_a, p_a, q_a);

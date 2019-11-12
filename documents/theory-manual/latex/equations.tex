@@ -967,12 +967,106 @@ Note that this is an exact result. No simplifications have been made within the 
 
 The contact element is used to treat contact between a point and a surface. It uses a simple penalty approach: If the distance between the point and the surface is positive, there is no contact and nothing happens. But if the distance is negative, a contact force proportional to the penetration is applied that pushes the point outwards. By selecting a reasonably high contact stiffness the penetration can be kept small enough for all practical purposes.
 
+\subsection{Definition and Kinematics}
+
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.5\textwidth]{figures/elements/contact_element_0}
+\includegraphics[width=0.7\textwidth]{figures/elements/contact_element_0}
 \caption{Contact element}
-%\label{fig:contact_element}
+\label{fig:contact_element}
 \end{figure}
+
+\begin{align*}
+\boldsymbol{P}_0 &= \begin{bmatrix} x_0 \\ y_0 \end{bmatrix},\quad
+\boldsymbol{P}_1 = \begin{bmatrix} x_1 \\ y_1 \end{bmatrix},\quad
+\boldsymbol{P}_2 = \begin{bmatrix} x_2 \\ y_2 \end{bmatrix}
+\end{align*}
+%
+Normal and tangent directions of the enclosing nodes:
+%
+\begin{align*}
+\boldsymbol{n}_0 &= \begin{bmatrix}
+\cos(\varphi_0) \\ \sin(\varphi_0)
+\end{bmatrix},\quad
+\boldsymbol{t}_0 = \begin{bmatrix}
+-\sin(\varphi_0) \\ \cos(\varphi_0)
+\end{bmatrix},\quad
+\boldsymbol{n}_1 = \begin{bmatrix}
+\cos(\varphi_1) \\ \sin(\varphi_1)
+\end{bmatrix},\quad
+\boldsymbol{t}_1 = \begin{bmatrix}
+-\sin(\varphi_1) \\ \cos(\varphi_1)
+\end{bmatrix},\quad
+\end{align*}
+%
+Start- and endpoints of the contact surface:
+
+\begin{align*}
+\boldsymbol{Q}_0 &= \boldsymbol{P}_0 + h_0\,\boldsymbol{t}_0 \\
+\boldsymbol{Q}_1 &= \boldsymbol{P}_1 + h_1\,\boldsymbol{t}_1
+\end{align*}
+
+The contact surface is interpolated between these two points as a cubic hermite spline, that is a spline which is defined by its values and derivatives at the start and end of an interval.
+
+\begin{equation}
+\boldsymbol{f}(\eta) = \boldsymbol{c}_0 + \boldsymbol{c}_1\,\eta + \boldsymbol{c}_2\,\eta^2 + \boldsymbol{c}_3\,\eta^3,\quad \eta \in [0,\,1]
+\end{equation}
+
+With the polynomial coefficients \textcolor{red}{Source: \url{https://en.wikipedia.org/wiki/Cubic_Hermite_spline}}
+%
+\begin{align*}
+\boldsymbol{c}_0 &= \boldsymbol{p}_0,\\
+\boldsymbol{c}_1 &= \boldsymbol{t}_0,\\
+\boldsymbol{c}_2 &= -3\,\boldsymbol{p}_0 - 2\,\boldsymbol{t}_0 + 3\,\boldsymbol{p}_1 - \boldsymbol{t}_1,\\
+\boldsymbol{c}_3 &= 2\,\boldsymbol{p}_0 + \boldsymbol{t}_0 - 2\,\boldsymbol{p}_1 + \boldsymbol{t}_1
+\end{align*}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+
 
 \subsection{Contact Detection}
 
@@ -1129,5 +1223,6 @@ Second derivatives:
 \end{cases}
 \end{aligned}
 \end{equation*}
+
 
 \subsection{Broadphase Algorithm}
