@@ -2,12 +2,16 @@
 
 DynamicSolver::DynamicSolver(System& system, double dt, double f_sample, const StopFn& stop)
     : system(system),
-      stop(stop),
+      stop_fn(stop),
       dt(dt),
-      n(std::max(std::ceil(1.0/(f_sample*dt)), 1.0))
+      n(std::max(std::ceil(1.0/(f_sample*dt)), 1.0)),
+      x(2*system.dofs())
 {
-    // Initialise previous displacement
-    u_p2 = system.get_u() - dt*system.get_v() + dt*dt/2.0*system.get_a();
+    // Assign system state to x
+    Eigen::Map<VectorXd> u(&x[0], system.dofs());
+    Eigen::Map<VectorXd> v(&x[system.dofs()], system.dofs());
+    u = system.get_u();
+    v = system.get_v();
 }
 
 // Estimate timestep based on maximum eigen frequency and a safety factor to account for nonlinearity of the system
@@ -31,7 +35,7 @@ bool DynamicSolver::step()
     for(unsigned i = 0; i < n; ++i)
     {
         sub_step();
-        if(stop())
+        if(stop_fn())
             return false;
     }
 
@@ -40,11 +44,21 @@ bool DynamicSolver::step()
 
 void DynamicSolver::sub_step()
 {
-    u_p1 = system.get_u();
+    auto f = [&](const state_type& x, state_type& dxdt, const double t)
+    {
+        // Assign state and time to the system
+        Eigen::Map<const VectorXd> u(&x[0], system.dofs());
+        Eigen::Map<const VectorXd> v(&x[system.dofs()], system.dofs());
+        system.set_u(u);
+        system.set_v(v);
+        system.set_t(t);
 
-    system.set_u(2.0*system.get_u() - u_p2 + dt*dt*system.get_a());
-    system.set_v((1.5*system.get_u() - 2.0*u_p1 + 0.5*u_p2)/dt);
-    system.set_t(system.get_t() + dt);
+        // Assign system velocity and acceleration to dxdt
+        Eigen::Map<VectorXd> dxdt_1(&dxdt[0], system.dofs());
+        Eigen::Map<VectorXd> dxdt_2(&dxdt[system.dofs()], system.dofs());
+        dxdt_1 = system.get_v();
+        dxdt_2 = system.get_a();
+    };
 
-    u_p2 = u_p1;
+    stepper.do_step(f, x, system.get_t(), dt);
 }
