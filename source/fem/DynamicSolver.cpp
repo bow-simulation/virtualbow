@@ -1,10 +1,13 @@
 #include "DynamicSolver.hpp"
 
+using namespace boost::numeric::odeint;
+
 DynamicSolver::DynamicSolver(System& system, double dt, double f_sample, const StopFn& stop)
     : system(system),
       stop_fn(stop),
       dt(dt),
       n(std::max(std::ceil(1.0/(f_sample*dt)), 1.0)),
+      stepper(make_controlled(1e-6, 1e-3, runge_kutta_cash_karp54<state_type>())),
       x(2*system.dofs())
 {
     // Assign system state to x
@@ -60,5 +63,11 @@ void DynamicSolver::sub_step()
         dxdt_2 = system.get_a();
     };
 
-    stepper.do_step(f, x, system.get_t(), dt);
+    //auto test = boost::numeric::odeint::make_controlled(1e-6, 1e-6, runge_kutta_cash_karp54<state_type>());
+
+    double t = system.get_t();
+    while(stepper.try_step(f, x, t, dt) != controlled_step_result::success)
+    {
+
+    }
 }

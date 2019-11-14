@@ -20,7 +20,10 @@ BeamElement::BeamElement(System& system, Node node0, Node node1, double rhoA, do
         -Cek/L, 4.0*Ckk/L, 2.0*Ckk/L,
          Cek/L, 2.0*Ckk/L, 4.0*Ckk/L;
 
-    D = beta*K;
+    //D = beta*K;
+    D << beta*K(0, 0), 0, 0,
+         0, beta*K(1, 1), 0,
+         0, 0, beta*K(2, 2);
 }
 
 void BeamElement::set_reference_angles(double phi_ref_0, double phi_ref_1)
@@ -52,6 +55,9 @@ void BeamElement::add_internal_forces() const
     Matrix<3, 6> J = get_J();
     Vector<3> e = get_e();
     Vector<6> v = system.get_v(dofs);
+
+    //std::cout << "D = \n";
+    //std::cout << J.transpose()*D*J << "\n";
 
     system.add_q(dofs, J.transpose()*(K*e + D*J*v));
 }

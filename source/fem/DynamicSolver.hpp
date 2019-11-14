@@ -5,8 +5,9 @@
 #include <boost/numeric/odeint.hpp>
 #include <vector>
 
-using boost::numeric::odeint::runge_kutta4;
-typedef std::vector<double> state_type;
+using state_type = std::vector<double>;
+using boost::numeric::odeint::runge_kutta_cash_karp54;
+using stepper_type = boost::numeric::odeint::result_of::make_controlled<runge_kutta_cash_karp54<state_type>>::type;
 
 // Central difference method
 class DynamicSolver
@@ -24,7 +25,7 @@ private:
     double dt;     // Delta for sub steps
     unsigned n;    // Number of substeps per step
 
-    runge_kutta4<state_type> stepper;
+    stepper_type stepper;
     state_type x;
 
     void sub_step();
