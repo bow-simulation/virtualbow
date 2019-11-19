@@ -72,6 +72,12 @@ void BarElement::add_tangent_stiffness() const
     system.add_K(dofs, K);
 }
 
+void BarElement::add_tangent_damping() const
+{
+    // Todo: implement
+    throw std::runtime_error("Not implemented");
+}
+
 double BarElement::get_potential_energy() const
 {
     // Todo: Code duplication

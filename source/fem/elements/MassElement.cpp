@@ -31,6 +31,11 @@ void MassElement::add_tangent_stiffness() const
 
 }
 
+void MassElement::add_tangent_damping() const
+{
+
+}
+
 double MassElement::get_potential_energy() const
 {
     return 0.0;

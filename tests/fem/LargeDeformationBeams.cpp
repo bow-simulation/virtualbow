@@ -37,7 +37,8 @@ TEST_CASE("large-deformation-cantilever")
     // Create elements
     for(unsigned i = 0; i < N; ++i)
     {
-        BeamElement element(system, nodes[i], nodes[i+1], 0.0, L/double(N), E*A, E*I, 0.0, 0.0);
+        BeamElement element(system, nodes[i], nodes[i+1], 0.0, L/double(N));
+        element.set_stiffness(E*A, E*I, 0.0);
         system.mut_elements().add(element);
     }
 

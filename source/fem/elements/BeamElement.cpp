@@ -4,9 +4,11 @@
 #include <iostream>
 #include <cstdlib>
 
-BeamElement::BeamElement(System& system, Node node0, Node node1, double rhoA, double L, double Cee, double Ckk, double Cek, double beta)
+BeamElement::BeamElement(System& system, Node node0, Node node1, double rhoA, double L)
     : Element(system),
       dofs{node0.x, node0.y, node0.phi, node1.x, node1.y, node1.phi},
+      K(Matrix<3, 3>::Zero()),
+      D(Matrix<6, 6>::Zero()),
       phi_ref_0(0.0),
       phi_ref_1(0.0),
       L(L)
@@ -15,21 +17,24 @@ BeamElement::BeamElement(System& system, Node node0, Node node1, double rhoA, do
     double I = 0.02*rhoA*L*L*L;
 
     M << m, m, I, m, m, I;
-
-    K << Cee/L,    -Cek/L,     Cek/L,
-        -Cek/L, 4.0*Ckk/L, 2.0*Ckk/L,
-         Cek/L, 2.0*Ckk/L, 4.0*Ckk/L;
-
-    //D = beta*K;
-    D << beta*K(0, 0), 0, 0,
-         0, beta*K(1, 1), 0,
-         0, 0, beta*K(2, 2);
 }
 
 void BeamElement::set_reference_angles(double phi_ref_0, double phi_ref_1)
 {
     this->phi_ref_0 = phi_ref_0;
     this->phi_ref_1 = phi_ref_1;
+}
+
+void BeamElement::set_stiffness(double Cee, double Ckk, double Cek)
+{
+    K << Cee/L,    -Cek/L,     Cek/L,
+        -Cek/L, 4.0*Ckk/L, 2.0*Ckk/L,
+         Cek/L, 2.0*Ckk/L, 4.0*Ckk/L;
+}
+
+void BeamElement::set_damping(double beta)
+{
+    D << beta*Matrix<6, 6>::Identity();
 }
 
 // p in [0, 1]
@@ -56,10 +61,7 @@ void BeamElement::add_internal_forces() const
     Vector<3> e = get_e();
     Vector<6> v = system.get_v(dofs);
 
-    //std::cout << "D = \n";
-    //std::cout << J.transpose()*D*J << "\n";
-
-    system.add_q(dofs, J.transpose()*(K*e + D*J*v));
+    system.add_q(dofs, J.transpose()*K*e + D*v);
 }
 
 void BeamElement::add_tangent_stiffness() const
@@ -99,6 +101,11 @@ void BeamElement::add_tangent_stiffness() const
     Kn.col(4) = -dJ1.transpose()*K*e;
 
     system.add_K(dofs, Kn + J.transpose()*K*J);
+}
+
+void BeamElement::add_tangent_damping() const
+{
+    system.add_D(dofs, D);
 }
 
 double BeamElement::get_potential_energy() const
@@ -144,8 +151,8 @@ Matrix<3, 6> BeamElement::get_J() const
 
     Eigen::Matrix<double, 3, 6> J;
     J << -j0, -j1, 0.0, j0,  j1, 0.0,
-            -j3,  j2, 1.0, j3, -j2, 0.0,
-            -j3,  j2, 0.0, j3, -j2, 1.0;
+         -j3,  j2, 1.0, j3, -j2, 0.0,
+         -j3,  j2, 0.0, j3, -j2, 1.0;
 
     return J;
 }
