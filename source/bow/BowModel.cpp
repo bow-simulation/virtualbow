@@ -9,6 +9,7 @@
 #include "fem/elements/ContactHandler.hpp"
 #include "numerics/RootFinding.hpp"
 #include "numerics/Geometry.hpp"
+#include <limits>
 
 OutputData BowModel::run_static_simulation(const InputData& input, const Callback& callback)
 {
@@ -155,10 +156,56 @@ void BowModel::init_limb(const Callback& callback)
         double phi0 = phi - system.get_u(nodes_limb[i].phi);
         double phi1 = phi - system.get_u(nodes_limb[i+1].phi);
 
-        BeamElement element(system, nodes_limb[i], nodes_limb[i+1], rhoA, L, Cee, Ckk, Cek, input.damping.damping_ratio_limbs);
+        BeamElement element(system, nodes_limb[i], nodes_limb[i+1], rhoA, L);
         element.set_reference_angles(phi0, phi1);
+        element.set_stiffness(Cee, Ckk, Cek);
         system.mut_elements().add(element, "limb");
     }
+
+    // Tune damping parameter
+    // A TUTORIAL ON COMPLEX EIGENVALUES
+    // https://pdfs.semanticscholar.org/aee7/3d8ed1833deeaf83db335f067878448bd43f.pdf
+    int n = system.dofs();
+    MatrixXd A(2*n, 2*n);
+    MatrixXd B(2*n, 2*n);
+    MatrixXd Z = MatrixXd::Zero(n, n);
+    MatrixXd M = system.get_M().asDiagonal().toDenseMatrix();
+    MatrixXd K = system.get_K();
+    Eigen::GeneralizedEigenSolver<MatrixXd> eigen_solver;
+
+    auto try_damping_parameter = [&](double beta)
+    {
+        for(auto& element: system.mut_elements().group<BeamElement>("limb"))
+            element.set_damping(beta);
+
+        A << Z, K, K, system.get_D();
+        B << K, Z, Z, -M;
+
+        eigen_solver.compute(A, B, Eigen::DecompositionOptions::EigenvaluesOnly);
+        if(eigen_solver.info() != Eigen::Success)
+            throw std::runtime_error("Failed to compute eigenvalues of the limb. Solver info: " + std::to_string(eigen_solver.info()));
+
+        double omega_min = std::numeric_limits<double>::infinity();
+        double zeta_min = 0.0;
+
+        auto evs = eigen_solver.eigenvalues();
+        for(int i = 0; i < evs.size(); ++i)
+        {
+            double omega = std::hypot(evs[i].real(), evs[i].imag());
+            double zeta = -evs[i].real()/omega;
+
+            if(omega < omega_min)
+            {
+                omega_min = omega;
+                zeta_min = zeta;
+            }
+        }
+
+        return zeta_min - input.damping.damping_ratio_limbs;
+    };
+
+    if(input.damping.damping_ratio_limbs > 0.0)
+        secant_method(try_damping_parameter, 0.001, 0.01, 1e-5, 50);    // Magic numbers
 
     // Assign discrete limb properties
     output.limb_properties = limb_properties;

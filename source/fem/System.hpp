@@ -28,7 +28,8 @@ private:
     mutable Dependent<VectorXd> q_a;    // Internal forces (active)
     mutable Dependent<VectorXd> q_f;    // Internal forces (fixed)
     mutable Dependent<VectorXd> M_a;    // Diagonal masses (active)
-    mutable Dependent<MatrixXd> K_a;    // Stiffness matrix (active)
+    mutable Dependent<MatrixXd> K_a;    // Tangent stiffness matrix (active)
+    mutable Dependent<MatrixXd> D_a;    // Tangent damping matrix (active)
 
 public:
     System();
@@ -59,6 +60,7 @@ public:
     const VectorXd& get_q() const;
     const VectorXd& get_M() const;
     const MatrixXd& get_K() const;
+    const MatrixXd& get_D() const;
 
     double get_u(Dof dof) const;
     double get_v(Dof dof) const;
@@ -88,6 +90,8 @@ public:
     void add_M(const std::array<Dof, N>& dofs, const T& M);
     template<size_t N, class T>
     void add_K(const std::array<Dof, N>& dofs, const T& K);
+    template<size_t N, class T>
+    void add_D(const std::array<Dof, N>& dofs, const T& D);
 };
 
 template<size_t N>
@@ -161,4 +165,10 @@ template<size_t N, class T>
 void System::add_K(const std::array<Dof, N>& dofs, const T& K)
 {
     add_by_dof(&K_a.mut(), dofs, K);
+}
+
+template<size_t N, class T>
+void System::add_D(const std::array<Dof, N>& dofs, const T& D)
+{
+    add_by_dof(&D_a.mut(), dofs, D);
 }

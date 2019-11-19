@@ -81,6 +81,11 @@ void ContactElement::add_tangent_stiffness() const
     system.add_K(dofs, f.stiffness(state.e)*state.De*state.De.transpose() + f.force(state.e)*state.e*state.DDe);
 }
 
+void ContactElement::add_tangent_damping() const
+{
+
+}
+
 double ContactElement::get_potential_energy() const
 {
     State state = get_state();

@@ -55,6 +55,11 @@ void ConstraintElement::add_tangent_stiffness() const
     system.add_K(dofs, k*(Dc1*Dc1.transpose() + Dc2*Dc2.transpose() + c1*DDc1 + c2*DDc2));
 }
 
+void ConstraintElement::add_tangent_damping() const
+{
+
+}
+
 double ConstraintElement::get_potential_energy() const
 {
     double c1 = dx_rel*cos(system.get_u(dofs[2])) - dy_rel*sin(system.get_u(dofs[2]))

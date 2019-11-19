@@ -142,6 +142,11 @@ void ContactHandler::add_tangent_stiffness() const
         e.add_tangent_stiffness();
 }
 
+void ContactHandler::add_tangent_damping() const
+{
+
+}
+
 double ContactHandler::get_potential_energy() const
 {
     double T = 0.0;

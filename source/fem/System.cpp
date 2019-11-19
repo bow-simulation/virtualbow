@@ -40,6 +40,15 @@ System::System()
             e.add_tangent_stiffness();
     };
 
+    auto update_D = [&]()
+    {
+        D_a.mut().conservativeResize(dofs(), dofs());
+        D_a.mut().setZero();
+
+        for(auto& e: elements.get())
+            e.add_tangent_damping();
+    };
+
     a_a.depends_on(M_a, p_a, q_a);
     a_a.on_update(update_a);
 
@@ -54,6 +63,9 @@ System::System()
 
     K_a.depends_on(elements, n_a, u_a);
     K_a.on_update(update_K);
+
+    D_a.depends_on(elements, n_a, u_a, v_a);
+    D_a.on_update(update_D);
 }
 
 Node System::create_node(std::array<bool, 3> active, std::array<double, 3> u)
@@ -158,6 +170,10 @@ const MatrixXd& System::get_K() const
     return K_a.get();
 }
 
+const MatrixXd& System::get_D() const
+{
+    return D_a.get();
+}
 
 double System::get_u(Dof dof) const
 {

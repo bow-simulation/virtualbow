@@ -7,7 +7,7 @@ DynamicSolver::DynamicSolver(System& system, double dt, double f_sample, const S
       stop_fn(stop),
       dt(dt),
       n(std::max(std::ceil(1.0/(f_sample*dt)), 1.0)),
-      stepper(make_controlled(1e-6, 1e-3, runge_kutta_cash_karp54<state_type>())),
+      stepper(make_controlled(1e-6, 1e-4, runge_kutta_cash_karp54<state_type>())),
       x(2*system.dofs())
 {
     // Assign system state to x
