@@ -124,11 +124,19 @@ A bar only transfers forces in longitudinal direction, it has no bending stiffne
 \label{fig:bar-element-1}
 \end{figure}
 
-For a linear-elastic bar with constant cross section area~$A$ and elastic modulus~$E$ the constitutive relationship that connects force and elongation is
+In order to simulate the damping properties of the string, a viscoelastic material model of the form
 
 \begin{equation}
-N = EA\,\frac{\Delta L}{L}.\label{eq:bar-constitutive}
+\sigma = E\,\varepsilon + \eta\,\dot{\varepsilon}
 \end{equation}
+
+is chosen. Here $E$ is the elastic modulus and $\eta$ the viscosity of the material. This model is called the Kelvin-Voigt model and combines linear elastic and linear viscous behaviour. The normal force in the bar given a constant cross section area $A$ is therefore
+
+\begin{align}
+N &= \sigma\,A \notag \\
+&= EA\,\epsilon + \eta A\,\dot{\varepsilon} \notag \\
+&= \frac{EA}{L}\,\Delta L + \frac{\eta A}{L}\,\Delta \dot{L}.\label{eq:bar-constitutive}
+\end{align}
 
 The product~$EA$ is also called the longitudinal stiffness. The bar is now placed between the two nodes A and B as shown in figure~\ref{fig:bar-element-2}. Its configuration is described by the nodal displacements~$\boldsymbol{u} = (u_0,\,u_1,\,u_2,\,u_3)^\mathsf{T}$.
 
@@ -151,31 +159,36 @@ The position vectors of the two nodes are given by
 The mass of the element is assumed to be concentrated at the nodes, so that each of them is carrying half of the total mass.
 This is called a lumped mass approach and will later lead to a constant, diagonal mass matrix.
 For a bar with density~$\rho$ the mass of a node is therefore~$\frac{1}{2}\rho A L$. With this in mind we can write down Newton's second law of motion for each of the two nodes,
-
+%
 \begin{align}
 \frac{\rho A L}{2}\,\ddot{\boldsymbol{r}}_A = \boldsymbol{q}_A + \boldsymbol{p}_A,\label{eq:bar-newton-1}\\
 \frac{\rho A L}{2}\,\ddot{\boldsymbol{r}}_B = \boldsymbol{q}_B + \boldsymbol{p}_B.\label{eq:bar-newton-2}
 \end{align}
 
 Here,~$\boldsymbol{q}_A$,~$\boldsymbol{q}_B$ are the elastic forces that the bar exerts to the respective nodes and~$\boldsymbol{p}_A$,~$\boldsymbol{p}_B$ are the externally applied loads. The elastic forces can be obtained by multiplying the scalar normal force~$N$ in the bar~(\ref{eq:bar-constitutive}) with the tangent vector of the connecting line between the two nodes to account for the direction,
-
-\begin{align}
-\boldsymbol{q}_A &= N\,\frac{\boldsymbol{r}_B - \boldsymbol{r}_A}{|\boldsymbol{r}_B - \boldsymbol{r}_A|} = EA\,\frac{\Delta L}{L}\, \frac{\boldsymbol{r}_B - \boldsymbol{r}_A}{|\boldsymbol{r}_B - \boldsymbol{r}_A|},\label{eq:bar-elastic-1}\\
-\boldsymbol{q}_B &= -\boldsymbol{q}_A.\label{eq:bar-elastic-2}
-\end{align}
-
-The elongation~$\Delta L$ can be calculated by subtracting the initial length of the element from its actual length,
-
+%
 \begin{equation}
-\Delta L = |\boldsymbol{r}_B - \boldsymbol{r}_A| - L.\label{eq:bar-elongation}
+\boldsymbol{q}_A = N\,\frac{\boldsymbol{r}_B - \boldsymbol{r}_A}{|\boldsymbol{r}_B - \boldsymbol{r}_A|},\quad \boldsymbol{q}_B = -\boldsymbol{q}_A.\label{eq:bar-elastic}
 \end{equation}
 
-Combining equations~(\ref{eq:bar-newton-1}),~(\ref{eq:bar-newton-2}) with~(\ref{eq:bar-elastic-1}),~(\ref{eq:bar-elastic-2}) and~(\ref{eq:bar-elongation}) leads to the element's equation of motion,
+The elongation~$\Delta L$ can be calculated by subtracting the initial length of the element from its actual length,
+%
+\begin{align}
+\Delta L &= |\boldsymbol{r}_B - \boldsymbol{r}_A| - L,\label{eq:bar-elongation} \\
+\Delta \dot{L} &= \frac{d}{dt}\,|\boldsymbol{r}_B - \boldsymbol{r}_A| = \frac{\boldsymbol{r}_B - \boldsymbol{r}_A}{|\boldsymbol{r}_B - \boldsymbol{r}_A|}\,(\dot{\boldsymbol{r}}_B - \dot{\boldsymbol{r}}_A).\label{eq:bar-elongation-velocity}
+\end{align}
+
+Combining equations~(\ref{eq:bar-newton-1}),~(\ref{eq:bar-newton-2}) with~(\ref{eq:bar-elastic}),~(\ref{eq:bar-elongation}) and (\ref{eq:bar-elongation-velocity}) leads to the element's equation of motion,
 
 \begin{equation}
 \frac{\rho A L}{2}
 \begin{bmatrix}
 \ddot{\boldsymbol{r}}_A \\ \ddot{\boldsymbol{r}}_B
+\end{bmatrix}
++
+\frac{\eta A}{L}
+\begin{bmatrix}
+\dot{\boldsymbol{r}}_A - \dot{\boldsymbol{r}}_B \\ \dot{\boldsymbol{r}}_B - \dot{\boldsymbol{r}}_A
 \end{bmatrix}
 +
 \frac{EA}{L}\left( 1 - \frac{L}{|\boldsymbol{r}_B - \boldsymbol{r}_A|} \right)
@@ -188,7 +201,7 @@ Combining equations~(\ref{eq:bar-newton-1}),~(\ref{eq:bar-newton-2}) with~(\ref{
 \end{bmatrix}.
 \end{equation}
 
-With~(\ref{bar:node-positions}) this expands to
+With~(\ref{bar:node-positions}) and the abbreviations $\Delta x = u_{2} - u_{0}$, $\Delta y = u_{3} - u_{1}$ this expands to
 
 \begin{equation}
 \underbrace{
@@ -210,12 +223,20 @@ With~(\ref{bar:node-positions}) this expands to
 }_{\boldsymbol{\ddot{u}}}
 +
 \underbrace{
-\frac{EA}{L}\left(1 - \frac{L}{\sqrt{(u_2 - u_0)^2 + (u_3 - u_1)^2}}\right)
+\frac{\eta A}{L}
 \begin{bmatrix}
-u_0 - u_2\\
-u_1 - u_3\\
-u_2 - u_0\\
-u_3 - u_1
+-\Delta \dot{x}\\
+-\Delta \dot{y}\\
+\ \ \Delta \dot{x}\\
+\ \ \Delta \dot{y}
+\end{bmatrix}
++
+\frac{EA}{L}\left(1 - \frac{L}{\sqrt{\Delta x^2 + \Delta y^2}}\right)
+\begin{bmatrix}
+-\Delta x\\
+-\Delta y\\
+\ \ \Delta x\\
+\ \ \Delta y
 \end{bmatrix}
 }_{\boldsymbol{q}(\boldsymbol{u},\,\dot{\boldsymbol{u}})}
 =
@@ -231,63 +252,32 @@ p_3
 
 Note that the vector~$\boldsymbol{q}$ of internal forces depends on the displacements in a nonlinear way despite the bar itself being considered linear-elastic. The nonlinearity arises only from the geometry of the arbitrarily large nodal displacements. This is called geometric nonlinearity as opposed to material nonlinearity.
 
-For calculating the tangent stiffness matrix we introduce the abbreviations
-
-\begin{equation}
-\Delta x = u_{2} - u_{0},\quad \Delta y = u_{3} - u_{1},
-\end{equation}
-
-and rewrite the internal forces as
-
-\begin{equation}
-\boldsymbol{q}(\boldsymbol{u}) =
-\underbrace{
+Deriving the internal forces with respect to $\boldsymbol{u}$ results in the tangent stiffness matrix
+%
+\begin{align*}
+\boldsymbol{K} = \frac{\partial \boldsymbol{q}}{\partial \boldsymbol{u}} &=
 \frac{EA}{L}\left(1 - \frac{L}{\sqrt{\Delta x^2 + \Delta y^2}}\right)
-}_{a(\boldsymbol{u})}
-\underbrace{
-\begin{bmatrix}
--\Delta x\\
--\Delta y\\
-\Delta x\\
-\Delta y
-\end{bmatrix}
-}_{\boldsymbol{b}(\boldsymbol{u})}.
-\end{equation}
-
-Using the product rule, the tangent stiffness matrix is
-
-\begin{equation}
-\boldsymbol{K}(\boldsymbol{u}) = \frac{\partial \boldsymbol{q}}{\partial \boldsymbol{u}} = \boldsymbol{b}(\boldsymbol{u})\,\frac{\partial a}{\partial \boldsymbol{u}} + a\,\frac{\partial \boldsymbol{b}}{\partial \boldsymbol{u}}.
-\end{equation}
-
-The derivatives occuring here are
-
-\begin{align}
-\frac{\partial a}{\partial \boldsymbol{u}} &= \frac{EA}{(\Delta x^2 + \Delta y^2)^{\nicefrac{3}{2}}}
-\begin{bmatrix}
--\Delta x, & -\Delta y, & \Delta x, & \Delta y
-\end{bmatrix},\\
-\notag\\
-\frac{\partial \boldsymbol{b}}{\partial \boldsymbol{u}} &=
 \begin{bmatrix}
 1 & 0 & -1 & 0\\
 0 & 1 & 0 & -1\\
 -1 & 0 & 1 & 0\\
 0 & -1 & 0 & 1
-\end{bmatrix}.
-\end{align}
-
-All put together, the tangent stiffness matrix becomes
-
-\begin{align*}
-\boldsymbol{K}(\boldsymbol{u}) &= \frac{EA}{(\Delta x^2 + \Delta y^2)^{\nicefrac{3}{2}}}
+\end{bmatrix}\\
+&+
+\frac{EA}{(\sqrt{\Delta x^2 + \Delta y^2})^{3}}
 \begin{bmatrix}
 \Delta x^2 & \Delta x \Delta y & -\Delta x^2 & -\Delta x \Delta y\\
 \Delta x \Delta y & \Delta y^2 & -\Delta x \Delta y & - \Delta y^2\\
 -\Delta x^2 & -\Delta x \Delta y & \Delta x^2 & \Delta x \Delta y\\
 -\Delta x \Delta y & -\Delta y^2 & \Delta x \Delta y & \Delta y^2
-\end{bmatrix}\\
-&+ \frac{EA}{L}\left(1 - \frac{L}{\sqrt{\Delta x^2 + \Delta y^2}}\right)
+\end{bmatrix}.\\
+\end{align*}
+
+Similarly, deriving the internal forces with respect to $\dot{\boldsymbol{u}}$ results in the tangent damping matrix
+%
+\begin{align*}
+\boldsymbol{D} = \frac{\partial \boldsymbol{q}}{\partial \dot{\boldsymbol{u}}} &=
+\frac{\eta A}{L}
 \begin{bmatrix}
 1 & 0 & -1 & 0\\
 0 & 1 & 0 & -1\\

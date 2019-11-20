@@ -246,7 +246,7 @@ void BowModel::init_string(const Callback& callback)
 
     for(size_t i = 0; i < input.settings.n_string_elements; ++i)
     {
-        BarElement element(system, nodes_string[i], nodes_string[i+1], 0.0, EA, input.damping.damping_ratio_string, rhoA); // Element lengths are reset later when string length is determined
+        BarElement element(system, nodes_string[i], nodes_string[i+1], 0.0, EA, 0.0, rhoA); // Element lengths are reset later when string length is determined
         system.mut_elements().add(element, "string");
     }
 
@@ -315,6 +315,11 @@ void BowModel::init_string(const Callback& callback)
         if(dl < dl_min)
             throw std::runtime_error("Bracing failed: Step size too small");
     }
+
+    // Set string material damping to match user defined damping ratio
+    double etaA = std::sqrt(2.0*EA*rhoA*l*l)*input.damping.damping_ratio_string;
+    for(auto& element: system.mut_elements().group<BarElement>("string"))
+        element.set_damping(etaA);
 
     // Assign output data
     output.statics.string_length = 2.0*l*input.settings.n_string_elements;    // *2 because of symmetry
