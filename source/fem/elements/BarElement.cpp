@@ -17,9 +17,19 @@ double BarElement::get_length() const
     return L;
 }
 
-void BarElement::set_length(double val)
+void BarElement::set_length(double L)
 {
-    L = val;
+    this->L = L;
+}
+
+void BarElement::set_stiffness(double EA)
+{
+    this->EA = EA;
+}
+
+void BarElement::set_damping(double etaA)
+{
+    this->etaA = etaA;
 }
 
 double BarElement::get_normal_force() const
@@ -74,8 +84,13 @@ void BarElement::add_tangent_stiffness() const
 
 void BarElement::add_tangent_damping() const
 {
-    // Todo: implement
-    throw std::runtime_error("Not implemented");
+    Matrix<4, 4> D;
+    D << etaA/L,     0.0, -etaA/L,    0.0,
+            0.0,  etaA/L,     0.0,-etaA/L,
+        -etaA/L,     0.0,  etaA/L,    0.0,
+            0.0, -etaA/L,     0.0, etaA/L;
+
+    system.add_D(dofs, D);
 }
 
 double BarElement::get_potential_energy() const

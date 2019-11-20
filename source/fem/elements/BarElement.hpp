@@ -10,7 +10,10 @@ public:
     BarElement(System& system, Node node0, Node node1, double L, double EA, double etaA, double rhoA);
 
     double get_length() const;
-    void set_length(double val);
+    void set_length(double L);
+    void set_stiffness(double EA);
+    void set_damping(double etaA);
+
     double get_normal_force() const;
 
     virtual void add_masses() const override;
