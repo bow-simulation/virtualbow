@@ -178,12 +178,15 @@ void BowModel::init_limb(const Callback& callback)
         for(auto& element: system.mut_elements().group<BeamElement>("limb"))
             element.set_damping(beta);
 
-        A << Z, K, K, system.get_D();
-        B << K, Z, Z, -M;
+        A << Z, K,
+             K, system.get_D();
+
+        B << K, Z,
+             Z, -M;
 
         eigen_solver.compute(A, B, Eigen::DecompositionOptions::EigenvaluesOnly);
         if(eigen_solver.info() != Eigen::Success)
-            throw std::runtime_error("Failed to compute eigenvalues of the limb. Solver info: " + std::to_string(eigen_solver.info()));
+            throw std::runtime_error("Error while tuning limb damping. Failed to compute eigenvalues of the limb. Solver info: " + std::to_string(eigen_solver.info()));
 
         double omega_min = std::numeric_limits<double>::infinity();
         double zeta_min = 0.0;
@@ -205,7 +208,7 @@ void BowModel::init_limb(const Callback& callback)
     };
 
     if(input.damping.damping_ratio_limbs > 0.0)
-        secant_method(try_damping_parameter, 0.001, 0.01, 1e-5, 50);    // Magic numbers
+        secant_method(try_damping_parameter, 1.0, 1.5, 1e-5, 15);    // Magic numbers
 
     // Assign discrete limb properties
     output.limb_properties = limb_properties;

@@ -190,7 +190,7 @@ Silk        & 1026.51  & 0.0930   & 65.83   & Maurice Taylor, Archery The Techni
 \newpage
 \subsection{Masses}
 
-This dialog is usede to define the various masses of the bow. All of them except the arrow mass are optional.
+This dialog is used to define the various masses of the bow. All of them except the arrow mass are optional.
 
 \begin{figure}[H]
 \centering
@@ -206,6 +206,42 @@ This dialog is usede to define the various masses of the bow. All of them except
 \item \textbf{Limb tip:} Additional mass at the limb tip (nocks, overlays)
 \end{itemize}
 
+\newpage
+\subsection{Damping}
+
+Damping can be used to adjust for the energy a bow loses by dissipation, for example due to internal friction/hysteresis of the materials being used.
+This dialog therefore allows setting a damping ratio for the limb and string, respectively.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.4\textwidth]{figures/screenshots/input/damping}
+\caption{Damping dialog}
+\label{fig:damping}
+\end{figure}
+
+\textbf{Note:} The damping ratio characterizes how quickly oscillations in a system decay over time. See table~\ref{tbl:damping-ratio} for a visual explanation.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{| m{4cm} | m{4.6cm} |}
+\hline
+\textbf{Damping ratio} & \textbf{Amplitude} \\ \hline
+\center 0\% & \includegraphics[width=0.3\textwidth]{figures/damping-ratio-00} \\ \hline
+\center 10\% & \includegraphics[width=0.3\textwidth]{figures/damping-ratio-01} \\ \hline
+\center 100\% & \includegraphics[width=0.3\textwidth]{figures/damping-ratio-10} \\ \hline
+\end{tabular}
+\caption{Oscillations with increasing damping ratio}
+\label{tbl:damping-ratio}
+\end{table}
+
+A system with a damping ratio of 0\% is undamped, it doesn't dissipate any energy and just keeps oscillating with a constant amplitude.
+With increasing damping ratio the amplitudes decay faster and faster, losing energy with every oscillation.
+Once the damping ratio reaches 100\% the system stops oscillating altogether, this case is called critical damping.
+
+The damping ratios for a bow's limbs and string are mostly empirical.
+Realistic values are probably in the range of 0 - 20\%, but there is still more experience needed.
+
+\newpage
 \subsection{Dimensions}
 
 The parameters listed in this dialog define the lengths and angles of the bow and its optional middle section/grip. See also figure~\ref{fig:dimensions-2} for a visual explanation of those parameters.
@@ -364,8 +400,8 @@ If not specified, a default output file named after the input file is created.
 
 \subsection*{Input and Output Files}
 
-VirtualBow's input files use the JSON\footnote{\url{http://json.org/}} format, a human readable text format that stores different types of data in a hierarchical way.
-The output files use MessagePack\footnote{\url{http://msgpack.org/}}, a more compact binary format that is otherwise very similar to JSON.
+VirtualBow's input files use the JSON\footnote{\url{http://json.org}} format, a human readable text format that stores different types of data in a hierarchical way.
+The output files use MessagePack\footnote{\url{http://msgpack.org}}, a more compact binary format that is otherwise very similar to JSON.
 Both are very common formats with implementations available in many programming languages.
 An example for using VirtualBow with Python can be found in Appendix~\ref{sec:scripting-examples}.
 
