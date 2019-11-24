@@ -1,5 +1,6 @@
 #include "BowModel.hpp"
 #include "bow/LimbProperties.hpp"
+#include "fem/EigenvalueSolver.hpp"
 #include "fem/StaticSolver.hpp"
 #include "fem/DynamicSolver.hpp"
 #include "fem/elements/BeamElement.hpp"
@@ -173,48 +174,14 @@ void BowModel::init_limb(const Callback& callback)
     }
 
     // Tune damping parameter
-    // A TUTORIAL ON COMPLEX EIGENVALUES
-    // https://pdfs.semanticscholar.org/aee7/3d8ed1833deeaf83db335f067878448bd43f.pdf
-    int n = system.dofs();
-    MatrixXd A(2*n, 2*n);
-    MatrixXd B(2*n, 2*n);
-    MatrixXd Z = MatrixXd::Zero(n, n);
-    MatrixXd M = system.get_M().asDiagonal().toDenseMatrix();
-    MatrixXd K = system.get_K();
-    Eigen::GeneralizedEigenSolver<MatrixXd> eigen_solver;
 
+    EigenvalueSolver solver(system);
     auto try_damping_parameter = [&](double beta)
     {
         for(auto& element: system.mut_elements().group<BeamElement>("limb"))
             element.set_damping(beta);
 
-        A << Z, K,
-             K, system.get_D();
-
-        B << K, Z,
-             Z, -M;
-
-        eigen_solver.compute(A, B, Eigen::DecompositionOptions::EigenvaluesOnly);
-        if(eigen_solver.info() != Eigen::Success)
-            throw std::runtime_error("Error while tuning limb damping. Failed to compute eigenvalues of the limb. Solver info: " + std::to_string(eigen_solver.info()));
-
-        double omega_min = std::numeric_limits<double>::infinity();
-        double zeta_min = 0.0;
-
-        auto evs = eigen_solver.eigenvalues();
-        for(int i = 0; i < evs.size(); ++i)
-        {
-            double omega = std::hypot(evs[i].real(), evs[i].imag());
-            double zeta = -evs[i].real()/omega;
-
-            if(omega < omega_min)
-            {
-                omega_min = omega;
-                zeta_min = zeta;
-            }
-        }
-
-        return zeta_min - input.damping.damping_ratio_limbs;
+        return solver.compute().front().zeta - input.damping.damping_ratio_limbs;
     };
 
     if(input.damping.damping_ratio_limbs > 0.0)

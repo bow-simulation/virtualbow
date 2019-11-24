@@ -46,6 +46,7 @@ add_library(
     source/fem/Element.cpp
     source/fem/StaticSolver.cpp
     source/fem/DynamicSolver.cpp
+    source/fem/EigenvalueSolver.cpp
     source/fem/System.cpp
     source/bow/BeamUtils.cpp
     source/bow/ContinuousLimb.cpp
