@@ -111,6 +111,9 @@ void BowModel::check_input(const InputData& input)
         throw std::runtime_error("String: Number of strands must be positive");
 
     // Check Masses
+    if(input.masses.arrow <= 0.0)
+        throw std::runtime_error("Operation: Arrow mass must be positive");
+
     if(input.masses.string_center < 0.0)
         throw std::runtime_error("Masses: String center mass must not be negative");
 
@@ -127,12 +130,12 @@ void BowModel::check_input(const InputData& input)
     if(input.damping.damping_ratio_string < 0.0 || input.damping.damping_ratio_string > 1.0)
         throw std::runtime_error("Damping: Damping of the string must be 0% ... 100%");
 
-    // Check Operation
+    // Check Dimensions
     if(input.dimensions.brace_height >= input.dimensions.draw_length)
-        throw std::runtime_error("Operation: Draw length must be greater than brace height");
+        throw std::runtime_error("Dimensions: Draw length must be greater than brace height");
 
-    if(input.masses.arrow <= 0.0)
-        throw std::runtime_error("Operation: Arrow mass must be positive");
+    if(input.dimensions.handle_length < 0.0)
+        throw std::runtime_error("Dimensions: Handle length must be positive");
 }
 
 void BowModel::init_limb(const Callback& callback)
