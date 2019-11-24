@@ -14,7 +14,7 @@ BeamElement::BeamElement(System& system, Node node0, Node node1, double rhoA, do
       L(L)
 {
     double m = 0.5*rhoA*L;
-    double I = 0.02*rhoA*L*L*L;
+    double I = 0.04*rhoA*L*L*L;
 
     M << m, m, I, m, m, I;
 }
@@ -34,7 +34,7 @@ void BeamElement::set_stiffness(double Cee, double Ckk, double Cek)
 
 void BeamElement::set_damping(double beta)
 {
-    D << beta*Matrix<6, 6>::Identity();
+    D =  beta*M(0, 0)*Matrix<6, 6>::Identity();
 }
 
 // p in [0, 1]
