@@ -69,7 +69,7 @@ void BowModel::check_input(const InputData& input)
     // Check Profile
     // ...
 
-    // Check width
+    // Check Width
     if(input.width.size() < 2)
         throw std::runtime_error("Width: At least two data points are needed");
 
@@ -119,6 +119,13 @@ void BowModel::check_input(const InputData& input)
 
     if(input.masses.limb_tip < 0.0)
         throw std::runtime_error("Masses: Limb tip mass must not be negative");
+
+    // Check Damping
+    if(input.damping.damping_ratio_limbs < 0.0 || input.damping.damping_ratio_limbs > 1.0)
+        throw std::runtime_error("Damping: Damping of the limb must be 0% ... 100%");
+
+    if(input.damping.damping_ratio_string < 0.0 || input.damping.damping_ratio_string > 1.0)
+        throw std::runtime_error("Damping: Damping of the string must be 0% ... 100%");
 
     // Check Operation
     if(input.dimensions.brace_height >= input.dimensions.draw_length)
