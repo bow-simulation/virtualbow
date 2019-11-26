@@ -297,7 +297,7 @@ void BowModel::init_string(const Callback& callback)
     }
 
     // Set string material damping to match user defined damping ratio
-    double etaA = std::sqrt(2.0*EA*rhoA*l*l)*input.damping.damping_ratio_string;
+    double etaA = 4.0*l/M_PI*std::sqrt(rhoA*EA)*input.damping.damping_ratio_string;
     for(auto& element: system.mut_elements().group<BarElement>("string"))
         element.set_damping(etaA);
 

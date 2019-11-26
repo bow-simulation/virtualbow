@@ -350,6 +350,16 @@ This approximation for~$T$ is used in the progress estimation~(\ref{eq:solution:
 \newpage
 \section{Model setup}
 
+\subsection{Finding the damping parameters}
+
+The damping parameter $\eta A$ of the string is determined analytically such that the damping ratio associated with the first (longitudinal) natural frequency matches the user supplied value. From Appendix \ref{chapter:viscoelastic-bar-vibrations} it follows that
+%
+\begin{equation}
+\eta A = \frac{4L}{\pi}\,\sqrt{\rho A\,EA}\,\zeta
+\end{equation}
+
+in order for this to be true, where $L$ is half the total length of the string to match the boundary conditions used.
+
 \subsection{Distributing string elements}
 
 \begin{figure}[h]
