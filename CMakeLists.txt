@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.2.2)
-include(ExternalProject)
 project(virtualbow)
 set(CMAKE_CXX_STANDARD 14)
 
@@ -17,6 +16,7 @@ set(APPLICATION_DESCRIPTION_LONG "Software tool for simulating the static and dy
 
 # External libraries
 
+# find_package(Spectra REQUIRED)    # What's the correct CMake target?
 find_package(Boost REQUIRED)
 find_package(Catch2 REQUIRED)
 find_package(Eigen3 REQUIRED)

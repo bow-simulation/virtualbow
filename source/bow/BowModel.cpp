@@ -181,7 +181,7 @@ void BowModel::init_limb(const Callback& callback)
         for(auto& element: system.mut_elements().group<BeamElement>("limb"))
             element.set_damping(beta);
 
-        return solver.compute().front().zeta - input.damping.damping_ratio_limbs;
+        return solver.compute_minimum_frequency().zeta - input.damping.damping_ratio_limbs;
     };
 
     if(input.damping.damping_ratio_limbs > 0.0)
@@ -255,7 +255,6 @@ void BowModel::init_string(const Callback& callback)
         info = solver.solve(-input.dimensions.brace_height);
         return system.get_angle(nodes_string[0], nodes_string[1]);
     };
-
 
     // Find a element length at which the brace height difference is zero
     // Todo: Perhaps limit the step size of the root finding algorithm to increase robustness.

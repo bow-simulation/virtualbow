@@ -15,13 +15,9 @@ double DynamicSolver::estimate_timestep(const System& system, double factor)
 {
     EigenvalueSolver solver(system);
 
-    auto info = solver.compute();
-    double omega = info.back().omega_0;
-    double zeta = info.back().zeta;
-
     //https://www.dynasupport.com/tutorial/ls-dyna-users-guide/time-integration
-    return factor*2.0/omega*(std::sqrt(1 + zeta*zeta) - zeta);
-
+    ModeInfo mode = solver.compute_maximum_frequency();
+    return factor*2.0/mode.omega*(std::sqrt(1 + mode.zeta*mode.zeta) - mode.zeta);
 }
 
 bool DynamicSolver::step()
