@@ -5,7 +5,7 @@
 ModeInfo::ModeInfo(std::complex<double> lambda)
 {
     omega = std::hypot(lambda.real(), lambda.imag());
-    zeta = lambda.real()/omega;
+    zeta = -lambda.real()/omega;
 }
 
 EigenvalueSolver::EigenvalueSolver(const System& system)
