@@ -13,11 +13,28 @@ DynamicSolver::DynamicSolver(System& system, double dt, double f_sample, const S
 // Estimate timestep based on maximum eigen frequency and a safety factor to account for nonlinearity of the system
 double DynamicSolver::estimate_timestep(const System& system, double factor)
 {
+    /*
+    // Version that includes damping
+    // Problem: Calculation of eigenvalues is inefficient and not very robust
+    // due to the matrices having 2 times the dimension compared to the version without damping below
+    // https://www.dynasupport.com/tutorial/ls-dyna-users-guide/time-integration
     EigenvalueSolver solver(system);
-
-    //https://www.dynasupport.com/tutorial/ls-dyna-users-guide/time-integration
     ModeInfo mode = solver.compute_maximum_frequency();
     return factor*2.0/mode.omega*(std::sqrt(1 + mode.zeta*mode.zeta) - mode.zeta);
+    */
+
+    // Ignore damping and use selfadjoint solver, which is more efficient and can handle larger matrices
+    Eigen::GeneralizedSelfAdjointEigenSolver<MatrixXd>
+            eigen_solver(system.get_K(), system.get_M().asDiagonal(), Eigen::DecompositionOptions::EigenvaluesOnly);
+
+    if(eigen_solver.info() != Eigen::Success)
+        throw std::runtime_error("Failed to compute eigenvalues of the system");
+
+    double omega_max = std::sqrt(eigen_solver.eigenvalues().maxCoeff());
+    if(omega_max == 0.0)
+        throw std::runtime_error("Can't estimate timestep for system with a zero eigenvalue");
+
+    return factor*2.0/omega_max;
 }
 
 bool DynamicSolver::step()
