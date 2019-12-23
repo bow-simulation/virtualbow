@@ -5,11 +5,11 @@ using nlohmann::json;
 
 struct Settings
 {
-    unsigned n_limb_elements = 40;
-    unsigned n_string_elements = 45;
+    unsigned n_limb_elements = 20;
+    unsigned n_string_elements = 25;
     unsigned n_draw_steps = 150;
     double time_span_factor = 1.5;
-    double time_step_factor = 0.1;
+    double time_step_factor = 0.2;
     double sampling_rate = 1e4;
 };
 
