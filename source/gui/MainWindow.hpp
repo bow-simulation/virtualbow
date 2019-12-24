@@ -8,7 +8,7 @@ class MainWindow: public QMainWindow
 {
 public:
     MainWindow();
-    ~MainWindow();
+    ~MainWindow() override;
 
     bool loadFile(const QString& path);
     bool saveFile(const QString& path);

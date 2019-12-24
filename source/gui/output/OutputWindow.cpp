@@ -1,4 +1,4 @@
-#include "OutputDialog.hpp"
+#include "OutputWindow.hpp"
 #include "OutputGrid.hpp"
 #include "ShapePlot.hpp"
 #include "StressPlot.hpp"
@@ -6,8 +6,79 @@
 #include "EnergyPlot.hpp"
 #include "ComboPlot.hpp"
 #include "Slider.hpp"
+#include "../Application.hpp"
 
-StaticOutput::StaticOutput(const InputData& input, const LimbProperties& limb, const StaticData& statics)
+OutputWindow::OutputWindow(QWidget* parent, InputData input, OutputData output)
+    : QMainWindow(parent),
+      input(input),
+      output(output)
+{
+    this->setCentralWidget(new OutputWidget(this->input, this->output));
+    this->setWindowTitle("Simulation Results");
+    this->setAttribute(Qt::WA_DeleteOnClose);    // Make sure destructor is called on close, not when parent window is
+
+    // Load geometry and state
+    restoreState(Application::settings.value("OutputWindow/state").toByteArray());
+    restoreGeometry(Application::settings.value("OutputWindow/geometry").toByteArray());
+}
+
+OutputWindow::~OutputWindow()
+{
+    // Save state and geometry
+    Application::settings.setValue("OutputWindow/state", saveState());
+    Application::settings.setValue("OutputWindow/geometry", saveGeometry());
+}
+
+OutputWidget::OutputWidget(const InputData& input, const OutputData& output)
+{
+    auto vbox = new QVBoxLayout();
+    this->setLayout(vbox);
+
+    bool enable_statics = !output.statics.states.time.empty();
+    bool enable_dynamics = !output.dynamics.states.time.empty();
+
+    auto stack = new QStackedLayout();
+    vbox->addLayout(stack, 1);
+    if(enable_statics)
+        stack->addWidget(new StaticOutputWidget(input, output.limb_properties, output.statics));
+    if(enable_dynamics)
+        stack->addWidget(new DynamicOutputWidget(input, output.limb_properties, output.dynamics));
+
+    auto bt_statics = new QPushButton("Statics");
+    // bt_statics->setStyleSheet("background-color: rgb(249, 217, 111);");
+    bt_statics->setIcon(QIcon(":/icons/show-statics"));
+    bt_statics->setCheckable(true);
+    bt_statics->setChecked(true);
+    bt_statics->setEnabled(enable_statics);
+    bt_statics->setAutoExclusive(true);
+
+    auto bt_dynamics = new QPushButton("Dynamics");
+    // bt_dynamics->setStyleSheet("background-color: rgb(170, 243, 117);");
+    bt_dynamics->setIcon(QIcon(":/icons/show-dynamics"));
+    bt_dynamics->setCheckable(true);
+    bt_dynamics->setChecked(false);
+    bt_dynamics->setEnabled(enable_dynamics);
+    bt_dynamics->setAutoExclusive(true);
+
+    auto btbox = new QDialogButtonBox();
+    vbox->addWidget(btbox);
+    btbox->addButton(bt_statics, QDialogButtonBox::ActionRole);
+    btbox->addButton(bt_dynamics, QDialogButtonBox::ActionRole);
+
+    QObject::connect(bt_statics, &QPushButton::toggled, [=](bool checked){
+        if(checked)
+            stack->setCurrentIndex(0);
+    });
+
+    QObject::connect(bt_dynamics, &QPushButton::toggled, [=](bool checked){
+        if(checked)
+            stack->setCurrentIndex(1);
+    });
+
+    QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::close);
+}
+
+StaticOutputWidget::StaticOutputWidget(const InputData& input, const LimbProperties& limb, const StaticData& statics)
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
@@ -51,7 +122,7 @@ StaticOutput::StaticOutput(const InputData& input, const LimbProperties& limb, c
     vbox->addWidget(slider);
 }
 
-DynamicOutput::DynamicOutput(const InputData& input, const LimbProperties& limb, const DynamicData& dynamics)
+DynamicOutputWidget::DynamicOutputWidget(const InputData& input, const LimbProperties& limb, const DynamicData& dynamics)
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
@@ -97,58 +168,4 @@ DynamicOutput::DynamicOutput(const InputData& input, const LimbProperties& limb,
     QObject::connect(slider, &Slider::valueChanged, plot_energy, &EnergyPlot::setStateIndex);
     emit slider->valueChanged(0);
     vbox->addWidget(slider);
-}
-
-OutputDialog::OutputDialog(QWidget* parent, const InputData& input, const OutputData& output)
-    : PersistentDialog(parent, "OutputDialog", {1000, 700})    // Magic numbers
-{
-    auto vbox = new QVBoxLayout();
-    this->setLayout(vbox);
-    this->setWindowTitle("Simulation Results");
-    this->setWindowFlags(this->windowFlags() | Qt::WindowMaximizeButtonHint);
-
-    bool enable_statics = !output.statics.states.time.empty();
-    bool enable_dynamics = !output.dynamics.states.time.empty();
-
-    auto stack = new QStackedLayout();
-    vbox->addLayout(stack, 1);
-    if(enable_statics)
-        stack->addWidget(new StaticOutput(input, output.limb_properties, output.statics));
-    if(enable_dynamics)
-        stack->addWidget(new DynamicOutput(input, output.limb_properties, output.dynamics));
-
-    auto bt_statics = new QPushButton("Statics");
-    // bt_statics->setStyleSheet("background-color: rgb(249, 217, 111);");
-    bt_statics->setIcon(QIcon(":/icons/show-statics"));
-    bt_statics->setCheckable(true);
-    bt_statics->setChecked(true);
-    bt_statics->setEnabled(enable_statics);
-    bt_statics->setAutoExclusive(true);
-
-    auto bt_dynamics = new QPushButton("Dynamics");
-    // bt_dynamics->setStyleSheet("background-color: rgb(170, 243, 117);");
-    bt_dynamics->setIcon(QIcon(":/icons/show-dynamics"));
-    bt_dynamics->setCheckable(true);
-    bt_dynamics->setChecked(false);
-    bt_dynamics->setEnabled(enable_dynamics);
-    bt_dynamics->setAutoExclusive(true);
-
-    auto btbox = new QDialogButtonBox();
-    vbox->addWidget(btbox);
-    btbox->addButton(QDialogButtonBox::Close);
-    btbox->button(QDialogButtonBox::Close)->setDefault(true);    // Only works after btbox added to vbox
-    btbox->addButton(bt_statics, QDialogButtonBox::ActionRole);
-    btbox->addButton(bt_dynamics, QDialogButtonBox::ActionRole);
-
-    QObject::connect(bt_statics, &QPushButton::toggled, [=](bool checked){
-        if(checked)
-            stack->setCurrentIndex(0);
-    });
-
-    QObject::connect(bt_dynamics, &QPushButton::toggled, [=](bool checked){
-        if(checked)
-            stack->setCurrentIndex(1);
-    });
-
-    QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::close);
 }

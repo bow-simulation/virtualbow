@@ -125,10 +125,10 @@ add_library(
     source/gui/output/EnergyPlot.hpp
     source/gui/output/CurvaturePlot.cpp
     source/gui/output/CurvaturePlot.hpp
-    source/gui/output/OutputDialog.cpp
-    source/gui/output/OutputDialog.hpp
     source/gui/output/OutputGrid.cpp
     source/gui/output/OutputGrid.hpp
+    source/gui/output/OutputWindow.cpp
+    source/gui/output/OutputWindow.hpp
     source/gui/output/ShapePlot.cpp
     source/gui/output/ShapePlot.hpp
     source/gui/output/Slider.cpp

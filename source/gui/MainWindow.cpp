@@ -2,7 +2,7 @@
 #include "Application.hpp"
 #include "ProgressDialog.hpp"
 #include "input/editors/BowEditor.hpp"
-#include "output/OutputDialog.hpp"
+#include "output/OutputWindow.hpp"
 #include "bow/BowModel.hpp"
 #include "config.hpp"
 #include <thread>
@@ -286,8 +286,8 @@ void MainWindow::runSimulation(bool dynamic)
 
     if(!dialog.isCanceled())
     {
-        OutputDialog results(this, input, output);
-        results.exec();
+        auto results = new OutputWindow(this, input, output);
+        results->show();
     }
 }
 
