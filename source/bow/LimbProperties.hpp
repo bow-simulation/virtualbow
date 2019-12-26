@@ -40,9 +40,9 @@ struct LimbProperties
 {
     // Nodes
     VectorXd length;
+    VectorXd angle;
     VectorXd x_pos;
     VectorXd y_pos;
-    VectorXd angle;
 
     // Section geometry
     VectorXd width;

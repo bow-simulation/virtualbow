@@ -99,10 +99,12 @@ StaticOutputWidget::StaticOutputWidget(const InputData& input, const LimbPropert
     plot_combo->setCombination(0, 1);
 
     auto grid = new OutputGrid();
-    grid->add(0, 0, "String length [m]", statics.string_length);
-    grid->add(1, 0, "Final draw force [N]", statics.final_draw_force);
-    grid->add(2, 0, "Drawing work [J]", statics.drawing_work);
-    grid->add(3, 0, "Storage ratio", statics.storage_ratio);
+    grid->add(0, 0, "Limb mass [kg]", statics.limb_mass);
+    grid->add(1, 0, "String mass [kg]", statics.string_mass);
+    grid->add(2, 0, "String length [m]", statics.string_length);
+    grid->add(3, 0, "Final draw force [N]", statics.final_draw_force);
+    grid->add(4, 0, "Drawing work [J]", statics.drawing_work);
+    grid->add(5, 0, "Storage ratio", statics.storage_ratio);
 
     auto tabs = new QTabWidget();
     vbox->addWidget(tabs);
