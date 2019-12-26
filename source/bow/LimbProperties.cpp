@@ -15,10 +15,11 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
       y_pos(VectorXd::Zero(n)),
       width(VectorXd::Zero(n)),
       height(VectorXd::Zero(n)),
+      rhoA(VectorXd::Zero(n)),
       Cee(VectorXd::Zero(n)),
       Ckk(VectorXd::Zero(n)),
       Cek(VectorXd::Zero(n)),
-      rhoA(VectorXd::Zero(n)),
+      m(n-1),
       layers(input.layers.size(), LayerProperties(n, n))
 {
     ContinuousLimb limb(input);
@@ -29,9 +30,9 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
         // Profile
         Vector<3> r = limb.get_r(s[i]);
         length[i] = s[i];
+        angle[i] = r[2];
         x_pos[i] = r[0];
         y_pos[i] = r[1];
-        angle[i] = r[2];
 
         // Geometry
         width[i] = limb.get_w(s[i]);
@@ -57,6 +58,12 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
             layers[j].Hk_back(i, i) = -input.layers[j].E*y[j];
             layers[j].Hk_belly(i, i) = -input.layers[j].E*y[j+1];
         }
+    }
+
+    // Calculate section masses
+    for(int i = 0; i < n-1; ++i)
+    {
+        m[i] = 0.5*(rhoA(i+1) + rhoA(i))*(length(i+1) - length(i));
     }
 
     // 3. Layer properties

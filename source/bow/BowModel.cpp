@@ -11,6 +11,7 @@
 #include "numerics/RootFinding.hpp"
 #include "numerics/Geometry.hpp"
 #include <limits>
+#include <numeric>
 
 OutputData BowModel::run_static_simulation(const InputData& input, const Callback& callback)
 {
@@ -189,6 +190,7 @@ void BowModel::init_limb(const Callback& callback)
 
     // Assign discrete limb properties
     output.limb_properties = limb_properties;
+    output.statics.limb_mass = std::accumulate(limb_properties.m.begin(), limb_properties.m.end(), 0.0) + input.masses.limb_tip;
 }
 
 void BowModel::init_string(const Callback& callback)
@@ -302,6 +304,8 @@ void BowModel::init_string(const Callback& callback)
 
     // Assign output data
     output.statics.string_length = 2.0*l*input.settings.n_string_elements;    // *2 because of symmetry
+    output.statics.string_mass = input.string.strand_density*input.string.n_strands*output.statics.string_length
+                               + input.masses.string_center + 2.0*input.masses.string_tip;
 }
 
 void BowModel::init_masses(const Callback& callback)
