@@ -1,2 +1,7 @@
-# User settings for Qt creator
+# Qt creator
 *.user
+
+# Visual Studio
+CMakeSettings.json
+.vs/
+out/
