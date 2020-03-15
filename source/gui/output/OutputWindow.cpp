@@ -1,5 +1,5 @@
 #include "OutputWindow.hpp"
-#include "OutputGrid.hpp"
+#include "CharacteristicNumbers.hpp"
 #include "ShapePlot.hpp"
 #include "StressPlot.hpp"
 #include "CurvaturePlot.hpp"
@@ -7,6 +7,7 @@
 #include "ComboPlot.hpp"
 #include "Slider.hpp"
 #include "../Application.hpp"
+#include <algorithm>
 
 OutputWindow::OutputWindow(QWidget* parent, InputData input, OutputData output)
     : QMainWindow(parent),
@@ -84,6 +85,7 @@ StaticOutputWidget::StaticOutputWidget(const InputData& input, const LimbPropert
     this->setLayout(vbox);
     vbox->setMargin(0);
 
+    auto numbers = new StaticNumbers(input, limb, statics);
     auto plot_shapes = new ShapePlot(limb, statics.states, true);
     auto plot_stress = new StressPlot(input, limb, statics.states);
     auto plot_curvature = new CurvaturePlot(limb, statics.states);
@@ -98,22 +100,14 @@ StaticOutputWidget::StaticOutputWidget(const InputData& input, const LimbPropert
     plot_combo->addData("Pot. energy string [J]", statics.states.e_pot_string);
     plot_combo->setCombination(0, 1);
 
-    auto grid = new OutputGrid();
-    grid->add(0, 0, "Limb mass [kg]", statics.limb_mass);
-    grid->add(1, 0, "String mass [kg]", statics.string_mass);
-    grid->add(2, 0, "String length [m]", statics.string_length);
-    grid->add(3, 0, "Final draw force [N]", statics.final_draw_force);
-    grid->add(4, 0, "Drawing work [J]", statics.drawing_work);
-    grid->add(5, 0, "Storage ratio", statics.storage_ratio);
-
     auto tabs = new QTabWidget();
     vbox->addWidget(tabs);
+    tabs->addTab(numbers, "Characteristics");
     tabs->addTab(plot_shapes, "Shape");
     tabs->addTab(plot_stress, "Stress");
     tabs->addTab(plot_curvature, "Curvature");
     tabs->addTab(plot_energy, "Energy");
     tabs->addTab(plot_combo, "Other Plots");
-    tabs->addTab(grid, "Special Values");
 
     auto slider = new Slider(statics.states.draw_length, "Draw length [m]:");
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
@@ -130,6 +124,7 @@ DynamicOutputWidget::DynamicOutputWidget(const InputData& input, const LimbPrope
     this->setLayout(vbox);
     vbox->setMargin(0);
 
+    auto numbers = new DynamicNumbers(input, limb, dynamics);
     auto plot_shapes = new ShapePlot(limb, dynamics.states, false);
     auto plot_stress = new StressPlot(input, limb, dynamics.states);
     auto plot_curvature = new CurvaturePlot(limb, dynamics.states);
@@ -149,19 +144,14 @@ DynamicOutputWidget::DynamicOutputWidget(const InputData& input, const LimbPrope
     plot_combo->addData("Kin. energy arrow [J]", dynamics.states.e_kin_arrow);
     plot_combo->setCombination(0, 1);
 
-    auto grid = new OutputGrid();
-    grid->add(0, 0, "Final arrow velocity [m/s]", dynamics.final_arrow_velocity);
-    grid->add(1, 0, "Final arrow energy [J]", dynamics.final_arrow_energy);
-    grid->add(2, 0, "Efficiency", dynamics.efficiency);
-
     auto tabs = new QTabWidget();
     vbox->addWidget(tabs);
+    tabs->addTab(numbers, "Characteristics");
     tabs->addTab(plot_shapes, "Shape");
     tabs->addTab(plot_stress, "Stress");
     tabs->addTab(plot_curvature, "Curvature");
     tabs->addTab(plot_energy, "Energy");
     tabs->addTab(plot_combo, "Other Plots");
-    tabs->addTab(grid, "Special Values");
 
     auto slider = new Slider(dynamics.states.time, "Time [s]:");
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);

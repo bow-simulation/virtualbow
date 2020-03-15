@@ -6,7 +6,7 @@ StressPlot::StressPlot(const InputData& input, const LimbProperties& limb, const
       states(states)
 {
     this->xAxis->setLabel("Arc length [m]");
-    this->yAxis->setLabel("Stress [N/m²]");
+    this->yAxis->setLabel("Stress [Pa]");
     this->setupTopLegend();
 
     for(int i = 0; i < input.layers.size(); ++i)
