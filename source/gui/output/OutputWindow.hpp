@@ -24,11 +24,11 @@ public:
 class StaticOutputWidget: public QWidget
 {
 public:
-    StaticOutputWidget(const InputData& input, const LimbProperties& limb, const StaticData& statics);
+    StaticOutputWidget(const InputData& input, const OutputData& output);
 };
 
 class DynamicOutputWidget: public QWidget
 {
 public:
-    DynamicOutputWidget(const InputData& input, const LimbProperties& limb, const DynamicData& dynamics);
+    DynamicOutputWidget(const InputData& input, const OutputData& output);
 };

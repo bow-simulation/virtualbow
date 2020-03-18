@@ -1,5 +1,5 @@
 #include "OutputWindow.hpp"
-#include "CharacteristicNumbers.hpp"
+#include "NumberGrid.hpp"
 #include "ShapePlot.hpp"
 #include "StressPlot.hpp"
 #include "CurvaturePlot.hpp"
@@ -41,9 +41,9 @@ OutputWidget::OutputWidget(const InputData& input, const OutputData& output)
     auto stack = new QStackedLayout();
     vbox->addLayout(stack, 1);
     if(enable_statics)
-        stack->addWidget(new StaticOutputWidget(input, output.limb_properties, output.statics));
+        stack->addWidget(new StaticOutputWidget(input, output));
     if(enable_dynamics)
-        stack->addWidget(new DynamicOutputWidget(input, output.limb_properties, output.dynamics));
+        stack->addWidget(new DynamicOutputWidget(input, output));
 
     auto bt_statics = new QPushButton("Statics");
     // bt_statics->setStyleSheet("background-color: rgb(249, 217, 111);");
@@ -79,25 +79,44 @@ OutputWidget::OutputWidget(const InputData& input, const OutputData& output)
     QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::close);
 }
 
-StaticOutputWidget::StaticOutputWidget(const InputData& input, const LimbProperties& limb, const StaticData& statics)
+StaticOutputWidget::StaticOutputWidget(const InputData& input, const OutputData& output)
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
     vbox->setMargin(0);
 
-    auto numbers = new StaticNumbers(input, limb, statics);
-    auto plot_shapes = new ShapePlot(limb, statics.states, true);
-    auto plot_stress = new StressPlot(input, limb, statics.states);
-    auto plot_curvature = new CurvaturePlot(limb, statics.states);
-    auto plot_energy = new EnergyPlot(statics.states, statics.states.draw_length, "Draw length [m]");
+    auto numbers = new NumberGrid();
+    numbers->addColumn();
+    numbers->addGroup("Performance");
+    numbers->addValue("Final draw force [N]", output.statics.final_draw_force);
+    numbers->addValue("Drawing work [J]", output.statics.drawing_work);
+    numbers->addValue("Storage ratio", output.statics.storage_ratio);
+    numbers->addGroup("Properties");
+    numbers->addValue("Limb mass [kg]", output.statics.limb_mass);
+    numbers->addValue("String mass [kg]", output.statics.string_mass);
+    numbers->addValue("String length [m]", output.statics.string_length);
+    numbers->addColumn();
+    numbers->addGroup("Maximum absolute stresses");
+    for(int i = 0; i < output.statics.max_stress_val.size(); ++i) {
+        numbers->addValue(QString::fromStdString(input.layers[i].name + " [Pa]"), output.statics.max_stress_val[i]);
+    }
+    numbers->addGroup("Maximum absolute forces");
+    numbers->addValue("String force (total) [N]", output.statics.max_string_force);
+    numbers->addValue("String force (strand) [N]", output.statics.max_strand_force);
+    numbers->addValue("Grip force [N]", output.statics.max_grip_force);
+
+    auto plot_shapes = new ShapePlot(output.setup.limb_properties, output.statics.states, true);
+    auto plot_stress = new StressPlot(input, output.setup.limb_properties, output.statics.states);
+    auto plot_curvature = new CurvaturePlot(output.setup.limb_properties, output.statics.states);
+    auto plot_energy = new EnergyPlot(output.statics.states, output.statics.states.draw_length, "Draw length [m]");
     auto plot_combo = new ComboPlot();
-    plot_combo->addData("Draw length [m]", statics.states.draw_length);
-    plot_combo->addData("Draw force [N]", statics.states.draw_force);
-    plot_combo->addData("String force (total) [N]", statics.states.string_force);
-    plot_combo->addData("String force (strand) [N]", statics.states.strand_force);
-    plot_combo->addData("Grip force [N]", statics.states.grip_force);
-    plot_combo->addData("Pot. energy limbs [J]", statics.states.e_pot_limbs);
-    plot_combo->addData("Pot. energy string [J]", statics.states.e_pot_string);
+    plot_combo->addData("Draw length [m]", output.statics.states.draw_length);
+    plot_combo->addData("Draw force [N]", output.statics.states.draw_force);
+    plot_combo->addData("String force (total) [N]", output.statics.states.string_force);
+    plot_combo->addData("String force (strand) [N]", output.statics.states.strand_force);
+    plot_combo->addData("Grip force [N]", output.statics.states.grip_force);
+    plot_combo->addData("Pot. energy limbs [J]", output.statics.states.e_pot_limbs);
+    plot_combo->addData("Pot. energy string [J]", output.statics.states.e_pot_string);
     plot_combo->setCombination(0, 1);
 
     auto tabs = new QTabWidget();
@@ -109,7 +128,7 @@ StaticOutputWidget::StaticOutputWidget(const InputData& input, const LimbPropert
     tabs->addTab(plot_energy, "Energy");
     tabs->addTab(plot_combo, "Other Plots");
 
-    auto slider = new Slider(statics.states.draw_length, "Draw length [m]:");
+    auto slider = new Slider(output.statics.states.draw_length, "Draw length [m]:");
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_curvature, &CurvaturePlot::setStateIndex);
@@ -118,30 +137,49 @@ StaticOutputWidget::StaticOutputWidget(const InputData& input, const LimbPropert
     vbox->addWidget(slider);
 }
 
-DynamicOutputWidget::DynamicOutputWidget(const InputData& input, const LimbProperties& limb, const DynamicData& dynamics)
+DynamicOutputWidget::DynamicOutputWidget(const InputData& input, const OutputData& output)
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
     vbox->setMargin(0);
 
-    auto numbers = new DynamicNumbers(input, limb, dynamics);
-    auto plot_shapes = new ShapePlot(limb, dynamics.states, false);
-    auto plot_stress = new StressPlot(input, limb, dynamics.states);
-    auto plot_curvature = new CurvaturePlot(limb, dynamics.states);
-    auto plot_energy = new EnergyPlot(dynamics.states, dynamics.states.time, "Time [s]");
+    auto numbers = new NumberGrid();
+    numbers->addColumn();
+    numbers->addGroup("Performance");
+    numbers->addValue("Final arrow velocity [m/s]", output.dynamics.final_arrow_velocity);
+    numbers->addValue("Efficiency", output.dynamics.efficiency);
+    numbers->addGroup("Energy at departure");
+    numbers->addValue("Kinetic energy arrow [J]", output.dynamics.final_arrow_energy);
+    numbers->addValue("Kinetic energy limbs [J]", 0.0);
+    numbers->addValue("Kinetic energy string [J]", 0.0);
+    numbers->addValue("Virtual mass [kg]", 0.0);
+    numbers->addColumn();
+    numbers->addGroup("Maximum absolute stresses");
+    for (int i = 0; i < output.statics.max_stress_val.size(); ++i) {
+        numbers->addValue(QString::fromStdString(input.layers[i].name + " [Pa]"), output.dynamics.max_stress_val[i]);
+    }
+    numbers->addGroup("Maximum absolute forces");
+    numbers->addValue("String force (total) [N]", output.dynamics.max_string_force);
+    numbers->addValue("String force (strand) [N]", output.dynamics.max_strand_force);
+    numbers->addValue("Grip force [N]", output.dynamics.max_grip_force);
+
+    auto plot_shapes = new ShapePlot(output.setup.limb_properties, output.dynamics.states, false);
+    auto plot_stress = new StressPlot(input, output.setup.limb_properties, output.dynamics.states);
+    auto plot_curvature = new CurvaturePlot(output.setup.limb_properties, output.dynamics.states);
+    auto plot_energy = new EnergyPlot(output.dynamics.states, output.dynamics.states.time, "Time [s]");
     auto plot_combo = new ComboPlot();
-    plot_combo->addData("Time [s]", dynamics.states.time);
-    plot_combo->addData("Arrow position [m]", dynamics.states.pos_arrow);
-    plot_combo->addData("Arrow velocity [m/s]", dynamics.states.vel_arrow);
-    plot_combo->addData("Arrow acceleration [m/s²]", dynamics.states.acc_arrow);
-    plot_combo->addData("String force (total) [N]", dynamics.states.string_force);
-    plot_combo->addData("String force (strand) [N]", dynamics.states.strand_force);
-    plot_combo->addData("Grip force [N]", dynamics.states.grip_force);
-    plot_combo->addData("Pot. energy limbs [J]", dynamics.states.e_pot_limbs);
-    plot_combo->addData("Kin. energy limbs [J]", dynamics.states.e_kin_limbs);
-    plot_combo->addData("Pot. energy string [J]", dynamics.states.e_pot_string);
-    plot_combo->addData("Kin. energy string [J]", dynamics.states.e_kin_string);
-    plot_combo->addData("Kin. energy arrow [J]", dynamics.states.e_kin_arrow);
+    plot_combo->addData("Time [s]", output.dynamics.states.time);
+    plot_combo->addData("Arrow position [m]", output.dynamics.states.pos_arrow);
+    plot_combo->addData("Arrow velocity [m/s]", output.dynamics.states.vel_arrow);
+    plot_combo->addData("Arrow acceleration [m/s²]", output.dynamics.states.acc_arrow);
+    plot_combo->addData("String force (total) [N]", output.dynamics.states.string_force);
+    plot_combo->addData("String force (strand) [N]", output.dynamics.states.strand_force);
+    plot_combo->addData("Grip force [N]", output.dynamics.states.grip_force);
+    plot_combo->addData("Pot. energy limbs [J]", output.dynamics.states.e_pot_limbs);
+    plot_combo->addData("Kin. energy limbs [J]", output.dynamics.states.e_kin_limbs);
+    plot_combo->addData("Pot. energy string [J]", output.dynamics.states.e_pot_string);
+    plot_combo->addData("Kin. energy string [J]", output.dynamics.states.e_kin_string);
+    plot_combo->addData("Kin. energy arrow [J]", output.dynamics.states.e_kin_arrow);
     plot_combo->setCombination(0, 1);
 
     auto tabs = new QTabWidget();
@@ -153,7 +191,7 @@ DynamicOutputWidget::DynamicOutputWidget(const InputData& input, const LimbPrope
     tabs->addTab(plot_energy, "Energy");
     tabs->addTab(plot_combo, "Other Plots");
 
-    auto slider = new Slider(dynamics.states.time, "Time [s]:");
+    auto slider = new Slider(output.dynamics.states.time, "Time [s]:");
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_curvature, &CurvaturePlot::setStateIndex);

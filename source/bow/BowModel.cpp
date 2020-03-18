@@ -15,39 +15,43 @@
 
 OutputData BowModel::run_static_simulation(const InputData& input, const Callback& callback)
 {
-    BowModel model(input, callback);
+    BowModel model(input);
+    SetupData setup;
+    BowStates static_states;
+    BowStates dynamic_states;
 
     if(callback(0))
-        model.simulate_statics(callback);
+        setup = model.simulate_setup(callback);
 
-    return model.output;
+    if(callback(0))
+        static_states = model.simulate_statics(callback);
+
+    return OutputData(setup, static_states, dynamic_states);
 }
 
 
 OutputData BowModel::run_dynamic_simulation(const InputData& input, const Callback& callback1, const Callback& callback2)
 {
-    BowModel model(input, callback1);
+    BowModel model(input);
+    SetupData setup;
+    BowStates static_states;
+    BowStates dynamic_states;
 
     if(callback1(0))
-        model.simulate_statics(callback1);
+        setup = model.simulate_setup(callback1);
+
+    if(callback1(0))
+        static_states = model.simulate_statics(callback1);
 
     if(callback2(0))
-        model.simulate_dynamics(callback2);
+        dynamic_states = model.simulate_dynamics(callback2);
 
-    return model.output;
+    return OutputData(setup, static_states, dynamic_states);
 }
 
 
-BowModel::BowModel(const InputData& input, const Callback& callback)
+BowModel::BowModel(const InputData& input)
     : input(input)
-{
-    check_input(input);
-    init_limb(callback);
-    init_string(callback);
-    init_masses(callback);
-}
-
-void BowModel::check_input(const InputData& input)
 {
     // Check Settings
     if(input.settings.n_limb_elements < 1)
@@ -140,7 +144,7 @@ void BowModel::check_input(const InputData& input)
         throw std::runtime_error("Dimensions: Handle length must be positive");
 }
 
-void BowModel::init_limb(const Callback& callback)
+void BowModel::init_limb(const Callback& callback, SetupData& output)
 {
     LimbProperties limb_properties(input);
 
@@ -148,8 +152,7 @@ void BowModel::init_limb(const Callback& callback)
     for(size_t i = 0; i < input.settings.n_limb_elements + 1; ++i)
     {
         bool active = (i != 0);
-        Node node = system.create_node({active, active, active},
-                        {limb_properties.x_pos[i], limb_properties.y_pos[i], limb_properties.angle[i]});
+        Node node = system.create_node({active, active, active}, {limb_properties.x_pos[i], limb_properties.y_pos[i], limb_properties.angle[i]});
         nodes_limb.push_back(node);
     }
 
@@ -190,10 +193,10 @@ void BowModel::init_limb(const Callback& callback)
 
     // Assign discrete limb properties
     output.limb_properties = limb_properties;
-    output.statics.limb_mass = std::accumulate(limb_properties.m.begin(), limb_properties.m.end(), 0.0) + input.masses.limb_tip;
+    output.limb_mass = std::accumulate(limb_properties.m.begin(), limb_properties.m.end(), 0.0) + input.masses.limb_tip;
 }
 
-void BowModel::init_string(const Callback& callback)
+void BowModel::init_string(const Callback& callback, SetupData& output)
 {
     LimbProperties& limb_properties = output.limb_properties;
 
@@ -303,12 +306,12 @@ void BowModel::init_string(const Callback& callback)
         element.set_damping(etaA);
 
     // Assign output data
-    output.statics.string_length = 2.0*l*input.settings.n_string_elements;    // *2 because of symmetry
-    output.statics.string_mass = input.string.strand_density*input.string.n_strands*output.statics.string_length
-                               + input.masses.string_center + 2.0*input.masses.string_tip;
+    output.string_length = 2.0*l*input.settings.n_string_elements;    // *2 because of symmetry
+    output.string_mass = input.string.strand_density*input.string.n_strands*output.string_length
+                       + input.masses.string_center + 2.0*input.masses.string_tip;
 }
 
-void BowModel::init_masses(const Callback& callback)
+void BowModel::init_masses(const Callback& callback, SetupData& output)
 {
     node_arrow = nodes_string[0];
     MassElement mass_limb_tip(system, nodes_limb.back(), input.masses.limb_tip);
@@ -322,8 +325,20 @@ void BowModel::init_masses(const Callback& callback)
     system.mut_elements().add(arrow_mass, "arrow");
 }
 
-void BowModel::simulate_statics(const Callback& callback)
+SetupData BowModel::simulate_setup(const Callback& callback)
 {
+    SetupData output;
+    init_limb(callback, output);
+    init_string(callback, output);
+    init_masses(callback, output);
+
+    return output;
+}
+
+BowStates BowModel::simulate_statics(const Callback& callback)
+{
+    BowStates output;
+
     system.set_p(nodes_string[0].y, 1.0);    // Will be scaled by the static algorithm
     StaticSolverDC solver(system, nodes_string[0].y);
     for(unsigned i = 0; i < input.settings.n_draw_steps; ++i)
@@ -332,31 +347,19 @@ void BowModel::simulate_statics(const Callback& callback)
         double draw_length = (1.0 - eta)*input.dimensions.brace_height + eta*input.dimensions.draw_length;
 
         solver.solve(-draw_length);
-        add_state(output.statics.states);
+        add_state(output);
 
         if(!callback(100*eta))
-            return;
+            break;
     }
 
-    // Calculate scalar values
-
-    double draw_length_front = output.statics.states.draw_length.front();
-    double draw_length_back = output.statics.states.draw_length.back();
-    double draw_force_back = output.statics.states.draw_force.back();
-
-    double e_pot_front = output.statics.states.e_pot_limbs.front()
-                       + output.statics.states.e_pot_string.front();
-
-    double e_pot_back = output.statics.states.e_pot_limbs.back()
-                      + output.statics.states.e_pot_string.back();
-
-    output.statics.final_draw_force = draw_force_back;
-    output.statics.drawing_work = e_pot_back - e_pot_front;
-    output.statics.storage_ratio = (e_pot_back - e_pot_front)/(0.5*(draw_length_back - draw_length_front)*draw_force_back);
+    return output;
 }
 
-void BowModel::simulate_dynamics(const Callback& callback)
+BowStates BowModel::simulate_dynamics(const Callback& callback)
 {
+    BowStates output;
+
     // Set draw force to zero
     system.set_p(nodes_string[0].y, 0.0);
 
@@ -384,7 +387,7 @@ void BowModel::simulate_dynamics(const Callback& callback)
     {
         do
         {
-            add_state(output.dynamics.states);
+            add_state(output);
             if(!callback(100.0*system.get_t()/(alpha*T)))
             {
                 return;
@@ -406,11 +409,7 @@ void BowModel::simulate_dynamics(const Callback& callback)
 
     run_solver(solver2);
 
-    // Calculate scalar values
-
-    output.dynamics.final_arrow_velocity = output.dynamics.states.vel_arrow.back();
-    output.dynamics.final_arrow_energy = output.dynamics.states.e_kin_arrow.back();
-    output.dynamics.efficiency = output.dynamics.final_arrow_energy/output.statics.drawing_work;
+    return output;
 }
 
 void BowModel::add_state(BowStates& states) const

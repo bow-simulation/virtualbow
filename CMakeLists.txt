@@ -124,8 +124,8 @@ add_library(
     source/gui/output/EnergyPlot.hpp
     source/gui/output/CurvaturePlot.cpp
     source/gui/output/CurvaturePlot.hpp
-    source/gui/output/CharacteristicNumbers.cpp
-    source/gui/output/CharacteristicNumbers.hpp
+    source/gui/output/NumberGrid.cpp
+    source/gui/output/NumberGrid.hpp
     source/gui/output/OutputWindow.cpp
     source/gui/output/OutputWindow.hpp
     source/gui/output/ShapePlot.cpp

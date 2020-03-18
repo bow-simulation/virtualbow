@@ -12,20 +12,19 @@ public:
     static OutputData run_dynamic_simulation(const InputData& input, const Callback& callback1, const Callback& callback2);
 
 private:
-    BowModel(const InputData& input, const Callback& callback);
+    BowModel(const InputData& input);
+    void init_limb(const Callback& callback, SetupData& output);
+    void init_string(const Callback& callback, SetupData& output);
+    void init_masses(const Callback& callback, SetupData& output);
 
-    void check_input(const InputData& input);
-    void init_limb(const Callback& callback);
-    void init_string(const Callback& callback);
-    void init_masses(const Callback& callback);
+    SetupData simulate_setup(const Callback& callback);
+    BowStates simulate_statics(const Callback& callback);
+    BowStates simulate_dynamics(const Callback& callback);
 
-    void simulate_statics(const Callback& callback);
-    void simulate_dynamics(const Callback& callback);
     void add_state(BowStates& states) const;
 
 private:
     const InputData& input;
-    OutputData output;
 
     System system;
     std::vector<Node> nodes_limb;
