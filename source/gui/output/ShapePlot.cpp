@@ -133,7 +133,7 @@ void ShapePlot::setAxesRanges()
     {
         // Add 0.5*height as an estimated upper bound
         expand(states.x_pos_limb[i] + 0.5*limb.height, states.y_pos_limb[i] + 0.5*limb.height);
-        expand(states.x_pos_string[i] + 0.5*limb.height, states.y_pos_string[i] + 0.5*limb.height);
+        expand(states.x_pos_string[i], states.y_pos_string[i]);
     }
 
     this->setAxesLimits(x_range, y_range);
