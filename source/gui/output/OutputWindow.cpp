@@ -92,9 +92,9 @@ StaticOutputWidget::StaticOutputWidget(const InputData& input, const OutputData&
     numbers->addValue("Drawing work [J]", output.statics.drawing_work);
     numbers->addValue("Storage ratio", output.statics.storage_ratio);
     numbers->addGroup("Properties");
-    numbers->addValue("Limb mass [kg]", output.statics.limb_mass);
-    numbers->addValue("String mass [kg]", output.statics.string_mass);
-    numbers->addValue("String length [m]", output.statics.string_length);
+    numbers->addValue("Limb mass [kg]", output.setup.limb_mass);
+    numbers->addValue("String mass [kg]", output.setup.string_mass);
+    numbers->addValue("String length [m]", output.setup.string_length);
     numbers->addColumn();
     numbers->addGroup("Maximum absolute stresses");
     for(int i = 0; i < output.statics.max_stress_val.size(); ++i) {
@@ -146,13 +146,12 @@ DynamicOutputWidget::DynamicOutputWidget(const InputData& input, const OutputDat
     auto numbers = new NumberGrid();
     numbers->addColumn();
     numbers->addGroup("Performance");
-    numbers->addValue("Final arrow velocity [m/s]", output.dynamics.final_arrow_velocity);
+    numbers->addValue("Final arrow velocity [m/s]", output.dynamics.final_vel_arrow);
     numbers->addValue("Efficiency", output.dynamics.efficiency);
     numbers->addGroup("Energy at departure");
-    numbers->addValue("Kinetic energy arrow [J]", output.dynamics.final_arrow_energy);
-    numbers->addValue("Kinetic energy limbs [J]", 0.0);
-    numbers->addValue("Kinetic energy string [J]", 0.0);
-    numbers->addValue("Virtual mass [kg]", 0.0);
+    numbers->addValue("Kinetic energy arrow [J]", output.dynamics.final_e_kin_arrow);
+    numbers->addValue("Kinetic energy limbs [J]", output.dynamics.final_e_kin_limbs);
+    numbers->addValue("Kinetic energy string [J]", output.dynamics.final_e_kin_string);
     numbers->addColumn();
     numbers->addGroup("Maximum absolute stresses");
     for (int i = 0; i < output.statics.max_stress_val.size(); ++i) {

@@ -85,9 +85,22 @@ struct OutputData
         // Calculate dynamic numbers
         if(!dynamics.states.time.empty())
         {
-            dynamics.final_arrow_velocity = dynamic_states.vel_arrow.back();
-            dynamics.final_arrow_energy = dynamic_states.e_kin_arrow.back();
-            dynamics.efficiency = dynamics.final_arrow_energy/statics.drawing_work;
+            for(int i = 0; i < dynamic_states.time.size(); ++i)
+            {
+                // Find point of arrow separation
+                if(dynamic_states.acc_arrow[i] <= 0.0)
+                {
+                    dynamics.final_pos_arrow = dynamic_states.pos_arrow[i];
+                    dynamics.final_vel_arrow = dynamic_states.vel_arrow[i];
+                    dynamics.final_e_pot_limbs = dynamic_states.e_pot_limbs[i];
+                    dynamics.final_e_kin_limbs = dynamic_states.e_kin_limbs[i];
+                    dynamics.final_e_pot_string = dynamic_states.e_pot_string[i];
+                    dynamics.final_e_kin_string = dynamic_states.e_kin_string[i];
+                    dynamics.final_e_kin_arrow = dynamic_states.e_kin_arrow[i];
+                }
+            }
+
+            dynamics.efficiency = dynamics.final_e_kin_arrow/statics.drawing_work;
             dynamics.max_string_force = maxAbsForce(dynamic_states.string_force);
             dynamics.max_strand_force = maxAbsForce(dynamic_states.strand_force);
             dynamics.max_grip_force = maxAbsForce(dynamic_states.grip_force);
