@@ -32,51 +32,51 @@ OutputWindow::~OutputWindow()
 
 OutputWidget::OutputWidget(const InputData& input, const OutputData& output)
 {
-    auto vbox = new QVBoxLayout();
-    this->setLayout(vbox);
-
     bool enable_statics = !output.statics.states.time.empty();
     bool enable_dynamics = !output.dynamics.states.time.empty();
 
     auto stack = new QStackedLayout();
-    vbox->addLayout(stack, 1);
-    if(enable_statics)
+    if(enable_statics) {
         stack->addWidget(new StaticOutputWidget(input, output));
-    if(enable_dynamics)
+    }
+    if(enable_dynamics) {
         stack->addWidget(new DynamicOutputWidget(input, output));
+    }
 
     auto bt_statics = new QPushButton("Statics");
     // bt_statics->setStyleSheet("background-color: rgb(249, 217, 111);");
     bt_statics->setIcon(QIcon(":/icons/show-statics"));
     bt_statics->setCheckable(true);
-    bt_statics->setChecked(true);
     bt_statics->setEnabled(enable_statics);
     bt_statics->setAutoExclusive(true);
+    QObject::connect(bt_statics, &QPushButton::toggled, [=](bool checked) {
+        if(checked)
+            stack->setCurrentIndex(0);
+    });
 
     auto bt_dynamics = new QPushButton("Dynamics");
     // bt_dynamics->setStyleSheet("background-color: rgb(170, 243, 117);");
     bt_dynamics->setIcon(QIcon(":/icons/show-dynamics"));
     bt_dynamics->setCheckable(true);
-    bt_dynamics->setChecked(false);
     bt_dynamics->setEnabled(enable_dynamics);
     bt_dynamics->setAutoExclusive(true);
-
-    auto btbox = new QDialogButtonBox();
-    vbox->addWidget(btbox);
-    btbox->addButton(bt_statics, QDialogButtonBox::ActionRole);
-    btbox->addButton(bt_dynamics, QDialogButtonBox::ActionRole);
-
-    QObject::connect(bt_statics, &QPushButton::toggled, [=](bool checked){
-        if(checked)
-            stack->setCurrentIndex(0);
-    });
-
-    QObject::connect(bt_dynamics, &QPushButton::toggled, [=](bool checked){
+    QObject::connect(bt_dynamics, &QPushButton::toggled, [=](bool checked) {
         if(checked)
             stack->setCurrentIndex(1);
     });
 
+    auto btbox = new QDialogButtonBox();
+    btbox->addButton(bt_statics, QDialogButtonBox::ActionRole);
+    btbox->addButton(bt_dynamics, QDialogButtonBox::ActionRole);
     QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::close);
+
+    auto vbox = new QVBoxLayout();
+    vbox->addLayout(stack, 1);
+    vbox->addWidget(btbox);
+    this->setLayout(vbox);
+
+    bt_statics->setChecked(!enable_dynamics);
+    bt_dynamics->setChecked(enable_dynamics);
 }
 
 StaticOutputWidget::StaticOutputWidget(const InputData& input, const OutputData& output)
