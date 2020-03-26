@@ -1,6 +1,5 @@
 #pragma once
 #include "external/qcustomplot/qcustomplot.h"
-#include <boost/optional.hpp>
 
 class PlotWidget: public QCustomPlot
 {
@@ -143,8 +142,8 @@ public:
     // Limit the axis maximum ranges to current range
     void rescaleAxes(bool include_zero_x = false, bool include_zero_y = false)
     {
-        max_x_range = boost::none;
-        max_y_range = boost::none;
+        max_x_range = std::nullopt;
+        max_y_range = std::nullopt;
 
         QCustomPlot::rescaleAxes();
 
@@ -215,7 +214,7 @@ protected:
 
 private:
     QSize size_hint;
-    boost::optional<QCPRange> max_x_range;
-    boost::optional<QCPRange> max_y_range;
+    std::optional<QCPRange> max_x_range;
+    std::optional<QCPRange> max_y_range;
     AspectPolicy aspect_policy;
 };
