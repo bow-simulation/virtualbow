@@ -1,5 +1,6 @@
 #include "EigenvalueSolver.hpp"
 #include <algorithm>
+#include <optional>
 
 ModeInfo::ModeInfo(std::complex<double> lambda)
 {

@@ -1,5 +1,6 @@
 #pragma once
 #include "external/qcustomplot/qcustomplot.h"
+#include <optional>
 
 class PlotWidget: public QCustomPlot
 {
