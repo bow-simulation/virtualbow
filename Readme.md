@@ -7,14 +7,14 @@ Visit http://www.virtualbow.org for more information about the project.
 
 # Building
 
-Building VirtualBow requires CMake and a C++14 compiler.
+Building VirtualBow requires CMake and a C++17 compiler.
 External dependencies are handled with [vcpkg](https://github.com/Microsoft/vcpkg), a cross-platform C++ package manager.
 (The following instructions are slightly different from the official release builds.
 For more information on those please refer to [Release.md](Release.md) and [azure-pipelines.yml](azure-pipelines.yml).)
 
-After setting up vcpkg, the required dependencies can be installed as
+After [setting up vcpkg](https://github.com/Microsoft/vcpkg#quick-start), the required dependencies can be installed as
 
-    ./vcpkg install boost catch2 eigen3 nlohmann-json qt5-base
+    ./vcpkg install qt5-base boost catch2 eigen3 nlohmann-json
 
 Add vcpkg's toolchain file to any subsequent `cmake` calls in order to make them available.
 
@@ -31,7 +31,7 @@ If you're using Qt Creator you can set this under *Projects* - *Build Settings* 
 
 ## Linux and MacOS
 
-On linux you can optionally save some time by installing pre-compiled releases of Qt and Boost via your system's package manager.
+On linux you can optionally save some time by installing Qt and Boost via your system's package manager instead of vcpkg.
 
     sudo apt install qtbase5-dev libqt5x11extras5-dev libboost-all-dev
 
