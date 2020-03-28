@@ -16,22 +16,22 @@ Slider::Slider(const std::vector<double>& values, const QString& text)
     jump_menu->addAction("Max. String force");
 
     auto button_jump_to = new QToolButton();
-    button_jump_to->setIcon(QIcon(":/icons/media/media-jump-to.png"));
+    button_jump_to->setIcon(QIcon(":/icons/media-jump-to.png"));
     button_jump_to->setFixedSize(HEIGHT, HEIGHT);
     button_jump_to->setStyleSheet("QToolButton::menu-indicator { image: none; }");
     button_jump_to->setMenu(jump_menu);
     button_jump_to->setPopupMode(QToolButton::InstantPopup);
 
     auto button_skip_backward = new QToolButton();
-    button_skip_backward->setIcon(QIcon(":/icons/media/media-skip-backward.png"));
+    button_skip_backward->setIcon(QIcon(":/icons/media-skip-backward.png"));
     button_skip_backward->setFixedSize(HEIGHT, HEIGHT);
 
     auto button_play_pause = new QToolButton();
-    button_play_pause->setIcon(QIcon(":/icons/media/media-playback-start.png"));
+    button_play_pause->setIcon(QIcon(":/icons/media-playback-start.png"));
     button_play_pause->setFixedSize(HEIGHT, HEIGHT);
 
     auto button_skip_forward = new QToolButton();
-    button_skip_forward->setIcon(QIcon(":/icons/media/media-skip-forward.png"));
+    button_skip_forward->setIcon(QIcon(":/icons/media-skip-forward.png"));
     button_skip_forward->setFixedSize(HEIGHT, HEIGHT);
 
     auto slider = new QSlider(Qt::Horizontal);
