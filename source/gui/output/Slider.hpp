@@ -13,7 +13,6 @@ private:
     static const int playback_max_fps = 45;
     static const int playback_time = 5000;
 
-    std::vector<double> values;
     QSlider* slider;
     QMenu* menu;
 
