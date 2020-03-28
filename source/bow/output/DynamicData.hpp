@@ -19,12 +19,11 @@ struct DynamicData
 
     double efficiency = 0.0;
 
-    double max_string_force = 0.0;
-    double max_strand_force = 0.0;
-    double max_grip_force = 0.0;
-    double max_draw_force = 0.0;
-    std::vector<double> max_stress_pos;
-    std::vector<double> max_stress_val;
+    unsigned max_string_force_index = 0;
+    unsigned max_grip_force_index = 0;
+
+    std::vector<double> max_stress_value;
+    std::vector<std::pair<unsigned, unsigned>> max_stress_index;
 };
 
 static void to_json(json& obj, const DynamicData& val)
@@ -38,10 +37,8 @@ static void to_json(json& obj, const DynamicData& val)
     obj["final_e_kin_string"] =  val.final_e_kin_string;
     obj["final_e_kin_arrow"] =  val.final_e_kin_arrow;
     obj["efficiency"] =  val.efficiency;
-    obj["max_string_force"] = val.max_string_force;
-    obj["max_strand_force"] = val.max_strand_force;
-    obj["max_grip_force"] = val.max_grip_force;
-    obj["max_draw_force"] = val.max_draw_force;
-    obj["max_stress_pos"] = val.max_stress_pos;
-    obj["max_stress_val"] = val.max_stress_val;
+    obj["max_string_force_index"] = val.max_string_force_index;
+    obj["max_grip_force_index"] = val.max_grip_force_index;
+    obj["max_stress_value"] = val.max_stress_value;
+    obj["max_stress_index"] = val.max_stress_index;
 }

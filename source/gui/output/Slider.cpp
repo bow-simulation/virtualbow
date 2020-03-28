@@ -2,8 +2,7 @@
 #include <algorithm>
 
 Slider::Slider(const std::vector<double>& values, const QString& text)
-    : values(values),
-      slider(new QSlider(Qt::Horizontal)),
+    : slider(new QSlider(Qt::Horizontal)),
       menu(new QMenu())
 {
     const int height = 30; // Magic number

@@ -25,15 +25,15 @@ struct OutputData
         };
 
         auto maxAbsForce = [&](const std::vector<double>& vec) {
-            return *std::max_element(vec.begin(), vec.end(), absMaxOrder);
+            return std::max_element(vec.begin(), vec.end(), absMaxOrder) - vec.begin();
         };
 
-        auto maxAbsStress = [&](const BowStates& states, std::vector<double>& max_stress_pos, std::vector<double>& max_stress_val)
+        auto maxAbsStress = [&](const BowStates& states, std::vector<double>& max_stress_value, std::vector<std::pair<unsigned, unsigned>>& max_stress_index)
         {
             for(const LayerProperties& layer: setup.limb_properties.layers)
             {
-                double sigma_max_pos = 0.0;
-                double sigma_max_val = 0.0;
+                double sigma_max = 0.0;
+                std::pair<unsigned, unsigned> index = {0, 0};
 
                 for(int i = 0; i < states.time.size(); ++i)
                 {
@@ -42,20 +42,20 @@ struct OutputData
 
                     for(int j = 0; j < layer.length.size(); ++j)
                     {
-                        if(std::abs(sigma_back[j]) > std::abs(sigma_max_val)) {
-                            sigma_max_val = sigma_back[j];
-                            sigma_max_pos = layer.length[j];
+                        if(std::abs(sigma_back[j]) > std::abs(sigma_max)) {
+                            sigma_max = sigma_back[j];
+                            index = {i, j};
                         }
 
-                        if(std::abs(sigma_belly[j]) > std::abs(sigma_max_val)) {
-                            sigma_max_val = sigma_belly[j];
-                            sigma_max_pos = layer.length[j];
+                        if(std::abs(sigma_belly[j]) > std::abs(sigma_max)) {
+                            sigma_max = sigma_belly[j];
+                            index = {i, j};
                         }
                     }
                 }
 
-                max_stress_pos.push_back(sigma_max_pos);
-                max_stress_val.push_back(sigma_max_val);
+                max_stress_value.push_back(sigma_max);
+                max_stress_index.push_back(index);
             }
         };
 
@@ -75,11 +75,10 @@ struct OutputData
             statics.final_draw_force = draw_force_back;
             statics.drawing_work = e_pot_back - e_pot_front;
             statics.storage_ratio = (e_pot_back - e_pot_front)/(0.5*(draw_length_back - draw_length_front)*draw_force_back);
-            statics.max_string_force = maxAbsForce(static_states.string_force);
-            statics.max_strand_force = maxAbsForce(static_states.strand_force);
-            statics.max_grip_force = maxAbsForce(static_states.grip_force);
-            statics.max_draw_force = maxAbsForce(static_states.draw_force);
-            maxAbsStress(static_states, statics.max_stress_pos, statics.max_stress_val);
+            statics.max_string_force_index = maxAbsForce(static_states.string_force);
+            statics.max_grip_force_index = maxAbsForce(static_states.grip_force);
+            statics.max_draw_force_index = maxAbsForce(static_states.draw_force);
+            maxAbsStress(static_states, statics.max_stress_value, statics.max_stress_index);
         }
 
         // Calculate dynamic numbers
@@ -101,11 +100,9 @@ struct OutputData
             }
 
             dynamics.efficiency = dynamics.final_e_kin_arrow/statics.drawing_work;
-            dynamics.max_string_force = maxAbsForce(dynamic_states.string_force);
-            dynamics.max_strand_force = maxAbsForce(dynamic_states.strand_force);
-            dynamics.max_grip_force = maxAbsForce(dynamic_states.grip_force);
-            dynamics.max_draw_force = maxAbsForce(dynamic_states.draw_force);
-            maxAbsStress(dynamic_states, dynamics.max_stress_pos, dynamics.max_stress_val);
+            dynamics.max_string_force_index = maxAbsForce(dynamic_states.string_force);
+            dynamics.max_grip_force_index = maxAbsForce(dynamic_states.grip_force);
+            maxAbsStress(dynamic_states, dynamics.max_stress_value, dynamics.max_stress_index);
         }
     }
 

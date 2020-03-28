@@ -81,10 +81,6 @@ OutputWidget::OutputWidget(const InputData& input, const OutputData& output)
 
 StaticOutputWidget::StaticOutputWidget(const InputData& input, const OutputData& output)
 {
-    auto vbox = new QVBoxLayout();
-    this->setLayout(vbox);
-    vbox->setMargin(0);
-
     auto numbers = new NumberGrid();
     numbers->addColumn();
     numbers->addGroup("Performance");
@@ -97,13 +93,14 @@ StaticOutputWidget::StaticOutputWidget(const InputData& input, const OutputData&
     numbers->addValue("String length [m]", output.setup.string_length);
     numbers->addColumn();
     numbers->addGroup("Maximum absolute stresses");
-    for(int i = 0; i < output.statics.max_stress_val.size(); ++i) {
-        numbers->addValue(QString::fromStdString(input.layers[i].name + " [Pa]"), output.statics.max_stress_val[i]);
+    for(int i = 0; i < output.statics.max_stress_index.size(); ++i) {
+        numbers->addValue(QString::fromStdString(input.layers[i].name + " [Pa]"), output.statics.max_stress_value[i]);
     }
     numbers->addGroup("Maximum absolute forces");
-    numbers->addValue("String force (total) [N]", output.statics.max_string_force);
-    numbers->addValue("String force (strand) [N]", output.statics.max_strand_force);
-    numbers->addValue("Grip force [N]", output.statics.max_grip_force);
+    numbers->addValue("Draw force [N]", output.statics.states.draw_force[output.statics.max_draw_force_index]);
+    numbers->addValue("Grip force [N]", output.statics.states.grip_force[output.statics.max_grip_force_index]);
+    numbers->addValue("String force (total) [N]", output.statics.states.string_force[output.statics.max_string_force_index]);
+    numbers->addValue("String force (strand) [N]", output.statics.states.strand_force[output.statics.max_string_force_index]);
 
     auto plot_shapes = new ShapePlot(output.setup.limb_properties, output.statics.states, true);
     auto plot_stress = new StressPlot(input, output.setup.limb_properties, output.statics.states);
@@ -120,7 +117,6 @@ StaticOutputWidget::StaticOutputWidget(const InputData& input, const OutputData&
     plot_combo->setCombination(0, 1);
 
     auto tabs = new QTabWidget();
-    vbox->addWidget(tabs);
     tabs->addTab(numbers, "Characteristics");
     tabs->addTab(plot_shapes, "Shape");
     tabs->addTab(plot_stress, "Stress");
@@ -129,22 +125,28 @@ StaticOutputWidget::StaticOutputWidget(const InputData& input, const OutputData&
     tabs->addTab(plot_combo, "Other Plots");
 
     auto slider = new Slider(output.statics.states.draw_length, "Draw length [m]");
-    slider->addJumpAction("Max. limb stress", 0);
-    slider->addJumpAction("Max. string force", 0);
+    for (int i = 0; i < output.statics.max_stress_index.size(); ++i) {
+        slider->addJumpAction(QString::fromStdString("Maximum stress for layer " + input.layers[i].name), output.statics.max_stress_index[i].first);
+    }
+    slider->addJumpAction("Maximum draw force", output.statics.max_draw_force_index);
+    slider->addJumpAction("Maximum grip force", output.statics.max_grip_force_index);
+    slider->addJumpAction("Maximum string force", output.statics.max_string_force_index);
+
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_curvature, &CurvaturePlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_energy, &EnergyPlot::setStateIndex);
     emit slider->valueChanged(0);
+
+    auto vbox = new QVBoxLayout();
+    this->setLayout(vbox);
+    vbox->setMargin(0);
+    vbox->addWidget(tabs);
     vbox->addWidget(slider);
 }
 
 DynamicOutputWidget::DynamicOutputWidget(const InputData& input, const OutputData& output)
 {
-    auto vbox = new QVBoxLayout();
-    this->setLayout(vbox);
-    vbox->setMargin(0);
-
     auto numbers = new NumberGrid();
     numbers->addColumn();
     numbers->addGroup("Performance");
@@ -156,13 +158,13 @@ DynamicOutputWidget::DynamicOutputWidget(const InputData& input, const OutputDat
     numbers->addValue("Kinetic energy string [J]", output.dynamics.final_e_kin_string);
     numbers->addColumn();
     numbers->addGroup("Maximum absolute stresses");
-    for (int i = 0; i < output.statics.max_stress_val.size(); ++i) {
-        numbers->addValue(QString::fromStdString(input.layers[i].name + " [Pa]"), output.dynamics.max_stress_val[i]);
+    for (int i = 0; i < output.dynamics.max_stress_value.size(); ++i) {
+        numbers->addValue(QString::fromStdString(input.layers[i].name + " [Pa]"), output.dynamics.max_stress_value[i]);
     }
     numbers->addGroup("Maximum absolute forces");
-    numbers->addValue("String force (total) [N]", output.dynamics.max_string_force);
-    numbers->addValue("String force (strand) [N]", output.dynamics.max_strand_force);
-    numbers->addValue("Grip force [N]", output.dynamics.max_grip_force);
+    numbers->addValue("String force (total) [N]", output.dynamics.states.string_force[output.dynamics.max_string_force_index]);
+    numbers->addValue("String force (strand) [N]", output.dynamics.states.strand_force[output.dynamics.max_string_force_index]);
+    numbers->addValue("Grip force [N]", output.dynamics.states.grip_force[output.dynamics.max_grip_force_index]);
 
     auto plot_shapes = new ShapePlot(output.setup.limb_properties, output.dynamics.states, false);
     auto plot_stress = new StressPlot(input, output.setup.limb_properties, output.dynamics.states);
@@ -184,7 +186,6 @@ DynamicOutputWidget::DynamicOutputWidget(const InputData& input, const OutputDat
     plot_combo->setCombination(0, 1);
 
     auto tabs = new QTabWidget();
-    vbox->addWidget(tabs);
     tabs->addTab(numbers, "Characteristics");
     tabs->addTab(plot_shapes, "Shape");
     tabs->addTab(plot_stress, "Stress");
@@ -193,10 +194,21 @@ DynamicOutputWidget::DynamicOutputWidget(const InputData& input, const OutputDat
     tabs->addTab(plot_combo, "Other Plots");
 
     auto slider = new Slider(output.dynamics.states.time, "Time [s]");
+    for (int i = 0; i < output.dynamics.max_stress_index.size(); ++i) {
+        slider->addJumpAction(QString::fromStdString("Maximum stress for layer " + input.layers[i].name), output.dynamics.max_stress_index[i].first);
+    }
+    slider->addJumpAction("Maximum grip force", output.dynamics.max_grip_force_index);
+    slider->addJumpAction("Maximum string force", output.dynamics.max_string_force_index);
+
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_curvature, &CurvaturePlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_energy, &EnergyPlot::setStateIndex);
     emit slider->valueChanged(0);
+
+    auto vbox = new QVBoxLayout();
+    this->setLayout(vbox);
+    vbox->setMargin(0);
+    vbox->addWidget(tabs);
     vbox->addWidget(slider);
 }
