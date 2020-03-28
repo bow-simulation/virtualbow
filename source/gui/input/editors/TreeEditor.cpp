@@ -12,15 +12,15 @@
 
 TreeEditor::TreeEditor()
 {
-    new TreeItem<CommentDialog, std::string>(this, data.meta.comments, "Comments", QIcon(":/icons/model-tree/comments"));
-    new TreeItem<SettingsDialog, Settings>(this, data.settings, "Settings", QIcon(":/icons/model-tree/settings"));
-    new TreeItem<ProfileDialog, Series>(this, data.profile, "Profile", QIcon(":/icons/model-tree/profile"));
-    new TreeItem<WidthDialog, Series>(this, data.width, "Width", QIcon(":/icons/model-tree/width"));
-    new TreeItem<LayerDialog, Layers>(this, data.layers, "Layers", QIcon(":/icons/model-tree/layers"));
-    new TreeItem<StringDialog, String>(this, data.string, "String", QIcon(":/icons/model-tree/string"));
-    new TreeItem<MassesDialog, Masses>(this, data.masses, "Masses", QIcon(":/icons/model-tree/masses"));
-    new TreeItem<DampingDialog, Damping>(this, data.damping, "Damping", QIcon(":/icons/model-tree/damping"));
-    new TreeItem<DimensionsDialog, Dimensions>(this, data.dimensions, "Dimensions", QIcon(":/icons/model-tree/dimensions"));
+    new TreeItem<CommentDialog, std::string>(this, data.meta.comments, "Comments", QIcon(":/icons/comments"));
+    new TreeItem<SettingsDialog, Settings>(this, data.settings, "Settings", QIcon(":/icons/settings"));
+    new TreeItem<ProfileDialog, Series>(this, data.profile, "Profile", QIcon(":/icons/profile"));
+    new TreeItem<WidthDialog, Series>(this, data.width, "Width", QIcon(":/icons/width"));
+    new TreeItem<LayerDialog, Layers>(this, data.layers, "Layers", QIcon(":/icons/layers"));
+    new TreeItem<StringDialog, String>(this, data.string, "String", QIcon(":/icons/string"));
+    new TreeItem<MassesDialog, Masses>(this, data.masses, "Masses", QIcon(":/icons/masses"));
+    new TreeItem<DampingDialog, Damping>(this, data.damping, "Damping", QIcon(":/icons/damping"));
+    new TreeItem<DimensionsDialog, Dimensions>(this, data.dimensions, "Dimensions", QIcon(":/icons/dimensions"));
 
     QObject::connect(this, &QTreeWidget::itemActivated, [](QTreeWidgetItem* item, int column)
     {

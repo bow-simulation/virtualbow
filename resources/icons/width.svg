@@ -10,16 +10,16 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="135mm"
-   height="135mm"
-   viewBox="0 0 135 135"
+   width="129.02536mm"
+   height="129.02536mm"
+   viewBox="0 0 129.02536 129.02536"
    version="1.1"
    id="svg8"
-   sodipodi:docname="profile.svg"
+   sodipodi:docname="width.svg"
    inkscape:version="0.92.1 r15371"
-   inkscape:export-filename="/home/s/Desktop/Repositories/bow-simulator-develop/resources/icons/model-tree/profile.png"
-   inkscape:export-xdpi="9.0311117"
-   inkscape:export-ydpi="9.0311117">
+   inkscape:export-filename="/home/s/Desktop/Repositories/bow-simulator-develop/resources/icons/width.png"
+   inkscape:export-xdpi="9.4493055"
+   inkscape:export-ydpi="9.4493055">
   <defs
      id="defs2">
     <linearGradient
@@ -38,11 +38,12 @@
        inkscape:collect="always"
        xlink:href="#linearGradient4488"
        id="linearGradient4490"
-       x1="45.021176"
-       y1="-26.9204"
-       x2="178.98772"
-       y2="-26.9204"
-       gradientUnits="userSpaceOnUse" />
+       x1="49.00499"
+       y1="-30.049171"
+       x2="178.03035"
+       y2="-30.049171"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,-29.633346)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -51,9 +52,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.843447"
-     inkscape:cx="91.425315"
-     inkscape:cy="266.34559"
+     inkscape:zoom="1.3035139"
+     inkscape:cx="-2.7914309"
+     inkscape:cy="252.6679"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -69,8 +70,8 @@
     <inkscape:grid
        type="xygrid"
        id="grid840"
-       originx="-7.9140739"
-       originy="-89.208333" />
+       originx="-12.557969"
+       originy="-125.70255" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -88,12 +89,12 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-44.361094,94.184583)">
+     transform="translate(-49.00499,124.70417)">
     <path
-       style="fill:url(#linearGradient4490);fill-opacity:1;stroke:#000002;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 45.442852,-12.851255 64.822908,10.5833344 c 50.27083,7.9375 64.82292,-21.1666684 66.60848,-47.9129944 l -12.3689,-2.35784 c -5.29166,34.395833 -25.13541,38.364583 -51.59375,33.072916 L 45.442852,-34.017922"
-       id="path878"
+       style="fill:url(#linearGradient4490);fill-opacity:1;stroke:#000000;stroke-width:8;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 49.676187,-29.255433 174.03035,-50.422106 V -68.942939 L 49.676187,-90.109606"
+       id="path918"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccccc" />
+       sodipodi:nodetypes="cccc" />
   </g>
 </svg>
