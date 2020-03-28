@@ -7,6 +7,15 @@ class Slider: public QWidget
 
 public:
     Slider(const std::vector<double>& values, const QString& text);
+    void addJumpAction(const QString& name, int index);
+
+private:
+    static const int playback_max_fps = 45;
+    static const int playback_time = 5000;
+
+    std::vector<double> values;
+    QSlider* slider;
+    QMenu* menu;
 
 signals:
     void valueChanged(int index);

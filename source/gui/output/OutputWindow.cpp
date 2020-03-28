@@ -129,6 +129,8 @@ StaticOutputWidget::StaticOutputWidget(const InputData& input, const OutputData&
     tabs->addTab(plot_combo, "Other Plots");
 
     auto slider = new Slider(output.statics.states.draw_length, "Draw length [m]");
+    slider->addJumpAction("Max. limb stress", 0);
+    slider->addJumpAction("Max. string force", 0);
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_curvature, &CurvaturePlot::setStateIndex);
