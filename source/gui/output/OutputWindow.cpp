@@ -128,7 +128,7 @@ StaticOutputWidget::StaticOutputWidget(const InputData& input, const OutputData&
     tabs->addTab(plot_energy, "Energy");
     tabs->addTab(plot_combo, "Other Plots");
 
-    auto slider = new Slider(output.statics.states.draw_length, "Draw length [m]:");
+    auto slider = new Slider(output.statics.states.draw_length, "Draw length [m]");
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_curvature, &CurvaturePlot::setStateIndex);
@@ -190,7 +190,7 @@ DynamicOutputWidget::DynamicOutputWidget(const InputData& input, const OutputDat
     tabs->addTab(plot_energy, "Energy");
     tabs->addTab(plot_combo, "Other Plots");
 
-    auto slider = new Slider(output.dynamics.states.time, "Time [s]:");
+    auto slider = new Slider(output.dynamics.states.time, "Time [s]");
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_curvature, &CurvaturePlot::setStateIndex);

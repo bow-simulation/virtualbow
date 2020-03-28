@@ -30,5 +30,10 @@
         <file>icons/model-tree/masses.png</file>
         <file>icons/model-tree/damping.png</file>
         <file>icons/model-tree/dimensions.png</file>
+        <file>icons/media/media-playback-pause.png</file>
+        <file>icons/media/media-playback-start.png</file>
+        <file>icons/media/media-skip-backward.png</file>
+        <file>icons/media/media-skip-forward.png</file>
+        <file>icons/media/media-jump-to.png</file>
     </qresource>
 </RCC>

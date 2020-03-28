@@ -1,45 +1,56 @@
 #include "Slider.hpp"
 
-ToolButton::ToolButton(QWidget* parent): QToolButton(parent)
-{
-
-}
-
-void ToolButton::paintEvent(QPaintEvent*)
-{
-    QStylePainter p(this);
-    QStyleOptionToolButton opt;
-    initStyleOption(&opt);
-    opt.features &= (~ QStyleOptionToolButton::HasMenu);
-    p.drawComplexControl(QStyle::CC_ToolButton, opt);
-}
-
 Slider::Slider(const std::vector<double>& values, const QString& text)
 {
-    auto hbox = new QHBoxLayout();
-    this->setLayout(hbox);
-    hbox->addWidget(new QLabel(text));
+    const int HEIGHT = 30;
 
     auto edit = new QLineEdit();
+    edit->setFixedHeight(HEIGHT);
     auto validator = new QDoubleValidator(values.front(), values.back(), 10); // Todo: Magic number
     edit->setValidator(validator);
-    hbox->addWidget(edit);
+    //edit->addAction(action_about, QLineEdit::TrailingPosition);
 
-    auto menu = new QMenu();
-    menu->addAction("Max. Tension");
-    menu->addAction("Max. Compression");
-    menu->addAction("Max. String force");
+    auto jump_menu = new QMenu();
+    jump_menu->addAction("Max. Tension");
+    jump_menu->addAction("Max. Compression");
+    jump_menu->addAction("Max. String force");
 
-    auto button = new ToolButton();
-    button->setEnabled(false);      // Todo
-    button->setMenu(menu);
-    button->setArrowType(Qt::DownArrow);
-    button->setPopupMode(QToolButton::InstantPopup);
-    hbox->addWidget(button);
-    hbox->addSpacing(15);   // Todo: Magic number
+    auto button_jump_to = new QToolButton();
+    button_jump_to->setIcon(QIcon(":/icons/media/media-jump-to.png"));
+    button_jump_to->setFixedSize(HEIGHT, HEIGHT);
+    button_jump_to->setStyleSheet("QToolButton::menu-indicator { image: none; }");
+    button_jump_to->setMenu(jump_menu);
+    button_jump_to->setPopupMode(QToolButton::InstantPopup);
+
+    auto button_skip_backward = new QToolButton();
+    button_skip_backward->setIcon(QIcon(":/icons/media/media-skip-backward.png"));
+    button_skip_backward->setFixedSize(HEIGHT, HEIGHT);
+
+    auto button_play_pause = new QToolButton();
+    button_play_pause->setIcon(QIcon(":/icons/media/media-playback-start.png"));
+    button_play_pause->setFixedSize(HEIGHT, HEIGHT);
+
+    auto button_skip_forward = new QToolButton();
+    button_skip_forward->setIcon(QIcon(":/icons/media/media-skip-forward.png"));
+    button_skip_forward->setFixedSize(HEIGHT, HEIGHT);
 
     auto slider = new QSlider(Qt::Horizontal);
     slider->setRange(0, values.size()-1);
+
+    auto hbox = new QHBoxLayout();
+    this->setLayout(hbox);
+    hbox->setSpacing(0);
+    hbox->addWidget(new QLabel(text));
+    hbox->addSpacing(5);
+    hbox->addWidget(edit);
+    hbox->addWidget(button_jump_to);
+    hbox->addSpacing(10);
+    hbox->addWidget(button_skip_backward);
+    hbox->addSpacing(2);
+    hbox->addWidget(button_play_pause);
+    hbox->addSpacing(2);
+    hbox->addWidget(button_skip_forward);
+    hbox->addSpacing(10);
     hbox->addWidget(slider, 1);
 
     QObject::connect(slider, &QSlider::valueChanged, [=](int index)
