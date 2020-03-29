@@ -21,6 +21,7 @@ struct DynamicData
 
     unsigned max_string_force_index = 0;
     unsigned max_grip_force_index = 0;
+    unsigned arrow_departure_index = 0;
 
     std::vector<double> max_stress_value;
     std::vector<std::pair<unsigned, unsigned>> max_stress_index;

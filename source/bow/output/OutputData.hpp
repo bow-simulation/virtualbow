@@ -96,6 +96,8 @@ struct OutputData
                     dynamics.final_e_pot_string = dynamic_states.e_pot_string[i];
                     dynamics.final_e_kin_string = dynamic_states.e_kin_string[i];
                     dynamics.final_e_kin_arrow = dynamic_states.e_kin_arrow[i];
+                    dynamics.arrow_departure_index = i;
+                    break;
                 }
             }
 
