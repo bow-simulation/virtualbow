@@ -125,12 +125,12 @@ StaticOutputWidget::StaticOutputWidget(const InputData& input, const OutputData&
     tabs->addTab(plot_combo, "Other Plots");
 
     auto slider = new Slider(output.statics.states.draw_length, "Draw length [m]");
+    slider->addJumpAction("Max. draw force", output.statics.max_draw_force_index);
+    slider->addJumpAction("Max. grip force", output.statics.max_grip_force_index);
+    slider->addJumpAction("Max. string force", output.statics.max_string_force_index);
     for (int i = 0; i < output.statics.max_stress_index.size(); ++i) {
-        slider->addJumpAction(QString::fromStdString("Maximum stress for layer " + input.layers[i].name), output.statics.max_stress_index[i].first);
+        slider->addJumpAction(QString::fromStdString("Max. stress for " + input.layers[i].name), output.statics.max_stress_index[i].first);
     }
-    slider->addJumpAction("Maximum draw force", output.statics.max_draw_force_index);
-    slider->addJumpAction("Maximum grip force", output.statics.max_grip_force_index);
-    slider->addJumpAction("Maximum string force", output.statics.max_string_force_index);
 
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
@@ -152,7 +152,7 @@ DynamicOutputWidget::DynamicOutputWidget(const InputData& input, const OutputDat
     numbers->addGroup("Performance");
     numbers->addValue("Final arrow velocity [m/s]", output.dynamics.final_vel_arrow);
     numbers->addValue("Efficiency", output.dynamics.efficiency);
-    numbers->addGroup("Energy at departure");
+    numbers->addGroup("Energy at arrow departure");
     numbers->addValue("Kinetic energy arrow [J]", output.dynamics.final_e_kin_arrow);
     numbers->addValue("Kinetic energy limbs [J]", output.dynamics.final_e_kin_limbs);
     numbers->addValue("Kinetic energy string [J]", output.dynamics.final_e_kin_string);
@@ -194,11 +194,12 @@ DynamicOutputWidget::DynamicOutputWidget(const InputData& input, const OutputDat
     tabs->addTab(plot_combo, "Other Plots");
 
     auto slider = new Slider(output.dynamics.states.time, "Time [s]");
+    slider->addJumpAction("Arrow departure", output.dynamics.arrow_departure_index);
+    slider->addJumpAction("Max. grip force", output.dynamics.max_grip_force_index);
+    slider->addJumpAction("Max. string force", output.dynamics.max_string_force_index);
     for (int i = 0; i < output.dynamics.max_stress_index.size(); ++i) {
-        slider->addJumpAction(QString::fromStdString("Maximum stress for layer " + input.layers[i].name), output.dynamics.max_stress_index[i].first);
+        slider->addJumpAction(QString::fromStdString("Max. stress for " + input.layers[i].name), output.dynamics.max_stress_index[i].first);
     }
-    slider->addJumpAction("Maximum grip force", output.dynamics.max_grip_force_index);
-    slider->addJumpAction("Maximum string force", output.dynamics.max_string_force_index);
 
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
     QObject::connect(slider, &Slider::valueChanged, plot_stress, &StressPlot::setStateIndex);
