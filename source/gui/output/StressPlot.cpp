@@ -12,7 +12,7 @@ StressPlot::StressPlot(const InputData& input, const LimbProperties& limb, const
     for(int i = 0; i < input.layers.size(); ++i)
     {
         QString name = QString::fromStdString(input.layers[i].name);
-        QColor color = getLayerColor(input.layers[i]);
+        QColor color = (input.layers.size() > 1) ? getLayerColor(input.layers[i]) : QColor(Qt::blue);
 
         this->addGraph();
         this->graph(2*i)->setName(name + " (back)");
