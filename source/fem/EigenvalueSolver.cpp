@@ -1,6 +1,6 @@
 #include "EigenvalueSolver.hpp"
 #include <algorithm>
-#include <boost/optional.hpp>
+#include <optional>
 
 ModeInfo::ModeInfo(std::complex<double> lambda)
 {
@@ -36,7 +36,7 @@ auto EigenvalueSolver::compute_eigenvalues()
 // Todo: Implement with filter + minimum
 ModeInfo EigenvalueSolver::compute_minimum_frequency()
 {
-    boost::optional<ModeInfo> result = boost::none;
+    std::optional<ModeInfo> result = std::nullopt;
     auto eigenvalues = compute_eigenvalues();
     for(int i = 0; i < eigenvalues.size(); ++i)
     {
@@ -59,7 +59,7 @@ ModeInfo EigenvalueSolver::compute_minimum_frequency()
 // Todo: Implement with filter + maximum
 ModeInfo EigenvalueSolver::compute_maximum_frequency()
 {
-    boost::optional<ModeInfo> result = boost::none;
+    std::optional<ModeInfo> result = std::nullopt;
     auto eigenvalues = compute_eigenvalues();
     for(int i = 0; i < eigenvalues.size(); ++i)
     {
