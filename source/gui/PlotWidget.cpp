@@ -15,8 +15,6 @@ PlotWidget::PlotWidget(const QSize& size_hint)
     ticker->setTickStepStrategy(QCPAxisTicker::tssMeetTickCount);
     ticker->setTickCount(6);
 
-    qInfo() << "Tick count: " << ticker->tickCount();
-
     this->xAxis->setTicker(ticker);
     this->yAxis->setTicker(ticker);
 

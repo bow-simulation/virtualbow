@@ -1,15 +1,15 @@
 #include "PersistentDialog.hpp"
-#include "Application.hpp"
+#include "Settings.hpp"
 
 PersistentDialog::PersistentDialog(QWidget* parent, const QString& name, const QSize& size)
     : BaseDialog(parent), name(name)
 {
     // Load size
-    resize(Application::settings.value(name + "/size", size).toSize());
+    resize(SETTINGS.value(name + "/size", size).toSize());
 }
 
 PersistentDialog::~PersistentDialog()
 {
     // Save size
-    Application::settings.setValue(name + "/size", size());
+    SETTINGS.setValue(name + "/size", size());
 }

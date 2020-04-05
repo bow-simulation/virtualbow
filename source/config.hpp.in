@@ -2,8 +2,10 @@
 
 namespace Config
 {
-    static const char* APPLICATION_NAME = "@APPLICATION_NAME@";
-    static const char* APPLICATION_DISPLAY_NAME = "@APPLICATION_DISPLAY_NAME@";
+    static const char* APPLICATION_NAME_GUI = "VirtualBow";
+    static const char* APPLICATION_NAME_SLV = "VirtualBow Solver";
+    static const char* APPLICATION_NAME_POST = "VirtualBow Post";
+
     static const char* APPLICATION_VERSION = "@APPLICATION_VERSION@";
     static const char* APPLICATION_WEBSITE = "@APPLICATION_WEBSITE@";
     static const char* APPLICATION_COPYRIGHT = "@APPLICATION_COPYRIGHT@";
