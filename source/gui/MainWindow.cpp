@@ -1,11 +1,8 @@
 #include "MainWindow.hpp"
-#include "Application.hpp"
-#include "ProgressDialog.hpp"
-#include "input/editors/BowEditor.hpp"
-#include "output/OutputWindow.hpp"
-#include "bow/BowModel.hpp"
+#include "Settings.hpp"
+#include "SimulationDialog.hpp"
+#include "editors/BowEditor.hpp"
 #include "config.hpp"
-#include <thread>
 #include <nlohmann/json.hpp>
 
 MainWindow::MainWindow()
@@ -40,12 +37,12 @@ MainWindow::MainWindow()
     auto action_run_statics = new QAction(QIcon(":/icons/run-statics"), "Statics...", this);
     action_run_statics->setShortcut(Qt::Key_F5);
     action_run_statics->setMenuRole(QAction::NoRole);
-    QObject::connect(action_run_statics, &QAction::triggered, [&]{ runSimulation(false); });    // Todo: Use std::bind
+    QObject::connect(action_run_statics, &QAction::triggered, [&]{ runSimulation("--static"); });    // Todo: Use std::bind
 
     auto action_run_dynamics = new QAction(QIcon(":/icons/run-dynamics"), "Dynamics...", this);
     action_run_dynamics->setShortcut(Qt::Key_F6);
     action_run_dynamics->setMenuRole(QAction::NoRole);
-    QObject::connect(action_run_dynamics, &QAction::triggered, [&]{ runSimulation(true); });    // Todo: Use std::bind
+    QObject::connect(action_run_dynamics, &QAction::triggered, [&]{ runSimulation("--dynamic"); });    // Todo: Use std::bind
 
     auto action_about = new QAction(QIcon::fromTheme("dialog-information", QIcon(":/icons/dialog-information.png")), "&About...", this);
     connect(action_about, &QAction::triggered, this, &MainWindow::about);
@@ -58,8 +55,7 @@ MainWindow::MainWindow()
     auto menu_recentfiles = menu_file->addMenu("&Recent Files");
     menu_recentfiles->setObjectName("menu_recentfiles");
     menu_recentfiles->setToolTipsVisible(true);
-    int maxFileNr = 10;
-    for(auto i = 0; i < maxFileNr; ++i) {
+    for(int i = 0; i < N_RECENT_FILES; ++i) {
         QAction* action_recentfile = new QAction(this);
         action_recentfile->setVisible(false);
         QObject::connect(action_recentfile, &QAction::triggered, this, &MainWindow::openRecent);
@@ -100,8 +96,8 @@ MainWindow::MainWindow()
     setCurrentFile(QString());
 
     // Load geometry and state
-    restoreState(Application::settings.value("MainWindow/state").toByteArray());
-    restoreGeometry(Application::settings.value("MainWindow/geometry").toByteArray());
+    restoreState(SETTINGS.value("MainWindow/state").toByteArray());
+    restoreGeometry(SETTINGS.value("MainWindow/geometry").toByteArray());
 
     // Set Window's modification indicator when data has changed
     QObject::connect(editor, &BowEditor::modified, [&]{
@@ -117,12 +113,21 @@ MainWindow::MainWindow()
     newFile();
 }
 
-MainWindow::~MainWindow()
+void MainWindow::closeEvent(QCloseEvent *event)
 {
-    // Save state and geometry
-    Application::settings.setValue("MainWindow/state", saveState());
-    Application::settings.setValue("MainWindow/geometry", saveGeometry());
-    saveRecentFilePaths();
+    if(optionalSave())
+    {
+        event->accept();
+
+        // Save state and geometry
+        SETTINGS.setValue("MainWindow/state", saveState());
+        SETTINGS.setValue("MainWindow/geometry", saveGeometry());
+        saveRecentFilePaths();
+    }
+    else
+    {
+        event->ignore();
+    }
 }
 
 // Todo: Unify loadFile and saveFile?
@@ -130,7 +135,7 @@ bool MainWindow::loadFile(const QString& path)
 {
     try
     {
-        data.load(path.toStdString());
+        data = InputData(path.toStdString());
         editor->setData(data);
         setCurrentFile(path);
         setModified(false);
@@ -158,18 +163,6 @@ bool MainWindow::saveFile(const QString& path)
     {
         QMessageBox::critical(this, "", "Failed to save " + path + "\n" + e.what());  // Todo: Detailed error message
         return false;
-    }
-}
-
-void MainWindow::closeEvent(QCloseEvent *event)
-{
-    if(optionalSave())
-    {
-        event->accept();
-    }
-    else
-    {
-        event->ignore();
     }
 }
 
@@ -211,10 +204,10 @@ void MainWindow::openRecent(){
 
 bool MainWindow::save()
 {
-    if(current_file.isEmpty())
+    if(currentFile.isEmpty())
         return saveAs();
 
-    return saveFile(current_file);
+    return saveFile(currentFile);
 }
 
 bool MainWindow::saveAs()
@@ -223,6 +216,7 @@ bool MainWindow::saveAs()
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setNameFilter("Bow Files (*.bow)");
     dialog.setDefaultSuffix("bow");
+    dialog.selectFile(currentFile.isEmpty() ? DEFAULT_FILENAME : currentFile);
 
     if(dialog.exec() == QDialog::Accepted)
         return saveFile(dialog.selectedFiles().first());
@@ -230,71 +224,43 @@ bool MainWindow::saveAs()
     return false;
 }
 
-void MainWindow::runSimulation(bool dynamic)
+void MainWindow::runSimulation(const QString& flag)
 {
-    ProgressDialog dialog(this);
-    dialog.addProgressBar("Statics");
-    if(dynamic)
+    // Make sure the current data is saved to a file
+    if(currentFile.isEmpty())
     {
-        dialog.addProgressBar("Dynamics");
+        int pick = QMessageBox::warning(this, "", "The document needs to be saved before running a simulation.\nDo you want to save now?",
+                                        QMessageBox::Yes | QMessageBox::Cancel);
+        if(pick != QMessageBox::Yes)
+            return;
+
+        if(!saveAs())
+            return;
+    }
+    else
+    {
+        save();
     }
 
-    const InputData& input = editor->getData();
-    OutputData output;
+    // Generate output filename
+    QFileInfo info(currentFile);
+    QString output_file = info.absolutePath() + QDir::separator() + info.completeBaseName() + ".vbr";
 
-    std::exception_ptr exception = nullptr;
-    std::thread thread([&]
+    // Run Simulation, launch Post on results if successful
+    SimulationDialog dialog(this, currentFile, output_file, flag);
+    if(dialog.exec() == QDialog::Accepted)
     {
-        auto progress0 = [&](int p){
-            QMetaObject::invokeMethod(&dialog, "setProgress", Qt::QueuedConnection, Q_ARG(int, 0), Q_ARG(int, p));
-            return !dialog.isCanceled();
-        };
-
-        auto progress1 = [&](int p){
-            QMetaObject::invokeMethod(&dialog, "setProgress", Qt::QueuedConnection, Q_ARG(int, 1), Q_ARG(int, p));
-            return !dialog.isCanceled();
-        };
-
-        try
-        {
-            output = dynamic ? BowModel::run_dynamic_simulation(input, progress0, progress1)
-                             : BowModel::run_static_simulation(input, progress0);
-
-            QMetaObject::invokeMethod(&dialog, "accept", Qt::QueuedConnection);
-        }
-        catch(...)
-        {
-            exception = std::current_exception();
-            QMetaObject::invokeMethod(&dialog, "reject", Qt::QueuedConnection);
-        }
-    });
-
-    try
-    {
-        dialog.exec();
-        thread.join();
-
-        if(exception)
-        {
-            std::rethrow_exception(exception);
-        }
-    }
-    catch(const std::exception& e)
-    {
-        QMessageBox::critical(this, "Error", e.what());
-    }
-
-    if(!dialog.isCanceled())
-    {
-        auto results = new OutputWindow(this, input, output);
-        results->show();
+        QProcess *process = new QProcess(this);
+        process->setProgram("./virtualbow-post");
+        process->setArguments({ output_file });
+        process->startDetached();
     }
 }
 
 void MainWindow::about()
 {
     QMessageBox::about(this, "About", QString()
-        + "<strong><font size=\"6\">" + Config::APPLICATION_DISPLAY_NAME + "</font></strong><br>"
+        + "<strong><font size=\"6\">" + Config::APPLICATION_NAME_GUI + "</font></strong><br>"
         + "Version " + Config::APPLICATION_VERSION + "<br><br>"
         + Config::APPLICATION_DESCRIPTION + "<br>"
         + "<a href=\"" + Config::APPLICATION_WEBSITE + "\">" + Config::APPLICATION_WEBSITE + "</a><br><br>"
@@ -303,18 +269,20 @@ void MainWindow::about()
     );
 }
 
+// Workaround to prevent QApplication::applicationDisplayName from being appended to every dialog
+// https://bugreports.qt.io/browse/QTBUG-70382
 void MainWindow::setModified(bool modified)
 {
-    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME);
+    QApplication::setApplicationDisplayName(Config::APPLICATION_NAME_GUI);
     setWindowModified(modified);
     QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
 }
 
 void MainWindow::setCurrentFile(const QString &path)
 {
-    current_file = path;
-    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME);
-    setWindowFilePath(current_file.isEmpty() ? "untitled.bow" : current_file);
+    currentFile = path;
+    QApplication::setApplicationDisplayName(Config::APPLICATION_NAME_GUI);
+    setWindowFilePath(currentFile.isEmpty() ? DEFAULT_FILENAME : currentFile);
     if(!path.isEmpty())
     {
         updateRecentFilePaths(path);
@@ -323,7 +291,8 @@ void MainWindow::setCurrentFile(const QString &path)
     QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
 }
 
-bool MainWindow::optionalSave()    // true: Discard and save, false: Cancel and don't save
+// true: Discard and save, false: Cancel and don't save
+bool MainWindow::optionalSave()
 {
     if(!this->isWindowModified())
         return true;
@@ -342,12 +311,12 @@ bool MainWindow::optionalSave()    // true: Discard and save, false: Cancel and 
 void MainWindow::readRecentFilePaths()
 {
     recentFilePaths.clear();
-    int numfiles = Application::settings.beginReadArray("MainWindow/recentFiles");
+    int numfiles = SETTINGS.beginReadArray("MainWindow/recentFiles");
     for(int i = 0; i < numfiles; i++) {
-        Application::settings.setArrayIndex(i);
-        recentFilePaths.append(Application::settings.value("path").toString());
+        SETTINGS.setArrayIndex(i);
+        recentFilePaths.append(SETTINGS.value("path").toString());
     }
-    Application::settings.endArray();
+    SETTINGS.endArray();
 }
 
 void MainWindow::updateRecentFilePaths(const QString& path)
@@ -360,12 +329,12 @@ void MainWindow::updateRecentFilePaths(const QString& path)
 
 void MainWindow::saveRecentFilePaths()
 {
-    Application::settings.beginWriteArray("MainWindow/recentFiles");
+    SETTINGS.beginWriteArray("MainWindow/recentFiles");
     for(int i = 0; i < recentFilePaths.size(); i++) {
-        Application::settings.setArrayIndex(i);
-        Application::settings.setValue("path", recentFilePaths.at(i));
+        SETTINGS.setArrayIndex(i);
+        SETTINGS.setValue("path", recentFilePaths.at(i));
     }
-    Application::settings.endArray();
+    SETTINGS.endArray();
 }
 
 void MainWindow::updateRecentActionList()

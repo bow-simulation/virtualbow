@@ -5,8 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Parameters
 
-set(APPLICATION_NAME "virtualbow")
-set(APPLICATION_DISPLAY_NAME "VirtualBow")
+set(APPLICATION_NAME "VirtualBow")
 set(APPLICATION_VERSION "0.7")
 set(APPLICATION_WEBSITE "https://www.virtualbow.org")
 set(APPLICATION_MAINTAINER "Stefan Pfeifer")
@@ -29,37 +28,17 @@ include_directories(${Boost_INCLUDE_DIRS})
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-# Target: Main library
-
 configure_file(source/config.hpp.in ${CMAKE_BINARY_DIR}/config.hpp)
 include_directories(source ${PROJECT_BINARY_DIR})
 
-add_library(
-    main-library
-    source/fem/elements/BarElement.cpp
-    source/fem/elements/BeamElement.cpp
-    source/fem/elements/MassElement.cpp
-    source/fem/elements/ContactElement.cpp
-    source/fem/elements/ContactHandler.cpp
-    source/fem/elements/ConstraintElement.cpp
-    source/fem/Node.cpp
-    source/fem/Element.cpp
-    source/fem/StaticSolver.cpp
-    source/fem/DynamicSolver.cpp
-    source/fem/EigenvalueSolver.cpp
-    source/fem/System.cpp
-    source/bow/BeamUtils.cpp
-    source/bow/ContinuousLimb.cpp
-    source/bow/LimbProperties.cpp
-    source/bow/ProfileCurve.cpp
-    source/bow/input/InputData.cpp
-    source/bow/output/OutputData.cpp
-    source/bow/BowModel.cpp
-    source/numerics/CubicSpline.cpp
-    source/numerics/Fresnel.cpp
-    source/numerics/Series.cpp
-    source/gui/Application.cpp
-    source/gui/Application.hpp
+# Target: Gui executable
+
+add_executable(
+    virtualbow-gui MACOSX_BUNDLE
+    resources/resources.qrc
+    source/gui/main.cpp
+    source/gui/Settings.cpp
+    source/gui/Settings.hpp
     source/gui/MainWindow.cpp
     source/gui/MainWindow.hpp
     source/gui/BaseDialog.cpp
@@ -68,78 +47,71 @@ add_library(
     source/gui/PersistentDialog.hpp
     source/gui/PlotWidget.cpp
     source/gui/PlotWidget.hpp
-    source/gui/ProgressDialog.cpp
-    source/gui/ProgressDialog.hpp
+    source/gui/SimulationDialog.cpp
+    source/gui/SimulationDialog.hpp
     source/gui/EditableTabBar.cpp
     source/gui/EditableTabBar.hpp
-    source/gui/input/dialogs/CommentDialog.cpp
-    source/gui/input/dialogs/CommentDialog.hpp
-    source/gui/input/dialogs/GroupDialog.cpp
-    source/gui/input/dialogs/GroupDialog.hpp
-    source/gui/input/dialogs/LayerDialog.cpp
-    source/gui/input/dialogs/LayerDialog.hpp
-    source/gui/input/dialogs/MassesDialog.cpp
-    source/gui/input/dialogs/MassesDialog.hpp
-    source/gui/input/dialogs/DampingDialog.cpp
-    source/gui/input/dialogs/DampingDialog.hpp
-    source/gui/input/dialogs/DimensionsDialog.cpp
-    source/gui/input/dialogs/DimensionsDialog.hpp
-    source/gui/input/dialogs/ProfileDialog.cpp
-    source/gui/input/dialogs/ProfileDialog.hpp
-    source/gui/input/dialogs/SettingsDialog.cpp
-    source/gui/input/dialogs/SettingsDialog.hpp
-    source/gui/input/dialogs/StringDialog.cpp
-    source/gui/input/dialogs/StringDialog.hpp
-    source/gui/input/dialogs/WidthDialog.cpp
-    source/gui/input/dialogs/WidthDialog.hpp
-    source/gui/input/editors/BowEditor.cpp
-    source/gui/input/editors/BowEditor.hpp
-    source/gui/input/editors/DoubleEditor.cpp
-    source/gui/input/editors/DoubleEditor.hpp
-    source/gui/input/editors/IntegerEditor.cpp
-    source/gui/input/editors/IntegerEditor.hpp
-    source/gui/input/editors/LayerEditor.cpp
-    source/gui/input/editors/LayerEditor.hpp
-    source/gui/input/editors/SeriesEditor.cpp
-    source/gui/input/editors/SeriesEditor.hpp
-    source/gui/input/editors/TreeEditor.cpp
-    source/gui/input/editors/TreeEditor.hpp
-    source/gui/input/editors/TreeItem.hpp
-    source/gui/input/views/AABB.cpp
-    source/gui/input/views/AABB.hpp
-    source/gui/input/views/LayerLegend.cpp
-    source/gui/input/views/LayerLegend.hpp
-    source/gui/input/views/LimbView.cpp
-    source/gui/input/views/LimbView.hpp
-    source/gui/input/views/LimbMesh.cpp
-    source/gui/input/views/LimbMesh.hpp
-    source/gui/input/views/LayerColors.cpp
-    source/gui/input/views/LayerColors.hpp
-    source/gui/input/views/ProfileView.cpp
-    source/gui/input/views/ProfileView.hpp
-    source/gui/input/views/SplineView.cpp
-    source/gui/input/views/SplineView.hpp
-    source/gui/output/ComboPlot.cpp
-    source/gui/output/ComboPlot.hpp
-    source/gui/output/EnergyPlot.cpp
-    source/gui/output/EnergyPlot.hpp
-    source/gui/output/CurvaturePlot.cpp
-    source/gui/output/CurvaturePlot.hpp
-    source/gui/output/NumberGrid.cpp
-    source/gui/output/NumberGrid.hpp
-    source/gui/output/OutputWindow.cpp
-    source/gui/output/OutputWindow.hpp
-    source/gui/output/ShapePlot.cpp
-    source/gui/output/ShapePlot.hpp
-    source/gui/output/Slider.cpp
-    source/gui/output/Slider.hpp
-    source/gui/output/StressPlot.cpp
-    source/gui/output/StressPlot.hpp
-    source/external/qcustomplot/qcustomplot.cpp
+    source/gui/dialogs/CommentDialog.cpp
+    source/gui/dialogs/CommentDialog.hpp
+    source/gui/dialogs/GroupDialog.cpp
+    source/gui/dialogs/GroupDialog.hpp
+    source/gui/dialogs/LayerDialog.cpp
+    source/gui/dialogs/LayerDialog.hpp
+    source/gui/dialogs/MassesDialog.cpp
+    source/gui/dialogs/MassesDialog.hpp
+    source/gui/dialogs/DampingDialog.cpp
+    source/gui/dialogs/DampingDialog.hpp
+    source/gui/dialogs/DimensionsDialog.cpp
+    source/gui/dialogs/DimensionsDialog.hpp
+    source/gui/dialogs/ProfileDialog.cpp
+    source/gui/dialogs/ProfileDialog.hpp
+    source/gui/dialogs/SettingsDialog.cpp
+    source/gui/dialogs/SettingsDialog.hpp
+    source/gui/dialogs/StringDialog.cpp
+    source/gui/dialogs/StringDialog.hpp
+    source/gui/dialogs/WidthDialog.cpp
+    source/gui/dialogs/WidthDialog.hpp
+    source/gui/editors/BowEditor.cpp
+    source/gui/editors/BowEditor.hpp
+    source/gui/editors/DoubleEditor.cpp
+    source/gui/editors/DoubleEditor.hpp
+    source/gui/editors/IntegerEditor.cpp
+    source/gui/editors/IntegerEditor.hpp
+    source/gui/editors/LayerEditor.cpp
+    source/gui/editors/LayerEditor.hpp
+    source/gui/editors/SeriesEditor.cpp
+    source/gui/editors/SeriesEditor.hpp
+    source/gui/editors/TreeEditor.cpp
+    source/gui/editors/TreeEditor.hpp
+    source/gui/editors/TreeItem.hpp
+    source/gui/views/AABB.cpp
+    source/gui/views/AABB.hpp
+    source/gui/views/LayerLegend.cpp
+    source/gui/views/LayerLegend.hpp
+    source/gui/views/LimbView.cpp
+    source/gui/views/LimbView.hpp
+    source/gui/views/LimbMesh.cpp
+    source/gui/views/LimbMesh.hpp
+    source/gui/views/LayerColors.cpp
+    source/gui/views/LayerColors.hpp
+    source/gui/views/ProfileView.cpp
+    source/gui/views/ProfileView.hpp
+    source/gui/views/SplineView.cpp
+    source/gui/views/SplineView.hpp
+    source/gui/qcustomplot/qcustomplot.cpp
+    source/solver/model/BeamUtils.cpp
+    source/solver/model/ContinuousLimb.cpp
+    source/solver/model/LimbProperties.cpp
+    source/solver/model/ProfileCurve.cpp
+    source/solver/model/input/InputData.cpp
+    source/solver/model/output/OutputData.cpp
+    source/solver/numerics/CubicSpline.cpp
+    source/solver/numerics/Fresnel.cpp
+    source/solver/numerics/Series.cpp
 )
 
 target_link_libraries(
-    main-library
+    virtualbow-gui
     Threads::Threads
     ${OPENGL_gl_LIBRARY}
     Qt5::Widgets
@@ -149,24 +121,104 @@ target_link_libraries(
     nlohmann_json::nlohmann_json
 )
 
-# Target: Main executable
+# Target: Post executable
 
-add_executable(virtualbow MACOSX_BUNDLE source/main.cpp resources/resources.qrc)
-target_link_libraries(virtualbow main-library)
+add_executable(
+    virtualbow-post MACOSX_BUNDLE
+    resources/resources.qrc
+    source/post/main.cpp
+    source/post/Settings.cpp
+    source/post/Settings.hpp
+    source/post/MainWindow.cpp
+    source/post/MainWindow.hpp
+    source/post/ComboPlot.cpp
+    source/post/ComboPlot.hpp
+    source/post/EnergyPlot.cpp
+    source/post/EnergyPlot.hpp
+    source/post/CurvaturePlot.cpp
+    source/post/CurvaturePlot.hpp
+    source/post/NumberGrid.cpp
+    source/post/NumberGrid.hpp
+    source/post/ShapePlot.cpp
+    source/post/ShapePlot.hpp
+    source/post/Slider.cpp
+    source/post/Slider.hpp
+    source/post/StressPlot.cpp
+    source/post/StressPlot.hpp
+    source/gui/qcustomplot/qcustomplot.cpp
+    source/gui/BaseDialog.cpp
+    source/gui/BaseDialog.hpp
+    source/gui/PlotWidget.cpp
+    source/gui/PlotWidget.hpp
+    source/gui/views/LayerColors.cpp
+    source/gui/views/LayerColors.hpp
+    source/solver/model/output/OutputData.cpp
+    source/solver/model/output/OutputData.hpp
+    source/solver/numerics/Series.cpp
+    source/solver/numerics/Series.hpp
+)
+
+target_link_libraries(
+    virtualbow-post
+    Qt5::Widgets
+    Qt5::PrintSupport
+    ${Boost_LIBRARIES}
+    Eigen3::Eigen
+    nlohmann_json::nlohmann_json
+)
+
+# Target: Solver executable
+
+add_executable(
+    virtualbow-slv MACOSX_BUNDLE
+    source/solver/main.cpp
+    source/solver/fem/elements/BarElement.cpp
+    source/solver/fem/elements/BeamElement.cpp
+    source/solver/fem/elements/MassElement.cpp
+    source/solver/fem/elements/ContactElement.cpp
+    source/solver/fem/elements/ContactHandler.cpp
+    source/solver/fem/elements/ConstraintElement.cpp
+    source/solver/fem/Node.cpp
+    source/solver/fem/Element.cpp
+    source/solver/fem/StaticSolver.cpp
+    source/solver/fem/DynamicSolver.cpp
+    source/solver/fem/EigenvalueSolver.cpp
+    source/solver/fem/System.cpp
+    source/solver/model/BeamUtils.cpp
+    source/solver/model/ContinuousLimb.cpp
+    source/solver/model/LimbProperties.cpp
+    source/solver/model/ProfileCurve.cpp
+    source/solver/model/input/InputData.cpp
+    source/solver/model/output/OutputData.cpp
+    source/solver/model/BowModel.cpp
+    source/solver/numerics/CubicSpline.cpp
+    source/solver/numerics/Fresnel.cpp
+    source/solver/numerics/Series.cpp
+)
+
+target_link_libraries(
+    virtualbow-slv
+    Qt5::Core
+    ${Boost_LIBRARIES}
+    Eigen3::Eigen
+    nlohmann_json::nlohmann_json
+)
+
 
 # Target: Test executable
 
-add_executable(
-    virtualbow-tests
-    tests/main.cpp
-    tests/bow/BeamStiffnessMatrix.cpp
-    tests/fem/BarTrusses.cpp
-    tests/fem/HarmonicOscillator.cpp
-    tests/fem/LargeDeformationBeams.cpp
-    tests/fem/TangentStiffness.cpp
-    tests/numerics/Geometry.cpp
-)
-target_link_libraries(virtualbow-tests main-library Catch2::Catch2)
+#add_executable(
+#    virtualbow-tests
+#    tests/main.cpp
+#    tests/solver/model/BeamStiffnessMatrix.cpp
+#    tests/solver/fem/BarTrusses.cpp
+#    tests/solver/fem/HarmonicOscillator.cpp
+#    tests/solver/fem/LargeDeformationBeams.cpp
+#    tests/solver/fem/TangentStiffness.cpp
+#    tests/solver/numerics/Geometry.cpp
+#)
+
+#target_link_libraries(virtualbow-tests main-library Catch2::Catch2)
 
 # Platform specifics
 
