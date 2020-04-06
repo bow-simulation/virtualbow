@@ -34,7 +34,10 @@ rm -rf %{buildroot}
 
 %files
 %defattr(755,root,root)
-/usr/bin/virtualbow
+/usr/bin/virtualbow-gui
+/usr/bin/virtualbow-slv
+/usr/bin/virtualbow-post
 %defattr(644,root,root)
-/usr/share/applications/virtualbow.desktop
+/usr/share/applications/virtualbow-gui.desktop
+/usr/share/applications/virtualbow-post.desktop
 /usr/share/icons/hicolor/scalable/apps/virtualbow.svg
