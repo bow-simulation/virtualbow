@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=@APPLICATION_DISPLAY_NAME@
-Exec=@APPLICATION_NAME@
+Name=VirtualBow
+Exec=virtualbow-gui
 Icon=virtualbow
-Comment=@APPLICATION_DESCRIPTION_SHORT@
+Comment=VirtualBow model editor
 Categories=Education;Science;NumericalAnalysis;Physics;Engineering;
 MimeType=application/json;

@@ -73,7 +73,7 @@ jobs:
       ./virtualbow-tests
       cmake --build . --target deb-package
       cmake --build . --target rpm-package
-      cmake --build . --target appimage
+#      cmake --build . --target appimage
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: 'build/virtualbow.deb'
@@ -82,7 +82,7 @@ jobs:
     inputs:
       pathToPublish: 'build/virtualbow.rpm'
       artifactName: 'Linux_Artifacts'
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathToPublish: 'build/virtualbow.AppImage'
-      artifactName: 'Linux_Artifacts'
+#  - task: PublishBuildArtifacts@1
+#    inputs:
+#      pathToPublish: 'build/virtualbow.AppImage'
+#      artifactName: 'Linux_Artifacts'
