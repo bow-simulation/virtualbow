@@ -3,6 +3,6 @@ Type=Application
 Name=VirtualBow
 Exec=virtualbow-gui
 Icon=virtualbow
-Comment=VirtualBow model editor
+Comment=VirtualBow Model Editor
 Categories=Education;Science;NumericalAnalysis;Physics;Engineering;
 MimeType=application/json;

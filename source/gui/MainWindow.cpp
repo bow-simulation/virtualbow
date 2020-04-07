@@ -251,7 +251,8 @@ void MainWindow::runSimulation(const QString& flag)
     if(dialog.exec() == QDialog::Accepted)
     {
         QProcess *process = new QProcess(this);
-        process->setProgram("./virtualbow-post");
+        process->setWorkingDirectory(QCoreApplication::applicationDirPath());
+        process->setProgram("virtualbow-post");
         process->setArguments({ output_file });
         process->startDetached();
     }
