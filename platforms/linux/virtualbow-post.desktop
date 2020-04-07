@@ -3,6 +3,6 @@ Type=Application
 Name=VirtualBow Post
 Exec=virtualbow-post
 Icon=virtualbow
-Comment=VirtualBow result viewer
+Comment=VirtualBow Result Viewer
 Categories=Education;Science;NumericalAnalysis;Physics;Engineering;
 MimeType=application/msgpack;
