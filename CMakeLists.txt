@@ -29,6 +29,7 @@ set(CMAKE_AUTORCC ON)
 
 configure_file(source/config.hpp.in ${CMAKE_BINARY_DIR}/config.hpp)
 include_directories(source ${PROJECT_BINARY_DIR})
+include_directories(${Boost_INCLUDE_DIRS})
 
 # Target: Gui executable
 
