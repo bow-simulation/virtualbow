@@ -61,6 +61,7 @@ jobs:
     CXX: g++-9
   steps:
   - script: |
+      sudo apt update -qq && sudo apt install -y libgl1-mesa-dev
       mkdir build && cd build
       curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.1/linux-gcc_64.zip && unzip linux-gcc_64.zip
       cmake ../ -DCMAKE_TOOLCHAIN_FILE=linux-gcc_64/paths.cmake -DCMAKE_BUILD_TYPE=Release
