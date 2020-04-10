@@ -55,7 +55,7 @@ jobs:
 
 - job: Linux
   pool:
-    vmImage: 'ubuntu-18.04'
+    vmImage: 'ubuntu-16.04'
   variables:
     CC: gcc-9
     CXX: g++-9
@@ -66,6 +66,7 @@ jobs:
       curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.1/linux-gcc_64.zip && unzip linux-gcc_64.zip
       cmake ../ -DCMAKE_TOOLCHAIN_FILE=linux-gcc_64/paths.cmake -DCMAKE_BUILD_TYPE=Release
       cmake --build .
+      ./virtualbow-test
       cmake --build . --target deb-package
       cmake --build . --target rpm-package
   - task: PublishBuildArtifacts@1

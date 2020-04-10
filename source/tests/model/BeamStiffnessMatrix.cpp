@@ -1,6 +1,6 @@
-#include "bow/BeamUtils.hpp"
-#include "numerics/Linspace.hpp"
-#include <catch.hpp>
+#include "solver/model/BeamUtils.hpp"
+#include "solver/numerics/Linspace.hpp"
+#include <catch2/catch.hpp>
 #include <iostream>
 
 // Returns the stiffness matrix of a straight Euler-Bernoulli beam with orientation angle alpha
