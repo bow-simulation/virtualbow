@@ -207,18 +207,46 @@ target_link_libraries(
 
 # Target: Test executable
 
-#add_executable(
-#    virtualbow-tests
-#    tests/main.cpp
-#    tests/solver/model/BeamStiffnessMatrix.cpp
-#    tests/solver/fem/BarTrusses.cpp
-#    tests/solver/fem/HarmonicOscillator.cpp
-#    tests/solver/fem/LargeDeformationBeams.cpp
-#    tests/solver/fem/TangentStiffness.cpp
-#    tests/solver/numerics/Geometry.cpp
-#)
+add_executable(
+    virtualbow-test
+    source/tests/main.cpp
+    source/tests/model/BeamStiffnessMatrix.cpp
+    source/tests/fem/BarTrusses.cpp
+    source/tests/fem/HarmonicOscillator.cpp
+    source/tests/fem/LargeDeformationBeams.cpp
+    source/tests/fem/TangentStiffness.cpp
+    source/tests/numerics/Geometry.cpp
+    source/solver/fem/elements/BarElement.cpp
+    source/solver/fem/elements/BeamElement.cpp
+    source/solver/fem/elements/MassElement.cpp
+    source/solver/fem/elements/ContactElement.cpp
+    source/solver/fem/elements/ContactHandler.cpp
+    source/solver/fem/elements/ConstraintElement.cpp
+    source/solver/fem/Node.cpp
+    source/solver/fem/Element.cpp
+    source/solver/fem/StaticSolver.cpp
+    source/solver/fem/DynamicSolver.cpp
+    source/solver/fem/EigenvalueSolver.cpp
+    source/solver/fem/System.cpp
+    source/solver/model/BeamUtils.cpp
+    source/solver/model/ContinuousLimb.cpp
+    source/solver/model/LimbProperties.cpp
+    source/solver/model/ProfileCurve.cpp
+    source/solver/model/input/InputData.cpp
+    source/solver/model/output/OutputData.cpp
+    source/solver/model/BowModel.cpp
+    source/solver/numerics/CubicSpline.cpp
+    source/solver/numerics/Fresnel.cpp
+    source/solver/numerics/Series.cpp
+)
 
-#target_link_libraries(virtualbow-tests main-library Catch2::Catch2)
+target_link_libraries(
+    virtualbow-test
+    Catch2::Catch2
+    ${Boost_LIBRARIES}
+    Eigen3::Eigen
+    nlohmann_json::nlohmann_json
+)
 
 # Platform specifics
 
