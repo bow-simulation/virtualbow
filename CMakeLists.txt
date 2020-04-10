@@ -24,7 +24,6 @@ find_package(nlohmann_json REQUIRED)
 find_package(Threads REQUIRED)                # System thread library (https://stackoverflow.com/a/39547577)
 find_package(OpenGL REQUIRED)
 
-include_directories(${Boost_INCLUDE_DIRS})
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
