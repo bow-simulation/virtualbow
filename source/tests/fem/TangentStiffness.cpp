@@ -1,9 +1,9 @@
-#include "fem/System.hpp"
-#include "fem/elements/BarElement.hpp"
-#include "fem/elements/BeamElement.hpp"
-#include "fem/elements/ContactElement.hpp"
+#include "solver/fem/System.hpp"
+#include "solver/fem/elements/BarElement.hpp"
+#include "solver/fem/elements/BeamElement.hpp"
+#include "solver/fem/elements/ContactElement.hpp"
 
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <iostream>
 
 // Numeric tangent stiffness matrix using central differences
