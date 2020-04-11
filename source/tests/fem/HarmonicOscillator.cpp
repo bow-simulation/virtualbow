@@ -1,9 +1,9 @@
-#include "fem/System.hpp"
-#include "fem/DynamicSolver.hpp"
-#include "fem/elements/BarElement.hpp"
-#include "fem/elements/MassElement.hpp"
+#include "solver/fem/System.hpp"
+#include "solver/fem/DynamicSolver.hpp"
+#include "solver/fem/elements/BarElement.hpp"
+#include "solver/fem/elements/MassElement.hpp"
 
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <iostream>
 
 TEST_CASE("harmonic-oscillator")
