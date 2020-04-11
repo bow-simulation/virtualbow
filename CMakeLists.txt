@@ -14,6 +14,12 @@ set(APPLICATION_LICENSE "GNU General Public License v3.0")
 set(APPLICATION_DESCRIPTION_SHORT "Bow and arrow physics simulation")
 set(APPLICATION_DESCRIPTION_LONG "Software tool for designing and simulating bows")
 
+message(STATUS "Toolchain File:")
+message(STATUS ${CMAKE_TOOLCHAIN_FILE})
+
+message(STATUS "Prefix Path:")
+message(STATUS ${CMAKE_PREFIX_PATH})
+
 # External libraries
 
 find_package(Qt5 REQUIRED COMPONENTS Widgets PrintSupport)
@@ -34,7 +40,8 @@ include_directories(source ${PROJECT_BINARY_DIR})
 # Target: Gui executable
 
 add_executable(
-    virtualbow-gui MACOSX_BUNDLE
+    virtualbow-gui
+	WIN32 MACOSX_BUNDLE
     resources/resources.qrc
     source/gui/main.cpp
     source/gui/Settings.cpp
@@ -124,7 +131,8 @@ target_link_libraries(
 # Target: Post executable
 
 add_executable(
-    virtualbow-post MACOSX_BUNDLE
+    virtualbow-post
+	WIN32 MACOSX_BUNDLE
     resources/resources.qrc
     source/post/main.cpp
     source/post/Settings.cpp
@@ -203,7 +211,6 @@ target_link_libraries(
     Eigen3::Eigen
     nlohmann_json::nlohmann_json
 )
-
 
 # Target: Test executable
 

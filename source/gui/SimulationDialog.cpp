@@ -13,6 +13,7 @@ SimulationDialog::SimulationDialog(QWidget* parent, const QString& input, const 
     // Create static progress bar
     QProgressBar* progress1 = new QProgressBar();
     progress1->setMinimumWidth(350);    // Magic number
+    progress1->setTextVisible(false);    // Looks bad on Windows otherwise
     vbox->addWidget(new QLabel("Statics"));
     vbox->addWidget(progress1);
 
@@ -21,6 +22,7 @@ SimulationDialog::SimulationDialog(QWidget* parent, const QString& input, const 
     if(flag == "--dynamic") {
         progress2 = new QProgressBar();
         progress2->setMinimumWidth(350);    // Magic number
+		progress2->setTextVisible(false);    // Looks bad on Windows otherwise
         vbox->addWidget(new QLabel("Dynamics"));
         vbox->addWidget(progress2);
     }
