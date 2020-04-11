@@ -6,7 +6,7 @@ jobs:
   - script: |
       mkdir build && cd build
       curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.1/windows-mingw_64.zip && unzip windows-mingw_64.zip
-      cmake ../ -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=linux-gcc_64/paths.cmake
+      cmake ../ -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=windows-mingw_64/paths.cmake
       cmake --build .
       ./virtualbow-test
       cmake --build . --target iss-installer
