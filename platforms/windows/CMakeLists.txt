@@ -25,9 +25,6 @@ get_target_property(QMAKE_EXECUTABLE Qt5::qmake IMPORTED_LOCATION)
 get_filename_component(QT_BIN_DIR "${QMAKE_EXECUTABLE}" DIRECTORY)
 find_program(WINDEPLOYQT NAMES windeployqt HINTS "${QT_BIN_DIR}")
 
-message(STATUS "QT_DIR:")
-message(STATUS ${QT_BIN_DIR})
-
 add_custom_target(copy-dependencies DEPENDS virtualbow-gui virtualbow-slv virtualbow-post)
 add_custom_command(
     TARGET copy-dependencies
