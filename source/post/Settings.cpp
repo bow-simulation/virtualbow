@@ -1,3 +1,3 @@
 #include "Settings.hpp"
 
-QSettings SETTINGS = QSettings("virtualbow", "virtualbow-post");
+QSettings SETTINGS("virtualbow", "virtualbow-post");

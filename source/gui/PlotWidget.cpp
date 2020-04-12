@@ -140,8 +140,8 @@ void PlotWidget::setupTopLegend()
 // Limit the axis maximum ranges to current range
 void PlotWidget::rescaleAxes(bool include_zero_x, bool include_zero_y)
 {
-    max_x_range = std::nullopt;
-    max_y_range = std::nullopt;
+    max_x_range = boost::none;
+    max_y_range = boost::none;
 
     QCustomPlot::rescaleAxes();
 
