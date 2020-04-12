@@ -255,6 +255,17 @@ target_link_libraries(
     nlohmann_json::nlohmann_json
 )
 
+# Change output directories
+
+set_target_properties(
+    virtualbow-gui
+	virtualbow-slv
+	virtualbow-post
+	PROPERTIES
+	RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/application
+	RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/application
+)
+
 # Platform specifics
 
 if(WIN32)

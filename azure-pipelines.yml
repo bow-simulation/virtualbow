@@ -1,19 +1,19 @@
 jobs:
-- job: Win64
+- job: Windows
   pool:
     vmImage: 'windows-2019'
   steps:
   - script: |
       mkdir build && cd build
-      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.1/windows-mingw_64.zip && unzip windows-mingw_64.zip
+      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.1/windows-mingw_64.zip && 7z x windows-mingw_64.zip
       cmake ../ -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=windows-mingw_64/paths.cmake
       cmake --build .
       ./virtualbow-test
       cmake --build . --target iss-installer
   - task: PublishBuildArtifacts@1
     inputs:
-      pathToPublish: 'build/virtualbow-setup.exe'
-      artifactName: 'Win64_Artifacts'
+      pathToPublish: 'build/packages'
+      artifactName: 'Windows_Artifacts'
 
 - job: MacOS
   pool:
@@ -32,7 +32,7 @@ jobs:
       cmake --build . --target dmg-installer
   - task: PublishBuildArtifacts@1
     inputs:
-      pathToPublish: 'build/virtualbow.dmg'
+      pathToPublish: 'build/packages'
       artifactName: 'MacOS_Artifacts'
 
 - job: Linux
@@ -53,9 +53,5 @@ jobs:
       cmake --build . --target rpm-package
   - task: PublishBuildArtifacts@1
     inputs:
-      pathToPublish: 'build/virtualbow.deb'
-      artifactName: 'Linux_Artifacts'
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathToPublish: 'build/virtualbow.rpm'
+      pathToPublish: 'build/packages'
       artifactName: 'Linux_Artifacts'
