@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13.4)
 project(virtualbow)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Parameters
@@ -271,7 +271,7 @@ set_target_properties(
 if(WIN32)
     add_subdirectory(platforms/windows)
 elseif(APPLE)
-    add_subdirectory(platforms/macos)
+#    add_subdirectory(platforms/macos)
 elseif(UNIX)
     add_subdirectory(platforms/linux)
 endif()
