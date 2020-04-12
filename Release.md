@@ -1,62 +1,10 @@
 # Build and Deployment of Releases
 
-## Windows
-
-(This section is not up to date, the Windows build was temporarily reverted to dynamic linking. See issue #140 for details.)
-
-The Windows release uses custom `x86-windows-static-v140` and `x64-windows-static-v140` target triplets for the 32 bit and 64 bit versions respectively. They build static libraries and also link the msvc runtime statically, i.e. no Visual C++ Redistributable has to be installed on the target system. The `v140` platform toolset (Visual Studio 2015) is used because newer toolsets assume the UCRT to be present which is (out of the box) only the case for Windows 8 and later.
-
-    .\vcpkg install boost catch2 eigen3 nlohmann-json qt5-base --triplet x64-windows-static-v140
-
-When compiling, we need to specify the target triplet for selecting the correct library versions. In addition to that we have to make sure we are using matching compiler options: Overriding "/MD" with "/MT" in CMake's default compiler options makes sure we also use the static runtime. Passiing the custom preprocessor definition `QT_STATIC_PLUGINS` switches on some additional code that is required for static Qt builds.
-
-    cmake ..\virtualbow
-          -DCMAKE_TOOLCHAIN_FILE=C:\Users\Stefan\Desktop\Repos\vcpkg\scripts\buildsystems\vcpkg.cmake
-          -DVCPKG_TARGET_TRIPLET=x64-windows-static-v140
-          -DCMAKE_CXX_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG /DQT_STATIC_PLUGINS"
-          -A x64
-          -T v140
-        
-    cmake --build . --config Release
-
-For the 32 bit build, `x64` has to be replaced with `x86` in the commands above. (If you run into the bug "This project doesn't contain the Configuration and Platform combination of Debug|Win32", remove the `-A` flag from cmake. It will then use `x86` by default.)
-
-Building the installer requires [Inno Setup](http://www.jrsoftware.org/isinfo.php) and is done by running
-
-    cmake --build . --config Release --target iss-installer
-
-in the output directory.
-
-## Linux
-
-The linux build is done with the static `x64-linux` default triplet, but Qt is linked dynamically by using the system package.
-
-    `sudo apt install qt5-default`
-    
-The release packages are built with
-    
-    cmake --build . --target deb-package
-    cmake --build . --target rpm-package
-    cmake --build . --target appimage
-
-This requires `dpkg`, `rpmbuild` and [Linuxdeployqt](https://github.com/probonopd/linuxdeployqt) respectively.
-
-## MacOS
-
-This build has to work around the fact that the latest Qt version in vcpkg doesn't support MacOS 10.11 (El Capitan) anymore, which is the only/latest system that is currently available to me for testing.
-Therefore the slightly older Qt 5.11 release with the official pre-built (dynamic) binaries is used, together with `-DCMAKE_OSX_DEPLOYMENT_TARGET=10.11`.
-
-The release package is built with
-
-    cmake --build . --target dmg-installer
-
-and requires [node-appdmg](https://github.com/LinusU/node-appdmg) for creating the installer image.
-
 ## Release Checklist
 
-* Update user manual
+* Update user manual with new features and changes
 * Implement conversion of bow files between versions
-* Update version number in
+* Update version number and copyright notice in
     * User manual
     * Theory manual
     * CMakeLists.txt
@@ -69,3 +17,43 @@ and requires [node-appdmg](https://github.com/LinusU/node-appdmg) for creating t
     * User manual and theory manual
     * Release announcement
 * Post to r/VirtualBow
+
+## Platform specifics
+
+### Windows
+
+The Windows version is built with [MinGW-w64](http://mingw-w64.org/doku.php). Comparisons have shown that it generates faster code than Microsoft Visual C++ for our use case.
+The Qt version used is 5.12.8, because it is the first one to ship pre-built binaries for 64 bit MinGW and is also closest to version 5.11.3 to which we are currently tied to on MacOS.
+For that reason no newer features than 5.11.3 can be used.
+
+The Windows installer can be built with
+
+    cmake --build . --target iss-installer
+
+This requires [Inno Setup](http://www.jrsoftware.org/isinfo.php) to be installed and added to `PATH`.
+
+### Linux
+
+The Linux version is built with GCC and linked against Qt 5.11.3 to keep the usage of Qt features in sync with MacOS.
+Other than Windows and MacOS though, the Qt libraries are not bundled with the application.
+Instead the Qt libraries packaged by the system are used (e.g. `qt5-default` on Ubuntu). Those may be newer than the ones we built against.
+The built is performed on the oldest still supported Ubuntu LTS version (currently 16.04) to ensure reasonable compatibility with other/older systems.
+
+The release packages are built with
+    
+    cmake --build . --target deb-package
+    cmake --build . --target rpm-package
+
+This requires `dpkg` and `rpmbuild` respectively.
+
+### MacOS
+
+This version is currently limited by the necessity to support MacOS 10.11 (El Capitan) since that's the latest OS that can be installed on my ancient 2009 MacBook that I got off eBay. The latest Qt version, in turn, to still support this system is 5.11.3, together with the CMake option `-DCMAKE_OSX_DEPLOYMENT_TARGET=10.11`.
+
+So we're stuck with that until either someone buys me a new MacBook or we find someone who is able to reliably take over the task of maintaining the MacOS version.
+
+The release package is built with
+
+    cmake --build . --target dmg-installer
+
+and requires [node-appdmg](https://github.com/LinusU/node-appdmg) for creating the installer image.
