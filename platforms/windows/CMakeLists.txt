@@ -2,22 +2,12 @@
 target_compile_definitions(virtualbow-gui PRIVATE _USE_MATH_DEFINES)
 target_compile_definitions(virtualbow-slv PRIVATE _USE_MATH_DEFINES)
 target_compile_definitions(virtualbow-post PRIVATE _USE_MATH_DEFINES)
-#target_compile_definitions(virtualbow-test PRIVATE _USE_MATH_DEFINES)
+target_compile_definitions(virtualbow-test PRIVATE _USE_MATH_DEFINES)
 
 # Set executable icons
 target_sources(virtualbow-gui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icon.rc)
 target_sources(virtualbow-slv PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icon.rc)
 target_sources(virtualbow-post PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icon.rc)
-
-# Change output directory
-set_target_properties(
-    virtualbow-gui
-	virtualbow-slv
-	virtualbow-post
-	PROPERTIES
-	RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/application
-	RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/application
-)
 
 # Target: Copy shared libraries to application directory
 
@@ -41,5 +31,5 @@ configure_file(setup.iss ${CMAKE_BINARY_DIR}/setup.iss)
 add_custom_target(iss-installer DEPENDS copy-dependencies)
 add_custom_command(
     TARGET iss-installer
-    COMMAND ISCC ${CMAKE_BINARY_DIR}/setup.iss /O${CMAKE_BINARY_DIR} /Fvirtualbow-setup
+    COMMAND ISCC ${CMAKE_BINARY_DIR}/setup.iss /O${CMAKE_BINARY_DIR}/packages /Fvirtualbow-setup
 )
