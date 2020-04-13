@@ -20,15 +20,12 @@ jobs:
     vmImage: 'macOS-10.14'
   steps:
   - script: |
+      npm install -g appdmg@0.5.2
       mkdir build && cd build
-      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.0/vcpkg-export-x64-osx.zip
-      unzip vcpkg-export-x64-osx.zip
-      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.0/qt-5.11.2-x64-osx.zip
-      unzip qt-5.11.2-x64-osx.zip
-      cmake ../ -DCMAKE_TOOLCHAIN_FILE=vcpkg-export-x64-osx/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-osx -DCMAKE_PREFIX_PATH=$(Build.Repository.LocalPath)/build/qt-5.11.2-x64-osx -DCMAKE_OSX_DEPLOYMENT_TARGET=10.11 -DCMAKE_BUILD_TYPE=Release
+      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.1/macos-clang_64.zip && unzip macos-clang_64.zip
+      cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=macos-clang_64/paths.cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.11
       cmake --build .
       ./virtualbow-test
-      npm install -g appdmg@0.5.2
       cmake --build . --target dmg-installer
   - task: PublishBuildArtifacts@1
     inputs:
