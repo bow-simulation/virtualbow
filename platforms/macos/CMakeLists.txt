@@ -21,5 +21,6 @@ get_filename_component(QT_BINARY_DIR ${QT_QMAKE_PATH} DIRECTORY)
 add_custom_command(
     TARGET dmg-installer
     COMMAND ${QT_BINARY_DIR}/macdeployqt ${CMAKE_BINARY_DIR}/application/VirtualBow.app
+    COMMAND mkdir -p ${CMAKE_BINARY_DIR}/packages
     COMMAND appdmg ${CMAKE_BINARY_DIR}/installer.json ${CMAKE_BINARY_DIR}/packages/virtualbow.dmg
 )
