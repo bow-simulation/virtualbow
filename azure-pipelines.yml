@@ -9,7 +9,7 @@ jobs:
       cmake ../ -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=windows-mingw_64/paths.cmake
       cmake --build . -j%NUMBER_OF_PROCESSORS%
       cmake --build . --target iss-installer -j%NUMBER_OF_PROCESSORS%
-      ./virtualbow-test
+      virtualbow-test
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: 'build/packages'
