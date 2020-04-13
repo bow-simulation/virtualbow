@@ -39,6 +39,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/linux ~/rpmbuild/SOURCES/${RPM_TEMP_NAME}
     COMMAND cd ~/rpmbuild/SOURCES && tar -zcvf ${RPM_TEMP_NAME}.tar.gz ${RPM_TEMP_NAME} && cd -
     COMMAND rpmbuild -bb ~/rpmbuild/SPECS/virtualbow.spec
-	COMMAND mkdir -p ${CMAKE_BINARY_DIR}/packages
+    COMMAND mkdir -p ${CMAKE_BINARY_DIR}/packages
     COMMAND cp ~/rpmbuild/RPMS/*/*.rpm ${CMAKE_BINARY_DIR}/packages/virtualbow.rpm
 )
