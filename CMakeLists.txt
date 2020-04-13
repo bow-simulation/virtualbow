@@ -41,7 +41,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 add_executable(
     virtualbow-gui
-	WIN32 MACOSX_BUNDLE
+    WIN32
     resources/resources.qrc
     source/gui/main.cpp
     source/gui/Settings.cpp
@@ -132,7 +132,7 @@ target_link_libraries(
 
 add_executable(
     virtualbow-post
-	WIN32 MACOSX_BUNDLE
+    WIN32
     resources/resources.qrc
     source/post/main.cpp
     source/post/Settings.cpp
@@ -178,7 +178,7 @@ target_link_libraries(
 # Target: Solver executable
 
 add_executable(
-    virtualbow-slv MACOSX_BUNDLE
+    virtualbow-slv
     source/solver/main.cpp
     source/solver/fem/elements/BarElement.cpp
     source/solver/fem/elements/BeamElement.cpp
@@ -259,11 +259,11 @@ target_link_libraries(
 
 set_target_properties(
     virtualbow-gui
-	virtualbow-slv
-	virtualbow-post
-	PROPERTIES
-	RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/application
-	RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/application
+    virtualbow-slv
+    virtualbow-post
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/application
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/application
 )
 
 # Platform specifics
@@ -271,7 +271,7 @@ set_target_properties(
 if(WIN32)
     add_subdirectory(platforms/windows)
 elseif(APPLE)
-#    add_subdirectory(platforms/macos)
+    add_subdirectory(platforms/macos)
 elseif(UNIX)
     add_subdirectory(platforms/linux)
 endif()

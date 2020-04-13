@@ -48,8 +48,9 @@ This requires `dpkg` and `rpmbuild` respectively.
 
 ### MacOS
 
-This version currently restricts us in several ways by the necessity to support MacOS 10.11 (El Capitan) since that's the latest OS that can be installed on my ancient 2009 MacBook that I got from eBay.
-The latest Qt version, in turn, to still support this system is 5.11.3, together with the CMake option `DCMAKE_OSX_DEPLOYMENT_TARGET=10.11`.
+This version currently restricts us in several ways by the necessity to support MacOS 10.11 (El Capitan).
+That's the latest OS that can be installed on my ancient 2009 MacBook that I got from eBay.
+The latest Qt version to still support this system is 5.11.3, together with the CMake option `DCMAKE_OSX_DEPLOYMENT_TARGET=10.11`.
 Also, no C++ standard newer than 14 can be used, which is what Xcode 8.2.1 provides.
 
 So we're stuck with that until either someone buys me a new MacBook or we have a large enough community such that other people can reliably take over the task of maintaining the MacOS version.
