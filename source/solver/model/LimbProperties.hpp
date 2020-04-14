@@ -35,6 +35,9 @@ struct LayerProperties
 
 static void to_json(json& obj, const LayerProperties& val)
 {
+    obj["name"] = val.name;
+    obj["rho"] = val.rho;
+    obj["E"] = val.E;
     obj["length"] = val.length;
     obj["He_back"] = val.He_back;
     obj["Hk_back"] = val.Hk_back;
@@ -44,6 +47,9 @@ static void to_json(json& obj, const LayerProperties& val)
 
 static void from_json(const json& obj, LayerProperties& val)
 {
+    val.name = obj.at("name");
+    val.rho = obj.at("rho");
+    val.E = obj.at("E");
     val.length = obj.at("length");
     val.He_back = obj.at("He_back");
     val.Hk_back = obj.at("Hk_back");
