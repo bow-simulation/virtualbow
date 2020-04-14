@@ -14,8 +14,8 @@
    viewBox="0 0 89.666672 89.666672"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="vbr-file.svg">
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   sodipodi:docname="filetype-vbr.svg">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -26,15 +26,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4108757"
-     inkscape:cx="30.295387"
-     inkscape:cy="134.27232"
+     inkscape:cx="125.4222"
+     inkscape:cy="172.15332"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:window-width="1920"
-     inkscape:window-height="1009"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -55,7 +55,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -67,25 +67,49 @@
     <g
        transform="translate(13.229172,108.47916)"
        id="g4552-3"
-       style="stroke:#070000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal">
+       style="stroke:#787878;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal">
       <path
          sodipodi:nodetypes="cccccc"
          inkscape:connector-curvature="0"
          id="path36-6"
          d="m 74.083332,167.35417 10e-7,-84.66667 44.979167,7e-6 18.52083,18.520833 v 66.14583 z"
-         style="fill:#ffffff;fill-opacity:1;stroke:#1e1e1e;stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" />
+         style="fill:#ffffff;fill-opacity:1;stroke:#787878;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" />
       <path
          inkscape:connector-curvature="0"
          id="path4548-7"
          d="m 119.0625,82.687507 v 18.520833 h 18.52083"
-         style="fill:none;stroke:#1e1e1e;stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+         style="fill:none;stroke:#787878;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
          sodipodi:nodetypes="ccc" />
     </g>
-    <path
-       style="fill:#a3a3a3;fill-opacity:1;stroke:#1e1e1e;stroke-width:4;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 95.250009,238.79167 c 23.812561,-79.375 26.458391,82.02083 47.625061,0"
-       id="path4753"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
+    <g
+       id="g829"
+       transform="translate(-5.4313148e-7,9.2604096)">
+      <g
+         id="g823"
+         transform="translate(0,6.3500003)">
+        <g
+           id="g824"
+           transform="matrix(1.0006142,0,0,1,-1.6378768,0)">
+          <rect
+             y="218.94835"
+             x="82.020836"
+             height="21.69479"
+             width="65.047546"
+             id="rect820"
+             style="fill:#890d0d;fill-opacity:1;stroke:none;stroke-width:6.64887762;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke" />
+          <text
+             id="text824"
+             y="236.03514"
+             x="83.639961"
+             style="font-style:normal;font-weight:normal;font-size:16.93333244px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+             xml:space="preserve"><tspan
+               style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:16.93333244px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#ffffff;fill-opacity:1;stroke-width:0.26458332"
+               y="236.03514"
+               x="83.639961"
+               id="tspan822"
+               sodipodi:role="line">Result</tspan></text>
+        </g>
+      </g>
+    </g>
   </g>
 </svg>

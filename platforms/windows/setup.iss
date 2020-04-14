@@ -10,7 +10,6 @@ DefaultDirName={commonpf64}\${APPLICATION_NAME}
 DefaultGroupName=${APPLICATION_NAME}
 AllowNoIcons=yes
 LicenseFile=${CMAKE_SOURCE_DIR}\License.txt
-SetupIconFile=${CMAKE_CURRENT_SOURCE_DIR}\logo.ico
 Compression=lzma
 SolidCompression=yes
 UsePreviousTasks=no
