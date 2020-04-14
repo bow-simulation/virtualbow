@@ -32,6 +32,7 @@ Name: {commondesktop}\VirtualBow Post; Filename: {app}\virtualbow-post.exe; Task
 [Tasks]
 Name: DesktopIcons; Description: "Create desktop shortcuts";
 Name: FileAssociation; Description: "Associate .bow and .vbr files with VirtualBow";
+Name: AddToPath; Description: "Add VirtualBow to PATH";
 
 [Registry]
 Root: HKCR; Subkey: .bow; ValueType: string; ValueName: ""; ValueData: VirtualBowModelFile; Flags: uninsdeletevalue; Tasks: FileAssociation 
@@ -44,5 +45,23 @@ Root: HKCR; Subkey: VirtualBowResultFile; ValueType: string; ValueName: ""; Valu
 Root: HKCR; Subkey: VirtualBowResultFile\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\virtualbow-post.exe,-2"; Tasks: FileAssociation
 Root: HKCR; Subkey: VirtualBowResultFile\shell\open\command; ValueType: string; ValueName: ""; ValueData: "{app}\virtualbow-post.exe %1"; Tasks: FileAssociation
 
+Root: HKCU; Subkey: Environment; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Tasks: AddToPath; Check: NotInPath(ExpandConstant('{app}'))
+
 [Run]
 Filename: {app}\virtualbow-gui.exe; Description: "Launch VirtualBow"; Flags: nowait postinstall skipifsilent
+
+[Code]
+{ https://stackoverflow.com/a/3431379 }
+function NotInPath(Param: string): boolean;
+var
+  OrigPath: string;
+begin
+  if not RegQueryStringValue(HKEY_CURRENT_USER, 'Environment', 'Path', OrigPath)
+  then begin
+    Result := True;
+    exit;
+  end;
+  { look for the path with leading and trailing semicolon }
+  { Pos() returns 0 if not found }
+  Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
+end;
