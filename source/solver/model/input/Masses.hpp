@@ -6,9 +6,9 @@ using nlohmann::json;
 struct Masses
 {
     double arrow = 0.025;
-    double string_center = 0.005;
-    double string_tip = 0.005;
-    double limb_tip = 0.005;
+    double string_center = 0.0;
+    double string_tip = 0.0;
+    double limb_tip = 0.0;
 };
 
 static bool operator==(const Masses& lhs, const Masses& rhs)

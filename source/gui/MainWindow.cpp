@@ -91,7 +91,14 @@ MainWindow::MainWindow()
     menu_help->addAction(action_about);
 
     // Main window
-    this->setWindowIcon(QIcon(":/icons/logo"));
+    QIcon icon;
+    icon.addFile(":/icons/logo-16.png");
+    icon.addFile(":/icons/logo-24.png");
+    icon.addFile(":/icons/logo-32.png");
+    icon.addFile(":/icons/logo-48.png");
+    icon.addFile(":/icons/logo-64.png");
+
+    this->setWindowIcon(QIcon(":/icons/logo.ico"));
     this->setCentralWidget(editor);
     setCurrentFile(QString());
 

@@ -127,7 +127,7 @@ StaticOutputWidget::StaticOutputWidget(const OutputData& output)
     slider->addJumpAction("Max. grip force", output.statics.max_grip_force_index);
     slider->addJumpAction("Max. string force", output.statics.max_string_force_index);
     for (int i = 0; i < output.statics.max_stress_index.size(); ++i) {
-        slider->addJumpAction(QString::fromStdString("Max. stress for " + output.setup.limb_properties.layers[i].name), output.statics.max_stress_index[i].first);
+        slider->addJumpAction(QString::fromStdString("Max. stress for layer:" + output.setup.limb_properties.layers[i].name), output.statics.max_stress_index[i].first);
     }
 
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
@@ -196,7 +196,7 @@ DynamicOutputWidget::DynamicOutputWidget(const OutputData& output)
     slider->addJumpAction("Max. grip force", output.dynamics.max_grip_force_index);
     slider->addJumpAction("Max. string force", output.dynamics.max_string_force_index);
     for (int i = 0; i < output.dynamics.max_stress_index.size(); ++i) {
-        slider->addJumpAction(QString::fromStdString("Max. stress for " + output.setup.limb_properties.layers[i].name), output.dynamics.max_stress_index[i].first);
+        slider->addJumpAction(QString::fromStdString("Max. stress for layer: " + output.setup.limb_properties.layers[i].name), output.dynamics.max_stress_index[i].first);
     }
 
     QObject::connect(slider, &Slider::valueChanged, plot_shapes, &ShapePlot::setStateIndex);
