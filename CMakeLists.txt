@@ -14,12 +14,6 @@ set(APPLICATION_LICENSE "GNU General Public License v3.0")
 set(APPLICATION_DESCRIPTION_SHORT "Bow and arrow physics simulation")
 set(APPLICATION_DESCRIPTION_LONG "Software tool for designing and simulating bows")
 
-message(STATUS "Toolchain File:")
-message(STATUS ${CMAKE_TOOLCHAIN_FILE})
-
-message(STATUS "Prefix Path:")
-message(STATUS ${CMAKE_PREFIX_PATH})
-
 # External libraries
 
 find_package(Qt5 REQUIRED COMPONENTS Widgets PrintSupport)

@@ -20,7 +20,6 @@
         <file>icons/layers.svg</file>
         <file>icons/list-add.png</file>
         <file>icons/list-add.svg</file>
-        <file>icons/logo.png</file>
         <file>icons/logo.svg</file>
         <file>icons/masses.png</file>
         <file>icons/masses.svg</file>
@@ -58,5 +57,6 @@
         <file>icons/view-top.svg</file>
         <file>icons/width.png</file>
         <file>icons/width.svg</file>
+        <file>icons/logo.ico</file>
     </qresource>
 </RCC>
