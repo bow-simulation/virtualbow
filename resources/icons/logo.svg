@@ -9,16 +9,16 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="62.587681mm"
-   height="62.587826mm"
-   viewBox="0 0 68.84645 68.846611"
+   width="62.545536mm"
+   height="62.490761mm"
+   viewBox="0 0 68.800091 68.73984"
    version="1.1"
    id="svg8"
    inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="logo.svg"
-   inkscape:export-filename="C:\Users\s\Desktop\Repositories\virtualbow\resources\icons\logo-32.png"
-   inkscape:export-xdpi="10.12187"
-   inkscape:export-ydpi="10.12187">
+   inkscape:export-filename="C:\Users\s\Desktop\logo-32.png"
+   inkscape:export-xdpi="52.026894"
+   inkscape:export-ydpi="52.026894">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -28,9 +28,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.70710678"
-     inkscape:cx="-594.54509"
-     inkscape:cy="-111.32872"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="128.21104"
+     inkscape:cy="120.84565"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -44,13 +44,13 @@
      fit-margin-right="0"
      fit-margin-bottom="0"
      showguides="false"
-     inkscape:snap-global="true"
+     inkscape:snap-global="false"
      scale-x="1.1">
     <inkscape:grid
        type="xygrid"
        id="grid34"
-       originx="-404.5178"
-       originy="80.48811" />
+       originx="-238.99012"
+       originy="267.4234" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -60,7 +60,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -68,7 +68,14 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-367.74348,-307.58319)">
+     transform="translate(-202.2158,-494.62521)">
+    <ellipse
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.94493192;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+       id="path824-1-5-4-1-6-3-3"
+       cx="236.65691"
+       cy="528.99005"
+       rx="34.337769"
+       ry="34.360279" />
     <circle
        style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
        id="path824-1-5"
@@ -159,5 +166,24 @@
        id="path827-0-8-9"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccccscc" />
+    <path
+       style="fill:#aeceff;fill-opacity:1;stroke:none;stroke-width:0.96399999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 129.10185,488.9471 c -7.25846,6.35814 -10.57955,12.63861 -10.58332,22.72461 v 52.68154 l 4.19799,0.0227 v -42.87696 c 4.94771,8.56968 15.13416,13.09688 24.65916,42.20104 h 7.9375 c -14.55208,-39.29062 -26.19375,-36.3802 -30.51173,-51.90608 -2.11723,-7.61276 2.86278,-15.0335 8.53374,-19.93646 z"
+       id="path827-0-8-9-6"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccscc" />
+    <ellipse
+       style="fill:#c5c5c5;fill-opacity:1;stroke:none;stroke-width:0.94615573;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+       id="path824-1-5-4-1-6-3"
+       cx="224.97417"
+       cy="430.02368"
+       rx="34.399818"
+       ry="34.387196" />
+    <path
+       style="fill:#1e48aa;fill-opacity:1;stroke:none;stroke-width:3.25092864;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+       d="M 77.205078,-8.8222656 C 58.196983,8.0233493 41.876375,33.017034 49.009766,58.666016 62.367451,106.69538 96.124212,103.39781 139.21094,200.78516 A 118.19551,118.15214 0 0 0 183.39258,108.70898 118.19551,118.15214 0 0 0 77.205078,-8.8222656 Z M 52.175781,-8.5820312 A 118.19551,118.15214 0 0 0 -53,108.70898 118.19551,118.15214 0 0 0 27.421875,220.54688 V 58.246094 C 27.432613,29.517819 35.28551,9.7758807 52.175781,-8.5820312 Z M 41.845703,92.011719 V 224.52539 a 118.19551,118.15214 0 0 0 23.349609,2.33594 118.19551,118.15214 0 0 0 53.302738,-12.71485 C 88.23352,134.42528 57.453773,119.04567 41.845703,92.011719 Z"
+       transform="matrix(0.29104167,0,0,0.29104167,217.64101,497.33895)"
+       id="path824-1-5-4-1-6-3-6"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>
