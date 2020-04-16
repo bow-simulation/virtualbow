@@ -16,8 +16,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/icon.icns ${CMAKE_BINARY_DIR}/applica
 
 configure_file(installer.json ${CMAKE_BINARY_DIR}/installer.json)
 add_custom_target(dmg-installer DEPENDS virtualbow-gui virtualbow-slv virtualbow-post)
-get_target_property(QT_QMAKE_PATH Qt5::qmake IMPORTED_LOCATION)
-get_filename_component(QT_BINARY_DIR ${QT_QMAKE_PATH} DIRECTORY)
 add_custom_command(
     TARGET dmg-installer
     COMMAND ${QT_BINARY_DIR}/macdeployqt ${CMAKE_BINARY_DIR}/application/VirtualBow.app

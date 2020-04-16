@@ -19,6 +19,7 @@ add_custom_command(
     TARGET deb-package
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/control ${CMAKE_BINARY_DIR}/deb_build/DEBIAN/control
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/linux ${CMAKE_BINARY_DIR}/deb_build
+    COMMAND mkdir -p ${CMAKE_BINARY_DIR}/packages
     COMMAND dpkg-deb --build ${CMAKE_BINARY_DIR}/deb_build ${CMAKE_BINARY_DIR}/packages/virtualbow.deb
 )
 

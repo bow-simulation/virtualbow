@@ -57,7 +57,7 @@ The basic Newton-Raphson method can be improved and extended in many ways, for e
 
 \subsection{Constrained Newton-Raphson method}
 
-In the previous section the Newton-Raphson method was applied to the problem of calculating the equilibrium displacements of a system when all applied forces are known. This method is used in \swtitle for finding the braced equilibrium state of the bow (see section \textcolor{red}{[Reference]}). However, when calculating the draw curve we don't actually know the draw forces, just the displacement of the string center. \textcolor{red}{Also: Load decrease.}
+In the previous section the Newton-Raphson method was applied to the problem of calculating the equilibrium displacements of a system when all applied forces are known. This method is used in VirtualBow for finding the braced equilibrium state of the bow (see section \textcolor{red}{[Reference]}). However, when calculating the draw curve we don't actually know the draw forces, just the displacement of the string center. \textcolor{red}{Also: Load decrease.}
 
 A solution to this is displacement control, where we prescribe a value for one of the displacement components and instead treat the corresponding external forces as a variable that is determined during solution.
 
@@ -68,7 +68,7 @@ The following derivation has been adapted from \cite{fem_script_uni_bochum}. Dis
 c(\boldsymbol{u},\,\lambda) &= 0.\label{eq:constraint_dc}
 \end{align}
 %
-Here the external forces are scaled by the unknown load factor $\lambda$. To compensate for this additional unknown, a scalar constraint~$c(\boldsymbol{u},\,\lambda) = 0$ on the displacements and the load parameter is introduced. Depending on the choice of constraint the method can be turned into load control, displacement control or other more sophisticated schemes like the arc-length method. We will carry out the derivation for the general case and specify the constraints later. This is also how these methods are implemented in \swtitle: A general implementation for arbitrary constraints that is then specialized into load controlled and displacement controlled methods by providing the necessary constraints.
+Here the external forces are scaled by the unknown load factor $\lambda$. To compensate for this additional unknown, a scalar constraint~$c(\boldsymbol{u},\,\lambda) = 0$ on the displacements and the load parameter is introduced. Depending on the choice of constraint the method can be turned into load control, displacement control or other more sophisticated schemes like the arc-length method. We will carry out the derivation for the general case and specify the constraints later. This is also how these methods are implemented in VirtualBow: A general implementation for arbitrary constraints that is then specialized into load controlled and displacement controlled methods by providing the necessary constraints.
 
 The system of nonlinear equations (\ref{eq:equilibrium_dc}), (\ref{eq:constraint_dc}) has to be solved for the displacements~$\boldsymbol{u}$ and the load parameter~$\lambda$. Like before, the Newton-Raphson method is used: The equations are linearised around a given approximation~$\{\boldsymbol{u}_i,\,\lambda_i\}$ and solved to obtain an improved approximiation~$\{\boldsymbol{u}_{i+1},\,\lambda_{i+1}\}$. This is repeated iteratively until displacements and load parameter satisfy the equilibrium equations~(\ref{eq:equilibrium_dc}) as well as the constraint equation~(\ref{eq:constraint_dc}) reasonably well as determined by some convergence criterion.
 
@@ -205,11 +205,11 @@ They are most effective when the computation of the time steps is fast, so they 
 Implicit methods in contrast are well suited for larger time scales, where explicit algorithms would need too many steps.
 Examples are structural response problems or numerically stiff systems, i.e. systems whose eigenfrequencies range from very small to very large.
 
-\swtitle\ currently uses the central difference method \cite{bib:dynamic_solution}, which is an explicit method often used in FEM.
+VirtualBow currently uses the central difference method \cite{bib:dynamic_solution}, which is an explicit method often used in FEM.
 Based on it's properties and the advantages of explicit methods it seems like a good choice.
-However, implicit methods have not yet been tested with \swtitle. The Newmark-beta method \textcolor{red}{Source} for example might be worth a try.
+However, implicit methods have not yet been tested with VirtualBow. The Newmark-beta method \textcolor{red}{Source} for example might be worth a try.
 
-\swtitle\ previously used the Runge-Kutta-Fehlberg-7-8 method provided by the \textcolor{red}{the odeint library}.
+VirtualBow previously used the Runge-Kutta-Fehlberg-7-8 method provided by the \textcolor{red}{the odeint library}.
 It performed worse than the central difference method, probably because of the high number of function evaluations carried out by an order~7/8 Runge-Kutta scheme.
 The big advantage however was the timestep control based on error estimation, which meant that absolutely no user input regarding the timestep was necessary.
 
@@ -282,7 +282,7 @@ A safety factor~$0 < \beta < 1$ is introduced to account for the uncertainties a
 \Delta t = \beta \frac{2}{\omega_{max}}.
 \end{align}
 
-This doesn't guarantee stability in a strict sense, but it's okay for practical purposes. A common choice is~$\beta = 0.9$ but~\swtitle\ uses a lower value for the sake of robustness. The frequency $\omega_{max}$ is sometimes estimated by using the bound
+This doesn't guarantee stability in a strict sense, but it's okay for practical purposes. A common choice is~$\beta = 0.9$ but VirtualBow uses a lower value for the sake of robustness. The frequency $\omega_{max}$ is sometimes estimated by using the bound
 
 \begin{align}
 \omega_{max} \le \max_{i}\,\{\omega_{max,\,i}\}
@@ -294,7 +294,7 @@ where $\omega_{max,\,i}$ is the maximum natural frequency of the respective fini
 \left(\boldsymbol{M} - \omega^2\boldsymbol{K}\right)\boldsymbol{\bar{u}} = 0\label{eq:natural_frequencies}
 \end{align}
 
-which is what \swtitle\ does.
+which is what VirtualBow does.
 
 \textcolor{red}{No damping here. For a version with damping see the LS-Dyna theoretical manual of 2006.}
 

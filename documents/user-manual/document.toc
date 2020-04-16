@@ -1,0 +1,18 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}% 
+\contentsline {section}{\numberline {2}The Model Editor}{3}{section.2}% 
+\contentsline {subsection}{\numberline {2.1}Profile}{4}{subsection.2.1}% 
+\contentsline {subsection}{\numberline {2.2}Width}{5}{subsection.2.2}% 
+\contentsline {subsection}{\numberline {2.3}Layers}{6}{subsection.2.3}% 
+\contentsline {subsection}{\numberline {2.4}String}{7}{subsection.2.4}% 
+\contentsline {subsection}{\numberline {2.5}Masses}{8}{subsection.2.5}% 
+\contentsline {subsection}{\numberline {2.6}Damping}{9}{subsection.2.6}% 
+\contentsline {subsection}{\numberline {2.7}Dimensions}{10}{subsection.2.7}% 
+\contentsline {subsection}{\numberline {2.8}Comments}{12}{subsection.2.8}% 
+\contentsline {subsection}{\numberline {2.9}Settings}{12}{subsection.2.9}% 
+\contentsline {section}{\numberline {3}Simulation Results}{14}{section.3}% 
+\contentsline {section}{\numberline {4}Command Line Interface}{16}{section.4}% 
+\contentsline {section}{\numberline {5}Background Information}{17}{section.5}% 
+\contentsline {section}{\numberline {A}Input File Structure}{18}{appendix.A}% 
+\contentsline {section}{\numberline {B}Output File Structure}{19}{appendix.B}% 
+\contentsline {section}{\numberline {C}Python Scripting Example}{21}{appendix.C}% 
+\contentsline {section}{\numberline {D}A Simple Bending Test}{22}{appendix.D}% 
