@@ -1,0 +1,18 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{The Model Editor}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Profile}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Width}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{Layers}{section.2}% 5
+\BOOKMARK [2][-]{subsection.2.4}{String}{section.2}% 6
+\BOOKMARK [2][-]{subsection.2.5}{Masses}{section.2}% 7
+\BOOKMARK [2][-]{subsection.2.6}{Damping}{section.2}% 8
+\BOOKMARK [2][-]{subsection.2.7}{Dimensions}{section.2}% 9
+\BOOKMARK [2][-]{subsection.2.8}{Comments}{section.2}% 10
+\BOOKMARK [2][-]{subsection.2.9}{Settings}{section.2}% 11
+\BOOKMARK [1][-]{section.3}{Simulation Results}{}% 12
+\BOOKMARK [1][-]{section.4}{Command Line Interface}{}% 13
+\BOOKMARK [1][-]{section.5}{Background Information}{}% 14
+\BOOKMARK [1][-]{appendix.A}{Input File Structure}{}% 15
+\BOOKMARK [1][-]{appendix.B}{Output File Structure}{}% 16
+\BOOKMARK [1][-]{appendix.C}{Python Scripting Example}{}% 17
+\BOOKMARK [1][-]{appendix.D}{A Simple Bending Test}{}% 18

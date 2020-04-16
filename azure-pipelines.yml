@@ -12,9 +12,13 @@ jobs:
       virtualbow-test
   - task: PublishBuildArtifacts@1
     inputs:
+      pathToPublish: 'build/application'
+      artifactName: 'Windows_Artifacts'
+  - task: PublishBuildArtifacts@1
+    inputs:
       pathToPublish: 'build/packages'
       artifactName: 'Windows_Artifacts'
-
+      
 - job: MacOS
   pool:
     vmImage: 'macOS-10.14'
@@ -27,6 +31,10 @@ jobs:
       cmake --build . -j$(nproc)
       cmake --build . --target dmg-installer -j$(nproc)
       ./virtualbow-test
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: 'build/application'
+      artifactName: 'MacOS_Artifacts'
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: 'build/packages'
@@ -48,6 +56,10 @@ jobs:
       cmake --build . --target deb-package -j$(nproc)
       cmake --build . --target rpm-package -j$(nproc)
       ./virtualbow-test
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: 'build/application'
+      artifactName: 'Linux_Artifacts'
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: 'build/packages'

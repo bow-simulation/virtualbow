@@ -10,7 +10,7 @@ The first step for developing a bow model is therefore to clarify its scope and 
 \section{Scope of the Model}
 \label{section:model-scope}
 
-In the case of \swtitle\ the purpose of the bow model is to give users the ability to evaluate the bow designs they come up with.
+In the case of VirtualBow the purpose of the bow model is to give users the ability to evaluate the bow designs they come up with.
 So what characteristics make a bow design a good one and what are their implications for the bow model?
 Many things come to mind, but we limit ourselves to the following three categories:
 
@@ -26,7 +26,7 @@ We will later see what those are when we look at scientific research.
 A bow design will also be judged by it's influence on the archer, like the draw force, the shape of the draw curve (no "stacking", i.e. increasing stiffness towards the end of draw) and the dynamic forces exerted to the shooter ("hand shock").
 \end{enumerate}
 
-Any physical effects in archery that don't (significantly) affect one of those categories above are outside the scope of \swtitle\ and the bow model doesn't need to include them.
+Any physical effects in archery that don't (significantly) affect one of those categories above are outside the scope of VirtualBow and the bow model doesn't need to include them.
 Exterior ballistics is an example for this, another one is the bending motion of the arrow (Archer's Paradox).
 
 Now the next question is: How does a bow model have to look like in order to capture the things listed above?
@@ -114,4 +114,4 @@ All in all, there are four different types of elements needed:
 
 All of them have to account for arbitrarily large displacements and are therefore geometrically nonlinear (even though all the materials are linear-elastic).
 
-In the next chapters we will first show how the equations of motion for a finite element system can be assembled from the equations of motion for the single elements. We will then derive the equations of motion for the element types listed above. Finally we're going to discuss the numerical solution of those equations for the static and dynamic case and how this is implemented in \swtitle.
+In the next chapters we will first show how the equations of motion for a finite element system can be assembled from the equations of motion for the single elements. We will then derive the equations of motion for the element types listed above. Finally we're going to discuss the numerical solution of those equations for the static and dynamic case and how this is implemented in VirtualBow.
