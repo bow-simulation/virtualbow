@@ -1,4 +1,4 @@
-# Define math constants on MSVC
+# Define math constants for MSVC
 target_compile_definitions(virtualbow-gui PRIVATE _USE_MATH_DEFINES)
 target_compile_definitions(virtualbow-slv PRIVATE _USE_MATH_DEFINES)
 target_compile_definitions(virtualbow-post PRIVATE _USE_MATH_DEFINES)
@@ -8,6 +8,10 @@ target_compile_definitions(virtualbow-test PRIVATE _USE_MATH_DEFINES)
 target_sources(virtualbow-gui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icons-gui.rc)
 target_sources(virtualbow-slv PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icons-slv.rc)
 target_sources(virtualbow-post PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icons-post.rc)
+
+# Make virtualbow-gui and virtualbow-post GUI applications
+set_target_properties(virtualbow-gui PROPERTIES WIN32_EXECUTABLE TRUE)
+set_target_properties(virtualbow-post PROPERTIES WIN32_EXECUTABLE TRUE)
 
 # Target: Copy shared libraries to application directory
 
@@ -19,10 +23,10 @@ add_custom_target(copy-dependencies DEPENDS virtualbow-gui virtualbow-slv virtua
 add_custom_command(
     TARGET copy-dependencies
     COMMAND ${WINDEPLOYQT}
-	${CMAKE_BINARY_DIR}/application/virtualbow-gui.exe
-	${CMAKE_BINARY_DIR}/application/virtualbow-slv.exe
-	${CMAKE_BINARY_DIR}/application/virtualbow-post.exe
-	--release
+    ${CMAKE_BINARY_DIR}/application/virtualbow-gui.exe
+    ${CMAKE_BINARY_DIR}/application/virtualbow-slv.exe
+    ${CMAKE_BINARY_DIR}/application/virtualbow-post.exe
+    --release
 )
 
 # Target: Inno Setup installer

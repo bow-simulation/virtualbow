@@ -35,7 +35,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 add_executable(
     virtualbow-gui
-    WIN32
     resources/resources.qrc
     source/gui/main.cpp
     source/gui/Settings.cpp
@@ -126,7 +125,6 @@ target_link_libraries(
 
 add_executable(
     virtualbow-post
-    WIN32
     resources/resources.qrc
     source/post/main.cpp
     source/post/Settings.cpp
