@@ -13,11 +13,12 @@ public:
 
 private:
     const char* DEFAULT_FILENAME = "Unnamed";
-    const int N_RECENT_FILES = 10;
+    const int N_RECENT_FILES = 8;
 
     InputData data;
     BowEditor* editor;
     QString currentFile;
+
     QList<QAction*> recentFileActions;
     QStringList recentFilePaths;
 
@@ -36,8 +37,8 @@ private:
     void setModified(bool modified);
     bool optionalSave();
 
-    void updateRecentActionList();
     void readRecentFilePaths();
-    void updateRecentFilePaths(const QString& path);
     void saveRecentFilePaths();
+    void addRecentFilePath(const QString& path);
+    void updateRecentActionList();
 };
