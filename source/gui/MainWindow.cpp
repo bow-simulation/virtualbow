@@ -57,14 +57,22 @@ MainWindow::MainWindow()
     menu_file->addAction(action_open);
     auto menu_recentfiles = menu_file->addMenu("&Recent Files");
     menu_recentfiles->setObjectName("menu_recentfiles");
-    menu_recentfiles->setToolTipsVisible(true);
     for(int i = 0; i < N_RECENT_FILES; ++i) {
-        QAction* action_recentfile = new QAction(this);
+        auto action_recentfile = new QAction(this);
         action_recentfile->setVisible(false);
         QObject::connect(action_recentfile, &QAction::triggered, this, &MainWindow::openRecent);
         recentFileActions.append(action_recentfile);
         menu_recentfiles->addAction(action_recentfile);
     }
+    auto action_clear_list = new QAction("&Clear List", this);
+    QObject::connect(action_clear_list, &QAction::triggered, this, [&]{
+        recentFilePaths.clear();
+        updateRecentActionList();
+    });
+
+    menu_recentfiles->addSeparator();
+    menu_recentfiles->addAction(action_clear_list);
+
     menu_file->addSeparator();
     menu_file->addAction(action_save);
     menu_file->addAction(action_save_as);
@@ -296,7 +304,8 @@ void MainWindow::setCurrentFile(const QString &path)
     setWindowFilePath(currentFile.isEmpty() ? DEFAULT_FILENAME : currentFile);
     if(!path.isEmpty())
     {
-        updateRecentFilePaths(path);
+        addRecentFilePath(path);
+        updateRecentActionList();
     }
 
     QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
@@ -330,14 +339,6 @@ void MainWindow::readRecentFilePaths()
     SETTINGS.endArray();
 }
 
-void MainWindow::updateRecentFilePaths(const QString& path)
-{
-    recentFilePaths.removeAll(path);
-    recentFilePaths.prepend(path);
-    while(recentFilePaths.size() > recentFileActions.size())
-        recentFilePaths.removeLast();
-}
-
 void MainWindow::saveRecentFilePaths()
 {
     SETTINGS.beginWriteArray("MainWindow/recentFiles");
@@ -348,21 +349,31 @@ void MainWindow::saveRecentFilePaths()
     SETTINGS.endArray();
 }
 
+void MainWindow::addRecentFilePath(const QString& path)
+{
+    recentFilePaths.removeAll(path);
+    recentFilePaths.prepend(path);
+    while(recentFilePaths.size() > recentFileActions.size()) {
+        recentFilePaths.removeLast();
+    }
+}
+
 void MainWindow::updateRecentActionList()
 {
     auto actionIter = recentFileActions.begin();
     auto fileIter = recentFilePaths.begin();
+    int i = 0;
 
-    for(; actionIter != recentFileActions.end() && fileIter != recentFilePaths.end(); actionIter++, fileIter++) {
+    for(; actionIter != recentFileActions.end() && fileIter != recentFilePaths.end(); actionIter++, fileIter++, ++i) {
         QString strippedName = QFileInfo(*fileIter).fileName();
-        (*actionIter)->setText(strippedName);
-        (*actionIter)->setToolTip(*fileIter);
+        (*actionIter)->setText("&" + QString::number(i + 1) + " | " + strippedName + " [ " + *fileIter + " ]");
         (*actionIter)->setData(*fileIter);
         (*actionIter)->setVisible(true);
     }
 
-    for(; actionIter != recentFileActions.end(); actionIter++)
+    for(; actionIter != recentFileActions.end(); actionIter++) {
         (*actionIter)->setVisible(false);
+    }
 
     auto menu_recentfiles = MainWindow::findChild<QMenu*>("menu_recentfiles");
     if(menu_recentfiles) {
