@@ -9,6 +9,7 @@ int main(int argc, char* argv[])
     app.setApplicationName(Config::APPLICATION_NAME_GUI);
     app.setApplicationVersion(Config::APPLICATION_VERSION);
     app.setOrganizationDomain(Config::APPLICATION_WEBSITE);
+    app.setAttribute(Qt::AA_DontShowIconsInMenus, true);
 
     QLocale::setDefault(QLocale::C);
 
@@ -20,7 +21,7 @@ int main(int argc, char* argv[])
 
     QStringList args = parser.positionalArguments();
     if(args.size() > 1) {
-        std::cerr << "Only one argument is allowed." << std::endl;
+        std::cerr << "Only one argument is accepted." << std::endl;
         return 1;
     }
 
