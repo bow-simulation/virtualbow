@@ -29,24 +29,27 @@ MainWindow::MainWindow()
     action_save_as->setShortcuts(QKeySequence::SaveAs);
     action_save_as->setMenuRole(QAction::NoRole);
 
-    auto action_exit = new QAction(QIcon(":/icons/application-exit.png"), "&Quit", this);
-    QObject::connect(action_exit, &QAction::triggered, this, &QWidget::close);
-    action_exit->setShortcuts(QKeySequence::Quit);
-    action_exit->setMenuRole(QAction::QuitRole);
+    auto action_quit = new QAction(QIcon(":/icons/application-exit.png"), "&Quit", this);
+    QObject::connect(action_quit, &QAction::triggered, this, &QWidget::close);
+    action_quit->setShortcuts(QKeySequence::Quit);
+    action_quit->setMenuRole(QAction::QuitRole);
 
     auto action_run_statics = new QAction(QIcon(":/icons/run-statics"), "Statics...", this);
+    QObject::connect(action_run_statics, &QAction::triggered, [&]{ runSimulation("--static"); });
     action_run_statics->setShortcut(Qt::Key_F5);
     action_run_statics->setMenuRole(QAction::NoRole);
-    QObject::connect(action_run_statics, &QAction::triggered, [&]{ runSimulation("--static"); });
+    action_run_statics->setIconVisibleInMenu(true);
 
     auto action_run_dynamics = new QAction(QIcon(":/icons/run-dynamics"), "Dynamics...", this);
+    QObject::connect(action_run_dynamics, &QAction::triggered, [&]{ runSimulation("--dynamic"); });
     action_run_dynamics->setShortcut(Qt::Key_F6);
     action_run_dynamics->setMenuRole(QAction::NoRole);
-    QObject::connect(action_run_dynamics, &QAction::triggered, [&]{ runSimulation("--dynamic"); });
+    action_run_dynamics->setIconVisibleInMenu(true);
 
     auto action_about = new QAction(QIcon(":/icons/dialog-information.png"), "&About...", this);
-    connect(action_about, &QAction::triggered, this, &MainWindow::about);
+    QObject::connect(action_about, &QAction::triggered, this, &MainWindow::about);
     action_about->setMenuRole(QAction::AboutRole);
+    action_about->setIconVisibleInMenu(true);
 
     // File menu
     auto menu_file = this->menuBar()->addMenu("&File");
@@ -66,7 +69,7 @@ MainWindow::MainWindow()
     menu_file->addAction(action_save);
     menu_file->addAction(action_save_as);
     menu_file->addSeparator();
-    menu_file->addAction(action_exit);
+    menu_file->addAction(action_quit);
 
     // Simulation menu
     auto menu_simulation = this->menuBar()->addMenu("&Simulate");

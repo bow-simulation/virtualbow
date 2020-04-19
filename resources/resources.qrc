@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>icons/application-exit.png</file>
-        <file>icons/application-exit.svg</file>
         <file>icons/comments.png</file>
         <file>icons/damping.png</file>
         <file>icons/damping.svg</file>
@@ -12,10 +10,6 @@
         <file>icons/document-open.png</file>
         <file>icons/document-save-as.png</file>
         <file>icons/document-save.png</file>
-        <file>icons/edit-copy.png</file>
-        <file>icons/edit-cut.png</file>
-        <file>icons/edit-delete.png</file>
-        <file>icons/edit-paste.png</file>
         <file>icons/layers.png</file>
         <file>icons/layers.svg</file>
         <file>icons/list-add.png</file>
