@@ -20,7 +20,6 @@ private:
     QString currentFile;
 
     QList<QAction*> recentFileActions;
-    QStringList recentFilePaths;
 
     void closeEvent(QCloseEvent *event) override;
 
@@ -37,8 +36,7 @@ private:
     void setModified(bool modified);
     bool optionalSave();
 
-    void readRecentFilePaths();
-    void saveRecentFilePaths();
+    void clearRecentFilePaths();
     void addRecentFilePath(const QString& path);
     void updateRecentActionList();
 };

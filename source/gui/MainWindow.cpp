@@ -66,7 +66,7 @@ MainWindow::MainWindow()
     }
     auto action_clear_list = new QAction("&Clear List", this);
     QObject::connect(action_clear_list, &QAction::triggered, this, [&]{
-        recentFilePaths.clear();
+        clearRecentFilePaths();
         updateRecentActionList();
     });
 
@@ -124,7 +124,6 @@ MainWindow::MainWindow()
     });
 
     // Populate the recent files menu
-    readRecentFilePaths();
     updateRecentActionList();
 
     // Set initial input data
@@ -140,7 +139,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
         // Save state and geometry
         SETTINGS.setValue("MainWindow/state", saveState());
         SETTINGS.setValue("MainWindow/geometry", saveGeometry());
-        saveRecentFilePaths();
     }
     else
     {
@@ -328,6 +326,7 @@ bool MainWindow::optionalSave()
     }
 }
 
+/*
 void MainWindow::readRecentFilePaths()
 {
     recentFilePaths.clear();
@@ -348,35 +347,61 @@ void MainWindow::saveRecentFilePaths()
     }
     SETTINGS.endArray();
 }
+*/
+
+void MainWindow::clearRecentFilePaths()
+{
+    SETTINGS.beginWriteArray("MainWindow/recentFiles");
+    SETTINGS.endArray();
+}
+
 
 void MainWindow::addRecentFilePath(const QString& path)
 {
+    QStringList recentFilePaths;
+    for(int i = 0; i < SETTINGS.beginReadArray("MainWindow/recentFiles"); i++) {
+        SETTINGS.setArrayIndex(i);
+        recentFilePaths.append(SETTINGS.value("path").toString());
+    }
+    SETTINGS.endArray();
+
     recentFilePaths.removeAll(path);
     recentFilePaths.prepend(path);
     while(recentFilePaths.size() > recentFileActions.size()) {
         recentFilePaths.removeLast();
     }
+
+    SETTINGS.beginWriteArray("MainWindow/recentFiles");
+    for(int i = 0; i < recentFilePaths.size(); i++) {
+        SETTINGS.setArrayIndex(i);
+        SETTINGS.setValue("path", recentFilePaths.at(i));
+    }
+    SETTINGS.endArray();
 }
 
 void MainWindow::updateRecentActionList()
 {
-    auto actionIter = recentFileActions.begin();
-    auto fileIter = recentFilePaths.begin();
-    int i = 0;
+    int n_paths = SETTINGS.beginReadArray("MainWindow/recentFiles");
+    int n_actions = recentFileActions.size();
 
-    for(; actionIter != recentFileActions.end() && fileIter != recentFilePaths.end(); actionIter++, fileIter++, ++i) {
-        QString strippedName = QFileInfo(*fileIter).fileName();
-        (*actionIter)->setText("&" + QString::number(i + 1) + " | " + strippedName + " [ " + *fileIter + " ]");
-        (*actionIter)->setData(*fileIter);
-        (*actionIter)->setVisible(true);
+    for(int i = 0; i < n_paths && i < n_actions; ++i)
+    {
+        SETTINGS.setArrayIndex(i);
+        QString path = SETTINGS.value("path").toString();
+        QString name = QFileInfo(path).fileName();
+
+        recentFileActions[i]->setText("&" + QString::number(i + 1) + " | " + name + " [ " + path + " ]");
+        recentFileActions[i]->setData(path);
+        recentFileActions[i]->setVisible(true);
     }
+    SETTINGS.endArray();
 
-    for(; actionIter != recentFileActions.end(); actionIter++) {
-        (*actionIter)->setVisible(false);
+    for(int i = n_paths; i < n_actions; ++i) {
+        recentFileActions[i]->setVisible(false);
     }
 
     auto menu_recentfiles = MainWindow::findChild<QMenu*>("menu_recentfiles");
     if(menu_recentfiles) {
-        menu_recentfiles->setEnabled(recentFilePaths.size() > 0);
+        menu_recentfiles->setEnabled(n_paths > 0);
     }
 }
