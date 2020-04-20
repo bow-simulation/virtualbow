@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
     QCommandLineParser parser;
     parser.addHelpOption();
     parser.addVersionOption();
-    parser.addPositionalArgument("file", "Result file (.vbr)");
+    parser.addPositionalArgument("file", "Result file (.res)");
     parser.process(app);
 
     QStringList args = parser.positionalArguments();

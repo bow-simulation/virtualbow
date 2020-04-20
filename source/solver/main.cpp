@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
     parser.addOption(dynamics);
     parser.addOption(progress);
     parser.addPositionalArgument("input", "Model file (.bow)");
-    parser.addPositionalArgument("output", "Result file (.vbr)");
+    parser.addPositionalArgument("output", "Result file (.res)");
     parser.process(app);
 
     QStringList args = parser.positionalArguments();
@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
     else
     {
         QFileInfo info(input_path);
-        output_path = info.absolutePath() + QDir::separator() + info.completeBaseName() + ".vbr";
+        output_path = info.absolutePath() + QDir::separator() + info.completeBaseName() + ".res";
     }
 
     try
