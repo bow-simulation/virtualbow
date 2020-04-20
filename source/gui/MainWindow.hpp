@@ -19,6 +19,7 @@ private:
     BowEditor* editor;
     QString currentFile;
 
+    QMenu* menu_recentfiles;
     QList<QAction*> recentFileActions;
 
     void closeEvent(QCloseEvent *event) override;
