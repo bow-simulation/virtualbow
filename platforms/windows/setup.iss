@@ -31,7 +31,7 @@ Name: {commondesktop}\VirtualBow Post; Filename: {app}\virtualbow-post.exe; Task
 
 [Tasks]
 Name: DesktopIcons; Description: "Create desktop shortcuts";
-Name: FileAssociation; Description: "Associate .bow and .vbr files with VirtualBow";
+Name: FileAssociation; Description: "Associate .bow and .res files with VirtualBow";
 Name: AddToPath; Description: "Add VirtualBow to PATH";
 
 [Registry]
@@ -40,7 +40,7 @@ Root: HKCR; Subkey: VirtualBowModelFile; ValueType: string; ValueName: ""; Value
 Root: HKCR; Subkey: VirtualBowModelFile\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\virtualbow-gui.exe,-2"; Tasks: FileAssociation
 Root: HKCR; Subkey: VirtualBowModelFile\shell\open\command; ValueType: string; ValueName: ""; ValueData: "{app}\virtualbow-gui.exe %1"; Tasks: FileAssociation 
 
-Root: HKCR; Subkey: .vbr; ValueType: string; ValueName: ""; ValueData: VirtualBowResultFile; Flags: uninsdeletevalue; Tasks: FileAssociation 
+Root: HKCR; Subkey: .res; ValueType: string; ValueName: ""; ValueData: VirtualBowResultFile; Flags: uninsdeletevalue; Tasks: FileAssociation 
 Root: HKCR; Subkey: VirtualBowResultFile; ValueType: string; ValueName: ""; ValueData: VirtualBow Result; Flags: uninsdeletekey; Tasks: FileAssociation
 Root: HKCR; Subkey: VirtualBowResultFile\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\virtualbow-post.exe,-2"; Tasks: FileAssociation
 Root: HKCR; Subkey: VirtualBowResultFile\shell\open\command; ValueType: string; ValueName: ""; ValueData: "{app}\virtualbow-post.exe %1"; Tasks: FileAssociation

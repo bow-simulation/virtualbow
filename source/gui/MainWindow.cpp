@@ -259,7 +259,7 @@ void MainWindow::runSimulation(const QString& flag)
 
     // Generate output filename
     QFileInfo info(currentFile);
-    QString output_file = info.absolutePath() + QDir::separator() + info.completeBaseName() + ".vbr";
+    QString output_file = info.absolutePath() + QDir::separator() + info.completeBaseName() + ".res";
 
     // Run Simulation, launch Post on results if successful
     SimulationDialog dialog(this, currentFile, output_file, flag);
