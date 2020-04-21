@@ -7,7 +7,7 @@ class RecentFilesMenu: public QMenu
 
 public:
     RecentFilesMenu(QWidget* parent)
-        : QMenu("&Recent Files", parent)
+        : QMenu("Open &Recent", parent)
     {
         const int N = 8;    // Number of retained paths
 

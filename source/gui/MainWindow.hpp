@@ -14,7 +14,6 @@ public:
 
 private:
     const char* DEFAULT_FILENAME = "Unnamed";
-    const int N_RECENT_FILES = 8;
 
     InputData data;
     QString currentFile;
