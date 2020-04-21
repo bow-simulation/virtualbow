@@ -1,4 +1,5 @@
 #pragma once
+#include "config.hpp"
 #include <string>
 #include <nlohmann/json.hpp>
 
@@ -6,7 +7,7 @@ using nlohmann::json;
 
 struct Meta
 {
-    std::string version = "";
+    std::string version = Config::APPLICATION_VERSION;
     std::string comments = "";
 };
 
