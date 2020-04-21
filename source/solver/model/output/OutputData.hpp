@@ -34,7 +34,7 @@ static void to_json(json& obj, const OutputData& val)
 static void from_json(const json& obj, OutputData& val)
 {
     std::string version = obj.at("version").get<std::string>();
-    //if(version != Config::APPLICATION_VERSION)
+    if(version != Config::APPLICATION_VERSION)
         throw std::runtime_error("Result file version " + version + " not compatible with VirtualBow " + Config::APPLICATION_VERSION);
 
     val.version = obj.at("version");

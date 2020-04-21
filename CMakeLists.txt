@@ -132,6 +132,8 @@ add_executable(
     source/post/main.cpp
     source/post/MainWindow.cpp
     source/post/MainWindow.hpp
+    source/post/OutputWidget.cpp
+    source/post/OutputWidget.hpp
     source/post/ComboPlot.cpp
     source/post/ComboPlot.hpp
     source/post/EnergyPlot.cpp
