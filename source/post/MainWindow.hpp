@@ -1,23 +1,37 @@
 #pragma once
-#include "gui/PersistentDialog.hpp"
+#include "gui/RecentFilesMenu.hpp"
 #include "solver/model/output/OutputData.hpp"
 #include "solver/model/input/InputData.hpp"
 #include <QtWidgets>
 
+class OutputWidget;
+
 class MainWindow: public QMainWindow
 {
 public:
-    MainWindow(const QString& path);
+    MainWindow();
+    void loadFile(const QString& path);
+    void saveFile(const QString& path);
 
 private:
-    OutputData output;
+    const char* DEFAULT_FILENAME = "Unnamed";
+    RecentFilesMenu* menu_recent;
+
     void closeEvent(QCloseEvent *event) override;
+
+    void open();
+    void saveAs();
+    void about();
 };
 
 class OutputWidget: public QWidget
 {
 public:
     OutputWidget(const OutputData& output);
+    const OutputData& getData();
+
+private:
+    OutputData data;
 };
 
 class StaticOutputWidget: public QWidget

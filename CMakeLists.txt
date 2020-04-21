@@ -147,6 +147,8 @@ add_executable(
     source/post/StressPlot.cpp
     source/post/StressPlot.hpp
     source/gui/qcustomplot/qcustomplot.cpp
+    source/gui/RecentFilesMenu.cpp
+    source/gui/RecentFilesMenu.hpp
     source/gui/BaseDialog.cpp
     source/gui/BaseDialog.hpp
     source/gui/PlotWidget.cpp

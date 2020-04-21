@@ -6,7 +6,8 @@
 #include <nlohmann/json.hpp>
 
 MainWindow::MainWindow()
-    : editor(new BowEditor())
+    : editor(new BowEditor()),
+      menu_recent(new RecentFilesMenu(this))
 {
     // Actions
     auto action_new = new QAction(QIcon(":/icons/document-new.png"), "&New", this);
@@ -52,7 +53,6 @@ MainWindow::MainWindow()
     action_about->setIconVisibleInMenu(true);
 
     // Recent file menu
-    menu_recent = new RecentFilesMenu(this);
     QObject::connect(menu_recent, &RecentFilesMenu::openRecent, this, &MainWindow::openRecent);
 
     // File menu
@@ -89,13 +89,6 @@ MainWindow::MainWindow()
     menu_help->addAction(action_about);
 
     // Main window
-    QIcon icon;
-    icon.addFile(":/icons/logo-16.png");
-    icon.addFile(":/icons/logo-24.png");
-    icon.addFile(":/icons/logo-32.png");
-    icon.addFile(":/icons/logo-48.png");
-    icon.addFile(":/icons/logo-64.png");
-
     this->setWindowIcon(QIcon(":/icons/logo.ico"));
     this->setCentralWidget(editor);
     setCurrentFile(QString());
@@ -145,7 +138,7 @@ bool MainWindow::loadFile(const QString& path)
     }
     catch(const std::exception& e)  // Todo
     {
-        QMessageBox::critical(this, "", "Failed to open " + path + "\n" + e.what());  // Todo: Detailed error message
+        QMessageBox::critical(this, "", "Failed to open " + path + "\n" + e.what());
         return false;
     }
 }
@@ -163,7 +156,7 @@ bool MainWindow::saveFile(const QString& path)
     }
     catch(const std::exception& e)  // Todo
     {
-        QMessageBox::critical(this, "", "Failed to save " + path + "\n" + e.what());  // Todo: Detailed error message
+        QMessageBox::critical(this, "", "Failed to save " + path + "\n" + e.what());
         return false;
     }
 }
@@ -189,7 +182,7 @@ void MainWindow::open()
 
     QFileDialog dialog(this);
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setNameFilter("Bow Files (*.bow)");
+    dialog.setNameFilter("Model Files (*.bow)");
 
     if(dialog.exec() == QDialog::Accepted)
         loadFile(dialog.selectedFiles().first());
@@ -262,7 +255,7 @@ void MainWindow::runSimulation(const QString& flag)
 void MainWindow::about()
 {
     QMessageBox::about(this, "About", QString()
-        + "<strong><font size=\"6\">" + Config::APPLICATION_NAME_GUI + "</font></strong><br>"
+        + "<strong><font size=\"6\">" + Config::APPLICATION_DISPLAY_NAME_GUI + "</font></strong><br>"
         + "Version " + Config::APPLICATION_VERSION + "<br><br>"
         + Config::APPLICATION_DESCRIPTION + "<br>"
         + "<a href=\"" + Config::ORGANIZATION_DOMAIN + "\">" + Config::ORGANIZATION_DOMAIN + "</a><br><br>"
