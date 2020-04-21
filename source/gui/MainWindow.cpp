@@ -1,6 +1,6 @@
 #include "MainWindow.hpp"
-#include "Settings.hpp"
 #include "SimulationDialog.hpp"
+#include "RecentFilesMenu.hpp"
 #include "editors/BowEditor.hpp"
 #include "config.hpp"
 #include <nlohmann/json.hpp>
@@ -52,26 +52,14 @@ MainWindow::MainWindow()
     action_about->setIconVisibleInMenu(true);
 
     // Recent file menu
-    menu_recentfiles = new QMenu("&Recent Files");
-    for(int i = 0; i < N_RECENT_FILES; ++i) {
-        auto action_recentfile = new QAction(this);
-        QObject::connect(action_recentfile, &QAction::triggered, this, &MainWindow::openRecent);
-        recentFileActions.append(action_recentfile);
-        menu_recentfiles->addAction(action_recentfile);
-    }
-    auto action_clear_list = new QAction("&Clear List", this);
-    QObject::connect(action_clear_list, &QAction::triggered, this, [&]{
-        clearRecentFilePaths();
-        updateRecentActionList();
-    });
-    menu_recentfiles->addSeparator();
-    menu_recentfiles->addAction(action_clear_list);
+    menu_recent = new RecentFilesMenu(this);
+    QObject::connect(menu_recent, &RecentFilesMenu::openRecent, this, &MainWindow::openRecent);
 
     // File menu
     auto menu_file = this->menuBar()->addMenu("&File");
     menu_file->addAction(action_new);
     menu_file->addAction(action_open);
-    menu_file->addMenu(menu_recentfiles);
+    menu_file->addMenu(menu_recent);
     menu_file->addSeparator();
     menu_file->addAction(action_save);
     menu_file->addAction(action_save_as);
@@ -113,17 +101,15 @@ MainWindow::MainWindow()
     setCurrentFile(QString());
 
     // Load geometry and state
-    restoreState(SETTINGS.value("MainWindow/state").toByteArray());
-    restoreGeometry(SETTINGS.value("MainWindow/geometry").toByteArray());
+    QSettings settings;
+    restoreState(settings.value("MainWindow/state").toByteArray());
+    restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
 
     // Set Window's modification indicator when data has changed
     QObject::connect(editor, &BowEditor::modified, [&]{
         InputData new_data = editor->getData();
         this->setModified(new_data != data);
     });
-
-    // Populate the recent files menu
-    updateRecentActionList();
 
     // Set initial input data
     newFile();
@@ -136,8 +122,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
         event->accept();
 
         // Save state and geometry
-        SETTINGS.setValue("MainWindow/state", saveState());
-        SETTINGS.setValue("MainWindow/geometry", saveGeometry());
+        QSettings settings;
+        settings.setValue("MainWindow/state", saveState());
+        settings.setValue("MainWindow/geometry", saveGeometry());
     }
     else
     {
@@ -208,13 +195,12 @@ void MainWindow::open()
         loadFile(dialog.selectedFiles().first());
 }
 
-void MainWindow::openRecent(){
+void MainWindow::openRecent(const QString& path)
+{
     if(!optionalSave())
         return;
 
-    QAction *action = qobject_cast<QAction *>(sender());
-    if (action)
-        loadFile(action->data().toString());
+    loadFile(path);
 }
 
 bool MainWindow::save()
@@ -279,7 +265,7 @@ void MainWindow::about()
         + "<strong><font size=\"6\">" + Config::APPLICATION_NAME_GUI + "</font></strong><br>"
         + "Version " + Config::APPLICATION_VERSION + "<br><br>"
         + Config::APPLICATION_DESCRIPTION + "<br>"
-        + "<a href=\"" + Config::APPLICATION_WEBSITE + "\">" + Config::APPLICATION_WEBSITE + "</a><br><br>"
+        + "<a href=\"" + Config::ORGANIZATION_DOMAIN + "\">" + Config::ORGANIZATION_DOMAIN + "</a><br><br>"
         + "<small>" + Config::APPLICATION_COPYRIGHT + "<br>"
         + "Distributed under the " + Config::APPLICATION_LICENSE + "</small>"
     );
@@ -289,7 +275,7 @@ void MainWindow::about()
 // https://bugreports.qt.io/browse/QTBUG-70382
 void MainWindow::setModified(bool modified)
 {
-    QApplication::setApplicationDisplayName(Config::APPLICATION_NAME_GUI);
+    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_GUI);
     setWindowModified(modified);
     QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
 }
@@ -297,12 +283,11 @@ void MainWindow::setModified(bool modified)
 void MainWindow::setCurrentFile(const QString &path)
 {
     currentFile = path;
-    QApplication::setApplicationDisplayName(Config::APPLICATION_NAME_GUI);
+    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_GUI);
     setWindowFilePath(currentFile.isEmpty() ? DEFAULT_FILENAME : currentFile);
     if(!path.isEmpty())
     {
-        addRecentFilePath(path);
-        updateRecentActionList();
+        menu_recent->addPath(path);
     }
 
     QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
@@ -323,58 +308,4 @@ bool MainWindow::optionalSave()
         case QMessageBox::Discard: return true;
         case QMessageBox::Cancel: return false;
     }
-}
-
-void MainWindow::clearRecentFilePaths()
-{
-    SETTINGS.beginWriteArray("MainWindow/recentFiles");
-    SETTINGS.endArray();
-}
-
-
-void MainWindow::addRecentFilePath(const QString& path)
-{
-    QList<QString> recentFilePaths;
-    for(int i = 0; i < SETTINGS.beginReadArray("MainWindow/recentFiles"); i++) {
-        SETTINGS.setArrayIndex(i);
-        recentFilePaths.append(SETTINGS.value("path").toString());
-    }
-    SETTINGS.endArray();
-
-    recentFilePaths.removeAll(path);
-    recentFilePaths.prepend(path);
-    while(recentFilePaths.size() > recentFileActions.size()) {
-        recentFilePaths.removeLast();
-    }
-
-    SETTINGS.beginWriteArray("MainWindow/recentFiles");
-    for(int i = 0; i < recentFilePaths.size(); i++) {
-        SETTINGS.setArrayIndex(i);
-        SETTINGS.setValue("path", recentFilePaths.at(i));
-    }
-    SETTINGS.endArray();
-}
-
-void MainWindow::updateRecentActionList()
-{
-    int n_paths = SETTINGS.beginReadArray("MainWindow/recentFiles");
-    int n_actions = recentFileActions.size();
-
-    for(int i = 0; i < n_paths && i < n_actions; ++i)
-    {
-        SETTINGS.setArrayIndex(i);
-        QString path = SETTINGS.value("path").toString();
-        QString name = QFileInfo(path).fileName();
-
-        recentFileActions[i]->setText("&" + QString::number(i + 1) + " | " + name + " [ " + path + " ]");
-        recentFileActions[i]->setData(path);
-        recentFileActions[i]->setVisible(true);
-    }
-    SETTINGS.endArray();
-
-    for(int i = n_paths; i < n_actions; ++i) {
-        recentFileActions[i]->setVisible(false);
-    }
-
-    menu_recentfiles->setEnabled(n_paths > 0);
 }

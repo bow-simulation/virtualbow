@@ -5,10 +5,11 @@
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
+    app.setOrganizationName(Config::ORGANIZATION_NAME);
+    app.setOrganizationDomain(Config::ORGANIZATION_DOMAIN);
     app.setApplicationName(Config::APPLICATION_NAME_POST);
-    app.setApplicationDisplayName(Config::APPLICATION_NAME_POST);
+    app.setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_POST);
     app.setApplicationVersion(Config::APPLICATION_VERSION);
-    app.setOrganizationDomain(Config::APPLICATION_WEBSITE);
 
     QLocale::setDefault(QLocale::C);
 
