@@ -7,9 +7,10 @@
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
+    app.setOrganizationName(Config::ORGANIZATION_NAME);
+    app.setOrganizationDomain(Config::ORGANIZATION_DOMAIN);
     app.setApplicationName(Config::APPLICATION_NAME_SLV);
     app.setApplicationVersion(Config::APPLICATION_VERSION);
-    app.setOrganizationDomain(Config::APPLICATION_WEBSITE);
 
     QLocale::setDefault(QLocale::C);
 

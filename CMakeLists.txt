@@ -40,8 +40,6 @@ add_executable(
     virtualbow-gui
     resources/resources.qrc
     source/gui/main.cpp
-    source/gui/Settings.cpp
-    source/gui/Settings.hpp
     source/gui/MainWindow.cpp
     source/gui/MainWindow.hpp
     source/gui/BaseDialog.cpp
@@ -54,6 +52,8 @@ add_executable(
     source/gui/SimulationDialog.hpp
     source/gui/EditableTabBar.cpp
     source/gui/EditableTabBar.hpp
+    source/gui/RecentFilesMenu.cpp
+    source/gui/RecentFilesMenu.hpp
     source/gui/dialogs/CommentDialog.cpp
     source/gui/dialogs/CommentDialog.hpp
     source/gui/dialogs/GroupDialog.cpp
@@ -130,8 +130,6 @@ add_executable(
     virtualbow-post
     resources/resources.qrc
     source/post/main.cpp
-    source/post/Settings.cpp
-    source/post/Settings.hpp
     source/post/MainWindow.cpp
     source/post/MainWindow.hpp
     source/post/ComboPlot.cpp

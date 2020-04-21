@@ -3,6 +3,7 @@
 #include <QtWidgets>
 
 class BowEditor;
+class RecentFilesMenu;
 
 class MainWindow: public QMainWindow
 {
@@ -16,17 +17,15 @@ private:
     const int N_RECENT_FILES = 8;
 
     InputData data;
-    BowEditor* editor;
     QString currentFile;
-
-    QMenu* menu_recentfiles;
-    QList<QAction*> recentFileActions;
+    BowEditor* editor;
+    RecentFilesMenu* menu_recent;
 
     void closeEvent(QCloseEvent *event) override;
 
     void newFile();
     void open();
-    void openRecent();
+    void openRecent(const QString& path);
     bool save();
     bool saveAs();
 
@@ -36,8 +35,4 @@ private:
     void setCurrentFile(const QString& path);
     void setModified(bool modified);
     bool optionalSave();
-
-    void clearRecentFilePaths();
-    void addRecentFilePath(const QString& path);
-    void updateRecentActionList();
 };

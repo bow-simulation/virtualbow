@@ -2,12 +2,18 @@
 
 namespace Config
 {
-    static const char* APPLICATION_NAME_GUI = "VirtualBow";
-    static const char* APPLICATION_NAME_SLV = "VirtualBow Solver";
-    static const char* APPLICATION_NAME_POST = "VirtualBow Post";
+    static const char* ORGANIZATION_NAME = "VirtualBow";
+    static const char* ORGANIZATION_DOMAIN = "@APPLICATION_WEBSITE@";
+
+    static const char* APPLICATION_NAME_GUI = "virtualbow-gui";
+    static const char* APPLICATION_NAME_SLV = "virtualbow-slv";
+    static const char* APPLICATION_NAME_POST = "virtualbow-post";
+
+    static const char* APPLICATION_DISPLAY_NAME_GUI = "VirtualBow";
+    static const char* APPLICATION_DISPLAY_NAME_SLV = "VirtualBow Solver";
+    static const char* APPLICATION_DISPLAY_NAME_POST = "VirtualBow Post";
 
     static const char* APPLICATION_VERSION = "@APPLICATION_VERSION@";
-    static const char* APPLICATION_WEBSITE = "@APPLICATION_WEBSITE@";
     static const char* APPLICATION_COPYRIGHT = "@APPLICATION_COPYRIGHT@";
     static const char* APPLICATION_LICENSE = "@APPLICATION_LICENSE@";
     static const char* APPLICATION_DESCRIPTION = "@APPLICATION_DESCRIPTION_SHORT@";

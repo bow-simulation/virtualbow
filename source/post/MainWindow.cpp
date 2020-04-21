@@ -6,7 +6,6 @@
 #include "EnergyPlot.hpp"
 #include "ComboPlot.hpp"
 #include "Slider.hpp"
-#include "Settings.hpp"
 #include <algorithm>
 
 MainWindow::MainWindow(const QString& path)
@@ -17,15 +16,17 @@ MainWindow::MainWindow(const QString& path)
     this->setCentralWidget(new OutputWidget(output));
 
     // Load geometry and state
-    restoreState(SETTINGS.value("OutputWindow/state").toByteArray());
-    restoreGeometry(SETTINGS.value("OutputWindow/geometry").toByteArray());
+    QSettings settings;
+    restoreState(settings.value("OutputWindow/state").toByteArray());
+    restoreGeometry(settings.value("OutputWindow/geometry").toByteArray());
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Save state and geometry
-    SETTINGS.setValue("OutputWindow/state", saveState());
-    SETTINGS.setValue("OutputWindow/geometry", saveGeometry());
+    QSettings settings;
+    settings.setValue("OutputWindow/state", saveState());
+    settings.setValue("OutputWindow/geometry", saveGeometry());
 }
 
 OutputWidget::OutputWidget(const OutputData& output)
