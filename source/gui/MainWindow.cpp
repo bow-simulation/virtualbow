@@ -171,7 +171,7 @@ void MainWindow::newFile()
     data.meta.version = Config::APPLICATION_VERSION;
     editor->setData(data);
 
-    setCurrentFile(QString());
+    setCurrentFile("");
     setModified(false);
 }
 
@@ -198,10 +198,10 @@ void MainWindow::openRecent(const QString& path)
 
 bool MainWindow::save()
 {
-    if(currentFile.isEmpty())
+    if(this->windowFilePath().isEmpty())
         return saveAs();
 
-    return saveFile(currentFile);
+    return saveFile(this->windowFilePath());
 }
 
 bool MainWindow::saveAs()
@@ -210,7 +210,7 @@ bool MainWindow::saveAs()
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setNameFilter("Bow Files (*.bow)");
     dialog.setDefaultSuffix("bow");
-    dialog.selectFile(currentFile.isEmpty() ? DEFAULT_FILENAME : currentFile);
+    dialog.selectFile(this->windowFilePath().isEmpty() ? DEFAULT_FILENAME : this->windowFilePath());
 
     if(dialog.exec() == QDialog::Accepted)
         return saveFile(dialog.selectedFiles().first());
@@ -221,7 +221,7 @@ bool MainWindow::saveAs()
 void MainWindow::runSimulation(const QString& flag)
 {
     // Make sure the current data is saved to a file
-    if(currentFile.isEmpty())
+    if(this->windowFilePath().isEmpty())
     {
         int pick = QMessageBox::warning(this, "", "The document needs to be saved before running a simulation.\nDo you want to save now?",
                                         QMessageBox::Yes | QMessageBox::Cancel);
@@ -237,11 +237,11 @@ void MainWindow::runSimulation(const QString& flag)
     }
 
     // Generate output filename
-    QFileInfo info(currentFile);
+    QFileInfo info(this->windowFilePath());
     QString output_file = info.absolutePath() + QDir::separator() + info.completeBaseName() + ".res";
 
     // Run Simulation, launch Post on results if successful
-    SimulationDialog dialog(this, currentFile, output_file, flag);
+    SimulationDialog dialog(this, this->windowFilePath(), output_file, flag);
     if(dialog.exec() == QDialog::Accepted)
     {
         QProcess *process = new QProcess(this);
@@ -275,9 +275,8 @@ void MainWindow::setModified(bool modified)
 
 void MainWindow::setCurrentFile(const QString &path)
 {
-    currentFile = path;
     QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_GUI);
-    setWindowFilePath(currentFile.isEmpty() ? DEFAULT_FILENAME : currentFile);
+    setWindowFilePath(path);
     if(!path.isEmpty())
     {
         menu_recent->addPath(path);

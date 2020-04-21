@@ -16,7 +16,6 @@ private:
     const char* DEFAULT_FILENAME = "Unnamed";
 
     InputData data;
-    QString currentFile;
     BowEditor* editor;
     RecentFilesMenu* menu_recent;
 
