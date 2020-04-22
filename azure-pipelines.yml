@@ -13,11 +13,11 @@ jobs:
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: 'build/application'
-      artifactName: 'Windows_Artifacts'
+      artifactName: 'windows-application'
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: 'build/packages'
-      artifactName: 'Windows_Artifacts'
+      artifactName: 'windows-packages'
       
 - job: MacOS
   pool:
@@ -34,11 +34,11 @@ jobs:
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: 'build/application'
-      artifactName: 'MacOS_Artifacts'
+      artifactName: 'macos-application'
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: 'build/packages'
-      artifactName: 'MacOS_Artifacts'
+      artifactName: 'macos-packages'
 
 - job: Linux
   pool:
@@ -59,8 +59,8 @@ jobs:
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: 'build/application'
-      artifactName: 'Linux_Artifacts'
+      artifactName: 'linux-application'
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: 'build/packages'
-      artifactName: 'Linux_Artifacts'
+      artifactName: 'linux-packages'

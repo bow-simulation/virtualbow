@@ -13,6 +13,9 @@ target_sources(virtualbow-post PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icons-post.rc)
 set_target_properties(virtualbow-gui PROPERTIES WIN32_EXECUTABLE TRUE)
 set_target_properties(virtualbow-post PROPERTIES WIN32_EXECUTABLE TRUE)
 
+# Copy necessary resources into application directory
+configure_file(${CMAKE_SOURCE_DIR}/resources/docs/manual.pdf ${CMAKE_BINARY_DIR}/application/manual.pdf COPYONLY)
+
 # Target: Copy shared libraries to application directory
 
 add_custom_target(copy-dependencies DEPENDS virtualbow-gui virtualbow-slv virtualbow-post)
