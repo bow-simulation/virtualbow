@@ -1,26 +1,6 @@
 # Build and Deployment of Releases
 
-## Release Checklist
-
-* Update user manual with new features and changes
-* Implement conversion of bow files between versions
-* Update version number and copyright notice in
-    * User manual
-    * Theory manual
-    * CMakeLists.txt
-* Create new changelog entry
-* Create commit, merge to master and possibly develop
-* Download artifacts from the CI-Pipeline and test manually
-* On GitHub, create a new tag and release from the master branch, upload artifacts, user manual and theory manual
-* Update website
-    * Links on the download page
-    * User manual and theory manual
-    * Release announcement
-* Post to r/VirtualBow
-
-## Platform specifics
-
-### Windows
+## Windows
 
 The Windows version is built with [MinGW-w64](http://mingw-w64.org/doku.php). Comparisons have shown that it generates faster code than Microsoft Visual C++ for our use case.
 The Qt version used is 5.12.8, because it is the first one to ship pre-built binaries for 64 bit MinGW and is also closest to version 5.11.3 to which we are currently tied to on MacOS.
@@ -32,7 +12,7 @@ The Windows installer can be built with
 
 This requires [Inno Setup](http://www.jrsoftware.org/isinfo.php) to be installed and added to `PATH`.
 
-### Linux
+## Linux
 
 The Linux version is built with GCC and linked against Qt 5.11.3 to keep the usage of Qt features in sync with MacOS.
 Other than Windows and MacOS though, the Qt libraries are not bundled with the application.
@@ -46,7 +26,7 @@ The release packages are built with
 
 This requires `dpkg` and `rpmbuild` respectively.
 
-### MacOS
+## MacOS
 
 This version currently restricts us in several ways by the necessity to support MacOS 10.11 (El Capitan).
 That's the latest OS that can be installed on my ancient 2009 MacBook that I got from eBay.

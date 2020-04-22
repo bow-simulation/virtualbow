@@ -6,6 +6,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/virtualbow-gui.desktop ${CMAKE_BINARY_DIR}/linux/usr/share/applications/virtualbow-gui.desktop
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/virtualbow-post.desktop ${CMAKE_BINARY_DIR}/linux/usr/share/applications/virtualbow-post.desktop
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/resources/icons/logo.svg ${CMAKE_BINARY_DIR}/linux/usr/share/icons/hicolor/scalable/apps/virtualbow.svg
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/resources/docs/manual.pdf ${CMAKE_BINARY_DIR}/linux/usr/share/virtualbow/manual.pdf
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/application/virtualbow-gui ${CMAKE_BINARY_DIR}/linux/usr/bin/virtualbow-gui
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/application/virtualbow-slv ${CMAKE_BINARY_DIR}/linux/usr/bin/virtualbow-slv
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/application/virtualbow-post ${CMAKE_BINARY_DIR}/linux/usr/bin/virtualbow-post

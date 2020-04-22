@@ -35,19 +35,23 @@ MainWindow::MainWindow()
     action_quit->setShortcuts(QKeySequence::Quit);
     action_quit->setMenuRole(QAction::QuitRole);
 
-    auto action_run_statics = new QAction(QIcon(":/icons/run-statics"), "Statics...", this);
+    auto action_run_statics = new QAction(QIcon(":/icons/run-statics"), "&Statics...", this);
     QObject::connect(action_run_statics, &QAction::triggered, [&]{ runSimulation("--static"); });
     action_run_statics->setShortcut(Qt::Key_F5);
     action_run_statics->setMenuRole(QAction::NoRole);
     action_run_statics->setIconVisibleInMenu(true);
 
-    auto action_run_dynamics = new QAction(QIcon(":/icons/run-dynamics"), "Dynamics...", this);
+    auto action_run_dynamics = new QAction(QIcon(":/icons/run-dynamics"), "&Dynamics...", this);
     QObject::connect(action_run_dynamics, &QAction::triggered, [&]{ runSimulation("--dynamic"); });
     action_run_dynamics->setShortcut(Qt::Key_F6);
     action_run_dynamics->setMenuRole(QAction::NoRole);
     action_run_dynamics->setIconVisibleInMenu(true);
 
-    auto action_about = new QAction(QIcon(":/icons/dialog-information.png"), "&About...", this);
+    auto action_help = new QAction("&User Manual", this);
+    QObject::connect(action_help, &QAction::triggered, this, &MainWindow::help);
+    action_help->setShortcut(Qt::Key_F1);
+
+    auto action_about = new QAction(QIcon(":/icons/dialog-information.png"), "&About", this);
     QObject::connect(action_about, &QAction::triggered, this, &MainWindow::about);
     action_about->setMenuRole(QAction::AboutRole);
     action_about->setIconVisibleInMenu(true);
@@ -86,6 +90,7 @@ MainWindow::MainWindow()
 
     // Help menu
     auto menu_help = this->menuBar()->addMenu("&Help");
+    menu_help->addAction(action_help);
     menu_help->addAction(action_about);
 
     // Main window
@@ -138,7 +143,7 @@ bool MainWindow::loadFile(const QString& path)
     }
     catch(const std::exception& e)  // Todo
     {
-        QMessageBox::critical(this, "", "Failed to open " + path + "\n" + e.what());
+        QMessageBox::critical(this, "Error", "Failed to open " + path + "\n" + e.what());
         return false;
     }
 }
@@ -156,7 +161,7 @@ bool MainWindow::saveFile(const QString& path)
     }
     catch(const std::exception& e)  // Todo
     {
-        QMessageBox::critical(this, "", "Failed to save " + path + "\n" + e.what());
+        QMessageBox::critical(this, "Error", "Failed to save " + path + "\n" + e.what());
         return false;
     }
 }
@@ -223,7 +228,7 @@ void MainWindow::runSimulation(const QString& flag)
     // Make sure the current data is saved to a file
     if(this->windowFilePath().isEmpty())
     {
-        int pick = QMessageBox::warning(this, "", "The document needs to be saved before running a simulation.\nDo you want to save now?",
+        int pick = QMessageBox::warning(this, "Save Document?", "The document needs to be saved before running a simulation.\nDo you want to save now?",
                                         QMessageBox::Yes | QMessageBox::Cancel);
         if(pick != QMessageBox::Yes)
             return;
@@ -250,6 +255,23 @@ void MainWindow::runSimulation(const QString& flag)
         process->setArguments({ output_file });
         process->startDetached();
     }
+}
+
+void MainWindow::help()
+{
+    QList<QString> paths = {
+        QCoreApplication::applicationDirPath() + "/manual.pdf",
+        "/usr/share/virtualbow/manual.pdf"
+    };
+
+    for(QString path: paths) {
+        if(QFileInfo(path).exists()) {
+            QDesktopServices::openUrl(QUrl(path));
+            return;
+        }
+    }
+
+    QMessageBox::critical(this, "Error", "Failed to open user manual, file not found.");
 }
 
 void MainWindow::about()
@@ -291,7 +313,7 @@ bool MainWindow::optionalSave()
     if(!this->isWindowModified())
         return true;
 
-    auto pick = QMessageBox::warning(this, "", "The document has been modified.\nDo you want to save your changes?",
+    auto pick = QMessageBox::warning(this, "Save Document?", "The document has been modified.\nDo you want to save your changes?",
                 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 
     switch(pick)

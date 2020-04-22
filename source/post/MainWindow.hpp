@@ -17,5 +17,6 @@ private:
 
     void open();
     void saveAs();
+    void help();
     void about();
 };
