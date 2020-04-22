@@ -22,6 +22,10 @@ MainWindow::MainWindow()
     action_quit->setShortcuts(QKeySequence::Quit);
     action_quit->setMenuRole(QAction::QuitRole);
 
+    auto action_help = new QAction("&User Manual", this);
+    QObject::connect(action_help, &QAction::triggered, this, &MainWindow::help);
+    action_help->setShortcut(Qt::Key_F1);
+
     auto action_about = new QAction(QIcon(":/icons/dialog-information.png"), "&About...", this);
     QObject::connect(action_about, &QAction::triggered, this, &MainWindow::about);
     action_about->setMenuRole(QAction::AboutRole);
@@ -41,6 +45,7 @@ MainWindow::MainWindow()
 
     // Help menu
     auto menu_help = this->menuBar()->addMenu("&Help");
+    menu_help->addAction(action_help);
     menu_help->addAction(action_about);
 
     // Main window
@@ -71,7 +76,7 @@ void MainWindow::loadFile(const QString& path)
     }
     catch(const std::exception& e)  // Todo
     {
-        QMessageBox::critical(this, "", "Failed to open " + path + "\n" + e.what());
+        QMessageBox::critical(this, "Error", "Failed to open " + path + "\n" + e.what());
     }
 }
 
@@ -85,7 +90,7 @@ void MainWindow::saveFile(const QString &path)
     }
     catch(const std::exception& e)  // Todo
     {
-        QMessageBox::critical(this, "", "Failed to save " + path + "\n" + e.what());
+        QMessageBox::critical(this, "Error", "Failed to save " + path + "\n" + e.what());
     }
 }
 
@@ -109,6 +114,25 @@ void MainWindow::saveAs()
 
     if(dialog.exec() == QDialog::Accepted)
         saveFile(dialog.selectedFiles().first());
+}
+
+// Todo: Hard-coded paths?
+// Todo: Code duplication with post. Maybe share help() and about() between both applications.
+void MainWindow::help()
+{
+    QList<QString> paths = {
+        QCoreApplication::applicationDirPath() + "/manual.pdf",
+        "/usr/share/virtualbow/manual.pdf"
+    };
+
+    for(QString path: paths) {
+        if(QFileInfo(path).exists()) {
+            QDesktopServices::openUrl(QUrl(path));
+            return;
+        }
+    }
+
+    QMessageBox::critical(this, "Error", "Failed to open user manual, file not found.");
 }
 
 void MainWindow::about()

@@ -28,6 +28,7 @@ private:
     bool saveAs();
 
     void runSimulation(const QString& flag);
+    void help();
     void about();
 
     void setCurrentFile(const QString& path);
