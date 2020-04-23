@@ -16,7 +16,7 @@
                 <key>CFBundleTypeRole</key>
                 <string>Editor</string>
                 <key>CFBundleIconFile</key>
-                <string>icon</string>
+                <string>logo</string>
             </dict>
         </array>
         <key>CFBundleExecutable</key>
@@ -24,7 +24,7 @@
         <key>CFBundleGetInfoString</key>
         <string>${APPLICATION_DESCRIPTION_SHORT}</string>
         <key>CFBundleIconFile</key>
-        <string>icon</string>
+        <string>logo</string>
         <key>CFBundleIdentifier</key>
         <string>virtualbow</string>
         <key>CFBundleInfoDictionaryVersion</key>

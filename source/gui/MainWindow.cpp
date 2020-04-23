@@ -1,6 +1,7 @@
 #include "MainWindow.hpp"
 #include "SimulationDialog.hpp"
 #include "RecentFilesMenu.hpp"
+#include "HelpMenu.hpp"
 #include "editors/BowEditor.hpp"
 #include "config.hpp"
 #include <nlohmann/json.hpp>
@@ -47,15 +48,6 @@ MainWindow::MainWindow()
     action_run_dynamics->setMenuRole(QAction::NoRole);
     action_run_dynamics->setIconVisibleInMenu(true);
 
-    auto action_help = new QAction("&User Manual", this);
-    QObject::connect(action_help, &QAction::triggered, this, &MainWindow::help);
-    action_help->setShortcut(Qt::Key_F1);
-
-    auto action_about = new QAction(QIcon(":/icons/dialog-information.png"), "&About", this);
-    QObject::connect(action_about, &QAction::triggered, this, &MainWindow::about);
-    action_about->setMenuRole(QAction::AboutRole);
-    action_about->setIconVisibleInMenu(true);
-
     // Recent file menu
     QObject::connect(menu_recent, &RecentFilesMenu::openRecent, this, &MainWindow::openRecent);
 
@@ -89,9 +81,7 @@ MainWindow::MainWindow()
     toolbar->addAction(action_run_dynamics);
 
     // Help menu
-    auto menu_help = this->menuBar()->addMenu("&Help");
-    menu_help->addAction(action_help);
-    menu_help->addAction(action_about);
+    this->menuBar()->addMenu(new HelpMenu(this));
 
     // Main window
     this->setWindowIcon(QIcon(":/icons/logo.ico"));
@@ -255,40 +245,6 @@ void MainWindow::runSimulation(const QString& flag)
         process->setArguments({ output_file });
         process->startDetached();
     }
-}
-
-// Todo: Hard-coded paths?
-// Todo: Code duplication with post. Maybe share help() and about() between both applications.
-void MainWindow::help()
-{
-    QList<QString> paths = {
-        QCoreApplication::applicationDirPath() + "/manual.pdf",                // Windows
-        QCoreApplication::applicationDirPath() + "/../Resources/manual.pdf",   // MacOS
-        "/usr/share/virtualbow/manual.pdf"                                     // Linux
-    };
-
-    for(QString path: paths) {
-        if(QFileInfo(path).exists()) {
-            if(!QDesktopServices::openUrl(QUrl::fromLocalFile(path))) {
-				QMessageBox::critical(this, "Error", "Failed to open file " + path);
-			}
-            return;
-        }
-    }
-
-    QMessageBox::critical(this, "Error", "Failed to open user manual, file not found.");
-}
-
-void MainWindow::about()
-{
-    QMessageBox::about(this, "About", QString()
-        + "<strong><font size=\"6\">" + Config::APPLICATION_DISPLAY_NAME_GUI + "</font></strong><br>"
-        + "Version " + Config::APPLICATION_VERSION + "<br><br>"
-        + Config::APPLICATION_DESCRIPTION + "<br>"
-        + "<a href=\"" + Config::ORGANIZATION_DOMAIN + "\">" + Config::ORGANIZATION_DOMAIN + "</a><br><br>"
-        + "<small>" + Config::APPLICATION_COPYRIGHT + "<br>"
-        + "Distributed under the " + Config::APPLICATION_LICENSE + "</small>"
-    );
 }
 
 // Workaround to prevent QApplication::applicationDisplayName from being appended to every dialog
