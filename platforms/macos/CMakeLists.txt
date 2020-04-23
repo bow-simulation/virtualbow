@@ -10,7 +10,8 @@ set_target_properties(
 )
 
 configure_file(Info.plist ${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/Info.plist)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/icon.icns ${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/Resources/icon.icns COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/logo.icns ${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/Resources/logo.icns COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/resources/docs/manual.pdf ${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/Resources/manual.pdf COPYONLY)
 
 # Target: Dmg Installer
 
