@@ -119,15 +119,16 @@ void MainWindow::saveAs()
 void MainWindow::help()
 {
     QList<QString> paths = {
-        QCoreApplication::applicationDirPath() + "/manual.pdf",
-        "/usr/share/virtualbow/manual.pdf"
+        QCoreApplication::applicationDirPath() + "/manual.pdf",                // Windows
+        QCoreApplication::applicationDirPath() + "/../Resources/manual.pdf",   // MacOS
+        "/usr/share/virtualbow/manual.pdf"                                     // Linux
     };
 
     for(QString path: paths) {
         if(QFileInfo(path).exists()) {
             if(!QDesktopServices::openUrl(QUrl::fromLocalFile(path))) {
-				QMessageBox::critical(this, "Error", "Failed to open file " + path);
-			}
+                                QMessageBox::critical(this, "Error", "Failed to open file " + path);
+                        }
             return;
         }
     }
