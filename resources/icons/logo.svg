@@ -9,12 +9,12 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="66.545021mm"
-   height="66.46347mm"
-   viewBox="0 0 73.199525 73.109821"
+   width="68.545021mm"
+   height="68.463478mm"
+   viewBox="0 0 75.399525 75.309829"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="logo.svg"
    inkscape:export-filename="C:\Users\s\Desktop\logo-32.png"
    inkscape:export-xdpi="52.026894"
@@ -28,29 +28,29 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2"
-     inkscape:cx="146.05701"
-     inkscape:cy="154.95812"
+     inkscape:zoom="1"
+     inkscape:cx="-43.720763"
+     inkscape:cy="246.01683"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:window-width="1920"
-     inkscape:window-height="1009"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     fit-margin-top="2"
-     fit-margin-left="2"
-     fit-margin-right="2"
-     fit-margin-bottom="2"
+     fit-margin-top="3"
+     fit-margin-left="3"
+     fit-margin-right="3"
+     fit-margin-bottom="3"
      showguides="false"
      inkscape:snap-global="true"
      scale-x="1.1">
     <inkscape:grid
        type="xygrid"
        id="grid34"
-       originx="-236.81683"
-       originy="269.89625" />
+       originx="-235.71679"
+       originy="270.99626" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -68,7 +68,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-200.04252,-492.72808)">
+     transform="translate(-198.94252,-491.62808)">
     <path
        style="fill:#2048aa;fill-opacity:1;stroke:none;stroke-width:3.25092864;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
        d="M 129.27344,1.3671875 C 110.66833,18.198148 94.989128,42.790015 102.00586,68.019531 115.3961,116.16593 149.28619,112.73007 192.52344,210.84766 A 118.1955,118.15214 0 0 0 236.48242,118.9707 118.1955,118.15214 0 0 0 129.27344,1.3671875 Z"
