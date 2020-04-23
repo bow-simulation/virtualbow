@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/model//input/InputData.hpp"
+#include "solver/model/input/InputData.hpp"
 #include <QtWidgets>
 
 class BowEditor;
@@ -28,8 +28,6 @@ private:
     bool saveAs();
 
     void runSimulation(const QString& flag);
-    void help();
-    void about();
 
     void setCurrentFile(const QString& path);
     void setModified(bool modified);

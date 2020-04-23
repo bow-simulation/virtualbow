@@ -44,6 +44,8 @@ add_executable(
     source/gui/MainWindow.hpp
     source/gui/BaseDialog.cpp
     source/gui/BaseDialog.hpp
+    source/gui/HelpMenu.cpp
+    source/gui/HelpMenu.hpp
     source/gui/PersistentDialog.cpp
     source/gui/PersistentDialog.hpp
     source/gui/PlotWidget.cpp
@@ -151,6 +153,8 @@ add_executable(
     source/gui/qcustomplot/qcustomplot.cpp
     source/gui/RecentFilesMenu.cpp
     source/gui/RecentFilesMenu.hpp
+    source/gui/HelpMenu.cpp
+    source/gui/HelpMenu.hpp
     source/gui/BaseDialog.cpp
     source/gui/BaseDialog.hpp
     source/gui/PlotWidget.cpp
