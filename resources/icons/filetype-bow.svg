@@ -9,9 +9,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="89.666672mm"
-   height="89.666672mm"
-   viewBox="0 0 89.666672 89.666672"
+   width="96.166672mm"
+   height="96.166672mm"
+   viewBox="0 0 96.166672 96.166672"
    version="1.1"
    id="svg8"
    inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
@@ -26,8 +26,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.9952796"
-     inkscape:cx="26.841617"
-     inkscape:cy="153.86423"
+     inkscape:cx="69.483281"
+     inkscape:cy="171.67542"
      inkscape:document-units="mm"
      inkscape:current-layer="g828"
      showgrid="true"
@@ -36,16 +36,16 @@
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     fit-margin-top="0"
-     fit-margin-left="0"
-     fit-margin-right="0"
-     fit-margin-bottom="0"
+     fit-margin-top="5"
+     fit-margin-left="5"
+     fit-margin-right="5"
+     fit-margin-bottom="5"
      showguides="false">
     <inkscape:grid
        type="xygrid"
        id="grid34"
-       originx="-74.229167"
-       originy="-18.666671" />
+       originx="-75.433325"
+       originy="-15.416676" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -55,7 +55,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -63,9 +63,9 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-74.229169,-188.66666)">
+     transform="translate(-75.433324,-185.41666)">
     <g
-       transform="translate(13.229172,108.47916)"
+       transform="translate(17.991675,108.47916)"
        id="g4552-3"
        style="stroke:#787878;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal">
       <path
@@ -96,18 +96,18 @@
                id="rect820"
                width="60.842674"
                height="21.960419"
-               x="80.536858"
+               x="84.988792"
                y="222.91661" />
             <text
                transform="scale(0.96684158,1.0342956)"
                id="text833"
                y="232.28387"
-               x="85.005722"
+               x="89.610298"
                style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:16.37185097px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.25581017"
                xml:space="preserve"><tspan
                  style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:16.37185097px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#ffffff;fill-opacity:1;stroke-width:0.25581017"
                  y="232.28387"
-                 x="85.005722"
+                 x="89.610298"
                  id="tspan831"
                  sodipodi:role="line">Model</tspan></text>
           </g>

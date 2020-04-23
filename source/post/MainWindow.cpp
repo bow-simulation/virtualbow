@@ -116,8 +116,6 @@ void MainWindow::saveAs()
         saveFile(dialog.selectedFiles().first());
 }
 
-// Todo: Hard-coded paths?
-// Todo: Code duplication with post. Maybe share help() and about() between both applications.
 void MainWindow::help()
 {
     QList<QString> paths = {
@@ -127,7 +125,9 @@ void MainWindow::help()
 
     for(QString path: paths) {
         if(QFileInfo(path).exists()) {
-            QDesktopServices::openUrl(QUrl(path));
+            if(!QDesktopServices::openUrl(QUrl::fromLocalFile(path))) {
+				QMessageBox::critical(this, "Error", "Failed to open file " + path);
+			}
             return;
         }
     }
