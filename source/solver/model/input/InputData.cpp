@@ -1,5 +1,5 @@
 #include "InputData.hpp"
-#include "Compatibility.hpp"
+#include "Conversion.hpp"
 #include <fstream>
 #include <iomanip>
 
@@ -8,7 +8,7 @@ InputData::InputData(const std::string& path)
     std::ifstream stream(path);
     json obj; obj << stream;
 
-    convert_to_current(obj);
+    Conversion::to_current(obj);
     from_json(obj, *this);
 }
 
