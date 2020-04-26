@@ -5,3 +5,6 @@
 CMakeSettings.json
 .vs/
 out/
+
+# VirtualBow
+*.res
