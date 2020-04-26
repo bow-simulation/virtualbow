@@ -1,4 +1,8 @@
 {
+    "damping": {
+        "damping_ratio_limbs": 0.0,
+        "damping_ratio_string": 0.0
+    },
     "dimensions": {
         "brace_height": 0.14,
         "draw_length": 0.69,
@@ -56,16 +60,20 @@
         }
     ],
     "masses": {
-        "arrow": 0.080,
+        "arrow": 0.08,
         "limb_tip": 0.005,
         "string_center": 0.005,
         "string_tip": 0.005
     },
     "meta": {
         "comments": "",
-        "version": "0.6"
+        "version": "0.7"
     },
     "profile": [
+        [
+            0.0,
+            0.0
+        ],
         [
             0.86,
             0.0

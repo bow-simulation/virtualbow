@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.4.17)  17 APR 2020 01:51
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.4.17)  25 APR 2020 03:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -451,7 +451,7 @@ LaTeX Info: Redefining \nameref on input line 39.
 \openout3 = `document.out'.
 
 \c@lstlisting=\count132
-<figures/logo.pdf, id=76, 189.33893pt x 189.10689pt>
+<figures/logo.pdf, id=112, 189.33893pt x 189.10689pt>
 File: figures/logo.pdf Graphic file (type pdf)
 <use figures/logo.pdf>
 Package pdftex.def Info: figures/logo.pdf  used on input line 48.
@@ -479,102 +479,102 @@ been already used, duplicate ignored
                    \relax 
 l.60 \newpage
               [1]
-Underfull \hbox (badness 10000) in paragraph at lines 67--69
+Underfull \hbox (badness 10000) in paragraph at lines 78--80
 
  []
 
 [2]
-<figures/screenshots/input/bow-editor.png, id=114, 763.35187pt x 429.85594pt>
+<figures/screenshots/input/bow-editor.png, id=159, 763.35187pt x 429.85594pt>
 File: figures/screenshots/input/bow-editor.png Graphic file (type png)
 <use figures/screenshots/input/bow-editor.png>
 Package pdftex.def Info: figures/screenshots/input/bow-editor.png  used on inpu
-t line 77.
+t line 90.
 (pdftex.def)             Requested size: 433.62001pt x 244.1743pt.
- [3 <./figures/screenshots/input/bow-editor.png>]
-<figures/screenshots/input/profile.png, id=120, 569.87906pt x 206.27063pt>
+ [3 <./figures/screenshots/input/bow-editor.png>] [4]
+<figures/screenshots/input/profile.png, id=170, 569.87906pt x 206.27063pt>
 File: figures/screenshots/input/profile.png Graphic file (type png)
 <use figures/screenshots/input/profile.png>
 Package pdftex.def Info: figures/screenshots/input/profile.png  used on input l
-ine 95.
+ine 111.
 (pdftex.def)             Requested size: 433.62001pt x 156.94984pt.
- [4 <./figures/screenshots/input/profile.png>]
-<figures/screenshots/input/width.png, id=132, 569.87906pt x 207.02344pt>
+ [5 <./figures/screenshots/input/profile.png>]
+<figures/screenshots/input/width.png, id=182, 569.87906pt x 207.02344pt>
 File: figures/screenshots/input/width.png Graphic file (type png)
 <use figures/screenshots/input/width.png>
 Package pdftex.def Info: figures/screenshots/input/width.png  used on input lin
-e 111.
+e 127.
 (pdftex.def)             Requested size: 433.62001pt x 157.52264pt.
- [5 <./figures/screenshots/input/width.png>]
-<figures/screenshots/input/layers.png, id=139, 545.78906pt x 268.00125pt>
+ [6 <./figures/screenshots/input/width.png>]
+<figures/screenshots/input/layers.png, id=190, 545.78906pt x 268.00125pt>
 File: figures/screenshots/input/layers.png Graphic file (type png)
 <use figures/screenshots/input/layers.png>
 Package pdftex.def Info: figures/screenshots/input/layers.png  used on input li
-ne 127.
+ne 143.
 (pdftex.def)             Requested size: 433.62001pt x 212.92093pt.
- [6 <./figures/screenshots/input/layers.png>]
-<figures/screenshots/input/string.png, id=151, 253.69781pt x 131.74219pt>
+ [7 <./figures/screenshots/input/layers.png>]
+<figures/screenshots/input/string.png, id=201, 253.69781pt x 131.74219pt>
 File: figures/screenshots/input/string.png Graphic file (type png)
 <use figures/screenshots/input/string.png>
 Package pdftex.def Info: figures/screenshots/input/string.png  used on input li
-ne 158.
+ne 174.
 (pdftex.def)             Requested size: 173.44534pt x 90.06996pt.
 
-Overfull \hbox (2.12642pt too wide) in paragraph at lines 170--170
+Overfull \hbox (2.12642pt too wide) in paragraph at lines 186--186
 [][][][]$\OT1/cmtt/m/n/10 http : / / www . buildyourownbow . com / build-[]alon
 gs / how-[]to-[]use-[]supertiller-[]build-[]along/$[]| 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 179--179
+Underfull \hbox (badness 10000) in paragraph at lines 195--195
 []|\OT1/cmss/bx/n/12 Stiffness
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 179--179
+Underfull \hbox (badness 10000) in paragraph at lines 195--195
 []|\OT1/cmss/bx/n/12 Density
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 179--179
+Underfull \hbox (badness 10000) in paragraph at lines 195--195
 []|\OT1/cmss/bx/n/12 Breaking
  []
 
 
-Underfull \hbox (badness 1895) in paragraph at lines 182--182
+Underfull \hbox (badness 1895) in paragraph at lines 198--198
 []|\OT1/cmss/m/n/12 Calculated as-sum-ing lin-ear
  []
 
-[7 <./figures/screenshots/input/string.png>]
-<figures/screenshots/input/masses.png, id=166, 221.32687pt x 151.3153pt>
+[8 <./figures/screenshots/input/string.png>]
+<figures/screenshots/input/masses.png, id=215, 221.32687pt x 151.3153pt>
 File: figures/screenshots/input/masses.png Graphic file (type png)
 <use figures/screenshots/input/masses.png>
 Package pdftex.def Info: figures/screenshots/input/masses.png  used on input li
-ne 197.
+ne 213.
 (pdftex.def)             Requested size: 173.44534pt x 118.5865pt.
- [8 <./figures/screenshots/input/masses.png>]
-<figures/screenshots/input/damping.png, id=173, 195.73125pt x 112.16907pt>
+ [9 <./figures/screenshots/input/masses.png>]
+<figures/screenshots/input/damping.png, id=222, 195.73125pt x 112.16907pt>
 File: figures/screenshots/input/damping.png Graphic file (type png)
 <use figures/screenshots/input/damping.png>
 Package pdftex.def Info: figures/screenshots/input/damping.png  used on input l
-ine 217.
+ine 233.
 (pdftex.def)             Requested size: 173.44534pt x 99.40225pt.
-<figures/damping-ratio-00.pdf, id=175, 578.16pt x 289.08pt>
+<figures/damping-ratio-00.pdf, id=223, 578.16pt x 289.08pt>
 File: figures/damping-ratio-00.pdf Graphic file (type pdf)
 <use figures/damping-ratio-00.pdf>
-Package pdftex.def Info: figures/damping-ratio-00.pdf  used on input line 229.
-(pdftex.def)             Requested size: 130.08733pt x 65.04019pt.
-<figures/damping-ratio-01.pdf, id=176, 578.16pt x 289.08pt>
+Package pdftex.def Info: figures/damping-ratio-00.pdf  used on input line 248.
+(pdftex.def)             Requested size: 108.405pt x 54.20236pt.
+<figures/damping-ratio-01.pdf, id=224, 578.16pt x 289.08pt>
 File: figures/damping-ratio-01.pdf Graphic file (type pdf)
 <use figures/damping-ratio-01.pdf>
-Package pdftex.def Info: figures/damping-ratio-01.pdf  used on input line 230.
-(pdftex.def)             Requested size: 130.08733pt x 65.04019pt.
-<figures/damping-ratio-10.pdf, id=177, 578.16pt x 289.08pt>
+Package pdftex.def Info: figures/damping-ratio-01.pdf  used on input line 249.
+(pdftex.def)             Requested size: 108.405pt x 54.20236pt.
+<figures/damping-ratio-10.pdf, id=225, 578.16pt x 289.08pt>
 File: figures/damping-ratio-10.pdf Graphic file (type pdf)
 <use figures/damping-ratio-10.pdf>
-Package pdftex.def Info: figures/damping-ratio-10.pdf  used on input line 231.
-(pdftex.def)             Requested size: 130.08733pt x 65.04019pt.
- [9 <./figures/screenshots/input/damping.png> <./figures/damping-ratio-00.pdf> 
-<./figures/damping-ratio-01.pdf
+Package pdftex.def Info: figures/damping-ratio-10.pdf  used on input line 250.
+(pdftex.def)             Requested size: 108.405pt x 54.20236pt.
+ [10 <./figures/screenshots/input/damping.png> <./figures/damping-ratio-00.pdf>
+ <./figures/damping-ratio-01.pdf
 
 pdfTeX warning: /usr/bin/pdflatex (file ./figures/damping-ratio-01.pdf): PDF in
 clusion: multiple pdfs with page group included in a single page
@@ -583,117 +583,87 @@ clusion: multiple pdfs with page group included in a single page
 pdfTeX warning: /usr/bin/pdflatex (file ./figures/damping-ratio-10.pdf): PDF in
 clusion: multiple pdfs with page group included in a single page
 >]
-<figures/screenshots/input/dimensions.png, id=189, 217.5628pt x 205.5178pt>
+<figures/screenshots/input/dimensions.png, id=237, 217.5628pt x 205.5178pt>
 File: figures/screenshots/input/dimensions.png Graphic file (type png)
 <use figures/screenshots/input/dimensions.png>
 Package pdftex.def Info: figures/screenshots/input/dimensions.png  used on inpu
-t line 252.
+t line 267.
 (pdftex.def)             Requested size: 173.44534pt x 163.85313pt.
- [10 <./figures/screenshots/input/dimensions.png>]
-<figures/dimensions.pdf, id=197, 349.81395pt x 632.94806pt>
+ [11 <./figures/screenshots/input/dimensions.png>]
+<figures/dimensions.pdf, id=245, 349.81395pt x 632.94806pt>
 File: figures/dimensions.pdf Graphic file (type pdf)
 <use figures/dimensions.pdf>
-Package pdftex.def Info: figures/dimensions.pdf  used on input line 274.
+Package pdftex.def Info: figures/dimensions.pdf  used on input line 289.
 (pdftex.def)             Requested size: 173.44534pt x 313.82695pt.
- [11 <./figures/dimensions.pdf>]
-<figures/screenshots/input/comments.png, id=210, 358.33875pt x 151.3153pt>
+ [12 <./figures/dimensions.pdf>]
+<figures/screenshots/input/comments.png, id=259, 358.33875pt x 151.3153pt>
 File: figures/screenshots/input/comments.png Graphic file (type png)
 <use figures/screenshots/input/comments.png>
 Package pdftex.def Info: figures/screenshots/input/comments.png  used on input 
-line 286.
+line 301.
 (pdftex.def)             Requested size: 303.53267pt x 128.17992pt.
-<figures/screenshots/input/settings.png, id=211, 224.33812pt x 249.93375pt>
+<figures/screenshots/input/settings.png, id=260, 224.33812pt x 249.93375pt>
 File: figures/screenshots/input/settings.png Graphic file (type png)
 <use figures/screenshots/input/settings.png>
 Package pdftex.def Info: figures/screenshots/input/settings.png  used on input 
-line 300.
+line 315.
 (pdftex.def)             Requested size: 173.44534pt x 193.23901pt.
- [12 <./figures/screenshots/input/comments.png> <./figures/screenshots/input/se
-ttings.png>] [13]
-<figures/screenshots/output/result-window.png, id=225, 548.0475pt x 402.00188pt
+ [13 <./figures/screenshots/input/comments.png> <./figures/screenshots/input/se
+ttings.png>] [14]
+<figures/screenshots/output/result-window.png, id=273, 548.0475pt x 402.00188pt
 >
 File: figures/screenshots/output/result-window.png Graphic file (type png)
 <use figures/screenshots/output/result-window.png>
 Package pdftex.def Info: figures/screenshots/output/result-window.png  used on 
-input line 334.
+input line 353.
 (pdftex.def)             Requested size: 433.62001pt x 318.07484pt.
- [14 <./figures/screenshots/output/result-window.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 352--354
+ [15 <./figures/screenshots/output/result-window.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 371--373
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 360--363
+Underfull \hbox (badness 10000) in paragraph at lines 379--382
 
  []
 
-[15] [16]
-Underfull \hbox (badness 10000) in paragraph at lines 413--415
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 416--419
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 420--422
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 423--427
-
- []
-
-
-LaTeX Font Warning: Font shape `OT1/cmss/m/it' in size <12> not available
-(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 429.
-
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 428--432
-
- []
-
-[17]
-LaTeX Font Info:    Try loading font information for OMS+cmtt on input line 486
+[16] [17] [18]
+LaTeX Font Info:    Try loading font information for OMS+cmtt on input line 490
 .
-LaTeX Font Info:    No file OMScmtt.fd. on input line 486.
+LaTeX Font Info:    No file OMScmtt.fd. on input line 490.
 
 
 LaTeX Font Warning: Font shape `OMS/cmtt/m/n' undefined
 (Font)              using `OMS/cmsy/m/n' instead
-(Font)              for symbol `textbraceleft' on input line 486.
+(Font)              for symbol `textbraceleft' on input line 490.
 
-[18] [19] [20]
+[19] [20] [21]
 
 LaTeX Font Warning: Font shape `OT1/cmss/m/it' in size <10> not available
-(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 625.
+(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 629.
 
 
-[21]
-<figures/bending-test/setup.pdf, id=308, 376.64944pt x 150.52174pt>
+[22]
+<figures/bending-test/setup.pdf, id=355, 376.64944pt x 150.52174pt>
 File: figures/bending-test/setup.pdf Graphic file (type pdf)
 <use figures/bending-test/setup.pdf>
-Package pdftex.def Info: figures/bending-test/setup.pdf  used on input line 669
+Package pdftex.def Info: figures/bending-test/setup.pdf  used on input line 673
 .
 (pdftex.def)             Requested size: 216.81pt x 86.64578pt.
-<figures/bending-test/sections-uniform.pdf, id=310, 274.11151pt x 81.99754pt>
+<figures/bending-test/sections-uniform.pdf, id=357, 274.11151pt x 81.99754pt>
 File: figures/bending-test/sections-uniform.pdf Graphic file (type pdf)
 <use figures/bending-test/sections-uniform.pdf>
 Package pdftex.def Info: figures/bending-test/sections-uniform.pdf  used on inp
-ut line 681.
+ut line 685.
 (pdftex.def)             Requested size: 173.44534pt x 51.88393pt.
-<figures/bending-test/sections-tapered.pdf, id=311, 273.47525pt x 92.37059pt>
+<figures/bending-test/sections-tapered.pdf, id=358, 273.47525pt x 92.37059pt>
 File: figures/bending-test/sections-tapered.pdf Graphic file (type pdf)
 <use figures/bending-test/sections-tapered.pdf>
 Package pdftex.def Info: figures/bending-test/sections-tapered.pdf  used on inp
-ut line 682.
+ut line 686.
 (pdftex.def)             Requested size: 173.44534pt x 58.5842pt.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 697.
- [22 <./figures/bending-test/setup.pdf> <./figures/bending-test/sections-unifor
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 701.
+ [23 <./figures/bending-test/setup.pdf> <./figures/bending-test/sections-unifor
 m.pdf
 
 pdfTeX warning: /usr/bin/pdflatex (file ./figures/bending-test/sections-uniform
@@ -703,19 +673,13 @@ pdfTeX warning: /usr/bin/pdflatex (file ./figures/bending-test/sections-uniform
 pdfTeX warning: /usr/bin/pdflatex (file ./figures/bending-test/sections-tapered
 .pdf): PDF inclusion: multiple pdfs with page group included in a single page
 >]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 697.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 701.
  (./document.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 697.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 697.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 701.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 701.
+Package rerunfilecheck Info: File `document.out' has not changed.
+(rerunfilecheck)             Checksum: D4CC8FCE15044BB8DC2371E30977946C;1676.
 
-
-Package rerunfilecheck Warning: File `document.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `document.out':
-(rerunfilecheck)             Before: D6BEECFB9DDE2802A61B96A862997221;1006
-(rerunfilecheck)             After:  04E1B4FA9BD523C7D1D474362ADC291F;1008.
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
@@ -724,11 +688,11 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 8898 strings out of 494510
- 127027 string characters out of 6176236
- 238853 words of memory out of 5000000
- 12332 multiletter control sequences out of 15000+600000
- 15573 words of font info for 60 fonts, out of 8000000 for 9000
+ 8914 strings out of 494510
+ 127425 string characters out of 6176236
+ 238864 words of memory out of 5000000
+ 12339 multiletter control sequences out of 15000+600000
+ 15214 words of font info for 59 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
  37i,14n,42p,882b,1173s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></us
@@ -742,14 +706,13 @@ ic/amsfonts/cm/cmss10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
 fonts/cm/cmss12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
 cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss
 bx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.
-pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi12.pfb><
-/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/s
-hare/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/t
-exlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on document.pdf (23 pages, 339198 bytes).
+pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></
+usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/sh
+are/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on document.pdf (24 pages, 330274 bytes).
 PDF statistics:
- 398 PDF objects out of 1000 (max. 8388607)
- 324 compressed objects within 4 object streams
- 94 named destinations out of 1000 (max. 500000)
- 240 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 444 PDF objects out of 1000 (max. 8388607)
+ 370 compressed objects within 4 object streams
+ 104 named destinations out of 1000 (max. 500000)
+ 312 words of extra memory for PDF output out of 10000 (max. 10000000)
 

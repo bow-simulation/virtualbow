@@ -62,13 +62,26 @@
 \bigskip
 
 This is the user manual for VirtualBow, a software tool for bow and arrow physics simulation.
-It shows how to use the program, explains the various input parameters and results and also contains some additional background information.
+
+\textcolor{red}{What is it intended for?}
+
+\textcolor{red}{What kinds of bows is it geared towards}
+
+\textcolor{red}{Reference the Theory Manual}
+
+\textcolor{red}{Encouraging Feedback and Support}
+
+\textcolor{red}{Components and filetypes}
+
+\textcolor{red}{Compatibility of files, automatic overwriting in new versions}
 
 For the latest version of the software and this manual visit the project's website at\\
 \website.\\
 
 \newpage
-\section{The Bow Editor}
+\section{Model Editor}
+
+\subsection{Overview}
 
 The bow editor is the main window of the application. Here you can load, edit and save bow models and start static and dynamic simulations.
 
@@ -84,7 +97,10 @@ Use the mouse to rotate (left mouse button), shift (middle mouse button) and zoo
 More view options are available through the buttons on the bottom-right corner.
 
 \newpage
-\subsection{Profile}
+\subsection{Parameters}
+
+\newpage
+\subsubsection{Profile}
 
 The profile curve is the geometric centerline of the bow limbs in unbraced state.
 Use the table on the left to edit the parameters.
@@ -102,7 +118,7 @@ The profile curve consists of a series of arc segments that each have a certain 
 \textbf{Note:} Mathematically, the curvature $\kappa$ of a segment is the reciprocal of its radius $r$, so you can calculate the curvature via $\kappa = \frac{1}{r}$ if you know the radius and vice versa.
 
 \newpage
-\subsection{Width}
+\subsubsection{Width}
 
 The width dialog is used to define the limb's width along its profile curve. This width is the same for all layers of the bow.
 
@@ -118,7 +134,7 @@ On the table on the left you can specify values for the width at certain relativ
 The actual width distribution of the limb is constructed as a smooth curve (monotonic cubic spline) passing through the supplied values as shown on the plot on the right.
 
 \newpage
-\subsection{Layers}
+\subsubsection{Layers}
 
 With the layer dialog you can create any number of layers and specify their height/thickness and material properties.
 
@@ -149,7 +165,7 @@ However, in order to be really sure about a specific piece of wood there is no o
 One possibility is a bending test as shown in Appendix~\ref{sec:bending-test}.
 
 \newpage
-\subsection{String}
+\subsubsection{String}
 
 Here you can define the mechanical properties of the string by providing data for the string material and the number of strands being used.
 
@@ -188,7 +204,7 @@ Silk        & 1026.51  & 0.0930   & 65.83   & Maurice Taylor, Archery The Techni
 \end{table}
 
 \newpage
-\subsection{Masses}
+\subsubsection{Masses}
 
 This dialog is used to define the various masses of the bow. All of them except the arrow mass are optional.
 
@@ -207,7 +223,7 @@ This dialog is used to define the various masses of the bow. All of them except 
 \end{itemize}
 
 \newpage
-\subsection{Damping}
+\subsubsection{Damping}
 
 Damping can be used to adjust for the energy a bow loses by dissipation, for example due to internal friction/hysteresis of the materials being used.
 This dialog therefore allows setting a damping ratio for the limbs and string, respectively.
@@ -219,30 +235,29 @@ This dialog therefore allows setting a damping ratio for the limbs and string, r
 \label{fig:damping}
 \end{figure}
 
-\textbf{Note:} The damping ratio characterizes how quickly oscillations in a system decay over time. See table~\ref{tbl:damping-ratio} for a visual explanation.
+\textbf{Note:} The damping ratio characterizes how quickly oscillations in a system decay over time.
+A system with a damping ratio of 0\% is undamped, it doesn't dissipate any energy and just keeps going with a constant amplitude.
+The higher the damping ratio the faster the amplitudes decay over time, losing energy with every oscillation.
+Once the damping ratio reaches 100\% the system stops oscillating (no more overshoot), this is called critical damping.
 
 \begin{table}[H]
 \centering
-\begin{tabular}{| m{4cm} | m{4.6cm} |}
+\begin{tabular}{| m{4cm} | m{4cm} |}
 \hline
 \textbf{Damping ratio} & \textbf{Amplitude} \\ \hline
-\center 0\% & \includegraphics[width=0.3\textwidth]{figures/damping-ratio-00} \\ \hline
-\center 10\% & \includegraphics[width=0.3\textwidth]{figures/damping-ratio-01} \\ \hline
-\center 100\% & \includegraphics[width=0.3\textwidth]{figures/damping-ratio-10} \\ \hline
+\center 0\% & \includegraphics[width=0.25\textwidth]{figures/damping-ratio-00} \\ \hline
+\center 10\% & \includegraphics[width=0.25\textwidth]{figures/damping-ratio-01} \\ \hline
+\center 100\% & \includegraphics[width=0.25\textwidth]{figures/damping-ratio-10} \\ \hline
 \end{tabular}
 \caption{Oscillations with increasing damping ratio}
 \label{tbl:damping-ratio}
 \end{table}
 
-A system with a damping ratio of 0\% is undamped, it doesn't dissipate any energy and just keeps oscillating with a constant amplitude.
-With increasing damping ratio the amplitudes decay faster and faster, losing energy with every oscillation.
-Once the damping ratio reaches 100\% the system stops oscillating altogether, this case is called critical damping.
-
 The damping ratios for a bow's limbs and string are mostly empirical.
-Realistic values are probably in the range of 0 - 20\%, but there is still more experience needed.
+Realistic values are probably in the range of 0 - 20\%, but there is still more practical experience needed.
 
 \newpage
-\subsection{Dimensions}
+\subsubsection{Dimensions}
 
 The parameters listed in this dialog define the lengths and angles of the bow and its optional middle section/grip. See also figure~\ref{fig:dimensions-2} for a visual explanation of those parameters.
 
@@ -277,7 +292,7 @@ The parameters listed in this dialog define the lengths and angles of the bow an
 \end{figure}
 
 \newpage
-\subsection{Comments}
+\subsubsection{Comments}
 
 The comments are meant for documenting the bow model. Any notes about the bow and the simulation results can be added here.
 
@@ -288,7 +303,7 @@ The comments are meant for documenting the bow model. Any notes about the bow an
 \label{fig:comments}
 \end{figure}
 
-\subsection{Settings}
+\subsubsection{Settings}
 
 These are numerical settings that can be used to tweak the simulation.
 Most of the time the default values should be fine though.
@@ -324,7 +339,11 @@ These are the individual settings:
 \end{itemize}
 
 \newpage
-\section{Simulation Results}
+\section{Result Viewer}
+
+\subsection{Overview}
+
+\textcolor{red}{General: Slider, jumping to events, switching statics/dynamics}
 
 You can start static or dynamic simulations by using the yellow and green toolbar buttons or the simulation menu.
 A new window with the results will open once the simulation has finished.
@@ -369,6 +388,20 @@ It describes the amount of energy stored by the bow's draw curve in relation to 
     \end{itemize}
 \end{itemize}
 
+\subsection{Results}
+
+\subsubsection{Characteristics}
+
+\subsubsection{Shape}
+
+\subsubsection{Stress}
+
+\subsubsection{Curvature}
+
+\subsubsection{Energy}
+
+\subsubsection{Other Plots}
+
 \newpage
 \section{Command Line Interface}
 
@@ -406,35 +439,6 @@ Both are very common formats with implementations available in many programming 
 An example for using VirtualBow with Python can be found in Appendix~\ref{sec:scripting-examples}.
 
 The exact definition and layout of the data contained in the input and output files is documented in Appendix~\ref{sec:input-structure} and~\ref{sec:output-structure}, respectively. Please note that those aren't stable yet. Future releases are very likely to introduce breaking changes.
-
-\newpage
-\section{Background Information}
-
-This section is intended to give interested users an overview of the mathematical bow model behind VirtualBow, i.e. how the different components of the bow are modeled and what the assumptions and limitations are.
-This section will eventually be replaced by a separate technical documentation of the simulation model.\\
-
-\textbf{Limb:} The limb is regarded as an Euler-Bernoulli beam.
-This means that all cross-sections of the beam are assumed to stay flat and perpendicular to the beam axis during deformation.
-The Euler-Bernoulli beam theory therefore only accounts for bending deformation and neglects shear deformation, which is usually a valid thing to do for long, slender beams.\\
-
-The material of the limb is considered linear-elastic, so the relation between material stress $\sigma$ and strain $\epsilon$ at any point in the limb is given by the linear equation $\sigma = E\cdot \epsilon$ with the elastic modulus $E$ as a material constant.
-The overall behaviour of the limb however is nonlinear due to the nonlinear kinematics/geometry of large deformations.\\
-
-\textbf{String:} Contrary to the limb, the string only transfers longitudinal forces and has no flexural rigidity.
-The material is considered linear-elastic as well.
-The string has a constant cross section and is internally implemented as a chain of point masses connected by springs.
-Additional point masses at the center and the tips represent things like servings and nocking point.\\
-
-\textbf{Arrow:} The arrow is modeled as a point mass.
-Deformation and vibration of the arrow (known as \textit{archers paradox}) is neglected/not captured by this model.
-That's because the scope of this program is only to evaluate overall bow performance, things like final arrow velocity, degree of efficiency, etc.
-For this purpose a point mass is sufficient.\\
-
-\textbf{Symmetry:} The bow is assumed to be symmetric.
-This is often only an approximation as most bows besides crossbow prods are actually slightly asymmetric.
-The assumption of symmetry simplifies the definition of the parameters by the user (no need to define the limb twice).
-It also allows the program to simulate only one half of the bow, which reduces the computing time.
-(As a user you don't have to take this into account, all input and output data of the program corresponds to the complete bow.)
 
 \appendix
 
