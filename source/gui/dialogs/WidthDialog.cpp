@@ -21,7 +21,7 @@ WidthDialog::WidthDialog(QWidget* parent)
     this->setLayout(vbox);
 
     // Event handling
-
+    QObject::connect(edit, &SeriesEditor::selectionChanged, view, &SplineView::setSelection);
     QObject::connect(edit, &SeriesEditor::modified, [&]{
         view->setData(edit->getData());
         emit modified();

@@ -33,6 +33,7 @@ LayerEditor::LayerEditor(EditableTabBar* tabs)
     QObject::connect(edit_E, &DoubleEditor::modified, this, &LayerEditor::modified);
     QObject::connect(edit_rho, &DoubleEditor::modified, this, &LayerEditor::modified);
 
+    QObject::connect(table, &SeriesEditor::selectionChanged, view, &SplineView::setSelection);
     QObject::connect(table, &SeriesEditor::modified, [&]{
         view->setData(table->getData());
         emit modified();

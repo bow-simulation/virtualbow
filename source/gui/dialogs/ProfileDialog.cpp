@@ -21,9 +21,8 @@ ProfileDialog::ProfileDialog(QWidget* parent)
     this->setLayout(vbox);
 
     // Event handling
-
+    QObject::connect(edit, &SeriesEditor::selectionChanged, view, &ProfileView::setSelection);
     QObject::connect(edit, &SeriesEditor::modified, this, &ProfileDialog::modified);
-
     QObject::connect(this, &ProfileDialog::modified, [&]{
         view->setData(this->getData());
     });
