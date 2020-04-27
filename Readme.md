@@ -15,7 +15,7 @@ Building VirtualBow requires CMake, a C++14 compiler and the following external 
 * [Eigen](http://eigen.tuxfamily.org/)
 * [Json](https://github.com/nlohmann/json)
 
-Pre-built dependencies for the supported platforms can be found at [virtualbow-dependencies](https://github.com/bow-simulation/virtualbow-dependencies/releases).
+Optional pre-built dependencies for the supported platforms and compilers are available at [virtualbow-dependencies](https://github.com/bow-simulation/virtualbow-dependencies/releases).
 They each contain a file named `paths.cmake` that will set up the `CMAKE_PREFIX_PATH` such that the correct libraries are found by CMake.
 The easiest way to use it is by setting `CMAKE_TOOLCHAIN_FILE` to `paths.cmake` in your build,
 
@@ -31,8 +31,8 @@ Using the GCC compiler from [MinGW-w64](http://mingw-w64.org/doku.php),
     cmake ../ -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=[...]/paths.cmake -DCMAKE_BUILD_TYPE=Release
     cmake --build .
 
-Building with Microsoft Visual C++ should also be possible, but is not officially supported anymore.
-Contributions that fix issues with MSVC will still be accepted though.
+Building with Microsoft Visual C++ should also be possible, but is not officially supported and tested anymore.
+Contributions that fix issues with MSVC will of course still be accepted.
 
 ## Linux and MacOS
 
