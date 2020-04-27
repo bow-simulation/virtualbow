@@ -18,11 +18,14 @@ public:
 
 signals:
     void modified();
+    void selectionChanged(const QVector<int>& rows);
 
 private:
     void cutSelection();
     void copySelection();
     void pasteToSelection();
     void deleteSelection();
+
+    QVector<int> getSelectedIndices();
 };
 

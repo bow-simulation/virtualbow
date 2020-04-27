@@ -8,7 +8,6 @@ void TableItem::setData(int role, const QVariant& data)
     if(!valid)
         qInfo() << "Not valid: " << data;
 
-
     if(valid || data.toString().isEmpty())
         QTableWidgetItem::setData(role, data);
 }
@@ -68,8 +67,14 @@ SeriesEditor::SeriesEditor(const QString& x_label, const QString& y_label, int r
     // Event handling
 
     QObject::connect(this, &SeriesEditor::cellChanged, [&]{
-        if(this->state() == QAbstractItemView::EditingState)
+        emit this->selectionChanged(getSelectedIndices());
+        if(this->state() == QAbstractItemView::EditingState) {
             emit modified();
+        }
+    });
+
+    QObject::connect(this, &QTableWidget::itemSelectionChanged, this, [&] {
+        emit this->selectionChanged(getSelectedIndices());
     });
 }
 
@@ -171,3 +176,24 @@ void SeriesEditor::deleteSelection()
     emit modified();
 }
 
+QVector<int> SeriesEditor::getSelectedIndices()
+{
+    QVector<int> selection;
+    int index = 0;
+    for(int i = 0; i < this->rowCount(); ++i)
+    {
+        bool arg_valid, val_valid;
+        QLocale().toDouble(this->item(i, 0)->text(), &arg_valid);
+        QLocale().toDouble(this->item(i, 1)->text(), &val_valid);
+
+        if(arg_valid && val_valid)
+        {
+            if(this->item(i, 0)->isSelected() || this->item(i, 1)->isSelected())
+                selection.push_back(index);
+
+            ++index;
+        }
+    }
+
+    return selection;
+}

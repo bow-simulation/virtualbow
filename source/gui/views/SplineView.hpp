@@ -7,5 +7,12 @@ class SplineView: public PlotWidget
 {
 public:
     SplineView(const QString& x_label, const QString& y_label);
-    void setData(Series input);
+    void setData(Series data);
+    void setSelection(const QVector<int>& indices);
+
+private:
+    Series input;
+    QVector<int> selection;
+
+    void updatePlot();
 };
