@@ -16,10 +16,18 @@ class StaticOutputWidget: public QWidget
 {
 public:
     StaticOutputWidget(const OutputData& output);
+    ~StaticOutputWidget();
+
+private:
+    QTabWidget* tabs;
 };
 
 class DynamicOutputWidget: public QWidget
 {
 public:
     DynamicOutputWidget(const OutputData& output);
+    ~DynamicOutputWidget();
+
+private:
+    QTabWidget* tabs;
 };

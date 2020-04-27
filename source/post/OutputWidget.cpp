@@ -64,6 +64,7 @@ const OutputData& OutputWidget::getData()
 
 
 StaticOutputWidget::StaticOutputWidget(const OutputData& data)
+    : tabs(new QTabWidget())
 {
     auto numbers = new NumberGrid();
     numbers->addColumn();
@@ -100,7 +101,6 @@ StaticOutputWidget::StaticOutputWidget(const OutputData& data)
     plot_combo->addData("Pot. energy string [J]", data.statics.states.e_pot_string);
     plot_combo->setCombination(0, 1);
 
-    auto tabs = new QTabWidget();
     tabs->addTab(numbers, "Characteristics");
     tabs->addTab(plot_shapes, "Shape");
     tabs->addTab(plot_stress, "Stress");
@@ -127,9 +127,20 @@ StaticOutputWidget::StaticOutputWidget(const OutputData& data)
     vbox->setMargin(0);
     vbox->addWidget(tabs);
     vbox->addWidget(slider);
+
+    QSettings settings;
+    tabs->setCurrentIndex(settings.value("StaticOutputWidget/selectedTab", tabs->currentIndex()).toInt());
 }
 
+StaticOutputWidget::~StaticOutputWidget()
+{
+    QSettings settings;
+    settings.setValue("StaticOutputWidget/selectedTab", tabs->currentIndex());
+}
+
+
 DynamicOutputWidget::DynamicOutputWidget(const OutputData& data)
+    : tabs(new QTabWidget())
 {
     auto numbers = new NumberGrid();
     numbers->addColumn();
@@ -169,7 +180,6 @@ DynamicOutputWidget::DynamicOutputWidget(const OutputData& data)
     plot_combo->addData("Kin. energy arrow [J]", data.dynamics.states.e_kin_arrow);
     plot_combo->setCombination(0, 1);
 
-    auto tabs = new QTabWidget();
     tabs->addTab(numbers, "Characteristics");
     tabs->addTab(plot_shapes, "Shape");
     tabs->addTab(plot_stress, "Stress");
@@ -196,5 +206,13 @@ DynamicOutputWidget::DynamicOutputWidget(const OutputData& data)
     vbox->setMargin(0);
     vbox->addWidget(tabs);
     vbox->addWidget(slider);
+
+    QSettings settings;
+    tabs->setCurrentIndex(settings.value("DynamicOutputWidget/selectedTab", tabs->currentIndex()).toInt());
 }
 
+DynamicOutputWidget::~DynamicOutputWidget()
+{
+    QSettings settings;
+    settings.setValue("DynamicOutputWidget/selectedTab", tabs->currentIndex());
+}
