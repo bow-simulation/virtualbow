@@ -1,6 +1,6 @@
 {
   "title": "VirtualBow",
-  "icon": "${CMAKE_CURRENT_SOURCE_DIR}/icon.icns",
+  "icon": "${CMAKE_CURRENT_SOURCE_DIR}/logo.icns",
   "background": "${CMAKE_CURRENT_SOURCE_DIR}/background.png",
   "window": { "size": { "width": 600, "height": 400 }},
   "icon-size": 100,
