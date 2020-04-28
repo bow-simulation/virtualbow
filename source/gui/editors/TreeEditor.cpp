@@ -14,13 +14,13 @@ TreeEditor::TreeEditor()
 {
     new TreeItem<CommentDialog, std::string>(this, data.meta.comments, "Comments", QIcon(":/icons/comments"));
     new TreeItem<SettingsDialog, Settings>(this, data.settings, "Settings", QIcon(":/icons/settings"));
+    new TreeItem<DimensionsDialog, Dimensions>(this, data.dimensions, "Dimensions", QIcon(":/icons/dimensions"));
     new TreeItem<ProfileDialog, Series>(this, data.profile, "Profile", QIcon(":/icons/profile"));
     new TreeItem<WidthDialog, Series>(this, data.width, "Width", QIcon(":/icons/width"));
     new TreeItem<LayerDialog, Layers>(this, data.layers, "Layers", QIcon(":/icons/layers"));
     new TreeItem<StringDialog, String>(this, data.string, "String", QIcon(":/icons/string"));
     new TreeItem<MassesDialog, Masses>(this, data.masses, "Masses", QIcon(":/icons/masses"));
     new TreeItem<DampingDialog, Damping>(this, data.damping, "Damping", QIcon(":/icons/damping"));
-    new TreeItem<DimensionsDialog, Dimensions>(this, data.dimensions, "Dimensions", QIcon(":/icons/dimensions"));
 
     QObject::connect(this, &QTreeWidget::itemActivated, [](QTreeWidgetItem* item, int column)
     {
