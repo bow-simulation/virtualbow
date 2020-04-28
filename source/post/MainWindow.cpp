@@ -98,7 +98,7 @@ void MainWindow::saveAs()
 {
     QFileDialog dialog(this);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setNameFilter("Result Files (*.red)");
+    dialog.setNameFilter("Result Files (*.res)");
     dialog.setDefaultSuffix("res");
     dialog.selectFile(this->windowFilePath().isEmpty() ? DEFAULT_FILENAME : this->windowFilePath());
 
