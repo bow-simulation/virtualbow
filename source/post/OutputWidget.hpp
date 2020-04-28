@@ -10,6 +10,8 @@ public:
 
 private:
     OutputData data;
+    QPushButton* bt_statics;
+    QPushButton* bt_dynamics;
 };
 
 class StaticOutputWidget: public QWidget
