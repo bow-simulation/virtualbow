@@ -55,9 +55,23 @@ OutputWidget::OutputWidget(const OutputData& output)
     vbox->addWidget(btbox);
     this->setLayout(vbox);
 
-    bt_statics->setChecked(!enable_dynamics);
-    bt_dynamics->setChecked(enable_dynamics);
+    QSettings settings;
+    int mode = settings.value("OutputWidget/selectedMode").toInt();
+    bt_statics->setChecked(mode == 0);
+    bt_dynamics->setChecked(mode == 1);
 }
+
+OutputWidget::~OutputWidget()
+{
+    QSettings settings;
+    if(bt_statics->isChecked()) {
+        settings.setValue("OutputWidget/selectedMode", 0);
+    }
+    else if(bt_dynamics->isChecked()) {
+        settings.setValue("OutputWidget/selectedMode", 1);
+    }
+}
+
 
 const OutputData& OutputWidget::getData()
 {

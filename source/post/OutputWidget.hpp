@@ -6,6 +6,7 @@ class OutputWidget: public QWidget
 {
 public:
     OutputWidget(const OutputData& output);
+    ~OutputWidget();
     const OutputData& getData();
 
 private:
