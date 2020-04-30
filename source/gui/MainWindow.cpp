@@ -239,11 +239,11 @@ void MainWindow::runSimulation(const QString& flag)
     SimulationDialog dialog(this, this->windowFilePath(), output_file, flag);
     if(dialog.exec() == QDialog::Accepted)
     {
-        QProcess *process = new QProcess(this);
-        process->setWorkingDirectory(QCoreApplication::applicationDirPath());
-        process->setProgram("virtualbow-post");
-        process->setArguments({ output_file });
-        process->startDetached();
+        QProcess::startDetached(
+            "virtualbow-post",
+            { output_file },
+            QCoreApplication::applicationDirPath()
+        );
     }
 }
 
