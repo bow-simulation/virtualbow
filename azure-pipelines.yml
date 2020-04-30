@@ -42,13 +42,13 @@ jobs:
 
 - job: Linux
   pool:
-    vmImage: 'ubuntu-16.04'
+    vmImage: 'ubuntu-18.04'
   variables:
     CC: gcc-9
     CXX: g++-9
   steps:
   - script: |
-      sudo apt update -qq && sudo apt install -y libgl1-mesa-dev
+      sudo apt update -qq && sudo apt install -y qtbase5-dev libqt5x11extras5-dev libgl1-mesa-dev
       mkdir build && cd build
       curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.1/linux-gcc_64.zip && unzip linux-gcc_64.zip
       cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=linux-gcc_64/paths.cmake
