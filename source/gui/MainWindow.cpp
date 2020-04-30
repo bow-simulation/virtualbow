@@ -86,6 +86,7 @@ MainWindow::MainWindow()
     // Main window
     this->setWindowIcon(QIcon(":/icons/logo.ico"));
     this->setCentralWidget(editor);
+    this->resize(INITIAL_SIZE);
     setCurrentFile(QString());
 
     // Load geometry and state

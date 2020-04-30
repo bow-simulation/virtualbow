@@ -40,6 +40,7 @@ MainWindow::MainWindow()
 
     // Main window
     this->setWindowIcon(QIcon(":/icons/logo"));
+    this->resize(INITIAL_SIZE);
 
     // Load geometry and state
     QSettings settings;
