@@ -45,7 +45,8 @@ SimulationDialog::SimulationDialog(QWidget* parent, const QString& input, const 
         process->waitForFinished();
     });
 
-    QObject::connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus) {
+    QObject::connect(process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+	this, [=](int exitCode, QProcess::ExitStatus exitStatus) {
         // Accept the dialog if the process finished successfully
         // Otherwise show its error output, if there are any
         // (there are none if the process was terminated by the user)
