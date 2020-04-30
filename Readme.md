@@ -36,6 +36,14 @@ Contributions that fix issues with MSVC will of course still be accepted.
 
 ## Linux and MacOS
 
+On Linux, the pre-built dependencies don't include Qt.
+Instead the Qt libraries packaged with the system are used.
+On Ubuntu for example they can be installed with
+
+    sudo apt install qtbase5-dev libqt5x11extras5-dev libgl1-mesa-dev
+    
+The rest of the build process is the same on Linux and MacOS
+
     mkdir build && cd build
     cmake ../ -DCMAKE_TOOLCHAIN_FILE=[...]/paths.cmake -DCMAKE_BUILD_TYPE=Release
     cmake --build .
