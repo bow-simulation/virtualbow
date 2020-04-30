@@ -14,6 +14,7 @@ public:
 
 private:
     const char* DEFAULT_FILENAME = "Unnamed";
+    const QSize INITIAL_SIZE = {1200, 700};
 
     InputData data;
     BowEditor* editor;
