@@ -8,14 +8,14 @@ struct DynamicData
 {
     BowStates states;
 
-    double final_pos_arrow;
-    double final_vel_arrow;
+    double final_pos_arrow = 0;
+    double final_vel_arrow = 0;
 
-    double final_e_pot_limbs;
-    double final_e_kin_limbs;
-    double final_e_pot_string;
-    double final_e_kin_string;
-    double final_e_kin_arrow;
+    double final_e_pot_limbs = 0;
+    double final_e_kin_limbs = 0;
+    double final_e_pot_string = 0;
+    double final_e_kin_string = 0;
+    double final_e_kin_arrow = 0;
 
     double efficiency = 0.0;
 
