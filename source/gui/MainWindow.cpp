@@ -162,9 +162,7 @@ void MainWindow::newFile()
     if(!optionalSave())
         return;
 
-    // Create new file and set version correctly
     data = InputData();
-    data.meta.version = Config::APPLICATION_VERSION;
     editor->setData(data);
 
     setCurrentFile("");

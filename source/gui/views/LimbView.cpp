@@ -186,7 +186,7 @@ void LimbView::initializeGL()
     connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &LimbView::cleanup);
 
     initializeOpenGLFunctions();
-    glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
+    glClearColor(0.3f, 0.4f, 0.5f, 1.0f);
     glLineWidth(2.0f);
 
     shader_program = new QOpenGLShaderProgram;

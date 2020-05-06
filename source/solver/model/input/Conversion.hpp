@@ -9,28 +9,28 @@ class Conversion
 public:
     static void to_current(json& obj)
     {
-        if(obj.at("meta").at("version") == "0.1")
+        if(obj.contains("meta") && obj.at("meta").at("version") == "0.1")
             convert_0_1_0_to_0_2_0(obj);
 
-        if(obj.at("meta").at("version") == "0.2")
+        if(obj.contains("meta") && obj.at("meta").at("version") == "0.2")
             convert_0_2_0_to_0_3_0(obj);
 
-        if(obj.at("meta").at("version") == "0.3")
+        if(obj.contains("meta") && obj.at("meta").at("version") == "0.3")
             convert_0_3_0_to_0_4_0(obj);
 
-        if(obj.at("meta").at("version") == "0.4")
+        if(obj.contains("meta") && obj.at("meta").at("version") == "0.4")
             convert_0_4_0_to_0_5_0(obj);
 
-        if(obj.at("meta").at("version") == "0.5")
+        if(obj.contains("meta") && obj.at("meta").at("version") == "0.5")
             convert_0_5_0_to_0_6_0(obj);
 
-        if(obj.at("meta").at("version") == "0.6")
+        if(obj.contains("meta") && obj.at("meta").at("version") == "0.6")
             convert_0_6_0_to_0_6_1(obj);
 
-        if(obj.at("meta").at("version") == "0.6.1")
+        if(obj.contains("meta") && obj.at("meta").at("version") == "0.6.1")
             convert_0_6_1_to_0_7_0(obj);
 
-        if(obj.at("meta").at("version") == "0.7")
+        if(obj.at("version") == "0.7")
             return;
 
         throw std::runtime_error("Version not recognized.");
@@ -39,7 +39,10 @@ public:
 private:
     static void convert_0_6_1_to_0_7_0(json& obj)
     {
-        obj["meta"]["version"] = "0.7";
+        obj["version"] = "0.7";
+        obj["comment"] = obj["meta"]["comments"];
+        obj.erase("meta");
+
         obj["damping"]["damping_ratio_limbs"] = 0.0;
         obj["damping"]["damping_ratio_string"] = 0.0;
 

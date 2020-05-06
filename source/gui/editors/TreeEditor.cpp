@@ -12,7 +12,7 @@
 
 TreeEditor::TreeEditor()
 {
-    new TreeItem<CommentDialog, std::string>(this, data.meta.comments, "Comments", QIcon(":/icons/comments"));
+    new TreeItem<CommentDialog, std::string>(this, data.comment, "Comments", QIcon(":/icons/comments"));
     new TreeItem<SettingsDialog, Settings>(this, data.settings, "Settings", QIcon(":/icons/settings"));
     new TreeItem<DimensionsDialog, Dimensions>(this, data.dimensions, "Dimensions", QIcon(":/icons/dimensions"));
     new TreeItem<ProfileDialog, Series>(this, data.profile, "Profile", QIcon(":/icons/profile"));
