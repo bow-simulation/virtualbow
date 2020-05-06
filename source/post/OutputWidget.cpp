@@ -162,7 +162,7 @@ DynamicOutputWidget::DynamicOutputWidget(const OutputData& data)
     numbers->addColumn();
     numbers->addGroup("Performance");
     numbers->addValue("Final arrow velocity [m/s]", data.dynamics.final_vel_arrow);
-    numbers->addValue("Efficiency", data.dynamics.efficiency);
+    numbers->addValue("Degree of efficiency", data.dynamics.efficiency);
     numbers->addGroup("Energy at arrow departure");
     numbers->addValue("Kinetic energy arrow [J]", data.dynamics.final_e_kin_arrow);
     numbers->addValue("Kinetic energy limbs [J]", data.dynamics.final_e_kin_limbs);
