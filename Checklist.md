@@ -3,7 +3,7 @@
 * Solve all issues of the next milestone
 * Implement conversion of bow files between versions
 * Execute manual tests defined below on all platforms
-* Update user manual with new features and changes
+* Update user manual, place copy into resources/docs
 * Update version number and copyright notice in
     * User manual
     * Theory manual
@@ -29,7 +29,8 @@
 * Installation
 
 * virtualbow-gui
-
+    * Simulate all bows in /examples to verify compatibility with older versions
+    
 * virtualbow-slv
 
 * virtualbow-post
