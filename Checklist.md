@@ -1,13 +1,13 @@
 # Release Checklist
 
-* Solve all issues of the next milestone
-* Implement conversion of bow files between versions
-* Execute manual tests defined below on all platforms
-* Update user manual, place copy into resources/docs
 * Update version number and copyright notice in
     * User manual
     * Theory manual
     * CMakeLists.txt
+* Solve all issues in the current milestone
+* Implement a conversion from bow files of the previous version
+* Execute manual tests defined below on all platforms
+* Update user manual, place copy into resources/docs
 * Create new changelog entry
 * Create commit, merge to master and possibly develop
 * Download artifacts from the CI-Pipeline and test manually
@@ -18,7 +18,7 @@
     * Release announcement
 * Post to r/VirtualBow 
 
-# Manual Test Protocol
+# Manual Tests
 
 * Tested platforms:
     * Windows 10
@@ -26,11 +26,17 @@
     * Ubuntu 16.04
     * Fedora 30
 
-* Installation
+* Install with default settings, check if VirtualBow and VirtualBow Post are available
 
-* virtualbow-gui
-    * Simulate all bows in /examples to verify compatibility with older versions
-    
-* virtualbow-slv
+* VirtualBow
+    * Launch the aplication
+    * Open *Help* - *User Manual*, check for correct version
+    * Open *Help* - *About*, check for correct version
+    * Launch a dynamic simulation with the default bow, skim results
 
-* virtualbow-post
+* VirtualBow Post
+    * Launch the application
+    * Open results produced by previous simulation
+
+* VirtualBow Solver
+    * Simulate all `.bow` files of the previous version in /examples to verify compatibility
