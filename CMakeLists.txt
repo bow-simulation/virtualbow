@@ -270,6 +270,8 @@ set_target_properties(
 # Platform specifics
 
 if(WIN32)
+	# Link MinGW libraries statically
+	set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
     add_subdirectory(platforms/windows)
 elseif(APPLE)
     add_subdirectory(platforms/macos)
