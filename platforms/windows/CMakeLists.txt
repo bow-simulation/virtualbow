@@ -4,9 +4,6 @@ target_compile_definitions(virtualbow-slv PRIVATE _USE_MATH_DEFINES)
 target_compile_definitions(virtualbow-post PRIVATE _USE_MATH_DEFINES)
 target_compile_definitions(virtualbow-test PRIVATE _USE_MATH_DEFINES)
 
-# Link MinGW libraries statically
-set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
-
 # Set executable icons
 target_sources(virtualbow-gui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icons-gui.rc)
 target_sources(virtualbow-slv PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icons-slv.rc)
@@ -29,6 +26,7 @@ add_custom_command(
     ${CMAKE_BINARY_DIR}/application/virtualbow-slv.exe
     ${CMAKE_BINARY_DIR}/application/virtualbow-post.exe
     --release
+	--compiler-runtime
 )
 
 # Target: Inno Setup installer
