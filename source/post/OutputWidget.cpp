@@ -56,7 +56,7 @@ OutputWidget::OutputWidget(const OutputData& output)
     this->setLayout(vbox);
 
     QSettings settings;
-    int mode = settings.value("OutputWidget/selectedMode").toInt();
+    int mode = settings.value("OutputWidget/selectedMode", int(enable_dynamics)).toInt();
     bt_statics->setChecked(mode == 0);
     bt_dynamics->setChecked(mode == 1);
 }
