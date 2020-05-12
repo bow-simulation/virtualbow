@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=VirtualBow
+Exec=virtualbow-gui
+Icon=virtualbow
+Comment=VirtualBow Model Editor
+Categories=Education;Science;NumericalAnalysis;Physics;Engineering;
+MimeType=application/json;

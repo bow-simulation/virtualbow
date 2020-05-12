@@ -7,50 +7,64 @@ Visit http://www.virtualbow.org for more information about the project.
 
 # Building
 
+<<<<<<< HEAD
 Building VirtualBow requires CMake and a C++ compiler.
 External dependencies are handled with [vcpkg](https://github.com/Microsoft/vcpkg), a cross-platform C++ package manager.
 (The following instructions are slightly different from the official release builds.
 For more information on those please refer to [Release.md](Release.md) and [azure-pipelines.yml](azure-pipelines.yml).)
+=======
+Building VirtualBow requires CMake, a C++14 compiler and the following external dependencies: 
+>>>>>>> develop
 
-After setting up vcpkg, the required dependencies can be installed as
+* [Qt](https://www.qt.io/)
+* [Boost](https://www.boost.org/)
+* [Catch](https://github.com/catchorg/Catch2)
+* [Eigen](http://eigen.tuxfamily.org/)
+* [Json](https://github.com/nlohmann/json)
 
-    ./vcpkg install boost catch2 eigen3 nlohmann-json qt5-base
+Optional pre-built dependencies for the supported platforms and compilers are available at [virtualbow-dependencies](https://github.com/bow-simulation/virtualbow-dependencies/releases).
+They each contain a file named `paths.cmake` that will set up the `CMAKE_PREFIX_PATH` such that the correct libraries are found by CMake.
+The easiest way to use it is by setting `CMAKE_TOOLCHAIN_FILE` to `paths.cmake` in your build,
 
-Add vcpkg's toolchain file to any subsequent `cmake` calls in order to make them available.
+    -DCMAKE_TOOLCHAIN_FILE=[dependencies]/paths.cmake
 
-    -DCMAKE_TOOLCHAIN_FILE=[VCPKG_ROOT]/scripts/buildsystems/vcpkg.cmake
-
-If you're using Qt Creator you can set this under *Projects* - *Build Settings* - *CMake*.
-(If the configuration step keeps failing, try manually creating the folder specified as *Build directory* and then run CMake again.)
+If you're using Qt Creator you can set this property under *Projects* - *Build Settings* - *CMake*. (If the configuration step keeps failing, try cleaning the CMake configuration or manually create the folder specified as *Build directory* and then run CMake again.)
 
 ## Windows
 
+Using the GCC compiler from [MinGW-w64](http://mingw-w64.org/doku.php),
+
     mkdir build && cd build
-    cmake ../ -DCMAKE_TOOLCHAIN_FILE=[VCPKG_ROOT]/scripts/buildsystems/vcpkg.cmake
-    cmake --build . --config Release
+    cmake ../ -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=[...]/paths.cmake -DCMAKE_BUILD_TYPE=Release
+    cmake --build .
+
+Building with Microsoft Visual C++ should also be possible, but is not officially supported and tested anymore.
+Contributions that fix issues with MSVC will of course still be accepted.
 
 ## Linux and MacOS
 
-On linux you can optionally save some time by installing pre-compiled releases of Qt and Boost via your system's package manager.
+On Linux, the pre-built dependencies don't include Qt.
+Instead the Qt libraries packaged with the system are used.
+On Ubuntu for example they can be installed with
 
-    sudo apt install qtbase5-dev libqt5x11extras5-dev libboost-all-dev
-
-Then build the application
+    sudo apt install qtbase5-dev libqt5x11extras5-dev libgl1-mesa-dev
+    
+The rest of the build process is the same on Linux and MacOS
 
     mkdir build && cd build
-    cmake ../ -DCMAKE_TOOLCHAIN_FILE=[VCPKG_ROOT]/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
+    cmake ../ -DCMAKE_TOOLCHAIN_FILE=[...]/paths.cmake -DCMAKE_BUILD_TYPE=Release
     cmake --build .
 
 # Contributing
 
-Any contribution is very much appreciated.
-Follow the steps below to get your changes included in this repository.
+Contributions are much appreciated!
+Please follow the steps below to get your changes included in this repository:
 
 1. Fork the repository and create a new branch from `develop`
 2. Implement, commit and push your changes
 3. Create a pull request back to the `develop` branch of this repository. Link any relevant [issues](https://github.com/bow-simulation/virtualbow/issues).
-4. Wait and see if all checks pass. Keep updating your branch until they do.
-5. Your changes will be reviewed as soon as possible
+4. Wait and see if the build pipeline passes. Keep updating your branch until it does.
+5. Your changes will be reviewed for merging as soon as possible
 
 # License
 

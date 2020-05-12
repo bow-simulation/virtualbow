@@ -2,46 +2,46 @@
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
     <dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
+        <key>CFBundleDevelopmentRegion</key>
+        <string>English</string>
         <key>CFBundleDocumentTypes</key>
-        <dict>
-            <key>CFBundleTypeExtensions</key>
-            <array>
-                <string>bow</string>
-            </array>
-            <key>CFBundleTypeName</key>
-            <string>VirtualBow model file</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>CFBundleIconFile</key>
-            <string>${MACOSX_BUNDLE_ICON_FILE}</string>
-        </dict>
-	<key>CFBundleExecutable</key>
-	<string>${MACOSX_BUNDLE_EXECUTABLE_NAME}</string>
-	<key>CFBundleGetInfoString</key>
-	<string>${MACOSX_BUNDLE_INFO_STRING}</string>
-	<key>CFBundleIconFile</key>
-	<string>${MACOSX_BUNDLE_ICON_FILE}</string>
-	<key>CFBundleIdentifier</key>
-	<string>${MACOSX_BUNDLE_GUI_IDENTIFIER}</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleLongVersionString</key>
-	<string>${MACOSX_BUNDLE_LONG_VERSION_STRING}</string>
-	<key>CFBundleName</key>
-	<string>${MACOSX_BUNDLE_BUNDLE_NAME}</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>${MACOSX_BUNDLE_SHORT_VERSION_STRING}</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>${MACOSX_BUNDLE_BUNDLE_VERSION}</string>
-	<key>CSResourcesFileMapped</key>
-	<true/>
-	<key>NSHumanReadableCopyright</key>
-	<string>${MACOSX_BUNDLE_COPYRIGHT}</string>
+        <array>
+            <dict>
+                <key>CFBundleTypeName</key>
+                <string>VirtualBow Model File</string>
+                <key>CFBundleTypeExtensions</key>
+                <array>
+                    <string>bow</string>
+                </array>
+                <key>CFBundleTypeRole</key>
+                <string>Editor</string>
+                <key>CFBundleIconFile</key>
+                <string>logo</string>
+            </dict>
+        </array>
+        <key>CFBundleExecutable</key>
+        <string>virtualbow-gui</string>
+        <key>CFBundleGetInfoString</key>
+        <string>${APPLICATION_DESCRIPTION_SHORT}</string>
+        <key>CFBundleIconFile</key>
+        <string>logo</string>
+        <key>CFBundleIdentifier</key>
+        <string>virtualbow</string>
+        <key>CFBundleInfoDictionaryVersion</key>
+        <string>6.0</string>
+        <key>CFBundleLongVersionString</key>
+        <string>${APPLICATION_VERSION}</string>
+        <key>CFBundleShortVersionString</key>
+        <string>${APPLICATION_VERSION}</string>
+        <key>CFBundleName</key>
+        <string>VirtualBow</string>
+        <key>CFBundlePackageType</key>
+        <string>APPL</string>
+        <key>CFBundleSignature</key>
+        <string>????</string>
+        <key>CSResourcesFileMapped</key>
+        <true/>
+        <key>NSHumanReadableCopyright</key>
+        <string>${APPLICATION_LICENSE}</string>
     </dict>
 </plist>

@@ -1,36 +1,36 @@
 #pragma once
-#include "bow/input/InputData.hpp"
+#include "solver/model/input/InputData.hpp"
 #include <QtWidgets>
 
 class BowEditor;
+class RecentFilesMenu;
 
 class MainWindow: public QMainWindow
 {
 public:
     MainWindow();
-    ~MainWindow();
-
     bool loadFile(const QString& path);
     bool saveFile(const QString& path);
 
 private:
+    const char* DEFAULT_FILENAME = "Unnamed";
+    const QSize INITIAL_SIZE = {1200, 700};
+
     InputData data;
     BowEditor* editor;
-    QString current_file;
+    RecentFilesMenu* menu_recent;
 
     void closeEvent(QCloseEvent *event) override;
 
     void newFile();
     void open();
+    void openRecent(const QString& path);
     bool save();
     bool saveAs();
 
-    // Todo: settings, notes and about dialogs as lambdas in constructor?
-    void settings();
-    void comments();
-    void runSimulation(bool dynamic);
-    void about();
+    void runSimulation(const QString& flag);
 
     void setCurrentFile(const QString& path);
+    void setModified(bool modified);
     bool optionalSave();
 };

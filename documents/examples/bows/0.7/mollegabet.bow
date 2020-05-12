@@ -1,0 +1,113 @@
+{
+    "damping": {
+        "damping_ratio_limbs": 0.0,
+        "damping_ratio_string": 0.0
+    },
+    "dimensions": {
+        "brace_height": 0.2,
+        "draw_length": 0.7,
+        "handle_angle": 0.0,
+        "handle_length": 0.0,
+        "handle_setback": 0.0
+    },
+    "layers": [
+        {
+            "E": 10600000000.0,
+            "height": [
+                [
+                    0.0,
+                    0.038
+                ],
+                [
+                    0.025,
+                    0.038
+                ],
+                [
+                    0.11,
+                    0.012
+                ],
+                [
+                    0.305,
+                    0.0115
+                ],
+                [
+                    0.52,
+                    0.012
+                ],
+                [
+                    0.555,
+                    0.022
+                ],
+                [
+                    0.97,
+                    0.023
+                ],
+                [
+                    1.0,
+                    0.01
+                ]
+            ],
+            "name": "maple",
+            "rho": 645.0
+        }
+    ],
+    "masses": {
+        "arrow": 0.08,
+        "limb_tip": 0.005,
+        "string_center": 0.005,
+        "string_tip": 0.005
+    },
+    "meta": {
+        "comments": "",
+        "version": "0.7"
+    },
+    "profile": [
+        [
+            0.0,
+            0.0
+        ],
+        [
+            0.8,
+            0.0
+        ]
+    ],
+    "settings": {
+        "n_draw_steps": 150,
+        "n_limb_elements": 40,
+        "n_string_elements": 45,
+        "sampling_rate": 10000.0,
+        "time_span_factor": 1.5,
+        "time_step_factor": 0.5
+    },
+    "string": {
+        "n_strands": 12,
+        "strand_density": 0.0005,
+        "strand_stiffness": 3500.0
+    },
+    "width": [
+        [
+            0.0,
+            0.0254
+        ],
+        [
+            0.025,
+            0.0254
+        ],
+        [
+            0.1,
+            0.04
+        ],
+        [
+            0.47,
+            0.04
+        ],
+        [
+            0.595,
+            0.02
+        ],
+        [
+            1.0,
+            0.015875
+        ]
+    ]
+}

@@ -1,84 +1,66 @@
 jobs:
-- job: Win32
+- job: Windows
   pool:
     vmImage: 'windows-2019'
   steps:
   - script: |
       mkdir build && cd build
-      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.0/vcpkg-export-x86-windows.zip
-      unzip vcpkg-export-x86-windows.zip
-      cmake ../ -DCMAKE_TOOLCHAIN_FILE=vcpkg-export-x86-windows/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x86-windows -A Win32
-      cmake --build . --config Release
-      Release\virtualbow-tests
-      cmake --build . --config Release --target iss-installer
+      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.1/windows-mingw_64.zip && 7z x windows-mingw_64.zip
+      cmake ../ -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=windows-mingw_64/paths.cmake
+      cmake --build . -j%NUMBER_OF_PROCESSORS%
+      cmake --build . --target iss-installer -j%NUMBER_OF_PROCESSORS%
+      virtualbow-test
   - task: PublishBuildArtifacts@1
     inputs:
-      pathToPublish: 'build/virtualbow-setup.exe'
-      artifactName: 'Win32_Artifacts'
-
-- job: Win64
-  pool:
-    vmImage: 'windows-2019'
-  steps:
-  - script: |
-      mkdir build && cd build
-      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.0/vcpkg-export-x64-windows.zip
-      unzip vcpkg-export-x64-windows.zip
-      cmake ../ -DCMAKE_TOOLCHAIN_FILE=vcpkg-export-x64-windows/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -A x64
-      cmake --build . --config Release
-      Release\virtualbow-tests
-      cmake --build . --config Release --target iss-installer
+      pathToPublish: 'build/application'
+      artifactName: 'windows-application'
   - task: PublishBuildArtifacts@1
     inputs:
-      pathToPublish: 'build/virtualbow-setup.exe'
-      artifactName: 'Win64_Artifacts'
-
+      pathToPublish: 'build/packages'
+      artifactName: 'windows-packages'
+      
 - job: MacOS
   pool:
-    vmImage: 'macOS-10.13'
+    vmImage: 'macOS-10.14'
   steps:
   - script: |
-      mkdir build && cd build
-      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.0/vcpkg-export-x64-osx.zip
-      unzip vcpkg-export-x64-osx.zip
-      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.0/qt-5.11.2-x64-osx.zip
-      unzip qt-5.11.2-x64-osx.zip
-      cmake ../ -DCMAKE_TOOLCHAIN_FILE=vcpkg-export-x64-osx/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-osx -DCMAKE_PREFIX_PATH=$(Build.Repository.LocalPath)/build/qt-5.11.2-x64-osx -DCMAKE_OSX_DEPLOYMENT_TARGET=10.11 -DCMAKE_BUILD_TYPE=Release
-      cmake --build .
-      ./virtualbow-tests
       npm install -g appdmg@0.5.2
-      cmake --build . --target dmg-installer
+      mkdir build && cd build
+      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.1/macos-clang_64.zip && unzip macos-clang_64.zip
+      cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=macos-clang_64/paths.cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13
+      cmake --build . -j$(nproc)
+      cmake --build . --target dmg-installer -j$(nproc)
+      ./virtualbow-test
   - task: PublishBuildArtifacts@1
     inputs:
-      pathToPublish: 'build/virtualbow.dmg'
-      artifactName: 'MacOS_Artifacts'
+      pathToPublish: 'build/application'
+      artifactName: 'macos-application'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: 'build/packages'
+      artifactName: 'macos-packages'
 
 - job: Linux
   pool:
     vmImage: 'ubuntu-16.04'
+  variables:
+    CC: gcc-9
+    CXX: g++-9
   steps:
   - script: |
-      sudo apt update -qq && sudo apt install -y qt5-default
-      sudo curl -o /usr/local/bin/linuxdeployqt -LO https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
-      sudo chmod a+x /usr/local/bin/linuxdeployqt
+      sudo apt update -qq && sudo apt install -y qtbase5-dev libqt5x11extras5-dev libgl1-mesa-dev
       mkdir build && cd build
-      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.0/vcpkg-export-x64-linux.zip
-      unzip vcpkg-export-x64-linux.zip
-      cmake ../ -DCMAKE_TOOLCHAIN_FILE=vcpkg-export-x64-linux/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DCMAKE_BUILD_TYPE=Release
-      cmake --build .
-      ./virtualbow-tests
-      cmake --build . --target deb-package
-      cmake --build . --target rpm-package
-      cmake --build . --target appimage
+      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.1/linux-gcc_64.zip && unzip linux-gcc_64.zip
+      cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=linux-gcc_64/paths.cmake
+      cmake --build . -j$(nproc)
+      cmake --build . --target deb-package -j$(nproc)
+      cmake --build . --target rpm-package -j$(nproc)
+      ./virtualbow-test
   - task: PublishBuildArtifacts@1
     inputs:
-      pathToPublish: 'build/virtualbow.deb'
-      artifactName: 'Linux_Artifacts'
+      pathToPublish: 'build/application'
+      artifactName: 'linux-application'
   - task: PublishBuildArtifacts@1
     inputs:
-      pathToPublish: 'build/virtualbow.rpm'
-      artifactName: 'Linux_Artifacts'
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathToPublish: 'build/virtualbow.AppImage'
-      artifactName: 'Linux_Artifacts'
+      pathToPublish: 'build/packages'
+      artifactName: 'linux-packages'

@@ -1,65 +1,66 @@
 #include "MainWindow.hpp"
-#include "Application.hpp"
-#include "ProgressDialog.hpp"
-#include "input/editors/BowEditor.hpp"
-#include "output/OutputDialog.hpp"
-#include "bow/BowModel.hpp"
+#include "SimulationDialog.hpp"
+#include "RecentFilesMenu.hpp"
+#include "HelpMenu.hpp"
+#include "editors/BowEditor.hpp"
 #include "config.hpp"
-#include <thread>
 #include <nlohmann/json.hpp>
 
 MainWindow::MainWindow()
-    : editor(new BowEditor())
+    : editor(new BowEditor()),
+      menu_recent(new RecentFilesMenu(this))
 {
     // Actions
-    auto action_new = new QAction(QIcon::fromTheme("document-new", QIcon(":/icons/document-new.png")), "&New", this);
+    auto action_new = new QAction(QIcon(":/icons/document-new.png"), "&New", this);
     QObject::connect(action_new, &QAction::triggered, this, &MainWindow::newFile);
     action_new->setShortcuts(QKeySequence::New);
     action_new->setMenuRole(QAction::NoRole);
 
-    auto action_open = new QAction(QIcon::fromTheme("document-open", QIcon(":/icons/document-open.png")), "&Open...", this);
+    auto action_open = new QAction(QIcon(":/icons/document-open.png"), "&Open...", this);
     QObject::connect(action_open, &QAction::triggered, this, &MainWindow::open);
     action_open->setShortcuts(QKeySequence::Open);
     action_open->setMenuRole(QAction::NoRole);
 
-    auto action_save = new QAction(QIcon::fromTheme("document-save", QIcon(":/icons/document-save.png")), "&Save", this);
+    auto action_save = new QAction(QIcon(":/icons/document-save.png"), "&Save", this);
     QObject::connect(action_save, &QAction::triggered, this, &MainWindow::save);
     action_save->setShortcuts(QKeySequence::Save);
     action_save->setMenuRole(QAction::NoRole);
 
-    auto action_save_as = new QAction(QIcon::fromTheme("document-save-as", QIcon(":/icons/document-save-as.png")), "Save &As...", this);
+    auto action_save_as = new QAction(QIcon(":/icons/document-save-as.png"), "Save &As...", this);
     QObject::connect(action_save_as, &QAction::triggered, this, &MainWindow::saveAs);
     action_save_as->setShortcuts(QKeySequence::SaveAs);
     action_save_as->setMenuRole(QAction::NoRole);
 
-    auto action_exit = new QAction(QIcon::fromTheme("application-exit", QIcon(":/icons/application-exit.png")), "&Quit", this);
-    QObject::connect(action_exit, &QAction::triggered, this, &QWidget::close);
-    action_exit->setShortcuts(QKeySequence::Quit);
-    action_exit->setMenuRole(QAction::QuitRole);
+    auto action_quit = new QAction(QIcon(":/icons/application-exit.png"), "&Quit", this);
+    QObject::connect(action_quit, &QAction::triggered, this, &QWidget::close);
+    action_quit->setShortcuts(QKeySequence::Quit);
+    action_quit->setMenuRole(QAction::QuitRole);
 
-    auto action_run_statics = new QAction(QIcon(":/icons/run-statics"), "Statics...", this);
+    auto action_run_statics = new QAction(QIcon(":/icons/run-statics"), "&Statics...", this);
+    QObject::connect(action_run_statics, &QAction::triggered, [&]{ runSimulation("--static"); });
     action_run_statics->setShortcut(Qt::Key_F5);
     action_run_statics->setMenuRole(QAction::NoRole);
-    QObject::connect(action_run_statics, &QAction::triggered, [&]{ runSimulation(false); });    // Todo: Use std::bind
+    action_run_statics->setIconVisibleInMenu(true);
 
-    auto action_run_dynamics = new QAction(QIcon(":/icons/run-dynamics"), "Dynamics...", this);
+    auto action_run_dynamics = new QAction(QIcon(":/icons/run-dynamics"), "&Dynamics...", this);
+    QObject::connect(action_run_dynamics, &QAction::triggered, [&]{ runSimulation("--dynamic"); });
     action_run_dynamics->setShortcut(Qt::Key_F6);
     action_run_dynamics->setMenuRole(QAction::NoRole);
-    QObject::connect(action_run_dynamics, &QAction::triggered, [&]{ runSimulation(true); });    // Todo: Use std::bind
+    action_run_dynamics->setIconVisibleInMenu(true);
 
-    auto action_about = new QAction(QIcon::fromTheme("dialog-information", QIcon(":/icons/dialog-information.png")), "&About...", this);
-    connect(action_about, &QAction::triggered, this, &MainWindow::about);
-    action_about->setMenuRole(QAction::AboutRole);
+    // Recent file menu
+    QObject::connect(menu_recent, &RecentFilesMenu::openRecent, this, &MainWindow::openRecent);
 
     // File menu
     auto menu_file = this->menuBar()->addMenu("&File");
     menu_file->addAction(action_new);
     menu_file->addAction(action_open);
+    menu_file->addMenu(menu_recent);
     menu_file->addSeparator();
     menu_file->addAction(action_save);
     menu_file->addAction(action_save_as);
     menu_file->addSeparator();
-    menu_file->addAction(action_exit);
+    menu_file->addAction(action_quit);
 
     // Simulation menu
     auto menu_simulation = this->menuBar()->addMenu("&Simulate");
@@ -80,33 +81,44 @@ MainWindow::MainWindow()
     toolbar->addAction(action_run_dynamics);
 
     // Help menu
-    auto menu_help = this->menuBar()->addMenu("&Help");
-    menu_help->addAction(action_about);
+    this->menuBar()->addMenu(new HelpMenu(this));
 
     // Main window
-    this->setWindowIcon(QIcon(":/icons/logo"));
+    this->setWindowIcon(QIcon(":/icons/logo.ico"));
     this->setCentralWidget(editor);
+    this->resize(INITIAL_SIZE);
     setCurrentFile(QString());
 
     // Load geometry and state
-    restoreState(Application::settings.value("MainWindow/state").toByteArray());
-    restoreGeometry(Application::settings.value("MainWindow/geometry").toByteArray());
+    QSettings settings;
+    restoreState(settings.value("MainWindow/state").toByteArray());
+    restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
 
     // Set Window's modification indicator when data has changed
     QObject::connect(editor, &BowEditor::modified, [&]{
         InputData new_data = editor->getData();
-        this->setWindowModified(new_data != data);
+        this->setModified(new_data != data);
     });
 
     // Set initial input data
     newFile();
 }
 
-MainWindow::~MainWindow()
+void MainWindow::closeEvent(QCloseEvent *event)
 {
-    // Save state and geometry
-    Application::settings.setValue("MainWindow/state", saveState());
-    Application::settings.setValue("MainWindow/geometry", saveGeometry());
+    if(optionalSave())
+    {
+        event->accept();
+
+        // Save state and geometry
+        QSettings settings;
+        settings.setValue("MainWindow/state", saveState());
+        settings.setValue("MainWindow/geometry", saveGeometry());
+    }
+    else
+    {
+        event->ignore();
+    }
 }
 
 // Todo: Unify loadFile and saveFile?
@@ -114,15 +126,15 @@ bool MainWindow::loadFile(const QString& path)
 {
     try
     {
-        data.load(path.toStdString());
+        data = InputData(path.toStdString());
         editor->setData(data);
         setCurrentFile(path);
-        setWindowModified(false);
+        setModified(false);
         return true;
     }
     catch(const std::exception& e)  // Todo
     {
-        QMessageBox::critical(this, "", "Failed to open " + path + "\n" + e.what());  // Todo: Detailed error message
+        QMessageBox::critical(this, "Error", "Failed to open " + path + "\n" + e.what());
         return false;
     }
 }
@@ -134,26 +146,14 @@ bool MainWindow::saveFile(const QString& path)
         data = editor->getData();
         data.save(path.toStdString());
         setCurrentFile(path);
-        setWindowModified(false);
+        setModified(false);
 
         return true;
     }
     catch(const std::exception& e)  // Todo
     {
-        QMessageBox::critical(this, "", "Failed to save " + path + "\n" + e.what());  // Todo: Detailed error message
+        QMessageBox::critical(this, "Error", "Failed to save " + path + "\n" + e.what());
         return false;
-    }
-}
-
-void MainWindow::closeEvent(QCloseEvent *event)
-{
-    if(optionalSave())
-    {
-        event->accept();
-    }
-    else
-    {
-        event->ignore();
     }
 }
 
@@ -162,13 +162,11 @@ void MainWindow::newFile()
     if(!optionalSave())
         return;
 
-    // Create new file and set version correctly
     data = InputData();
-    data.meta.version = Config::APPLICATION_VERSION;
     editor->setData(data);
 
-    setCurrentFile(QString());
-    setWindowModified(false);
+    setCurrentFile("");
+    setModified(false);
 }
 
 void MainWindow::open()
@@ -178,18 +176,26 @@ void MainWindow::open()
 
     QFileDialog dialog(this);
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setNameFilter("Bow Files (*.bow)");
+    dialog.setNameFilter("Model Files (*.bow)");
 
     if(dialog.exec() == QDialog::Accepted)
         loadFile(dialog.selectedFiles().first());
 }
 
+void MainWindow::openRecent(const QString& path)
+{
+    if(!optionalSave())
+        return;
+
+    loadFile(path);
+}
+
 bool MainWindow::save()
 {
-    if(current_file.isEmpty())
+    if(this->windowFilePath().isEmpty())
         return saveAs();
 
-    return saveFile(current_file);
+    return saveFile(this->windowFilePath());
 }
 
 bool MainWindow::saveAs()
@@ -198,6 +204,7 @@ bool MainWindow::saveAs()
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setNameFilter("Bow Files (*.bow)");
     dialog.setDefaultSuffix("bow");
+    dialog.selectFile(this->windowFilePath().isEmpty() ? DEFAULT_FILENAME : this->windowFilePath());
 
     if(dialog.exec() == QDialog::Accepted)
         return saveFile(dialog.selectedFiles().first());
@@ -205,99 +212,68 @@ bool MainWindow::saveAs()
     return false;
 }
 
-void MainWindow::runSimulation(bool dynamic)
+void MainWindow::runSimulation(const QString& flag)
 {
-    /*
-    if(input.get_errors().size() != 0)
+    // Make sure the current data is saved to a file
+    if(this->windowFilePath().isEmpty())
     {
-        QMessageBox::critical(this, "Error", "Model contains invalid input:\n" + QString::fromStdString(input.get_errors().front()));
-        return;
+        int pick = QMessageBox::warning(this, "Save Document?", "The document needs to be saved before running a simulation.\nDo you want to save now?",
+                                        QMessageBox::Yes | QMessageBox::Cancel);
+        if(pick != QMessageBox::Yes)
+            return;
+
+        if(!saveAs())
+            return;
     }
-    */
-
-    ProgressDialog dialog(this);
-    dialog.addProgressBar("Statics");
-    if(dynamic)
+    else
     {
-        dialog.addProgressBar("Dynamics");
-    }
-
-    const InputData& input = editor->getData();
-    OutputData output;
-
-    std::exception_ptr exception = nullptr;
-    std::thread thread([&]
-    {
-        auto progress0 = [&](int p){
-            QMetaObject::invokeMethod(&dialog, "setProgress", Qt::QueuedConnection, Q_ARG(int, 0), Q_ARG(int, p));
-            return !dialog.isCanceled();
-        };
-
-        auto progress1 = [&](int p){
-            QMetaObject::invokeMethod(&dialog, "setProgress", Qt::QueuedConnection, Q_ARG(int, 1), Q_ARG(int, p));
-            return !dialog.isCanceled();
-        };
-
-        try
-        {
-            output = dynamic ? BowModel::run_dynamic_simulation(input, progress0, progress1)
-                             : BowModel::run_static_simulation(input, progress0);
-
-            QMetaObject::invokeMethod(&dialog, "accept", Qt::QueuedConnection);
-        }
-        catch(...)
-        {
-            exception = std::current_exception();
-            QMetaObject::invokeMethod(&dialog, "reject", Qt::QueuedConnection);
-        }
-    });
-
-    try
-    {
-        dialog.exec();
-        thread.join();
-
-        if(exception)
-        {
-            std::rethrow_exception(exception);
-        }
-    }
-    catch(const std::exception& e)
-    {
-        QMessageBox::critical(this, "Error", e.what());
+        save();
     }
 
-    if(!dialog.isCanceled())
+    // Generate output filename
+    QFileInfo info(this->windowFilePath());
+    QString output_file = info.absolutePath() + QDir::separator() + info.completeBaseName() + ".res";
+
+    // Run Simulation, launch Post on results if successful
+    SimulationDialog dialog(this, this->windowFilePath(), output_file, flag);
+    if(dialog.exec() == QDialog::Accepted)
     {
-        OutputDialog results(this, input, output);
-        results.exec();
+        QProcess::startDetached(
+            "virtualbow-post",
+            { output_file },
+            QCoreApplication::applicationDirPath()
+        );
     }
 }
 
-void MainWindow::about()
+// Workaround to prevent QApplication::applicationDisplayName from being appended to every dialog
+// https://bugreports.qt.io/browse/QTBUG-70382
+void MainWindow::setModified(bool modified)
 {
-    QMessageBox::about(this, "About", QString()
-        + "<strong><font size=\"6\">" + Config::APPLICATION_DISPLAY_NAME + "</font></strong><br>"
-        + "Version " + Config::APPLICATION_VERSION + "<br><br>"
-        + Config::APPLICATION_DESCRIPTION + "<br>"
-        + "<a href=\"" + Config::APPLICATION_WEBSITE + "\">" + Config::APPLICATION_WEBSITE + "</a><br><br>"
-        + "<small>" + Config::APPLICATION_COPYRIGHT + "<br>"
-        + "Distributed under the " + Config::APPLICATION_LICENSE + "</small>"
-    );
+    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_GUI);
+    setWindowModified(modified);
+    QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
 }
 
 void MainWindow::setCurrentFile(const QString &path)
 {
-    current_file = path;
-    setWindowFilePath(current_file.isEmpty() ? "untitled.bow" : current_file);
+    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_GUI);
+    setWindowFilePath(path);
+    if(!path.isEmpty())
+    {
+        menu_recent->addPath(path);
+    }
+
+    QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
 }
 
-bool MainWindow::optionalSave()    // true: Discard and save, false: Cancel and don't save
+// true: Discard and save, false: Cancel and don't save
+bool MainWindow::optionalSave()
 {
     if(!this->isWindowModified())
         return true;
 
-    auto pick = QMessageBox::warning(this, "", "The document has been modified.\nDo you want to save your changes?",
+    auto pick = QMessageBox::warning(this, "Save Document?", "The document has been modified.\nDo you want to save your changes?",
                 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 
     switch(pick)
@@ -307,4 +283,3 @@ bool MainWindow::optionalSave()    // true: Discard and save, false: Cancel and 
         case QMessageBox::Cancel: return false;
     }
 }
-

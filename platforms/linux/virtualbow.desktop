@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=@APPLICATION_DISPLAY_NAME@
-Exec=@APPLICATION_NAME@
-Icon=virtualbow
-Comment=@APPLICATION_DESCRIPTION_SHORT@
-Categories=Education;Science;NumericalAnalysis;Physics;Engineering;
-MimeType=application/json;

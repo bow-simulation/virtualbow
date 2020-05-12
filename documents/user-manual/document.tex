@@ -14,8 +14,12 @@
 
 \usepackage[hidelinks, pdfusetitle]{hyperref}
 
+% Code listings, https://tex.stackexchange.com/a/99476
+\usepackage{minted}
+\usemintedstyle{vs}
+
 % Utillities
-\usepackage{framed} % Draw frames around paragraphs
+\usepackage{framed}   % Draw frames around paragraphs
 \usepackage{listings} % Code listings
 \usepackage{color}
 \usepackage{array}
@@ -32,21 +36,20 @@
 \renewcommand{\labelitemiii}{$\bullet$}
 
 % Parameters
-\newcommand{\swtitle}{VirtualBow}
-\newcommand{\version}{0.6}
+\newcommand{\version}{0.7}
 \newcommand{\website}{\href{http://www.virtualbow.org/}{\texttt{\textcolor{blue}{http://www.virtualbow.org/}}}}
-\newcommand{\copyrights}{Copyright (C) 2016-2018 Stefan Pfeifer}
+\newcommand{\copyrights}{Copyright (C) 2016-2020 Stefan Pfeifer}
 
 \begin{document}
 
 \begin{titlepage}
 
 \vspace*{5em}
-\centering{\Huge\textbf{\swtitle~v\version \\[1em] User Manual}}
+\centering{\Huge\textbf{VirtualBow~v\version \\[1em] User Manual}}
 
 \vspace{5em}
 
-\centerline{\includegraphics[width=0.2\textwidth]{figures/logo.png}}
+\centerline{\includegraphics[width=0.2\textwidth]{figures/logo.pdf}}
 
 \null
 \vfill
@@ -62,16 +65,32 @@
 \section{Introduction}
 \bigskip
 
-This is the user manual for \swtitle, a software tool for bow and arrow physics simulation.
-It shows how to use the program, explains the various input parameters and results and also contains some additional background information.
+VirtualBow is a software tool for bow and arrow physics simulation.
+It allows you to design virtual bow models, simulate their static and dynamic behaviour and visualize the results, providing almost immediate feedback about the bow's predicted performance.
+The application consists of the following three components:
 
-For the latest version of the software and this manual visit the project's website at\\
-\website.\\
+\begin{itemize}
+\item \textbf{VirtualBow:} The model editor and core of the application.
+Create, load and save bow models (.bow), edit their various parameters and launch static and dynamic simulations.
+The model editor takes care of calling the other two components, VirtualBow Solver and VirtualBow Post, although those can be used independently as well.
+
+\item \textbf{VirtualBow Post:} This is the result viewer. It is used for opening and visualizing the simulation results (.res) produced by the solver.
+Here you can analyze and evaluate your bow designs.
+
+\item \textbf{VirtualBow Solver:} The solver performs the actual simulation. It takes a model file (.bow), does the necessary numerical calculations and writes a result file (.res) that can be opened with the result viewer or analyzed by other programs.
+\end{itemize}
+
+\bigskip
+
+The following chapters of this manual will show you how to use the software and its components and explain the various input parameters and simulation results. For help and support, giving feedback or to get the latest version of the software and this manual please visit the project's website at \website
 
 \newpage
-\section{The Bow Editor}
+\section{VirtualBow}
 
-The bow editor is the main window of the application. Here you can load, edit and save bow models and start static and dynamic simulations.
+\subsection{Overview}
+
+This is the main application.
+Here you can load, edit and save bow models and launch simulations.
 
 \begin{figure}[H]
 \centering
@@ -80,16 +99,104 @@ The bow editor is the main window of the application. Here you can load, edit an
 \label{fig:bow-editor}
 \end{figure}
 
-Double-click any of the items on the left to edit the respective model properties. The 3D view on the right shows the current limb geometry.
-Use the mouse to rotate (left mouse button), shift (middle mouse button) and zoom the view.
-More view options are available through the buttons on the bottom-right corner.
+All the parameters of the bow can be accessed via the model tree on the left.
+Double-click any of the items to edit the respective category.
+The next sections will cover each of those items in more detail.
+
+The 3D view on the right shows the bow's current geometry resulting from those parameters.
+Use the mouse to rotate (left button), shift (middle button) and zoom (mouse wheel).
+More options are available through the buttons on the bottom-right corner.
+
+Use the main menu and/or the toolbar to create, load and save bow models, which are stored as .bow files.
+Run a static simulation to analyze the bow being drawn or a dynamic simulation to analyze the bow in motion, i.e. when shooting an arrow.
+The simulation results will be stored next to the model file and opened in VirtualBow Post.
 
 \newpage
-\subsection{Profile}
+\subsection{Parameters}
 
-The profile curve is the geometric centerline of the bow limbs in unbraced state.
-Use the table on the left to edit the parameters.
-The result is shown on the plot on the right.
+\subsubsection{Comments}
+
+The comments are meant for documenting the bow model.
+Any notes about the bow, its paramters or the simulation results can be added here.
+\bigskip
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/screenshots/input/comments}
+\caption{Comments dialog}
+\label{fig:comments}
+\end{figure}
+
+\subsubsection{Settings}
+
+These are numerical settings that can be used to tweak the simulation.
+Most of the time the default values should be fine though, so if you're reading this manual for the first time you might want to skip this section.
+
+\bigskip
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.4\textwidth]{figures/screenshots/input/settings}
+\caption{Settings dialog}
+\label{fig:settings}
+\end{figure}
+
+\newpage
+
+Since the default settings are meant to be a good general choice, they favor accuracy and reliability over simulation performance.
+So for specific use cases it might be an advantage to find more efficient settings.
+Think about running a large number of scripted simulations, for example.
+On the other hand, even the default settings might sometimes fail with certain bow designs such that different settings have to be used.
+
+\paragraph*{General}
+
+\begin{itemize}
+\item \textbf{Limb elements:} Number of finite elements that are used to approximate the limb. More elements increase the accuracy but also the computing time.
+\item \textbf{String elements:} Number of finite elements that approximate the string. This number can usually be reduced if the bow has no recurve. In the case of a static analysis with no recurve it can even be set to one without losing any accuracy.
+\end{itemize}
+
+\paragraph*{Statics}
+
+\begin{itemize}
+\item \textbf{Draw steps:} Number of steps that are performed by the static simulation from brace height to full draw. This determines the resolution of the static results. You can usually decrease this value to speed up the simulation, especially if you're only interested in the dynamic results.
+\end{itemize}
+
+\paragraph*{Dynamics}
+
+\begin{itemize}
+\item \textbf{Time span factor:} This controls the time period that is simulated. A value of $1$ corresponds to the time at which the arrow passes the brace height. The default value is larger than that in order to capture some of the things that occur after the arrow left the bow (maximum dynamic loads on limb and string).
+\item \textbf{Time step factor:} When simulating the dynamics of the bow, the program will repeatedly use the current state of the bow at time $t$ to calculate the next state at time $t + \Delta t$ where $\Delta t$ is some small timestep. We want this timestep to be as large as possible to keep the computational cost low. But it still has to be small enough to get an accurate and stable solution. The program will estimate this optimal timestep, but to be on the safe side the estimation is multiplied with a reduction factor between $0$ and $1$ that you can choose here.
+\item \textbf{Sampling rate:} The sampling rate limits the time resolution of the output data. This is done because the dynamic simulation usually produces much finer grained data than is actually useful. Not including all of that in the final output reduces simulation time and memory consumption.
+\end{itemize}
+
+\newpage
+\subsubsection{Dimensions}
+\label{sec:dimensions}
+
+The parameters listed in this dialog define the overall lengths and angles of the bow and its optional stiff middle section. See figure~\ref{fig:dimensions-2} for a visual explanation of those.
+\bigskip
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.4\textwidth]{figures/screenshots/input/dimensions}
+\caption{Dimensions dialog}
+\label{fig:dimensions-1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.4\textwidth]{figures/dimensions}
+\caption{Dimensions of the bow}
+\label{fig:dimensions-2}
+\end{figure}
+
+\newpage
+\subsubsection{Profile}
+
+The profile curve is the geometric centerline of the bow's limbs in unbraced state.
+Edit the parameters in the table on the left and view the resulting profile curve on the plot on the right.
+
+\bigskip
 
 \begin{figure}[H]
 \centering
@@ -98,14 +205,30 @@ The result is shown on the plot on the right.
 \label{fig:profile}
 \end{figure}
 
-The profile curve consists of a series of arc segments that each have a certain length and curvature. Each row in the table defines one such segment.
+The profile curve is defined by a series of points where each point has an arc length and a curvature.
+The arc length is the distance of the point along the curve.
+Because of that, the last point also defines the total length of the profile curve.
+The curvature is interpolated linearly between the points, which ensures that there are no jumps in curvature, only smooth transitions.
 
-\textbf{Note:} Mathematically, the curvature $\kappa$ of a segment is the reciprocal of its radius $r$, so you can calculate the curvature via $\kappa = \frac{1}{r}$ if you know the radius and vice versa.
+\bigskip
+
+\textbf{Note:} The profile curve always starts at (0, 0) and with a horizontal angle.
+Any offsets can be achieved with the parameters under \textit{Dimensions}, see section \ref{sec:dimensions}.
+
+\bigskip
+
+\textbf{Note:} Two points with zero curvature produce a straight line segment while two points with equal and non-zero curvatures produce a circular segment. Two points with different curvatures produce a spiral segment\footnote{\url{https://en.wikipedia.org/wiki/Euler_spiral}} that transitions between the two curvatures.
+
+\bigskip
+
+\textbf{Note:} Mathematically, the curvature $\kappa$ of a curve is the inverse of its radius of curvature $r$, so you can calculate the curvature via $\kappa = \nicefrac{1}{r}$ if you know the radius at that point and vice versa.
 
 \newpage
-\subsection{Width}
+\subsubsection{Width}
 
 The width dialog is used to define the limb's width along its profile curve. This width is the same for all layers of the bow.
+
+\bigskip
 
 \begin{figure}[H]
 \centering
@@ -114,14 +237,15 @@ The width dialog is used to define the limb's width along its profile curve. Thi
 \label{fig:width}
 \end{figure}
 
-On the table on the left you can specify values for the width at certain relative positions (between 0 and 1) along the limb's profile curve. This definition of cross section properties relative to the total length of the profile curve makes it possible to change the profile without having to adjust any cross sections.
+On the table on the left you can specify values for the width at certain relative positions (between 0 and 1) along the limb. This definition of cross section properties relative to the total length of the limb makes it possible to later change the profile curve without having to adjust any cross sections.
 
 The actual width distribution of the limb is constructed as a smooth curve (monotonic cubic spline) passing through the supplied values as shown on the plot on the right.
 
 \newpage
-\subsection{Layers}
+\subsubsection{Layers}
 
 With the layer dialog you can create any number of layers and specify their height/thickness and material properties.
+\bigskip
 
 \begin{figure}[H]
 \centering
@@ -130,29 +254,32 @@ With the layer dialog you can create any number of layers and specify their heig
 \label{fig:width}
 \end{figure}
 
-Click the plus button on the top left to add layers. You can later rearrange them by dragging the tabs. Double-click on a tab to rename a layer.
+Click the plus button on the top left to add layers or delete them by closing their tab.
+Rearrange the order of the layers by dragging the tabs.
+Double-click on a tab to rename a layer.
 
-The table on the left sets the height distribution of the layer. It works the same way as the limb's width: You specify a number of values at different relative positions and the program creates an interpolating curve.
+The table on the left sets the height distribution of the layer. It works the same way as the limb's width: You specify a number of values at different relative positions, which the program uses to create an interpolating curve. (In this case also a monotonic cubic spline.)
 
-The layer material is specified by the following two constants,
+The layer's material is specified by the following two constants,
 
 \begin{itemize}
 \item \textbf{rho:} Density (Mass per unit volume)
-\item \textbf{E:} Elastic modulus (Measure for the stiffness of a solid material)
+\item \textbf{E:} Elastic modulus (Measure for the stiffness of a material)
 \end{itemize}
 
-For manufactured materials like e.g. fiberglass or steel you might find those numbers in a datasheet provided by the manufacturer.
-
-Wood is a bit more difficult, because the properties can vary quite a bit even within the same type.
+For synthetic materials like e.g. fiber-reinforced composites you can often find those numbers in a datasheet provided by the manufacturer.
+Natural materials like wood are more difficult, because their properties can vary quite a bit.
 You can find average numbers on the internet, for example at \url{http://www.wood-database.com}.
 Those are probably good enough as a first reference.
-However, in order to be really sure about a specific piece of wood there is no other way than to test it.
-One possibility is a bending test as shown in Appendix~\ref{sec:bending-test}.
+However, in order to be really sure about a specific material there is no other way than to test it.
+One possibility is a simple bending test as shown in Appendix~\ref{sec:bending-test}.
 
 \newpage
-\subsection{String}
+\subsubsection{String}
 
 Here you can define the mechanical properties of the string by providing data for the string material and the number of strands being used.
+
+\bigskip
 
 \begin{figure}[H]
 \centering
@@ -167,31 +294,39 @@ Here you can define the mechanical properties of the string by providing data fo
 \item \textbf{Number of strands:} Total number of strands in the string
 \end{itemize}
 
-The linear density of a string material can be easily determined with a kitchen scale (weight divided by length), but the stiffness is much more difficult to obtain.
-Table~\ref{tbl:string-materials} shows some reference values taken from the SuperTiller V6.6 Excel spreadsheet by Alan Case\footnote{\url{http://www.buildyourownbow.com/build-alongs/how-to-use-supertiller-build-along/}}.
+\bigskip
 
-\textbf{Note:} The stiffness of the string material is an important parameter in dynamic analysis.
-The static results however aren't affected very much by it as long as it is high enough to prevent significant elongation.
+\textbf{Note:} The stiffness of the string material can be an important parameter in dynamic analysis.
+The static results however aren't affected very much by it as long as the value is high enough to prevent significant elongation.
+
+\textbf{Note:} The linear density of a string material can be easily determined with a kitchen scale (weight divided by length).
+The stiffness however is much more difficult to obtain.
+Manufacturers of string materials usually don't publish those numbers.
+Table~\ref{tbl:string-materials} shows the results of tensile tests for three common bow string materials.
+They were done by the German Institutes for Textile and Fiber Research\footnote{\url{https://www.ditf.de/en/index/ditf.html}} in July 2018.
+
+\bigskip
 
 \begin{table}[H]
 \centering
-\begin{tabular}{ | p{60pt} | p{50pt} | p{50pt} | p{65pt} | p{140pt} | }
+\begin{tabular}{ | p{75pt} | p{70pt} | p{70pt} | p{80pt} | p{90pt} | }
 \hline
-\textbf{Material}    & \textbf{Stiffness} [\unitfrac{N}{100\%}] & \textbf{Density} [\unitfrac{kg}{m}] & \textbf{Breaking strength} [\unit{N}] & \textbf{Source/Comment}\\ \hline
-Dacron B50  & 3113.76  & 0.000333 & 217.96  & BCY assuming 7\% elongation at break (linearized)   \\ \hline
-Fast Flight & 14086.04 & 0.000182 & 422.58  & BCY assuming 3\% elongation at break (linearized)   \\ \hline
-Dyneema     & 18860.46 & 0.000160 & 578.27  & Calculated assuming linear stress-strain (to break) \\ \hline
-Linen 40/3  & 1668.08  & 0.0642   & 49.38   & Maurice Taylor, Archery The Technical Side, 1947    \\ \hline
-Silk        & 1026.51  & 0.0930   & 65.83   & Maurice Taylor, Archery The Technical Side, 1947    \\ \hline
+\textbf{Material} & \textbf{Density} [\unitfrac{kg}{m}] & \textbf{Breaking strength} [\unit{N}] & \textbf{Elongation at break} [\unit{\%}] & \textbf{Stiffness (linearized)} [\unitfrac{N}{100\%}] \\ \hline
+Dacron B50      & 370e-6 & 180 & 8.5 & 2118 \\ \hline
+Fastflight Plus & 176e-6 & 318 & 2.9 & 10966 \\ \hline
+BCY 452X        & 192e-6 & 309 & 2.5 & 12360 \\ \hline
 \end{tabular}
-\caption{Properties of common bowstring materials according to SuperTiller V6.6}
+\caption{Test results for some common bowstring materials, the stiffness was estimated from breaking strength and elongation}
 \label{tbl:string-materials}
 \end{table}
 
 \newpage
-\subsection{Masses}
+\subsubsection{Masses}
 
-This dialog is usede to define the various masses of the bow. All of them except the arrow mass are optional.
+This dialog is used to define various individual masses of the bow.
+Only the mass of the arrow is actually required, the other ones are optional and may also be set to zero.
+
+\bigskip
 
 \begin{figure}[H]
 \centering
@@ -207,92 +342,52 @@ This dialog is usede to define the various masses of the bow. All of them except
 \item \textbf{Limb tip:} Additional mass at the limb tip (nocks, overlays)
 \end{itemize}
 
-\subsection{Dimensions}
+\newpage
+\subsubsection{Damping}
 
-The parameters listed in this dialog define the lengths and angles of the bow and its optional middle section/grip. See also figure~\ref{fig:dimensions-2} for a visual explanation of those parameters.
+This dialog allows setting a damping ratio for the limbs and string, respectively.
+Those parameters can be used to adjust for the energy a bow loses by dissipation, for example due to internal friction/hysteresis of the materials.
 
+\bigskip
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.4\textwidth]{figures/screenshots/input/dimensions}
-\caption{Dimensions dialog}
-\label{fig:dimensions-1}
+\includegraphics[width=0.4\textwidth]{figures/screenshots/input/damping}
+\caption{Damping dialog}
+\label{fig:damping}
 \end{figure}
 
-\newpage
-\begin{itemize}
-\item{Draw}
-\begin{itemize}
-\item \textbf{Brace height:} Distance of the string center to the coordinate origin in braced state
-\item \textbf{Draw length:} Distance of the string center to the coordinate origin in fully drawn state
-\end{itemize}
-\item{Handle}
-\begin{itemize}
-\item \textbf{Length:} Length of the riser or stiff middle section
-\item \textbf{Setback:} Depth of the riser or stiff middle section
-\item \textbf{Angle:} Angle of the riser or stiff middle section
-\end{itemize}
-\end{itemize}
+\textbf{Note:} The damping ratio characterizes how quickly oscillations in a system decay over time.
+A system with a damping ratio of 0\% is undamped, it doesn't dissipate any energy and just keeps going with a constant amplitude.
+The higher the damping ratio the faster the amplitudes decay over time, losing energy with each oscillation.
+Once the damping ratio reaches 100\% the system no longer oscillates at all (no overshoot), this is called critical damping.
 
-\begin{figure}[H]
+\begin{table}[H]
 \centering
-\includegraphics[width=0.4\textwidth]{figures/dimensions}
-\caption{Dimensions of the bow}
-\label{fig:dimensions-2}
-\end{figure}
+\begin{tabular}{| m{4cm} | m{4cm} |}
+\hline
+\textbf{Damping ratio} & \textbf{Amplitude} \\ \hline
+\center 0\% & \includegraphics[width=0.25\textwidth]{figures/damping-ratio-00} \\ \hline
+\center 10\% & \includegraphics[width=0.25\textwidth]{figures/damping-ratio-01} \\ \hline
+\center 100\% & \includegraphics[width=0.25\textwidth]{figures/damping-ratio-10} \\ \hline
+\end{tabular}
+\caption{Oscillations with increasing damping ratio}
+\label{tbl:damping-ratio}
+\end{table}
+
+The damping ratios for a bow's limbs and string are mostly empirical and there isn't yet any practical experience with those parameters in VirtualBow.
+Realistic values are probably in the range of 0 - 20\% though.
+
+
 
 \newpage
-\subsection{Comments}
+\section{VirtualBow Post}
 
-The comments are meant for documenting the bow model. Any notes about the bow and the simulation results can be added here.
+\subsection{Overview}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth]{figures/screenshots/input/comments}
-\caption{Comments dialog}
-\label{fig:comments}
-\end{figure}
-
-\subsection{Settings}
-
-These are numerical settings that can be used to tweak the simulation.
-Most of the time the default values should be fine though.
-However, as the default values favor accuracy and realiability over performance there might be use cases where finding faster settings is worth it.
-Think about running a large number of simulations with a script for example.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.4\textwidth]{figures/screenshots/input/settings}
-\caption{Settings dialog}
-\label{fig:settings}
-\end{figure}
-
-\newpage
-These are the individual settings:
-
-\begin{itemize}
-\item \textbf{General}
-    \begin{itemize}
-    \item \textbf{Limb elements:} Number of finite elements that are used to approximate the limb. More elements increase the accuracy but also the computing time.
-    \item \textbf{String elements:} Same as above.
-    \end{itemize}
-\item \textbf{Statics}
-    \begin{itemize}
-    \item \textbf{Draw steps:} Number of steps that are performed by the static simulation from brace height to full draw. This determines the resolution of the static results. You can usually decrease this value to speed up the simulation.
-    \end{itemize}
-\item \textbf{Dynamics}
-    \begin{itemize}
-    \item \textbf{Time span factor:} This controls the time period that is simulated. A value of $1$ corresponds to the time at which the arrow reaches brace height. The default value is larger than that in order to capture some of the things that occur after the arrow left the bow (maximum dynamic loads on limb and string).
-    \item \textbf{Time step factor:} When carrying out the dynamic simulation the program will repeatedly use the current state of the bow at time $t$ to calculate the next state at time $t + \Delta t$ where $\Delta t$ is some small timestep. This timestep has to be chosen small enough to get an accurate and stable solution but also as large as possible to keep the number of steps low. The program can estimate this, but to be on the safe side the estimation is multiplied with a safety factor between $0$ and $1$ that you can choose here.
-    \item \textbf{Sampling rate:} Limits the time resolution of the output data. This is done because the dynamic simulation usually produces much finer grained data than is actually useful. Not including all of that in the final output saves time and memory.
-    \end{itemize}
-\end{itemize}
-
-\newpage
-\section{Simulation Results}
-
-You can start static or dynamic simulations by using the yellow and green toolbar buttons or the simulation menu.
-A new window with the results will open once the simulation has finished.
+This part of the application is used to open and visualize simulation results that are stored in .res files.
+It is launched automatically by the model viewer when a simulation has finished, but it can also be used as a standalone application.
+\bigskip
 
 \begin{figure}[H]
 \centering
@@ -301,121 +396,172 @@ A new window with the results will open once the simulation has finished.
 \label{fig:result-window}
 \end{figure}
 
-With the buttons on the bottom left you can switch between the static and dynamic (if available) results.
-The results themselves are organized in different tabs.
-At the bottom of the window there is a slider where you can change the current draw length (statics) or time (dynamics).
-This value applies to all of the result tabs.
+After loading a result file you can use the buttons on the bottom right corner of the window to switch between static and dynamic results, if available.
+The results themselves are organized in different tabs, which will be explained in the next sections.
+
+Below the tabs there is a slider where you can change the current state of the bow that is being viewed, either by draw length in the static case or by time in the dynamic case.
+This value applies to all of the tabs.
+Drag the slider to a specific position or use the play buttons to show the simulation results as a continuous animation.
+The input field and the dropdown menu next to it allow you to jump directly to special points in the results, for example where certain forces or stresses reach their maximum or the arrow leaves the string. 
 
 \newpage
-These are the contents of the individual result tabs:
+\subsection{Results}
+
+\subsubsection{Characteristics}
+
+This tab shows all results that can be expressed as a single number.
+Some of them differ between statics and dynamics.
+
+\paragraph*{Statics}
 
 \begin{itemize}
-\item \textbf{Shape:} Shows the shape of the limb and string as well as the position of the arrow at different stages of either the draw (statics) or the shot (dynamics)
-\item \textbf{Stress:} Shows the distribution of material stress along the length of the limb for the back and belly of each layer
-\item \textbf{Curvature:} Shows the curvature of the limb (difference to unbraced state)
-\item \textbf{Energy:} Shows how potential and kinetic energy of the different parts of the bow develop during the simulation
-\item \textbf{Other Plots:} Here you can combine arbitrary simulation results and plot them together, e.g. things like the draw curve of the bow or the velocity of the arrow.
-\\
-\item \textbf{Special Values (Statics):}
-    \begin{itemize}
-    \item \textbf{String length:} Initial length of the string such that the bow meets the specified brace height
-    \item \textbf{Final draw force:} Draw force in fully drawn state
-    \item \textbf{Drawing work:} Total work done by drawing the bow.
-    \item \textbf{Storage ratio:} This is an indicator of the bow's capability to store energy and is defined (/made up by the author) as
-$$\mathrm{storage\_ ratio} = \frac{\mathrm{drawing\_ work}}{1/2\cdot \mathrm{draw\_ force}\cdot (\mathrm{draw\_ length} - \mathrm{brace\_ height})}.$$
-It describes the amount of energy stored by the bow's draw curve in relation to a fictious linear draw curve with the same final draw force.
-\\
-    \end{itemize}
-\item \textbf{Special Values (Dynamics):}
-    \begin{itemize}
-    \item \textbf{Arrow velocity:} Velocity of the arrow when leaving the bow
-    \item \textbf{Arrow energy:} Kinetic energy of the arrow when leaving the bow
-    \item \textbf{Efficiency:} Degree of efficiency of the bow. Useful energy output (kinetic energy of the arrow) divided by energy input (static drawing work).
-    \end{itemize}
+\item \textbf{Final draw force:} Draw force of the bow at full draw
+\item \textbf{Drawing work:} Total work done by drawing the bow. This work is stored in the bow as potential elastic energy and later partially transfered to the arrow, depending on the bow's efficiency. It is equal to the area under the force-draw curve of the bow (See also \textit{Other Plots}).
+    \item \textbf{Storage ratio:} This is an indicator of how much energy the bow stores and is defined as
+$$\mathrm{storage\ ratio} = \frac{\mathrm{drawing\ work}}{1/2\cdot \mathrm{draw\ force}\cdot (\mathrm{draw\ length} - \mathrm{brace\ height})},$$
+which is the amount of energy stored by the bow's draw curve in relation to a linear draw curve with the same final draw force.
+\item \textbf{Limb mass:} Total mass of a single bow limb, including the additional tip mass
+\item \textbf{String mass:}  Total mass of the bow string, including additional masses
+\item \textbf{String length:} Length of the string, determined by the desired brace height
 \end{itemize}
 
+\paragraph*{Dynamics}
+
+\begin{itemize}
+\item \textbf{Final arrow velocity:} Velocity of the arrow when departing from the bow
+\item \textbf{Degree of efficiency:} The bow's degree of efficiency, i.e. useful energy output (kinetic energy of the arrow) divided by energy input (static drawing work)
+\item \textbf{Kinetic energy arrow:} Kinetic energy of the arrow on departure from the string
+\item \textbf{Kinetic energy limbs:} Kinetic energy of the limbs on arrow departure
+\item \textbf{Kinetic energy string:} Kinetic energy of the string on arrow departure
+\end{itemize}
+
+\paragraph*{Common}
+
+\begin{itemize}
+\item \textbf{Maximum absolute stresses:} Maximum stress by absolute value for each layer
+\item \textbf{Maximum absolute forces:} Maximum forces by absolute value. Entries are the draw force, the string force and the grip support force, i.e. the force that is required to hold the bow handle at its position.
+\end{itemize}
+
+\subsubsection{Shape} Shows the shape of the limb and string as well as the position of the arrow at different stages of either the draw (statics) or the shot (dynamics).
+The little red circle symbolizes the back end of the arrow.
+You can use the slider at the bottom to change the current state of the bow or to view all states as a continuous animation.
+
+\subsubsection{Stress} Shows the stress distribution along the limb for each one of the layers, evaluated at the back and belly sides.
+
+\subsubsection{Curvature} Shows the curvature of the limb along its length.
+This is not the total curvature but rather the difference to the unbraced shape.
+
+\subsubsection{Energy} This plot shows how the total amount of energy in the bow develops during the simulation and how it is distributed between components (limbs, string arrow) and type of energy (potential/elastic or kinetic).
+In the dynamic case it shows how the initial potential energy of the limbs is transferred to the arrow and other components of the bow and how much unused energy stays in the bow after the departure of the arrow.
+
+\subsubsection{Other Plots} Here you can combine arbitrary simulation results and plot them together, e.g. things like the draw curve of the bow or the velocity of the arrow.
+
 \newpage
-\section{Command Line Interface}
+\section{VirtualBow Solver}
 
-The command line interface can be used to start simulations in batch mode, without opening the GUI.
-This way \swtitle can be called from other programs for performing more advanced computations like parameter studies and optimizations.
+\subsection{Command Line Interface}
 
-The command line parameters are as follows:
-
-\smallskip
+The VirtualBow solver can be used from the command line to launch simulations in batch mode, without opening the GUI.
+The executables for the three components of VirtualBow are named
 
 \begin{framed}
-\textbf{virtualbow [input] [output] [options]}
+\begin{verbatim}
+virtualbow-gui        // Main program
+virtualbow-slv        // Solver
+virtualbow-post       // Result viewer
+\end{verbatim}
 \end{framed}
 
-\begin{itemize}
-\item \textbf{input:} Path to an input file (\texttt{.bow})
-\item \textbf{output:} Path for the output file (\texttt{.dat})
-\item \textbf{options:} Simulation options, \texttt{--static} or \texttt{--dynamic}
-\end{itemize}
+The solver command takes a model file as the input and produces a result file as the output.
+The type of simulation (static or dynamic) as well as other options can be set.
+The detailed usage as shown by the \texttt{--help} option is:
 
-\smallskip
+\bigskip
 
-All of the arguments are optional.
-Calling \swtitle with either no arguments or only an input file will open the GUI.
-If in addition to that either an output file or simulation options are provided, the simulation is carried out silently and the results are written to disk.
-If not specified, a default output file named after the input file is created.
+\begin{framed}
+\begin{verbatim}
+> virtualbow-slv --help
+Usage: virtualbow-slv [options] input output
 
-\textbf{Note:} To use the command line interface on Windows you have to either specify the complete path to the \texttt{virtualbow.exe} executable or add the installation directory to your \texttt{PATH} environment variable.
+Options:
+  -?, -h, --help  Displays this help.
+  -v, --version   Displays version information.
+  -s, --static    Run a static simulation.
+  -d, --dynamic   Run a dynamic simulation.
+  -p, --progress  Print simulation progress.
 
-\subsection*{Input and Output Files}
+Arguments:
+  input           Model file (.bow)
+  output          Result file (.res)
+\end{verbatim}
+\end{framed}
 
-\swtitle's input files use the JSON\footnote{\url{http://json.org/}} format, a human readable text format that stores different types of data in a hierarchical way.
-The output files use MessagePack\footnote{\url{http://msgpack.org/}}, a more compact binary format that is otherwise very similar to JSON.
-Both are very common formats with implementations available in many programming languages.
-An example for using \swtitle with Python can be found in Appendix~\ref{sec:scripting-examples}.
+\bigskip
 
-The exact definition and layout of the data contained in the input and output files is documented in Appendix~\ref{sec:input-structure} and~\ref{sec:output-structure}, respectively. However please note that those aren't stable yet. Future releases are very likely to introduce breaking changes.
+\textbf{Note:} To use the command line interfaces on Windows you have to either specify the complete path to the respective executable or add the installation directory to your \texttt{PATH} environment variable.
+There is an option to do this automatically during installation.
+
+\bigskip
+
+\textbf{Note:} On MacOS, the VirtualBow executables are hidden inside the application bundle.
+They can be accessed by their full path though, or their location can be temporarily added to the PATH environment variable with the command
+
+\begin{framed}
+\begin{verbatim}
+export PATH = $PATH:/Applications/VirtualBow.app/Contents/MacOS
+\end{verbatim}
+\end{framed}
+
+Put this line into your \texttt{.bash\_profile} to make the change persistent.
 
 \newpage
-\section{Background Information}
+\subsection{Scripting}
 
-This section is intended to give interested users an overview of the mathematical bow model behind \swtitle, i.e. how the different components of the bow are modeled and what the assumptions and limitations are.
-This section will eventually be replaced by a separate technical documentation of the simulation model.\\
+The main use of the command line interface is the ability to write programs that automatically launch simulations and analyze their results.
+This is especially useful when a large number of simulations has to be done, for example when performing design optimizations or exploring the influence of certain model parameters on the simulation results.
+Launching simulations from the command line is only one part of this.
+Scripts that interoperate with VirtualBow also have to be able to read and write the model and result files that constitute the input and output of the solver.
 
-\textbf{Limb:} The limb is regarded as an Euler-Bernoulli beam.
-This means that all cross-sections of the beam are assumed to stay flat and perpendicular to the beam axis during deformation.
-The Euler-Bernoulli beam theory therefore only accounts for bending deformation and neglects shear deformation, which is usually a valid thing to do for long, slender beams.\\
+\textbf{Note:} Since VirtualBow is still far from finished, the contents of both of these files are subject to change.
+The goal is to keep compatibility with older model files as much as possible, such that newer versions of VirtualBow can still open older files.
+This might not always be possible though.
+Any scripts that work with those files should therefore expect breaking changes in the future, which means that they will have to be updated in order to keep working with newer versions of VirtualBow.
 
-The material of the limb is considered linear-elastic, so the relation between material stress $\sigma$ and strain $\epsilon$ at any point in the limb is given by the linear equation $\sigma = E\cdot \epsilon$ with the elastic modulus $E$ as a material constant.
-The overall behaviour of the limb however is nonlinear due to the nonlinear kinematics/geometry of large deformations.\\
+\subsubsection*{Model Files}
 
-\textbf{String:} Contrary to the limb, the string only transfers longitudinal forces and has no flexural rigidity.
-The material is considered linear-elastic as well.
-The string has a constant cross section and is internally implemented as a chain of point masses connected by springs.
-Additional point masses at the center and the tips represent things like servings and nocking point.\\
+The model files have a .bow extension, but are in fact just plain text JSON\footnote{\url{http://json.org}} files.
+JSON is a very common human readable format for storing data in the form of objects, arrays, strings, numbers and more in a hierarchical way.
+As the format is text based, it is possible to just open the model files with a text editor and have a look at contents.
+For a detailed specification of the model files, see appendix \ref{sec:input-structure}.
 
-\textbf{Arrow:} The arrow is modeled as a point mass.
-Deformation and vibration of the arrow (known as \textit{archers paradox}) is neglected/not captured by this model.
-That's because the scope of this program is only to evaluate overall bow performance, things like final arrow velocity, degree of efficiency, etc.
-For this purpose a point mass is sufficient.\\
+\subsubsection*{Result Files}
 
-\textbf{Symmetry:} The bow is assumed to be symmetric.
-This is often only an approximation as most bows besides crossbow prods are actually slightly asymmetric.
-The assumption of symmetry simplifies the definition of the parameters by the user (no need to define the limb twice).
-It also allows the program to simulate only one half of the bow, which reduces the computing time.
-(As a user you don't have to take this into account, all input and output data of the program corresponds to the complete bow.)
+The result files use the binary MessagePack\footnote{\url{http://msgpack.org}} format, which is more space efficient than JSON but very similar in the kind of data it can represent. For a detailed specification of the result files, see appendix \ref{sec:output-structure}.
+
+\subsubsection*{Examples}
+
+As a consequence of the model and result file formats, VirtualBow can interoperate with any programming language that supports JSON and MessagePack.
+Both are very common formats and many programming languages have either built-in support or external libraries available.
+Examples for several languages that are commonly used in scientific computing can be found in appendix \ref{sec:scripting-examples}.
+
+\bigskip
 
 \appendix
 
 \newpage
-\section{Input File Structure}
+\section{File Formats}
+
+\subsection{Model Files (.bow)}
 \label{sec:input-structure}
 
 \newcommand{\tablespace}{\rule{0pt}{3ex}}
 
 \begin{table}[H]
 \resizebox{35em}{!}{\begin{tabular}{ l | l | l | l }
-\textbf{Field} & \textbf{Type} & \textbf{Units} & \textbf{Description} \\
+\textbf{Field} & \textbf{Type} & \textbf{Unit} & \textbf{Description} \\
 \hline
-\tablespace meta & & & \\
-\quad  version & \texttt{string} & -- & Internally used version string \\
-\quad  comments & \texttt{string} & -- & User comments \\
+\tablespace  version & \texttt{string} & -- & VirtualBow version \\
+\tablespace  comment & \texttt{string} & -- & User comment \\
 \tablespace settings & & & \\
 \quad  n\_limb\_elements & \texttt{integer} & -- & Number of limb elements \\
 \quad  n\_string\_elements & \texttt{integer} & -- & Number of string elements \\
@@ -423,8 +569,14 @@ It also allows the program to simulate only one half of the bow, which reduces t
 \tablespace \quad  time\_span\_factor & \texttt{double} & -- & Factor for modifying total simulation time \\
 \quad  time\_step\_factor & \texttt{double} & -- & Factor for modifying simulation time steps \\
 \quad  sampling\_rate & \texttt{double} & \unit[]{Hz} & Time resolution for the dynamic output \\
-\tablespace profile & \texttt{double[][]} & \unit[]{m},\ \unit[]{1/m} & Table with segment lengths and curvatures \\
-\tablespace width & \texttt{double[][]} & \unit[]{--},\ \unit[]{m} & Table with positions and widths \\
+\tablespace dimensions & & & \\
+\quad brace\_height & \texttt{double} & \unit[]{m} & Brace height \\
+\quad draw\_length & \texttt{double} & \unit[]{m} & Draw length \\
+\quad handle\_length & \texttt{double} & \unit[]{m} & Handle length \\
+\quad handle\_setback & \texttt{double} & \unit[]{m} & Handle setback \\
+\quad handle\_angle & \texttt{double} & \unit[]{m} & Handle angle \\
+\tablespace profile & \texttt{double[][]} & \unit[]{m},\ \unit[]{1/m} & Table with arc length and curvature \\
+\tablespace width & \texttt{double[][]} & \unit[]{--},\ \unit[]{m} & Table with position and width \\
 \tablespace layers & & & \\
 \quad \texttt{\{} & & & \\
 \quad\quad name & \texttt{string} & \unit[]{--} & Name of the layer \\
@@ -442,62 +594,75 @@ It also allows the program to simulate only one half of the bow, which reduces t
 \quad string\_center & \texttt{double} & \unit[]{kg} & Additional mass at string center \\
 \quad string\_tip & \texttt{double} & \unit[]{kg} & Additional mass at string tips \\
 \quad limb\_tip & \texttt{double} & \unit[]{kg} & Additional mass at limb tips \\
-\tablespace dimensions & & & \\
-\quad brace\_height & \texttt{double} & \unit[]{m} & Brace height \\
-\quad draw\_length & \texttt{double} & \unit[]{m} & Draw length \\
-\quad handle\_length & \texttt{double} & \unit[]{m} & Handle length \\
-\quad handle\_setback & \texttt{double} & \unit[]{m} & Handle setback \\
-\quad handle\_angle & \texttt{double} & \unit[]{m} & Handle angle
+\tablespace damping & & & \\
+\quad damping\_ratio\_limbs & \texttt{double} & \unit[]{--} & Damping ratio of the limbs \\
+\quad damping\_ratio\_string & \texttt{double} & \unit[]{--} & Damping ratio of the string
 \end{tabular}}
 \end{table}
 
 \newpage
-\section{Output File Structure}
+\subsection{Result Files (.res)}
 \label{sec:output-structure}
 
 \footnotesize{
-\texttt{P}: Number of limb nodes\\
-\texttt{Q}: Number of string nodes\\
-\texttt{R}: Number of layer nodes
+\texttt{P}: Number of limb nodes, \texttt{Q}: Number of string nodes, \texttt{R}: Number of layer nodes
 }
 
 \begin{table}[H]
-\resizebox{35em}{!}{\begin{tabular}{ l | l | l | l }
+\resizebox{34em}{!}{\begin{tabular}{ l | l | l | l }
 \textbf{Field} & \textbf{Type} & \textbf{Unit} & \textbf{Description} \\
 \hline
-\tablespace limb\_properties & & & \\
-\quad length & \texttt{double[P]} & \unit[]{m} & Arc lengths of the limb nodes (unbraced) \\
-\tablespace\quad angle & \texttt{double[P]} & \unit[]{rad} & Orientation angles of the limb nodes (unbraced) \\
-\quad x\_pos & \texttt{double[P]} & \unit[]{m} & X coordinates of the limb nodes (unbraced) \\
-\quad y\_pos & \texttt{double[P]} & \unit[]{m} & Y coordinates of the limb nodes (unbraced) \\
-\tablespace\quad width & \texttt{double[P]} & \unit[]{m} & Cross section width \\
-\quad height & \texttt{double[P]} & \unit[]{m} & Cross section height (total) \\
-\tablespace\quad rhoA & \texttt{double[P]} & \unit[]{kg/m} & Linear density of the cross sections \\
-\quad Cee & \texttt{double[P]} & \unit[]{N} & Longitudinal stiffness of the cross sections \\
-\quad Ckk & \texttt{double[P]} & \unit[]{Nm$^2$} & Bending stiffness of the cross sections \\
-\quad Cek & \texttt{double[P]} & \unit[]{Nm} & Coupling between bending and elongation \\
-\tablespace\quad layers & & & \\
-\quad\quad \texttt{\{} & & & \\
-\quad\quad\quad length & \texttt{double} & \unit[]{m} & Arc lengths of the layer nodes \\
-\quad\quad\quad He\_back & \texttt{double[R][P]} & \unit[]{N/m$^2$} & Stress evaluation matrix\textsuperscript{1} (back) \\
-\quad\quad\quad Hk\_back & \texttt{double[R][P]} & \unit[]{N/m} & Stress evaluation matrix\textsuperscript{1} (back) \\
-\quad\quad\quad He\_belly & \texttt{double[R][P]} & \unit[]{N/m$^2$} & Stress evaluation matrix\textsuperscript{1} (belly) \\
-\quad\quad\quad Hk\_belly & \texttt{double[R][P]} & \unit[]{N/m} & Stress evaluation matrix\textsuperscript{1} (belly) \\
-\quad\quad \texttt{\}} & & & \\
-\quad\quad \texttt{\{\ \ldots\ \}} & & & \\
+\tablespace setup & & & \\
+\quad string\_length & \texttt{double} & \unit[]{m} & Length of the string \\
+\quad string\_mass & \texttt{double} & \unit[]{kg} & Mass of the string, including additional masses \\
+\quad limb\_mass & \texttt{double} & \unit[]{kg} & Mass of one limb, including additional masses \\
+\quad limb\_properties & & & \\
+\quad\quad length & \texttt{double[P]} & \unit[]{m} & Arc lengths of the limb nodes (unbraced) \\
+\quad\quad angle & \texttt{double[P]} & \unit[]{rad} & Orientation angles of the limb nodes (unbraced) \\
+\quad\quad x\_pos & \texttt{double[P]} & \unit[]{m} & X coordinates of the limb nodes (unbraced) \\
+\quad\quad y\_pos & \texttt{double[P]} & \unit[]{m} & Y coordinates of the limb nodes (unbraced) \\
+\quad\quad width & \texttt{double[P]} & \unit[]{m} & Cross section width \\
+\quad\quad height & \texttt{double[P]} & \unit[]{m} & Cross section height (total) \\
+\quad\quad rhoA & \texttt{double[P]} & \unit[]{kg/m} & Linear density of the cross sections \\
+\quad\quad Cee & \texttt{double[P]} & \unit[]{N} & Longitudinal stiffness of the cross sections \\
+\quad\quad Ckk & \texttt{double[P]} & \unit[]{Nm$^2$} & Bending stiffness of the cross sections \\
+\quad\quad Cek & \texttt{double[P]} & \unit[]{Nm} & Coupling between bending and elongation \\
+\quad\quad layers & & & \\
+\quad\quad\quad \texttt{\{} & & & \\
+\quad\quad\quad\quad length & \texttt{double} & \unit[]{m} & Arc lengths of the layer nodes \\
+\quad\quad\quad\quad He\_back & \texttt{double[R][P]} & \unit[]{N/m$^2$} & Stress evaluation matrix\textsuperscript{1} (back) \\
+\quad\quad\quad\quad Hk\_back & \texttt{double[R][P]} & \unit[]{N/m} & Stress evaluation matrix\textsuperscript{1} (back) \\
+\quad\quad\quad\quad He\_belly & \texttt{double[R][P]} & \unit[]{N/m$^2$} & Stress evaluation matrix\textsuperscript{1} (belly) \\
+\quad\quad\quad\quad Hk\_belly & \texttt{double[R][P]} & \unit[]{N/m} & Stress evaluation matrix\textsuperscript{1} (belly) \\
+\quad\quad\quad \texttt{\}} & & & \\
+\quad\quad\quad \texttt{\{\ \ldots\ \}} & & & \\
 \tablespace statics & & & \\
-\quad states & & & \\
-\quad\quad \texttt{\{\ \ldots\ \}} & & & Sequence of bow states (see table below) \\
-\tablespace\quad string\_length & \texttt{double} & \unit[]{m} & Initial length of the string \\
 \quad final\_draw\_force & \texttt{double} & \unit[]{N} & Final draw force \\
 \quad drawing\_work & \texttt{double} & \unit[]{J} & Drawing work \\
 \quad storage\_ratio & \texttt{double} & -- & Storage ratio \\
-\tablespace dynamics & & & \\
+\quad max\_string\_force\_index & \texttt{integer} & -- & Simulation state with maximum absolute string force \\
+\quad max\_grip\_force\_index & \texttt{integer} & -- & Simulation state with maximum absolute grip force \\
+\quad max\_draw\_force\_index  & \texttt{integer} & -- & Simulation state with maximum absolute draw force \\
+\quad max\_stress\_value & \texttt{double[]} & \unit[]{Pa} & Maximum absolute stresses for each layer \\
+\quad max\_stress\_index & \texttt{integer[][]} & -- & Simulation state and layer node for each stress value \\
 \quad states & & & \\
 \quad\quad \texttt{\{\ \ldots\ \}} & & & Sequence of bow states (see table below) \\
-\tablespace\quad final\_arrow\_velocity & \texttt{double} & \unit[]{m/s} & Final velocity of the arrow \\
-\quad final\_arrow\_energy & \texttt{double} & \unit[]{J} & Final energy of the arrow \\
-\quad efficiency & \texttt{double} & -- & Degree of efficiency \smallskip\bigskip
+\tablespace dynamics & & & \\
+\quad final\_pos\_arrow & \texttt{double} & \unit[]{m} & Position of the arrow at departure\\
+\quad final\_vel\_arrow & \texttt{double} & \unit[]{m/s} & Final velocity of the arrow \\
+\quad final\_e\_pot\_limbs & \texttt{double} & \unit[]{J} & Final potential energy of the limbs \\
+\quad final\_e\_kin\_limbs & \texttt{double} & \unit[]{J} & Final kinetic energy of the limbs \\
+\quad final\_e\_pot\_string & \texttt{double} & \unit[]{J} & Final potential energy of the string \\
+\quad final\_e\_kin\_string & \texttt{double} & \unit[]{J} & Final kinetic energy of the string \\
+\quad final\_e\_kin\_arrow & \texttt{double} & \unit[]{J} & Final kinetic energy of the arrow \\
+\quad efficiency & \texttt{double} & -- & Degree of efficiency \\
+\quad max\_string\_force\_index & \texttt{integer} & -- & Simulation state with maximum absolute string force \\
+\quad max\_grip\_force\_index & \texttt{integer} & -- & Simulation state with maximum absolute grip force \\
+\quad arrow\_departure\_index & \texttt{integer} & -- & Simulation state at which the arrow leaves the bow \\
+\quad max\_stress\_value & \texttt{double[]} & \unit[]{Pa} & Maximum absolute stresses for each layer \\
+\quad max\_stress\_index & \texttt{integer[][]} & -- & Simulation state and layer node for each stress value \\
+\quad states & & & \\
+\quad\quad \texttt{\{\ \ldots\ \}} & & & Sequence of bow states (see table below) \\
 \end{tabular}}
 \end{table}
 
@@ -536,7 +701,8 @@ It also allows the program to simulate only one half of the bow, which reduces t
 \end{tabular}}
 \end{table}
 
-\textsuperscript{1}\textbf{Note:} For space efficiency reasons, the stresses for each layer aren't stored directly in the output data. Instead they can be calculated as needed by multiplying the layer's stress evaluation matrices with the strain and curvature of the limb at the given bow state,
+\textsuperscript{1}\textbf{Note:} For space efficiency reasons, the stresses for each layer aren't stored directly in the result files.
+Instead they can be calculated as needed by multiplying the layer's stress evaluation matrices with the strain and curvature of the limb at the given bow state,
 %
 \begin{align*}
 &\mathrm{\texttt{sigma\_back}} = \mathrm{\texttt{He\_back}} \cdot \mathrm{\texttt{epsilon}} + \mathrm{\texttt{Hk\_back}} \cdot \mathrm{\texttt{kappa}}\\
@@ -546,88 +712,65 @@ It also allows the program to simulate only one half of the bow, which reduces t
 The result is a vector of stresses corresponding to the nodes of the layer.
 
 %\textbf{Note:} Matrices are stored in row major order. This is also what Pythons \texttt{numpy} package uses.
-%MATLAB for example uses column major order, which means that matrices loaded from \swtitle output will probably have to be transposed first.
+%MATLAB for example uses column major order, which means that matrices loaded from VirtualBow output will probably have to be transposed first.
 
 \newpage
-\section{Python Scripting Example}
+\section{Scripting Examples}
 \label{sec:scripting-examples}
 
-The code example below shows how simulations can be automated with the Python programming language. The script loads, modifies and saves an input file, runs a static simulation with it, loads the output results and calculates the maximum stress of the first layer.
+These examples show how to use VirtualBow with several common scientific programming languages.
+All of these examples perform the same series of basic tasks:
 
-Two external packages are needed: \texttt{msgpack} for reading the output files and \texttt{numpy} for evaluating stresses (matrix multiplication). They can be installed via
+\begin{enumerate}
+\item Load, modify and save a model file
+\item Run a static simulation with the model
+\item Load the result file and evaluate the maximum stress of the first layer at full draw
+\end{enumerate}
 
-\smallskip
+\subsection{Python}
 
-\begin{framed}
-\texttt{pip install msgpack}\\
-\texttt{pip install numpy}
-\end{framed}
-
-Reading and writing the input file is possible out of the box by using Python's \texttt{json} standard library module. \swtitle is called like any other command line tool either with \texttt{os.system} or \texttt{subprocess.call}.
-
-\definecolor{myblue}{rgb}{0,0,0.5}
-\definecolor{myred}{rgb}{0.4,0.4,0.4}
-\definecolor{mygreen}{rgb}{0,0.5,0}
-
-\lstdefinestyle{mystyle}{
-  showstringspaces=false,
-  columns=flexible,
-  keywordstyle=\bfseries\color{myblue},
-  commentstyle=\itshape\color{myred},
-  stringstyle=\color{mygreen},
-}
-
-\lstdefinelanguage{mypython}{
-   morekeywords={import, open, with, as},
-   morecomment=[l]\#,
-   morestring=[s]{"}{"},
-}[keywords,comments,strings]
+Python requires two external packages: msgpack\footnote{\url{https://pypi.org/project/msgpack/}} for reading the result files and NumPy\footnote{\url{https://pypi.org/project/numpy/}} for evaluating the stresses. They can be installed via \texttt{pip install msgpack numpy}.
 
 \bigskip
 
 \begin{framed}
-\begin{lstlisting}[language=mypython, style=mystyle]
-import json               # Loading and saving input files
-import msgpack            # Loading output files
-import numpy              # Evaluating stresses
-import os                 # Runnig the simulation command
-
-# Load input file
-with open("input.bow", "r") as file:
-    input = json.load(file)
-
-# Modify input
-input["string"]["n_strands"] += 1
-
-# Save modified input
-with open("input.bow", "w") as file:
-    json.dump(input, file)
-
-# Run a static simulation
-os.system("virtualbow input.bow output.dat --static")
-
-# Load the output file
-with open("output.dat", "rb") as file:
-    output = msgpack.unpackb(file.read())
-
-# Calculate the maximum stress at the back of layer 0
-He_back = numpy.array(output[b"limb_properties"][b"layers"][0][b"He_back"])
-Hk_back = numpy.array(output[b"limb_properties"][b"layers"][0][b"Hk_back"])
-
-epsilon = numpy.array(output[b"statics"][b"states"][b"epsilon"][-1])
-kappa   = numpy.array(output[b"statics"][b"states"][b"kappa"][-1])
-
-sigma_back = He_back.dot(epsilon) + Hk_back.dot(kappa)
-print(sigma_back.max())
-\end{lstlisting}
+\inputminted{python}{../examples/scripts/python/example.py}
 \end{framed}
 
 \newpage
-\section{A Simple Bending Test}
+\subsection{Matlab}
+
+This example uses the JSONLab\footnote{\url{https://de.mathworks.com/matlabcentral/fileexchange/33381}} library, which can read and write both JSON and MessagePack files.
+
+\textbf{Note:} Support for MessagePack in JSONLab is still fairly new. The current version 1.9.8 - beta (at the time of writing) contains a bug that prevents it from loading files with empty arrays.
+This can be the case with VirtualBow result files.
+The problem has been fixed in the latest development version\footnote{\url{https://github.com/fangq/jsonlab}}, so we have to use that until the next release comes out.
+
+\bigskip
+
+\begin{framed}
+\inputminted{matlab}{../examples/scripts/matlab/example.m}
+\end{framed}
+
+\newpage
+\subsection{Julia}
+
+Two external packages are used here, JSON\footnote{\url{https://juliahub.com/ui/Packages/JSON/uf6oy/0.21.0}} for loading model files and MsgPack\footnote{\url{https://juliahub.com/ui/Packages/MsgPack/oDgLV/1.1.0}} for loading result files. They can be installed with \texttt{julia> import Pkg; Pkg.add("JSON"); Pkg.add("MsgPack")}.
+
+\bigskip
+
+\begin{framed}
+\inputminted{python}{../examples/scripts/julia/example.jl}
+\end{framed}
+
+\newpage
+\section{Bending Test}
 \label{sec:bending-test}
 
-A bending test is an easy way to determine the elastic modulus of a material. It can be done without any special equipment.
-Figure~\ref{fig:bending-test} shows the setup. A test piece with length~$l$ is clamped on one side and subjected to a vertical force~$F$ at its free end.
+An easy way to determine the elastic modulus of a material is a bending test.
+It can be done without any special equipment.
+Figure~\ref{fig:bending-test} shows the setup.
+A test piece with length~$l$ is clamped on one side and subjected to a vertical force~$F$ at its free end.
 The deflection~$s$ due to this load is measured.
 
 \begin{figure}[H]
@@ -651,7 +794,7 @@ The elastic modulus can then be calculated depending on the cross section geomet
 \label{tbl:bending-test}
 \end{table}
 
-Here are a few practical considerations:
+\textbf{Note:} The following practical considerations might help with choosing a good test setup,
 
 \begin{itemize}
 \item The precision of the cross sections is very important, especially the height.

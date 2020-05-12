@@ -1,31 +1,44 @@
+<<<<<<< HEAD
 target_sources(virtualbow PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icon.rc)    # Add resource file to set executable icon
 set_target_properties(virtualbow PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/windows)
 set_target_properties(virtualbow PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/windows)
+=======
+# Define math constants for MSVC
+target_compile_definitions(virtualbow-gui PRIVATE _USE_MATH_DEFINES)
+target_compile_definitions(virtualbow-slv PRIVATE _USE_MATH_DEFINES)
+target_compile_definitions(virtualbow-post PRIVATE _USE_MATH_DEFINES)
+target_compile_definitions(virtualbow-test PRIVATE _USE_MATH_DEFINES)
+>>>>>>> develop
 
-# Configure files needed for package creation
+# Set executable icons
+target_sources(virtualbow-gui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icons-gui.rc)
+target_sources(virtualbow-slv PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icons-slv.rc)
+target_sources(virtualbow-post PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icons-post.rc)
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(ISS_PROGRAM_DIR "{pf64}")    # Program Files
-else()
-    set(ISS_PROGRAM_DIR "{pf32}")    # Program Files (x86)
-endif()
+# Make virtualbow-gui and virtualbow-post GUI applications
+set_target_properties(virtualbow-gui PROPERTIES WIN32_EXECUTABLE TRUE)
+set_target_properties(virtualbow-post PROPERTIES WIN32_EXECUTABLE TRUE)
 
-configure_file(setup.iss ${CMAKE_BINARY_DIR}/setup.iss)
+# Copy necessary resources into application directory
+configure_file(${CMAKE_SOURCE_DIR}/resources/docs/manual.pdf ${CMAKE_BINARY_DIR}/application/manual.pdf COPYONLY)
 
-# Target: Windows directory layout
+# Target: Copy shared libraries to application directory
 
-#add_custom_target(windows-files DEPENDS virtualbow)
-#find_program(WINDEPLOYQT NAMES windeployqt PATHS "${CMAKE_PREFIX_PATH}/tools/qt5")
-#add_custom_command(
-#    TARGET windows-files
-#    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/Release/virtualbow.exe ${CMAKE_BINARY_DIR}/windows/virtualbow.exe
-#    COMMAND ${WINDEPLOYQT} ${CMAKE_BINARY_DIR}/windows/virtualbow.exe
-#)
+add_custom_target(copy-dependencies DEPENDS virtualbow-gui virtualbow-slv virtualbow-post)
+add_custom_command(
+    TARGET copy-dependencies
+    COMMAND ${QT_BINARY_DIR}/windeployqt
+    ${CMAKE_BINARY_DIR}/application/virtualbow-gui.exe
+    ${CMAKE_BINARY_DIR}/application/virtualbow-slv.exe
+    ${CMAKE_BINARY_DIR}/application/virtualbow-post.exe
+    --release
+)
 
 # Target: Inno Setup installer
 
-add_custom_target(iss-installer DEPENDS virtualbow)
+configure_file(setup.iss ${CMAKE_BINARY_DIR}/setup.iss)
+add_custom_target(iss-installer DEPENDS copy-dependencies)
 add_custom_command(
     TARGET iss-installer
-    COMMAND ISCC ${CMAKE_BINARY_DIR}/setup.iss /O${CMAKE_BINARY_DIR} /Fvirtualbow-setup
+    COMMAND ISCC ${CMAKE_BINARY_DIR}/setup.iss /O${CMAKE_BINARY_DIR}/packages /Fvirtualbow-setup
 )
