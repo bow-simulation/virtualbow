@@ -129,8 +129,8 @@ void BowModel::init_limb(const Callback& callback, SetupData& output)
     // Create limb nodes
     for(size_t i = 0; i < input.settings.n_limb_elements + 1; ++i)
     {
-        bool active = (i != 0);
-        Node node = system.create_node({active, active, active}, {limb_properties.x_pos[i], limb_properties.y_pos[i], limb_properties.angle[i]});
+        DofType type = (i == 0) ? DofType::Fixed : DofType::Active;
+        Node node = system.create_node({type, type, type}, {limb_properties.x_pos[i], limb_properties.y_pos[i], limb_properties.angle[i]});
         nodes_limb.push_back(node);
     }
 
@@ -190,7 +190,7 @@ void BowModel::init_string(const Callback& callback, SetupData& output)
     // Create string nodes
     for(size_t i = 0; i < points.size(); ++i)
     {
-        Node node = system.create_node({i != 0, true, false}, {points[i][0], points[i][1], 0.0});
+        Node node = system.create_node({(i == 0) ? DofType::Fixed : DofType::Active, DofType::Active, DofType::Fixed}, {points[i][0], points[i][1], 0.0});
         nodes_string.push_back(node);
     }
 
@@ -219,8 +219,8 @@ void BowModel::init_string(const Callback& callback, SetupData& output)
     // Takes a string element length, iterates to equilibrium with the constraint of the brace height
     // and returns the angle of the string center
     system.set_p(nodes_string[0].y, 1.0);    // Will be scaled by the static algorithm
-    StaticSolverDC solver(system, nodes_string[0].y, StaticSolverDC::Settings());   // Todo: Reuse solver across function calls?
-    StaticSolverDC::Outcome info;
+    StaticSolver solver(system, nodes_string[0].y, StaticSolver::Settings());   // Todo: Reuse solver across function calls?
+    StaticSolver::Outcome info;
     auto try_element_length = [&](double l)
     {
         for(auto& element: system.mut_elements().group<BarElement>("string"))
@@ -308,7 +308,7 @@ BowStates BowModel::simulate_statics(const Callback& callback)
 {
     BowStates states;
 
-    StaticSolverDC solver(system, nodes_string[0].y, StaticSolverDC::Settings());
+    StaticSolver solver(system, nodes_string[0].y, StaticSolver::Settings());
     solver.solve_equilibrium_path(-input.dimensions.draw_length, input.settings.n_draw_steps, [&](){
         add_state(states);
         int progress = 100*(-system.get_u(nodes_string[0].y) - input.dimensions.brace_height)/

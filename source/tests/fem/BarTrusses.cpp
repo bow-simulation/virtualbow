@@ -67,14 +67,14 @@ TEST_CASE("large-deformation-bar-truss")
 
     System system;
 
-    Node node01 = system.create_node({false, false, false}, {  0.0, 0.0, 0.0});
-    Node node02 = system.create_node({false,  true, false}, {    H,   H, 0.0});
-    Node node03 = system.create_node({false, false, false}, {2.0*H, 0.0, 0.0});
+    Node node01 = system.create_node({DofType::Fixed, DofType::Fixed , DofType::Fixed}, {  0.0, 0.0, 0.0});
+    Node node02 = system.create_node({DofType::Fixed, DofType::Active, DofType::Fixed}, {    H,   H, 0.0});
+    Node node03 = system.create_node({DofType::Fixed, DofType::Fixed , DofType::Fixed}, {2.0*H, 0.0, 0.0});
 
     system.mut_elements().add(BarElement(system, node01, node02, M_SQRT2*H, EA, 0.0, 0.0));
     system.mut_elements().add(BarElement(system, node02, node03, M_SQRT2*H, EA, 0.0, 0.0));
 
-    StaticSolverDC solver(system, node02.y, StaticSolverDC::Settings());
+    StaticSolver solver(system, node02.y, StaticSolver::Settings());
     solver.solve_equilibrium_path(-H, 10, [&](){
         double s = system.get_u(node02.y);
         double F_num = system.get_p(node02.y);

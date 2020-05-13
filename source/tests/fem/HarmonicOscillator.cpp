@@ -17,8 +17,8 @@ TEST_CASE("harmonic-oscillator")
     double s0 = 0.1;   // Initial displacement
 
     System system;
-    Node node_a = system.create_node({ false, false, false }, {    0.0, 0.0, 0.0 });
-    Node node_b = system.create_node({ true, false, false },  { l + s0, 0.0, 0.0 });
+    Node node_a = system.create_node({ DofType::Fixed, DofType::Fixed, DofType::Fixed }, { 0.0, 0.0, 0.0 });
+    Node node_b = system.create_node({ DofType::Active, DofType::Fixed, DofType::Fixed }, { l + s0, 0.0, 0.0 });
 
     system.mut_elements().add(BarElement(system, node_a, node_b, l, l*k, l*d, 0.0));
     system.mut_elements().add(MassElement(system, node_b, m, 0.0));

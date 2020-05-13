@@ -6,7 +6,7 @@
 #include "solver/numerics/RootFinding.hpp"
 #include <iostream>
 
-class StaticSolverDC
+class StaticSolver
 {
 public:
     struct Settings
@@ -25,7 +25,7 @@ public:
         bool success;
     };
 
-    StaticSolverDC(System& system, Dof dof, Settings settings)
+    StaticSolver(System& system, Dof dof, Settings settings)
         : system(system), dof(dof), settings(settings)
     {
 

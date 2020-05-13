@@ -1,9 +1,15 @@
 #pragma once
 #include <cstddef>
 
+enum class DofType
+{
+    Active,
+    Fixed
+};
+
 struct Dof
 {
-    bool active;
+    DofType type;
     size_t index;
 };
 

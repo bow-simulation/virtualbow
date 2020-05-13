@@ -1,14 +1,8 @@
-<<<<<<< HEAD
-target_sources(virtualbow PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icon.rc)    # Add resource file to set executable icon
-set_target_properties(virtualbow PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/windows)
-set_target_properties(virtualbow PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/windows)
-=======
 # Define math constants for MSVC
 target_compile_definitions(virtualbow-gui PRIVATE _USE_MATH_DEFINES)
 target_compile_definitions(virtualbow-slv PRIVATE _USE_MATH_DEFINES)
 target_compile_definitions(virtualbow-post PRIVATE _USE_MATH_DEFINES)
 target_compile_definitions(virtualbow-test PRIVATE _USE_MATH_DEFINES)
->>>>>>> develop
 
 # Set executable icons
 target_sources(virtualbow-gui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icons-gui.rc)
@@ -32,6 +26,7 @@ add_custom_command(
     ${CMAKE_BINARY_DIR}/application/virtualbow-slv.exe
     ${CMAKE_BINARY_DIR}/application/virtualbow-post.exe
     --release
+        --compiler-runtime
 )
 
 # Target: Inno Setup installer

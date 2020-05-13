@@ -5,10 +5,10 @@
 
 static double get_by_dof(const VectorXd* vec_a, const VectorXd* vec_f, Dof dof)
 {
-    if(vec_a && dof.active)
+    if(vec_a && dof.type == DofType::Active)
         return (*vec_a)[dof.index];
 
-    if(vec_f && !dof.active)
+    if(vec_f && dof.type == DofType::Fixed)
         return (*vec_f)[dof.index];
 
     return 0.0;
@@ -16,20 +16,20 @@ static double get_by_dof(const VectorXd* vec_a, const VectorXd* vec_f, Dof dof)
 
 static void set_by_dof(VectorXd* vec_a, VectorXd* vec_f, Dof dof, double value)
 {
-    if(vec_a && dof.active) {
+    if(vec_a && dof.type == DofType::Active) {
         (*vec_a)[dof.index] = value;
     }
-    else if (vec_f && !dof.active) {
+    else if (vec_f && dof.type == DofType::Fixed) {
         (*vec_f)[dof.index] = value;
     }
 }
 
 static void add_by_dof(VectorXd* vec_a, VectorXd* vec_f, Dof dof, double value)
 {
-    if(vec_a && dof.active) {
+    if(vec_a && dof.type == DofType::Active) {
         (*vec_a)[dof.index] += value;
     }
-    else if (vec_f && !dof.active) {
+    else if (vec_f && dof.type == DofType::Fixed) {
         (*vec_f)[dof.index] += value;
     }
 }
@@ -65,7 +65,7 @@ static void add_by_dof(MatrixXd* mat, const std::array<Dof, N> dofs, const T& va
     {
         for(size_t j = 0; j < N; ++j)
         {
-            if(dofs[i].active && dofs[j].active)
+            if(dofs[i].type == DofType::Active && dofs[j].type == DofType::Active)
                 (*mat)(dofs[i].index, dofs[j].index) += values(i, j);
         }
     }
