@@ -60,12 +60,10 @@ TEST_CASE("tangent-stiffness-bar-element")
     };
 
     check_at(0.0, 0.0, 0.0, 0.0);
-
     check_at(0.0, 0.0,  1.5,  1.5);
     check_at(0.0, 0.0, -1.5,  1.5);
     check_at(0.0, 0.0,  1.5, -1.5);
     check_at(0.0, 0.0, -1.5, -1.5);
-
     check_at( 1.5,  1.5, 0.0, 0.0);
     check_at(-1.5,  1.5, 0.0, 0.0);
     check_at( 1.5, -1.5, 0.0, 0.0);
@@ -92,7 +90,6 @@ TEST_CASE("tangent-stiffness-beam-element")
     };
 
     check_at(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
-
     check_at( 0.0, -6.0,  1.0, -7.0, -2.0,  3.0);
     check_at( 4.0, -7.0, -5.0, -9.0,  6.0, -6.0);
     check_at( 9.0, -4.0,  0.0,  4.0,  2.0, -7.0);

@@ -2,58 +2,90 @@
 
 \section{Static Solution}
 
-\textcolor{red}{Static solution in context of bow: Bracing and equilibrium path, necessity for load control and displacement control}
-
 A System with the equation of motion
-
+%
 \begin{align}
 \boldsymbol{M}\,\ddot{\boldsymbol{u}} + \boldsymbol{q}(\boldsymbol{u},\,\dot{\boldsymbol{u}}) = \boldsymbol{p}
 \end{align}
-
+%
 is in static equilibrium if~$\dot{\boldsymbol{u}},\,\ddot{\boldsymbol{u}} = \boldsymbol{0}$, leading to the static equilibrium condition
-
+%
 \begin{align}
 \boldsymbol{q}(\boldsymbol{u},\,\boldsymbol{0}) = \boldsymbol{p}\label{eq:statics:equilibrium}
 \end{align}
-
+%
 for the displacements $\boldsymbol{u}$ and the external loads $\boldsymbol{p}$.
 This is a nonlinear system of equations and can be interpreted as the internal elastic forces~$\boldsymbol{q}$ being in balance with the external loads.
 
-\subsection{The Basic Newton-Raphson Method}
+\subsection{The Newton-Raphson Method}
 
-Most frequently, when solving static problems, the external loads are given and the task is to calculate the corresponding equilibrium displacements.
-Equation~(\ref{eq:statics:equilibrium}) is then a nonlinear system of equations in $\boldsymbol{u}$. Solving it can only be done numerically except for very simple examples.
-
-An often used method for this kind of problem is the Newton-Raphson method. The basic idea behind it is to linearise the equilibrium equation~(\ref{eq:statics:equilibrium}) around a known displacement vector~$\boldsymbol{u}_i$ and solve the resulting linear equation to obtain an improved approximation~$\boldsymbol{u}_{i+1}$. Starting with an initial value~$\boldsymbol{u}_0$ the procedure is repeated until the solution is accurate enough by some convergence criterion.
-
-Linearising of (\ref{eq:statics:equilibrium}) yields
-
+The Newton-Raphsonb method is probably the most popular one for solving nonlinear systems of equations.
+The system of equations is formulated as the root finging problem
+%
+\begin{equation}
+\boldsymbol{f}(\boldsymbol{x}) = \boldsymbol{0},\quad \boldsymbol{f}: \mathbb{R}^n \rightarrow \mathbb{R}^n.\label{eq:statics:newton_problem}
+\end{equation}
+%
+The idea is to linearize the function $\boldsymbol{f}$ around a current guess $\boldsymbol{x}_i$ for the root, solve the linear equation to obtain a more accurate guess $\boldsymbol{x}_{i+1}$ and repeat that process until the approximation is good enough by some convergence criterion.
+The linear expansion of (\ref{eq:statics:newton_problem}) around the point $\boldsymbol{x}_i$ is
+%
+\begin{equation}
+\boldsymbol{f}(\boldsymbol{x}_i + \Delta\boldsymbol{x}_i) = \boldsymbol{f}(\boldsymbol{x}_i) + \frac{\partial \boldsymbol{f}}{\partial \boldsymbol{x}}(\boldsymbol{x}_i) \cdot \Delta\boldsymbol{x}_i + \mathcal{O}(\left\lVert \Delta\boldsymbol{x}_i \right\rVert^2)
+\end{equation}
+%
+Neglecting the higher order terms and solving for $\Delta\boldsymbol{x}_i$ gives us the basic Newton-Raphson iteration,
+%
 \begin{align}
-\boldsymbol{q}(\boldsymbol{u}_i) +
-\underbrace{
-\left(\frac{\partial \boldsymbol{q}}{\partial \boldsymbol{u}}\bigg \vert_{\boldsymbol{u}_i}\right)
-}_{\boldsymbol{K}(\boldsymbol{u}_i)}
-\underbrace{
-(\boldsymbol{u}_{i+1} - \boldsymbol{u}_i)
-}_{\Delta\boldsymbol{u}_i} &= \boldsymbol{p}
+\Delta\boldsymbol{x}_i &= -\left(\frac{\partial \boldsymbol{f}}{\partial \boldsymbol{x}}(\boldsymbol{x}_i)\right)^{-1} \cdot \boldsymbol{f}(\boldsymbol{x}_i),\label{eq:statics:newton_iteration_1} \\
+\boldsymbol{x}_{i+1} &= \boldsymbol{x}_i + \Delta\boldsymbol{x}_i.\label{eq:statics:newton_iteration_2}
 \end{align}
+%
+Convergence critera are often based on the residuum $\boldsymbol{f}$, the change in variables $\Delta \boldsymbol{x}$ or their product $\boldsymbol{x}^\intercal \boldsymbol{f}$, which for mechanical systems has the dimension of an energy.
+We use the relative energy criterion
+%
+\begin{equation}
+\frac{\Delta\boldsymbol{x}_i^\intercal \cdot \boldsymbol{f}(\boldsymbol{x}_i)}{\Delta\boldsymbol{x}_0^\intercal \cdot \boldsymbol{f}(\boldsymbol{x}_0)} < \varepsilon_\mathrm{rel}
+\end{equation}
+%
+which compares the "energy" of the current step to that of the first step and stops if the relative change is becoming too small.
+This is however undefined if the denominator is already close to zero, so we have to check for that with an absolute criterion,
+%
+\begin{equation}
+\boldsymbol{x}_0^\intercal \cdot \boldsymbol{f}(\boldsymbol{x}_0) < \varepsilon_\mathrm{abs}.
+\end{equation}
+%
+Energy based criteria have the advantage that scaling between different types of quantities (forces and torques, lengths and angles) doesn't have to be accounted for explicitly.
+The use of a relative criterion makes it easier to pick a tolerance $\varepsilon_\mathrm{rel}$ that works for as many cases as possible.
 
-Solving for $\Delta\boldsymbol{u}_i$ leads to the iterative procedure
+\subsection{Line Search and Backtracking}
 
-\begin{align}
-\Delta\boldsymbol{u}_i &= \boldsymbol{K}^{-1}(\boldsymbol{u}_i)\left(\boldsymbol{p} - \boldsymbol{q}(\boldsymbol{u}_i)\right),\\
-\boldsymbol{u}_{i+1} &= \boldsymbol{u}_i + \Delta\boldsymbol{u}_i.\label{eq:statics:newton_iteration}
-\end{align}
+Line search is an addition to the Newton-Raphson method that can greatly improve its robustness and performance, especially in the presence of sharp changes in the objective funtion.
+For the bow model this is the case when string to limb contact (recurve) is involved.
+The idea is to not just advance the solution by $\Delta\boldsymbol{x}$ each time, but to perform a one-dimensional search along $\Delta\boldsymbol{x}$ to determine how far to go in that direction.
+Equation (\ref{eq:statics:newton_iteration_2}) is modified to
+%
+\begin{equation}
+\boldsymbol{x}_{i+1} = \boldsymbol{x}_i + \alpha\,\Delta\boldsymbol{x}_i
+\end{equation}
+%
+with the line search parameter $\alpha \in [0,\,1]$. The line search parameter is determined by finding the root of the function
+%
+\begin{equation}
+g(\alpha) = \Delta\boldsymbol{x}_i^\intercal \cdot \boldsymbol{f}(\boldsymbol{x}_i + \alpha\,\Delta\boldsymbol{x}_i)
+\end{equation}
+%
+i.e. finding the zero of the residuum projected in the initial search direction.
+For this, methods such as regula falsi or bisection can be used.
+It is not necessary or even advantageous to do this to a great precision, a crude search is generally good enough.
+A very precise line search would be much more expensive without providing a proportional benefit.
 
-In the implementation the tangent stiffness matrix is not actually inverted, because that's expensive and potentially inaccurate. Instead,~$\Delta\boldsymbol{u}_i$ is obtained by solving the equivalent linear system of equations using a decomposition of the stiffness matrix. The symmetry of the tangent stiffness can be used here. (It isn't necessarily positive definite though, like the stiffness matrices of linear mechanical systems.)
+\textcolor{red}{Todo: Backtracking. Have a look at the method in "numerical recipes".}
 
-The basic Newton-Raphson method can be improved and extended in many ways, for example by combining it with a line search or by avoiding the calculation of the tangent stiffness matrix at every iteration (simplified Newton-Raphson method, BFGS method \textcolor{red}{[Source]}).
+\subsection{Displacement Control}
 
-\subsection{Constrained Newton-Raphson method}
-
-In the previous section the Newton-Raphson method was applied to the problem of calculating the equilibrium displacements of a system when all applied forces are known. This method is used in VirtualBow for finding the braced equilibrium state of the bow (see section \textcolor{red}{[Reference]}). However, when calculating the draw curve we don't actually know the draw forces, just the displacement of the string center. \textcolor{red}{Also: Load decrease.}
-
-A solution to this is displacement control, where we prescribe a value for one of the displacement components and instead treat the corresponding external forces as a variable that is determined during solution.
+The Newton-Raphson method can be applied to the problem of calculating the equilibrium displacements of a system when all applied forces are known.
+However, sometimes it is necessary to prescribe one of the displacements and treat the respective force as an unknown.
+This is called displacement control and is used in VirtualBow to simulate the drawing of the bow with a series of fixed draw lengths.
 
 The following derivation has been adapted from \cite{fem_script_uni_bochum}. Displacement control is a special case of a wider class of methods where the equilibrium equations are modified as
 %
@@ -62,30 +94,34 @@ The following derivation has been adapted from \cite{fem_script_uni_bochum}. Dis
 c(\boldsymbol{u},\,\lambda) &= 0.\label{eq:constraint_dc}
 \end{align}
 %
-Here the external forces are scaled by the unknown load factor $\lambda$. To compensate for this additional unknown, a scalar constraint~$c(\boldsymbol{u},\,\lambda) = 0$ on the displacements and the load parameter is introduced. Depending on the choice of constraint the method can be turned into load control, displacement control or other more sophisticated schemes like the arc-length method. We will carry out the derivation for the general case and specify the constraints later. This is also how these methods are implemented in VirtualBow: A general implementation for arbitrary constraints that is then specialized into load controlled and displacement controlled methods by providing the necessary constraints.
+Here the external forces are scaled by the unknown load factor $\lambda$. To compensate for this additional unknown, a scalar constraint~$c(\boldsymbol{u},\,\lambda) = 0$ on the displacements and the load parameter is introduced. Depending on the choice of constraint the method can be turned into load control, displacement control or other more sophisticated schemes like the arc-length method. We will carry out the derivation for the general case and specify the constraints later.
 
-The system of nonlinear equations (\ref{eq:equilibrium_dc}), (\ref{eq:constraint_dc}) has to be solved for the displacements~$\boldsymbol{u}$ and the load parameter~$\lambda$. Like before, the Newton-Raphson method is used: The equations are linearised around a given approximation~$\{\boldsymbol{u}_i,\,\lambda_i\}$ and solved to obtain an improved approximiation~$\{\boldsymbol{u}_{i+1},\,\lambda_{i+1}\}$. This is repeated iteratively until displacements and load parameter satisfy the equilibrium equations~(\ref{eq:equilibrium_dc}) as well as the constraint equation~(\ref{eq:constraint_dc}) reasonably well as determined by some convergence criterion.
-
-Carrying out the linearisation leads to the two equations
+Formulating this problem in terms of the Newton-Raphson method as defined in (\ref{eq:statics:newton_problem}) 
 %
-\begin{align}
-\boldsymbol{q}(\boldsymbol{u}) - \boldsymbol{p}(\lambda)\:&\approx\:\boldsymbol{q}(\boldsymbol{u_{i}}) + \underbrace{
-\frac{\partial \boldsymbol{q}}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}})
-}_{\boldsymbol{K_{i}}}
-\underbrace{
-(\boldsymbol{u_{i+1}} - \boldsymbol{u_{i}})
-}_{\Delta\boldsymbol{u_{i}}} - \boldsymbol{p}(\lambda_i) - \frac{\partial \boldsymbol{p}}{\partial \lambda}(\lambda_i)
-\underbrace{
-\,(\lambda_{i+1} - \lambda_{i})
-}_{\Delta \lambda_{i}}
-\notag\\
-&\approx\ \boldsymbol{q}(\boldsymbol{u_{i}}) - \boldsymbol{p}(\lambda_i) + \boldsymbol{K_{i}}\,\Delta\boldsymbol{u_{i}} - \boldsymbol{p}(\lambda_i) - \frac{\partial \boldsymbol{p}}{\partial \lambda}(\lambda_i)\,\Delta \lambda_{i}\label{eq:equilibrium_dc_lin}\\
-\notag\\
-c(\boldsymbol{u},\,\lambda) \ &\approx\ c(\boldsymbol{u_{i}},\,\lambda_{i}) + \frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})(\boldsymbol{u_{i+1}} - \boldsymbol{u_{i}}) + \frac{\partial c}{\partial \lambda}(\boldsymbol{u_{i}},\,\lambda_{i})(\lambda_{i+1} - \lambda_{i})\notag\\
-&\approx\ c(\boldsymbol{u_{i}},\,\lambda_{i}) + \frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})\,\Delta\boldsymbol{u_{i}} + \frac{\partial c}{\partial \lambda}(\boldsymbol{u_{i}},\,\lambda_{i})\,\Delta \lambda_{i}\label{eq:constraints_dc_lin}
-\end{align}
+\begin{equation}
+\boldsymbol{x} = \begin{bmatrix} \boldsymbol{u} \\ \lambda \end{bmatrix}, \quad
+\boldsymbol{f}(\boldsymbol{x}) =
+\begin{bmatrix}
+\boldsymbol{q}(\boldsymbol{u}) - \boldsymbol{p}(\lambda) \\
+c(\boldsymbol{u},\,\lambda)
+\end{bmatrix}
+\label{eq:statics_newton_application_1}
+\end{equation}
 
-Equations~(\ref{eq:equilibrium_dc_lin}) and~(\ref{eq:constraints_dc_lin}) can written as the single linear system of equations
+The jacobian of the objective function is
+%
+\begin{equation}
+\frac{\partial \boldsymbol{f}}{\partial \boldsymbol{x}} = \begin{bmatrix}
+\frac{\partial \boldsymbol{q}}{\partial \boldsymbol{u}} & -\frac{\partial \boldsymbol{p}}{\partial \boldsymbol{\lambda}} \\
+\\
+\frac{\partial \boldsymbol{c}}{\partial \boldsymbol{u}} & \frac{\partial \boldsymbol{c}}{\partial \lambda}
+\end{bmatrix}
+\label{eq:statics_newton_application_2}
+\end{equation}
+
+With $\partial \boldsymbol{q} / \partial \boldsymbol{u} = \boldsymbol{K}(\boldsymbol{u})$ being the system's tangent stiffness matrix.
+When evaluating equation~(\ref{eq:statics:newton_iteration_1}) it is more efficient to not actually calculate the inverse of this matrix but to solve the associented linear system of equations for $\Delta\boldsymbol{x}_i$.
+With (\ref{eq:statics_newton_application_1}) and (\ref{eq:statics_newton_application_2}), this linear system becomes
 %
 \begin{align}
 \begin{bmatrix}
@@ -102,30 +138,24 @@ Equations~(\ref{eq:equilibrium_dc_lin}) and~(\ref{eq:constraints_dc_lin}) can wr
 -\boldsymbol{c}(\boldsymbol{u_{i}},\,\lambda_{i})
 \end{bmatrix}.\label{eq:total_dc_lin}
 \end{align}
-%
-Solving this for the increments in displacement and load factor $\{\Delta\boldsymbol{u_{i}},\,\Delta \lambda_{i}\}$ allows us to calculate the next values as
-%
-\begin{align}
-\boldsymbol{u_{i+1}} = \boldsymbol{u_{i}} + \Delta\boldsymbol{u_{i}}\label{eq:step_u}\\
-\lambda_{i+1} = \lambda_{i} + \Delta \lambda_{i}.\label{eq:step_lambda}
-\end{align}
-%
-However, directly solving~(\ref{eq:total_dc_lin}) is not  numerically efficient because the augmented stiffness matrix is no longer symmetric. A much better way to solve this is block elimination. We use the first row of~(\ref{eq:total_dc_lin}) to express~$\Delta\boldsymbol{u_{i}}$ as
+
+However, directly solving~(\ref{eq:total_dc_lin}) is not the most numerically efficient way either, because the symmetry of the tangent stiffness matrix is not exploited.
+A better way to solve this is by block elimination.
+We use the first row of~(\ref{eq:total_dc_lin}) to express~$\Delta\boldsymbol{u_{i}}$ as
 %
 \begin{align}
 \Delta\boldsymbol{u_{i}} &= \boldsymbol{\alpha} + \boldsymbol{\beta}\,\Delta \lambda_{i}.\label{eq:auxiliary_disp_dc}
 \end{align}
-%
+
 With the auxiliary vectors
 %
 \begin{align}
 \boldsymbol{\alpha} &= \boldsymbol{K_{i}^{-1}}(\boldsymbol{p}(\lambda_i) - \boldsymbol{q}(\boldsymbol{u_{i}}))\label{eq:auxiliary_1}\\
 \boldsymbol{\beta} &= \boldsymbol{K_{i}^{-1}}\,\frac{\partial \boldsymbol{p}}{\partial \lambda}(\lambda_i)\label{eq:auxiliary_2}
 \end{align}
-%
-These can be computed efficiently by exploiting the symmetry of the stiffness matrix $\boldsymbol{K_{i}}$.
-%
-To calculate $\Delta \lambda_i$, we substitute~(\ref{eq:auxiliary_disp_dc}) into the second row of~(\ref{eq:total_dc_lin}) which gives us
+
+These can be computed efficiently by using a decomposition of the tangent stiffness matrix that makes use of its symmetry.
+To calculate $\Delta \lambda_i$, we substitute~(\ref{eq:auxiliary_disp_dc}) into the second row of~(\ref{eq:total_dc_lin}), which gives us
 %
 \begin{align}
 &\frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})\Delta\boldsymbol{u_{i}} + \frac{\partial c}{\partial \lambda}(\boldsymbol{u_{i}},\,\lambda_{i})\,\Delta \lambda_{i} = -c(\boldsymbol{u_{i}},\,\lambda_{i})\notag\\
@@ -135,8 +165,6 @@ To calculate $\Delta \lambda_i$, we substitute~(\ref{eq:auxiliary_disp_dc}) into
 \end{align}
 
 The Newton-Raphson iteration is now complete. To summarize: First, calculate $\boldsymbol{\alpha}$ and~$\boldsymbol{\beta}$ by solving~(\ref{eq:auxiliary_1}) and~(\ref{eq:auxiliary_2}). Then calculate the increment of the load parameter by using~(\ref{eq:res_load_factor}). The increment in displacements is then obtained by equation~(\ref{eq:auxiliary_disp_dc}).\\
-
-\subsection{Constraints for load- and displacement control}
 
 Finally, the constraint function and the parametrisation of the load vector have to be chosen. To get a displacement controlled method as initially stated we choose
 %
@@ -152,7 +180,7 @@ where $\boldsymbol{p}_{0}$ is the initial load vector on the system, $\boldsymbo
 \frac{\partial c}{\partial \lambda} = 0,
 \end{align*}
 %
-with $\boldsymbol{e}_k$ being the $k$-th unit vector. If a load controlled method is needed instead, the constraint instead becomes
+with $\boldsymbol{e}_k$ being the $k$-th unit vector. If a load controlled method is needed instead, the constraint becomes
 %
 \begin{align}
 \boldsymbol{c}(\boldsymbol{u},\,\lambda) = \lambda - \overline{\lambda},
@@ -165,57 +193,15 @@ with the desired load factor $\overline{\lambda}$ and the partial derivatives
 \frac{\partial c}{\partial \lambda} = 1.
 \end{align*}
 
-\subsection{Convergence criterion}
-
-Convergence criteria are often formulated either in terms of the residuum forces $\boldsymbol{p} - \boldsymbol{q}$, change in displacement~$\Delta\boldsymbol{u}$, or their product $\Delta\boldsymbol{u}^\mathsf{T}(\boldsymbol{p}-\boldsymbol{q})$, which has the dimension of an energy. Compared to force and displacement, energy criteria have the advantage that scaling between different types of quantities (forces and torques, lengths and angles) doesn't have to be accounted for explicitly. We therefore use the relative energy criterion
-%
-\begin{equation*}
-\frac{\Delta\boldsymbol{u}_{i}^\mathsf{T}(\boldsymbol{p}(\lambda_i)-\boldsymbol{q}(\boldsymbol{u}_i))}{\Delta\boldsymbol{u}_{0}^\mathsf{T}(\boldsymbol{p}(\lambda_0)-\boldsymbol{q}(\boldsymbol{u}_0))} < \varepsilon_q.
-\end{equation*}
-%
-It takes the energy ratio between current and first iteration and compares it to a numerical tolerance. By using a ratio the tolerance can be a more generic value, because it doesn't depend on the actual magnitude of the energies. An analogous criterion is used for the constraint equation,
-%
-\begin{equation*}
-\frac{\Delta\lambda_{i}\,c(\boldsymbol{u}_{i},\,\lambda_i)}{\Delta\lambda_{0}\,c(\boldsymbol{u}_{0},\,\lambda_0)} < \varepsilon_c.
-\end{equation*}
-%
-Both criteria have to be satisfied to indicate convergence.
-
-\subsection{Line search}
-
-There is one last extension to the Newton-Raphson method that is needed for our purposes, which is called line search. The idea is to introduce a line search parameter $s \in [0,\,1]$ and modify equations (\ref{eq:step_u}) and (\ref{eq:step_lambda}) to
-%
-\begin{align}
-\boldsymbol{u_{i+1}} &= \boldsymbol{u_{i}} + s\,\Delta\boldsymbol{u_{i}},\\
-\lambda_{i+1} &= \lambda_{i} + s\,\Delta \lambda_{i}.
-\end{align}
-%
-With $s$ determinig how far to advance the solution in the direction $\Delta\boldsymbol{u_{i}}$ and $\Delta \lambda_{i}$ obtained by the Newton-Raphson step. The actual line search consists of finding the root of the scalar function
-
-\begin{equation}
-g(s) =
-\begin{bmatrix}
-\Delta \boldsymbol{u}_i \\ \Delta \lambda_i
-\end{bmatrix}^T
-\begin{bmatrix}
-\boldsymbol{q}(\boldsymbol{u}_i + s\,\Delta \boldsymbol{u}_i) - \boldsymbol{p}(\lambda_i + s\,\Delta \lambda_i) \\ c(\boldsymbol{u}_i + s\,\Delta \boldsymbol{u}_i,\,\lambda_i + s\,\Delta \lambda_i)
-\end{bmatrix}\label{eq:line_search_function}
-\end{equation}
-
-i.e. to find the zero of the residuum projected in the initial search direction. Using line search can greatly improve the convergence and robustness of the Newton-Raphson method, especially in the presence of sharp changes in the objective funtion. For the bow model this is the case when string to limb contact (recurve) is involved.
-
-\textcolor{red}{Todo: Explain line search and why it helps with contact handling}
-
-
 \newpage
-\subsection{Finding the Braced Equilibrium State}
+\subsection{Application to the Bow Model}
 
-\textcolor{red}{Length of the string...}
+\textcolor{red}{Bracing, length of the string, draw curve with displacement control, adaptive step sizes, ...}
 
 \section{Dynamic Solution}
 
 The equations of motion together with the initial displacements~$\boldsymbol{u}_0$ and velocities~$\boldsymbol{v}_0$ of the system form the second-order initial value problem
-
+%
 \begin{align}
 \boldsymbol{M}\ddot{\boldsymbol{u}} &+ \boldsymbol{q}(\boldsymbol{u},\,\ddot{\boldsymbol{u}}) = \boldsymbol{p},\quad \boldsymbol{u}(0) = \boldsymbol{u}_0,\ \ddot{\boldsymbol{u}}(0) = \boldsymbol{v}_0.\label{eq:dynamics:system_equation}
 \end{align}
@@ -246,13 +232,13 @@ The big advantage however was the timestep control based on error estimation, wh
 
 The continuous solution $\boldsymbol{u}(t)$ is approximated by the discrete values~$\boldsymbol{u}_i = \boldsymbol{u}(t_{i})$ at the equidistant time steps~$t_i = i\cdot\Delta t$,\ \ $i \in \mathbb{N}$.
 The acceleration~$\ddot{\boldsymbol{u}}_i$ can be approximated by a central difference quotient as
-
+%
 \begin{align}
 \ddot{\boldsymbol{u}}_i &= \frac{\boldsymbol{u}_{i+1} - 2\,\boldsymbol{u}_{i} + \boldsymbol{u}_{i-1}}{\Delta t^2}\label{eq:dynamics:difference_acceleration}
 \end{align}
 
 Solving for~$\boldsymbol{u}_{i+1}$ and calculating the accelerations~$\ddot{\boldsymbol{u}}_{i}$ from the equation of motion~(\ref{eq:dynamics:system_equation}) leads to
-
+%
 \begin{align}
 \boldsymbol{u}_{i+1} &= 2\,\boldsymbol{u}_{i} - \boldsymbol{u}_{i-1} + \Delta t^2\,\ddot{\boldsymbol{u}}_{i}\notag\\
 &= 2\,\boldsymbol{u}_{i} - \boldsymbol{u}_{i-1} + \Delta t^2\,\boldsymbol{M}^{-1}(\boldsymbol{p}_i - \boldsymbol{q}_i).
@@ -262,14 +248,14 @@ This expression is already the core of the method, it allows the calculation of 
 It only involves cheap vector operations as the mass matrix is diagonal and doesn't have to be "actually" inverted.
 
 Only the velocity is still missing. For this the central difference quotients of the displacements~$\boldsymbol{u}_{i+1}$,~$\boldsymbol{u}_{i}$ and~$\boldsymbol{u}_{i-1}$ are used to calculate the intermediate velocities
-
+%
 \begin{align}
 \dot{\boldsymbol{u}}_{i+\frac{1}{2}} &= \frac{\boldsymbol{u}_{i+1} - \boldsymbol{u}_{i}}{\Delta t},\\
 \dot{\boldsymbol{u}}_{i-\frac{1}{2}} &= \frac{\boldsymbol{u}_{i} - \boldsymbol{u}_{i-1}}{\Delta t}.
 \end{align} 
 
 The actual new velocity~$\dot{\boldsymbol{u}}_{i+1}$ is linearly extrapolated from those,
-
+%
 \begin{align}
 \dot{\boldsymbol{u}}_{i+1} &= \dot{\boldsymbol{u}}_{i+\frac{1}{2}} + \frac{1}{2}\,\left(\dot{\boldsymbol{u}}_{i+\frac{1}{2}} - \dot{\boldsymbol{u}}_{i-\frac{1}{2}}\right),\notag\\
 &= \frac{1}{\Delta t}\,\left(\frac{3}{2}\,\dot{\boldsymbol{u}}_{i+1} - 2\,\dot{\boldsymbol{u}}_{i} + \frac{1}{2}\,\dot{\boldsymbol{u}}_{i-1}\right).
@@ -280,7 +266,7 @@ All descriptions of the central difference method that I've seen end with the ca
 
 The initialisation of the procedure needs some special attention, as the method uses the previous displacements~$\boldsymbol{u}_{i-1}$ that don't exist yet at time~$t = 0$.
 Instead,~$\boldsymbol{u}_{-1}$ is estimated by using finite difference approximations of the system's initial velocity and acceleration:
-
+%
 \begin{align}
 \dot{\boldsymbol{u}}_0 &= \frac{\boldsymbol{u}_{1} - \boldsymbol{u}_{-1}}{2\,\Delta t},\\
 \ddot{\boldsymbol{u}}_0 &= \frac{\boldsymbol{u}_{1} - 2\,\boldsymbol{u}_{0} + \boldsymbol{u}_{-1}}{\Delta t^2},\\
@@ -291,13 +277,13 @@ A last but very important question is how to choose the timestep~$\Delta t$.
 The timestep influences the computational effort, the accuracy of the solution but most importantly the stability of the algorithm.
 A too large time step will lead to a solution that "explodes" numerically.
 For linear, conservative mechanical systems of the form
-
+%
 \begin{align}
 \boldsymbol{M}\ddot{\boldsymbol{u}} + \boldsymbol{K}\boldsymbol{u} = \boldsymbol{p}
 \end{align}
 
 the stability condition is
-
+%
 \begin{align}
 \Delta t \le \frac{2}{\omega_{max}}\label{eq:timestep_bound}
 \end{align}
@@ -306,19 +292,19 @@ where~$\omega_{max}$ is the maximum natural frequency \cite{bib:dynamic_solution
 Unfortunately there is no such analytical bound on~$\Delta t$ that guarantees stability for nonlinear systems.
 A common thing to do is to linearise the system around the current configuration and apply (\ref{eq:timestep_bound}) anyway.
 A safety factor~$0 < \beta < 1$ is introduced to account for the uncertainties and the timestep is set to
-
+%
 \begin{align}
 \Delta t = \beta \frac{2}{\omega_{max}}.
 \end{align}
 
 This doesn't guarantee stability in a strict sense, but it's okay for practical purposes. A common choice is~$\beta = 0.9$ but VirtualBow uses a lower value for the sake of robustness. The frequency $\omega_{max}$ is sometimes estimated by using the bound
-
+%
 \begin{align}
 \omega_{max} \le \max_{i}\,\{\omega_{max,\,i}\}
 \end{align}
 
 where $\omega_{max,\,i}$ is the maximum natural frequency of the respective finite element~$i$. But this leads to larger time steps than necessary and actually causes more implementation effort than just solving the generalised eigenvalue problem
-
+%
 \begin{align}
 \left(\boldsymbol{M} - \omega^2\boldsymbol{K}\right)\boldsymbol{\bar{u}} = 0\label{eq:natural_frequencies}
 \end{align}
@@ -336,7 +322,7 @@ But how can the progress be estimated even though the ending time of the simulat
 
 The current approach is to simulate the time interval~$[0,\,\alpha\,T]$ where~$T$ is the (yet unknown) time for the arrow to reach brace height and~$\alpha$ is an arbitrary positive factor.
 The default value is~$\alpha = 1.5$. The simulation progress at time~$\overline{t}$ can now be formally written as
-
+%
 \begin{equation}
 \rm{progress} = \frac{\overline{t}}{\alpha\,T}\cdot 100\%.\label{eq:solution:progress}
 \end{equation}
@@ -353,20 +339,20 @@ But only formally, because~$T$ is unknown as long as~$\overline{t} < T$, i.e. as
 The progression of the arrow position, denoted by~$u(t)$, typically looks like shown in figure~\ref{fig:solution:dynamic_progress}.
 It starts at time~$t = 0$ at full draw~$u_0$ and reaches brace height~$u_T$ at the time~$t = T$ by definition.
 If the draw curve of the bow is assumed to be approximately linear then~$u(t)$ will resemble the cosine quarter-wave
-
+%
 \begin{equation}
 u(t) \approx u_{0}\,\cos{\left(C\,t\right)}.\label{eq:solution:progress:ansatz}
 \end{equation}
 
 Not all draw curves might be approximately linear, but this is only about crude progess estimation after all.
 The constant~$C$ is obtained by applying equation~(\ref{eq:solution:progress:ansatz}) to the current time and position,
-
+%
 \begin{equation}
 u(\overline{t}) = \overline{u} \Rightarrow \ C = \frac{1}{\overline{t}}\,\arccos{\left(\frac{\overline{u}}{u_0}\right)}.\label{eq:solution:progress:constant}
 \end{equation}
 
 Now $T$ can be extrapolated from~(\ref{eq:solution:progress:ansatz}) using the condition~$u(T) = u_T$,
-
+%
 \begin{align}
 T = \frac{1}{C}\,\arccos{\left(\frac{u_T}{u_0}\right)} = \overline{t}\ \frac{\arccos{\left(\nicefrac{u_T}{u_0}\right)}}{\arccos{\left(\nicefrac{\overline{u}}{u_0}\right)}}.
 \end{align}

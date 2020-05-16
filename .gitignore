@@ -1,5 +1,6 @@
 # Qt creator
 *.user
+*.autosave
 
 # Visual Studio
 CMakeSettings.json

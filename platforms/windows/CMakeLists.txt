@@ -26,7 +26,7 @@ add_custom_command(
     ${CMAKE_BINARY_DIR}/application/virtualbow-slv.exe
     ${CMAKE_BINARY_DIR}/application/virtualbow-post.exe
     --release
-        --compiler-runtime
+    --compiler-runtime
 )
 
 # Target: Inno Setup installer
