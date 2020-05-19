@@ -72,13 +72,17 @@ void ContactElement::add_masses() const
 void ContactElement::add_internal_forces() const
 {
     State state = get_state();
-    system.add_q(dofs, f.force(state.e)*state.De);
+    if(state.e != 0.0) {
+        system.add_q(dofs, f.force(state.e)*state.De);
+    }
 }
 
 void ContactElement::add_tangent_stiffness() const
 {
     State state = get_state();
-    system.add_K(dofs, f.stiffness(state.e)*state.De*state.De.transpose() + f.force(state.e)*state.e*state.DDe);
+    if(state.e != 0.0) {
+        system.add_K(dofs, f.stiffness(state.e)*state.De*state.De.transpose() + f.force(state.e)*state.e*state.DDe);
+    }
 }
 
 void ContactElement::add_tangent_damping() const
@@ -89,7 +93,9 @@ void ContactElement::add_tangent_damping() const
 double ContactElement::get_potential_energy() const
 {
     State state = get_state();
-    return f.energy(state.e);
+    if(state.e != 0.0) {
+        return f.energy(state.e);
+    }
 }
 
 double ContactElement::get_kinetic_energy() const
@@ -102,12 +108,23 @@ ContactElement::State ContactElement::get_state() const
     Vector<2> P0{system.get_u(dofs[0]), system.get_u(dofs[1])};
     Vector<2> P1{system.get_u(dofs[3]), system.get_u(dofs[4])};
     Vector<2> P2{system.get_u(dofs[6]), system.get_u(dofs[7])};
+
+    // Bounding box check, x-direction
+    if(P2(0) < std::min(P0(0) - h0, P1(0) - h1) || P2(0) > std::max(P0(0) + h0, P1(0) + h1)) {
+        return {0.0, Vector<8>::Zero(), Matrix<8, 8>::Zero()};
+    }
+
+    // Bounding box check, y-direction
+    if(P2(1) < std::min(P0(1) - h0, P1(1) - h1) || P2(1) > std::max(P0(1) + h0, P1(1) + h1)) {
+        return {0.0, Vector<8>::Zero(), Matrix<8, 8>::Zero()};
+    }
+
+    // Exact contact check
     Vector<2> Q0{system.get_u(dofs[0]) + h0*sin(system.get_u(dofs[2])),
                  system.get_u(dofs[1]) - h0*cos(system.get_u(dofs[2]))};
     Vector<2> Q1{system.get_u(dofs[3]) + h1*sin(system.get_u(dofs[5])),
                  system.get_u(dofs[4]) - h1*cos(system.get_u(dofs[5]))};
 
-    // If no contact, set kinematic expressions to zero and return
     if(get_orientation(P2, P0, Q0) == Orientation::LeftHanded ||
        get_orientation(P2, P1, P0) == Orientation::LeftHanded ||
        get_orientation(P2, Q0, Q1) == Orientation::LeftHanded ||

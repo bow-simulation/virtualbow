@@ -165,8 +165,6 @@ void BowModel::init_limb(const Callback& callback, SetupData& output)
     );
 }
 
-#include <iostream>
-
 void BowModel::init_string(const Callback& callback, SetupData& output)
 {
     LimbProperties& limb_properties = output.limb_properties;
@@ -209,8 +207,9 @@ void BowModel::init_string(const Callback& callback, SetupData& output)
     // Constraint element
     system.mut_elements().add(ConstraintElement(system, nodes_limb.back(), nodes_string.back(), k), "constraint");
 
-    double p = 0.5;
-    double c = 0.3;
+    // Contact elements
+    double p = 0.4;
+    double c = 0.25;
     double l = (points[1] - points[0]).norm();  // Initial length of the string elements before bracing
 
     for(size_t i = 0; i < nodes_string.size() - 1; ++i)    // Don't include the last string node (tip)
@@ -242,22 +241,7 @@ void BowModel::init_string(const Callback& callback, SetupData& output)
                 }
             }
         }
-
-        //std::cout << "String: " << s_string << ", min: " << s_min << ", max: " << s_max << std::endl;
-
     }
-
-    // Create string to limb contact surface and limb tip constraint
-    /*
-    ContactHandler contact(system, ContactForce(k, epsilon));
-    for(size_t i = 1; i < nodes_limb.size(); ++i)
-        contact.add_segment(nodes_limb[i-1], nodes_limb[i], 0.5*limb_properties.height[i-1], 0.5*limb_properties.height[i]);
-
-    for(size_t i = 0; i < nodes_string.size()-1; ++i)    // Don't include the last string node (tip)
-        contact.add_point(nodes_string[i]);
-
-    system.mut_elements().add(contact, "contact");
-    */
 
     // Takes a string element length, iterates to equilibrium with the constraint of the brace height
     // and returns the angle of the string center
