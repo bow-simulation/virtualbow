@@ -1,10 +1,11 @@
 {
+    "comment": "Glass data from Bearpaw:\nhttps://shop.bearpaw-products.com/WebshopB2C/Roll_Powerglass_Crystal_Clear/P-4349",
     "damping": {
         "damping_ratio_limbs": 0.0,
         "damping_ratio_string": 0.0
     },
     "dimensions": {
-        "brace_height": 0.25,
+        "brace_height": 0.2,
         "draw_length": 0.7,
         "handle_angle": 0.0,
         "handle_length": 0.0,
@@ -79,10 +80,6 @@
         "string_center": 0.0,
         "string_tip": 0.0
     },
-    "meta": {
-        "comments": "Glass data from Bearpaw:\nhttps://shop.bearpaw-products.com/WebshopB2C/Roll_Powerglass_Crystal_Clear/P-4349",
-        "version": "0.7"
-    },
     "profile": [
         [
             0.0,
@@ -134,6 +131,7 @@
         "strand_density": 0.0005,
         "strand_stiffness": 3500.0
     },
+    "version": "0.7",
     "width": [
         [
             0.0,

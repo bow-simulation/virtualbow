@@ -101,7 +101,6 @@ public:
             if(g0*g1 < 0.0)
             {
                 double s = RootFinding::regula_falsi(g, 0.0, 1.0, g0, g1, 1e-10, 1e-3, 150);
-                std::cout << "s = " << s << "\n";
             }
 
             //std::cout << "g(0) = " << g(0.0) << "\n";

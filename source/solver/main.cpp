@@ -4,6 +4,8 @@
 #include <utility>
 #include <iostream>
 
+#include <chrono>
+
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
@@ -73,6 +75,8 @@ int main(int argc, char* argv[])
 
         InputData input(input_path.toStdString());
 
+        auto t1 = std::chrono::high_resolution_clock::now();
+
         std::pair<int, int> previous = {-1, -1};
         OutputData output = BowModel::simulate(input, mode, [&](int p1, int p2) {
             if(p1 != previous.first || p2 != previous.second)
@@ -84,6 +88,11 @@ int main(int argc, char* argv[])
                 }
             }
         });
+
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
+        std::cout << "Simulation time: " << duration << " ms\n";
+
 
         output.save(output_path.toStdString());
         return 0;

@@ -185,7 +185,6 @@ add_executable(
     source/solver/fem/elements/BeamElement.cpp
     source/solver/fem/elements/MassElement.cpp
     source/solver/fem/elements/ContactElement.cpp
-    source/solver/fem/elements/ContactHandler.cpp
     source/solver/fem/elements/ConstraintElement.cpp
     source/solver/fem/Node.cpp
     source/solver/fem/Element.cpp
@@ -228,7 +227,6 @@ add_executable(
     source/solver/fem/elements/BeamElement.cpp
     source/solver/fem/elements/MassElement.cpp
     source/solver/fem/elements/ContactElement.cpp
-    source/solver/fem/elements/ContactHandler.cpp
     source/solver/fem/elements/ConstraintElement.cpp
     source/solver/fem/Node.cpp
     source/solver/fem/Element.cpp

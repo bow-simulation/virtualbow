@@ -7,7 +7,7 @@
 #include "solver/fem/elements/BarElement.hpp"
 #include "solver/fem/elements/MassElement.hpp"
 #include "solver/fem/elements/ConstraintElement.hpp"
-#include "solver/fem/elements/ContactHandler.hpp"
+#include "solver/fem/elements/ContactElement.hpp"
 #include "solver/numerics/RootFinding.hpp"
 #include "solver/numerics/Geometry.hpp"
 #include <limits>
@@ -165,6 +165,8 @@ void BowModel::init_limb(const Callback& callback, SetupData& output)
     );
 }
 
+#include <iostream>
+
 void BowModel::init_string(const Callback& callback, SetupData& output)
 {
     LimbProperties& limb_properties = output.limb_properties;
@@ -204,8 +206,49 @@ void BowModel::init_string(const Callback& callback, SetupData& output)
         system.mut_elements().add(element, "string");
     }
 
-    // Create string to limb contact surface and limb tip constraint
+    // Constraint element
+    system.mut_elements().add(ConstraintElement(system, nodes_limb.back(), nodes_string.back(), k), "constraint");
 
+    double p = 0.5;
+    double c = 0.3;
+    double l = (points[1] - points[0]).norm();  // Initial length of the string elements before bracing
+
+    for(size_t i = 0; i < nodes_string.size() - 1; ++i)    // Don't include the last string node (tip)
+    {
+        double s_string = (nodes_string.size() - 1)*l - i*l;    // Arc length from current string node to limb tip
+        double s_min = s_string*(1 - c);
+        double s_max = s_string*(1 + c);
+
+        if(s_max < p*limb_properties.length.maxCoeff())
+        {
+            for(size_t j = 0; j < nodes_limb.size() - 1; ++j)    // -1 because of iteration in subsequent pairs
+            {
+                double s_segment_min = limb_properties.length.maxCoeff() - limb_properties.length(j + 1);
+                double s_segment_max = limb_properties.length.maxCoeff() - limb_properties.length(j);
+
+                if((s_segment_min > s_min && s_segment_min < s_max) || (s_segment_max > s_min && s_segment_max < s_max))
+                {
+                    ContactElement element(
+                                system,
+                                nodes_limb[j],
+                                nodes_limb[j+1],
+                                nodes_string[i],
+                                0.5*limb_properties.height[j],
+                                0.5*limb_properties.height[j+1],
+                                ContactForce(k, epsilon)
+                    );
+
+                    system.mut_elements().add(element, "contact");
+                }
+            }
+        }
+
+        //std::cout << "String: " << s_string << ", min: " << s_min << ", max: " << s_max << std::endl;
+
+    }
+
+    // Create string to limb contact surface and limb tip constraint
+    /*
     ContactHandler contact(system, ContactForce(k, epsilon));
     for(size_t i = 1; i < nodes_limb.size(); ++i)
         contact.add_segment(nodes_limb[i-1], nodes_limb[i], 0.5*limb_properties.height[i-1], 0.5*limb_properties.height[i]);
@@ -214,7 +257,7 @@ void BowModel::init_string(const Callback& callback, SetupData& output)
         contact.add_point(nodes_string[i]);
 
     system.mut_elements().add(contact, "contact");
-    system.mut_elements().add(ConstraintElement(system, nodes_limb.back(), nodes_string.back(), k), "constraint");
+    */
 
     // Takes a string element length, iterates to equilibrium with the constraint of the brace height
     // and returns the angle of the string center
@@ -232,7 +275,6 @@ void BowModel::init_string(const Callback& callback, SetupData& output)
 
     // Find a element length at which the brace height difference is zero
     // Todo: Perhaps limit the step size of the root finding algorithm to increase robustness.
-    double l = (points[1] - points[0]).norm();
     if(try_element_length(l) <= 0.0)
         throw std::runtime_error("Invalid input: Brace height is too low");
 
