@@ -82,6 +82,8 @@ In the paper \textit{On the Mechanics of the Arrow: Archer's Paradox}~\cite{bib:
 
 \section{Model Definition}
 
+\subsection{Finite Element Approach}
+
 We have now learned enough in order to define our own bow model. First of all a few words on the general modeling approach. As we saw in the previous section, any decently complex bow model cannot be solved analytically but has to be combined with some sort of numerical method for calculating an approximate solution. Models based on continuum mechanics (e.g. Euler-Bernoulli beam theory) always have an infinite number of degrees of freedom and will eventually have to be approximated by a discrete system with finitely many degrees of freedom in order to be solvable by a computer program. This step is called discretization. Kooi for example, like a true mathematician, formulates the complete equations of motion for his continuous bow model and only then starts to employ a discretization technique (in this case a finite difference method) to solve those equations. This results in a clear separation between the mathematical model and the numerical solution methods.
 
 We're going to use more of an engineering approach here instead and start with a discrete system in the first place. We do this by constructing the continuous parts of the bow from a large number of so-called finite elements. A finite element is an approximation of a little part of a continuous structure, e.g. a beam or a bar, but with only finitely many degrees of freedom, namely the displacements of the nodes at which the elements are connected to each other. The more elements are used, the better the approximation gets and the closer the results will be to the exact solution.
@@ -115,3 +117,49 @@ All in all, there are four different types of elements needed:
 All of them have to account for arbitrarily large displacements and are therefore geometrically nonlinear (even though all the materials are linear-elastic).
 
 In the next chapters we will first show how the equations of motion for a finite element system can be assembled from the equations of motion for the single elements. We will then derive the equations of motion for the element types listed above. Finally we're going to discuss the numerical solution of those equations for the static and dynamic case and how this is implemented in VirtualBow.
+
+\subsection{Geometric Description of the Limbs}
+
+\textcolor{red}{Todo: Layers, Width, Profile. Euler spirals, monotonic cubic splines. Stress calculation per layer.}
+
+\newpage
+\subsection{Contact Handling}
+
+The contact elements calculate contact forces between string nodes and the beam segments in order to prevent the string from just "slipping through" the limb on a recurve bow.
+However, testing each possible combination of string node and limb segment for contact would be too wasteful.
+In general, contact handling is therefore usually done in two phases: A broad phase and a narrow phase.
+The broad phase algorithm's job is to filter out as many non-contacting pairs of objects as possible without doing an exact contact check.
+It does this by using crude methods that are fast but not exact.
+Checking these remainig pairs in an exact (but also more costly) way is then the job of the following narrow phase.
+
+Up until version 0.7, VirtualBow used a multi-axis implementation of the sweep and prune broad phase algorithm.
+This algorithm keeps sorted lists with the lower and upper bounds of all the objects along the coordinate axes.
+It then creates and removes contact elements as overlaps between the coordinates occur or disappear during sorting.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.4\textwidth]{figures/model/contact-handling}
+\caption{Mapping of string nodes to limb elements for contact handling}
+\label{fig:model:contact-handling}
+\end{figure}
+
+Newer versions of VirtualBow use a much more simple method that creates a fixed number of contact elements before the simulation, which was chosen because it greatly reduced the complexity of the whole finite element code and has shown to be only slightly worse than the old sweep and prune implementation in terms of performance.
+
+As shown in figure \ref{fig:model:contact-handling}, each string node has a distance $s$ from the limb tip, measured as arc length.
+This length along the string is mapped to an arc length range
+%
+\begin{align}
+s_\mathrm{min} = (1-c)\,s \\
+s_\mathrm{max} = (1+c)\,s
+\end{align}
+
+along the limb, in which the string node can be expected to contact the limb during the simulation.
+A contact element is created for the respective string node and every limb segment that intersects this associated range.
+The parameter $c < 1$ is an upper bound of how far the string nodes are expected to move up and down the limb.
+
+As an additional condition, the contact element is only created if $s_\mathrm{min} < p\cdot l$, where $l$ is the total length of the limb and $p < 1$ is the fraction of the limb that is expected to contact the string.
+This further limits the number of created contact elements, as most bows contact the string only at their outer  $\sim$ 30\% at most.
+
+The parameters $p$ and $c$ can be adjusted by the user.
+For both of them, larger values are more conservative and reliable, but also slow down the simulation as they produce more (potentially unnecessary) contact elements.
+Setting $p = 0$ allows to completely disable contact handling to get maximum performance on bow models that don't need it.

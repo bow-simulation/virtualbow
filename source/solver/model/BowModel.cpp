@@ -218,7 +218,7 @@ void BowModel::init_string(const Callback& callback, SetupData& output)
         double s_min = s_string*(1 - c);
         double s_max = s_string*(1 + c);
 
-        if(s_max < p*limb_properties.length.maxCoeff())
+        if(s_min < p*limb_properties.length.maxCoeff())
         {
             for(size_t j = 0; j < nodes_limb.size() - 1; ++j)    // -1 because of iteration in subsequent pairs
             {
