@@ -73,7 +73,7 @@ void ContactElement::add_internal_forces() const
 {
     State state = get_state();
     if(state.e != 0.0) {
-        system.add_q(dofs, f.force(state.e)*state.De);
+        system->add_q(dofs, f.force(state.e)*state.De);
     }
 }
 
@@ -81,7 +81,7 @@ void ContactElement::add_tangent_stiffness() const
 {
     State state = get_state();
     if(state.e != 0.0) {
-        system.add_K(dofs, f.stiffness(state.e)*state.De*state.De.transpose() + f.force(state.e)*state.e*state.DDe);
+        system->add_K(dofs, f.stiffness(state.e)*state.De*state.De.transpose() + f.force(state.e)*state.e*state.DDe);
     }
 }
 
@@ -105,9 +105,9 @@ double ContactElement::get_kinetic_energy() const
 
 ContactElement::State ContactElement::get_state() const
 {
-    Vector<2> P0{system.get_u(dofs[0]), system.get_u(dofs[1])};
-    Vector<2> P1{system.get_u(dofs[3]), system.get_u(dofs[4])};
-    Vector<2> P2{system.get_u(dofs[6]), system.get_u(dofs[7])};
+    Vector<2> P0{system->get_u(dofs[0]), system->get_u(dofs[1])};
+    Vector<2> P1{system->get_u(dofs[3]), system->get_u(dofs[4])};
+    Vector<2> P2{system->get_u(dofs[6]), system->get_u(dofs[7])};
 
     // Bounding box check, x-direction
     if(P2(0) < std::min(P0(0) - h0, P1(0) - h1) || P2(0) > std::max(P0(0) + h0, P1(0) + h1)) {
@@ -120,10 +120,10 @@ ContactElement::State ContactElement::get_state() const
     }
 
     // Exact contact check
-    Vector<2> Q0{system.get_u(dofs[0]) + h0*sin(system.get_u(dofs[2])),
-                 system.get_u(dofs[1]) - h0*cos(system.get_u(dofs[2]))};
-    Vector<2> Q1{system.get_u(dofs[3]) + h1*sin(system.get_u(dofs[5])),
-                 system.get_u(dofs[4]) - h1*cos(system.get_u(dofs[5]))};
+    Vector<2> Q0{system->get_u(dofs[0]) + h0*sin(system->get_u(dofs[2])),
+                 system->get_u(dofs[1]) - h0*cos(system->get_u(dofs[2]))};
+    Vector<2> Q1{system->get_u(dofs[3]) + h1*sin(system->get_u(dofs[5])),
+                 system->get_u(dofs[4]) - h1*cos(system->get_u(dofs[5]))};
 
     if(get_orientation(P2, P0, Q0) == Orientation::LeftHanded ||
        get_orientation(P2, P1, P0) == Orientation::LeftHanded ||
@@ -137,20 +137,20 @@ ContactElement::State ContactElement::get_state() const
 
     // 1. Penetration e
 
-    double a1 = system.get_u(dofs[3]) - system.get_u(dofs[0]) - h0*sin(system.get_u(dofs[2])) + h1*sin(system.get_u(dofs[5]));
-    double a2 = system.get_u(dofs[4]) - system.get_u(dofs[1]) + h0*cos(system.get_u(dofs[2])) - h1*cos(system.get_u(dofs[5]));
-    double a3 = system.get_u(dofs[6]) - system.get_u(dofs[0]) - h0*sin(system.get_u(dofs[2]));
-    double a4 = system.get_u(dofs[7]) - system.get_u(dofs[1]) + h0*cos(system.get_u(dofs[2]));
+    double a1 = system->get_u(dofs[3]) - system->get_u(dofs[0]) - h0*sin(system->get_u(dofs[2])) + h1*sin(system->get_u(dofs[5]));
+    double a2 = system->get_u(dofs[4]) - system->get_u(dofs[1]) + h0*cos(system->get_u(dofs[2])) - h1*cos(system->get_u(dofs[5]));
+    double a3 = system->get_u(dofs[6]) - system->get_u(dofs[0]) - h0*sin(system->get_u(dofs[2]));
+    double a4 = system->get_u(dofs[7]) - system->get_u(dofs[1]) + h0*cos(system->get_u(dofs[2]));
 
     double e = (a1*a4 - a2*a3)/hypot(a1, a2);
 
     // 2. First derivative of e
 
     Vector<8> Da1, Da2, Da3, Da4;
-    Da1 << -1.0, 0.0, -h0*cos(system.get_u(dofs[2])), 1.0, 0.0, h1*cos(system.get_u(dofs[5])), 0.0, 0.0;
-    Da2 << 0.0, -1.0, -h0*sin(system.get_u(dofs[2])), 0.0, 1.0, h1*sin(system.get_u(dofs[5])), 0.0, 0.0;
-    Da3 << -1.0, 0.0, -h0*cos(system.get_u(dofs[2])), 0.0, 0.0, 0.0, 1.0, 0.0;
-    Da4 << 0.0, -1.0, -h0*sin(system.get_u(dofs[2])), 0.0, 0.0, 0.0, 0.0, 1.0;
+    Da1 << -1.0, 0.0, -h0*cos(system->get_u(dofs[2])), 1.0, 0.0, h1*cos(system->get_u(dofs[5])), 0.0, 0.0;
+    Da2 << 0.0, -1.0, -h0*sin(system->get_u(dofs[2])), 0.0, 1.0, h1*sin(system->get_u(dofs[5])), 0.0, 0.0;
+    Da3 << -1.0, 0.0, -h0*cos(system->get_u(dofs[2])), 0.0, 0.0, 0.0, 1.0, 0.0;
+    Da4 << 0.0, -1.0, -h0*sin(system->get_u(dofs[2])), 0.0, 0.0, 0.0, 0.0, 1.0;
 
     double b1 = 1.0/hypot(a1, a2);
     double b2 = (a2*a3 - a1*a4)/pow(a1*a1 + a2*a2, 1.5);
@@ -164,18 +164,18 @@ ContactElement::State ContactElement::get_state() const
     // Todo: Don't actually create sparse matrices DDa1 ... DDa4
 
     Matrix<8, 8> DDa1 = Matrix<8, 8>::Zero();
-    DDa1(2, 2) = h0*sin(system.get_u(dofs[2]));
-    DDa1(5, 5) = -h1*sin(system.get_u(dofs[5]));
+    DDa1(2, 2) = h0*sin(system->get_u(dofs[2]));
+    DDa1(5, 5) = -h1*sin(system->get_u(dofs[5]));
 
     Matrix<8, 8> DDa2 = Matrix<8, 8>::Zero();
-    DDa2(2, 2) = -h0*cos(system.get_u(dofs[2]));
-    DDa2(5, 5) = h1*cos(system.get_u(dofs[5]));
+    DDa2(2, 2) = -h0*cos(system->get_u(dofs[2]));
+    DDa2(5, 5) = h1*cos(system->get_u(dofs[5]));
 
     Matrix<8, 8> DDa3 = Matrix<8, 8>::Zero();
-    DDa3(2, 2) = h0*sin(system.get_u(dofs[2]));
+    DDa3(2, 2) = h0*sin(system->get_u(dofs[2]));
 
     Matrix<8, 8> DDa4 = Matrix<8, 8>::Zero();
-    DDa4(2, 2) = -h0*cos(system.get_u(dofs[2]));
+    DDa4(2, 2) = -h0*cos(system->get_u(dofs[2]));
 
     auto Db1 = -(a1*Da1 + a2*Da2)/pow(a1*a1 + a2*a2, 1.5);
 

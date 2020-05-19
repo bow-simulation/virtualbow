@@ -21,38 +21,38 @@ void ConstraintElement::add_masses() const
 
 void ConstraintElement::add_internal_forces() const
 {
-    double c1 = dx_rel*cos(system.get_u(dofs[2])) - dy_rel*sin(system.get_u(dofs[2]))
-              + system.get_u(dofs[0]) - system.get_u(dofs[3]);
-    double c2 = dx_rel*sin(system.get_u(dofs[2])) + dy_rel*cos(system.get_u(dofs[2]))
-              + system.get_u(dofs[1]) - system.get_u(dofs[4]);
+    double c1 = dx_rel*cos(system->get_u(dofs[2])) - dy_rel*sin(system->get_u(dofs[2]))
+              + system->get_u(dofs[0]) - system->get_u(dofs[3]);
+    double c2 = dx_rel*sin(system->get_u(dofs[2])) + dy_rel*cos(system->get_u(dofs[2]))
+              + system->get_u(dofs[1]) - system->get_u(dofs[4]);
 
     Vector<5> Dc1, Dc2;
-    Dc1 << 1.0, 0.0, -dx_rel*sin(system.get_u(dofs[2])) - dy_rel*cos(system.get_u(dofs[2])), -1.0,  0.0;
-    Dc2 << 0.0, 1.0,  dx_rel*cos(system.get_u(dofs[2])) - dy_rel*sin(system.get_u(dofs[2])),  0.0, -1.0;
+    Dc1 << 1.0, 0.0, -dx_rel*sin(system->get_u(dofs[2])) - dy_rel*cos(system->get_u(dofs[2])), -1.0,  0.0;
+    Dc2 << 0.0, 1.0,  dx_rel*cos(system->get_u(dofs[2])) - dy_rel*sin(system->get_u(dofs[2])),  0.0, -1.0;
 
-    system.add_q(dofs, k*(c1*Dc1 + c2*Dc2));
+    system->add_q(dofs, k*(c1*Dc1 + c2*Dc2));
 }
 
 void ConstraintElement::add_tangent_stiffness() const
 {
-    double c1 = dx_rel*cos(system.get_u(dofs[2])) - dy_rel*sin(system.get_u(dofs[2]))
-              + system.get_u(dofs[0]) - system.get_u(dofs[3]);
-    double c2 = dx_rel*sin(system.get_u(dofs[2])) + dy_rel*cos(system.get_u(dofs[2]))
-              + system.get_u(dofs[1]) - system.get_u(dofs[4]);
+    double c1 = dx_rel*cos(system->get_u(dofs[2])) - dy_rel*sin(system->get_u(dofs[2]))
+              + system->get_u(dofs[0]) - system->get_u(dofs[3]);
+    double c2 = dx_rel*sin(system->get_u(dofs[2])) + dy_rel*cos(system->get_u(dofs[2]))
+              + system->get_u(dofs[1]) - system->get_u(dofs[4]);
 
     // Todo: Code duplication
     Vector<5> Dc1, Dc2;
-    Dc1 << 1.0, 0.0, -dx_rel*sin(system.get_u(dofs[2])) - dy_rel*cos(system.get_u(dofs[2])), -1.0,  0.0;
-    Dc2 << 0.0, 1.0,  dx_rel*cos(system.get_u(dofs[2])) - dy_rel*sin(system.get_u(dofs[2])),  0.0, -1.0;
+    Dc1 << 1.0, 0.0, -dx_rel*sin(system->get_u(dofs[2])) - dy_rel*cos(system->get_u(dofs[2])), -1.0,  0.0;
+    Dc2 << 0.0, 1.0,  dx_rel*cos(system->get_u(dofs[2])) - dy_rel*sin(system->get_u(dofs[2])),  0.0, -1.0;
 
     // Todo: Don't actually create sparse matrices DDc1, DDc2
     Matrix<5, 5> DDc1 = Matrix<5, 5>::Zero();
-    DDc1(2, 2) = dy_rel*sin(system.get_u(dofs[2])) - dx_rel*cos(system.get_u(dofs[2]));
+    DDc1(2, 2) = dy_rel*sin(system->get_u(dofs[2])) - dx_rel*cos(system->get_u(dofs[2]));
 
     Matrix<5, 5> DDc2 = Matrix<5, 5>::Zero();
-    DDc2(2, 2) = -dy_rel*cos(system.get_u(dofs[2])) - dx_rel*sin(system.get_u(dofs[2]));
+    DDc2(2, 2) = -dy_rel*cos(system->get_u(dofs[2])) - dx_rel*sin(system->get_u(dofs[2]));
 
-    system.add_K(dofs, k*(Dc1*Dc1.transpose() + Dc2*Dc2.transpose() + c1*DDc1 + c2*DDc2));
+    system->add_K(dofs, k*(Dc1*Dc1.transpose() + Dc2*Dc2.transpose() + c1*DDc1 + c2*DDc2));
 }
 
 void ConstraintElement::add_tangent_damping() const
@@ -62,10 +62,10 @@ void ConstraintElement::add_tangent_damping() const
 
 double ConstraintElement::get_potential_energy() const
 {
-    double c1 = dx_rel*cos(system.get_u(dofs[2])) - dy_rel*sin(system.get_u(dofs[2]))
-              + system.get_u(dofs[0]) - system.get_u(dofs[3]);
-    double c2 = dx_rel*sin(system.get_u(dofs[2])) + dy_rel*cos(system.get_u(dofs[2]))
-              + system.get_u(dofs[1]) - system.get_u(dofs[4]);
+    double c1 = dx_rel*cos(system->get_u(dofs[2])) - dy_rel*sin(system->get_u(dofs[2]))
+              + system->get_u(dofs[0]) - system->get_u(dofs[3]);
+    double c2 = dx_rel*sin(system->get_u(dofs[2])) + dy_rel*cos(system->get_u(dofs[2]))
+              + system->get_u(dofs[1]) - system->get_u(dofs[4]);
 
     return 0.5*k*(c1*c1 + c2*c2);
 }

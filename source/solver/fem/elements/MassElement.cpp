@@ -1,48 +1,45 @@
 #include "MassElement.hpp"
 #include "solver/fem/System.hpp"
 
-MassElement::MassElement(System& system, Node node, double m, double I)
-    : Element(system),
-      dofs{node.x, node.y, node.phi},
-      m(m),
-      I(I)
+MassElement::MassElement(System& system, Node node, double m)
+    : ElementBase(system, {node.x, node.y}),
+      m(m)
 {
     assert(m >= 0.0);
     assert(I >= 0.0);
 }
 
-void MassElement::set_node(Node node)
+double MassElement::get_mass() const
 {
-    dofs = {node.x, node.y, node.phi};
+    return m;
 }
 
-void MassElement::add_masses() const
+void MassElement::set_mass(double m)
 {
-    system.add_M(dofs, Vector<3>{m, m, I});
+    this->m = m;
 }
 
-void MassElement::add_internal_forces() const
+Vector<2> MassElement::get_mass_matrix() const
 {
-
+    return {m, m};
 }
 
-void MassElement::add_tangent_stiffness() const
+Matrix<2, 2> MassElement::get_tangent_stiffness_matrix(const Vector<2>& u) const
 {
-
+    return Matrix<2, 2>::Zero();
 }
 
-void MassElement::add_tangent_damping() const
+Matrix<2, 2> MassElement::get_tangent_damping_matrix(const Vector<2>& u) const
 {
-
+    return Matrix<2, 2>::Zero();
 }
 
-double MassElement::get_potential_energy() const
+Vector<2> MassElement::get_internal_forces(const Vector<2>& u, const Vector<2>& v) const
+{
+    return Vector<2>::Zero();
+}
+
+double MassElement::get_potential_energy(const Vector<2>& u) const
 {
     return 0.0;
-}
-
-double MassElement::get_kinetic_energy() const
-{
-    return 0.5*m*(pow(system.get_v(dofs[0]), 2) + pow(system.get_v(dofs[1]), 2))
-         + 0.5*I*pow(system.get_v(dofs[2]), 2);
 }

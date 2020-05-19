@@ -17,5 +17,5 @@ public:
     virtual double get_kinetic_energy() const = 0;
 
 protected:
-    System& system;
+    System* system;
 };

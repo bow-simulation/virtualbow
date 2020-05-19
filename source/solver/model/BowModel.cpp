@@ -384,10 +384,10 @@ BowStates BowModel::simulate_dynamics(const Callback& callback)
     run_solver(solver1);
 
     // Change model by giving the arrow an independent node with the initial position and velocity of the string center
-    // Todo: Would more elegant to remove the mass element from the system and create a new one with a new node.
-    // Or initially add arrow mass to string center, then subtract that and give arrow its own node and element.
     node_arrow = system.create_node(nodes_string[0]);
-    system.mut_elements().front<MassElement>("arrow").set_node(node_arrow);
+    MassElement old_arrow_element = system.mut_elements().front<MassElement>("arrow");
+    MassElement new_arrow_element(system, node_arrow, old_arrow_element.get_mass());
+    system.mut_elements().front<MassElement>("arrow") = new_arrow_element;
 
     DynamicSolver solver2(system, dt, input.settings.sampling_rate, [&]{
         return system.get_t() >= alpha*T;

@@ -93,7 +93,6 @@ int main(int argc, char* argv[])
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
         std::cout << "Simulation time: " << duration << " ms\n";
 
-
         output.save(output_path.toStdString());
         return 0;
     }

@@ -37,16 +37,16 @@ void BeamElement::set_damping(double beta)
 
 void BeamElement::add_masses() const
 {
-    system.add_M(dofs, M);
+    system->add_M(dofs, M);
 }
 
 void BeamElement::add_internal_forces() const
 {
     Matrix<3, 6> J = get_J();
     Vector<3> e = get_e();
-    Vector<6> v = system.get_v(dofs);
+    Vector<6> v = system->get_v(dofs);
 
-    system.add_q(dofs, J.transpose()*Ke*e + D*v);
+    system->add_q(dofs, J.transpose()*Ke*e + D*v);
 }
 
 void BeamElement::add_tangent_stiffness() const
@@ -54,8 +54,8 @@ void BeamElement::add_tangent_stiffness() const
     Vector<3> e = get_e();
     Matrix<3, 6> J = get_J();
 
-    double dx = system.get_u(dofs[3]) - system.get_u(dofs[0]);
-    double dy = system.get_u(dofs[4]) - system.get_u(dofs[1]);
+    double dx = system->get_u(dofs[3]) - system->get_u(dofs[0]);
+    double dy = system->get_u(dofs[4]) - system->get_u(dofs[1]);
 
     double a0 = pow(dx*dx + dy*dy, -0.5);
     double a1 = pow(dx*dx + dy*dy, -1.0);
@@ -85,12 +85,12 @@ void BeamElement::add_tangent_stiffness() const
     Kn.col(3) = -dJ0.transpose()*Ke*e;
     Kn.col(4) = -dJ1.transpose()*Ke*e;
 
-    system.add_K(dofs, Kn + J.transpose()*Ke*J);
+    system->add_K(dofs, Kn + J.transpose()*Ke*J);
 }
 
 void BeamElement::add_tangent_damping() const
 {
-    system.add_D(dofs, D);
+    system->add_D(dofs, D);
 }
 
 double BeamElement::get_potential_energy() const
@@ -101,21 +101,21 @@ double BeamElement::get_potential_energy() const
 
 double BeamElement::get_kinetic_energy() const
 {
-    Vector<6> v = system.get_v(dofs);
+    Vector<6> v = system->get_v(dofs);
     return 0.5*v.transpose()*M.asDiagonal()*v;
 }
 
 Vector<3> BeamElement::get_e() const
 {
-    double dx = system.get_u(dofs[3]) - system.get_u(dofs[0]);
-    double dy = system.get_u(dofs[4]) - system.get_u(dofs[1]);
+    double dx = system->get_u(dofs[3]) - system->get_u(dofs[0]);
+    double dy = system->get_u(dofs[4]) - system->get_u(dofs[1]);
     double phi = std::atan2(dy, dx);
 
     // Elastic coordinates
-    double sin_e1 = std::sin(system.get_u(dofs[2]) - e_ref[1] - phi);
-    double cos_e1 = std::cos(system.get_u(dofs[2]) - e_ref[1] - phi);
-    double sin_e2 = std::sin(system.get_u(dofs[5]) - e_ref[2] - phi);
-    double cos_e2 = std::cos(system.get_u(dofs[5]) - e_ref[2] - phi);
+    double sin_e1 = std::sin(system->get_u(dofs[2]) - e_ref[1] - phi);
+    double cos_e1 = std::cos(system->get_u(dofs[2]) - e_ref[1] - phi);
+    double sin_e2 = std::sin(system->get_u(dofs[5]) - e_ref[2] - phi);
+    double cos_e2 = std::cos(system->get_u(dofs[5]) - e_ref[2] - phi);
 
     // Todo: Replace atan(sin(x)/cos(x)) with a cheaper function
     return { std::hypot(dx, dy) - e_ref[0],
@@ -125,8 +125,8 @@ Vector<3> BeamElement::get_e() const
 
 Matrix<3, 6> BeamElement::get_J() const
 {
-    double dx = system.get_u(dofs[3]) - system.get_u(dofs[0]);
-    double dy = system.get_u(dofs[4]) - system.get_u(dofs[1]);
+    double dx = system->get_u(dofs[3]) - system->get_u(dofs[0]);
+    double dy = system->get_u(dofs[4]) - system->get_u(dofs[1]);
 
     double a0 = pow(dx*dx + dy*dy, -0.5);
     double a1 = pow(dx*dx + dy*dy, -1.0);
