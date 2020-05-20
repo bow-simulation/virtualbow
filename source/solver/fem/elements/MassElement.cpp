@@ -19,27 +19,33 @@ void MassElement::set_mass(double m)
     this->m = m;
 }
 
+MassElementState MassElement::compute_state(const Vector<2>& u, const Vector<2>& v) const
+{
+    return MassElementState();
+}
+
+
 Vector<2> MassElement::get_mass_matrix() const
 {
     return {m, m};
 }
 
-Matrix<2, 2> MassElement::get_tangent_stiffness_matrix(const Vector<2>& u) const
+Matrix<2> MassElement::get_tangent_stiffness_matrix() const
 {
-    return Matrix<2, 2>::Zero();
+    return Matrix<2>::Zero();
 }
 
-Matrix<2, 2> MassElement::get_tangent_damping_matrix(const Vector<2>& u) const
+Matrix<2> MassElement::get_tangent_damping_matrix() const
 {
-    return Matrix<2, 2>::Zero();
+    return Matrix<2>::Zero();
 }
 
-Vector<2> MassElement::get_internal_forces(const Vector<2>& u, const Vector<2>& v) const
+Vector<2> MassElement::get_internal_forces() const
 {
     return Vector<2>::Zero();
 }
 
-double MassElement::get_potential_energy(const Vector<2>& u) const
+double MassElement::get_potential_energy() const
 {
     return 0.0;
 }

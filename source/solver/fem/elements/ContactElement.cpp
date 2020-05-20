@@ -57,125 +57,112 @@ double ContactForce::energy(double e) const
 }
 
 ContactElement::ContactElement(System& system, Node node0, Node node1, Node node2, double h0, double h1, ContactForce f)
-    : Element(system),
-      dofs{node0.x, node0.y, node0.phi, node1.x, node1.y, node1.phi, node2.x, node2.y},
+    : ElementBase(system, {node0.x, node0.y, node0.phi, node1.x, node1.y, node1.phi, node2.x, node2.y}),
       h0(h0), h1(h1), f(f)
 {
 
 }
 
-void ContactElement::add_masses() const
+ContactElementState ContactElement::compute_state(const Vector<8>& u, const Vector<8>& v) const
 {
-
-}
-
-void ContactElement::add_internal_forces() const
-{
-    State state = get_state();
-    if(state.e != 0.0) {
-        system->add_q(dofs, f.force(state.e)*state.De);
-    }
-}
-
-void ContactElement::add_tangent_stiffness() const
-{
-    State state = get_state();
-    if(state.e != 0.0) {
-        system->add_K(dofs, f.stiffness(state.e)*state.De*state.De.transpose() + f.force(state.e)*state.e*state.DDe);
-    }
-}
-
-void ContactElement::add_tangent_damping() const
-{
-
-}
-
-double ContactElement::get_potential_energy() const
-{
-    State state = get_state();
-    if(state.e != 0.0) {
-        return f.energy(state.e);
-    }
-}
-
-double ContactElement::get_kinetic_energy() const
-{
-    return 0.0;
-}
-
-ContactElement::State ContactElement::get_state() const
-{
-    Vector<2> P0{system->get_u(dofs[0]), system->get_u(dofs[1])};
-    Vector<2> P1{system->get_u(dofs[3]), system->get_u(dofs[4])};
-    Vector<2> P2{system->get_u(dofs[6]), system->get_u(dofs[7])};
+    Vector<2> P0{u(0), u(1)};
+    Vector<2> P1{u(3), u(4)};
+    Vector<2> P2{u(6), u(7)};
 
     // Bounding box check, x-direction
     if(P2(0) < std::min(P0(0) - h0, P1(0) - h1) || P2(0) > std::max(P0(0) + h0, P1(0) + h1)) {
-        return {0.0, Vector<8>::Zero(), Matrix<8, 8>::Zero()};
+        return ContactElementState();
     }
 
     // Bounding box check, y-direction
     if(P2(1) < std::min(P0(1) - h0, P1(1) - h1) || P2(1) > std::max(P0(1) + h0, P1(1) + h1)) {
-        return {0.0, Vector<8>::Zero(), Matrix<8, 8>::Zero()};
+        return ContactElementState();
     }
 
     // Exact contact check
-    Vector<2> Q0{system->get_u(dofs[0]) + h0*sin(system->get_u(dofs[2])),
-                 system->get_u(dofs[1]) - h0*cos(system->get_u(dofs[2]))};
-    Vector<2> Q1{system->get_u(dofs[3]) + h1*sin(system->get_u(dofs[5])),
-                 system->get_u(dofs[4]) - h1*cos(system->get_u(dofs[5]))};
+    Vector<2> Q0{u(0) + h0*sin(u(2)), u(1) - h0*cos(u(2))};
+    Vector<2> Q1{u(3) + h1*sin(u(5)), u(4) - h1*cos(u(5))};
 
     if(get_orientation(P2, P0, Q0) == Orientation::LeftHanded ||
        get_orientation(P2, P1, P0) == Orientation::LeftHanded ||
        get_orientation(P2, Q0, Q1) == Orientation::LeftHanded ||
        get_orientation(P2, Q1, P1) == Orientation::LeftHanded)
     {
-        return {0.0, Vector<8>::Zero(), Matrix<8, 8>::Zero()};
+        return ContactElementState();
     }
 
     // Contact: Calculate kinematic expressions
 
-    // 1. Penetration e
+    // Penetration e
 
-    double a1 = system->get_u(dofs[3]) - system->get_u(dofs[0]) - h0*sin(system->get_u(dofs[2])) + h1*sin(system->get_u(dofs[5]));
-    double a2 = system->get_u(dofs[4]) - system->get_u(dofs[1]) + h0*cos(system->get_u(dofs[2])) - h1*cos(system->get_u(dofs[5]));
-    double a3 = system->get_u(dofs[6]) - system->get_u(dofs[0]) - h0*sin(system->get_u(dofs[2]));
-    double a4 = system->get_u(dofs[7]) - system->get_u(dofs[1]) + h0*cos(system->get_u(dofs[2]));
+    double a1 = u(3) - u(0) - h0*sin(u(2)) + h1*sin(u(5));
+    double a2 = u(4) - u(1) + h0*cos(u(2)) - h1*cos(u(5));
+    double a3 = u(6) - u(0) - h0*sin(u(2));
+    double a4 = u(7) - u(1) + h0*cos(u(2));
 
     double e = (a1*a4 - a2*a3)/hypot(a1, a2);
 
-    // 2. First derivative of e
+    // First derivative of e
 
     Vector<8> Da1, Da2, Da3, Da4;
-    Da1 << -1.0, 0.0, -h0*cos(system->get_u(dofs[2])), 1.0, 0.0, h1*cos(system->get_u(dofs[5])), 0.0, 0.0;
-    Da2 << 0.0, -1.0, -h0*sin(system->get_u(dofs[2])), 0.0, 1.0, h1*sin(system->get_u(dofs[5])), 0.0, 0.0;
-    Da3 << -1.0, 0.0, -h0*cos(system->get_u(dofs[2])), 0.0, 0.0, 0.0, 1.0, 0.0;
-    Da4 << 0.0, -1.0, -h0*sin(system->get_u(dofs[2])), 0.0, 0.0, 0.0, 0.0, 1.0;
+    Da1 << -1.0, 0.0, -h0*cos(u(2)), 1.0, 0.0, h1*cos(u(5)), 0.0, 0.0;
+    Da2 << 0.0, -1.0, -h0*sin(u(2)), 0.0, 1.0, h1*sin(u(5)), 0.0, 0.0;
+    Da3 << -1.0, 0.0, -h0*cos(u(2)), 0.0, 0.0,          0.0, 1.0, 0.0;
+    Da4 << 0.0, -1.0, -h0*sin(u(2)), 0.0, 0.0,          0.0, 0.0, 1.0;
 
     double b1 = 1.0/hypot(a1, a2);
     double b2 = (a2*a3 - a1*a4)/pow(a1*a1 + a2*a2, 1.5);
 
-    auto v1 = a4*Da1 - a3*Da2 - a2*Da3 + a1*Da4;
-    auto v2 = a1*Da1 + a2*Da2;
-
+    Vector<8> v1 = a4*Da1 - a3*Da2 - a2*Da3 + a1*Da4;
+    Vector<8> v2 = a1*Da1 + a2*Da2;
     Vector<8> De = b1*v1 + b2*v2;
 
-    // 3. Second derivative of e
+    return {u, e, a1, a2, a3, a4, b1, b2, v1, v2, Da1, Da2, Da3, Da4, De};
+}
+
+Vector<8> ContactElement::get_mass_matrix() const
+{
+    return Vector<8>::Zero();
+}
+
+Matrix<8> ContactElement::get_tangent_stiffness_matrix() const
+{
+    ContactElementState state = get_state();
+
+    Vector<8> u = state.u;
+
+    Vector<8> Da1 = state.Da1;
+    Vector<8> Da2 = state.Da2;
+    Vector<8> Da3 = state.Da3;
+    Vector<8> Da4 = state.Da4;
+
+    double a1 = state.a1;
+    double a2 = state.a2;
+    double a3 = state.a3;
+    double a4 = state.a4;
+
+    double b1 = state.b1;
+    double b2 = state.b2;
+
+    Vector<8> v1 = state.v1;
+    Vector<8> v2 = state.v2;
+
+    // Second derivative of e
     // Todo: Don't actually create sparse matrices DDa1 ... DDa4
 
     Matrix<8, 8> DDa1 = Matrix<8, 8>::Zero();
-    DDa1(2, 2) = h0*sin(system->get_u(dofs[2]));
-    DDa1(5, 5) = -h1*sin(system->get_u(dofs[5]));
+    DDa1(2, 2) = h0*sin(u(2));
+    DDa1(5, 5) = -h1*sin(u(5));
 
     Matrix<8, 8> DDa2 = Matrix<8, 8>::Zero();
-    DDa2(2, 2) = -h0*cos(system->get_u(dofs[2]));
-    DDa2(5, 5) = h1*cos(system->get_u(dofs[5]));
+    DDa2(2, 2) = -h0*cos(u(2));
+    DDa2(5, 5) = h1*cos(u(5));
 
     Matrix<8, 8> DDa3 = Matrix<8, 8>::Zero();
-    DDa3(2, 2) = h0*sin(system->get_u(dofs[2]));
+    DDa3(2, 2) = h0*sin(u(2));
 
     Matrix<8, 8> DDa4 = Matrix<8, 8>::Zero();
-    DDa4(2, 2) = -h0*cos(system->get_u(dofs[2]));
+    DDa4(2, 2) = -h0*cos(u(2));
 
     auto Db1 = -(a1*Da1 + a2*Da2)/pow(a1*a1 + a2*a2, 1.5);
 
@@ -194,9 +181,36 @@ ContactElement::State ContactElement::get_state() const
 
     Matrix<8, 8> DDe = Db1*v1.transpose() + Db2*v2.transpose() + b1*Dv1 + b2*Dv2;
 
-    return State{
-        .e = e,
-        .De = De,
-        .DDe = DDe
-    };
+    if(state.e != 0.0) {
+        return f.stiffness(state.e)*state.De*state.De.transpose() + f.force(state.e)*state.e*DDe;
+    } else {
+        return Matrix<8>::Zero();
+    }
+}
+
+Matrix<8> ContactElement::get_tangent_damping_matrix() const
+{
+    return Matrix<8>::Zero();
+}
+
+Vector<8> ContactElement::get_internal_forces() const
+{
+    ContactElementState state = get_state();
+
+    if(state.e != 0.0) {
+        return f.force(state.e)*state.De;
+    } else {
+        return Vector<8>::Zero();
+    }
+}
+
+double ContactElement::get_potential_energy() const
+{
+    ContactElementState state = get_state();
+
+    if(state.e != 0.0) {
+        return f.energy(state.e);
+    } else {
+        return 0.0;
+    }
 }

@@ -1,10 +1,20 @@
 #pragma once
-#include "solver/fem/Element.hpp"
+#include "solver/fem/ElementBase.hpp"
 #include "solver/fem/Node.hpp"
-
 #include <array>
 
-class BarElement: public Element
+struct BarElementState
+{
+    double dx;
+    double dy;
+    double L_new;
+
+    double dvx;
+    double dvy;
+    double L_dot;
+};
+
+class BarElement: public ElementBase<4, BarElementState>
 {
 public:
     BarElement(System& system, Node node0, Node node1, double L, double EA, double etaA, double rhoA);
@@ -16,17 +26,14 @@ public:
 
     double get_normal_force() const;
 
-    virtual void add_masses() const override;
-    virtual void add_internal_forces() const override;
-    virtual void add_tangent_stiffness() const override;
-    virtual void add_tangent_damping() const override;
-
+    virtual BarElementState compute_state(const Vector<4>& u, const Vector<4>& v) const override;
+    virtual Vector<4> get_mass_matrix() const override;
+    virtual Matrix<4> get_tangent_stiffness_matrix() const override;
+    virtual Matrix<4> get_tangent_damping_matrix() const override;
+    virtual Vector<4> get_internal_forces() const override;
     virtual double get_potential_energy() const override;
-    virtual double get_kinetic_energy() const override;
 
 private:
-    std::array<Dof, 4> dofs;
-
     double L;
     double EA;
     double etaA;
