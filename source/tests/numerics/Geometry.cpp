@@ -1,7 +1,5 @@
 #include "solver/numerics/Geometry.hpp"
-
 #include <catch2/catch.hpp>
-#include <iostream>
 
 TEST_CASE("is-right-handed")
 {
