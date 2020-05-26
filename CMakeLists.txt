@@ -224,6 +224,7 @@ add_executable(
     source/tests/fem/LargeDeformationBeams.cpp
     source/tests/fem/TangentStiffness.cpp
     source/tests/numerics/Geometry.cpp
+    source/tests/numerics/FindInterval.cpp
     source/solver/fem/elements/BarElement.cpp
     source/solver/fem/elements/BeamElement.cpp
     source/solver/fem/elements/MassElement.cpp
