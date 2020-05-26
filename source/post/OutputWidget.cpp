@@ -23,9 +23,6 @@ OutputWidget::OutputWidget(const OutputData& output)
         stack->addWidget(new DynamicOutputWidget(data));
     }
 
-    if(enable_statics) {
-        bt_statics->setStyleSheet("background-color: rgb(255, 203, 64);");
-    }
     bt_statics->setCheckable(true);
     bt_statics->setEnabled(enable_statics);
     bt_statics->setAutoExclusive(true);
@@ -34,9 +31,6 @@ OutputWidget::OutputWidget(const OutputData& output)
             stack->setCurrentIndex(0);
     });
 
-    if(enable_dynamics) {
-        bt_dynamics->setStyleSheet("background-color: rgb(68, 207, 66);");
-    }
     bt_dynamics->setCheckable(true);
     bt_dynamics->setEnabled(enable_dynamics);
     bt_dynamics->setAutoExclusive(true);
