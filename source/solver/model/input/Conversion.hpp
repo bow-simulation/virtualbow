@@ -31,12 +31,20 @@ public:
             convert_0_6_1_to_0_7_0(obj);
 
         if(obj.at("version") == "0.7")
+            convert_0_7_0_to_0_7_1(obj);
+        
+        if(obj.at("version") == "0.7.1")
             return;
 
         throw std::runtime_error("Version not recognized.");
     }
 
 private:
+    static void convert_0_7_0_to_0_7_1(json& obj)
+    {
+        obj["version"] = "0.7.1";
+    }
+    
     static void convert_0_6_1_to_0_7_0(json& obj)
     {
         obj["version"] = "0.7";
