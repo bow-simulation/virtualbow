@@ -25,7 +25,10 @@ add_custom_command(
     ${CMAKE_BINARY_DIR}/application/virtualbow-gui.exe
     ${CMAKE_BINARY_DIR}/application/virtualbow-slv.exe
     ${CMAKE_BINARY_DIR}/application/virtualbow-post.exe
-    --release
+    # Workaround for libraries not being deployed in azure build environment
+    COMMAND ${CMAKE_COMMAND} -E copy ${QT_BINARY_DIR}/libgcc_s_seh-1.dll ${CMAKE_BINARY_DIR}/application
+    COMMAND ${CMAKE_COMMAND} -E copy ${QT_BINARY_DIR}/libstdc++-6.dll ${CMAKE_BINARY_DIR}/application
+    COMMAND ${CMAKE_COMMAND} -E copy ${QT_BINARY_DIR}/libwinpthread-1.dll ${CMAKE_BINARY_DIR}/application
 )
 
 # Target: Inno Setup installer
