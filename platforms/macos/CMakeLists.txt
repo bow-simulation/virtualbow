@@ -20,9 +20,9 @@ add_custom_command(
     TARGET copy-dependencies
     COMMAND ${QT_BINARY_DIR}/macdeployqt
         ${CMAKE_BINARY_DIR}/application/VirtualBow.app
-        -executable=${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS/virtualbow-gui
-        -executable=${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS/virtualbow-slv
-        -executable=${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS/virtualbow-post
+        --executable=${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS/virtualbow-gui
+        --executable=${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS/virtualbow-slv
+        --executable=${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS/virtualbow-post
 )
 
 # Target: Dmg Installer

@@ -28,8 +28,8 @@ jobs:
       mkdir build && cd build
       curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.2/macos-clang_64.zip && unzip macos-clang_64.zip
       cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=macos-clang_64/paths.cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13
-      cmake --build . -j$(nproc)
-      cmake --build . --target dmg-installer -j$(nproc)
+      cmake --build .
+      cmake --build . --target dmg-installer
       ./virtualbow-test
   - task: PublishBuildArtifacts@1
     inputs:
