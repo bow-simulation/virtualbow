@@ -21,7 +21,7 @@ jobs:
       
 - job: MacOS
   pool:
-    vmImage: 'macOS-10.14'
+    vmImage: 'macOS-10.15'
   steps:
   - script: |
       npm install -g appdmg@0.5.2
@@ -50,7 +50,7 @@ jobs:
   - script: |
       sudo apt update -qq && sudo apt install -y qtbase5-dev libqt5x11extras5-dev libgl1-mesa-dev
       mkdir build && cd build
-      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.1/linux-gcc_64.zip && unzip linux-gcc_64.zip
+      curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.2/linux-gcc_64.zip && unzip linux-gcc_64.zip
       cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=linux-gcc_64/paths.cmake
       cmake --build . -j$(nproc)
       cmake --build . --target deb-package -j$(nproc)
