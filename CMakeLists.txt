@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Parameters
 
 set(APPLICATION_NAME "VirtualBow")
-set(APPLICATION_VERSION "0.7")
+set(APPLICATION_VERSION "0.7.1")
 set(APPLICATION_WEBSITE "https://www.virtualbow.org")
 set(APPLICATION_MAINTAINER "Stefan Pfeifer")
 set(APPLICATION_COPYRIGHT "Copyright (C) 2016-2020 Stefan Pfeifer")
@@ -224,6 +224,7 @@ add_executable(
     source/tests/fem/LargeDeformationBeams.cpp
     source/tests/fem/TangentStiffness.cpp
     source/tests/numerics/Geometry.cpp
+    source/tests/numerics/FindInterval.cpp
     source/solver/fem/elements/BarElement.cpp
     source/solver/fem/elements/BeamElement.cpp
     source/solver/fem/elements/MassElement.cpp

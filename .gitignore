@@ -8,3 +8,6 @@ out/
 
 # VirtualBow
 *.res 
+
+# MacOS
+.DS_Store

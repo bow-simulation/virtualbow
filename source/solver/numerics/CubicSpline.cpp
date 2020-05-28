@@ -61,16 +61,15 @@ CubicSpline::CubicSpline(const std::vector<double>& x, const std::vector<double>
     }
 }
 
+// Extrapolates on out of bounds access
 double CubicSpline::operator()(double x) const
 {
-    assert(x >= arg_min());
-    assert(x <= arg_max());
-
     index = find_interval(xs, x, index);
     double h = x - xs[index];
     return ((c3s[index]*h + c2s[index])*h + c1s[index])*h + ys[index];
 }
 
+// Returns default value on out of bounds access
 double CubicSpline::operator()(double x, double y_default) const
 {
     if(x >= xs.front() && x <= xs.back())
