@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.7.1
+
+### Fixed
+* Missing libraries for VirtualBow Solver and Post on MacOS
+* Static/Dynamic buttons in VirtualBow Post not working on MacOS
+* Simulation failing with `Error: bad_function_call` for certain lengths of the profile curve
+
 ## v0.7
 
 ### Added
