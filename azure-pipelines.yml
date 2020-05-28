@@ -24,7 +24,7 @@ jobs:
     vmImage: 'macOS-10.15'
   steps:
   - script: |
-      npm install -g appdmg@0.5.2
+      npm install -g appdmg@0.6.0 --no-audit
       mkdir build && cd build
       curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.2/macos-clang_64.zip && unzip macos-clang_64.zip
       cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=macos-clang_64/paths.cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13
