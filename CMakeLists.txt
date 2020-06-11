@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13.4)
 project(virtualbow)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Parameters
@@ -21,6 +21,7 @@ find_package(Boost REQUIRED)
 find_package(Catch2 REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(NLopt REQUIRED)
 find_package(Threads REQUIRED)                # System thread library (https://stackoverflow.com/a/39547577)
 find_package(OpenGL REQUIRED)
 
@@ -197,6 +198,7 @@ add_executable(
     source/solver/model/ContinuousLimb.cpp
     source/solver/model/LimbProperties.cpp
     source/solver/model/ProfileCurve.cpp
+    source/solver/model/ProfileCurve2.cpp
     source/solver/model/input/InputData.cpp
     source/solver/model/output/OutputData.cpp
     source/solver/model/BowModel.cpp
@@ -211,6 +213,7 @@ target_link_libraries(
     ${Boost_LIBRARIES}
     Eigen3::Eigen
     nlohmann_json::nlohmann_json
+    NLopt::nlopt
 )
 
 # Target: Test executable
