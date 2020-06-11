@@ -95,8 +95,9 @@ class Segment:
     def get_c_start_x_y(p0, x1, y1):
         l = hypot(x1 - p0.x, y1 - p0.y)
         a = 2*(atan2(y1 - p0.y, x1 - p0.x) - p0.phi)
-        r = l/(2*sin(a/2))
-        return [1/r, 0, 0, r*a]
+        c0 = 2/l*sin(a/2)
+        c3 = a/c0
+        return [c0, 0, 0, c3]
         
     def get_c_start_s_phi(p0, s1, phi1):
         c3 = s1 - p0.s
@@ -191,9 +192,9 @@ class ProfileCurve:
 
 
             c_start = Segment.get_c_start(p0, p1)
-            result = minimize(f, c_start, constraints=NonlinearConstraint(g, 0, 0))                
+            result = minimize(f, c_start, constraints=NonlinearConstraint(g, 0, 0), method='SLSQP')
             segment = Segment(p0, result.x)
-
+            
             self.segments.append(segment)
             if p1.s is None:
                 p1.s = p0.s + segment.c[3]
@@ -216,10 +217,9 @@ class ProfileCurve:
 
 points = [
     Point(s=0, phi=0.0, x=0, y=0),
-    Point(s=1, phi=0.1, x=None, y=None),
-    Point(s=2, phi=0.2, x=None, y=None),
-    Point(s=3, phi=0.4, x=None, y=None),
-    Point(s=3.5, phi=None, x=None, y=0.8)
+    Point(s=1, phi=0.5, x=None, y=None),
+    Point(s=1.5, phi=None, x=1.3, y=None),
+   Point(s=None, phi=None, x=1.5, y=0.5)
 ]
 
 curve = ProfileCurve(points)
