@@ -1,5 +1,6 @@
 #pragma once
 #include "Utils.hpp"
+#include "Eigen.hpp"
 #include <vector>
 #include <algorithm>
 #include <cassert>
@@ -28,4 +29,20 @@ static size_t find_interval(const std::vector<T>& data, const F& map, double val
 static size_t find_interval(const std::vector<double>& x, double value, size_t start = 0)
 {
     return find_interval(x, [](double x){ return x; }, value, start);
+}
+
+// Copypasta for VectorXd. Todo: Include this case in version above.
+static size_t find_interval(const VectorXd& data, double value, size_t start)
+{
+    assert(std::is_sorted(data.begin(), data.end()));
+
+    start = clamp<size_t>(start, 0, data.size() - 1);
+    while(start > 0 && data[start] > value) {
+        --start;
+    }
+    while(start < data.size()-2 && data[start + 1] < value) {
+        ++start;
+    }
+
+    return start;
 }

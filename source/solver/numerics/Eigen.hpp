@@ -1,5 +1,4 @@
 #pragma once
-#define EIGEN_MAX_ALIGN_BYTES 0    // Turn off alignment
 #include <Eigen/Dense>
 #include <nlohmann/json.hpp>
 
@@ -16,10 +15,25 @@ using Vector = Eigen::Matrix<double, n, 1>;
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+using Eigen::ArrayXd;
 using Eigen::Ref;
 
 namespace Eigen
 {
+    // Allow comparing matrices of different dimension, return false on mismatch
+    static bool operator==(const MatrixXd& lhs, const MatrixXd& rhs)
+    {
+        if((rhs.rows() != lhs.rows()) || (lhs.cols() != rhs.cols()))
+            return false;
+
+        return lhs.operator==(rhs);
+    }
+
+    static bool operator!=(const MatrixXd& lhs, const MatrixXd& rhs)
+    {
+        return !operator==(lhs, rhs);
+    }
+
     static void to_json(json& obj, const VectorXd& vec)
     {
         obj = json::array();

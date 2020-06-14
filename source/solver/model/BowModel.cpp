@@ -57,7 +57,7 @@ BowModel::BowModel(const InputData& input)
     if(input.width.size() < 2)
         throw std::runtime_error("Width: At least two data points are needed");
 
-    for(double w: input.width.vals())
+    for(double w: input.width.col(1))
     {
         if(w <= 0.0)
             throw std::runtime_error("Width must be positive");
@@ -77,7 +77,7 @@ BowModel::BowModel(const InputData& input)
         if(layer.height.size() < 2)
             throw std::runtime_error("Layer " + std::to_string(i) + " (" + layer.name + ")" + ": At least two data points for height are needed");
 
-        for(double h: layer.height.vals())
+        for(double h: layer.height.col(1))
         {
             if(h <= 0.0)
                 throw std::runtime_error("Layer " + std::to_string(i) + " (" + layer.name + ")" + ": Height must be positive");

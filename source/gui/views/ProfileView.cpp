@@ -26,7 +26,7 @@ ProfileView::ProfileView()
     curve2->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
 }
 
-void ProfileView::setData(Series data)
+void ProfileView::setData(const MatrixXd& data)
 {
     input = data;
     updatePlot();
@@ -46,7 +46,7 @@ void ProfileView::updatePlot()
 
     try
     {
-        ProfileCurve profile(input.args(), input.vals(), 0.0, 0.0, 0.0);
+        ProfileCurve profile(input.col(0), input.col(1), 0.0, 0.0, 0.0);
 
         // Add interpolated points of the profile curve
         for(double s: Linspace<double>(profile.s_min(), profile.s_max(), 150))    // Magic number
@@ -56,9 +56,9 @@ void ProfileView::updatePlot()
         }
 
         // Add control points depending on selection status
-        for(size_t i = 0; i < input.size(); ++i)
+        for(size_t i = 0; i < input.rows(); ++i)
         {
-            Vector<3> point = profile(input.arg(i));
+            Vector<3> point = profile(input(i, 0));
             if(selection.contains(i))
                 curve2->addData(point[0], point[1]);
             else
