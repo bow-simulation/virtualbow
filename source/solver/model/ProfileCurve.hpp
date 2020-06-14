@@ -8,7 +8,7 @@ public:
     // k: Curvature of the profile curve at the specified arc lengths
     // x0, y0, phi0: Starting point and angle
     // Throws std::invalid_argument on invalid input
-    ProfileCurve(std::vector<double> s, std::vector<double> k, double x0, double y0, double phi0);
+    ProfileCurve(VectorXd s, VectorXd k, double x0, double y0, double phi0);
 
     // Arc length at start and end of the curve
     double s_min() const;
@@ -20,9 +20,9 @@ public:
 private:
     using segment_fn= std::function<Vector<3>(double)>;
 
-    mutable size_t index = 0;    // Interval index of last evaluation
-    std::vector<double> s;       // Arc lengths of the intervals
+    VectorXd s;       // Arc lengths of the intervals
     std::vector<segment_fn> f;   // Curve functions for each interval
+    mutable size_t index = 0;    // Interval index of last evaluation
 
     // Returns a function s -> {x, y, phi} that describes a curve with varying curvature k over arc length s.
     // s0, s1, k0, k1 : Arc length and curvature at start and end of the curve

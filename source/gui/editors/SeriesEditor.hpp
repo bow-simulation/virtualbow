@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/numerics/Series.hpp"
+#include "solver/numerics/Eigen.hpp"
 #include <QtWidgets>
 
 class TableItem: public QTableWidgetItem
@@ -13,12 +13,12 @@ class SeriesEditor: public QTableWidget
 
 public:
     SeriesEditor(const QString& x_label, const QString& y_label, int rows);
-    Series getData() const;
-    void setData(const Series& data);
+    MatrixXd getData() const;
+    void setData(const MatrixXd& data);
 
 signals:
     void modified();
-    void selectionChanged(const QVector<int>& rows);
+    void rowSelectionChanged(const QVector<int>& rows);
 
 private:
     void cutSelection();
@@ -26,6 +26,6 @@ private:
     void pasteToSelection();
     void deleteSelection();
 
-    QVector<int> getSelectedIndices();
+    QVector<int> getSelectedRows();
 };
 

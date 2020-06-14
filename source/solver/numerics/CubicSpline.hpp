@@ -1,4 +1,5 @@
 #pragma once
+#include "Eigen.hpp"
 #include <vector>
 #include <cstddef>
 
@@ -8,7 +9,7 @@
 class CubicSpline
 {
 public:
-    CubicSpline(const std::vector<double>& x, const std::vector<double>& y);
+    CubicSpline(const VectorXd& x, const VectorXd& y);
     double operator()(double x) const;
     double operator()(double x, double y_default) const;
 

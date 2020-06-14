@@ -5,9 +5,9 @@
 #include <algorithm>
 #include <numeric>
 
-CubicSpline::CubicSpline(const std::vector<double>& x, const std::vector<double>& y)
-    : xs(x),
-      ys(y)
+CubicSpline::CubicSpline(const VectorXd& x, const VectorXd& y)
+    : xs(x.begin(), x.end()),
+      ys(y.begin(), y.end())
 {
     if(xs.size() < 2)
         throw std::invalid_argument("At least two data points are needed");

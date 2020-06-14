@@ -21,19 +21,19 @@ ProfileDialog::ProfileDialog(QWidget* parent)
     this->setLayout(vbox);
 
     // Event handling
-    QObject::connect(edit, &SeriesEditor::selectionChanged, view, &ProfileView::setSelection);
+    QObject::connect(edit, &SeriesEditor::rowSelectionChanged, view, &ProfileView::setSelection);
     QObject::connect(edit, &SeriesEditor::modified, this, &ProfileDialog::modified);
     QObject::connect(this, &ProfileDialog::modified, [&]{
         view->setData(this->getData());
     });
 }
 
-Series ProfileDialog::getData() const
+MatrixXd ProfileDialog::getData() const
 {
     return edit->getData();
 }
 
-void ProfileDialog::setData(const Series& data)
+void ProfileDialog::setData(const MatrixXd& data)
 {
     view->setData(data);
     edit->setData(data);

@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/model//input/InputData.hpp"
+#include "solver/model/input/InputData.hpp"
 #include "gui/editors/SeriesEditor.hpp"
 #include "gui/editors/DoubleEditor.hpp"
 #include "gui/views/SplineView.hpp"

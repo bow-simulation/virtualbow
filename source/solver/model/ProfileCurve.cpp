@@ -4,7 +4,7 @@
 #include "solver/numerics/FindInterval.hpp"
 #include "solver/numerics/Sorting.hpp"
 
-ProfileCurve::ProfileCurve(std::vector<double> s, std::vector<double> k, double x0, double y0, double phi0)
+ProfileCurve::ProfileCurve(VectorXd s, VectorXd k, double x0, double y0, double phi0)
 {
     if(s.size() < 2)
         throw std::invalid_argument("At least two arc lengths are needed");
@@ -26,12 +26,12 @@ ProfileCurve::ProfileCurve(std::vector<double> s, std::vector<double> k, double 
 
 double ProfileCurve::s_min() const
 {
-    return s.front();
+    return s.head(1)[0];
 }
 
 double ProfileCurve::s_max() const
 {
-    return s.back();
+    return s.tail(1)[0];
 }
 
 // Extrapolates on out of bounds access

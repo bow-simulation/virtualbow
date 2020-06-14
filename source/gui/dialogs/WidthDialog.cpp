@@ -21,19 +21,19 @@ WidthDialog::WidthDialog(QWidget* parent)
     this->setLayout(vbox);
 
     // Event handling
-    QObject::connect(edit, &SeriesEditor::selectionChanged, view, &SplineView::setSelection);
+    QObject::connect(edit, &SeriesEditor::rowSelectionChanged, view, &SplineView::setSelection);
     QObject::connect(edit, &SeriesEditor::modified, [&]{
         view->setData(edit->getData());
         emit modified();
     });
 }
 
-Series WidthDialog::getData() const
+MatrixXd WidthDialog::getData() const
 {
     return edit->getData();
 }
 
-void WidthDialog::setData(const Series& width)
+void WidthDialog::setData(const MatrixXd& width)
 {
     edit->setData(width);
     view->setData(width);

@@ -17,8 +17,8 @@ struct InputData
     std::string comment;
     Settings settings;
     Dimensions dimensions;
-    Series profile = {{0.0, 0.8}, {0.0, 0.0}};
-    Series width = {{0.0, 1.0}, {0.06, 0.01}};
+    MatrixXd profile{{0.0, 0.0}, {0.8, 0.0}};
+    MatrixXd width{{0.0, 0.06}, {1.0, 0.01}};
     Layers layers = {Layer()};
     String string;
     Masses masses;
