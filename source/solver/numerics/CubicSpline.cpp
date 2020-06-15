@@ -4,15 +4,26 @@
 #include <stdexcept>
 #include <algorithm>
 #include <numeric>
+#include <cmath>
 
-CubicSpline::CubicSpline(const VectorXd& x, const VectorXd& y)
-    : xs(x.begin(), x.end()),
-      ys(y.begin(), y.end())
+CubicSpline::CubicSpline(const MatrixXd& input)
 {
+    if(input.cols() != 2)
+        throw std::invalid_argument("Input must have two columns");
+
+    // Extract x and y values from input, ignore rows that contain NaN
+    for(int i = 0; i < input.rows(); ++i)
+    {
+        double x = input(i, 0);
+        double y = input(i, 1);
+        if(!std::isnan(x) && !std::isnan(y)) {
+            xs.push_back(x);
+            ys.push_back(y);
+        }
+    }
+
     if(xs.size() < 2)
-        throw std::invalid_argument("At least two data points are needed");
-    if(xs.size() != ys.size())
-        throw std::invalid_argument("Argument length mismatch");
+        throw std::invalid_argument("Input must contain at least two valid rows");
 
     // Sort inputs
     sort_by_argument(xs, ys);

@@ -7,12 +7,12 @@ class TableItem: public QTableWidgetItem
     virtual void setData(int role, const QVariant& data);
 };
 
-class SeriesEditor: public QTableWidget
+class TableEditor: public QTableWidget
 {
     Q_OBJECT
 
 public:
-    SeriesEditor(const QString& x_label, const QString& y_label, int rows);
+    TableEditor(const QList<QString>& labels, int rows);
     MatrixXd getData() const;
     void setData(const MatrixXd& data);
 

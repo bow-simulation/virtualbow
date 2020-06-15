@@ -48,7 +48,8 @@ namespace Eigen
         vec = VectorXd(obj.size());
         for(size_t i = 0; i < obj.size(); ++i)
         {
-            vec[i] = obj.at(i);
+            json value = obj.at(i);
+            vec[i] = value.is_null() ? NAN : value.get<double>();
         }
     }
 
@@ -74,7 +75,8 @@ namespace Eigen
         {
             for(size_t j = 0; j < mat.cols(); ++j)
             {
-                mat(i, j) = obj.at(i).at(j);
+                json value = obj.at(i).at(j);
+                mat(i, j) = value.is_null() ? NAN : value.get<double>();
             }
         }
     }

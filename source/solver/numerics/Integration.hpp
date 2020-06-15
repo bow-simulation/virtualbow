@@ -37,8 +37,12 @@ private:
     }
 
     template<typename T, typename F>
-    static T simpson_quadrature_recursive(const F& f, double a, double b, const T& fa, const T& fb, Triple<T> whole, double epsilon)
+    static T simpson_quadrature_recursive(const F& f, double a, double b, const T& fa, const T& fb, Triple<T> whole, double epsilon, int n = 15)
     {
+        if(n == 0) {
+            throw std::runtime_error("Maximum recursion depth reached");
+        }
+
         Triple<T> left = simpson_quadrature(f, a, whole.m, fa, whole.fm);
         Triple<T> right = simpson_quadrature(f, whole.m, b, whole.fm, fb);
         T delta = left.result + right.result - whole.result;
@@ -46,8 +50,8 @@ private:
         if(inf_norm(delta) <= 15.0*epsilon) {
             return left.result + right.result + delta/15.0;
         } else {
-            return simpson_quadrature_recursive(f, a, whole.m, fa, whole.fm, left, epsilon/2.0)
-                   + simpson_quadrature_recursive(f, whole.m, b, whole.fm, fb, right, epsilon/2.0);
+            return simpson_quadrature_recursive(f, a, whole.m, fa, whole.fm, left, epsilon/2.0, n-1)
+                   + simpson_quadrature_recursive(f, whole.m, b, whole.fm, fb, right, epsilon/2.0, n-1);
         }
     }
 

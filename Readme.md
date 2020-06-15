@@ -3,7 +3,7 @@
 [![Build Status](https://bow-simulation.visualstudio.com/virtualbow/_apis/build/status/bow-simulation.virtualbow?branchName=develop)](https://bow-simulation.visualstudio.com/virtualbow/_build/latest?definitionId=1&branchName=develop)
 
 VirtualBow is a free, open-source software tool for designing and simulating bows.
-Visit http://www.virtualbow.org for more information about the project.
+Visit http://www.virtualbow.org for more information about the program and its features.
 
 # Building
 
