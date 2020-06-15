@@ -2,7 +2,7 @@
 
 LayerEditor::LayerEditor(EditableTabBar* tabs)
     : tabs(tabs),
-      table(new SeriesEditor("Position", "Height [m]", 25)),
+      table(new TableEditor({"Position", "Height [m]"}, 100)),
       view(new SplineView("Position", "Height [m]")),
       edit_rho(new DoubleEditor("rho [kg/m³]")),
       edit_E(new DoubleEditor("E [Pa]"))
@@ -33,8 +33,8 @@ LayerEditor::LayerEditor(EditableTabBar* tabs)
     QObject::connect(edit_E, &DoubleEditor::modified, this, &LayerEditor::modified);
     QObject::connect(edit_rho, &DoubleEditor::modified, this, &LayerEditor::modified);
 
-    QObject::connect(table, &SeriesEditor::rowSelectionChanged, view, &SplineView::setSelection);
-    QObject::connect(table, &SeriesEditor::modified, [&]{
+    QObject::connect(table, &TableEditor::rowSelectionChanged, view, &SplineView::setSelection);
+    QObject::connect(table, &TableEditor::modified, [&]{
         view->setData(table->getData());
         emit modified();
     });

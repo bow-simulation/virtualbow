@@ -85,8 +85,8 @@ add_executable(
     source/gui/editors/IntegerEditor.hpp
     source/gui/editors/LayerEditor.cpp
     source/gui/editors/LayerEditor.hpp
-    source/gui/editors/SeriesEditor.cpp
-    source/gui/editors/SeriesEditor.hpp
+    source/gui/editors/TableEditor.cpp
+    source/gui/editors/TableEditor.hpp
     source/gui/editors/TreeEditor.cpp
     source/gui/editors/TreeEditor.hpp
     source/gui/editors/TreeItem.hpp
@@ -125,6 +125,7 @@ target_link_libraries(
     ${Boost_LIBRARIES}
     Eigen3::Eigen
     nlohmann_json::nlohmann_json
+    NLopt::nlopt
 )
 
 # Target: Post executable
@@ -175,6 +176,7 @@ target_link_libraries(
     ${Boost_LIBRARIES}
     Eigen3::Eigen
     nlohmann_json::nlohmann_json
+    NLopt::nlopt
 )
 
 # Target: Solver executable
@@ -198,7 +200,6 @@ add_executable(
     source/solver/model/ContinuousLimb.cpp
     source/solver/model/LimbProperties.cpp
     source/solver/model/ProfileCurve.cpp
-    source/solver/model/ProfileCurve2.cpp
     source/solver/model/input/InputData.cpp
     source/solver/model/output/OutputData.cpp
     source/solver/model/BowModel.cpp
@@ -258,6 +259,7 @@ target_link_libraries(
     ${Boost_LIBRARIES}
     Eigen3::Eigen
     nlohmann_json::nlohmann_json
+    NLopt::nlopt
 )
 
 # Change output directories

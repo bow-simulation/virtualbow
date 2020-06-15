@@ -16,6 +16,6 @@ signals:
     void modified();
 
 private:
-    SeriesEditor* edit;
+    TableEditor* edit;
     SplineView* view;
 };

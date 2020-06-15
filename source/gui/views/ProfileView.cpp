@@ -46,23 +46,23 @@ void ProfileView::updatePlot()
 
     try
     {
-        ProfileCurve profile(input.col(0), input.col(1), 0.0, 0.0, 0.0);
+        ProfileCurve profile(input);
 
-        // Add interpolated points of the profile curve
+        // Add profile curve
         for(double s: Linspace<double>(profile.s_min(), profile.s_max(), 150))    // Magic number
         {
             Vector<3> point = profile(s);
             curve0->addData(point[0], point[1]);
         }
 
-        // Add control points depending on selection status
-        for(size_t i = 0; i < input.rows(); ++i)
+        // Add control points
+        for(size_t i = 0; i < profile.get_points().size(); ++i)
         {
-            Vector<3> point = profile(input(i, 0));
+            auto& point = profile.get_points()[i];
             if(selection.contains(i))
-                curve2->addData(point[0], point[1]);
+                curve2->addData(point.x, point.y);
             else
-                curve1->addData(point[0], point[1]);
+                curve1->addData(point.x, point.y);
         }
     }
     catch(const std::invalid_argument&)

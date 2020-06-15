@@ -1,6 +1,6 @@
 #pragma once
 #include "solver/model/input/InputData.hpp"
-#include "gui/editors/SeriesEditor.hpp"
+#include "gui/editors/TableEditor.hpp"
 #include "gui/editors/DoubleEditor.hpp"
 #include "gui/views/SplineView.hpp"
 #include "gui/views/LayerColors.hpp"
@@ -21,7 +21,7 @@ signals:
 
 private:
     EditableTabBar* tabs;
-    SeriesEditor* table;
+    TableEditor* table;
     SplineView* view;
     DoubleEditor* edit_rho;
     DoubleEditor* edit_E;
