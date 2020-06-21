@@ -3,8 +3,6 @@
 
 SplineView::SplineView(const QString& x_label, const QString& y_label)
 {
-    qInfo() << "CONSTRUCT SPLINE_VIEW";
-
     this->xAxis->setLabel(x_label);
     this->yAxis->setLabel(y_label);
 
@@ -25,8 +23,6 @@ SplineView::SplineView(const QString& x_label, const QString& y_label)
 
 void SplineView::setData(const MatrixXd& data)
 {
-    qInfo() << "SET DATA";
-
     input = data;
     updatePlot();
 }
@@ -39,8 +35,6 @@ void SplineView::setSelection(const QVector<int>& indices)
 
 void SplineView::updatePlot()
 {
-    qInfo() << "UPDATE PLOT";
-
     this->graph(0)->data()->clear();
     this->graph(1)->data()->clear();
     this->graph(2)->data()->clear();

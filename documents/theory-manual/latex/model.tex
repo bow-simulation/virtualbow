@@ -182,3 +182,80 @@ The complete profile curve is defined by a series of arbitrarily many points.
 Each pair of points defines a segment of the profile curve, but only the starting point has to be specified completely.
 The segments are optimized separately and in order, from start to end of the profile curve.
 Once a segment is completely determined, the starting point of the next segment is known, etc.
+
+\subsection{Width and height}
+
+The distribution of width along the limb as well as the height of the layers are specified by the users in terms of $n$ control points $(x_k,\,y_k)$, with $k = 0\,\ldots\,n-1$.
+The task is then to determine a smooth function $f(x)$ that interpolates those control points, i.e. $f(x_k) = y_k$.
+
+A good fit for this task would be cubic spline interpolation, except that we have one additional requirement for our use case: Other than standard cubic splines, we want the interpolating function to preserve the monotonicity of the data set.
+This means that local minima and maxima may only ever occur at the control points.
+Without this property, splines often produce undesirable results.
+For example, users might enter only positive values for the limb width but the resulting spline can still have a local minimum $< 0$ between two control points, which makes the input invalid as negative widths are not allowed.
+
+There are many different methods for monotonic cubic spline interpolation.
+Most of them enforce monotonicity by making conservative estimates that sacrifice some of the smoothness that would be possible in an optimal solution.
+We take a different path and use a method based on numerical optimization as described in \cite{bib:woal02}.
+The paper describes the use of constrained optimization for finding a spline curve that minimizes some measure of smoothness while also subject to additional monotonicity constraints. The interpolating function $f(x)$ is defined as piecewise cubic polynomials given in Hermite form, i.e. in terms of the function values $y_k$, $y_{k+1}$ and derivatives $m_{k} = y'_k$ and $m_{k+1} = y'_{k+1}$ at the interval boundaries,
+%
+\begin{align}
+f_k(x) &= h_{00}\left(\frac{x - x_k}{\Delta x_k}\right)y_k + h_{10}\left(\frac{x - x_k}{\Delta x_k}\right)\Delta x_k\,m_k \notag \\
+&+ h_{01}\left(\frac{x - x_k}{\Delta x_k}\right)y_{k+1} + h_{11}\left(\frac{x - x_k}{\Delta x_k}\right)\Delta x_k\,m_{k+1} 
+\end{align}
+%
+with $\Delta x_k = x_{k+1} - x_{k}$ and the Hermite basis functions
+%
+\begin{align}
+h_{00}(t) &= 2\,t^3 - 3\,t^2 + 1 \\
+h_{10}(t) &= t^3 - 2\,t^2 + t \\
+h_{01}(t) &= -2\,t^3 + 3\,t^2 \\
+h_{11}(t) &= t^3 - t^2
+\end{align}
+%
+The unknown slopes $m_k$ are determined by minimizing the energy measure
+%
+\begin{align}
+E &= \sum_{k=0}^{n-2}\int_{x_k}^{x_{k+1}} f''_k(x)^2\ dx \notag \\
+&= \sum_{k=0}^{n-2}\frac{1}{\Delta x_k^3}\Big( 12\Delta y_k^2 - 12(m_{k+1} + m_{k})\Delta x_k \Delta y_k + 4(m_{k+1}^2 + m_{k} m_{k+1} + m_{k}^2)\Delta x_k^2 \Big) \label{eq:spline-linearized-energy}
+\end{align}
+%
+subject to the following monotonicity constraints for each interval,
+%
+\begin{align}
+\intertext{Case $\Delta y_{k} \neq 0$:}
+\sgn\left(\frac{\Delta y_k}{\Delta x_k}\right)
+&\begin{bmatrix}
+-1 & \ \ 0 \\
+\ \ 0 & -1 \\
+\ \ 1 & -1 \\
+-1 & \ \ 1 \\
+\ \ 2 & \ \ 1 \\
+\ \ 1 & \ \ 2
+\end{bmatrix}
+\begin{bmatrix}
+m_{k} \\
+m_{k+1}
+\end{bmatrix}
+-
+\bigg| \frac{\Delta y_k}{\Delta x_k} \bigg|
+\begin{bmatrix}
+0 \\
+0 \\
+3 \\
+3 \\
+9 \\
+9
+\end{bmatrix}
+\le 0 \\
+\intertext{Case $\Delta y_{k} = 0$:}
+&\begin{bmatrix}
+m_{k} \\m_{k+1}
+\end{bmatrix}
+= 0
+\end{align}
+%
+Note that the continuity of the resulting curve in function value and first derivative is already guaranteed by chosing the Hermite form for the piecewise polynomials, making the function $C^1$ continuous.
+However, other than in a classical natural spline, there is no continuity constraint on the second derivative.
+The reason for this, as noted in the paper, is that a $C^2$ solution that also satisfies the monotonicity constraints might not exist.
+Several solutions for this are proposed there, including an alternative objective function that evaluates the discontinuities of the second derivative to achieve a spline that is as close to $C^2$ as possible.
+However, as $C^2$ continuity isn't extremely important in our use case, the simpler $C^1$ method with the well established energy measure (\ref{eq:spline-linearized-energy}) was chosen instead.
