@@ -79,8 +79,8 @@ BowModel::BowModel(const InputData& input)
 
         for(double h: layer.height.col(1))
         {
-            if(h <= 0.0)
-                throw std::runtime_error("Layer " + std::to_string(i) + " (" + layer.name + ")" + ": Height must be positive");
+            if(h < 0.0)
+                throw std::runtime_error("Layer " + std::to_string(i) + " (" + layer.name + ")" + ": Height must not be negative");
         }
     }
 

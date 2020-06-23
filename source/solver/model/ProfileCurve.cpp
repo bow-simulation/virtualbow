@@ -180,12 +180,8 @@ std::vector<double> Segment::get_c_start_phi_y(const Point& p0, double phi1, dou
     return {c0, 0.0, 0.0, c3};
 }
 
-#include <iostream>
-
 ProfileCurve::ProfileCurve(const MatrixXd& input)
 {
-    std::cout << "Profile input:\n" << input << "\n" << std::endl;
-
     if(input.cols() != 4)
         throw std::invalid_argument("Input must have four columns");
 
