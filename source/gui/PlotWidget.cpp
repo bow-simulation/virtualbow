@@ -31,27 +31,27 @@ PlotWidget::PlotWidget(const QSize& size_hint)
         auto menu = new QMenu(this);
         QObject::connect(menu->addAction("Export as..."), &QAction::triggered, [&]
         {
+            const char* PDF_FILE  = "Portable Document Format (*.pdf)";
             const char* PNG_FILE  = "PNG image (*.png)";
             const char* BMP_FILE  = "BMP image (*.bmp)";
-            const char* PDF_FILE  = "Portable Document Format (*.pdf)";
 
             QFileDialog dialog(this);
             dialog.setAcceptMode(QFileDialog::AcceptSave);
 
             QStringList filters;
-            filters << PNG_FILE << BMP_FILE << PDF_FILE;
+            filters << PDF_FILE << PNG_FILE << BMP_FILE;
             dialog.setNameFilters(filters);
 
             // Todo: Is there a better way to connect default suffix to the selected name filter?
             // Todo: Handle the case of the save[...] methods returning false
             QObject::connect(&dialog, &QFileDialog::filterSelected, [&](const QString &filter)
             {
-                if(filter == PNG_FILE)
+                if(filter == PDF_FILE)
+                    dialog.setDefaultSuffix(".pdf");
+                else if(filter == PNG_FILE)
                     dialog.setDefaultSuffix(".png");
                 else if(filter == BMP_FILE)
                     dialog.setDefaultSuffix(".bmp");
-                else if(filter == PDF_FILE)
-                    dialog.setDefaultSuffix(".pdf");
             });
             dialog.filterSelected(PNG_FILE);
 
@@ -60,12 +60,12 @@ PlotWidget::PlotWidget(const QSize& size_hint)
                 QString filter = dialog.selectedNameFilter();
                 QString path = dialog.selectedFiles().first();
 
-                if(filter == PNG_FILE)
+                if(filter == PDF_FILE)
+                    this->savePdf(path);
+                else if(filter == PNG_FILE)
                     this->savePng(path);
                 else if(filter == BMP_FILE)
                     this->saveBmp(path);
-                else if(filter == PDF_FILE)
-                    this->savePdf(path);
             }
         });
 
