@@ -1,6 +1,6 @@
 #pragma once
 #include "qcustomplot/qcustomplot.h"
-#include <boost/optional.hpp>
+#include <optional>
 
 class PlotWidget: public QCustomPlot
 {
@@ -23,7 +23,7 @@ protected:
 
 private:
     QSize size_hint;
-    boost::optional<QCPRange> max_x_range;
-    boost::optional<QCPRange> max_y_range;
+    std::optional<QCPRange> max_x_range;
+    std::optional<QCPRange> max_y_range;
     AspectPolicy aspect_policy;
 };
