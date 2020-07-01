@@ -7,7 +7,7 @@ Visit http://www.virtualbow.org for more information about the project.
 
 # Building
 
-Building VirtualBow requires CMake, a C++14 compiler and the following external dependencies: 
+Building VirtualBow requires CMake, a C++17 compiler and the following external dependencies: 
 
 * [Qt](https://www.qt.io/)
 * [Boost](https://www.boost.org/)
