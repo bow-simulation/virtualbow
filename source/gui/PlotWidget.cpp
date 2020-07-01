@@ -46,12 +46,15 @@ PlotWidget::PlotWidget(const QSize& size_hint)
             // Todo: Handle the case of the save[...] methods returning false
             QObject::connect(&dialog, &QFileDialog::filterSelected, [&](const QString &filter)
             {
-                if(filter == PDF_FILE)
+                if(filter == PDF_FILE) {
                     dialog.setDefaultSuffix(".pdf");
-                else if(filter == PNG_FILE)
+                }
+                else if(filter == PNG_FILE) {
                     dialog.setDefaultSuffix(".png");
-                else if(filter == BMP_FILE)
+                }
+                else if(filter == BMP_FILE) {
                     dialog.setDefaultSuffix(".bmp");
+                }
             });
             dialog.filterSelected(PNG_FILE);
 
@@ -60,12 +63,17 @@ PlotWidget::PlotWidget(const QSize& size_hint)
                 QString filter = dialog.selectedNameFilter();
                 QString path = dialog.selectedFiles().first();
 
-                if(filter == PDF_FILE)
+                const double scale = 2.0;    // Magic number
+
+                if(filter == PDF_FILE) {
                     this->savePdf(path);
-                else if(filter == PNG_FILE)
-                    this->savePng(path);
-                else if(filter == BMP_FILE)
-                    this->saveBmp(path);
+                }
+                else if(filter == PNG_FILE) {
+                    this->savePng(path, 0, 0, scale);
+                }
+                else if(filter == BMP_FILE) {
+                    this->saveBmp(path, 0, 0, scale);
+                }
             }
         });
 
