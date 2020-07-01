@@ -36,7 +36,7 @@ SimulationDialog::SimulationDialog(QWidget* parent, const QString& input, const 
     // Create solver process
     QProcess *process = new QProcess(this);
     process->setWorkingDirectory(QCoreApplication::applicationDirPath());
-    process->setProgram("virtualbow-slv");
+    process->setProgram(QDir(QCoreApplication::applicationDirPath()).filePath("virtualbow-slv"));
     process->setArguments({ input, output, flag, "--progress" });
 
     QObject::connect(this, &QDialog::rejected, this, [=] {
