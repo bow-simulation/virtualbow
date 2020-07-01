@@ -239,7 +239,7 @@ void MainWindow::runSimulation(const QString& flag)
     if(dialog.exec() == QDialog::Accepted)
     {
         QProcess::startDetached(
-            "virtualbow-post",
+            QDir(QCoreApplication::applicationDirPath()).filePath("virtualbow-post"),
             { output_file },
             QCoreApplication::applicationDirPath()
         );
