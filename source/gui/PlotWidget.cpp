@@ -31,27 +31,30 @@ PlotWidget::PlotWidget(const QSize& size_hint)
         auto menu = new QMenu(this);
         QObject::connect(menu->addAction("Export as..."), &QAction::triggered, [&]
         {
+            const char* PDF_FILE  = "Portable Document Format (*.pdf)";
             const char* PNG_FILE  = "PNG image (*.png)";
             const char* BMP_FILE  = "BMP image (*.bmp)";
-            const char* PDF_FILE  = "Portable Document Format (*.pdf)";
 
             QFileDialog dialog(this);
             dialog.setAcceptMode(QFileDialog::AcceptSave);
 
             QStringList filters;
-            filters << PNG_FILE << BMP_FILE << PDF_FILE;
+            filters << PDF_FILE << PNG_FILE << BMP_FILE;
             dialog.setNameFilters(filters);
 
             // Todo: Is there a better way to connect default suffix to the selected name filter?
             // Todo: Handle the case of the save[...] methods returning false
             QObject::connect(&dialog, &QFileDialog::filterSelected, [&](const QString &filter)
             {
-                if(filter == PNG_FILE)
-                    dialog.setDefaultSuffix(".png");
-                else if(filter == BMP_FILE)
-                    dialog.setDefaultSuffix(".bmp");
-                else if(filter == PDF_FILE)
+                if(filter == PDF_FILE) {
                     dialog.setDefaultSuffix(".pdf");
+                }
+                else if(filter == PNG_FILE) {
+                    dialog.setDefaultSuffix(".png");
+                }
+                else if(filter == BMP_FILE) {
+                    dialog.setDefaultSuffix(".bmp");
+                }
             });
             dialog.filterSelected(PNG_FILE);
 
@@ -60,12 +63,17 @@ PlotWidget::PlotWidget(const QSize& size_hint)
                 QString filter = dialog.selectedNameFilter();
                 QString path = dialog.selectedFiles().first();
 
-                if(filter == PNG_FILE)
-                    this->savePng(path);
-                else if(filter == BMP_FILE)
-                    this->saveBmp(path);
-                else if(filter == PDF_FILE)
+                const double scale = 2.0;    // Magic number
+
+                if(filter == PDF_FILE) {
                     this->savePdf(path);
+                }
+                else if(filter == PNG_FILE) {
+                    this->savePng(path, 0, 0, scale);
+                }
+                else if(filter == BMP_FILE) {
+                    this->saveBmp(path, 0, 0, scale);
+                }
             }
         });
 
@@ -140,8 +148,8 @@ void PlotWidget::setupTopLegend()
 // Limit the axis maximum ranges to current range
 void PlotWidget::rescaleAxes(bool include_zero_x, bool include_zero_y)
 {
-    max_x_range = boost::none;
-    max_y_range = boost::none;
+    max_x_range = std::nullopt;
+    max_y_range = std::nullopt;
 
     QCustomPlot::rescaleAxes();
 
