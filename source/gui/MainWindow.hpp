@@ -16,6 +16,14 @@ private:
     const char* DEFAULT_FILENAME = "Unnamed";
     const QSize INITIAL_SIZE = {1200, 700};
 
+    QAction* action_new;
+    QAction* action_open;
+    QAction* action_save;
+    QAction* action_save_as;
+    QAction* action_quit;
+    QAction* action_run_statics;
+    QAction* action_run_dynamics;
+
     InputData data;
     BowEditor* editor;
     RecentFilesMenu* menu_recent;
