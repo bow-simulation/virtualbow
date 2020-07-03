@@ -40,5 +40,6 @@ private:
 
     void setCurrentFile(const QString& path);
     void setModified(bool modified);
+    void setEditingEnabled(bool enabled);
     bool optionalSave();
 };

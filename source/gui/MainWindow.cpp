@@ -20,19 +20,16 @@ MainWindow::MainWindow()
     QObject::connect(action_open, &QAction::triggered, this, &MainWindow::open);
     action_open->setShortcuts(QKeySequence::Open);
     action_open->setMenuRole(QAction::NoRole);
-    action_open->setEnabled(false);
 
     action_save = new QAction(QIcon(":/icons/document-save.png"), "&Save", this);
     QObject::connect(action_save, &QAction::triggered, this, &MainWindow::save);
     action_save->setShortcuts(QKeySequence::Save);
     action_save->setMenuRole(QAction::NoRole);
-    action_save->setEnabled(false);
 
     action_save_as = new QAction(QIcon(":/icons/document-save-as.png"), "Save &As...", this);
     QObject::connect(action_save_as, &QAction::triggered, this, &MainWindow::saveAs);
     action_save_as->setShortcuts(QKeySequence::SaveAs);
     action_save_as->setMenuRole(QAction::NoRole);
-    action_save_as->setEnabled(false);
 
     action_quit = new QAction(QIcon(":/icons/application-exit.png"), "&Quit", this);
     QObject::connect(action_quit, &QAction::triggered, this, &QWidget::close);
@@ -44,14 +41,12 @@ MainWindow::MainWindow()
     action_run_statics->setShortcut(Qt::Key_F5);
     action_run_statics->setMenuRole(QAction::NoRole);
     action_run_statics->setIconVisibleInMenu(true);
-    action_run_statics->setEnabled(false);
 
     action_run_dynamics = new QAction(QIcon(":/icons/run-dynamics"), "&Dynamics...", this);
     QObject::connect(action_run_dynamics, &QAction::triggered, [&]{ runSimulation("--dynamic"); });
     action_run_dynamics->setShortcut(Qt::Key_F6);
     action_run_dynamics->setMenuRole(QAction::NoRole);
     action_run_dynamics->setIconVisibleInMenu(true);
-    action_run_dynamics->setEnabled(false);
 
     // Recent file menu
     QObject::connect(menu_recent, &RecentFilesMenu::openRecent, this, &MainWindow::openRecent);
@@ -105,8 +100,8 @@ MainWindow::MainWindow()
         this->setModified(new_data != data);
     });
 
-    // Set editor invisible until a file has been loaded
-    editor->setVisible(false);
+    // Disable editing until a file has been loaded or created
+    setEditingEnabled(false);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -135,6 +130,7 @@ bool MainWindow::loadFile(const QString& path)
         editor->setData(data);
         setCurrentFile(path);
         setModified(false);
+        setEditingEnabled(true);
         return true;
     }
     catch(const std::exception& e)  // Todo
@@ -168,15 +164,9 @@ void MainWindow::newFile()
 
     data = InputData();
     editor->setData(data);
-    editor->setVisible(true);
-
-    action_open->setEnabled(true);
-    action_save->setEnabled(true);
-    action_save_as->setEnabled(true);
-    action_run_statics->setEnabled(true);
-    action_run_dynamics->setEnabled(true);
 
     setModified(false);
+    setEditingEnabled(true);
 }
 
 void MainWindow::open()
@@ -262,6 +252,15 @@ void MainWindow::setCurrentFile(const QString &path)
     }
 
     QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
+}
+
+void MainWindow::setEditingEnabled(bool enabled)
+{
+    editor->setVisible(enabled);
+    action_save->setEnabled(enabled);
+    action_save_as->setEnabled(enabled);
+    action_run_statics->setEnabled(enabled);
+    action_run_dynamics->setEnabled(enabled);
 }
 
 // true: Discard and save, false: Cancel and don't save
