@@ -32,5 +32,5 @@ int main(int argc, char* argv[])
         window.loadFile(args[0]);
     }
 
-     return app.exec();
+    return app.exec();
 }
