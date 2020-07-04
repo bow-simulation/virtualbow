@@ -48,5 +48,6 @@
         <file>icons/width.png</file>
         <file>icons/width.svg</file>
         <file>icons/logo.ico</file>
+        <file>icons/background.png</file>
     </qresource>
 </RCC>
