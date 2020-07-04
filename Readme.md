@@ -12,7 +12,7 @@ Building VirtualBow requires CMake, a C++17 compiler and the following external 
 * [Qt](https://www.qt.io/)
 * [Boost](https://www.boost.org/)
 * [Catch](https://github.com/catchorg/Catch2)
-* [Eigen](http://eigen.tuxfamily.org/)
+* [Eigen](http://eigen.tuxfamily.org/) (Master branch)
 * [Json](https://github.com/nlohmann/json)
 * [NLopt](https://github.com/stevengj/nlopt)
 
