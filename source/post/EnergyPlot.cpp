@@ -55,21 +55,6 @@ void EnergyPlot::setStateIndex(int index)
 
 }
 
-/*
-void EnergyPlot::updatePlot()
-{
-    plot->clearPlottables();
-
-    if(cb_stacked->isChecked())
-        plotStacked();
-    else
-        plotLines();
-
-    plot->rescaleAxes();
-    plot->replot();
-}
-*/
-
 void EnergyPlot::updatePlot()
 {
     // Function plot_energy adds a single energy to the plot
@@ -167,6 +152,6 @@ void EnergyPlot::updatePlot()
     }
 
     // Update plot
-    plot->rescaleAxes();
+    plot->rescaleAxes(false, true);
     plot->replot();
 }
