@@ -3,7 +3,7 @@
 [![Build Status](https://bow-simulation.visualstudio.com/virtualbow/_apis/build/status/bow-simulation.virtualbow?branchName=develop)](https://bow-simulation.visualstudio.com/virtualbow/_build/latest?definitionId=1&branchName=develop)
 
 VirtualBow is a free, open-source software tool for designing and simulating bows.
-Visit http://www.virtualbow.org for more information about the project.
+Visit http://www.virtualbow.org for more information about the program and its features.
 
 # Building
 
@@ -14,6 +14,7 @@ Building VirtualBow requires CMake, a C++17 compiler and the following external 
 * [Catch](https://github.com/catchorg/Catch2)
 * [Eigen](http://eigen.tuxfamily.org/)
 * [Json](https://github.com/nlohmann/json)
+* [NLopt](https://github.com/stevengj/nlopt)
 
 Optional pre-built dependencies for the supported platforms and compilers are available at [virtualbow-dependencies](https://github.com/bow-simulation/virtualbow-dependencies/releases).
 They each contain a file named `paths.cmake` that will set up the `CMAKE_PREFIX_PATH` such that the correct libraries are found by CMake.
@@ -21,7 +22,7 @@ The easiest way to use it is by setting `CMAKE_TOOLCHAIN_FILE` to `paths.cmake` 
 
     -DCMAKE_TOOLCHAIN_FILE=[dependencies]/paths.cmake
 
-If you're using Qt Creator you can set this property under *Projects* - *Build Settings* - *CMake*. (If the configuration step keeps failing, try cleaning the CMake configuration or manually create the folder specified as *Build directory* and then run CMake again.)
+If you're using Qt Creator you can set this property under *Projects* - *Build Settings* - *CMake*. (If the configuration step keeps failing, try *Build* - *Clear CMake Configuration* and then run CMake again via *Build* - *Run CMake*.)
 
 ## Windows
 

@@ -21,12 +21,11 @@ SplineView::SplineView(const QString& x_label, const QString& y_label)
     this->graph()->setLineStyle(QCPGraph::lsNone);
 }
 
-void SplineView::setData(Series data)
+void SplineView::setData(const MatrixXd& data)
 {
     input = data;
     updatePlot();
 }
-
 
 void SplineView::setSelection(const QVector<int>& indices)
 {
@@ -43,7 +42,7 @@ void SplineView::updatePlot()
     // Line
     try
     {
-        CubicSpline spline = CubicSpline(input.args(), input.vals());
+        CubicSpline spline = CubicSpline(input);
         for(double p: Linspace<double>(spline.arg_min(), spline.arg_max(), 100))    // Magic number
         {
             this->graph(0)->addData(p, spline(p));
@@ -55,12 +54,12 @@ void SplineView::updatePlot()
     }
 
     // Control points
-    for(int i = 0; i < input.size(); ++i)
+    for(int i = 0; i < input.rows(); ++i)
     {
         if(selection.contains(i))
-            this->graph(2)->addData(input.arg(i), input.val(i));
+            this->graph(2)->addData(input(i, 0), input(i, 1));
         else
-            this->graph(1)->addData(input.arg(i), input.val(i));
+            this->graph(1)->addData(input(i, 0), input(i, 1));
     }
 
     this->rescaleAxes(false, true);

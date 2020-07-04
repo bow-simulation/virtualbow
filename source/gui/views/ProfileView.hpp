@@ -1,15 +1,16 @@
 #pragma once
 #include "gui/PlotWidget.hpp"
+#include "solver/numerics/Eigen.hpp"
 #include "solver/numerics/Series.hpp"
 
 class ProfileView: public PlotWidget
 {
 public:
     ProfileView();
-    void setData(Series profile);
+    void setData(const MatrixXd& profile);
     void setSelection(const QVector<int>& indices);
 private:
-    Series input;
+    MatrixXd input = MatrixXd::Zero(0, 2);
     QVector<int> selection;
 
     QCPCurve* curve0;

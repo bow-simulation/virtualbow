@@ -10,13 +10,13 @@ class ProfileDialog: public PersistentDialog
 public:
     ProfileDialog(QWidget* parent);
 
-    Series getData() const;
-    void setData(const Series& data);
+    MatrixXd getData() const;
+    void setData(const MatrixXd& data);
 
 signals:
     void modified();
 
 private:
-    SeriesEditor* edit;
+    TableEditor* edit;
     ProfileView* view;
 };

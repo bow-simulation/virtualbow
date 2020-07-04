@@ -115,3 +115,147 @@ All in all, there are four different types of elements needed:
 All of them have to account for arbitrarily large displacements and are therefore geometrically nonlinear (even though all the materials are linear-elastic).
 
 In the next chapters we will first show how the equations of motion for a finite element system can be assembled from the equations of motion for the single elements. We will then derive the equations of motion for the element types listed above. Finally we're going to discuss the numerical solution of those equations for the static and dynamic case and how this is implemented in VirtualBow.
+
+\newpage
+\section{Limb Geometry}
+
+\subsection{Profile Curve}
+
+A section of the profile curve is to be determined by two control points $\{ s_0,\,\varphi_0,\,x_0,\,y_0 \}$ and $\{ s_1,\,\varphi_1,\,x_1,\,y_1 \}$, with $s$ beinig the arc length along the curve, $\varphi$ being the angle between the curve's tangent and the x-axis and $x$ and $y$ being the position of the point.
+The second/end point might be incompletely specified by omitting up to two values.
+
+We choose the curvature of our section to vary quadratically on the arc length, which will give the resulting curve the needed degrees of freedom to exactly match the end point if completely specified.
+%
+\begin{equation}
+\kappa(s) = c_0 + c_1\,s + c_2\,s^2,\quad s \in [0,\,c_3]
+\end{equation}
+%
+This description of the curvature includes lines, circles and Euler Spirals as special cases.
+The angle and coordinates of the curve can be calculated by integration,
+%
+\begin{align}
+\varphi(s) &= \varphi_0 + c_0\,s + \frac{1}{2}\,c_1\,s^2 + \frac{1}{3}\,c_2\,s^3\\
+x(s) &= x_0 + \int_{0}^{s} \cos(\varphi(\tau))\ d\tau \\
+y(s) &= y_0 + \int_{0}^{s} \sin(\varphi(\tau))\ d\tau
+\end{align}
+%
+In the case of $x(s)$ and $y(s)$ only numerically though.
+This curve already matches the starting point of the segment by choice of the intrgration constants.
+The goal is now to determine the constants $\boldsymbol{c} = (c_0,\,\ldots,\,c_3)^T$ such that it matches the end point as well.
+Depending on which components of the second control point have been specified, the end point imposes a subset of the following constraints on the curve:
+%
+\begin{equation}
+\boldsymbol{g}(\boldsymbol{c}) =
+\begin{bmatrix}
+c_3 - (s_1 - s_0) \\
+\varphi(c_3) - \varphi_1 \\
+x(c_3) - x_1 \\
+y(c_3) - y_1
+\end{bmatrix}
+\end{equation}
+%
+If all components of the end point are specified, there are 5 conditions for 5 variables and the curve is exactly determined.
+But as this doesn't have to be the case, we need an additional criterium to find our curve.
+We want the "smoothest" curve that satisfies the constraints, so we define an objective funcion that is an integral over the squared curvature,
+%
+\begin{align*}
+f(\boldsymbol{c}) &= \int_0^{c_3} \kappa(s)^2\ ds \\
+&= \int_0^{c_3}\left(c_0^2 + 2\,c_0\,c_1\,s + (2\,c_0\,c_2 + c_1^2)\,s^2 + 2\,c_1\,c_2\,s^3 + c_2^2\,s^4\right)\ ds \\
+&= c_0^2\,c_3 + c_0\,c_1\,c_3^2 + \left(\frac{2}{3}\,c_0\,c_2 + \frac{1}{3}\,c_1^2\right)\,c_3^3 + \frac{1}{2}\,c_1\,c_2\,c_3^4 + \frac{1}{5}\,c_2^2\,c_3^5
+\end{align*}
+%
+We can now determine $\boldsymbol{c}$ by minimizing this objective function while also taking into account the constraints $\boldsymbol{g}(\boldsymbol{c})$,
+%
+\begin{equation}
+\boldsymbol{c} = \argmin_{\boldsymbol{g}(\boldsymbol{c}) = 0} f(\boldsymbol{c}).
+\end{equation}
+%
+This has to be solved with a numerical algorithm for constrained optimization.
+An easy and effective initial value for $\boldsymbol{c}$ is a straight line, i.e. $c_0,\ldots\,c_2 = 0$ and the lenth $c_3$ determined, depending on which components of the end point are available, as
+%
+\begin{equation}
+c_3 = s_1 - s_0 = \frac{x_1 - x_0}{\sin(\varphi_0)} = \frac{y_1 - y_0}{\cos(\varphi_0)} = \sqrt{(x_1 - x_0)^2 + (y_1 - y_0)^2}
+\end{equation}
+%
+
+The complete profile curve is defined by a series of arbitrarily many points.
+Each pair of points defines a segment of the profile curve, but only the starting point has to be specified completely.
+The segments are optimized separately and in order, from start to end of the profile curve.
+Once a segment is completely determined, the starting point of the next segment is known, etc.
+
+\subsection{Width and height}
+
+The distribution of width along the limb as well as the height of the layers are specified by the users in terms of $n$ control points $(x_k,\,y_k)$, with $k = 0\,\ldots\,n-1$.
+The task is then to determine a smooth function $f(x)$ that interpolates those control points, i.e. $f(x_k) = y_k$.
+
+A good fit for this task would be cubic spline interpolation, except that we have one additional requirement for our use case: Other than standard cubic splines, we want the interpolating function to preserve the monotonicity of the data set.
+This means that local minima and maxima may only ever occur at the control points.
+Without this property, splines often produce undesirable results.
+For example, users might enter only positive values for the limb width but the resulting spline can still have a local minimum $< 0$ between two control points, which makes the input invalid as negative widths are not allowed.
+
+There are many different methods for monotonic cubic spline interpolation.
+Most of them enforce monotonicity by making conservative estimates that sacrifice some of the smoothness that would be possible in an optimal solution.
+We take a different path and use a method based on numerical optimization as described in \cite{bib:woal02}.
+The paper describes the use of constrained optimization for finding a spline curve that minimizes some measure of smoothness while also subject to additional monotonicity constraints. The interpolating function $f(x)$ is defined as piecewise cubic polynomials given in Hermite form, i.e. in terms of the function values $y_k$, $y_{k+1}$ and derivatives $m_{k} = y'_k$ and $m_{k+1} = y'_{k+1}$ at the interval boundaries,
+%
+\begin{align}
+f_k(x) &= h_{00}\left(\frac{x - x_k}{\Delta x_k}\right)y_k + h_{10}\left(\frac{x - x_k}{\Delta x_k}\right)\Delta x_k\,m_k \notag \\
+&+ h_{01}\left(\frac{x - x_k}{\Delta x_k}\right)y_{k+1} + h_{11}\left(\frac{x - x_k}{\Delta x_k}\right)\Delta x_k\,m_{k+1} 
+\end{align}
+%
+with $\Delta x_k = x_{k+1} - x_{k}$ and the Hermite basis functions
+%
+\begin{align}
+h_{00}(t) &= 2\,t^3 - 3\,t^2 + 1 \\
+h_{10}(t) &= t^3 - 2\,t^2 + t \\
+h_{01}(t) &= -2\,t^3 + 3\,t^2 \\
+h_{11}(t) &= t^3 - t^2
+\end{align}
+%
+The unknown slopes $m_k$ are determined by minimizing the energy measure
+%
+\begin{align}
+E &= \sum_{k=0}^{n-2}\int_{x_k}^{x_{k+1}} f''_k(x)^2\ dx \notag \\
+&= \sum_{k=0}^{n-2}\frac{1}{\Delta x_k^3}\Big( 12\Delta y_k^2 - 12(m_{k+1} + m_{k})\Delta x_k \Delta y_k + 4(m_{k+1}^2 + m_{k} m_{k+1} + m_{k}^2)\Delta x_k^2 \Big) \label{eq:spline-linearized-energy}
+\end{align}
+%
+subject to the following monotonicity constraints for each interval,
+%
+\begin{align}
+\intertext{Case $\Delta y_{k} \neq 0$:}
+\sgn\left(\frac{\Delta y_k}{\Delta x_k}\right)
+&\begin{bmatrix}
+-1 & \ \ 0 \\
+\ \ 0 & -1 \\
+\ \ 1 & -1 \\
+-1 & \ \ 1 \\
+\ \ 2 & \ \ 1 \\
+\ \ 1 & \ \ 2
+\end{bmatrix}
+\begin{bmatrix}
+m_{k} \\
+m_{k+1}
+\end{bmatrix}
+-
+\bigg| \frac{\Delta y_k}{\Delta x_k} \bigg|
+\begin{bmatrix}
+0 \\
+0 \\
+3 \\
+3 \\
+9 \\
+9
+\end{bmatrix}
+\le 0 \\
+\intertext{Case $\Delta y_{k} = 0$:}
+&\begin{bmatrix}
+m_{k} \\m_{k+1}
+\end{bmatrix}
+= 0
+\end{align}
+%
+Note that the continuity of the resulting curve in function value and first derivative is already guaranteed by chosing the Hermite form for the piecewise polynomials, making the function $C^1$ continuous.
+However, other than in a classical natural spline, there is no continuity constraint on the second derivative.
+The reason for this, as noted in the paper, is that a $C^2$ solution that also satisfies the monotonicity constraints might not exist.
+Several solutions for this are proposed there, including an alternative objective function that evaluates the discontinuities of the second derivative to achieve a spline that is as close to $C^2$ as possible.
+However, as $C^2$ continuity isn't extremely important in our use case, the simpler $C^1$ method with the well established energy measure (\ref{eq:spline-linearized-energy}) was chosen instead.
