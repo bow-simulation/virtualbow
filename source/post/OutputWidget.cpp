@@ -48,6 +48,7 @@ OutputWidget::OutputWidget(const OutputData& output)
     vbox->addLayout(stack, 1);
     vbox->addWidget(btbox);
     this->setLayout(vbox);
+    this->setAutoFillBackground(true);
 
     QSettings settings;
     int mode = settings.value("OutputWidget/selectedMode", int(enable_dynamics)).toInt();

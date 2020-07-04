@@ -85,6 +85,7 @@ MainWindow::MainWindow()
 
     // Main window
     this->setWindowIcon(QIcon(":/icons/logo.ico"));
+    this->setStyleSheet("QMainWindow { background-image:url(:/icons/background.png); background-position: center; background-repeat: no-repeat; }");
     this->setCentralWidget(editor);
     this->resize(INITIAL_SIZE);
     setCurrentFile(QString());

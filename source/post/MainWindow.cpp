@@ -40,6 +40,7 @@ MainWindow::MainWindow()
 
     // Main window
     this->setWindowIcon(QIcon(":/icons/logo"));
+    this->setStyleSheet("QMainWindow { background-image:url(:/icons/background.png); background-position: center; background-repeat: no-repeat; }");
     this->resize(INITIAL_SIZE);
 
     // Load geometry and state
