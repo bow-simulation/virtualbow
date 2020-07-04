@@ -2,7 +2,7 @@
 
 WidthDialog::WidthDialog(QWidget* parent)
     : PersistentDialog(parent, "WidthDialog", {800, 400}),    // Magic numbers
-      edit(new SeriesEditor("Position", "Width [m]", 25)),
+      edit(new TableEditor({"Position", "Width [m]"}, 100)),
       view(new SplineView("Position", "Width [m]"))
 {
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -21,19 +21,19 @@ WidthDialog::WidthDialog(QWidget* parent)
     this->setLayout(vbox);
 
     // Event handling
-    QObject::connect(edit, &SeriesEditor::selectionChanged, view, &SplineView::setSelection);
-    QObject::connect(edit, &SeriesEditor::modified, [&]{
+    QObject::connect(edit, &TableEditor::rowSelectionChanged, view, &SplineView::setSelection);
+    QObject::connect(edit, &TableEditor::modified, [&]{
         view->setData(edit->getData());
         emit modified();
     });
 }
 
-Series WidthDialog::getData() const
+MatrixXd WidthDialog::getData() const
 {
     return edit->getData();
 }
 
-void WidthDialog::setData(const Series& width)
+void WidthDialog::setData(const MatrixXd& width)
 {
     edit->setData(width);
     view->setData(width);

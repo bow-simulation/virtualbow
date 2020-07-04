@@ -9,13 +9,13 @@ class WidthDialog: public PersistentDialog
 public:
     WidthDialog(QWidget* parent);
 
-    Series getData() const;
-    void setData(const Series& width);
+    MatrixXd getData() const;
+    void setData(const MatrixXd& width);
 
 signals:
     void modified();
 
 private:
-    SeriesEditor* edit;
+    TableEditor* edit;
     SplineView* view;
 };

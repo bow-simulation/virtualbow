@@ -21,6 +21,7 @@ find_package(Boost REQUIRED)
 find_package(Catch2 REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(NLopt REQUIRED)
 find_package(Threads REQUIRED)                # System thread library (https://stackoverflow.com/a/39547577)
 find_package(OpenGL REQUIRED)
 
@@ -84,8 +85,8 @@ add_executable(
     source/gui/editors/IntegerEditor.hpp
     source/gui/editors/LayerEditor.cpp
     source/gui/editors/LayerEditor.hpp
-    source/gui/editors/SeriesEditor.cpp
-    source/gui/editors/SeriesEditor.hpp
+    source/gui/editors/TableEditor.cpp
+    source/gui/editors/TableEditor.hpp
     source/gui/editors/TreeEditor.cpp
     source/gui/editors/TreeEditor.hpp
     source/gui/editors/TreeItem.hpp
@@ -124,6 +125,7 @@ target_link_libraries(
     ${Boost_LIBRARIES}
     Eigen3::Eigen
     nlohmann_json::nlohmann_json
+    NLopt::nlopt
 )
 
 # Target: Post executable
@@ -174,6 +176,7 @@ target_link_libraries(
     ${Boost_LIBRARIES}
     Eigen3::Eigen
     nlohmann_json::nlohmann_json
+    NLopt::nlopt
 )
 
 # Target: Solver executable
@@ -211,6 +214,7 @@ target_link_libraries(
     ${Boost_LIBRARIES}
     Eigen3::Eigen
     nlohmann_json::nlohmann_json
+    NLopt::nlopt
 )
 
 # Target: Test executable
@@ -255,6 +259,7 @@ target_link_libraries(
     ${Boost_LIBRARIES}
     Eigen3::Eigen
     nlohmann_json::nlohmann_json
+    NLopt::nlopt
 )
 
 # Change output directories

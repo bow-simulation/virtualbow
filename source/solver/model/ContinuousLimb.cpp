@@ -2,7 +2,7 @@
 
 ContinuousLayer::ContinuousLayer(const ContinuousLimb& limb, const Layer& layer)
     : limb(limb),
-      height(layer.height.args(), layer.height.vals()),
+      height(layer.height),
       rho(layer.rho),
       E(layer.E)
 {
@@ -35,12 +35,8 @@ double ContinuousLayer::get_E() const
 }
 
 ContinuousLimb::ContinuousLimb(const InputData& input)
-    : profile(input.profile.args(),
-              input.profile.vals(),
-              0.5*input.dimensions.handle_length,
-              input.dimensions.handle_setback,
-              input.dimensions.handle_angle),
-      width(input.width.args(), input.width.vals())
+    : profile(input.profile),
+      width(input.width)
 {
     for(const Layer& layer: input.layers) {
         layers.push_back(ContinuousLayer(*this, layer));

@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/numerics/Series.hpp"
+#include "solver/numerics/Eigen.hpp"
 #include <nlohmann/json.hpp>
 
 using nlohmann::json;
@@ -7,7 +7,8 @@ using nlohmann::json;
 struct Layer
 {
     std::string name = "New layer";
-    Series height = {{0.0, 1.0}, {0.015, 0.01}};
+    MatrixXd height{{0.0, 0.015}, {1.0, 0.01}};
+
     double rho = 600.0;
     double E = 15e9;
 };
