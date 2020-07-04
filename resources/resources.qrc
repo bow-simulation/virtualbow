@@ -47,7 +47,7 @@
         <file>icons/view-top.svg</file>
         <file>icons/width.png</file>
         <file>icons/width.svg</file>
-        <file>icons/logo.ico</file>
         <file>icons/background.png</file>
+        <file>icons/logo.png</file>
     </qresource>
 </RCC>

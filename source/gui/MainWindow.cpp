@@ -84,7 +84,7 @@ MainWindow::MainWindow()
     this->menuBar()->addMenu(new HelpMenu(this));
 
     // Main window
-    this->setWindowIcon(QIcon(":/icons/logo.ico"));
+    this->setWindowIcon(QIcon(":/icons/logo.png"));
     this->setStyleSheet("QMainWindow { background-image:url(:/icons/background.png); background-position: center; background-repeat: no-repeat; }");
     this->setCentralWidget(editor);
     this->resize(INITIAL_SIZE);
