@@ -23,10 +23,10 @@ private:
     QAction* action_quit;
     QAction* action_run_statics;
     QAction* action_run_dynamics;
+    RecentFilesMenu* menu_recent;
 
     InputData data;
     BowEditor* editor;
-    RecentFilesMenu* menu_recent;
 
     void closeEvent(QCloseEvent *event) override;
 
