@@ -12,6 +12,10 @@ public:
 private:
     const char* DEFAULT_FILENAME = "Unnamed";
     const QSize INITIAL_SIZE = {1000, 700};
+
+    QAction* action_open;
+    QAction* action_save_as;
+    QAction* action_quit;
     RecentFilesMenu* menu_recent;
 
     void closeEvent(QCloseEvent *event) override;

@@ -8,20 +8,20 @@ MainWindow::MainWindow()
     : menu_recent(new RecentFilesMenu(this))
 {
     // Actions
-    auto action_open = new QAction(QIcon(":/icons/document-open.png"), "&Open...", this);
+    action_open = new QAction(QIcon(":/icons/document-open.png"), "&Open...", this);
     action_open->setShortcuts(QKeySequence::Open);
     action_open->setMenuRole(QAction::NoRole);
     QObject::connect(action_open, &QAction::triggered, this, &MainWindow::open);
 
-    auto action_save_as = new QAction(QIcon(":/icons/document-save-as.png"), "Save &As...", this);
+    action_save_as = new QAction(QIcon(":/icons/document-save-as.png"), "Save &As...", this);
     action_save_as->setShortcuts(QKeySequence::SaveAs);
     action_save_as->setMenuRole(QAction::NoRole);
     QObject::connect(action_save_as, &QAction::triggered, this, &MainWindow::saveAs);
 
-    auto action_quit = new QAction(QIcon(":/icons/application-exit.png"), "&Quit", this);
-    QObject::connect(action_quit, &QAction::triggered, this, &QWidget::close);
+    action_quit = new QAction(QIcon(":/icons/application-exit.png"), "&Quit", this);
     action_quit->setShortcuts(QKeySequence::Quit);
     action_quit->setMenuRole(QAction::QuitRole);
+    QObject::connect(action_quit, &QAction::triggered, this, &QWidget::close);
 
     // Recent file menu
     QObject::connect(menu_recent, &RecentFilesMenu::openRecent, this, &MainWindow::loadFile);
@@ -47,6 +47,9 @@ MainWindow::MainWindow()
     QSettings settings;
     restoreState(settings.value("OutputWindow/state").toByteArray());
     restoreGeometry(settings.value("OutputWindow/geometry").toByteArray());
+
+    // Disable saving until a file has been loaded
+    action_save_as->setEnabled(false);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -64,6 +67,7 @@ void MainWindow::loadFile(const QString& path)
         OutputData output(path.toStdString());
         this->setCentralWidget(new OutputWidget(output));
         this->setWindowFilePath(path);
+        action_save_as->setEnabled(true);
         menu_recent->addPath(path);
     }
     catch(const std::exception& e)  // Todo
