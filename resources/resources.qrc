@@ -4,7 +4,6 @@
         <file>icons/damping.png</file>
         <file>icons/damping.svg</file>
         <file>icons/dialog-information.png</file>
-        <file>icons/dialog-information.svg</file>
         <file>icons/dimensions.png</file>
         <file>icons/document-new.png</file>
         <file>icons/document-open.png</file>
@@ -13,7 +12,6 @@
         <file>icons/layers.png</file>
         <file>icons/layers.svg</file>
         <file>icons/list-add.png</file>
-        <file>icons/list-add.svg</file>
         <file>icons/logo.svg</file>
         <file>icons/masses.png</file>
         <file>icons/masses.svg</file>
@@ -36,15 +34,10 @@
         <file>icons/string.png</file>
         <file>icons/string.svg</file>
         <file>icons/view-3d.png</file>
-        <file>icons/view-3d.svg</file>
         <file>icons/view-fit.png</file>
-        <file>icons/view-fit.svg</file>
         <file>icons/view-profile.png</file>
-        <file>icons/view-profile.svg</file>
         <file>icons/view-symmetric.png</file>
-        <file>icons/view-symmetric.svg</file>
         <file>icons/view-top.png</file>
-        <file>icons/view-top.svg</file>
         <file>icons/width.png</file>
         <file>icons/width.svg</file>
         <file>icons/background.png</file>

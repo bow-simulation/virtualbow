@@ -14,53 +14,68 @@ LimbView::LimbView()
     format.setSamples(32);
     setFormat(format);
 
+    const QSize BUTTON_SIZE = {35, 35};
+    const QString BUTTON_STYLE = "QToolButton { background-color: rgba(220, 220, 220, 200); border-radius: 5px; }"
+                                 "QToolButton:pressed { background-color: rgba(150, 150, 150, 200); }"
+                                 "QToolButton:checked { background-color: rgba(150, 150, 150, 200); }";
+
     auto button0 = new QToolButton();
-    QObject::connect(button0, &QPushButton::clicked, this, &LimbView::viewProfile);
-    button0->setIcon(QIcon(":/icons/view-profile"));
-    button0->setToolTip("Profile view");
-    button0->setIconSize({32, 32});
+    QObject::connect(button0, &QPushButton::clicked, this, &LimbView::view3D);
+    button0->setIcon(QIcon(":/icons/view-3d"));
+    button0->setToolTip("Default view");
+    button0->setIconSize(BUTTON_SIZE);
+    button0->setStyleSheet(BUTTON_STYLE);
 
     auto button1 = new QToolButton();
-    QObject::connect(button1, &QPushButton::clicked, this, &LimbView::viewTop);
-    button1->setIcon(QIcon(":/icons/view-top"));
-    button1->setToolTip("Top view");
-    button1->setIconSize({32, 32});
+    QObject::connect(button1, &QPushButton::clicked, this, &LimbView::viewProfile);
+    button1->setIcon(QIcon(":/icons/view-profile"));
+    button1->setToolTip("Profile view");
+    button1->setIconSize(BUTTON_SIZE);
+    button1->setStyleSheet(BUTTON_STYLE);
 
     auto button2 = new QToolButton();
-    QObject::connect(button2, &QPushButton::clicked, this, &LimbView::view3D);
-    button2->setIcon(QIcon(":/icons/view-3d"));
-    button2->setToolTip("Default view");
-    button2->setIconSize({32, 32});
+    QObject::connect(button2, &QPushButton::clicked, this, &LimbView::viewTop);
+    button2->setIcon(QIcon(":/icons/view-top"));
+    button2->setToolTip("Top view");
+    button2->setIconSize(BUTTON_SIZE);
+    button2->setStyleSheet(BUTTON_STYLE);
 
     auto button3 = new QToolButton();
     QObject::connect(button3, &QPushButton::clicked, this, &LimbView::viewFit);
     button3->setIcon(QIcon(":/icons/view-fit"));
     button3->setToolTip("Reset zoom");
-    button3->setIconSize({32, 32});
+    button3->setIconSize(BUTTON_SIZE);
+    button3->setStyleSheet(BUTTON_STYLE);
 
     auto button4 = new QToolButton();
     QObject::connect(button4, &QToolButton::toggled, this, &LimbView::viewSymmetric);
     button4->setIcon(QIcon(":/icons/view-symmetric"));
-    button4->setToolTip("Show second limb");
-    button4->setIconSize({32, 32});
+    button4->setToolTip("Show symmetry");
+    button4->setIconSize(BUTTON_SIZE);
+    button4->setStyleSheet(BUTTON_STYLE);
     button4->setCheckable(true);
 
-    auto hbox = new QHBoxLayout();
-    hbox->setAlignment(Qt::AlignBottom);
-    hbox->addStretch();
-    hbox->addWidget(button0);
-    hbox->addWidget(button1);
-    hbox->addWidget(button2);
-    hbox->addWidget(button3);
-    hbox->addSpacing(20);
-    hbox->addWidget(button4);
+    auto vbox1 = new QVBoxLayout();
+    vbox1->setAlignment(Qt::AlignLeft);
+    vbox1->addWidget(legend);
+    vbox1->addStretch();
 
-    auto vbox = new QVBoxLayout();
-    this->setLayout(vbox);
-    vbox->setMargin(25);
-    vbox->addWidget(legend);
-    vbox->addStretch();
-    vbox->addLayout(hbox);
+    auto vbox2 = new QVBoxLayout();
+    vbox2->setAlignment(Qt::AlignRight);
+    vbox2->setSpacing(8);
+    vbox2->addWidget(button0);
+    vbox2->addWidget(button1);
+    vbox2->addWidget(button2);
+    vbox2->addWidget(button3);
+    vbox2->addWidget(button4);
+    vbox2->addStretch();
+
+    auto hbox = new QHBoxLayout();
+    this->setLayout(hbox);
+    hbox->setMargin(20);
+    hbox->addLayout(vbox1);
+    hbox->addStretch();
+    hbox->addLayout(vbox2);
 
     // Initialize view parameters
     viewSymmetric(false);
