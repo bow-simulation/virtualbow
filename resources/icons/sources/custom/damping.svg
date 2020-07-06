@@ -14,11 +14,11 @@
    viewBox="0 0 14.55209 14.55209"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="damping.svg"
-   inkscape:export-filename="damping.png"
-   inkscape:export-xdpi="83.781784"
-   inkscape:export-ydpi="83.781784">
+   inkscape:export-filename="/home/s/Desktop/Repositories/virtualbow/resources/icons/model-damping.png"
+   inkscape:export-xdpi="41.890892"
+   inkscape:export-ydpi="41.890892">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -28,15 +28,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
-     inkscape:cx="16.379684"
-     inkscape:cy="28.900741"
+     inkscape:zoom="7.919596"
+     inkscape:cx="18.103227"
+     inkscape:cy="29.434507"
      inkscape:document-units="mm"
      inkscape:current-layer="g835"
      showgrid="true"
      inkscape:snap-grids="true"
      inkscape:window-width="1920"
-     inkscape:window-height="1001"
+     inkscape:window-height="1009"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -65,7 +65,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -78,24 +78,24 @@
        id="g835"
        style="stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none">
       <path
-         style="fill:none;stroke:#464646;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:none;stroke:#3a3a38;stroke-width:1.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          d="m 109.80208,95.652083 h 6.61459 l 0,11.112497 h -6.61459"
          id="path837"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccc" />
       <path
-         style="fill:none;stroke:#464646;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:none;stroke:#3a3a38;stroke-width:1.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          d="m 112.44792,101.20833 h -6.61459"
          id="path839"
          inkscape:connector-curvature="0" />
       <path
-         style="fill:none;stroke:#464646;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:none;stroke:#3a3a38;stroke-width:1.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          d="M 112.44792,97.504166 V 104.9125"
          id="path841"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cc" />
       <path
-         style="fill:none;stroke:#464646;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:none;stroke:#3a3a38;stroke-width:1.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          d="m 116.41667,101.20833 h 3.96875"
          id="path843"
          inkscape:connector-curvature="0" />
