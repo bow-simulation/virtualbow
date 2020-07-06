@@ -1,20 +1,11 @@
 <RCC>
     <qresource prefix="/">
-        <file>icons/comments.png</file>
-        <file>icons/damping.png</file>
-        <file>icons/damping.svg</file>
         <file>icons/dialog-information.png</file>
-        <file>icons/dimensions.png</file>
         <file>icons/document-new.png</file>
         <file>icons/document-open.png</file>
         <file>icons/document-save-as.png</file>
         <file>icons/document-save.png</file>
-        <file>icons/layers.png</file>
-        <file>icons/layers.svg</file>
         <file>icons/list-add.png</file>
-        <file>icons/logo.svg</file>
-        <file>icons/masses.png</file>
-        <file>icons/masses.svg</file>
         <file>icons/media-jump-to.png</file>
         <file>icons/media-playback-pause.png</file>
         <file>icons/media-playback-pause.svg</file>
@@ -24,23 +15,23 @@
         <file>icons/media-skip-backward.svg</file>
         <file>icons/media-skip-forward.png</file>
         <file>icons/media-skip-forward.svg</file>
-        <file>icons/profile.png</file>
-        <file>icons/profile.svg</file>
         <file>icons/run-dynamics.png</file>
-        <file>icons/run-dynamics.svg</file>
         <file>icons/run-statics.png</file>
-        <file>icons/run-statics.svg</file>
-        <file>icons/settings.png</file>
-        <file>icons/string.png</file>
-        <file>icons/string.svg</file>
         <file>icons/view-3d.png</file>
         <file>icons/view-fit.png</file>
         <file>icons/view-profile.png</file>
         <file>icons/view-symmetric.png</file>
         <file>icons/view-top.png</file>
-        <file>icons/width.png</file>
-        <file>icons/width.svg</file>
         <file>icons/background.png</file>
         <file>icons/logo.png</file>
+        <file>icons/model-comments.png</file>
+        <file>icons/model-damping.png</file>
+        <file>icons/model-dimensions.png</file>
+        <file>icons/model-layers.png</file>
+        <file>icons/model-masses.png</file>
+        <file>icons/model-profile.png</file>
+        <file>icons/model-settings.png</file>
+        <file>icons/model-string.png</file>
+        <file>icons/model-width.png</file>
     </qresource>
 </RCC>

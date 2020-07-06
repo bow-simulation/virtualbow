@@ -12,21 +12,21 @@
 
 TreeEditor::TreeEditor()
 {
-    new TreeItem<CommentDialog, std::string>(this, data.comment, "Comments", QIcon(":/icons/comments"));
-    new TreeItem<SettingsDialog, Settings>(this, data.settings, "Settings", QIcon(":/icons/settings"));
-    new TreeItem<DimensionsDialog, Dimensions>(this, data.dimensions, "Dimensions", QIcon(":/icons/dimensions"));
-    new TreeItem<ProfileDialog, MatrixXd>(this, data.profile, "Profile", QIcon(":/icons/profile"));
-    new TreeItem<WidthDialog, MatrixXd>(this, data.width, "Width", QIcon(":/icons/width"));
-    new TreeItem<LayerDialog, Layers>(this, data.layers, "Layers", QIcon(":/icons/layers"));
-    new TreeItem<StringDialog, String>(this, data.string, "String", QIcon(":/icons/string"));
-    new TreeItem<MassesDialog, Masses>(this, data.masses, "Masses", QIcon(":/icons/masses"));
-    new TreeItem<DampingDialog, Damping>(this, data.damping, "Damping", QIcon(":/icons/damping"));
+    new TreeItem<CommentDialog, std::string>(this, data.comment, "Comments", QIcon(":/icons/model-comments.png"));
+    new TreeItem<SettingsDialog, Settings>(this, data.settings, "Settings", QIcon(":/icons/model-settings.png"));
+    new TreeItem<DimensionsDialog, Dimensions>(this, data.dimensions, "Dimensions", QIcon(":/icons/model-dimensions.png"));
+    new TreeItem<ProfileDialog, MatrixXd>(this, data.profile, "Profile", QIcon(":/icons/model-profile.png"));
+    new TreeItem<WidthDialog, MatrixXd>(this, data.width, "Width", QIcon(":/icons/model-width.png"));
+    new TreeItem<LayerDialog, Layers>(this, data.layers, "Layers", QIcon(":/icons/model-layers.png"));
+    new TreeItem<StringDialog, String>(this, data.string, "String", QIcon(":/icons/model-string.png"));
+    new TreeItem<MassesDialog, Masses>(this, data.masses, "Masses", QIcon(":/icons/model-masses.png"));
+    new TreeItem<DampingDialog, Damping>(this, data.damping, "Damping", QIcon(":/icons/model-damping.png"));
 
-    QObject::connect(this, &QTreeWidget::itemActivated, [](QTreeWidgetItem* item, int column)
-    {
+    QObject::connect(this, &QTreeWidget::itemActivated, [](QTreeWidgetItem* item, int column) {
         auto action = dynamic_cast<Action*>(item);
-        if(action != nullptr)
+        if(action != nullptr) {
             action->performAction();
+        }
     });
 
     this->setHeaderLabel("Model");

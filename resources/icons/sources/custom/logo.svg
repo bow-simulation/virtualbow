@@ -17,8 +17,8 @@
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="logo.svg"
    inkscape:export-filename="/home/s/Desktop/Repositories/virtualbow/resources/icons/logo.png"
-   inkscape:export-xdpi="52.192574"
-   inkscape:export-ydpi="52.192574">
+   inkscape:export-xdpi="21.809486"
+   inkscape:export-ydpi="21.809486">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -28,9 +28,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2"
-     inkscape:cx="-3.776895"
-     inkscape:cy="144.53836"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="53.916228"
+     inkscape:cy="143.62197"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -60,7 +60,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -70,12 +70,12 @@
      id="layer1"
      transform="translate(-195.65193,-488.24605)">
     <ellipse
-       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.50853127;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.49187317;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
        id="path820"
-       cx="236.64694"
-       cy="529.28369"
-       rx="37.695011"
-       ry="37.652378" />
+       cx="236.54404"
+       cy="529.38519"
+       rx="36.460224"
+       ry="36.418991" />
     <path
        style="fill:#2048aa;fill-opacity:1;stroke:none;stroke-width:3.25092864;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
        d="M 129.27344,1.3671875 C 110.66833,18.198148 94.989128,42.790015 102.00586,68.019531 115.3961,116.16593 149.28619,112.73007 192.52344,210.84766 A 118.1955,118.15214 0 0 0 236.48242,118.9707 118.1955,118.15214 0 0 0 129.27344,1.3671875 Z"
