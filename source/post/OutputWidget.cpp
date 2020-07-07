@@ -52,8 +52,10 @@ OutputWidget::OutputWidget(const OutputData& output)
 
     QSettings settings;
     int mode = settings.value("OutputWidget/selectedMode", int(enable_dynamics)).toInt();
-    bt_statics->setChecked(mode == 0);
-    bt_dynamics->setChecked(mode == 1);
+
+    bool statics_checked = (mode == 0 || !enable_dynamics);
+    bt_statics->setChecked(statics_checked);
+    bt_dynamics->setChecked(!statics_checked);
 }
 
 OutputWidget::~OutputWidget()
