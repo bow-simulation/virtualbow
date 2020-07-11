@@ -14,7 +14,7 @@ LimbView::LimbView()
     format.setSamples(32);
     setFormat(format);
 
-    const QSize BUTTON_SIZE = {35, 35};
+    const QSize BUTTON_SIZE = {34, 34};
     const QString BUTTON_STYLE = "QToolButton { background-color: rgba(220, 220, 220, 200); border-radius: 5px; }"
                                  "QToolButton:pressed { background-color: rgba(150, 150, 150, 200); }"
                                  "QToolButton:checked { background-color: rgba(150, 150, 150, 200); }";

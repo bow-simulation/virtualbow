@@ -9,16 +9,16 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="14.55209mm"
-   height="14.55209mm"
-   viewBox="0 0 14.55209 14.55209"
+   width="24"
+   height="24"
+   viewBox="0 0 6.3500003 6.3500003"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="damping.svg"
-   inkscape:export-filename="/home/s/Desktop/Repositories/virtualbow/resources/icons/model-damping.png"
-   inkscape:export-xdpi="41.890892"
-   inkscape:export-ydpi="41.890892">
+   inkscape:export-filename="/home/stefan/Desktop/Repositories/virtualbow/resources/icons/sources/custom/damping.svg.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -28,15 +28,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="7.919596"
-     inkscape:cx="18.103227"
-     inkscape:cy="29.434507"
-     inkscape:document-units="mm"
+     inkscape:zoom="15.839192"
+     inkscape:cx="-6.6966157"
+     inkscape:cy="8.6734489"
+     inkscape:document-units="px"
      inkscape:current-layer="g835"
      showgrid="true"
      inkscape:snap-grids="true"
      inkscape:window-width="1920"
-     inkscape:window-height="1009"
+     inkscape:window-height="1001"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -45,12 +45,13 @@
      fit-margin-right="0"
      fit-margin-bottom="0"
      showguides="true"
-     inkscape:guide-bbox="true">
+     inkscape:guide-bbox="true"
+     units="px">
     <inkscape:grid
        type="xygrid"
        id="grid815"
-       originx="-105.83333"
-       originy="-188.67708" />
+       originx="0"
+       originy="0" />
     <sodipodi:guide
        position="14.81667,3.4104201"
        orientation="0,1"
@@ -65,7 +66,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -73,32 +74,34 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-105.83333,-93.77083)">
+     transform="translate(-105.83333,-101.97292)">
     <g
        id="g835"
        style="stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none">
       <path
-         style="fill:none;stroke:#3a3a38;stroke-width:1.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 109.80208,95.652083 h 6.61459 l 0,11.112497 h -6.61459"
+         style="fill:none;stroke:#3a3a38;stroke-width:0.5291667;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 107.42083,103.03125 h 2.38125 v 4.23334 h -2.38125"
          id="path837"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccc" />
       <path
-         style="fill:none;stroke:#3a3a38;stroke-width:1.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 112.44792,101.20833 h -6.61459"
+         style="fill:none;stroke:#3a3a38;stroke-width:0.5291667;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 108.21458,105.14792 -1.85208,0"
          id="path839"
-         inkscape:connector-curvature="0" />
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
       <path
-         style="fill:none;stroke:#3a3a38;stroke-width:1.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="M 112.44792,97.504166 V 104.9125"
+         style="fill:none;stroke:#3a3a38;stroke-width:0.5291667;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 108.47916,103.825 v 2.64584"
          id="path841"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cc" />
       <path
-         style="fill:none;stroke:#3a3a38;stroke-width:1.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 116.41667,101.20833 h 3.96875"
+         style="fill:none;stroke:#3a3a38;stroke-width:0.5291667;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 109.96744,105.14792 1.68672,0"
          id="path843"
-         inkscape:connector-curvature="0" />
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
     </g>
   </g>
 </svg>

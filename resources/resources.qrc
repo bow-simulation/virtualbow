@@ -8,13 +8,9 @@
         <file>icons/list-add.png</file>
         <file>icons/media-jump-to.png</file>
         <file>icons/media-playback-pause.png</file>
-        <file>icons/media-playback-pause.svg</file>
         <file>icons/media-playback-start.png</file>
-        <file>icons/media-playback-start.svg</file>
         <file>icons/media-skip-backward.png</file>
-        <file>icons/media-skip-backward.svg</file>
         <file>icons/media-skip-forward.png</file>
-        <file>icons/media-skip-forward.svg</file>
         <file>icons/run-dynamics.png</file>
         <file>icons/run-statics.png</file>
         <file>icons/view-3d.png</file>
