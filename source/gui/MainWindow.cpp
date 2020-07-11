@@ -71,6 +71,7 @@ MainWindow::MainWindow()
     this->setContextMenuPolicy(Qt::NoContextMenu);    // Disables context menu for hiding the toolbar
     auto toolbar = this->addToolBar("Tools");
     toolbar->setObjectName("MainToolBar");            // Necessary for saving the window state
+    toolbar->setAutoFillBackground(true);
     toolbar->setMovable(false);
     toolbar->addAction(action_new);
     toolbar->addAction(action_open);
@@ -86,6 +87,7 @@ MainWindow::MainWindow()
     // Main window
     this->setWindowIcon(QIcon(":/icons/logo.png"));
     this->setStyleSheet("QMainWindow { background-image:url(:/icons/background.png); background-position: center; background-repeat: no-repeat; }");
+    this->menuBar()->setAutoFillBackground(true);
     this->setCentralWidget(editor);
     this->resize(INITIAL_SIZE);
     setCurrentFile(QString());

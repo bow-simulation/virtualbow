@@ -9,16 +9,16 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="43.003883mm"
-   height="43.072918mm"
-   viewBox="0 0 47.304273 47.380211"
+   width="24"
+   height="24"
+   viewBox="0 0 6 6"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="masses.svg"
-   inkscape:export-filename="/home/s/Desktop/Repositories/virtualbow/resources/icons/model-masses.png"
-   inkscape:export-xdpi="14.152745"
-   inkscape:export-ydpi="14.152745">
+   inkscape:export-filename="/home/stefan/Desktop/Repositories/virtualbow/resources/icons/model-masses.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -28,14 +28,14 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8"
-     inkscape:cx="32.717544"
-     inkscape:cy="114.0383"
-     inkscape:document-units="mm"
+     inkscape:zoom="31.678384"
+     inkscape:cx="13.003029"
+     inkscape:cy="13.502317"
+     inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:window-width="1920"
-     inkscape:window-height="1009"
+     inkscape:window-height="1001"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -43,12 +43,19 @@
      fit-margin-top="3"
      fit-margin-left="6.25"
      fit-margin-right="6.25"
-     fit-margin-bottom="3">
+     fit-margin-bottom="3"
+     units="px"
+     viewbox-width="6"
+     width="24px"
+     viewbox-height="6.99"
+     inkscape:pagecheckerboard="false"
+     inkscape:snap-midpoints="false"
+     inkscape:snap-global="true">
     <inkscape:grid
        type="xygrid"
        id="grid4485"
-       originx="-12.726659"
-       originy="-7.5968777" />
+       originx="0"
+       originy="0" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -58,7 +65,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -66,12 +73,12 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-12.726661,-246.82292)">
+     transform="translate(-12.726661,-287.21813)">
     <path
-       style="opacity:0.98999999;fill:none;fill-opacity:1;stroke:#3a3a38;stroke-width:3.30000016;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.99459457"
-       d="m 21.828125,288.70313 h 29.104168 l 0.02364,-19.5679 c 0,-2.64583 -1.37303,-3.89843 -4.026736,-3.89181 -2.637961,0.007 -3.271633,0.007 -4.969602,0.007 -1.852083,0 -1.610643,-5.65146 0.24144,-5.65146 h 1.455208 c 2.645833,0 2.354791,-7.27604 -0.291042,-7.27604 H 29.686247 c -2.645834,0 -3.227918,7.27604 -0.582084,7.27604 h 1.455209 c 1.852084,0 1.852084,5.65193 0,5.65193 -1.615929,0 -2.143128,-4.7e-4 -4.765351,0.0335 -2.669435,0.0346 -3.99236,1.28889 -3.99236,3.93472 z"
-       id="path4506"
+       style="fill:none;stroke:#3a3a38;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 13.976661,292.46813 h 3.5 v -2.25 c 0,-0.25 -0.25,-0.5 -0.5,-0.5 h -0.25 c -0.41217,0 -0.5,-0.25 -0.49838,-0.50434 0.0016,-0.24566 0.16055,-0.49566 0.49838,-0.49566 0.129312,0 0.254872,-0.18093 0.250411,-0.37467 -0.0042,-0.18081 -0.129723,-0.37533 -0.250411,-0.37533 h -2 c -0.129168,0 -0.254733,0.18048 -0.250426,0.37402 0.004,0.18104 0.129594,0.37598 0.250426,0.37598 0.374362,0 0.503268,0.25194 0.503905,0.50151 6.38e-4,0.25043 -0.128267,0.49849 -0.503905,0.49849 h -0.25 c -0.25,0 -0.5,0.25 -0.5,0.5 z"
+       id="path814"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccsccccccccscc" />
+       sodipodi:nodetypes="cccccscsccscscccc" />
   </g>
 </svg>
