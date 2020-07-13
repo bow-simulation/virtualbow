@@ -16,7 +16,9 @@
 class LimbView: public QOpenGLWidget, protected QOpenGLFunctions
 {
 private:
-    const QVector3D LIGHT_POSITION = {0.0f, 1.0f, 10.0f};
+    const QColor CLEAR_COLOR = QColor::fromRgbF(0.2f, 0.3f, 0.4f);
+
+    const QVector3D LIGHT_POSITION = {0.0f, 5.0f, 10.0f};
     const QVector3D CAMERA_POSITION = {0.0f, 0.0f, -1.5f};
 
     const float MATERIAL_AMBIENT = 0.2f;

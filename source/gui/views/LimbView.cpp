@@ -201,8 +201,7 @@ void LimbView::initializeGL()
     connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &LimbView::cleanup);
 
     initializeOpenGLFunctions();
-    glClearColor(0.3f, 0.4f, 0.5f, 1.0f);
-    glLineWidth(2.0f);
+    glClearColor(CLEAR_COLOR.redF(), CLEAR_COLOR.greenF(), CLEAR_COLOR.blueF(), CLEAR_COLOR.alphaF());
 
     shader_program = new QOpenGLShaderProgram;
     shader_program->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderSource);
