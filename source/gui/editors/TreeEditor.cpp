@@ -12,15 +12,15 @@
 
 TreeEditor::TreeEditor()
 {
-    new TreeItem<CommentDialog, std::string>(this, data.comment, "Comments", QIcon(":/icons/model-comments.png"));
-    new TreeItem<SettingsDialog, Settings>(this, data.settings, "Settings", QIcon(":/icons/model-settings.png"));
-    new TreeItem<DimensionsDialog, Dimensions>(this, data.dimensions, "Dimensions", QIcon(":/icons/model-dimensions.png"));
-    new TreeItem<ProfileDialog, MatrixXd>(this, data.profile, "Profile", QIcon(":/icons/model-profile.png"));
-    new TreeItem<WidthDialog, MatrixXd>(this, data.width, "Width", QIcon(":/icons/model-width.png"));
-    new TreeItem<LayerDialog, Layers>(this, data.layers, "Layers", QIcon(":/icons/model-layers.png"));
-    new TreeItem<StringDialog, String>(this, data.string, "String", QIcon(":/icons/model-string.png"));
-    new TreeItem<MassesDialog, Masses>(this, data.masses, "Masses", QIcon(":/icons/model-masses.png"));
-    new TreeItem<DampingDialog, Damping>(this, data.damping, "Damping", QIcon(":/icons/model-damping.png"));
+    new TreeItem<CommentDialog, std::string>(this, data.comment, "Comments", QIcon(":/icons/model-comments.svg"));
+    new TreeItem<SettingsDialog, Settings>(this, data.settings, "Settings", QIcon(":/icons/model-settings.svg"));
+    new TreeItem<DimensionsDialog, Dimensions>(this, data.dimensions, "Dimensions", QIcon(":/icons/model-dimensions.svg"));
+    new TreeItem<ProfileDialog, MatrixXd>(this, data.profile, "Profile", QIcon(":/icons/model-profile.svg"));
+    new TreeItem<WidthDialog, MatrixXd>(this, data.width, "Width", QIcon(":/icons/model-width.svg"));
+    new TreeItem<LayerDialog, Layers>(this, data.layers, "Layers", QIcon(":/icons/model-layers.svg"));
+    new TreeItem<StringDialog, String>(this, data.string, "String", QIcon(":/icons/model-string.svg"));
+    new TreeItem<MassesDialog, Masses>(this, data.masses, "Masses", QIcon(":/icons/model-masses.svg"));
+    new TreeItem<DampingDialog, Damping>(this, data.damping, "Damping", QIcon(":/icons/model-damping.svg"));
 
     QObject::connect(this, &QTreeWidget::itemActivated, [](QTreeWidgetItem* item, int column) {
         auto action = dynamic_cast<Action*>(item);

@@ -8,17 +8,17 @@ MainWindow::MainWindow()
     : menu_recent(new RecentFilesMenu(this))
 {
     // Actions
-    action_open = new QAction(QIcon(":/icons/document-open.png"), "&Open...", this);
+    action_open = new QAction(QIcon(":/icons/document-open.svg"), "&Open...", this);
     action_open->setShortcuts(QKeySequence::Open);
     action_open->setMenuRole(QAction::NoRole);
     QObject::connect(action_open, &QAction::triggered, this, &MainWindow::open);
 
-    action_save_as = new QAction(QIcon(":/icons/document-save-as.png"), "Save &As...", this);
+    action_save_as = new QAction(QIcon(":/icons/document-save-as.svg"), "Save &As...", this);
     action_save_as->setShortcuts(QKeySequence::SaveAs);
     action_save_as->setMenuRole(QAction::NoRole);
     QObject::connect(action_save_as, &QAction::triggered, this, &MainWindow::saveAs);
 
-    action_quit = new QAction(QIcon(":/icons/application-exit.png"), "&Quit", this);
+    action_quit = new QAction(QIcon(":/icons/application-exit.svg"), "&Quit", this);
     action_quit->setShortcuts(QKeySequence::Quit);
     action_quit->setMenuRole(QAction::QuitRole);
     QObject::connect(action_quit, &QAction::triggered, this, &QWidget::close);
@@ -39,8 +39,8 @@ MainWindow::MainWindow()
     this->menuBar()->addMenu(new HelpMenu(this));
 
     // Main window
-    this->setWindowIcon(QIcon(":/icons/logo.png"));
-    this->setStyleSheet("QMainWindow { background-image:url(:/icons/background.png); background-position: center; background-repeat: no-repeat; }");
+    this->setWindowIcon(QIcon(":/icons/logo.svg"));
+    this->setStyleSheet("QMainWindow { background-image:url(:/icons/background.svg); background-position: center; background-repeat: no-repeat; }");
     this->menuBar()->setAutoFillBackground(true);
     this->resize(INITIAL_SIZE);
 
