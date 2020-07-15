@@ -13,22 +13,22 @@ Slider::Slider(const std::vector<double>& values, const QString& text)
     edit->setValidator(validator);
 
     auto button_jump_to = new QToolButton();
-    button_jump_to->setIcon(QIcon(":/icons/media-jump-to.png"));
+    button_jump_to->setIcon(QIcon(":/icons/media-jump-to.svg"));
     button_jump_to->setFixedSize(height, height);
     button_jump_to->setStyleSheet("QToolButton::menu-indicator { image: none; }");
     button_jump_to->setMenu(menu);
     button_jump_to->setPopupMode(QToolButton::InstantPopup);
 
     auto button_skip_backward = new QToolButton();
-    button_skip_backward->setIcon(QIcon(":/icons/media-skip-backward.png"));
+    button_skip_backward->setIcon(QIcon(":/icons/media-skip-backward.svg"));
     button_skip_backward->setFixedSize(height, height);
 
     auto button_play_pause = new QToolButton();
-    button_play_pause->setIcon(QIcon(":/icons/media-playback-start.png"));
+    button_play_pause->setIcon(QIcon(":/icons/media-playback-start.svg"));
     button_play_pause->setFixedSize(height, height);
 
     auto button_skip_forward = new QToolButton();
-    button_skip_forward->setIcon(QIcon(":/icons/media-skip-forward.png"));
+    button_skip_forward->setIcon(QIcon(":/icons/media-skip-forward.svg"));
     button_skip_forward->setFixedSize(height, height);
 
     auto hbox = new QHBoxLayout();
@@ -57,12 +57,12 @@ Slider::Slider(const std::vector<double>& values, const QString& text)
 
     auto start_playback = [=] {
         timer->start();
-        button_play_pause->setIcon(QIcon(":/icons/media-playback-pause.png"));
+        button_play_pause->setIcon(QIcon(":/icons/media-playback-pause.svg"));
     };
 
     auto stop_playback = [=] {
         timer->stop();
-        button_play_pause->setIcon(QIcon(":/icons/media-playback-start.png"));
+        button_play_pause->setIcon(QIcon(":/icons/media-playback-start.svg"));
     };
 
     // Timer: Advance slider by delta_i if possible, else skip the last bit and stop playback.

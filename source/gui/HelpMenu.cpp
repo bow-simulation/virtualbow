@@ -8,7 +8,7 @@ HelpMenu::HelpMenu(QWidget* parent)
     QObject::connect(action_help, &QAction::triggered, this, &HelpMenu::help);
     action_help->setShortcut(Qt::Key_F1);
 
-    auto action_about = new QAction(QIcon(":/icons/dialog-information.png"), "&About", this);
+    auto action_about = new QAction(QIcon(":/icons/dialog-information.svg"), "&About", this);
     QObject::connect(action_about, &QAction::triggered, this, &HelpMenu::about);
     action_about->setMenuRole(QAction::AboutRole);
     action_about->setIconVisibleInMenu(true);
