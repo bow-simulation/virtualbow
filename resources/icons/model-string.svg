@@ -1,64 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="24"
-   height="24"
-   viewBox="0 0 6.35 6.35"
+   width="16"
+   height="16"
+   viewBox="0 0 4.2333333 4.2333333"
    version="1.1"
-   id="svg8"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="string.svg"
-   inkscape:export-filename="/home/stefan/Desktop/Repositories/virtualbow/resources/icons/model-string.png"
-   inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96">
+   id="svg8">
   <defs
      id="defs2" />
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="22.627417"
-     inkscape:cx="15.512831"
-     inkscape:cy="13.731882"
-     inkscape:document-units="px"
-     inkscape:current-layer="g835"
-     showgrid="true"
-     inkscape:snap-grids="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1001"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1"
-     fit-margin-top="1.15"
-     fit-margin-left="1"
-     fit-margin-right="1"
-     fit-margin-bottom="1.15"
-     showguides="true"
-     inkscape:guide-bbox="true"
-     units="px"
-     inkscape:snap-global="true">
-    <inkscape:grid
-       type="xygrid"
-       id="grid815"
-       originx="0"
-       originy="0" />
-    <sodipodi:guide
-       position="14.952564,3.0979198"
-       orientation="0,1"
-       id="guide864"
-       inkscape:locked="false" />
-  </sodipodi:namedview>
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -72,19 +25,15 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-105.69743,-101.66042)">
+     transform="translate(-105.69743,-103.77709)">
     <g
        id="g835"
        style="stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none">
       <path
-         style="fill:none;stroke:#3a3a38;stroke-width:0.58208333;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 106.49118,107.21667 1.05776,-1.0593 c 1.58807,-1.59038 1.32349,-3.17403 2.1213,-3.57462 0.78836,-0.39583 1.84666,0.66449 1.45086,1.45779 -0.39659,0.79488 -1.98409,0.5303 -3.57159,2.1178"
-         id="path852"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="csssc" />
+         style="fill:none;stroke:#3a3a38;stroke-width:0.42333333;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 106.2266,107.48126 0.79356,-0.79189 c 1.11879,-1.11642 0.77652,-2.07929 1.33803,-2.36075 0.55488,-0.27811 1.29977,0.4669 1.0212,1.02429 -0.27914,0.5585 -1.24169,0.21918 -2.35904,1.3346"
+         id="path852" />
     </g>
   </g>
 </svg>

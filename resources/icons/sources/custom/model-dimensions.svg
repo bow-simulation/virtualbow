@@ -7,12 +7,12 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   height="11"
-   viewBox="0 0 11 11"
-   width="11"
+   height="16"
+   viewBox="0 0 16 16"
+   width="16"
    version="1.1"
    id="svg8"
-   sodipodi:docname="fw010_modified.svg"
+   sodipodi:docname="model-dimensions.svg"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    inkscape:export-filename="/home/s/Desktop/Repositories/virtualbow/resources/icons/model-dimensions.png"
    inkscape:export-xdpi="209.45454"
@@ -43,10 +43,10 @@
      inkscape:window-width="1920"
      inkscape:window-height="1009"
      id="namedview10"
-     showgrid="false"
-     inkscape:zoom="41.7193"
-     inkscape:cx="4.0738054"
-     inkscape:cy="3.6707242"
+     showgrid="true"
+     inkscape:zoom="83.4386"
+     inkscape:cx="7.6608966"
+     inkscape:cy="7.264263"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -54,10 +54,15 @@
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
-     fit-margin-bottom="0" />
+     fit-margin-bottom="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid812" />
+  </sodipodi:namedview>
   <path
-     style="fill:#3a3a38"
+     style="fill:#3a3a38;stroke-width:1.4545455"
      inkscape:connector-curvature="0"
      id="path2"
-     d="M 2.5,3 0,5.5 2.5,8 H 3 V 6 H 4 7 8 V 8 H 8.5 L 11,5.5 8.5,3 H 8 V 5 H 7 4 3 V 3 Z" />
+     d="m 0,8 4,4 V 8.7 h 8 V 12 L 16,8 12,4 V 7.2 H 4 V 4 Z"
+     sodipodi:nodetypes="ccccccccccc" />
 </svg>
