@@ -7,7 +7,7 @@
    xmlns="http://www.w3.org/2000/svg"
    id="svg8"
    version="1.1"
-   viewBox="0 0 4.2333335 4.2333333"
+   viewBox="0 0 4.2333333 4.2333333"
    height="16"
    width="16">
   <defs
@@ -25,11 +25,15 @@
     </rdf:RDF>
   </metadata>
   <g
-     transform="translate(-54.217854,124.31633)"
+     transform="translate(-105.69743,-103.77709)"
      id="layer1">
-    <path
-       id="path918"
-       d="m 54.389833,-121.27362 c 1.449457,-0.16105 3.09505,-0.60393 4.061354,-0.92604 -0.966304,-0.3221 -2.611897,-0.76499 -4.061354,-0.92604 z"
-       style="fill:none;fill-opacity:1;stroke:#3a3a38;stroke-width:0.34395835;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <g
+       style="stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none"
+       id="g835">
+      <path
+         id="path852"
+         d="m 106.2266,107.48126 0.79356,-0.79189 c 1.11879,-1.11642 0.77652,-2.07929 1.33803,-2.36075 0.55488,-0.27811 1.29977,0.4669 1.0212,1.02429 -0.27914,0.5585 -1.24169,0.21918 -2.35904,1.3346"
+         style="fill:none;stroke:#3a3a38;stroke-width:0.42333333;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
   </g>
 </svg>

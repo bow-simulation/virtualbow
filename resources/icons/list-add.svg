@@ -5,15 +5,11 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   viewBox="0 0 14 14"
-   version="1.1"
-   id="svg8"
-   sodipodi:docname="list-add.svg"
-   width="14"
    height="14"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+   width="14"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 14 14">
   <metadata
      id="metadata14">
     <rdf:RDF>
@@ -28,48 +24,24 @@
   </metadata>
   <defs
      id="defs12" />
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="1384"
-     inkscape:window-height="802"
-     id="namedview10"
-     showgrid="false"
-     fit-margin-top="2"
-     fit-margin-bottom="2"
-     fit-margin-left="2"
-     fit-margin-right="2"
-     inkscape:zoom="23.6"
-     inkscape:cx="-13.042373"
-     inkscape:cy="7"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg8" />
   <g
-     id="g6"
+     transform="translate(2,2)"
      style="fill:#5f5f5f"
-     transform="translate(2,2)">
+     id="g6">
     <rect
-       height="2"
-       ry="1"
-       width="10"
-       y="4"
+       x="-1"
        id="rect2"
-       x="0" />
+       y="4"
+       width="12"
+       ry="0.89513248"
+       height="2" />
     <rect
-       height="2"
-       ry="0.936441"
-       transform="rotate(90)"
-       width="10"
-       y="-6"
+       x="-1"
        id="rect4"
-       x="0" />
+       y="-6"
+       width="12"
+       transform="rotate(90)"
+       ry="0.936441"
+       height="2" />
   </g>
 </svg>
