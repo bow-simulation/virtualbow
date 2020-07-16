@@ -1,19 +1,15 @@
 #pragma once
-#include "solver/model//input/InputData.hpp"
+#include "solver/model/input/InputData.hpp"
 #include "LimbMesh.hpp"
 #include "LayerLegend.hpp"
 #include <QtWidgets>
 #include <QOpenGLWidget>
-#include <QOpenGLFunctions>
-#include <QOpenGLShaderProgram>
-#include <QOpenGLVertexArrayObject>
-#include <QOpenGLBuffer>
-#include <QMatrix4x4>
+#include <QOpenGLExtraFunctions>
 
 // This widget was based on Qt's "Hello GL2" example: http://doc.qt.io/qt-5/qtopengl-hellogl2-example.html
 // Uses the Phong lighting model as described here: https://learnopengl.com/Lighting/Basic-Lighting
 
-class LimbView: public QOpenGLWidget, protected QOpenGLFunctions
+class LimbView: public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
 private:
     const QColor CLEAR_COLOR = QColor::fromRgbF(0.2f, 0.3f, 0.4f);
@@ -34,8 +30,6 @@ private:
 
 public:
     LimbView();
-    ~LimbView() override;
-
     void setData(const InputData& data);
 
     void viewProfile();
@@ -45,8 +39,6 @@ public:
     void viewFit();
 
 private:
-    void cleanup();
-
     void initializeGL() override;
     void paintGL() override;
     void mousePressEvent(QMouseEvent *event) override;
@@ -56,23 +48,6 @@ private:
     LayerLegend* legend;
     LimbMesh limb_mesh_left;
     LimbMesh limb_mesh_right;
-    QOpenGLBuffer limb_mesh_left_vbo;
-    QOpenGLBuffer limb_mesh_right_vbo;
-
-    QOpenGLShaderProgram* shader_program;
-    int loc_projectionMatrix;
-    int loc_modelViewMatrix;
-    int loc_normalMatrix;
-    int loc_lightPosition;
-    int loc_cameraPosition;
-    int loc_materialAmbient;
-    int loc_materialDiffuse;
-    int loc_materialSpecular;
-    int loc_materialShininess;
-
-    QMatrix4x4 m_projection;
-    QMatrix4x4 m_camera;
-    QMatrix4x4 m_world;
 
     QPoint mouse_pos;
     float shift_x;
@@ -80,4 +55,8 @@ private:
     float rot_x;
     float rot_y;
     float zoom;
+
+    // OpenGL
+    unsigned int shaderProgram;
+    unsigned int VAO;
 };
