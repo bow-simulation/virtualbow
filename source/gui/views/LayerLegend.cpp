@@ -29,7 +29,7 @@ LayerLegend::LayerLegend()
     this->setLayout(vbox);
 }
 
-void LayerLegend::setData(const Layers& layers)
+void LayerLegend::setData(const std::vector<Layer>& layers)
 {
     while(vbox->count() < layers.size())
         vbox->addWidget(new LayerEntry());

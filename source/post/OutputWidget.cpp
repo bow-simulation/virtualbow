@@ -91,7 +91,7 @@ StaticOutputWidget::StaticOutputWidget(const OutputData& data)
     numbers->addValue("String length [m]", data.setup.string_length);
     numbers->addColumn();
     numbers->addGroup("Maximum absolute stresses");
-    for(int i = 0; i < data.statics.max_stress_index.size(); ++i) {
+    for(size_t i = 0; i < data.statics.max_stress_index.size(); ++i) {
         numbers->addValue(QString::fromStdString(data.setup.limb_properties.layers[i].name + " [Pa]"), data.statics.max_stress_value[i]);
     }
     numbers->addGroup("Maximum absolute forces");
@@ -125,7 +125,7 @@ StaticOutputWidget::StaticOutputWidget(const OutputData& data)
     slider->addJumpAction("Max. draw force", data.statics.max_draw_force_index);
     slider->addJumpAction("Max. grip force", data.statics.max_grip_force_index);
     slider->addJumpAction("Max. string force", data.statics.max_string_force_index);
-    for (int i = 0; i < data.statics.max_stress_index.size(); ++i) {
+    for (size_t i = 0; i < data.statics.max_stress_index.size(); ++i) {
         slider->addJumpAction(QString::fromStdString("Max. stress for layer:" + data.setup.limb_properties.layers[i].name), data.statics.max_stress_index[i].first);
     }
 
@@ -166,7 +166,7 @@ DynamicOutputWidget::DynamicOutputWidget(const OutputData& data)
     numbers->addValue("Kinetic energy string [J]", data.dynamics.final_e_kin_string);
     numbers->addColumn();
     numbers->addGroup("Maximum absolute stresses");
-    for (int i = 0; i < data.dynamics.max_stress_value.size(); ++i) {
+    for (size_t i = 0; i < data.dynamics.max_stress_value.size(); ++i) {
         numbers->addValue(QString::fromStdString(data.setup.limb_properties.layers[i].name + " [Pa]"), data.dynamics.max_stress_value[i]);
     }
     numbers->addGroup("Maximum absolute forces");
@@ -204,7 +204,7 @@ DynamicOutputWidget::DynamicOutputWidget(const OutputData& data)
     slider->addJumpAction("Arrow departure", data.dynamics.arrow_departure_index);
     slider->addJumpAction("Max. grip force", data.dynamics.max_grip_force_index);
     slider->addJumpAction("Max. string force", data.dynamics.max_string_force_index);
-    for (int i = 0; i < data.dynamics.max_stress_index.size(); ++i) {
+    for (size_t i = 0; i < data.dynamics.max_stress_index.size(); ++i) {
         slider->addJumpAction(QString::fromStdString("Max. stress for layer: " + data.setup.limb_properties.layers[i].name), data.dynamics.max_stress_index[i].first);
     }
 

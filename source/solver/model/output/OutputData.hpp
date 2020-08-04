@@ -7,8 +7,6 @@
 #include <fstream>
 #include <iomanip>
 
-using nlohmann::json;
-
 struct OutputData
 {
     std::string version = Config::APPLICATION_VERSION;
@@ -23,22 +21,4 @@ struct OutputData
     void save(const std::string& path) const;
 };
 
-static void to_json(json& obj, const OutputData& val)
-{
-    obj["version"] = val.version;
-    obj["setup"] = val.setup;
-    obj["statics"] = val.statics;
-    obj["dynamics"] = val.dynamics;
-}
-
-static void from_json(const json& obj, OutputData& val)
-{
-    std::string version = obj.at("version").get<std::string>();
-    if(version != Config::APPLICATION_VERSION)
-        throw std::runtime_error("Result file version " + version + " not compatible with VirtualBow " + Config::APPLICATION_VERSION);
-
-    val.version = obj.at("version");
-    val.setup = obj.at("setup");
-    val.statics = obj.at("statics");
-    val.dynamics = obj.at("dynamics");
-}
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(OutputData, version, setup, statics, dynamics)

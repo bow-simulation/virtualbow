@@ -1,8 +1,6 @@
 #pragma once
 #include <nlohmann/json.hpp>
 
-using nlohmann::json;
-
 struct Settings
 {
     unsigned n_limb_elements = 20;
@@ -28,22 +26,4 @@ static bool operator!=(const Settings& lhs, const Settings& rhs)
     return !operator==(lhs, rhs);
 }
 
-static void to_json(json& obj, const Settings& value)
-{
-    obj["n_limb_elements"] = value.n_limb_elements;
-    obj["n_string_elements"] = value.n_string_elements;
-    obj["n_draw_steps"] = value.n_draw_steps;
-    obj["time_span_factor"] = value.time_span_factor;
-    obj["time_step_factor"] = value.time_step_factor;
-    obj["sampling_rate"] = value.sampling_rate;
-}
-
-static void from_json(const json& obj, Settings& value)
-{
-    value.n_limb_elements = obj.at("n_limb_elements");
-    value.n_string_elements = obj.at("n_string_elements");
-    value.n_draw_steps = obj.at("n_draw_steps");
-    value.time_span_factor = obj.at("time_span_factor");
-    value.time_step_factor = obj.at("time_step_factor");
-    value.sampling_rate = obj.at("sampling_rate");
-}
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Settings, n_limb_elements, n_string_elements, n_draw_steps, time_span_factor, time_step_factor, sampling_rate)

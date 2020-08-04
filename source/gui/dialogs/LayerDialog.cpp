@@ -34,7 +34,7 @@ LayerDialog::LayerDialog(QWidget* parent)
     });
 }
 
-void LayerDialog::setData(const Layers& layers)
+void LayerDialog::setData(const std::vector<Layer>& layers)
 {
     while(tabs->count() < layers.size())
         createEmptyTab();
@@ -46,9 +46,9 @@ void LayerDialog::setData(const Layers& layers)
         static_cast<LayerEditor*>(tabs->widget(i))->setData(layers[i]);
 }
 
-Layers LayerDialog::getData() const
+std::vector<Layer> LayerDialog::getData() const
 {
-    Layers layers;
+    std::vector<Layer> layers;
     for(int i = 0; i < tabs->count(); ++i)
     {
         Layer layer = static_cast<LayerEditor*>(tabs->widget(i))->getData();
