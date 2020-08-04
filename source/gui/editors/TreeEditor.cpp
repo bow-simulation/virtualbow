@@ -17,7 +17,7 @@ TreeEditor::TreeEditor()
     new TreeItem<DimensionsDialog, Dimensions>(this, data.dimensions, "Dimensions", QIcon(":/icons/model-dimensions.svg"));
     new TreeItem<ProfileDialog, MatrixXd>(this, data.profile, "Profile", QIcon(":/icons/model-profile.svg"));
     new TreeItem<WidthDialog, MatrixXd>(this, data.width, "Width", QIcon(":/icons/model-width.svg"));
-    new TreeItem<LayerDialog, Layers>(this, data.layers, "Layers", QIcon(":/icons/model-layers.svg"));
+    new TreeItem<LayerDialog, std::vector<Layer>>(this, data.layers, "Layers", QIcon(":/icons/model-layers.svg"));
     new TreeItem<StringDialog, String>(this, data.string, "String", QIcon(":/icons/model-string.svg"));
     new TreeItem<MassesDialog, Masses>(this, data.masses, "Masses", QIcon(":/icons/model-masses.svg"));
     new TreeItem<DampingDialog, Damping>(this, data.damping, "Damping", QIcon(":/icons/model-damping.svg"));

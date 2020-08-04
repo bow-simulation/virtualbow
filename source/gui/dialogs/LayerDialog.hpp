@@ -11,8 +11,8 @@ class LayerDialog: public PersistentDialog
 public:
     LayerDialog(QWidget* parent);
 
-    void setData(const Layers& layers);
-    Layers getData() const;
+    void setData(const std::vector<Layer>& layers);
+    std::vector<Layer> getData() const;
 
 signals:
     void modified();

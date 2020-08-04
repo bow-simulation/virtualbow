@@ -1,8 +1,6 @@
 #pragma once
 #include <nlohmann/json.hpp>
 
-using nlohmann::json;
-
 struct Dimensions
 {
     double brace_height = 0.2;
@@ -26,20 +24,4 @@ static bool operator!=(const Dimensions& lhs, const Dimensions& rhs)
     return !operator==(lhs, rhs);
 }
 
-static void to_json(json& obj, const Dimensions& value)
-{
-    obj["brace_height"] = value.brace_height;
-    obj["draw_length"] = value.draw_length;
-    obj["handle_length"] = value.handle_length;
-    obj["handle_setback"] = value.handle_setback;
-    obj["handle_angle"] = value.handle_angle;
-}
-
-static void from_json(const json& obj, Dimensions& value)
-{
-    value.brace_height = obj.at("brace_height");
-    value.draw_length = obj.at("draw_length");
-    value.handle_length = obj.at("handle_length");
-    value.handle_setback = obj.at("handle_setback");
-    value.handle_angle = obj.at("handle_angle");
-}
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Dimensions, brace_height, draw_length, handle_length, handle_setback, handle_angle)

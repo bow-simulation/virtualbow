@@ -1,5 +1,5 @@
 #pragma once
-#include "Meta.hpp"
+#include "config.hpp"
 #include "Settings.hpp"
 #include "Layers.hpp"
 #include "String.hpp"
@@ -9,8 +9,6 @@
 #include <nlohmann/json.hpp>
 #include <vector>
 
-using nlohmann::json;
-
 struct InputData
 {
     std::string version = Config::APPLICATION_VERSION;
@@ -19,7 +17,7 @@ struct InputData
     Dimensions dimensions;
     MatrixXd profile{{0.0, 0.0, 0.0, 0.0}, {0.8, 0.0, NAN, NAN}};
     MatrixXd width{{0.0, 0.06}, {1.0, 0.01}};
-    Layers layers = {Layer()};
+    std::vector<Layer> layers = {Layer()};
     String string;
     Masses masses;
     Damping damping;
@@ -49,30 +47,4 @@ static bool operator!=(const InputData& lhs, const InputData& rhs)
     return !operator==(lhs, rhs);
 }
 
-static void to_json(json& obj, const InputData& value)
-{
-    obj["version"] = value.version;
-    obj["comment"] = value.comment;
-    obj["settings"] = value.settings;
-    obj["dimensions"] = value.dimensions;
-    obj["profile"] = value.profile;
-    obj["width"] = value.width;
-    obj["layers"] = value.layers;
-    obj["string"] = value.string;
-    obj["masses"] = value.masses;
-    obj["damping"] = value.damping;
-}
-
-static void from_json(const json& obj, InputData& value)
-{
-    value.version = obj.at("version");
-    value.comment = obj.at("comment");
-    value.settings = obj.at("settings");
-    value.dimensions = obj.at("dimensions");
-    value.profile = obj.at("profile");
-    value.width = obj.at("width");
-    value.layers = obj.at("layers").get<Layers>();
-    value.string = obj.at("string");
-    value.masses = obj.at("masses");
-    value.damping = obj.at("damping");
-}
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InputData, version, comment, settings, dimensions, profile, width, layers, string, masses, damping)

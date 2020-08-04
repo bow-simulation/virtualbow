@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/model//input/Layers.hpp"
+#include "solver/model/input/Layers.hpp"
 #include "LayerColors.hpp"
 #include <QtWidgets>
 
@@ -18,7 +18,7 @@ class LayerLegend: public QWidget
 {
 public:
     LayerLegend();
-    void setData(const Layers& layers);
+    void setData(const std::vector<Layer>& layers);
 
 private:
     QVBoxLayout* vbox;

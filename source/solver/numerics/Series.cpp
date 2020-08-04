@@ -1,4 +1,6 @@
 #include "Series.hpp"
+#include <stdexcept>
+#include <algorithm>
 
 Series::Series()
 {

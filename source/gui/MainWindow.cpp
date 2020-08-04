@@ -31,7 +31,7 @@ MainWindow::MainWindow()
     action_save_as->setShortcuts(QKeySequence::SaveAs);
     action_save_as->setMenuRole(QAction::NoRole);
 
-    action_quit = new QAction(QIcon(":/icons/application-exit.svg"), "&Quit", this);
+    action_quit = new QAction("&Quit", this);
     QObject::connect(action_quit, &QAction::triggered, this, &QWidget::close);
     action_quit->setShortcuts(QKeySequence::Quit);
     action_quit->setMenuRole(QAction::QuitRole);

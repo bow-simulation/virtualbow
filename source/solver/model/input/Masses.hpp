@@ -1,8 +1,6 @@
 #pragma once
 #include <nlohmann/json.hpp>
 
-using nlohmann::json;
-
 struct Masses
 {
     double arrow = 0.025;
@@ -24,19 +22,4 @@ static bool operator!=(const Masses& lhs, const Masses& rhs)
     return !operator==(lhs, rhs);
 }
 
-static void to_json(json& obj, const Masses& value)
-{
-    obj["arrow"] = value.arrow;
-    obj["string_center"] = value.string_center;
-    obj["string_tip"] = value.string_tip;
-    obj["limb_tip"] = value.limb_tip;
-}
-
-static void from_json(const json& obj, Masses& value)
-{
-    value.arrow = obj.at("arrow");
-    value.string_center = obj.at("string_center");
-    value.string_tip = obj.at("string_tip");
-    value.limb_tip = obj.at("limb_tip");
-}
-
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Masses, arrow, string_center, string_tip, limb_tip)
