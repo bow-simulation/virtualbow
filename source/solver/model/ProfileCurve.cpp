@@ -219,6 +219,19 @@ ProfileCurve::ProfileCurve(const MatrixXd& input)
     if(isnan(points[0].y))
         points[0].y = 0.0;
 
+    // All points: Translate such that x0 = 0, y0 = 0
+    double shift_x = points[0].x;
+    double shift_y = points[0].y;
+    for(Point& p: points)
+    {
+        if(!isnan(p.x)) {
+            p.x -= shift_x;
+        }
+        if(!isnan(p.y)) {
+            p.y -= shift_y;
+        }
+    }
+
     for(size_t i = 0; i < points.size()-1; ++i)
     {
         // Start and end point of the segment
