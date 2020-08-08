@@ -4,10 +4,30 @@
 #include <QMouseEvent>
 #include <QCoreApplication>
 
+static const char* vertexShaderSource =
+        "#version 330 core\n"
+        "layout (location = 0) in vec3 aPos;\n"
+        "layout (location = 1) in vec3 aColor;\n"
+        "out vec3 ourColor;\n"
+        "void main()\n"
+        "{\n"
+        "   gl_Position = vec4(aPos, 1.0);\n"
+        "   ourColor = aColor;\n"
+        "}\0";
+
+static const char* fragmentShaderSource =
+        "#version 330 core\n"
+        "in vec3 ourColor;\n"
+        "void main()\n"
+        "{\n"
+        "    gl_FragColor = vec4(ourColor, 1.0f);\n"
+        "}\0";
+
 LimbView::LimbView()
     : legend(new LayerLegend()),
       limb_mesh_left(true),
-      limb_mesh_right(false)
+      limb_mesh_right(false),
+      shader_program(nullptr)
 {
     QSurfaceFormat format = QSurfaceFormat::defaultFormat();
     format.setSamples(32);
@@ -139,65 +159,20 @@ void LimbView::initializeGL()
     initializeOpenGLFunctions();
     glClearColor(CLEAR_COLOR.redF(), CLEAR_COLOR.greenF(), CLEAR_COLOR.blueF(), CLEAR_COLOR.alphaF());
 
-    const char* vertexShaderSource =
-        "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-        "}\0";
-
-    const char* fragmentShaderSource =
-        "#version 330 core\n"
-        "void main()\n"
-        "{\n"
-        "    gl_FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-        "}\0";
-
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-
-    int  success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if(!success)
-    {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        qInfo() << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog;
-    }
-
-    unsigned int fragmentShader;
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if(!success)
-    {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        qInfo() << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog;
-    }
-
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    glUseProgram(shaderProgram);
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    shader_program = new QOpenGLShaderProgram(this);
+    shader_program->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderSource);
+    shader_program->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderSource);
+    shader_program->link();
 
     float vertices[] = {
-         0.5f,  0.5f, 0.0f,  // top right
-         0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left
+        // positions         // colors
+         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
+        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
+         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top
     };
 
     unsigned int indices[] = {
-        0, 1, 3,   // first triangle
-        1, 2, 3    // second triangle
+        0, 1, 2
     };
 
     glGenVertexArrays(1, &VAO);
@@ -212,8 +187,11 @@ void LimbView::initializeGL()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(0*sizeof(float)));
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(3*sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
     glBindVertexArray(0); 
@@ -222,9 +200,10 @@ void LimbView::initializeGL()
 void LimbView::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
+    shader_program->bind();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    shader_program->release();
 }
 
 void LimbView::mousePressEvent(QMouseEvent *event)
