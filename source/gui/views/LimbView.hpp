@@ -57,6 +57,6 @@ private:
     float zoom;
 
     // OpenGL
-    unsigned int shaderProgram;
+    QOpenGLShaderProgram* shader_program;
     unsigned int VAO;
 };
