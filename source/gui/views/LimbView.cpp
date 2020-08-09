@@ -23,6 +23,51 @@ static const char* fragmentShaderSource =
         "    gl_FragColor = vec4(ourColor, 1.0f);\n"
         "}\0";
 
+
+class BackgroundMesh
+{
+public:
+    BackgroundMesh(const QColor& color1, const QColor& color2) {
+        unsigned i0 = addVertex({ 1.0f, -1.0f, 0.0f}, color1);
+        unsigned i1 = addVertex({-1.0f, -1.0f, 0.0f}, color1);
+        unsigned i2 = addVertex({-1.0f,  1.0f, 0.0f}, color2);
+        unsigned i3 = addVertex({ 1.0f,  1.0f, 0.0f}, color2);
+
+        addTriangle(i0, i1, i2);
+        addTriangle(i2, i3, i0);
+    }
+
+    const std::vector<float>& getVertices() const {
+        return vertices;
+    }
+
+    const std::vector<unsigned>& getIndices() const {
+        return indices;
+    }
+
+private:
+    void addTriangle(unsigned i0, unsigned i1, unsigned i2) {
+        indices.push_back(i0);
+        indices.push_back(i1);
+        indices.push_back(i2);
+    }
+
+    // Adds vertex and returns index of added vertex
+    unsigned addVertex(const QVector3D& position, const QColor& color) {
+        vertices.push_back(position.x());
+        vertices.push_back(position.y());
+        vertices.push_back(position.z());
+        vertices.push_back(color.redF());
+        vertices.push_back(color.greenF());
+        vertices.push_back(color.blueF());
+
+        return vertices.size()/6 - 1;
+    }
+
+    std::vector<float> vertices;
+    std::vector<unsigned> indices;
+};
+
 LimbView::LimbView()
     : legend(new LayerLegend()),
       limb_mesh_left(true),
@@ -165,18 +210,7 @@ void LimbView::initializeGL()
     shader_program->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderSource);
     shader_program->link();
 
-    float vertices[] = {
-        // positions         // colors
-         1.0f, -1.0f, 0.0f,  (float) BACKGROUND_COLOR_1.redF(), (float) BACKGROUND_COLOR_1.greenF(), (float) BACKGROUND_COLOR_1.blueF(),    // bottom right
-        -1.0f, -1.0f, 0.0f,  (float) BACKGROUND_COLOR_1.redF(), (float) BACKGROUND_COLOR_1.greenF(), (float) BACKGROUND_COLOR_1.blueF(),    // bottom left
-        -1.0f,  1.0f, 0.0f,  (float) BACKGROUND_COLOR_2.redF(), (float) BACKGROUND_COLOR_2.greenF(), (float) BACKGROUND_COLOR_2.blueF(),    // top left
-         1.0f,  1.0f, 0.0f,  (float) BACKGROUND_COLOR_2.redF(), (float) BACKGROUND_COLOR_2.greenF(), (float) BACKGROUND_COLOR_2.blueF()     // top right
-    };
-
-    unsigned int indices[] = {
-        0, 1, 2,
-        2, 3, 0
-    };
+    BackgroundMesh background(BACKGROUND_COLOR_1, BACKGROUND_COLOR_2);
 
     glGenVertexArrays(1, &VAO);
     unsigned int VBO, EBO;
@@ -185,10 +219,10 @@ void LimbView::initializeGL()
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, background.getVertices().size()*sizeof(float), background.getVertices().data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, background.getIndices().size()*sizeof(unsigned), background.getIndices().data(), GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(0*sizeof(float)));
     glEnableVertexAttribArray(0);
