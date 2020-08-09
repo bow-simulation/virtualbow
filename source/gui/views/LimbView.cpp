@@ -29,8 +29,9 @@ LimbView::LimbView()
       limb_mesh_right(false),
       shader_program(nullptr)
 {
+    // Anti aliasing
     QSurfaceFormat format = QSurfaceFormat::defaultFormat();
-    format.setSamples(32);
+    format.setSamples(8);
     setFormat(format);
 
     const QSize BUTTON_SIZE = {34, 34};
@@ -157,7 +158,7 @@ void LimbView::viewFit()
 void LimbView::initializeGL()
 {
     initializeOpenGLFunctions();
-    glClearColor(CLEAR_COLOR.redF(), CLEAR_COLOR.greenF(), CLEAR_COLOR.blueF(), CLEAR_COLOR.alphaF());
+    glClearColor(BACKGROUND_COLOR_1.redF(), BACKGROUND_COLOR_1.greenF(), BACKGROUND_COLOR_1.blueF(), BACKGROUND_COLOR_1.alphaF());
 
     shader_program = new QOpenGLShaderProgram(this);
     shader_program->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderSource);
@@ -166,13 +167,15 @@ void LimbView::initializeGL()
 
     float vertices[] = {
         // positions         // colors
-         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
-        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
-         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top
+         1.0f, -1.0f, 0.0f,  (float) BACKGROUND_COLOR_1.redF(), (float) BACKGROUND_COLOR_1.greenF(), (float) BACKGROUND_COLOR_1.blueF(),    // bottom right
+        -1.0f, -1.0f, 0.0f,  (float) BACKGROUND_COLOR_1.redF(), (float) BACKGROUND_COLOR_1.greenF(), (float) BACKGROUND_COLOR_1.blueF(),    // bottom left
+        -1.0f,  1.0f, 0.0f,  (float) BACKGROUND_COLOR_2.redF(), (float) BACKGROUND_COLOR_2.greenF(), (float) BACKGROUND_COLOR_2.blueF(),    // top left
+         1.0f,  1.0f, 0.0f,  (float) BACKGROUND_COLOR_2.redF(), (float) BACKGROUND_COLOR_2.greenF(), (float) BACKGROUND_COLOR_2.blueF()     // top right
     };
 
     unsigned int indices[] = {
-        0, 1, 2
+        0, 1, 2,
+        2, 3, 0
     };
 
     glGenVertexArrays(1, &VAO);
