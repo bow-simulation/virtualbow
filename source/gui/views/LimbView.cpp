@@ -4,26 +4,6 @@
 #include <QMouseEvent>
 #include <QCoreApplication>
 
-static const char* vertexShaderSource =
-        "#version 330 core\n"
-        "layout (location = 0) in vec3 aPosition;\n"
-        "layout (location = 1) in vec3 aNormal;\n"
-        "layout (location = 2) in vec3 aColor;\n"
-        "out vec3 ourColor;\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = vec4(aPosition, 1.0);\n"
-        "   ourColor = aColor;\n"
-        "}\0";
-
-static const char* fragmentShaderSource =
-        "#version 330 core\n"
-        "in vec3 ourColor;\n"
-        "void main()\n"
-        "{\n"
-        "    gl_FragColor = vec4(ourColor, 1.0f);\n"
-        "}\0";
-
 LimbView::LimbView()
     : legend(new LayerLegend()),
       limb_mesh_left(true),
@@ -161,8 +141,8 @@ void LimbView::initializeGL()
     initializeOpenGLFunctions();
 
     shader = new QOpenGLShaderProgram(this);
-    shader->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderSource);
-    shader->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderSource);
+    shader->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/BackgroundShader.vs");
+    shader->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/BackgroundShader.fs");
     shader->link();
 
     background = std::make_unique<BackgroundMesh>(BACKGROUND_COLOR_1, BACKGROUND_COLOR_2);

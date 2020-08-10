@@ -29,5 +29,7 @@
         <file>icons/model-settings.png</file>
         <file>icons/model-string.png</file>
         <file>icons/model-width.png</file>
+        <file>shaders/BackgroundShader.vs</file>
+        <file>shaders/BackgroundShader.fs</file>
     </qresource>
 </RCC>
