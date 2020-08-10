@@ -6,12 +6,13 @@
 
 static const char* vertexShaderSource =
         "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"
-        "layout (location = 1) in vec3 aColor;\n"
+        "layout (location = 0) in vec3 aPosition;\n"
+        "layout (location = 1) in vec3 aNormal;\n"
+        "layout (location = 2) in vec3 aColor;\n"
         "out vec3 ourColor;\n"
         "void main()\n"
         "{\n"
-        "   gl_Position = vec4(aPos, 1.0);\n"
+        "   gl_Position = vec4(aPosition, 1.0);\n"
         "   ourColor = aColor;\n"
         "}\0";
 
@@ -26,6 +27,7 @@ static const char* fragmentShaderSource =
 // Adapted from https://learnopengl.com/Model-Loading/Mesh
 struct Vertex {
     QVector3D position;
+    QVector3D normal;
     QVector3D color;
 };
 
@@ -85,10 +87,10 @@ class BackgroundMesh
 {
 public:
     BackgroundMesh(const QColor& color1, const QColor& color2) {
-        unsigned i0 = addVertex({ 1.0f, -1.0f, 0.0f}, color1);
-        unsigned i1 = addVertex({-1.0f, -1.0f, 0.0f}, color1);
-        unsigned i2 = addVertex({-1.0f,  1.0f, 0.0f}, color2);
-        unsigned i3 = addVertex({ 1.0f,  1.0f, 0.0f}, color2);
+        unsigned i0 = addVertex({ 1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, color1);
+        unsigned i1 = addVertex({-1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, color1);
+        unsigned i2 = addVertex({-1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, color2);
+        unsigned i3 = addVertex({ 1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, color2);
 
         addTriangle(i0, i1, i2);
         addTriangle(i2, i3, i0);
@@ -111,9 +113,10 @@ private:
     }
 
     // Add vertex and return index
-    unsigned addVertex(const QVector3D& position, const QColor& color) {
+    unsigned addVertex(const QVector3D& position, const QVector3D& normal, const QColor& color) {
         vertices.push_back({
             .position = position,
+            .normal = normal,
             .color = QVector3D(color.redF(), color.greenF(), color.blueF())
         });
 
@@ -284,8 +287,11 @@ void LimbView::initializeGL()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, position));
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, color));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, normal));
     glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, color));
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
     glBindVertexArray(0); 
