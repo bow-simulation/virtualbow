@@ -24,114 +24,11 @@ static const char* fragmentShaderSource =
         "    gl_FragColor = vec4(ourColor, 1.0f);\n"
         "}\0";
 
-// Adapted from https://learnopengl.com/Model-Loading/Mesh
-struct Vertex {
-    QVector3D position;
-    QVector3D normal;
-    QVector3D color;
-};
-
-/*
-// Adapted from https://learnopengl.com/Model-Loading/Mesh
-class Mesh: public QOpenGLExtraFunctions
-{
-public:
-    Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices)
-        : vertices(vertices), indices(indices)
-    {
-        initializeOpenGLFunctions();
-
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-        glGenBuffers(1, &EBO);
-
-        glBindVertexArray(VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
-                     &indices[0], GL_STATIC_DRAW);
-
-        // Vertex positions
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, position));
-
-        // Vertex normals
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, normal));
-
-        // Vertex colors
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, color));
-
-        glBindVertexArray(0);
-    }
-
-    void draw(QOpenGLShaderProgram* shader)
-    {
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-    }
-
-private:
-    std::vector<Vertex> vertices;
-    std::vector<unsigned> indices;
-    unsigned int VAO, VBO, EBO;
-};
-*/
-
-class BackgroundMesh
-{
-public:
-    BackgroundMesh(const QColor& color1, const QColor& color2) {
-        unsigned i0 = addVertex({ 1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, color1);
-        unsigned i1 = addVertex({-1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, color1);
-        unsigned i2 = addVertex({-1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, color2);
-        unsigned i3 = addVertex({ 1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, color2);
-
-        addTriangle(i0, i1, i2);
-        addTriangle(i2, i3, i0);
-    }
-
-    const std::vector<Vertex>& getVertices() const {
-        return vertices;
-    }
-
-    const std::vector<unsigned>& getIndices() const {
-        return indices;
-    }
-
-private:
-    // Add triangle between three indices
-    void addTriangle(unsigned i0, unsigned i1, unsigned i2) {
-        indices.push_back(i0);
-        indices.push_back(i1);
-        indices.push_back(i2);
-    }
-
-    // Add vertex and return index
-    unsigned addVertex(const QVector3D& position, const QVector3D& normal, const QColor& color) {
-        vertices.push_back({
-            .position = position,
-            .normal = normal,
-            .color = QVector3D(color.redF(), color.greenF(), color.blueF())
-        });
-
-        return vertices.size() - 1;
-    }
-
-    std::vector<Vertex> vertices;
-    std::vector<unsigned> indices;
-};
-
 LimbView::LimbView()
     : legend(new LayerLegend()),
       limb_mesh_left(true),
       limb_mesh_right(false),
-      shader_program(nullptr)
+      shader(nullptr)
 {
     // Anti aliasing
     QSurfaceFormat format = QSurfaceFormat::defaultFormat();
@@ -263,48 +160,20 @@ void LimbView::initializeGL()
 {
     initializeOpenGLFunctions();
 
-    shader_program = new QOpenGLShaderProgram(this);
-    shader_program->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderSource);
-    shader_program->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderSource);
-    shader_program->link();
+    shader = new QOpenGLShaderProgram(this);
+    shader->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderSource);
+    shader->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderSource);
+    shader->link();
 
-    //BackgroundMesh background(BACKGROUND_COLOR_1, BACKGROUND_COLOR_2);
+    background = std::make_unique<BackgroundMesh>(BACKGROUND_COLOR_1, BACKGROUND_COLOR_2);
 
-    glGenVertexArrays(1, &VAO);
-    unsigned int VBO, EBO;
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-    glBindVertexArray(VAO);
 
-    BackgroundMesh background(BACKGROUND_COLOR_1, BACKGROUND_COLOR_2);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, background.getVertices().size()*sizeof(Vertex), background.getVertices().data(), GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, background.getIndices().size()*sizeof(unsigned), background.getIndices().data(), GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, position));
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, normal));
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, color));
-    glEnableVertexAttribArray(2);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0); 
-    glBindVertexArray(0); 
 }
 
 void LimbView::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT);
-    glBindVertexArray(VAO);
-
-    shader_program->bind();
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    shader_program->release();
+    background->draw(shader);
 }
 
 void LimbView::mousePressEvent(QMouseEvent *event)
