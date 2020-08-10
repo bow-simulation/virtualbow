@@ -1,6 +1,5 @@
 #include "LimbView.hpp"
 #include "LayerColors.hpp"
-
 #include <QMouseEvent>
 #include <QCoreApplication>
 
@@ -8,7 +7,7 @@ LimbView::LimbView()
     : legend(new LayerLegend()),
       limb_mesh_left(true),
       limb_mesh_right(false),
-      shader(nullptr)
+      background_shader(nullptr)
 {
     // Anti aliasing
     QSurfaceFormat format = QSurfaceFormat::defaultFormat();
@@ -140,20 +139,30 @@ void LimbView::initializeGL()
 {
     initializeOpenGLFunctions();
 
-    shader = new QOpenGLShaderProgram(this);
-    shader->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/BackgroundShader.vs");
-    shader->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/BackgroundShader.fs");
-    shader->link();
+    background_shader = new QOpenGLShaderProgram(this);
+    background_shader->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/BackgroundShader.vs");
+    background_shader->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/BackgroundShader.fs");
+    background_shader->link();
 
-    background = std::make_unique<BackgroundMesh>(BACKGROUND_COLOR_1, BACKGROUND_COLOR_2);
+    // Create background mesh
+    Mesh background_mesh;
+    unsigned i0 = background_mesh.addVertex({ 1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_1);
+    unsigned i1 = background_mesh.addVertex({-1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_1);
+    unsigned i2 = background_mesh.addVertex({-1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_2);
+    unsigned i3 = background_mesh.addVertex({ 1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_2);
+    background_mesh.addTriangle(i0, i1, i2);
+    background_mesh.addTriangle(i2, i3, i0);
 
-
+    Model background(background_mesh, background_shader);
+    scene_objects.push_back(background);
 }
 
 void LimbView::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT);
-    background->draw(shader);
+    for(auto& object: scene_objects) {
+        object.draw();
+    }
 }
 
 void LimbView::mousePressEvent(QMouseEvent *event)
