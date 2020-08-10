@@ -15,8 +15,8 @@ private:
     const QColor BACKGROUND_COLOR_1 = QColor::fromRgbF(0.2f, 0.3f, 0.4f);
     const QColor BACKGROUND_COLOR_2 = QColor::fromRgbF(0.5f, 0.3f, 0.4f);
 
-    const QVector3D LIGHT_POSITION = {0.0f, 5.0f, 10.0f};
-    const QVector3D CAMERA_POSITION = {0.0f, 0.0f, -1.5f};
+    const QVector3D LIGHT_POSITION = { 0.0f, 5.0f, 10.0f };
+    const QVector3D CAMERA_POSITION = { 0.0f, 0.0f, -1.5f };
 
     const float MATERIAL_AMBIENT = 0.2f;
     const float MATERIAL_DIFFUSE = 0.8f;
