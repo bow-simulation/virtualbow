@@ -139,26 +139,78 @@ void LimbView::initializeGL()
 {
     initializeOpenGLFunctions();
 
+    // Shaders
+
     background_shader = new QOpenGLShaderProgram(this);
     background_shader->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/BackgroundShader.vs");
     background_shader->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/BackgroundShader.fs");
     background_shader->link();
 
+    model_shader = new QOpenGLShaderProgram(this);
+    model_shader->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/ModelShader.vs");
+    model_shader->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/ModelShader.fs");
+    model_shader->link();
+
     // Create background mesh
+
     Mesh background_mesh;
     unsigned i0 = background_mesh.addVertex({ 1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_1);
     unsigned i1 = background_mesh.addVertex({-1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_1);
     unsigned i2 = background_mesh.addVertex({-1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_2);
     unsigned i3 = background_mesh.addVertex({ 1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_2);
-    background_mesh.addTriangle(i0, i1, i2);
-    background_mesh.addTriangle(i2, i3, i0);
+    background_mesh.addTriangle(i0, i2, i1);
+    background_mesh.addTriangle(i2, i0, i3);
 
     Model background(background_mesh, background_shader);
     scene_objects.push_back(background);
+
+    // Create cube mesh
+
+    Mesh cube_mesh;
+    unsigned j0 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0}, QVector3D{-1.0, -1.0, 1.0}.normalized(), Qt::blue);
+    unsigned j1 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0}, QVector3D{-1.0, -1.0, 1.0}.normalized(), Qt::blue);
+    unsigned j2 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0}, QVector3D{-1.0, -1.0, 1.0}.normalized(), Qt::blue);
+    unsigned j3 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0}, QVector3D{-1.0, -1.0, 1.0}.normalized(), Qt::blue);
+    unsigned j4 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0}, QVector3D{-1.0, -1.0, 1.0}.normalized(), Qt::blue);
+    unsigned j5 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0}, QVector3D{-1.0, -1.0, 1.0}.normalized(), Qt::blue);
+    unsigned j6 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0}, QVector3D{-1.0, -1.0, 1.0}.normalized(), Qt::blue);
+    unsigned j7 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0}, QVector3D{-1.0, -1.0, 1.0}.normalized(), Qt::blue);
+    cube_mesh.addTriangle(j0, j1, j4);
+    cube_mesh.addTriangle(j1, j5, j4);
+    cube_mesh.addTriangle(j1, j2, j5);
+    cube_mesh.addTriangle(j2, j6, j5);
+    cube_mesh.addTriangle(j2, j3, j6);
+    cube_mesh.addTriangle(j3, j7, j6);
+    cube_mesh.addTriangle(j0, j7, j3);
+    cube_mesh.addTriangle(j0, j4, j7);
+    cube_mesh.addTriangle(j4, j5, j7);
+    cube_mesh.addTriangle(j5, j6, j7);
+    cube_mesh.addTriangle(j0, j2, j1);
+    cube_mesh.addTriangle(j0, j3, j2);
+
+    Model cube(cube_mesh, model_shader);
+    scene_objects.push_back(cube);
+
 }
 
 void LimbView::paintGL()
 {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    //glEnable(GL_MULTISAMPLE);
+
+    QMatrix4x4 m_world;
+    m_world.setToIdentity();
+    m_world.rotate(rot_x, 1.0f, 0.0f, 0.0f);
+    m_world.rotate(rot_y, 0.0f, 1.0f, 0.0f);
+
+    qInfo() << m_world << "\n";
+
+    model_shader->bind();
+    model_shader->setUniformValue("transform", m_world);
+    model_shader->release();
+
     glClear(GL_COLOR_BUFFER_BIT);
     for(auto& object: scene_objects) {
         object.draw();

@@ -31,5 +31,7 @@
         <file>icons/model-width.png</file>
         <file>shaders/BackgroundShader.vs</file>
         <file>shaders/BackgroundShader.fs</file>
+        <file>shaders/ModelShader.fs</file>
+        <file>shaders/ModelShader.vs</file>
     </qresource>
 </RCC>
