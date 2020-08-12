@@ -13,10 +13,11 @@ This requires [Inno Setup](http://www.jrsoftware.org/isinfo.php) to be installed
 
 ## Linux
 
-The Linux version is built with GCC on the oldest still supported Ubuntu LTS release, currently 16.04.
+The Linux version is built with GCC on the oldest feasible Ubuntu LTS release, currently 18.04.
+(The stil supported LTS release 16.04 is not feasible, because Qt >= 5.6 is needed.)
 This ensures reasonable compatibility with other/older systems.
 Other than Windows and MacOS, the Qt libraries used are the ones packaged with the system (e.g. `qt5-default` on Ubuntu).
-This means that VirtualBow has to compile with that Qt version, which currently is Qt 5.5.1.
+This means that VirtualBow has to compile with that Qt version, which currently is Qt 5.9.5.
 Other platforms are built with newer Qt versions to take advantage of any bug fixes and improvements in Qt, but may not use newer features.
 
 The release packages are built with
