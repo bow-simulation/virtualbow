@@ -2,7 +2,6 @@
 #include "solver/model//input/InputData.hpp"
 #include "solver/model//ContinuousLimb.hpp"
 #include "solver/numerics/Eigen.hpp"
-#include "AABB.hpp"
 #include <qopengl.h>
 #include <QVector3D>
 #include <QColor>
@@ -15,7 +14,7 @@ public:
 
     const std::vector<GLfloat>& vertexData() const;
     size_t vertexCount() const;
-    const AABB aabb() const;
+    //const AABB aabb() const;
 
     bool isVisible() const;
     void setVisible(bool value);
@@ -28,5 +27,5 @@ private:
     bool visible;
     bool inverted;
     std::vector<GLfloat> vertex_data;
-    AABB bounding_box;
+    //AABB bounding_box;
 };

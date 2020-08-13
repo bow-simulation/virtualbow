@@ -150,6 +150,14 @@ void LimbView::initializeGL()
     model_shader->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/ModelShader.vs");
     model_shader->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/ModelShader.fs");
     model_shader->link();
+    model_shader->bind();
+    model_shader->setUniformValue("lightPosition", LIGHT_POSITION);
+    model_shader->setUniformValue("cameraPosition", CAMERA_POSITION);
+    model_shader->setUniformValue("ambientStrength", MATERIAL_AMBIENT);
+    model_shader->setUniformValue("diffuseStrength", MATERIAL_DIFFUSE);
+    model_shader->setUniformValue("specularStrength", MATERIAL_SPECULAR);
+    model_shader->setUniformValue("materialShininess", MATERIAL_SHININESS);
+    model_shader->release();
 
     // Create background mesh
 
@@ -166,15 +174,14 @@ void LimbView::initializeGL()
 
     // Create cube mesh
 
-    Mesh cube_mesh;
-    unsigned j0 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0}, QVector3D{-1.0, -1.0, 1.0}.normalized(), Qt::blue);
-    unsigned j1 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0}, QVector3D{-1.0, -1.0, 1.0}.normalized(), Qt::blue);
-    unsigned j2 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0}, QVector3D{-1.0, -1.0, 1.0}.normalized(), Qt::blue);
-    unsigned j3 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0}, QVector3D{-1.0, -1.0, 1.0}.normalized(), Qt::blue);
-    unsigned j4 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0}, QVector3D{-1.0, -1.0, 1.0}.normalized(), Qt::blue);
-    unsigned j5 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0}, QVector3D{-1.0, -1.0, 1.0}.normalized(), Qt::blue);
-    unsigned j6 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0}, QVector3D{-1.0, -1.0, 1.0}.normalized(), Qt::blue);
-    unsigned j7 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0}, QVector3D{-1.0, -1.0, 1.0}.normalized(), Qt::blue);
+    unsigned j0 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0 }, QVector3D{-1.0, -1.0,  1.0 }.normalized(), Qt::blue);
+    unsigned j1 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0 }, QVector3D{ 1.0, -1.0,  1.0 }.normalized(), Qt::blue);
+    unsigned j2 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 1.0, -1.0, -1.0 }.normalized(), Qt::blue);
+    unsigned j3 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{-1.0, -1.0, -1.0 }.normalized(), Qt::blue);
+    unsigned j4 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0 }, QVector3D{-1.0,  1.0,  1.0 }.normalized(), Qt::blue);
+    unsigned j5 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0 }, QVector3D{ 1.0,  1.0,  1.0 }.normalized(), Qt::blue);
+    unsigned j6 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 1.0,  1.0, -1.0 }.normalized(), Qt::blue);
+    unsigned j7 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{-1.0,  1.0, -1.0 }.normalized(), Qt::blue);
     cube_mesh.addTriangle(j0, j1, j4);
     cube_mesh.addTriangle(j1, j5, j4);
     cube_mesh.addTriangle(j1, j2, j5);
@@ -200,15 +207,32 @@ void LimbView::paintGL()
     glEnable(GL_CULL_FACE);
     //glEnable(GL_MULTISAMPLE);
 
+    AABB bounds({-1.0, -1.0, -1.0}, {1.0, 1.0, 1.0});
+
     QMatrix4x4 m_world;
     m_world.setToIdentity();
     m_world.rotate(rot_x, 1.0f, 0.0f, 0.0f);
     m_world.rotate(rot_y, 0.0f, 1.0f, 0.0f);
+    m_world.scale(1.0f/bounds.diagonal());
+    m_world.translate(-bounds.center());
 
-    qInfo() << m_world << "\n";
+    QMatrix4x4 m_camera;
+    m_camera.setToIdentity();
+    m_camera.translate(CAMERA_POSITION);
+
+    float aspect_ratio = float(this->height())/this->width();
+    QMatrix4x4 m_projection;
+    m_projection.setToIdentity();
+    m_projection.ortho((-0.5f*zoom + shift_x),
+                       ( 0.5f*zoom + shift_x),
+                       (-0.5f*zoom + shift_y)*aspect_ratio,
+                       ( 0.5f*zoom + shift_y)*aspect_ratio,
+                       0.001f, 100.0f);
 
     model_shader->bind();
-    model_shader->setUniformValue("transform", m_world);
+    model_shader->setUniformValue("projectionMatrix", m_projection);
+    model_shader->setUniformValue("modelViewMatrix", m_camera*m_world);
+    model_shader->setUniformValue("normalMatrix", m_world.normalMatrix());
     model_shader->release();
 
     glClear(GL_COLOR_BUFFER_BIT);

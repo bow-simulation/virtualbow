@@ -90,8 +90,6 @@ add_executable(
     source/gui/editors/TreeEditor.cpp
     source/gui/editors/TreeEditor.hpp
     source/gui/editors/TreeItem.hpp
-    source/gui/views/AABB.cpp
-    source/gui/views/AABB.hpp
     source/gui/views/LayerLegend.cpp
     source/gui/views/LayerLegend.hpp
     source/gui/views/LimbView.cpp
