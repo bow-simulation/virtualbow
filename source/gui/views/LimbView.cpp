@@ -151,11 +151,12 @@ void LimbView::initializeGL()
     model_shader->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/ModelShader.fs");
     model_shader->link();
     model_shader->bind();
+    model_shader->setUniformValue("lightColor", LIGHT_COLOR);
     model_shader->setUniformValue("lightPosition", LIGHT_POSITION);
     model_shader->setUniformValue("cameraPosition", CAMERA_POSITION);
-    model_shader->setUniformValue("ambientStrength", MATERIAL_AMBIENT);
-    model_shader->setUniformValue("diffuseStrength", MATERIAL_DIFFUSE);
-    model_shader->setUniformValue("specularStrength", MATERIAL_SPECULAR);
+    model_shader->setUniformValue("ambientStrength", MATERIAL_AMBIENT_STRENGTH);
+    model_shader->setUniformValue("diffuseStrength", MATERIAL_DIFFUSE_STRENGTH);
+    model_shader->setUniformValue("specularStrength", MATERIAL_SPECULAR_STRENGTH);
     model_shader->setUniformValue("materialShininess", MATERIAL_SHININESS);
     model_shader->release();
 
@@ -173,27 +174,54 @@ void LimbView::initializeGL()
     scene_objects.push_back(background);
 
     // Create cube mesh
+    // Right
+    unsigned j0 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    unsigned j1 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    unsigned j2 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    unsigned j3 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addTriangle(j0, j1, j3);
+    cube_mesh.addTriangle(j1, j2, j3);
 
-    unsigned j0 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0 }, QVector3D{-1.0, -1.0,  1.0 }.normalized(), Qt::blue);
-    unsigned j1 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0 }, QVector3D{ 1.0, -1.0,  1.0 }.normalized(), Qt::blue);
-    unsigned j2 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 1.0, -1.0, -1.0 }.normalized(), Qt::blue);
-    unsigned j3 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{-1.0, -1.0, -1.0 }.normalized(), Qt::blue);
-    unsigned j4 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0 }, QVector3D{-1.0,  1.0,  1.0 }.normalized(), Qt::blue);
-    unsigned j5 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0 }, QVector3D{ 1.0,  1.0,  1.0 }.normalized(), Qt::blue);
-    unsigned j6 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 1.0,  1.0, -1.0 }.normalized(), Qt::blue);
-    unsigned j7 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{-1.0,  1.0, -1.0 }.normalized(), Qt::blue);
-    cube_mesh.addTriangle(j0, j1, j4);
-    cube_mesh.addTriangle(j1, j5, j4);
-    cube_mesh.addTriangle(j1, j2, j5);
-    cube_mesh.addTriangle(j2, j6, j5);
-    cube_mesh.addTriangle(j2, j3, j6);
-    cube_mesh.addTriangle(j3, j7, j6);
-    cube_mesh.addTriangle(j0, j7, j3);
-    cube_mesh.addTriangle(j0, j4, j7);
-    cube_mesh.addTriangle(j4, j5, j7);
-    cube_mesh.addTriangle(j5, j6, j7);
-    cube_mesh.addTriangle(j0, j2, j1);
-    cube_mesh.addTriangle(j0, j3, j2);
+    // Left
+    j0 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    j1 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    j2 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    j3 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addTriangle(j0, j1, j3);
+    cube_mesh.addTriangle(j1, j2, j3);
+
+    // Top
+    j0 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    j1 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    j2 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    j3 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addTriangle(j0, j1, j3);
+    cube_mesh.addTriangle(j1, j2, j3);
+
+    // Bottom
+    j0 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    j1 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    j2 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    j3 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addTriangle(j0, j1, j3);
+    cube_mesh.addTriangle(j1, j2, j3);
+
+    // Front
+    j0 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    j1 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    j2 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    j3 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addTriangle(j0, j1, j3);
+    cube_mesh.addTriangle(j1, j2, j3);
+
+    // Back
+    j0 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    j1 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    j2 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    j3 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addTriangle(j0, j1, j3);
+    cube_mesh.addTriangle(j1, j2, j3);
+
 
     Model cube(cube_mesh, model_shader);
     scene_objects.push_back(cube);
@@ -209,16 +237,17 @@ void LimbView::paintGL()
 
     AABB bounds({-1.0, -1.0, -1.0}, {1.0, 1.0, 1.0});
 
-    QMatrix4x4 m_world;
-    m_world.setToIdentity();
-    m_world.rotate(rot_x, 1.0f, 0.0f, 0.0f);
-    m_world.rotate(rot_y, 0.0f, 1.0f, 0.0f);
-    m_world.scale(1.0f/bounds.diagonal());
-    m_world.translate(-bounds.center());
+    QMatrix4x4 m_model;
+    m_model.setToIdentity();
+    m_model.rotate(rot_x, 1.0f, 0.0f, 0.0f);
+    m_model.rotate(rot_y, 0.0f, 1.0f, 0.0f);
+    m_model.scale(1.0f/bounds.diagonal());
+    m_model.translate(-bounds.center());
 
-    QMatrix4x4 m_camera;
-    m_camera.setToIdentity();
-    m_camera.translate(CAMERA_POSITION);
+    QMatrix4x4 m_view;
+    m_view.setToIdentity();
+    //m_view.translate(CAMERA_POSITION);
+    m_view.lookAt(CAMERA_POSITION, bounds.center(), {0.0, 1.0, 0.0});
 
     float aspect_ratio = float(this->height())/this->width();
     QMatrix4x4 m_projection;
@@ -230,9 +259,10 @@ void LimbView::paintGL()
                        0.001f, 100.0f);
 
     model_shader->bind();
+    model_shader->setUniformValue("modelMatrix", m_model);
+    model_shader->setUniformValue("normalMatrix", m_model.normalMatrix());
+    model_shader->setUniformValue("viewMatrix", m_view);
     model_shader->setUniformValue("projectionMatrix", m_projection);
-    model_shader->setUniformValue("modelViewMatrix", m_camera*m_world);
-    model_shader->setUniformValue("normalMatrix", m_world.normalMatrix());
     model_shader->release();
 
     glClear(GL_COLOR_BUFFER_BIT);

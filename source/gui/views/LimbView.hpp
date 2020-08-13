@@ -13,12 +13,13 @@ private:
     const QColor BACKGROUND_COLOR_1 = QColor::fromRgbF(0.2f, 0.3f, 0.4f);
     const QColor BACKGROUND_COLOR_2 = QColor::fromRgbF(0.5f, 0.3f, 0.4f);
 
-    const QVector3D LIGHT_POSITION = { 0.0f, 5.0f, 10.0f };
-    const QVector3D CAMERA_POSITION = { 0.0f, 0.0f, -1.5f };
+    const QVector3D CAMERA_POSITION = { 0.0f, 0.0f, 1.5f };
+    const QVector3D LIGHT_POSITION = { 0.0f, 0.0f, 1.5f };
+    const QVector3D LIGHT_COLOR = { 1.0, 1.0, 1.0 };
 
-    const float MATERIAL_AMBIENT = 0.2f;
-    const float MATERIAL_DIFFUSE = 0.8f;
-    const float MATERIAL_SPECULAR = 0.1f;
+    const float MATERIAL_AMBIENT_STRENGTH = 0.1f;
+    const float MATERIAL_DIFFUSE_STRENGTH = 0.8f;
+    const float MATERIAL_SPECULAR_STRENGTH = 0.1f;
     const float MATERIAL_SHININESS = 8.0f;
 
     const float DEFAULT_ROT_X = 31.0f;   // Trimetric view
