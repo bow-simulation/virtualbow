@@ -16,7 +16,7 @@ void LimbMesh::setData(const InputData& data)
     try
     {
         vertex_data.clear();
-        bounding_box = AABB();
+        //bounding_box = AABB();
 
         ContinuousLimb limb(data);
         std::vector<double> lengths = getEvalLengths(limb, 150);    // Magic number
@@ -116,7 +116,7 @@ void LimbMesh::setData(const InputData& data)
     catch(std::invalid_argument&)
     {
         vertex_data.clear();
-        bounding_box = AABB();
+        //bounding_box = AABB();
     }
 }
 
@@ -158,10 +158,12 @@ size_t LimbMesh::vertexCount() const
     return vertex_data.size()/9;
 }
 
+/*
 const AABB LimbMesh::aabb() const
 {
     return bounding_box;
 }
+*/
 
 bool LimbMesh::isVisible() const
 {
@@ -215,5 +217,5 @@ void LimbMesh::addVertex(const QVector3D& position, const QVector3D& normal, con
     vertex_data.push_back(color.greenF());
     vertex_data.push_back(color.blueF());
 
-    bounding_box = bounding_box.extend(position);
+    //bounding_box = bounding_box.extend(position);
 }

@@ -58,5 +58,6 @@ private:
     // OpenGL
     QOpenGLShaderProgram* background_shader;
     QOpenGLShaderProgram* model_shader;
+    Mesh cube_mesh;
     std::vector<Model> scene_objects;
 };
