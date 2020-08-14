@@ -151,9 +151,9 @@ void LimbView::initializeGL()
     model_shader->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/ModelShader.fs");
     model_shader->link();
     model_shader->bind();
-    model_shader->setUniformValue("lightColor", LIGHT_COLOR);
-    model_shader->setUniformValue("lightPosition", LIGHT_POSITION);
     model_shader->setUniformValue("cameraPosition", CAMERA_POSITION);
+    model_shader->setUniformValue("lightPosition", LIGHT_POSITION);
+    model_shader->setUniformValue("lightColor", LIGHT_COLOR);
     model_shader->setUniformValue("ambientStrength", MATERIAL_AMBIENT_STRENGTH);
     model_shader->setUniformValue("diffuseStrength", MATERIAL_DIFFUSE_STRENGTH);
     model_shader->setUniformValue("specularStrength", MATERIAL_SPECULAR_STRENGTH);

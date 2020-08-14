@@ -18,9 +18,9 @@ private:
     const QVector3D LIGHT_COLOR = { 1.0, 1.0, 1.0 };
 
     const float MATERIAL_AMBIENT_STRENGTH = 0.1f;
-    const float MATERIAL_DIFFUSE_STRENGTH = 0.8f;
-    const float MATERIAL_SPECULAR_STRENGTH = 0.1f;
-    const float MATERIAL_SHININESS = 8.0f;
+    const float MATERIAL_DIFFUSE_STRENGTH = 0.9f;
+    const float MATERIAL_SPECULAR_STRENGTH = 0.5f;
+    const float MATERIAL_SHININESS = 32.0f;
 
     const float DEFAULT_ROT_X = 31.0f;   // Trimetric view
     const float DEFAULT_ROT_Y = -28.0f;  // Trimetric view
