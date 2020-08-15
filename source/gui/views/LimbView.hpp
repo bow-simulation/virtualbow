@@ -65,5 +65,6 @@ private:
     // OpenGL
     QOpenGLShaderProgram* background_shader;
     QOpenGLShaderProgram* model_shader;
+    QOpenGLShaderProgram* edge_shader;
     std::vector<Model> scene_objects;
 };

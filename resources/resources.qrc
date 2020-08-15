@@ -33,5 +33,7 @@
         <file>shaders/BackgroundShader.fs</file>
         <file>shaders/ModelShader.fs</file>
         <file>shaders/ModelShader.vs</file>
+        <file>shaders/EdgeShader.fs</file>
+        <file>shaders/EdgeShader.vs</file>
     </qresource>
 </RCC>

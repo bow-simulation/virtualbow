@@ -160,13 +160,18 @@ void LimbView::initializeGL()
     model_shader->setUniformValue("materialShininess", MATERIAL_SHININESS);
     model_shader->release();
 
+    edge_shader = new QOpenGLShaderProgram(this);
+    edge_shader->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/EdgeShader.vs");
+    edge_shader->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/EdgeShader.fs");
+    edge_shader->link();
+
     // Create background mesh
 
     Mesh background_mesh(GL_QUADS);
-    background_mesh.addVertex({ 1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_1);
-    background_mesh.addVertex({-1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_1);
-    background_mesh.addVertex({-1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_2);
-    background_mesh.addVertex({ 1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_2);
+    background_mesh.addVertex({ 1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_1);
+    background_mesh.addVertex({-1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_1);
+    background_mesh.addVertex({-1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_2);
+    background_mesh.addVertex({ 1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_2);
 
     Model background(background_mesh, background_shader);
     scene_objects.push_back(background);
@@ -212,6 +217,47 @@ void LimbView::initializeGL()
     Model cube(cube_mesh, model_shader);
     scene_objects.push_back(cube);
 
+    // Create cube mesh 2
+    Mesh cube_mesh2(GL_LINE_STRIP);
+    // Right
+    cube_mesh2.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor());
+
+    // Left
+    cube_mesh2.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor());
+
+    // Top
+    cube_mesh2.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor());
+
+    // Bottom
+    cube_mesh2.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor());
+
+    // Front
+    cube_mesh2.addVertex(0.4*QVector3D{-1.0, -1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{ 1.0, -1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{ 1.0,  1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{-1.0,  1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor());
+
+    // Back
+    cube_mesh2.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor());
+    cube_mesh2.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor());
+
+    Model cube2(cube_mesh2, edge_shader);
+    scene_objects.push_back(cube2);
+
 }
 
 void LimbView::paintGL()
@@ -250,6 +296,12 @@ void LimbView::paintGL()
     model_shader->setUniformValue("viewMatrix", m_view);
     model_shader->setUniformValue("projectionMatrix", m_projection);
     model_shader->release();
+
+    edge_shader->bind();
+    edge_shader->setUniformValue("modelMatrix", m_model);
+    edge_shader->setUniformValue("viewMatrix", m_view);
+    edge_shader->setUniformValue("projectionMatrix", m_projection);
+    edge_shader->release();
 
     glClear(GL_COLOR_BUFFER_BIT);
     for(auto& object: scene_objects) {
