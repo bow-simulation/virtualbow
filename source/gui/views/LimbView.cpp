@@ -139,6 +139,11 @@ void LimbView::initializeGL()
 {
     initializeOpenGLFunctions();
 
+    // OpenGL configuration
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+
     // Shaders
 
     background_shader = new QOpenGLShaderProgram(this);
@@ -263,9 +268,6 @@ void LimbView::initializeGL()
 void LimbView::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    //glEnable(GL_MULTISAMPLE);
 
     AABB bounds({-1.0, -1.0, -1.0}, {1.0, 1.0, 1.0});
 
@@ -284,11 +286,14 @@ void LimbView::paintGL()
     float aspect_ratio = float(this->height())/this->width();
     QMatrix4x4 m_projection;
     m_projection.setToIdentity();
-    m_projection.ortho((-0.5f*zoom + shift_x),
-                       ( 0.5f*zoom + shift_x),
-                       (-0.5f*zoom + shift_y)*aspect_ratio,
-                       ( 0.5f*zoom + shift_y)*aspect_ratio,
-                       0.001f, 100.0f);
+    m_projection.ortho(
+                (-0.5f*zoom + shift_x),
+                ( 0.5f*zoom + shift_x),
+                (-0.5f*zoom + shift_y)*aspect_ratio,
+                ( 0.5f*zoom + shift_y)*aspect_ratio,
+                  0.01f,
+                  100.0f
+    );
 
     model_shader->bind();
     model_shader->setUniformValue("modelMatrix", m_model);
