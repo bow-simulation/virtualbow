@@ -14,21 +14,16 @@ uniform float materialShininess;
 
 void main()
 {
-    // Ambient lighting
-    vec3 ambient = ambientStrength*lightColor;
-
     // Diffuse lighting
     vec3 lightDir = normalize(lightPosition - FragPos);
     vec3 normal = normalize(Normal);
-    float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diffuseStrength*diff*lightColor;
+    float diffuse = max(dot(normal, lightDir), 0.0);
 
     // Specular lighting
     vec3 viewDir = normalize(cameraPosition - FragPos);
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), materialShininess);
-    vec3 specular = specularStrength*spec*lightColor;
+    vec3 reflectDir = -reflect(lightDir, normal);
+    float specular = pow(max(dot(viewDir, reflectDir), 0.0), materialShininess);
 
-    vec3 result = (ambient + diffuse + specular)*Color;
+    vec3 result = (ambientStrength + diffuseStrength*diffuse + specularStrength*specular)*lightColor*Color;
     gl_FragColor = vec4(result, 1.0);
 }
