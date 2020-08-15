@@ -162,66 +162,52 @@ void LimbView::initializeGL()
 
     // Create background mesh
 
-    Mesh background_mesh;
-    unsigned i0 = background_mesh.addVertex({ 1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_1);
-    unsigned i1 = background_mesh.addVertex({-1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_1);
-    unsigned i2 = background_mesh.addVertex({-1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_2);
-    unsigned i3 = background_mesh.addVertex({ 1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_2);
-    background_mesh.addTriangle(i0, i2, i1);
-    background_mesh.addTriangle(i2, i0, i3);
+    Mesh background_mesh(GL_QUADS);
+    background_mesh.addVertex({ 1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_1);
+    background_mesh.addVertex({-1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_1);
+    background_mesh.addVertex({-1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_2);
+    background_mesh.addVertex({ 1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 1.0f }, BACKGROUND_COLOR_2);
 
     Model background(background_mesh, background_shader);
     scene_objects.push_back(background);
 
     // Create cube mesh
+    Mesh cube_mesh(GL_QUADS);
     // Right
-    unsigned j0 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    unsigned j1 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    unsigned j2 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    unsigned j3 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addTriangle(j0, j1, j3);
-    cube_mesh.addTriangle(j1, j2, j3);
+    cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
 
     // Left
-    j0 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    j1 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    j2 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    j3 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addTriangle(j0, j1, j3);
-    cube_mesh.addTriangle(j1, j2, j3);
+    cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
 
     // Top
-    j0 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    j1 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    j2 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    j3 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addTriangle(j0, j1, j3);
-    cube_mesh.addTriangle(j1, j2, j3);
+    cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
 
     // Bottom
-    j0 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    j1 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    j2 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    j3 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addTriangle(j0, j1, j3);
-    cube_mesh.addTriangle(j1, j2, j3);
+    cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
 
     // Front
-    j0 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    j1 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    j2 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    j3 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addTriangle(j0, j1, j3);
-    cube_mesh.addTriangle(j1, j2, j3);
+    cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
 
     // Back
-    j0 = cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    j1 = cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    j2 = cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    j3 = cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addTriangle(j0, j1, j3);
-    cube_mesh.addTriangle(j1, j2, j3);
-
+    cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
 
     Model cube(cube_mesh, model_shader);
     scene_objects.push_back(cube);

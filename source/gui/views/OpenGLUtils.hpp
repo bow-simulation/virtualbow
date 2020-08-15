@@ -85,7 +85,15 @@ private:
 class Mesh
 {
 public:
-    // Add vertex and return index
+    Mesh(unsigned mode)
+        : mode(mode) {
+
+    }
+
+    unsigned getMode() {
+        return mode;
+    }
+
     unsigned addVertex(const QVector3D& position, const QVector3D& normal, const QColor& color) {
         vertices.push_back({
             .position = position,
@@ -96,32 +104,21 @@ public:
         return vertices.size() - 1;
     }
 
-    // Add triangle between three indices
-    void addTriangle(unsigned i0, unsigned i1, unsigned i2) {
-        indices.push_back(i0);
-        indices.push_back(i1);
-        indices.push_back(i2);
-    }
-
     const std::vector<Vertex>& getVertices() const {
         return vertices;
     }
 
-    const std::vector<unsigned>& getIndices() const {
-        return indices;
-    }
-
     AABB getBounds() const {
         AABB aabb;
-        for(unsigned index: indices) {
-            aabb.extend(vertices[index].position);
+        for(auto& vertex: vertices) {
+            aabb.extend(vertex.position);
         }
         return aabb;
     }
 
 private:
     std::vector<Vertex> vertices;
-    std::vector<unsigned> indices;
+    unsigned mode;
 };
 
 class Model: protected QOpenGLExtraFunctions
@@ -135,14 +132,10 @@ public:
 
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
-        glGenBuffers(1, &EBO);
         glBindVertexArray(VAO);
 
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, mesh.getVertices().size()*sizeof(Vertex), mesh.getVertices().data(), GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.getIndices().size()*sizeof(unsigned), mesh.getIndices().data(), GL_STATIC_DRAW);
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, position));
         glEnableVertexAttribArray(0);
@@ -160,7 +153,7 @@ public:
     void draw() {
         shader->bind();
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, mesh.getIndices().size(), GL_UNSIGNED_INT, 0);
+        glDrawArrays(mesh.getMode(), 0, mesh.getVertices().size());
         glBindVertexArray(0);
         shader->release();
     }
@@ -168,5 +161,5 @@ public:
 private:
     Mesh mesh;
     QOpenGLShaderProgram* shader;
-    unsigned VAO, VBO, EBO;
+    unsigned VAO, VBO;
 };
