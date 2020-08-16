@@ -10,18 +10,15 @@
 class LimbView: public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
 private:
-    //const QColor BACKGROUND_COLOR_1 = QColor::fromRgbF(0.2f, 0.3f, 0.4f).darker(200);
-    //const QColor BACKGROUND_COLOR_2 = QColor::fromRgbF(0.2f, 0.3f, 0.4f).lighter(125);
-
-    //const QColor BACKGROUND_COLOR_1 = QColor::fromRgb(100, 100, 100).darker(150);
-    //const QColor BACKGROUND_COLOR_2 = QColor::fromRgb(100, 100, 100).lighter(150);
-
     const QColor BACKGROUND_COLOR_1 = QColor::fromHsv(0, 0, 100 - 50);
     const QColor BACKGROUND_COLOR_2 = QColor::fromHsv(0, 0, 100 + 50);
 
     const QVector3D CAMERA_POSITION = { 0.0f, 0.0f, 10.0f };
     const QVector3D LIGHT_POSITION = { 0.0f, 0.0f, 10.0f };
-    const QVector3D LIGHT_COLOR = { 1.0, 1.0, 1.0 };
+    const QVector3D LIGHT_COLOR = { 1.0f, 1.0f, 1.0f };
+
+    const float CAMERA_NEAR_PLANE = 0.01f;
+    const float CAMERA_FAR_PLANE = 100.0f;
 
     const float MATERIAL_AMBIENT_STRENGTH = 0.2f;
     const float MATERIAL_DIFFUSE_STRENGTH = 0.9f;
@@ -52,8 +49,6 @@ private:
     void wheelEvent(QWheelEvent* event) override;
 
     LayerLegend* legend;
-    LimbMesh limb_mesh_left;
-    LimbMesh limb_mesh_right;
 
     QPoint mouse_pos;
     float shift_x;
@@ -61,10 +56,14 @@ private:
     float rot_x;
     float rot_y;
     float zoom;
+    bool symmetry;
 
     // OpenGL
     QOpenGLShaderProgram* background_shader;
     QOpenGLShaderProgram* model_shader;
     QOpenGLShaderProgram* edge_shader;
-    std::vector<Model> scene_objects;
+
+    std::unique_ptr<Model> background;
+    std::unique_ptr<Model> cube_faces;
+    std::unique_ptr<Model> cube_edges;
 };
