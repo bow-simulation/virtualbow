@@ -5,9 +5,9 @@
 
 LimbView::LimbView()
     : legend(new LayerLegend()),
-      limb_mesh_left(true),
-      limb_mesh_right(false),
-      background_shader(nullptr)
+      background_shader(nullptr),
+      model_shader(nullptr),
+      edge_shader(nullptr)
 {
     // Anti aliasing
     QSurfaceFormat format = QSurfaceFormat::defaultFormat();
@@ -19,41 +19,41 @@ LimbView::LimbView()
                                  "QToolButton:pressed { background-color: rgba(150, 150, 150, 200); }"
                                  "QToolButton:checked { background-color: rgba(150, 150, 150, 200); }";
 
-    auto button0 = new QToolButton();
-    QObject::connect(button0, &QPushButton::clicked, this, &LimbView::view3D);
-    button0->setIcon(QIcon(":/icons/view-3d"));
-    button0->setToolTip("Default view");
-    button0->setIconSize(BUTTON_SIZE);
-    button0->setStyleSheet(BUTTON_STYLE);
+    auto bt_view_3d = new QToolButton();
+    QObject::connect(bt_view_3d, &QPushButton::clicked, this, &LimbView::view3D);
+    bt_view_3d->setIcon(QIcon(":/icons/view-3d"));
+    bt_view_3d->setToolTip("Default view");
+    bt_view_3d->setIconSize(BUTTON_SIZE);
+    bt_view_3d->setStyleSheet(BUTTON_STYLE);
 
-    auto button1 = new QToolButton();
-    QObject::connect(button1, &QPushButton::clicked, this, &LimbView::viewProfile);
-    button1->setIcon(QIcon(":/icons/view-profile"));
-    button1->setToolTip("Profile view");
-    button1->setIconSize(BUTTON_SIZE);
-    button1->setStyleSheet(BUTTON_STYLE);
+    auto bt_view_profile = new QToolButton();
+    QObject::connect(bt_view_profile, &QPushButton::clicked, this, &LimbView::viewProfile);
+    bt_view_profile->setIcon(QIcon(":/icons/view-profile"));
+    bt_view_profile->setToolTip("Profile view");
+    bt_view_profile->setIconSize(BUTTON_SIZE);
+    bt_view_profile->setStyleSheet(BUTTON_STYLE);
 
-    auto button2 = new QToolButton();
-    QObject::connect(button2, &QPushButton::clicked, this, &LimbView::viewTop);
-    button2->setIcon(QIcon(":/icons/view-top"));
-    button2->setToolTip("Top view");
-    button2->setIconSize(BUTTON_SIZE);
-    button2->setStyleSheet(BUTTON_STYLE);
+    auto bt_view_top = new QToolButton();
+    QObject::connect(bt_view_top, &QPushButton::clicked, this, &LimbView::viewTop);
+    bt_view_top->setIcon(QIcon(":/icons/view-top"));
+    bt_view_top->setToolTip("Top view");
+    bt_view_top->setIconSize(BUTTON_SIZE);
+    bt_view_top->setStyleSheet(BUTTON_STYLE);
 
-    auto button3 = new QToolButton();
-    QObject::connect(button3, &QPushButton::clicked, this, &LimbView::viewFit);
-    button3->setIcon(QIcon(":/icons/view-fit"));
-    button3->setToolTip("Reset zoom");
-    button3->setIconSize(BUTTON_SIZE);
-    button3->setStyleSheet(BUTTON_STYLE);
+    auto bt_view_fit = new QToolButton();
+    QObject::connect(bt_view_fit, &QPushButton::clicked, this, &LimbView::viewFit);
+    bt_view_fit->setIcon(QIcon(":/icons/view-fit"));
+    bt_view_fit->setToolTip("Reset zoom");
+    bt_view_fit->setIconSize(BUTTON_SIZE);
+    bt_view_fit->setStyleSheet(BUTTON_STYLE);
 
-    auto button4 = new QToolButton();
-    QObject::connect(button4, &QToolButton::toggled, this, &LimbView::viewSymmetric);
-    button4->setIcon(QIcon(":/icons/view-symmetric"));
-    button4->setToolTip("Show symmetry");
-    button4->setIconSize(BUTTON_SIZE);
-    button4->setStyleSheet(BUTTON_STYLE);
-    button4->setCheckable(true);
+    auto bt_view_symmetric = new QToolButton();
+    QObject::connect(bt_view_symmetric, &QToolButton::toggled, this, &LimbView::viewSymmetric);
+    bt_view_symmetric->setIcon(QIcon(":/icons/view-symmetric"));
+    bt_view_symmetric->setToolTip("Show symmetry");
+    bt_view_symmetric->setIconSize(BUTTON_SIZE);
+    bt_view_symmetric->setStyleSheet(BUTTON_STYLE);
+    bt_view_symmetric->setCheckable(true);
 
     auto vbox1 = new QVBoxLayout();
     vbox1->setAlignment(Qt::AlignLeft);
@@ -63,11 +63,11 @@ LimbView::LimbView()
     auto vbox2 = new QVBoxLayout();
     vbox2->setAlignment(Qt::AlignRight);
     vbox2->setSpacing(8);
-    vbox2->addWidget(button0);
-    vbox2->addWidget(button1);
-    vbox2->addWidget(button2);
-    vbox2->addWidget(button3);
-    vbox2->addWidget(button4);
+    vbox2->addWidget(bt_view_3d);
+    vbox2->addWidget(bt_view_profile);
+    vbox2->addWidget(bt_view_top);
+    vbox2->addWidget(bt_view_fit);
+    vbox2->addWidget(bt_view_symmetric);
     vbox2->addStretch();
 
     auto hbox = new QHBoxLayout();
@@ -85,16 +85,8 @@ LimbView::LimbView()
 void LimbView::setData(const InputData& data)
 {
     legend->setData(data.layers);
-    limb_mesh_left.setData(data);
-    limb_mesh_right.setData(data);
-
-    /*
-    limb_mesh_left_vbo.bind();
-    limb_mesh_left_vbo.allocate(limb_mesh_left.vertexData().data(), limb_mesh_left.vertexData().size()*sizeof(GLfloat));
-
-    limb_mesh_right_vbo.bind();
-    limb_mesh_right_vbo.allocate(limb_mesh_right.vertexData().data(), limb_mesh_right.vertexData().size()*sizeof(GLfloat));
-    */
+    cube_faces = std::make_unique<Model>(LimbMesh::createFaces(data));
+    cube_edges = std::make_unique<Model>(LimbMesh::createEdges(data));
 
     update();
 }
@@ -122,8 +114,7 @@ void LimbView::view3D()
 
 void LimbView::viewSymmetric(bool checked)
 {
-    limb_mesh_left.setVisible(checked);
-    limb_mesh_right.setVisible(true);
+    symmetry = checked;
     update();
 }
 
@@ -137,6 +128,8 @@ void LimbView::viewFit()
 
 void LimbView::initializeGL()
 {
+    qInfo() << "Initialize OpenGL";
+
     initializeOpenGLFunctions();
 
     // OpenGL configuration
@@ -173,103 +166,16 @@ void LimbView::initializeGL()
     // Create background mesh
 
     Mesh background_mesh(GL_QUADS);
-    background_mesh.addVertex({ 1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_1);
-    background_mesh.addVertex({-1.0f,  1.0f, 0.0f}, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_1);
-    background_mesh.addVertex({-1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_2);
-    background_mesh.addVertex({ 1.0f, -1.0f, 0.0f}, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_2);
-
-    Model background(background_mesh, background_shader);
-    scene_objects.push_back(background);
-
-    // Create cube mesh
-    Mesh cube_mesh(GL_QUADS);
-    // Right
-    cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-
-    // Left
-    cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-
-    // Top
-    cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-
-    // Bottom
-    cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-
-    // Front
-    cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-
-    // Back
-    cube_mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-    cube_mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
-
-    Model cube(cube_mesh, model_shader);
-    scene_objects.push_back(cube);
-
-    // Create cube mesh 2
-    Mesh cube_mesh2(GL_LINE_STRIP);
-    // Right
-    cube_mesh2.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor());
-
-    // Left
-    cube_mesh2.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor());
-
-    // Top
-    cube_mesh2.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor());
-
-    // Bottom
-    cube_mesh2.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor());
-
-    // Front
-    cube_mesh2.addVertex(0.4*QVector3D{-1.0, -1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{ 1.0, -1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{ 1.0,  1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{-1.0,  1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor());
-
-    // Back
-    cube_mesh2.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor());
-    cube_mesh2.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor());
-
-    Model cube2(cube_mesh2, edge_shader);
-    scene_objects.push_back(cube2);
-
+    background_mesh.addVertex({ 1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_1);
+    background_mesh.addVertex({-1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_1);
+    background_mesh.addVertex({-1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_2);
+    background_mesh.addVertex({ 1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_2);
+    background = std::make_unique<Model>(background_mesh);
 }
 
 void LimbView::paintGL()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    AABB bounds({-1.0, -1.0, -1.0}, {1.0, 1.0, 1.0});
+    AABB bounds({-0.4, -0.4, -0.4}, {0.4, 0.4, 0.4});
 
     QMatrix4x4 m_model;
     m_model.setToIdentity();
@@ -280,8 +186,7 @@ void LimbView::paintGL()
 
     QMatrix4x4 m_view;
     m_view.setToIdentity();
-    //m_view.translate(CAMERA_POSITION);
-    m_view.lookAt(CAMERA_POSITION, bounds.center(), {0.0, 1.0, 0.0});
+    m_view.lookAt(CAMERA_POSITION, bounds.center(), {0.0f, 1.0f, 0.0});
 
     float aspect_ratio = float(this->height())/this->width();
     QMatrix4x4 m_projection;
@@ -308,9 +213,11 @@ void LimbView::paintGL()
     edge_shader->setUniformValue("projectionMatrix", m_projection);
     edge_shader->release();
 
-    glClear(GL_COLOR_BUFFER_BIT);
-    for(auto& object: scene_objects) {
-        object.draw();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    background->draw(background_shader);
+    cube_faces->draw(model_shader);
+    if(symmetry) {
+        cube_edges->draw(edge_shader);
     }
 }
 

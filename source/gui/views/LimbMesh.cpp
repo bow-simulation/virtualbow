@@ -4,6 +4,137 @@
 #include "solver/numerics/CubicSpline.hpp"
 #include "solver/numerics/Linspace.hpp"
 
+
+LimbMeshes::LimbMeshes(const InputData& input)
+    : limb_faces_right(GL_QUADS),
+      limb_edges_right(GL_LINES),
+      limb_faces_left(GL_QUADS),
+      limb_edges_left(GL_LINES)
+{
+
+}
+
+Mesh LimbMesh::createFaces(const InputData& input)
+{
+    Mesh mesh(GL_QUADS);
+
+    // Right
+    mesh.addQuad(0.4*QVector3D{ 1.0, -1.0,  1.0 },
+                 0.4*QVector3D{ 1.0, -1.0, -1.0 },
+                 0.4*QVector3D{ 1.0,  1.0, -1.0 },
+                 0.4*QVector3D{ 1.0,  1.0,  1.0 },
+                 QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+
+    // Left
+    mesh.addQuad(0.4*QVector3D{-1.0, -1.0, -1.0 },
+                 0.4*QVector3D{-1.0, -1.0,  1.0 },
+                 0.4*QVector3D{-1.0,  1.0,  1.0 },
+                 0.4*QVector3D{-1.0,  1.0, -1.0 },
+                 QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+
+    // Top
+    mesh.addQuad(0.4*QVector3D{-1.0,  1.0,  1.0 },
+                 0.4*QVector3D{ 1.0,  1.0,  1.0 },
+                 0.4*QVector3D{ 1.0,  1.0, -1.0 },
+                 0.4*QVector3D{-1.0,  1.0, -1.0 },
+                 QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+
+    // Bottom
+    mesh.addQuad(0.4*QVector3D{-1.0, -1.0, -1.0 },
+                 0.4*QVector3D{ 1.0, -1.0, -1.0 },
+                 0.4*QVector3D{ 1.0, -1.0,  1.0 },
+                 0.4*QVector3D{-1.0, -1.0,  1.0 },
+                 QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+
+    // Front
+    mesh.addQuad(0.4*QVector3D{-1.0, -1.0, 1.0 },
+                 0.4*QVector3D{ 1.0, -1.0, 1.0 },
+                 0.4*QVector3D{ 1.0,  1.0, 1.0 },
+                 0.4*QVector3D{-1.0,  1.0, 1.0 },
+                 QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+
+    // Back
+    mesh.addQuad(0.4*QVector3D{ 1.0, -1.0, -1.0 },
+                 0.4*QVector3D{-1.0, -1.0, -1.0 },
+                 0.4*QVector3D{-1.0,  1.0, -1.0 },
+                 0.4*QVector3D{ 1.0,  1.0, -1.0 },
+                 QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+
+    return mesh;
+}
+
+Mesh LimbMesh::createEdges(const InputData& input)
+{
+    Mesh mesh(GL_LINES);
+    // Right
+    mesh.addLine(0.4*QVector3D{ 1.0,  1.0,  1.0 }, 0.4*QVector3D{ 1.0, -1.0,  1.0 }, QColor());
+    mesh.addLine(0.4*QVector3D{ 1.0, -1.0,  1.0 }, 0.4*QVector3D{ 1.0, -1.0, -1.0 }, QColor());
+    mesh.addLine(0.4*QVector3D{ 1.0, -1.0, -1.0 }, 0.4*QVector3D{ 1.0,  1.0, -1.0 }, QColor());
+    mesh.addLine(0.4*QVector3D{ 1.0,  1.0, -1.0 }, 0.4*QVector3D{ 1.0,  1.0,  1.0 }, QColor());
+
+    // Left
+    mesh.addLine(0.4*QVector3D{-1.0,  1.0,  1.0 }, 0.4*QVector3D{-1.0, -1.0,  1.0 }, QColor());
+    mesh.addLine(0.4*QVector3D{-1.0, -1.0,  1.0 }, 0.4*QVector3D{-1.0, -1.0, -1.0 }, QColor());
+    mesh.addLine(0.4*QVector3D{-1.0, -1.0, -1.0 }, 0.4*QVector3D{-1.0,  1.0, -1.0 }, QColor());
+    mesh.addLine(0.4*QVector3D{-1.0,  1.0, -1.0 }, 0.4*QVector3D{-1.0,  1.0,  1.0 }, QColor());
+
+    // Top, Bottom
+    mesh.addLine(0.4*QVector3D{ 1.0,  1.0,  1.0 }, 0.4*QVector3D{-1.0,  1.0,  1.0 }, QColor());
+    mesh.addLine(0.4*QVector3D{ 1.0, -1.0,  1.0 }, 0.4*QVector3D{-1.0, -1.0,  1.0 }, QColor());
+    mesh.addLine(0.4*QVector3D{ 1.0, -1.0, -1.0 }, 0.4*QVector3D{-1.0, -1.0, -1.0 }, QColor());
+    mesh.addLine(0.4*QVector3D{ 1.0,  1.0, -1.0 }, 0.4*QVector3D{-1.0,  1.0, -1.0 }, QColor());
+
+    return mesh;
+}
+
+Mesh LimbMesh::createFaces2(const InputData& input)
+{
+    Mesh mesh(GL_QUADS);
+    // Right
+    mesh.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0 }, QVector3D{ 1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+
+    // Left
+    mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{-1.0, 0.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+
+    // Top
+    mesh.addVertex(0.4*QVector3D{-1.0,  1.0,  1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{ 1.0,  1.0,  1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{ 0.0, 1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+
+    // Bottom
+    mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{ 1.0, -1.0,  1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{-1.0, -1.0,  1.0 }, QVector3D{ 0.0, -1.0, 0.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+
+    // Front
+    mesh.addVertex(0.4*QVector3D{-1.0, -1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{-1.0,  1.0, 1.0 }, QVector3D{ 0.0, 0.0, 1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+
+    // Back
+    mesh.addVertex(0.4*QVector3D{ 1.0, -1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{-1.0, -1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{-1.0,  1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+    mesh.addVertex(0.4*QVector3D{ 1.0,  1.0, -1.0 }, QVector3D{ 0.0, 0.0, -1.0 }, QColor::fromRgbF(1.0f, 0.5f, 0.31f));
+
+    return mesh;
+}
+
+
+
+
+
+
+
 LimbMesh::LimbMesh(bool inverted)
     : visible(true),
       inverted(inverted)
