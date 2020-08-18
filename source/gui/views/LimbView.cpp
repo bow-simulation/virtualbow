@@ -166,10 +166,39 @@ void LimbView::initializeGL()
     // Create background mesh
 
     Mesh background_mesh(GL_QUADS);
-    background_mesh.addVertex({ 1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_1);
-    background_mesh.addVertex({-1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_1);
-    background_mesh.addVertex({-1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_2);
-    background_mesh.addVertex({ 1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_2);
+    QColor COLOR_1 = BACKGROUND_COLOR_1;
+    QColor COLOR_2 = BACKGROUND_COLOR_2;
+
+    QDate date = QDate::currentDate();
+    if(date.month() == 12 && (date.day() == 24 || date.day() == 25 || date.day() == 26)) {
+        auto create_star = [&](float x0, float y0, float r, float R, float alpha, unsigned n) {
+            float beta = 2.0*M_PI/n;
+            float z0 = -0.1;
+            for(unsigned i = 0; i < n; ++i) {
+                float phi = alpha + i*beta;
+                QVector3D p0(x0, y0, z0);
+                QVector3D p1(x0 - r*sin(phi - beta/2), y0 + r*cos(phi - beta/2), z0);
+                QVector3D p2(x0 - R*sin(phi), y0 + R*cos(phi), z0);
+                QVector3D p3(x0 - r*sin(phi + beta/2), y0 + r*cos(phi + beta/2), z0);
+                background_mesh.addQuad(p0, p1, p2, p3, QColor::fromRgb(255, 255, 255));
+            }
+        };
+
+        for(unsigned i = 0; i < 15; ++i) {
+            float x = -1.0 + static_cast<float>(rand())/static_cast <float> (RAND_MAX/(2.0));
+            float y = -1.0 + static_cast<float>(rand())/static_cast <float> (RAND_MAX/(2.0));
+            float r = 0.002 + static_cast<float>(rand())/static_cast <float> (RAND_MAX/(0.005));
+            create_star(x, y, r, 3.0*r, 0.0, 4);
+        }
+
+        COLOR_1 = QColor::fromRgbF(0.6f, 0.3f, 0.4f);
+        COLOR_2 = QColor::fromRgbF(0.2f, 0.3f, 0.4f);
+    }
+
+    background_mesh.addVertex({ 1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, COLOR_1);
+    background_mesh.addVertex({-1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, COLOR_1);
+    background_mesh.addVertex({-1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, COLOR_2);
+    background_mesh.addVertex({ 1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, COLOR_2);
     background = std::make_unique<Model>(background_mesh);
 }
 
