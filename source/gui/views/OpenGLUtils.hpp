@@ -11,30 +11,20 @@ struct Vertex
     QVector3D color;
 };
 
-class AABB
-{
+class Bounds {
 public:
-    AABB(): AABB(max_inf(), min_inf()) {
+    Bounds(): vec_min(max_inf()), vec_max(min_inf()) {
 
     }
 
-    AABB(const QVector3D& vec_min, const QVector3D& vec_max)
-        : vec_min(vec_min), vec_max(vec_max) {
-
+    void extend(const Bounds& other) {
+        vec_min = min(vec_min, other.vec_min);
+        vec_max = max(vec_max, other.vec_max);
     }
 
-    AABB extend(const AABB& other) const {
-        return {
-            min(vec_min, other.vec_min),
-            max(vec_max, other.vec_max)
-        };
-    }
-
-    AABB extend(const QVector3D& point) const{
-        return {
-            min(vec_min, point),
-            max(vec_max, point)
-        };
+    void extend(const QVector3D& point) {
+        vec_min = min(vec_min, point);
+        vec_max = max(vec_max, point);
     }
 
     QVector3D center() const {
@@ -130,14 +120,6 @@ public:
         return mode;
     }
 
-    AABB getBounds() const {
-        AABB aabb;
-        for(auto& vertex: vertices) {
-            aabb.extend(vertex.position);
-        }
-        return aabb;
-    }
-
 private:
     std::vector<Vertex> vertices;
     unsigned mode;
@@ -150,6 +132,14 @@ public:
         : mesh(mesh), VAO(0), VBO(0)
     {
 
+    }
+
+    Bounds getBounds() const {
+        Bounds bounds;
+        for(auto& vertex: mesh.getVertices()) {
+            bounds.extend(vertex.position);
+        }
+        return bounds;
     }
 
     void draw(QOpenGLShaderProgram* shader) {
