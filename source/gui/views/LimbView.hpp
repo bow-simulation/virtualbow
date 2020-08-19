@@ -10,8 +10,8 @@
 class LimbView: public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
 private:
-    const QColor BACKGROUND_COLOR_1 = QColor::fromHsv(0, 0, 100 - 50);
-    const QColor BACKGROUND_COLOR_2 = QColor::fromHsv(0, 0, 100 + 50);
+    const QColor BACKGROUND_COLOR_1 = QColor::fromHsv(0, 0, 80 - 30);
+    const QColor BACKGROUND_COLOR_2 = QColor::fromHsv(0, 0, 80 + 30);
 
     const QVector3D CAMERA_POSITION = { 0.0f, 0.0f, 10.0f };
     const QVector3D LIGHT_POSITION = { 0.0f, 0.0f, 10.0f };
@@ -22,8 +22,8 @@ private:
 
     const float MATERIAL_AMBIENT_STRENGTH = 0.2f;
     const float MATERIAL_DIFFUSE_STRENGTH = 0.9f;
-    const float MATERIAL_SPECULAR_STRENGTH = 0.0f;
-    const float MATERIAL_SHININESS = 32.0f;
+    const float MATERIAL_SPECULAR_STRENGTH = 0.5f;
+    const float MATERIAL_SHININESS = 64.0f;
 
     const float DEFAULT_ROT_X = 31.0f;   // Trimetric view
     const float DEFAULT_ROT_Y = -28.0f;  // Trimetric view
@@ -61,11 +61,8 @@ private:
     // OpenGL
     QOpenGLShaderProgram* background_shader;
     QOpenGLShaderProgram* model_shader;
-    QOpenGLShaderProgram* edge_shader;
 
     std::unique_ptr<Model> background;
-    std::unique_ptr<Model> limb_faces_right;
-    std::unique_ptr<Model> limb_edges_right;
-    std::unique_ptr<Model> limb_faces_left;
-    std::unique_ptr<Model> limb_edges_left;
+    std::unique_ptr<Model> limb_right;
+    std::unique_ptr<Model> limb_left;
 };

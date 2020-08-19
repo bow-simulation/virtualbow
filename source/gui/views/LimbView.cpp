@@ -6,8 +6,7 @@
 LimbView::LimbView()
     : legend(new LayerLegend()),
       background_shader(nullptr),
-      model_shader(nullptr),
-      edge_shader(nullptr)
+      model_shader(nullptr)
 {
     // Anti aliasing
     QSurfaceFormat format = QSurfaceFormat::defaultFormat();
@@ -87,10 +86,8 @@ void LimbView::setData(const InputData& data)
     legend->setData(data.layers);
 
     LimbMesh mesh(data);
-    limb_faces_right = std::make_unique<Model>(mesh.faces_right);
-    limb_edges_right = std::make_unique<Model>(mesh.edges_right);
-    limb_faces_left = std::make_unique<Model>(mesh.faces_left);
-    limb_edges_left = std::make_unique<Model>(mesh.edges_left);
+    limb_right = std::make_unique<Model>(mesh.faces_right);
+    limb_left = std::make_unique<Model>(mesh.faces_left);
 
     update();
 }
@@ -161,19 +158,17 @@ void LimbView::initializeGL()
     model_shader->setUniformValue("materialShininess", MATERIAL_SHININESS);
     model_shader->release();
 
-    edge_shader = new QOpenGLShaderProgram(this);
-    edge_shader->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/EdgeShader.vs");
-    edge_shader->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/EdgeShader.fs");
-    edge_shader->link();
-
     // Create background mesh
 
     Mesh background_mesh(GL_QUADS);
-    QColor COLOR_1 = BACKGROUND_COLOR_1;
-    QColor COLOR_2 = BACKGROUND_COLOR_2;
+    background_mesh.addVertex({ 1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_1);
+    background_mesh.addVertex({-1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_1);
+    background_mesh.addVertex({-1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_2);
+    background_mesh.addVertex({ 1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, BACKGROUND_COLOR_2);
+
     QDate date = QDate::currentDate();
     if(date.month() == 12 && (date.day() == 24 || date.day() == 25 || date.day() == 26)) {
-        auto create_star = [&](float x0, float y0, float r, float R, float alpha, unsigned n) {
+        auto create_star = [&](float x0, float y0, float r, float R, float alpha, unsigned n, const QColor& color) {
             float beta = 2.0*M_PI/n;
             float z0 = -0.1;
             for(unsigned i = 0; i < n; ++i) {
@@ -182,36 +177,34 @@ void LimbView::initializeGL()
                 QVector3D p1(x0 - r*sin(phi - beta/2), y0 + r*cos(phi - beta/2), z0);
                 QVector3D p2(x0 - R*sin(phi), y0 + R*cos(phi), z0);
                 QVector3D p3(x0 - r*sin(phi + beta/2), y0 + r*cos(phi + beta/2), z0);
-                background_mesh.addQuad(p0, p1, p2, p3, QColor::fromRgb(255, 255, 255));
+                background_mesh.addQuad(p0, p1, p2, p3, color);
             }
         };
 
-        for(unsigned i = 0; i < 15; ++i) {
-            float x = -1.0 + static_cast<float>(rand())/static_cast <float> (RAND_MAX/(2.0));
-            float y = -1.0 + static_cast<float>(rand())/static_cast <float> (RAND_MAX/(2.0));
-            float r = 0.002 + static_cast<float>(rand())/static_cast <float> (RAND_MAX/(0.004));
-            create_star(x, y, r, 3.0*r, 0.0, 4);
-        }
+        auto random_in_range = [](float lower, float upper) {
+            return lower + static_cast<float>(rand())/static_cast <float> (RAND_MAX/(upper - lower));
+        };
 
-        COLOR_1 = QColor::fromRgbF(0.6f, 0.3f, 0.4f);
-        COLOR_2 = QColor::fromRgbF(0.2f, 0.3f, 0.4f);
+        for(unsigned i = 0; i < 15; ++i) {
+            float x = random_in_range(-0.95f, 0.95f);
+            float y = random_in_range(-0.95f, 0.95f);
+            float r = random_in_range(0.003f, 0.006f);
+            QVector3D c1(BACKGROUND_COLOR_1.redF(), BACKGROUND_COLOR_1.greenF(), BACKGROUND_COLOR_1.blueF());
+            QVector3D c2(BACKGROUND_COLOR_2.redF(), BACKGROUND_COLOR_2.greenF(), BACKGROUND_COLOR_2.blueF());
+            QVector3D cs = (y + 1.0f)/2.0f*c2 - (y - 1.0f)/2.0f*c1;
+            create_star(x, y, r, 3.0*r, 0.0, 5, QColor::fromRgbF(cs.x(), cs.y(), cs.z()).lighter(250));
+        }
     }
-    background_mesh.addVertex({ 1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, COLOR_1);
-    background_mesh.addVertex({-1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, COLOR_1);
-    background_mesh.addVertex({-1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, COLOR_2);
-    background_mesh.addVertex({ 1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, COLOR_2);
+
     background = std::make_unique<Model>(background_mesh);
 }
 
 void LimbView::paintGL()
 {
-    Bounds bounds = limb_faces_right->getBounds();
+    Bounds bounds = limb_right->getBounds();
     if(symmetry) {
-        bounds.extend(limb_faces_left->getBounds());
+        bounds.extend(limb_left->getBounds());
     }
-
-    qInfo() << bounds.diagonal();
-    qInfo() << bounds.center();
 
     QMatrix4x4 m_model;
     m_model.setToIdentity();
@@ -243,19 +236,11 @@ void LimbView::paintGL()
     model_shader->setUniformValue("projectionMatrix", m_projection);
     model_shader->release();
 
-    edge_shader->bind();
-    edge_shader->setUniformValue("modelMatrix", m_model);
-    edge_shader->setUniformValue("viewMatrix", m_view);
-    edge_shader->setUniformValue("projectionMatrix", m_projection);
-    edge_shader->release();
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     background->draw(background_shader);
-    limb_faces_right->draw(model_shader);
-    limb_edges_right->draw(edge_shader);
+    limb_right->draw(model_shader);
     if(symmetry) {
-        limb_faces_left->draw(model_shader);
-        limb_edges_left->draw(edge_shader);
+        limb_left->draw(model_shader);
     }
 }
 
@@ -285,8 +270,7 @@ void LimbView::mouseMoveEvent(QMouseEvent *event)
     mouse_pos = event->pos();
 }
 
-void LimbView::wheelEvent(QWheelEvent* event)
-{
+void LimbView::wheelEvent(QWheelEvent* event) {
     float delta_zoom = -ZOOM_SPEED*event->angleDelta().y()/120.0f*zoom;    // Dividing by 120 gives the number of 15 degree steps on a standard mouse
     float mouse_ratio_x = float(event->x())/this->width();
     float mouse_ratio_y = float(event->y())/this->height();

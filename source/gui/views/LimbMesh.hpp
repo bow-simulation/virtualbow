@@ -12,9 +12,7 @@ class LimbMesh
 {
 public:
     Mesh faces_right;
-    Mesh edges_right;
     Mesh faces_left;
-    Mesh edges_left;
 
     LimbMesh(const InputData& input);
 
