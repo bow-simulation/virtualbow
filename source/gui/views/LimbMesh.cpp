@@ -7,13 +7,11 @@
 
 LimbMesh::LimbMesh(const InputData& input)
     : faces_right(GL_QUADS),
-      edges_right(GL_LINES),
-      faces_left(GL_QUADS),
-      edges_left(GL_LINES)
+      faces_left(GL_QUADS)
 {
     try {
         ContinuousLimb limb(input);
-        std::vector<double> lengths = getEvalLengths(limb, 150);    // Magic number
+        std::vector<double> lengths = getEvalLengths(limb, 1000);    // Magic number
 
         size_t n_layers = limb.get_layers().size();
         size_t n_segments = lengths.size()-1;
@@ -98,29 +96,6 @@ LimbMesh::LimbMesh(const InputData& input)
                     break;
                 }
             }
-
-            // Outline
-
-            addLine(points_r_prev.front(), points_r_next.front(), QColor());
-            addLine(points_r_prev.back(), points_r_next.back(), QColor());
-            addLine(points_l_prev.front(), points_l_next.front(), QColor());
-            addLine(points_l_prev.back(), points_l_next.back(), QColor());
-
-            // Start
-            if(i == 0) {
-                addLine(points_r_prev.front(), points_r_prev.back(), QColor());
-                addLine(points_l_prev.front(), points_l_prev.back(), QColor());
-                addLine(points_r_prev.front(), points_l_prev.front(), QColor());
-                addLine(points_r_prev.back(), points_l_prev.back(), QColor());
-            }
-            // End
-            if(i == n_segments - 1) {
-                addLine(points_r_next.front(), points_r_next.back(), QColor());
-                addLine(points_l_next.front(), points_l_next.back(), QColor());
-                addLine(points_r_next.front(), points_l_next.front(), QColor());
-                addLine(points_r_next.back(), points_l_next.back(), QColor());
-            }
-
         }
     }
     catch(std::invalid_argument&) {
@@ -160,12 +135,4 @@ void LimbMesh::addQuad(QVector3D p0, QVector3D p1, QVector3D p2, QVector3D p3, c
 
     faces_right.addQuad(p0, p1, p2, p3, color);
     faces_left.addQuad(q0, q1, q2, q3, color);
-}
-
-void LimbMesh::addLine(QVector3D p0, QVector3D p1, const QColor& color) {
-    QVector3D q0{-p0.x(), p0.y(), p0.z()};
-    QVector3D q1{-p1.x(), p1.y(), p1.z()};
-
-    edges_right.addLine(p0, p1, color);
-    edges_left.addLine(q0, q1, color);
 }
