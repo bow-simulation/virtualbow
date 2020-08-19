@@ -22,7 +22,7 @@ private:
 
     const float MATERIAL_AMBIENT_STRENGTH = 0.2f;
     const float MATERIAL_DIFFUSE_STRENGTH = 0.9f;
-    const float MATERIAL_SPECULAR_STRENGTH = 0.5f;
+    const float MATERIAL_SPECULAR_STRENGTH = 0.0f;
     const float MATERIAL_SHININESS = 32.0f;
 
     const float DEFAULT_ROT_X = 31.0f;   // Trimetric view
@@ -64,6 +64,8 @@ private:
     QOpenGLShaderProgram* edge_shader;
 
     std::unique_ptr<Model> background;
-    std::unique_ptr<Model> cube_faces;
-    std::unique_ptr<Model> cube_edges;
+    std::unique_ptr<Model> limb_faces_right;
+    std::unique_ptr<Model> limb_edges_right;
+    std::unique_ptr<Model> limb_faces_left;
+    std::unique_ptr<Model> limb_edges_left;
 };

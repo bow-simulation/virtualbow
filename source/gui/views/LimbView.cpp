@@ -85,8 +85,12 @@ LimbView::LimbView()
 void LimbView::setData(const InputData& data)
 {
     legend->setData(data.layers);
-    cube_faces = std::make_unique<Model>(LimbMesh::createFaces(data));
-    cube_edges = std::make_unique<Model>(LimbMesh::createEdges(data));
+
+    LimbMesh mesh(data);
+    limb_faces_right = std::make_unique<Model>(mesh.faces_right);
+    limb_edges_right = std::make_unique<Model>(mesh.edges_right);
+    limb_faces_left = std::make_unique<Model>(mesh.faces_left);
+    limb_edges_left = std::make_unique<Model>(mesh.edges_left);
 
     update();
 }
@@ -128,14 +132,13 @@ void LimbView::viewFit()
 
 void LimbView::initializeGL()
 {
-    qInfo() << "Initialize OpenGL";
-
     initializeOpenGLFunctions();
 
     // OpenGL configuration
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glLineWidth(1.0f);
 
     // Shaders
 
@@ -168,7 +171,6 @@ void LimbView::initializeGL()
     Mesh background_mesh(GL_QUADS);
     QColor COLOR_1 = BACKGROUND_COLOR_1;
     QColor COLOR_2 = BACKGROUND_COLOR_2;
-
     QDate date = QDate::currentDate();
     if(date.month() == 12 && (date.day() == 24 || date.day() == 25 || date.day() == 26)) {
         auto create_star = [&](float x0, float y0, float r, float R, float alpha, unsigned n) {
@@ -187,14 +189,13 @@ void LimbView::initializeGL()
         for(unsigned i = 0; i < 15; ++i) {
             float x = -1.0 + static_cast<float>(rand())/static_cast <float> (RAND_MAX/(2.0));
             float y = -1.0 + static_cast<float>(rand())/static_cast <float> (RAND_MAX/(2.0));
-            float r = 0.002 + static_cast<float>(rand())/static_cast <float> (RAND_MAX/(0.005));
+            float r = 0.002 + static_cast<float>(rand())/static_cast <float> (RAND_MAX/(0.004));
             create_star(x, y, r, 3.0*r, 0.0, 4);
         }
 
         COLOR_1 = QColor::fromRgbF(0.6f, 0.3f, 0.4f);
         COLOR_2 = QColor::fromRgbF(0.2f, 0.3f, 0.4f);
     }
-
     background_mesh.addVertex({ 1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, COLOR_1);
     background_mesh.addVertex({-1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, COLOR_1);
     background_mesh.addVertex({-1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, COLOR_2);
@@ -204,7 +205,13 @@ void LimbView::initializeGL()
 
 void LimbView::paintGL()
 {
-    AABB bounds({-0.4, -0.4, -0.4}, {0.4, 0.4, 0.4});
+    Bounds bounds = limb_faces_right->getBounds();
+    if(symmetry) {
+        bounds.extend(limb_faces_left->getBounds());
+    }
+
+    qInfo() << bounds.diagonal();
+    qInfo() << bounds.center();
 
     QMatrix4x4 m_model;
     m_model.setToIdentity();
@@ -215,7 +222,7 @@ void LimbView::paintGL()
 
     QMatrix4x4 m_view;
     m_view.setToIdentity();
-    m_view.lookAt(CAMERA_POSITION, bounds.center(), {0.0f, 1.0f, 0.0});
+    m_view.lookAt(CAMERA_POSITION, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0});
 
     float aspect_ratio = float(this->height())/this->width();
     QMatrix4x4 m_projection;
@@ -244,9 +251,11 @@ void LimbView::paintGL()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     background->draw(background_shader);
-    cube_faces->draw(model_shader);
+    limb_faces_right->draw(model_shader);
+    limb_edges_right->draw(edge_shader);
     if(symmetry) {
-        cube_edges->draw(edge_shader);
+        limb_faces_left->draw(model_shader);
+        limb_edges_left->draw(edge_shader);
     }
 }
 
