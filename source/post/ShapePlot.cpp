@@ -10,20 +10,20 @@ ShapePlot::ShapePlot(const LimbProperties& limb, const BowStates& states, bool i
     limb_right = new QCPCurve(this->xAxis, this->yAxis);
     limb_right->setPen({Qt::blue, 2});
     //limb_right->setBrush(Qt::white);
-    limb_right->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
+    limb_right->setScatterSkip(0);
 
     limb_left = new QCPCurve(this->xAxis, this->yAxis);
     limb_left->setPen({Qt::blue, 2});
     //limb_left->setBrush(Qt::white);
-    limb_left->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
+    limb_left->setScatterSkip(0);
 
     string_right = new QCPCurve(this->xAxis, this->yAxis);
     string_right->setPen({Qt::blue, 1});
-    string_right->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
+    string_right->setScatterSkip(0);
 
     string_left = new QCPCurve(this->xAxis, this->yAxis);
     string_left->setPen({Qt::blue, 1});
-    string_left->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
+    string_left->setScatterSkip(0);
 
     arrow = new QCPCurve(this->xAxis, this->yAxis);
     arrow->setLineStyle(QCPCurve::lsNone);
@@ -97,8 +97,8 @@ void ShapePlot::plotLimbOutline(QCPCurve* left, QCPCurve* right, const VectorXd&
     // Iterate forward and draw back
     for(int i = 0; i < phi.size(); ++i)
     {
-        double xi = x[i] - 0.5*limb.height[i]*sin(phi[i]);
-        double yi = y[i] + 0.5*limb.height[i]*cos(phi[i]);
+        double xi = x[i];
+        double yi = y[i];
         left->addData(-xi, yi);
         right->addData(xi, yi);
     }
@@ -106,8 +106,8 @@ void ShapePlot::plotLimbOutline(QCPCurve* left, QCPCurve* right, const VectorXd&
     // Iterate backward and plot belly
     for(int i = phi.size()-1; i >= 0; --i)
     {
-        double xi = x[i] + 0.5*limb.height[i]*sin(phi[i]);
-        double yi = y[i] - 0.5*limb.height[i]*cos(phi[i]);
+        double xi = x[i] + limb.height[i]*sin(phi[i]);
+        double yi = y[i] - limb.height[i]*cos(phi[i]);
         left->addData(-xi, yi);
         right->addData(xi, yi);
     }

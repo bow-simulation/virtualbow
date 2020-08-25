@@ -29,5 +29,9 @@
         <file>icons/media-skip-forward.svg</file>
         <file>icons/model-comments.svg</file>
         <file>icons/model-damping.svg</file>
+        <file>shaders/BackgroundShader.vs</file>
+        <file>shaders/BackgroundShader.fs</file>
+        <file>shaders/ModelShader.fs</file>
+        <file>shaders/ModelShader.vs</file>
     </qresource>
 </RCC>
