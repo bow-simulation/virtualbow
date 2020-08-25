@@ -13,8 +13,7 @@
 #include <limits>
 #include <numeric>
 
-OutputData BowModel::simulate(const InputData& input, SimulationMode mode, const Callback& callback)
-{
+OutputData BowModel::simulate(const InputData& input, SimulationMode mode, const Callback& callback) {
     BowModel model(input);
 
     SetupData setup = model.simulate_setup(callback);
@@ -57,15 +56,13 @@ BowModel::BowModel(const InputData& input)
     if(input.width.size() < 2)
         throw std::runtime_error("Width: At least two data points are needed");
 
-    for(double w: input.width.col(1))
-    {
+    for(double w: input.width.col(1)) {
         if(w <= 0.0)
             throw std::runtime_error("Width must be positive");
     }
 
     // Check Layers
-    for(size_t i = 0; i < input.layers.size(); ++i)
-    {
+    for(size_t i = 0; i < input.layers.size(); ++i) {
         const Layer& layer = input.layers[i];
 
         if(layer.rho <= 0.0)
@@ -77,8 +74,7 @@ BowModel::BowModel(const InputData& input)
         if(layer.height.size() < 2)
             throw std::runtime_error("Layer " + std::to_string(i) + " (" + layer.name + ")" + ": At least two data points for height are needed");
 
-        for(double h: layer.height.col(1))
-        {
+        for(double h: layer.height.col(1)) {
             if(h < 0.0)
                 throw std::runtime_error("Layer " + std::to_string(i) + " (" + layer.name + ")" + ": Height must not be negative");
         }
@@ -122,21 +118,18 @@ BowModel::BowModel(const InputData& input)
         throw std::runtime_error("Dimensions: Handle length must be positive");
 }
 
-void BowModel::init_limb(const Callback& callback, SetupData& output)
-{
+void BowModel::init_limb(const Callback& callback, SetupData& output) {
     LimbProperties limb_properties(input);
 
     // Create limb nodes
-    for(size_t i = 0; i < input.settings.n_limb_elements + 1; ++i)
-    {
+    for(size_t i = 0; i < input.settings.n_limb_elements + 1; ++i) {
         bool active = (i != 0);
         Node node = system.create_node({active, active, active}, {limb_properties.x_pos[i], limb_properties.y_pos[i], limb_properties.angle[i]});
         nodes_limb.push_back(node);
     }
 
     // Create limb elements
-    for(size_t i = 0; i < input.settings.n_limb_elements; ++i)
-    {
+    for(size_t i = 0; i < input.settings.n_limb_elements; ++i) {
         double rhoA = 0.5*(limb_properties.rhoA[i] + limb_properties.rhoA[i+1]);
         double L = system.get_distance(nodes_limb[i], nodes_limb[i+1]);
 
@@ -158,10 +151,10 @@ void BowModel::init_limb(const Callback& callback, SetupData& output)
     // Tune damping parameter
 
     EigenvalueSolver solver(system);
-    auto try_damping_parameter = [&](double beta)
-    {
-        for(auto& element: system.mut_elements().group<BeamElement>("limb"))
+    auto try_damping_parameter = [&](double beta) {
+        for(auto& element: system.mut_elements().group<BeamElement>("limb")) {
             element.set_damping(beta);
+        }
 
         return solver.compute_minimum_frequency().zeta - input.damping.damping_ratio_limbs;
     };
@@ -174,22 +167,20 @@ void BowModel::init_limb(const Callback& callback, SetupData& output)
     output.limb_mass = std::accumulate(limb_properties.m.begin(), limb_properties.m.end(), 0.0) + input.masses.limb_tip;
 }
 
-void BowModel::init_string(const Callback& callback, SetupData& output)
-{
+void BowModel::init_string(const Callback& callback, SetupData& output) {
     LimbProperties& limb_properties = output.limb_properties;
 
-    const double k = 0.1*system.get_K().maxCoeff();        // Contact stiffness in terms of maximum stiffness already present // Todo: Magic number
-    const double epsilon = 0.01*limb_properties.height[0];    // Transition zone of the contact elements // Magic number
+    const double k = 0.1*std::abs(system.get_K().maxCoeff());         // Contact stiffness in terms of maximum stiffness already present // Magic number
+    const double epsilon = 0.01*limb_properties.height.minCoeff();    // Initial penetration of the contact elements // Magic number
 
-    // Calculate curve tangential to the limb na d calculate string node positions by equipartition
+    // Calculate curve tangential to the limb and calculate string node positions by equipartition
     std::vector<Vector<2>> points;
     points.push_back({0.0, -input.dimensions.brace_height});
-    for(size_t i = 0; i < nodes_limb.size(); ++i)
-    {
+    for(size_t i = 0; i < nodes_limb.size(); ++i) {
         points.push_back({
             // Add small initial penetration epsilon to prevent slip-through on the first static solver iteration
-            system.get_u(nodes_limb[i].x) + (0.5*limb_properties.height[i] - epsilon)*sin(system.get_u(nodes_limb[i].phi)),
-            system.get_u(nodes_limb[i].y) - (0.5*limb_properties.height[i] - epsilon)*cos(system.get_u(nodes_limb[i].phi))
+            system.get_u(nodes_limb[i].x) + (limb_properties.height[i] - epsilon)*sin(system.get_u(nodes_limb[i].phi)),
+            system.get_u(nodes_limb[i].y) - (limb_properties.height[i] - epsilon)*cos(system.get_u(nodes_limb[i].phi))
         });
     }
 
@@ -197,8 +188,7 @@ void BowModel::init_string(const Callback& callback, SetupData& output)
     points = equipartition(points, input.settings.n_string_elements + 1);
 
     // Create string nodes
-    for(size_t i = 0; i < points.size(); ++i)
-    {
+    for(size_t i = 0; i < points.size(); ++i) {
         Node node = system.create_node({i != 0, true, false}, {points[i][0], points[i][1], 0.0});
         nodes_string.push_back(node);
     }
@@ -207,8 +197,7 @@ void BowModel::init_string(const Callback& callback, SetupData& output)
     double EA = input.string.n_strands*input.string.strand_stiffness;
     double rhoA = input.string.n_strands*input.string.strand_density;
 
-    for(size_t i = 0; i < input.settings.n_string_elements; ++i)
-    {
+    for(size_t i = 0; i < input.settings.n_string_elements; ++i) {
         BarElement element(system, nodes_string[i], nodes_string[i+1], 0.0, EA, 0.0, rhoA); // Element lengths are reset later when string length is determined
         system.mut_elements().add(element, "string");
     }
@@ -216,11 +205,12 @@ void BowModel::init_string(const Callback& callback, SetupData& output)
     // Create string to limb contact surface and limb tip constraint
 
     ContactHandler contact(system, ContactForce(k, epsilon));
-    for(size_t i = 1; i < nodes_limb.size(); ++i)
-        contact.add_segment(nodes_limb[i-1], nodes_limb[i], 0.5*limb_properties.height[i-1], 0.5*limb_properties.height[i]);
-
-    for(size_t i = 0; i < nodes_string.size()-1; ++i)    // Don't include the last string node (tip)
+    for(size_t i = 1; i < nodes_limb.size(); ++i) {
+        contact.add_segment(nodes_limb[i-1], nodes_limb[i], limb_properties.height[i-1], limb_properties.height[i]);
+    }
+    for(size_t i = 0; i < nodes_string.size()-1; ++i) {    // Don't include the last string node (tip)
         contact.add_point(nodes_string[i]);
+    }
 
     system.mut_elements().add(contact, "contact");
     system.mut_elements().add(ConstraintElement(system, nodes_limb.back(), nodes_string.back(), k), "constraint");
@@ -230,10 +220,10 @@ void BowModel::init_string(const Callback& callback, SetupData& output)
     system.set_p(nodes_string[0].y, 1.0);    // Will be scaled by the static algorithm
     StaticSolverDC solver(system, nodes_string[0].y);   // Todo: Reuse solver across function calls?
     StaticSolverDC::Info info;
-    auto try_element_length = [&](double l)
-    {
-        for(auto& element: system.mut_elements().group<BarElement>("string"))
+    auto try_element_length = [&](double l) {
+        for(auto& element: system.mut_elements().group<BarElement>("string")) {
             element.set_length(l);
+        }
 
         info = solver.solve(-input.dimensions.brace_height);
         return system.get_angle(nodes_string[0], nodes_string[1]);
@@ -248,34 +238,30 @@ void BowModel::init_string(const Callback& callback, SetupData& output)
     double dl = 1e-3*l;        // Initial step length, later adjusted by the algorithm    // Magic number
     double dl_min = 1e-5*l;   // Minimum step length, abort if smaller                   // Magic number
     const unsigned iterations = 5;    // Desired number of iterations for the static solver      // Magic number
-    while(true)
-    {
+    while(true) {
         // Try length = l - dl
         double alpha = try_element_length(l - dl);
 
-        if(info.outcome == StaticSolverDC::Info::Success)
-        {
+        if(info.outcome == StaticSolverDC::Info::Success) {
             // Success: Apply step.
             l -= dl;
 
             // If sign change of alpha: Almost done, do the rest by root finding.
-            if(alpha <= 0.0)
-            {
+            if(alpha <= 0.0) {
                 l = bisect<true>(try_element_length, l, l+dl, 1e-5, 1e-10, 20);    // Magic numbers
                 break;
             }
 
             // Adjust step length
             dl *= double(iterations)/info.iterations;
-        }
-        else
-        {
+        } else {
             // Reduce step length by generic factor
             dl *= 0.5;
         }
 
-        if(dl < dl_min)
+        if(dl < dl_min) {
             throw std::runtime_error("Bracing failed: Step size too small");
+        }
     }
 
     // Set string material damping to match user defined damping ratio
@@ -289,8 +275,7 @@ void BowModel::init_string(const Callback& callback, SetupData& output)
                        + input.masses.string_center + 2.0*input.masses.string_tip;
 }
 
-void BowModel::init_masses(const Callback& callback, SetupData& output)
-{
+void BowModel::init_masses(const Callback& callback, SetupData& output) {
     node_arrow = nodes_string[0];
     MassElement mass_limb_tip(system, nodes_limb.back(), input.masses.limb_tip);
     MassElement mass_string_tip(system, nodes_string.back(), input.masses.string_tip);
@@ -303,8 +288,7 @@ void BowModel::init_masses(const Callback& callback, SetupData& output)
     system.mut_elements().add(arrow_mass, "arrow");
 }
 
-SetupData BowModel::simulate_setup(const Callback& callback)
-{
+SetupData BowModel::simulate_setup(const Callback& callback) {
     SetupData output;
     init_limb(callback, output);
     init_string(callback, output);
@@ -313,14 +297,12 @@ SetupData BowModel::simulate_setup(const Callback& callback)
     return output;
 }
 
-BowStates BowModel::simulate_statics(const Callback& callback)
-{
+BowStates BowModel::simulate_statics(const Callback& callback) {
     BowStates output;
 
     system.set_p(nodes_string[0].y, 1.0);    // Will be scaled by the static algorithm
     StaticSolverDC solver(system, nodes_string[0].y);
-    for(unsigned i = 0; i < input.settings.n_draw_steps; ++i)
-    {
+    for(unsigned i = 0; i < input.settings.n_draw_steps; ++i) {
         double eta = double(i)/(input.settings.n_draw_steps - 1);
         double draw_length = (1.0 - eta)*input.dimensions.brace_height + eta*input.dimensions.draw_length;
 
@@ -333,8 +315,7 @@ BowStates BowModel::simulate_statics(const Callback& callback)
     return output;
 }
 
-BowStates BowModel::simulate_dynamics(const Callback& callback)
-{
+BowStates BowModel::simulate_dynamics(const Callback& callback) {
     BowStates output;
 
     // Set draw force to zero
@@ -346,13 +327,11 @@ BowStates BowModel::simulate_dynamics(const Callback& callback)
 
     DynamicSolver solver1(system, dt, input.settings.sampling_rate, [&]{
         double ut = system.get_u(node_arrow.y);
-        if(ut < input.dimensions.brace_height)
-        {
+        if(ut < input.dimensions.brace_height) {
             double u0 = -input.dimensions.draw_length;
             double u1 = -input.dimensions.brace_height;
 
-            if(ut != u0)
-            {
+            if(ut != u0){
                 T = system.get_t()*std::acos(u1/u0)/std::acos(ut/u0);
             }
         }
@@ -360,10 +339,8 @@ BowStates BowModel::simulate_dynamics(const Callback& callback)
         return system.get_a(node_arrow.y) <= 0;
     });
 
-    auto run_solver = [&](DynamicSolver& solver)
-    {
-        do
-        {
+    auto run_solver = [&](DynamicSolver& solver) {
+        do {
             add_state(output);
             callback(100, std::round(100.0*system.get_t()/(alpha*T)));
         } while(solver.step());
@@ -386,8 +363,7 @@ BowStates BowModel::simulate_dynamics(const Callback& callback)
     return output;
 }
 
-void BowModel::add_state(BowStates& states) const
-{
+void BowModel::add_state(BowStates& states) const {
     states.time.push_back(system.get_t());
     states.draw_force.push_back(-2.0*system.get_p(nodes_string[0].y));    // *2 because of symmetry
     states.draw_length.push_back(-system.get_u(nodes_string[0].y));
@@ -409,8 +385,9 @@ void BowModel::add_state(BowStates& states) const
     double e_kin_arrow = 2.0*system.get_elements().get_kinetic_energy("arrow");
 
     double string_force = 0.0;
-    for(auto& element: system.get_elements().group<BarElement>("string"))
+    for(auto& element: system.get_elements().group<BarElement>("string")) {
         string_force = std::max(string_force, std::abs(element.get_normal_force()));
+    }
 
     states.string_force.push_back(string_force);
     states.strand_force.push_back(string_force/input.string.n_strands);
@@ -427,8 +404,7 @@ void BowModel::add_state(BowStates& states) const
     states.y_pos_limb.push_back(VectorXd(nodes_limb.size()));
     states.angle_limb.push_back(VectorXd(nodes_limb.size()));
 
-    for(size_t i = 0; i < nodes_limb.size(); ++i)
-    {
+    for(size_t i = 0; i < nodes_limb.size(); ++i) {
         states.x_pos_limb.back()[i] = system.get_u(nodes_limb[i].x);
         states.y_pos_limb.back()[i] = system.get_u(nodes_limb[i].y);
         states.angle_limb.back()[i] = system.get_u(nodes_limb[i].phi);
@@ -437,8 +413,7 @@ void BowModel::add_state(BowStates& states) const
     states.x_pos_string.push_back(VectorXd(nodes_string.size()));
     states.y_pos_string.push_back(VectorXd(nodes_string.size()));
 
-    for(size_t i = 0; i < nodes_string.size(); ++i)
-    {
+    for(size_t i = 0; i < nodes_string.size(); ++i) {
         states.x_pos_string.back()[i] = system.get_u(nodes_string[i].x);
         states.y_pos_string.back()[i] = system.get_u(nodes_string[i].y);
     }
@@ -449,20 +424,16 @@ void BowModel::add_state(BowStates& states) const
     VectorXd kappa(nodes_limb.size());
 
     auto elements = system.get_elements().group<BeamElement>("limb");
-    for(size_t i = 0; i < nodes_limb.size(); ++i)
-    {
-        if(i == 0)
-        {
+    for(size_t i = 0; i < nodes_limb.size(); ++i) {
+        if(i == 0) {
             epsilon[i] = elements[i].get_epsilon();
             kappa[i] = elements[i].get_kappa(0.0);
         }
-        else if(i == nodes_limb.size()-1)
-        {
+        else if(i == nodes_limb.size()-1) {
             epsilon[i] = elements[i-1].get_epsilon();
             kappa[i] = elements[i-1].get_kappa(1.0);
         }
-        else
-        {
+        else {
             epsilon[i] = 0.5*(elements[i-1].get_epsilon() + elements[i].get_epsilon());
             kappa[i] = 0.5*(elements[i-1].get_kappa(1.0) + elements[i].get_kappa(0.0));
         }

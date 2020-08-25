@@ -4,14 +4,12 @@
 #include "solver/fem/System.hpp"
 #include <functional>
 
-enum class SimulationMode
-{
+enum class SimulationMode {
     Static,
     Dynamic
 };
 
-class BowModel
-{
+class BowModel {
 public:
     using Callback = std::function<void(int, int)>;    // Progress (static, dynamic) in percent
     static OutputData simulate(const InputData& input, SimulationMode mode, const Callback& callback);
