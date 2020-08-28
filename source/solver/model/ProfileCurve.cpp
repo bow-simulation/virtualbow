@@ -10,40 +10,33 @@
 using std::isnan;
 
 Segment::Segment(const Point& p, const std::vector<double>& c)
-    : p(p), c(c)
-{
+    : p(p), c(c) {
 
 }
 
-double Segment::phi(double s) const
-{
+double Segment::phi(double s) const {
     return p.phi + c[0]*s + (c[1]/2.0)*s*s + (c[2]/3.0)*s*s*s;
 }
 
-double Segment::x(double s) const
-{
+double Segment::x(double s) const {
     const double epsilon = 1e-8;    // Magic number
     return p.x + AdaptiveSimpson::integrate<double>([&](double t){ return cos(phi(t)); }, 0, s, epsilon);
 }
 
-double Segment::y(double s) const
-{
+double Segment::y(double s) const {
     const double epsilon = 1e-8;    // Magic number
     return p.y + AdaptiveSimpson::integrate<double>([&](double t){ return sin(phi(t)); }, 0, s, epsilon);
 }
 
-double Segment::l() const
-{
+double Segment::l() const {
     return c[3];
 }
 
-double Segment::I() const
-{
+double Segment::I() const {
     return c[3]*(c[0]*c[0] + c[3]*(c[0]*c[1] + c[3]*(2.0/3.0*c[0]*c[2] + 1.0/3.0*c[1]*c[1] + c[3]*(1.0/2.0*c[1]*c[2] + 1.0/5.0*c[2]*c[2]*c[3]))));
 }
 
-std::vector<double> Segment::get_c_start(const Point& p0, const Point& p1)
-{
+std::vector<double> Segment::get_c_start(const Point& p0, const Point& p1) {
     using std::isnan;
 
     // Given: {s, phi, x, y}
@@ -93,8 +86,7 @@ std::vector<double> Segment::get_c_start(const Point& p0, const Point& p1)
     throw std::invalid_argument("Error in point. At least two entries have to be specified.");
 }
 
-std::vector<double> Segment::get_c_start_x_y(const Point& p0, double x1, double y1)
-{
+std::vector<double> Segment::get_c_start_x_y(const Point& p0, double x1, double y1) {
     double l = hypot(x1 - p0.x, y1 - p0.y);
     double a = 2.0*(atan2(y1 - p0.y, x1 - p0.x) - p0.phi);
     double c0 = 2.0/l*sin(a/2.0);
@@ -103,51 +95,41 @@ std::vector<double> Segment::get_c_start_x_y(const Point& p0, double x1, double 
     return {c0, 0.0, 0.0, c3};
 }
 
-std::vector<double> Segment::get_c_start_s_phi(const Point& p0, double s1, double phi1)
-{
+std::vector<double> Segment::get_c_start_s_phi(const Point& p0, double s1, double phi1) {
     double c3 = s1 - p0.s;
     double c0 = (phi1 - p0.phi)/c3;
     return {c0, 0.0, 0.0, c3};
 }
 
-std::vector<double> Segment::get_c_start_s_x(const Point& p0, double s1, double x1)
-{
-    if(x1 > p0.x)
-    {
+std::vector<double> Segment::get_c_start_s_x(const Point& p0, double s1, double x1) {
+    if(x1 > p0.x) {
         return get_c_start_phi_x(p0, 0, x1);
     }
-    else if(x1 < p0.x)
-    {
+    else if(x1 < p0.x) {
         return get_c_start_phi_x(p0, M_PI, x1);
     }
-    else
-    {
+    else {
         double c3 = s1 - p0.s;
         double c0 = (p0.phi >= 0.0) ? (M_PI - 2*p0.phi)/c3 : (-M_PI - 2*p0.phi)/c3;
         return {c0, 0.0, 0.0, c3};
     }
 }
 
-std::vector<double> Segment::get_c_start_s_y(const Point& p0, double s1, double y1)
-{
-    if(y1 > p0.y)
-    {
+std::vector<double> Segment::get_c_start_s_y(const Point& p0, double s1, double y1) {
+    if(y1 > p0.y) {
         return get_c_start_phi_y(p0, M_PI_2, y1);
     }
-    else if(y1 < p0.y)
-    {
+    else if(y1 < p0.y) {
         return get_c_start_phi_y(p0, -M_PI_2, y1);
     }
-    else
-    {
+    else {
         double c3 = s1 - p0.s;
         double c0 = (p0.phi > -M_PI_2 && p0.phi < M_PI_2) ? -2.0*p0.phi/c3 : (2.0*M_PI - 2*p0.phi)/c3;
         return {c0, 0.0, 0.0, c3};
     }
 }
 
-std::vector<double> Segment::get_c_start_phi_x(const Point& p0, double phi1, double x1)
-{
+std::vector<double> Segment::get_c_start_phi_x(const Point& p0, double phi1, double x1) {
     if(x1 == p0.x)
         throw std::invalid_argument("Segment not uniquely determined. X values must be different.");
 
@@ -163,8 +145,7 @@ std::vector<double> Segment::get_c_start_phi_x(const Point& p0, double phi1, dou
     return {c0, 0.0, 0.0, c3};
 }
 
-std::vector<double> Segment::get_c_start_phi_y(const Point& p0, double phi1, double y1)
-{
+std::vector<double> Segment::get_c_start_phi_y(const Point& p0, double phi1, double y1) {
     if(y1 == p0.y)
         throw std::invalid_argument("Segment not uniquely determined. Y values must be different.");
 
@@ -180,23 +161,19 @@ std::vector<double> Segment::get_c_start_phi_y(const Point& p0, double phi1, dou
     return {c0, 0.0, 0.0, c3};
 }
 
-ProfileCurve::ProfileCurve(const MatrixXd& input)
-{
+ProfileCurve::ProfileCurve(const MatrixXd& input) {
     if(input.cols() != 4)
         throw std::invalid_argument("Input must have four columns");
 
     // Extract points from input, ignore rows that contain too many NaNs
-    for(int i = 0; i < input.rows(); ++i)
-    {
+    for(int i = 0; i < input.rows(); ++i) {
         int n = 0;
-        for(int j = 0; j < input.cols(); ++j)
-        {
-            if(!isnan(input(i, j)))
+        for(int j = 0; j < input.cols(); ++j) {
+            if(!isnan(input(i, j))) {
                 ++n;
+            }
         }
-
-        if(n >= 2)
-        {
+        if(n >= 2) {
             points.push_back({
                 .s = input(i, 0),
                 .phi = input(i, 1),
@@ -222,18 +199,21 @@ ProfileCurve::ProfileCurve(const MatrixXd& input)
     // All points: Translate such that x0 = 0, y0 = 0
     double shift_x = points[0].x;
     double shift_y = points[0].y;
-    for(Point& p: points)
-    {
+    double shift_phi = points[0].phi;
+
+    for(Point& p: points) {
         if(!isnan(p.x)) {
             p.x -= shift_x;
         }
         if(!isnan(p.y)) {
             p.y -= shift_y;
         }
+        if(!isnan(p.phi)) {
+            p.phi -= shift_phi;
+        }
     }
 
-    for(size_t i = 0; i < points.size()-1; ++i)
-    {
+    for(size_t i = 0; i < points.size()-1; ++i) {
         // Start and end point of the segment
         Point& p0 = points[i];
         Point& p1 = points[i+1];
@@ -310,25 +290,21 @@ ProfileCurve::ProfileCurve(const MatrixXd& input)
     }
 }
 
-const std::vector<Point>& ProfileCurve::get_points() const
-{
+const std::vector<Point>& ProfileCurve::get_points() const {
     return points;
 }
 
 // Arc length at start and end of the curve
-double ProfileCurve::s_min() const
-{
+double ProfileCurve::s_min() const {
     return points.front().s;
 }
 
-double ProfileCurve::s_max() const
-{
+double ProfileCurve::s_max() const {
     return points.back().s;
 }
 
 // Evaluate curve at a specific arc length. Returns {x, y, phi}.
-Vector<3> ProfileCurve::operator()(double s) const
-{
+Vector<3> ProfileCurve::operator()(double s) const {
     index = find_interval(points, [](const Point& point){ return point.s; }, s, index);
     double ds = s - points[index].s;
 

@@ -3,16 +3,14 @@
 #include <array>
 #include <vector>
 
-struct Point
-{
+struct Point {
     double s;
     double phi;
     double x;
     double y;
 };
 
-class Segment
-{
+class Segment {
 public:
     // p: Starting point of the segment
     // c: Curve parameters for the segment
@@ -38,8 +36,7 @@ private:
     static std::vector<double> get_c_start_phi_y(const Point& p0, double phi1, double y1);
 };
 
-class ProfileCurve
-{
+class ProfileCurve {
 public:
     ProfileCurve(const MatrixXd& input);
     const std::vector<Point>& get_points() const;

@@ -3,8 +3,7 @@
 #include "solver/numerics/Eigen.hpp"
 #include "solver/numerics/Series.hpp"
 
-class ProfileView: public PlotWidget
-{
+class ProfileView: public PlotWidget {
 public:
     ProfileView();
     void setData(const MatrixXd& profile);

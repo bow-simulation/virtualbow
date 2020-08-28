@@ -36,6 +36,7 @@ double ContinuousLayer::get_E() const
 
 ContinuousLimb::ContinuousLimb(const InputData& input)
     : profile(input.profile),
+      dimensions(input.dimensions),
       width(input.width)
 {
     for(const Layer& layer: input.layers) {
@@ -94,10 +95,20 @@ small_vector<double, ContinuousLimb::n> ContinuousLimb::get_y(double s) const
     return y;
 }
 
-// Returns the position and orientation of the profile curve (x, y, phi)
+// Returns the position and orientation of the limb profile (x, y, phi)
 Vector<3> ContinuousLimb::get_r(double s) const
 {
-    return profile(s);
+    Matrix<3, 3> T{{ cos(dimensions.handle_angle), -sin(dimensions.handle_angle), 0.0 },
+                   { sin(dimensions.handle_angle),  cos(dimensions.handle_angle), 0.0 },
+                   {                          0.0,                           0.0, 1.0 }};
+
+    Vector<3> r0{
+        0.5*dimensions.handle_length,
+        dimensions.handle_setback,
+        dimensions.handle_angle
+    };
+
+    return T*profile(s) + r0;
 }
 
 // Calculates the section's stiffness parameters Cee, Ckk, Cek

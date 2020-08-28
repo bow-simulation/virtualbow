@@ -50,6 +50,7 @@ public:
 
 private:
     ProfileCurve profile;
+    Dimensions dimensions;
     CubicSpline width;
     std::vector<ContinuousLayer> layers;
 };

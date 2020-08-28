@@ -2,8 +2,7 @@
 #include "solver/model//ProfileCurve.hpp"
 #include "solver/numerics/Linspace.hpp"
 
-ProfileView::ProfileView()
-{
+ProfileView::ProfileView() {
     this->xAxis->setLabel("X [m]");
     this->yAxis->setLabel("Y [m]");
     this->setAspectPolicy(PlotWidget::SCALE_Y);
@@ -26,47 +25,40 @@ ProfileView::ProfileView()
     curve2->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
 }
 
-void ProfileView::setData(const MatrixXd& data)
-{
+void ProfileView::setData(const MatrixXd& data) {
     input = data;
     updatePlot();
 }
 
-void ProfileView::setSelection(const QVector<int>& indices)
-{
+void ProfileView::setSelection(const QVector<int>& indices) {
     selection = indices;
     updatePlot();
 }
 
-void ProfileView::updatePlot()
-{
+void ProfileView::updatePlot() {
     curve0->data()->clear();
     curve1->data()->clear();
     curve2->data()->clear();
 
-    try
-    {
+    try {
         ProfileCurve profile(input);
 
         // Add profile curve
-        for(double s: Linspace<double>(profile.s_min(), profile.s_max(), 150))    // Magic number
-        {
+        for(double s: Linspace<double>(profile.s_min(), profile.s_max(), 150)) {    // Magic number
             Vector<3> point = profile(s);
             curve0->addData(point[0], point[1]);
         }
 
         // Add control points
-        for(size_t i = 0; i < profile.get_points().size(); ++i)
-        {
+        for(size_t i = 0; i < profile.get_points().size(); ++i) {
             auto& point = profile.get_points()[i];
-            if(selection.contains(i))
+            if(selection.contains(i)) {
                 curve2->addData(point.x, point.y);
-            else
+            } else {
                 curve1->addData(point.x, point.y);
+            }
         }
-    }
-    catch(const std::invalid_argument&)
-    {
+    } catch(const std::invalid_argument&) {
         curve0->data()->clear();
         curve1->data()->clear();
         curve2->data()->clear();
