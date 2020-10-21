@@ -121,68 +121,96 @@ In the next chapters we will first show how the equations of motion for a finite
 
 \subsection{Profile Curve}
 
-A section of the profile curve is to be determined by two control points $\{ s_0,\,\varphi_0,\,x_0,\,y_0 \}$ and $\{ s_1,\,\varphi_1,\,x_1,\,y_1 \}$, with $s$ beinig the arc length along the curve, $\varphi$ being the angle between the curve's tangent and the x-axis and $x$ and $y$ being the position of the point.
-The second/end point might be incompletely specified by omitting up to two values.
-
-We choose the curvature of our section to vary quadratically on the arc length, which will give the resulting curve the needed degrees of freedom to exactly match the end point if completely specified.
-%
-\begin{equation}
-\kappa(s) = c_0 + c_1\,s + c_2\,s^2,\quad s \in [0,\,c_3]
-\end{equation}
-%
-This description of the curvature includes lines, circles and Euler Spirals as special cases.
-The angle and coordinates of the curve can be calculated by integration,
+The bow's profile is modeled as a cubic spline, where each segment of the curve is given by cubic polynomials
 %
 \begin{align}
-\varphi(s) &= \varphi_0 + c_0\,s + \frac{1}{2}\,c_1\,s^2 + \frac{1}{3}\,c_2\,s^3\\
-x(s) &= x_0 + \int_{0}^{s} \cos(\varphi(\tau))\ d\tau \\
-y(s) &= y_0 + \int_{0}^{s} \sin(\varphi(\tau))\ d\tau
+x(t) &= c_{x0} + c_{x1}\,t + c_{x2}\,t^2 + c_{x3}\,t^3, \\
+y(t) &= c_{y0} + c_{y1}\,t + c_{y2}\,t^2 + c_{y3}\,t^3,
 \end{align}
-%
-In the case of $x(s)$ and $y(s)$ only numerically though.
-This curve already matches the starting point of the segment by choice of the intrgration constants.
-The goal is now to determine the constants $\boldsymbol{c} = (c_0,\,\ldots,\,c_3)^T$ such that it matches the end point as well.
-Depending on which components of the second control point have been specified, the end point imposes a subset of the following constraints on the curve:
-%
-\begin{equation}
-\boldsymbol{g}(\boldsymbol{c}) =
-\begin{bmatrix}
-c_3 - (s_1 - s_0) \\
-\varphi(c_3) - \varphi_1 \\
-x(c_3) - x_1 \\
-y(c_3) - y_1
-\end{bmatrix}
-\end{equation}
-%
-If all components of the end point are specified, there are 5 conditions for 5 variables and the curve is exactly determined.
-But as this doesn't have to be the case, we need an additional criterium to find our curve.
-We want the "smoothest" curve that satisfies the constraints, so we define an objective funcion that is an integral over the squared curvature,
-%
-\begin{align*}
-f(\boldsymbol{c}) &= \int_0^{c_3} \kappa(s)^2\ ds \\
-&= \int_0^{c_3}\left(c_0^2 + 2\,c_0\,c_1\,s + (2\,c_0\,c_2 + c_1^2)\,s^2 + 2\,c_1\,c_2\,s^3 + c_2^2\,s^4\right)\ ds \\
-&= c_0^2\,c_3 + c_0\,c_1\,c_3^2 + \left(\frac{2}{3}\,c_0\,c_2 + \frac{1}{3}\,c_1^2\right)\,c_3^3 + \frac{1}{2}\,c_1\,c_2\,c_3^4 + \frac{1}{5}\,c_2^2\,c_3^5
-\end{align*}
-%
-We can now determine $\boldsymbol{c}$ by minimizing this objective function while also taking into account the constraints $\boldsymbol{g}(\boldsymbol{c})$,
-%
-\begin{equation}
-\boldsymbol{c} = \argmin_{\boldsymbol{g}(\boldsymbol{c}) = 0} f(\boldsymbol{c}).
-\end{equation}
-%
-This has to be solved with a numerical algorithm for constrained optimization.
-An easy and effective initial value for $\boldsymbol{c}$ is a straight line, i.e. $c_0,\ldots\,c_2 = 0$ and the lenth $c_3$ determined, depending on which components of the end point are available, as
-%
-\begin{equation}
-c_3 = s_1 - s_0 = \frac{x_1 - x_0}{\sin(\varphi_0)} = \frac{y_1 - y_0}{\cos(\varphi_0)} = \sqrt{(x_1 - x_0)^2 + (y_1 - y_0)^2}
-\end{equation}
-%
 
-The complete profile curve is defined by a series of arbitrarily many points.
-Each pair of points defines a segment of the profile curve, but only the starting point has to be specified completely.
-The segments are optimized separately and in order, from start to end of the profile curve.
-Once a segment is completely determined, the starting point of the next segment is known, etc.
+with the parameter $t \in [0,\,1]$ and the eight unknown constants $c_{x0},\ldots\,c_{y3}$ that are yet to be determined.
+For a curve given in this form, the curvature $\kappa(t)$, tangent angle $\varphi(t)$ and arc length $l(t)$ can be calculated as
+%
+\begin{align}
+\kappa(t) &= \frac{x'(t)\,y''(t) - y'(t)\,x''(t)}{\left(x'^{\,2}(t) + y'^{\,2}(t)\right)^{\nicefrac{3}{2}}}, \\
+\varphi(t) &= \arctan2\left(\frac{y'(t)}{x'(t)}\right) + 2\pi\,\mathbb{Z},  \\
+l(t) &= \int_{0}^{t} \sqrt{x'^{\,2}(\tau) + y'^{\,2}(\tau)}\ d\tau,
+\end{align}
 
+with the first and second derivatives
+%
+\begin{align}
+x'(t) &= c_{x1} + 2\,c_{x2}\,t + 3\,c_{x3}\,t^2,\\
+y'(t) &= c_{y1} + 2\,c_{y2}\,t + 3\,c_{y3}\,t^2, \\
+\notag \\
+x''(t) &= 2\,c_{x2} + 6\,c_{x3}\,t, \\
+y''(t) &= 2\,c_{y2} + 6\,c_{y3}\,t.
+\end{align}
+
+The users are allowed to specify up to four values from the set $\{\Delta\,l$, $\Delta\,\varphi$, $\Delta\,x$ $\Delta\,y\}$ for each segment.
+As shown in figure~\ref{fig:model:profile-segments}, $\Delta l$ is the total length of the segment, $\Delta \varphi$ is the total change in angle, and $\Delta x$, $\Delta y$ are the differences between the start- and endpoint of the segment in the respective coordinate.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.4\textwidth]{figures/model/profile-segment}
+\caption{Profile segment with user supplied constraints}
+\label{fig:model:profile-segments}
+\end{figure}
+
+These values, if specified, impose the following constraints on the segment
+
+\begin{align}
+&\Delta\,x = x(1) - x(0) \\
+\notag \\
+&\Delta\,y = y(1) - y(0) \\
+\notag \\
+&\Delta\,l = l(1) - l(0) \\
+&\Delta\,\varphi = \int_{0}^{1} \varphi'(t)\ dt = \int_{0}^{1} \frac{x'\,y'' - y'\,x''}{x'^{\,2} + y'^{\,2}}\ dt
+\end{align}
+
+Additional constraints are imposed by requiring the resulting curve to be $C^2$ continuous, i.e. continuous up to the second derivative, thus requiring the following conditions to hold at the connection of segments $i$ and $i+1$,
+%
+\begin{equation}
+\begin{aligned}
+x_{i}(1) &= x_{i+1}(0), \\
+y_{i}(1) &= y_{i+1}(0),
+\end{aligned}
+\qquad
+\begin{aligned}
+x'_{i}(1) &= x'_{i+1}(0), \\
+y'_{i}(1) &= y'_{i+1}(0),
+\end{aligned}
+\qquad
+\begin{aligned}
+x''_{i}(1) &= x''_{i+1}(0), \\
+y''_{i}(1) &= y''_{i+1}(0).
+\end{aligned}
+\end{equation}
+
+One last set of constraint is requires to specify the starting point of the curve,
+%
+\begin{equation}
+x_0(0) = 0, \qquad y_0(0) = 0, \qquad \varphi_0(0) = 0.
+\end{equation}
+
+However, even with all those constraints the curve is still not uniquely determined.
+For this reason, we define the following smoothness measure, which is the squared curvature integrated over the length of the curve,
+%
+\begin{align}
+E = \int_{l(0)}^{l(1)} \kappa^2(t(l))\,dl = \int_{0}^{1} \kappa^2(t)\cdot l'(t)\ dt = \int_{0}^{1} \frac{(x'\,y'' - y'\,x'')^2}{(x'^{\,2} + y'^{\,2})^{\nicefrac{5}{2}}}\ dt.
+\end{align}
+
+The shape of the curve is then found by minimizing the sum $\sum_i E_i$ subject to the constraints stated above.
+In our implementation this is done in two passes by  a numerical optimization algorithm.
+In the first pass, a valid but suboptimal solution is generated by optimizing each segment separately, one after the other.
+Once the shape of a segment is determined, the starting point (position, angle) of the next segment becomes known, and so on.
+This suboptimal solution is then used as an initial value for the second pass, which is the final optimization of the complete curve.
+
+
+
+\textcolor{red}{Todo: Parameterization by arc length (rectification)}
+
+\newpage
 \subsection{Width and height}
 
 The distribution of width along the limb as well as the height of the layers are specified by the users in terms of $n$ control points $(x_k,\,y_k)$, with $k = 0\,\ldots\,n-1$.
