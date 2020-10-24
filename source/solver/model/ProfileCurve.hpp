@@ -1,14 +1,10 @@
 #pragma once
+#include "solver/numerics/Eigen.hpp"
+#include "solver/numerics/LinearSpline.hpp"
 #include <optional>
 #include <vector>
 #include <cmath>
-
-
-#include <nlopt.hpp>
-#include "solver/numerics/LinearSpline.hpp"
-#include "solver/numerics/Integration.hpp"
-#include "solver/numerics/Linspace.hpp"
-#include "solver/numerics/Eigen.hpp"
+#include <string>
 
 struct Point {
     double x;
@@ -21,6 +17,11 @@ struct SegmentInput {
     std::optional<double> angle;
     std::optional<double> delta_x;
     std::optional<double> delta_y;
+
+    bool is_valid() const {
+        int dimension = length.has_value() + angle.has_value() + delta_x.has_value() + delta_y.has_value();
+        return dimension >= 2;
+    }
 };
 
 class Segment {
@@ -51,7 +52,9 @@ private:
 
 class ProfileCurve {
 public:
-    static ProfileCurve from_matrix(const MatrixXd& matrix);
+    static std::vector<SegmentInput> to_input(const MatrixXd& matrix);
+    static std::optional<std::string> validate(const std::vector<SegmentInput>& input);
+
     ProfileCurve(const std::vector<SegmentInput>& input);
 
     const std::vector<Segment>& get_segments() const;

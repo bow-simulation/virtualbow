@@ -24,11 +24,42 @@ void ProfileView::setSelection(const QVector<int>& selection) {
     this->replot();
 }
 
+#include <iostream>
+
 void ProfileView::updatePlot() {
     resetPlot();
 
     try {
-        ProfileCurve profile = ProfileCurve::from_matrix(data);
+        auto input = ProfileCurve::to_input(data);
+
+        std::cout << ">>>>>>>> Profile: <<<<<<<<<\n";
+        for(auto& in: input) {
+            auto print_optional = [](std::optional<double> option) {
+                if(option) {
+                    std::cout << *option  << "\n";
+                } else {
+                    std::cout << "Empty" << "\n";
+                }
+            };
+
+            std::cout << ">>> Segment:\n";
+            std::cout << "length: ";
+            print_optional(in.length);
+
+            std::cout << "angle: ";
+            print_optional(in.angle);
+
+            std::cout << "delta_x: ";
+            print_optional(in.delta_x);
+
+            std::cout << "delta_y: ";
+            print_optional(in.delta_y);
+
+            std::cout << std::endl;
+        }
+
+
+        ProfileCurve profile = ProfileCurve(input);
 
         for(auto& segment: profile.get_segments()) {
             QCPCurve* curve = new QCPCurve(this->xAxis, this->yAxis);
@@ -49,10 +80,9 @@ void ProfileView::updatePlot() {
 
             curve->addData(point.x, point.y);
             nodes.push_back(curve);
-
         }
     }
-    catch(const std::invalid_argument& e) {
+    catch(const std::exception& e) {
         resetPlot();
     }
 

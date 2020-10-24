@@ -303,9 +303,9 @@ Segment ProfileCurve::optimize_local(const Point& point, const SegmentInput& inp
         return segment.y(1.0) - segment.y(0.0) - *(context->input.delta_y);
     };
 
-    const double ftol_rel = 1e-4;     // Magic number
-    const double ftol_abs = 1e-4;    // Magic number
-    const double ctol_abs = 1e-4;     // Magic number
+    const double ftol_rel = 1e-6;     // Magic number
+    const double ftol_abs = 1e-9;     // Magic number
+    const double ctol_abs = 1e-6;     // Magic number
     const int maxeval = 500;          // Magic number
 
     double f_min;

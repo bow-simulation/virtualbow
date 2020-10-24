@@ -35,7 +35,7 @@ double ContinuousLayer::get_E() const
 }
 
 ContinuousLimb::ContinuousLimb(const InputData& input)
-    : profile(ProfileCurve::from_matrix(input.profile)),
+    : profile(ProfileCurve(ProfileCurve::to_input(input.profile))),
       width(input.width)
 {
     for(const Layer& layer: input.layers) {

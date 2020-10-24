@@ -98,7 +98,7 @@ LimbMesh::LimbMesh(const InputData& input)
             }
         }
     }
-    catch(std::invalid_argument&) {
+    catch(std::exception&) {
 
     }
 }

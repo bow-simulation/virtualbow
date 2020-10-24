@@ -31,7 +31,73 @@ class SegmentCurve:
 
     @staticmethod
     def get_c_start(point, specs):
-        return [point.x, cos(point.phi), 0, 0, point.y, sin(point.phi), 0, 0]
+        # Normalize angle to a range of [-pi, pi]
+        # https://stackoverflow.com/a/24234924
+        def normalize_angle(x):
+            return x - 2*pi*floor((x + pi)/(2*pi))
+        
+        # Calculate c for a line starting at the initial point with angle phi and length l
+        def linear(phi, l):
+            return [point.x, l*cos(phi), 0, 0, point.y, l*sin(phi), 0, 0]
+        
+        # Given: {dl, dphi}
+        if (specs.length is not None) and (specs.angle is not None):
+            return linear(point.phi + specs.angle, specs.length)
+
+        # Given: {dl, dx}
+        if (specs.length is not None) and (specs.delta_x is not None):
+            dl_n = max(specs.length, abs(specs.delta_x))    # If dl < dx, use dx as length
+            phi_n = normalize_angle(point.phi)
+            alpha = acos(specs.delta_x/dl_n)
+            
+            if phi_n >= 0:
+                if specs.delta_x >= 0:
+                    return linear(alpha, specs.length)
+                else:
+                    return linear(pi - alpha, specs.length)
+            else:
+                if specs.delta_x >= 0:
+                    return linear(-alpha, specs.length)
+                else:
+                    return linear(alpha - pi, specs.length)
+        
+        # Given: {dl, dy}
+        if (specs.length is not None) and (specs.delta_y is not None):
+            dl_n = max(specs.length, abs(specs.delta_y))    # If dl < dy, use dy as length
+            phi_n = normalize_angle(point.phi)
+            alpha = acos(specs.delta_y/dl_n)
+            
+            if phi_n >= -pi/2 and phi_n < pi/2:
+                if specs.delta_y >= 0:
+                    return linear(pi/2 - alpha, specs.length)
+                else:
+                    return linear(-pi/2 + alpha, specs.length)
+            else:
+                if specs.delta_y >= 0:
+                    return linear(pi/2 + alpha, specs.length)
+                else:
+                    return linear(-pi/2 - alpha, specs.length)
+        
+        # Given: {dphi, dx}
+        if (specs.angle is not None) and (specs.delta_x is not None):
+            if specs.delta_x >= 0:
+                return linear(0, specs.delta_x)
+            else:
+                return linear(pi, -specs.delta_x)
+        
+        # Given: {dphi, dy}
+        if (specs.angle is not None) and (specs.delta_y is not None):
+            if specs.delta_y >= 0:
+                return linear(pi/2, specs.delta_y)
+            else:
+                return linear(-pi/2, -specs.delta_y)
+            
+        # Given: {dx, dy}
+        if (specs.delta_x is not None) and (specs.delta_y is not None):
+            return linear(atan2(specs.delta_y, specs.delta_x), hypot(specs.delta_x, specs.delta_y))
+
+        # Fallback
+        return linear(point.phi, 1)
 
     def get_c(self):
         return [*self.cx, *self.cy]
@@ -269,8 +335,8 @@ class ProfileCurve:
 #])
 
 curve = ProfileCurve([
-    SegmentSpecs(delta_x=1.0, angle=pi/2, length=1.5),
-    SegmentSpecs(delta_x=1.0, delta_y=1.0, angle=-pi/2)
+    SegmentSpecs(length=0.8, angle=2.0),
+    SegmentSpecs(length=0.2)
 ])
 
 print(curve.length())
