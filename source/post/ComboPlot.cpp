@@ -14,34 +14,19 @@ ComboPlot::ComboPlot()
     vbox->setContentsMargins({});
     vbox->setSpacing(0);
     vbox->addWidget(plot, 1);
-    vbox->addSpacing(10);    // Magic number
+    vbox->addSpacing(10);
 
     auto hbox = new QHBoxLayout();
     vbox->addLayout(hbox);
-    vbox->addSpacing(10);    // Magic number
+    vbox->addSpacing(10);
 
     hbox->addStretch(1);
-    hbox->addWidget(new QLabel("X-Axis:"));
-    hbox->addSpacing(10);    // Magic number
-    hbox->addWidget(combo_x, 1);
-    hbox->addSpacing(20);    // Magic number
-    hbox->addWidget(new QLabel("Y-Axis:"));
-    hbox->addSpacing(10);    // Magic number
     hbox->addWidget(combo_y, 1);
+    hbox->addSpacing(20);
+    hbox->addWidget(new QLabel("vs"));
+    hbox->addSpacing(20);
+    hbox->addWidget(combo_x, 1);
     hbox->addStretch(1);
-
-    /*
-    auto hbox = new QHBoxLayout();
-    vbox->addLayout(hbox);
-    vbox->addSpacing(vbox->spacing());
-    hbox->addStretch();
-    hbox->addWidget(new QCheckBox("Stacked"));
-    hbox->addSpacing(20);    // Magic number
-    hbox->addWidget(new QCheckBox("Group by energy"));
-    hbox->addSpacing(20);    // Magic number
-    hbox->addWidget(new QCheckBox("Group by part"));
-    hbox->addStretch();
-    */
 
     // http://doc.qt.io/qt-5/qcombobox.html#currentIndexChanged
     QObject::connect(combo_x, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &ComboPlot::updatePlot);
@@ -50,7 +35,6 @@ ComboPlot::ComboPlot()
 
 void ComboPlot::addData(const QString& name, const std::vector<double>& data)
 {
-    // Todo: Why two steps?
     QVariant v;
     v.setValue(&data);
 

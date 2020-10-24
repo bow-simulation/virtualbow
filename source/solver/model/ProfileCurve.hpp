@@ -1,58 +1,68 @@
 #pragma once
-#include "solver/numerics/Eigen.hpp"
-#include <array>
+#include <optional>
 #include <vector>
+#include <cmath>
 
-struct Point
-{
-    double s;
-    double phi;
+
+#include <nlopt.hpp>
+#include "solver/numerics/LinearSpline.hpp"
+#include "solver/numerics/Integration.hpp"
+#include "solver/numerics/Linspace.hpp"
+#include "solver/numerics/Eigen.hpp"
+
+struct Point {
     double x;
     double y;
+    double phi;
 };
 
-class Segment
-{
+struct SegmentInput {
+    std::optional<double> length;
+    std::optional<double> angle;
+    std::optional<double> delta_x;
+    std::optional<double> delta_y;
+};
+
+class Segment {
 public:
-    // p: Starting point of the segment
-    // c: Curve parameters for the segment
-    Segment(const Point& p, const std::vector<double>& c);
+    Segment(const std::vector<double>& c);
 
-    double phi(double s) const;
-    double x(double s) const;
-    double y(double s) const;
-    double l() const;
-    double I() const;
+    static std::vector<double> estimate_coeffs(const Point& point, const SegmentInput& input);
+    const std::vector<double>& get_coeffs() const;
+    void set_coeffs(const std::vector<double>&  c);
 
-    static std::vector<double> get_c_start(const Point& p0, const Point& p1);
+    double length() const;
+    double angle() const;
+    double energy() const;
+
+    double phi(double t) const;    // Orientation angle in [-PI, PI]
+    double x(double t) const;
+    double y(double t) const;
+
+    double dxdt(double t) const;
+    double dydt(double t) const;
+
+    double dxdt2(double t) const;
+    double dydt2(double t) const;
 
 private:
-    Point p;
     std::vector<double> c;
-
-    static std::vector<double> get_c_start_x_y(const Point& p0, double x1, double y1);
-    static std::vector<double> get_c_start_s_phi(const Point& p0, double s1, double phi1);
-    static std::vector<double> get_c_start_s_x(const Point& p0, double s1, double x1);
-    static std::vector<double> get_c_start_s_y(const Point& p0, double s1, double y1);
-    static std::vector<double> get_c_start_phi_x(const Point& p0, double phi1, double x1);
-    static std::vector<double> get_c_start_phi_y(const Point& p0, double phi1, double y1);
 };
 
-class ProfileCurve
-{
+class ProfileCurve {
 public:
-    ProfileCurve(const MatrixXd& input);
-    const std::vector<Point>& get_points() const;
+    static ProfileCurve from_matrix(const MatrixXd& matrix);
+    ProfileCurve(const std::vector<SegmentInput>& input);
 
-    // Arc length at start and end of the curve
-    double s_min() const;
-    double s_max() const;
-
-    // Evaluate curve at a specific arc length. Returns {x, y, phi}.
-    Vector<3> operator()(double s) const;
+    const std::vector<Segment>& get_segments() const;
+    const std::vector<Point>& get_nodes() const;
+    double length() const;
+    Point operator()(double s) const;
 
 private:
     std::vector<Segment> segments;
     std::vector<Point> points;
-    mutable size_t index;
+    LinearSpline transform;
+
+    static Segment optimize_local(const Point& point, const SegmentInput& input);
 };

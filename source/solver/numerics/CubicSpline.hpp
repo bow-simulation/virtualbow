@@ -15,8 +15,8 @@ class CubicSpline
 public:
     CubicSpline(const MatrixXd& input);
 
-    double operator()(double arg) const;
-    double operator()(double arg, double default_value) const;
+    double operator()(double arg) const;                          // Extrapolates on out of bounds access
+    double operator()(double arg, double default_value) const;    // Returns default value on out of bounds access
 
     double arg_min() const;
     double arg_max() const;

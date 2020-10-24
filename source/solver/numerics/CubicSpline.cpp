@@ -1,7 +1,7 @@
 #include "CubicSpline.hpp"
-#include "solver/numerics/FindInterval.hpp"
-#include "solver/numerics/Sorting.hpp"
-#include "solver/numerics/Utils.hpp"
+#include "FindInterval.hpp"
+#include "Sorting.hpp"
+#include "Utils.hpp"
 #include <nlopt.hpp>
 #include <stdexcept>
 #include <cmath>
@@ -149,7 +149,6 @@ CubicSpline::CubicSpline(const MatrixXd& input)
     }
 }
 
-// Extrapolates on out of bounds access
 double CubicSpline::operator()(double arg) const
 {
     auto h00 = [](double t) { return 2*t*t*t - 3*t*t + 1; };
@@ -164,7 +163,6 @@ double CubicSpline::operator()(double arg) const
     return h00(t)*y[index] + h10(t)*m[index]*dx + h01(t)*y[index + 1] + h11(t)*m[index + 1]*dx;
 }
 
-// Returns default value on out of bounds access
 double CubicSpline::operator()(double arg, double default_value) const
 {
     if(arg >= x.front() && arg <= x.back()) {

@@ -117,7 +117,7 @@ std::vector<double> LimbMesh::getEvalLengths(const ContinuousLimb& limb, unsigne
     // Calculate evaluation lengths inbetween intervals
     std::vector<double> lengths;
     for(size_t i = 0; i < intervals.size()-1; ++i) {
-        unsigned ni = std::ceil(n/(limb.s_max() - limb.s_min())*(intervals[i+1] - intervals[i]));
+        unsigned ni = std::ceil(n/limb.length()*(intervals[i+1] - intervals[i]));
         for(unsigned j = 0; j < ni; ++j) {
             double p = double(j)/(ni-1);
             lengths.push_back((1.0 - p)*intervals[i] + p*intervals[i+1]);

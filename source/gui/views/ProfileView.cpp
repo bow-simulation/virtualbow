@@ -2,76 +2,91 @@
 #include "solver/model//ProfileCurve.hpp"
 #include "solver/numerics/Linspace.hpp"
 
-ProfileView::ProfileView()
-{
-    this->xAxis->setLabel("X [m]");
-    this->yAxis->setLabel("Y [m]");
+ProfileView::ProfileView() {
+    this->xAxis->setLabel("x [m]");
+    this->yAxis->setLabel("y [m]");
     this->setAspectPolicy(PlotWidget::SCALE_Y);
 
-    // Line
-    curve0 = new QCPCurve(this->xAxis, this->yAxis);
-    curve0->setPen({Qt::blue, 2});
-    curve0->setScatterSkip(0);    // Having to explicitly state this is retarded
-
-    // Nodes
-    curve1 = new QCPCurve(this->xAxis, this->yAxis);
-    curve1->setScatterStyle({QCPScatterStyle::ssSquare, Qt::blue, 8});
-    curve1->setLineStyle(QCPCurve::lsNone);
-    curve1->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
-
-    // Selected nodes
-    curve2 = new QCPCurve(this->xAxis, this->yAxis);
-    curve2->setScatterStyle({QCPScatterStyle::ssSquare, Qt::red, Qt::red, 8});
-    curve2->setLineStyle(QCPCurve::lsNone);
-    curve2->setScatterSkip(0);    // Todo: Having to explicitly state this is retarded
+    this->addLayer("curve");
+    this->addLayer("nodes");
 }
 
-void ProfileView::setData(const MatrixXd& data)
-{
-    input = data;
+void ProfileView::setData(const MatrixXd& data) {
+    this->data = data;
     updatePlot();
-}
-
-void ProfileView::setSelection(const QVector<int>& indices)
-{
-    selection = indices;
-    updatePlot();
-}
-
-void ProfileView::updatePlot()
-{
-    curve0->data()->clear();
-    curve1->data()->clear();
-    curve2->data()->clear();
-
-    try
-    {
-        ProfileCurve profile(input);
-
-        // Add profile curve
-        for(double s: Linspace<double>(profile.s_min(), profile.s_max(), 150))    // Magic number
-        {
-            Vector<3> point = profile(s);
-            curve0->addData(point[0], point[1]);
-        }
-
-        // Add control points
-        for(size_t i = 0; i < profile.get_points().size(); ++i)
-        {
-            auto& point = profile.get_points()[i];
-            if(selection.contains(i))
-                curve2->addData(point.x, point.y);
-            else
-                curve1->addData(point.x, point.y);
-        }
-    }
-    catch(const std::invalid_argument&)
-    {
-        curve0->data()->clear();
-        curve1->data()->clear();
-        curve2->data()->clear();
-    }
-
     this->rescaleAxes();
     this->replot();
+}
+
+void ProfileView::setSelection(const QVector<int>& selection) {
+    this->selection = selection;
+    updateHighlights();
+    this->replot();
+}
+
+void ProfileView::updatePlot() {
+    resetPlot();
+
+    try {
+        ProfileCurve profile = ProfileCurve::from_matrix(data);
+
+        for(auto& segment: profile.get_segments()) {
+            QCPCurve* curve = new QCPCurve(this->xAxis, this->yAxis);
+            curve->setLayer("curve");
+
+            const unsigned samples = 150;    // Magic number
+            for(double t: Linspace<double>(0.0, 1.0, samples)) {
+                curve->addData(segment.x(t), segment.y(t));
+            }
+            curves.push_back(curve);
+        }
+
+        for(auto& point: profile.get_nodes()) {
+            QCPCurve* curve = new QCPCurve(this->xAxis, this->yAxis);
+            curve->setLayer("nodes");
+            curve->setLineStyle(QCPCurve::lsNone);
+            curve->setScatterSkip(0);
+
+            curve->addData(point.x, point.y);
+            nodes.push_back(curve);
+
+        }
+    }
+    catch(const std::invalid_argument& e) {
+        resetPlot();
+    }
+
+    updateHighlights();
+}
+
+void ProfileView::resetPlot() {
+    for(auto curve: curves) {
+        this->removePlottable(curve);
+    }
+    curves.clear();
+
+    for(auto node: nodes) {
+        this->removePlottable(node);
+    }
+    nodes.clear();
+}
+
+void ProfileView::updateHighlights() {
+    for(int i = 0; i < curves.size(); ++i) {
+        if(selection.contains(i)) {
+            curves[i]->setPen({Qt::red, 2});
+        }
+        else {
+            curves[i]->setPen({Qt::blue, 2});
+        }
+    }
+
+    for(int i = 0; i < nodes.size(); ++i) {
+        if((i < curves.size() && selection.contains(i)) || (i > 0 && selection.contains(i-1))) {
+            nodes[i]->setScatterStyle({QCPScatterStyle::ssSquare, Qt::red, Qt::red, 8});
+        }
+        else {
+            nodes[i]->setScatterStyle({QCPScatterStyle::ssSquare, Qt::blue, 8});
+        }
+    }
 }

@@ -111,6 +111,7 @@ add_executable(
     source/solver/model/output/OutputData.cpp
     source/solver/numerics/CubicSpline.cpp
     source/solver/numerics/Fresnel.cpp
+    source/solver/numerics/LinearSpline.cpp
     source/solver/numerics/Series.cpp
 )
 
@@ -203,6 +204,7 @@ add_executable(
     source/solver/model/BowModel.cpp
     source/solver/numerics/CubicSpline.cpp
     source/solver/numerics/Fresnel.cpp
+    source/solver/numerics/LinearSpline.cpp
     source/solver/numerics/Series.cpp
 )
 
@@ -248,6 +250,7 @@ add_executable(
     source/solver/model/BowModel.cpp
     source/solver/numerics/CubicSpline.cpp
     source/solver/numerics/Fresnel.cpp
+    source/solver/numerics/LinearSpline.cpp
     source/solver/numerics/Series.cpp
 )
 

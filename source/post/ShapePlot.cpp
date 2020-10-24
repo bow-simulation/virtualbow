@@ -29,8 +29,8 @@ ShapePlot::ShapePlot(const LimbProperties& limb, const BowStates& states, bool i
     arrow->setLineStyle(QCPCurve::lsNone);
     arrow->setScatterStyle({QCPScatterStyle::ssCrossCircle, Qt::red, 10});
 
-    this->xAxis->setLabel("X [m]");
-    this->yAxis->setLabel("Y [m]");
+    this->xAxis->setLabel("x [m]");
+    this->yAxis->setLabel("y [m]");
     this->setAspectPolicy(PlotWidget::SCALE_Y);
     setAxesRanges();
 }

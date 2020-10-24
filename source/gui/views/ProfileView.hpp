@@ -3,19 +3,19 @@
 #include "solver/numerics/Eigen.hpp"
 #include "solver/numerics/Series.hpp"
 
-class ProfileView: public PlotWidget
-{
+class ProfileView: public PlotWidget {
 public:
     ProfileView();
     void setData(const MatrixXd& profile);
-    void setSelection(const QVector<int>& indices);
+    void setSelection(const QVector<int>& selection);
 private:
-    MatrixXd input = MatrixXd::Zero(0, 2);
+    MatrixXd data;
     QVector<int> selection;
 
-    QCPCurve* curve0;
-    QCPCurve* curve1;
-    QCPCurve* curve2;
+    QVector<QCPCurve*> curves;
+    QVector<QCPCurve*> nodes;
 
     void updatePlot();
+    void resetPlot();
+    void updateHighlights();
 };

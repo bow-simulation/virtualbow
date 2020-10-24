@@ -35,7 +35,7 @@ double ContinuousLayer::get_E() const
 }
 
 ContinuousLimb::ContinuousLimb(const InputData& input)
-    : profile(input.profile),
+    : profile(ProfileCurve::from_matrix(input.profile)),
       width(input.width)
 {
     for(const Layer& layer: input.layers) {
@@ -48,24 +48,19 @@ const std::vector<ContinuousLayer>& ContinuousLimb::get_layers() const
     return layers;
 }
 
-double ContinuousLimb::s_min() const
+double ContinuousLimb::length() const
 {
-    return profile.s_min();
-}
-
-double ContinuousLimb::s_max() const
-{
-    return profile.s_max();
+    return profile.length();
 }
 
 double ContinuousLimb::get_p(double s) const
 {
-    return (s - profile.s_min())/(profile.s_max() - profile.s_min());
+    return s/profile.length();
 }
 
 double ContinuousLimb::get_s(double p) const
 {
-    return profile.s_min() + p*(profile.s_max() - profile.s_min());
+    return p*profile.length();
 }
 
 double ContinuousLimb::get_w(double s) const
@@ -97,7 +92,8 @@ small_vector<double, ContinuousLimb::n> ContinuousLimb::get_y(double s) const
 // Returns the position and orientation of the profile curve (x, y, phi)
 Vector<3> ContinuousLimb::get_r(double s) const
 {
-    return profile(s);
+    Point point = profile(s);
+    return { point.x, point.y, point.phi };
 }
 
 // Calculates the section's stiffness parameters Cee, Ckk, Cek

@@ -35,9 +35,7 @@ public:
 
     const std::vector<ContinuousLayer>& get_layers() const;
 
-    double s_min() const;    // Arc length at start of the limb
-    double s_max() const;    // Arc length at end of the limb
-
+    double length() const;    // Arc length of the limb
     double get_p(double s) const;    // Calculates the relative position p in [0, 1] from arc length s
     double get_s(double p) const;    // Calculates the arc length from a relative position p in [0, 1]
     double get_w(double s) const;    // Returns the limb's width at the specified arc length
