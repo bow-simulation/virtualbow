@@ -24,7 +24,34 @@ std::vector<double> Segment::estimate_coeffs(const Point& point, const SegmentIn
 
     // Given: {dl, dphi}
     if(input.length && input.angle) {
-        return linear(point.phi + *input.angle, *input.length);
+        auto from_points = [](Vector<2> p0, Vector<2> p1, Vector<2> p2, Vector<2> p3) -> Vector<8> {
+            Matrix<8, 8> A{
+                { 1.0,     0.0,     0.0,      0.0, 0.0,     0.0,     0.0,      0.0 },
+                { 0.0,     0.0,     0.0,      0.0, 1.0,     0.0,     0.0,      0.0 },
+                { 1.0, 1.0/3.0, 1.0/9.0, 1.0/27.0, 0.0,     0.0,     0.0,      0.0 },
+                { 0.0,     0.0,     0.0,      0.0, 1.0, 1.0/3.0, 1.0/9.0, 1.0/27.0 },
+                { 1.0, 2.0/3.0, 4.0/9.0, 8.0/27.0, 0.0,     0.0,     0.0,      0.0 },
+                { 0.0,     0.0,     0.0,      0.0, 1.0, 2.0/3.0, 4.0/9.0, 8.0/27.0 },
+                { 1.0,     1.0,     1.0,      1.0, 0.0,     0.0,     0.0,      0.0 },
+                { 0.0,     0.0,     0.0,      0.0, 1.0,     1.0,     1.0,      1.0 }
+            };
+
+            Vector<8> p;
+            p << p0, p1, p2, p3;
+
+            return A.householderQr().solve(p);
+        };
+
+        double l = *input.length/3.0;
+        double a = *input.angle/4.0;
+
+        Vector<2> p0{ point.x, point.y };
+        Vector<2> p1 = p0 + Vector<2>{ l*cos(point.phi + 1.0*a), l*sin(point.phi + 1.0*a) };
+        Vector<2> p2 = p1 + Vector<2>{ l*cos(point.phi + 2.0*a), l*sin(point.phi + 2.0*a) };
+        Vector<2> p3 = p2 + Vector<2>{ l*cos(point.phi + 3.0*a), l*sin(point.phi + 3.0*a) };
+
+        Vector<8> c = from_points(p0, p1, p2, p3);
+        return std::vector<double>(c.begin(), c.end());
     }
 
     // Given: {dl, dx}
@@ -303,14 +330,17 @@ Segment ProfileCurve::optimize_local(const Point& point, const SegmentInput& inp
         return segment.y(1.0) - segment.y(0.0) - *(context->input.delta_y);
     };
 
-    const double ftol_rel = 1e-4;     // Magic number
-    const double ftol_abs = 1e-4;    // Magic number
-    const double ctol_abs = 1e-4;     // Magic number
+    const double ftol_rel = 1e-6;     // Magic number
+    const double ftol_abs = 1e-9;     // Magic number
+    const double ctol_abs = 1e-6;     // Magic number
     const int maxeval = 500;          // Magic number
 
     double f_min;
     std::vector<double> c_min = Segment::estimate_coeffs(point, input);
     ContextData context = { .point = point, .input = input };
+
+    // Todo: Remove
+    // return Segment(c_min);
 
     nlopt::opt opt(nlopt::algorithm::LN_COBYLA, c_min.size());
     opt.set_min_objective(objective_function, &context);

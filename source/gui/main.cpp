@@ -39,12 +39,14 @@ int main(int argc, char* argv[])
 #include <iostream>
 #include "solver/model/ProfileCurve.hpp"
 #include "solver/numerics/Linspace.hpp"
+#include <vector>
+#include <cmath>
 
 int main() {
     try {
+        // length 0.8, angle 0.5 fails with linear initial value
         std::vector<SegmentInput> input {
-            { .length = 0.8, .angle = 2.0, .delta_x = 0.2, .delta_y = std::nullopt },
-            { .length = 0.2, .angle = std::nullopt, .delta_x = std::nullopt, .delta_y = std::nullopt }
+            { .length = 0.8, .angle = 0.5, .delta_x = std::nullopt, .delta_y = std::nullopt }
         };
 
         ProfileCurve curve(input);
@@ -56,6 +58,5 @@ int main() {
     catch(std::runtime_error& e) {
         std::cout << e.what();
     }
-
 }
 */
