@@ -133,17 +133,17 @@ void Segment::set_coeffs(const std::vector<double>&  c) {
 
 double Segment::length() const {
     auto f = [&](double t){ return hypot(dxdt(t), dydt(t)); };
-    return AdaptiveSimpson::integrate<double>(f, 0, 1, 1e-8);    // Magic number
+    return AdaptiveSimpson::integrate<double>(f, 0.0, 1.0, 1e-8);    // Magic number
 }
 
 double Segment::angle() const {
     auto f = [&](double t){ return (dxdt(t)*dydt2(t) - dydt(t)*dxdt2(t))/(pow(dxdt(t), 2) + pow(dydt(t), 2)); };
-    return AdaptiveSimpson::integrate<double>(f, 0, 1, 1e-8);    // Magic number
+    return AdaptiveSimpson::integrate<double>(f, 0.0, 1.0, 1e-8);    // Magic number
 }
 
 double Segment::energy() const {
     auto f = [&](double t){ return pow(dxdt(t)*dydt2(t) - dydt(t)*dxdt2(t), 2)/pow(pow(dxdt(t), 2) + pow(dydt(t), 2), 2.5); };
-    return AdaptiveSimpson::integrate<double>(f, 0, 1, 1e-8);    // Magic number
+    return AdaptiveSimpson::integrate<double>(f, 0.0, 1.0, 1e-8);    // Magic number
 }
 
 double Segment::phi(double t) const{
@@ -151,19 +151,19 @@ double Segment::phi(double t) const{
 }
 
 double Segment::x(double t) const {
-    return c[0] + c[1]*t + c[2]*t*t + c[3]*t*t*t;    // Todo: Use Horner evaluation
+    return c[0] + t*(c[1] + t*(c[2] + t*c[3]));
 }
 
 double Segment::y(double t) const {
-    return c[4] + c[5]*t + c[6]*t*t + c[7]*t*t*t;    // Todo: Use Horner evaluation
+    return c[4] + t*(c[5] + t*(c[6] + t*c[7]));    // Todo: Use Horner evaluation
 }
 
 double Segment::dxdt(double t) const {
-    return c[1] + 2.0*c[2]*t + 3.0*c[3]*t*t;    // Todo: Use Horner evaluation
+    return c[1] + t*(2.0*c[2] + 3.0*t*c[3]);    // Todo: Use Horner evaluation
 }
 
 double Segment::dydt(double t) const {
-    return c[5] + 2.0*c[6]*t + 3.0*c[7]*t*t;    // Todo: Use Horner evaluation
+    return c[5] + t*(2.0*c[6] + 3.0*t*c[7]);    // Todo: Use Horner evaluation
 }
 
 double Segment::dxdt2(double t) const {
@@ -172,6 +172,71 @@ double Segment::dxdt2(double t) const {
 
 double Segment::dydt2(double t) const {
     return 2.0*c[6] + 6.0*c[7]*t;
+}
+
+#include <iostream>
+
+Vector<8> Segment::grad_length() const {
+    auto f = [&](double t) -> Vector<8> {
+        return (dxdt(t)*grad_dxdt(t) + dydt(t)*grad_dydt(t))/hypot(dxdt(t), dydt(t));
+    };
+    return AdaptiveSimpson::integrate<Vector<8>>(f, 0.0, 1.0, 1e-8);    // Magic number
+}
+
+Vector<8> Segment::grad_angle() const {
+    return grad_phi(1) - grad_phi(0);
+}
+
+Vector<8> Segment::grad_energy() const {
+    auto a = [&](double t) {
+        return dxdt(t)*dydt2(t) - dydt(t)*dxdt2(t);
+    };
+
+    auto b = [&](double t) {
+        return pow(dxdt(t), 2) + pow(dydt(t), 2);
+    };
+
+    auto grad_a = [&](double t) -> Vector<8> {
+        return dydt2(t)*grad_dxdt(t) + dxdt(t)*grad_dydt2(t) - dxdt2(t)*grad_dydt(t) - dydt(t)*grad_dxdt2(t);
+    };
+
+    auto grad_b = [&](double t) -> Vector<8> {
+        return 2.0*dxdt(t)*grad_dxdt(t) + 2.0*dydt(t)*grad_dydt(t);
+    };
+
+    auto grad_dedt = [&](double t) -> Vector<8> {
+        return a(t)/pow(b(t), 5)*(2.0*pow(b(t), 2.5)*grad_a(t) - 2.5*a(t)*pow(b(t), 1.5)*grad_b(t));
+    };
+
+    return AdaptiveSimpson::integrate<Vector<8>>(grad_dedt, 0.0, 1.0, 1e-8);    // Magic number
+}
+
+Vector<8> Segment::grad_phi(double t) const {
+    return (grad_dydt(t)*dxdt(t) - grad_dxdt(t)*dydt(t))/(pow(dxdt(t), 2) + pow(dydt(t), 2));
+}
+
+Vector<8> Segment::grad_x(double t) const {
+    return { 1.0, t, t*t, t*t*t, 0.0, 0.0, 0.0, 0.0 };
+}
+
+Vector<8> Segment::grad_y(double t) const {
+    return { 0.0, 0.0, 0.0, 0.0, 1.0, t, t*t, t*t*t };
+}
+
+Vector<8> Segment::grad_dxdt(double t) const {
+    return { 0.0, 1.0, 2.0*t, 3.0*t*t, 0.0, 0.0, 0.0, 0.0 };
+}
+
+Vector<8> Segment::grad_dydt(double t) const {
+    return { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0*t, 3.0*t*t };
+}
+
+Vector<8> Segment::grad_dxdt2(double t) const {
+    return { 0.0, 0.0, 2.0, 6.0*t, 0.0, 0.0, 0.0, 0.0 };
+}
+
+Vector<8> Segment::grad_dydt2(double t) const {
+    return { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 6.0*t };
 }
 
 std::vector<SegmentInput> ProfileCurve::to_input(const MatrixXd& matrix) {
@@ -282,51 +347,81 @@ Segment ProfileCurve::optimize_local(const Point& point, const SegmentInput& inp
     };
 
     auto objective_function = [](const std::vector<double>& c, std::vector<double>& grad, void* data) {
+        Segment segment(c);
         if(!grad.empty()) {
-            throw std::invalid_argument("Function does not provide gradient information");
+            Vector<8> g = segment.grad_energy();
+            std::copy(g.begin(), g.end(), grad.begin());
         }
-        return Segment(c).energy();
+        return segment.energy();
     };
 
     auto constraint_x0 = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
         auto context = static_cast<ContextData*>(data);
         Segment segment(c);
+        if(!grad.empty()) {
+            Vector<8> g = segment.grad_x(0.0);
+            std::copy(g.begin(), g.end(), grad.begin());
+        }
         return segment.x(0.0) - context->point.x;
     };
 
     auto constraint_y0 = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
         auto context = static_cast<ContextData*>(data);
         Segment segment(c);
+        if(!grad.empty()) {
+            Vector<8> g = segment.grad_y(0.0);
+            std::copy(g.begin(), g.end(), grad.begin());
+        }
         return segment.y(0.0) - context->point.y;
     };
 
     auto constraint_phi0 = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
         auto context = static_cast<ContextData*>(data);
         Segment segment(c);
+        if(!grad.empty()) {
+            Vector<8> g = segment.grad_phi(0.0);
+            std::copy(g.begin(), g.end(), grad.begin());
+        }
         return segment.phi(0.0) - context->point.phi;
     };
 
     auto constraint_length = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
         auto context = static_cast<ContextData*>(data);
         Segment segment(c);
+        if(!grad.empty()) {
+            Vector<8> g = segment.grad_length();
+            std::copy(g.begin(), g.end(), grad.begin());
+        }
         return segment.length() - *(context->input.length);
     };
 
     auto constraint_angle = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
         auto context = static_cast<ContextData*>(data);
         Segment segment(c);
+        if(!grad.empty()) {
+            Vector<8> g = segment.grad_angle();
+            std::copy(g.begin(), g.end(), grad.begin());
+        }
         return segment.angle() - *(context->input.angle);
     };
 
     auto constraint_delta_x = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
         auto context = static_cast<ContextData*>(data);
         Segment segment(c);
+        if(!grad.empty()) {
+            Vector<8> g = segment.grad_x(1.0) - segment.grad_x(0.0);
+            std::copy(g.begin(), g.end(), grad.begin());
+        }
         return segment.x(1.0) - segment.x(0.0) - *(context->input.delta_x);
     };
 
     auto constraint_delta_y = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
         auto context = static_cast<ContextData*>(data);
         Segment segment(c);
+        if(!grad.empty()) {
+            Vector<8> g = segment.grad_y(1.0) - segment.grad_y(0.0);
+            std::copy(g.begin(), g.end(), grad.begin());
+        }
         return segment.y(1.0) - segment.y(0.0) - *(context->input.delta_y);
     };
 
@@ -342,7 +437,7 @@ Segment ProfileCurve::optimize_local(const Point& point, const SegmentInput& inp
     // Todo: Remove
     // return Segment(c_min);
 
-    nlopt::opt opt(nlopt::algorithm::LN_COBYLA, c_min.size());
+    nlopt::opt opt(nlopt::algorithm::LD_SLSQP, c_min.size());
     opt.set_min_objective(objective_function, &context);
     opt.set_ftol_rel(ftol_rel);
     opt.set_ftol_abs(ftol_abs);

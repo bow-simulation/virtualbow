@@ -1,6 +1,6 @@
 import numpy as np
 from math import sin, cos, tan, acos, hypot, atan2, pi, floor
-from scipy.optimize import minimize, NonlinearConstraint
+from scipy.optimize import minimize, NonlinearConstraint, approx_fprime
 from scipy.interpolate import CubicSpline
 from scipy import integrate
 import matplotlib.pyplot as plt
@@ -260,19 +260,73 @@ class Segment:
         #return integrate.quad(lambda t: (self.k(t)**2)*self.dldt(t), 0, 1)[0]
         return integrate.quad(lambda t: (self.dxdt(t)*self.dydt2(t) - self.dydt(t)*self.dxdt2(t))**2/(self.dxdt(t)**2 + self.dydt(t)**2)**2.5, 0, 1)[0]
 
-    # Derivatives (private)
+    # Derivatives t
     
     def dxdt(self, t):
         return self.c[1] + t*(2*self.c[2] + 3*t*self.c[3])
-        
+
     def dydt(self, t):
         return self.c[5] + t*(2*self.c[6] + 3*t*self.c[7])
-
+    
     def dxdt2(self, t):
         return 2*self.c[2] + 6*self.c[3]*t
-        
+    
     def dydt2(self, t):
         return 2*self.c[6] + 6*self.c[7]*t
+    
+    # Derivatives c
+
+    def grad_x(self, t):
+        return np.array([1, t, t**2, t**3, 0, 0, 0, 0])
+    
+    def grad_y(self, t):
+        return np.array([0, 0, 0, 0, 1, t, t**2, t**3])
+
+    def grad_dxdt(self, t):
+        return np.array([0, 1, 2*t, 3*t**2, 0, 0, 0, 0])
+    
+    def grad_dydt(self, t):
+        return np.array([0, 0, 0, 0, 0, 1, 2*t, 3*t**2])
+
+    def grad_dxdt2(self, t):
+        return np.array([0, 0, 2, 6*t, 0, 0, 0, 0])   
+        
+    def grad_dydt2(self, t):
+        return np.array([0, 0, 0, 0, 0, 0, 2, 6*t])
+
+    def grad_phi(self, t):
+        return 1/(self.dxdt(t)**2 + self.dydt(t)**2)*(self.grad_dydt(t)*self.dxdt(t) - self.grad_dxdt(t)*self.dydt(t))
+
+    def grad_length(self):
+        def grad_dldt(t):
+            return (self.dxdt(t)*self.grad_dxdt(t) + self.dydt(t)*self.grad_dydt(t))/hypot(self.dxdt(t), self.dydt(t))
+        return integrate.quad_vec(grad_dldt, 0, 1)[0]
+    
+    def grad_angle(self):
+        return self.grad_phi(1) - self.grad_phi(0)
+    
+    def grad_energy(self):
+        def a(t):
+            return self.dxdt(t)*self.dydt2(t) - self.dydt(t)*self.dxdt2(t)
+        def b(t):
+            return self.dxdt(t)**2 + self.dydt(t)**2
+        def grad_a(t):
+            return self.dydt2(t)*self.grad_dxdt(t) + self.dxdt(t)*self.grad_dydt2(t) - self.dxdt2(t)*self.grad_dydt(t) - self.dydt(t)*self.grad_dxdt2(t)
+        def grad_b(t):
+            return 2*self.dxdt(t)*self.grad_dxdt(t) + 2*self.dydt(t)*self.grad_dydt(t)
+        def grad_dedt(t):
+            return a(t)/b(t)**5*(2*b(t)**(5/2)*grad_a(t) - 5/2*a(t)*b(t)**(3/2)*grad_b(t))
+        
+        return integrate.quad_vec(grad_dedt, 0, 1)[0]
+    
+#    def grad_energy2(self):
+#        def f(c):
+#            segment = Segment(c)
+#            return segment.energy()
+#        
+#        return approx_fprime(c, f, 1e-8)
+    
+    # Plotting
 
     def plot(self):
         x, y = [], []
@@ -308,7 +362,11 @@ class ProfileCurve:
         def f(c):
             segment = Segment(c)
             return segment.energy()
-                
+        
+        def grad_f(c):
+            segment = Segment(c)
+            return segment.grad_energy()
+        
         def g(c):
             segment = Segment(c)
             result = []
@@ -330,8 +388,28 @@ class ProfileCurve:
                     
             return result;
         
+        def grad_g(c):
+            segment = Segment(c)
+            
+            # Constraints for starting point
+            result = segment.grad_phi(0)
+            result = np.vstack((result, segment.grad_x(0)))
+            result = np.vstack((result, segment.grad_y(0)))
+                
+            # Constraints for segment properties
+            if specs.length is not None:
+                result = np.vstack((result, segment.grad_length()))
+            if specs.angle is not None:
+                result = np.vstack((result, segment.grad_angle()))
+            if specs.delta_x is not None:
+                result = np.vstack((result, segment.grad_x(1) - segment.grad_x(0)))
+            if specs.delta_y is not None:
+                result = np.vstack((result, segment.grad_y(1) - segment.grad_y(0)))
+
+            return result;
+        
         c_start = Segment.get_c_start(point, specs)
-        result = minimize(f, c_start, constraints=NonlinearConstraint(g, 0, 0), method='SLSQP')
+        result = minimize(f, c_start, jac=grad_f, constraints=NonlinearConstraint(g, 0, 0, jac=grad_g), method='SLSQP')
         return Segment(result.x)
     
     def optimize_global(self, point, segment_specs):
@@ -351,7 +429,7 @@ class ProfileCurve:
         def f(x):
             set_x(x)
             return sum(segment.energy() for segment in self.segments)
-       
+
         # Constraint function
         # Given by the specified curve points
         def g(x):
@@ -396,8 +474,8 @@ class ProfileCurve:
             
             return result
              
-        result = minimize(f, get_x(), constraints=NonlinearConstraint(g, 0, 0), method='SLSQP')
-        set_x(result.x)
+        #result = minimize(f, get_x(), constraints=NonlinearConstraint(g, 0, 0), method='SLSQP')
+        #set_x(result.x)
     
     # Returns a function t(l) that mapps arc length l to the curve parameter t in [0, 1]
     def calculate_transform(self):
@@ -448,25 +526,37 @@ class ProfileCurve:
         for segment in self.segments:
             plt.plot([segment.x(1)], [segment.y(1)], marker='o', color='red')
             
-# Test {dl, dphi}
-curve = ProfileCurve([
-    SegmentSpecs(length=1.0, angle=-0.2),
-    SegmentSpecs(length=1.0, angle=0.2),
-    SegmentSpecs(length=0.4, angle=0.9),
-    SegmentSpecs(length=0.2, angle=0.5),
-])
 
 
-#print(curve.segments[1].length())
+c = [1, 2, 3, 4, 5, 6, 7, 8]
+segment = Segment(c)
 
-# Create plot
+print(segment.length())
+print(segment.angle())
+print(segment.energy())
+## Test {dl, dphi}
+#curve = ProfileCurve([
+#    SegmentSpecs(length=1.0, angle=-0.2),
+#    SegmentSpecs(length=1.0, angle=0.2),
+#    SegmentSpecs(length=0.4, angle=0.9),
+#    SegmentSpecs(length=0.2, angle=0.5),
+#])
 
-plt.title('Profile Curve')
-plt.xlabel('x')
-plt.ylabel('y')
-curve.plot()
-plt.grid()
-plt.show()
+## Test {dl, dphi}
+#curve = ProfileCurve([
+#    SegmentSpecs(length=0.8, angle=0.0),
+#])
+#
+##print(curve.segments[1].length())
+#
+## Create plot
+#
+#plt.title('Profile Curve')
+#plt.xlabel('x')
+#plt.ylabel('y')
+#curve.plot()
+#plt.grid()
+#plt.show()
 
 ## https://de.wikipedia.org/wiki/Kubisch_Hermitescher_Spline
 #def from_hermite(p0, p1, m0, m1):

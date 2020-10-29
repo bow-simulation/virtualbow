@@ -43,20 +43,11 @@ int main(int argc, char* argv[])
 #include <cmath>
 
 int main() {
-    try {
-        // length 0.8, angle 0.5 fails with linear initial value
-        std::vector<SegmentInput> input {
-            { .length = 0.8, .angle = 0.5, .delta_x = std::nullopt, .delta_y = std::nullopt }
-        };
+    std::vector<double> c{ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0 };
+    Segment segment(c);
 
-        ProfileCurve curve(input);
-        for(double t: Linspace(0.0, curve.length(), 50)) {
-            Point point = curve(t);
-            std::cout << point.x << "\t" << point.y << "\n";
-        }
-    }
-    catch(std::runtime_error& e) {
-        std::cout << e.what();
-    }
+    std::cout << segment.length() << "\n";
+    std::cout << segment.angle() << "\n";
+    std::cout << segment.energy() << "\n";
 }
 */

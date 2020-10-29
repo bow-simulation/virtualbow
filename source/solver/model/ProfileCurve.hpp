@@ -46,6 +46,20 @@ public:
     double dxdt2(double t) const;
     double dydt2(double t) const;
 
+    Vector<8> grad_length() const;
+    Vector<8> grad_angle() const;
+    Vector<8> grad_energy() const;
+
+    Vector<8> grad_phi(double t) const;
+    Vector<8> grad_x(double t) const;
+    Vector<8> grad_y(double t) const;
+
+    Vector<8> grad_dxdt(double t) const;
+    Vector<8> grad_dydt(double t) const;
+
+    Vector<8> grad_dxdt2(double t) const;
+    Vector<8> grad_dydt2(double t) const;
+
 private:
     std::vector<double> c;
 };
