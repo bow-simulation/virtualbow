@@ -2,7 +2,10 @@
 #include "solver/numerics/Integration.hpp"
 #include "solver/numerics/Linspace.hpp"
 #include "solver/numerics/Eigen.hpp"
+#include "solver/numerics/Utils.hpp"
 #include <nlopt.hpp>
+
+#include <chrono>
 
 Segment::Segment(const std::vector<double>& c): c(c) {
     if(c.size() != 8) {
@@ -11,116 +14,237 @@ Segment::Segment(const std::vector<double>& c): c(c) {
 }
 
 std::vector<double> Segment::estimate_coeffs(const Point& point, const SegmentInput& input) {
-    // Normalize angle to a range of [-pi, pi]
-    // https://stackoverflow.com/a/24234924
-    auto normalize_angle = [](double x) {
-        return x - 2*M_PI*floor((x + M_PI)/(2*M_PI));
+    // Returns coefficients from four Bezier points
+    // https://de.wikipedia.org/wiki/B%C3%A9zierkurve
+    auto from_bezier_points4 = [](Vector<2> p0, Vector<2> p1, Vector<2> p2, Vector<2> p3) {
+        Vector<2> a0 = p0;
+        Vector<2> a1 = -3.0*p0 + 3.0*p1;
+        Vector<2> a2 = 3.0*p0 - 6.0*p1 + 3.0*p2;
+        Vector<2> a3 = -p0 + 3.0*p1 - 3.0*p2 + p3;
+
+        return std::vector<double>{ a0[0], a1[0], a2[0], a3[0], a0[1], a1[1], a2[1], a3[1] };
     };
 
-    // Calculate coefficients for a line starting at the initial point with angle phi and length l
-    auto linear = [&](double phi, double l) -> std::vector<double> {
-        return { point.x, l*cos(phi), 0, 0, point.y, l*sin(phi), 0, 0 };
+    // Returns coefficients from two Bezier points
+    auto from_bezier_points3 = [](Vector<2> p0, Vector<2> p1, Vector<2> p2) {
+        Vector<2> a0 = p0;
+        Vector<2> a1 = -2.0*p0 + 2.0*p1;
+        Vector<2> a2 = p0 - 2*p1 + p2;
+
+        return std::vector<double>{ a0[0], a1[0], a2[0], 0, a0[1], a1[1], a2[1], 0 };
     };
 
-    // Given: {dl, dphi}
-    if(input.length && input.angle) {
-        auto from_points = [](Vector<2> p0, Vector<2> p1, Vector<2> p2, Vector<2> p3) -> Vector<8> {
-            Matrix<8, 8> A{
-                { 1.0,     0.0,     0.0,      0.0, 0.0,     0.0,     0.0,      0.0 },
-                { 0.0,     0.0,     0.0,      0.0, 1.0,     0.0,     0.0,      0.0 },
-                { 1.0, 1.0/3.0, 1.0/9.0, 1.0/27.0, 0.0,     0.0,     0.0,      0.0 },
-                { 0.0,     0.0,     0.0,      0.0, 1.0, 1.0/3.0, 1.0/9.0, 1.0/27.0 },
-                { 1.0, 2.0/3.0, 4.0/9.0, 8.0/27.0, 0.0,     0.0,     0.0,      0.0 },
-                { 0.0,     0.0,     0.0,      0.0, 1.0, 2.0/3.0, 4.0/9.0, 8.0/27.0 },
-                { 1.0,     1.0,     1.0,      1.0, 0.0,     0.0,     0.0,      0.0 },
-                { 0.0,     0.0,     0.0,      0.0, 1.0,     1.0,     1.0,      1.0 }
-            };
-
-            Vector<8> p;
-            p << p0, p1, p2, p3;
-
-            return A.householderQr().solve(p);
+    // Returns coefficients for a curve that interpolates four points
+    auto from_interpolation = [](Vector<2> p0, Vector<2> p1, Vector<2> p2, Vector<2> p3) {
+        Matrix<8, 8> A{
+            { 1.0,     0.0,     0.0,      0.0, 0.0,     0.0,     0.0,      0.0 },
+            { 0.0,     0.0,     0.0,      0.0, 1.0,     0.0,     0.0,      0.0 },
+            { 1.0, 1.0/3.0, 1.0/9.0, 1.0/27.0, 0.0,     0.0,     0.0,      0.0 },
+            { 0.0,     0.0,     0.0,      0.0, 1.0, 1.0/3.0, 1.0/9.0, 1.0/27.0 },
+            { 1.0, 2.0/3.0, 4.0/9.0, 8.0/27.0, 0.0,     0.0,     0.0,      0.0 },
+            { 0.0,     0.0,     0.0,      0.0, 1.0, 2.0/3.0, 4.0/9.0, 8.0/27.0 },
+            { 1.0,     1.0,     1.0,      1.0, 0.0,     0.0,     0.0,      0.0 },
+            { 0.0,     0.0,     0.0,      0.0, 1.0,     1.0,     1.0,      1.0 }
         };
 
-        double l = *input.length/3.0;
-        double a = *input.angle/4.0;
+        Vector<8> p;
+        p << p0, p1, p2, p3;
 
-        Vector<2> p0{ point.x, point.y };
-        Vector<2> p1 = p0 + Vector<2>{ l*cos(point.phi + 1.0*a), l*sin(point.phi + 1.0*a) };
-        Vector<2> p2 = p1 + Vector<2>{ l*cos(point.phi + 2.0*a), l*sin(point.phi + 2.0*a) };
-        Vector<2> p3 = p2 + Vector<2>{ l*cos(point.phi + 3.0*a), l*sin(point.phi + 3.0*a) };
-
-        Vector<8> c = from_points(p0, p1, p2, p3);
+        Vector<8> c = A.householderQr().solve(p);
         return std::vector<double>(c.begin(), c.end());
-    }
+    };
 
-    // Given: {dl, dx}
-    if(input.length && input.delta_x) {
-        double dl_n = std::max(*input.length, abs(*input.delta_x));    // If dl < dx, use dx as length
-        double phi_n = normalize_angle(point.phi);
-        double alpha = acos(*input.delta_x/dl_n);
+    auto case_a_x_y = [&](double angle, double delta_x, double delta_y) {
+        Vector<2> p0 = { point.x, point.y };
+        Vector<2> p1 = p0 + Vector<2>{ delta_x, delta_y };
+        double l = 1.0/3.0*hypot(p1[0] - p0[0], p1[1] - p0[1]);
 
-        if(phi_n >= 0.0) {
-            if(*input.delta_x >= 0.0) {
-                return linear(alpha, *input.length);
-            } else {
-                return linear(M_PI - alpha, *input.length);
+        Vector<2> b0 = p0;
+        Vector<2> b1 = p0 + l*Vector<2>{ cos(point.phi), sin(point.phi) };
+        Vector<2> b2 = p1 - l*Vector<2>{ cos(point.phi + angle), sin(point.phi + angle) };
+        Vector<2> b3 = p1;
+
+        return from_bezier_points4(b0, b1, b2, b3);
+    };
+
+    auto case_l_a = [&](double length, double angle) {
+        auto get_circle_point = [](Point point, double k, double s) -> Vector<2> {
+            if(k != 0.0) {
+                return {
+                    point.x + 1/k*(sin(point.phi + k*s) - sin(point.phi)),
+                    point.y - 1/k*(cos(point.phi + k*s) - cos(point.phi))
+                };
             }
-        } else {
-            if(*input.delta_x >= 0.0) {
-                return linear(-alpha, *input.length);
-            } else {
-                return linear(alpha - M_PI, *input.length);
+            else {
+                return {
+                    point.x + s*cos(point.phi),
+                    point.y + s*sin(point.phi)
+                };
             }
+        };
+
+        double k = angle/length;
+        Vector<2> p0 = get_circle_point(point, k, 0);
+        Vector<2>p1 = get_circle_point(point, k, 1.0/3.0*length);
+        Vector<2>p2 = get_circle_point(point, k, 2.0/3.0*length);
+        Vector<2>p3 = get_circle_point(point, k, length);
+
+        return from_interpolation(p0, p1, p2, p3);
+    };
+
+    auto case_l_x = [&](double length, double delta_x) {
+        if(length < delta_x) {
+            throw std::runtime_error("Impossible constraint, length must be greater than delta_x.");
         }
-    }
 
-    // Given: {dl, dy}
-    if(input.length && input.delta_y) {
-        double dl_n = std::max(*input.length, abs(*input.delta_y));    // If dl < dy, use dy as length
-        double phi_n = normalize_angle(point.phi);
-        double alpha = acos(*input.delta_y/dl_n);
+        double arg = 2.0*delta_x/length - cos(point.phi);
+        double alpha, a;
 
-        if(phi_n >= -M_PI_2 && phi_n < M_PI_2) {
-            if(*input.delta_y >= 0.0) {
-                return linear(M_PI_2 - alpha, *input.length);
-            } else {
-                return linear(-M_PI_2 + alpha, *input.length);
-            }
-        } else {
-            if(*input.delta_y >= 0.0) {
-                return linear(M_PI_2 + alpha, *input.length);
-            } else {
-                return linear(-M_PI_2 - alpha, *input.length);
-            }
+        if(arg >= -1.0 && arg <= 1.0) {
+            alpha = sgn(point.phi)*acos(2*delta_x/length - cos(point.phi));
+            a = length/2;
         }
-    }
-
-    // Given: {dphi, dx}
-    if(input.angle && input.delta_x) {
-        if(*input.delta_x >= 0.0) {
-            return linear(0, *input.delta_x);
-        } else {
-            return linear(M_PI, -*input.delta_x);
+        else {
+            alpha = 0.0;
+            a = (length - delta_x)/(1 - cos(point.phi));
         }
-    }
 
-    // Given: {dphi, dy}
-    if(input.angle && input.delta_y) {
-        if(*input.delta_y >= 0.0) {
-            return linear(M_PI_2, *input.delta_y);
-        } else {
-            return linear(-M_PI_2, -*input.delta_y);
+        Vector<2> p0 = { point.x, point.y };
+        Vector<2> p1 = p0 + a*Vector<2>{ cos(point.phi), sin(point.phi) };
+        Vector<2> p2 = p1 + (length - a)*Vector<2>{ cos(alpha), sin(alpha) };
+
+        return from_bezier_points3(p0, p1, p2);
+    };
+
+
+    auto case_l_y = [&](double length, double delta_y) {
+        if(length < delta_y) {
+            throw std::runtime_error("Impossible constraint, length must be greater than delta_y.");
         }
-    }
 
-    // Given: {dx, dy}
-    if(input.delta_x && input.delta_y) {
-        return linear(atan2(*input.delta_y, *input.delta_x), hypot(*input.delta_x, *input.delta_y));
-    }
+        double arg = 2.0*delta_y/length - sin(point.phi);
+        double alpha, a;
 
-    // Fallback
-    return linear(point.phi, 1);
+        if(arg >= -1.0 && arg <= 1.0) {
+            alpha = sgn(M_PI_2 - abs(point.phi))*acos(2*delta_y/length - sin(point.phi));
+            a = length/2.0;
+        }
+        else {
+            alpha = 0.0;
+            a = (length - delta_y)/(1 - sin(point.phi));
+        }
+
+        Vector<2> p0 = { point.x, point.y };
+        Vector<2> p1 = p0 + a*Vector<2>{ cos(point.phi), sin(point.phi) };
+        Vector<2> p2 = p1 + (length - a)*Vector<2>{ sin(alpha), cos(alpha) };
+
+        return from_bezier_points3(p0, p1, p2);
+    };
+
+    auto case_a_x = [&](double angle, double delta_x) {
+        double den = cos(point.phi) + cos(point.phi + angle/2) + cos(point.phi + angle);
+        if(den == 0.0) {
+            return case_a_x_y(angle, delta_x, 0.0);
+        }
+
+        double a = delta_x/den;
+        if(a < 0.0) {
+            return case_a_x_y(angle, delta_x, 0);
+        }
+
+        Vector<2> p0 = Vector<2>{ point.x, point.y };
+        Vector<2> p1 = p0 + a*Vector<2>{ cos(point.phi), sin(point.phi) };
+        Vector<2> p2 = p1 + a*Vector<2>{ cos(point.phi + angle/2), sin(point.phi + angle/2) };
+        Vector<2> p3 = p2 + a*Vector<2>{ cos(point.phi + angle), sin(point.phi + angle) };
+
+        return from_bezier_points4(p0, p1, p2, p3);
+    };
+
+    auto case_a_y = [&](double angle, double delta_y) {
+        double den = sin(point.phi) + sin(point.phi + angle/2) + sin(point.phi + angle);
+        if(den == 0.0) {
+            return case_a_x_y(angle, 0, delta_y);
+        }
+
+        double a = delta_y/den;
+        if(a < 0.0) {
+            return case_a_x_y(angle, 0, delta_y);
+        }
+
+        Vector<2> p0 = { point.x, point.y };
+        Vector<2> p1 = p0 + a*Vector<2>{ cos(point.phi), sin(point.phi) };
+        Vector<2> p2 = p1 + a*Vector<2>{ cos(point.phi + angle/2), sin(point.phi + angle/2) };
+        Vector<2> p3 = p2 + a*Vector<2>{ cos(point.phi + angle), sin(point.phi + angle) };
+
+        return from_bezier_points4(p0, p1, p2, p3);
+    };
+
+    auto case_x_y = [&](double delta_x, double delta_y) {
+        double a = atan2(delta_y, delta_x);
+        return case_a_x_y(2*a, delta_x, delta_y);
+    };
+
+    auto case_l_a_x_y = [&](double length, double angle, double delta_x, double delta_y) {
+        return case_a_x_y(angle, delta_x, delta_y);
+    };
+
+    auto case_l_a_x = [&](double length, double angle, double delta_x) {
+        return case_a_x(angle, delta_x);
+    };
+
+    auto case_l_a_y = [&](double length, double angle, double delta_y) {
+        return case_a_y(angle, delta_y);
+    };
+
+    auto case_l_x_y = [&](double length, double delta_x, double delta_y) {
+        return case_x_y(delta_x, delta_y);
+    };
+
+    // Case 1: {length, angle, delta_x, delta_y}
+    if(input.length and input.angle and input.delta_x and input.delta_y)
+        return case_l_a_x_y(*input.length, *input.angle, *input.delta_x, *input.delta_y);
+
+    // Case 2: {length, angle, delta_x}
+    if(input.length and input.angle and input.delta_x)
+        return case_l_a_x(*input.length, *input.angle, *input.delta_x);
+
+    // Case 3: {length, angle, delta_y}
+    if(input.length and input.angle and input.delta_y)
+        return case_l_a_y(*input.length, *input.angle, *input.delta_y);
+
+    // Case 4: {length, delta_x, delta_y}
+    if(input.length and input.delta_x and input.delta_y)
+        return case_l_x_y(*input.length, *input.delta_x, *input.delta_y);
+
+    // Case 5: {angle, delta_x, delta_y}
+    if(input.angle and input.delta_x and input.delta_y)
+        return case_a_x_y(*input.angle, *input.delta_x, *input.delta_y);
+
+    // Case 6: {length, angle}
+    if(input.length and input.angle)
+        return case_l_a(*input.length, *input.angle);
+
+    // Case 7: {length, delta_x}
+    if(input.length and input.delta_x)
+        return case_l_x(*input.length, *input.delta_x);
+
+    // Case 8: {length, delta_y}
+    if(input.length and input.delta_y)
+        return case_l_y(*input.length, *input.delta_y);
+
+    // Case 9: {angle, delta_x}
+    if(input.angle and input.delta_x)
+        return case_a_x(*input.angle, *input.delta_x);
+
+    // Case 10: {angle, delta_y}
+    if(input.angle and input.delta_y)
+        return case_a_y(*input.angle, *input.delta_y);
+
+    // Case 11: {delta_x, delta_y}
+    if(input.delta_x and input.delta_y)
+        return case_x_y(*input.delta_x, *input.delta_y);
+
+    throw std::runtime_error("Segment not fully specified, at least two constraints are needed.");
 }
 
 const std::vector<double>& Segment::get_coeffs() const {
@@ -239,7 +363,7 @@ Vector<8> Segment::grad_dydt2(double t) const {
     return { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 6.0*t };
 }
 
-std::vector<SegmentInput> ProfileCurve::to_input(const MatrixXd& matrix) {
+std::vector<SegmentInput> ProfileCurve::input_from_matrix(const MatrixXd& matrix) {
     auto to_optional = [](double value) -> std::optional<double> {
         if(std::isnan(value))
             return std::nullopt;
@@ -260,31 +384,33 @@ std::vector<SegmentInput> ProfileCurve::to_input(const MatrixXd& matrix) {
     return input;
 }
 
-std::optional<std::string> ProfileCurve::validate(const std::vector<SegmentInput>& input) {
-    if(input.empty()) {
-        return std::string("At least one segment is required");
+std::optional<std::string> ProfileCurve::validate_input(const std::vector<SegmentInput>& input) {
+    // Count number of fully specified segments
+    size_t n = std::count_if(input.begin(), input.end(), [](const SegmentInput& in) { return in.dimension() >= 2; });
+    if(n == 0) {
+        return std::string("At least one segment has to be specified");
     }
 
-    for(auto& in: input) {
-        int n = in.angle.has_value() + in.length.has_value() + in.delta_x.has_value() + in.delta_y.has_value();
-        if(n < 2) {
-            return "At least two values per segment are needed";
+    for(size_t i = 0; i < input.size(); ++i) {
+        std::optional<std::string> error = input[i].validate();
+        if(error) {
+            return "Segment " + std::to_string(i+1) + ": " + (*error);
         }
     }
+
+    return std::nullopt;
 }
 
 ProfileCurve::ProfileCurve(const std::vector<SegmentInput>& input) {
-    /*
-    std::optional<std::string> error = validate(input);
+    std::optional<std::string> error = validate_input(input);
     if(error.has_value()) {
         throw std::invalid_argument(error->c_str());
     }
-    */
 
     // Local optimization of the segments
     Point point = { .x = 0.0, .y = 0.0, .phi = 0.0 };
     for(auto& in: input) {
-        if(in.is_valid()) {
+        if(in.dimension() >= 2) {
             Segment segment = optimize_local(point, in);
             segments.push_back(segment);
             point = { .x = segment.x(1.0), .y = segment.y(1.0), .phi = segment.phi(1.0) };
@@ -335,8 +461,8 @@ Point ProfileCurve::operator()(double s) const {
 
     return {
         .x = segments[i].x(n*t - i),
-        .y = segments[i].y(n*t - i),
-        .phi = segments[i].phi(n*t - i)
+                .y = segments[i].y(n*t - i),
+                .phi = segments[i].phi(n*t - i)
     };
 }
 
@@ -353,6 +479,16 @@ Segment ProfileCurve::optimize_local(const Point& point, const SegmentInput& inp
             std::copy(g.begin(), g.end(), grad.begin());
         }
         return segment.energy();
+    };
+
+    auto constraint_phi0 = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
+        auto context = static_cast<ContextData*>(data);
+        Segment segment(c);
+        if(!grad.empty()) {
+            Vector<8> g = segment.grad_phi(0.0);
+            std::copy(g.begin(), g.end(), grad.begin());
+        }
+        return segment.phi(0.0) - context->point.phi;
     };
 
     auto constraint_x0 = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
@@ -373,16 +509,6 @@ Segment ProfileCurve::optimize_local(const Point& point, const SegmentInput& inp
             std::copy(g.begin(), g.end(), grad.begin());
         }
         return segment.y(0.0) - context->point.y;
-    };
-
-    auto constraint_phi0 = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
-        auto context = static_cast<ContextData*>(data);
-        Segment segment(c);
-        if(!grad.empty()) {
-            Vector<8> g = segment.grad_phi(0.0);
-            std::copy(g.begin(), g.end(), grad.begin());
-        }
-        return segment.phi(0.0) - context->point.phi;
     };
 
     auto constraint_length = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
@@ -428,14 +554,11 @@ Segment ProfileCurve::optimize_local(const Point& point, const SegmentInput& inp
     const double ftol_rel = 1e-6;     // Magic number
     const double ftol_abs = 1e-9;     // Magic number
     const double ctol_abs = 1e-6;     // Magic number
-    const int maxeval = 500;          // Magic number
+    const int maxeval = 100;          // Magic number
 
     double f_min;
     std::vector<double> c_min = Segment::estimate_coeffs(point, input);
     ContextData context = { .point = point, .input = input };
-
-    // Todo: Remove
-    // return Segment(c_min);
 
     nlopt::opt opt(nlopt::algorithm::LD_SLSQP, c_min.size());
     opt.set_min_objective(objective_function, &context);
@@ -443,9 +566,9 @@ Segment ProfileCurve::optimize_local(const Point& point, const SegmentInput& inp
     opt.set_ftol_abs(ftol_abs);
     opt.set_maxeval(maxeval);
 
+    opt.add_equality_constraint(constraint_phi0, &context, ctol_abs);
     opt.add_equality_constraint(constraint_x0, &context, ctol_abs);
     opt.add_equality_constraint(constraint_y0, &context, ctol_abs);
-    opt.add_equality_constraint(constraint_phi0, &context, ctol_abs);
 
     if(input.length) {
         opt.add_equality_constraint(constraint_length, &context, ctol_abs);
@@ -463,8 +586,20 @@ Segment ProfileCurve::optimize_local(const Point& point, const SegmentInput& inp
     try {
         opt.optimize(c_min, f_min);
     }
-    catch(std::exception& e) {
-        throw std::runtime_error("Optimization failed");
+    catch(nlopt::roundoff_limited& e) {
+        throw std::runtime_error("NLOPT_ROUNDOFF_LIMITED");
+    }
+    catch(nlopt::forced_stop& e) {
+        throw std::runtime_error("NLOPT_FORCED_STOP");
+    }
+    catch(std::bad_alloc& e) {
+        throw std::runtime_error("NLOPT_OUT_OF_MEMORY");
+    }
+    catch(std::invalid_argument& e) {
+        throw std::runtime_error("NLOPT_INVALID_ARGS");
+    }
+    catch(std::runtime_error& e) {
+        // Ignore this exception, it occurs often and for unknown reasons while the optimization result is still good
     }
 
     return Segment(c_min);

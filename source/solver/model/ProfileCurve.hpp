@@ -18,9 +18,23 @@ struct SegmentInput {
     std::optional<double> delta_x;
     std::optional<double> delta_y;
 
-    bool is_valid() const {
-        int dimension = length.has_value() + angle.has_value() + delta_x.has_value() + delta_y.has_value();
-        return dimension >= 2;
+    std::optional<std::string> validate() const {
+        if(length.has_value()) {
+            if(*length <= 0.0) {
+                return std::string("Length must be > 0");
+            }
+            if(delta_x.has_value() && (*length < *delta_x)) {
+                return std::string("Length must be >= delta x");
+            }
+            if(delta_y.has_value() && (*length < *delta_y)) {
+                return std::string("Length must be >= delta y");
+            }
+        }
+        return std::nullopt;
+    }
+
+    int dimension() const {
+        return length.has_value() + angle.has_value() + delta_x.has_value() + delta_y.has_value();
     }
 };
 
@@ -66,8 +80,8 @@ private:
 
 class ProfileCurve {
 public:
-    static std::vector<SegmentInput> to_input(const MatrixXd& matrix);
-    static std::optional<std::string> validate(const std::vector<SegmentInput>& input);
+    static std::vector<SegmentInput> input_from_matrix(const MatrixXd& matrix);
+    static std::optional<std::string> validate_input(const std::vector<SegmentInput>& input);
 
     ProfileCurve(const std::vector<SegmentInput>& input);
 

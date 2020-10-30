@@ -39,15 +39,20 @@ int main(int argc, char* argv[])
 #include <iostream>
 #include "solver/model/ProfileCurve.hpp"
 #include "solver/numerics/Linspace.hpp"
-#include <vector>
-#include <cmath>
-
 int main() {
-    std::vector<double> c{ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0 };
-    Segment segment(c);
-
-    std::cout << segment.length() << "\n";
-    std::cout << segment.angle() << "\n";
-    std::cout << segment.energy() << "\n";
+    try {
+        std::vector<SegmentInput> input {
+            { .length = 0.8, .angle = 0.1, .delta_x = std::nullopt, .delta_y = std::nullopt },
+            { .length = 0.2, .angle = 0.8, .delta_x = std::nullopt, .delta_y = std::nullopt }
+        };
+        ProfileCurve curve(input);
+        for(double t: Linspace(0.0, curve.length(), 50)) {
+            Point point = curve(t);
+            std::cout << point.x << "\t" << point.y << "\n";
+        }
+    }
+    catch(std::runtime_error& e) {
+        std::cout << "Caught outside";
+    }
 }
 */

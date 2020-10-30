@@ -9,6 +9,12 @@ ProfileView::ProfileView() {
 
     this->addLayer("curve");
     this->addLayer("nodes");
+
+    label = new QCPItemText(this);
+    label->setPositionAlignment(Qt::AlignTop | Qt::AlignHCenter);
+    label->position->setType(QCPItemPosition::ptAxisRectRatio);
+    label->position->setCoords(0.5, 0.05);
+    label->setColor(Qt::red);
 }
 
 void ProfileView::setData(const MatrixXd& data) {
@@ -24,43 +30,18 @@ void ProfileView::setSelection(const QVector<int>& selection) {
     this->replot();
 }
 
-#include <iostream>
-
 void ProfileView::updatePlot() {
     resetPlot();
 
+    auto input = ProfileCurve::input_from_matrix(data);
+    std::optional<std::string> error = ProfileCurve::validate_input(input);
+    if(error) {
+        label->setText(QString::fromStdString(*error));
+        return;
+    }
+
     try {
-        auto input = ProfileCurve::to_input(data);
-
-        std::cout << ">>>>>>>> Profile: <<<<<<<<<\n";
-        for(auto& in: input) {
-            auto print_optional = [](std::optional<double> option) {
-                if(option) {
-                    std::cout << *option  << "\n";
-                } else {
-                    std::cout << "Empty" << "\n";
-                }
-            };
-
-            std::cout << ">>> Segment:\n";
-            std::cout << "length: ";
-            print_optional(in.length);
-
-            std::cout << "angle: ";
-            print_optional(in.angle);
-
-            std::cout << "delta_x: ";
-            print_optional(in.delta_x);
-
-            std::cout << "delta_y: ";
-            print_optional(in.delta_y);
-
-            std::cout << std::endl;
-        }
-
-
         ProfileCurve profile = ProfileCurve(input);
-
         for(auto& segment: profile.get_segments()) {
             QCPCurve* curve = new QCPCurve(this->xAxis, this->yAxis);
             curve->setLayer("curve");
@@ -81,12 +62,13 @@ void ProfileView::updatePlot() {
             curve->addData(point.x, point.y);
             nodes.push_back(curve);
         }
+
+        label->setText("");
+        updateHighlights();
     }
     catch(const std::exception& e) {
-        resetPlot();
+        label->setText(e.what());
     }
-
-    updateHighlights();
 }
 
 void ProfileView::resetPlot() {

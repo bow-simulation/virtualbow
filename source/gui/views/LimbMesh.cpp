@@ -99,7 +99,7 @@ LimbMesh::LimbMesh(const InputData& input)
         }
     }
     catch(std::exception&) {
-
+        // Limb mesh stays empty on failure
     }
 }
 

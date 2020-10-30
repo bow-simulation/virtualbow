@@ -5,6 +5,8 @@ from scipy.interpolate import CubicSpline
 from scipy import integrate
 import matplotlib.pyplot as plt
 
+import nlopt
+
 class Point:
     def __init__(self, x, y, phi):
         self.x = x
@@ -30,8 +32,8 @@ class Segment:
         self.c = c
 
     @staticmethod
-    def get_c_start(point, specs):
-        # Returns coefficients from four bezier points
+    def estimate_coeffs(point, specs):
+        # Returns coefficients from four Bezier points
         # https://de.wikipedia.org/wiki/B%C3%A9zierkurve
         def from_bezier_points4(p0, p1, p2, p3):
             a0 = p0
@@ -41,6 +43,7 @@ class Segment:
             
             return [a0[0], a1[0], a2[0], a3[0], a0[1], a1[1], a2[1], a3[1]]
         
+        # Returns coefficients from two Bezier points
         def from_bezier_points3(p0, p1, p2):
             a0 = p0
             a1 = -2*p0 + 2*p1
@@ -184,23 +187,23 @@ class Segment:
             return case_a_x_y(2*a, delta_x, delta_y)
 
         # Case 1: {length, angle, delta_x, delta_y}
-        if((specs.length is not None) and (specs.angle is not None) and (specs.delta_x is not None) and (specs.delta_y is not None)):
+        if (specs.length is not None) and (specs.angle is not None) and (specs.delta_x is not None) and (specs.delta_y is not None):
             return case_l_a_x_y(specs.length, specs.angle, specs.delta_x, specs.delta_y)
         
         # Case 2: {length, angle, delta_x}
-        if((specs.length is not None) and (specs.angle is not None) and (specs.delta_x is not None)):
+        if (specs.length is not None) and (specs.angle is not None) and (specs.delta_x is not None):
             return case_l_a_x(specs.length, specs.angle, specs.delta_x)
         
         # Case 3: {length, angle, delta_y}
-        if((specs.length is not None) and (specs.angle is not None) and (specs.delta_y is not None)):
+        if (specs.length is not None) and (specs.angle is not None) and (specs.delta_y is not None):
             return case_l_a_y(specs.length, specs.angle, specs.delta_y)
         
         # Case 4: {length, delta_x, delta_y}        
-        if((specs.length is not None) and (specs.delta_x is not None) and (specs.delta_y is not None)):
+        if (specs.length is not None) and (specs.delta_x is not None) and (specs.delta_y is not None):
             return case_l_x_y(specs.length, specs.delta_x, specs.delta_y)
         
         # Case 5: {angle, delta_x, delta_y}
-        if((specs.angle is not None) and (specs.delta_x is not None) and (specs.delta_y is not None)):
+        if (specs.angle is not None) and (specs.delta_x is not None) and (specs.delta_y is not None):
             return case_a_x_y(specs.angle, specs.delta_x, specs.delta_y)
 
         # Case 6: {length, angle}
@@ -318,14 +321,7 @@ class Segment:
             return a(t)/b(t)**5*(2*b(t)**(5/2)*grad_a(t) - 5/2*a(t)*b(t)**(3/2)*grad_b(t))
         
         return integrate.quad_vec(grad_dedt, 0, 1)[0]
-    
-#    def grad_energy2(self):
-#        def f(c):
-#            segment = Segment(c)
-#            return segment.energy()
-#        
-#        return approx_fprime(c, f, 1e-8)
-    
+
     # Plotting
 
     def plot(self):
@@ -350,67 +346,80 @@ class ProfileCurve:
      
         self.optimize_global(startpoint, segment_specs)
         self.calculate_transform()
-        
-        #print("Function value: {}".format(f(result.x)))
-        #print("Min violation: {}".format(min(g(result.x))))
-        #print("Max violation: {}".format(max(g(result.x))))
-        #print("g(x): {}".format(g(result.x)))
 
     # Determines segment curve that starts at point and fulfills the constraints given by spec
     @staticmethod
     def optimize_local(point, specs):
-        def f(c):
+        def objective(c, grad):
             segment = Segment(c)
+            if grad.size > 0:
+                grad[:] = segment.grad_energy()            
             return segment.energy()
         
-        def grad_f(c):
+        def constraint_phi0(c, grad):
             segment = Segment(c)
-            return segment.grad_energy()
+            if grad.size > 0:
+                grad[:] = segment.grad_phi(0)
+            return segment.phi(0) - point.phi
         
-        def g(c):
+        def constraint_x0(c, grad):
             segment = Segment(c)
-            result = []
-                
-            # Constraints for starting point
-            result.append(segment.phi(0) - point.phi)
-            result.append(segment.x(0) - point.x)
-            result.append(segment.y(0) - point.y)
-                
-            # Constraints for segment properties
-            if specs.length is not None:
-                result.append(segment.length() - specs.length)
-            if specs.angle is not None:
-                result.append(segment.angle() - specs.angle)
-            if specs.delta_x is not None:
-                result.append(segment.x(1) - segment.x(0) - specs.delta_x)
-            if specs.delta_y is not None:
-                result.append(segment.y(1) - segment.y(0) - specs.delta_y)
-                    
-            return result;
+            if grad.size > 0:
+                grad[:] = segment.grad_x(0)
+            return segment.x(0) - point.x
         
-        def grad_g(c):
+        def constraint_y0(c, grad):
             segment = Segment(c)
-            
-            # Constraints for starting point
-            result = segment.grad_phi(0)
-            result = np.vstack((result, segment.grad_x(0)))
-            result = np.vstack((result, segment.grad_y(0)))
-                
-            # Constraints for segment properties
-            if specs.length is not None:
-                result = np.vstack((result, segment.grad_length()))
-            if specs.angle is not None:
-                result = np.vstack((result, segment.grad_angle()))
-            if specs.delta_x is not None:
-                result = np.vstack((result, segment.grad_x(1) - segment.grad_x(0)))
-            if specs.delta_y is not None:
-                result = np.vstack((result, segment.grad_y(1) - segment.grad_y(0)))
+            if grad.size > 0:
+                grad[:] = segment.grad_y(0)
+            return segment.y(0) - point.y
+        
+        def constraint_length(c, grad):
+            segment = Segment(c)
+            if grad.size > 0:
+                grad[:] = segment.grad_length()
+            return segment.length() - specs.length
+        
+        def constraint_angle(c, grad):
+            segment = Segment(c)
+            if grad.size > 0:
+                grad[:] = segment.grad_angle()
+            return segment.angle() - specs.angle
+        
+        def constraint_delta_x(c, grad):
+            segment = Segment(c)
+            if grad.size > 0:
+                grad[:] = segment.grad_x(1) - segment.grad_x(0)
+            return segment.x(1) - segment.x(0) - specs.delta_x
+        
+        def constraint_delta_y(c, grad):
+            segment = Segment(c)
+            if grad.size > 0:
+                grad[:] = segment.grad_y(1) - segment.grad_y(0)
+            return segment.y(1) - segment.y(0) - specs.delta_y
+        
+        opt = nlopt.opt(nlopt.LD_SLSQP, 8)
+        opt.set_ftol_rel(1e-6);
+        opt.set_ftol_abs(1e-9);
+        opt.set_maxeval(100);
+        
+        opt.set_min_objective(objective)
+        opt.add_equality_constraint(constraint_phi0, 1e-6)
+        opt.add_equality_constraint(constraint_x0, 1e-6)
+        opt.add_equality_constraint(constraint_y0, 1e-6)
+        if specs.length is not None:
+            opt.add_equality_constraint(constraint_length, 1e-6)
+        if specs.angle is not None:
+            opt.add_equality_constraint(constraint_angle, 1e-6)
+        if specs.delta_x is not None:
+            opt.add_equality_constraint(constraint_delta_x, 1e-6)
+        if specs.delta_y is not None:
+            opt.add_equality_constraint(constraint_delta_y, 1e-6)
 
-            return result;
+        c_min = Segment.estimate_coeffs(point, specs)
+        c_min = opt.optimize(c_min)
         
-        c_start = Segment.get_c_start(point, specs)
-        result = minimize(f, c_start, jac=grad_f, constraints=NonlinearConstraint(g, 0, 0, jac=grad_g), method='SLSQP')
-        return Segment(result.x)
+        return Segment(c_min)
     
     def optimize_global(self, point, segment_specs):
         # Mapping of the optimization variables
@@ -426,13 +435,13 @@ class ProfileCurve:
                 self.segments[i].set_c(x[n*i : n*i+n])
 
         # Objective function: Sum of all segment energies
-        def f(x):
+        def objective(x):
             set_x(x)
             return sum(segment.energy() for segment in self.segments)
 
         # Constraint function
         # Given by the specified curve points
-        def g(x):
+        def constraints(x):
             set_x(x)
             result = []
 
@@ -472,10 +481,10 @@ class ProfileCurve:
                 if specs.delta_y is not None:
                     result.append(segment.y(1) - segment.y(0) - specs.delta_y)
             
-            return result
-             
-        #result = minimize(f, get_x(), constraints=NonlinearConstraint(g, 0, 0), method='SLSQP')
-        #set_x(result.x)
+            return result        
+        
+        result = minimize(objective, get_x(), constraints=NonlinearConstraint(constraints, 0, 0), method='SLSQP')
+        set_x(result.x)
     
     # Returns a function t(l) that mapps arc length l to the curve parameter t in [0, 1]
     def calculate_transform(self):
@@ -528,35 +537,27 @@ class ProfileCurve:
             
 
 
-c = [1, 2, 3, 4, 5, 6, 7, 8]
-segment = Segment(c)
+# Test {dl, dphi}
+curve = ProfileCurve([
+    SegmentSpecs(length=1.0, angle=-0.2),
+    SegmentSpecs(length=1.0, angle=0.2),
+    SegmentSpecs(length=0.4, angle=0.9),
+    SegmentSpecs(length=0.2, angle=0.5),
+])
 
-print(segment.length())
-print(segment.angle())
-print(segment.energy())
-## Test {dl, dphi}
-#curve = ProfileCurve([
-#    SegmentSpecs(length=1.0, angle=-0.2),
-#    SegmentSpecs(length=1.0, angle=0.2),
-#    SegmentSpecs(length=0.4, angle=0.9),
-#    SegmentSpecs(length=0.2, angle=0.5),
-#])
+print(nlopt.version_major())
+print(nlopt.version_minor())
+print(nlopt.version_bugfix())
 
-## Test {dl, dphi}
-#curve = ProfileCurve([
-#    SegmentSpecs(length=0.8, angle=0.0),
-#])
-#
-##print(curve.segments[1].length())
-#
-## Create plot
-#
-#plt.title('Profile Curve')
-#plt.xlabel('x')
-#plt.ylabel('y')
-#curve.plot()
-#plt.grid()
-#plt.show()
+
+# Create plot
+
+plt.title('Profile Curve')
+plt.xlabel('x')
+plt.ylabel('y')
+curve.plot()
+plt.grid()
+plt.show()
 
 ## https://de.wikipedia.org/wiki/Kubisch_Hermitescher_Spline
 #def from_hermite(p0, p1, m0, m1):

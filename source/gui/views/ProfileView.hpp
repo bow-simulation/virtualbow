@@ -14,6 +14,7 @@ private:
 
     QVector<QCPCurve*> curves;
     QVector<QCPCurve*> nodes;
+    QCPItemText* label;
 
     void updatePlot();
     void resetPlot();
