@@ -4,38 +4,55 @@
 #include "solver/numerics/Eigen.hpp"
 #include "solver/numerics/Utils.hpp"
 #include <nlopt.hpp>
+#include <list>
 
-#include <chrono>
-
-Segment::Segment(const std::vector<double>& c): c(c) {
-    if(c.size() != 8) {
-        throw std::invalid_argument("Coefficient vector must be of size 8");
+std::optional<std::string> SegmentInput::validate() const {
+    if(length.has_value()) {
+        if(*length <= 0.0) {
+            return std::string("Length must be > 0");
+        }
+        if(delta_x.has_value() && (*length < *delta_x)) {
+            return std::string("Length must be >= delta x");
+        }
+        if(delta_y.has_value() && (*length < *delta_y)) {
+            return std::string("Length must be >= delta y");
+        }
     }
+    return std::nullopt;
 }
 
-std::vector<double> Segment::estimate_coeffs(const Point& point, const SegmentInput& input) {
+int SegmentInput::dimension() const {
+    return length.has_value() + angle.has_value() + delta_x.has_value() + delta_y.has_value();
+}
+
+Segment::Segment(const Vector<8>& c)
+    : c(c) {
+
+}
+
+Vector<8> Segment::estimate_coeffs(const Point& point, const SegmentInput& input) {
     // Returns coefficients from four Bezier points
     // https://de.wikipedia.org/wiki/B%C3%A9zierkurve
-    auto from_bezier_points4 = [](Vector<2> p0, Vector<2> p1, Vector<2> p2, Vector<2> p3) {
+    auto from_bezier_points4 = [](Vector<2> p0, Vector<2> p1, Vector<2> p2, Vector<2> p3) -> Vector<8> {
         Vector<2> a0 = p0;
         Vector<2> a1 = -3.0*p0 + 3.0*p1;
         Vector<2> a2 = 3.0*p0 - 6.0*p1 + 3.0*p2;
         Vector<2> a3 = -p0 + 3.0*p1 - 3.0*p2 + p3;
 
-        return std::vector<double>{ a0[0], a1[0], a2[0], a3[0], a0[1], a1[1], a2[1], a3[1] };
+        return { a0[0], a1[0], a2[0], a3[0], a0[1], a1[1], a2[1], a3[1] };
     };
 
     // Returns coefficients from two Bezier points
-    auto from_bezier_points3 = [](Vector<2> p0, Vector<2> p1, Vector<2> p2) {
+    auto from_bezier_points3 = [](Vector<2> p0, Vector<2> p1, Vector<2> p2) -> Vector<8> {
         Vector<2> a0 = p0;
         Vector<2> a1 = -2.0*p0 + 2.0*p1;
         Vector<2> a2 = p0 - 2*p1 + p2;
 
-        return std::vector<double>{ a0[0], a1[0], a2[0], 0, a0[1], a1[1], a2[1], 0 };
+        return { a0[0], a1[0], a2[0], 0, a0[1], a1[1], a2[1], 0 };
     };
 
     // Returns coefficients for a curve that interpolates four points
-    auto from_interpolation = [](Vector<2> p0, Vector<2> p1, Vector<2> p2, Vector<2> p3) {
+    auto from_interpolation = [](Vector<2> p0, Vector<2> p1, Vector<2> p2, Vector<2> p3) -> Vector<8> {
         Matrix<8, 8> A{
             { 1.0,     0.0,     0.0,      0.0, 0.0,     0.0,     0.0,      0.0 },
             { 0.0,     0.0,     0.0,      0.0, 1.0,     0.0,     0.0,      0.0 },
@@ -50,8 +67,7 @@ std::vector<double> Segment::estimate_coeffs(const Point& point, const SegmentIn
         Vector<8> p;
         p << p0, p1, p2, p3;
 
-        Vector<8> c = A.householderQr().solve(p);
-        return std::vector<double>(c.begin(), c.end());
+        return A.householderQr().solve(p);
     };
 
     auto case_a_x_y = [&](double angle, double delta_x, double delta_y) {
@@ -201,58 +217,55 @@ std::vector<double> Segment::estimate_coeffs(const Point& point, const SegmentIn
     };
 
     // Case 1: {length, angle, delta_x, delta_y}
-    if(input.length and input.angle and input.delta_x and input.delta_y)
+    if(input.length and input.angle and input.delta_x and input.delta_y) {
         return case_l_a_x_y(*input.length, *input.angle, *input.delta_x, *input.delta_y);
-
+    }
     // Case 2: {length, angle, delta_x}
-    if(input.length and input.angle and input.delta_x)
+    if(input.length and input.angle and input.delta_x) {
         return case_l_a_x(*input.length, *input.angle, *input.delta_x);
-
+    }
     // Case 3: {length, angle, delta_y}
-    if(input.length and input.angle and input.delta_y)
+    if(input.length and input.angle and input.delta_y) {
         return case_l_a_y(*input.length, *input.angle, *input.delta_y);
-
+    }
     // Case 4: {length, delta_x, delta_y}
-    if(input.length and input.delta_x and input.delta_y)
+    if(input.length and input.delta_x and input.delta_y) {
         return case_l_x_y(*input.length, *input.delta_x, *input.delta_y);
-
+    }
     // Case 5: {angle, delta_x, delta_y}
-    if(input.angle and input.delta_x and input.delta_y)
+    if(input.angle and input.delta_x and input.delta_y) {
         return case_a_x_y(*input.angle, *input.delta_x, *input.delta_y);
-
+    }
     // Case 6: {length, angle}
-    if(input.length and input.angle)
+    if(input.length and input.angle) {
         return case_l_a(*input.length, *input.angle);
-
+    }
     // Case 7: {length, delta_x}
-    if(input.length and input.delta_x)
+    if(input.length and input.delta_x) {
         return case_l_x(*input.length, *input.delta_x);
-
+    }
     // Case 8: {length, delta_y}
-    if(input.length and input.delta_y)
+    if(input.length and input.delta_y) {
         return case_l_y(*input.length, *input.delta_y);
-
+    }
     // Case 9: {angle, delta_x}
-    if(input.angle and input.delta_x)
+    if(input.angle and input.delta_x) {
         return case_a_x(*input.angle, *input.delta_x);
-
+    }
     // Case 10: {angle, delta_y}
-    if(input.angle and input.delta_y)
+    if(input.angle and input.delta_y) {
         return case_a_y(*input.angle, *input.delta_y);
-
+    }
     // Case 11: {delta_x, delta_y}
-    if(input.delta_x and input.delta_y)
+    if(input.delta_x and input.delta_y) {
         return case_x_y(*input.delta_x, *input.delta_y);
+    }
 
     throw std::runtime_error("Segment not fully specified, at least two constraints are needed.");
 }
 
-const std::vector<double>& Segment::get_coeffs() const {
-    return c;
-}
-
-void Segment::set_coeffs(const std::vector<double>&  c) {
-    this->c = c;
+int Segment::n_coeffs() {
+    return 8;
 }
 
 double Segment::length() const {
@@ -407,18 +420,16 @@ ProfileCurve::ProfileCurve(const std::vector<SegmentInput>& input) {
         throw std::invalid_argument(error->c_str());
     }
 
-    // Local optimization of the segments
-    Point point = { .x = 0.0, .y = 0.0, .phi = 0.0 };
-    for(auto& in: input) {
-        if(in.dimension() >= 2) {
-            Segment segment = optimize_local(point, in);
-            segments.push_back(segment);
-            point = { .x = segment.x(1.0), .y = segment.y(1.0), .phi = segment.phi(1.0) };
-        }
-    }
+    Point startpoint = { .x = 0.0, .y = 0.0, .phi = 0.0 };
+    std::vector<Vector<8>> coeffs = optimize_local(startpoint, input);
 
     // Global optimization
     // ...
+
+    // Assign segments
+    for(auto& c: coeffs) {
+        segments.push_back(Segment(c));
+    }
 
     // Calculate arc length transform
     auto dldt = [&](double t) {
@@ -461,130 +472,61 @@ Point ProfileCurve::operator()(double s) const {
 
     return {
         .x = segments[i].x(n*t - i),
-                .y = segments[i].y(n*t - i),
-                .phi = segments[i].phi(n*t - i)
+        .y = segments[i].y(n*t - i),
+        .phi = segments[i].phi(n*t - i)
     };
 }
 
-Segment ProfileCurve::optimize_local(const Point& point, const SegmentInput& input) {
-    struct ContextData {
-        Point point;
-        SegmentInput input;
-    };
+Vector<8> ProfileCurve::optimize_segment(const Point& point, const SegmentInput& input) {
+    // Magic numbers
+    const double ftol_rel = 1e-6;
+    const double ftol_abs = 1e-9;
+    const double ctol_abs = 1e-6;
+    const int maxeval = 100;
 
-    auto objective_function = [](const std::vector<double>& c, std::vector<double>& grad, void* data) {
-        Segment segment(c);
-        if(!grad.empty()) {
-            Vector<8> g = segment.grad_energy();
-            std::copy(g.begin(), g.end(), grad.begin());
-        }
-        return segment.energy();
-    };
+    Vector<8> c = Segment::estimate_coeffs(point, input);
+    std::vector<double> x_min(c.begin(), c.end());
 
-    auto constraint_phi0 = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
-        auto context = static_cast<ContextData*>(data);
-        Segment segment(c);
-        if(!grad.empty()) {
-            Vector<8> g = segment.grad_phi(0.0);
-            std::copy(g.begin(), g.end(), grad.begin());
-        }
-        return segment.phi(0.0) - context->point.phi;
-    };
-
-    auto constraint_x0 = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
-        auto context = static_cast<ContextData*>(data);
-        Segment segment(c);
-        if(!grad.empty()) {
-            Vector<8> g = segment.grad_x(0.0);
-            std::copy(g.begin(), g.end(), grad.begin());
-        }
-        return segment.x(0.0) - context->point.x;
-    };
-
-    auto constraint_y0 = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
-        auto context = static_cast<ContextData*>(data);
-        Segment segment(c);
-        if(!grad.empty()) {
-            Vector<8> g = segment.grad_y(0.0);
-            std::copy(g.begin(), g.end(), grad.begin());
-        }
-        return segment.y(0.0) - context->point.y;
-    };
-
-    auto constraint_length = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
-        auto context = static_cast<ContextData*>(data);
-        Segment segment(c);
-        if(!grad.empty()) {
-            Vector<8> g = segment.grad_length();
-            std::copy(g.begin(), g.end(), grad.begin());
-        }
-        return segment.length() - *(context->input.length);
-    };
-
-    auto constraint_angle = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
-        auto context = static_cast<ContextData*>(data);
-        Segment segment(c);
-        if(!grad.empty()) {
-            Vector<8> g = segment.grad_angle();
-            std::copy(g.begin(), g.end(), grad.begin());
-        }
-        return segment.angle() - *(context->input.angle);
-    };
-
-    auto constraint_delta_x = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
-        auto context = static_cast<ContextData*>(data);
-        Segment segment(c);
-        if(!grad.empty()) {
-            Vector<8> g = segment.grad_x(1.0) - segment.grad_x(0.0);
-            std::copy(g.begin(), g.end(), grad.begin());
-        }
-        return segment.x(1.0) - segment.x(0.0) - *(context->input.delta_x);
-    };
-
-    auto constraint_delta_y = [](const std::vector<double>& c, std::vector<double>& grad, void *data) {
-        auto context = static_cast<ContextData*>(data);
-        Segment segment(c);
-        if(!grad.empty()) {
-            Vector<8> g = segment.grad_y(1.0) - segment.grad_y(0.0);
-            std::copy(g.begin(), g.end(), grad.begin());
-        }
-        return segment.y(1.0) - segment.y(0.0) - *(context->input.delta_y);
-    };
-
-    const double ftol_rel = 1e-6;     // Magic number
-    const double ftol_abs = 1e-9;     // Magic number
-    const double ctol_abs = 1e-6;     // Magic number
-    const int maxeval = 100;          // Magic number
-
-    double f_min;
-    std::vector<double> c_min = Segment::estimate_coeffs(point, input);
-    ContextData context = { .point = point, .input = input };
-
-    nlopt::opt opt(nlopt::algorithm::LD_SLSQP, c_min.size());
-    opt.set_min_objective(objective_function, &context);
+    // Optimization algorithm and objective
+    nlopt::opt opt(nlopt::algorithm::LD_SLSQP, x_min.size());
+    opt.set_min_objective(objective, nullptr);
     opt.set_ftol_rel(ftol_rel);
     opt.set_ftol_abs(ftol_abs);
     opt.set_maxeval(maxeval);
 
-    opt.add_equality_constraint(constraint_phi0, &context, ctol_abs);
-    opt.add_equality_constraint(constraint_x0, &context, ctol_abs);
-    opt.add_equality_constraint(constraint_y0, &context, ctol_abs);
+    std::list<ConstraintData1> contexts;
 
+    // Starting point constraints
+    contexts.push_back(ConstraintData1{ .offset = 0, .value = point.phi });
+    opt.add_equality_constraint(constraint_phi0, &contexts.back(), ctol_abs);
+
+    contexts.push_back(ConstraintData1{ .offset = 0, .value = point.x });
+    opt.add_equality_constraint(constraint_x0, &contexts.back(), ctol_abs);
+
+    contexts.push_back(ConstraintData1{ .offset = 0, .value = point.y });
+    opt.add_equality_constraint(constraint_y0, &contexts.back(), ctol_abs);
+
+    // Input constraints
     if(input.length) {
-        opt.add_equality_constraint(constraint_length, &context, ctol_abs);
+        contexts.push_back(ConstraintData1{ .offset = 0, .value = *input.length });
+        opt.add_equality_constraint(constraint_length, &contexts.back(), ctol_abs);
     }
     if(input.angle) {
-        opt.add_equality_constraint(constraint_angle, &context, ctol_abs);
+        contexts.push_back(ConstraintData1{ .offset = 0, .value = *input.angle });
+        opt.add_equality_constraint(constraint_angle, &contexts.back(), ctol_abs);
     }
     if(input.delta_x) {
-        opt.add_equality_constraint(constraint_delta_x, &context, ctol_abs);
+        contexts.push_back(ConstraintData1{ .offset = 0, .value = *input.delta_x });
+        opt.add_equality_constraint(constraint_delta_x, &contexts.back(), ctol_abs);
     }
     if(input.delta_y) {
-        opt.add_equality_constraint(constraint_delta_y, &context, ctol_abs);
+        contexts.push_back(ConstraintData1{ .offset = 0, .value = *input.delta_y });
+        opt.add_equality_constraint(constraint_delta_y, &contexts.back(), ctol_abs);
     }
 
+    // Perform optimization
     try {
-        opt.optimize(c_min, f_min);
+        opt.optimize(x_min);
     }
     catch(nlopt::roundoff_limited& e) {
         throw std::runtime_error("NLOPT_ROUNDOFF_LIMITED");
@@ -602,5 +544,289 @@ Segment ProfileCurve::optimize_local(const Point& point, const SegmentInput& inp
         // Ignore this exception, it occurs often and for unknown reasons while the optimization result is still good
     }
 
-    return Segment(c_min);
+    return Vector<8>(x_min.data());
+}
+
+std::vector<Vector<8>> ProfileCurve::optimize_local(const Point& startpoint, const std::vector<SegmentInput>& input) {
+    std::vector<Vector<8>> coeffs;
+    Point point = startpoint;
+    for(auto& in: input) {
+        coeffs.push_back(optimize_segment(point, in));
+        Segment segment(coeffs.back());
+        point = { .x = segment.x(1.0), .y = segment.y(1.0), .phi = segment.phi(1.0) };
+    }
+
+    return coeffs;
+}
+
+std::vector<Vector<8>> ProfileCurve::optimize_global(const std::vector<Vector<8>>& coeffs, const Point& startpoint, const std::vector<SegmentInput>& input) {
+    // Magic numbers
+    const double ftol_rel = 1e-6;
+    const double ftol_abs = 1e-9;
+    const double ctol_abs = 1e-6;
+    const int maxeval = 100;
+
+    // Concatenate all segment coefficients to form global coefficient vector
+    std::vector<double> x_min;
+    for(auto& c: coeffs) {
+        x_min.insert(x_min.begin(), c.begin(), c.end());
+    }
+
+    // Optimization algorithm and objective
+    nlopt::opt opt(nlopt::algorithm::LD_SLSQP, x_min.size());
+    opt.set_min_objective(objective, nullptr);
+    opt.set_ftol_rel(ftol_rel);
+    opt.set_ftol_abs(ftol_abs);
+    opt.set_maxeval(maxeval);
+
+    std::list<ConstraintData1> contexts1;
+    std::list<ConstraintData2> contexts2;
+
+    // Starting point constraints
+    contexts1.push_back(ConstraintData1{ .offset = 0, .value = startpoint.phi });
+    opt.add_equality_constraint(constraint_phi0, &contexts1.back(), ctol_abs);
+
+    contexts1.push_back(ConstraintData1{ .offset = 0, .value = startpoint.x });
+    opt.add_equality_constraint(constraint_x0, &contexts1.back(), ctol_abs);
+
+    contexts1.push_back(ConstraintData1{ .offset = 0, .value = startpoint.y });
+    opt.add_equality_constraint(constraint_y0, &contexts1.back(), ctol_abs);
+
+    // Input constraints
+    for(size_t i = 0; i < input.size(); ++i) {
+        size_t offset = i*Segment::n_coeffs();
+        if(input[i].length) {
+            contexts1.push_back(ConstraintData1{ .offset = offset, .value = *input[i].length });
+            opt.add_equality_constraint(constraint_length, &contexts1.back(), ctol_abs);
+        }
+        if(input[i].angle) {
+            contexts1.push_back(ConstraintData1{ .offset = offset, .value = *input[i].angle });
+            opt.add_equality_constraint(constraint_angle, &contexts1.back(), ctol_abs);
+        }
+        if(input[i].delta_x) {
+            contexts1.push_back(ConstraintData1{ .offset = offset, .value = *input[i].delta_x });
+            opt.add_equality_constraint(constraint_delta_x, &contexts1.back(), ctol_abs);
+        }
+        if(input[i].delta_y) {
+            contexts1.push_back(ConstraintData1{ .offset = offset, .value = *input[i].delta_y });
+            opt.add_equality_constraint(constraint_delta_y, &contexts1.back(), ctol_abs);
+        }
+    }
+
+    for(size_t i = 0; i < input.size() - 1; ++i) {
+        size_t offset0 = (i + 0)*Segment::n_coeffs();
+        size_t offset1 = (i + 1)*Segment::n_coeffs();
+
+        contexts2.push_back(ConstraintData2{ .offset0 = offset0, .offset1 = offset1 });
+
+        opt.add_equality_constraint(constraint_x, &contexts2.back(), ctol_abs);
+        opt.add_equality_constraint(constraint_y, &contexts2.back(), ctol_abs);
+
+        opt.add_equality_constraint(constraint_dxdt, &contexts2.back(), ctol_abs);
+        opt.add_equality_constraint(constraint_dydt, &contexts2.back(), ctol_abs);
+
+        opt.add_equality_constraint(constraint_dxdt2, &contexts2.back(), ctol_abs);
+        opt.add_equality_constraint(constraint_dydt2, &contexts2.back(), ctol_abs);
+    }
+
+    // Perform optimization
+    try {
+        opt.optimize(x_min);
+    }
+    catch(nlopt::roundoff_limited& e) {
+        throw std::runtime_error("NLOPT_ROUNDOFF_LIMITED");
+    }
+    catch(nlopt::forced_stop& e) {
+        throw std::runtime_error("NLOPT_FORCED_STOP");
+    }
+    catch(std::bad_alloc& e) {
+        throw std::runtime_error("NLOPT_OUT_OF_MEMORY");
+    }
+    catch(std::invalid_argument& e) {
+        throw std::runtime_error("NLOPT_INVALID_ARGS");
+    }
+    catch(std::runtime_error& e) {
+        // Ignore this exception, it occurs often and for unknown reasons while the optimization result is still good
+    }
+
+    std::vector<Vector<8>> result;
+    for(size_t i = 0; i < input.size(); i += Segment::n_coeffs()) {
+        result.push_back(Vector<8>(x_min.data() + i));
+    }
+
+    return result;
+}
+
+double ProfileCurve::objective(const std::vector<double>& x, std::vector<double>& grad, void* data) {
+    double result = 0.0;
+    for(size_t offset = 0; offset < x.size(); offset += Segment::n_coeffs()) {
+        Vector<8> c(x.data() + offset);
+        Segment segment(c);
+        if(!grad.empty()) {
+            std::fill(grad.begin(), grad.end(), 0.0);
+            copy_to_vec(segment.grad_energy(), grad, offset);
+        }
+
+        result += segment.energy();
+    }
+
+    return result;
+}
+
+double ProfileCurve::constraint_phi0(const std::vector<double>& x, std::vector<double>& grad, void *data) {
+    auto context = static_cast<ConstraintData1*>(data);
+    Segment segment(Vector<8>(x.data() + context->offset));
+    if(!grad.empty()) {
+        std::fill(grad.begin(), grad.end(), 0.0);
+        copy_to_vec(segment.grad_phi(0.0), grad, context->offset);
+    }
+    return segment.phi(0.0) - context->value;
+};
+
+double ProfileCurve::constraint_x0(const std::vector<double>& x, std::vector<double>& grad, void *data) {
+    auto context = static_cast<ConstraintData1*>(data);
+    Segment segment(Vector<8>(x.data() + context->offset));
+    if(!grad.empty()) {
+        std::fill(grad.begin(), grad.end(), 0.0);
+        copy_to_vec(segment.grad_x(0.0), grad, context->offset);
+    }
+    return segment.x(0.0) - context->value;
+}
+
+double ProfileCurve::constraint_y0(const std::vector<double>& x, std::vector<double>& grad, void *data) {
+    auto context = static_cast<ConstraintData1*>(data);
+    Segment segment(Vector<8>(x.data() + context->offset));
+    if(!grad.empty()) {
+        std::fill(grad.begin(), grad.end(), 0.0);
+        copy_to_vec(segment.grad_y(0.0), grad, context->offset);
+    }
+    return segment.y(0.0) - context->value;
+}
+
+double ProfileCurve::constraint_length(const std::vector<double>& x, std::vector<double>& grad, void *data) {
+    auto context = static_cast<ConstraintData1*>(data);
+    Segment segment(Vector<8>(x.data() + context->offset));
+    if(!grad.empty()) {
+        std::fill(grad.begin(), grad.end(), 0.0);
+        copy_to_vec(segment.grad_length(), grad, context->offset);
+    }
+    return segment.length() - context->value;
+}
+
+double ProfileCurve::constraint_angle(const std::vector<double>& x, std::vector<double>& grad, void *data) {
+    auto context = static_cast<ConstraintData1*>(data);
+    Segment segment(Vector<8>(x.data() + context->offset));
+    if(!grad.empty()) {
+        std::fill(grad.begin(), grad.end(), 0.0);
+        copy_to_vec(segment.grad_angle(), grad, context->offset);
+    }
+    return segment.angle() - context->value;
+}
+
+double ProfileCurve::constraint_delta_x(const std::vector<double>& x, std::vector<double>& grad, void *data) {
+    auto context = static_cast<ConstraintData1*>(data);
+    Segment segment(Vector<8>(x.data() + context->offset));
+    if(!grad.empty()) {
+        std::fill(grad.begin(), grad.end(), 0.0);
+        copy_to_vec(segment.grad_x(1.0) - segment.grad_x(0.0), grad, context->offset);
+    }
+    return segment.x(1.0) - segment.x(0.0) - context->value;
+}
+
+double ProfileCurve::constraint_delta_y(const std::vector<double>& x, std::vector<double>& grad, void *data) {
+    auto context = static_cast<ConstraintData1*>(data);
+    Segment segment(Vector<8>(x.data() + context->offset));
+    if(!grad.empty()) {
+        std::fill(grad.begin(), grad.end(), 0.0);
+        copy_to_vec(segment.grad_y(1.0) - segment.grad_y(0.0), grad, context->offset);
+    }
+    return segment.y(1.0) - segment.y(0.0) - context->value;
+}
+
+double ProfileCurve::constraint_x(const std::vector<double>& x, std::vector<double>& grad, void *data) {
+    auto context = static_cast<ConstraintData2*>(data);
+    Segment segment0(Vector<8>(x.data() + context->offset0));
+    Segment segment1(Vector<8>(x.data() + context->offset1));
+
+    if(!grad.empty()) {
+        std::fill(grad.begin(), grad.end(), 0.0);
+        copy_to_vec(-segment0.grad_x(0.0), grad, context->offset0);
+        copy_to_vec(segment1.grad_x(1.0), grad, context->offset1);
+    }
+
+    return segment1.x(0) - segment0.x(1);
+}
+
+double ProfileCurve::constraint_y(const std::vector<double>& x, std::vector<double>& grad, void *data) {
+    auto context = static_cast<ConstraintData2*>(data);
+    Segment segment0(Vector<8>(x.data() + context->offset0));
+    Segment segment1(Vector<8>(x.data() + context->offset1));
+
+    if(!grad.empty()) {
+        std::fill(grad.begin(), grad.end(), 0.0);
+        copy_to_vec(-segment0.grad_y(0.0), grad, context->offset0);
+        copy_to_vec(segment1.grad_y(1.0), grad, context->offset1);
+    }
+
+    return segment1.y(0) - segment0.y(1);
+}
+
+double ProfileCurve::constraint_dxdt(const std::vector<double>& x, std::vector<double>& grad, void *data) {
+    auto context = static_cast<ConstraintData2*>(data);
+    Segment segment0(Vector<8>(x.data() + context->offset0));
+    Segment segment1(Vector<8>(x.data() + context->offset1));
+
+    if(!grad.empty()) {
+        std::fill(grad.begin(), grad.end(), 0.0);
+        copy_to_vec(-segment0.grad_dxdt(0.0), grad, context->offset0);
+        copy_to_vec(segment1.grad_dxdt(1.0), grad, context->offset1);
+    }
+
+    return segment1.dxdt(0) - segment0.dxdt(1);
+}
+
+double ProfileCurve::constraint_dydt(const std::vector<double>& x, std::vector<double>& grad, void *data) {
+    auto context = static_cast<ConstraintData2*>(data);
+    Segment segment0(Vector<8>(x.data() + context->offset0));
+    Segment segment1(Vector<8>(x.data() + context->offset1));
+
+    if(!grad.empty()) {
+        std::fill(grad.begin(), grad.end(), 0.0);
+        copy_to_vec(-segment0.grad_dydt(0.0), grad, context->offset0);
+        copy_to_vec(segment1.grad_dydt(1.0), grad, context->offset1);
+    }
+
+    return segment1.dydt(0) - segment0.dydt(1);
+}
+
+double ProfileCurve::constraint_dxdt2(const std::vector<double>& x, std::vector<double>& grad, void *data) {
+    auto context = static_cast<ConstraintData2*>(data);
+    Segment segment0(Vector<8>(x.data() + context->offset0));
+    Segment segment1(Vector<8>(x.data() + context->offset1));
+
+    if(!grad.empty()) {
+        std::fill(grad.begin(), grad.end(), 0.0);
+        copy_to_vec(-segment0.grad_dxdt2(0.0), grad, context->offset0);
+        copy_to_vec(segment1.grad_dxdt2(1.0), grad, context->offset1);
+    }
+
+    return segment1.dxdt(0) - segment0.dxdt(1);
+}
+
+double ProfileCurve::constraint_dydt2(const std::vector<double>& x, std::vector<double>& grad, void *data) {
+    auto context = static_cast<ConstraintData2*>(data);
+    Segment segment0(Vector<8>(x.data() + context->offset0));
+    Segment segment1(Vector<8>(x.data() + context->offset1));
+
+    if(!grad.empty()) {
+        std::fill(grad.begin(), grad.end(), 0.0);
+        copy_to_vec(-segment0.grad_dydt2(0.0), grad, context->offset0);
+        copy_to_vec(segment1.grad_dydt2(1.0), grad, context->offset1);
+    }
+
+    return segment1.dydt2(0) - segment0.dydt2(1);
+}
+
+void ProfileCurve::copy_to_vec(const Vector<8>& source, std::vector<double>& target, size_t offset) {
+    std::copy(source.begin(), source.end(), target.begin() + offset);
 }

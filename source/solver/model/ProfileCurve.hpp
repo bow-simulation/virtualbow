@@ -18,33 +18,16 @@ struct SegmentInput {
     std::optional<double> delta_x;
     std::optional<double> delta_y;
 
-    std::optional<std::string> validate() const {
-        if(length.has_value()) {
-            if(*length <= 0.0) {
-                return std::string("Length must be > 0");
-            }
-            if(delta_x.has_value() && (*length < *delta_x)) {
-                return std::string("Length must be >= delta x");
-            }
-            if(delta_y.has_value() && (*length < *delta_y)) {
-                return std::string("Length must be >= delta y");
-            }
-        }
-        return std::nullopt;
-    }
-
-    int dimension() const {
-        return length.has_value() + angle.has_value() + delta_x.has_value() + delta_y.has_value();
-    }
+    std::optional<std::string> validate() const;
+    int dimension() const;
 };
 
 class Segment {
 public:
-    Segment(const std::vector<double>& c);
+    Segment(const Vector<8>& c);
 
-    static std::vector<double> estimate_coeffs(const Point& point, const SegmentInput& input);
-    const std::vector<double>& get_coeffs() const;
-    void set_coeffs(const std::vector<double>&  c);
+    static Vector<8> estimate_coeffs(const Point& point, const SegmentInput& input);
+    static int n_coeffs();
 
     double length() const;
     double angle() const;
@@ -75,7 +58,7 @@ public:
     Vector<8> grad_dydt2(double t) const;
 
 private:
-    std::vector<double> c;
+    Vector<8> c;
 };
 
 class ProfileCurve {
@@ -95,5 +78,37 @@ private:
     std::vector<Point> points;
     LinearSpline transform;
 
-    static Segment optimize_local(const Point& point, const SegmentInput& input);
+    static Vector<8> optimize_segment(const Point& point, const SegmentInput& input);
+    static std::vector<Vector<8>> optimize_local(const Point& startpoint, const std::vector<SegmentInput>& input);
+    static std::vector<Vector<8>> optimize_global(const std::vector<Vector<8>>& coeffs, const Point& startpoint, const std::vector<SegmentInput>& input);
+
+    struct ConstraintData1 {
+        size_t offset;    // Offset of the segment's coefficients
+        double value;     // Value of the constraint
+    };
+
+    struct ConstraintData2 {
+        size_t offset0;    // Offset of the first segment's coefficients
+        size_t offset1;    // Offset of the second segment's coefficients
+    };
+
+    static double objective(const std::vector<double>& x, std::vector<double>& grad, void* data);
+
+    static double constraint_phi0(const std::vector<double>& x, std::vector<double>& grad, void *data);
+    static double constraint_x0(const std::vector<double>& x, std::vector<double>& grad, void *data);
+    static double constraint_y0(const std::vector<double>& x, std::vector<double>& grad, void *data);
+
+    static double constraint_length(const std::vector<double>& x, std::vector<double>& grad, void *data);
+    static double constraint_angle(const std::vector<double>& x, std::vector<double>& grad, void *data);
+    static double constraint_delta_x(const std::vector<double>& x, std::vector<double>& grad, void *data);
+    static double constraint_delta_y(const std::vector<double>& x, std::vector<double>& grad, void *data);
+
+    static double constraint_x(const std::vector<double>& x, std::vector<double>& grad, void *data);
+    static double constraint_y(const std::vector<double>& x, std::vector<double>& grad, void *data);
+    static double constraint_dxdt(const std::vector<double>& x, std::vector<double>& grad, void *data);
+    static double constraint_dydt(const std::vector<double>& x, std::vector<double>& grad, void *data);
+    static double constraint_dxdt2(const std::vector<double>& x, std::vector<double>& grad, void *data);
+    static double constraint_dydt2(const std::vector<double>& x, std::vector<double>& grad, void *data);
+
+    static void copy_to_vec(const Vector<8>& source, std::vector<double>& target, size_t offset);
 };
