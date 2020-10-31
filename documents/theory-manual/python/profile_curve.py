@@ -8,6 +8,13 @@ from functools import partial
 
 import nlopt
 
+# Optimization options
+NLOPT_ALGORITHM = nlopt.LD_SLSQP;
+NLOPT_FTOL_REL = 1e-6;
+NLOPT_FTOL_ABS = 1e-9;
+NLOPT_CTOL_ABS = 1e-6;
+NLOPT_MAXEVAL = 100;
+
 class Point:
     def __init__(self, x, y, phi):
         self.x = x
@@ -30,6 +37,9 @@ class SegmentSpecs:
 # https://en.wikipedia.org/wiki/Tangential_angle
 class Segment:
     def __init__(self, c):
+        if len(c) != 8:
+            raise ValueError('Number of coefficients is wrong.')
+        
         self.c = c
 
     @staticmethod
@@ -303,7 +313,7 @@ class Segment:
         return np.array([0, 0, 0, 0, 0, 0, 2, 6*t])
 
     def grad_phi(self, t):
-        return 1/(self.dxdt(t)**2 + self.dydt(t)**2)*(self.grad_dydt(t)*self.dxdt(t) - self.grad_dxdt(t)*self.dydt(t))
+        return (self.grad_dydt(t)*self.dxdt(t) - self.grad_dxdt(t)*self.dydt(t))/(self.dxdt(t)**2 + self.dydt(t)**2)
 
     def grad_length(self):
         def grad_dldt(t):
@@ -351,7 +361,7 @@ class Optimization:
                 grad[i:j] = segment.grad_energy()
 
             result += segment.energy()
-        
+                
         return result
 
     @staticmethod
@@ -360,7 +370,7 @@ class Optimization:
         if grad.size > 0:
             grad[:] = 0
             grad[i:j] = segment.grad_phi(0)
-                
+        
         return segment.phi(0) - value
     
     @staticmethod
@@ -423,9 +433,9 @@ class Optimization:
         segment1 = Segment(x[i1:j1])
         if grad.size > 0:
             grad[:] = 0
-            grad[i0:j0] = -segment0.grad_x(0)
-            grad[i1:j1] = segment1.grad_x(1)
-                
+            grad[i0:j0] = -segment0.grad_x(1)
+            grad[i1:j1] = segment1.grad_x(0)
+        
         return segment1.x(0) - segment0.x(1)
     
     @staticmethod
@@ -434,8 +444,8 @@ class Optimization:
         segment1 = Segment(x[i1:j1])
         if grad.size > 0:
             grad[:] = 0
-            grad[i0:j0] = -segment0.grad_y(0)
-            grad[i1:j1] = segment1.grad_y(1)
+            grad[i0:j0] = -segment0.grad_y(1)
+            grad[i1:j1] = segment1.grad_y(0)
                 
         return segment1.y(0) - segment0.y(1)
 
@@ -445,8 +455,8 @@ class Optimization:
         segment1 = Segment(x[i1:j1])
         if grad.size > 0:
             grad[:] = 0
-            grad[i0:j0] = -segment0.grad_dxdt(0)
-            grad[i1:j1] = segment1.grad_dxdt(1)
+            grad[i0:j0] = -segment0.grad_dxdt(1)
+            grad[i1:j1] = segment1.grad_dxdt(0)
                 
         return segment1.dxdt(0) - segment0.dxdt(1)
         
@@ -456,9 +466,9 @@ class Optimization:
         segment1 = Segment(x[i1:j1])
         if grad.size > 0:
             grad[:] = 0
-            grad[i0:j0] = -segment0.grad_dydt(0)
-            grad[i1:j1] = segment1.grad_dydt(1)
-               
+            grad[i0:j0] = -segment0.grad_dydt(1)
+            grad[i1:j1] = segment1.grad_dydt(0)
+        
         return segment1.dydt(0) - segment0.dydt(1)
     
     @staticmethod
@@ -467,9 +477,9 @@ class Optimization:
         segment1 = Segment(x[i1:j1])
         if grad.size > 0:
             grad[:] = 0
-            grad[i0:j0] = -segment0.grad_dxdt2(0)
-            grad[i1:j1] = segment1.grad_dxdt2(1)
-                
+            grad[i0:j0] = -segment0.grad_dxdt2(1)
+            grad[i1:j1] = segment1.grad_dxdt2(0)
+        
         return segment1.dxdt2(0) - segment0.dxdt2(1)
     
     @staticmethod
@@ -478,9 +488,9 @@ class Optimization:
         segment1 = Segment(x[i1:j1])
         if grad.size > 0:
             grad[:] = 0
-            grad[i0:j0] = -segment0.grad_dydt2(0)
-            grad[i1:j1] = segment1.grad_dydt2(1)
-                
+            grad[i0:j0] = -segment0.grad_dydt2(1)
+            grad[i1:j1] = segment1.grad_dydt2(0)
+
         return segment1.dydt2(0) - segment0.dydt2(1)
 
 class ProfileCurve:
@@ -499,30 +509,31 @@ class ProfileCurve:
     @staticmethod
     def optimize_segment(point, specs):        
         c0 = Segment.estimate_coeffs(point, specs)
-        opt = nlopt.opt(nlopt.LD_SLSQP, len(c0))
-        opt.set_ftol_rel(1e-6);
-        opt.set_ftol_abs(1e-9);
-        opt.set_maxeval(100);
-        
+               
+        opt = nlopt.opt(NLOPT_ALGORITHM, len(c0))
+        opt.set_ftol_rel(NLOPT_FTOL_REL);
+        opt.set_ftol_abs(NLOPT_FTOL_ABS);
+        opt.set_maxeval(NLOPT_MAXEVAL);
+
         # Objective function
         opt.set_min_objective(Optimization.objective)
         
         # Starting point constraints
-        opt.add_equality_constraint(partial(Optimization.constraint_phi0, i=0, j=Segment.n_coeffs(), value=point.phi), 1e-6)
-        opt.add_equality_constraint(partial(Optimization.constraint_x0, i=0, j=Segment.n_coeffs(), value=point.x), 1e-6)
-        opt.add_equality_constraint(partial(Optimization.constraint_y0, i=0, j=Segment.n_coeffs(), value=point.y), 1e-6)
+        opt.add_equality_constraint(partial(Optimization.constraint_phi0, i=0, j=Segment.n_coeffs(), value=point.phi), NLOPT_CTOL_ABS)
+        opt.add_equality_constraint(partial(Optimization.constraint_x0, i=0, j=Segment.n_coeffs(), value=point.x), NLOPT_CTOL_ABS)
+        opt.add_equality_constraint(partial(Optimization.constraint_y0, i=0, j=Segment.n_coeffs(), value=point.y), NLOPT_CTOL_ABS)
         
         # Input constraints
         if(specs.length is not None):
-            opt.add_equality_constraint(partial(Optimization.constraint_length, i=0, j=Segment.n_coeffs(), value=specs.length), 1e-6)
+            opt.add_equality_constraint(partial(Optimization.constraint_length, i=0, j=Segment.n_coeffs(), value=specs.length), NLOPT_CTOL_ABS)
         if(specs.angle is not None):
-            opt.add_equality_constraint(partial(Optimization.constraint_angle, i=0, j=Segment.n_coeffs(), value=specs.angle), 1e-6)
+            opt.add_equality_constraint(partial(Optimization.constraint_angle, i=0, j=Segment.n_coeffs(), value=specs.angle), NLOPT_CTOL_ABS)
         if(specs.delta_x is not None):
-            opt.add_equality_constraint(partial(Optimization.constraint_delta_x, i=0, j=Segment.n_coeffs(), value=specs.delta_x), 1e-6)
+            opt.add_equality_constraint(partial(Optimization.constraint_delta_x, i=0, j=Segment.n_coeffs(), value=specs.delta_x), NLOPT_CTOL_ABS)
         if(specs.delta_y is not None):
-            opt.add_equality_constraint(partial(Optimization.constraint_delta_y, i=0, j=Segment.n_coeffs(), value=specs.delta_y), 1e-6)
+            opt.add_equality_constraint(partial(Optimization.constraint_delta_y, i=0, j=Segment.n_coeffs(), value=specs.delta_y), NLOPT_CTOL_ABS)
 
-        c_min = opt.optimize(c0)
+        c_min = opt.optimize(c0)       
         return c_min
     
     @staticmethod
@@ -540,18 +551,18 @@ class ProfileCurve:
     @staticmethod
     def optimize_global(coeffs, startpoint, segment_specs):
         x0 = np.concatenate(coeffs)
-        opt = nlopt.opt(nlopt.LD_SLSQP, len(x0))
-        opt.set_ftol_rel(1e-6);
-        opt.set_ftol_abs(1e-9);
-        opt.set_maxeval(100);
+        opt = nlopt.opt(NLOPT_ALGORITHM, len(x0))
+        opt.set_ftol_rel(NLOPT_FTOL_REL);
+        opt.set_ftol_abs(NLOPT_FTOL_ABS);
+        opt.set_maxeval(NLOPT_MAXEVAL);
         
         # Objective function
         opt.set_min_objective(Optimization.objective)
         
         # Starting point constraints
-        opt.add_equality_constraint(partial(Optimization.constraint_phi0, i=0, j=Segment.n_coeffs(), value=startpoint.phi), 1e-6)
-        opt.add_equality_constraint(partial(Optimization.constraint_x0, i=0, j=Segment.n_coeffs(), value=startpoint.x), 1e-6)
-        opt.add_equality_constraint(partial(Optimization.constraint_y0, i=0, j=Segment.n_coeffs(), value=startpoint.y), 1e-6)
+        opt.add_equality_constraint(partial(Optimization.constraint_phi0, i=0, j=Segment.n_coeffs(), value=startpoint.phi), NLOPT_CTOL_ABS)
+        opt.add_equality_constraint(partial(Optimization.constraint_x0, i=0, j=Segment.n_coeffs(), value=startpoint.x), NLOPT_CTOL_ABS)
+        opt.add_equality_constraint(partial(Optimization.constraint_y0, i=0, j=Segment.n_coeffs(), value=startpoint.y), NLOPT_CTOL_ABS)
         
         # Input constraints
         for index, specs in enumerate(segment_specs):
@@ -559,13 +570,13 @@ class ProfileCurve:
             j = (index + 1)*Segment.n_coeffs()
 
             if(specs.length is not None):
-                opt.add_equality_constraint(partial(Optimization.constraint_length, i=i, j=j, value=specs.length), 1e-6)
+                opt.add_equality_constraint(partial(Optimization.constraint_length, i=i, j=j, value=specs.length), NLOPT_CTOL_ABS)
             if(specs.angle is not None):
-                opt.add_equality_constraint(partial(Optimization.constraint_angle, i=i, j=j, value=specs.angle), 1e-6)
+                opt.add_equality_constraint(partial(Optimization.constraint_angle, i=i, j=j, value=specs.angle), NLOPT_CTOL_ABS)
             if(specs.delta_x is not None):
-                opt.add_equality_constraint(partial(Optimization.constraint_delta_x, i=i, j=j, value=specs.delta_x), 1e-6)
+                opt.add_equality_constraint(partial(Optimization.constraint_delta_x, i=i, j=j, value=specs.delta_x), NLOPT_CTOL_ABS)
             if(specs.delta_y is not None):
-                opt.add_equality_constraint(partial(Optimization.constraint_delta_y, i=i, j=j, value=specs.delta_y), 1e-6)
+                opt.add_equality_constraint(partial(Optimization.constraint_delta_y, i=i, j=j, value=specs.delta_y), NLOPT_CTOL_ABS)
         
         # Segment interconnection
         for index in range(0, len(segment_specs) - 1):
@@ -574,12 +585,12 @@ class ProfileCurve:
             i1 = (index + 1)*Segment.n_coeffs()
             j1 = (index + 2)*Segment.n_coeffs()
             
-            opt.add_equality_constraint(partial(Optimization.constraint_x, i0=i0, j0=j0, i1=i1, j1=j1), 1e-6)
-            opt.add_equality_constraint(partial(Optimization.constraint_y, i0=i0, j0=j0, i1=i1, j1=j1), 1e-6) 
-            opt.add_equality_constraint(partial(Optimization.constraint_dxdt, i0=i0, j0=j0, i1=i1, j1=j1), 1e-6)
-            opt.add_equality_constraint(partial(Optimization.constraint_dydt, i0=i0, j0=j0, i1=i1, j1=j1), 1e-6)
-            opt.add_equality_constraint(partial(Optimization.constraint_dxdt2, i0=i0, j0=j0, i1=i1, j1=j1), 1e-6)
-            opt.add_equality_constraint(partial(Optimization.constraint_dydt2, i0=i0, j0=j0, i1=i1, j1=j1), 1e-6)
+            opt.add_equality_constraint(partial(Optimization.constraint_x, i0=i0, j0=j0, i1=i1, j1=j1), NLOPT_CTOL_ABS)
+            opt.add_equality_constraint(partial(Optimization.constraint_y, i0=i0, j0=j0, i1=i1, j1=j1), NLOPT_CTOL_ABS) 
+            opt.add_equality_constraint(partial(Optimization.constraint_dxdt, i0=i0, j0=j0, i1=i1, j1=j1), NLOPT_CTOL_ABS)
+            opt.add_equality_constraint(partial(Optimization.constraint_dydt, i0=i0, j0=j0, i1=i1, j1=j1), NLOPT_CTOL_ABS)
+            opt.add_equality_constraint(partial(Optimization.constraint_dxdt2, i0=i0, j0=j0, i1=i1, j1=j1), NLOPT_CTOL_ABS)
+            opt.add_equality_constraint(partial(Optimization.constraint_dydt2, i0=i0, j0=j0, i1=i1, j1=j1), NLOPT_CTOL_ABS)
         
         x_min = opt.optimize(x0)
         return np.split(x_min, len(segment_specs))
@@ -632,21 +643,23 @@ class ProfileCurve:
         plt.plot([self.segments[0].x(0)], [self.segments[0].y(0)], marker='o', color='red')
         for segment in self.segments:
             plt.plot([segment.x(1)], [segment.y(1)], marker='o', color='red')
-            
 
-
-# Test {dl, dphi}
-curve = ProfileCurve([
-    SegmentSpecs(length=1.0, angle=-0.2),
-    SegmentSpecs(length=1.0, angle=0.2),
-    SegmentSpecs(length=0.4, angle=0.9),
-    SegmentSpecs(length=0.2, angle=0.5),
-])
-
+## Test {dl, dphi}
 #curve = ProfileCurve([
+#    SegmentSpecs(length=1.0, angle=-0.2),
 #    SegmentSpecs(length=1.0, angle=0.2),
-#    SegmentSpecs(delta_x=1.0, delta_y=0.5),
+#    SegmentSpecs(length=0.4, angle=0.9),
+#    SegmentSpecs(length=0.2, angle=0.5),
 #])
+
+curve = ProfileCurve([
+    SegmentSpecs(delta_x=0.1, delta_y=0.01),
+    SegmentSpecs(delta_x=0.1, delta_y=0.01),
+    SegmentSpecs(delta_x=0.1, delta_y=0.01),
+    SegmentSpecs(delta_x=0.1, delta_y=0.01),
+    SegmentSpecs(delta_x=0.1, delta_y=0.01),
+    SegmentSpecs(delta_x=0.1, delta_y=0.1),
+])
 
 # Create plot
 
@@ -656,40 +669,3 @@ plt.ylabel('y')
 curve.plot()
 plt.grid()
 plt.show()
-
-## https://de.wikipedia.org/wiki/Kubisch_Hermitescher_Spline
-#def from_hermite(p0, p1, m0, m1):
-#    a0 = p0
-#    a1 = m0
-#    a2 = -3*p0 + 3*p1 - 2*m0 - m1
-#    a3 = 2*p0 - 2*p1 + m0 + m1
-#
-#    return [a0[0], a1[0], a2[0], a3[0], a0[1], a1[1], a2[1], a3[1]]
-
-
-# Attempt to calculate coefficients from three points and two angles - doesn't seem to work
-#def from_points_and_angles(p0, p1, p2, phi0, phi2):
-#    A = np.array([
-#        [ 1.0,        0.0,            0.0,            0.0,     0.0,     0.0,     0.0,     0.0 ],
-#        [ 0.0,        0.0,            0.0,            0.0,     1.0,     0.0,     0.0,     0.0 ],
-#        [ 1.0,    1.0/2.0,        1.0/4.0,        1.0/8.0,     0.0,     0.0,     0.0,     0.0 ],
-#        [ 0.0,        0.0,            0.0,            0.0,     1.0, 1.0/2.0, 1.0/4.0, 1.0/8.0 ],
-#        [ 1.0,        1.0,            1.0,            1.0,     0.0,     0.0,     0.0,     0.0 ],
-#        [ 0.0,        0.0,            0.0,            0.0,     1.0,     1.0,     1.0,     1.0 ],
-#        [ 0.0, -tan(phi0),            0.0,            0.0,     0.0,     1.0,     0.0,     0.0 ],
-#        [ 0.0, -tan(phi2), -2.0*tan(phi2), -3.0*tan(phi2),     0.0,     1.0,     2.0,     3.0 ]
-#    ]);
-#
-#    p = np.concatenate([p0, p1, p2, [0, 0]])
-#    c = np.linalg.solve(A, p)
-#    return c.tolist()
-#
-#p0 = [0, 0]
-#p1 = [1, 0]
-#p2 = [2, 0]
-#
-#phi0 = 0.5
-#phi2 = 0.5
-#
-#c = from_points_and_angles(p0, p1, p2, phi0, phi2)
-#curve = Segment(c)

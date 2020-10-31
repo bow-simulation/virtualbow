@@ -92,23 +92,23 @@ private:
         size_t offset1;    // Offset of the second segment's coefficients
     };
 
-    static double objective(const std::vector<double>& x, std::vector<double>& grad, void* data);
+    static double objective(const std::vector<double>& x, std::vector<double>& grad, void* data) noexcept;
 
-    static double constraint_phi0(const std::vector<double>& x, std::vector<double>& grad, void *data);
-    static double constraint_x0(const std::vector<double>& x, std::vector<double>& grad, void *data);
-    static double constraint_y0(const std::vector<double>& x, std::vector<double>& grad, void *data);
+    static double constraint_phi0(const std::vector<double>& x, std::vector<double>& grad, void *data) noexcept;
+    static double constraint_x0(const std::vector<double>& x, std::vector<double>& grad, void *data) noexcept;
+    static double constraint_y0(const std::vector<double>& x, std::vector<double>& grad, void *data) noexcept;
 
-    static double constraint_length(const std::vector<double>& x, std::vector<double>& grad, void *data);
-    static double constraint_angle(const std::vector<double>& x, std::vector<double>& grad, void *data);
-    static double constraint_delta_x(const std::vector<double>& x, std::vector<double>& grad, void *data);
-    static double constraint_delta_y(const std::vector<double>& x, std::vector<double>& grad, void *data);
+    static double constraint_length(const std::vector<double>& x, std::vector<double>& grad, void *data) noexcept;
+    static double constraint_angle(const std::vector<double>& x, std::vector<double>& grad, void *data) noexcept;
+    static double constraint_delta_x(const std::vector<double>& x, std::vector<double>& grad, void *data) noexcept;
+    static double constraint_delta_y(const std::vector<double>& x, std::vector<double>& grad, void *data) noexcept;
 
-    static double constraint_x(const std::vector<double>& x, std::vector<double>& grad, void *data);
-    static double constraint_y(const std::vector<double>& x, std::vector<double>& grad, void *data);
-    static double constraint_dxdt(const std::vector<double>& x, std::vector<double>& grad, void *data);
-    static double constraint_dydt(const std::vector<double>& x, std::vector<double>& grad, void *data);
-    static double constraint_dxdt2(const std::vector<double>& x, std::vector<double>& grad, void *data);
-    static double constraint_dydt2(const std::vector<double>& x, std::vector<double>& grad, void *data);
+    static double constraint_x(const std::vector<double>& x, std::vector<double>& grad, void *data) noexcept;
+    static double constraint_y(const std::vector<double>& x, std::vector<double>& grad, void *data) noexcept;
+    static double constraint_dxdt(const std::vector<double>& x, std::vector<double>& grad, void *data) noexcept;
+    static double constraint_dydt(const std::vector<double>& x, std::vector<double>& grad, void *data) noexcept;
+    static double constraint_dxdt2(const std::vector<double>& x, std::vector<double>& grad, void *data) noexcept;
+    static double constraint_dydt2(const std::vector<double>& x, std::vector<double>& grad, void *data) noexcept;
 
     static void copy_to_vec(const Vector<8>& source, std::vector<double>& target, size_t offset);
 };

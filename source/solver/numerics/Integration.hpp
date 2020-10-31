@@ -60,9 +60,9 @@ private:
 };
 
 // Fixed-step trapezoidal rule, copied from https://stackoverflow.com/a/21146650
-// Only for debugging purposes
+// Only for testing and debugging purposes
 template<typename T, typename F>
-static T integrate_fixed(const F& f, double a, double b, unsigned n) {
+static T integrate_fixed(const F& f, double a, double b, unsigned n) noexcept {
     double h = (b - a)/n;
 
     T s = f(a)/2.0;
