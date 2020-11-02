@@ -9,9 +9,12 @@
 // Optimization parameters (Magic numbers)
 const nlopt::algorithm NLOPT_ALGORITHM = nlopt::algorithm::LD_SLSQP;
 const double NLOPT_FTOL_REL = 1e-6;
-const double NLOPT_FTOL_ABS = 1e-9;
+const double NLOPT_FTOL_ABS = 1e-6;
 const double NLOPT_CTOL_ABS = 1e-6;
 const int NLOPT_MAXEVAL = 100;
+
+// Number of steps for numerical integration
+const unsigned N_INT_STEPS = 10000;
 
 std::optional<std::string> SegmentInput::validate() const {
     if(length.has_value()) {
@@ -203,8 +206,8 @@ Vector<8> Segment::estimate_coeffs(const Point& point, const SegmentInput& input
     };
 
     auto case_x_y = [&](double delta_x, double delta_y) {
-        double a = atan2(delta_y, delta_x);
-        return case_a_x_y(2*a, delta_x, delta_y);
+        double a = atan2(delta_y, delta_x) - point.phi;
+        return case_a_x_y(a, delta_x, delta_y);
     };
 
     auto case_l_a_x_y = [&](double length, double angle, double delta_x, double delta_y) {
@@ -277,17 +280,17 @@ int Segment::n_coeffs() {
 
 double Segment::length() const {
     auto f = [&](double t){ return hypot(dxdt(t), dydt(t)); };
-    return integrate_fixed<double>(f, 0.0, 1.0, 100);    // Magic number
+    return integrate_fixed<double>(f, 0.0, 1.0, N_INT_STEPS);
 }
 
 double Segment::angle() const {
     auto f = [&](double t){ return (dxdt(t)*dydt2(t) - dydt(t)*dxdt2(t))/(pow(dxdt(t), 2) + pow(dydt(t), 2)); };
-    return integrate_fixed<double>(f, 0.0, 1.0, 100);    // Magic number
+    return integrate_fixed<double>(f, 0.0, 1.0, N_INT_STEPS);
 }
 
 double Segment::energy() const {
     auto f = [&](double t){ return pow(dxdt(t)*dydt2(t) - dydt(t)*dxdt2(t), 2)/pow(pow(dxdt(t), 2) + pow(dydt(t), 2), 2.5); };
-    return integrate_fixed<double>(f, 0.0, 1.0, 100);    // Magic number
+    return integrate_fixed<double>(f, 0.0, 1.0, N_INT_STEPS);
 }
 
 double Segment::phi(double t) const{
@@ -322,7 +325,7 @@ Vector<8> Segment::grad_length() const {
     auto f = [&](double t) -> Vector<8> {
         return (dxdt(t)*grad_dxdt(t) + dydt(t)*grad_dydt(t))/hypot(dxdt(t), dydt(t));
     };
-    return integrate_fixed<Vector<8>>(f, 0.0, 1.0, 100);    // Magic number
+    return integrate_fixed<Vector<8>>(f, 0.0, 1.0, N_INT_STEPS);
 }
 
 Vector<8> Segment::grad_angle() const {
@@ -350,7 +353,7 @@ Vector<8> Segment::grad_energy() const {
         return a(t)/pow(b(t), 5)*(2.0*pow(b(t), 2.5)*grad_a(t) - 2.5*a(t)*pow(b(t), 1.5)*grad_b(t));
     };
 
-    return integrate_fixed<Vector<8>>(grad_dedt, 0.0, 1.0, 100);    // Magic number
+    return integrate_fixed<Vector<8>>(grad_dedt, 0.0, 1.0, N_INT_STEPS);
 }
 
 Vector<8> Segment::grad_phi(double t) const {
@@ -425,12 +428,10 @@ ProfileCurve::ProfileCurve(const std::vector<SegmentInput>& input) {
         throw std::invalid_argument(error->c_str());
     }
 
-    // Local optimization
+    // Local and global optimization
     Point startpoint = { .x = 0.0, .y = 0.0, .phi = 0.0 };
     std::vector<Vector<8>> coeffs = optimize_local(startpoint, input);
-
-    // Global optimization
-    coeffs = optimize_global(coeffs, startpoint, input);
+    //coeffs = optimize_global(coeffs, startpoint, input);
 
     // Assign segments
     for(auto& c: coeffs) {
@@ -483,6 +484,8 @@ Point ProfileCurve::operator()(double s) const {
     };
 }
 
+#include <iostream>
+
 Vector<8> ProfileCurve::optimize_segment(const Point& point, const SegmentInput& input) {
     Vector<8> c = Segment::estimate_coeffs(point, input);
     std::vector<double> x_min(c.begin(), c.end());
@@ -493,6 +496,18 @@ Vector<8> ProfileCurve::optimize_segment(const Point& point, const SegmentInput&
     opt.set_ftol_rel(NLOPT_FTOL_REL);
     opt.set_ftol_abs(NLOPT_FTOL_ABS);
     opt.set_maxeval(NLOPT_MAXEVAL);
+
+    std::cout << "\nOptimize segment" << std::endl;
+
+    /*
+    std::vector<double> grad(x_min.size());
+    double f = objective(x_min, grad, nullptr);
+    std::cout << "Initial f: " << f << std::endl;
+    std::cout << "Initial g:";
+    for(double d: grad)
+        std::cout << " " << d;
+    std::cout << std::endl;
+    */
 
     std::list<ConstraintData1> contexts;
 
@@ -667,6 +682,7 @@ double ProfileCurve::objective(const std::vector<double>& x, std::vector<double>
         result += segment.energy();
     }
 
+    std::cout << result << std::endl;
     return result;
 }
 

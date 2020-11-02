@@ -11,7 +11,7 @@ import nlopt
 # Optimization options
 NLOPT_ALGORITHM = nlopt.LD_SLSQP;
 NLOPT_FTOL_REL = 1e-6;
-NLOPT_FTOL_ABS = 1e-9;
+NLOPT_FTOL_ABS = 1e-6;
 NLOPT_CTOL_ABS = 1e-6;
 NLOPT_MAXEVAL = 100;
 
@@ -198,8 +198,8 @@ class Segment:
             return from_bezier_points4(p0, p1, p2, p3)
         
         def case_x_y(delta_x, delta_y):
-            a = atan2(delta_y, delta_x)
-            return case_a_x_y(2*a, delta_x, delta_y)
+            a = atan2(delta_y, delta_x) - point.phi
+            return case_a_x_y(a, delta_x, delta_y)
 
         # Case 1: {length, angle, delta_x, delta_y}
         if (specs.length is not None) and (specs.angle is not None) and (specs.delta_x is not None) and (specs.delta_y is not None):
@@ -361,7 +361,8 @@ class Optimization:
                 grad[i:j] = segment.grad_energy()
 
             result += segment.energy()
-                
+        
+        print(result)
         return result
 
     @staticmethod
@@ -509,11 +510,21 @@ class ProfileCurve:
     @staticmethod
     def optimize_segment(point, specs):        
         c0 = Segment.estimate_coeffs(point, specs)
-               
+
         opt = nlopt.opt(NLOPT_ALGORITHM, len(c0))
         opt.set_ftol_rel(NLOPT_FTOL_REL);
         opt.set_ftol_abs(NLOPT_FTOL_ABS);
         opt.set_maxeval(NLOPT_MAXEVAL);
+
+
+        print()
+        print("Optimize segment")
+        print()
+#        grad = np.array([0.0]*len(c0))
+#        f = Optimization.objective(c0, grad)
+#        print("Initial f: {}".format(f))
+#        print("Initial g: {}".format(grad))
+#        print()
 
         # Objective function
         opt.set_min_objective(Optimization.objective)
