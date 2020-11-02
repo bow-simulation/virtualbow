@@ -498,7 +498,7 @@ class ProfileCurve:
     def __init__(self, segment_specs):
         startpoint = Point(x=0.0, y=0.0, phi=0.0)
         coeffs = self.optimize_local(startpoint, segment_specs)
-        coeffs = self.optimize_global(coeffs, startpoint, segment_specs)
+        #coeffs = self.optimize_global(coeffs, startpoint, segment_specs)
 
         self.segments = []
         for c in coeffs:
