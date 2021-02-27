@@ -15,9 +15,24 @@ struct StaticData
     unsigned max_grip_force_index = 0;
     unsigned max_draw_force_index = 0;
 
+    std::vector<double> min_stress_value;
+    std::vector<std::pair<unsigned, unsigned>> min_stress_index;
+
     std::vector<double> max_stress_value;
     std::vector<std::pair<unsigned, unsigned>> max_stress_index;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(StaticData, states, final_draw_force, drawing_work, storage_ratio, max_string_force_index,
-        max_grip_force_index, max_draw_force_index, max_stress_value, max_stress_index)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+        StaticData,
+        states,
+        final_draw_force,
+        drawing_work,
+        storage_ratio,
+        max_string_force_index,
+        max_grip_force_index,
+        max_draw_force_index,
+        min_stress_value,
+        min_stress_index,
+        max_stress_value,
+        max_stress_index
+)

@@ -21,9 +21,28 @@ struct DynamicData
     unsigned max_grip_force_index = 0;
     unsigned arrow_departure_index = 0;
 
+    std::vector<double> min_stress_value;
+    std::vector<std::pair<unsigned, unsigned>> min_stress_index;
+
     std::vector<double> max_stress_value;
     std::vector<std::pair<unsigned, unsigned>> max_stress_index;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicData, states, final_pos_arrow, final_vel_arrow, final_e_pot_limbs, final_e_kin_limbs, final_e_pot_string,
-        final_e_kin_string, final_e_kin_arrow, efficiency, max_string_force_index, max_grip_force_index, max_stress_value, max_stress_index)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+        DynamicData,
+        states,
+        final_pos_arrow,
+        final_vel_arrow,
+        final_e_pot_limbs,
+        final_e_kin_limbs,
+        final_e_pot_string,
+        final_e_kin_string,
+        final_e_kin_arrow,
+        efficiency,
+        max_string_force_index,
+        max_grip_force_index,
+        min_stress_value,
+        min_stress_index,
+        max_stress_value,
+        max_stress_index
+)
