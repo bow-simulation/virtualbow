@@ -417,9 +417,9 @@ Some of them differ between statics and dynamics.
 \begin{itemize}
 \item \textbf{Final draw force:} Draw force of the bow at full draw
 \item \textbf{Drawing work:} Total work done by drawing the bow. This work is stored in the bow as potential elastic energy and later partially transfered to the arrow, depending on the bow's efficiency. It is equal to the area under the force-draw curve of the bow (See also \textit{Other Plots}).
-    \item \textbf{Storage ratio:} This is an indicator of how much energy the bow stores and is defined as
-$$\mathrm{storage\ ratio} = \frac{\mathrm{drawing\ work}}{1/2\cdot \mathrm{draw\ force}\cdot (\mathrm{draw\ length} - \mathrm{brace\ height})},$$
-which is the amount of energy stored by the bow's draw curve in relation to a linear draw curve with the same final draw force.
+    \item \textbf{Energy factor:} This value indicates how good the shape of the draw curve is in terms of energy storage.
+It is defined as the energy stored by the bow in relation to the energy that would have been stored with a linear draw curve,
+$$\mathrm{storage\ ratio} = \frac{\mathrm{drawing\ work}}{1/2\cdot \mathrm{draw\ force}\cdot (\mathrm{draw\ length} - \mathrm{brace\ height})}.$$
 \item \textbf{Limb mass:} Total mass of a single bow limb, including the additional tip mass
 \item \textbf{String mass:}  Total mass of the bow string, including additional masses
 \item \textbf{String length:} Length of the string, determined by the desired brace height
@@ -639,11 +639,13 @@ Examples for several languages that are commonly used in scientific computing ca
 \tablespace statics & & & \\
 \quad final\_draw\_force & \texttt{double} & \unit[]{N} & Final draw force \\
 \quad drawing\_work & \texttt{double} & \unit[]{J} & Drawing work \\
-\quad storage\_ratio & \texttt{double} & -- & Storage ratio \\
+\quad energy\_factor & \texttt{double} & -- & Energy factor \\
 \quad max\_string\_force\_index & \texttt{integer} & -- & Simulation state with maximum absolute string force \\
 \quad max\_grip\_force\_index & \texttt{integer} & -- & Simulation state with maximum absolute grip force \\
 \quad max\_draw\_force\_index  & \texttt{integer} & -- & Simulation state with maximum absolute draw force \\
-\quad max\_stress\_value & \texttt{double[]} & \unit[]{Pa} & Maximum absolute stresses for each layer \\
+\quad min\_stress\_value & \texttt{double[]} & \unit[]{Pa} & Minimum stress for each layer \\
+\quad min\_stress\_index & \texttt{integer[][]} & -- & Simulation state and layer node for each stress value \\
+\quad max\_stress\_value & \texttt{double[]} & \unit[]{Pa} & Maximum stress for each layer \\
 \quad max\_stress\_index & \texttt{integer[][]} & -- & Simulation state and layer node for each stress value \\
 \quad states & & & \\
 \quad\quad \texttt{\{\ \ldots\ \}} & & & Sequence of bow states (see table below) \\
@@ -659,7 +661,9 @@ Examples for several languages that are commonly used in scientific computing ca
 \quad max\_string\_force\_index & \texttt{integer} & -- & Simulation state with maximum absolute string force \\
 \quad max\_grip\_force\_index & \texttt{integer} & -- & Simulation state with maximum absolute grip force \\
 \quad arrow\_departure\_index & \texttt{integer} & -- & Simulation state at which the arrow leaves the bow \\
-\quad max\_stress\_value & \texttt{double[]} & \unit[]{Pa} & Maximum absolute stresses for each layer \\
+\quad min\_stress\_value & \texttt{double[]} & \unit[]{Pa} & Minimum stress for each layer \\
+\quad min\_stress\_index & \texttt{integer[][]} & -- & Simulation state and layer node for each stress value \\
+\quad max\_stress\_value & \texttt{double[]} & \unit[]{Pa} & Maximum stress for each layer \\
 \quad max\_stress\_index & \texttt{integer[][]} & -- & Simulation state and layer node for each stress value \\
 \quad states & & & \\
 \quad\quad \texttt{\{\ \ldots\ \}} & & & Sequence of bow states (see table below) \\
