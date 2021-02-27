@@ -75,7 +75,6 @@ const OutputData& OutputWidget::getData()
     return data;
 }
 
-
 StaticOutputWidget::StaticOutputWidget(const OutputData& data)
     : tabs(new QTabWidget())
 {
@@ -89,11 +88,18 @@ StaticOutputWidget::StaticOutputWidget(const OutputData& data)
     numbers->addValue("Limb mass [kg]", data.setup.limb_mass);
     numbers->addValue("String mass [kg]", data.setup.string_mass);
     numbers->addValue("String length [m]", data.setup.string_length);
+
     numbers->addColumn();
-    numbers->addGroup("Maximum absolute stresses");
-    for(size_t i = 0; i < data.statics.max_stress_index.size(); ++i) {
-        numbers->addValue(QString::fromStdString(data.setup.limb_properties.layers[i].name + " [Pa]"), data.statics.max_stress_value[i]);
+    numbers->addGroup("Minimum stress by layer");
+    for(size_t i = 0; i < data.statics.min_stress_index.size(); ++i) {
+        numbers->addValue(QString::fromStdString(data.setup.limb_properties.layers[i].name) + " [Pa]", data.statics.min_stress_value[i]);
     }
+    numbers->addGroup("Maximum stress by layer");
+    for(size_t i = 0; i < data.statics.max_stress_index.size(); ++i) {
+        numbers->addValue(QString::fromStdString(data.setup.limb_properties.layers[i].name) + " [Pa]", data.statics.max_stress_value[i]);
+    }
+
+    numbers->addColumn();
     numbers->addGroup("Maximum absolute forces");
     numbers->addValue("Draw force [N]", data.statics.states.draw_force[data.statics.max_draw_force_index]);
     numbers->addValue("Grip force [N]", data.statics.states.grip_force[data.statics.max_grip_force_index]);
