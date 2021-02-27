@@ -9,7 +9,7 @@ struct StaticData
 
     double final_draw_force = 0.0;
     double drawing_work = 0.0;
-    double storage_ratio = 0.0;
+    double energy_factor = 0.0;
 
     unsigned max_string_force_index = 0;
     unsigned max_grip_force_index = 0;
@@ -27,7 +27,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
         states,
         final_draw_force,
         drawing_work,
-        storage_ratio,
+        energy_factor,
         max_string_force_index,
         max_grip_force_index,
         max_draw_force_index,
