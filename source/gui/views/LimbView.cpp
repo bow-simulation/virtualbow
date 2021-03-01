@@ -181,18 +181,16 @@ void LimbView::initializeGL()
             }
         };
 
+        srand(std::time(0));
         auto random_in_range = [](float lower, float upper) {
-            return lower + static_cast<float>(rand())/static_cast <float> (RAND_MAX/(upper - lower));
+            return lower + static_cast<float>(rand())/static_cast<float>(RAND_MAX/(upper - lower));
         };
 
-        for(unsigned i = 0; i < 15; ++i) {
+        for(unsigned i = 0; i < 25; ++i) {
             float x = random_in_range(-0.95f, 0.95f);
             float y = random_in_range(-0.95f, 0.95f);
-            float r = random_in_range(0.003f, 0.006f);
-            QVector3D c1(BACKGROUND_COLOR_1.redF(), BACKGROUND_COLOR_1.greenF(), BACKGROUND_COLOR_1.blueF());
-            QVector3D c2(BACKGROUND_COLOR_2.redF(), BACKGROUND_COLOR_2.greenF(), BACKGROUND_COLOR_2.blueF());
-            QVector3D cs = (y + 1.0f)/2.0f*c2 - (y - 1.0f)/2.0f*c1;
-            create_star(x, y, r, 3.0*r, 0.0, 5, QColor::fromRgbF(cs.x(), cs.y(), cs.z()).lighter(250));
+            float r = random_in_range(0.001f, 0.005f);
+            create_star(x, y, r, 3.0*r, 0.0, 5, BACKGROUND_COLOR_2.lighter(105));
         }
     }
 
