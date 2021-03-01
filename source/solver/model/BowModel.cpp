@@ -12,6 +12,7 @@
 #include "solver/numerics/Geometry.hpp"
 #include <limits>
 #include <numeric>
+#include <cmath>
 
 OutputData BowModel::simulate(const InputData& input, SimulationMode mode, const Callback& callback) {
     BowModel model(input);
@@ -315,50 +316,71 @@ BowStates BowModel::simulate_statics(const Callback& callback) {
     return output;
 }
 
+#include <iostream>
+
 BowStates BowModel::simulate_dynamics(const Callback& callback) {
     BowStates output;
 
     // Set draw force to zero
     system.set_p(nodes_string[0].y, 0.0);
 
-    double dt = DynamicSolver::estimate_timestep(system, input.settings.time_step_factor);
-    double T = std::numeric_limits<double>::max();
-    double alpha = input.settings.time_span_factor;
+    double T = std::numeric_limits<double>::max();    // Time at which arrow reached brace height, yet unknown
+    double alpha = input.settings.time_span_factor;   // Time span factor, simulate until t >= alpha*T
+    bool estimated = true;                            // Whether T is estimated or already known
 
-    DynamicSolver solver1(system, dt, input.settings.sampling_rate, [&]{
-        double ut = system.get_u(node_arrow.y);
-        if(ut < input.dimensions.brace_height) {
-            double u0 = -input.dimensions.draw_length;
-            double u1 = -input.dimensions.brace_height;
+    auto condition_arrow_departure = [&] {
+        // Arrow departs the string if it has negative acceleration that exceeds the clamp force
+        return system.get_a(node_arrow.y) <= -input.settings.arrow_clamp_force/input.masses.arrow;
+    };
 
-            if(ut != u0){
-                T = system.get_t()*std::acos(u1/u0)/std::acos(ut/u0);
+    auto condition_simulation_stop = [&] {
+        if(estimated) {
+            double ut = system.get_u(node_arrow.y);        // Current arrow travel
+            double uT = -input.dimensions.brace_height;    // Arrow travel at brace height
+
+            if(ut < uT) {
+                // Arrow hasn't yet reached brace height: Update estimate for T from current time and velocity
+                double v = system.get_v(node_arrow.y);
+                double t = system.get_t();
+                T = (uT - ut)/v + t;
+            }
+            else {
+                // Arrow has reached brace height: Set T to current time and stop estimations
+                T = system.get_t();
+                estimated = false;
             }
         }
 
-        return system.get_a(node_arrow.y) <= 0;
-    });
+        return system.get_t() >= alpha*T;
+    };
 
-    auto run_solver = [&](DynamicSolver& solver) {
+    auto run_solver = [&](DynamicSolver& solver) {        
         do {
             add_state(output);
             callback(100, std::round(100.0*system.get_t()/(alpha*T)));
         } while(solver.step());
     };
 
+    // Determine solver timestep
+    double dt = DynamicSolver::estimate_timestep(system, input.settings.time_step_factor);
+
+    // Create and run solver for the first phase (arrow attached to the string)
+    DynamicSolver solver1(system, dt, input.settings.sampling_rate, [&]{
+        return condition_arrow_departure() || condition_simulation_stop();    // Stopping criterion for the inner loop of the simulation
+    });
     run_solver(solver1);
 
-    // Change model by giving the arrow an independent node with the initial position and velocity of the string center
-    // Todo: Would more elegant to remove the mass element from the system and create a new one with a new node.
-    // Or initially add arrow mass to string center, then subtract that and give arrow its own node and element.
-    node_arrow = system.create_node(nodes_string[0]);
-    system.mut_elements().front<MassElement>("arrow").set_node(node_arrow);
+    // Create and run solver for the second phase (free arrow) if first phase wasn't stopped by the time criterion
+    if(!condition_simulation_stop()) {
+        // Change model by giving the arrow an independent node with the initial position and velocity of the string
+        node_arrow = system.create_node(nodes_string[0]);
+        system.mut_elements().front<MassElement>("arrow").set_node(node_arrow);
 
-    DynamicSolver solver2(system, dt, input.settings.sampling_rate, [&]{
-        return system.get_t() >= alpha*T;
-    });
-
-    run_solver(solver2);
+        DynamicSolver solver2(system, dt, input.settings.sampling_rate, [&]{
+            return condition_simulation_stop();    // Stopping criterion for the inner loop of the simulation
+        });
+        run_solver(solver2);
+    }
 
     return output;
 }

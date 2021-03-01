@@ -41,6 +41,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
         efficiency,
         max_string_force_index,
         max_grip_force_index,
+        arrow_departure_index,
         min_stress_value,
         min_stress_index,
         max_stress_value,

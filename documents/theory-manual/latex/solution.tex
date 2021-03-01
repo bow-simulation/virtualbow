@@ -300,52 +300,36 @@ which is what VirtualBow does.
 
 \subsection{Stopping Criterion and Progress Estimation}
 
-Everything has to stop at some point, even the dynamic simulation. But when exactly?
-The simulated time interval has to include the separation of the arrow from the bow plus some additional time, because some interesting things like e.g. the maximum force on the string only happen after the arrow left the bow.
-A related requirement is that there needs to be some estimation for the simulation progress that can be shown the user.
-But how can the progress be estimated even though the ending time of the simulation isn't known in advance?
+The dynamic simulation is carried out until some stopping criterion is satisfied.
+This criterion has to be chosen such that the simulated time interval contains all the information needed by the users while also keeping it as short as possible.
+It has to include the separation of the arrow from the string plus some additional time, because some things like e.g. the maximum force on the string tend to happen only after the arrow left the bow.
+A related requirement on the stopping criterion is that it must allow estimating the simulation progress, so that it can be shown to the user.
 
-The current approach is to simulate the time interval~$[0,\,\alpha\,T]$ where~$T$ is the (yet unknown) time for the arrow to reach brace height and~$\alpha$ is an arbitrary positive factor.
-The default value is~$\alpha = 1.5$. The simulation progress at time~$\overline{t}$ can now be formally written as
+The simplest solution would be to simulate until a fixed time is reached.
+This makes the progress estimation very easy, but it also has some drawbacks.
+It would require users to specify the simulation time, which can only be found by trial and error and might have to be adjusted for different bows.
 
-\begin{equation}
-\rm{progress} = \frac{\overline{t}}{\alpha\,T}\cdot 100\%.\label{eq:solution:progress}
-\end{equation}
-
-But only formally, because~$T$ is unknown as long as~$\overline{t} < T$, i.e. as long as the arrow has not yet actually reached brace height. For this first part of the simulation~$T$ is estimated by using the current time~$\overline{t}$ and position~$\overline{u}$ of the arrow and extrapolate to the time when the arrow will reach brace height.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.8\textwidth]{figures/solution/dynamic_progress}
-\caption{Arrow position $u(t)$ during the shot}
-\label{fig:solution:dynamic_progress}
-\end{figure}
-
-The progression of the arrow position, denoted by~$u(t)$, typically looks like shown in figure~\ref{fig:solution:dynamic_progress}.
-It starts at time~$t = 0$ at full draw~$u_0$ and reaches brace height~$u_T$ at the time~$t = T$ by definition.
-If the draw curve of the bow is assumed to be approximately linear then~$u(t)$ will resemble the cosine quarter-wave
+The current approach is to simulate the time interval~$[0,\,\alpha\,T]$ where~$T$ is the time for the arrow to reach brace height and~$\alpha$ is an arbitrary positive factor.
+The default value is~$\alpha = 1.5$. The simulation progress at time~$\overline{t}$ can now be written as
 
 \begin{equation}
-u(t) \approx u_{0}\,\cos{\left(C\,t\right)}.\label{eq:solution:progress:ansatz}
+\rm{progress} = \frac{\overline{t}}{\alpha\,T}\cdot 100\%.
 \end{equation}
 
-Not all draw curves might be approximately linear, but this is only about crude progess estimation after all.
-The constant~$C$ is obtained by applying equation~(\ref{eq:solution:progress:ansatz}) to the current time and position,
-
+But only formally, because~$T$ is not yet known as long as~$\overline{t} < T$, i.e. as long as the arrow has not yet actually reached brace height.
+For this first part of the simulation~$T$ is estimated by using the current time $\overline{t}$, arrow position $\overline{u}$ and arrow velocity $\overline{v}$ and extrapolating to the time when the arrow will reach the braced position $u_T$.
+Assuming constant velocity, which is a very crude approximation, we can extrapolate the arrow position as
 \begin{equation}
-u(\overline{t}) = \overline{u} \Rightarrow \ C = \frac{1}{\overline{t}}\,\arccos{\left(\frac{\overline{u}}{u_0}\right)}.\label{eq:solution:progress:constant}
+u(t) = \bar{u} + \bar{v}(t - \bar{t}).\label{eq:solution:progress:ansatz}
 \end{equation}
 
-Now $T$ can be extrapolated from~(\ref{eq:solution:progress:ansatz}) using the condition~$u(T) = u_T$,
+Now $T$ can be calculated from by using the condition~$u(T) = u_T$, with results in
+\begin{equation}
+T = \frac{u_T - \bar{u}}{\bar{v}} + \bar{t}.
+\end{equation}
 
-\begin{align}
-T = \frac{1}{C}\,\arccos{\left(\frac{u_T}{u_0}\right)} = \overline{t}\ \frac{\arccos{\left(\nicefrac{u_T}{u_0}\right)}}{\arccos{\left(\nicefrac{\overline{u}}{u_0}\right)}}.
-\end{align}
-
-This approximation for~$T$ is used in the progress estimation~(\ref{eq:solution:progress}) until the arrow has reached brace height. Then the actual value is known and used for the rest of the simulation.
-
-
-
+This approximation is far from exact, but it is good enough for progress estimation and gets better the closer the arrow is to the braced position.
+After the arrow has reached the braced position, the actual value of $T$ is known and used for the rest of the simulation.
 
 \newpage
 \section{Model setup}

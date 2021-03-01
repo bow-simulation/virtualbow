@@ -14,6 +14,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
     this->addWidget(edit3);
     this->addWidget(edit4);
     this->addWidget(edit5);
+    this->addWidget(edit6);
 
     QObject::connect(edit0, &IntegerEditor::modified, this, &SettingsDialog::modified);
     QObject::connect(edit1, &IntegerEditor::modified, this, &SettingsDialog::modified);
@@ -21,6 +22,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
     QObject::connect(edit3, &DoubleEditor::modified, this, &SettingsDialog::modified);
     QObject::connect(edit4, &DoubleEditor::modified, this, &SettingsDialog::modified);
     QObject::connect(edit5, &DoubleEditor::modified, this, &SettingsDialog::modified);
+    QObject::connect(edit6, &DoubleEditor::modified, this, &SettingsDialog::modified);
 
     QObject::connect(this, &GroupDialog::reset, [&]{
         setData(Settings());
@@ -37,6 +39,7 @@ Settings SettingsDialog::getData() const
     data.time_span_factor = edit3->getData();
     data.time_step_factor = edit4->getData();
     data.sampling_rate = edit5->getData();
+    data.arrow_clamp_force = edit6->getData();
 
     return data;
 }
@@ -49,4 +52,5 @@ void SettingsDialog::setData(const Settings& data)
     edit3->setData(data.time_span_factor);
     edit4->setData(data.time_step_factor);
     edit5->setData(data.sampling_rate);
+    edit6->setData(data.arrow_clamp_force);
 }

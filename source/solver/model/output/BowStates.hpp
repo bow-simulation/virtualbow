@@ -34,5 +34,27 @@ struct BowStates
     std::vector<VectorXd> kappa;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(BowStates, time, draw_length, draw_force, string_force, strand_force, grip_force, pos_arrow, vel_arrow, acc_arrow,
-        e_pot_limbs, e_kin_limbs, e_pot_string, e_kin_string, e_kin_arrow, x_pos_limb, y_pos_limb, angle_limb, x_pos_string, y_pos_string, epsilon, kappa)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+        BowStates,
+        time,
+        draw_length,
+        draw_force,
+        string_force,
+        strand_force,
+        grip_force,
+        pos_arrow,
+        vel_arrow,
+        acc_arrow,
+        e_pot_limbs,
+        e_kin_limbs,
+        e_pot_string,
+        e_kin_string,
+        e_kin_arrow,
+        x_pos_limb,
+        y_pos_limb,
+        angle_limb,
+        x_pos_string,
+        y_pos_string,
+        epsilon,
+        kappa
+)
