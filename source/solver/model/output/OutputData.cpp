@@ -1,6 +1,15 @@
 #include "OutputData.hpp"
 #include <fstream>
 
+void OutputData::save(const std::string& path) const
+{
+    // https://github.com/nlohmann/json/issues/479
+    std::vector<uint8_t> buffer = json::to_msgpack(*this);
+    std::ofstream file(path, std::ios::out | std::ios::binary);
+    file.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
+}
+
+
 OutputData::OutputData(const std::string& path)
 {
     // https://github.com/nlohmann/json/issues/479
@@ -10,13 +19,7 @@ OutputData::OutputData(const std::string& path)
     from_json(obj, *this);
 }
 
-void OutputData::save(const std::string& path) const
-{
-    // https://github.com/nlohmann/json/issues/479
-    std::vector<uint8_t> buffer = json::to_msgpack(*this);
-    std::ofstream file(path, std::ios::out | std::ios::binary);
-    file.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
-}
+#include <iostream>
 
 // Todo: Remove computations from here
 OutputData::OutputData(SetupData setup, BowStates static_states, BowStates dynamic_states)
@@ -24,15 +27,15 @@ OutputData::OutputData(SetupData setup, BowStates static_states, BowStates dynam
 {
     // Helper functions
 
-    auto absMaxOrder = [](double a, double b) {
+    auto abs_max_order = [](double a, double b) {
         return std::abs(a) < std::abs(b);
     };
 
-    auto maxAbsForce = [&](const std::vector<double>& vec) {
-        return std::max_element(vec.begin(), vec.end(), absMaxOrder) - vec.begin();
+    auto max_abs_force = [&](const std::vector<double>& vec) {
+        return std::max_element(vec.begin(), vec.end(), abs_max_order) - vec.begin();
     };
 
-    auto minMaxStress = [&](const BowStates& states,
+    auto min_max_stress = [&](const BowStates& states,
                             std::vector<double>& min_stress_value, std::vector<std::pair<unsigned, unsigned>>& min_stress_index,
                             std::vector<double>& max_stress_value, std::vector<std::pair<unsigned, unsigned>>& max_stress_index)
     {
@@ -90,18 +93,18 @@ OutputData::OutputData(SetupData setup, BowStates static_states, BowStates dynam
         statics.final_draw_force = draw_force_back;
         statics.drawing_work = e_pot_back - e_pot_front;
         statics.energy_factor = (e_pot_back - e_pot_front)/(0.5*(draw_length_back - draw_length_front)*draw_force_back);
-        statics.max_string_force_index = maxAbsForce(static_states.string_force);
-        statics.max_grip_force_index = maxAbsForce(static_states.grip_force);
-        statics.max_draw_force_index = maxAbsForce(static_states.draw_force);
+        statics.max_string_force_index = max_abs_force(static_states.string_force);
+        statics.max_grip_force_index = max_abs_force(static_states.grip_force);
+        statics.max_draw_force_index = max_abs_force(static_states.draw_force);
 
-        minMaxStress(static_states, statics.min_stress_value, statics.min_stress_index, statics.max_stress_value, statics.max_stress_index);
+        min_max_stress(static_states, statics.min_stress_value, statics.min_stress_index, statics.max_stress_value, statics.max_stress_index);
     }
 
     // Calculate dynamic numbers
     if(!dynamics.states.time.empty()) {
         for(size_t i = 0; i < dynamic_states.time.size(); ++i) {
             // Find point of arrow separation
-            if(dynamic_states.acc_arrow[i] <= 0.0) {
+            if(dynamic_states.acc_arrow[i] == 0.0) {
                 dynamics.final_pos_arrow = dynamic_states.pos_arrow[i];
                 dynamics.final_vel_arrow = dynamic_states.vel_arrow[i];
                 dynamics.final_e_pot_limbs = dynamic_states.e_pot_limbs[i];
@@ -115,9 +118,10 @@ OutputData::OutputData(SetupData setup, BowStates static_states, BowStates dynam
         }
 
         dynamics.efficiency = dynamics.final_e_kin_arrow/statics.drawing_work;
-        dynamics.max_string_force_index = maxAbsForce(dynamic_states.string_force);
-        dynamics.max_grip_force_index = maxAbsForce(dynamic_states.grip_force);
+        dynamics.max_string_force_index = max_abs_force(dynamic_states.string_force);
+        dynamics.max_grip_force_index = max_abs_force(dynamic_states.grip_force);
 
-        minMaxStress(dynamic_states, dynamics.min_stress_value, dynamics.min_stress_index, dynamics.max_stress_value, dynamics.max_stress_index);
+        min_max_stress(dynamic_states, dynamics.min_stress_value, dynamics.min_stress_index, dynamics.max_stress_value, dynamics.max_stress_index);
     }
 }
+

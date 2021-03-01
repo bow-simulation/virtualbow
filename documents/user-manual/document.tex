@@ -167,6 +167,8 @@ On the other hand, even the default settings might sometimes fail with certain b
 \item \textbf{Time span factor:} This controls the time period that is simulated. A value of $1$ corresponds to the time at which the arrow passes the brace height. The default value is larger than that in order to capture some of the things that occur after the arrow left the bow (maximum dynamic loads on limb and string).
 \item \textbf{Time step factor:} When simulating the dynamics of the bow, the program will repeatedly use the current state of the bow at time $t$ to calculate the next state at time $t + \Delta t$ where $\Delta t$ is some small timestep. We want this timestep to be as large as possible to keep the computational cost low. But it still has to be small enough to get an accurate and stable solution. The program will estimate this optimal timestep, but to be on the safe side the estimation is multiplied with a reduction factor between $0$ and $1$ that you can choose here.
 \item \textbf{Sampling rate:} The sampling rate limits the time resolution of the output data. This is done because the dynamic simulation usually produces much finer grained data than is actually useful. Not including all of that in the final output reduces simulation time and memory consumption.
+\item \textbf{Arrow clamp force:} Force that the arrow has to overcome when separating from the string.
+This value is chosen fairly small by default and can improve the simulation results for very light arrows.
 \end{itemize}
 
 \newpage
@@ -569,6 +571,7 @@ Examples for several languages that are commonly used in scientific computing ca
 \tablespace \quad  time\_span\_factor & \texttt{double} & -- & Factor for modifying total simulation time \\
 \quad  time\_step\_factor & \texttt{double} & -- & Factor for modifying simulation time steps \\
 \quad  sampling\_rate & \texttt{double} & \unit[]{Hz} & Time resolution for the dynamic output \\
+\quad  arrow\_clamp\_force & \texttt{double} & \unit[]{N} & Arrow clamp force \\
 \tablespace dimensions & & & \\
 \quad brace\_height & \texttt{double} & \unit[]{m} & Brace height \\
 \quad draw\_length & \texttt{double} & \unit[]{m} & Draw length \\

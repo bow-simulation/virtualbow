@@ -24,4 +24,5 @@ private:
     DoubleEditor* edit3 = new DoubleEditor("Time span factor");
     DoubleEditor* edit4 = new DoubleEditor("Time step factor");
     DoubleEditor* edit5 = new DoubleEditor("Sampling rate [Hz]");
+    DoubleEditor* edit6 = new DoubleEditor("Arrow clamp force [N]");
 };
