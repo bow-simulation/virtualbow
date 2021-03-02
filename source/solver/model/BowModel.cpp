@@ -31,92 +31,10 @@ OutputData BowModel::simulate(const InputData& input, SimulationMode mode, const
 BowModel::BowModel(const InputData& input)
     : input(input)
 {
-    // Check Settings
-    if(input.settings.n_limb_elements < 1)
-        throw std::runtime_error("Settings: Number of limb elements must be positive");
-
-    if(input.settings.n_string_elements < 1)
-        throw std::runtime_error("Settings: Number of string elements must be positive");
-
-    if(input.settings.n_draw_steps < 1)
-        throw std::runtime_error("Settings: Number of draw steps must be positive");
-
-    if(input.settings.time_span_factor <= 0.0)
-        throw std::runtime_error("Settings: Time span factor must be positive");
-
-    if(input.settings.time_step_factor <= 0.0)
-        throw std::runtime_error("Settings: Time step factor must be positive");
-
-    if(input.settings.sampling_rate <= 0.0)
-        throw std::runtime_error("Settings: Sampling rate must be positive");
-
-    // Check Profile
-    // ...
-
-    // Check Width
-    if(input.width.size() < 2)
-        throw std::runtime_error("Width: At least two data points are needed");
-
-    for(double w: input.width.col(1)) {
-        if(w <= 0.0)
-            throw std::runtime_error("Width must be positive");
+    std::string error = input.validate();
+    if(!error.empty()) {
+        throw std::runtime_error(error);
     }
-
-    // Check Layers
-    for(size_t i = 0; i < input.layers.size(); ++i) {
-        const Layer& layer = input.layers[i];
-
-        if(layer.rho <= 0.0)
-            throw std::runtime_error("Layer " + std::to_string(i) + " (" + layer.name + ")" + ": rho must be positive");
-
-        if(layer.E <= 0.0)
-            throw std::runtime_error("Layer " + std::to_string(i) + " (" + layer.name + ")" + ": E must be positive");
-
-        if(layer.height.size() < 2)
-            throw std::runtime_error("Layer " + std::to_string(i) + " (" + layer.name + ")" + ": At least two data points for height are needed");
-
-        for(double h: layer.height.col(1)) {
-            if(h < 0.0)
-                throw std::runtime_error("Layer " + std::to_string(i) + " (" + layer.name + ")" + ": Height must not be negative");
-        }
-    }
-
-    // Check String
-    if(input.string.strand_stiffness <= 0.0)
-        throw std::runtime_error("String: Strand stiffness must be positive");
-
-    if(input.string.strand_density <= 0.0)
-        throw std::runtime_error("String: Strand density must be positive");
-
-    if(input.string.n_strands < 1)
-        throw std::runtime_error("String: Number of strands must be positive");
-
-    // Check Masses
-    if(input.masses.arrow <= 0.0)
-        throw std::runtime_error("Operation: Arrow mass must be positive");
-
-    if(input.masses.string_center < 0.0)
-        throw std::runtime_error("Masses: String center mass must not be negative");
-
-    if(input.masses.string_tip < 0.0)
-        throw std::runtime_error("Masses: String tip mass must not be negative");
-
-    if(input.masses.limb_tip < 0.0)
-        throw std::runtime_error("Masses: Limb tip mass must not be negative");
-
-    // Check Damping
-    if(input.damping.damping_ratio_limbs < 0.0 || input.damping.damping_ratio_limbs > 1.0)
-        throw std::runtime_error("Damping: Damping of the limb must be 0% ... 100%");
-
-    if(input.damping.damping_ratio_string < 0.0 || input.damping.damping_ratio_string > 1.0)
-        throw std::runtime_error("Damping: Damping of the string must be 0% ... 100%");
-
-    // Check Dimensions
-    if(input.dimensions.brace_height >= input.dimensions.draw_length)
-        throw std::runtime_error("Dimensions: Draw length must be greater than brace height");
-
-    if(input.dimensions.handle_length < 0.0)
-        throw std::runtime_error("Dimensions: Handle length must be positive");
 }
 
 void BowModel::init_limb(const Callback& callback, SetupData& output) {
