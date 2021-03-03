@@ -9,12 +9,14 @@ ProfileDialog::ProfileDialog(QWidget* parent)
     QObject::connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     QObject::connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    auto hbox = new QHBoxLayout();
-    hbox->addWidget(edit, 0);
-    hbox->addWidget(view, 1);
+    auto splitter = new QSplitter();
+    splitter->addWidget(edit);
+    splitter->addWidget(view);
+    splitter->setStretchFactor(0, 0);
+    splitter->setStretchFactor(1, 1);
 
     auto vbox = new QVBoxLayout();
-    vbox->addLayout(hbox, 1);
+    vbox->addWidget(splitter, 1);
     vbox->addWidget(buttons, 0);
 
     this->setWindowTitle("Profile");
