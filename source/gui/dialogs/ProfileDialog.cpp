@@ -2,7 +2,7 @@
 
 ProfileDialog::ProfileDialog(QWidget* parent)
     : PersistentDialog(parent, "ProfileDialog", {800, 400}),    // Magic numbers
-      edit(new TableEditor({"s [m]", "\u03C6 [°]", "x [m]", "y [m]"}, 100)),
+      edit(new TableEditor({"Length [m]", "Curvature [1/m]"}, 100)),
       view(new ProfileView())
 {
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);

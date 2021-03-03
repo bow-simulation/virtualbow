@@ -1,58 +1,31 @@
 #pragma once
 #include "solver/numerics/Eigen.hpp"
-#include <array>
-#include <vector>
-
-struct Point
-{
-    double s;
-    double phi;
-    double x;
-    double y;
-};
-
-class Segment
-{
-public:
-    // p: Starting point of the segment
-    // c: Curve parameters for the segment
-    Segment(const Point& p, const std::vector<double>& c);
-
-    double phi(double s) const;
-    double x(double s) const;
-    double y(double s) const;
-    double l() const;
-    double I() const;
-
-    static std::vector<double> get_c_start(const Point& p0, const Point& p1);
-
-private:
-    Point p;
-    std::vector<double> c;
-
-    static std::vector<double> get_c_start_x_y(const Point& p0, double x1, double y1);
-    static std::vector<double> get_c_start_s_phi(const Point& p0, double s1, double phi1);
-    static std::vector<double> get_c_start_s_x(const Point& p0, double s1, double x1);
-    static std::vector<double> get_c_start_s_y(const Point& p0, double s1, double y1);
-    static std::vector<double> get_c_start_phi_x(const Point& p0, double phi1, double x1);
-    static std::vector<double> get_c_start_phi_y(const Point& p0, double phi1, double y1);
-};
 
 class ProfileCurve
 {
 public:
-    ProfileCurve(const MatrixXd& input);
-    const std::vector<Point>& get_points() const;
+    // Matrix withtwo solumnd, s and k.
+    // s: Arc lengths of the profile curve in ascending order
+    // k: Curvature of the profile curve at the specified arc lengths
+    // Throws std::invalid_argument on invalid input
+    ProfileCurve(const MatrixXd& input, double x0, double y0, double phi0);
 
     // Arc length at start and end of the curve
     double s_min() const;
     double s_max() const;
 
     // Evaluate curve at a specific arc length. Returns {x, y, phi}.
-    Vector<3> operator()(double s) const;
+    Vector<3> operator()(double arg) const;
 
 private:
-    std::vector<Segment> segments;
-    std::vector<Point> points;
-    mutable size_t index;
+    using segment_fn= std::function<Vector<3>(double)>;
+
+    mutable size_t index = 0;    // Interval index of last evaluation
+    std::vector<double> s;       // Arc lengths of the intervals
+    std::vector<segment_fn> f;   // Curve functions for each interval
+
+    // Returns a function s -> {x, y, phi} that describes a curve with varying curvature k over arc length s.
+    // s0, s1, k0, k1 : Arc length and curvature at start and end of the curve
+    // x0, y0, phi0 : Starting point and angle
+    segment_fn euler_spiral(double s0, double s1, double k0, double k1, double x0, double y0, double phi0);
 };

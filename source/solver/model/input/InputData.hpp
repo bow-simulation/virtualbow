@@ -15,7 +15,7 @@ struct InputData
     std::string comment;
     Settings settings;
     Dimensions dimensions;
-    MatrixXd profile{{0.0, 0.0, 0.0, 0.0}, {0.8, 0.0, NAN, NAN}};
+    MatrixXd profile{{0.0, 0.0}, {0.8, 0.0}};
     MatrixXd width{{0.0, 0.06}, {1.0, 0.01}};
     std::vector<Layer> layers = {Layer()};
     String string;

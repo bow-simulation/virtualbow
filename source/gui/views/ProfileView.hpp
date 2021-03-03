@@ -10,7 +10,7 @@ public:
     void setData(const MatrixXd& profile);
     void setSelection(const QVector<int>& indices);
 private:
-    MatrixXd input = MatrixXd::Zero(0, 2);
+    MatrixXd input = MatrixXd::Zero(2, 2);
     QVector<int> selection;
 
     QCPCurve* curve0;
