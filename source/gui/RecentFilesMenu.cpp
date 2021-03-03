@@ -5,7 +5,7 @@ RecentFilesMenu::RecentFilesMenu(QWidget* parent)
 {
     const int N = 8;    // Number of retained paths
 
-    // Create actions for opening recent files
+    // Create fixed number of actions for opening recent files
     for(int i = 0; i < N; ++i) {
         auto action_open = new QAction(this);
         QObject::connect(action_open, &QAction::triggered, this, [=]{
@@ -32,11 +32,12 @@ RecentFilesMenu::RecentFilesMenu(QWidget* parent)
         recentFilePaths.append(settings.value("path").toString());
     }
     settings.endArray();
-    updateActions();
+
+    // Update actions any time the menu is shown
+    QObject::connect(this, &QMenu::aboutToShow, this, &RecentFilesMenu::updateActions);
 }
 
-RecentFilesMenu::~RecentFilesMenu()
-{
+RecentFilesMenu::~RecentFilesMenu() {
     // Save recent paths to settings
     QSettings settings;
     settings.beginWriteArray("MainWindow/recentFiles");
@@ -47,33 +48,36 @@ RecentFilesMenu::~RecentFilesMenu()
     settings.endArray();
 }
 
-void RecentFilesMenu::addPath(const QString& path)
-{
+void RecentFilesMenu::addPath(const QString& path) {
+    // Prepend the path to the list and remove any other occurrences
     recentFilePaths.removeAll(path);
     recentFilePaths.prepend(path);
 
-    while(recentFilePaths.size() > recentFileActions.size())
+    // Remove oldest files until list of paths has the same length as the action list
+    while(recentFilePaths.size() > recentFileActions.size()) {
         recentFilePaths.removeLast();
-
-    updateActions();
+    }
 }
 
-void RecentFilesMenu::clearPaths()
-{
+void RecentFilesMenu::clearPaths() {
     recentFilePaths.clear();
-    updateActions();
 }
 
 void RecentFilesMenu::updateActions()
 {
-    for(int i = 0; i < recentFileActions.size(); ++i)
-    {
-        if(i > recentFilePaths.size() - 1)
-        {
+    // Remove paths that no longer exist
+    for(int i = 0; i < recentFilePaths.size(); ++i) {
+        if(!QFile::exists(recentFilePaths[i])) {
+            recentFilePaths.removeAt(i);
+        }
+    }
+
+    // Update actions from path list
+    for(int i = 0; i < recentFileActions.size(); ++i) {
+        if(i > recentFilePaths.size() - 1) {
             recentFileActions[i]->setVisible(false);
         }
-        else
-        {
+        else {
             QString path = recentFilePaths[i];
             QString name = QFileInfo(path).fileName();
             recentFileActions[i]->setText("&" + QString::number(i + 1) + " | " + name + " [ " + path + " ]");
