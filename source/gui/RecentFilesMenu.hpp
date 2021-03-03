@@ -1,8 +1,7 @@
 #pragma once
 #include <QtWidgets>
 
-class RecentFilesMenu: public QMenu
-{
+class RecentFilesMenu: public QMenu {
     Q_OBJECT
 
 public:
