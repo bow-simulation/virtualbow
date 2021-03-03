@@ -4,55 +4,54 @@
 
 using nlohmann::json;
 
-class Conversion
-{
+class Conversion {
 public:
-    static void to_current(json& obj)
-    {
+    static void to_current(json& obj) {
         if(obj.contains("meta") && obj.at("meta").at("version") == "0.1")
-            throw std::runtime_error("Bow file version 0.1 is no longer supported.");
+            convert_0_1_0_to_0_2_0(obj);
 
         if(obj.contains("meta") && obj.at("meta").at("version") == "0.2")
-            throw std::runtime_error("Bow file version 0.2 is no longer supported.");
+            convert_0_2_0_to_0_3_0(obj);
 
         if(obj.contains("meta") && obj.at("meta").at("version") == "0.3")
-            throw std::runtime_error("Bow file version 0.3 is no longer supported.");
+            convert_0_3_0_to_0_4_0(obj);
 
         if(obj.contains("meta") && obj.at("meta").at("version") == "0.4")
-            throw std::runtime_error("Bow file version 0.4 is no longer supported.");
+            convert_0_4_0_to_0_5_0(obj);
 
         if(obj.contains("meta") && obj.at("meta").at("version") == "0.5")
-            throw std::runtime_error("Bow file version 0.5 is no longer supported.");
+            convert_0_5_0_to_0_6_0(obj);
 
         if(obj.contains("meta") && obj.at("meta").at("version") == "0.6")
-            throw std::runtime_error("Bow file version 0.6 is no longer supported.");
+            convert_0_6_0_to_0_6_1(obj);
 
         if(obj.contains("meta") && obj.at("meta").at("version") == "0.6.1")
-            throw std::runtime_error("Bow file version 0.6.1 is no longer supported.");
+            convert_0_6_1_to_0_7_0(obj);
 
         if(obj.at("version") == "0.7")
-            throw std::runtime_error("Bow file version 0.7 is no longer supported.");
+            convert_0_7_0_to_0_7_1(obj);
 
         if(obj.at("version") == "0.7.1")
-            throw std::runtime_error("Bow file version 0.7.1 is no longer supported.");
+            convert_0_7_1_to_0_8_0(obj);
 
         if(obj.at("version") == "0.8")
             return;
 
-        throw std::runtime_error("Bow file version not recognized.");
+        throw std::runtime_error("Version not recognized.");
     }
 
 private:
     static void convert_0_7_1_to_0_8_0(json& obj)
     {
         obj["version"] = "0.8";
+        obj["settings"]["arrow_clamp_force"] = 0.0;
     }
 
     static void convert_0_7_0_to_0_7_1(json& obj)
     {
         obj["version"] = "0.7.1";
     }
-    
+
     static void convert_0_6_1_to_0_7_0(json& obj)
     {
         obj["version"] = "0.7";
@@ -256,5 +255,3 @@ private:
         obj["meta"]["version"] = "0.2";
     }
 };
-
-
