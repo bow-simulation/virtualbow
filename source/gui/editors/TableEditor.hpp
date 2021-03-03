@@ -26,6 +26,6 @@ private:
     void pasteToSelection();
     void deleteSelection();
 
-    QVector<int> getSelectedRows();
+    QVector<int> getSelectedIndices();
 };
 

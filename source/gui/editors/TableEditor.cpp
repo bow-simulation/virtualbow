@@ -71,13 +71,12 @@ TableEditor::TableEditor(const QList<QString>& labels, int rows)
     });
 
     QObject::connect(this, &QTableWidget::itemSelectionChanged, this, [&] {
-        emit this->rowSelectionChanged(getSelectedRows());
+        emit this->rowSelectionChanged(getSelectedIndices());
     });
 }
 
 MatrixXd TableEditor::getData() const
 {
-
     std::vector<std::vector<double>> temp;
     for(int i = 0; i < rowCount(); ++i)
     {
@@ -198,20 +197,24 @@ void TableEditor::deleteSelection()
     emit modified();
 }
 
-QVector<int> TableEditor::getSelectedRows()
+QVector<int> TableEditor::getSelectedIndices()
 {
-    QVector<int> rows;
-    for(int i = 0; i < rowCount(); ++i)
+    QVector<int> selection;
+    int index = 0;
+    for(int i = 0; i < this->rowCount(); ++i)
     {
-        for(int j = 0; j < columnCount(); ++j)
+        bool arg_valid, val_valid;
+        QLocale().toDouble(this->item(i, 0)->text(), &arg_valid);
+        QLocale().toDouble(this->item(i, 1)->text(), &val_valid);
+
+        if(arg_valid && val_valid)
         {
-            if(this->item(i, j)->isSelected())
-            {
-                rows.push_back(i);
-                break;
-            }
+            if(this->item(i, 0)->isSelected() || this->item(i, 1)->isSelected())
+                selection.push_back(index);
+
+            ++index;
         }
     }
 
-    return rows;
+    return selection;
 }

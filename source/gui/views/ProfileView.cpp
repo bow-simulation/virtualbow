@@ -13,7 +13,7 @@ ProfileView::ProfileView()
     curve0->setPen({Qt::blue, 2});
     curve0->setScatterSkip(0);    // Having to explicitly state this is retarded
 
-    // Nodes
+    // Unselected nodes
     curve1 = new QCPCurve(this->xAxis, this->yAxis);
     curve1->setScatterStyle({QCPScatterStyle::ssSquare, Qt::blue, 8});
     curve1->setLineStyle(QCPCurve::lsNone);
@@ -38,6 +38,8 @@ void ProfileView::setSelection(const QVector<int>& indices)
     updatePlot();
 }
 
+#include <iostream>
+
 void ProfileView::updatePlot()
 {
     curve0->data()->clear();
@@ -46,7 +48,7 @@ void ProfileView::updatePlot()
 
     try
     {
-        ProfileCurve profile(input);
+        ProfileCurve profile(input, 0.0, 0.0, 0.0);
 
         // Add profile curve
         for(double s: Linspace<double>(profile.s_min(), profile.s_max(), 150))    // Magic number
@@ -55,17 +57,19 @@ void ProfileView::updatePlot()
             curve0->addData(point[0], point[1]);
         }
 
-        // Add control points
-        for(size_t i = 0; i < profile.get_points().size(); ++i)
+        // Add control points depending on selection status
+        for(int i = 0; i < input.rows(); ++i)
         {
-            auto& point = profile.get_points()[i];
-            if(selection.contains(i))
-                curve2->addData(point.x, point.y);
-            else
-                curve1->addData(point.x, point.y);
+            Vector<3> point = profile(input(i, 0));
+            if(selection.contains(i)) {
+                curve2->addData(point[0], point[1]);
+            }
+            else {
+                curve1->addData(point[0], point[1]);
+            }
         }
     }
-    catch(const std::invalid_argument&)
+    catch(const std::invalid_argument& e)
     {
         curve0->data()->clear();
         curve1->data()->clear();
