@@ -36,10 +36,10 @@ Settings SettingsDialog::getData() const
     data.n_limb_elements = edit0->getData();
     data.n_string_elements = edit1->getData();
     data.n_draw_steps = edit2->getData();
-    data.time_span_factor = edit3->getData();
-    data.time_step_factor = edit4->getData();
-    data.sampling_rate = edit5->getData();
-    data.arrow_clamp_force = edit6->getData();
+    data.arrow_clamp_force = edit3->getData();
+    data.time_span_factor = edit4->getData();
+    data.time_step_factor = edit5->getData();
+    data.sampling_rate = edit6->getData();
 
     return data;
 }
@@ -49,8 +49,8 @@ void SettingsDialog::setData(const Settings& data)
     edit0->setData(data.n_limb_elements);
     edit1->setData(data.n_string_elements);
     edit2->setData(data.n_draw_steps);
-    edit3->setData(data.time_span_factor);
-    edit4->setData(data.time_step_factor);
-    edit5->setData(data.sampling_rate);
-    edit6->setData(data.arrow_clamp_force);
+    edit3->setData(data.arrow_clamp_force);
+    edit4->setData(data.time_span_factor);
+    edit5->setData(data.time_step_factor);
+    edit6->setData(data.sampling_rate);
 }
