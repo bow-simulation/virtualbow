@@ -43,7 +43,7 @@ void SplineView::updatePlot()
     try
     {
         CubicSpline spline = CubicSpline(input);
-        for(double p: Linspace<double>(spline.arg_min(), spline.arg_max(), 100))    // Magic number
+        for(double p: Linspace<double>(spline.arg_min(), spline.arg_max(), 500))    // Magic number
         {
             this->graph(0)->addData(p, spline(p));
         }
