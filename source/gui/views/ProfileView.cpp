@@ -51,7 +51,7 @@ void ProfileView::updatePlot()
         ProfileCurve profile(input, 0.0, 0.0, 0.0);
 
         // Add profile curve
-        for(double s: Linspace<double>(profile.s_min(), profile.s_max(), 150))    // Magic number
+        for(double s: Linspace<double>(profile.s_min(), profile.s_max(), 500))    // Magic number
         {
             Vector<3> point = profile(s);
             curve0->addData(point[0], point[1]);
