@@ -7,7 +7,7 @@ struct Layer
     std::string name = "New layer";
     MatrixXd height{{0.0, 0.015}, {1.0, 0.01}};
 
-    double rho = 650.0;
+    double rho = 600.0;
     double E = 15e9;
 };
 
