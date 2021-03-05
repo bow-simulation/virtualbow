@@ -17,9 +17,13 @@ QColor getLayerColor(const LayerProperties& layer)
 
 QColor getLayerColor(double rho, double E)
 {
-    std::mt19937 rng(unsigned(rho)*unsigned(E));
-    std::uniform_real_distribution<qreal> uni(0.0, 1.0);
-    return QColor::fromHsvF(uni(rng), 0.8, 1.0);
+    // Random distributions for HSV color components
+    std::uniform_int_distribution<int> h(15, 60);
+    std::uniform_int_distribution<int> s(175, 255);
+    std::uniform_int_distribution<int> v(225, 255);
+
+    std::mt19937 rng((unsigned) (rho*E));    // Seed randum number generator with material properties
+    return QColor::fromHsv(h(rng), s(rng), v(rng));    // Generate random color from distributions
 }
 
 QPixmap getLayerPixmap(const Layer& layer)
