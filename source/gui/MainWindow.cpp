@@ -7,8 +7,8 @@
 #include <nlohmann/json.hpp>
 
 MainWindow::MainWindow()
-    : editor(new BowEditor()),
-      menu_recent(new RecentFilesMenu(this))
+    : menu_open_recent(new RecentFilesMenu(this)),
+      editor(new BowEditor())
 {
     // Actions
     action_new = new QAction(QIcon(":/icons/document-new.svg"), "&New", this);
@@ -49,13 +49,13 @@ MainWindow::MainWindow()
     action_run_dynamics->setIconVisibleInMenu(true);
 
     // Recent file menu
-    QObject::connect(menu_recent, &RecentFilesMenu::openRecent, this, &MainWindow::openRecent);
+    QObject::connect(menu_open_recent, &RecentFilesMenu::openRecent, this, &MainWindow::openRecent);
 
     // File menu
     auto menu_file = this->menuBar()->addMenu("&File");
     menu_file->addAction(action_new);
     menu_file->addAction(action_open);
-    menu_file->addMenu(menu_recent);
+    menu_file->addMenu(menu_open_recent);
     menu_file->addSeparator();
     menu_file->addAction(action_save);
     menu_file->addAction(action_save_as);
@@ -89,8 +89,8 @@ MainWindow::MainWindow()
     this->setStyleSheet("QMainWindow { background-image:url(:/icons/background.svg); background-position: center; background-repeat: no-repeat; }");
     this->menuBar()->setAutoFillBackground(true);
     this->setCentralWidget(editor);
-    this->resize(INITIAL_SIZE);
-    setCurrentFile(QString());
+    this->resize(DEFAULT_SIZE);
+    setFilePath(QString());
 
     // Load geometry and state
     QSettings settings;
@@ -102,123 +102,121 @@ MainWindow::MainWindow()
         InputData new_data = editor->getData();
         this->setModified(new_data != data);
     });
-
-    // Disable editing until a file has been loaded or created
-    setEditingEnabled(false);
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
-{
-    if(optionalSave())
-    {
-        event->accept();
-
-        // Save state and geometry
-        QSettings settings;
-        settings.setValue("MainWindow/state", saveState());
-        settings.setValue("MainWindow/geometry", saveGeometry());
-    }
-    else
-    {
-        event->ignore();
-    }
-}
-
-// Todo: Unify loadFile and saveFile?
-bool MainWindow::loadFile(const QString& path)
-{
-    try
-    {
+// Load input file from a file and show the contents in the editor
+// Returns true on success and false on failure
+bool MainWindow::loadFromFile(const QString& path) {
+    try {
+        // Load data from path, set editor and window state
         data = InputData(path.toStdString());
         editor->setData(data);
-        setCurrentFile(path);
+        setFilePath(path);
         setModified(false);
-        setEditingEnabled(true);
+
+        // Add path to the menu of recently opened files
+        menu_open_recent->addPath(path);
+
         return true;
     }
-    catch(const std::exception& e)  // Todo
-    {
+    catch(const std::exception& e) {
         QMessageBox::critical(this, "Error", "Failed to open " + path + "\n" + e.what());
         return false;
     }
 }
 
-bool MainWindow::saveFile(const QString& path)
-{
-    try
-    {
+// Save the editor contents to a file
+// Returns true on success and false on failure
+bool MainWindow::saveToFile(const QString& path) {
+    try {
         data = editor->getData();
         data.save(path.toStdString());
-        setCurrentFile(path);
+        setFilePath(path);
         setModified(false);
         return true;
     }
-    catch(const std::exception& e)  // Todo
-    {
+    catch(const std::exception& e) {
         QMessageBox::critical(this, "Error", "Failed to save " + path + "\n" + e.what());
         return false;
     }
 }
 
-void MainWindow::newFile()
-{
-    if(!saveAs())
-        return;
+void MainWindow::closeEvent(QCloseEvent *event) {
+    if(optionalSaveModifications()) {
+        // Changes successfully saved or discarded
+        // Continue closing, save window state and geometry
+        QSettings settings;
+        settings.setValue("MainWindow/state", saveState());
+        settings.setValue("MainWindow/geometry", saveGeometry());
+        event->accept();
+    }
+    else {
+        // Optional save dialog canceled, abort closing
+        event->ignore();
+    }
+}
 
+void MainWindow::newFile() {
+    // Make sure any modifications have been saved or discarded
+    if(!optionalSaveModifications()) {
+        return;
+    }
+
+    // Open file dialog, let user pick a new file name and location
+    QString path = showSaveFileDialog();
+    if(path.isEmpty()) {
+        return;    // Abort if no result (canceled)
+    }
+
+    // Set editor to new default content and save to the selected path
     data = InputData();
     editor->setData(data);
-
-    setModified(false);
-    setEditingEnabled(true);
+    saveToFile(path);
 }
 
-void MainWindow::open()
-{
-    if(!optionalSave())
+void MainWindow::open() {
+    // Make sure any modifications have been saved or discarded
+    if(!optionalSaveModifications()) {
         return;
+    }
 
-    QFileDialog dialog(this);
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setNameFilter("Model Files (*.bow)");
+    // Open file dialog, let user pick a new file name and location
+    QString path = showOpenFileDialog();
+    if(path.isEmpty()) {
+        return;    // Abort if no result (canceled)
+    }
 
-    if(dialog.exec() == QDialog::Accepted)
-        loadFile(dialog.selectedFiles().first());
+    // Load editor content from the selected path
+    loadFromFile(path);
 }
 
-void MainWindow::openRecent(const QString& path)
-{
-    if(!optionalSave())
+void MainWindow::openRecent(const QString& path) {
+    // Make sure any modifications have been saved or discarded
+    if(!optionalSaveModifications()) {
         return;
+    }
 
-    loadFile(path);
+    // Load editor content from the selected path
+    loadFromFile(path);
 }
 
-bool MainWindow::save()
-{
-    if(this->windowFilePath().isEmpty())
-        return saveAs();
-
-    return saveFile(this->windowFilePath());
+bool MainWindow::save() {
+    return saveToFile(this->windowFilePath());
 }
 
-bool MainWindow::saveAs()
-{
-    QFileDialog dialog(this);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setNameFilter("Bow Files (*.bow)");
-    dialog.setDefaultSuffix("bow");
-    dialog.selectFile(this->windowFilePath().isEmpty() ? DEFAULT_FILENAME : this->windowFilePath());
-
-    if(dialog.exec() == QDialog::Accepted)
-        return saveFile(dialog.selectedFiles().first());
+bool MainWindow::saveAs() {
+    QString path = showSaveFileDialog();
+    if(!path.isEmpty()) {
+        return saveToFile(path);
+    }
 
     return false;
 }
 
-void MainWindow::runSimulation(const QString& flag)
-{
-    if(!save())
+void MainWindow::runSimulation(const QString& flag) {
+    if(!save()) {
         return;
+    }
 
     // Generate output filename
     QFileInfo info(this->windowFilePath());
@@ -226,8 +224,7 @@ void MainWindow::runSimulation(const QString& flag)
 
     // Run Simulation, launch Post on results if successful
     SimulationDialog dialog(this, this->windowFilePath(), output_file, flag);
-    if(dialog.exec() == QDialog::Accepted)
-    {
+    if(dialog.exec() == QDialog::Accepted) {
         QProcess::startDetached(
             QDir(QCoreApplication::applicationDirPath()).filePath("virtualbow-post"),
             { output_file },
@@ -236,29 +233,65 @@ void MainWindow::runSimulation(const QString& flag)
     }
 }
 
-// Workaround to prevent QApplication::applicationDisplayName from being appended to every dialog
-// https://bugreports.qt.io/browse/QTBUG-70382
-void MainWindow::setModified(bool modified)
-{
-    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_GUI);
-    setWindowModified(modified);
-    QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
-}
-
-void MainWindow::setCurrentFile(const QString &path)
-{
-    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_GUI);
-    setWindowFilePath(path);
-    if(!path.isEmpty())
-    {
-        menu_recent->addPath(path);
+// If there are modifications to the current document, ask the user whether to save, discard or cancel.
+// Returns true when successfully saved or discarded, false when canceled.
+bool MainWindow::optionalSaveModifications() {
+    if(!this->isWindowModified()) {
+        return true;    // No modifications to save
     }
 
-    QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
+    auto pick = QMessageBox::warning(this, "Save Changes?", "Do you want to save the changes to " + this->windowFilePath() + "?",
+                    QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+
+    switch(pick) {
+        case QMessageBox::Save: return save();
+        case QMessageBox::Discard: return true;
+        case QMessageBox::Cancel: return false;
+        default: return false;  // Can't happen
+    }
 }
 
-void MainWindow::setEditingEnabled(bool enabled)
-{
+// Show a file dialog for selecting a model file to open.
+// Returns the filepath if successful, an empty string otherwise.
+QString MainWindow::showOpenFileDialog() {
+    QFileDialog dialog(this);
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+    dialog.setNameFilter("Model Files (*.bow)");
+
+    if(dialog.exec() == QDialog::Accepted) {
+        return dialog.selectedFiles().first();
+    }
+
+    return QString();
+}
+
+// Show a file dialog for selecting a model file to save to.
+// Returns the filepath if successful, an empty string otherwise.
+QString MainWindow::showSaveFileDialog() {
+    QFileDialog dialog(this);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setNameFilter("Model Files (*.bow)");
+    dialog.setDefaultSuffix("bow");
+    dialog.selectFile(this->windowFilePath().isEmpty() ? DEFAULT_FILENAME : this->windowFilePath());
+
+    if(dialog.exec() == QDialog::Accepted) {
+        return dialog.selectedFiles().first();
+    }
+
+    return QString();
+}
+
+// Set the path of the file currently opened in the editor.
+// May be empty to signal that no file is opened.
+void MainWindow::setFilePath(const QString &path) {
+    // Set the file path of this window. Workaround to prevent QApplication::applicationDisplayName
+    // from being appended to every dialog, see https://bugreports.qt.io/browse/QTBUG-70382
+    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_GUI);
+    setWindowFilePath(path);
+    QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
+
+    // If path is not empty, enable editing, saving and simulation
+    bool enabled = !path.isEmpty();
     editor->setVisible(enabled);
     action_save->setEnabled(enabled);
     action_save_as->setEnabled(enabled);
@@ -266,20 +299,10 @@ void MainWindow::setEditingEnabled(bool enabled)
     action_run_dynamics->setEnabled(enabled);
 }
 
-// true: Discard and save, false: Cancel and don't save
-bool MainWindow::optionalSave()
-{
-    if(!this->isWindowModified())
-        return true;
-
-    auto pick = QMessageBox::warning(this, "Save Document?", "The document has been modified.\nDo you want to save your changes?",
-                QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-
-    switch(pick)
-    {
-        case QMessageBox::Save: return save();
-        case QMessageBox::Discard: return true;
-        case QMessageBox::Cancel: return false;
-        default: return false;  // Can't happen
-    }
+// Set the modified property of this window. Workaround to prevent QApplication::applicationDisplayName
+// from being appended to every dialog, see https://bugreports.qt.io/browse/QTBUG-70382
+void MainWindow::setModified(bool modified) {
+    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_GUI);
+    setWindowModified(modified);
+    QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
 }
