@@ -48,9 +48,6 @@ MainWindow::MainWindow()
     action_run_dynamics->setMenuRole(QAction::NoRole);
     action_run_dynamics->setIconVisibleInMenu(true);
 
-    // Recent file menu
-    QObject::connect(menu_open_recent, &RecentFilesMenu::openRecent, this, &MainWindow::openRecent);
-
     // File menu
     auto menu_file = this->menuBar()->addMenu("&File");
     menu_file->addAction(action_new);
@@ -61,6 +58,10 @@ MainWindow::MainWindow()
     menu_file->addAction(action_save_as);
     menu_file->addSeparator();
     menu_file->addAction(action_quit);
+
+    // Recent files menu
+    QObject::connect(menu_open_recent, &RecentFilesMenu::openRecent, this, &MainWindow::openRecent);
+    QObject::connect(menu_file, &QMenu::aboutToShow, [&]{ menu_open_recent->updateActions(); });
 
     // Simulation menu
     auto menu_simulation = this->menuBar()->addMenu("&Simulate");
