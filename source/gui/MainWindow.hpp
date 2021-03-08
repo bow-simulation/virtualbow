@@ -5,16 +5,16 @@
 class BowEditor;
 class RecentFilesMenu;
 
-class MainWindow: public QMainWindow
-{
+class MainWindow: public QMainWindow {
 public:
     MainWindow();
-    bool loadFile(const QString& path);
-    bool saveFile(const QString& path);
+
+    bool loadFromFile(const QString& path);
+    bool saveToFile(const QString& path);
 
 private:
     const char* DEFAULT_FILENAME = "Unnamed";
-    const QSize INITIAL_SIZE = {1200, 700};
+    const QSize DEFAULT_SIZE = { 1200, 700 };
 
     QAction* action_new;
     QAction* action_open;
@@ -23,7 +23,7 @@ private:
     QAction* action_quit;
     QAction* action_run_statics;
     QAction* action_run_dynamics;
-    RecentFilesMenu* menu_recent;
+    RecentFilesMenu* menu_open_recent;
 
     InputData data;
     BowEditor* editor;
@@ -38,8 +38,10 @@ private:
 
     void runSimulation(const QString& flag);
 
-    void setCurrentFile(const QString& path);
+    bool optionalSaveModifications();
+    QString showOpenFileDialog();
+    QString showSaveFileDialog();
+
+    void setFilePath(const QString& path);
     void setModified(bool modified);
-    void setEditingEnabled(bool enabled);
-    bool optionalSave();
 };

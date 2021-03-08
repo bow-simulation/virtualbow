@@ -46,7 +46,7 @@ and requires [node-appdmg](https://github.com/LinusU/node-appdmg) for creating t
     * CMakeLists.txt
 * Solve all issues in the current milestone
 * Implement a conversion from bow files of the previous version
-* Execute manual tests defined below on all platforms
+* Execute basic manual tests defined below on all platforms and other tests if relevant
 * Update user manual, place copy into resources/docs
 * Create new changelog entry
 * Create commit, merge to master and possibly develop
@@ -59,6 +59,8 @@ and requires [node-appdmg](https://github.com/LinusU/node-appdmg) for creating t
 * Post to r/VirtualBow 
 
 # Manual Tests
+
+## Basic Tests
 
 * Tested platforms:
     * Windows 10
@@ -80,3 +82,53 @@ and requires [node-appdmg](https://github.com/LinusU/node-appdmg) for creating t
 
 * VirtualBow Solver
     * Simulate all `.bow` files of the previous version in /examples to verify compatibility
+
+## File Actions
+
+Described below is what should be happen when one of the file menu actions (New File, Open, Save, Save As, Quit) is performed, depending on the state of the editor (no file loaded, file loaded, file modified) and the subsequent choices made by the user.
+
+- **No file loaded**
+    - **New File:** Open a file dialog to pick a new filename and location
+        - **Save:** Create new file at the chosen location and show its contents in the editor
+        - **Cancel:** No action, back to the main window
+    - **Open:** Open a file dialog and let the user pick an existing file
+        - **Open:** Open the chosen file and show its contents in the editor
+        - **Cancel:** No action, back to the main window
+    - **Save:** Disabled
+    - **Save As:** Disabled
+    - **Quit:** Exit the application
+
+- **File loaded**
+    - **New File:** Open a file dialog to pick a new filename and location
+        - **Save:** Create new file at the chosen location and show its contents in the editor
+        - **Cancel:** No action, back to the main window
+    - **Open:** Open a file dialog and let the user pick an existing file
+        - **Open:** Open the chosen file and show its contents in the editor
+        - **Cancel:** No action, back to the main window
+    - **Save:** Save the contents of the editor to the current file (no effect)
+    - **Save As:** Open a file dialog to pick a new filename and location
+        - **Save:** Save contents to the chosen location and show them in the editor
+        - **Cancel:** No action, back to the main window
+    - **Quit:** Exit the application
+
+- **File modified**
+    - **New File:** Ask whether to save changes to the current file
+        - **Yes:** Save current editor content. Open a file dialog to pick a new filename and location
+            - **Save:** Create new file at the chosen location and show its contents in the editor
+            - **Cancel:** No action, back to the main window
+        - **No:** Create new file at the chosen location and show its contents in the editor
+        - **Cancel:** No action, back to the main window
+     - **Open:** Ask whether to save changes to the current file
+        - **Yes:** Save current editor content. Open file dialog and let the user pick an existing file
+            - **Open:** Create new file at the chosen location and show its contents in the editor
+            - **Cancel:** No action, back to the main window
+        - **No:** Create new file at the chosen location and show its contents in the editor
+        - **Cancel:** No action, back to the main window
+    - **Save:** Save the contents of the editor to the current file
+    - **Save As:** Open a file dialog to pick a new filename and location
+        - **Save:** Save contents to the chosen location and show them in the editor
+        - **Cancel:** No action, back to the main window
+    - **Quit:** Ask whether to save changes to the current file
+        - **Yes:** Save the current editor content. Exit the application.
+        - **No:** Exit the application
+        - **Cancel:** No action, back to the main window
