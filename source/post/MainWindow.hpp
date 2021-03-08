@@ -16,7 +16,7 @@ private:
     QAction* action_open;
     QAction* action_save_as;
     QAction* action_quit;
-    RecentFilesMenu* menu_recent;
+    RecentFilesMenu* menu_open_recent;
 
     void closeEvent(QCloseEvent *event) override;
 

@@ -32,9 +32,6 @@ RecentFilesMenu::RecentFilesMenu(QWidget* parent)
         recentFilePaths.append(settings.value("path").toString());
     }
     settings.endArray();
-
-    // Update actions any time the menu is shown
-    QObject::connect(this, &QMenu::aboutToShow, this, &RecentFilesMenu::updateActions);
 }
 
 RecentFilesMenu::~RecentFilesMenu() {
@@ -63,8 +60,7 @@ void RecentFilesMenu::clearPaths() {
     recentFilePaths.clear();
 }
 
-void RecentFilesMenu::updateActions()
-{
+void RecentFilesMenu::updateActions() {
     // Remove paths that no longer exist
     for(int i = 0; i < recentFilePaths.size(); ++i) {
         if(!QFile::exists(recentFilePaths[i])) {
