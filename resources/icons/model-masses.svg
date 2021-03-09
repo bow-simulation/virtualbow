@@ -1,35 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   id="svg8"
-   version="1.1"
-   viewBox="0 0 4 4"
-   height="16"
-   width="16">
-  <defs
-     id="defs2" />
-  <metadata
-     id="metadata5">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <g
-     transform="translate(-12.726661,-289.21813)"
-     id="layer1">
-    <path
-       id="path814"
-       d="m 13.601661,292.59313 h 2.25 v -1.5 c 0,-0.16071 -0.08929,-0.25 -0.25,-0.25 h -0.25 c -0.264966,0 -0.253348,-0.0943 -0.252307,-0.25782 10e-4,-0.15792 0.03513,-0.24218 0.252307,-0.24218 0.24696,0.004 0.25,-0.5 -0.25,-0.5 h -0.75 c -0.5,0 -0.486344,0.49201 -0.250084,0.50023 0.147888,9.8e-4 0.251693,0.1045 0.250076,0.25 -0.0016,0.1483 -0.09551,0.24902 -0.250076,0.25 h -0.25 c -0.160715,0 -0.25,0.0893 -0.25,0.25004 z"
-       style="fill:none;stroke:#3a3a38;stroke-width:0.375;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-  </g>
-</svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="16" height="16" version="1.1" viewBox="0 0 4 4" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><metadata><rdf:RDF><cc:Work rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/><dc:title/></cc:Work></rdf:RDF></metadata><g transform="translate(-12.727 -289.22)"><path d="m13.602 292.59h2.25v-1.5c0-0.16071-0.08929-0.25-0.25-0.25h-0.25c-0.26497 0-0.25335-0.0943-0.25231-0.25782 1e-3 -0.15792 0.03513-0.24218 0.25231-0.24218 0.24696 4e-3 0.25-0.5-0.25-0.5h-0.75c-0.5 0-0.48634 0.49201-0.25008 0.50023 0.14789 9.8e-4 0.25169 0.1045 0.25008 0.25-0.0016 0.1483-0.09551 0.24902-0.25008 0.25h-0.25c-0.16072 0-0.25 0.0893-0.25 0.25004z" fill="none" stroke="#3a3a38" stroke-width=".375"/></g></svg>

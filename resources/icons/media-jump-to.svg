@@ -1,38 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   id="svg5"
-   version="1.1"
-   viewBox="0 0 32 32">
-  <metadata
-     id="metadata9">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <defs
-     id="defs3051">
-    <style
-       id="current-color-scheme"
-       type="text/css">
-      .ColorScheme-Text {
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><metadata><rdf:RDF><cc:Work rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/><dc:title/></cc:Work></rdf:RDF></metadata><defs><style id="current-color-scheme" type="text/css">.ColorScheme-Text {
         color:#232629;
-      }
-      </style>
-  </defs>
-  <path
-     class="ColorScheme-Text"
-     id="path105"
-     d="M 27,8 H 5 l 11,16 z"
-     style="color:#232629;fill:currentColor;fill-opacity:1;stroke:none" />
-</svg>
+      }</style></defs><path class="ColorScheme-Text" d="m27 8h-22l11 16z" color="#232629" fill="currentColor"/></svg>

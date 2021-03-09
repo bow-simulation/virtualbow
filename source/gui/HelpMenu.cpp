@@ -35,7 +35,7 @@ void HelpMenu::help()
         }
     }
 
-    QMessageBox::critical(this->parentWidget(), "Error", "Failed to open user manual, file not found.");
+    QMessageBox::critical(this->parentWidget(), "Error", "Failed to open the user manual, file not found.");
 }
 
 void HelpMenu::about()
