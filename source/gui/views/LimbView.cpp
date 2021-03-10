@@ -140,14 +140,21 @@ void LimbView::initializeGL()
     // Shaders
 
     background_shader = new QOpenGLShaderProgram(this);
-    background_shader->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/BackgroundShader.vs");
-    background_shader->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/BackgroundShader.fs");
+    background_shader->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/BackgroundShader.vert");
+    background_shader->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/BackgroundShader.frag");
+    background_shader->bindAttributeLocation("modelPosition", 0);
+    background_shader->bindAttributeLocation("modelNormal", 1);
+    background_shader->bindAttributeLocation("modelColor", 2);
     background_shader->link();
 
     model_shader = new QOpenGLShaderProgram(this);
-    model_shader->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/ModelShader.vs");
-    model_shader->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/ModelShader.fs");
+    model_shader->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/ModelShader.vert");
+    model_shader->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/ModelShader.frag");
+    model_shader->bindAttributeLocation("modelPosition", 0);
+    model_shader->bindAttributeLocation("modelNormal", 1);
+    model_shader->bindAttributeLocation("modelColor", 2);
     model_shader->link();
+
     model_shader->bind();
     model_shader->setUniformValue("cameraPosition", CAMERA_POSITION);
     model_shader->setUniformValue("lightPosition", LIGHT_POSITION);
@@ -181,7 +188,7 @@ void LimbView::initializeGL()
             }
         };
 
-        srand(std::time(0));
+        srand(std::time(nullptr));
         auto random_in_range = [](float lower, float upper) {
             return lower + static_cast<float>(rand())/static_cast<float>(RAND_MAX/(upper - lower));
         };

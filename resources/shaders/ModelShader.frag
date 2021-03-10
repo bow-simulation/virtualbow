@@ -1,8 +1,8 @@
-#version 330 core
+#version 120
 
-in vec3 FragPos;
-in vec3 Normal;
-in vec3 Color;
+varying vec3 FragPos;
+varying vec3 Normal;
+varying vec3 Color;
 
 uniform vec3 cameraPosition;
 uniform vec3 lightPosition;

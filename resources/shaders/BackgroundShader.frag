@@ -1,6 +1,6 @@
-#version 330 core
+#version 120
 
-in vec3 fragColor;
+varying vec3 fragColor;
 
 void main()
 {
