@@ -1,5 +1,7 @@
 #include "LayerColors.hpp"
 #include <boost/functional/hash.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
 #include <random>
 
 
@@ -15,20 +17,25 @@ QColor getLayerColor(const LayerProperties& layer)
     return getLayerColor(layer.rho, layer.E);
 }
 
+#include <iostream>
 QColor getLayerColor(double rho, double E)
 {
+    using boost::random::uniform_int_distribution;
+    using boost::random::mt19937_64;
+    using boost::hash_combine;
+
     // Random distributions for HSV color components
-    std::uniform_int_distribution<int> h(0, 75);
-    std::uniform_int_distribution<int> s(150, 255);
-    std::uniform_int_distribution<int> v(225, 255);
+    uniform_int_distribution<int> h(0, 70);
+    uniform_int_distribution<int> s(100, 220);
+    uniform_int_distribution<int> v(100, 220);
 
     // Create a seed from the material properties
     size_t seed = 0;
-    boost::hash_combine(seed, rho);
-    boost::hash_combine(seed, E);
+    hash_combine(seed, rho);
+    hash_combine(seed, E);
 
     // Generate random color from seed and distributions
-    std::mt19937_64 rng(seed);
+    mt19937_64 rng(seed);
     return QColor::fromHsv(h(rng), s(rng), v(rng));
 }
 
