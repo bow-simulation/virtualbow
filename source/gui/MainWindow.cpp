@@ -115,7 +115,7 @@ bool MainWindow::loadFromFile(const QString& path) {
         setFilePath(path);
         setModified(false);
 
-        // Add path to the menu of recently opened files
+        // Add path to the menu of recently used files
         menu_open_recent->addPath(path);
 
         return true;
@@ -134,6 +134,10 @@ bool MainWindow::saveToFile(const QString& path) {
         data.save(path.toStdString());
         setFilePath(path);
         setModified(false);
+
+        // Add path to the menu of recently used files
+        menu_open_recent->addPath(path);
+
         return true;
     }
     catch(const std::exception& e) {
