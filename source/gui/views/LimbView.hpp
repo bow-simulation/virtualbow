@@ -14,16 +14,16 @@ private:
     const QColor BACKGROUND_COLOR_2 = QColor::fromHsv(200, 30, 170);
 
     const QVector3D CAMERA_POSITION = { 0.0f, 0.0f, 10.0f };
-    const QVector3D LIGHT_POSITION = { 0.0f, 0.0f, 10.0f };
+    const QVector3D LIGHT_POSITION = { 0.0f, 5.0f, 10.0f };
     const QVector3D LIGHT_COLOR = { 1.0f, 1.0f, 1.0f };
 
     const float CAMERA_NEAR_PLANE = 0.01f;
     const float CAMERA_FAR_PLANE = 100.0f;
 
-    const float MATERIAL_AMBIENT_STRENGTH = 0.2f;
-    const float MATERIAL_DIFFUSE_STRENGTH = 0.9f;
-    const float MATERIAL_SPECULAR_STRENGTH = 0.5f;
-    const float MATERIAL_SHININESS = 64.0f;
+    const float MATERIAL_AMBIENT_STRENGTH = 0.3f;
+    const float MATERIAL_DIFFUSE_STRENGTH = 0.8f;
+    const float MATERIAL_SPECULAR_STRENGTH = 0.2f;
+    const float MATERIAL_SHININESS = 32.0f;
 
     const float DEFAULT_ROT_X = 31.0f;   // Trimetric view
     const float DEFAULT_ROT_Y = -28.0f;  // Trimetric view
