@@ -92,7 +92,7 @@ OutputData::OutputData(SetupData setup, BowStates static_states, BowStates dynam
 
         statics.final_draw_force = draw_force_back;
         statics.drawing_work = e_pot_back - e_pot_front;
-        statics.energy_factor = (e_pot_back - e_pot_front)/(0.5*(draw_length_back - draw_length_front)*draw_force_back);
+        statics.energy_storage_factor = (e_pot_back - e_pot_front)/(0.5*(draw_length_back - draw_length_front)*draw_force_back);
         statics.max_string_force_index = max_abs_force(static_states.string_force);
         statics.max_grip_force_index = max_abs_force(static_states.grip_force);
         statics.max_draw_force_index = max_abs_force(static_states.draw_force);

@@ -83,7 +83,7 @@ StaticOutputWidget::StaticOutputWidget(const OutputData& data)
     numbers->addGroup("Performance");
     numbers->addValue("Final draw force [N]", data.statics.final_draw_force);
     numbers->addValue("Drawing work [J]", data.statics.drawing_work);
-    numbers->addValue("Energy factor", data.statics.energy_factor);
+    numbers->addValue("Energy storage factor", data.statics.energy_storage_factor);
     numbers->addGroup("Properties");
     numbers->addValue("Limb mass [kg]", data.setup.limb_mass);
     numbers->addValue("String mass [kg]", data.setup.string_mass);
