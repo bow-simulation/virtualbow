@@ -4,7 +4,12 @@
 \usepackage{parskip}	% Blank line between paragraphs
 \usepackage[top=1in, bottom=1.25in, left=1.25in, right=1.25in]{geometry} % Page margins
 \usepackage{float} % Placement of figures with H
-\renewcommand{\familydefault}{\sfdefault} % Use sans-serif font (https://tex.stackexchange.com/a/2097)
+\renewcommand{\familydefault}{\sfdefault} % Use sans-serif font, https://tex.stackexchange.com/a/2097
+
+\usepackage{titlesec}    % Decrease spacing around section titles, https://tex.stackexchange.com/a/53341
+\titlespacing\section{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing\subsection{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing\subsubsection{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
 
 % Maths
 \usepackage{graphicx}
@@ -14,8 +19,10 @@
 
 \usepackage[hidelinks, pdfusetitle]{hyperref}
 
-% Code listings, https://tex.stackexchange.com/a/99476
-\usepackage{minted}
+% Code listings
+% https://tex.stackexchange.com/a/99476
+% https://tex.stackexchange.com/a/373256
+\usepackage[cache=false]{minted}
 \usemintedstyle{vs}
 
 % Utillities
@@ -37,8 +44,8 @@
 
 % Parameters
 \newcommand{\version}{0.8}
-\newcommand{\website}{\href{http://www.virtualbow.org/}{\texttt{\textcolor{blue}{http://www.virtualbow.org/}}}}
-\newcommand{\copyrights}{Copyright (C) 2016-2020 Stefan Pfeifer}
+\newcommand{\website}{\url{https://www.virtualbow.org/}}
+\newcommand{\copyrights}{Copyright (C) 2016-2021 Stefan Pfeifer}
 
 \begin{document}
 
@@ -65,51 +72,63 @@
 \section{Introduction}
 \bigskip
 
-VirtualBow is a software tool for bow and arrow physics simulation.
-It allows you to design virtual bow models, simulate their static and dynamic behaviour and visualize the results, providing almost immediate feedback about the bow's predicted performance.
-The application consists of the following three components:
+VirtualBow is a software tool for simulating the physics of bow and arrow.
+This manual will show you how to use VirtualBow and understand its various input parameters and output results.
+For support, feedback or to get the latest version of the software and this manual please visit the project's website at \website.
+
+With VirtualBow you can design virtual bow models, simulate their static and dynamic behaviour and visualize the results, providing almost immediate feedback about the bow's predicted performance.
+Like many other simulation tools, VirtualBow consists of three distinct components:
 
 \begin{itemize}
-\item \textbf{VirtualBow:} The model editor and core of the application.
-Create, load and save bow models (.bow), edit their various parameters and launch static and dynamic simulations.
-The model editor takes care of calling the other two components, VirtualBow Solver and VirtualBow Post, although those can be used independently as well.
-
-\item \textbf{VirtualBow Post:} This is the result viewer. It is used for opening and visualizing the simulation results (.res) produced by the solver.
-Here you can analyze and evaluate your bow designs.
-
-\item \textbf{VirtualBow Solver:} The solver performs the actual simulation. It takes a model file (.bow), does the necessary numerical calculations and writes a result file (.res) that can be opened with the result viewer or analyzed by other programs.
+\item A model editor, called \textit{VirtualBow GUI} or just \textit{VirtualBow}
+\item A solver, called \textit{VirtualBow Solver}
+\item A result viewer, called \textit{VirtualBow Post}
 \end{itemize}
 
-\bigskip
+The model editor is the most important part of the application from a user's perspective.
+Here you can create, edit and save bow designs as well as launch simulations.
+The models created here are saved as~\texttt{.bow} files.
+The actual work of running a simulation is done by the solver. It takes a~\texttt{.bow} file as its input, performs the required calculations and writes the results to a~\texttt{.res} file.
+Finally, the result viewer is used for opening and visualizing the~\texttt{.res} files produced by the solver.
+Here you can view the simulation results and evaluate your designs.
 
-The following chapters of this manual will show you how to use the software and its components and explain the various input parameters and simulation results. For help and support, giving feedback or to get the latest version of the software and this manual please visit the project's website at \website
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/overview}
+\caption{Components and file types used by VirtualBow and their connection}
+\label{fig:overview}
+\end{figure}
+
+Usually \textit{VirtualBow GUI} will invoke the other two components for you as needed, but it is worth noting that each of them can also be used independently as well.
+Particularly the solver, which can be important for advanced use cases.
+The following chapters will show you how to use VirtualBow and its components, starting with the model editor.
 
 \newpage
 \section{VirtualBow}
 
 \subsection{Overview}
 
-This is the main application.
+\textit{VirtualBow} or \textit{VirtualBow GUI} is the model editor.
 Here you can load, edit and save bow models and launch simulations.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{figures/screenshots/input/bow-editor}
-\caption{Bow Editor}
+\includegraphics[width=0.9\textwidth]{figures/screenshots/input/bow-editor}
+\caption{Bow editor}
 \label{fig:bow-editor}
 \end{figure}
 
-All the parameters of the bow can be accessed via the model tree on the left.
+All the physical parameters of the bow can be accessed via the model tree on the left.
 Double-click any of the items to edit the respective category.
 The next sections will cover each of those items in more detail.
 
-The 3D view on the right shows the bow's current geometry resulting from those parameters.
+The 3D view on the right shows you the current geometry of the bow resulting from those parameters.
 Use the mouse to rotate (left button), shift (middle button) and zoom (mouse wheel).
-More options are available through the buttons on the bottom-right corner.
+More options are available through the buttons on the top-right corner.
 
-Use the main menu and/or the toolbar to create, load and save bow models, which are stored as .bow files.
-Run a static simulation to analyze the bow being drawn or a dynamic simulation to analyze the bow in motion, i.e. when shooting an arrow.
-The simulation results will be stored next to the model file and opened in VirtualBow Post.
+Use the menu bar and/or the toolbar to create, load and save bow models, which are stored as \texttt{.bow} files.
+Run a static simulation to analyze the bow being drawn or a dynamic simulation to analyze the bow in motion when released.
+The simulation results will be stored next to the model file and automatically opened in \textit{VirtualBow Post} for analysis.
 
 \newpage
 \subsection{Parameters}
@@ -175,7 +194,7 @@ This value is chosen fairly small by default and can improve the simulation resu
 \subsubsection{Dimensions}
 \label{sec:dimensions}
 
-The parameters listed in this dialog define the overall lengths and angles of the bow and its optional stiff middle section. See figure~\ref{fig:dimensions-2} for a visual explanation of those.
+The parameters listed in this dialog define the overall lengths and angles of the bow and its optional stiff middle section. See figure~\ref{fig:dimensions-2} for their definition.
 \bigskip
 
 \begin{figure}[H]
@@ -195,19 +214,19 @@ The parameters listed in this dialog define the overall lengths and angles of th
 \newpage
 \subsubsection{Profile}
 
-The profile curve is the geometric centerline of the bow's limbs in unbraced state.
+The profile curve defined the shape of the bow's back in unbraced state.
 Edit the parameters in the table on the left and view the resulting profile curve on the plot on the right.
 
 \bigskip
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{figures/screenshots/input/profile}
+\includegraphics[width=0.9\textwidth]{figures/screenshots/input/profile}
 \caption{Profile dialog}
 \label{fig:profile}
 \end{figure}
 
-The profile curve is defined by a series of points where each point has an arc length and a curvature.
+The profile curve is defined by a series of points where each point consists of an arc length and a curvature.
 The arc length is the distance of the point along the curve.
 Because of that, the last point also defines the total length of the profile curve.
 The curvature is interpolated linearly between the points, which ensures that there are no jumps in curvature, only smooth transitions.
@@ -234,7 +253,7 @@ The width dialog is used to define the limb's width along its profile curve. Thi
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{figures/screenshots/input/width}
+\includegraphics[width=0.9\textwidth]{figures/screenshots/input/width}
 \caption{Width dialog}
 \label{fig:width}
 \end{figure}
@@ -251,7 +270,7 @@ With the layer dialog you can create any number of layers and specify their heig
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{figures/screenshots/input/layers}
+\includegraphics[width=0.9\textwidth]{figures/screenshots/input/layers}
 \caption{Layer dialog}
 \label{fig:width}
 \end{figure}
@@ -393,7 +412,7 @@ It is launched automatically by the model viewer when a simulation has finished,
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{figures/screenshots/output/result-window}
+\includegraphics[width=0.9\textwidth]{figures/screenshots/output/result-window}
 \caption{Simulation results}
 \label{fig:result-window}
 \end{figure}
@@ -419,9 +438,17 @@ Some of them differ between statics and dynamics.
 \begin{itemize}
 \item \textbf{Final draw force:} Draw force of the bow at full draw
 \item \textbf{Drawing work:} Total work done by drawing the bow. This work is stored in the bow as potential elastic energy and later partially transfered to the arrow, depending on the bow's efficiency. It is equal to the area under the force-draw curve of the bow (See also \textit{Other Plots}).
-    \item \textbf{Energy factor:} This value indicates how good the shape of the draw curve is in terms of energy storage.
-It is defined as the energy stored by the bow in relation to the energy that would have been stored with a linear draw curve,
-$$\mathrm{storage\ ratio} = \frac{\mathrm{drawing\ work}}{1/2\cdot \mathrm{draw\ force}\cdot (\mathrm{draw\ length} - \mathrm{brace\ height})}.$$
+\item \textbf{Energy storage factor:} This value indicates how good the shape of the draw curve is in terms of energy storage.
+It is defined as the energy stored by the bow in relation to the energy that would have been stored with a linear draw curve.
+
+\begin{itemize}
+\item Factor $< 1$: The draw curve stores less energy than a linear draw curve
+\item Factor $= 1$: The draw curve stores as much energy as a linear draw curve
+\item Factor $> 1$: The draw curve stores more energy than a linear draw curve
+\end{itemize}
+
+The energy storage factor increases the more convex the shape of the draw curve is and the more energy it stores.
+
 \item \textbf{Limb mass:} Total mass of a single bow limb, including the additional tip mass
 \item \textbf{String mass:}  Total mass of the bow string, including additional masses
 \item \textbf{String length:} Length of the string, determined by the desired brace height
@@ -440,23 +467,35 @@ $$\mathrm{storage\ ratio} = \frac{\mathrm{drawing\ work}}{1/2\cdot \mathrm{draw\
 \paragraph*{Common}
 
 \begin{itemize}
-\item \textbf{Maximum absolute stresses:} Maximum stress by absolute value for each layer
+\item \textbf{Minimum and maximum stresses:} Maximum stress by absolute value for each layer.
+Positive values indicate tension, negative values compression.
 \item \textbf{Maximum absolute forces:} Maximum forces by absolute value. Entries are the draw force, the string force and the grip support force, i.e. the force that is required to hold the bow handle at its position.
 \end{itemize}
 
-\subsubsection{Shape} Shows the shape of the limb and string as well as the position of the arrow at different stages of either the draw (statics) or the shot (dynamics).
+\subsubsection{Shape}
+
+Shows the shape of the limb and string as well as the position of the arrow at different stages of either the draw (statics) or the shot (dynamics).
 The little red circle symbolizes the back end of the arrow.
 You can use the slider at the bottom to change the current state of the bow or to view all states as a continuous animation.
 
-\subsubsection{Stress} Shows the stress distribution along the limb for each one of the layers, evaluated at the back and belly sides.
+\subsubsection{Stress}
 
-\subsubsection{Curvature} Shows the curvature of the limb along its length.
+Shows the stress distribution along the limb for each one of the layers, evaluated at the back and belly sides.
+Positive values indicate tension, negative values compression.
+
+\subsubsection{Curvature}
+
+Shows the curvature of the limb along its length.
 This is not the total curvature but rather the difference to the unbraced shape.
 
-\subsubsection{Energy} This plot shows how the total amount of energy in the bow develops during the simulation and how it is distributed between components (limbs, string arrow) and type of energy (potential/elastic or kinetic).
+\subsubsection{Energy}
+
+This plot shows how the total amount of energy in the bow develops during the simulation and how it is distributed between components (limbs, string arrow) and type of energy (potential/elastic or kinetic).
 In the dynamic case it shows how the initial potential energy of the limbs is transferred to the arrow and other components of the bow and how much unused energy stays in the bow after the departure of the arrow.
 
-\subsubsection{Other Plots} Here you can combine arbitrary simulation results and plot them together, e.g. things like the draw curve of the bow or the velocity of the arrow.
+\subsubsection{Other Plots}
+
+Here you can combine arbitrary simulation results and plot them together, e.g. things like the draw curve of the bow or the velocity of the arrow.
 
 \newpage
 \section{VirtualBow Solver}
@@ -468,13 +507,15 @@ The executables for the three components of VirtualBow are named
 
 \begin{framed}
 \begin{verbatim}
-virtualbow-gui        // Main program
+virtualbow-gui        // Model editor
 virtualbow-slv        // Solver
 virtualbow-post       // Result viewer
 \end{verbatim}
 \end{framed}
 
-The solver command takes a model file as the input and produces a result file as the output.
+\bigskip
+
+The solver takes a model file as its input and produces a result file as the output.
 The type of simulation (static or dynamic) as well as other options can be set.
 The detailed usage as shown by the \texttt{--help} option is:
 
@@ -482,7 +523,6 @@ The detailed usage as shown by the \texttt{--help} option is:
 
 \begin{framed}
 \begin{verbatim}
-> virtualbow-slv --help
 Usage: virtualbow-slv [options] input output
 
 Options:
@@ -531,20 +571,20 @@ Any scripts that work with those files should therefore expect breaking changes 
 
 \subsubsection*{Model Files}
 
-The model files have a .bow extension, but are in fact just plain text JSON\footnote{\url{http://json.org}} files.
-JSON is a very common human readable format for storing data in the form of objects, arrays, strings, numbers and more in a hierarchical way.
-As the format is text based, it is possible to just open the model files with a text editor and have a look at contents.
-For a detailed specification of the model files, see appendix \ref{sec:input-structure}.
+The model files have a \texttt{.bow} extension, but are in fact just plain text JSON\footnote{\url{http://json.org}} files.
+JSON is a very common text based format for storing hierarchical data in the form of objects, arrays, strings, numbers and more.
+Since the format is text based, it is possible to just open the model files with a text editor and have a look at the contents.
+For a detailed specification of the model files see appendix \ref{sec:input-structure}.
 
 \subsubsection*{Result Files}
 
-The result files use the binary MessagePack\footnote{\url{http://msgpack.org}} format, which is more space efficient than JSON but very similar in the kind of data it can represent. For a detailed specification of the result files, see appendix \ref{sec:output-structure}.
+The result files use the binary MessagePack\footnote{\url{http://msgpack.org}} format, which is more space efficient than JSON but very similar in the kind of data it can represent. For a detailed specification of the result files see appendix \ref{sec:output-structure}.
 
 \subsubsection*{Examples}
 
 As a consequence of the model and result file formats, VirtualBow can interoperate with any programming language that supports JSON and MessagePack.
-Both are very common formats and many programming languages have either built-in support or external libraries available.
-Examples for several languages that are commonly used in scientific computing can be found in appendix \ref{sec:scripting-examples}.
+Both are very common formats and most programming languages either have built-in support or there are external libraries available.
+Examples for some languages that are commonly used in scientific computing can be found in appendix \ref{sec:scripting-examples}.
 
 \bigskip
 
@@ -612,7 +652,7 @@ Examples for several languages that are commonly used in scientific computing ca
 }
 
 \begin{table}[H]
-\resizebox{34em}{!}{\begin{tabular}{ l | l | l | l }
+\resizebox{32em}{!}{\begin{tabular}{ l | l | l | l }
 \textbf{Field} & \textbf{Type} & \textbf{Unit} & \textbf{Description} \\
 \hline
 \tablespace setup & & & \\
@@ -642,7 +682,7 @@ Examples for several languages that are commonly used in scientific computing ca
 \tablespace statics & & & \\
 \quad final\_draw\_force & \texttt{double} & \unit[]{N} & Final draw force \\
 \quad drawing\_work & \texttt{double} & \unit[]{J} & Drawing work \\
-\quad energy\_factor & \texttt{double} & -- & Energy factor \\
+\quad energy\_storage\_factor & \texttt{double} & -- & Energy storage factor \\
 \quad max\_string\_force\_index & \texttt{integer} & -- & Simulation state with maximum absolute string force \\
 \quad max\_grip\_force\_index & \texttt{integer} & -- & Simulation state with maximum absolute grip force \\
 \quad max\_draw\_force\_index  & \texttt{integer} & -- & Simulation state with maximum absolute draw force \\
@@ -725,8 +765,8 @@ The result is a vector of stresses corresponding to the nodes of the layer.
 \section{Scripting Examples}
 \label{sec:scripting-examples}
 
-These examples show how to use VirtualBow with several common scientific programming languages.
-All of these examples perform the same series of basic tasks:
+These examples show how to use VirtualBow with various programming languages that are commonly used in scientific computing.
+All of them perform the same series of basic tasks:
 
 \begin{enumerate}
 \item Load, modify and save a model file
@@ -744,14 +784,11 @@ Python requires two external packages: msgpack\footnote{\url{https://pypi.org/pr
 \inputminted{python}{../examples/scripts/python/example.py}
 \end{framed}
 
-\newpage
 \subsection{Matlab}
 
 This example uses the JSONLab\footnote{\url{https://de.mathworks.com/matlabcentral/fileexchange/33381}} library, which can read and write both JSON and MessagePack files.
 
-\textbf{Note:} Support for MessagePack in JSONLab is still fairly new. The current version 1.9.8 - beta (at the time of writing) contains a bug that prevents it from loading files with empty arrays.
-This can be the case with VirtualBow result files.
-The problem has been fixed in the latest development version\footnote{\url{https://github.com/fangq/jsonlab}}, so we have to use that until the next release comes out.
+\textbf{Note:} The minimum required version of JSONLab is 2.0. Older versions contain a bug that prevents loading MessagePack files with empty arrays, which can be the case for VirtualBow result files.
 
 \bigskip
 

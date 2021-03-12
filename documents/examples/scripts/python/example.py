@@ -1,5 +1,4 @@
-import json               # Loading and saving model files
-import msgpack            # Loading result files
+import json, msgpack      # Loading and saving model and result files
 import numpy as np        # Evaluating stresses
 import subprocess         # Runnig the simulation
 
@@ -27,6 +26,6 @@ Hk_back = np.array(output["setup"]["limb_properties"]["layers"][0]["Hk_back"])
 
 epsilon = np.array(output["statics"]["states"]["epsilon"][-1])
 kappa   = np.array(output["statics"]["states"]["kappa"][-1])
-sigma_back = He_back.dot(epsilon) + Hk_back.dot(kappa)
+sigma = He_back.dot(epsilon) + Hk_back.dot(kappa)
 
-print(sigma_back.max())
+print(sigma.max())
