@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>icons/background.svg</file>
         <file>icons/model-dimensions.svg</file>
         <file>icons/model-layers.svg</file>
         <file>icons/model-masses.svg</file>
@@ -8,13 +7,6 @@
         <file>icons/model-settings.svg</file>
         <file>icons/model-string.svg</file>
         <file>icons/model-width.svg</file>
-        <file>icons/run-dynamics.svg</file>
-        <file>icons/run-statics.svg</file>
-        <file>icons/view-3d.svg</file>
-        <file>icons/view-fit.svg</file>
-        <file>icons/view-profile.svg</file>
-        <file>icons/view-symmetric.svg</file>
-        <file>icons/view-top.svg</file>
         <file>icons/dialog-information.svg</file>
         <file>icons/document-new.svg</file>
         <file>icons/document-open.svg</file>
@@ -33,5 +25,13 @@
         <file>shaders/BackgroundShader.frag</file>
         <file>shaders/ModelShader.frag</file>
         <file>shaders/ModelShader.vert</file>
+        <file>icons/background.png</file>
+        <file>icons/run-dynamics.png</file>
+        <file>icons/run-statics.png</file>
+        <file>icons/view-top.png</file>
+        <file>icons/view-symmetric.png</file>
+        <file>icons/view-profile.png</file>
+        <file>icons/view-fit.png</file>
+        <file>icons/view-3d.png</file>
     </qresource>
 </RCC>
