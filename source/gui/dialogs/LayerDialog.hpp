@@ -3,6 +3,7 @@
 #include "gui/PersistentDialog.hpp"
 #include "gui/EditableTabBar.hpp"
 #include "gui/editors/LayerEditor.hpp"
+#include "gui/units/UnitSystem.hpp"
 
 class LayerDialog: public PersistentDialog
 {
@@ -11,8 +12,9 @@ class LayerDialog: public PersistentDialog
 public:
     LayerDialog(QWidget* parent);
 
-    void setData(const std::vector<Layer>& layers);
     std::vector<Layer> getData() const;
+    void setData(const std::vector<Layer>& layers);
+    void setUnits(const UnitSystem& units);
 
 signals:
     void modified();

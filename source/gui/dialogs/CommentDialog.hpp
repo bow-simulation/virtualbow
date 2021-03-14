@@ -1,6 +1,7 @@
 #pragma once
 #include <QtWidgets>
 #include "gui/PersistentDialog.hpp"
+#include "gui/units/UnitSystem.hpp"
 #include <string>
 
 class CommentDialog: public PersistentDialog
@@ -12,6 +13,7 @@ public:
 
     std::string getData() const;
     void setData(const std::string& text);
+    void setUnits(const UnitSystem& units);
 
 signals:
     void modified();

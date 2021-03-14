@@ -54,3 +54,8 @@ void SettingsDialog::setData(const Settings& data)
     edit5->setData(data.time_step_factor);
     edit6->setData(data.sampling_rate);
 }
+
+void SettingsDialog::setUnits(const UnitSystem& units)
+{
+
+}

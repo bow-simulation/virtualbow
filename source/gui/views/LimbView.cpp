@@ -92,6 +92,11 @@ void LimbView::setData(const InputData& data)
     update();
 }
 
+void LimbView::setUnits(const UnitSystem& units)
+{
+    // Do nothing
+}
+
 void LimbView::viewProfile()
 {
     rot_x = 0.0f;

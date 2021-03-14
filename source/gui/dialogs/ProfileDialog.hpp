@@ -2,6 +2,7 @@
 #include "gui/PersistentDialog.hpp"
 #include "gui/views/ProfileView.hpp"
 #include "gui/editors/LayerEditor.hpp"
+#include "gui/units/UnitSystem.hpp"
 
 class ProfileDialog: public PersistentDialog
 {
@@ -12,6 +13,7 @@ public:
 
     MatrixXd getData() const;
     void setData(const MatrixXd& data);
+    void setUnits(const UnitSystem& units);
 
 signals:
     void modified();

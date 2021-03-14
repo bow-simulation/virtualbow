@@ -2,6 +2,7 @@
 #include "solver/model//input/String.hpp"
 #include "gui/editors/IntegerEditor.hpp"
 #include "gui/editors/DoubleEditor.hpp"
+#include "gui/units/UnitSystem.hpp"
 #include "GroupDialog.hpp"
 
 class StringDialog: public GroupDialog
@@ -13,6 +14,7 @@ public:
 
     String getData() const;
     void setData(const String& data);
+    void setUnits(const UnitSystem& units);
 
 signals:
     void modified();

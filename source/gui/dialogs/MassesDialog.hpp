@@ -1,6 +1,7 @@
 #pragma once
 #include "solver/model//input/Masses.hpp"
 #include "gui/editors/DoubleEditor.hpp"
+#include "gui/units/UnitSystem.hpp"
 #include "GroupDialog.hpp"
 
 class MassesDialog: public GroupDialog
@@ -12,6 +13,7 @@ public:
 
     Masses getData() const;
     void setData(const Masses& data);
+    void setUnits(const UnitSystem& units);
 
 signals:
     void modified();

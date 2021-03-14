@@ -1,6 +1,7 @@
 #pragma once
 #include "gui/PersistentDialog.hpp"
 #include "gui/editors/LayerEditor.hpp"
+#include "gui/units/UnitSystem.hpp"
 
 class WidthDialog: public PersistentDialog
 {
@@ -11,6 +12,7 @@ public:
 
     MatrixXd getData() const;
     void setData(const MatrixXd& width);
+    void setUnits(const UnitSystem& units);
 
 signals:
     void modified();

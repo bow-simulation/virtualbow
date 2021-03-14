@@ -2,13 +2,13 @@
 #include "SimulationDialog.hpp"
 #include "RecentFilesMenu.hpp"
 #include "HelpMenu.hpp"
-#include "editors/BowEditor.hpp"
+#include "editors/ModelEditor.hpp"
 #include "config.hpp"
 #include <nlohmann/json.hpp>
 
 MainWindow::MainWindow()
     : menu_open_recent(new RecentFilesMenu(this)),
-      editor(new BowEditor())
+      editor(new ModelEditor())
 {
     // Actions
     action_new = new QAction(QIcon(":/icons/document-new.svg"), "&New", this);
@@ -99,10 +99,13 @@ MainWindow::MainWindow()
     restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
 
     // Set Window's modification indicator when data has changed
-    QObject::connect(editor, &BowEditor::modified, [&]{
+    QObject::connect(editor, &ModelEditor::modified, [&]{
         InputData new_data = editor->getData();
         this->setModified(new_data != data);
     });
+
+    // Set default units
+    editor->setUnits(units);
 }
 
 // Load input file from a file and show the contents in the editor

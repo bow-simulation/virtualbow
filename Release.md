@@ -56,6 +56,7 @@ and requires [node-appdmg](https://github.com/LinusU/node-appdmg) for creating t
     * Links on the download page
     * User manual and theory manual
     * Release announcement
+    * Screenshots
 * Post to r/VirtualBow 
 
 # Manual Tests

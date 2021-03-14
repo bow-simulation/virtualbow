@@ -46,6 +46,11 @@ void LayerDialog::setData(const std::vector<Layer>& layers)
         static_cast<LayerEditor*>(tabs->widget(i))->setData(layers[i]);
 }
 
+void LayerDialog::setUnits(const UnitSystem& units)
+{
+
+}
+
 std::vector<Layer> LayerDialog::getData() const
 {
     std::vector<Layer> layers;
