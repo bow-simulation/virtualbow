@@ -39,3 +39,8 @@ void CommentDialog::setData(const std::string& text)
 {
     edit->setText(QString::fromStdString(text));
 }
+
+void CommentDialog::setUnits(const UnitSystem& units)
+{
+
+}

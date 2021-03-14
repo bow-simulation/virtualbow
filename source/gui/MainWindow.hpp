@@ -1,8 +1,9 @@
 #pragma once
 #include "solver/model/input/InputData.hpp"
+#include "units/UnitSystem.hpp"
 #include <QtWidgets>
 
-class BowEditor;
+class ModelEditor;
 class RecentFilesMenu;
 
 class MainWindow: public QMainWindow {
@@ -25,8 +26,9 @@ private:
     QAction* action_run_dynamics;
     RecentFilesMenu* menu_open_recent;
 
+    ModelEditor* editor;
     InputData data;
-    BowEditor* editor;
+    UnitSystem units;
 
     void closeEvent(QCloseEvent *event) override;
 

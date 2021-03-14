@@ -32,3 +32,8 @@ void MassesDialog::setData(const Masses& data)
     edit2->setData(data.string_tip);
     edit3->setData(data.limb_tip);
 }
+
+void MassesDialog::setUnits(const UnitSystem& units)
+{
+
+}

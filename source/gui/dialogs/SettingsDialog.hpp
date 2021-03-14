@@ -2,6 +2,7 @@
 #include "solver/model//input/Settings.hpp"
 #include "gui/editors/IntegerEditor.hpp"
 #include "gui/editors/DoubleEditor.hpp"
+#include "gui/units/UnitSystem.hpp"
 #include "GroupDialog.hpp"
 
 class SettingsDialog: public GroupDialog
@@ -13,6 +14,7 @@ public:
 
     Settings getData() const;
     void setData(const Settings& data);
+    void setUnits(const UnitSystem& units);
 
 signals:
     void modified();

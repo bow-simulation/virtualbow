@@ -40,3 +40,8 @@ void WidthDialog::setData(const MatrixXd& width)
     edit->setData(width);
     view->setData(width);
 }
+
+void WidthDialog::setUnits(const UnitSystem& units)
+{
+
+}

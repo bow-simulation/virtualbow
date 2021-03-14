@@ -24,3 +24,8 @@ void DampingDialog::setData(const Damping& data)
     edit0->setData(100.0*data.damping_ratio_limbs);
     edit1->setData(100.0*data.damping_ratio_string);
 }
+
+void DampingDialog::setUnits(const UnitSystem& units)
+{
+
+}

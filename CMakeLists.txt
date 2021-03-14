@@ -77,8 +77,8 @@ add_executable(
     source/gui/dialogs/StringDialog.hpp
     source/gui/dialogs/WidthDialog.cpp
     source/gui/dialogs/WidthDialog.hpp
-    source/gui/editors/BowEditor.cpp
-    source/gui/editors/BowEditor.hpp
+    source/gui/editors/ModelEditor.cpp
+    source/gui/editors/ModelEditor.hpp
     source/gui/editors/DoubleEditor.cpp
     source/gui/editors/DoubleEditor.hpp
     source/gui/editors/IntegerEditor.cpp
@@ -89,7 +89,6 @@ add_executable(
     source/gui/editors/TableEditor.hpp
     source/gui/editors/TreeEditor.cpp
     source/gui/editors/TreeEditor.hpp
-    source/gui/editors/TreeItem.hpp
     source/gui/views/LayerLegend.cpp
     source/gui/views/LayerLegend.hpp
     source/gui/views/LimbView.cpp

@@ -40,3 +40,8 @@ void ProfileDialog::setData(const MatrixXd& data)
     view->setData(data);
     edit->setData(data);
 }
+
+void ProfileDialog::setUnits(const UnitSystem& units)
+{
+
+}

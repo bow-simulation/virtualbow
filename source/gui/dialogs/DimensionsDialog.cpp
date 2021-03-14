@@ -39,3 +39,12 @@ void DimensionsDialog::setData(const Dimensions& data)
     edit3->setData(data.handle_setback);
     edit4->setData(data.handle_angle);
 }
+
+void DimensionsDialog::setUnits(const UnitSystem& units)
+{
+    edit0->setUnit(units.length);
+    edit1->setUnit(units.length);
+    edit2->setUnit(units.length);
+    edit3->setUnit(units.length);
+    edit4->setUnit(units.angle);
+}

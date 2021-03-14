@@ -28,3 +28,8 @@ void StringDialog::setData(const String& data)
     edit1->setData(data.strand_density);
     edit2->setData(data.n_strands);
 }
+
+void StringDialog::setUnits(const UnitSystem& units)
+{
+
+}

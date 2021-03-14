@@ -1,5 +1,6 @@
 #pragma once
 #include "solver/model/input/InputData.hpp"
+#include "gui/units/UnitSystem.hpp"
 #include "LimbMesh.hpp"
 #include "LayerLegend.hpp"
 #include "OpenGLUtils.hpp"
@@ -34,6 +35,7 @@ private:
 public:
     LimbView();
     void setData(const InputData& data);
+    void setUnits(const UnitSystem& units);
 
     void viewProfile();
     void viewTop();
