@@ -1,7 +1,7 @@
 #pragma once
 #include "gui/PlotWidget.hpp"
-#include "solver/model//output/OutputData.hpp"
-#include "solver/model//input/InputData.hpp"
+#include "solver/model/output/OutputData.hpp"
+#include "solver/model/input/InputData.hpp"
 
 class CurvaturePlot: public PlotWidget
 {

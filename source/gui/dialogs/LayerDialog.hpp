@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/model//input/Layers.hpp"
+#include "solver/model/input/Layers.hpp"
 #include "gui/PersistentDialog.hpp"
 #include "gui/EditableTabBar.hpp"
 #include "gui/editors/LayerEditor.hpp"

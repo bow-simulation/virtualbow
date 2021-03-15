@@ -9,7 +9,7 @@
 // contact elements for them as needed. It uses the Sweep and Prune broadphase algorithm [1],[2] along
 // both axes for determining which points and segments can actually come into contact.
 //
-// [1] https://github.com/mattleisolver/model//jitterphysics/wiki/Sweep-and-Prune
+// [1] https://github.com/mattleisolver/model/jitterphysics/wiki/Sweep-and-Prune
 // [2] http://codercorner.com/SAP.pdf
 //
 // Todo: Dynamic memory allocation when inserting in the map. Maybe try unordered_map?

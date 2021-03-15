@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/model//input/Damping.hpp"
+#include "solver/model/input/Damping.hpp"
 #include "gui/editors/DoubleEditor.hpp"
 #include "gui/units/UnitSystem.hpp"
 #include "GroupDialog.hpp"

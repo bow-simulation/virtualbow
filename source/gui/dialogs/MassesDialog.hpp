@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/model//input/Masses.hpp"
+#include "solver/model/input/Masses.hpp"
 #include "gui/editors/DoubleEditor.hpp"
 #include "gui/units/UnitSystem.hpp"
 #include "GroupDialog.hpp"
