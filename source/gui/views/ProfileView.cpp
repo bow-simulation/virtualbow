@@ -1,5 +1,5 @@
 #include "ProfileView.hpp"
-#include "solver/model//ProfileCurve.hpp"
+#include "solver/model/ProfileCurve.hpp"
 #include "solver/numerics/Linspace.hpp"
 
 ProfileView::ProfileView()

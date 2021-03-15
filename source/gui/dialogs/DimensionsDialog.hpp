@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/model//input/Dimensions.hpp"
+#include "solver/model/input/Dimensions.hpp"
 #include "gui/editors/DoubleEditor.hpp"
 #include "gui/units/UnitSystem.hpp"
 #include "GroupDialog.hpp"

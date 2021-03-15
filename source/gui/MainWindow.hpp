@@ -1,6 +1,6 @@
 #pragma once
 #include "solver/model/input/InputData.hpp"
-#include "units/UnitSystem.hpp"
+#include "units/UnitsDialog.hpp"
 #include <QtWidgets>
 
 class ModelEditor;
@@ -24,11 +24,13 @@ private:
     QAction* action_quit;
     QAction* action_run_statics;
     QAction* action_run_dynamics;
+    QAction* action_set_units;
+
     RecentFilesMenu* menu_open_recent;
 
     ModelEditor* editor;
-    InputData data;
     UnitSystem units;
+    InputData data;
 
     void closeEvent(QCloseEvent *event) override;
 

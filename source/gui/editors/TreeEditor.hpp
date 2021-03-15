@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/model//input/InputData.hpp"
+#include "solver/model/input/InputData.hpp"
 #include "gui/units/UnitSystem.hpp"
 #include "gui/dialogs/CommentDialog.hpp"
 #include "gui/dialogs/ProfileDialog.hpp"

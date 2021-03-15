@@ -1,6 +1,6 @@
 #include "LimbMesh.hpp"
 #include "LayerColors.hpp"
-#include "solver/model//LimbProperties.hpp"
+#include "solver/model/LimbProperties.hpp"
 #include "solver/numerics/CubicSpline.hpp"
 #include "solver/numerics/Linspace.hpp"
 
