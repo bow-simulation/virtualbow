@@ -1,67 +1,64 @@
 #include "UnitsDialog.hpp"
 
-UnitEditor::UnitEditor(const QString& text, Unit& binding, const QList<Unit>& units)
-    : binding(binding),
-      units(units)
+UnitEditor::UnitEditor(const QString& text, const QList<Unit>& units)
+    : units(units),
+      combo(new QComboBox())
 {
     auto label = new QLabel(text);
     label->setAlignment(Qt::AlignRight);
 
-    auto combo = new QComboBox();
     for(int i = 0; i < units.size(); ++i) {
-        combo->addItem(units[i].getName());
-        // Insert separator(s) between different types of unit (SI, US)
+        // Add index in units list as user data. Index provided by the combobox index is useless because it also counts separators.
+        combo->addItem(units[i].getName(), QVariant(i));
         if(i > 0 && (units[i].getType() != units[i-1].getType())) {
+            // Insert separator(s) between different types of unit (SI, US)
             combo->insertSeparator(i);
         }
     }
-    combo->setCurrentText(binding.getName());
     combo->setFixedWidth(80);    // Magic number
-
-    // TODO: Use QComboBox::textActivated in Qt >= 5.14
-    QObject::connect(combo, QOverload<const QString&>::of(&QComboBox::activated), this, [&](const QString& text) {
-        // Search selected text in unit list. Using the index would include the separator and not map with the units list.
-        for(auto& unit: this->units) {
-            if(unit.getName() == text) {
-                this->binding = unit;    // Assign selected unit to the unit referenced by this widget
-            }
-        }
-    });
 
     auto hbox = new QHBoxLayout();
     hbox->addWidget(label, 1);
     hbox->addWidget(combo, 0);
-    this->setLayout(hbox);
+    setLayout(hbox);
 }
 
-UnitsDialog::UnitsDialog(QWidget* parent, const UnitSystem& defaults)
-    : QDialog(parent),
-      units(defaults)
+Unit UnitEditor::getUnit() const {
+    QVariant data = combo->currentData();
+    return units[data.toInt()];
+}
+
+void UnitEditor::setUnit(const Unit& unit) {
+    combo->setCurrentText(unit.getName());
+}
+
+UnitsDialog::UnitsDialog(QWidget* parent)
+    : QDialog(parent)
 {
     auto grid = new QGridLayout();
     grid->setHorizontalSpacing(20);
     grid->setMargin(20);
 
-    grid->addWidget(new UnitEditor("Length", units.length, UnitOptions::LENGTH), 0, 0);
-    grid->addWidget(new UnitEditor("Angle", units.angle, UnitOptions::ANGLE), 1, 0);
-    grid->addWidget(new UnitEditor("Mass", units.mass, UnitOptions::MASS), 2, 0);
-    grid->addWidget(new UnitEditor("Force", units.force, UnitOptions::FORCE), 3, 0);
-    grid->addWidget(new UnitEditor("Time", units.time, UnitOptions::TIME), 4, 0);
-    grid->addWidget(new UnitEditor("Energy", units.energy, UnitOptions::ENERGY), 5, 0);
+    grid->addWidget(edit_length, 0, 0);
+    grid->addWidget(edit_angle, 1, 0);
+    grid->addWidget(edit_mass, 2, 0);
+    grid->addWidget(edit_force, 3, 0);
+    grid->addWidget(edit_time, 4, 0);
+    grid->addWidget(edit_energy, 5, 0);
 
-    grid->addWidget(new UnitEditor("Position", units.position, UnitOptions::POSITION), 0, 1);
-    grid->addWidget(new UnitEditor("Velocity", units.velocity, UnitOptions::VELOCITY), 1, 1);
-    grid->addWidget(new UnitEditor("Acceleration", units.acceleration, UnitOptions::ACCELERATION), 2, 1);
-    grid->addWidget(new UnitEditor("Elastic modulus", units.elastic_modulus, UnitOptions::ELASTIC_MODULUS), 3, 1);
-    grid->addWidget(new UnitEditor("Density", units.density, UnitOptions::DENSITY), 4, 1);
-    grid->addWidget(new UnitEditor("Linear stiffness", units.linear_stiffness, UnitOptions::LINEAR_STIFFNESS), 5, 1);
+    grid->addWidget(edit_position, 0, 1);
+    grid->addWidget(edit_velocity, 1, 1);
+    grid->addWidget(edit_acceleration, 2, 1);
+    grid->addWidget(edit_elastic_modulus, 3, 1);
+    grid->addWidget(edit_density, 4, 1);
+    grid->addWidget(edit_linear_stiffness, 5, 1);
 
-    grid->addWidget(new UnitEditor("Linear density", units.linear_density, UnitOptions::LINEAR_DENSITY), 0, 2);
-    grid->addWidget(new UnitEditor("Strain", units.strain, UnitOptions::STRAIN), 1, 2);
-    grid->addWidget(new UnitEditor("Curvature", units.curvature, UnitOptions::CURVATURE), 2, 2);
-    grid->addWidget(new UnitEditor("Stress", units.stress, UnitOptions::STRESS), 3, 2);
-    grid->addWidget(new UnitEditor("Damping ratio", units.damping_ratio, UnitOptions::DAMPING_RATIO), 4, 2);
-    grid->addWidget(new UnitEditor("Relative position", units.relative_position, UnitOptions::RELATIVE_POSITION), 5, 2);
+    grid->addWidget(edit_linear_density, 0, 2);
+    grid->addWidget(edit_strain, 1, 2);
+    grid->addWidget(edit_curvature, 2, 2);
+    grid->addWidget(edit_stress, 3, 2);
+    grid->addWidget(edit_damping_ratio, 4, 2);
+    grid->addWidget(edit_relative_position, 5, 2);
 
     auto group = new QGroupBox();
     group->setLayout(grid);
@@ -70,15 +67,69 @@ UnitsDialog::UnitsDialog(QWidget* parent, const UnitSystem& defaults)
     QObject::connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     QObject::connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
+    QObject::connect(buttons, &QDialogButtonBox::clicked, [&, buttons](QAbstractButton* button){
+        switch(buttons->standardButton(button)) {
+        case QDialogButtonBox::Ok:
+            accept();
+            break;
+        case QDialogButtonBox::Cancel:
+            reject();
+            break;
+        case QDialogButtonBox::Reset:
+            setUnits(UnitSystem());
+            break;
+        }
+    });
+
     auto vbox = new QVBoxLayout();
     vbox->setSizeConstraint(QLayout::SetFixedSize);
     vbox->addWidget(group, 1);
     vbox->addWidget(buttons, 0);
 
-    this->setWindowTitle("Units");
-    this->setLayout(vbox);
+    setWindowTitle("Units");
+    setLayout(vbox);
 }
 
-const UnitSystem& UnitsDialog::getUnits() const {
-    return units;
+UnitSystem UnitsDialog::getUnits() const {
+    return {
+        .length = edit_length->getUnit(),
+        .angle = edit_angle->getUnit(),
+        .mass = edit_mass->getUnit(),
+        .force = edit_force->getUnit(),
+        .time = edit_time->getUnit(),
+        .energy = edit_energy->getUnit(),
+        .position = edit_position->getUnit(),
+        .velocity = edit_velocity->getUnit(),
+        .acceleration = edit_acceleration->getUnit(),
+        .elastic_modulus = edit_elastic_modulus->getUnit(),
+        .density = edit_density->getUnit(),
+        .linear_stiffness = edit_linear_stiffness->getUnit(),
+        .linear_density = edit_linear_density->getUnit(),
+        .strain = edit_strain->getUnit(),
+        .curvature = edit_curvature->getUnit(),
+        .stress = edit_stress->getUnit(),
+        .damping_ratio = edit_damping_ratio->getUnit(),
+        .relative_position = edit_relative_position->getUnit()
+    };
+}
+
+void UnitsDialog::setUnits(const UnitSystem& units) {
+    edit_length->setUnit(units.length);
+    edit_angle->setUnit(units.angle);
+    edit_mass->setUnit(units.mass);
+    edit_force->setUnit(units.force);
+    edit_time->setUnit(units.time);
+    edit_energy->setUnit(units.energy);
+    edit_position->setUnit(units.position);
+    edit_velocity->setUnit(units.velocity);
+    edit_acceleration->setUnit(units.acceleration);
+    edit_elastic_modulus->setUnit(units.elastic_modulus);
+    edit_density->setUnit(units.density);
+    edit_linear_stiffness->setUnit(units.linear_stiffness);
+    edit_linear_density->setUnit(units.linear_density);
+    edit_strain->setUnit(units.strain);
+    edit_curvature->setUnit(units.curvature);
+    edit_stress->setUnit(units.stress);
+    edit_damping_ratio->setUnit(units.damping_ratio);
+    edit_relative_position->setUnit(units.length);
 }
