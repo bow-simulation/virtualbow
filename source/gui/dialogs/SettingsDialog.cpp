@@ -24,7 +24,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
     QObject::connect(edit5, &DoubleEditor::modified, this, &SettingsDialog::modified);
     QObject::connect(edit6, &DoubleEditor::modified, this, &SettingsDialog::modified);
 
-    QObject::connect(this, &GroupDialog::reset, [&]{
+    QObject::connect(this, &GroupDialog::reset, this, [&]{
         setData(Settings());
         emit modified();
     });

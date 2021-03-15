@@ -49,11 +49,13 @@ MainWindow::MainWindow()
     action_run_dynamics->setIconVisibleInMenu(true);
 
     action_set_units = new QAction("&Units...", this);
-    QObject::connect(action_set_units, &QAction::triggered, [&]{
-        auto units_dialog = new UnitsDialog(this, units);
-        int ret = units_dialog->exec();
-        qInfo() << "Return: " << ret;
-
+    QObject::connect(action_set_units, &QAction::triggered, this, [&]{
+        auto units_dialog = new UnitsDialog(this);
+        units_dialog->setUnits(units);
+        if(units_dialog->exec() == QDialog::Accepted) {
+            units = units_dialog->getUnits();
+            editor->setUnits(units);
+        }
     });
     action_set_units->setMenuRole(QAction::NoRole);
 
