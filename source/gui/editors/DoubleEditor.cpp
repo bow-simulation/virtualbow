@@ -4,7 +4,8 @@ DoubleEditor::DoubleEditor(const QString& text)
     : text_label(new QLabel(text)),
       unit_label(new QLabel()),
       line_edit(new QLineEdit()),
-      changed(false)
+      changed(false),
+      unit(Units::No_Unit)
 {
     text_label->setAlignment(Qt::AlignRight | Qt::AlignCenter);
     line_edit->setValidator(new QDoubleValidator());
@@ -22,32 +23,29 @@ DoubleEditor::DoubleEditor(const QString& text)
     });
 
     QObject::connect(line_edit, &QLineEdit::editingFinished, [&]{
-        if(changed)
-        {
+        if(changed) {
+            data = unit.toBase(QLocale().toDouble(line_edit->text()));
             changed = false;
             emit modified();
         }
     });
 }
 
-double DoubleEditor::getData() const
-{
-    double value = QLocale().toDouble(line_edit->text());
-    return unit.toBase(value);
+double DoubleEditor::getData() const {
+    return data;
 }
 
-void DoubleEditor::setData(double data)
-{
-    double value = unit.fromBase(data);
-    line_edit->setText(QLocale().toString(value, 'g'));
+void DoubleEditor::setData(double data) {
+    this->data = data;
+    update();
 }
 
-void DoubleEditor::setUnit(const Unit& unit)
-{
-    double value = getData();
-
+void DoubleEditor::setUnit(const Unit& unit) {
     this->unit = unit;
-    unit_label->setText(unit.getLabel());
+    update();
+}
 
-    setData(value);
+void DoubleEditor::update() {
+    unit_label->setText(unit.getLabel());
+    line_edit->setText(QLocale().toString(unit.fromBase(data), 'g'));
 }

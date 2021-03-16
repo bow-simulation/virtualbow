@@ -19,6 +19,6 @@ signals:
     void modified();
 
 private:
-    DoubleEditor* edit0 = new DoubleEditor("Limbs [%]");
-    DoubleEditor* edit1 = new DoubleEditor("String [%]");
+    DoubleEditor* edit0 = new DoubleEditor("Limbs");
+    DoubleEditor* edit1 = new DoubleEditor("String");
 };

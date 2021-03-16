@@ -13,30 +13,31 @@ private:
     QComboBox* combo;
 };
 
-class UnitsDialog: public QDialog
-{
+class UnitsDialog: public QDialog {
 public:
     UnitsDialog(QWidget* parent);
     UnitSystem getUnits() const;
     void setUnits(const UnitSystem& units);
 
 private:
-    UnitEditor* edit_length = new UnitEditor("Length", UnitOptions::LENGTH);
-    UnitEditor* edit_angle = new UnitEditor("Angle", UnitOptions::ANGLE);
-    UnitEditor* edit_mass = new UnitEditor("Mass", UnitOptions::MASS);
-    UnitEditor* edit_force = new UnitEditor("Force", UnitOptions::FORCE);
-    UnitEditor* edit_time = new UnitEditor("Time", UnitOptions::TIME);
-    UnitEditor* edit_energy = new UnitEditor("Energy", UnitOptions::ENERGY);
-    UnitEditor* edit_position = new UnitEditor("Position", UnitOptions::POSITION);
-    UnitEditor* edit_velocity = new UnitEditor("Velocity", UnitOptions::VELOCITY);
-    UnitEditor* edit_acceleration = new UnitEditor("Acceleration", UnitOptions::ACCELERATION);
-    UnitEditor* edit_elastic_modulus = new UnitEditor("Elastic modulus", UnitOptions::ELASTIC_MODULUS);
-    UnitEditor* edit_density = new UnitEditor("Density", UnitOptions::DENSITY);
-    UnitEditor* edit_linear_stiffness = new UnitEditor("Linear stiffness", UnitOptions::LINEAR_STIFFNESS);
-    UnitEditor* edit_linear_density = new UnitEditor("Linear density", UnitOptions::LINEAR_DENSITY);
-    UnitEditor* edit_strain = new UnitEditor("Strain", UnitOptions::STRAIN);
-    UnitEditor* edit_curvature = new UnitEditor("Curvature", UnitOptions::CURVATURE);
-    UnitEditor* edit_stress = new UnitEditor("Stress", UnitOptions::STRESS);
-    UnitEditor* edit_damping_ratio = new UnitEditor("Damping ratio", UnitOptions::DAMPING_RATIO);
-    UnitEditor* edit_relative_position = new UnitEditor("Relative position", UnitOptions::RELATIVE_POSITION);
+    UnitEditor* edit_length = new UnitEditor("Length", Units::Length);
+    UnitEditor* edit_angle = new UnitEditor("Angle", Units::Angle);
+    UnitEditor* edit_mass = new UnitEditor("Mass", Units::Mass);
+    UnitEditor* edit_force = new UnitEditor("Force", Units::Force);
+    UnitEditor* edit_time = new UnitEditor("Time", Units::Time);
+    UnitEditor* edit_energy = new UnitEditor("Energy", Units::Energy);
+
+    UnitEditor* edit_position = new UnitEditor("Position", Units::Position);
+    UnitEditor* edit_velocity = new UnitEditor("Velocity", Units::Velocity);
+    UnitEditor* edit_acceleration = new UnitEditor("Acceleration", Units::Acceleration);
+    UnitEditor* edit_elastic_modulus = new UnitEditor("Elastic modulus", Units::Elastic_Modulus);
+    UnitEditor* edit_density = new UnitEditor("Density", Units::Density);
+    UnitEditor* edit_linear_stiffness = new UnitEditor("Linear stiffness", Units::Linear_Stiffness);
+
+    UnitEditor* edit_linear_density = new UnitEditor("Linear density", Units::Linear_Density);
+    UnitEditor* edit_strain = new UnitEditor("Strain", Units::Strain);
+    UnitEditor* edit_curvature = new UnitEditor("Curvature", Units::Curvature);
+    UnitEditor* edit_stress = new UnitEditor("Stress", Units::Stress);
+    UnitEditor* edit_damping_ratio = new UnitEditor("Damping ratio", Units::Damping_Ratio);
+    UnitEditor* edit_relative_position = new UnitEditor("Relative position", Units::Relative_Position);
 };

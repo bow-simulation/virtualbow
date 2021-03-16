@@ -55,6 +55,8 @@ MainWindow::MainWindow()
         if(units_dialog->exec() == QDialog::Accepted) {
             units = units_dialog->getUnits();
             editor->setUnits(units);
+
+            UnitSystem::saveToSettings(units);
         }
     });
     action_set_units->setMenuRole(QAction::NoRole);

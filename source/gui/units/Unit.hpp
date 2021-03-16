@@ -1,42 +1,25 @@
 #pragma once
 #include <QtCore>
 
+enum Type {
+    SI,
+    US
+};
+
 class Unit {
 public:
-    enum class Type {
-        SI, US
-    };
+    Unit(const QString& name, Type type, double factor);
+    Unit();
 
-    Unit(Type type, const QString& name, double factor)
-        : type(type), name(name), factor(factor) {
-    }
+    double fromBase(double value) const;
+    double toBase(double value) const;
 
-    Unit(): Unit(Type::SI, "", 1.0) {
-
-    }
-
-    double fromBase(double value) const {
-        return value/factor;
-    }
-
-    double toBase(double value) const {
-        return value*factor;
-    }
-
-    Type getType() const {
-        return type;
-    }
-
-    QString getName() const {
-        return name;
-    }
-
-    QString getLabel() const {
-        return name.isEmpty() ? QString() : "[" + name + "]";
-    }
+    Type getType() const;
+    QString getName() const;
+    QString getLabel() const;
 
 private:
-    Type type;
     QString name;
+    Type type;
     double factor;
 };

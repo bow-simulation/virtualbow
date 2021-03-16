@@ -13,8 +13,8 @@ DampingDialog::DampingDialog(QWidget* parent)
 Damping DampingDialog::getData() const
 {
     Damping data;
-    data.damping_ratio_limbs = edit0->getData()/100.0;
-    data.damping_ratio_string = edit1->getData()/100.0;
+    data.damping_ratio_limbs = edit0->getData();
+    data.damping_ratio_string = edit1->getData();
 
     return data;
 }
@@ -27,5 +27,6 @@ void DampingDialog::setData(const Damping& data)
 
 void DampingDialog::setUnits(const UnitSystem& units)
 {
-
+    edit0->setUnit(units.damping_ratio);
+    edit1->setUnit(units.damping_ratio);
 }

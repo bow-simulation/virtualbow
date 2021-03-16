@@ -13,6 +13,9 @@ public:
     void setData(double data);
     void setUnit(const Unit& unit);
 
+private:
+    void update();
+
 signals:
     void modified();
 
@@ -22,5 +25,6 @@ private:
     QLineEdit* line_edit;
     bool changed;
 
+    double data;
     Unit unit;
 };
