@@ -8,8 +8,10 @@ UnitEditor::UnitEditor(const QString& text, const QList<Unit>& units)
     label->setAlignment(Qt::AlignRight);
 
     for(int i = 0; i < units.size(); ++i) {
-        // Add index in units list as user data. Index provided by the combobox index is useless because it also counts separators.
-        combo->addItem(units[i].getName(), QVariant(i));
+        QString name = units[i].getName();
+        // Replace empty names with "-"
+        // Add index to units list as user data. Index provided by the combobox is useless because it also counts separators.
+        combo->addItem(name.isEmpty() ? "-" : name, QVariant(i));
         if(i > 0 && (units[i].getType() != units[i-1].getType())) {
             // Insert separator(s) between different types of unit (SI, US)
             combo->insertSeparator(i);

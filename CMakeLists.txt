@@ -89,6 +89,8 @@ add_executable(
     source/gui/editors/TableEditor.hpp
     source/gui/editors/TreeEditor.cpp
     source/gui/editors/TreeEditor.hpp
+    source/gui/units/Unit.cpp
+    source/gui/units/Unit.hpp
     source/gui/units/UnitsDialog.cpp
     source/gui/units/UnitsDialog.hpp
     source/gui/views/LayerLegend.cpp
