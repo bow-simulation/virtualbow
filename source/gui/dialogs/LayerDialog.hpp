@@ -10,17 +10,17 @@ class LayerDialog: public PersistentDialog
     Q_OBJECT
 
 public:
-    LayerDialog(QWidget* parent);
+    LayerDialog(QWidget* parent, const UnitSystem& units);
 
     std::vector<Layer> getData() const;
     void setData(const std::vector<Layer>& layers);
-    void setUnits(const UnitSystem& units);
 
 signals:
     void modified();
 
 private:
     EditableTabBar* tabs;
+    const UnitSystem& units;
 
     LayerEditor* createEmptyTab();
     LayerEditor* createDefaultTab();

@@ -91,8 +91,10 @@ add_executable(
     source/gui/editors/TreeEditor.hpp
     source/gui/units/Unit.cpp
     source/gui/units/Unit.hpp
-    source/gui/units/UnitsDialog.cpp
-    source/gui/units/UnitsDialog.hpp
+    source/gui/units/UnitGroup.cpp
+    source/gui/units/UnitGroup.hpp
+    source/gui/units/UnitDialog.cpp
+    source/gui/units/UnitDialog.hpp
     source/gui/views/LayerLegend.cpp
     source/gui/views/LayerLegend.hpp
     source/gui/views/LimbView.cpp

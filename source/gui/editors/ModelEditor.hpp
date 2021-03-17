@@ -10,10 +10,9 @@ class ModelEditor: public QSplitter
     Q_OBJECT
 
 public:
-    ModelEditor();
+    ModelEditor(const UnitSystem& units);
     InputData getData() const;
     void setData(const InputData& data);
-    void setUnits(const UnitSystem& units);
 
 signals:
     void modified();

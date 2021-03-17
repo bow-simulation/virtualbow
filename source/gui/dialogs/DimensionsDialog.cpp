@@ -1,8 +1,14 @@
 #include "DimensionsDialog.hpp"
 
-DimensionsDialog::DimensionsDialog(QWidget* parent)
+DimensionsDialog::DimensionsDialog(QWidget* parent, const UnitSystem& units)
     : GroupDialog(parent, "Dimensions", false)
 {
+    edit0 = new DoubleEditor("Brace height", units.length);
+    edit1 = new DoubleEditor("Draw length", units.length);
+    edit2 = new DoubleEditor("Length", units.length);
+    edit3 = new DoubleEditor("Setback", units.length);
+    edit4 = new DoubleEditor("Angle", units.angle);
+
     this->addGroup("Draw");
     this->addWidget(edit0);
     this->addWidget(edit1);
@@ -38,13 +44,4 @@ void DimensionsDialog::setData(const Dimensions& data)
     edit2->setData(data.handle_length);
     edit3->setData(data.handle_setback);
     edit4->setData(data.handle_angle);
-}
-
-void DimensionsDialog::setUnits(const UnitSystem& units)
-{
-    edit0->setUnit(units.length);
-    edit1->setUnit(units.length);
-    edit2->setUnit(units.length);
-    edit3->setUnit(units.length);
-    edit4->setUnit(units.angle);
 }

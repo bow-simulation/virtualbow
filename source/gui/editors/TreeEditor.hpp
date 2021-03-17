@@ -26,22 +26,21 @@ class TreeEditor: public QTreeWidget {
     Q_OBJECT
 
 public:
-    TreeEditor();
+    TreeEditor(const UnitSystem& units);
     InputData getData() const;
     void setData(const InputData& data);
-    void setUnits(const UnitSystem& units);
 
 signals:
     void modified();
 
 private:
-    CommentDialog* dialog_comments = new CommentDialog(this);
-    SettingsDialog* dialog_settings = new SettingsDialog(this);
-    DimensionsDialog* dialog_dimensions = new DimensionsDialog(this);
-    ProfileDialog* dialog_profile = new ProfileDialog(this);
-    WidthDialog* dialog_width = new WidthDialog(this);
-    LayerDialog* dialog_layers = new LayerDialog(this);
-    StringDialog* dialog_string = new StringDialog(this);
-    MassesDialog* dialog_masses = new MassesDialog(this);
-    DampingDialog* dialog_damping = new DampingDialog(this);    
+    CommentDialog* dialog_comments;
+    SettingsDialog* dialog_settings;
+    DimensionsDialog* dialog_dimensions;
+    ProfileDialog* dialog_profile;
+    WidthDialog* dialog_width;
+    LayerDialog* dialog_layers;
+    StringDialog* dialog_string;
+    MassesDialog* dialog_masses;
+    DampingDialog* dialog_damping;
 };

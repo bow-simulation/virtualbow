@@ -9,16 +9,15 @@ class DampingDialog: public GroupDialog
     Q_OBJECT
 
 public:
-    DampingDialog(QWidget* parent);
+    DampingDialog(QWidget* parent, const UnitSystem& units);
 
     Damping getData() const;
     void setData(const Damping& data);
-    void setUnits(const UnitSystem& units);
 
 signals:
     void modified();
 
 private:
-    DoubleEditor* edit0 = new DoubleEditor("Limbs");
-    DoubleEditor* edit1 = new DoubleEditor("String");
+    DoubleEditor* edit0;
+    DoubleEditor* edit1;
 };
