@@ -13,7 +13,6 @@ public:
 
     MatrixXd getData() const;
     void setData(const MatrixXd& data);
-    void setUnits(const UnitSystem& units);
 
 signals:
     void modified();

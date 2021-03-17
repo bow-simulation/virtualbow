@@ -25,6 +25,10 @@ namespace Units {
     const Unit Second = Unit("s", SI, 1.0);
     const Unit Millisecond = Unit("ms", SI, 1e-3);
 
+    const Unit Hertz = Unit("Hz", SI, 1.0);
+    const Unit Kilohertz = Unit("KHz", SI, 1e3);
+    const Unit Megahertz = Unit("MHz", SI, 1e6);
+
     const Unit Joule = Unit("J", SI, 1.0);
     const Unit Foot_Pound = Unit("ft*lb", US, 1.35582);
 
@@ -69,132 +73,4 @@ namespace Units {
 
     const Unit No_Unit = Unit("", SI, 1.0);
     const Unit Percent = Unit("%", SI, 1e-2);
-
-    const QList<Unit> Length {
-        Meter,
-        Centimeter,
-        Millimeter,
-        Foot,
-        Inch
-    };
-
-    const QList<Unit> Angle {
-        Units::Radian,
-        Units::Degree
-    };
-
-    const QList<Unit> Mass {
-        Units::Kilogram,
-        Units::Gram,
-        Units::PoundMass,
-        Units::Ounce,
-        Units::Grain
-    };
-
-    const QList<Unit> Force {
-        Units::Newton,
-        Units::PoundForce
-    };
-
-    const QList<Unit> Time {
-        Units::Second,
-        Units::Millisecond
-    };
-
-    const QList<Unit> Energy {
-        Units::Joule,
-        Units::Foot_Pound
-    };
-
-    const QList<Unit> Position {
-        Units::Meter,
-        Units::Centimeter,
-        Units::Millimeter,
-        Units::Foot,
-        Units::Inch
-    };
-
-    const QList<Unit> Velocity {
-        Units::Meter_Per_Second,
-        Units::Centimeter_Per_Second,
-        Units::Millimeter_Per_Second,
-        Units::Foot_Per_Second,
-        Units::Inch_Per_Second
-    };
-
-    const QList<Unit> Acceleration {
-        Units::Meter_Per_Second2,
-        Units::Centimeter_Per_Second2,
-        Units::Millimeter_Per_Second2,
-        Units::Foot_Per_Second2,
-        Units::Inch_Per_Second2
-    };
-
-    const QList<Unit> Elastic_Modulus {
-        Units::Gigapascal,
-        Units::Megapascal,
-        Units::Kilopascal,
-        Units::Pascal,
-        Units::Newton_Per_Millimeter2,
-        Units::MegaPsi,
-        Units::KiloPsi,
-        Units::Psi
-    };
-
-    const QList<Unit> Density {
-        Units::Kilogramm_Per_Meter3,
-        Units::Gram_Per_Centimeter3,
-        Units::Pound_Per_Foot3
-    };
-
-    const QList<Unit> Linear_Stiffness {
-        Units::Newton,
-        Units::Newton_Per_Percent,
-        Units::PoundForce,
-        Units::PoundForce_Per_Percent
-    };
-
-    const QList<Unit> Linear_Density {
-        Units::Kilogramm_Per_Meter,
-        Units::Gram_Per_Meter,
-        Units::Gram_Per_Centimeter,
-        Units::Pound_Per_Foot,
-        Units::Pound_Per_Inch,
-        Units::Ounce_Per_Foot,
-        Units::Ounce_Per_Inch
-    };
-
-    const QList<Unit> Strain {
-        Units::No_Unit,
-        Units::Percent
-    };
-
-    const QList<Unit> Curvature {
-        Units::One_Per_Meter,
-        Units::One_Per_Centimeter,
-        Units::One_Per_Millimeter,
-        Units::One_Per_Foot,
-        Units::One_Per_Inch
-    };
-
-    const QList<Unit> Stress {
-        Units::Gigapascal,
-        Units::Megapascal,
-        Units::Kilopascal,
-        Units::Pascal,
-        Units::Newton_Per_Millimeter2,
-        Units::MegaPsi,
-        Units::KiloPsi,
-        Units::Psi
-    };
-
-    const QList<Unit> Damping_Ratio {
-        Units::No_Unit,
-        Units::Percent
-    };
-
-    const QList<Unit> Relative_Position {
-        Units::No_Unit,
-        Units::Percent
-    };
 }

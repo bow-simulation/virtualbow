@@ -13,7 +13,6 @@ public:
 
     std::string getData() const;
     void setData(const std::string& text);
-    void setUnits(const UnitSystem& units);
 
 signals:
     void modified();

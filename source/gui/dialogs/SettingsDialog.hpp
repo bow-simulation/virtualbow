@@ -10,21 +10,20 @@ class SettingsDialog: public GroupDialog
     Q_OBJECT
 
 public:
-    SettingsDialog(QWidget* parent);
+    SettingsDialog(QWidget* parent, const UnitSystem& units);
 
     Settings getData() const;
     void setData(const Settings& data);
-    void setUnits(const UnitSystem& units);
 
 signals:
     void modified();
 
 private:
-    IntegerEditor* edit0 = new IntegerEditor("Limb elements");
-    IntegerEditor* edit1 = new IntegerEditor("String elements");
-    IntegerEditor* edit2 = new IntegerEditor("Draw steps");
-    DoubleEditor* edit3 = new DoubleEditor("Arrow clamp force [N]");
-    DoubleEditor* edit4 = new DoubleEditor("Time span factor");
-    DoubleEditor* edit5 = new DoubleEditor("Time step factor");
-    DoubleEditor* edit6 = new DoubleEditor("Sampling rate [Hz]");
+    IntegerEditor* edit0;
+    IntegerEditor* edit1;
+    IntegerEditor* edit2;
+    DoubleEditor* edit3;
+    DoubleEditor* edit4;
+    DoubleEditor* edit5;
+    DoubleEditor* edit6;
 };

@@ -11,7 +11,7 @@ class LayerEditor: public QWidget
     Q_OBJECT
 
 public:
-    LayerEditor(EditableTabBar* tabs);
+    LayerEditor(EditableTabBar* tabs, const UnitSystem& units);
 
     Layer getData() const;
     void setData(const Layer& layer);

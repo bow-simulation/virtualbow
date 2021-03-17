@@ -8,7 +8,7 @@
 
 MainWindow::MainWindow()
     : menu_open_recent(new RecentFilesMenu(this)),
-      editor(new ModelEditor())
+      editor(new ModelEditor(units))
 {
     // Actions
     action_new = new QAction(QIcon(":/icons/document-new.svg"), "&New", this);
@@ -50,13 +50,11 @@ MainWindow::MainWindow()
 
     action_set_units = new QAction("&Units...", this);
     QObject::connect(action_set_units, &QAction::triggered, this, [&]{
-        auto units_dialog = new UnitsDialog(this);
-        units_dialog->setUnits(units);
-        if(units_dialog->exec() == QDialog::Accepted) {
-            units = units_dialog->getUnits();
-            editor->setUnits(units);
-
-            UnitSystem::saveToSettings(units);
+        auto dialog = new UnitDialog(this, units);
+        if(dialog->exec() == QDialog::Accepted) {
+            qInfo() << "Dialog accepted";
+        } else {
+            qInfo() << "Dialog rejected";
         }
     });
     action_set_units->setMenuRole(QAction::NoRole);
@@ -120,9 +118,6 @@ MainWindow::MainWindow()
         InputData new_data = editor->getData();
         this->setModified(new_data != data);
     });
-
-    // Set default units
-    editor->setUnits(units);
 }
 
 // Load input file from a file and show the contents in the editor

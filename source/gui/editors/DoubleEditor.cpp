@@ -1,11 +1,11 @@
 #include "DoubleEditor.hpp"
 
-DoubleEditor::DoubleEditor(const QString& text)
+DoubleEditor::DoubleEditor(const QString& text, const UnitGroup& group)
     : text_label(new QLabel(text)),
       unit_label(new QLabel()),
       line_edit(new QLineEdit()),
       changed(false),
-      unit(Units::No_Unit)
+      unit(group.getSelectedUnit())
 {
     text_label->setAlignment(Qt::AlignRight | Qt::AlignCenter);
     line_edit->setValidator(new QDoubleValidator());
@@ -29,6 +29,11 @@ DoubleEditor::DoubleEditor(const QString& text)
             emit modified();
         }
     });
+
+    QObject::connect(&group, &UnitGroup::selectionChanged, this, [&](const Unit& unit) {
+        this->unit = unit;
+        update();
+    });
 }
 
 double DoubleEditor::getData() const {
@@ -37,11 +42,6 @@ double DoubleEditor::getData() const {
 
 void DoubleEditor::setData(double data) {
     this->data = data;
-    update();
-}
-
-void DoubleEditor::setUnit(const Unit& unit) {
-    this->unit = unit;
     update();
 }
 

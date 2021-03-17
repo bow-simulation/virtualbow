@@ -1,8 +1,8 @@
 #include "ModelEditor.hpp"
 
-ModelEditor::ModelEditor()
+ModelEditor::ModelEditor(const UnitSystem& units)
     : QSplitter(Qt::Horizontal),
-      edit(new TreeEditor()),
+      edit(new TreeEditor(units)),
       view(new LimbView())
 {
     this->addWidget(edit);
@@ -27,10 +27,4 @@ void ModelEditor::setData(const InputData& data)
     edit->setData(data);
     view->setData(data);
     view->view3D();    // TODO: Move this somewhere else
-}
-
-void ModelEditor::setUnits(const UnitSystem& units)
-{
-    edit->setUnits(units);
-    view->setUnits(units);
 }

@@ -1,8 +1,16 @@
 #include "SettingsDialog.hpp"
 
-SettingsDialog::SettingsDialog(QWidget* parent)
+SettingsDialog::SettingsDialog(QWidget* parent, const UnitSystem& units)
     : GroupDialog(parent, "Settings", true)
 {
+    edit0 = new IntegerEditor("Limb elements");
+    edit1 = new IntegerEditor("String elements");
+    edit2 = new IntegerEditor("Draw steps");
+    edit3 = new DoubleEditor("Arrow clamp force [N]", units.force);
+    edit4 = new DoubleEditor("Time span factor", units.ratio);
+    edit5 = new DoubleEditor("Time step factor", units.ratio);
+    edit6 = new DoubleEditor("Sampling rate [Hz]", units.frequency);
+
     this->addGroup("General");
     this->addWidget(edit0);
     this->addWidget(edit1);
@@ -53,9 +61,4 @@ void SettingsDialog::setData(const Settings& data)
     edit4->setData(data.time_span_factor);
     edit5->setData(data.time_step_factor);
     edit6->setData(data.sampling_rate);
-}
-
-void SettingsDialog::setUnits(const UnitSystem& units)
-{
-
 }

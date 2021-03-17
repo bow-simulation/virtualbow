@@ -35,7 +35,6 @@ private:
 public:
     LimbView();
     void setData(const InputData& data);
-    void setUnits(const UnitSystem& units);
 
     void viewProfile();
     void viewTop();
