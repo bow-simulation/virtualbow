@@ -9,7 +9,7 @@ enum Type {
 class Unit {
 public:
     Unit(const QString& name, Type type, double factor);
-    Unit();
+    bool operator==(const Unit& other);
 
     double fromBase(double value) const;
     double toBase(double value) const;

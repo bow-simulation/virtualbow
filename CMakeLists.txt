@@ -95,6 +95,8 @@ add_executable(
     source/gui/units/UnitGroup.hpp
     source/gui/units/UnitDialog.cpp
     source/gui/units/UnitDialog.hpp
+    source/gui/units/UnitSystem.cpp
+    source/gui/units/UnitSystem.hpp
     source/gui/views/LayerLegend.cpp
     source/gui/views/LayerLegend.hpp
     source/gui/views/LimbView.cpp

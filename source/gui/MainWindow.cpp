@@ -50,12 +50,8 @@ MainWindow::MainWindow()
 
     action_set_units = new QAction("&Units...", this);
     QObject::connect(action_set_units, &QAction::triggered, this, [&]{
-        auto dialog = new UnitDialog(this, units);
-        if(dialog->exec() == QDialog::Accepted) {
-            qInfo() << "Dialog accepted";
-        } else {
-            qInfo() << "Dialog rejected";
-        }
+        UnitDialog dialog(this, units);
+        dialog.exec();
     });
     action_set_units->setMenuRole(QAction::NoRole);
 
