@@ -1,5 +1,6 @@
 #pragma once
 #include "solver/numerics/Eigen.hpp"
+#include "gui/units/UnitGroup.hpp"
 #include <QtWidgets>
 
 class TableItem: public QTableWidgetItem
@@ -12,7 +13,7 @@ class TableEditor: public QTableWidget
     Q_OBJECT
 
 public:
-    TableEditor(const QList<QString>& labels, int rows);
+    TableEditor(const QList<QString>& labels, const QList<const UnitGroup*>& units, int rows);
     MatrixXd getData() const;
     void setData(const MatrixXd& data);
 

@@ -8,7 +8,7 @@ class WidthDialog: public PersistentDialog
     Q_OBJECT
 
 public:
-    WidthDialog(QWidget* parent);
+    WidthDialog(QWidget* parent, const UnitSystem& units);
 
     MatrixXd getData() const;
     void setData(const MatrixXd& width);

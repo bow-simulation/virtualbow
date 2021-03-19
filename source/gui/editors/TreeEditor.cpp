@@ -23,11 +23,11 @@ TreeEditor::TreeEditor(const UnitSystem& units) {
     QObject::connect(dialog_dimensions, &DimensionsDialog::modified, this, &TreeEditor::modified);
     new DialogTreeItem(this, "Dimensions", QIcon(":/icons/model-dimensions.svg"), dialog_dimensions);
 
-    dialog_profile = new ProfileDialog(this);
+    dialog_profile = new ProfileDialog(this, units);
     QObject::connect(dialog_profile, &ProfileDialog::modified, this, &TreeEditor::modified);
     new DialogTreeItem(this, "Profile", QIcon(":/icons/model-profile.svg"), dialog_profile);
 
-    dialog_width = new WidthDialog(this);
+    dialog_width = new WidthDialog(this, units);
     QObject::connect(dialog_width, &WidthDialog::modified, this, &TreeEditor::modified);
     new DialogTreeItem(this, "Width", QIcon(":/icons/model-width.svg"), dialog_width);
 
