@@ -20,7 +20,6 @@ UnitEditor::UnitEditor(UnitGroup& group) {
     // Update unit when combobox changed
     QObject::connect(combo, QOverload<int>::of(&QComboBox::activated), this, [&, combo](int index){
         QVariant data = combo->currentData();
-        qInfo() << "Set selected index";
         this->blockSignals(true);
         group.setSelectedIndex(data.toInt());
         this->blockSignals(false);
@@ -30,7 +29,6 @@ UnitEditor::UnitEditor(UnitGroup& group) {
     QObject::connect(&group, &UnitGroup::selectionChanged, this, [&, combo](){
         QString name = group.getSelectedUnit().getName();
         if(name != combo->currentText()) {
-            qInfo() << "Set selected text";
             combo->setCurrentText(name);
         }
     });

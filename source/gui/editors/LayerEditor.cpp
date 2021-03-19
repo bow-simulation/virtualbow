@@ -2,8 +2,8 @@
 
 LayerEditor::LayerEditor(EditableTabBar* tabs, const UnitSystem& units)
     : tabs(tabs),
-      table(new TableEditor({"Position", "Height [m]"}, 100)),
-      view(new SplineView("Position", "Height [m]")),
+      table(new TableEditor({ "Position", "Height" }, { &units.ratio, &units.length }, 100)),
+      view(new SplineView("Position", "Height", units.ratio, units.length)),
       edit_rho(new DoubleEditor("rho", units.density)),
       edit_E(new DoubleEditor("E", units.elastic_modulus))
 {

@@ -10,7 +10,7 @@ void TableItem::setData(int role, const QVariant& data)
         QTableWidgetItem::setData(role, data);
 }
 
-TableEditor::TableEditor(const QList<QString>& labels, int rows)
+TableEditor::TableEditor(const QList<QString>& labels, const QList<const UnitGroup*>& units, int rows)
     : QTableWidget(rows, labels.size())
 {
     this->setSelectionMode(QAbstractItemView::ContiguousSelection);

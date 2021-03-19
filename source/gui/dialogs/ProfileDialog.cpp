@@ -1,9 +1,9 @@
 #include "ProfileDialog.hpp"
 
-ProfileDialog::ProfileDialog(QWidget* parent)
-    : PersistentDialog(parent, "ProfileDialog", {800, 400}),    // Magic numbers
-      edit(new TableEditor({"Length [m]", "Curvature [1/m]"}, 100)),
-      view(new ProfileView())
+ProfileDialog::ProfileDialog(QWidget* parent, const UnitSystem& units)
+    : PersistentDialog(parent, "ProfileDialog", { 800, 400 }),    // Magic numbers
+      edit(new TableEditor({ "Length", "Curvature" }, { &units.length, &units.curvature }, 100)),
+      view(new ProfileView(units.length))
 {
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     QObject::connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
