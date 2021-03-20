@@ -9,9 +9,6 @@ ProfileCurve::ProfileCurve(const MatrixXd& input, double x0, double y0, double p
     if(input.cols() != 2) {
         throw std::invalid_argument("Input must have two columns");
     }
-    if(input.rows() < 2) {
-        throw std::invalid_argument("Input must have at least two rows");
-    }
 
     std::vector<double> s;
     std::vector<double> k;
@@ -26,6 +23,10 @@ ProfileCurve::ProfileCurve(const MatrixXd& input, double x0, double y0, double p
             s.push_back(si);
             k.push_back(ki);
         }
+    }
+
+    if(s.size() < 2) {
+        throw std::invalid_argument("Input must have at least two valid rows");
     }
 
     // Sort inputs

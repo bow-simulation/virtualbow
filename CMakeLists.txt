@@ -87,6 +87,10 @@ add_executable(
     source/gui/editors/LayerEditor.hpp
     source/gui/editors/TableEditor.cpp
     source/gui/editors/TableEditor.hpp
+    source/gui/editors/TableModel.cpp
+    source/gui/editors/TableModel.hpp
+    source/gui/editors/TableView.cpp
+    source/gui/editors/TableView.hpp
     source/gui/editors/TreeEditor.cpp
     source/gui/editors/TreeEditor.hpp
     source/gui/units/Unit.cpp

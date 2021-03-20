@@ -2,7 +2,7 @@
 
 WidthDialog::WidthDialog(QWidget* parent, const UnitSystem& units)
     : PersistentDialog(parent, "WidthDialog", { 800, 400 }),    // Magic numbers
-      edit(new TableEditor({ "Position", "Width" }, { &units.ratio, &units.length }, 100)),
+      edit(new TableEditor({ "Position", "Width" }, { &units.ratio, &units.length })),
       view(new SplineView("Position", "Width", units.ratio, units.length))
 {
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
