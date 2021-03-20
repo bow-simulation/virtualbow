@@ -5,7 +5,11 @@ TableEditor::TableEditor(const QList<QString>& labels, const QList<const UnitGro
     : model(labels, units, 100)
 {
     setModel(&model);
+
     QObject::connect(&model, &TableModel::modified, this, &TableEditor::modified);
+    QObject::connect(this->selectionModel(), &QItemSelectionModel::selectionChanged, this, [&] {
+        emit this->rowSelectionChanged(getSelectedIndices());
+    });
 }
 
 MatrixXd TableEditor::getData() const {
@@ -17,16 +21,14 @@ void TableEditor::setData(const MatrixXd& data) {
 }
 
 QVector<int> TableEditor::getSelectedIndices() {
-    /*
+    QItemSelectionRange range = selectionModel()->selection().first();
     QVector<int> selection;
     int index = 0;
-    for(int i = 0; i < this->rowCount(); ++i) {
-        bool arg_valid, val_valid;
-        QLocale().toDouble(this->item(i, 0)->text(), &arg_valid);
-        QLocale().toDouble(this->item(i, 1)->text(), &val_valid);
-
-        if(arg_valid && val_valid) {
-            if(this->item(i, 0)->isSelected() || this->item(i, 1)->isSelected()) {
+    for(int i = 0; i < model.rowCount(); ++i) {
+        QVariant arg = model.index(i, 0).data();
+        QVariant val = model.index(i, 1).data();
+        if(!arg.isNull() && !val.isNull()) {
+            if(i >= range.top() && i <= range.bottom()) {
                 selection.push_back(index);
             }
             ++index;
@@ -34,7 +36,4 @@ QVector<int> TableEditor::getSelectedIndices() {
     }
 
     return selection;
-    */
-
-    return QVector<int>();
 }
