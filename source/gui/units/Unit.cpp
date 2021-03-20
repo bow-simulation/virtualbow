@@ -29,5 +29,5 @@ QString Unit::getName() const {
 }
 
 QString Unit::getLabel() const {
-    return name.isEmpty() ? QString() : "[" + name + "]";
+    return name.isEmpty() ? QString() : "[ " + name + " ]";
 }
