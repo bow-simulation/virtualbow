@@ -1,16 +1,20 @@
 #pragma once
 #include "gui/PlotWidget.hpp"
+#include "gui/units/UnitSystem.hpp"
 #include "solver/model/output/OutputData.hpp"
 
 class EnergyPlot: public QWidget
 {
 public:
-    EnergyPlot(const BowStates& states, const std::vector<double>& parameter, const QString& x_label);
+    EnergyPlot(const BowStates& states, const std::vector<double>& parameter, const QString& label_x, const UnitGroup& unit_x, const UnitGroup& unit_y);
     void setStateIndex(int index);
 
 private:
     const BowStates& states;
     const std::vector<double>& parameter;
+    const UnitGroup& unit_x;
+    const UnitGroup& unit_y;
+    QString label_x;
 
     PlotWidget* plot;
 

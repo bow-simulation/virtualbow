@@ -1,5 +1,7 @@
 #pragma once
 #include "gui/RecentFilesMenu.hpp"
+#include "gui/units/UnitDialog.hpp"
+#include "solver/model/output/OutputData.hpp"
 #include <QtWidgets>
 
 class MainWindow: public QMainWindow
@@ -16,7 +18,11 @@ private:
     QAction* action_open;
     QAction* action_save_as;
     QAction* action_quit;
+    QAction* action_set_units;
     RecentFilesMenu* menu_open_recent;
+
+    UnitSystem units;
+    OutputData data;
 
     void closeEvent(QCloseEvent *event) override;
 

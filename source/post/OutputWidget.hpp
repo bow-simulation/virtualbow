@@ -1,11 +1,12 @@
 #pragma once
 #include "solver/model/output/OutputData.hpp"
+#include "gui/units/UnitSystem.hpp"
 #include <QtWidgets>
 
 class OutputWidget: public QWidget
 {
 public:
-    OutputWidget(const OutputData& output);
+    OutputWidget(const OutputData& data, const UnitSystem& units);
     ~OutputWidget();
     const OutputData& getData();
 
@@ -18,7 +19,7 @@ private:
 class StaticOutputWidget: public QWidget
 {
 public:
-    StaticOutputWidget(const OutputData& output);
+    StaticOutputWidget(const OutputData& data, const UnitSystem& units);
     ~StaticOutputWidget();
 
 private:
@@ -28,7 +29,7 @@ private:
 class DynamicOutputWidget: public QWidget
 {
 public:
-    DynamicOutputWidget(const OutputData& output);
+    DynamicOutputWidget(const OutputData& data, const UnitSystem& units);
     ~DynamicOutputWidget();
 
 private:

@@ -75,7 +75,7 @@ MainWindow::MainWindow()
     menu_simulation->addAction(action_run_statics);
     menu_simulation->addAction(action_run_dynamics);
 
-    // Preferences menu
+    // Options menu
     auto menu_preferences = this->menuBar()->addMenu("&Options");
     menu_preferences->addAction(action_set_units);
 

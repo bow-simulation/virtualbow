@@ -11,8 +11,7 @@ NumberGrid::NumberGrid()
     this->setLayout(columnLayout);
 }
 
-void NumberGrid::addColumn()
-{
+void NumberGrid::addColumn() {
     // Create new column
     currentColumn = new QVBoxLayout();
     currentColumn->addStretch();
@@ -25,10 +24,10 @@ void NumberGrid::addColumn()
     columnLayout->insertLayout(i, currentColumn);
 }
 
-void NumberGrid::addGroup(const QString& name)
-{
-    if (currentColumn == nullptr)
+void NumberGrid::addGroup(const QString& name) {
+    if(currentColumn == nullptr) {
         addColumn();
+    }
 
     currentGrid = new QGridLayout();
     auto group = new QGroupBox(name);
@@ -39,20 +38,29 @@ void NumberGrid::addGroup(const QString& name)
     currentColumn->insertWidget(i, group);
 }
 
-void NumberGrid::addValue(const QString& name, double value)
-{
-    if (currentColumn == nullptr)
+void NumberGrid::addValue(const QString& name, double value, const UnitGroup& unit) {
+    if(currentColumn == nullptr) {
         addColumn();
+    }
 
-    if (currentGrid == nullptr)
+    if(currentGrid == nullptr) {
         addGroup("Default");
+    }
 
-    auto label = new QLabel(name);
-    auto edit = new QLineEdit(QLocale().toString(value));
+    auto label = new QLabel();
+    auto edit = new QLineEdit();
     edit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     edit->setReadOnly(true);
 
     int i = currentGrid->rowCount();
     currentGrid->addWidget(label, i, 0, Qt::AlignRight);
     currentGrid->addWidget(edit, i, 1);
+
+    auto update = [&, name, value, label, edit] {
+        label->setText(name + " " + unit.getSelectedUnit().getLabel());
+        edit->setText(QLocale().toString(unit.getSelectedUnit().fromBase(value)));
+    };
+
+    QObject::connect(&unit, &UnitGroup::selectionChanged, this, update);
+    update();
 }

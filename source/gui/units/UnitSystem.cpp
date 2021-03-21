@@ -53,7 +53,7 @@ void UnitSystem::resetDefaults() {
     angle.setSelectedUnit(Units::Degree);
     mass.setSelectedUnit(Units::Gram);
     force.setSelectedUnit(Units::Newton);
-    time.setSelectedUnit(Units::Second);
+    time.setSelectedUnit(Units::Millisecond);
     energy.setSelectedUnit(Units::Joule);
     position.setSelectedUnit(Units::Meter);
     velocity.setSelectedUnit(Units::Meter_Per_Second);
