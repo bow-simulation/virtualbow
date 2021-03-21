@@ -1,6 +1,6 @@
 #include "CommentDialog.hpp"
 
-CommentDialog::CommentDialog(QWidget* parent)
+CommentDialog::CommentDialog(QWidget* parent, const UnitSystem& units)
     : PersistentDialog(parent, "CommentDialog", {600, 300}),
       edit(new QTextEdit()),
       changed(false)
