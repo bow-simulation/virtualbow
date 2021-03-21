@@ -172,6 +172,14 @@ add_executable(
     source/gui/PlotWidget.hpp
     source/gui/views/LayerColors.cpp
     source/gui/views/LayerColors.hpp
+    source/gui/units/Unit.cpp
+    source/gui/units/Unit.hpp
+    source/gui/units/UnitGroup.cpp
+    source/gui/units/UnitGroup.hpp
+    source/gui/units/UnitDialog.cpp
+    source/gui/units/UnitDialog.hpp
+    source/gui/units/UnitSystem.cpp
+    source/gui/units/UnitSystem.hpp
     source/solver/model/output/OutputData.cpp
     source/solver/model/output/OutputData.hpp
     source/solver/numerics/Series.cpp

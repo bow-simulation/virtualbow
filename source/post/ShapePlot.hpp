@@ -1,24 +1,32 @@
 #pragma once
 #include "gui/PlotWidget.hpp"
+#include "gui/units/UnitSystem.hpp"
 #include "solver/model/output/OutputData.hpp"
 
-class ShapePlot: public PlotWidget
-{
+class ShapePlot: public PlotWidget {
 public:
-    ShapePlot(const LimbProperties& limb, const BowStates& states, bool intermediate_steps);
+    ShapePlot(const LimbProperties& limb, const BowStates& states, const UnitSystem& units, int background_states);
     void setStateIndex(int i);
 
 private:
     const LimbProperties& limb;
     const BowStates& states;
+    const UnitGroup& unit;
 
-    QCPCurve* limb_right;
-    QCPCurve* limb_left;
-    QCPCurve* string_right;
-    QCPCurve* string_left;
+    int background_states;
+    int index;
+
+    QList<QCPCurve*> limb_right;
+    QList<QCPCurve*> limb_left;
+    QList<QCPCurve*> string_right;
+    QList<QCPCurve*> string_left;
     QCPCurve* arrow;    // Todo: Replace with other QCustomPlot object?
 
-    void plotIntermediateStates();
+    void updatePlot();
+
+    void updateBackgroundStates();
+    void updateCurrentState();
+    void updateAxes();
+
     void plotLimbOutline(QCPCurve* left, QCPCurve* right, const VectorXd& x, const VectorXd& y, const VectorXd& phi);
-    void setAxesRanges();
 };

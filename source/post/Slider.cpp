@@ -1,16 +1,21 @@
 #include "Slider.hpp"
 #include <algorithm>
 
-Slider::Slider(const std::vector<double>& values, const QString& text)
-    : slider(new QSlider(Qt::Horizontal)),
-      menu(new QMenu())
+Slider::Slider(const std::vector<double>& values, const QString& text, const UnitGroup& unit)
+    : edit(new QLineEdit()),
+      label(new QLabel()),
+      slider(new QSlider(Qt::Horizontal)),
+      menu(new QMenu()),
+      values(values),
+      text(text),
+      unit(unit),
+      index(0)
 {
     const int height = 30; // Magic number
 
-    auto edit = new QLineEdit();
+    edit = new QLineEdit();
     edit->setFixedHeight(height);
-    auto validator = new QDoubleValidator(values.front(), values.back(), 10); // Magic number
-    edit->setValidator(validator);
+    edit->setValidator(new QDoubleValidator(values.front(), values.back(), 10));
 
     auto button_jump_to = new QToolButton();
     button_jump_to->setIcon(QIcon(":/icons/media-jump-to.svg"));
@@ -34,7 +39,7 @@ Slider::Slider(const std::vector<double>& values, const QString& text)
     auto hbox = new QHBoxLayout();
     this->setLayout(hbox);
     hbox->setSpacing(0);
-    hbox->addWidget(new QLabel(text));
+    hbox->addWidget(label);
     hbox->addSpacing(5);
     hbox->addWidget(edit);
     hbox->addWidget(button_jump_to);
@@ -76,9 +81,10 @@ Slider::Slider(const std::vector<double>& values, const QString& text)
         }
     });
 
-    QObject::connect(slider, &QSlider::valueChanged, [=, &values](int index) {
-        edit->setText(QLocale().toString(values[index]));
-        emit valueChanged(index);
+    QObject::connect(slider, &QSlider::valueChanged, [&](int index) {
+        this->index = index;
+        updateLabels();
+        emit indexChanged(index);
     });
 
     QObject::connect(menu, &QMenu::triggered, [=](QAction *action) {
@@ -95,7 +101,7 @@ Slider::Slider(const std::vector<double>& values, const QString& text)
         if(index >= slider->minimum() && index <= slider->maximum()) {
             stop_playback();
             slider->setValue(index);
-            emit valueChanged(index);
+            emit indexChanged(index);
         }
     });
 
@@ -120,12 +126,18 @@ Slider::Slider(const std::vector<double>& values, const QString& text)
         slider->setValue(slider->maximum());
     });
 
-    emit slider->valueChanged(0);
+    QObject::connect(&unit, &UnitGroup::selectionChanged, this, &Slider::updateLabels);
+    updateLabels();
 }
 
-void Slider::addJumpAction(const QString& name, int index)
-{
+void Slider::addJumpAction(const QString& name, int index) {
     QAction* action = new QAction(name, this);
     action->setData(index);
     menu->addAction(action);
+}
+
+void Slider::updateLabels() {
+    double unitValue = unit.getSelectedUnit().fromBase(values[index]);
+    edit->setText(QLocale().toString(unitValue));
+    label->setText(text + " " + unit.getSelectedUnit().getLabel());
 }

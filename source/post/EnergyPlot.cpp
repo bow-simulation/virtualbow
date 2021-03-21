@@ -2,16 +2,17 @@
 #include <algorithm>
 #include <functional>
 
-EnergyPlot::EnergyPlot(const BowStates& states, const std::vector<double>& parameter, const QString& x_label)
+EnergyPlot::EnergyPlot(const BowStates& states, const std::vector<double>& parameter, const QString& label_x, const UnitGroup& unit_x, const UnitGroup& unit_y)
     : states(states),
       parameter(parameter),
+      unit_x(unit_x),
+      unit_y(unit_y),
+      label_x(label_x),
       plot(new PlotWidget()),
       cb_stacked(new QCheckBox("Stacked")),
       cb_part(new QCheckBox("Group by component")),
       cb_type(new QCheckBox("Group by type"))
 {
-    plot->xAxis->setLabel(x_label);
-    plot->yAxis->setLabel("Energy [J]");
     plot->setupTopLegend();
 
     auto vbox = new QVBoxLayout();
@@ -47,6 +48,8 @@ EnergyPlot::EnergyPlot(const BowStates& states, const std::vector<double>& param
     QObject::connect(cb_type, &QCheckBox::toggled, this, &EnergyPlot::updatePlot);
     QObject::connect(cb_part, &QCheckBox::toggled, this, &EnergyPlot::updatePlot);
 
+    QObject::connect(&unit_x, &UnitGroup::selectionChanged, this, &EnergyPlot::updatePlot);
+    QObject::connect(&unit_y, &UnitGroup::selectionChanged, this, &EnergyPlot::updatePlot);
     updatePlot();
 }
 
@@ -57,6 +60,9 @@ void EnergyPlot::setStateIndex(int index)
 
 void EnergyPlot::updatePlot()
 {
+    plot->xAxis->setLabel(label_x + " " + unit_x.getSelectedUnit().getLabel());
+    plot->yAxis->setLabel("Energy " + unit_y.getSelectedUnit().getLabel());
+
     // Function plot_energy adds a single energy to the plot
     std::function<void(const std::vector<double>& energy, const QString& name, const QColor& color)> plot_energy;
 
@@ -81,7 +87,10 @@ void EnergyPlot::updatePlot()
             auto graph_lower = plot->graph();
             auto graph_upper = plot->addGraph();
 
-            graph_upper->setData(parameter, e_upper);
+            graph_upper->setData(
+                unit_x.getSelectedUnit().fromBase(parameter),
+                unit_y.getSelectedUnit().fromBase(e_upper)
+            );
             graph_upper->setName(name);
             graph_upper->setBrush(color);
             graph_upper->setPen(color);
@@ -103,7 +112,10 @@ void EnergyPlot::updatePlot()
                 return;
 
             auto graph = plot->addGraph();
-            graph->setData(parameter, energy);
+            graph->setData(
+                unit_x.getSelectedUnit().fromBase(parameter),
+                unit_x.getSelectedUnit().fromBase(energy)
+            );
             graph->setName(name);
             graph->setPen(color);
         };
@@ -118,12 +130,12 @@ void EnergyPlot::updatePlot()
         std::vector<double> e_limbs(parameter.size());
         std::vector<double> e_string(parameter.size());
 
-        for(size_t i = 0; i < parameter.size(); ++i)
+        for(size_t i = 0; i < parameter.size(); ++i) {
             e_limbs[i] = states.e_pot_limbs[i] + states.e_kin_limbs[i];
-
-        for(size_t i = 0; i < parameter.size(); ++i)
+        }
+        for(size_t i = 0; i < parameter.size(); ++i) {
             e_string[i] = states.e_pot_string[i] + states.e_kin_string[i];
-
+        }
         plot_energy(e_limbs, "Limbs (Total)", QColor(0, 0, 255));
         plot_energy(e_string, "String (Total)", QColor(128, 0, 128));
         plot_energy(states.e_kin_arrow, "Arrow (Total)", QColor(255, 0, 0));

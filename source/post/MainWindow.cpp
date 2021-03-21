@@ -23,6 +23,13 @@ MainWindow::MainWindow()
     action_quit->setMenuRole(QAction::QuitRole);
     QObject::connect(action_quit, &QAction::triggered, this, &QWidget::close);
 
+    action_set_units = new QAction("&Units...", this);
+    QObject::connect(action_set_units, &QAction::triggered, this, [&]{
+        UnitDialog dialog(this, units);
+        dialog.exec();
+    });
+    action_set_units->setMenuRole(QAction::NoRole);
+
     // File menu
     auto menu_file = this->menuBar()->addMenu("&File");
     menu_file->addAction(action_open);
@@ -35,6 +42,10 @@ MainWindow::MainWindow()
     // Recent files menu
     QObject::connect(menu_open_recent, &RecentFilesMenu::openRecent, this, &MainWindow::loadFile);
     QObject::connect(menu_file, &QMenu::aboutToShow, [&]{ menu_open_recent->updateActions(); });
+
+    // Options menu
+    auto menu_preferences = this->menuBar()->addMenu("&Options");
+    menu_preferences->addAction(action_set_units);
 
     // Help menu
     this->menuBar()->addMenu(new HelpMenu(this));
@@ -66,8 +77,8 @@ void MainWindow::loadFile(const QString& path)
 {
     try
     {
-        OutputData output(path.toStdString());
-        this->setCentralWidget(new OutputWidget(output));
+        data = OutputData(path.toStdString());
+        this->setCentralWidget(new OutputWidget(data, units));
         this->setWindowFilePath(path);
         action_save_as->setEnabled(true);
         menu_open_recent->addPath(path);
