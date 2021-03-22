@@ -1,4 +1,7 @@
 #include "GroupDialog.hpp"
+#include <QDialogButtonBox>
+#include <QAbstractButton>
+#include <QGroupBox>
 
 GroupDialog::GroupDialog(QWidget* parent, const QString& title, bool enable_reset)
     : BaseDialog(parent),
@@ -12,8 +15,9 @@ GroupDialog::GroupDialog(QWidget* parent, const QString& title, bool enable_rese
     QObject::connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     QObject::connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
     QObject::connect(buttons, &QDialogButtonBox::clicked, [&, buttons](QAbstractButton* button){
-        if(buttons->standardButton(button) == QDialogButtonBox::Reset)
+        if(buttons->standardButton(button) == QDialogButtonBox::Reset) {
             emit reset();
+        }
     });
 
     vbox1->addWidget(buttons);
@@ -22,8 +26,7 @@ GroupDialog::GroupDialog(QWidget* parent, const QString& title, bool enable_rese
     this->setLayout(vbox1);
 }
 
-void GroupDialog::addGroup(const QString& name)
-{
+void GroupDialog::addGroup(const QString& name) {
     vbox2 = new QVBoxLayout();
     vbox2->setAlignment(Qt::AlignTop);
 
@@ -33,10 +36,9 @@ void GroupDialog::addGroup(const QString& name)
     vbox1->insertWidget(vbox1->count()-1, group, 1);
 }
 
-void GroupDialog::addWidget(QWidget* widget)
-{
-    if(vbox2 == nullptr)
+void GroupDialog::addWidget(QWidget* widget) {
+    if(vbox2 == nullptr) {
         addGroup("");
-
+    }
     vbox2->addWidget(widget);
 }

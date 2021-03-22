@@ -2,24 +2,19 @@
 #include <boost/functional/hash.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
-#include <random>
+#include <QPainter>
 
+QColor getLayerColor(const Layer& layer) {
+    return getLayerColor(layer.rho, layer.E);
+}
+
+QColor getLayerColor(const LayerProperties& layer) {
+    return getLayerColor(layer.rho, layer.E);
+}
 
 // https://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
 // https://stackoverflow.com/a/19728404/4692009
-QColor getLayerColor(const Layer& layer)
-{
-    return getLayerColor(layer.rho, layer.E);
-}
-
-QColor getLayerColor(const LayerProperties& layer)
-{
-    return getLayerColor(layer.rho, layer.E);
-}
-
-#include <iostream>
-QColor getLayerColor(double rho, double E)
-{
+QColor getLayerColor(double rho, double E) {
     using boost::random::uniform_int_distribution;
     using boost::random::mt19937_64;
     using boost::hash_combine;
@@ -39,8 +34,7 @@ QColor getLayerColor(double rho, double E)
     return QColor::fromHsv(h(rng), s(rng), v(rng));
 }
 
-QPixmap getLayerPixmap(const Layer& layer)
-{
+QPixmap getLayerPixmap(const Layer& layer) {
     const int size = 48;
 	const int offset = 6;
 

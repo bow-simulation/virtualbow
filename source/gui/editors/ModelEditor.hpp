@@ -2,11 +2,11 @@
 #include "gui/editors/TreeEditor.hpp"
 #include "gui/views/LimbView.hpp"
 #include "gui/units/UnitSystem.hpp"
+#include <QSplitter>
 
 class InputData;
 
-class ModelEditor: public QSplitter
-{
+class ModelEditor: public QSplitter {
     Q_OBJECT
 
 public:

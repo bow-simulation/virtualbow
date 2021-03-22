@@ -1,4 +1,5 @@
 #include "IntegerEditor.hpp"
+#include <QHBoxLayout>
 
 IntegerEditor::IntegerEditor(const QString& text)
     : label(new QLabel(text)),
@@ -18,13 +19,11 @@ IntegerEditor::IntegerEditor(const QString& text)
     QObject::connect(edit, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &IntegerEditor::modified);
 }
 
-void IntegerEditor::setData(int value)
-{
+void IntegerEditor::setData(int value) {
     edit->setValue(value);
 }
 
-double IntegerEditor::getData() const
-{
+double IntegerEditor::getData() const {
     return edit->value();
 }
 

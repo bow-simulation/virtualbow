@@ -1,4 +1,12 @@
 #include "SimulationDialog.hpp"
+#include <QVBoxLayout>
+#include <QProgressBar>
+#include <QDialogButtonBox>
+#include <QCoreApplication>
+#include <QMessageBox>
+#include <QLabel>
+#include <QProcess>
+#include <QDir>
 #include <thread>
 
 SimulationDialog::SimulationDialog(QWidget* parent, const QString& input, const QString& output, const QString& flag)

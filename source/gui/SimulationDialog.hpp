@@ -1,8 +1,7 @@
 #pragma once
 #include "BaseDialog.hpp"
 
-class SimulationDialog: public BaseDialog
-{
+class SimulationDialog: public BaseDialog {
     Q_OBJECT
 
 public:

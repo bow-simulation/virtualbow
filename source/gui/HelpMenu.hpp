@@ -1,8 +1,7 @@
 #pragma once
-#include <QtWidgets>
+#include <QMenu>
 
-class HelpMenu: public QMenu
-{
+class HelpMenu: public QMenu {
 public:
     HelpMenu(QWidget* parent);
 

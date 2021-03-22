@@ -1,14 +1,13 @@
 #pragma once
 #include "gui/units/UnitSystem.hpp"
-#include <QtWidgets>
+#include <QLabel>
+#include <QLineEdit>
 
-class DoubleEditor: public QWidget
-{
+class DoubleEditor: public QWidget {
     Q_OBJECT
 
 public:
     DoubleEditor(const QString& text, const UnitGroup& group);
-
     double getData() const;
     void setData(double data);
 

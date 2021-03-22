@@ -1,4 +1,9 @@
 #include "Slider.hpp"
+#include <QDoubleValidator>
+#include <QToolButton>
+#include <QHBoxLayout>
+#include <QTimer>
+#include <QLocale>
 #include <algorithm>
 
 Slider::Slider(const std::vector<double>& values, const QString& text, const UnitGroup& unit)
@@ -7,8 +12,8 @@ Slider::Slider(const std::vector<double>& values, const QString& text, const Uni
       slider(new QSlider(Qt::Horizontal)),
       menu(new QMenu()),
       values(values),
-      text(text),
       unit(unit),
+      text(text),
       index(0)
 {
     const int height = 30; // Magic number
@@ -105,7 +110,7 @@ Slider::Slider(const std::vector<double>& values, const QString& text, const Uni
         }
     });
 
-    QObject::connect(button_play_pause, &QPushButton::clicked, [=] {
+    QObject::connect(button_play_pause, &QToolButton::clicked, [=] {
         if(timer->isActive()) {
             stop_playback();
         } else {
@@ -116,12 +121,12 @@ Slider::Slider(const std::vector<double>& values, const QString& text, const Uni
         }
     });
 
-    QObject::connect(button_skip_backward, &QPushButton::clicked, [=] {
+    QObject::connect(button_skip_backward, &QToolButton::clicked, [=] {
         stop_playback();
         slider->setValue(slider->minimum());
     });
 
-    QObject::connect(button_skip_forward, &QPushButton::clicked, [=] {
+    QObject::connect(button_skip_forward, &QToolButton::clicked, [=] {
         stop_playback();
         slider->setValue(slider->maximum());
     });

@@ -1,5 +1,10 @@
 #include "HelpMenu.hpp"
 #include "config.hpp"
+#include <QCoreApplication>
+#include <QDesktopServices>
+#include <QMessageBox>
+#include <QFileInfo>
+#include <QUrl>
 
 HelpMenu::HelpMenu(QWidget* parent)
     : QMenu("&Help", parent)
@@ -18,8 +23,7 @@ HelpMenu::HelpMenu(QWidget* parent)
 }
 
 // Todo: Hard-coded paths?
-void HelpMenu::help()
-{
+void HelpMenu::help() {
     QList<QString> paths = {
         QCoreApplication::applicationDirPath() + "/manual.pdf",                // Windows
         QCoreApplication::applicationDirPath() + "/../Resources/manual.pdf",   // MacOS
@@ -38,8 +42,7 @@ void HelpMenu::help()
     QMessageBox::critical(this->parentWidget(), "Error", "Failed to open the user manual, file not found.");
 }
 
-void HelpMenu::about()
-{
+void HelpMenu::about() {
     QMessageBox::about(this->parentWidget(), "About", QString()
         + "<strong><font size=\"6\">VirtualBow</font></strong><br>"
         + "Version " + Config::APPLICATION_VERSION + "<br><br>"

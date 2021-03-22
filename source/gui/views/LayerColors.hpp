@@ -1,7 +1,8 @@
 #pragma once
 #include "solver/model/input/Layers.hpp"
 #include "solver/model/LimbProperties.hpp"
-#include <QtWidgets>
+#include <QColor>
+#include <QPixmap>
 
 // Todo: Make this have an interface like
 // getLayerColor(const Material& material) -> QColor

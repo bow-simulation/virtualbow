@@ -1,11 +1,14 @@
-#include <QtCore>
 #include "config.hpp"
 #include "model/BowModel.hpp"
+#include <QCoreApplication>
+#include <QCommandLineParser>
+#include <QLocale>
+#include <QFileInfo>
+#include <QDir>
 #include <utility>
 #include <iostream>
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     QCoreApplication app(argc, argv);
     app.setOrganizationName(Config::ORGANIZATION_NAME);
     app.setOrganizationDomain(Config::ORGANIZATION_DOMAIN);
@@ -30,13 +33,11 @@ int main(int argc, char* argv[])
 
     QStringList args = parser.positionalArguments();
 
-    if(args.size() == 0)
-    {
+    if(args.size() == 0) {
         parser.showHelp();
         return 0;
     }
-    else if(args.size() > 2)
-    {
+    else if(args.size() > 2) {
         std::cerr << "Too many arguments." << std::endl;;
         return 1;
     }
@@ -44,29 +45,23 @@ int main(int argc, char* argv[])
     QString input_path = args[0];
     QString output_path;
 
-    if(args.size() == 2)
-    {
+    if(args.size() == 2) {
         output_path = args[1];
     }
-    else
-    {
+    else {
         QFileInfo info(input_path);
         output_path = info.absolutePath() + QDir::separator() + info.completeBaseName() + ".res";
     }
 
-    try
-    {
+    try {
         SimulationMode mode;
-        if(parser.isSet(dynamics))
-        {
+        if(parser.isSet(dynamics)) {
             mode = SimulationMode::Dynamic;
         }
-        else if(parser.isSet(statics))
-        {
+        else if(parser.isSet(statics)) {
             mode = SimulationMode::Static;
         }
-        else
-        {
+        else {
             std::cerr << "Simulation mode not set." << std::endl;;
             return 1;
         }
@@ -75,11 +70,9 @@ int main(int argc, char* argv[])
 
         std::pair<int, int> previous = {-1, -1};
         OutputData output = BowModel::simulate(input, mode, [&](int p1, int p2) {
-            if(p1 != previous.first || p2 != previous.second)
-            {
+            if(p1 != previous.first || p2 != previous.second) {
                 previous = {p1, p2};
-                if(parser.isSet(progress))
-                {
+                if(parser.isSet(progress)) {
                     std::cout << p1 << "\t" << p2 << std::endl;
                 }
             }
@@ -88,8 +81,7 @@ int main(int argc, char* argv[])
         output.save(output_path.toStdString());
         return 0;
     }
-    catch(const std::exception& e)
-    {
+    catch(const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;
     }

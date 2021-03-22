@@ -2,10 +2,9 @@
 #include "gui/RecentFilesMenu.hpp"
 #include "gui/units/UnitDialog.hpp"
 #include "solver/model/output/OutputData.hpp"
-#include <QtWidgets>
+#include <QMainWindow>
 
-class MainWindow: public QMainWindow
-{
+class MainWindow: public QMainWindow {
 public:
     MainWindow();
     void loadFile(const QString& path);

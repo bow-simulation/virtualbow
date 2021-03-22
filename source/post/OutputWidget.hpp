@@ -1,10 +1,11 @@
 #pragma once
 #include "solver/model/output/OutputData.hpp"
 #include "gui/units/UnitSystem.hpp"
-#include <QtWidgets>
+#include <QWidget>
+#include <QTabWidget>
+#include <QPushButton>
 
-class OutputWidget: public QWidget
-{
+class OutputWidget: public QWidget {
 public:
     OutputWidget(const OutputData& data, const UnitSystem& units);
     ~OutputWidget();
@@ -16,8 +17,7 @@ private:
     QPushButton* bt_dynamics;
 };
 
-class StaticOutputWidget: public QWidget
-{
+class StaticOutputWidget: public QWidget {
 public:
     StaticOutputWidget(const OutputData& data, const UnitSystem& units);
     ~StaticOutputWidget();
@@ -26,8 +26,7 @@ private:
     QTabWidget* tabs;
 };
 
-class DynamicOutputWidget: public QWidget
-{
+class DynamicOutputWidget: public QWidget {
 public:
     DynamicOutputWidget(const OutputData& data, const UnitSystem& units);
     ~DynamicOutputWidget();

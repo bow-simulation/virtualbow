@@ -1,6 +1,10 @@
 #pragma once
 #include "gui/units/UnitGroup.hpp"
-#include <QtWidgets>
+#include <QWidget>
+#include <QLineEdit>
+#include <QLabel>
+#include <QSlider>
+#include <QMenu>
 
 class Slider: public QWidget {
     Q_OBJECT
@@ -22,8 +26,8 @@ private:
     QMenu* menu;
 
     const std::vector<double>& values;
-    QString text;
     const UnitGroup& unit;
+    QString text;
     int index;
 
     void updateLabels();

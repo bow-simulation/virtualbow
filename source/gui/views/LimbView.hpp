@@ -4,7 +4,7 @@
 #include "LimbMesh.hpp"
 #include "LayerLegend.hpp"
 #include "OpenGLUtils.hpp"
-#include <QtWidgets>
+
 #include <QOpenGLWidget>
 #include <QOpenGLExtraFunctions>
 

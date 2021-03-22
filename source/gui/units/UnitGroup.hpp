@@ -1,6 +1,8 @@
 #pragma once
 #include "Unit.hpp"
-#include <QtCore>
+#include <QObject>
+#include <QSettings>
+#include <QList>
 
 class UnitSystem;
 

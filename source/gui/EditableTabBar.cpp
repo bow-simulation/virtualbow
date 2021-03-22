@@ -1,4 +1,9 @@
 #include "EditableTabBar.hpp"
+#include <QToolButton>
+#include <QPushButton>
+#include <QLineEdit>
+#include <QInputDialog>
+#include <QTabBar>
 
 EditableTabBar::EditableTabBar()
 {

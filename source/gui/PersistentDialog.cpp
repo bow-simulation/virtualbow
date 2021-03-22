@@ -1,4 +1,5 @@
 #include "PersistentDialog.hpp"
+#include <QSettings>
 
 PersistentDialog::PersistentDialog(QWidget* parent, const QString& name, const QSize& size)
     : BaseDialog(parent), name(name)

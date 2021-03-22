@@ -1,6 +1,6 @@
 #pragma once
 #include "solver/numerics/Eigen.hpp"
-#include <QtCore>
+#include <QString>
 
 enum Type {
     SI,

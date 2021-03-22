@@ -5,6 +5,15 @@
 #include "editors/ModelEditor.hpp"
 #include "config.hpp"
 #include <nlohmann/json.hpp>
+#include <QMenuBar>
+#include <QToolBar>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QDir>
+#include <QProcess>
+#include <QApplication>
+#include <QTimer>
 
 MainWindow::MainWindow()
     : menu_open_recent(new RecentFilesMenu(this)),

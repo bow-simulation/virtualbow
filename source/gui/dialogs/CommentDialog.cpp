@@ -1,4 +1,7 @@
 #include "CommentDialog.hpp"
+#include <QFontDatabase>
+#include <QDialogButtonBox>
+#include <QVBoxLayout>
 
 CommentDialog::CommentDialog(QWidget* parent, const UnitSystem& units)
     : PersistentDialog(parent, "CommentDialog", {600, 300}),
@@ -23,8 +26,9 @@ CommentDialog::CommentDialog(QWidget* parent, const UnitSystem& units)
 
     QObject::connect(buttons, &QDialogButtonBox::accepted, [&]{
         emit CommentDialog::accept();
-        if(changed)
+        if(changed) {
             emit modified();
+        }
     });
 
     QObject::connect(buttons, &QDialogButtonBox::rejected, this, &CommentDialog::reject);

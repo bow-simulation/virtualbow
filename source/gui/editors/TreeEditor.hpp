@@ -1,7 +1,7 @@
 #pragma once
 #include "solver/model//input/InputData.hpp"
 #include "gui/units/UnitSystem.hpp"
-#include <QtWidgets>
+#include <QTreeWidget>
 
 class TreeEditor: public QTreeWidget
 {

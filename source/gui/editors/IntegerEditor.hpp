@@ -1,13 +1,13 @@
 #pragma once
-#include <QtWidgets>
+#include <QWidget>
+#include <QLabel>
+#include <QSpinBox>
 
-class IntegerEditor: public QWidget
-{
+class IntegerEditor: public QWidget {
     Q_OBJECT
 
 public:
     IntegerEditor(const QString& text);
-
     void setData(int value);
     double getData() const;
 

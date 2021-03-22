@@ -1,9 +1,10 @@
 #include "MainWindow.hpp"
 #include "config.hpp"
+#include <QApplication>
+#include <QCommandLineParser>
 #include <iostream>
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
     app.setOrganizationName(Config::ORGANIZATION_NAME);
     app.setOrganizationDomain(Config::ORGANIZATION_DOMAIN);

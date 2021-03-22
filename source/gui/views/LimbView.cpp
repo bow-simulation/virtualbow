@@ -2,6 +2,9 @@
 #include "LayerColors.hpp"
 #include <QMouseEvent>
 #include <QCoreApplication>
+#include <QToolButton>
+#include <QIcon>
+#include <QDate>
 
 LimbView::LimbView()
     : legend(new LayerLegend()),
@@ -19,28 +22,28 @@ LimbView::LimbView()
                                  "QToolButton:checked { background-color: rgba(150, 150, 150, 200); }";
 
     auto bt_view_3d = new QToolButton();
-    QObject::connect(bt_view_3d, &QPushButton::clicked, this, &LimbView::view3D);
+    QObject::connect(bt_view_3d, &QToolButton::clicked, this, &LimbView::view3D);
     bt_view_3d->setIcon(QIcon(":/icons/view-3d"));
     bt_view_3d->setToolTip("Default view");
     bt_view_3d->setIconSize(BUTTON_SIZE);
     bt_view_3d->setStyleSheet(BUTTON_STYLE);
 
     auto bt_view_profile = new QToolButton();
-    QObject::connect(bt_view_profile, &QPushButton::clicked, this, &LimbView::viewProfile);
+    QObject::connect(bt_view_profile, &QToolButton::clicked, this, &LimbView::viewProfile);
     bt_view_profile->setIcon(QIcon(":/icons/view-profile"));
     bt_view_profile->setToolTip("Profile view");
     bt_view_profile->setIconSize(BUTTON_SIZE);
     bt_view_profile->setStyleSheet(BUTTON_STYLE);
 
     auto bt_view_top = new QToolButton();
-    QObject::connect(bt_view_top, &QPushButton::clicked, this, &LimbView::viewTop);
+    QObject::connect(bt_view_top, &QToolButton::clicked, this, &LimbView::viewTop);
     bt_view_top->setIcon(QIcon(":/icons/view-top"));
     bt_view_top->setToolTip("Top view");
     bt_view_top->setIconSize(BUTTON_SIZE);
     bt_view_top->setStyleSheet(BUTTON_STYLE);
 
     auto bt_view_fit = new QToolButton();
-    QObject::connect(bt_view_fit, &QPushButton::clicked, this, &LimbView::viewFit);
+    QObject::connect(bt_view_fit, &QToolButton::clicked, this, &LimbView::viewFit);
     bt_view_fit->setIcon(QIcon(":/icons/view-fit"));
     bt_view_fit->setToolTip("Reset zoom");
     bt_view_fit->setIconSize(BUTTON_SIZE);

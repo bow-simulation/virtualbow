@@ -1,11 +1,10 @@
 #pragma once
-#include <QtWidgets>
 #include "gui/PersistentDialog.hpp"
 #include "gui/units/UnitSystem.hpp"
+#include <QTextEdit>
 #include <string>
 
-class CommentDialog: public PersistentDialog
-{
+class CommentDialog: public PersistentDialog {
     Q_OBJECT
 
 public:

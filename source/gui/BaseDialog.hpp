@@ -1,5 +1,6 @@
 #pragma once
-#include <QtWidgets>
+#include <QDialog>
+#include <QWidget>
 
 // Base class for all input and output dialogs. Doesn't close on enter.
 class BaseDialog: public QDialog

@@ -1,4 +1,6 @@
 #include "RecentFilesMenu.hpp"
+#include <QSettings>
+#include <QFileInfo>
 
 RecentFilesMenu::RecentFilesMenu(QWidget* parent)
     : QMenu("Open &Recent", parent)

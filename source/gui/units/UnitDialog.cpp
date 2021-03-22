@@ -1,4 +1,11 @@
 #include "UnitDialog.hpp"
+#include <QLabel>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QDialogButtonBox>
+#include <QAbstractButton>
 
 UnitEditor::UnitEditor(UnitGroup& group) {
     auto label = new QLabel(group.getName());
