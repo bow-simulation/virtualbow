@@ -101,7 +101,9 @@ struct UnitSystem {
         Units::Pound_Per_Foot,
         Units::Pound_Per_Inch,
         Units::Ounce_Per_Foot,
-        Units::Ounce_Per_Inch
+        Units::Ounce_Per_Inch,
+        Units::Grain_Per_Foot,
+        Units::Grain_Per_Inch
     });
 
     UnitGroup strain = UnitGroup("Strain", {

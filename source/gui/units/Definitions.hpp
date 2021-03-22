@@ -64,6 +64,8 @@ namespace Units {
     const Unit Pound_Per_Inch = Unit("lb/in", US, 0.0115212);
     const Unit Ounce_Per_Foot = Unit("oz/ft", US, 0.0930102);
     const Unit Ounce_Per_Inch = Unit("oz/in", US, 1.11612);
+    const Unit Grain_Per_Foot = Unit("gr/ft", US, 0.000212595);
+    const Unit Grain_Per_Inch = Unit("gr/in", US, 0.00255113819);
 
     const Unit One_Per_Meter = Unit("1/m", SI, 1.0);
     const Unit One_Per_Centimeter = Unit("1/cm", SI, 1e2);
