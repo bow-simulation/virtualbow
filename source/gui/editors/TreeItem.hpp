@@ -14,10 +14,11 @@ template<class DialogType, class DataType>
 class TreeItem: public QTreeWidgetItem, public Action
 {
 public:
-    TreeItem(TreeEditor* parent, DataType& data, const QString& name, const QIcon& icon)
+    TreeItem(TreeEditor* parent, const UnitSystem& units, DataType& data, const QString& name, const QIcon& icon)
         : QTreeWidgetItem(parent, {name}),
           parent(parent),
           dialog(nullptr),
+          units(units),
           data(data)
     {
         this->setIcon(0, icon);
@@ -27,7 +28,7 @@ public:
     {
         if(dialog == nullptr)
         {
-            dialog = new DialogType(parent);
+            dialog = new DialogType(parent, units);
             dialog->setData(data);
 
             QObject::connect(dialog, &DialogType::modified, [&]{
@@ -53,6 +54,8 @@ public:
 private:
     TreeEditor* parent;
     DialogType* dialog;
+
+    const UnitSystem& units;
     DataType& data;
     DataType backup;
-};
+}; 

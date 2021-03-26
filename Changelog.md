@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.8
+
+### Added
+* Arrow clamp force parameter to prevent the arrow from leaving the bow too early in some cases
+
+### Changed
+* Main windows are now empty until a file is loaded or created
+* Allow layers to have zero height for modeling fadeouts
+* Renamed 'Storage ratio' to 'Energy storage factor'
+* Show minimum and maximum stresses instead of maximum absolute value
+* The y-axis of the energy plot always starts at zero
+* Increase resolution of images exported from plots
+* New icons for the toolbar, menu actions and model tree
+* Better random color generation for the layers
+* Visual improvements to the limb view
+
+### Fixed
+* Action *New File* ignored modifications to already loaded files
+* Remove files from *Open Recent* menu if they no longer exist
+* Wrong default selection between static/dynamic results
+
 ## v0.7.1
 
 ### Fixed

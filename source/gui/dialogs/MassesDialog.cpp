@@ -1,8 +1,13 @@
 #include "MassesDialog.hpp"
 
-MassesDialog::MassesDialog(QWidget* parent)
+MassesDialog::MassesDialog(QWidget* parent, const UnitSystem& units)
     : GroupDialog(parent, "Masses", false)
 {
+    edit0 = new DoubleEditor("Arrow", units.mass);
+    edit1 = new DoubleEditor("String center", units.mass);
+    edit2 = new DoubleEditor("String tip", units.mass);
+    edit3 = new DoubleEditor("Limb tip", units.mass);
+
     this->addWidget(edit0);
     this->addWidget(edit1);
     this->addWidget(edit2);

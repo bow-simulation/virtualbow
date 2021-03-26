@@ -2,11 +2,10 @@
 #include "solver/model//ProfileCurve.hpp"
 #include "solver/numerics/Linspace.hpp"
 
-ProfileView::ProfileView() {
-    this->xAxis->setLabel("x [m]");
-    this->yAxis->setLabel("y [m]");
+ProfileView::ProfileView(const UnitGroup& unit)
+    : unit(unit)
+{
     this->setAspectPolicy(PlotWidget::SCALE_Y);
-
     this->addLayer("curve");
     this->addLayer("nodes");
 
@@ -15,23 +14,28 @@ ProfileView::ProfileView() {
     label->position->setType(QCPItemPosition::ptAxisRectRatio);
     label->position->setCoords(0.5, 0.05);
     label->setColor(Qt::red);
+
+    // Update on unit changes
+    QObject::connect(&unit, &UnitGroup::selectionChanged, this, &ProfileView::updatePlot);
 }
 
 void ProfileView::setData(const MatrixXd& data) {
     this->data = data;
     updatePlot();
-    this->rescaleAxes();
-    this->replot();
 }
 
 void ProfileView::setSelection(const QVector<int>& selection) {
     this->selection = selection;
     updateHighlights();
-    this->replot();
 }
+
+#include <iostream>
 
 void ProfileView::updatePlot() {
     resetPlot();
+
+    this->xAxis->setLabel("X " + unit.getSelectedUnit().getLabel());
+    this->yAxis->setLabel("Y " + unit.getSelectedUnit().getLabel());
 
     auto input = ProfileCurve::input_from_matrix(data);
     std::optional<std::string> error = ProfileCurve::validate_input(input);
@@ -48,7 +52,10 @@ void ProfileView::updatePlot() {
 
             const unsigned samples = 150;    // Magic number
             for(double t: Linspace<double>(0.0, 1.0, samples)) {
-                curve->addData(segment.x(t), segment.y(t));
+                curve->addData(
+                    unit.getSelectedUnit().fromBase(segment.x(t)),
+                    unit.getSelectedUnit().fromBase(segment.y(t))
+                );
             }
             curves.push_back(curve);
         }
@@ -59,7 +66,10 @@ void ProfileView::updatePlot() {
             curve->setLineStyle(QCPCurve::lsNone);
             curve->setScatterSkip(0);
 
-            curve->addData(point.x, point.y);
+            curve->addData(
+                unit.getSelectedUnit().fromBase(point.x),
+                unit.getSelectedUnit().fromBase(point.y)
+            );
             nodes.push_back(curve);
         }
 
@@ -69,6 +79,9 @@ void ProfileView::updatePlot() {
     catch(const std::exception& e) {
         label->setText(e.what());
     }
+
+    this->rescaleAxes();
+    this->replot();
 }
 
 void ProfileView::resetPlot() {
@@ -101,4 +114,6 @@ void ProfileView::updateHighlights() {
             nodes[i]->setScatterStyle({QCPScatterStyle::ssSquare, Qt::blue, 8});
         }
     }
+
+    this->replot();
 }

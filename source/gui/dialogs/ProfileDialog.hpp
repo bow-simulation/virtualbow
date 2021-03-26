@@ -2,13 +2,14 @@
 #include "gui/PersistentDialog.hpp"
 #include "gui/views/ProfileView.hpp"
 #include "gui/editors/LayerEditor.hpp"
+#include "gui/units/UnitSystem.hpp"
 
 class ProfileDialog: public PersistentDialog
 {
     Q_OBJECT
 
 public:
-    ProfileDialog(QWidget* parent);
+    ProfileDialog(QWidget* parent, const UnitSystem& units);
 
     MatrixXd getData() const;
     void setData(const MatrixXd& data);

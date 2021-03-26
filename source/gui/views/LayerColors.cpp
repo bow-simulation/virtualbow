@@ -1,7 +1,9 @@
 #include "LayerColors.hpp"
+#include <boost/functional/hash.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
 #include <random>
 
-#include <QtCore>
 
 // https://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
 // https://stackoverflow.com/a/19728404/4692009
@@ -15,11 +17,26 @@ QColor getLayerColor(const LayerProperties& layer)
     return getLayerColor(layer.rho, layer.E);
 }
 
+#include <iostream>
 QColor getLayerColor(double rho, double E)
 {
-    std::mt19937 rng(unsigned(rho)*unsigned(E));
-    std::uniform_real_distribution<qreal> uni(0.0, 1.0);
-    return QColor::fromHsvF(uni(rng), 0.8, 1.0);
+    using boost::random::uniform_int_distribution;
+    using boost::random::mt19937_64;
+    using boost::hash_combine;
+
+    // Random distributions for HSV color components
+    uniform_int_distribution<int> h(0, 70);
+    uniform_int_distribution<int> s(100, 220);
+    uniform_int_distribution<int> v(100, 220);
+
+    // Create a seed from the material properties
+    size_t seed = 0;
+    hash_combine(seed, rho);
+    hash_combine(seed, E);
+
+    // Generate random color from seed and distributions
+    mt19937_64 rng(seed);
+    return QColor::fromHsv(h(rng), s(rng), v(rng));
 }
 
 QPixmap getLayerPixmap(const Layer& layer)

@@ -9,7 +9,7 @@ set(APPLICATION_NAME "VirtualBow")
 set(APPLICATION_VERSION "0.8")
 set(APPLICATION_WEBSITE "https://www.virtualbow.org")
 set(APPLICATION_MAINTAINER "Stefan Pfeifer")
-set(APPLICATION_COPYRIGHT "Copyright (C) 2016-2020 Stefan Pfeifer")
+set(APPLICATION_COPYRIGHT "Copyright (C) 2016-2021 Stefan Pfeifer")
 set(APPLICATION_LICENSE "GNU General Public License v3.0")
 set(APPLICATION_DESCRIPTION_SHORT "Bow and arrow physics simulation")
 set(APPLICATION_DESCRIPTION_LONG "Software tool for designing and simulating bows")
@@ -77,8 +77,8 @@ add_executable(
     source/gui/dialogs/StringDialog.hpp
     source/gui/dialogs/WidthDialog.cpp
     source/gui/dialogs/WidthDialog.hpp
-    source/gui/editors/BowEditor.cpp
-    source/gui/editors/BowEditor.hpp
+    source/gui/editors/ModelEditor.cpp
+    source/gui/editors/ModelEditor.hpp
     source/gui/editors/DoubleEditor.cpp
     source/gui/editors/DoubleEditor.hpp
     source/gui/editors/IntegerEditor.cpp
@@ -87,9 +87,20 @@ add_executable(
     source/gui/editors/LayerEditor.hpp
     source/gui/editors/TableEditor.cpp
     source/gui/editors/TableEditor.hpp
+    source/gui/editors/TableModel.cpp
+    source/gui/editors/TableModel.hpp
+    source/gui/editors/TableView.cpp
+    source/gui/editors/TableView.hpp
     source/gui/editors/TreeEditor.cpp
     source/gui/editors/TreeEditor.hpp
-    source/gui/editors/TreeItem.hpp
+    source/gui/units/Unit.cpp
+    source/gui/units/Unit.hpp
+    source/gui/units/UnitGroup.cpp
+    source/gui/units/UnitGroup.hpp
+    source/gui/units/UnitDialog.cpp
+    source/gui/units/UnitDialog.hpp
+    source/gui/units/UnitSystem.cpp
+    source/gui/units/UnitSystem.hpp
     source/gui/views/LayerLegend.cpp
     source/gui/views/LayerLegend.hpp
     source/gui/views/LimbView.cpp
@@ -162,6 +173,14 @@ add_executable(
     source/gui/PlotWidget.hpp
     source/gui/views/LayerColors.cpp
     source/gui/views/LayerColors.hpp
+    source/gui/units/Unit.cpp
+    source/gui/units/Unit.hpp
+    source/gui/units/UnitGroup.cpp
+    source/gui/units/UnitGroup.hpp
+    source/gui/units/UnitDialog.cpp
+    source/gui/units/UnitDialog.hpp
+    source/gui/units/UnitSystem.cpp
+    source/gui/units/UnitSystem.hpp
     source/solver/model/output/OutputData.cpp
     source/solver/model/output/OutputData.hpp
     source/solver/numerics/Series.cpp

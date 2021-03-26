@@ -114,6 +114,7 @@ All in all, there are four different types of elements needed:
 
 All of them have to account for arbitrarily large displacements and are therefore geometrically nonlinear (even though all the materials are linear-elastic).
 
+<<<<<<< HEAD
 In the next chapters we will first show how the equations of motion for a finite element system can be assembled from the equations of motion for the single elements. We will then derive the equations of motion for the element types listed above. Finally we're going to discuss the numerical solution of those equations for the static and dynamic case and how this is implemented in VirtualBow.
 
 \newpage
@@ -288,3 +289,6 @@ However, other than in a classical natural spline, there is no continuity constr
 The reason for this, as noted in the paper, is that a $C^2$ solution that also satisfies the monotonicity constraints might not exist.
 Several solutions for this are proposed there, including an alternative objective function that evaluates the discontinuities of the second derivative to achieve a spline that is as close to $C^2$ as possible.
 However, as $C^2$ continuity isn't extremely important in our use case, the simpler $C^1$ method with the well established energy measure (\ref{eq:spline-linearized-energy}) was chosen instead.
+=======
+In the next chapters we will first show how the equations of motion for a finite element system can be assembled from the equations of motion for the single elements. We will then derive the equations of motion for the element types listed above. Finally we're going to discuss the numerical solution of those equations for the static and dynamic case and how this is implemented in VirtualBow.
+>>>>>>> develop

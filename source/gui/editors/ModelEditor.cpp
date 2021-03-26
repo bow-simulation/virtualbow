@@ -1,8 +1,8 @@
-#include "BowEditor.hpp"
+#include "ModelEditor.hpp"
 
-BowEditor::BowEditor()
+ModelEditor::ModelEditor(const UnitSystem& units)
     : QSplitter(Qt::Horizontal),
-      edit(new TreeEditor()),
+      edit(new TreeEditor(units)),
       view(new LimbView())
 {
     this->addWidget(edit);
@@ -17,14 +17,14 @@ BowEditor::BowEditor()
     });
 }
 
-const InputData& BowEditor::getData() const
+InputData ModelEditor::getData() const
 {
     return edit->getData();
 }
 
-void BowEditor::setData(const InputData& data)
+void ModelEditor::setData(const InputData& data)
 {
     edit->setData(data);
     view->setData(data);
-    view->view3D();
+    view->view3D();    // TODO: Move this somewhere else
 }

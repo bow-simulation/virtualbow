@@ -484,8 +484,6 @@ Point ProfileCurve::operator()(double s) const {
     };
 }
 
-#include <iostream>
-
 Vector<8> ProfileCurve::optimize_segment(const Point& point, const SegmentInput& input) {
     Vector<8> c = Segment::estimate_coeffs(point, input);
     std::vector<double> x_min(c.begin(), c.end());
@@ -496,8 +494,6 @@ Vector<8> ProfileCurve::optimize_segment(const Point& point, const SegmentInput&
     opt.set_ftol_rel(NLOPT_FTOL_REL);
     opt.set_ftol_abs(NLOPT_FTOL_ABS);
     opt.set_maxeval(NLOPT_MAXEVAL);
-
-    std::cout << "\nOptimize segment" << std::endl;
 
     /*
     std::vector<double> grad(x_min.size());
@@ -682,7 +678,6 @@ double ProfileCurve::objective(const std::vector<double>& x, std::vector<double>
         result += segment.energy();
     }
 
-    std::cout << result << std::endl;
     return result;
 }
 

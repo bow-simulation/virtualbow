@@ -1,7 +1,8 @@
 #pragma once
-#include "solver/model//input/String.hpp"
+#include "solver/model/input/String.hpp"
 #include "gui/editors/IntegerEditor.hpp"
 #include "gui/editors/DoubleEditor.hpp"
+#include "gui/units/UnitSystem.hpp"
 #include "GroupDialog.hpp"
 
 class StringDialog: public GroupDialog
@@ -9,7 +10,7 @@ class StringDialog: public GroupDialog
     Q_OBJECT
 
 public:
-    StringDialog(QWidget* parent);
+    StringDialog(QWidget* parent, const UnitSystem& units);
 
     String getData() const;
     void setData(const String& data);
@@ -18,7 +19,7 @@ signals:
     void modified();
 
 private:
-    DoubleEditor* edit0 = new DoubleEditor("Strand stiffness [N/100%]");
-    DoubleEditor* edit1 = new DoubleEditor("Strand density [kg/m]");
-    IntegerEditor* edit2 = new IntegerEditor("Number of strands");
+    DoubleEditor* edit0;
+    DoubleEditor* edit1;
+    IntegerEditor* edit2;
 };

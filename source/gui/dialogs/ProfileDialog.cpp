@@ -1,20 +1,22 @@
 #include "ProfileDialog.hpp"
 
-ProfileDialog::ProfileDialog(QWidget* parent)
-    : PersistentDialog(parent, "ProfileDialog", {800, 400}),    // Magic numbers
-      edit(new TableEditor({"\u0394 l [m]", "\u0394 \u03C6 [°]", "\u0394 x [m]", "\u0394 y [m]"}, 100)),
-      view(new ProfileView())
+ProfileDialog::ProfileDialog(QWidget* parent, const UnitSystem& units)
+    : PersistentDialog(parent, "ProfileDialog", { 800, 400 }),    // Magic numbers
+      edit(new TableEditor({ "l", "\u03C6", "x", "y" }, { &units.length, &units.angle, &units.length, &units.length })),
+      view(new ProfileView(units.length))
 {
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     QObject::connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     QObject::connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    auto hbox = new QHBoxLayout();
-    hbox->addWidget(edit, 0);
-    hbox->addWidget(view, 1);
+    auto splitter = new QSplitter();
+    splitter->addWidget(edit);
+    splitter->addWidget(view);
+    splitter->setStretchFactor(0, 0);
+    splitter->setStretchFactor(1, 1);
 
     auto vbox = new QVBoxLayout();
-    vbox->addLayout(hbox, 1);
+    vbox->addWidget(splitter, 1);
     vbox->addWidget(buttons, 0);
 
     this->setWindowTitle("Profile");

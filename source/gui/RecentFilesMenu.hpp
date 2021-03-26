@@ -1,8 +1,7 @@
 #pragma once
 #include <QtWidgets>
 
-class RecentFilesMenu: public QMenu
-{
+class RecentFilesMenu: public QMenu {
     Q_OBJECT
 
 public:
@@ -11,12 +10,11 @@ public:
 
     void addPath(const QString& path);
     void clearPaths();
+    void updateActions();
 
 private:
     QList<QAction*> recentFileActions;
     QList<QString> recentFilePaths;
-
-    void updateActions();
 
 signals:
     void openRecent(const QString& path);

@@ -1,18 +1,16 @@
 #pragma once
 #include "solver/numerics/Eigen.hpp"
-#include <QtWidgets>
+#include "gui/units/UnitGroup.hpp"
+#include "TableView.hpp"
+#include "TableModel.hpp"
 
-class TableItem: public QTableWidgetItem
-{
-    virtual void setData(int role, const QVariant& data);
-};
-
-class TableEditor: public QTableWidget
+class TableEditor: public TableView
 {
     Q_OBJECT
 
 public:
-    TableEditor(const QList<QString>& labels, int rows);
+    TableEditor(const QList<QString>& labels, const QList<const UnitGroup*>& units);
+
     MatrixXd getData() const;
     void setData(const MatrixXd& data);
 
@@ -21,11 +19,6 @@ signals:
     void rowSelectionChanged(const QVector<int>& rows);
 
 private:
-    void cutSelection();
-    void copySelection();
-    void pasteToSelection();
-    void deleteSelection();
-
-    QVector<int> getSelectedRows();
+    TableModel model;
+    QVector<int> getSelectedIndices();
 };
-

@@ -1,16 +1,17 @@
 #pragma once
 #include "gui/editors/TreeEditor.hpp"
 #include "gui/views/LimbView.hpp"
+#include "gui/units/UnitSystem.hpp"
 
 class InputData;
 
-class BowEditor: public QSplitter
+class ModelEditor: public QSplitter
 {
     Q_OBJECT
 
 public:
-    BowEditor();
-    const InputData& getData() const;
+    ModelEditor(const UnitSystem& units);
+    InputData getData() const;
     void setData(const InputData& data);
 
 signals:

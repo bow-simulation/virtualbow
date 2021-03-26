@@ -1,8 +1,11 @@
 #include "DampingDialog.hpp"
 
-DampingDialog::DampingDialog(QWidget* parent)
+DampingDialog::DampingDialog(QWidget* parent, const UnitSystem& units)
     : GroupDialog(parent, "Damping", false)
 {
+    edit0 = new DoubleEditor("Limbs", units.ratio);
+    edit1 = new DoubleEditor("String", units.ratio);
+
     this->addWidget(edit0);
     this->addWidget(edit1);
 
@@ -13,8 +16,8 @@ DampingDialog::DampingDialog(QWidget* parent)
 Damping DampingDialog::getData() const
 {
     Damping data;
-    data.damping_ratio_limbs = edit0->getData()/100.0;
-    data.damping_ratio_string = edit1->getData()/100.0;
+    data.damping_ratio_limbs = edit0->getData();
+    data.damping_ratio_string = edit1->getData();
 
     return data;
 }

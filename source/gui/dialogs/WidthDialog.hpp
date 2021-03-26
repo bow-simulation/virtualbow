@@ -1,13 +1,14 @@
 #pragma once
 #include "gui/PersistentDialog.hpp"
 #include "gui/editors/LayerEditor.hpp"
+#include "gui/units/UnitSystem.hpp"
 
 class WidthDialog: public PersistentDialog
 {
     Q_OBJECT
 
 public:
-    WidthDialog(QWidget* parent);
+    WidthDialog(QWidget* parent, const UnitSystem& units);
 
     MatrixXd getData() const;
     void setData(const MatrixXd& width);

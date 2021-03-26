@@ -1,39 +1,51 @@
 #include "DoubleEditor.hpp"
 
-DoubleEditor::DoubleEditor(const QString& text)
-    : label(new QLabel(text)),
-      edit(new QLineEdit()),
-      changed(false)
+DoubleEditor::DoubleEditor(const QString& text, const UnitGroup& group)
+    : text_label(new QLabel(text)),
+      unit_label(new QLabel()),
+      line_edit(new QLineEdit()),
+      changed(false),
+      unit(group.getSelectedUnit())
 {
-    label->setAlignment(Qt::AlignRight | Qt::AlignCenter);
-    edit->setValidator(new QDoubleValidator());
-    edit->setFixedWidth(140);    // Magic number, equal to IntegerEditor
+    text_label->setAlignment(Qt::AlignRight | Qt::AlignCenter);
+    line_edit->setValidator(new QDoubleValidator());
+    line_edit->setFixedWidth(140);    // Magic number, equal to IntegerEditor
 
     auto hbox = new QHBoxLayout();
     hbox->setContentsMargins(10, 0, 10, 0);
-    hbox->addWidget(label, 1);
-    hbox->addWidget(edit, 0);
+    hbox->addWidget(text_label, 1);
+    hbox->addWidget(unit_label, 0);
+    hbox->addWidget(line_edit, 0);
     this->setLayout(hbox);
 
-    QObject::connect(edit, &QLineEdit::textEdited, [&]{
+    QObject::connect(line_edit, &QLineEdit::textEdited, [&]{
         changed = true;
     });
 
-    QObject::connect(edit, &QLineEdit::editingFinished, [&]{
-        if(changed)
-        {
+    QObject::connect(line_edit, &QLineEdit::editingFinished, [&]{
+        if(changed) {
+            data = unit.toBase(QLocale().toDouble(line_edit->text()));
             changed = false;
             emit modified();
         }
     });
+
+    QObject::connect(&group, &UnitGroup::selectionChanged, this, [&](const Unit& unit) {
+        this->unit = unit;
+        update();
+    });
 }
 
-void DoubleEditor::setData(double data)
-{
-    edit->setText(QLocale().toString(data, 'g'));
+double DoubleEditor::getData() const {
+    return data;
 }
 
-double DoubleEditor::getData() const
-{
-    return QLocale().toDouble(edit->text());
+void DoubleEditor::setData(double data) {
+    this->data = data;
+    update();
+}
+
+void DoubleEditor::update() {
+    unit_label->setText(unit.getLabel());
+    line_edit->setText(QLocale().toString(unit.fromBase(data), 'g'));
 }

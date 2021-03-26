@@ -24,7 +24,9 @@ struct InputData
 
     InputData() = default;
     InputData(const std::string& path);
+
     void save(const std::string& path) const;
+    std::string validate() const;
 };
 
 // Todo: Use "= default" in case it should make it into C++20

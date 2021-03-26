@@ -1,8 +1,9 @@
 #include "LayerDialog.hpp"
 
-LayerDialog::LayerDialog(QWidget* parent)
+LayerDialog::LayerDialog(QWidget* parent, const UnitSystem& units)
     : PersistentDialog(parent, "LayerDialog", {800, 400}),    // Magic numbers
-      tabs(new EditableTabBar())
+      tabs(new EditableTabBar()),
+      units(units)
 {
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     QObject::connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -60,7 +61,7 @@ std::vector<Layer> LayerDialog::getData() const
 
 LayerEditor* LayerDialog::createEmptyTab()
 {
-    auto editor = new LayerEditor(tabs);
+    auto editor = new LayerEditor(tabs, units);
     QObject::connect(editor, &LayerEditor::modified, this, &LayerDialog::modified);
     tabs->addTab(editor, "");
 
