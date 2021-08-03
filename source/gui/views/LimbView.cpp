@@ -18,6 +18,8 @@ LimbView::LimbView()
                                  "QToolButton:pressed { background-color: rgba(150, 150, 150, 200); }"
                                  "QToolButton:checked { background-color: rgba(150, 150, 150, 200); }";
 
+    const QString BUTTON_FRAME_STYLE = "background-color: rgb(38, 38, 38, 100); border-radius: 8px";
+
     auto bt_view_3d = new QToolButton();
     QObject::connect(bt_view_3d, &QPushButton::clicked, this, &LimbView::view3D);
     bt_view_3d->setIcon(QIcon(":/icons/view-3d"));
@@ -54,27 +56,41 @@ LimbView::LimbView()
     bt_view_symmetric->setStyleSheet(BUTTON_STYLE);
     bt_view_symmetric->setCheckable(true);
 
-    auto vbox1 = new QVBoxLayout();
-    vbox1->setAlignment(Qt::AlignLeft);
-    vbox1->addWidget(legend);
-    vbox1->addStretch();
+    auto label = new QLabel(QString("<font color=\"white\" size=\"8\">Virtual<strong>Bow</strong></font><br><font color=\"white\" size=\"4\">Version ") + Config::APPLICATION_VERSION + "</font>");
+    label->setAlignment(Qt::AlignRight);
 
-    auto vbox2 = new QVBoxLayout();
-    vbox2->setAlignment(Qt::AlignRight);
-    vbox2->setSpacing(8);
-    vbox2->addWidget(bt_view_3d);
-    vbox2->addWidget(bt_view_profile);
-    vbox2->addWidget(bt_view_top);
-    vbox2->addWidget(bt_view_fit);
-    vbox2->addWidget(bt_view_symmetric);
-    vbox2->addStretch();
+    auto buttonBox = new QHBoxLayout();
+    buttonBox->setSpacing(15);
+    buttonBox->setContentsMargins(12, 8, 12, 8);
+    buttonBox->addWidget(bt_view_3d);
+    buttonBox->addWidget(bt_view_profile);
+    buttonBox->addWidget(bt_view_top);
+    buttonBox->addWidget(bt_view_fit);
+    buttonBox->addWidget(bt_view_symmetric);
 
-    auto hbox = new QHBoxLayout();
-    this->setLayout(hbox);
-    hbox->setMargin(20);
-    hbox->addLayout(vbox1);
-    hbox->addStretch();
-    hbox->addLayout(vbox2);
+    auto buttonFrame = new QFrame();
+    buttonFrame->setLayout(buttonBox);
+    buttonFrame->setStyleSheet(BUTTON_FRAME_STYLE);
+
+    auto row1 = new QHBoxLayout();
+    row1->setAlignment(Qt::AlignTop);
+    row1->addWidget(legend);
+    row1->addStretch();
+    row1->addWidget(label);
+
+    auto row2 = new QHBoxLayout();
+    row2->setAlignment(Qt::AlignBottom);
+    row2->setSpacing(15);
+    row2->addStretch();
+    row2->addWidget(buttonFrame);
+    row2->addStretch();
+
+    auto vbox = new QVBoxLayout();
+    this->setLayout(vbox);
+    vbox->setMargin(25);
+    vbox->addLayout(row1);
+    vbox->addStretch();
+    vbox->addLayout(row2);
 
     // Initialize view parameters
     viewSymmetric(false);

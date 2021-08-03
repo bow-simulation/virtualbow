@@ -7,10 +7,11 @@ LayerEntry::LayerEntry()
     symbol->setFixedWidth(18);    // Magic number
     symbol->setFixedHeight(18);    // Magic number
     symbol->setScaledContents(true);
-    label->setStyleSheet("color: white; font: 18px; max-height: 18px; background-color: transparent;");
+    label->setStyleSheet("color: white; font: 16px;");
 
     auto hbox = new QHBoxLayout();
-    hbox->setMargin(2);   // Magic number
+    hbox->setAlignment(Qt::AlignTop);
+    hbox->setMargin(0);
     hbox->addWidget(symbol, 0);
     hbox->addSpacing(10); // Magic number
     hbox->addWidget(label, 1);
