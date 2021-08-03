@@ -17,7 +17,6 @@ QColor getLayerColor(const LayerProperties& layer)
     return getLayerColor(layer.rho, layer.E);
 }
 
-#include <iostream>
 QColor getLayerColor(double rho, double E)
 {
     using boost::random::uniform_int_distribution;
@@ -25,9 +24,9 @@ QColor getLayerColor(double rho, double E)
     using boost::hash_combine;
 
     // Random distributions for HSV color components
-    uniform_int_distribution<int> h(0, 70);
-    uniform_int_distribution<int> s(100, 220);
-    uniform_int_distribution<int> v(100, 220);
+    uniform_int_distribution<int> h(0, 359);
+    uniform_int_distribution<int> s(150, 200);
+    uniform_int_distribution<int> v(150, 200);
 
     // Create a seed from the material properties
     size_t seed = 0;

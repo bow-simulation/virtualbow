@@ -12,15 +12,16 @@ StressPlot::StressPlot(const LimbProperties& limb, const BowStates& states, cons
 
     for(int i = 0; i < limb.layers.size(); ++i) {
         QString name = QString::fromStdString(limb.layers[i].name);
-        QColor color = (limb.layers.size() > 1) ? getLayerColor(limb.layers[i]) : QColor(Qt::blue);
+        QColor layer_color = (limb.layers.size() > 1) ? getLayerColor(limb.layers[i]) : QColor(Qt::blue);
+        QColor line_color = QColor::fromHsv(layer_color.hue(), 220, 220);    // Modify saturation and value to make colors better distinguishable
 
         this->addGraph();
         this->graph(2*i)->setName(name + " (back)");
-        this->graph(2*i)->setPen({QBrush(color), 1.0, Qt::SolidLine});
+        this->graph(2*i)->setPen({QBrush(line_color), 1.0, Qt::SolidLine});
 
         this->addGraph();
         this->graph(2*i+1)->setName(name + " (belly)");
-        this->graph(2*i+1)->setPen({QBrush(color), 1.0, Qt::DashLine});
+        this->graph(2*i+1)->setPen({QBrush(line_color), 1.0, Qt::DashLine});
     }
 
     QObject::connect(&unit_length, &UnitGroup::selectionChanged, this, &StressPlot::updatePlot);
