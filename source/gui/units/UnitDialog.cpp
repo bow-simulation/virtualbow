@@ -20,9 +20,8 @@ UnitEditor::UnitEditor(UnitGroup& group) {
     // Update unit when combobox changed
     QObject::connect(combo, QOverload<int>::of(&QComboBox::activated), this, [&, combo](int index){
         QVariant data = combo->currentData();
-        this->blockSignals(true);
+        const QSignalBlocker blocker(this);
         group.setSelectedIndex(data.toInt());
-        this->blockSignals(false);
     });
 
     // Update combobox when unit changed

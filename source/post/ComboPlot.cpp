@@ -35,13 +35,11 @@ void ComboPlot::addData(const QString& name, const std::vector<double>& data, co
     this->data.append(&data);
     this->units.append(&unit);
 
-    // Todo: Do this "right" by remembering the old block state
-    combo_x->blockSignals(true);
-    combo_y->blockSignals(true);
+    const QSignalBlocker blocker_x(combo_x);
     combo_x->addItem(name);
+
+    const QSignalBlocker blocker_y(combo_y);
     combo_y->addItem(name);
-    combo_x->blockSignals(false);
-    combo_y->blockSignals(false);
 
     // If the unit changes, update the plot only if the changing unit is currently selected
     auto conditional_update = [&]{
