@@ -7,24 +7,28 @@ LayerEditor::LayerEditor(EditableTabBar* tabs, const UnitSystem& units)
       edit_rho(new DoubleEditor("rho", units.density)),
       edit_E(new DoubleEditor("E", units.elastic_modulus))
 {
-    auto hbox1 = new QHBoxLayout();
-    hbox1->setContentsMargins(10, 5, 10, 5);
-    hbox1->addWidget(new QLabel("Material:"));
-    hbox1->addWidget(edit_rho);
-    hbox1->addWidget(edit_E);
-    hbox1->addStretch(1);
+    auto hbox = new QHBoxLayout();
+    hbox->setContentsMargins(10, 5, 10, 5);
+    hbox->addWidget(new QLabel("Material:"));
+    hbox->addWidget(edit_rho);
+    hbox->addWidget(edit_E);
+    hbox->addStretch();
 
     auto group = new QGroupBox();
-    group->setLayout(hbox1);
+    group->setLayout(hbox);
 
-    auto vbox1 = new QVBoxLayout();
-    vbox1->addWidget(group, 0);
-    vbox1->addWidget(view, 1);
+    auto vbox = new QVBoxLayout();
+    vbox->addWidget(group, 0);
+    vbox->addWidget(view, 1);
 
-    auto hbox2 = new QHBoxLayout();
-    hbox2->addWidget(table, 0);
-    hbox2->addLayout(vbox1, 1);
-    this->setLayout(hbox2);
+    auto widget = new QWidget();
+    widget->setLayout(vbox);
+
+    this->addWidget(table);
+    this->addWidget(widget);
+    this->setStretchFactor(0, 0);
+    this->setStretchFactor(1, 1);
+    this->setChildrenCollapsible(false);
 
     // Event handling
 
