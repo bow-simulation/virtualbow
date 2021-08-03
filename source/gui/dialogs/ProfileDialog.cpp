@@ -14,6 +14,7 @@ ProfileDialog::ProfileDialog(QWidget* parent, const UnitSystem& units)
     splitter->addWidget(view);
     splitter->setStretchFactor(0, 0);
     splitter->setStretchFactor(1, 1);
+    splitter->setChildrenCollapsible(false);
 
     auto vbox = new QVBoxLayout();
     vbox->addWidget(splitter, 1);

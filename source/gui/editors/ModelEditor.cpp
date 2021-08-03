@@ -7,6 +7,7 @@ ModelEditor::ModelEditor(const UnitSystem& units)
 {
     this->addWidget(edit);
     this->setStretchFactor(0, 0);
+    this->setChildrenCollapsible(false);
 
     this->addWidget(view);
     this->setStretchFactor(1, 1);

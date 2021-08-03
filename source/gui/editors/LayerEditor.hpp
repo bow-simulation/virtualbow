@@ -6,7 +6,7 @@
 #include "gui/views/LayerColors.hpp"
 #include "gui/EditableTabBar.hpp"
 
-class LayerEditor: public QWidget
+class LayerEditor: public QSplitter
 {
     Q_OBJECT
 
