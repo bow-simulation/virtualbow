@@ -104,19 +104,20 @@ PlotWidget::PlotWidget(const QSize& size_hint)
 
     QObject::connect(this, &QCustomPlot::beforeReplot, [&]
     {
-        switch(aspect_policy)
-        {
-        case SCALE_X:
-            this->xAxis->blockSignals(true);
-            this->xAxis->setScaleRatio(this->yAxis);
-            this->xAxis->blockSignals(false);
-            break;
-
-        case SCALE_Y:
-            this->yAxis->blockSignals(true);
-            this->yAxis->setScaleRatio(this->xAxis);
-            this->yAxis->blockSignals(false);
-            break;
+        switch(aspect_policy) {
+            case SCALE_X: {
+                const QSignalBlocker blocker(this->xAxis);
+                this->xAxis->setScaleRatio(this->yAxis);
+                break;
+            }
+            case SCALE_Y: {
+                const QSignalBlocker blocker(this->yAxis);
+                this->yAxis->setScaleRatio(this->xAxis);
+                break;
+            }
+            case NONE: {
+                break;
+            }
         }
     });
 
