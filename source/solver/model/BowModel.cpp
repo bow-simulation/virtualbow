@@ -179,7 +179,7 @@ void BowModel::init_string(const Callback& callback, SetupData& output) {
         }
 
         if(dl < dl_min) {
-            throw std::runtime_error("Bracing failed: Step size too small");
+            throw std::runtime_error("Failed to find the braced equilibrium state of the bow");
         }
     }
 
