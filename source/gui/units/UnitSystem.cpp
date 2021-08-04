@@ -1,7 +1,8 @@
 #include "UnitSystem.hpp"
 
 UnitSystem::UnitSystem() {
-    loadFromSettings();
+    resetSI();                // Default units on first startup
+    loadFromSettings();       // Overwritten by user settings, if present
 }
 
 void UnitSystem::loadFromSettings() {
@@ -48,7 +49,7 @@ void UnitSystem::saveToSettings() {
     frequency.saveToSettings(settings);
 }
 
-void UnitSystem::resetDefaults() {
+void UnitSystem::resetSI() {
     length.setSelectedUnit(Units::Millimeter);
     angle.setSelectedUnit(Units::Degree);
     mass.setSelectedUnit(Units::Gram);
@@ -65,6 +66,27 @@ void UnitSystem::resetDefaults() {
     strain.setSelectedUnit(Units::Percent);
     curvature.setSelectedUnit(Units::One_Per_Millimeter);
     stress.setSelectedUnit(Units::Megapascal);
+    ratio.setSelectedUnit(Units::Percent);
+    frequency.setSelectedUnit(Units::Hertz);
+}
+
+void UnitSystem::resetUS() {
+    length.setSelectedUnit(Units::Inch);
+    angle.setSelectedUnit(Units::Degree);
+    mass.setSelectedUnit(Units::Grain);
+    force.setSelectedUnit(Units::PoundForce);
+    time.setSelectedUnit(Units::Millisecond);
+    energy.setSelectedUnit(Units::Foot_Pound);
+    position.setSelectedUnit(Units::Foot);
+    velocity.setSelectedUnit(Units::Foot_Per_Second);
+    acceleration.setSelectedUnit(Units::Foot_Per_Second2);
+    elastic_modulus.setSelectedUnit(Units::Psi);
+    density.setSelectedUnit(Units::Pound_Per_Foot3);
+    linear_stiffness.setSelectedUnit(Units::PoundForce);
+    linear_density.setSelectedUnit(Units::Grain_Per_Inch);
+    strain.setSelectedUnit(Units::Percent);
+    curvature.setSelectedUnit(Units::One_Per_Inch);
+    stress.setSelectedUnit(Units::Psi);
     ratio.setSelectedUnit(Units::Percent);
     frequency.setSelectedUnit(Units::Hertz);
 }

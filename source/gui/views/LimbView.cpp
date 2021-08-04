@@ -60,7 +60,7 @@ LimbView::LimbView()
     label->setAlignment(Qt::AlignRight);
 
     auto buttonBox = new QHBoxLayout();
-    buttonBox->setSpacing(15);
+    buttonBox->setSpacing(12);
     buttonBox->setContentsMargins(12, 8, 12, 8);
     buttonBox->addWidget(bt_view_3d);
     buttonBox->addWidget(bt_view_profile);
@@ -97,8 +97,7 @@ LimbView::LimbView()
     view3D();
 }
 
-void LimbView::setData(const InputData& data)
-{
+void LimbView::setData(const InputData& data) {
     legend->setData(data.layers);
 
     LimbMesh mesh(data);
@@ -108,43 +107,37 @@ void LimbView::setData(const InputData& data)
     update();
 }
 
-void LimbView::viewProfile()
-{
+void LimbView::viewProfile() {
     rot_x = 0.0f;
     rot_y = 0.0f;
     viewFit();
 }
 
-void LimbView::viewTop()
-{
+void LimbView::viewTop() {
     rot_x = 90.0f;
     rot_y = 0.0f;
     viewFit();
 }
 
-void LimbView::view3D()
-{
+void LimbView::view3D() {
     rot_x = DEFAULT_ROT_X;
     rot_y = DEFAULT_ROT_Y;
     viewFit();
 }
 
-void LimbView::viewSymmetric(bool checked)
-{
+void LimbView::viewSymmetric(bool checked) {
     symmetry = checked;
     update();
 }
 
-void LimbView::viewFit()
-{
+void LimbView::viewFit() {
     shift_x = 0.0f;
     shift_y = 0.0f;
     zoom = DEFAULT_ZOOM;
     update();
 }
 
-void LimbView::initializeGL()
-{
+void LimbView::initializeGL() {
     initializeOpenGLFunctions();
 
     // OpenGL configuration
@@ -220,8 +213,7 @@ void LimbView::initializeGL()
     background = std::make_unique<Model>(background_mesh);
 }
 
-void LimbView::paintGL()
-{
+void LimbView::paintGL() {
     Bounds bounds = limb_right->getBounds();
     if(symmetry) {
         bounds.extend(limb_left->getBounds());
@@ -265,13 +257,11 @@ void LimbView::paintGL()
     }
 }
 
-void LimbView::mousePressEvent(QMouseEvent *event)
-{
+void LimbView::mousePressEvent(QMouseEvent *event) {
     mouse_pos = event->pos();
 }
 
-void LimbView::mouseMoveEvent(QMouseEvent *event)
-{
+void LimbView::mouseMoveEvent(QMouseEvent *event) {
     int delta_x = event->x() - mouse_pos.x();
     int delta_y = event->y() - mouse_pos.y();
 

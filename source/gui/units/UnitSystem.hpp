@@ -8,7 +8,8 @@ struct UnitSystem {
 
     void loadFromSettings();
     void saveToSettings();
-    void resetDefaults();
+    void resetSI();
+    void resetUS();
 
     UnitGroup length = UnitGroup("Length", {
         Units::Meter,
