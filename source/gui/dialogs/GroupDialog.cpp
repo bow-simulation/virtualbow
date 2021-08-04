@@ -22,8 +22,7 @@ GroupDialog::GroupDialog(QWidget* parent, const QString& title, bool enable_rese
     this->setLayout(vbox1);
 }
 
-void GroupDialog::addGroup(const QString& name)
-{
+void GroupDialog::addGroup(const QString& name) {
     vbox2 = new QVBoxLayout();
     vbox2->setAlignment(Qt::AlignTop);
 
@@ -33,10 +32,10 @@ void GroupDialog::addGroup(const QString& name)
     vbox1->insertWidget(vbox1->count()-1, group, 1);
 }
 
-void GroupDialog::addWidget(QWidget* widget)
-{
-    if(vbox2 == nullptr)
+void GroupDialog::addWidget(QWidget* widget) {
+    if(vbox2 == nullptr) {
         addGroup("");
+    }
 
     vbox2->addWidget(widget);
 }

@@ -43,8 +43,7 @@ UnitDialog::UnitDialog(QWidget* parent, UnitSystem& units)
     : QDialog(parent)
 {
     auto grid = new QGridLayout();
-    grid->setHorizontalSpacing(20);
-    grid->setMargin(20);
+    grid->setMargin(15);
 
     grid->addWidget(new UnitEditor(units.length), 0, 0);
     grid->addWidget(new UnitEditor(units.curvature), 1, 0);
@@ -70,7 +69,15 @@ UnitDialog::UnitDialog(QWidget* parent, UnitSystem& units)
     auto group = new QGroupBox();
     group->setLayout(grid);
 
-    auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Reset);
+    auto button_si = new QPushButton("Defaults (SI)");
+    QObject::connect(button_si, &QPushButton::clicked, [&units]{ units.resetSI(); });
+
+    auto button_us = new QPushButton("Defaults (US)");
+    QObject::connect(button_us, &QPushButton::clicked, [&units]{ units.resetUS(); });
+
+    auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    buttons->addButton(button_si, QDialogButtonBox::ResetRole);
+    buttons->addButton(button_us, QDialogButtonBox::ResetRole);
     QObject::connect(buttons, &QDialogButtonBox::clicked, [&, buttons](QAbstractButton* button){
         switch(buttons->standardButton(button)) {
         case QDialogButtonBox::Ok:
@@ -80,9 +87,6 @@ UnitDialog::UnitDialog(QWidget* parent, UnitSystem& units)
         case QDialogButtonBox::Cancel:
             reject();
             units.loadFromSettings();
-            break;
-        case QDialogButtonBox::Reset:
-            units.resetDefaults();
             break;
         }
     });
