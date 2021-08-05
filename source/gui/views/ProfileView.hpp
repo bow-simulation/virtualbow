@@ -17,9 +17,14 @@ private:
     MatrixXd input = MatrixXd::Zero(2, 2);
     QVector<int> selection;
 
-    QCPCurve* curve0;
-    QCPCurve* curve1;
-    QCPCurve* curve2;
+    QCPCurve* profile_curve;
+    QCPCurve* profile_nodes_unselected;
+    QCPCurve* profile_nodes_selected;
+
+    QCPCurve* curvature_outline;
+    QList<QCPCurve*> curvature_lines;
 
     void updatePlot();
+    void setCurvatureVisible(bool visible);
+    void setNodesVisible(bool visible);
 };

@@ -1,6 +1,13 @@
 #pragma once
 #include "solver/numerics/Eigen.hpp"
 
+struct CurvePoint {
+    double k;
+    double phi;
+    double x;
+    double y;
+};
+
 class ProfileCurve
 {
 public:
@@ -14,11 +21,11 @@ public:
     double s_min() const;
     double s_max() const;
 
-    // Evaluate curve at a specific arc length. Returns {x, y, phi}.
-    Vector<3> operator()(double arg) const;
+    // Evaluate curve at a specific arc length
+    CurvePoint operator()(double arg) const;
 
 private:
-    using segment_fn= std::function<Vector<3>(double)>;
+    using segment_fn= std::function<CurvePoint(double)>;
 
     mutable size_t index = 0;    // Interval index of last evaluation
     std::vector<double> s;       // Arc lengths of the intervals

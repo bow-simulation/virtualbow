@@ -2,15 +2,14 @@
 #include "qcustomplot/qcustomplot.h"
 #include <optional>
 
-class PlotWidget: public QCustomPlot
-{
+class PlotWidget: public QCustomPlot {
 public:
-    enum AspectPolicy
-    {
+    enum AspectPolicy {
         NONE, SCALE_X, SCALE_Y
     };
 
-    PlotWidget(const QSize& size_hint = {600, 400});
+    PlotWidget();
+    QMenu* contextMenu();
 
     void setupTopLegend();
     void rescaleAxes(bool include_zero_x = false, bool include_zero_y = false);
@@ -18,11 +17,13 @@ public:
     void setAspectPolicy(AspectPolicy policy);
 
 protected:
-    virtual QSize sizeHint() const;
+    virtual QSize sizeHint() const override;
     virtual void resizeEvent(QResizeEvent * event) override;
 
+    void onExport();
+
 private:
-    QSize size_hint;
+    QMenu* menu;
     std::optional<QCPRange> max_x_range;
     std::optional<QCPRange> max_y_range;
     AspectPolicy aspect_policy;

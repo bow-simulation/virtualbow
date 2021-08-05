@@ -97,7 +97,7 @@ small_vector<double, ContinuousLimb::n> ContinuousLimb::get_y(double s) const
 }
 
 // Returns the position and orientation of the profile curve (x, y, phi)
-Vector<3> ContinuousLimb::get_r(double s) const
+CurvePoint ContinuousLimb::get_r(double s) const
 {
     return profile(s);
 }

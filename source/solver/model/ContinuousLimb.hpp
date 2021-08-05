@@ -44,7 +44,7 @@ public:
     double get_h(double s) const;    // Calculates the total height of the section (sum of all layers)
 
     small_vector<double, n> get_y(double s) const;    // Calculates the coordinates of all layer transitions from back to belly
-    Vector<3> get_r(double s) const;                  // Returns the position and orientation of the profile curve (x, y, phi)
+    CurvePoint get_r(double s) const;                  // Returns the position and orientation of the profile curve (x, y, phi)
     Matrix<2, 2> get_C(double s) const;               // Calculates the section's stiffness parameters Cee, Ckk, Cek
     double get_rhoA(double s) const;                  // Calculates the section's linear density
 
