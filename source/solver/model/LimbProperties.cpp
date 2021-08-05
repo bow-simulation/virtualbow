@@ -28,11 +28,11 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
     for(size_t i = 0; i < n; ++i)
     {
         // Profile
-        Vector<3> r = limb.get_r(s[i]);
+        CurvePoint r = limb.get_r(s[i]);
         length[i] = s[i];
-        angle[i] = r[2];
-        x_pos[i] = r[0];
-        y_pos[i] = r[1];
+        angle[i] = r.phi;
+        x_pos[i] = r.x;
+        y_pos[i] = r.y;
 
         // Geometry
         width[i] = limb.get_w(s[i]);
