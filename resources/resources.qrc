@@ -33,5 +33,6 @@
         <file>icons/view-profile.png</file>
         <file>icons/view-fit.png</file>
         <file>icons/view-3d.png</file>
+        <file>icons/folder-black.svg</file>
     </qresource>
 </RCC>
