@@ -31,6 +31,9 @@ private:
 
     void setEditingEnabled(bool enabled);
     void resetTransform();
+
+    void updateAspectRatioX();
+    void updateAspectRatioY();
     void updateImage(const QString& file = "");
-    void updatePlot();
+    void updateItem();
 };

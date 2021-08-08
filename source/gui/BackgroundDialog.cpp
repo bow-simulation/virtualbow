@@ -32,42 +32,38 @@ BackgroundDialog::BackgroundDialog(PlotWidget* plot)
     spinner_extent_x = new QDoubleSpinBox();
     spinner_extent_x->setRange(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max());
     QObject::connect(spinner_extent_x, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&](){
-        if(cb_aspect_ratio->isChecked()) {
-            QSignalBlocker blocker(spinner_extent_y);
-            spinner_extent_y->setValue(spinner_extent_x->value()*pixmap.height()/pixmap.width());
-        }
-        updatePlot();
+        updateAspectRatioY();
+        updateItem();
     });
 
     spinner_extent_y = new QDoubleSpinBox();
     spinner_extent_y->setRange(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max());
     QObject::connect(spinner_extent_y, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&](){
-        if(cb_aspect_ratio->isChecked()) {
-            QSignalBlocker blocker(spinner_extent_x);
-            spinner_extent_x->setValue(spinner_extent_y->value()*pixmap.width()/pixmap.height());
-        }
-        updatePlot();
+        updateAspectRatioX();
+        updateItem();
     });
 
     cb_aspect_ratio = new QCheckBox("Keep aspect ratio");
     QObject::connect(cb_aspect_ratio, &QCheckBox::stateChanged, [&](int state){
         if(state == Qt::Checked) {
-            spinner_extent_y->setValue(spinner_extent_x->value()*pixmap.height()/pixmap.width());
+            updateAspectRatioY();
+            updateItem();
         }
     });
 
     spinner_offset_x = new QDoubleSpinBox();
     spinner_offset_x->setRange(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max());
-    QObject::connect(spinner_offset_x, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BackgroundDialog::updatePlot);
+    QObject::connect(spinner_offset_x, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BackgroundDialog::updateItem);
 
     spinner_offset_y = new QDoubleSpinBox();
     spinner_offset_y->setRange(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max());
-    QObject::connect(spinner_offset_y, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BackgroundDialog::updatePlot);
+    QObject::connect(spinner_offset_y, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BackgroundDialog::updateItem);
 
     spinner_angle = new QDoubleSpinBox();
     spinner_angle->setRange(-180.0, 180.0);
+    spinner_angle->setSingleStep(STEP_SIZE_ROTATION);
     spinner_angle->setSuffix("°");
-    QObject::connect(spinner_angle, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BackgroundDialog::updatePlot);
+    QObject::connect(spinner_angle, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BackgroundDialog::updateItem);
 
     auto label_image = new QLabel("Image");
     label_image->setAlignment(Qt::AlignRight);
@@ -185,6 +181,7 @@ void BackgroundDialog::setEditingEnabled(bool enabled) {
     cb_aspect_ratio->setEnabled(enabled);
 }
 
+// Reset transformation such that the image fits with the plot axes
 void BackgroundDialog::resetTransform() {
     QCPRange range_x = plot->xAxis->range();
     QCPRange range_y = plot->yAxis->range();
@@ -199,22 +196,51 @@ void BackgroundDialog::resetTransform() {
 
     cb_aspect_ratio->setChecked(false);
 
-    spinner_extent_x->setValue(extent_x);
-    spinner_extent_x->setSingleStep(delta_x);
+    {
+        QSignalBlocker blocker(spinner_extent_x);
+        spinner_extent_x->setValue(extent_x);
+        spinner_extent_x->setSingleStep(delta_x);
+    }
+    {
+        QSignalBlocker blocker(spinner_extent_y);
+        spinner_extent_y->setValue(extent_y);
+        spinner_extent_y->setSingleStep(delta_y);
+    }
+    {
+        QSignalBlocker blocker(spinner_offset_x);
+        spinner_offset_x->setValue(offset_x);
+        spinner_offset_x->setSingleStep(delta_x);
+    }
+    {
+        QSignalBlocker blocker(spinner_offset_y);
+        spinner_offset_y->setValue(offset_y);
+        spinner_offset_y->setSingleStep(delta_y);
+    }
+    {
+        QSignalBlocker blocker(spinner_angle);
+        spinner_angle->setValue(0.0);
+    }
 
-    spinner_extent_y->setValue(extent_y);
-    spinner_extent_y->setSingleStep(delta_y);
-
-    spinner_offset_x->setValue(offset_x);
-    spinner_offset_x->setSingleStep(delta_x);
-
-    spinner_offset_y->setValue(offset_y);
-    spinner_offset_y->setSingleStep(delta_y);
-
-    spinner_angle->setValue(0.0);
-    spinner_angle->setSingleStep(STEP_SIZE_ROTATION);
+    updateItem();
 }
 
+// Change x extent to match aspect ratio of the image
+void BackgroundDialog::updateAspectRatioX() {
+    if(cb_aspect_ratio->isChecked() && pixmap.height() != 0) {
+        QSignalBlocker blocker(spinner_extent_x);
+        spinner_extent_x->setValue(spinner_extent_y->value()*pixmap.width()/pixmap.height());
+    }
+}
+
+// Change y extent to match aspect ratio of the image
+void BackgroundDialog::updateAspectRatioY() {
+    if(cb_aspect_ratio->isChecked() && pixmap.width() != 0) {
+        QSignalBlocker blocker(spinner_extent_y);
+        spinner_extent_y->setValue(spinner_extent_x->value()*pixmap.height()/pixmap.width());
+    }
+}
+
+// Update the pixmap either with an empty one or by loading from a file
 void BackgroundDialog::updateImage(const QString& file) {
     if(file.isEmpty()) {
         pixmap = QPixmap();
@@ -232,13 +258,15 @@ void BackgroundDialog::updateImage(const QString& file) {
         painter.drawPixmap(0, 0, input);
         painter.end();
 
+        updateAspectRatioY();
         setEditingEnabled(true);
     }
 
-    updatePlot();
+    updateItem();
 }
 
-void BackgroundDialog::updatePlot() {
+// Update the plot item with the current pixmap and transformation
+void BackgroundDialog::updateItem() {
     if(pixmap.isNull()) {
         item->setVisible(false);
         plot->replot();
