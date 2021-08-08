@@ -234,8 +234,6 @@ BowStates BowModel::simulate_statics(const Callback& callback) {
     return output;
 }
 
-#include <iostream>
-
 BowStates BowModel::simulate_dynamics(const Callback& callback) {
     BowStates output;
 
