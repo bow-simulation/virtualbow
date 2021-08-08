@@ -51,6 +51,8 @@ add_executable(
     source/gui/PersistentDialog.hpp
     source/gui/PlotWidget.cpp
     source/gui/PlotWidget.hpp
+    source/gui/BackgroundDialog.cpp
+    source/gui/BackgroundDialog.hpp
     source/gui/SimulationDialog.cpp
     source/gui/SimulationDialog.hpp
     source/gui/EditableTabBar.cpp
@@ -170,6 +172,8 @@ add_executable(
     source/gui/BaseDialog.hpp
     source/gui/PlotWidget.cpp
     source/gui/PlotWidget.hpp
+    source/gui/BackgroundDialog.cpp
+    source/gui/BackgroundDialog.hpp
     source/gui/views/LayerColors.cpp
     source/gui/views/LayerColors.hpp
     source/gui/units/Unit.cpp
