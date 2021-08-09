@@ -18,6 +18,18 @@ SplineView::SplineView(const QString& x_label, const QString& y_label, const Uni
     this->graph()->setScatterStyle({QCPScatterStyle::ssSquare, Qt::red, Qt::red, 8});
     this->graph()->setLineStyle(QCPGraph::lsNone);
 
+    auto action_show_nodes = new QAction("Show nodes", this);
+    action_show_nodes->setCheckable(true);
+    action_show_nodes->setChecked(true);
+    QObject::connect(action_show_nodes, &QAction::triggered, [&](bool checked) {
+        setNodesVisible(checked);
+        this->replot();
+    });
+
+    QAction* before = this->contextMenu()->actions().isEmpty() ? nullptr : this->contextMenu()->actions().front();
+    this->contextMenu()->insertAction(before, action_show_nodes);
+    this->contextMenu()->insertSeparator(before);
+
     // Update on unit changes
     QObject::connect(&x_unit, &UnitGroup::selectionChanged, this, &SplineView::updatePlot);
     QObject::connect(&y_unit, &UnitGroup::selectionChanged, this, &SplineView::updatePlot);
@@ -73,4 +85,9 @@ void SplineView::updatePlot() {
 
     this->rescaleAxes(false, true);
     this->replot();
+}
+
+void SplineView::setNodesVisible(bool visible) {
+    this->graph(1)->setVisible(visible);
+    this->graph(2)->setVisible(visible);
 }
