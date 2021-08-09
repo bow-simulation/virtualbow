@@ -21,4 +21,5 @@ private:
     QVector<int> selection;   
 
     void updatePlot();
+    void setNodesVisible(bool visible);
 };
