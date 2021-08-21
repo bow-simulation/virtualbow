@@ -12,7 +12,7 @@
    version="1.1"
    viewBox="0 0 16 16"
    id="svg10"
-   sodipodi:docname="list-add.svg"
+   sodipodi:docname="list-remove.svg"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <defs
      id="defs14" />
@@ -60,13 +60,4 @@
      width="12"
      y="7"
      x="2" />
-  <rect
-     style="fill:#5f5f5f"
-     id="rect6"
-     ry="0.93643999"
-     height="2"
-     width="12"
-     y="-9"
-     x="2"
-     transform="rotate(90)" />
 </svg>

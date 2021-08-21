@@ -2,6 +2,7 @@
 #include "gui/PersistentDialog.hpp"
 #include "gui/views/ProfileView.hpp"
 #include "gui/editors/LayerEditor.hpp"
+#include "gui/editors/ProfileEditor.hpp"
 #include "gui/units/UnitSystem.hpp"
 
 class ProfileDialog: public PersistentDialog
@@ -18,6 +19,6 @@ signals:
     void modified();
 
 private:
-    TableEditor* edit;
+    ProfileEditor* edit;
     ProfileView* view;
 };

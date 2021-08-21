@@ -2,7 +2,7 @@
 
 ProfileDialog::ProfileDialog(QWidget* parent, const UnitSystem& units)
     : PersistentDialog(parent, "ProfileDialog", { 800, 400 }),    // Magic numbers
-      edit(new TableEditor({ "Length", "Curvature" }, { &units.length, &units.curvature })),
+      edit(new ProfileEditor(units)),
       view(new ProfileView(units.length))
 {
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -24,8 +24,8 @@ ProfileDialog::ProfileDialog(QWidget* parent, const UnitSystem& units)
     this->setLayout(vbox);
 
     // Event handling
-    QObject::connect(edit, &TableEditor::rowSelectionChanged, view, &ProfileView::setSelection);
-    QObject::connect(edit, &TableEditor::modified, this, &ProfileDialog::modified);
+    QObject::connect(edit, &ProfileEditor::rowSelectionChanged, view, &ProfileView::setSelection);
+    QObject::connect(edit, &ProfileEditor::modified, this, &ProfileDialog::modified);
     QObject::connect(this, &ProfileDialog::modified, [&]{
         view->setData(this->getData());
     });

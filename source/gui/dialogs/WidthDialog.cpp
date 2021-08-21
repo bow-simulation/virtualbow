@@ -10,11 +10,11 @@ WidthDialog::WidthDialog(QWidget* parent, const UnitSystem& units)
     QObject::connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     auto splitter = new QSplitter();
+    splitter->setChildrenCollapsible(false);
     splitter->addWidget(edit);
     splitter->addWidget(view);
     splitter->setStretchFactor(0, 0);
     splitter->setStretchFactor(1, 1);
-    splitter->setChildrenCollapsible(false);
 
     auto vbox = new QVBoxLayout();
     vbox->addWidget(splitter, 1);
