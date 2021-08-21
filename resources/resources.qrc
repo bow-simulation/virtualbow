@@ -34,5 +34,9 @@
         <file>icons/view-fit.png</file>
         <file>icons/view-3d.png</file>
         <file>icons/folder-black.svg</file>
+        <file>icons/segment-arc.svg</file>
+        <file>icons/segment-line.svg</file>
+        <file>icons/segment-spiral.svg</file>
+        <file>icons/list-remove.svg</file>
     </qresource>
 </RCC>
