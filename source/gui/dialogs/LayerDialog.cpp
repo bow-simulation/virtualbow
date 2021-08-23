@@ -37,14 +37,17 @@ LayerDialog::LayerDialog(QWidget* parent, const UnitSystem& units)
 
 void LayerDialog::setData(const std::vector<Layer>& layers)
 {
-    while(tabs->count() < layers.size())
+    while(tabs->count() < layers.size()) {
         createEmptyTab();
+    }
 
-    while(tabs->count() > layers.size())
+    while(tabs->count() > layers.size()) {
         tabs->removeTab(0);
+    }
 
-    for(int i = 0; i < layers.size(); ++i)
-        static_cast<LayerEditor*>(tabs->widget(i))->setData(layers[i]);
+    for(int i = 0; i < layers.size(); ++i) {
+        dynamic_cast<LayerEditor*>(tabs->widget(i))->setData(layers[i]);
+    }
 }
 
 std::vector<Layer> LayerDialog::getData() const

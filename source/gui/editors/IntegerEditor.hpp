@@ -1,15 +1,14 @@
 #pragma once
 #include <QtWidgets>
 
-class IntegerEditor: public QWidget
-{
+class IntegerEditor: public QWidget {
     Q_OBJECT
 
 public:
     IntegerEditor(const QString& text);
 
     void setData(int value);
-    double getData() const;
+    int getData() const;
 
 signals:
     void modified();

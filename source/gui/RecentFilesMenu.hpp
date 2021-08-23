@@ -6,7 +6,7 @@ class RecentFilesMenu: public QMenu {
 
 public:
     RecentFilesMenu(QWidget* parent);
-    ~RecentFilesMenu();
+    ~RecentFilesMenu() override;
 
     void addPath(const QString& path);
     void clearPaths();

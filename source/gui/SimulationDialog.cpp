@@ -34,7 +34,7 @@ SimulationDialog::SimulationDialog(QWidget* parent, const QString& input, const 
     vbox->addWidget(btbox);
 
     // Create solver process
-    QProcess *process = new QProcess(this);
+    auto process = new QProcess(this);
     process->setWorkingDirectory(QCoreApplication::applicationDirPath());
     process->setProgram(QDir(QCoreApplication::applicationDirPath()).filePath("virtualbow-slv"));
     process->setArguments({ input, output, flag, "--progress" });

@@ -82,5 +82,5 @@ void RecentFilesMenu::updateActions() {
         }
     }
 
-    this->setEnabled(recentFilePaths.size() > 0);
+    this->setEnabled(!recentFilePaths.isEmpty());
 }

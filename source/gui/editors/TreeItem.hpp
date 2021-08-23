@@ -33,14 +33,14 @@ public:
 
             QObject::connect(dialog, &DialogType::modified, [&]{
                 data = dialog->getData();
-                parent->modified();
+                emit parent->modified();
             });
 
             QObject::connect(dialog, &DialogType::rejected, [&]{
                 if(data != backup)
                 {
                     data = backup;
-                    parent->modified();
+                    emit parent->modified();
                 }
             });
         }

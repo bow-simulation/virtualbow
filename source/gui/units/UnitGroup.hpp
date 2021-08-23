@@ -8,7 +8,7 @@ class UnitGroup: public QObject {
     Q_OBJECT
 
 public:
-    UnitGroup(const QString& name, const QList<Unit> units);
+    UnitGroup(const QString& name, const QList<Unit>& units);
 
     void loadFromSettings(const QSettings& settings);
     void saveToSettings(QSettings& settings) const;

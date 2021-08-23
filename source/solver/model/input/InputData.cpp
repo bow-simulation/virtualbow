@@ -3,17 +3,15 @@
 #include <fstream>
 #include <iomanip>
 
-InputData::InputData(const std::string& path)
-{
+InputData::InputData(const std::string& path){
     std::ifstream stream(path);
-    json obj; obj << stream;
+    json obj; stream >> obj;
 
     Conversion::to_current(obj);
     from_json(obj, *this);
 }
 
-void InputData::save(const std::string& path) const
-{
+void InputData::save(const std::string& path) const {
     json obj;
     to_json(obj, *this);
 

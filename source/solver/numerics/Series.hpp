@@ -4,7 +4,7 @@
 class Series
 {
 public:
-    Series();
+    Series() = default;
     Series(std::vector<double> args, std::vector<double> vals);
 
     void push_back(double arg, double val);

@@ -6,7 +6,7 @@ class Element
 {
 public:
     Element(System& system);
-    virtual ~Element();
+    virtual ~Element() = default;
 
     virtual void add_masses() const = 0;
     virtual void add_internal_forces() const = 0;

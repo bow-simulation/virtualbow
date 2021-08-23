@@ -7,8 +7,12 @@ MassElement::MassElement(System& system, Node node, double m, double I)
       m(m),
       I(I)
 {
-    assert(m >= 0.0);
-    assert(I >= 0.0);
+    if(m < 0.0) {
+        throw std::invalid_argument("Mass must be non-negative");
+    }
+    if(I < 0.0) {
+        throw std::invalid_argument("Moment of inertia must be non-negative");
+    }
 }
 
 void MassElement::set_node(Node node)

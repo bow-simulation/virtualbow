@@ -8,11 +8,9 @@
 
 class DependentBase;
 
-class IndependentBase
-{
+class IndependentBase {
 public:
-    void add_dependent(DependentBase& dependent)
-    {
+    void add_dependent(DependentBase& dependent) {
         dependents.push_back(&dependent);
     }
 
@@ -20,34 +18,29 @@ protected:
     std::vector<DependentBase*> dependents;
 };
 
-class DependentBase: public IndependentBase
-{
+class DependentBase: public IndependentBase {
 public:
     template<typename... Args>
-    void depends_on(IndependentBase& other, Args&... args)
-    {
+    void depends_on(IndependentBase& other, Args&... args) {
         depends_on(other);
         depends_on(args...);
     }
 
-    void depends_on(IndependentBase& other)
-    {
+    void depends_on(IndependentBase& other) {
         other.add_dependent(*this);
     }
 
-    bool is_valid() const
-    {
+    bool is_valid() const {
         return valid;
     }
 
-    void set_valid(bool val) const
-    {
+    void set_valid(bool val) const {
         valid = val;
 
-        if(!valid)
-        {
-            for(auto d: dependents)
+        if(!valid) {
+            for(auto d: dependents) {
                 d->set_valid(false);
+            }
         }
     }
 
@@ -56,8 +49,7 @@ protected:
 };
 
 template<typename T>
-class Independent: public IndependentBase
-{
+class Independent: public IndependentBase {
 public:
     Independent(const T& value)
         : value(value)
@@ -65,20 +57,16 @@ public:
 
     }
 
-    Independent()
-    {
+    Independent() = default;
 
-    }
-
-    const T& get() const
-    {
+    const T& get() const {
         return value;
     }
 
-    T& mut()
-    {
-        for(auto d: dependents)
+    T& mut() {
+        for(auto d: dependents) {
             d->set_valid(false);
+        }
 
         return value;
     }
@@ -88,20 +76,16 @@ private:
 };
 
 template<typename T>
-class Dependent: public DependentBase
-{
+class Dependent: public DependentBase {
 public:
     using F = std::function<void(void)>;
 
-    void on_update(const F& f)
-    {
+    void on_update(const F& f) {
         update = f;
     }
 
-    const T& get() const
-    {
-        if(!is_valid())
-        {
+    const T& get() const {
+        if(!is_valid()) {
             update();
             set_valid(true);
         }
@@ -109,10 +93,10 @@ public:
         return value;
     }
 
-    T& mut()
-    {
-        for(auto d: dependents)
+    T& mut() {
+        for(auto d: dependents) {
             d->set_valid(false);
+        }
 
         return value;
     }

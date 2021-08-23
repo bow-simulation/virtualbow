@@ -22,9 +22,10 @@ CommentDialog::CommentDialog(QWidget* parent, const UnitSystem& units)
     });
 
     QObject::connect(buttons, &QDialogButtonBox::accepted, [&]{
-        emit CommentDialog::accept();
-        if(changed)
+        CommentDialog::accept();
+        if(changed) {
             emit modified();
+        }
     });
 
     QObject::connect(buttons, &QDialogButtonBox::rejected, this, &CommentDialog::reject);
