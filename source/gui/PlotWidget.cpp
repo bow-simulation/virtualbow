@@ -91,7 +91,7 @@ void PlotWidget::setupTopLegend() {
     this->legend->setFillOrder(QCPLayoutGrid::foColumnsFirst);
 
     // Create sublayout and add legend to it
-    QCPLayoutGrid *sub_layout = new QCPLayoutGrid();
+    auto sub_layout = new QCPLayoutGrid();
     sub_layout->setMargins({0, 11, 0, 0});                // Magic number
     sub_layout->addElement(0, 0, this->legend);
 
@@ -198,7 +198,7 @@ void PlotWidget::onExport() {
             dialog.setDefaultSuffix(".bmp");
         }
     });
-    dialog.filterSelected(PNG_FILE);
+    emit dialog.filterSelected(PNG_FILE);
 
     if(dialog.exec() == QDialog::Accepted) {
         QString filter = dialog.selectedNameFilter();

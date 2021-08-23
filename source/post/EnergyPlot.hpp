@@ -3,8 +3,7 @@
 #include "gui/units/UnitSystem.hpp"
 #include "solver/model/output/OutputData.hpp"
 
-class EnergyPlot: public QWidget
-{
+class EnergyPlot: public QWidget {
 public:
     EnergyPlot(const BowStates& states, const std::vector<double>& parameter, const QString& label_x, const UnitGroup& unit_x, const UnitGroup& unit_y);
     void setStateIndex(int index);

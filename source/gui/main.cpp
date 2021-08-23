@@ -2,23 +2,20 @@
 #include "config.hpp"
 #include <iostream>
 
-int main(int argc, char* argv[])
-{
-    QApplication app(argc, argv);
-    app.setOrganizationName(Config::ORGANIZATION_NAME);
-    app.setOrganizationDomain(Config::ORGANIZATION_DOMAIN);
-    app.setApplicationName(Config::APPLICATION_NAME_GUI);
-    app.setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_GUI);
-    app.setApplicationVersion(Config::APPLICATION_VERSION);
-    app.setAttribute(Qt::AA_DontShowIconsInMenus, true);
-
+int main(int argc, char* argv[]) {
+    QApplication::setOrganizationName(Config::ORGANIZATION_NAME);
+    QApplication::setOrganizationDomain(Config::ORGANIZATION_DOMAIN);
+    QApplication::setApplicationName(Config::APPLICATION_NAME_GUI);
+    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_GUI);
+    QApplication::setApplicationVersion(Config::APPLICATION_VERSION);
     QLocale::setDefault(QLocale::C);
 
+    QApplication application(argc, argv);
     QCommandLineParser parser;
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addPositionalArgument("file", "Model file (.bow)");
-    parser.process(app);
+    parser.process(application);
 
     QStringList args = parser.positionalArguments();
     if(args.size() > 1) {
@@ -32,5 +29,5 @@ int main(int argc, char* argv[])
         window.loadFromFile(args[0]);
     }
 
-    return app.exec();
+    return application.exec();
 }

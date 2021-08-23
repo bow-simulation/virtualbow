@@ -5,7 +5,7 @@ class PersistentDialog: public BaseDialog
 {
 public:
     PersistentDialog(QWidget* parent, const QString& name, const QSize& size);
-    virtual ~PersistentDialog();
+    ~PersistentDialog() override;
 
 private:
     QString name;

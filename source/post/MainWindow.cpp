@@ -65,62 +65,55 @@ MainWindow::MainWindow()
     action_save_as->setEnabled(false);
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
-{
+void MainWindow::closeEvent(QCloseEvent *event) {
     // Save state and geometry
     QSettings settings;
     settings.setValue("OutputWindow/state", saveState());
     settings.setValue("OutputWindow/geometry", saveGeometry());
 }
 
-void MainWindow::loadFile(const QString& path)
-{
-    try
-    {
+void MainWindow::loadFile(const QString& path) {
+    try {
         data = OutputData(path.toStdString());
         this->setCentralWidget(new OutputWidget(data, units));
         this->setWindowFilePath(path);
         action_save_as->setEnabled(true);
         menu_open_recent->addPath(path);
     }
-    catch(const std::exception& e)  // Todo
-    {
+    catch(const std::exception& e) {
         QMessageBox::critical(this, "Error", "Failed to open " + path + "\n" + e.what());
     }
 }
 
-void MainWindow::saveFile(const QString &path)
-{
-    try
-    {
-        auto widget = static_cast<OutputWidget*>(this->centralWidget());
+void MainWindow::saveFile(const QString &path) {
+    try {
+        auto widget = dynamic_cast<OutputWidget*>(this->centralWidget());
         widget->getData().save(path.toStdString());
         this->setWindowFilePath(path);
     }
-    catch(const std::exception& e)  // Todo
-    {
+    catch(const std::exception& e) {
         QMessageBox::critical(this, "Error", "Failed to save " + path + "\n" + e.what());
     }
 }
 
-void MainWindow::open()
-{
+void MainWindow::open() {
     QFileDialog dialog(this);
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
     dialog.setNameFilter("Result Files (*.res)");
 
-    if(dialog.exec() == QDialog::Accepted)
+    if(dialog.exec() == QDialog::Accepted) {
         loadFile(dialog.selectedFiles().first());
+    }
 }
 
-void MainWindow::saveAs()
-{
+void MainWindow::saveAs() {
     QFileDialog dialog(this);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setNameFilter("Result Files (*.res)");
     dialog.setDefaultSuffix("res");
     dialog.selectFile(this->windowFilePath().isEmpty() ? DEFAULT_FILENAME : this->windowFilePath());
 
-    if(dialog.exec() == QDialog::Accepted)
+    if(dialog.exec() == QDialog::Accepted) {
         saveFile(dialog.selectedFiles().first());
+    }
 }
