@@ -47,8 +47,8 @@ LayerEditor::LayerEditor(EditableTabBar* tabs, const UnitSystem& units)
 Layer LayerEditor::getData() const
 {
     Layer layer;
-    LayerEditor* wtf = const_cast<LayerEditor*>(this);
-    layer.name = tabs->tabText(tabs->indexOf(wtf)).toStdString();
+    auto this_ = const_cast<LayerEditor*>(this);    // Work around missing const-correctness in Qt
+    layer.name = tabs->tabText(tabs->indexOf(this_)).toStdString();
     layer.height = table->getData();
     layer.rho = edit_rho->getData();
     layer.E = edit_E->getData();

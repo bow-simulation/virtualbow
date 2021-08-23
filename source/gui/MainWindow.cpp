@@ -304,7 +304,7 @@ void MainWindow::setFilePath(const QString &path) {
     // from being appended to every dialog, see https://bugreports.qt.io/browse/QTBUG-70382
     QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_GUI);
     setWindowFilePath(path);
-    QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
+    QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString());});
 
     // If path is not empty, enable editing, saving and simulation
     bool enabled = !path.isEmpty();

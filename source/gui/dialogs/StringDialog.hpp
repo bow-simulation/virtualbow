@@ -5,8 +5,7 @@
 #include "gui/units/UnitSystem.hpp"
 #include "GroupDialog.hpp"
 
-class StringDialog: public GroupDialog
-{
+class StringDialog: public GroupDialog {
     Q_OBJECT
 
 public:

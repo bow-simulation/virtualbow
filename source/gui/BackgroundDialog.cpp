@@ -79,7 +79,7 @@ BackgroundDialog::BackgroundDialog(PlotWidget* plot)
     edit_image->setPlaceholderText("No file selected");
 
     // Enable clear button despite the LineEdit being read-only, https://stackoverflow.com/a/57366109
-    QToolButton* button_clear = edit_image->findChild<QToolButton*>();
+    auto button_clear = edit_image->findChild<QToolButton*>();
     if(button_clear != nullptr) {
         button_clear->setEnabled(true);
         QObject::connect(button_clear, &QToolButton::clicked, [&]{

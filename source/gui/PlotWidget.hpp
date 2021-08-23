@@ -18,8 +18,8 @@ public:
     void setAspectPolicy(AspectPolicy policy);
 
 protected:
-    virtual QSize sizeHint() const override;
-    virtual void resizeEvent(QResizeEvent * event) override;
+    QSize sizeHint() const override;
+    void resizeEvent(QResizeEvent * event) override;
 
     void onExport();
 

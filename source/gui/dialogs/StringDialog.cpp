@@ -16,8 +16,7 @@ StringDialog::StringDialog(QWidget* parent, const UnitSystem& units)
     QObject::connect(edit2, &IntegerEditor::modified, this, &StringDialog::modified);
 }
 
-String StringDialog::getData() const
-{
+String StringDialog::getData() const {
     String data;
     data.strand_stiffness = edit0->getData();
     data.strand_density = edit1->getData();
@@ -26,8 +25,7 @@ String StringDialog::getData() const
     return data;
 }
 
-void StringDialog::setData(const String& data)
-{
+void StringDialog::setData(const String& data) {
     edit0->setData(data.strand_stiffness);
     edit1->setData(data.strand_density);
     edit2->setData(data.n_strands);
