@@ -7,7 +7,7 @@ class OutputWidget: public QWidget
 {
 public:
     OutputWidget(const OutputData& data, const UnitSystem& units);
-    ~OutputWidget();
+    ~OutputWidget() override;
     const OutputData& getData();
 
 private:
@@ -20,7 +20,7 @@ class StaticOutputWidget: public QWidget
 {
 public:
     StaticOutputWidget(const OutputData& data, const UnitSystem& units);
-    ~StaticOutputWidget();
+    ~StaticOutputWidget() override;
 
 private:
     QTabWidget* tabs;
@@ -30,7 +30,7 @@ class DynamicOutputWidget: public QWidget
 {
 public:
     DynamicOutputWidget(const OutputData& data, const UnitSystem& units);
-    ~DynamicOutputWidget();
+    ~DynamicOutputWidget() override;
 
 private:
     QTabWidget* tabs;

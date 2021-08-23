@@ -112,7 +112,7 @@ public:
     }
 
 protected:
-    virtual void constraint(const VectorXd& u, double lambda, double& c, double& dcdl, VectorXd& dcdu) const override
+    void constraint(const VectorXd& u, double lambda, double& c, double& dcdl, VectorXd& dcdu) const override
     {
         c = lambda - 1.0;
         dcdl = 1.0;
@@ -129,7 +129,9 @@ public:
           target(0.0),
           e_dof(unit_vector(system.dofs(), dof.index))
     {
-        assert(dof.active);
+        if(!dof.active) {
+            throw std::invalid_argument("Displacement control not possible on fixed DOF");
+        }
     }
 
     Info solve(double displacement)

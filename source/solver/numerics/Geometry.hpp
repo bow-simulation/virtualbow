@@ -39,7 +39,7 @@ static std::vector<Vector<2>> constant_orientation_subset(const std::vector<Vect
 
     for(size_t i = 2; i < input.size(); ++i)
     {
-        auto fits_as_next = [&](Vector<2> p3)
+        auto fits_as_next = [&](const Vector<2>& p3)
         {
             if(output.size() == 1)
                 return true;

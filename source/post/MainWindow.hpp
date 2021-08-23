@@ -4,8 +4,7 @@
 #include "solver/model/output/OutputData.hpp"
 #include <QtWidgets>
 
-class MainWindow: public QMainWindow
-{
+class MainWindow: public QMainWindow {
 public:
     MainWindow();
     void loadFile(const QString& path);

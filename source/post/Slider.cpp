@@ -131,7 +131,7 @@ Slider::Slider(const std::vector<double>& values, const QString& text, const Uni
 }
 
 void Slider::addJumpAction(const QString& name, int index) {
-    QAction* action = new QAction(name, this);
+    auto action = new QAction(name, this);
     action->setData(index);
     menu->addAction(action);
 }

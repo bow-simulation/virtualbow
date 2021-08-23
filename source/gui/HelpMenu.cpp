@@ -26,8 +26,8 @@ void HelpMenu::help()
         "/usr/share/virtualbow/manual.pdf"                                     // Linux
     };
 
-    for(QString path: paths) {
-        if(QFileInfo(path).exists()) {
+    for(const QString& path: paths) {
+        if(QFileInfo::exists(path)) {
             if(!QDesktopServices::openUrl(QUrl::fromLocalFile(path))) {
                 QMessageBox::critical(this->parentWidget(), "Error", "Failed to open file " + path);
             }

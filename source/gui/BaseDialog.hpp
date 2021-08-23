@@ -6,5 +6,5 @@ class BaseDialog: public QDialog
 {
 public:
     BaseDialog(QWidget* parent);
-    virtual void keyPressEvent(QKeyEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 };

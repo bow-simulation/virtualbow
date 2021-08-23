@@ -18,7 +18,7 @@ LimbView::LimbView()
                                  "QToolButton:pressed { background-color: rgba(150, 150, 150, 200); }"
                                  "QToolButton:checked { background-color: rgba(150, 150, 150, 200); }";
 
-    const QString BUTTON_FRAME_STYLE = "background-color: rgb(38, 38, 38, 100); border-radius: 8px";
+    const QString BUTTON_FRAME_STYLE = "background-color: rgba(38, 38, 38, 100); border-radius: 8px";
 
     auto bt_view_3d = new QToolButton();
     QObject::connect(bt_view_3d, &QPushButton::clicked, this, &LimbView::view3D);

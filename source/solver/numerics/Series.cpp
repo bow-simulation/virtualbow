@@ -2,11 +2,6 @@
 #include <stdexcept>
 #include <algorithm>
 
-Series::Series()
-{
-
-}
-
 Series::Series(std::vector<double> args, std::vector<double> vals)  // Todo: Is this overhead? Maybe take initializer lists?
     : m_args(args), m_vals(vals)
 {

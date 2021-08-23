@@ -6,8 +6,3 @@ Element::Element(System& system)
 {
 
 }
-
-Element::~Element()
-{
-
-}

@@ -4,7 +4,7 @@ UnitEditor::UnitEditor(UnitGroup& group) {
     auto label = new QLabel(group.getName());
     label->setAlignment(Qt::AlignRight);
 
-    QComboBox* combo = new QComboBox();
+    auto combo = new QComboBox();
     for(int i = 0; i < group.getUnits().size(); ++i) {
         QString name = group.getUnits()[i].getName();
         // Replace empty names with "-" and add index to units list as user data.
