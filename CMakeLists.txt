@@ -89,6 +89,8 @@ add_executable(
     source/gui/editors/LayerEditor.hpp
     source/gui/editors/ProfileEditor.cpp
     source/gui/editors/ProfileEditor.hpp
+    source/gui/editors/ProfileTreeModel.cpp
+    source/gui/editors/ProfileTreeModel.hpp
     source/gui/editors/TableEditor.cpp
     source/gui/editors/TableEditor.hpp
     source/gui/editors/TableModel.cpp

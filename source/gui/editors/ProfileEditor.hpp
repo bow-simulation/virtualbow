@@ -5,6 +5,11 @@
 #include "TableView.hpp"
 #include "TableModel.hpp"
 
+class ProfileTreeHeader: public QHeaderView {
+public:
+    ProfileTreeHeader(QWidget* parent, const QList<QToolButton*>& buttons);
+};
+
 class ProfileEditor: public QWidget
 {
     Q_OBJECT
@@ -19,6 +24,6 @@ signals:
     void modified();
     void rowSelectionChanged(const QVector<int>& rows);
 
-private:
+private:    
     QVector<int> getSelectedIndices();
 };
