@@ -31,7 +31,7 @@ TreeEditor::TreeEditor(const UnitSystem& units)
 
     this->setHeaderLabel("Model");
     this->expandAll();
-    this->setItemsExpandable(false);    // Todo: Why is the expansion symbol still visible? (on KDE Desktop at least)
+    this->setItemsExpandable(false);
 }
 
 const InputData& TreeEditor::getData() const

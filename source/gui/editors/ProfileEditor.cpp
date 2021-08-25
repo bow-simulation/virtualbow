@@ -1,63 +1,103 @@
 #include "ProfileEditor.hpp"
+#include "ProfileTreeModel.hpp"
+#include "solver/model/ProfileCurve.hpp"
 #include <algorithm>
 
-
-class Header: public QHeaderView {
-public:
-    Header(QWidget* parent)
-        : QHeaderView(Qt::Horizontal, parent)
-    {
-        auto button_add = new QToolButton();
-        button_add->setIcon(QIcon(":/icons/list-add.svg"));
-
-        auto button_remove = new QToolButton();
-        button_remove->setIcon(QIcon(":/icons/list-remove.svg"));
-
-        auto hbox = new QHBoxLayout();
-        hbox->setMargin(2);
-        hbox->setSpacing(2);
-        hbox->addStretch();
-        hbox->addWidget(button_add);
-        hbox->addWidget(button_remove);
-
-        this->setLayout(hbox);
+ProfileTreeHeader::ProfileTreeHeader(QWidget* parent, const QList<QToolButton*>& buttons)
+    : QHeaderView(Qt::Horizontal, parent)
+{
+    auto hbox = new QHBoxLayout();
+    hbox->setMargin(2);
+    hbox->setSpacing(2);
+    hbox->addStretch();
+    for(auto button: buttons) {
+        hbox->addWidget(button);
     }
-};
+
+    this->setLayout(hbox);
+}
 
 ProfileEditor::ProfileEditor(const UnitSystem& units) {
-    auto list = new QTreeWidget();
-    list->header()->setSectionResizeMode(QHeaderView::Stretch);
-    list->header()->setStretchLastSection(false);
-    list->setHeader(new Header(this));
-    list->setHeaderLabel("Segments");
-    list->setRootIsDecorated(false);
+    auto button_add = new QToolButton();
+    button_add->setIcon(QIcon(":/icons/list-add.svg"));
+    button_add->setPopupMode(QToolButton::InstantPopup);
+    button_add->setMenu(new QMenu());
 
-    auto item0 = new QTreeWidgetItem({"1 - Line"});
-    item0->setIcon(0, QIcon(":/icons/segment-line.svg"));
+    auto button_remove = new QToolButton();
+    button_remove->setIcon(QIcon(":/icons/list-remove.svg"));
 
-    auto item1 = new QTreeWidgetItem({"2 - Arc"});
-    item1->setIcon(0, QIcon(":/icons/segment-arc.svg"));
+    auto action_remove = new QAction(this);
+    action_remove->setShortcut(QKeySequence::Delete);
+    this->addAction(action_remove);
 
-    auto item2 = new QTreeWidgetItem({"3 - Spiral"});
-    item2->setIcon(0, QIcon(":/icons/segment-spiral.svg"));
+    auto tree_model = new ProfileTreeModel(this);
+    auto tree_view = new QTreeView();
+    tree_view->setHeader(new ProfileTreeHeader(this, {button_add, button_remove}));
+    tree_view->header()->setStretchLastSection(false);
+    tree_view->header()->setSectionResizeMode(QHeaderView::Stretch);
+    tree_view->header()->setDefaultAlignment(Qt::AlignLeft);
+    tree_view->setRootIsDecorated(false);
+    tree_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    tree_view->setDragDropMode(QAbstractItemView::InternalMove);
+    tree_view->setDragEnabled(true);
+    tree_view->setAcceptDrops(true);
+    tree_view->setDropIndicatorShown(true);
+    tree_view->setModel(tree_model);
 
-    list->addTopLevelItem(item0);
-    list->addTopLevelItem(item1);
-    list->addTopLevelItem(item2);
+    auto table_view = new QTableWidget(3, 2);
+    table_view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    table_view->horizontalHeader()->setVisible(false);
+    table_view->verticalHeader()->setVisible(false);
+    table_view->setCellWidget(0, 0, new QComboBox());
+    table_view->setCellWidget(1, 0, new QComboBox());
+    table_view->setCellWidget(2, 0, new QComboBox());
 
-    auto table = new QTableWidget(3, 2);
-    table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    table->horizontalHeader()->setVisible(false);
-    table->verticalHeader()->setVisible(false);
-    table->setCellWidget(0, 0, new QComboBox());
-    table->setCellWidget(1, 0, new QComboBox());
-    table->setCellWidget(2, 0, new QComboBox());
+    auto splitter = new QSplitter(Qt::Vertical);
+    splitter->setChildrenCollapsible(false);
+    splitter->addWidget(tree_view);
+    splitter->addWidget(table_view);
+    splitter->setStretchFactor(0, 1);
+    splitter->setStretchFactor(1, 0);
 
     auto vbox = new QVBoxLayout();
-    vbox->addWidget(list, 1);
-    vbox->addWidget(table, 0);
+    vbox->setMargin(0);
+    vbox->addWidget(splitter);
 
     this->setLayout(vbox);
+
+    // Actions for adding and removing segments
+
+    button_add->menu()->addAction(QIcon(":/icons/segment-line.svg"), "Line", this, [tree_view, tree_model] {
+        QModelIndexList selection = tree_view->selectionModel()->selectedRows();
+        tree_model->insertSegment(selection, SegmentInput{ .type = SegmentType::Line, .constraints = {} });
+    });
+
+    button_add->menu()->addAction(QIcon(":/icons/segment-arc.svg"), "Arc", this, [tree_view, tree_model] {
+        QModelIndexList selection = tree_view->selectionModel()->selectedRows();
+        tree_model->insertSegment(selection, SegmentInput{ .type = SegmentType::Arc, .constraints = {} });
+    });
+
+    button_add->menu()->addAction(QIcon(":/icons/segment-spiral.svg"), "Spiral", this, [tree_view, tree_model] {
+        QModelIndexList selection = tree_view->selectionModel()->selectedRows();
+        tree_model->insertSegment(selection, SegmentInput{ .type = SegmentType::Spiral, .constraints = {} });
+    });
+
+    button_add->menu()->addAction(QIcon(":/icons/segment-spline.svg"), "Spline", this, [tree_view, tree_model] {
+        QModelIndexList selection = tree_view->selectionModel()->selectedRows();
+        tree_model->insertSegment(selection, SegmentInput{ .type = SegmentType::Spline, .constraints = {} });
+    });
+
+    QObject::connect(button_remove, &QPushButton::clicked, this, [tree_view, tree_model] {
+        QModelIndexList selection = tree_view->selectionModel()->selectedRows();
+        tree_model->removeSegments(selection);
+    });
+
+    QObject::connect(action_remove, &QAction::triggered, this, [tree_view, tree_model] {
+        QModelIndexList selection = tree_view->selectionModel()->selectedRows();
+        if(!selection.isEmpty()) {
+            tree_model->removeSegments(selection);
+        }
+    });
 
     /*
     QObject::connect(&model, &TableModel::modified, this, &ProfileEditor::modified);

@@ -1,6 +1,31 @@
 #pragma once
 #include "solver/numerics/Eigen.hpp"
 
+enum class SegmentType {
+    Line,
+    Arc,
+    Spiral,
+    Spline
+};
+
+enum class ConstraintType {
+    X_End,
+    Y_End,
+    S_End
+};
+
+struct Constraint {
+    ConstraintType type;
+    double value;
+};
+
+struct SegmentInput {
+    SegmentType type;
+    std::vector<Constraint> constraints;
+};
+
+
+
 struct CurvePoint {
     double k;
     double phi;
