@@ -149,6 +149,33 @@ int main() {
 }
 */
 
+/*
+#include <iostream>
+#include <nlohmann/json.hpp>
+#include "solver/model/ProfileCurve.hpp"
+
+int main() {
+
+    SegmentInput a;
+    SegmentType t;
+    ConstraintType p;
+    Constraint c;
+
+    SegmentInput input{.type = SegmentType::Arc, .constraints = {
+        Constraint{.type = ConstraintType::X_End, .value = 1.0},
+        Constraint{.type = ConstraintType::Y_End, .value = 2.0},
+        Constraint{.type = ConstraintType::S_End, .value = 3.0},
+    }};
+
+    std::string str = json(input).dump();
+
+    std::cout << str;
+
+    json j = json::parse(str);
+    SegmentInput i = j.get<SegmentInput>();
+}
+*/
+
 #include "MainWindow.hpp"
 #include "config.hpp"
 #include <iostream>
