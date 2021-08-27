@@ -1,5 +1,6 @@
 #include "ProfileEditor.hpp"
 #include "ProfileTreeModel.hpp"
+#include "ProfileTableModel.hpp"
 #include "solver/model/ProfileCurve.hpp"
 #include <algorithm>
 
@@ -15,7 +16,7 @@ ProfileTreeHeader::ProfileTreeHeader(QWidget* parent, const QList<QToolButton*>&
     }
 
     this->setLayout(hbox);
-}
+};
 
 ProfileEditor::ProfileEditor(const UnitSystem& units) {
     auto button_add = new QToolButton();
@@ -44,13 +45,12 @@ ProfileEditor::ProfileEditor(const UnitSystem& units) {
     tree_view->setDropIndicatorShown(true);
     tree_view->setModel(tree_model);
 
-    auto table_view = new QTableWidget(3, 2);
+    auto table_model = new ProfileTableModel(this);
+    auto table_view = new QTableView();
     table_view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    table_view->horizontalHeader()->setVisible(false);
+    table_view->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
     table_view->verticalHeader()->setVisible(false);
-    table_view->setCellWidget(0, 0, new QComboBox());
-    table_view->setCellWidget(1, 0, new QComboBox());
-    table_view->setCellWidget(2, 0, new QComboBox());
+    table_view->setModel(table_model);
 
     auto splitter = new QSplitter(Qt::Vertical);
     splitter->setChildrenCollapsible(false);
@@ -98,6 +98,20 @@ ProfileEditor::ProfileEditor(const UnitSystem& units) {
             tree_model->removeSegments(selection);
         }
     });
+
+    QObject::connect(tree_view->selectionModel(), &QItemSelectionModel::selectionChanged, this, [tree_view](const QItemSelection &selected, const QItemSelection &deselected){
+        qInfo() << "Selection changed";
+        QModelIndexList selection = tree_view->selectionModel()->selectedRows();
+        if(selection.size() == 1) {
+            qInfo() << "Single selection: " << selection[0].row();
+        }
+    });
+
+    /*
+    QObject::connect(tree_view, &QTreeView::clicked, this, [](const QModelIndex &index) {
+        qInfo() << index.row();
+    });
+    */
 
     /*
     QObject::connect(&model, &TableModel::modified, this, &ProfileEditor::modified);

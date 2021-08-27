@@ -1,5 +1,6 @@
 #pragma once
 #include "solver/numerics/Eigen.hpp"
+#include <nlohmann/json.hpp>
 
 enum class SegmentType {
     Line,
@@ -15,16 +16,29 @@ enum class ConstraintType {
 };
 
 struct Constraint {
-    ConstraintType type;
-    double value;
+    ConstraintType type = ConstraintType::X_End;
+    double value = 0.0;
 };
 
 struct SegmentInput {
-    SegmentType type;
-    std::vector<Constraint> constraints;
+    SegmentType type = SegmentType::Line;
+    std::vector<Constraint> constraints = {};
 };
 
+NLOHMANN_JSON_SERIALIZE_ENUM(SegmentType, {
+    {SegmentType::Line, "line"},
+    {SegmentType::Arc, "arc"},
+    {SegmentType::Spiral, "spiral"},
+    {SegmentType::Spline, "spline"},
+})
+NLOHMANN_JSON_SERIALIZE_ENUM(ConstraintType, {
+    {ConstraintType::X_End, "x_end"},
+    {ConstraintType::Y_End, "y_end"},
+    {ConstraintType::S_End, "s_end"}
+})
 
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Constraint, type, value)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SegmentInput, type, constraints)
 
 struct CurvePoint {
     double k;

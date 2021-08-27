@@ -37,26 +37,6 @@ void ProfileTreeModel::removeSegments(const QModelIndexList& selection) {
     }
 }
 
-Qt::DropActions ProfileTreeModel::supportedDropActions() const {
-    return Qt::MoveAction;
-}
-
-Qt::ItemFlags ProfileTreeModel::flags(const QModelIndex &index) const {
-    Qt::ItemFlags default_flags = QAbstractTableModel::flags(index);
-    if (index.isValid()) {
-        return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | default_flags;
-    }
-    else {
-        return Qt::ItemIsDropEnabled | default_flags;
-    }
-}
-
-bool ProfileTreeModel::removeRows(int row, int count, const QModelIndex &parent) {
-    qInfo() << "Remove Rows";
-    segments.erase(segments.begin() + row, segments.begin() + row + count);
-    return true;
-}
-
 int ProfileTreeModel::rowCount(const QModelIndex& parent) const {
    return segments.size();
 }
@@ -78,9 +58,9 @@ QVariant ProfileTreeModel::data(const QModelIndex& index, int role) const {
     auto& segment = segments[index.row()];
 
     switch(role) {
-        case Qt::DisplayRole:
-            return ("%1 - " + segmentText(segment.type)).arg(index.row() + 1);
-
+        case Qt::DisplayRole: {
+            return (" %1: " + segmentText(segment.type)).arg(index.row() + 1);
+        }
         case Qt::DecorationRole:
             return segmentIcon(segment.type);
     }
@@ -90,36 +70,114 @@ QVariant ProfileTreeModel::data(const QModelIndex& index, int role) const {
 
 QIcon ProfileTreeModel::segmentIcon(SegmentType type) const {
     switch(type) {
-        case SegmentType::Line:
-            return QIcon(":/icons/segment-line.svg");
-
-        case SegmentType::Arc:
-            return QIcon(":/icons/segment-arc.svg");
-
-        case SegmentType::Spiral:
-            return QIcon(":/icons/segment-spiral.svg");
-
-        case SegmentType::Spline:
-            return QIcon(":/icons/segment-spline.svg");
+        case SegmentType::Line: return QIcon(":/icons/segment-line.svg");
+        case SegmentType::Arc: return QIcon(":/icons/segment-arc.svg");
+        case SegmentType::Spiral: return QIcon(":/icons/segment-spiral.svg");
+        case SegmentType::Spline: return QIcon(":/icons/segment-spline.svg");
     }
-
     return QIcon();
 }
 
 QString ProfileTreeModel::segmentText(SegmentType type) const {
     switch(type) {
-        case SegmentType::Line:
-            return "Line";
+        case SegmentType::Line: return "Line";
+        case SegmentType::Arc: return "Arc";
+        case SegmentType::Spiral: return "Spiral";
+        case SegmentType::Spline: return "Spline";
+    }
+    return QString();
+}
 
-        case SegmentType::Arc:
-            return "Arc";
+Qt::DropActions ProfileTreeModel::supportedDropActions() const {
+    return Qt::MoveAction;
+}
 
-        case SegmentType::Spiral:
-            return "Spiral";
+Qt::ItemFlags ProfileTreeModel::flags(const QModelIndex &index) const {
+    Qt::ItemFlags default_flags = QAbstractTableModel::flags(index);
+    if (index.isValid()) {
+        return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | default_flags;
+    }
+    else {
+        return Qt::ItemIsDropEnabled | default_flags;
+    }
+}
 
-        case SegmentType::Spline:
-            return "Spline";
+bool ProfileTreeModel::insertRows(int row, int count, const QModelIndex &parent) {
+    if(parent.isValid()) {
+        return false;
     }
 
-    return QString();
+    beginInsertRows(parent, row, row + count - 1);
+    for(int i = 0; i < count; ++i) {
+        segments.insert(segments.begin() + row, SegmentInput());
+    }
+    endInsertRows();
+
+    return true;
+}
+
+bool ProfileTreeModel::removeRows(int row, int count, const QModelIndex &parent) {
+    if(parent.isValid()) {
+        return false;
+    }
+
+    beginRemoveRows(parent, row, row + count - 1);
+    segments.erase(segments.begin() + row, segments.begin() + row + count);
+    endRemoveRows();
+
+    return true;
+}
+
+QStringList ProfileTreeModel::mimeTypes() const {
+    return {"application/json"};
+}
+
+bool ProfileTreeModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex& parent) {
+    return action == Qt::MoveAction && data->hasFormat("application/json");
+}
+
+QMimeData* ProfileTreeModel::mimeData(const QModelIndexList &indexes) const {
+    QMimeData* mimeData = new QMimeData();
+    QByteArray encodedData;
+
+    QDataStream stream(&encodedData, QIODevice::WriteOnly);
+    for (const QModelIndex &index : indexes) {
+        if (index.isValid()) {
+            QString text = data(index, Qt::DisplayRole).toString();
+            stream << text;
+        }
+    }
+    mimeData->setData("application/json", encodedData);
+    return mimeData;
+}
+
+bool ProfileTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) {
+    if (!canDropMimeData(data, action, row, column, parent))
+        return false;
+
+    if (action == Qt::IgnoreAction)
+        return true;
+    else if (action  != Qt::MoveAction)
+        return false;
+
+    QByteArray encodedData = data->data("application/json");
+    QDataStream stream(&encodedData, QIODevice::ReadOnly);
+    QStringList newItems;
+    int rows = 0;
+
+    while (!stream.atEnd()) {
+        QString text;
+        stream >> text;
+        newItems << text;
+        ++rows;
+    }
+
+    insertRows(row, rows, QModelIndex());
+    for(const QString &text : qAsConst(newItems)) {
+        QModelIndex idx = index(row, 0, QModelIndex());
+        setData(idx, text);
+        row++;
+    }
+
+    return true;
 }
