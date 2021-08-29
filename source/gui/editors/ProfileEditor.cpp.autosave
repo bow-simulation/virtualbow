@@ -3,6 +3,8 @@
 #include "solver/model/ProfileCurve.hpp"
 #include <algorithm>
 #include "gui/widgets/DoubleSpinBox.hpp"
+#include "gui/units/UnitSystem.hpp"
+
 
 SpinBoxDelegate::SpinBoxDelegate(QObject *parent)
     : QStyledItemDelegate(parent) {
@@ -128,7 +130,7 @@ QWidget* ProfileTreeItem::segmentEditor(SegmentType type) const {
     box_1->setFrame(false);
     box_1->addItems({"Length", "Radius", "Angle"});
 
-    auto spinner_1 = new DoubleSpinBox(ValueRange::UNRESTRICTED);
+    auto spinner_1 = new DoubleSpinBox(ValueRange::UNRESTRICTED, UnitSystem.length);
     spinner_1->setFrame(false);
     spinner_1->setSuffix(" mm");
 

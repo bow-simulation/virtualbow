@@ -12,7 +12,7 @@ ProfileTableModel::ProfileTableModel(QObject *parent)
 }
 
 int ProfileTableModel::rowCount(const QModelIndex& parent) const {
-   return constraints.size();
+    return constraints.size();
 }
 
 int ProfileTableModel::columnCount(const QModelIndex& parent) const {
@@ -21,31 +21,57 @@ int ProfileTableModel::columnCount(const QModelIndex& parent) const {
 
 QVariant ProfileTableModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
-        if(section == 0) {
-            return QString("Type");
-        }
-        else {
-            return QString("Value");
+        switch(section) {
+            case 0: return QString("Type");
+            case 1: return QString("Value");
         }
     }
     return QVariant();
 }
 
 QVariant ProfileTableModel::data(const QModelIndex& index, int role) const {
-    switch(role) {
-        case Qt::DisplayRole:
-            if(index.row() < constraints.size()) {
-                auto& constraint = constraints[index.row()];
-                if(index.column() == 0 && index.row() < constraints.size()) {
-                    return constraintText(constraint.type);
-                }
-                if(index.column() == 1 && index.row() < constraints.size()) {
-                    return QString::number(constraints[index.row()].value);
-                }
+    if(role == Qt::DisplayRole || role == Qt::EditRole) {
+        if(checkIndex(index)) {
+            auto& constraint = constraints[index.row()];
+            if(index.column() == 0 && index.row() < constraints.size()) {
+                return constraintText(constraint.type);
             }
+            if(index.column() == 1 && index.row() < constraints.size()) {
+                return constraints[index.row()].value;
+            }
+        }
     }
 
     return QVariant();
+}
+
+bool ProfileTableModel::setData(const QModelIndex &index, const QVariant &value, int role) {
+    if (role == Qt::EditRole) {
+        if (!checkIndex(index)) {
+            return false;
+        }
+
+        Constraint& constraint = constraints[index.row()];
+        switch(index.column()) {
+            case 0: {
+                return false;
+            }
+            case 1: {
+                constraint.value = value.toDouble();
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+Qt::ItemFlags ProfileTableModel::flags(const QModelIndex &index) const {
+    return Qt::ItemIsEditable | QAbstractTableModel::flags(index);
+}
+
+// TODO: Replace with built-in method in Qt 5.11 and above
+bool ProfileTableModel::checkIndex(const QModelIndex &index) const {
+    return (index.row() >= 0 && index.row() < rowCount() && index.column() >= 0 && index.column() < columnCount());
 }
 
 QString ProfileTableModel::constraintText(ConstraintType type) const {
