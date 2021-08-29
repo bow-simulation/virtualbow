@@ -10,7 +10,7 @@ class SettingsDialog: public GroupDialog
     Q_OBJECT
 
 public:
-    SettingsDialog(QWidget* parent, const UnitSystem& units);
+    SettingsDialog(QWidget* parent);
 
     Settings getData() const;
     void setData(const Settings& data);

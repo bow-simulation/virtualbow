@@ -4,12 +4,11 @@
 #include "gui/units/UnitSystem.hpp"
 #include "GroupDialog.hpp"
 
-class MassesDialog: public GroupDialog
-{
+class MassesDialog: public GroupDialog {
     Q_OBJECT
 
 public:
-    MassesDialog(QWidget* parent, const UnitSystem& units);
+    MassesDialog(QWidget* parent);
 
     Masses getData() const;
     void setData(const Masses& data);
@@ -18,8 +17,8 @@ signals:
     void modified();
 
 private:
-    DoubleEditor* edit0;
-    DoubleEditor* edit1;
-    DoubleEditor* edit2;
-    DoubleEditor* edit3;
+    DoubleEditor* edit_arrow;
+    DoubleEditor* edit_string_center;
+    DoubleEditor* edit_string_tip;
+    DoubleEditor* edit_limb_tip;
 };

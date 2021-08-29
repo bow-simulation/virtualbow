@@ -8,7 +8,7 @@
 
 MainWindow::MainWindow()
     : menu_open_recent(new RecentFilesMenu(this)),
-      editor(new ModelEditor(units))
+      editor(new ModelEditor())
 {
     // Actions
     action_new = new QAction(QIcon(":/icons/document-new.svg"), "&New", this);
@@ -50,7 +50,7 @@ MainWindow::MainWindow()
 
     action_set_units = new QAction("&Units...", this);
     QObject::connect(action_set_units, &QAction::triggered, this, [&]{
-        UnitDialog dialog(this, units);
+        UnitDialog dialog(this);
         dialog.exec();
     });
     action_set_units->setMenuRole(QAction::NoRole);
@@ -108,6 +108,9 @@ MainWindow::MainWindow()
     QSettings settings;
     restoreState(settings.value("MainWindow/state").toByteArray());
     restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
+
+    // Load unit settings
+    UnitSystem::loadFromSettings(settings);
 
     // Set Window's modification indicator when data has changed
     QObject::connect(editor, &ModelEditor::modified, [&]{

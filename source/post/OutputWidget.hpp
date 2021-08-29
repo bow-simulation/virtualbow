@@ -3,33 +3,30 @@
 #include "gui/units/UnitSystem.hpp"
 #include <QtWidgets>
 
-class OutputWidget: public QWidget
-{
+class OutputWidget: public QWidget {
 public:
-    OutputWidget(const OutputData& data, const UnitSystem& units);
+    OutputWidget(const OutputData& data);
     ~OutputWidget() override;
     const OutputData& getData();
 
 private:
     OutputData data;
-    QPushButton* bt_statics;
-    QPushButton* bt_dynamics;
+    QPushButton* button_statics;
+    QPushButton* button_dynamics;
 };
 
-class StaticOutputWidget: public QWidget
-{
+class StaticOutputWidget: public QWidget {
 public:
-    StaticOutputWidget(const OutputData& data, const UnitSystem& units);
+    StaticOutputWidget(const OutputData& data);
     ~StaticOutputWidget() override;
 
 private:
     QTabWidget* tabs;
 };
 
-class DynamicOutputWidget: public QWidget
-{
+class DynamicOutputWidget: public QWidget {
 public:
-    DynamicOutputWidget(const OutputData& data, const UnitSystem& units);
+    DynamicOutputWidget(const OutputData& data);
     ~DynamicOutputWidget() override;
 
 private:

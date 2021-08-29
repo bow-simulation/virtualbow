@@ -9,7 +9,7 @@ class DimensionsDialog: public GroupDialog
     Q_OBJECT
 
 public:
-    DimensionsDialog(QWidget* parent, const UnitSystem& units);
+    DimensionsDialog(QWidget* parent);
 
     Dimensions getData() const;
     void setData(const Dimensions& data);

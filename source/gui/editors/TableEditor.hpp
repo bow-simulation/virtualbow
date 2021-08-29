@@ -4,8 +4,7 @@
 #include "TableView.hpp"
 #include "TableModel.hpp"
 
-class TableEditor: public TableView
-{
+class TableEditor: public TableView {
     Q_OBJECT
 
 public:

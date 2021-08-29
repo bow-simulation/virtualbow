@@ -13,5 +13,5 @@ class UnitDialog: public QDialog {
     Q_OBJECT
 
 public:
-    UnitDialog(QWidget* parent, UnitSystem& units);
+    UnitDialog(QWidget* parent);
 };

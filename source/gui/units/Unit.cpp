@@ -1,6 +1,6 @@
 #include "Unit.hpp"
 
-Unit::Unit(const QString& name, Type type, double factor)
+Unit::Unit(const QString& name, UnitType type, double factor)
     : name(name),
       type(type),
       factor(factor)
@@ -44,7 +44,7 @@ std::vector<double> Unit::toBase(const std::vector<double>& value) const {
     return result;
 }
 
-Type Unit::getType() const {
+UnitType Unit::getType() const {
     return type;
 }
 

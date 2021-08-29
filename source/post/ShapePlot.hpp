@@ -5,7 +5,7 @@
 
 class ShapePlot: public PlotWidget {
 public:
-    ShapePlot(const LimbProperties& limb, const BowStates& states, const UnitSystem& units, int background_states);
+    ShapePlot(const LimbProperties& limb, const BowStates& states, int background_states);
     void setStateIndex(int i);
 
 private:
