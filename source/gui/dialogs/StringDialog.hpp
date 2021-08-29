@@ -9,7 +9,7 @@ class StringDialog: public GroupDialog {
     Q_OBJECT
 
 public:
-    StringDialog(QWidget* parent, const UnitSystem& units);
+    StringDialog(QWidget* parent);
 
     String getData() const;
     void setData(const String& data);

@@ -1,39 +1,37 @@
 #include "MassesDialog.hpp"
 
-MassesDialog::MassesDialog(QWidget* parent, const UnitSystem& units)
+MassesDialog::MassesDialog(QWidget* parent)
     : GroupDialog(parent, "Masses", false)
 {
-    edit0 = new DoubleEditor("Arrow", units.mass);
-    edit1 = new DoubleEditor("String center", units.mass);
-    edit2 = new DoubleEditor("String tip", units.mass);
-    edit3 = new DoubleEditor("Limb tip", units.mass);
+    edit_arrow = new DoubleEditor("Arrow", UnitSystem::mass);
+    edit_string_center = new DoubleEditor("String center", UnitSystem::mass);
+    edit_string_tip = new DoubleEditor("String tip", UnitSystem::mass);
+    edit_limb_tip = new DoubleEditor("Limb tip", UnitSystem::mass);
 
-    this->addWidget(edit0);
-    this->addWidget(edit1);
-    this->addWidget(edit2);
-    this->addWidget(edit3);
+    this->addWidget(edit_arrow);
+    this->addWidget(edit_string_center);
+    this->addWidget(edit_string_tip);
+    this->addWidget(edit_limb_tip);
 
-    QObject::connect(edit0, &DoubleEditor::modified, this, &MassesDialog::modified);
-    QObject::connect(edit1, &DoubleEditor::modified, this, &MassesDialog::modified);
-    QObject::connect(edit2, &DoubleEditor::modified, this, &MassesDialog::modified);
-    QObject::connect(edit3, &DoubleEditor::modified, this, &MassesDialog::modified);
+    QObject::connect(edit_arrow, &DoubleEditor::modified, this, &MassesDialog::modified);
+    QObject::connect(edit_string_center, &DoubleEditor::modified, this, &MassesDialog::modified);
+    QObject::connect(edit_string_tip, &DoubleEditor::modified, this, &MassesDialog::modified);
+    QObject::connect(edit_limb_tip, &DoubleEditor::modified, this, &MassesDialog::modified);
 }
 
-Masses MassesDialog::getData() const
-{
+Masses MassesDialog::getData() const {
     Masses data;
-    data.arrow = edit0->getData();
-    data.string_center = edit1->getData();
-    data.string_tip = edit2->getData();
-    data.limb_tip = edit3->getData();
+    data.arrow = edit_arrow->getData();
+    data.string_center = edit_string_center->getData();
+    data.string_tip = edit_string_tip->getData();
+    data.limb_tip = edit_limb_tip->getData();
 
     return data;
 }
 
-void MassesDialog::setData(const Masses& data)
-{
-    edit0->setData(data.arrow);
-    edit1->setData(data.string_center);
-    edit2->setData(data.string_tip);
-    edit3->setData(data.limb_tip);
+void MassesDialog::setData(const Masses& data) {
+    edit_arrow->setData(data.arrow);
+    edit_string_center->setData(data.string_center);
+    edit_string_tip->setData(data.string_tip);
+    edit_limb_tip->setData(data.limb_tip);
 }

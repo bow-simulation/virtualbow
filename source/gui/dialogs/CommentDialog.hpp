@@ -9,7 +9,7 @@ class CommentDialog: public PersistentDialog
     Q_OBJECT
 
 public:
-    CommentDialog(QWidget* parent, const UnitSystem& units);
+    CommentDialog(QWidget* parent);
 
     std::string getData() const;
     void setData(const std::string& text);

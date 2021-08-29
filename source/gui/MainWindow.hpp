@@ -28,7 +28,6 @@ private:
 
     RecentFilesMenu* menu_open_recent;
 
-    UnitSystem units;
     InputData data;
     ModelEditor* editor;
 

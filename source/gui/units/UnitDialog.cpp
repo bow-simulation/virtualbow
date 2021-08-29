@@ -2,7 +2,6 @@
 
 UnitEditor::UnitEditor(UnitGroup& group) {
     auto label = new QLabel(group.getName());
-    label->setAlignment(Qt::AlignRight);
 
     auto combo = new QComboBox();
     for(int i = 0; i < group.getUnits().size(); ++i) {
@@ -39,54 +38,55 @@ UnitEditor::UnitEditor(UnitGroup& group) {
 }
 
 
-UnitDialog::UnitDialog(QWidget* parent, UnitSystem& units)
+UnitDialog::UnitDialog(QWidget* parent)
     : QDialog(parent)
 {
     auto grid = new QGridLayout();
     grid->setMargin(15);
 
-    grid->addWidget(new UnitEditor(units.length), 0, 0);
-    grid->addWidget(new UnitEditor(units.curvature), 1, 0);
-    grid->addWidget(new UnitEditor(units.angle), 2, 0);
-    grid->addWidget(new UnitEditor(units.mass), 3, 0);
-    grid->addWidget(new UnitEditor(units.force), 4, 0);
-    grid->addWidget(new UnitEditor(units.energy), 5, 0);
+    grid->addWidget(new UnitEditor(UnitSystem::length), 0, 0);
+    grid->addWidget(new UnitEditor(UnitSystem::curvature), 1, 0);
+    grid->addWidget(new UnitEditor(UnitSystem::angle), 2, 0);
+    grid->addWidget(new UnitEditor(UnitSystem::mass), 3, 0);
+    grid->addWidget(new UnitEditor(UnitSystem::force), 4, 0);
+    grid->addWidget(new UnitEditor(UnitSystem::energy), 5, 0);
 
-    grid->addWidget(new UnitEditor(units.time), 0, 1);
-    grid->addWidget(new UnitEditor(units.frequency), 1, 1);
-    grid->addWidget(new UnitEditor(units.elastic_modulus), 2, 1);
-    grid->addWidget(new UnitEditor(units.density), 3, 1);
-    grid->addWidget(new UnitEditor(units.linear_density), 4, 1);
-    grid->addWidget(new UnitEditor(units.linear_stiffness), 5, 1);
+    grid->addWidget(new UnitEditor(UnitSystem::time), 0, 1);
+    grid->addWidget(new UnitEditor(UnitSystem::frequency), 1, 1);
+    grid->addWidget(new UnitEditor(UnitSystem::elastic_modulus), 2, 1);
+    grid->addWidget(new UnitEditor(UnitSystem::density), 3, 1);
+    grid->addWidget(new UnitEditor(UnitSystem::linear_density), 4, 1);
+    grid->addWidget(new UnitEditor(UnitSystem::linear_stiffness), 5, 1);
 
-    grid->addWidget(new UnitEditor(units.position), 0, 2);
-    grid->addWidget(new UnitEditor(units.velocity), 1, 2);
-    grid->addWidget(new UnitEditor(units.acceleration), 2, 2);
-    grid->addWidget(new UnitEditor(units.stress), 3, 2);
-    grid->addWidget(new UnitEditor(units.strain), 4, 2);
-    grid->addWidget(new UnitEditor(units.ratio), 5, 2);
+    grid->addWidget(new UnitEditor(UnitSystem::position), 0, 2);
+    grid->addWidget(new UnitEditor(UnitSystem::velocity), 1, 2);
+    grid->addWidget(new UnitEditor(UnitSystem::acceleration), 2, 2);
+    grid->addWidget(new UnitEditor(UnitSystem::stress), 3, 2);
+    grid->addWidget(new UnitEditor(UnitSystem::strain), 4, 2);
+    grid->addWidget(new UnitEditor(UnitSystem::ratio), 5, 2);
 
     auto group = new QGroupBox();
     group->setLayout(grid);
 
     auto button_si = new QPushButton("Defaults (SI)");
-    QObject::connect(button_si, &QPushButton::clicked, [&units]{ units.resetSI(); });
+    QObject::connect(button_si, &QPushButton::clicked, []{ UnitSystem::resetSI(); });
 
     auto button_us = new QPushButton("Defaults (US)");
-    QObject::connect(button_us, &QPushButton::clicked, [&units]{ units.resetUS(); });
+    QObject::connect(button_us, &QPushButton::clicked, []{ UnitSystem::resetUS(); });
 
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     buttons->addButton(button_si, QDialogButtonBox::ResetRole);
     buttons->addButton(button_us, QDialogButtonBox::ResetRole);
     QObject::connect(buttons, &QDialogButtonBox::clicked, [&, buttons](QAbstractButton* button){
+        QSettings settings;
         switch(buttons->standardButton(button)) {
         case QDialogButtonBox::Ok:
             accept();
-            units.saveToSettings();
+            UnitSystem::saveToSettings(settings);
             break;
         case QDialogButtonBox::Cancel:
             reject();
-            units.loadFromSettings();
+            UnitSystem::loadFromSettings(settings);
             break;
         }
     });

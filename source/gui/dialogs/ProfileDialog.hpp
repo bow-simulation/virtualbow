@@ -9,7 +9,7 @@ class ProfileDialog: public PersistentDialog
     Q_OBJECT
 
 public:
-    ProfileDialog(QWidget* parent, const UnitSystem& units);
+    ProfileDialog(QWidget* parent);
 
     MatrixXd getData() const;
     void setData(const MatrixXd& data);

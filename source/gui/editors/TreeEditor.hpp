@@ -8,7 +8,7 @@ class TreeEditor: public QTreeWidget
     Q_OBJECT
 
 public:
-    TreeEditor(const UnitSystem& units);
+    TreeEditor();
     const InputData& getData() const;
     void setData(const InputData& data);
 

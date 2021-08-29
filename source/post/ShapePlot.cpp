@@ -1,9 +1,9 @@
 #include "ShapePlot.hpp"
 
-ShapePlot::ShapePlot(const LimbProperties& limb, const BowStates& states, const UnitSystem& units, int background_states)
+ShapePlot::ShapePlot(const LimbProperties& limb, const BowStates& states, int background_states)
     : limb(limb),
       states(states),
-      unit(units.length),
+      unit(UnitSystem::length),
       background_states(background_states),
       index(0)
 {
