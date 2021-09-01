@@ -11,7 +11,7 @@ class LayerEditor: public QSplitter
     Q_OBJECT
 
 public:
-    LayerEditor(EditableTabBar* tabs, const UnitSystem& units);
+    LayerEditor(EditableTabBar* tabs);
 
     Layer getData() const;
     void setData(const Layer& layer);

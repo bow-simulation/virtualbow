@@ -2,143 +2,31 @@
 #include "Definitions.hpp"
 #include "UnitGroup.hpp"
 
-struct UnitSystem {
+class UnitSystem {
+public:
+    static UnitGroup length;
+    static UnitGroup angle;
+    static UnitGroup mass;
+    static UnitGroup force;
+    static UnitGroup time;
+    static UnitGroup energy;
+    static UnitGroup position;
+    static UnitGroup velocity;
+    static UnitGroup acceleration;
+    static UnitGroup elastic_modulus;
+    static UnitGroup density;
+    static UnitGroup linear_stiffness;
+    static UnitGroup linear_density;
+    static UnitGroup strain;
+    static UnitGroup curvature;
+    static UnitGroup stress;
+    static UnitGroup ratio;
+    static UnitGroup frequency;
 
-    UnitSystem();
+    static QVector<UnitGroup*> groups;
 
-    void loadFromSettings();
-    void saveToSettings();
-    void resetSI();
-    void resetUS();
-
-    UnitGroup length = UnitGroup("Length", {
-        Units::Meter,
-        Units::Centimeter,
-        Units::Millimeter,
-        Units::Foot,
-        Units::Inch
-    });
-
-    UnitGroup angle = UnitGroup("Angle", {
-        Units::Radian,
-        Units::Degree
-    });
-
-    UnitGroup mass = UnitGroup("Mass", {
-        Units::Kilogram,
-        Units::Gram,
-        Units::PoundMass,
-        Units::Ounce,
-        Units::Grain
-    });
-
-    UnitGroup force = UnitGroup("Force", {
-        Units::Newton,
-        Units::PoundForce
-    });
-
-    UnitGroup time = UnitGroup("Time", {
-        Units::Second,
-        Units::Millisecond
-    });
-
-    UnitGroup energy = UnitGroup("Energy",  {
-        Units::Joule,
-        Units::Foot_Pound
-    });
-
-    UnitGroup position = UnitGroup("Position", {
-        Units::Meter,
-        Units::Centimeter,
-        Units::Millimeter,
-        Units::Foot,
-        Units::Inch
-    });
-
-    UnitGroup velocity = UnitGroup("Velocity", {
-        Units::Meter_Per_Second,
-        Units::Centimeter_Per_Second,
-        Units::Millimeter_Per_Second,
-        Units::Foot_Per_Second,
-        Units::Inch_Per_Second
-    });
-
-    UnitGroup acceleration = UnitGroup("Acceleration", {
-        Units::Meter_Per_Second2,
-        Units::Centimeter_Per_Second2,
-        Units::Millimeter_Per_Second2,
-        Units::Foot_Per_Second2,
-        Units::Inch_Per_Second2
-    });
-
-    UnitGroup elastic_modulus = UnitGroup("Elastic modulus", {
-        Units::Gigapascal,
-        Units::Megapascal,
-        Units::Kilopascal,
-        Units::Pascal,
-        Units::Newton_Per_Millimeter2,
-        Units::MegaPsi,
-        Units::KiloPsi,
-        Units::Psi
-    });
-
-    UnitGroup density = UnitGroup("Density", {
-        Units::Kilogramm_Per_Meter3,
-        Units::Gram_Per_Centimeter3,
-        Units::Pound_Per_Foot3
-    });
-
-    UnitGroup linear_stiffness = UnitGroup("Linear stiffness", {
-        Units::Newton,
-        Units::Newton_Per_Percent,
-        Units::PoundForce,
-        Units::PoundForce_Per_Percent
-    });
-
-    UnitGroup linear_density = UnitGroup("Linear density", {
-        Units::Kilogramm_Per_Meter,
-        Units::Gram_Per_Meter,
-        Units::Gram_Per_Centimeter,
-        Units::Pound_Per_Foot,
-        Units::Pound_Per_Inch,
-        Units::Ounce_Per_Foot,
-        Units::Ounce_Per_Inch,
-        Units::Grain_Per_Foot,
-        Units::Grain_Per_Inch
-    });
-
-    UnitGroup strain = UnitGroup("Strain", {
-        Units::No_Unit,
-        Units::Percent
-    });
-
-    UnitGroup curvature = UnitGroup("Curvature", {
-        Units::One_Per_Meter,
-        Units::One_Per_Centimeter,
-        Units::One_Per_Millimeter,
-        Units::One_Per_Foot,
-        Units::One_Per_Inch
-    });
-
-    UnitGroup stress = UnitGroup("Stress", {
-        Units::Gigapascal,
-        Units::Megapascal,
-        Units::Kilopascal,
-        Units::Pascal,
-        Units::Newton_Per_Millimeter2,
-        Units::MegaPsi,
-        Units::KiloPsi,
-        Units::Psi
-    });
-
-    UnitGroup ratio = UnitGroup("Ratios and factors", {
-        Units::No_Unit,
-        Units::Percent
-    });
-
-    UnitGroup frequency = UnitGroup("Frequency", {
-        Units::Hertz,
-        Units::Kilohertz,
-        Units::Megahertz
-    });
+    static void loadFromSettings(const QSettings& settings);
+    static void saveToSettings(QSettings& settings);
+    static void resetSI();
+    static void resetUS();
 };

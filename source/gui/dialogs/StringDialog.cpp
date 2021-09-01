@@ -1,10 +1,10 @@
 #include "StringDialog.hpp"
 
-StringDialog::StringDialog(QWidget* parent, const UnitSystem& units)
+StringDialog::StringDialog(QWidget* parent)
     : GroupDialog(parent, "String", false)
 {
-    edit0 = new DoubleEditor("Strand stiffness", units.linear_stiffness);
-    edit1 = new DoubleEditor("Strand density", units.linear_density);
+    edit0 = new DoubleEditor("Strand stiffness", UnitSystem::linear_stiffness);
+    edit1 = new DoubleEditor("Strand density", UnitSystem::linear_density);
     edit2 = new IntegerEditor("Number of strands");
 
     this->addWidget(edit0);

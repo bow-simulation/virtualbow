@@ -3,7 +3,7 @@
 #include <QtWidgets>
 #include <limits>
 
-enum class ValueRange {
+enum class Domain {
     UNRESTRICTED,
     POSITIVE,
     NEGATIVE,
@@ -13,59 +13,79 @@ enum class ValueRange {
 
 class DoubleSpinBox: public QDoubleSpinBox {
 public:
-    DoubleSpinBox(ValueRange range, const UnitGroup& units, QWidget* parent = nullptr)
-        : QDoubleSpinBox(parent)
+    DoubleSpinBox(Domain range, QWidget* parent = nullptr)
+        : QDoubleSpinBox(parent),
+          units(nullptr)
     {
-        setDecimals(6);
+        setDecimals(6);        // Magic number
+        setSingleStep(0.1);    // Magic number
 
         switch(range) {
-        case ValueRange::UNRESTRICTED:
+        case Domain::UNRESTRICTED:
             setMinimum(std::numeric_limits<double>::lowest());
             setMaximum(std::numeric_limits<double>::max());
             break;
 
-        case ValueRange::POSITIVE:
+        case Domain::POSITIVE:
             setMinimum(std::numeric_limits<double>::min());
             setMaximum(std::numeric_limits<double>::max());
             break;
 
-        case ValueRange::NEGATIVE:
+        case Domain::NEGATIVE:
             setMinimum(std::numeric_limits<double>::lowest());
             setMaximum(-std::numeric_limits<double>::min());
             break;
 
-        case ValueRange::NON_POSITIVE:
+        case Domain::NON_POSITIVE:
             setMinimum(std::numeric_limits<double>::lowest());
             setMaximum(0.0);
             break;
 
-        case ValueRange::NON_NEGATIVE:
+        case Domain::NON_NEGATIVE:
             setMinimum(0.0);
             setMaximum(std::numeric_limits<double>::max());
             break;
         }
+    }
 
-        updateUnit(units.getSelectedUnit());
-        QObject::connect(&units, &UnitGroup::selectionChanged, this, [&](const Unit& unit) {
-            updateUnit(unit);
-        });
+    void setUnitGroup(const UnitGroup* new_units) {
+        if(units != nullptr) {
+            QObject::disconnect(units, &UnitGroup::selectionChanged, this, &DoubleSpinBox::updateUnit);
+        }
+        if(new_units != nullptr) {
+            QObject::connect(new_units, &UnitGroup::selectionChanged, this, &DoubleSpinBox::updateUnit);
+        }
+        units = new_units;
+        updateUnit();
     }
 
     QString textFromValue(double value) const override {
-        return QString::number(unit.fromBase(value));
+        if(units != nullptr) {
+            return QString::number(units->getSelectedUnit().fromBase(value));
+        }
+        else {
+            return QString::number(value);
+        }
     }
 
     double valueFromText(const QString& text) const override {
         QString number = text;
         number.remove(suffix());
-        return unit.toBase(QLocale().toDouble(number));
-    }
+        double value = QLocale().toDouble(number);
 
-    void updateUnit(const Unit& unit) {
-        setSuffix(" " + unit.getName());
-        setValue(value());    // Update text
+        if(units != nullptr) {
+            return units->getSelectedUnit().toBase(value);
+        }
+        else {
+            return value;
+        }
     }
 
 private:
-    Unit unit;
+    const UnitGroup* units;
+
+    void updateUnit() {
+        setSuffix(" " + units->getSelectedUnit().getName());    // This also triggers a new evaluation of textFromValue
+        setSingleStep(units->getSelectedUnit().toBase(0.1));    // Magic number
+    }
 };

@@ -1,9 +1,9 @@
 #include "ProfileDialog.hpp"
 
-ProfileDialog::ProfileDialog(QWidget* parent, const UnitSystem& units)
+ProfileDialog::ProfileDialog(QWidget* parent)
     : PersistentDialog(parent, "ProfileDialog", { 800, 400 }),    // Magic numbers
-      edit(new ProfileEditor(units)),
-      view(new ProfileView(units.length))
+      edit(new ProfileEditor()),
+      view(new ProfileView(UnitSystem::length))
 {
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     QObject::connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);

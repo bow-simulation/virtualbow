@@ -6,7 +6,7 @@
 
 class CurvaturePlot: public PlotWidget {
 public:
-    CurvaturePlot(const LimbProperties& limb, const BowStates& states, const UnitSystem& units);
+    CurvaturePlot(const LimbProperties& limb, const BowStates& states);
     void setStateIndex(int i);
 
 private:

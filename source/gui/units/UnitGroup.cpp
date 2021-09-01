@@ -1,10 +1,12 @@
 #include "UnitGroup.hpp"
 #include "UnitSystem.hpp"
 
-UnitGroup::UnitGroup(const QString& name, const QList<Unit>& units)
+UnitGroup::UnitGroup(const QString& name, const QList<Unit>& units, int default_si, int default_us)
     : name(name),
       units(units),
-      selection(0)
+      default_si(default_si),
+      default_us(default_us),
+      selection(default_si)
 { 
     if(units.isEmpty()) {
         throw std::invalid_argument("Unit list must not be empty");
@@ -62,4 +64,12 @@ void UnitGroup::setSelectedIndex(int index) {
 
 int UnitGroup::getSelectedIndex() const {
     return selection;
+}
+
+void UnitGroup::resetSI() {
+    setSelectedIndex(default_si);
+}
+
+void UnitGroup::resetUS() {
+    setSelectedIndex(default_us);
 }

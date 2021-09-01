@@ -5,12 +5,11 @@
 
 class InputData;
 
-class ModelEditor: public QSplitter
-{
+class ModelEditor: public QSplitter {
     Q_OBJECT
 
 public:
-    ModelEditor(const UnitSystem& units);
+    ModelEditor();
     InputData getData() const;
     void setData(const InputData& data);
 
