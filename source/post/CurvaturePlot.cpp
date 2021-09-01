@@ -1,12 +1,12 @@
 #include "CurvaturePlot.hpp"
 #include "gui/views/LayerColors.hpp"
 
-CurvaturePlot::CurvaturePlot(const LimbProperties& limb, const BowStates& states, const UnitSystem& units)
+CurvaturePlot::CurvaturePlot(const LimbProperties& limb, const BowStates& states)
     : limb(limb),
       states(states),
       index(0),
-      unit_length(units.length),
-      unit_curvature(units.curvature)
+      unit_length(UnitSystem::length),
+      unit_curvature(UnitSystem::curvature)
 {
     this->addGraph();
     this->graph(0)->setName("Curvature");

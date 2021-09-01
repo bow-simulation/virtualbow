@@ -1,92 +1,177 @@
 #include "UnitSystem.hpp"
 
-UnitSystem::UnitSystem() {
-    resetSI();                // Default units on first startup
-    loadFromSettings();       // Overwritten by user settings, if present
+UnitGroup UnitSystem::length = UnitGroup("Length", {
+    Units::Meter,
+    Units::Centimeter,
+    Units::Millimeter,
+    Units::Foot,
+    Units::Inch
+}, 2, 4);
+
+UnitGroup UnitSystem::angle = UnitGroup("Angle", {
+    Units::Radian,
+    Units::Degree
+}, 1, 1);
+
+UnitGroup UnitSystem::mass = UnitGroup("Mass", {
+    Units::Kilogram,
+    Units::Gram,
+    Units::PoundMass,
+    Units::Ounce,
+    Units::Grain
+}, 1, 4);
+
+UnitGroup UnitSystem::force = UnitGroup("Force", {
+    Units::Newton,
+    Units::PoundForce
+}, 0, 1);
+
+UnitGroup UnitSystem::time = UnitGroup("Time", {
+    Units::Second,
+    Units::Millisecond
+}, 0, 0);
+
+UnitGroup UnitSystem::energy = UnitGroup("Energy",  {
+    Units::Joule,
+    Units::Foot_Pound
+}, 0, 1);
+
+UnitGroup UnitSystem::position = UnitGroup("Position", {
+    Units::Meter,
+    Units::Centimeter,
+    Units::Millimeter,
+    Units::Foot,
+    Units::Inch
+}, 0, 3);
+
+UnitGroup UnitSystem::velocity = UnitGroup("Velocity", {
+    Units::Meter_Per_Second,
+    Units::Centimeter_Per_Second,
+    Units::Millimeter_Per_Second,
+    Units::Foot_Per_Second,
+    Units::Inch_Per_Second
+}, 0, 3);
+
+UnitGroup UnitSystem::acceleration = UnitGroup("Acceleration", {
+    Units::Meter_Per_Second2,
+    Units::Centimeter_Per_Second2,
+    Units::Millimeter_Per_Second2,
+    Units::Foot_Per_Second2,
+    Units::Inch_Per_Second2
+}, 0, 3);
+
+UnitGroup UnitSystem::elastic_modulus = UnitGroup("Elastic modulus", {
+    Units::Gigapascal,
+    Units::Megapascal,
+    Units::Kilopascal,
+    Units::Pascal,
+    Units::Newton_Per_Millimeter2,
+    Units::MegaPsi,
+    Units::KiloPsi,
+    Units::Psi
+}, 0, 7);
+
+UnitGroup UnitSystem::density = UnitGroup("Density", {
+    Units::Kilogramm_Per_Meter3,
+    Units::Gram_Per_Centimeter3,
+    Units::Pound_Per_Foot3
+}, 0, 2);
+
+UnitGroup UnitSystem::linear_stiffness = UnitGroup("Linear stiffness", {
+    Units::Newton,
+    Units::Newton_Per_Percent,
+    Units::PoundForce,
+    Units::PoundForce_Per_Percent
+}, 0, 2);
+
+UnitGroup UnitSystem::linear_density = UnitGroup("Linear density", {
+    Units::Kilogramm_Per_Meter,
+    Units::Gram_Per_Meter,
+    Units::Gram_Per_Centimeter,
+    Units::Pound_Per_Foot,
+    Units::Pound_Per_Inch,
+    Units::Ounce_Per_Foot,
+    Units::Ounce_Per_Inch,
+    Units::Grain_Per_Foot,
+    Units::Grain_Per_Inch
+}, 1, 8);
+
+UnitGroup UnitSystem::strain = UnitGroup("Strain", {
+    Units::No_Unit,
+    Units::Percent
+}, 1, 1);
+
+UnitGroup UnitSystem::curvature = UnitGroup("Curvature", {
+    Units::One_Per_Meter,
+    Units::One_Per_Centimeter,
+    Units::One_Per_Millimeter,
+    Units::One_Per_Foot,
+    Units::One_Per_Inch
+}, 2, 4);
+
+UnitGroup UnitSystem::stress = UnitGroup("Stress", {
+    Units::Gigapascal,
+    Units::Megapascal,
+    Units::Kilopascal,
+    Units::Pascal,
+    Units::Newton_Per_Millimeter2,
+    Units::MegaPsi,
+    Units::KiloPsi,
+    Units::Psi
+}, 1, 7);
+
+UnitGroup UnitSystem::ratio = UnitGroup("Ratios and factors", {
+    Units::No_Unit,
+    Units::Percent
+}, 1, 1);
+
+UnitGroup UnitSystem::frequency = UnitGroup("Frequency", {
+    Units::Hertz,
+    Units::Kilohertz,
+    Units::Megahertz
+}, 0, 0);
+
+QVector<UnitGroup*> UnitSystem::groups = {
+    &length,
+    &angle,
+    &mass,
+    &force,
+    &time,
+    &energy,
+    &position,
+    &velocity,
+    &acceleration,
+    &elastic_modulus,
+    &density,
+    &linear_stiffness,
+    &linear_density,
+    &strain,
+    &curvature,
+    &stress,
+    &ratio,
+    &frequency
+};
+
+void UnitSystem::loadFromSettings(const QSettings& settings) {
+    for(auto group: groups) {
+        group->loadFromSettings(settings);
+    }
 }
 
-void UnitSystem::loadFromSettings() {
-    QSettings settings;
-    length.loadFromSettings(settings);
-    angle.loadFromSettings(settings);
-    mass.loadFromSettings(settings);
-    force.loadFromSettings(settings);
-    time.loadFromSettings(settings);
-    energy.loadFromSettings(settings);
-    position.loadFromSettings(settings);
-    velocity.loadFromSettings(settings);
-    acceleration.loadFromSettings(settings);
-    elastic_modulus.loadFromSettings(settings);
-    density.loadFromSettings(settings);
-    linear_stiffness.loadFromSettings(settings);
-    linear_density.loadFromSettings(settings);
-    strain.loadFromSettings(settings);
-    curvature.loadFromSettings(settings);
-    stress.loadFromSettings(settings);
-    ratio.loadFromSettings(settings);
-    frequency.loadFromSettings(settings);
-}
-
-void UnitSystem::saveToSettings() {
-    QSettings settings;
-    length.saveToSettings(settings);
-    angle.saveToSettings(settings);
-    mass.saveToSettings(settings);
-    force.saveToSettings(settings);
-    time.saveToSettings(settings);
-    energy.saveToSettings(settings);
-    position.saveToSettings(settings);
-    velocity.saveToSettings(settings);
-    acceleration.saveToSettings(settings);
-    elastic_modulus.saveToSettings(settings);
-    density.saveToSettings(settings);
-    linear_stiffness.saveToSettings(settings);
-    linear_density.saveToSettings(settings);
-    strain.saveToSettings(settings);
-    curvature.saveToSettings(settings);
-    stress.saveToSettings(settings);
-    ratio.saveToSettings(settings);
-    frequency.saveToSettings(settings);
+void UnitSystem::saveToSettings(QSettings& settings) {
+    for(auto group: groups) {
+        group->saveToSettings(settings);
+    }
 }
 
 void UnitSystem::resetSI() {
-    length.setSelectedUnit(Units::Millimeter);
-    angle.setSelectedUnit(Units::Degree);
-    mass.setSelectedUnit(Units::Gram);
-    force.setSelectedUnit(Units::Newton);
-    time.setSelectedUnit(Units::Millisecond);
-    energy.setSelectedUnit(Units::Joule);
-    position.setSelectedUnit(Units::Meter);
-    velocity.setSelectedUnit(Units::Meter_Per_Second);
-    acceleration.setSelectedUnit(Units::Meter_Per_Second2);
-    elastic_modulus.setSelectedUnit(Units::Gigapascal);
-    density.setSelectedUnit(Units::Kilogramm_Per_Meter3);
-    linear_stiffness.setSelectedUnit(Units::Newton);
-    linear_density.setSelectedUnit(Units::Gram_Per_Meter);
-    strain.setSelectedUnit(Units::Percent);
-    curvature.setSelectedUnit(Units::One_Per_Millimeter);
-    stress.setSelectedUnit(Units::Megapascal);
-    ratio.setSelectedUnit(Units::Percent);
-    frequency.setSelectedUnit(Units::Hertz);
+    for(auto group: groups) {
+        group->resetSI();
+    }
 }
 
 void UnitSystem::resetUS() {
-    length.setSelectedUnit(Units::Inch);
-    angle.setSelectedUnit(Units::Degree);
-    mass.setSelectedUnit(Units::Grain);
-    force.setSelectedUnit(Units::PoundForce);
-    time.setSelectedUnit(Units::Millisecond);
-    energy.setSelectedUnit(Units::Foot_Pound);
-    position.setSelectedUnit(Units::Foot);
-    velocity.setSelectedUnit(Units::Foot_Per_Second);
-    acceleration.setSelectedUnit(Units::Foot_Per_Second2);
-    elastic_modulus.setSelectedUnit(Units::Psi);
-    density.setSelectedUnit(Units::Pound_Per_Foot3);
-    linear_stiffness.setSelectedUnit(Units::PoundForce);
-    linear_density.setSelectedUnit(Units::Grain_Per_Inch);
-    strain.setSelectedUnit(Units::Percent);
-    curvature.setSelectedUnit(Units::One_Per_Inch);
-    stress.setSelectedUnit(Units::Psi);
-    ratio.setSelectedUnit(Units::Percent);
-    frequency.setSelectedUnit(Units::Hertz);
+    for(auto group: groups) {
+        group->resetUS();
+    }
 }

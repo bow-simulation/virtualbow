@@ -1,9 +1,8 @@
 #include "LayerDialog.hpp"
 
-LayerDialog::LayerDialog(QWidget* parent, const UnitSystem& units)
+LayerDialog::LayerDialog(QWidget* parent)
     : PersistentDialog(parent, "LayerDialog", {800, 400}),    // Magic numbers
-      tabs(new EditableTabBar()),
-      units(units)
+      tabs(new EditableTabBar())
 {
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     QObject::connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -35,8 +34,7 @@ LayerDialog::LayerDialog(QWidget* parent, const UnitSystem& units)
     });
 }
 
-void LayerDialog::setData(const std::vector<Layer>& layers)
-{
+void LayerDialog::setData(const std::vector<Layer>& layers) {
     while(tabs->count() < layers.size()) {
         createEmptyTab();
     }
@@ -50,11 +48,9 @@ void LayerDialog::setData(const std::vector<Layer>& layers)
     }
 }
 
-std::vector<Layer> LayerDialog::getData() const
-{
+std::vector<Layer> LayerDialog::getData() const {
     std::vector<Layer> layers;
-    for(int i = 0; i < tabs->count(); ++i)
-    {
+    for(int i = 0; i < tabs->count(); ++i) {
         Layer layer = static_cast<LayerEditor*>(tabs->widget(i))->getData();
         layers.push_back(layer);
     }
@@ -62,17 +58,15 @@ std::vector<Layer> LayerDialog::getData() const
     return layers;
 }
 
-LayerEditor* LayerDialog::createEmptyTab()
-{
-    auto editor = new LayerEditor(tabs, units);
+LayerEditor* LayerDialog::createEmptyTab() {
+    auto editor = new LayerEditor(tabs);
     QObject::connect(editor, &LayerEditor::modified, this, &LayerDialog::modified);
     tabs->addTab(editor, "");
 
     return editor;
 }
 
-LayerEditor* LayerDialog::createDefaultTab()
-{
+LayerEditor* LayerDialog::createDefaultTab() {
     Layer layer;
     auto editor = createEmptyTab();
     editor->setData(layer);

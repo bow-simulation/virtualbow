@@ -26,7 +26,7 @@ namespace Units {
     const Unit Millisecond = Unit("ms", SI, 1e-3);
 
     const Unit Hertz = Unit("Hz", SI, 1.0);
-    const Unit Kilohertz = Unit("KHz", SI, 1e3);
+    const Unit Kilohertz = Unit("kHz", SI, 1e3);
     const Unit Megahertz = Unit("MHz", SI, 1e6);
 
     const Unit Joule = Unit("J", SI, 1.0);
@@ -46,7 +46,7 @@ namespace Units {
 
     const Unit Gigapascal = Unit("GPa", SI, 1e9);
     const Unit Megapascal = Unit("MPa", SI, 1e6);
-    const Unit Kilopascal = Unit("KPa", SI, 1e3);
+    const Unit Kilopascal = Unit("kPa", SI, 1e3);
     const Unit Pascal = Unit("Pa", SI, 1e0);
     const Unit Newton_Per_Millimeter2 = Unit("N/mm²", SI, 1e6);
     const Unit MegaPsi = Unit("Mpsi", US, 6894.76e6);

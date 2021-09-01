@@ -1,10 +1,10 @@
 #include "DampingDialog.hpp"
 
-DampingDialog::DampingDialog(QWidget* parent, const UnitSystem& units)
+DampingDialog::DampingDialog(QWidget* parent)
     : GroupDialog(parent, "Damping", false)
 {
-    edit0 = new DoubleEditor("Limbs", units.ratio);
-    edit1 = new DoubleEditor("String", units.ratio);
+    edit0 = new DoubleEditor("Limbs", UnitSystem::ratio);
+    edit1 = new DoubleEditor("String", UnitSystem::ratio);
 
     this->addWidget(edit0);
     this->addWidget(edit1);

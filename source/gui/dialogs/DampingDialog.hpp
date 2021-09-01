@@ -9,7 +9,7 @@ class DampingDialog: public GroupDialog
     Q_OBJECT
 
 public:
-    DampingDialog(QWidget* parent, const UnitSystem& units);
+    DampingDialog(QWidget* parent);
 
     Damping getData() const;
     void setData(const Damping& data);

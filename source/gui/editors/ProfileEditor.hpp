@@ -6,31 +6,6 @@
 #include "TableModel.hpp"
 #include "solver/model/ProfileCurve.hpp"
 
-class SpinBoxDelegate: public QStyledItemDelegate {
-    Q_OBJECT
-
-public:
-    SpinBoxDelegate(QObject* parent = nullptr);
-
-    QWidget *createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-    void setEditorData(QWidget* editor, const QModelIndex& index) const override;
-    void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
-    void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-};
-
-class ComboBoxDelegate: public QStyledItemDelegate {
-    Q_OBJECT
-
-public:
-    ComboBoxDelegate(QObject* parent = nullptr);
-
-    QWidget *createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-    void setEditorData(QWidget* editor, const QModelIndex& index) const override;
-    void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
-    void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-};
-
-
 class ProfileTreeHeader: public QHeaderView {
 public:
     ProfileTreeHeader(QWidget* parent, const QList<QToolButton*>& buttons);
@@ -55,7 +30,7 @@ class ProfileEditor: public QWidget
     Q_OBJECT
 
 public:
-    ProfileEditor(const UnitSystem& units);
+    ProfileEditor();
 
     MatrixXd getData() const;
     void setData(const MatrixXd& data);

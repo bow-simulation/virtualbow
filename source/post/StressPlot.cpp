@@ -1,12 +1,12 @@
 #include "StressPlot.hpp"
 #include "gui/views/LayerColors.hpp"
 
-StressPlot::StressPlot(const LimbProperties& limb, const BowStates& states, const UnitSystem& units)
+StressPlot::StressPlot(const LimbProperties& limb, const BowStates& states)
     : limb(limb),
       states(states),
       index(0),
-      unit_length(units.length),
-      unit_stress(units.stress)
+      unit_length(UnitSystem::length),
+      unit_stress(UnitSystem::stress)
 {
     this->setupTopLegend();
 

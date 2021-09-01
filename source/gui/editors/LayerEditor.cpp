@@ -1,11 +1,11 @@
 #include "LayerEditor.hpp"
 
-LayerEditor::LayerEditor(EditableTabBar* tabs, const UnitSystem& units)
+LayerEditor::LayerEditor(EditableTabBar* tabs)
     : tabs(tabs),
-      table(new TableEditor({ "Position", "Height" }, { &units.ratio, &units.length })),
-      view(new SplineView("Position", "Height", units.ratio, units.length)),
-      edit_rho(new DoubleEditor("rho", units.density)),
-      edit_E(new DoubleEditor("E", units.elastic_modulus))
+      table(new TableEditor({ "Position", "Height" }, { &UnitSystem::ratio, &UnitSystem::length })),
+      view(new SplineView("Position", "Height", UnitSystem::ratio, UnitSystem::length)),
+      edit_rho(new DoubleEditor("rho", UnitSystem::density)),
+      edit_E(new DoubleEditor("E", UnitSystem::elastic_modulus))
 {
     auto hbox = new QHBoxLayout();
     hbox->setContentsMargins(10, 5, 10, 5);

@@ -1,64 +1,9 @@
 #include "ProfileEditor.hpp"
-#include "ProfileTableModel.hpp"
+#include "ProfileSegmentEditor.hpp"
 #include "solver/model/ProfileCurve.hpp"
 #include <algorithm>
 #include "gui/widgets/DoubleSpinBox.hpp"
-
-SpinBoxDelegate::SpinBoxDelegate(QObject *parent)
-    : QStyledItemDelegate(parent) {
-
-}
-
-QWidget* SpinBoxDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
-    auto editor = new DoubleSpinBox(ValueRange::UNRESTRICTED, parent);
-    editor->setFrame(false);
-    return editor;
-}
-
-void SpinBoxDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const {
-    int value = index.model()->data(index, Qt::EditRole).toDouble();
-    QDoubleSpinBox *spinBox = static_cast<QDoubleSpinBox*>(editor);
-    spinBox->setValue(value);
-}
-
-void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const {
-    QDoubleSpinBox *spinBox = static_cast<QDoubleSpinBox*>(editor);
-    spinBox->interpretText();
-    double value = spinBox->value();
-    model->setData(index, value, Qt::EditRole);
-}
-
-void SpinBoxDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const {
-    editor->setGeometry(option.rect);
-}
-
-ComboBoxDelegate::ComboBoxDelegate(QObject *parent)
-    : QStyledItemDelegate(parent) {
-
-}
-
-QWidget* ComboBoxDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
-    QComboBox* editor = new QComboBox(parent);
-    editor->addItems({"Radius", "Length", "Angle"});
-    editor->setFrame(false);
-    return editor;
-}
-
-void ComboBoxDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const {
-    QString value = index.model()->data(index, Qt::EditRole).toString();
-    QComboBox *comboBox = static_cast<QComboBox*>(editor);
-    comboBox->setCurrentIndex(comboBox->findData(value));
-}
-
-void ComboBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const {
-    QComboBox *comboBox = static_cast<QComboBox*>(editor);
-    QString value = comboBox->currentText();
-    model->setData(index, value, Qt::EditRole);
-}
-
-void ComboBoxDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const {
-    editor->setGeometry(option.rect);
-}
+#include "gui/units/UnitSystem.hpp"
 
 ProfileTreeItem::ProfileTreeItem(const SegmentInput& segment)
     : segment(segment),
@@ -97,45 +42,23 @@ QString ProfileTreeItem::segmentText(SegmentType type) const {
 }
 
 QWidget* ProfileTreeItem::segmentEditor(SegmentType type) const {
-    /*
     switch(type) {
-        case SegmentType::Line: return new QLabel("Line");
-        case SegmentType::Arc: return new QLabel("Arc");
-        case SegmentType::Spiral: return new QLabel("Spiral");
-        case SegmentType::Spline: return new QLabel("Spline");
+    case SegmentType::Line:
+        return new ProfileSegmentEditor(1, {ConstraintType::DELTA_X, ConstraintType::DELTA_Y, ConstraintType::DELTA_S},
+                                           {"Delta X", "Delta Y", "Length"},
+                                           {&UnitSystem::length, &UnitSystem::length, &UnitSystem::length});
+
+    case SegmentType::Arc:
+        return new ProfileSegmentEditor(2, {ConstraintType::DELTA_X, ConstraintType::DELTA_Y, ConstraintType::R_START, ConstraintType::DELTA_PHI},
+                                           {"Delta X", "Delta Y", "Radius", "Angle"},
+                                           {&UnitSystem::length, &UnitSystem::length, &UnitSystem::length, &UnitSystem::angle});
+
+    case SegmentType::Spiral:
+        return new ProfileSegmentEditor(3, {}, {}, {});
+
+    case SegmentType::Spline:
+        return new QLabel("Not implemented");
     }
-    return new QLabel("Unknown");
-    */
-
-    /*
-    auto table_model = new ProfileTableModel();
-    auto table_view = new QTableView();
-    table_view->setModel(table_model);
-    table_view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    table_view->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
-    table_view->verticalHeader()->setVisible(false);
-
-    //table_view->setItemDelegateForColumn(0, new ComboBoxDelegate());
-    table_view->setItemDelegateForColumn(1, new SpinBoxDelegate());
-    */
-
-    auto table_view = new QTableWidget(1, 2);
-    table_view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    table_view->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
-    table_view->verticalHeader()->setVisible(false);
-
-    auto box_1 = new QComboBox();
-    box_1->setFrame(false);
-    box_1->addItems({"Length", "Radius", "Angle"});
-
-    auto spinner_1 = new DoubleSpinBox(ValueRange::UNRESTRICTED);
-    spinner_1->setFrame(false);
-    spinner_1->setSuffix(" mm");
-
-    table_view->setCellWidget(0, 0, box_1);
-    table_view->setCellWidget(0, 1, spinner_1);
-
-    return table_view;
 }
 
 ProfileTreeHeader::ProfileTreeHeader(QWidget* parent, const QList<QToolButton*>& buttons)
@@ -152,7 +75,7 @@ ProfileTreeHeader::ProfileTreeHeader(QWidget* parent, const QList<QToolButton*>&
     this->setLayout(hbox);
 };
 
-ProfileEditor::ProfileEditor(const UnitSystem& units) {
+ProfileEditor::ProfileEditor() {
     auto button_add = new QToolButton();
     button_add->setIcon(QIcon(":/icons/list-add.svg"));
     button_add->setPopupMode(QToolButton::InstantPopup);

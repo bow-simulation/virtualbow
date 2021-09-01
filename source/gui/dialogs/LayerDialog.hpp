@@ -5,12 +5,11 @@
 #include "gui/editors/LayerEditor.hpp"
 #include "gui/units/UnitSystem.hpp"
 
-class LayerDialog: public PersistentDialog
-{
+class LayerDialog: public PersistentDialog {
     Q_OBJECT
 
 public:
-    LayerDialog(QWidget* parent, const UnitSystem& units);
+    LayerDialog(QWidget* parent);
 
     std::vector<Layer> getData() const;
     void setData(const std::vector<Layer>& layers);
@@ -20,7 +19,6 @@ signals:
 
 private:
     EditableTabBar* tabs;
-    const UnitSystem& units;
 
     LayerEditor* createEmptyTab();
     LayerEditor* createDefaultTab();

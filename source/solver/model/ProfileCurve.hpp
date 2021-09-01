@@ -10,13 +10,22 @@ enum class SegmentType {
 };
 
 enum class ConstraintType {
-    X_End,
-    Y_End,
-    S_End
+    X_END,
+    Y_END,
+    S_END,
+    PHI_END,
+
+    DELTA_X,
+    DELTA_Y,
+    DELTA_S,
+    DELTA_PHI,
+
+    R_START,
+    R_END
 };
 
 struct Constraint {
-    ConstraintType type = ConstraintType::X_End;
+    ConstraintType type = ConstraintType::X_END;
     double value = 0.0;
 };
 
@@ -32,9 +41,9 @@ NLOHMANN_JSON_SERIALIZE_ENUM(SegmentType, {
     {SegmentType::Spline, "spline"},
 })
 NLOHMANN_JSON_SERIALIZE_ENUM(ConstraintType, {
-    {ConstraintType::X_End, "x_end"},
-    {ConstraintType::Y_End, "y_end"},
-    {ConstraintType::S_End, "s_end"}
+    {ConstraintType::X_END, "x_end"},
+    {ConstraintType::Y_END, "y_end"},
+    {ConstraintType::S_END, "s_end"}
 })
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Constraint, type, value)

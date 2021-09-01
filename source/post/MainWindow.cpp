@@ -25,7 +25,7 @@ MainWindow::MainWindow()
 
     action_set_units = new QAction("&Units...", this);
     QObject::connect(action_set_units, &QAction::triggered, this, [&]{
-        UnitDialog dialog(this, units);
+        UnitDialog dialog(this);
         dialog.exec();
     });
     action_set_units->setMenuRole(QAction::NoRole);
@@ -61,6 +61,9 @@ MainWindow::MainWindow()
     restoreState(settings.value("OutputWindow/state").toByteArray());
     restoreGeometry(settings.value("OutputWindow/geometry").toByteArray());
 
+    // Load unit settings
+    UnitSystem::loadFromSettings(settings);
+
     // Disable saving until a file has been loaded
     action_save_as->setEnabled(false);
 }
@@ -75,7 +78,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 void MainWindow::loadFile(const QString& path) {
     try {
         data = OutputData(path.toStdString());
-        this->setCentralWidget(new OutputWidget(data, units));
+        this->setCentralWidget(new OutputWidget(data));
         this->setWindowFilePath(path);
         action_save_as->setEnabled(true);
         menu_open_recent->addPath(path);
