@@ -31,13 +31,11 @@ ProfileDialog::ProfileDialog(QWidget* parent)
     });
 }
 
-MatrixXd ProfileDialog::getData() const
-{
+std::vector<SegmentInput> ProfileDialog::getData() const {
     return edit->getData();
 }
 
-void ProfileDialog::setData(const MatrixXd& data)
-{
+void ProfileDialog::setData(const std::vector<SegmentInput>& data) {
     view->setData(data);
     edit->setData(data);
 }

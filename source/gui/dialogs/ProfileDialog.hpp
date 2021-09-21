@@ -5,15 +5,14 @@
 #include "gui/editors/ProfileEditor.hpp"
 #include "gui/units/UnitSystem.hpp"
 
-class ProfileDialog: public PersistentDialog
-{
+class ProfileDialog: public PersistentDialog {
     Q_OBJECT
 
 public:
     ProfileDialog(QWidget* parent);
 
-    MatrixXd getData() const;
-    void setData(const MatrixXd& data);
+    std::vector<SegmentInput> getData() const;
+    void setData(const std::vector<SegmentInput>& data);
 
 signals:
     void modified();

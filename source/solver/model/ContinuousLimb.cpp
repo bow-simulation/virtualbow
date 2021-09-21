@@ -34,8 +34,6 @@ double ContinuousLayer::get_E() const
     return E;
 }
 
-#include <iostream>
-
 ContinuousLimb::ContinuousLimb(const InputData& input)
     : profile(input.profile, 0.5*input.dimensions.handle_length, input.dimensions.handle_setback, input.dimensions.handle_angle),
       width(input.width)

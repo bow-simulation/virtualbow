@@ -4,16 +4,26 @@
 #include "gui/widgets/DoubleSpinBox.hpp"
 
 class ProfileSegmentEditor: public QTableWidget {
+    Q_OBJECT
+
 public:
-    ProfileSegmentEditor(int rows, const QList<ConstraintType>& types, const QList<QString>& names, const QList<UnitGroup*>& units);
+    ProfileSegmentEditor(SegmentType segment_type);
 
     SegmentInput getData() const;
     void setData(const SegmentInput& data);
 
 private:
-    QList<ConstraintType> types;
-    QList<UnitGroup*> units;
+    SegmentType segment_type;
+    QList<ConstraintType> constraint_types;
+    QList<QString> constraint_names;
+    QList<UnitGroup*> constraint_units;
 
-    QList<QComboBox*> combo_boxes;
-    QList<DoubleSpinBox*> spinners;
+    static int numConstraints(SegmentType segment_type);
+    static QList<ConstraintType> constraintTypes(SegmentType segment_type);
+    static QList<QString> constraintNames(SegmentType segment_type);
+    static QList<UnitGroup*> constraintUnits(SegmentType segment_type);
+
+signals:
+    void modified();
+
 };
