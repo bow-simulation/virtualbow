@@ -4,8 +4,10 @@
 #include "solver/numerics/FindInterval.hpp"
 #include "solver/numerics/Sorting.hpp"
 
-ProfileCurve::ProfileCurve(const MatrixXd& input, double x0, double y0, double phi0)
+ProfileCurve::ProfileCurve(const std::vector<SegmentInput>& input2, double x0, double y0, double phi0)
 {
+    MatrixXd input{{0.0, 0.0}, {0.8, 0.0}};
+
     if(input.cols() != 2) {
         throw std::invalid_argument("Input must have two columns");
     }

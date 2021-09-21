@@ -1,4 +1,5 @@
 #pragma once
+#include "solver/model/ProfileCurve.hpp"
 #include "config.hpp"
 #include "Settings.hpp"
 #include "Layers.hpp"
@@ -9,13 +10,22 @@
 #include <nlohmann/json.hpp>
 #include <vector>
 
-struct InputData
-{
+struct InputData {
     std::string version = Config::APPLICATION_VERSION;
     std::string comment;
     Settings settings;
     Dimensions dimensions;
-    MatrixXd profile{{0.0, 0.0}, {0.8, 0.0}};
+    std::vector<SegmentInput> profile {
+        {
+            .type=SegmentType::Line,
+            .constraints= {
+                {
+                    .type=ConstraintType::DELTA_S,
+                    .value=1.0
+                }
+            }
+        }
+    };
     MatrixXd width{{0.0, 0.06}, {1.0, 0.01}};
     std::vector<Layer> layers = {Layer()};
     String string;
@@ -30,8 +40,7 @@ struct InputData
 };
 
 // Todo: Use "= default" in case it should make it into C++20
-static bool operator==(const InputData& lhs, const InputData& rhs)
-{
+static bool operator==(const InputData& lhs, const InputData& rhs) {
     return lhs.version == rhs.version
         && lhs.comment == rhs.comment
         && lhs.settings == rhs.settings
@@ -44,8 +53,7 @@ static bool operator==(const InputData& lhs, const InputData& rhs)
         && lhs.masses == rhs.masses;
 }
 
-static bool operator!=(const InputData& lhs, const InputData& rhs)
-{
+static bool operator!=(const InputData& lhs, const InputData& rhs) {
     return !operator==(lhs, rhs);
 }
 

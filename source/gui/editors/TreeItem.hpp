@@ -25,10 +25,8 @@ public:
 
     void performAction() override
     {
-        if(dialog == nullptr)
-        {
+        if(dialog == nullptr) {
             dialog = new DialogType(parent);
-            dialog->setData(data);
 
             QObject::connect(dialog, &DialogType::modified, [&] {
                 data = dialog->getData();
@@ -36,8 +34,7 @@ public:
             });
 
             QObject::connect(dialog, &DialogType::rejected, [&] {
-                if(data != backup)
-                {
+                if(data != backup) {
                     data = backup;
                     emit parent->modified();
                 }

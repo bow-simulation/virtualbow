@@ -89,6 +89,8 @@ add_executable(
     source/gui/editors/LayerEditor.hpp
     source/gui/editors/ProfileEditor.cpp
     source/gui/editors/ProfileEditor.hpp
+    source/gui/editors/ProfileTree.cpp
+    source/gui/editors/ProfileTree.hpp
     source/gui/editors/ProfileSegmentEditor.cpp
     source/gui/editors/ProfileSegmentEditor.hpp
     source/gui/editors/TableEditor.cpp
@@ -119,6 +121,8 @@ add_executable(
     source/gui/views/ProfileView.hpp
     source/gui/views/SplineView.cpp
     source/gui/views/SplineView.hpp
+    source/gui/widgets/DoubleSpinBox.cpp
+    source/gui/widgets/DoubleSpinBox.hpp
     source/gui/qcustomplot/qcustomplot.cpp
     source/solver/model/BeamUtils.cpp
     source/solver/model/ContinuousLimb.cpp

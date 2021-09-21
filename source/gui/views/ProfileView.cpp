@@ -70,7 +70,7 @@ ProfileView::ProfileView(const UnitGroup& unit)
     QObject::connect(&unit, &UnitGroup::selectionChanged, this, &ProfileView::updatePlot);
 }
 
-void ProfileView::setData(const MatrixXd& data) {
+void ProfileView::setData(const std::vector<SegmentInput>& data) {
     input = data;
     updatePlot();
 }
@@ -100,6 +100,7 @@ void ProfileView::updatePlot() {
 
         // Add control points depending on selection status
 
+        /*
         profile_nodes_unselected->data()->clear();
         profile_nodes_selected->data()->clear();
         for(int i = 0; i < input.rows(); ++i) {
@@ -117,9 +118,11 @@ void ProfileView::updatePlot() {
                 );
             }
         }
+        */
 
         // Add curvature
 
+        /*
         double k_max = input.col(1).cwiseAbs().maxCoeff();
         const double scale = CURVATURE_SCALING*(profile.s_max() - profile.s_min())/k_max;
 
@@ -137,6 +140,7 @@ void ProfileView::updatePlot() {
             curvature_lines[i]->addData(x_start, y_start);
             curvature_lines[i]->addData(x_end, y_end);
         }
+        */
     }
     catch(const std::invalid_argument& e) {
         // TODO: Show error message on plot

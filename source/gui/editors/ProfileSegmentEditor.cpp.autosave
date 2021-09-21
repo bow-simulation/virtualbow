@@ -24,7 +24,7 @@ ProfileSegmentEditor::ProfileSegmentEditor(SegmentType segment_type)
         auto spinner = new DoubleSpinBox(Domain::UNRESTRICTED);
         spinner->setFrame(false);
 
-        auto update_spinner = [this, spinner](int index){
+        auto update_spinner_unit = [this, spinner](int index){
             QSignalBlocker blocker(spinner);    // Block modification signal
             spinner->setValue(0.0);
             spinner->setUnitGroup(constraint_units[index]);
@@ -32,8 +32,8 @@ ProfileSegmentEditor::ProfileSegmentEditor(SegmentType segment_type)
 
         QObject::connect(spinner, QOverload<double>::of(&DoubleSpinBox::valueChanged), this, &ProfileSegmentEditor::modified);
         QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ProfileSegmentEditor::modified);
-        QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, update_spinner);
-        update_spinner(combo->currentIndex());
+        QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, update_spinner_unit);
+        update_spinner_unit(combo->currentIndex());
 
         this->setCellWidget(i, 0, combo);
         this->setCellWidget(i, 1, spinner);
