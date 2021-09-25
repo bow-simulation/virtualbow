@@ -14,20 +14,20 @@ BackgroundDialog::BackgroundDialog(PlotWidget* plot)
     item->setScaled(true, Qt::IgnoreAspectRatio);
     item->setLayer("background");
 
-    label_extent_x = new QLabel("Width");
-    label_extent_x->setAlignment(Qt::AlignRight);
+    QLabel* label_extent_x = new QLabel("Width");
+    label_extent_x->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
-    label_extent_y = new QLabel("Height");
-    label_extent_y->setAlignment(Qt::AlignRight);
+    QLabel* label_extent_y = new QLabel("Height");
+    label_extent_y->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
-    label_offset_x = new QLabel("Offset X");
-    label_offset_x->setAlignment(Qt::AlignRight);
+    QLabel* label_offset_x = new QLabel("Offset X");
+    label_offset_x->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
-    label_offset_y = new QLabel("Offset Y");
-    label_offset_y->setAlignment(Qt::AlignRight);
+    QLabel* label_offset_y = new QLabel("Offset Y");
+    label_offset_y->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
-    label_angle = new QLabel("Rotation");
-    label_angle->setAlignment(Qt::AlignRight);
+    QLabel* label_angle = new QLabel("Rotation");
+    label_angle->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
     spinner_extent_x = new QDoubleSpinBox();
     spinner_extent_x->setRange(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max());
@@ -69,14 +69,11 @@ BackgroundDialog::BackgroundDialog(PlotWidget* plot)
     spinner_angle->setSuffix("°");
     QObject::connect(spinner_angle, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BackgroundDialog::updatePlot);
 
-    auto label_image = new QLabel("Image");
-    label_image->setAlignment(Qt::AlignRight);
-
     auto edit_image = new QLineEdit();
+    edit_image->setPlaceholderText("No file selected");
     edit_image->setReadOnly(true);
     edit_image->setClearButtonEnabled(true);
     edit_image->setMinimumWidth(250);
-    edit_image->setPlaceholderText("No file selected");
 
     // Enable clear button despite the LineEdit being read-only, https://stackoverflow.com/a/57366109
     auto button_clear = edit_image->findChild<QToolButton*>();
@@ -87,8 +84,9 @@ BackgroundDialog::BackgroundDialog(PlotWidget* plot)
         });
     }
 
-    auto bt_open = new QPushButton(QIcon(":/icons/folder-black.svg"), "");
-    QObject::connect(bt_open, &QPushButton::clicked, [this, edit_image]{
+    auto button_open = new QPushButton(QIcon(":/icons/folder-black.svg"), "");
+    button_open->setFixedHeight(edit_image->sizeHint().height());
+    QObject::connect(button_open, &QPushButton::clicked, [this, edit_image]{
         QFileDialog dialog(this);
         dialog.setAcceptMode(QFileDialog::AcceptOpen);
         dialog.setFileMode(QFileDialog::ExistingFile);
@@ -121,9 +119,9 @@ BackgroundDialog::BackgroundDialog(PlotWidget* plot)
     });
 
     auto hbox = new QHBoxLayout();
-    hbox->setContentsMargins(0, 10, 0, 10);
+    hbox->setSpacing(10);
     hbox->addWidget(edit_image);
-    hbox->addWidget(bt_open);
+    hbox->addWidget(button_open);
 
     auto grid = new QGridLayout();
     grid->setSpacing(10);
@@ -132,31 +130,30 @@ BackgroundDialog::BackgroundDialog(PlotWidget* plot)
     grid->setColumnStretch(2, 0);
     grid->setColumnStretch(3, 1);
 
-    grid->addWidget(label_image, 0, 0);
-    grid->addLayout(hbox, 0, 1, 1, 3);
+    grid->addWidget(label_extent_x, 0, 0);
+    grid->addWidget(spinner_extent_x, 0, 1);
+    grid->addWidget(label_offset_x, 0, 2);
+    grid->addWidget(spinner_offset_x, 0, 3);
 
-    grid->addWidget(label_extent_x, 1, 0);
-    grid->addWidget(spinner_extent_x, 1, 1);
+    grid->addWidget(label_extent_y, 1, 0);
+    grid->addWidget(spinner_extent_y, 1, 1);
+    grid->addWidget(label_offset_y, 1, 2);
+    grid->addWidget(spinner_offset_y, 1, 3);
 
-    grid->addWidget(label_offset_x, 1, 2);
-    grid->addWidget(spinner_offset_x, 1, 3);
+    grid->addWidget(cb_aspect_ratio, 2, 1);
+    grid->addWidget(label_angle, 2, 2);
+    grid->addWidget(spinner_angle, 2, 3);
 
-    grid->addWidget(label_extent_y, 2, 0);
-    grid->addWidget(spinner_extent_y, 2, 1);
+    group_image = new QGroupBox("Image");
+    group_image->setLayout(hbox);
 
-    grid->addWidget(label_offset_y, 2, 2);
-    grid->addWidget(spinner_offset_y, 2, 3);
-
-    grid->addWidget(cb_aspect_ratio, 3, 1);
-
-    grid->addWidget(label_angle, 3, 2);
-    grid->addWidget(spinner_angle, 3, 3);
-
-    auto group = new QGroupBox();
-    group->setLayout(grid);
+    group_trans = new QGroupBox("Transform");
+    group_trans->setLayout(grid);
 
     auto vbox = new QVBoxLayout();
-    vbox->addWidget(group);
+    vbox->setSizeConstraint(QLayout::SetFixedSize);
+    vbox->addWidget(group_image);
+    vbox->addWidget(group_trans);
     vbox->addWidget(buttons);
 
     this->setWindowTitle("Background Image");
@@ -167,22 +164,7 @@ BackgroundDialog::BackgroundDialog(PlotWidget* plot)
 }
 
 void BackgroundDialog::setEditingEnabled(bool enabled) {
-    spinner_extent_x->setEnabled(enabled);
-    label_extent_x->setEnabled(enabled);
-
-    spinner_extent_y->setEnabled(enabled);
-    label_extent_y->setEnabled(enabled);
-
-    spinner_offset_x->setEnabled(enabled);
-    label_offset_x->setEnabled(enabled);
-
-    spinner_offset_y->setEnabled(enabled);
-    label_offset_y->setEnabled(enabled);
-
-    spinner_angle->setEnabled(enabled);
-    label_angle->setEnabled(enabled);
-
-    cb_aspect_ratio->setEnabled(enabled);
+    group_trans->setEnabled(enabled);
 }
 
 void BackgroundDialog::resetTransform() {
