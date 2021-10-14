@@ -85,7 +85,7 @@ BackgroundDialog::BackgroundDialog(PlotWidget* plot)
     }
 
     auto button_open = new QPushButton(QIcon(":/icons/folder-black.svg"), "");
-    button_open->setFixedHeight(edit_image->sizeHint().height());
+    //button_open->setFixedHeight(edit_image->sizeHint().height());    // Does not work on macOS (weird result)
     QObject::connect(button_open, &QPushButton::clicked, [this, edit_image]{
         QFileDialog dialog(this);
         dialog.setAcceptMode(QFileDialog::AcceptOpen);
