@@ -39,9 +39,9 @@ Contributions that fix issues with MSVC will of course still be accepted.
 
 On Linux, the pre-built dependencies don't include Qt.
 Instead the Qt libraries packaged with the system are used.
-On Ubuntu for example they can be installed with
+On Ubuntu they can be installed with
 
-    sudo apt install qtbase5-dev libqt5x11extras5-dev libgl1-mesa-dev
+    sudo apt install qt5-default
     
 The rest of the build process is the same on Linux and MacOS
 
@@ -62,4 +62,4 @@ Please follow the steps below to get your changes included in this repository:
 
 # License
 
-VirtualBow is licensed under the GNU General Public License v3.0.
+VirtualBow is released under the GNU General Public License v3.0.
