@@ -26,14 +26,14 @@ If you're using Qt Creator you can set this property under *Projects* - *Build S
 
 ## Windows
 
-Using the GCC compiler from [MinGW-w64](http://mingw-w64.org/doku.php),
+Using the GCC compiler and tools provided by [MinGW-w64](https://wiki.qt.io/MinGW),
 
     mkdir build && cd build
     cmake ../ -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=[...]/paths.cmake -DCMAKE_BUILD_TYPE=Release
     cmake --build .
 
-Building with Microsoft Visual C++ should also be possible, but is not officially supported and tested anymore.
-Contributions that fix issues with MSVC will of course still be accepted.
+Building with Microsoft Visual C++ should also be possible, but it is not officially supported or tested.
+Contributions that fix issues with MSVC will of course be accepted.
 
 ## Linux and MacOS
 
