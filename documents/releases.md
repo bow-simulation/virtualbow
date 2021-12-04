@@ -2,7 +2,7 @@
 
 ## Windows
 
-The Windows version is built with [MinGW-w64](http://mingw-w64.org/doku.php).
+The Windows version is built with [MinGW-w64](https://wiki.qt.io/MinGW).
 It seems to generate faster code than Microsoft Visual C++ for our use case.
 
 The Windows installer can be built with
