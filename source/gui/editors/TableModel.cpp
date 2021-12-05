@@ -8,7 +8,15 @@ TableModel::TableModel(const QList<QString>& columnLabels, const QList<const Uni
       columnUnits(columnUnits)
 {
     if(columnUnits.size() != columnLabels.size()) {
-        throw std::invalid_argument("Number of column units does not match number of labels");
+        throw std::invalid_argument("Number of units does not match number of labels");
+    }
+
+    // Update table on unit changes
+    for(int i = 0; i < columnUnits.size(); ++i) {
+        QObject::connect(columnUnits[i], &UnitGroup::selectionChanged, this, [&, i](const Unit& unit) {
+            emit headerDataChanged(Qt::Horizontal, i, i);
+            emit dataChanged(index(0, i), index(matrix.rows() - 1, i));
+        });
     }
 }
 

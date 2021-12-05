@@ -26,22 +26,22 @@ If you're using Qt Creator you can set this property under *Projects* - *Build S
 
 ## Windows
 
-Using the GCC compiler from [MinGW-w64](http://mingw-w64.org/doku.php),
+Using the GCC compiler and tools provided by [MinGW-w64](https://wiki.qt.io/MinGW),
 
     mkdir build && cd build
     cmake ../ -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=[...]/paths.cmake -DCMAKE_BUILD_TYPE=Release
     cmake --build .
 
-Building with Microsoft Visual C++ should also be possible, but is not officially supported and tested anymore.
-Contributions that fix issues with MSVC will of course still be accepted.
+Building with Microsoft Visual C++ should also be possible, but it is not officially supported or tested.
+Contributions that fix issues with MSVC will of course be accepted.
 
 ## Linux and MacOS
 
 On Linux, the pre-built dependencies don't include Qt.
 Instead the Qt libraries packaged with the system are used.
-On Ubuntu for example they can be installed with
+On Ubuntu they can be installed with
 
-    sudo apt install qtbase5-dev libqt5x11extras5-dev libgl1-mesa-dev
+    sudo apt install qt5-default
     
 The rest of the build process is the same on Linux and MacOS
 
@@ -62,4 +62,4 @@ Please follow the steps below to get your changes included in this repository:
 
 # License
 
-VirtualBow is licensed under the GNU General Public License v3.0.
+VirtualBow is released under the GNU General Public License v3.0.

@@ -16,18 +16,15 @@ private:
 
     QPixmap pixmap;
 
-    QLabel* label_extent_x;
-    QLabel* label_extent_y;
-    QLabel* label_offset_x;
-    QLabel* label_offset_y;
-    QLabel* label_angle;
-
     QDoubleSpinBox* spinner_extent_x;
     QDoubleSpinBox* spinner_extent_y;
     QDoubleSpinBox* spinner_offset_x;
     QDoubleSpinBox* spinner_offset_y;
     QDoubleSpinBox* spinner_angle;
     QCheckBox* cb_aspect_ratio;
+
+    QGroupBox* group_image;
+    QGroupBox* group_trans;
 
     void setEditingEnabled(bool enabled);
     void resetTransform();
