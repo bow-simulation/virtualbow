@@ -1,0 +1,169 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  build-windows:
+    runs-on: windows-2019
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: cmd
+    steps:
+      - uses: egor-tensin/setup-mingw@v2
+      - uses: actions/checkout@v2
+        with:
+          path: virtualbow  
+      
+      - name: Get dependencies
+        run: |
+          curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.4/windows-mingw_64.zip && 7z x windows-mingw_64.zip
+
+      - name: Build and test
+        run: |
+          mkdir build && cd build
+          cmake ../virtualbow -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../windows-mingw_64/paths.cmake
+          cmake --build . -j4
+          cmake --build . --target iss-installer -j4
+          virtualbow-test
+        
+      - uses: actions/upload-artifact@v2
+        with:
+          name: windows-application
+          path: build/application
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: windows-packages
+          path: build/packages
+
+  build-linux:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: virtualbow
+      
+      - name: Get dependencies
+        run: |
+          sudo apt install -y qt5-default
+          curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.4/linux-gcc_64.zip && unzip linux-gcc_64.zip
+
+      - name: Build and test
+        run: |
+          mkdir build && cd build
+          cmake ../virtualbow -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../linux-gcc_64/paths.cmake
+          cmake --build . -j$(nproc)
+          cmake --build . --target deb-package -j4
+          cmake --build . --target rpm-package -j4
+          ./virtualbow-test
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: linux-application
+          path: build/application
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: linux-packages
+          path: build/packages
+
+  build-macos:
+    runs-on: macos-10.15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: virtualbow
+      
+      - name: Get dependencies
+        run: |
+          npm install -g appdmg@0.6.0 --no-audit
+          curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.4/macos-clang_64.zip && unzip macos-clang_64.zip
+
+      - name: Build and test
+        run: |
+          mkdir build && cd build
+          cmake ../virtualbow -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../macos-clang_64/paths.cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13
+          cmake --build . -j4
+          cmake --build . --target dmg-installer -j4
+          ./virtualbow-test
+      
+      - name: Display file structure
+        run: ls -R
+      
+      - uses: actions/upload-artifact@v2
+        with:
+          name: macos-application
+          path: build/application
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: macos-packages
+          path: build/packages
+
+  develop-release:
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-18.04
+    needs: [build-windows, build-linux, build-macos]
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: windows-packages
+      - uses: actions/download-artifact@v2
+        with:
+          name: linux-packages
+      - uses: actions/download-artifact@v2
+        with:
+          name: macos-packages
+
+      - name: Rename packages
+        run: |
+          mv virtualbow-setup.exe virtualbow-${GITHUB_SHA::7}-win64.exe
+          mv virtualbow.deb virtualbow-${GITHUB_SHA::7}-linux64.deb
+          mv virtualbow.rpm virtualbow-${GITHUB_SHA::7}-linux64.rpm
+          mv virtualbow.dmg virtualbow-${GITHUB_SHA::7}-mac64.dmg
+
+      - name: Create release
+        uses: marvinpinto/action-automatic-releases@v1.2.1
+        with:
+          repo_token: ${{ secrets.RELEASE_TOKEN }}
+          automatic_release_tag: latest
+          prerelease: true
+          title: Development Build
+          files: virtualbow*
+          
+  tagged-release:
+    if: startsWith(github.ref, 'refs/tags')
+    runs-on: ubuntu-18.04
+    needs: [build-windows, build-linux, build-macos]
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: windows-packages
+      - uses: actions/download-artifact@v2
+        with:
+          name: linux-packages
+      - uses: actions/download-artifact@v2
+        with:
+          name: macos-packages
+
+      - name: Rename packages
+        run: |
+          mv virtualbow-setup.exe virtualbow-${{github.ref_name}}-win64.exe
+          mv virtualbow.deb virtualbow-${{github.ref_name}}-linux64.deb
+          mv virtualbow.rpm virtualbow-${{github.ref_name}}-linux64.rpm
+          mv virtualbow.dmg virtualbow-${{github.ref_name}}-mac64.dmg
+
+      - name: Create release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.RELEASE_TOKEN }}
+          draft: true
+          files: virtualbow*
