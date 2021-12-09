@@ -85,7 +85,7 @@ void ProfileView::updatePlot() {
     this->yAxis->setLabel("Y " + unit.getSelectedUnit().getLabel());
 
     try {
-        ProfileCurve profile(input, 0.0, 0.0, 0.0);
+        ProfileCurve2 profile(input, 0.0, 0.0, 0.0);
 
         // Add profile curve
 

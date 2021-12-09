@@ -49,7 +49,7 @@ public:
     double get_rhoA(double s) const;                  // Calculates the section's linear density
 
 private:
-    ProfileCurve profile;
+    ProfileCurve2 profile;
     CubicSpline width;
     std::vector<ContinuousLayer> layers;
 };

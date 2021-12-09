@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/model/ProfileCurve.hpp"
+#include "solver/model/profile/ProfileInput.hpp"
 #include "config.hpp"
 #include "Settings.hpp"
 #include "Layers.hpp"
@@ -15,15 +15,18 @@ struct InputData {
     std::string comment;
     Settings settings;
     Dimensions dimensions;
-    std::vector<SegmentInput> profile {
-        {
-            .type=SegmentType::Line,
-            .constraints= {
-                {
-                    .type=ConstraintType::DELTA_S,
-                    .value=1.0
-                }
-            }
+    ProfileInput profile {
+        LineInput {
+            { LineConstraint::LENGTH, 1.0 }
+        },
+        ArcInput {
+            { ArcConstraint::LENGTH, 1.0 },
+            { ArcConstraint::K_START, 0.5 }
+        },
+        ClothoidInput {
+            { ClothoidConstraint::LENGTH, 1.5 },
+            { ClothoidConstraint::K_START, 0.5 },
+            { ClothoidConstraint::K_END, 1.5 }
         }
     };
     MatrixXd width{{0.0, 0.06}, {1.0, 0.01}};

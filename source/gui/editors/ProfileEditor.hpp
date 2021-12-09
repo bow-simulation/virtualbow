@@ -1,6 +1,6 @@
 #pragma once
 #include "ProfileTree.hpp"
-#include "solver/model/ProfileCurve.hpp"
+#include "solver/model/profile/ProfileCurve.hpp"
 #include <QtWidgets>
 
 class ProfileEditor: public QWidget {

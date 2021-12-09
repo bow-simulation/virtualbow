@@ -4,7 +4,7 @@
 #include "solver/numerics/FindInterval.hpp"
 #include "solver/numerics/Sorting.hpp"
 
-ProfileCurve::ProfileCurve(const std::vector<SegmentInput>& input2, double x0, double y0, double phi0)
+ProfileCurve2::ProfileCurve2(const ProfileInput& input2, double x0, double y0, double phi0)
 {
     MatrixXd input{{0.0, 0.0}, {0.8, 0.0}};
 
@@ -44,24 +44,24 @@ ProfileCurve::ProfileCurve(const std::vector<SegmentInput>& input2, double x0, d
     }
 }
 
-double ProfileCurve::s_min() const
+double ProfileCurve2::s_min() const
 {
     return s.front();
 }
 
-double ProfileCurve::s_max() const
+double ProfileCurve2::s_max() const
 {
     return s.back();
 }
 
 // Extrapolates on out of bounds access
-CurvePoint ProfileCurve::operator()(double arg) const
+CurvePoint ProfileCurve2::operator()(double arg) const
 {
     index = find_interval(s, arg, index);
     return f[index](arg);
 }
 
-ProfileCurve::segment_fn ProfileCurve::euler_spiral(double s0, double s1, double k0, double k1, double x0, double y0, double phi0)
+ProfileCurve2::segment_fn ProfileCurve2::euler_spiral(double s0, double s1, double k0, double k1, double x0, double y0, double phi0)
 {
     // Curvature varies linearly between s0 and s1:
     // k(s) = (k1 - k0)/(s1 - s0)*s + (s1*k0 - s0*k1)/(s1 - s0)

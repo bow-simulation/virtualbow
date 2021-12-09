@@ -7,7 +7,7 @@ struct Point {
     Vector<2> position = {0.0, 0.0};
 };
 
-class Segment {
+class ProfileSegment {
 public:
     virtual double s_start() const = 0;
     virtual double s_end() const = 0;
