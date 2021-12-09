@@ -1,181 +1,28 @@
-/*
+#include "solver/model/profile/ProfileCurve.hpp"
 #include <iostream>
-#include <array>
-#include <cmath>
-
-struct CurvePoint {
-    double s;
-    double x;
-    double y;
-    double phi;
-};
-
-class LineConstraint {
-public:
-    enum class Type { DELTA_S, DELTA_X, DELTA_Y };
-
-    Type type;
-    double value;
-
-    LineConstraint(Type type, double value)
-        : type(type), value(value) {
-    }
-};
-
-class LineSegment {
-public:
-    LineSegment(CurvePoint startpoint, LineConstraint constraint) {
-        double delta_s;
-
-        switch(constraint.type) {
-        case LineConstraint::Type::DELTA_S:
-            delta_s = constraint.value;
-            break;
-
-        case LineConstraint::Type::DELTA_X:
-            delta_s = constraint.value/cos(startpoint.phi);    // TODO
-            break;
-
-        case LineConstraint::Type::DELTA_Y:
-            delta_s = constraint.value/sin(startpoint.phi);    // TODO
-            break;
-        }
-
-        s0 = startpoint.s;
-        s1 = s0 + delta_s;
-
-        x0 = startpoint.x;
-        y0 = startpoint.y;
-        phi0 = startpoint.phi;
-    }
-
-    double t(double s) {
-        return (s - s0)/(s1 - s0);
-    }
-
-    double s(double t) {
-        return s0 + (s1 - s0)*t;
-    }
-
-    double x(double t) {
-        return x0 + s(t)*cos(phi0);
-    }
-
-    double y(double t) {
-        return x0 + s(t)*sin(phi0);
-    }
-
-    double phi(double t) {
-        return phi0;
-    }
-
-private:
-    double s0;
-    double s1;
-
-    double x0;
-    double y0;
-    double phi0;
-};
-
-class ArcConstraint {
-public:
-    enum class Type { DELTA_S, DELTA_X, DELTA_Y, DELTA_PHI, RADIUS };
-
-    Type type;
-    double value;
-
-    ArcConstraint(Type type, double value)
-        : type(type), value(value) {
-    }
-};
-
-class ArcSegment {
-public:
-    ArcSegment(CurvePoint startpoint, ArcConstraint constraint) {
-        double delta_s;
-
-        // TODO
-
-        s0 = startpoint.s;
-        s1 = s0 + delta_s;
-
-        x0 = startpoint.x;
-        y0 = startpoint.y;
-        phi0 = startpoint.phi;
-    }
-
-    double t(double s) {
-        return (s - s0)/(s1 - s0);
-    }
-
-    double s(double t) {
-        return s0 + (s1 - s0)*t;
-    }
-
-    double x(double t) {
-        return x0 + s(t)*cos(phi0);
-    }
-
-    double y(double t) {
-        return x0 + s(t)*sin(phi0);
-    }
-
-    double phi(double t) {
-        return phi0;
-    }
-
-private:
-    double s0;
-    double s1;
-
-    double x0;
-    double y0;
-    double phi0;
-};
-
-
 
 int main() {
-    CurvePoint startpoint{.x = 0.5, .y = 0.0, .phi = 0.7};
+    Point start = Point{.s = 0.0, .angle = 0.1, .position = {0.0, 0.0}};
 
-    LineSegment line(startpoint, LineConstraint(LineConstraint::Type::DELTA_X, 5.0));
+    LineInput line{{LineConstraint::LENGTH, 1.0}};
+    ArcInput arc{{ArcConstraint::LENGTH, 1.0}, {ArcConstraint::K_START, 0.5}};
+    ClothoidInput spiral{{ClothoidConstraint::LENGTH, 1.5}, {ClothoidConstraint::K_START, 0.5}, {ClothoidConstraint::K_END, 1.5}};
 
-    std::cout << "Startpoint:\n";
-    std::cout << line.x(0.0) << ", " << line.y(0.0) << "\n\n";
+    ProfileCurve curve(start);
+    curve.add_segment(line);
+    curve.add_segment(arc);
+    curve.add_segment(spiral);
 
-    std::cout << "Endpoint:\n";
-    std::cout << line.x(1.0) << ", " << line.y(1.0) << "\n\n";
+    for(double s = 0.0; s <= curve.length(); s += 0.01) {
+        auto position = curve.position(s);
+        std::cout << position[0] << ", " << position[1] << "\n";
+    }
+
+    return 0;
 }
-*/
+
 
 /*
-#include <iostream>
-#include <nlohmann/json.hpp>
-#include "solver/model/ProfileCurve.hpp"
-
-int main() {
-
-    SegmentInput a;
-    SegmentType t;
-    ConstraintType p;
-    Constraint c;
-
-    SegmentInput input{.type = SegmentType::Arc, .constraints = {
-        Constraint{.type = ConstraintType::X_End, .value = 1.0},
-        Constraint{.type = ConstraintType::Y_End, .value = 2.0},
-        Constraint{.type = ConstraintType::S_End, .value = 3.0},
-    }};
-
-    std::string str = json(input).dump();
-
-    std::cout << str;
-
-    json j = json::parse(str);
-    SegmentInput i = j.get<SegmentInput>();
-}
-*/
-
 #include "MainWindow.hpp"
 #include "config.hpp"
 #include <iostream>
@@ -209,3 +56,4 @@ int main(int argc, char* argv[]) {
 
     return application.exec();
 }
+*/
