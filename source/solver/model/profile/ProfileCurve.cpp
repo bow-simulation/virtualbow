@@ -38,17 +38,18 @@ Vector<2> ProfileCurve::position(double s) const {
     return segments[index]->position(s);
 }
 
-std::unique_ptr<Segment> ProfileCurve::create_segment(const Point& start, const SegmentInput& input) {
+std::unique_ptr<ProfileSegment> ProfileCurve::create_segment(const Point& start, const SegmentInput& input) {
     if(auto value = std::get_if<LineInput>(&input)) {
         return std::make_unique<ClothoidSegment>(start, *value);
     }
-
     if(auto value = std::get_if<ArcInput>(&input)) {
         return std::make_unique<ClothoidSegment>(start, *value);
     }
-
     if(auto value = std::get_if<ClothoidInput>(&input)) {
         return std::make_unique<ClothoidSegment>(start, *value);
+    }
+    if(auto value = std::get_if<SplineInput>(&input)) {
+        throw std::runtime_error("Spline segment not yet implemented");
     }
 
     throw std::runtime_error("Unknown segment type");

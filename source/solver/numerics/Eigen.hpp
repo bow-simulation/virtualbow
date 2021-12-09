@@ -21,6 +21,7 @@ using Eigen::Ref;
 namespace Eigen
 {
     // Allow comparing matrices of different dimension, return false on mismatch
+    // TODO: Where exactly is this needed?
     static bool operator==(const MatrixXd& lhs, const MatrixXd& rhs)
     {
         if((rhs.rows() != lhs.rows()) || (lhs.cols() != rhs.cols()))

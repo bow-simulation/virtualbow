@@ -232,6 +232,9 @@ add_executable(
     source/solver/model/ContinuousLimb.cpp
     source/solver/model/LimbProperties.cpp
     source/solver/model/ProfileCurve.cpp
+    source/solver/model/profile/ProfileCurve.cpp
+    source/solver/model/profile/ClothoidSegment.cpp
+    source/solver/model/profile/SplineSegment.cpp
     source/solver/model/input/InputData.cpp
     source/solver/model/output/OutputData.cpp
     source/solver/model/BowModel.cpp
@@ -277,6 +280,9 @@ add_executable(
     source/solver/model/ContinuousLimb.cpp
     source/solver/model/LimbProperties.cpp
     source/solver/model/ProfileCurve.cpp
+    source/solver/model/profile/ProfileCurve.cpp
+    source/solver/model/profile/ClothoidSegment.cpp
+    source/solver/model/profile/SplineSegment.cpp
     source/solver/model/input/InputData.cpp
     source/solver/model/output/OutputData.cpp
     source/solver/model/BowModel.cpp

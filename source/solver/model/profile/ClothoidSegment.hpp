@@ -1,19 +1,23 @@
 #pragma once
-#include "Segment.hpp"
+#include "ProfileSegment.hpp"
 #include <unordered_map>
 
 enum class ClothoidConstraint{ LENGTH, K_START, K_END };
-using ClothoidInput = std::unordered_map<ClothoidConstraint, double>;
+NLOHMANN_JSON_SERIALIZE_ENUM(ClothoidConstraint, {{ClothoidConstraint::LENGTH, "length"}, {ClothoidConstraint::K_START, "k_start"}, {ClothoidConstraint::K_END, "k_end"}})
 
 enum class ArcConstraint{ LENGTH, K_START };
-using ArcInput = std::unordered_map<ArcConstraint, double>;
+NLOHMANN_JSON_SERIALIZE_ENUM(ArcConstraint, {{ArcConstraint::LENGTH, "length"}, {ArcConstraint::K_START, "k_start"}})
 
 enum class LineConstraint{ LENGTH };
+NLOHMANN_JSON_SERIALIZE_ENUM(LineConstraint, {{LineConstraint::LENGTH, "length"}})
+
+using ClothoidInput = std::unordered_map<ClothoidConstraint, double>;
+using ArcInput = std::unordered_map<ArcConstraint, double>;
 using LineInput = std::unordered_map<LineConstraint, double>;
 
 // Segment with curvature linearly varying over arc length.
 // Represents a clothoid, circular arc or a straight line depending on the choice of curvature.
-class ClothoidSegment: public Segment {
+class ClothoidSegment: public ProfileSegment {
 public:
     ClothoidSegment(const Point& start, const ClothoidInput& input);
     ClothoidSegment(const Point& start, const ArcInput& input);

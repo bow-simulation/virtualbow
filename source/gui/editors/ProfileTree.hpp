@@ -1,24 +1,26 @@
 #pragma once
 #include "ProfileSegmentEditor.hpp"
-#include "solver/model/ProfileCurve.hpp"
+#include "solver/model/profile/ProfileInput.hpp"
 #include <QtWidgets>
 
 class ProfileTree;
 
+enum class SegmentType {
+    Line, Arc, Spiral, Spline
+};
+
 class ProfileTreeItem: public QTreeWidgetItem {
 public:
-    ProfileTreeItem(ProfileTree* parent, SegmentType type);
+    ProfileTreeItem(ProfileTree* parent, const SegmentInput& input);
     ProfileSegmentEditor* getEditor();
-
     SegmentInput getData() const;
-    void setData(const SegmentInput& data);
 
 private:
     ProfileSegmentEditor* editor;
 
-    QIcon segmentIcon(SegmentType type) const;
-    QString segmentText(SegmentType type) const;
-    ProfileSegmentEditor* segmentEditor(SegmentType type) const;
+    QIcon segmentIcon(const SegmentInput& input) const;
+    QString segmentText(const SegmentInput& input) const;
+    ProfileSegmentEditor* segmentEditor(const SegmentInput& input) const;
 };
 
 class ProfileTreeHeader: public QHeaderView {
@@ -32,8 +34,8 @@ class ProfileTree: public QTreeWidget {
 public:
     ProfileTree();
 
-    std::vector<SegmentInput> getData() const;
-    void setData(const std::vector<SegmentInput>& data);
+    ProfileInput getData() const;
+    void setData(const ProfileInput& data);
 
 protected:
     void dropEvent(QDropEvent *event) override;

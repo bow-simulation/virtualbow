@@ -1,14 +1,14 @@
 #include "ProfileSegmentEditor.hpp"
 #include "gui/widgets/DoubleSpinBox.hpp"
 
-ProfileSegmentEditor::ProfileSegmentEditor(SegmentType segment_type)
-    : QTableWidget(numConstraints(segment_type), 2),
-      segment_type(segment_type),
-      constraint_types(constraintTypes(segment_type)),
-      constraint_names(constraintNames(segment_type)),
-      constraint_units(constraintUnits(segment_type))
-
+ProfileSegmentEditor::ProfileSegmentEditor()
+/*
+      constraint_types({ LineConstraint::LENGTH }),
+      constraint_names({ "Length" }),
+      constraint_units({ &UnitSystem::length })
+*/
 {
+    /*
     this->setHorizontalHeaderLabels({"Property", "Value"});
     this->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     this->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
@@ -24,22 +24,24 @@ ProfileSegmentEditor::ProfileSegmentEditor(SegmentType segment_type)
         auto spinner = new DoubleSpinBox(Domain::UNRESTRICTED);
         spinner->setFrame(false);
 
-        auto update_spinner = [this, spinner](int index){
+        auto update_spinner_unit = [this, spinner](int index){
             QSignalBlocker blocker(spinner);    // Block modification signal
             spinner->setValue(0.0);
             spinner->setUnitGroup(constraint_units[index]);
         };
 
-        QObject::connect(spinner, QOverload<double>::of(&DoubleSpinBox::valueChanged), this, &ProfileSegmentEditor::modified);
-        QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ProfileSegmentEditor::modified);
-        QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, update_spinner);
-        update_spinner(combo->currentIndex());
+        QObject::connect(spinner, QOverload<double>::of(&DoubleSpinBox::valueChanged), this, &LineSegmentEditor::modified);
+        QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &LineSegmentEditor::modified);
+        QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, update_spinner_unit);
+        update_spinner_unit(combo->currentIndex());
 
         this->setCellWidget(i, 0, combo);
         this->setCellWidget(i, 1, spinner);
     }
+    */
 }
 
+/*
 SegmentInput ProfileSegmentEditor::getData() const {
     SegmentInput data = {.type = segment_type };
     for(int i = 0; i < this->rowCount(); ++i) {
@@ -54,7 +56,9 @@ SegmentInput ProfileSegmentEditor::getData() const {
 
     return data;
 }
+*/
 
+/*
 void ProfileSegmentEditor::setData(const SegmentInput& data) {
     QSignalBlocker blocker(this);    // Block modification signals
 
@@ -76,7 +80,9 @@ void ProfileSegmentEditor::setData(const SegmentInput& data) {
         spinner->setValue(data.constraints[i].value);
     }
 }
+*/
 
+/*
 int ProfileSegmentEditor::numConstraints(SegmentType segment_type) {
     switch(segment_type) {
         case SegmentType::Line: return 1;
@@ -112,3 +118,4 @@ QList<UnitGroup*> ProfileSegmentEditor::constraintUnits(SegmentType segment_type
         default: throw std::invalid_argument("Invalid segment type");
     }
 }
+*/

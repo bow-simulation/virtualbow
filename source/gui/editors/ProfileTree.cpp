@@ -1,10 +1,10 @@
 #include "ProfileTree.hpp"
 
-ProfileTreeItem::ProfileTreeItem(ProfileTree* parent, SegmentType type)
-    : editor(segmentEditor(type))
+ProfileTreeItem::ProfileTreeItem(ProfileTree* parent, const SegmentInput& input)
+    : editor(segmentEditor(input))
 {
-    this->setText(0, segmentText(type));
-    this->setIcon(0, segmentIcon(type));
+    this->setText(0, segmentText(input));
+    this->setIcon(0, segmentIcon(input));
     this->setFlags(flags() & ~Qt::ItemIsDropEnabled);
 
     QObject::connect(editor, &ProfileSegmentEditor::modified, parent, &ProfileTree::modified);
@@ -19,40 +19,56 @@ SegmentInput ProfileTreeItem::getData() const {
     return editor->getData();
 }
 
-void ProfileTreeItem::setData(const SegmentInput& data) {
-    editor->setData(data);
+
+QIcon ProfileTreeItem::segmentIcon(const SegmentInput& input) const {
+    if(std::holds_alternative<LineInput>(input)) {
+        return QIcon(":/icons/segment-line.svg");
+    }
+    if(std::holds_alternative<ArcInput>(input)) {
+        return QIcon(":/icons/segment-arc.svg");
+    }
+    if(std::holds_alternative<ClothoidInput>(input)) {
+        return QIcon(":/icons/segment-spiral.svg");
+    }
+    if(std::holds_alternative<SplineInput>(input)) {
+        return QIcon(":/icons/segment-spline.svg");
+    }
+
+    throw std::invalid_argument("Unknown segment type");
 }
 
-QIcon ProfileTreeItem::segmentIcon(SegmentType type) const {
-    switch(type) {
-        case SegmentType::Line: return QIcon(":/icons/segment-line.svg");
-        case SegmentType::Arc: return QIcon(":/icons/segment-arc.svg");
-        case SegmentType::Spiral: return QIcon(":/icons/segment-spiral.svg");
-        case SegmentType::Spline: return QIcon(":/icons/segment-spline.svg");
-        default: throw std::invalid_argument("Unknown segment type");
+QString ProfileTreeItem::segmentText(const SegmentInput& input) const {
+    if(std::holds_alternative<LineInput>(input)) {
+        return "Line";
     }
+    if(std::holds_alternative<ArcInput>(input)) {
+        return "Arc";
+    }
+    if(std::holds_alternative<ClothoidInput>(input)) {
+        return "Spiral";
+    }
+    if(std::holds_alternative<SplineInput>(input)) {
+        return "Spline";
+    }
+
+    throw std::invalid_argument("Unknown segment type");
 }
 
-QString ProfileTreeItem::segmentText(SegmentType type) const {
-    switch(type) {
-        case SegmentType::Line: return "Line";
-        case SegmentType::Arc: return "Arc";
-        case SegmentType::Spiral: return "Spiral";
-        case SegmentType::Spline: return "Spline";
-        default: throw std::invalid_argument("Unknown segment type");
+ProfileSegmentEditor* ProfileTreeItem::segmentEditor(const SegmentInput& input) const {
+    if(auto value = std::get_if<LineInput>(&input)) {
+        return new LineSegmentEditor(*value);
     }
-}
-
-ProfileSegmentEditor* ProfileTreeItem::segmentEditor(SegmentType type) const {
-    switch(type) {
-        case SegmentType::Line:
-        case SegmentType::Arc:
-        case SegmentType::Spiral:
-            return new ProfileSegmentEditor(type);
-
-        case SegmentType::Spline: throw std::invalid_argument("Not implemented");
-        default: throw std::invalid_argument("Unknown segment type");
+    if(auto value = std::get_if<ArcInput>(&input)) {
+        return new ArcSegmentEditor(*value);
     }
+    if(auto value = std::get_if<ClothoidInput>(&input)) {
+        return new SpiralSegmentEditor(*value);
+    }
+    if(auto value = std::get_if<SplineInput>(&input)) {
+        return new SplineSegmentEditor(*value);
+    }
+
+    throw std::invalid_argument("Unknown segment type");
 }
 
 ProfileTreeHeader::ProfileTreeHeader(QWidget* parent, const QList<QToolButton*>& buttons)
@@ -85,22 +101,22 @@ ProfileTree::ProfileTree() {
     // Actions for adding and removing segments
 
     button_add->menu()->addAction(QIcon(":/icons/segment-line.svg"), "Line", this, [&] {
-        new ProfileTreeItem(this, SegmentType::Line);
+        new ProfileTreeItem(this, LineInput());
         emit modified();
     });
 
     button_add->menu()->addAction(QIcon(":/icons/segment-arc.svg"), "Arc", this, [&] {
-        new ProfileTreeItem(this, SegmentType::Arc);
+        new ProfileTreeItem(this, ArcInput());
         emit modified();
     });
 
     button_add->menu()->addAction(QIcon(":/icons/segment-spiral.svg"), "Spiral", this, [&] {
-        new ProfileTreeItem(this, SegmentType::Spiral);
+        new ProfileTreeItem(this, ClothoidInput());
         emit modified();
     });
 
     button_add->menu()->addAction(QIcon(":/icons/segment-spline.svg"), "Spline", this, [&] {
-        new ProfileTreeItem(this, SegmentType::Spline);
+        new ProfileTreeItem(this, SplineInput());
         emit modified();
     });
 
@@ -120,6 +136,12 @@ ProfileTree::ProfileTree() {
         emit modified();
     });
 
+    // TODO
+    // auto header = ...
+    // ...
+    //
+    // this->setHeader(header);
+
     this->setHeader(new ProfileTreeHeader(this, {button_add, button_remove}));
     this->header()->setStretchLastSection(false);
     this->header()->setSectionResizeMode(QHeaderView::Stretch);
@@ -138,8 +160,8 @@ void ProfileTree::dropEvent(QDropEvent *event) {
     emit modified();
 }
 
-std::vector<SegmentInput> ProfileTree::getData() const {
-    std::vector<SegmentInput> result;
+ProfileInput ProfileTree::getData() const {
+    ProfileInput result;
     for(int i = 0; i < this->topLevelItemCount(); ++i) {
         auto item = dynamic_cast<ProfileTreeItem*>(this->topLevelItem(i));
         result.push_back(item->getData());
@@ -148,10 +170,9 @@ std::vector<SegmentInput> ProfileTree::getData() const {
     return result;
 }
 
-void ProfileTree::setData(const std::vector<SegmentInput>& data) {
+void ProfileTree::setData(const ProfileInput& data) {
     this->clear();
     for(auto& segment: data) {
-        auto item = new ProfileTreeItem(this, segment.type);
-        item->setData(segment);
+        auto item = new ProfileTreeItem(this, segment);
     }
 }

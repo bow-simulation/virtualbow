@@ -1,28 +1,3 @@
-#include "solver/model/profile/ProfileCurve.hpp"
-#include <iostream>
-
-int main() {
-    Point start = Point{.s = 0.0, .angle = 0.1, .position = {0.0, 0.0}};
-
-    LineInput line{{LineConstraint::LENGTH, 1.0}};
-    ArcInput arc{{ArcConstraint::LENGTH, 1.0}, {ArcConstraint::K_START, 0.5}};
-    ClothoidInput spiral{{ClothoidConstraint::LENGTH, 1.5}, {ClothoidConstraint::K_START, 0.5}, {ClothoidConstraint::K_END, 1.5}};
-
-    ProfileCurve curve(start);
-    curve.add_segment(line);
-    curve.add_segment(arc);
-    curve.add_segment(spiral);
-
-    for(double s = 0.0; s <= curve.length(); s += 0.01) {
-        auto position = curve.position(s);
-        std::cout << position[0] << ", " << position[1] << "\n";
-    }
-
-    return 0;
-}
-
-
-/*
 #include "MainWindow.hpp"
 #include "config.hpp"
 #include <iostream>
@@ -56,4 +31,3 @@ int main(int argc, char* argv[]) {
 
     return application.exec();
 }
-*/

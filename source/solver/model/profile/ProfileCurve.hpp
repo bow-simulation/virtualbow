@@ -1,20 +1,18 @@
 #pragma once
 #include "solver/numerics/Eigen.hpp"
-#include "Segment.hpp"
-#include "ClothoidSegment.hpp"
-#include "SplineSegment.hpp"
+#include "ProfileSegment.hpp"
+#include "ProfileInput.hpp"
 
-#include <variant>
 #include <vector>
+#include <memory>
 
 // TODO
 // * Better index finding in ProfileCurve
 // * Maybe get rid of the point class
 // * Preserve order of constraints in JSON (Maybe read/write as array)
 // * Replace std::array<double, 2> with Vector<2>
-
-using SegmentInput = std::variant<LineInput, ArcInput, ClothoidInput>;
-using ProfileInput = std::vector<SegmentInput>;
+// * (De)serialize inputs, add to InputData
+// * Rename LineInInput -> LineSegmentInput, etc.
 
 class ProfileCurve {
 public:
@@ -29,8 +27,8 @@ public:
 
 private:
     std::vector<Point> nodes;
-    std::vector<std::unique_ptr<Segment>> segments;
+    std::vector<std::unique_ptr<ProfileSegment>> segments;
 
-    std::unique_ptr<Segment> create_segment(const Point& start, const SegmentInput& input);
+    std::unique_ptr<ProfileSegment> create_segment(const Point& start, const SegmentInput& input);
     size_t find_segment(double s) const;
 };
