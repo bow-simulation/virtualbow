@@ -2,8 +2,8 @@
 #include "ProfileSegment.hpp"
 #include <unordered_map>
 
-enum class ClothoidConstraint{ LENGTH, K_START, K_END };
-NLOHMANN_JSON_SERIALIZE_ENUM(ClothoidConstraint, {{ClothoidConstraint::LENGTH, "length"}, {ClothoidConstraint::K_START, "k_start"}, {ClothoidConstraint::K_END, "k_end"}})
+enum class SpiralConstraint{ LENGTH, K_START, K_END };
+NLOHMANN_JSON_SERIALIZE_ENUM(SpiralConstraint, {{SpiralConstraint::LENGTH, "length"}, {SpiralConstraint::K_START, "k_start"}, {SpiralConstraint::K_END, "k_end"}})
 
 enum class ArcConstraint{ LENGTH, K_START };
 NLOHMANN_JSON_SERIALIZE_ENUM(ArcConstraint, {{ArcConstraint::LENGTH, "length"}, {ArcConstraint::K_START, "k_start"}})
@@ -11,7 +11,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(ArcConstraint, {{ArcConstraint::LENGTH, "length"}, 
 enum class LineConstraint{ LENGTH };
 NLOHMANN_JSON_SERIALIZE_ENUM(LineConstraint, {{LineConstraint::LENGTH, "length"}})
 
-using ClothoidInput = std::unordered_map<ClothoidConstraint, double>;
+using SpiralInput = std::unordered_map<SpiralConstraint, double>;
 using ArcInput = std::unordered_map<ArcConstraint, double>;
 using LineInput = std::unordered_map<LineConstraint, double>;
 
@@ -19,7 +19,7 @@ using LineInput = std::unordered_map<LineConstraint, double>;
 // Represents a clothoid, circular arc or a straight line depending on the choice of curvature.
 class ClothoidSegment: public ProfileSegment {
 public:
-    ClothoidSegment(const Point& start, const ClothoidInput& input);
+    ClothoidSegment(const Point& start, const SpiralInput& input);
     ClothoidSegment(const Point& start, const ArcInput& input);
     ClothoidSegment(const Point& start, const LineInput& input);
     ClothoidSegment(const Point& start, double l, double k0, double k1);

@@ -45,7 +45,7 @@ std::unique_ptr<ProfileSegment> ProfileCurve::create_segment(const Point& start,
     if(auto value = std::get_if<ArcInput>(&input)) {
         return std::make_unique<ClothoidSegment>(start, *value);
     }
-    if(auto value = std::get_if<ClothoidInput>(&input)) {
+    if(auto value = std::get_if<SpiralInput>(&input)) {
         return std::make_unique<ClothoidSegment>(start, *value);
     }
     if(auto value = std::get_if<SplineInput>(&input)) {

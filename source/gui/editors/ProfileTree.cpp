@@ -27,7 +27,7 @@ QIcon ProfileTreeItem::segmentIcon(const SegmentInput& input) const {
     if(std::holds_alternative<ArcInput>(input)) {
         return QIcon(":/icons/segment-arc.svg");
     }
-    if(std::holds_alternative<ClothoidInput>(input)) {
+    if(std::holds_alternative<SpiralInput>(input)) {
         return QIcon(":/icons/segment-spiral.svg");
     }
     if(std::holds_alternative<SplineInput>(input)) {
@@ -44,7 +44,7 @@ QString ProfileTreeItem::segmentText(const SegmentInput& input) const {
     if(std::holds_alternative<ArcInput>(input)) {
         return "Arc";
     }
-    if(std::holds_alternative<ClothoidInput>(input)) {
+    if(std::holds_alternative<SpiralInput>(input)) {
         return "Spiral";
     }
     if(std::holds_alternative<SplineInput>(input)) {
@@ -61,7 +61,7 @@ ProfileSegmentEditor* ProfileTreeItem::segmentEditor(const SegmentInput& input) 
     if(auto value = std::get_if<ArcInput>(&input)) {
         return new ArcSegmentEditor(*value);
     }
-    if(auto value = std::get_if<ClothoidInput>(&input)) {
+    if(auto value = std::get_if<SpiralInput>(&input)) {
         return new SpiralSegmentEditor(*value);
     }
     if(auto value = std::get_if<SplineInput>(&input)) {
@@ -111,7 +111,7 @@ ProfileTree::ProfileTree() {
     });
 
     button_add->menu()->addAction(QIcon(":/icons/segment-spiral.svg"), "Spiral", this, [&] {
-        new ProfileTreeItem(this, ClothoidInput());
+        new ProfileTreeItem(this, SpiralInput());
         emit modified();
     });
 
