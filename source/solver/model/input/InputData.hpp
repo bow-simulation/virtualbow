@@ -23,10 +23,10 @@ struct InputData {
             { ArcConstraint::LENGTH, 1.0 },
             { ArcConstraint::K_START, 0.5 }
         },
-        ClothoidInput {
-            { ClothoidConstraint::LENGTH, 1.5 },
-            { ClothoidConstraint::K_START, 0.5 },
-            { ClothoidConstraint::K_END, 1.5 }
+        SpiralInput {
+            { SpiralConstraint::LENGTH, 1.5 },
+            { SpiralConstraint::K_START, 0.5 },
+            { SpiralConstraint::K_END, 1.5 }
         }
     };
     MatrixXd width{{0.0, 0.06}, {1.0, 0.01}};

@@ -124,13 +124,13 @@ public:
 class SpiralSegmentEditor: public PropertyValueEditor
 {
 public:
-    SpiralSegmentEditor(const ClothoidInput& input)
+    SpiralSegmentEditor(const SpiralInput& input)
         : PropertyValueEditor(3, { "Length", "Curv. Start", "Curv. End" }, { &UnitSystem::length, &UnitSystem::curvature, &UnitSystem::curvature }) {
 
     }
 
     SegmentInput getData() const override {
-        return ClothoidInput();
+        return SpiralInput();
     }
 };
 

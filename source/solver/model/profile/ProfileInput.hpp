@@ -5,7 +5,7 @@
 #include <variant>
 #include <vector>
 
-using SegmentInput = std::variant<LineInput, ArcInput, ClothoidInput, SplineInput>;
+using SegmentInput = std::variant<LineInput, ArcInput, SpiralInput, SplineInput>;
 using ProfileInput = std::vector<SegmentInput>;
 
 inline void to_json(json& obj, const SegmentInput& input) {
@@ -17,7 +17,7 @@ inline void to_json(json& obj, const SegmentInput& input) {
         obj["type"] = "arc";
         obj["parameters"] = *value;
     }
-    else if(auto value = std::get_if<ClothoidInput>(&input)) {
+    else if(auto value = std::get_if<SpiralInput>(&input)) {
         obj["type"] = "spiral";
         obj["parameters"] = *value;
     }
@@ -38,7 +38,7 @@ inline void from_json(const json& obj, SegmentInput& input) {
         input = obj.at("parameters").get<ArcInput>();
     }
     else if(obj.at("type") == "spiral") {
-        input = obj.at("parameters").get<ClothoidInput>();
+        input = obj.at("parameters").get<SpiralInput>();
     }
     else if(obj.at("type") == "spline") {
         input = obj.at("parameters").get<SplineInput>();

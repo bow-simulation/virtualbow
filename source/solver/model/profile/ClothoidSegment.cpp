@@ -2,8 +2,8 @@
 #include "solver/numerics/Fresnel.hpp"
 #include <cmath>
 
-ClothoidSegment::ClothoidSegment(const Point& start, const ClothoidInput& input)
-    : ClothoidSegment(start, input.at(ClothoidConstraint::LENGTH), input.at(ClothoidConstraint::K_START), input.at(ClothoidConstraint::K_END)) {
+ClothoidSegment::ClothoidSegment(const Point& start, const SpiralInput& input)
+    : ClothoidSegment(start, input.at(SpiralConstraint::LENGTH), input.at(SpiralConstraint::K_START), input.at(SpiralConstraint::K_END)) {
 
 }
 
