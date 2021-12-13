@@ -8,7 +8,9 @@ class ProfileSegmentEditor: public QWidget {
 
 public:
     ProfileSegmentEditor();
+
     virtual SegmentInput getData() const = 0;
+    virtual void setData(const SegmentInput& data) = 0;
 
 signals:
     void modified();
@@ -83,11 +85,23 @@ public:
     }
 
 protected:
-    void setData(int row, int index, int value) {
+    template<typename T>
+    void setProperties(const std::unordered_map<T, double>& data) {
         QSignalBlocker blocker(this);    // Block modification signals
-        combos[row]->setCurrentIndex(index);
-        spinners[row]->setValue(value);
+
+        int row = 0;
+        for(auto entry: data) {
+            combos[row]->setCurrentIndex(static_cast<int>(entry.first));
+            spinners[row]->setValue(entry.second);
+            ++row;
+        }
     }
+
+    /*
+    std::unordered_map<int, double> getProperties() const {
+
+    }
+    */
 
 private:
     QList<QComboBox*> combos;
@@ -98,7 +112,7 @@ private:
 class LineSegmentEditor: public PropertyValueEditor
 {
 public:
-    LineSegmentEditor(const LineInput& input)
+    LineSegmentEditor()
         : PropertyValueEditor(1, { "Length" }, { &UnitSystem::length }) {
 
     }
@@ -106,12 +120,16 @@ public:
     SegmentInput getData() const override {
         return LineInput();
     }
+
+    void setData(const SegmentInput& data) {
+
+    }
 };
 
 class ArcSegmentEditor: public PropertyValueEditor
 {
 public:
-    ArcSegmentEditor(const ArcInput& input)
+    ArcSegmentEditor()
         : PropertyValueEditor(2, { "Length", "Curvature" }, { &UnitSystem::length, &UnitSystem::curvature }) {
 
     }
@@ -119,12 +137,16 @@ public:
     SegmentInput getData() const override {
         return ArcInput();
     }
+
+    void setData(const SegmentInput& data) {
+
+    }
 };
 
 class SpiralSegmentEditor: public PropertyValueEditor
 {
 public:
-    SpiralSegmentEditor(const SpiralInput& input)
+    SpiralSegmentEditor()
         : PropertyValueEditor(3, { "Length", "Curv. Start", "Curv. End" }, { &UnitSystem::length, &UnitSystem::curvature, &UnitSystem::curvature }) {
 
     }
@@ -132,12 +154,16 @@ public:
     SegmentInput getData() const override {
         return SpiralInput();
     }
+
+    void setData(const SegmentInput& data) {
+
+    }
 };
 
 class SplineSegmentEditor: public ProfileSegmentEditor
 {
 public:
-    SplineSegmentEditor(const SplineInput& input) {
+    SplineSegmentEditor() {
         auto table = new QTableWidget(50, 2);
         table->setHorizontalHeaderLabels({"X [mm]", "Y [mm]"});
         table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -153,5 +179,9 @@ public:
 
     SegmentInput getData() const override {
         return SplineInput();
+    }
+
+    void setData(const SegmentInput& data) {
+
     }
 };

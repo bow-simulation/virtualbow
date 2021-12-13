@@ -3,9 +3,11 @@
 ProfileTreeItem::ProfileTreeItem(ProfileTree* parent, const SegmentInput& input)
     : editor(segmentEditor(input))
 {
+    this->setFlags(flags() & ~Qt::ItemIsDropEnabled);
     this->setText(0, segmentText(input));
     this->setIcon(0, segmentIcon(input));
-    this->setFlags(flags() & ~Qt::ItemIsDropEnabled);
+
+    editor->setData(input);
 
     QObject::connect(editor, &ProfileSegmentEditor::modified, parent, &ProfileTree::modified);
     parent->addTopLevelItem(this);
@@ -18,7 +20,6 @@ ProfileSegmentEditor* ProfileTreeItem::getEditor() {
 SegmentInput ProfileTreeItem::getData() const {
     return editor->getData();
 }
-
 
 QIcon ProfileTreeItem::segmentIcon(const SegmentInput& input) const {
     if(std::holds_alternative<LineInput>(input)) {
@@ -55,17 +56,17 @@ QString ProfileTreeItem::segmentText(const SegmentInput& input) const {
 }
 
 ProfileSegmentEditor* ProfileTreeItem::segmentEditor(const SegmentInput& input) const {
-    if(auto value = std::get_if<LineInput>(&input)) {
-        return new LineSegmentEditor(*value);
+    if(std::holds_alternative<LineInput>(input)) {
+        return new LineSegmentEditor();
     }
-    if(auto value = std::get_if<ArcInput>(&input)) {
-        return new ArcSegmentEditor(*value);
+    if(std::holds_alternative<ArcInput>(input)) {
+        return new ArcSegmentEditor();
     }
-    if(auto value = std::get_if<SpiralInput>(&input)) {
-        return new SpiralSegmentEditor(*value);
+    if(std::holds_alternative<SpiralInput>(input)) {
+        return new SpiralSegmentEditor();
     }
-    if(auto value = std::get_if<SplineInput>(&input)) {
-        return new SplineSegmentEditor(*value);
+    if(std::holds_alternative<SplineInput>(input)) {
+        return new SplineSegmentEditor();
     }
 
     throw std::invalid_argument("Unknown segment type");
