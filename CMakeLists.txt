@@ -90,64 +90,65 @@ add_executable(
     source/gui/main.cpp
     source/gui/MainWindow.cpp
     source/gui/MainWindow.hpp
-    source/gui/BaseDialog.cpp
-    source/gui/BaseDialog.hpp
+    source/gui/MainEditor.cpp
+    source/gui/MainEditor.hpp
+    source/gui/widgets/BaseDialog.cpp
+    source/gui/widgets/BaseDialog.hpp
     source/gui/HelpMenu.cpp
     source/gui/HelpMenu.hpp
-    source/gui/PersistentDialog.cpp
-    source/gui/PersistentDialog.hpp
-    source/gui/PlotWidget.cpp
-    source/gui/PlotWidget.hpp
-    source/gui/BackgroundDialog.cpp
-    source/gui/BackgroundDialog.hpp
+    source/gui/widgets/PersistentDialog.cpp
+    source/gui/widgets/PersistentDialog.hpp
+    source/gui/widgets/PlotWidget.cpp
+    source/gui/widgets/PlotWidget.hpp
+    source/gui/widgets/PlotOverlayDialog.cpp
+    source/gui/widgets/PlotOverlayDialog.hpp
     source/gui/SimulationDialog.cpp
     source/gui/SimulationDialog.hpp
-    source/gui/EditableTabBar.cpp
-    source/gui/EditableTabBar.hpp
+    source/gui/widgets/EditableTabBar.cpp
+    source/gui/widgets/EditableTabBar.hpp
     source/gui/RecentFilesMenu.cpp
     source/gui/RecentFilesMenu.hpp
-    source/gui/dialogs/CommentDialog.cpp
-    source/gui/dialogs/CommentDialog.hpp
-    source/gui/dialogs/GroupDialog.cpp
-    source/gui/dialogs/GroupDialog.hpp
-    source/gui/dialogs/LayerDialog.cpp
-    source/gui/dialogs/LayerDialog.hpp
-    source/gui/dialogs/MassesDialog.cpp
-    source/gui/dialogs/MassesDialog.hpp
-    source/gui/dialogs/DampingDialog.cpp
-    source/gui/dialogs/DampingDialog.hpp
-    source/gui/dialogs/DimensionsDialog.cpp
-    source/gui/dialogs/DimensionsDialog.hpp
-    source/gui/dialogs/ProfileDialog.cpp
-    source/gui/dialogs/ProfileDialog.hpp
-    source/gui/dialogs/SettingsDialog.cpp
-    source/gui/dialogs/SettingsDialog.hpp
-    source/gui/dialogs/StringDialog.cpp
-    source/gui/dialogs/StringDialog.hpp
-    source/gui/dialogs/WidthDialog.cpp
-    source/gui/dialogs/WidthDialog.hpp
-    source/gui/editors/ModelEditor.cpp
-    source/gui/editors/ModelEditor.hpp
-    source/gui/editors/DoubleEditor.cpp
-    source/gui/editors/DoubleEditor.hpp
-    source/gui/editors/IntegerEditor.cpp
-    source/gui/editors/IntegerEditor.hpp
-    source/gui/editors/LayerEditor.cpp
-    source/gui/editors/LayerEditor.hpp
-    source/gui/editors/ProfileEditor.cpp
-    source/gui/editors/ProfileEditor.hpp
-    source/gui/editors/ProfileTree.cpp
-    source/gui/editors/ProfileTree.hpp
-    source/gui/editors/ProfileSegmentEditor.cpp
-    source/gui/editors/ProfileSegmentEditor.hpp
-    source/gui/editors/TableEditor.cpp
-    source/gui/editors/TableEditor.hpp
-    source/gui/editors/TableModel.cpp
-    source/gui/editors/TableModel.hpp
-    source/gui/editors/TableView.cpp
-    source/gui/editors/TableView.hpp
-    source/gui/editors/TreeEditor.cpp
-    source/gui/editors/TreeEditor.hpp
+    source/gui/modeltree/ModelTreeEditor.cpp
+    source/gui/modeltree/ModelTreeEditor.hpp
+    source/gui/modeltree/ModelTreeItem.hpp
+    source/gui/modeltree/GroupDialog.cpp
+    source/gui/modeltree/GroupDialog.hpp
+    source/gui/modeltree/comment/CommentDialog.cpp
+    source/gui/modeltree/comment/CommentDialog.hpp
+    source/gui/modeltree/layers/LayerDialog.cpp
+    source/gui/modeltree/layers/LayerDialog.hpp
+    source/gui/modeltree/masses/MassesDialog.cpp
+    source/gui/modeltree/masses/MassesDialog.hpp
+    source/gui/modeltree/damping/DampingDialog.cpp
+    source/gui/modeltree/damping/DampingDialog.hpp
+    source/gui/modeltree/dimensions/DimensionsDialog.cpp
+    source/gui/modeltree/dimensions/DimensionsDialog.hpp
+    source/gui/modeltree/profile/ProfileDialog.cpp
+    source/gui/modeltree/profile/ProfileDialog.hpp
+    source/gui/modeltree/settings/SettingsDialog.cpp
+    source/gui/modeltree/settings/SettingsDialog.hpp
+    source/gui/modeltree/string/StringDialog.cpp
+    source/gui/modeltree/string/StringDialog.hpp
+    source/gui/modeltree/width/WidthDialog.cpp
+    source/gui/modeltree/width/WidthDialog.hpp
+    source/gui/modeltree/layers/LayerEditor.cpp
+    source/gui/modeltree/layers/LayerEditor.hpp
+    source/gui/modeltree/profile/ProfileEditor.cpp
+    source/gui/modeltree/profile/ProfileEditor.hpp
+    source/gui/modeltree/profile/ProfileTree.cpp
+    source/gui/modeltree/profile/ProfileTree.hpp
+    source/gui/modeltree/profile/SegmentEditor.cpp
+    source/gui/modeltree/profile/SegmentEditor.hpp
+    source/gui/widgets/DoubleEditor.cpp
+    source/gui/widgets/DoubleEditor.hpp
+    source/gui/widgets/IntegerEditor.cpp
+    source/gui/widgets/IntegerEditor.hpp
+    source/gui/widgets/TableEditor.cpp
+    source/gui/widgets/TableEditor.hpp
+    source/gui/widgets/TableModel.cpp
+    source/gui/widgets/TableModel.hpp
+    source/gui/widgets/TableView.cpp
+    source/gui/widgets/TableView.hpp
     source/gui/units/Unit.cpp
     source/gui/units/Unit.hpp
     source/gui/units/UnitGroup.cpp
@@ -156,21 +157,21 @@ add_executable(
     source/gui/units/UnitDialog.hpp
     source/gui/units/UnitSystem.cpp
     source/gui/units/UnitSystem.hpp
-    source/gui/views/LayerLegend.cpp
-    source/gui/views/LayerLegend.hpp
-    source/gui/views/LimbView.cpp
-    source/gui/views/LimbView.hpp
-    source/gui/views/LimbMesh.cpp
-    source/gui/views/LimbMesh.hpp
-    source/gui/views/LayerColors.cpp
-    source/gui/views/LayerColors.hpp
-    source/gui/views/ProfileView.cpp
-    source/gui/views/ProfileView.hpp
-    source/gui/views/SplineView.cpp
-    source/gui/views/SplineView.hpp
+    source/gui/limbview/LayerLegend.cpp
+    source/gui/limbview/LayerLegend.hpp
+    source/gui/limbview/LimbView.cpp
+    source/gui/limbview/LimbView.hpp
+    source/gui/limbview/LimbMesh.cpp
+    source/gui/limbview/LimbMesh.hpp
+    source/gui/limbview/LayerColors.cpp
+    source/gui/limbview/LayerColors.hpp
+    source/gui/modeltree/profile/ProfileView.cpp
+    source/gui/modeltree/profile/ProfileView.hpp
+    source/gui/widgets/SplineView.cpp
+    source/gui/widgets/SplineView.hpp
     source/gui/widgets/DoubleSpinBox.cpp
     source/gui/widgets/DoubleSpinBox.hpp
-    source/gui/qcustomplot/qcustomplot.cpp
+    source/gui/widgets/qcustomplot/qcustomplot.cpp
 )
 
 target_link_libraries(
@@ -206,19 +207,19 @@ add_executable(
     source/post/Slider.hpp
     source/post/StressPlot.cpp
     source/post/StressPlot.hpp
-    source/gui/qcustomplot/qcustomplot.cpp
+    source/gui/widgets/qcustomplot/qcustomplot.cpp
     source/gui/RecentFilesMenu.cpp
     source/gui/RecentFilesMenu.hpp
     source/gui/HelpMenu.cpp
     source/gui/HelpMenu.hpp
-    source/gui/BaseDialog.cpp
-    source/gui/BaseDialog.hpp
-    source/gui/PlotWidget.cpp
-    source/gui/PlotWidget.hpp
-    source/gui/BackgroundDialog.cpp
-    source/gui/BackgroundDialog.hpp
-    source/gui/views/LayerColors.cpp
-    source/gui/views/LayerColors.hpp
+    source/gui/widgets/BaseDialog.cpp
+    source/gui/widgets/BaseDialog.hpp
+    source/gui/widgets/PlotWidget.cpp
+    source/gui/widgets/PlotWidget.hpp
+    source/gui/widgets/PlotOverlayDialog.cpp
+    source/gui/widgets/PlotOverlayDialog.hpp
+    source/gui/limbview/LayerColors.cpp
+    source/gui/limbview/LayerColors.hpp
     source/gui/units/Unit.cpp
     source/gui/units/Unit.hpp
     source/gui/units/UnitGroup.cpp

@@ -1,6 +1,6 @@
 #pragma once
 #include "UnitSystem.hpp"
-#include "gui/PersistentDialog.hpp"
+#include "gui/widgets/PersistentDialog.hpp"
 
 class UnitDialog;
 

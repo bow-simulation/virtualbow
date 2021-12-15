@@ -2,13 +2,13 @@
 #include "SimulationDialog.hpp"
 #include "RecentFilesMenu.hpp"
 #include "HelpMenu.hpp"
-#include "editors/ModelEditor.hpp"
+#include "MainEditor.hpp"
 #include "config.hpp"
 #include <nlohmann/json.hpp>
 
 MainWindow::MainWindow()
     : menu_open_recent(new RecentFilesMenu(this)),
-      editor(new ModelEditor())
+      editor(new MainEditor())
 {
     // Actions
     action_new = new QAction(QIcon(":/icons/document-new.svg"), "&New", this);
@@ -113,7 +113,7 @@ MainWindow::MainWindow()
     UnitSystem::loadFromSettings(settings);
 
     // Set Window's modification indicator when data has changed
-    QObject::connect(editor, &ModelEditor::modified, [&]{
+    QObject::connect(editor, &MainEditor::modified, [&]{
         InputData new_data = editor->getData();
         this->setModified(new_data != data);
     });
@@ -323,5 +323,5 @@ void MainWindow::setFilePath(const QString &path) {
 void MainWindow::setModified(bool modified) {
     QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_GUI);
     setWindowModified(modified);
-    QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString::null);});
+    QTimer::singleShot(0, [](){ QApplication::setApplicationDisplayName(QString()); });
 }

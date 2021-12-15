@@ -1,5 +1,5 @@
 #pragma once
-#include "BaseDialog.hpp"
+#include "gui/widgets/BaseDialog.hpp"
 
 class SimulationDialog: public BaseDialog
 {

@@ -3,7 +3,7 @@
 #include "units/UnitDialog.hpp"
 #include <QtWidgets>
 
-class ModelEditor;
+class MainEditor;
 class RecentFilesMenu;
 
 class MainWindow: public QMainWindow {
@@ -29,7 +29,7 @@ private:
     RecentFilesMenu* menu_open_recent;
 
     InputData data;
-    ModelEditor* editor;
+    MainEditor* editor;
 
     void closeEvent(QCloseEvent *event) override;
 

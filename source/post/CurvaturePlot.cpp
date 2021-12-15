@@ -1,5 +1,5 @@
 #include "CurvaturePlot.hpp"
-#include "gui/views/LayerColors.hpp"
+#include "gui/limbview/LayerColors.hpp"
 
 CurvaturePlot::CurvaturePlot(const LimbProperties& limb, const BowStates& states)
     : limb(limb),
