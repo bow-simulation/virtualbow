@@ -1,5 +1,5 @@
 #include "StressPlot.hpp"
-#include "gui/views/LayerColors.hpp"
+#include "gui/limbview/LayerColors.hpp"
 
 StressPlot::StressPlot(const LimbProperties& limb, const BowStates& states)
     : limb(limb),

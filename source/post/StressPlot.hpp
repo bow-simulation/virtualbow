@@ -1,5 +1,5 @@
 #pragma once
-#include "gui/PlotWidget.hpp"
+#include "gui/widgets/PlotWidget.hpp"
 #include "gui/units/UnitSystem.hpp"
 #include "solver/model/output/OutputData.hpp"
 #include "solver/model/input/InputData.hpp"
