@@ -21,7 +21,6 @@ find_package(Boost REQUIRED)
 find_package(Catch2 REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(nlohmann_json REQUIRED)
-find_package(NLopt REQUIRED)
 find_package(Threads REQUIRED)                # System thread library (https://stackoverflow.com/a/39547577)
 find_package(OpenGL REQUIRED)
 
@@ -34,6 +33,54 @@ set(CMAKE_AUTORCC ON)
 configure_file(source/config.hpp.in ${CMAKE_BINARY_DIR}/config.hpp)
 include_directories(source ${PROJECT_BINARY_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
+
+# Target: Solver library
+
+add_library(
+    virtualbow-lib STATIC
+    source/solver/fem/elements/BarElement.cpp
+    source/solver/fem/elements/BeamElement.cpp
+    source/solver/fem/elements/MassElement.cpp
+    source/solver/fem/elements/ContactElement.cpp
+    source/solver/fem/elements/ContactHandler.cpp
+    source/solver/fem/elements/ConstraintElement.cpp
+    source/solver/fem/Node.cpp
+    source/solver/fem/Element.cpp
+    source/solver/fem/StaticSolver.cpp
+    source/solver/fem/DynamicSolver.cpp
+    source/solver/fem/EigenvalueSolver.cpp
+    source/solver/fem/System.cpp
+    source/solver/model/BeamUtils.cpp
+    source/solver/model/ContinuousLimb.cpp
+    source/solver/model/LimbProperties.cpp
+    source/solver/model/ProfileCurve.cpp
+    source/solver/model/input/InputData.cpp
+    source/solver/model/output/OutputData.cpp
+    source/solver/model/BowModel.cpp
+    source/solver/numerics/CubicSpline.cpp
+    source/solver/numerics/Fresnel.cpp
+    source/solver/numerics/Series.cpp
+)
+
+target_link_libraries(
+    virtualbow-lib
+    ${Boost_LIBRARIES}
+    Eigen3::Eigen
+    nlohmann_json::nlohmann_json
+)
+
+# Target: Solver executable
+
+add_executable(
+    virtualbow-slv
+    source/solver/main.cpp
+)
+
+target_link_libraries(
+    virtualbow-slv
+    virtualbow-lib
+    Qt5::Core
+)
 
 # Target: Gui executable
 
@@ -124,30 +171,15 @@ add_executable(
     source/gui/widgets/DoubleSpinBox.cpp
     source/gui/widgets/DoubleSpinBox.hpp
     source/gui/qcustomplot/qcustomplot.cpp
-    source/solver/model/BeamUtils.cpp
-    source/solver/model/ContinuousLimb.cpp
-    source/solver/model/LimbProperties.cpp
-    source/solver/model/ProfileCurve.cpp
-    source/solver/model/profile/ProfileCurve.cpp
-    source/solver/model/profile/ClothoidSegment.cpp
-    source/solver/model/profile/SplineSegment.cpp
-    source/solver/model/input/InputData.cpp
-    source/solver/model/output/OutputData.cpp
-    source/solver/numerics/CubicSpline.cpp
-    source/solver/numerics/Fresnel.cpp
-    source/solver/numerics/Series.cpp
 )
 
 target_link_libraries(
     virtualbow-gui
+    virtualbow-lib
     Threads::Threads
     ${OPENGL_gl_LIBRARY}
     Qt5::Widgets
     Qt5::PrintSupport
-    ${Boost_LIBRARIES}
-    Eigen3::Eigen
-    nlohmann_json::nlohmann_json
-    NLopt::nlopt
 )
 
 # Target: Post executable
@@ -195,61 +227,13 @@ add_executable(
     source/gui/units/UnitDialog.hpp
     source/gui/units/UnitSystem.cpp
     source/gui/units/UnitSystem.hpp
-    source/solver/model/output/OutputData.cpp
-    source/solver/model/output/OutputData.hpp
-    source/solver/numerics/Series.cpp
-    source/solver/numerics/Series.hpp
 )
 
 target_link_libraries(
     virtualbow-post
+    virtualbow-lib
     Qt5::Widgets
     Qt5::PrintSupport
-    ${Boost_LIBRARIES}
-    Eigen3::Eigen
-    nlohmann_json::nlohmann_json
-    NLopt::nlopt
-)
-
-# Target: Solver executable
-
-add_executable(
-    virtualbow-slv
-    source/solver/main.cpp
-    source/solver/fem/elements/BarElement.cpp
-    source/solver/fem/elements/BeamElement.cpp
-    source/solver/fem/elements/MassElement.cpp
-    source/solver/fem/elements/ContactElement.cpp
-    source/solver/fem/elements/ContactHandler.cpp
-    source/solver/fem/elements/ConstraintElement.cpp
-    source/solver/fem/Node.cpp
-    source/solver/fem/Element.cpp
-    source/solver/fem/StaticSolver.cpp
-    source/solver/fem/DynamicSolver.cpp
-    source/solver/fem/EigenvalueSolver.cpp
-    source/solver/fem/System.cpp
-    source/solver/model/BeamUtils.cpp
-    source/solver/model/ContinuousLimb.cpp
-    source/solver/model/LimbProperties.cpp
-    source/solver/model/ProfileCurve.cpp
-    source/solver/model/profile/ProfileCurve.cpp
-    source/solver/model/profile/ClothoidSegment.cpp
-    source/solver/model/profile/SplineSegment.cpp
-    source/solver/model/input/InputData.cpp
-    source/solver/model/output/OutputData.cpp
-    source/solver/model/BowModel.cpp
-    source/solver/numerics/CubicSpline.cpp
-    source/solver/numerics/Fresnel.cpp
-    source/solver/numerics/Series.cpp
-)
-
-target_link_libraries(
-    virtualbow-slv
-    Qt5::Core
-    ${Boost_LIBRARIES}
-    Eigen3::Eigen
-    nlohmann_json::nlohmann_json
-    NLopt::nlopt
 )
 
 # Target: Test executable
@@ -264,40 +248,12 @@ add_executable(
     source/tests/fem/TangentStiffness.cpp
     source/tests/numerics/Geometry.cpp
     source/tests/numerics/FindInterval.cpp
-    source/solver/fem/elements/BarElement.cpp
-    source/solver/fem/elements/BeamElement.cpp
-    source/solver/fem/elements/MassElement.cpp
-    source/solver/fem/elements/ContactElement.cpp
-    source/solver/fem/elements/ContactHandler.cpp
-    source/solver/fem/elements/ConstraintElement.cpp
-    source/solver/fem/Node.cpp
-    source/solver/fem/Element.cpp
-    source/solver/fem/StaticSolver.cpp
-    source/solver/fem/DynamicSolver.cpp
-    source/solver/fem/EigenvalueSolver.cpp
-    source/solver/fem/System.cpp
-    source/solver/model/BeamUtils.cpp
-    source/solver/model/ContinuousLimb.cpp
-    source/solver/model/LimbProperties.cpp
-    source/solver/model/ProfileCurve.cpp
-    source/solver/model/profile/ProfileCurve.cpp
-    source/solver/model/profile/ClothoidSegment.cpp
-    source/solver/model/profile/SplineSegment.cpp
-    source/solver/model/input/InputData.cpp
-    source/solver/model/output/OutputData.cpp
-    source/solver/model/BowModel.cpp
-    source/solver/numerics/CubicSpline.cpp
-    source/solver/numerics/Fresnel.cpp
-    source/solver/numerics/Series.cpp
 )
 
 target_link_libraries(
     virtualbow-test
+    virtualbow-lib
     Catch2::Catch2
-    ${Boost_LIBRARIES}
-    Eigen3::Eigen
-    nlohmann_json::nlohmann_json
-    NLopt::nlopt
 )
 
 # Change output directories
