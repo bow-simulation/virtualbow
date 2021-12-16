@@ -1,4 +1,8 @@
 #include "DoubleEditor.hpp"
+#include <QLabel>
+#include <QLineEdit>
+#include <QDoubleValidator>
+#include <QHBoxLayout>
 
 DoubleEditor::DoubleEditor(const QString& text, const UnitGroup& group)
     : text_label(new QLabel(text)),

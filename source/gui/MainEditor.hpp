@@ -1,9 +1,9 @@
 #pragma once
-#include "gui/modeltree/ModelTreeEditor.hpp"
-#include "gui/limbview/LimbView.hpp"
-#include "gui/units/UnitSystem.hpp"
+#include "solver/model/input/InputData.hpp"
+#include <QSplitter>
 
-class InputData;
+class ModelTreeEditor;
+class LimbView;
 
 class MainEditor: public QSplitter {
     Q_OBJECT

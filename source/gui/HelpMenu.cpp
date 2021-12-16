@@ -1,6 +1,12 @@
 #include "HelpMenu.hpp"
 #include "config.hpp"
 
+#include <QCoreApplication>
+#include <QMessageBox>
+#include <QFileInfo>
+#include <QDesktopServices>
+#include <QUrl>
+
 HelpMenu::HelpMenu(QWidget* parent)
     : QMenu("&Help", parent)
 {

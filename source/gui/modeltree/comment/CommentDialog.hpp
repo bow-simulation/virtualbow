@@ -1,8 +1,9 @@
 #pragma once
-#include <QtWidgets>
 #include "gui/widgets/PersistentDialog.hpp"
-#include "gui/units/UnitSystem.hpp"
 #include <string>
+
+class QWidget;
+class QTextEdit;
 
 class CommentDialog: public PersistentDialog
 {

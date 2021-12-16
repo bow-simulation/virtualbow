@@ -1,6 +1,10 @@
 #pragma once
-#include "gui/units/UnitGroup.hpp"
-#include <QtWidgets>
+#include <QWidget>
+
+class UnitGroup;
+class QHBoxLayout;
+class QVBoxLayout;
+class QGridLayout;
 
 class NumberGrid : public QWidget {
 public:

@@ -1,7 +1,9 @@
 #pragma once
 #include "solver/model/output/OutputData.hpp"
-#include "gui/units/UnitSystem.hpp"
-#include <QtWidgets>
+#include <QWidget>
+
+class QPushButton;
+class QTabWidget;
 
 class OutputWidget: public QWidget {
 public:

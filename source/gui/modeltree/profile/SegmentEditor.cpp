@@ -1,121 +1,132 @@
 #include "SegmentEditor.hpp"
 #include "gui/widgets/DoubleSpinBox.hpp"
+#include "gui/units/UnitSystem.hpp"
+#include <QTableWidget>
+#include <QVBoxLayout>
+#include <QHeaderView>
 
-SegmentEditor::SegmentEditor()
-/*
-      constraint_types({ LineConstraint::LENGTH }),
-      constraint_names({ "Length" }),
-      constraint_units({ &UnitSystem::length })
-*/
+PropertyValueEditor::PropertyValueEditor(int rows, const QList<QString>& names,  const QList<UnitGroup*>& units)
+    : units(units)
 {
-    /*
-    this->setHorizontalHeaderLabels({"Property", "Value"});
-    this->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    this->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
-    this->verticalHeader()->setVisible(false);
+    auto table = new QTableWidget(rows, 2);
+    table->setHorizontalHeaderLabels({"Property", "Value"});
+    table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    table->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
+    table->verticalHeader()->setVisible(false);
 
-    for(int i = 0; i < rowCount(); ++i) {
+    for(int i = 0; i < rows; ++i) {
         auto combo = new QComboBox();
         combo->setFrame(false);
-        for(int j = 0; j < constraint_names.size(); ++j) {
-            combo->addItem(constraint_names[j], static_cast<int>(constraint_types[j]));
+        for(int j = 0; j < names.size(); ++j) {
+            combo->addItem(names[j], j);
         }
 
         auto spinner = new DoubleSpinBox(Domain::UNRESTRICTED);
         spinner->setFrame(false);
 
-        auto update_spinner_unit = [this, spinner](int index){
+        // Update the unis of the spinner depending on the combobox selection
+        auto update_spinner_unit = [this, spinner](int index) {
             QSignalBlocker blocker(spinner);    // Block modification signal
             spinner->setValue(0.0);
-            spinner->setUnitGroup(constraint_units[index]);
+            spinner->setUnitGroup(this->units[index]);
         };
 
-        QObject::connect(spinner, QOverload<double>::of(&DoubleSpinBox::valueChanged), this, &LineSegmentEditor::modified);
-        QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &LineSegmentEditor::modified);
+        /*
+            // Set the selected entry to disabled in all other comboboxes
+            auto update_combos_enabled = [this, combo](int index) {
+                for(auto c: combos) {
+                    // http://stackoverflow.com/q/38915001
+                    auto model = qobject_cast<QStandardItemModel*>(c->model());
+                    for(int i = 0; i < model->rowCount(); ++i) {
+                        QStandardItem* item = model->item(i);
+                        if(i == index && c != combo) {
+                            item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+                        }
+                        else if(c != combo) {
+                            item->setFlags(item->flags() | Qt::ItemIsEnabled);
+                        }
+                    }
+                }
+            };
+            */
+
+        QObject::connect(spinner, QOverload<double>::of(&DoubleSpinBox::valueChanged), this, &SegmentEditor::modified);
+        QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SegmentEditor::modified);
         QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, update_spinner_unit);
+        //QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, update_combos_enabled);
         update_spinner_unit(combo->currentIndex());
 
-        this->setCellWidget(i, 0, combo);
-        this->setCellWidget(i, 1, spinner);
+        combos.push_back(combo);
+        spinners.push_back(spinner);
+
+        table->setCellWidget(i, 0, combo);
+        table->setCellWidget(i, 1, spinner);
     }
-    */
+
+    auto vbox = new QVBoxLayout();
+    vbox->setMargin(0);
+    vbox->addWidget(table);
+
+    this->setLayout(vbox);
 }
 
-/*
-SegmentInput SegmentEditor::getData() const {
-    SegmentInput data = {.type = segment_type };
-    for(int i = 0; i < this->rowCount(); ++i) {
-        auto combo = dynamic_cast<QComboBox*>(this->cellWidget(i, 0));
-        auto spinner = dynamic_cast<DoubleSpinBox*>(this->cellWidget(i, 1));
+LineSegmentEditor::LineSegmentEditor()
+    : PropertyValueEditor(1, { "Length" }, { &UnitSystem::length }) {
 
-        data.constraints.push_back(Constraint{
-            .type = static_cast<ConstraintType>(combo->currentData().toInt()),
-            .value = spinner->value()
-        });
-    }
-
-    return data;
-}
-*/
-
-/*
-void SegmentEditor::setData(const SegmentInput& data) {
-    QSignalBlocker blocker(this);    // Block modification signals
-
-    if(data.constraints.size() != this->rowCount()) {
-        throw std::invalid_argument("Invalid number of constraints for widget");
-    }
-
-    for(int i = 0; i < this->rowCount(); ++i) {
-        auto combo = dynamic_cast<QComboBox*>(this->cellWidget(i, 0));
-        auto spinner = dynamic_cast<DoubleSpinBox*>(this->cellWidget(i, 1));
-
-        for(int j = 0; j < combo->count(); ++j) {
-            if(combo->itemData(j) == static_cast<int>(data.constraints[i].type)) {
-                combo->setCurrentIndex(j);
-                break;
-            }
-        }
-
-        spinner->setValue(data.constraints[i].value);
-    }
-}
-*/
-
-/*
-int SegmentEditor::numConstraints(SegmentType segment_type) {
-    switch(segment_type) {
-        case SegmentType::Line: return 1;
-        case SegmentType::Arc: return 2;
-        case SegmentType::Spiral: return 3;
-        default: throw std::invalid_argument("Invalid segment type");
-    }
 }
 
-QList<ConstraintType> SegmentEditor::constraintTypes(SegmentType segment_type) {
-    switch(segment_type) {
-        case SegmentType::Line: return {ConstraintType::X_END, ConstraintType::Y_END, ConstraintType::S_END, ConstraintType::DELTA_X, ConstraintType::DELTA_Y, ConstraintType::DELTA_S};
-        case SegmentType::Arc: return {ConstraintType::X_END, ConstraintType::Y_END, ConstraintType::S_END, ConstraintType::PHI_END, ConstraintType::DELTA_X, ConstraintType::DELTA_Y, ConstraintType::DELTA_PHI, ConstraintType::R_START};
-        case SegmentType::Spiral: return {ConstraintType::X_END, ConstraintType::Y_END, ConstraintType::S_END, ConstraintType::PHI_END, ConstraintType::DELTA_X, ConstraintType::DELTA_Y, ConstraintType::DELTA_PHI, ConstraintType::R_START, ConstraintType::R_END};
-        default: throw std::invalid_argument("Invalid segment type");
-    }
+SegmentInput LineSegmentEditor::getData() const {
+    return LineInput();
 }
 
-QList<QString> SegmentEditor::constraintNames(SegmentType segment_type) {
-    switch(segment_type) {
-        case SegmentType::Line: return {"X End", "Y End", "S End", "Delta X", "Delta Y", "Delta S"};
-        case SegmentType::Arc: return {"X End", "Y End", "Phi End", "Delta X", "Delta Y", "Delta Phi", "R Start"};
-        case SegmentType::Spiral: return {"X End", "Y End", "Phi End", "Delta X", "Delta Y", "Delta Phi", "R Start", "R End"};
-        default: throw std::invalid_argument("Invalid segment type");
-    }
+void LineSegmentEditor::setData(const SegmentInput& data) {
+
 }
 
-QList<UnitGroup*> SegmentEditor::constraintUnits(SegmentType segment_type) {
-    switch(segment_type) {
-        case SegmentType::Line: return {&UnitSystem::length, &UnitSystem::length, &UnitSystem::length, &UnitSystem::length, &UnitSystem::length, &UnitSystem::length};
-        case SegmentType::Arc: return {&UnitSystem::length, &UnitSystem::length, &UnitSystem::angle, &UnitSystem::length, &UnitSystem::length, &UnitSystem::angle, &UnitSystem::length};
-        case SegmentType::Spiral: return {&UnitSystem::length, &UnitSystem::length, &UnitSystem::angle, &UnitSystem::length, &UnitSystem::length, &UnitSystem::angle, &UnitSystem::length, &UnitSystem::length};
-        default: throw std::invalid_argument("Invalid segment type");
-    }
+ArcSegmentEditor::ArcSegmentEditor()
+    : PropertyValueEditor(2, { "Length", "Curvature" }, { &UnitSystem::length, &UnitSystem::curvature }) {
+
 }
-*/
+
+SegmentInput ArcSegmentEditor::getData() const {
+    return ArcInput();
+}
+
+void ArcSegmentEditor::setData(const SegmentInput& data) {
+
+}
+
+SpiralSegmentEditor::SpiralSegmentEditor()
+    : PropertyValueEditor(3, { "Length", "Curv. Start", "Curv. End" }, { &UnitSystem::length, &UnitSystem::curvature, &UnitSystem::curvature }) {
+
+}
+
+SegmentInput SpiralSegmentEditor::getData() const {
+    return SpiralInput();
+}
+
+void SpiralSegmentEditor::setData(const SegmentInput& data) {
+
+}
+
+SplineSegmentEditor::SplineSegmentEditor() {
+    auto table = new QTableWidget(50, 2);
+    table->setHorizontalHeaderLabels({"X [mm]", "Y [mm]"});
+    table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    table->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
+    table->verticalHeader()->setVisible(false);
+
+    auto vbox = new QVBoxLayout();
+    vbox->setMargin(0);
+    vbox->addWidget(table);
+
+    this->setLayout(vbox);
+}
+
+SegmentInput SplineSegmentEditor::getData() const {
+    return SplineInput();
+}
+
+void SplineSegmentEditor::setData(const SegmentInput& data) {
+
+}

@@ -1,5 +1,15 @@
 #include "Slider.hpp"
-#include <algorithm>
+#include "gui/units/UnitGroup.hpp"
+#include <QLineEdit>
+#include <QDoubleValidator>
+#include <QToolButton>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <Qlabel>
+#include <QSlider>
+#include <QMenu>
+#include <QTimer>
+#include <cmath>
 
 Slider::Slider(const std::vector<double>& values, const QString& text, const UnitGroup& unit)
     : edit(new QLineEdit()),

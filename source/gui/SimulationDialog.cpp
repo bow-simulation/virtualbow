@@ -1,8 +1,15 @@
 #include "SimulationDialog.hpp"
-#include <thread>
+#include <QVBoxLayout>
+#include <QProgressBar>
+#include <QMessageBox>
+#include <QLabel>
+#include <QProcess>
+#include <QDialogButtonBox>
+#include <QCoreApplication>
+#include <QDir>
 
 SimulationDialog::SimulationDialog(QWidget* parent, const QString& input, const QString& output, const QString& flag)
-    : BaseDialog(parent)
+    : DialogBase(parent)
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);

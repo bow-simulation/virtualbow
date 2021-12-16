@@ -1,5 +1,5 @@
 #pragma once
-#include <QtWidgets>
+#include <QMenu>
 
 class HelpMenu: public QMenu
 {
@@ -10,4 +10,3 @@ private:
     void help();
     void about();
 };
-

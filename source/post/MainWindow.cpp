@@ -1,8 +1,12 @@
 #include "MainWindow.hpp"
 #include "OutputWidget.hpp"
 #include "gui/HelpMenu.hpp"
+#include "gui/RecentFilesMenu.hpp"
+#include "gui/units/UnitDialog.hpp"
 #include "config.hpp"
-#include <algorithm>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QFileDialog>
 
 MainWindow::MainWindow()
     : menu_open_recent(new RecentFilesMenu(this))

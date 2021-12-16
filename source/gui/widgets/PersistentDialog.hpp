@@ -1,7 +1,7 @@
 #pragma once
-#include "gui/widgets/BaseDialog.hpp"
+#include "gui/widgets/DialogBase.hpp"
 
-class PersistentDialog: public BaseDialog
+class PersistentDialog: public DialogBase
 {
 public:
     PersistentDialog(QWidget* parent, const QString& name, const QSize& size);

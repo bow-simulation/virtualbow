@@ -1,4 +1,6 @@
+#include "gui/units/UnitGroup.hpp"
 #include "DoubleSpinBox.hpp"
+#include <limits>
 
 DoubleSpinBox::DoubleSpinBox(Domain range, QWidget* parent)
     : QDoubleSpinBox(parent),

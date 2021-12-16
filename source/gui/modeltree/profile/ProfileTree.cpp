@@ -1,4 +1,10 @@
 #include "ProfileTree.hpp"
+#include "SegmentEditor.hpp"
+#include <QHBoxLayout>
+#include <QToolButton>
+#include <QPushButton>
+#include <QAction>
+#include <QMenu>
 
 ProfileTreeItem::ProfileTreeItem(ProfileTree* parent, const SegmentInput& input)
     : editor(segmentEditor(input))

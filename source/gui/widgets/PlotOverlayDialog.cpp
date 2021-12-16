@@ -7,7 +7,7 @@ const double STEP_SIZE_ROTATION = 0.25;
 const double BACKGROUND_OPACITY = 0.5;
 
 PlotOverlayDialog::PlotOverlayDialog(PlotWidget* plot)
-    : BaseDialog(plot),
+    : DialogBase(plot),
       plot(plot)
 {
     item = new QCPItemPixmap(plot);

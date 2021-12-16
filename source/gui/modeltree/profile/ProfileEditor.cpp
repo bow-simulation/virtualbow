@@ -1,9 +1,11 @@
 #include "ProfileEditor.hpp"
+#include "ProfileTree.hpp"
 #include "SegmentEditor.hpp"
-#include "solver/model/ProfileCurve.hpp"
-#include "gui/widgets/DoubleSpinBox.hpp"
-#include "gui/units/UnitSystem.hpp"
 #include <algorithm>
+
+#include <QTableWidget>
+#include <QSplitter>
+#include <QVBoxLayout>
 
 ProfileEditor::ProfileEditor()
     : profile_tree(new ProfileTree())
@@ -46,11 +48,11 @@ ProfileEditor::ProfileEditor()
     */
 }
 
-std::vector<SegmentInput> ProfileEditor::getData() const {
+ProfileInput ProfileEditor::getData() const {
     return profile_tree->getData();
 }
 
-void ProfileEditor::setData(const std::vector<SegmentInput>& data) {
+void ProfileEditor::setData(const ProfileInput& data) {
     profile_tree->setData(data);
 }
 

@@ -1,4 +1,7 @@
 #include "LayerLegend.hpp"
+#include "LayerColors.hpp"
+#include <QLabel>
+#include <QHBoxLayout>
 
 LayerEntry::LayerEntry()
     : symbol(new QLabel()),

@@ -1,4 +1,8 @@
 #include "CommentDialog.hpp"
+#include <QTextEdit>
+#include <QFontDatabase>
+#include <QDialogButtonBox>
+#include <QVBoxLayout>
 
 CommentDialog::CommentDialog(QWidget* parent)
     : PersistentDialog(parent, "CommentDialog", {600, 300}),

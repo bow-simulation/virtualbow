@@ -1,7 +1,11 @@
 #include "GroupDialog.hpp"
+#include <QVBoxLayout>
+#include <QDialogButtonBox>
+#include <QGroupBox>
+#include <QAbstractButton>
 
 GroupDialog::GroupDialog(QWidget* parent, const QString& title, bool enable_reset)
-    : BaseDialog(parent),
+    : DialogBase(parent),
       vbox1(new QVBoxLayout()),
       vbox2(nullptr)
 {

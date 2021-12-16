@@ -1,7 +1,20 @@
 #include "LimbView.hpp"
+#include "LimbMesh.hpp"
+#include "LayerLegend.hpp"
 #include "LayerColors.hpp"
+#include "OpenGLUtils.hpp"
+#include "solver/model/input/InputData.hpp"
+#include "config.hpp"
+
+#include <QOpenGLShaderProgram>
 #include <QMouseEvent>
 #include <QCoreApplication>
+#include <QToolButton>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <QFrame>
+#include <QLabel>
+#include <QDate>
 
 LimbView::LimbView()
     : legend(new LayerLegend()),
@@ -282,9 +295,9 @@ void LimbView::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void LimbView::wheelEvent(QWheelEvent* event) {
+    float mouse_ratio_x = float(event->position().x())/this->width();
+    float mouse_ratio_y = float(event->position().y())/this->height();
     float delta_zoom = -ZOOM_SPEED*event->angleDelta().y()/120.0f*zoom;    // Dividing by 120 gives the number of 15 degree steps on a standard mouse
-    float mouse_ratio_x = float(event->x())/this->width();
-    float mouse_ratio_y = float(event->y())/this->height();
 
     shift_x -= (mouse_ratio_x - 0.5f)*delta_zoom;
     shift_y += (mouse_ratio_y - 0.5f)*delta_zoom;

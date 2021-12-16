@@ -1,5 +1,7 @@
 #include "MainWindow.hpp"
 #include "config.hpp"
+#include <QApplication>
+#include <QCommandLineParser>
 #include <iostream>
 
 int main(int argc, char* argv[]) {

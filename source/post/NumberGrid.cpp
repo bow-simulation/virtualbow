@@ -1,9 +1,16 @@
 #include "NumberGrid.hpp"
+#include "gui/units/UnitGroup.hpp"
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QLineEdit>
+#include <QLabel>
 
 NumberGrid::NumberGrid()
     : columnLayout(new QHBoxLayout()),
-    currentColumn(nullptr),
-    currentGrid(nullptr)
+      currentColumn(nullptr),
+      currentGrid(nullptr)
 {
     columnLayout->setSpacing(20);
     columnLayout->setMargin(20);
