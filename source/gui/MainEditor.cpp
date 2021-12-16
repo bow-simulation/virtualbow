@@ -1,4 +1,6 @@
 #include "MainEditor.hpp"
+#include "modeltree/ModelTreeEditor.hpp"
+#include "limbview/LimbView.hpp"
 
 MainEditor::MainEditor()
     : QSplitter(Qt::Horizontal),

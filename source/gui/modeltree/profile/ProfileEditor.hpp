@@ -1,7 +1,8 @@
 #pragma once
-#include "ProfileTree.hpp"
-#include "solver/model/profile/ProfileCurve.hpp"
-#include <QtWidgets>
+#include "solver/model/profile/ProfileInput.hpp"
+#include <QWidget>
+
+class ProfileTree;
 
 class ProfileEditor: public QWidget {
     Q_OBJECT
@@ -9,8 +10,8 @@ class ProfileEditor: public QWidget {
 public:
     ProfileEditor();
 
-    std::vector<SegmentInput> getData() const;
-    void setData(const std::vector<SegmentInput>& data);
+    ProfileInput getData() const;
+    void setData(const ProfileInput& data);
 
 signals:
     void modified();

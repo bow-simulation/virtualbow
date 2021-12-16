@@ -1,4 +1,8 @@
 #include "IntegerEditor.hpp"
+#include <QLabel>
+#include <QSpinBox>
+#include <QHBoxLayout>
+#include <limits>
 
 IntegerEditor::IntegerEditor(const QString& text)
     : label(new QLabel(text)),

@@ -2,6 +2,9 @@
 #include "config.hpp"
 #include <iostream>
 
+#include <QApplication>
+#include <QCommandLineParser>
+
 int main(int argc, char* argv[]) {
     QApplication::setOrganizationName(Config::ORGANIZATION_NAME);
     QApplication::setOrganizationDomain(Config::ORGANIZATION_DOMAIN);

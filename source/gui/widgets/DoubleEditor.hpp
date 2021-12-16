@@ -1,6 +1,9 @@
 #pragma once
 #include "gui/units/UnitSystem.hpp"
-#include <QtWidgets>
+#include <QWidget>
+
+class QLabel;
+class QLineEdit;
 
 class DoubleEditor: public QWidget
 {

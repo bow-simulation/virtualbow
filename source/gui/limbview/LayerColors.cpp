@@ -1,9 +1,15 @@
 #include "LayerColors.hpp"
+#include "solver/model/input/Layers.hpp"
+#include "solver/model/LimbProperties.hpp"
+
 #include <boost/functional/hash.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <random>
 
+#include <QPainterPath>
+#include <QPainter>
+#include <QPixmap>
 
 // https://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
 // https://stackoverflow.com/a/19728404/4692009

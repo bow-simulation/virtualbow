@@ -1,5 +1,8 @@
 #pragma once
-#include <QtWidgets>
+#include <QWidget>
+
+class QLabel;
+class QSpinBox;
 
 class IntegerEditor: public QWidget {
     Q_OBJECT

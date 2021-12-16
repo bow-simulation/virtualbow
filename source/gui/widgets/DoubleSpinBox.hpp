@@ -1,7 +1,7 @@
 #pragma once
-#include "gui/units/UnitSystem.hpp"
-#include <QtWidgets>
-#include <limits>
+#include <QDoubleSpinBox>
+
+class UnitGroup;
 
 enum class Domain {
     UNRESTRICTED,

@@ -1,9 +1,11 @@
 #pragma once
-#include "SegmentEditor.hpp"
 #include "solver/model/profile/ProfileInput.hpp"
-#include <QtWidgets>
+#include <QTreeWidgetItem>
+#include <QHeaderView>
 
 class ProfileTree;
+class SegmentEditor;
+class QToolButton;
 
 enum class SegmentType {
     Line, Arc, Spiral, Spline
@@ -38,7 +40,7 @@ public:
     void setData(const ProfileInput& data);
 
 protected:
-    void dropEvent(QDropEvent *event) override;
+    void dropEvent(QDropEvent* event) override;
 
 signals:
     void modified();

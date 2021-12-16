@@ -1,7 +1,6 @@
 #pragma once
 #include "solver/model/input/InputData.hpp"
-#include "units/UnitDialog.hpp"
-#include <QtWidgets>
+#include <QMainWindow>
 
 class MainEditor;
 class RecentFilesMenu;

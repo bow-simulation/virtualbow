@@ -1,10 +1,10 @@
 #pragma once
-#include <QtWidgets>
+#include <QDialog>
 
 // Base class for all input and output dialogs. Doesn't close on enter.
-class BaseDialog: public QDialog
+class DialogBase: public QDialog
 {
 public:
-    BaseDialog(QWidget* parent);
+    DialogBase(QWidget* parent);
     void keyPressEvent(QKeyEvent *event) override;
 };

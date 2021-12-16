@@ -1,10 +1,13 @@
 #pragma once
-#include "gui/widgets/BaseDialog.hpp"
+#include "gui/widgets/DialogBase.hpp"
 
 class PlotWidget;
 class QCPItemPixmap;
+class QDoubleSpinBox;
+class QCheckBox;
+class QGroupBox;
 
-class PlotOverlayDialog: public BaseDialog {
+class PlotOverlayDialog: public DialogBase {
     Q_OBJECT
 
 public:

@@ -87,90 +87,92 @@ target_link_libraries(
 add_executable(
     virtualbow-gui
     resources/resources.qrc
-    source/gui/main.cpp
-    source/gui/MainWindow.cpp
-    source/gui/MainWindow.hpp
-    source/gui/MainEditor.cpp
-    source/gui/MainEditor.hpp
-    source/gui/widgets/BaseDialog.cpp
-    source/gui/widgets/BaseDialog.hpp
+    source/gui/Main.cpp
     source/gui/HelpMenu.cpp
     source/gui/HelpMenu.hpp
-    source/gui/widgets/PersistentDialog.cpp
-    source/gui/widgets/PersistentDialog.hpp
-    source/gui/widgets/PlotWidget.cpp
-    source/gui/widgets/PlotWidget.hpp
-    source/gui/widgets/PlotOverlayDialog.cpp
-    source/gui/widgets/PlotOverlayDialog.hpp
-    source/gui/SimulationDialog.cpp
-    source/gui/SimulationDialog.hpp
-    source/gui/widgets/EditableTabBar.cpp
-    source/gui/widgets/EditableTabBar.hpp
+    source/gui/MainEditor.cpp
+    source/gui/MainEditor.hpp
+    source/gui/MainWindow.cpp
+    source/gui/MainWindow.hpp
     source/gui/RecentFilesMenu.cpp
     source/gui/RecentFilesMenu.hpp
+    source/gui/SimulationDialog.cpp
+    source/gui/SimulationDialog.hpp
+    source/gui/limbview/LayerColors.cpp
+    source/gui/limbview/LayerColors.hpp
+    source/gui/limbview/LayerLegend.cpp
+    source/gui/limbview/LayerLegend.hpp
+    source/gui/limbview/LimbMesh.cpp
+    source/gui/limbview/LimbMesh.hpp
+    source/gui/limbview/LimbView.cpp
+    source/gui/limbview/LimbView.hpp
+    source/gui/limbview/OpenGLUtils.cpp
+    source/gui/limbview/OpenGLUtils.hpp
+    source/gui/modeltree/GroupDialog.cpp
+    source/gui/modeltree/GroupDialog.hpp
     source/gui/modeltree/ModelTreeEditor.cpp
     source/gui/modeltree/ModelTreeEditor.hpp
     source/gui/modeltree/ModelTreeItem.hpp
-    source/gui/modeltree/GroupDialog.cpp
-    source/gui/modeltree/GroupDialog.hpp
     source/gui/modeltree/comment/CommentDialog.cpp
     source/gui/modeltree/comment/CommentDialog.hpp
-    source/gui/modeltree/layers/LayerDialog.cpp
-    source/gui/modeltree/layers/LayerDialog.hpp
-    source/gui/modeltree/masses/MassesDialog.cpp
-    source/gui/modeltree/masses/MassesDialog.hpp
     source/gui/modeltree/damping/DampingDialog.cpp
     source/gui/modeltree/damping/DampingDialog.hpp
     source/gui/modeltree/dimensions/DimensionsDialog.cpp
     source/gui/modeltree/dimensions/DimensionsDialog.hpp
+    source/gui/modeltree/layers/LayerDialog.cpp
+    source/gui/modeltree/layers/LayerDialog.hpp
+    source/gui/modeltree/layers/LayerEditor.cpp
+    source/gui/modeltree/layers/LayerEditor.hpp
+    source/gui/modeltree/masses/MassesDialog.cpp
+    source/gui/modeltree/masses/MassesDialog.hpp
     source/gui/modeltree/profile/ProfileDialog.cpp
     source/gui/modeltree/profile/ProfileDialog.hpp
+    source/gui/modeltree/profile/ProfileEditor.cpp
+    source/gui/modeltree/profile/ProfileEditor.hpp
+    source/gui/modeltree/profile/ProfileTree.cpp
+    source/gui/modeltree/profile/ProfileTree.hpp
+    source/gui/modeltree/profile/ProfileView.cpp
+    source/gui/modeltree/profile/ProfileView.hpp
+    source/gui/modeltree/profile/SegmentEditor.cpp
+    source/gui/modeltree/profile/SegmentEditor.hpp
     source/gui/modeltree/settings/SettingsDialog.cpp
     source/gui/modeltree/settings/SettingsDialog.hpp
     source/gui/modeltree/string/StringDialog.cpp
     source/gui/modeltree/string/StringDialog.hpp
     source/gui/modeltree/width/WidthDialog.cpp
     source/gui/modeltree/width/WidthDialog.hpp
-    source/gui/modeltree/layers/LayerEditor.cpp
-    source/gui/modeltree/layers/LayerEditor.hpp
-    source/gui/modeltree/profile/ProfileEditor.cpp
-    source/gui/modeltree/profile/ProfileEditor.hpp
-    source/gui/modeltree/profile/ProfileTree.cpp
-    source/gui/modeltree/profile/ProfileTree.hpp
-    source/gui/modeltree/profile/SegmentEditor.cpp
-    source/gui/modeltree/profile/SegmentEditor.hpp
+    source/gui/units/Unit.cpp
+    source/gui/units/Unit.hpp
+    source/gui/units/UnitDialog.cpp
+    source/gui/units/UnitDialog.hpp
+    source/gui/units/UnitGroup.cpp
+    source/gui/units/UnitGroup.hpp
+    source/gui/units/UnitSystem.cpp
+    source/gui/units/UnitSystem.hpp
+    source/gui/widgets/DialogBase.cpp
+    source/gui/widgets/DialogBase.hpp
     source/gui/widgets/DoubleEditor.cpp
     source/gui/widgets/DoubleEditor.hpp
+    source/gui/widgets/DoubleSpinBox.cpp
+    source/gui/widgets/DoubleSpinBox.hpp
+    source/gui/widgets/EditableTabBar.cpp
+    source/gui/widgets/EditableTabBar.hpp
     source/gui/widgets/IntegerEditor.cpp
     source/gui/widgets/IntegerEditor.hpp
+    source/gui/widgets/PersistentDialog.cpp
+    source/gui/widgets/PersistentDialog.hpp
+    source/gui/widgets/PlotOverlayDialog.cpp
+    source/gui/widgets/PlotOverlayDialog.hpp
+    source/gui/widgets/PlotWidget.cpp
+    source/gui/widgets/PlotWidget.hpp
+    source/gui/widgets/SplineView.cpp
+    source/gui/widgets/SplineView.hpp
     source/gui/widgets/TableEditor.cpp
     source/gui/widgets/TableEditor.hpp
     source/gui/widgets/TableModel.cpp
     source/gui/widgets/TableModel.hpp
     source/gui/widgets/TableView.cpp
     source/gui/widgets/TableView.hpp
-    source/gui/units/Unit.cpp
-    source/gui/units/Unit.hpp
-    source/gui/units/UnitGroup.cpp
-    source/gui/units/UnitGroup.hpp
-    source/gui/units/UnitDialog.cpp
-    source/gui/units/UnitDialog.hpp
-    source/gui/units/UnitSystem.cpp
-    source/gui/units/UnitSystem.hpp
-    source/gui/limbview/LayerLegend.cpp
-    source/gui/limbview/LayerLegend.hpp
-    source/gui/limbview/LimbView.cpp
-    source/gui/limbview/LimbView.hpp
-    source/gui/limbview/LimbMesh.cpp
-    source/gui/limbview/LimbMesh.hpp
-    source/gui/limbview/LayerColors.cpp
-    source/gui/limbview/LayerColors.hpp
-    source/gui/modeltree/profile/ProfileView.cpp
-    source/gui/modeltree/profile/ProfileView.hpp
-    source/gui/widgets/SplineView.cpp
-    source/gui/widgets/SplineView.hpp
-    source/gui/widgets/DoubleSpinBox.cpp
-    source/gui/widgets/DoubleSpinBox.hpp
     source/gui/widgets/qcustomplot/qcustomplot.cpp
 )
 
@@ -188,46 +190,46 @@ target_link_libraries(
 add_executable(
     virtualbow-post
     resources/resources.qrc
-    source/post/main.cpp
-    source/post/MainWindow.cpp
-    source/post/MainWindow.hpp
-    source/post/OutputWidget.cpp
-    source/post/OutputWidget.hpp
+    source/post/Main.cpp
+    source/gui/HelpMenu.cpp
+    source/gui/HelpMenu.hpp
+    source/gui/RecentFilesMenu.cpp
+    source/gui/RecentFilesMenu.hpp
+    source/gui/limbview/LayerColors.cpp
+    source/gui/limbview/LayerColors.hpp
+    source/gui/units/Unit.cpp
+    source/gui/units/Unit.hpp
+    source/gui/units/UnitDialog.cpp
+    source/gui/units/UnitDialog.hpp
+    source/gui/units/UnitGroup.cpp
+    source/gui/units/UnitGroup.hpp
+    source/gui/units/UnitSystem.cpp
+    source/gui/units/UnitSystem.hpp
+    source/gui/widgets/DialogBase.cpp
+    source/gui/widgets/DialogBase.hpp
+    source/gui/widgets/PlotOverlayDialog.cpp
+    source/gui/widgets/PlotOverlayDialog.hpp
+    source/gui/widgets/PlotWidget.cpp
+    source/gui/widgets/PlotWidget.hpp
+    source/gui/widgets/qcustomplot/qcustomplot.cpp
     source/post/ComboPlot.cpp
     source/post/ComboPlot.hpp
-    source/post/EnergyPlot.cpp
-    source/post/EnergyPlot.hpp
     source/post/CurvaturePlot.cpp
     source/post/CurvaturePlot.hpp
+    source/post/EnergyPlot.cpp
+    source/post/EnergyPlot.hpp
+    source/post/MainWindow.cpp
+    source/post/MainWindow.hpp
     source/post/NumberGrid.cpp
     source/post/NumberGrid.hpp
+    source/post/OutputWidget.cpp
+    source/post/OutputWidget.hpp
     source/post/ShapePlot.cpp
     source/post/ShapePlot.hpp
     source/post/Slider.cpp
     source/post/Slider.hpp
     source/post/StressPlot.cpp
     source/post/StressPlot.hpp
-    source/gui/widgets/qcustomplot/qcustomplot.cpp
-    source/gui/RecentFilesMenu.cpp
-    source/gui/RecentFilesMenu.hpp
-    source/gui/HelpMenu.cpp
-    source/gui/HelpMenu.hpp
-    source/gui/widgets/BaseDialog.cpp
-    source/gui/widgets/BaseDialog.hpp
-    source/gui/widgets/PlotWidget.cpp
-    source/gui/widgets/PlotWidget.hpp
-    source/gui/widgets/PlotOverlayDialog.cpp
-    source/gui/widgets/PlotOverlayDialog.hpp
-    source/gui/limbview/LayerColors.cpp
-    source/gui/limbview/LayerColors.hpp
-    source/gui/units/Unit.cpp
-    source/gui/units/Unit.hpp
-    source/gui/units/UnitGroup.cpp
-    source/gui/units/UnitGroup.hpp
-    source/gui/units/UnitDialog.cpp
-    source/gui/units/UnitDialog.hpp
-    source/gui/units/UnitSystem.cpp
-    source/gui/units/UnitSystem.hpp
 )
 
 target_link_libraries(
@@ -241,14 +243,14 @@ target_link_libraries(
 
 add_executable(
     virtualbow-test
-    source/tests/main.cpp
-    source/tests/model/BeamStiffnessMatrix.cpp
+    source/tests/Main.cpp
     source/tests/fem/BarTrusses.cpp
     source/tests/fem/HarmonicOscillator.cpp
     source/tests/fem/LargeDeformationBeams.cpp
     source/tests/fem/TangentStiffness.cpp
-    source/tests/numerics/Geometry.cpp
+    source/tests/model/BeamStiffnessMatrix.cpp
     source/tests/numerics/FindInterval.cpp
+    source/tests/numerics/Geometry.cpp
 )
 
 target_link_libraries(

@@ -1,7 +1,7 @@
 #pragma once
-#include "gui/widgets/BaseDialog.hpp"
+#include "gui/widgets/DialogBase.hpp"
 
-class SimulationDialog: public BaseDialog
+class SimulationDialog: public DialogBase
 {
     Q_OBJECT
 

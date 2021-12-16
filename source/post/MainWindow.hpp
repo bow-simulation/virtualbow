@@ -1,8 +1,8 @@
 #pragma once
-#include "gui/RecentFilesMenu.hpp"
-#include "gui/units/UnitDialog.hpp"
 #include "solver/model/output/OutputData.hpp"
-#include <QtWidgets>
+#include <QMainWindow>
+
+class RecentFilesMenu;
 
 class MainWindow: public QMainWindow {
 public:
@@ -20,7 +20,6 @@ private:
     QAction* action_set_units;
     RecentFilesMenu* menu_open_recent;
 
-    UnitSystem units;
     OutputData data;
 
     void closeEvent(QCloseEvent *event) override;

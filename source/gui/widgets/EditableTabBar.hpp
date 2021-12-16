@@ -1,5 +1,5 @@
 #pragma once
-#include <QtWidgets>
+#include <QTabWidget>
 
 // TabBar with a plus button for adding tabs and the ability to rename tabs.
 // Moving tabs enabled by default.

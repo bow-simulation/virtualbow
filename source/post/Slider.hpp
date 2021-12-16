@@ -1,6 +1,11 @@
 #pragma once
-#include "gui/units/UnitGroup.hpp"
-#include <QtWidgets>
+#include <QWidget>
+
+class UnitGroup;
+class QLineEdit;
+class QLabel;
+class QSlider;
+class QMenu;
 
 class Slider: public QWidget {
     Q_OBJECT

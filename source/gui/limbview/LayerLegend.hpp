@@ -1,7 +1,9 @@
 #pragma once
 #include "solver/model/input/Layers.hpp"
-#include "LayerColors.hpp"
-#include <QtWidgets>
+#include <QWidget>
+
+class QLabel;
+class QVBoxLayout;
 
 class LayerEntry: public QWidget
 {
@@ -23,4 +25,3 @@ public:
 private:
     QVBoxLayout* vbox;
 };
-

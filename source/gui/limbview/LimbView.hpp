@@ -1,12 +1,12 @@
 #pragma once
-#include "solver/model/input/InputData.hpp"
-#include "gui/units/UnitSystem.hpp"
-#include "LimbMesh.hpp"
-#include "LayerLegend.hpp"
-#include "OpenGLUtils.hpp"
-#include <QtWidgets>
 #include <QOpenGLWidget>
 #include <QOpenGLExtraFunctions>
+#include <QVector3D>
+
+class InputData;
+class LayerLegend;
+class QOpenGLShaderProgram;
+class Model;
 
 class LimbView: public QOpenGLWidget, protected QOpenGLExtraFunctions
 {

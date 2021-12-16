@@ -3,8 +3,15 @@
 #include "RecentFilesMenu.hpp"
 #include "HelpMenu.hpp"
 #include "MainEditor.hpp"
+#include "gui/units/UnitDialog.hpp"
 #include "config.hpp"
-#include <nlohmann/json.hpp>
+
+#include <QMenuBar>
+#include <QToolBar>
+#include <QCloseEvent>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QApplication>
 
 MainWindow::MainWindow()
     : menu_open_recent(new RecentFilesMenu(this)),

@@ -1,7 +1,9 @@
 #pragma once
-#include "gui/widgets/BaseDialog.hpp"
+#include "gui/widgets/DialogBase.hpp"
 
-class GroupDialog: public BaseDialog {
+class QVBoxLayout;
+
+class GroupDialog: public DialogBase {
     Q_OBJECT
 
 public:
