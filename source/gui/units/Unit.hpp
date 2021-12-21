@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/numerics/Eigen.hpp"
+#include "solver/numerics/EigenTypes.hpp"
 #include <QtCore>
 
 enum UnitType {

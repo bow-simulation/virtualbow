@@ -1,7 +1,7 @@
 #pragma once
 #include "solver/model/input/InputData.hpp"
 #include "solver/model/ContinuousLimb.hpp"
-#include "solver/numerics/Eigen.hpp"
+#include "solver/numerics/EigenTypes.hpp"
 #include <qopengl.h>
 #include <QVector3D>
 #include <QColor>

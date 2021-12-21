@@ -1,7 +1,7 @@
 #pragma once
 #include "solver/fem/Element.hpp"
 #include "solver/fem/Node.hpp"
-#include "solver/numerics/Eigen.hpp"
+#include "solver/numerics/EigenTypes.hpp"
 #include <array>
 
 struct ContactForce

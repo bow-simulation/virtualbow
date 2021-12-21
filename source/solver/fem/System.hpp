@@ -4,12 +4,7 @@
 #include "Element.hpp"
 #include "ElementContainer.hpp"
 #include "Dependency.hpp"
-#include "solver/numerics/Eigen.hpp"
-
-#include <boost/range/iterator_range.hpp>
-#include <string>
-#include <vector>
-#include <map>
+#include "solver/numerics/EigenTypes.hpp"
 
 class System
 {

@@ -1,7 +1,9 @@
 #pragma once
-#include "solver/model/input/InputData.hpp"
-#include "solver/numerics/Eigen.hpp"
+#include "solver/numerics/EigenTypes.hpp"
+#include "solver/numerics/EigenSerialize.hpp"
 #include <nlohmann/json.hpp>
+
+class InputData;
 
 struct LayerProperties
 {

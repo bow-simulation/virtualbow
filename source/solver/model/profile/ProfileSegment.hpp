@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/numerics/Eigen.hpp"
+#include "solver/numerics/EigenTypes.hpp"
 
 struct Point {
     double s = 0.0;

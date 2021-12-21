@@ -6,7 +6,7 @@
 // Evaluates the polynomial with the given coefficients at point x.
 // coeff[0]*x^n + ... + coeff[n-1]*x + coeff[n]
 template<size_t n>
-static double poleval(double x, const std::array<double, n>& coeff)
+double poleval(double x, const std::array<double, n>& coeff)
 {
     double result = 0.0;
     for(size_t i = 0; i < coeff.size(); ++i)
@@ -18,7 +18,7 @@ static double poleval(double x, const std::array<double, n>& coeff)
 }
 
 // S(x) for small x
-static std::array<double, 6> sn = {
+const std::array<double, 6> sn = {
     -2.99181919401019853726E3,
     7.08840045257738576863E5,
     -6.29741486205862506537E7,
@@ -27,7 +27,7 @@ static std::array<double, 6> sn = {
     3.18016297876567817986E11,
 };
 
-static std::array<double, 7> sd = {
+const std::array<double, 7> sd = {
     1.00000000000000000000E0,
     2.81376268889994315696E2,
     4.55847810806532581675E4,
@@ -38,7 +38,7 @@ static std::array<double, 7> sd = {
 };
 
 // C(x) for small x
-static std::array<double, 6> cn = {
+const std::array<double, 6> cn = {
     -4.98843114573573548651E-8,
     9.50428062829859605134E-6,
     -6.45191435683965050962E-4,
@@ -47,7 +47,7 @@ static std::array<double, 6> cn = {
     9.99999999999999998822E-1,
 };
 
-static std::array<double, 7> cd = {
+const std::array<double, 7> cd = {
     3.99982968972495980367E-12,
     9.15439215774657478799E-10,
     1.25001862479598821474E-7,
@@ -58,7 +58,7 @@ static std::array<double, 7> cd = {
 };
 
 // Auxiliary function f(x)
-static std::array<double, 10> fn = {
+const std::array<double, 10> fn = {
     4.21543555043677546506E-1,
     1.43407919780758885261E-1,
     1.15220955073585758835E-2,
@@ -71,7 +71,7 @@ static std::array<double, 10> fn = {
     3.76329711269987889006E-20,
 };
 
-static std::array<double, 11> fd = {
+const std::array<double, 11> fd = {
     1.00000000000000000000E0,
     7.51586398353378947175E-1,
     1.16888925859191382142E-1,
@@ -86,7 +86,7 @@ static std::array<double, 11> fd = {
 };
 
 // Auxiliary function g(x)
-static std::array<double, 11> gn = {
+const std::array<double, 11> gn = {
     5.04442073643383265887E-1,
     1.97102833525523411709E-1,
     1.87648584092575249293E-2,
@@ -100,7 +100,7 @@ static std::array<double, 11> gn = {
     1.86958710162783235106E-22,
 };
 
-static std::array<double, 12> gd = {
+const std::array<double, 12> gd = {
     1.00000000000000000000E0,
     1.47495759925128324529E0,
     3.37748989120019970451E-1,

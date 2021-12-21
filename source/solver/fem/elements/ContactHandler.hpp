@@ -2,7 +2,7 @@
 #include "solver/fem/elements/ContactElement.hpp"
 #include "solver/fem/Element.hpp"
 #include "solver/fem/Node.hpp"
-#include "solver/fem/System.hpp"
+#include <vector>
 #include <map>
 
 // Holds a collection of segments (two nodes, two distances) and points (one node) and creates/removes

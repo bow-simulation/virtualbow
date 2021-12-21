@@ -1,7 +1,6 @@
 #pragma once
 #include "solver/fem/Element.hpp"
 #include "solver/fem/Node.hpp"
-
 #include <array>
 
 class BarElement: public Element

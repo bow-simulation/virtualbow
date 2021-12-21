@@ -1,5 +1,8 @@
 #include "OutputData.hpp"
+#include <nlohmann/json.hpp>
 #include <fstream>
+
+using nlohmann::json;
 
 void OutputData::save(const std::string& path) const
 {
@@ -9,7 +12,6 @@ void OutputData::save(const std::string& path) const
     file.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
 }
 
-
 OutputData::OutputData(const std::string& path)
 {
     // https://github.com/nlohmann/json/issues/479
@@ -18,8 +20,6 @@ OutputData::OutputData(const std::string& path)
     json obj = json::from_msgpack(buffer);
     from_json(obj, *this);
 }
-
-#include <iostream>
 
 // Todo: Remove computations from here
 OutputData::OutputData(SetupData setup, BowStates static_states, BowStates dynamic_states)

@@ -1,4 +1,5 @@
 #include "EigenvalueSolver.hpp"
+#include "solver/fem/System.hpp"
 #include <algorithm>
 
 ModeInfo::ModeInfo(std::complex<double> lambda) {

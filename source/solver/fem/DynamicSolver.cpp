@@ -1,4 +1,5 @@
 #include "DynamicSolver.hpp"
+#include "System.hpp"
 
 DynamicSolver::DynamicSolver(System& system, double dt, double f_sample, const StopFn& stop)
     : system(system),
@@ -11,8 +12,7 @@ DynamicSolver::DynamicSolver(System& system, double dt, double f_sample, const S
 }
 
 // Estimate timestep based on maximum eigen frequency and a safety factor to account for nonlinearity of the system
-double DynamicSolver::estimate_timestep(const System& system, double factor)
-{
+double DynamicSolver::estimate_timestep(const System& system, double factor) {
     /*
     // Version that includes damping
     // Problem: Calculation of eigenvalues is inefficient and not very robust
@@ -27,30 +27,30 @@ double DynamicSolver::estimate_timestep(const System& system, double factor)
     Eigen::GeneralizedSelfAdjointEigenSolver<MatrixXd>
             eigen_solver(system.get_K(), system.get_M().asDiagonal(), Eigen::DecompositionOptions::EigenvaluesOnly);
 
-    if(eigen_solver.info() != Eigen::Success)
+    if(eigen_solver.info() != Eigen::Success) {
         throw std::runtime_error("Failed to compute eigenvalues of the system");
+    }
 
     double omega_max = std::sqrt(eigen_solver.eigenvalues().maxCoeff());
-    if(omega_max == 0.0)
+    if(omega_max == 0.0) {
         throw std::runtime_error("Can't estimate timestep for system with a zero eigenvalue");
+    }
 
     return factor*2.0/omega_max;
 }
 
-bool DynamicSolver::step()
-{
-    for(unsigned i = 0; i < n; ++i)
-    {
+bool DynamicSolver::step() {
+    for(unsigned i = 0; i < n; ++i) {
         sub_step();
-        if(stop())
+        if(stop()) {
             return false;
+        }
     }
 
     return true;
 }
 
-void DynamicSolver::sub_step()
-{
+void DynamicSolver::sub_step() {
     u_p1 = system.get_u();
 
     system.set_u(2.0*system.get_u() - u_p2 + dt*dt*system.get_a());

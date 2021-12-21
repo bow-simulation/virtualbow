@@ -6,22 +6,23 @@
 // Implementation based on https://en.wikipedia.org/wiki/Golden-section_search
 
 template<class F>
-static double golden_section_search(const F& f, double xa, double xb, double xtol, unsigned iter)
-{
+inline double golden_section_search(const F& f, double xa, double xb, double xtol, unsigned iter) {
     const double ratio = (sqrt(5) + 1)/2;
 
     double xc = xb - (xb - xa)/ratio;
     double xd = xa + (xb - xa)/ratio;
 
-    for(unsigned i = 0; i < iter; ++i)
-    {
-        if(std::abs(xc - xd) < xtol)
+    for(unsigned i = 0; i < iter; ++i) {
+        if(std::abs(xc - xd) < xtol) {
             return (xb + xa)/2;
+        }
 
-        if(f(xc) < f(xd))
+        if(f(xc) < f(xd)) {
             xb = xd;
-        else
+        }
+        else {
             xa = xc;
+        }
 
         xc = xb - (xb - xa)/ratio;
         xd = xa + (xb - xa)/ratio;
