@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iomanip>
 
-InputData::InputData(const std::string& path){
+InputData::InputData(const std::string& path) {
     std::ifstream stream(path);
     json obj; stream >> obj;
 

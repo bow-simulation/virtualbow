@@ -1,5 +1,5 @@
 #include "ProfileCurve.hpp"
-#include "solver/numerics/Eigen.hpp"
+#include "solver/numerics/EigenTypes.hpp"
 #include "solver/numerics/Fresnel.hpp"
 #include "solver/numerics/FindInterval.hpp"
 #include "solver/numerics/Sorting.hpp"

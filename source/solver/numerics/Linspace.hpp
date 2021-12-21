@@ -4,8 +4,7 @@
 
 // Returns n linearly spaced samples from start to end
 template<typename T>
-static std::vector<T> linspace(T start, T end, unsigned n)
-{
+inline std::vector<T> linspace(T start, T end, unsigned n) {
     assert(n >= 2);
 
     std::vector<T> values(n);
@@ -19,11 +18,9 @@ static std::vector<T> linspace(T start, T end, unsigned n)
 }
 
 template<typename T>
-class Linspace
-{
+class Linspace {
 public:
-    class Iterator
-    {
+    class Iterator {
     public:
         Iterator(const Linspace& linspace, unsigned index)
             : linspace(linspace), index(index)
@@ -31,19 +28,16 @@ public:
 
         }
 
-        Iterator operator++()
-        {
+        Iterator operator++() {
             ++index;
             return *this;
         }
 
-        bool operator!=(const Iterator& other) const
-        {
+        bool operator!=(const Iterator& other) const {
             return index != other.index;
         }
 
-        T operator*() const
-        {
+        T operator*() const {
             return linspace[index];
         }
 
@@ -60,24 +54,20 @@ public:
     {
 
     }
-    unsigned size() const
-    {
+    unsigned size() const {
         return n;
     }
 
-    T operator[](unsigned i) const
-    {
+    T operator[](unsigned i) const {
         assert(i < n);
         return a + double(i)/(n-1)*(b - a);
     }
 
-    Iterator begin() const
-    {
+    Iterator begin() const {
         return Iterator(*this, 0);
     }
 
-    Iterator end() const
-    {
+    Iterator end() const {
         return Iterator(*this, n);
     }
 

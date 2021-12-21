@@ -1,7 +1,8 @@
 #pragma once
-#include "solver/fem/System.hpp"
-#include "solver/fem/Node.hpp"
-#include "EigenvalueSolver.hpp"
+#include "solver/numerics/EigenTypes.hpp"
+#include <functional>
+
+class System;
 
 // Central difference method
 class DynamicSolver

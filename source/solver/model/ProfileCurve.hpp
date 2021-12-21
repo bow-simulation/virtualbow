@@ -1,6 +1,7 @@
 #pragma once
-#include "solver/numerics/Eigen.hpp"
 #include "profile/ProfileInput.hpp"
+#include <vector>
+#include <functional>
 
 struct CurvePoint {
     double k;

@@ -1,5 +1,6 @@
 #pragma once
 #include "ProfileSegment.hpp"
+#include <nlohmann/json.hpp>
 #include <unordered_map>
 
 enum class SpiralConstraint{ LENGTH, K_START, K_END };

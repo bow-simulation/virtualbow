@@ -1,5 +1,8 @@
 #pragma once
-#include "solver/fem/System.hpp"
+#include "solver/numerics/EigenTypes.hpp"
+#include <complex>
+
+class System;
 
 // Represents a conjugate complex pair of eigenvalues
 // lambda_1 = -zeta*omega + j*omega*sqrt(zeta^2 - 1)

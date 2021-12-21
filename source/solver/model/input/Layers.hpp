@@ -1,6 +1,6 @@
 #pragma once
-#include "solver/numerics/Eigen.hpp"
-#include <nlohmann/json.hpp>
+#include "solver/numerics/EigenTypes.hpp"
+#include "solver/numerics/EigenSerialize.hpp"
 
 struct Layer
 {

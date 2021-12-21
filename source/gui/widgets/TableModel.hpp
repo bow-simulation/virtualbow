@@ -1,6 +1,6 @@
 #pragma once
 #include <QAbstractTableModel>
-#include "solver/numerics/Eigen.hpp"
+#include "solver/numerics/EigenTypes.hpp"
 #include "gui/units/UnitGroup.hpp"
 
 class TableModel: public QAbstractTableModel {

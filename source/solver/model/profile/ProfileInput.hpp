@@ -8,7 +8,7 @@
 using SegmentInput = std::variant<LineInput, ArcInput, SpiralInput, SplineInput>;
 using ProfileInput = std::vector<SegmentInput>;
 
-inline void to_json(json& obj, const SegmentInput& input) {
+inline void to_json(nlohmann::json& obj, const SegmentInput& input) {
     if(auto value = std::get_if<LineInput>(&input)) {
         obj["type"] = "line";
         obj["parameters"] = *value;
@@ -30,7 +30,7 @@ inline void to_json(json& obj, const SegmentInput& input) {
     }
 }
 
-inline void from_json(const json& obj, SegmentInput& input) {
+inline void from_json(const nlohmann::json& obj, SegmentInput& input) {
     if(obj.at("type") == "line") {
         input = obj.at("parameters").get<LineInput>();
     }

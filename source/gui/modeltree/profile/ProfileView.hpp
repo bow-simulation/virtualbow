@@ -2,7 +2,7 @@
 #include "gui/widgets/PlotWidget.hpp"
 #include "gui/units/UnitGroup.hpp"
 #include "solver/model/profile/ProfileInput.hpp"
-#include "solver/numerics/Eigen.hpp"
+#include "solver/numerics/EigenTypes.hpp"
 #include "solver/numerics/Series.hpp"
 
 class ProfileView: public PlotWidget

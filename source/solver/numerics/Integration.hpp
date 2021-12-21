@@ -1,19 +1,17 @@
 #pragma once
-#include "Eigen.hpp"
+#include "EigenTypes.hpp"
 #include <cassert>
+#include <cmath>
 
 // f: double -> T
 // xa: Lower bound
 // xb: Upper bound
 
-#include <cmath>
-#include <iostream>
 class AdaptiveSimpson
 {
 public:
     template<typename T, typename F>
-    static T integrate(const F& f, double a, double b, double epsilon)
-    {
+    static T integrate(const F& f, double a, double b, double epsilon) {
         T fa = f(a);
         T fb = f(b);
 
@@ -23,22 +21,19 @@ public:
 
 private:
     template<typename T>
-    struct Triple
-    {
+    struct Triple {
         double m; T fm; T result;
     };
 
     template<typename T, typename F>
-    static Triple<T> simpson_quadrature(const F& f, double a, double b, const T& fa, const T& fb)
-    {
+    static Triple<T> simpson_quadrature(const F& f, double a, double b, const T& fa, const T& fb) {
         double m = (a + b)/2.0;
         T fm = f(m);
         return {m, fm, std::abs(b - a)/6.0*(fa + 4.0*fm + fb)};
     }
 
     template<typename T, typename F>
-    static T simpson_quadrature_recursive(const F& f, double a, double b, const T& fa, const T& fb, Triple<T> whole, double epsilon, int n = 15)
-    {
+    static T simpson_quadrature_recursive(const F& f, double a, double b, const T& fa, const T& fb, Triple<T> whole, double epsilon, int n = 15) {
         if(n == 0) {
             throw std::runtime_error("Maximum recursion depth reached");
         }
@@ -55,14 +50,12 @@ private:
         }
     }
 
-    static double inf_norm(double delta)
-    {
+    static double inf_norm(double delta) {
         return std::abs(delta);
     }
 
     template<typename Derived>
-    static double inf_norm(const Eigen::MatrixBase<Derived>& delta)
-    {
+    static double inf_norm(const Eigen::MatrixBase<Derived>& delta) {
         return delta.cwiseAbs().maxCoeff();    // Todo: Why not delta.lpNorm<Eigen::Infinity>() ?
     }
 };

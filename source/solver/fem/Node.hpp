@@ -1,14 +1,12 @@
 #pragma once
 #include <cstddef>
 
-struct Dof
-{
+struct Dof {
     bool active;
     size_t index;
 };
 
-struct Node
-{
+struct Node {
     Dof x;
     Dof y;
     Dof phi;

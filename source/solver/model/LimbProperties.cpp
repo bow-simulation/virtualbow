@@ -1,4 +1,5 @@
 #include "LimbProperties.hpp"
+#include "solver/model/input/InputData.hpp"
 #include "solver/model/ContinuousLimb.hpp"
 #include "solver/numerics/Linspace.hpp"
 

@@ -55,11 +55,13 @@ add_library(
     source/solver/model/LimbProperties.cpp
     source/solver/model/ProfileCurve.cpp
     source/solver/model/input/InputData.cpp
+    source/solver/model/input/Conversion.cpp
     source/solver/model/output/OutputData.cpp
     source/solver/model/BowModel.cpp
     source/solver/numerics/CubicSpline.cpp
     source/solver/numerics/Fresnel.cpp
     source/solver/numerics/Series.cpp
+    source/solver/numerics/Geometry.cpp
 )
 
 target_link_libraries(

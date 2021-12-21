@@ -1,4 +1,5 @@
 #include "ContactHandler.hpp"
+#include "solver/fem/System.hpp"
 #include <boost/range/adaptor/map.hpp>
 
 ContactHandler::ContactHandler(System& system, ContactForce force)

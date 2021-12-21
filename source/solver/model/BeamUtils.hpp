@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/numerics/Eigen.hpp"
+#include "solver/numerics/EigenTypes.hpp"
 #include "solver/numerics/Integration.hpp"
 
 // Calculates the analytical stiffness matrix of a curved beam with varying cross section properties
@@ -12,7 +12,7 @@
 // C: s -> [[Cee, Cek], [Cek, Ckk]], Function describing the material properties along the beam
 
 template<class F1, class F2>
-Matrix<6, 6> beam_stiffness_matrix(const F1& r, const F2& C, double l0, double l1)
+inline Matrix<6, 6> beam_stiffness_matrix(const F1& r, const F2& C, double l0, double l1)
 {
     Vector<3> r0 = r(l0);
     Vector<3> r1 = r(l1);

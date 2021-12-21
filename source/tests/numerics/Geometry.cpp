@@ -14,21 +14,21 @@ TEST_CASE("constant-orientation-subset")
 
     input  = {{0, 0}, {1, 0}};
     output = {{0, 0}, {1, 0}};
-    REQUIRE(constant_orientation_subset<Orientation::RightHanded>(input) == output);
+    REQUIRE(constant_orientation_subset(input, Orientation::RightHanded) == output);
 
     input  = {{0, 0}, {1, 0}, {2, 1}};
     output = {{0, 0}, {1, 0}, {2, 1}};
-    REQUIRE(constant_orientation_subset<Orientation::RightHanded>(input) == output);
+    REQUIRE(constant_orientation_subset(input, Orientation::RightHanded) == output);
 
     input  = {{0, 0}, {1, 0}, {2, -1}};
     output = {{0, 0}, {2, -1}};
-    REQUIRE(constant_orientation_subset<Orientation::RightHanded>(input) == output);
+    REQUIRE(constant_orientation_subset(input, Orientation::RightHanded) == output);
 
     input  = {{0, 0}, {1, 0}, {2, 1}, {3, 3}};
     output = {{0, 0}, {1, 0}, {2, 1}, {3, 3}};
-    REQUIRE(constant_orientation_subset<Orientation::RightHanded>(input) == output);
+    REQUIRE(constant_orientation_subset(input, Orientation::RightHanded) == output);
 
     input  = {{0, 0}, {1, 0}, {2, 1}, {3, 3}, {4, 3}};
     output = {{0, 0}, {1, 0}, {4, 3}};
-    REQUIRE(constant_orientation_subset<Orientation::RightHanded>(input) == output);
+    REQUIRE(constant_orientation_subset(input, Orientation::RightHanded) == output);
 }

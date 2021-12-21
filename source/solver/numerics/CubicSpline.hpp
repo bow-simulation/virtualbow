@@ -1,5 +1,5 @@
 #pragma once
-#include "Eigen.hpp"
+#include "EigenTypes.hpp"
 #include <vector>
 #include <cstddef>
 

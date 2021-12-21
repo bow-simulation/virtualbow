@@ -1,7 +1,7 @@
 #pragma once
-#include "solver/numerics/Eigen.hpp"
-#include <vector>
+#include "solver/numerics/EigenTypes.hpp"
 #include <nlohmann/json.hpp>
+#include <vector>
 
 struct BowStates
 {

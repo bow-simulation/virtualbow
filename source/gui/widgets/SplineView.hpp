@@ -1,7 +1,7 @@
 #pragma once
 #include "gui/widgets/PlotWidget.hpp"
 #include "gui/units/UnitGroup.hpp"
-#include "solver/numerics/Eigen.hpp"
+#include "solver/numerics/EigenTypes.hpp"
 #include "solver/numerics/CubicSpline.hpp"
 #include "solver/numerics/Series.hpp"
 
