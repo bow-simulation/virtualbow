@@ -61,6 +61,7 @@ add_library(
     source/solver/numerics/CubicSpline.cpp
     source/solver/numerics/Fresnel.cpp
     source/solver/numerics/Series.cpp
+    source/solver/numerics/Sorting.cpp
     source/solver/numerics/Geometry.cpp
 )
 

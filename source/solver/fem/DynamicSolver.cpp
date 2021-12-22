@@ -1,5 +1,6 @@
 #include "DynamicSolver.hpp"
 #include "System.hpp"
+#include <Eigen/Eigenvalues>
 
 DynamicSolver::DynamicSolver(System& system, double dt, double f_sample, const StopFn& stop)
     : system(system),

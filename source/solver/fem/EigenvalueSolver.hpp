@@ -1,5 +1,6 @@
 #pragma once
 #include "solver/numerics/EigenTypes.hpp"
+#include <Eigen/Eigenvalues>
 #include <complex>
 
 class System;

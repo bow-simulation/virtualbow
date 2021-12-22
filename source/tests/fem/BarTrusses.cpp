@@ -1,9 +1,7 @@
 #include "solver/fem/System.hpp"
 #include "solver/fem/StaticSolver.hpp"
 #include "solver/fem/elements/BarElement.hpp"
-
 #include <catch2/catch.hpp>
-#include <iostream>
 
 TEST_CASE("small-deformation-bar-truss")
 {

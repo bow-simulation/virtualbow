@@ -1,7 +1,6 @@
 #include "StaticSolver.hpp"
 #include "solver/fem/System.hpp"
 #include "solver/numerics/Optimization.hpp"
-#include <Eigen/Core>
 
 StaticSolver::StaticSolver(System& system)
     : system(system),

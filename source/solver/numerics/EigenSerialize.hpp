@@ -1,6 +1,6 @@
 #pragma once
 #include <nlohmann/json.hpp>
-#include <Eigen/Dense>
+#include <Eigen/Core>
 
 // TODO: Find out how to make generic implementations that are actually picked up by the json serializer...
 

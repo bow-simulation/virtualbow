@@ -2,9 +2,7 @@
 #include "solver/fem/elements/BarElement.hpp"
 #include "solver/fem/elements/BeamElement.hpp"
 #include "solver/fem/elements/ContactElement.hpp"
-
 #include <catch2/catch.hpp>
-#include <iostream>
 
 // Numeric tangent stiffness matrix using central differences
 MatrixXd numeric_tangent_stiffness(System& system, double h = 1e-8)
