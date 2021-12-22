@@ -22,12 +22,13 @@ jobs:
       
       - name: Get dependencies
         run: |
+          choco install ninja
           curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.4/windows-mingw_64.zip && 7z x windows-mingw_64.zip
 
       - name: Build and test
         run: |
           mkdir build && cd build
-          cmake ../virtualbow -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../windows-mingw_64/paths.cmake
+          cmake ../virtualbow -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../windows-mingw_64/paths.cmake
           cmake --build . -j4
           cmake --build . --target iss-installer -j4
           virtualbow-test
@@ -52,14 +53,14 @@ jobs:
       
       - name: Get dependencies
         run: |
-          sudo apt install -y qt5-default
+          sudo apt install -y ninja-build qt5-default
           curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.4/linux-gcc_64.zip && unzip linux-gcc_64.zip
 
       - name: Build and test
         run: |
           mkdir build && cd build
-          cmake ../virtualbow -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../linux-gcc_64/paths.cmake
-          cmake --build . -j$(nproc)
+          cmake ../virtualbow -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../linux-gcc_64/paths.cmake
+          cmake --build . -j4
           cmake --build . --target deb-package -j4
           cmake --build . --target rpm-package -j4
           ./virtualbow-test
@@ -84,13 +85,14 @@ jobs:
       
       - name: Get dependencies
         run: |
+          brew install ninja
           npm install -g appdmg@0.6.0 --no-audit
           curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.4/macos-clang_64.zip && unzip macos-clang_64.zip
 
       - name: Build and test
         run: |
           mkdir build && cd build
-          cmake ../virtualbow -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../macos-clang_64/paths.cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13
+          cmake ../virtualbow -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../macos-clang_64/paths.cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13
           cmake --build . -j4
           cmake --build . --target dmg-installer -j4
           ./virtualbow-test
