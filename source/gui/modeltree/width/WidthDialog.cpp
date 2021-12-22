@@ -2,7 +2,7 @@
 
 WidthDialog::WidthDialog(QWidget* parent)
     : PersistentDialog(parent, "WidthDialog", { 800, 400 }),    // Magic numbers
-      edit(new TableEditor({ "Position", "Width" }, { &UnitSystem::ratio, &UnitSystem::length })),
+      edit(new TableEditor("Position", "Width", UnitSystem::ratio, UnitSystem::length)),
       view(new SplineView("Position", "Width", UnitSystem::ratio, UnitSystem::length))
 {
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -31,12 +31,12 @@ WidthDialog::WidthDialog(QWidget* parent)
     });
 }
 
-MatrixXd WidthDialog::getData() const
+std::vector<Vector<2>> WidthDialog::getData() const
 {
     return edit->getData();
 }
 
-void WidthDialog::setData(const MatrixXd& width)
+void WidthDialog::setData(const std::vector<Vector<2>>& width)
 {
     edit->setData(width);
     view->setData(width);

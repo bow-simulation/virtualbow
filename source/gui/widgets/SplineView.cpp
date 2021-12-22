@@ -35,7 +35,7 @@ SplineView::SplineView(const QString& x_label, const QString& y_label, const Uni
     QObject::connect(&y_unit, &UnitGroup::selectionChanged, this, &SplineView::updatePlot);
 }
 
-void SplineView::setData(const MatrixXd& data) {
+void SplineView::setData(const std::vector<Vector<2>>& data) {
     input = data;
     updatePlot();
 }
@@ -68,17 +68,17 @@ void SplineView::updatePlot() {
     }
 
     // Control points
-    for(int i = 0; i < input.rows(); ++i) {
+    for(int i = 0; i < input.size(); ++i) {
         if(selection.contains(i)) {
             this->graph(2)->addData(
-                x_unit.getSelectedUnit().fromBase(input(i, 0)),
-                y_unit.getSelectedUnit().fromBase(input(i, 1))
+                x_unit.getSelectedUnit().fromBase(input[i](0)),
+                y_unit.getSelectedUnit().fromBase(input[i](1))
             );
         }
         else {
             this->graph(1)->addData(
-                x_unit.getSelectedUnit().fromBase(input(i, 0)),
-                y_unit.getSelectedUnit().fromBase(input(i, 1))
+                x_unit.getSelectedUnit().fromBase(input[i](0)),
+                y_unit.getSelectedUnit().fromBase(input[i](1))
             );
         }
     }

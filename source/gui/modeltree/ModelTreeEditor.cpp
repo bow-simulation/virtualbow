@@ -15,7 +15,7 @@ ModelTreeEditor::ModelTreeEditor() {
     new ModelTreeItem<SettingsDialog, Settings>(this, data.settings, "Settings", QIcon(":/icons/model-settings.svg"));
     new ModelTreeItem<DimensionsDialog, Dimensions>(this, data.dimensions, "Dimensions", QIcon(":/icons/model-dimensions.svg"));
     new ModelTreeItem<ProfileDialog, std::vector<SegmentInput>>(this, data.profile, "Profile", QIcon(":/icons/model-profile.svg"));
-    new ModelTreeItem<WidthDialog, MatrixXd>(this, data.width, "Width", QIcon(":/icons/model-width.svg"));
+    new ModelTreeItem<WidthDialog, std::vector<Vector<2>>>(this, data.width, "Width", QIcon(":/icons/model-width.svg"));
     new ModelTreeItem<LayerDialog, std::vector<Layer>>(this, data.layers, "Layers", QIcon(":/icons/model-layers.svg"));
     new ModelTreeItem<StringDialog, String>(this, data.string, "String", QIcon(":/icons/model-string.svg"));
     new ModelTreeItem<MassesDialog, Masses>(this, data.masses, "Masses", QIcon(":/icons/model-masses.svg"));

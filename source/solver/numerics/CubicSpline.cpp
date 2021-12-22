@@ -5,16 +5,12 @@
 #include <algorithm>
 #include <numeric>
 
-CubicSpline::CubicSpline(const MatrixXd& input) {
-    if(input.cols() != 2) {
-        throw std::invalid_argument("Input must have two columns");
-    }
-
+CubicSpline::CubicSpline(const std::vector<Vector<2>>& input) {
     // Extract x and y values from input, ignore rows that contain NaN
-    for(int i = 0; i < input.rows(); ++i) {
-        if(!std::isnan(input(i, 0)) && !std::isnan(input(i, 1))) {
-            xs.push_back(input(i, 0));
-            ys.push_back(input(i, 1));
+    for(auto& point: input) {
+        if(!std::isnan(point(0)) && !std::isnan(point(1))) {
+            xs.push_back(point(0));
+            ys.push_back(point(1));
         }
     }
 
