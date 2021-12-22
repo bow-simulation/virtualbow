@@ -28,6 +28,7 @@ public:
     double s_start() const override;
     double s_end() const override;
 
+    double curvature(double s) const override;
     double angle(double s) const override;
     Vector<2> position(double s) const override;
 

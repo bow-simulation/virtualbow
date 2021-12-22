@@ -1,9 +1,9 @@
 #include "ProfileView.hpp"
-#include "solver/model/ProfileCurve.hpp"
+#include "solver/model/profile/ProfileCurve.hpp"
 #include "solver/numerics/Linspace.hpp"
 
 // Magic numbers
-const size_t N_PROFILE_POINTS   = 500;
+const size_t N_SEGMENT_POINTS   = 100;
 const size_t N_CURVATURE_POINTS = 200;
 const double CURVATURE_SCALING  = 0.05;
 
@@ -12,49 +12,21 @@ ProfileView::ProfileView(const UnitGroup& unit)
 {
     this->setAspectPolicy(PlotWidget::SCALE_Y);
 
-    // Curvature lines
-    curvature_outline = new QCPCurve(this->xAxis, this->yAxis);
-    curvature_outline->setPen({Qt::blue, 1});
-    curvature_outline->setScatterSkip(0);
-    for(size_t i = 0; i < N_CURVATURE_POINTS; ++i) {
-        auto line = new QCPCurve(this->xAxis, this->yAxis);
-        line->setPen({Qt::darkGray, 1});
-        line->setScatterSkip(0);
-        curvature_lines.append(line);
-    }
-
-    // Profile curve
-    profile_curve = new QCPCurve(this->xAxis, this->yAxis);
-    profile_curve->setPen({Qt::blue, 2});
-    profile_curve->setScatterSkip(0);
-
-    // Unselected nodes
-    profile_nodes_unselected = new QCPCurve(this->xAxis, this->yAxis);
-    profile_nodes_unselected->setScatterStyle({QCPScatterStyle::ssSquare, Qt::blue, 8});
-    profile_nodes_unselected->setLineStyle(QCPCurve::lsNone);
-    profile_nodes_unselected->setScatterSkip(0);
-
-    // Selected nodes
-    profile_nodes_selected = new QCPCurve(this->xAxis, this->yAxis);
-    profile_nodes_selected->setScatterStyle({QCPScatterStyle::ssSquare, Qt::red, Qt::red, 8});
-    profile_nodes_selected->setLineStyle(QCPCurve::lsNone);
-    profile_nodes_selected->setScatterSkip(0);
-
     // Menu actions
 
-    auto action_show_curvature = new QAction("Show curvature", this);
+    action_show_curvature = new QAction("Show curvature", this);
     action_show_curvature->setCheckable(true);
     action_show_curvature->setChecked(false);
-    QObject::connect(action_show_curvature, &QAction::triggered, [&](bool checked) {
-        setCurvatureVisible(checked);
+    QObject::connect(action_show_curvature, &QAction::triggered, [&] {
+        updateVisibility();
         this->replot();
     });
 
-    auto action_show_nodes = new QAction("Show nodes", this);
+    action_show_nodes = new QAction("Show nodes", this);
     action_show_nodes->setCheckable(true);
     action_show_nodes->setChecked(true);
-    QObject::connect(action_show_nodes, &QAction::triggered, [&](bool checked) {
-        setNodesVisible(checked);
+    QObject::connect(action_show_nodes, &QAction::triggered, [&] {
+        updateVisibility();
         this->replot();
     });
 
@@ -62,9 +34,6 @@ ProfileView::ProfileView(const UnitGroup& unit)
     this->contextMenu()->insertAction(before, action_show_curvature);
     this->contextMenu()->insertAction(before, action_show_nodes);
     this->contextMenu()->insertSeparator(before);
-
-    setCurvatureVisible(action_show_curvature->isChecked());
-    setNodesVisible(action_show_nodes->isChecked());
 
     // Update on unit changes
     QObject::connect(&unit, &UnitGroup::selectionChanged, this, &ProfileView::updatePlot);
@@ -75,89 +44,129 @@ void ProfileView::setData(const std::vector<SegmentInput>& data) {
     updatePlot();
 }
 
-void ProfileView::setSelection(const QVector<int>& indices) {
+void ProfileView::setSelection(const QList<int>& indices) {
     selection = indices;
-    updatePlot();
+    updateSelection();
+    this->replot();
 }
 
 void ProfileView::updatePlot() {
     this->xAxis->setLabel("X " + unit.getSelectedUnit().getLabel());
     this->yAxis->setLabel("Y " + unit.getSelectedUnit().getLabel());
 
+    this->clearPlottables();
+
     try {
-        ProfileCurve2 profile(input, 0.0, 0.0, 0.0);
-
-        // Add profile curve
-
-        profile_curve->data()->clear();
-        for(double s: Linspace<double>(profile.s_min(), profile.s_max(), N_PROFILE_POINTS)) {
-            CurvePoint point = profile(s);
-            profile_curve->addData(
-                unit.getSelectedUnit().fromBase(point.x),
-                unit.getSelectedUnit().fromBase(point.y)
-            );
-        }
-
-        // Add control points depending on selection status
-
-        /*
-        profile_nodes_unselected->data()->clear();
-        profile_nodes_selected->data()->clear();
-        for(int i = 0; i < input.rows(); ++i) {
-            CurvePoint point = profile(input(i, 0));
-            if(selection.contains(i)) {
-                profile_nodes_selected->addData(
-                    unit.getSelectedUnit().fromBase(point.x),
-                    unit.getSelectedUnit().fromBase(point.y)
-                );
-            }
-            else {
-                profile_nodes_unselected->addData(
-                    unit.getSelectedUnit().fromBase(point.x),
-                    unit.getSelectedUnit().fromBase(point.y)
-                );
-            }
-        }
-        */
+        ProfileCurve profile(Point(), input);
 
         // Add curvature
 
-        /*
-        double k_max = input.col(1).cwiseAbs().maxCoeff();
-        const double scale = CURVATURE_SCALING*(profile.s_max() - profile.s_min())/k_max;
+        std::vector<double> s = linspace(0.0, profile.length(), N_CURVATURE_POINTS);
+        std::vector<double> k; k.reserve(s.size());
+        for(double si: s) {
+            k.push_back(profile.curvature(si));
+        }
 
-        curvature_outline->data()->clear();
-        std::vector<double> s = linspace(profile.s_min(), profile.s_max(), curvature_lines.size());
+        double k_max = *std::max_element(k.begin(), k.end(), [](double a, double b){ return std::abs(a) < std::abs(b); });
+        double scale = (k_max != 0.0) ? CURVATURE_SCALING*profile.length()/std::abs(k_max) : 0.0;
+
+        auto curvature_outline = new QCPCurve(this->xAxis, this->yAxis);
+        curvature_outline->setPen({Qt::darkGray, 1});
+        curvature_outline->setScatterSkip(0);
+
+        curvature_lines.clear();
+        curvature_lines.push_back(curvature_outline);
+
         for(size_t i = 0; i < s.size(); ++i) {
-            CurvePoint point = profile(s[i]);
-            double x_start = unit.getSelectedUnit().fromBase(point.x);
-            double y_start = unit.getSelectedUnit().fromBase(point.y);
-            double x_end = unit.getSelectedUnit().fromBase(point.x - scale*point.k*sin(point.phi));
-            double y_end = unit.getSelectedUnit().fromBase(point.y + scale*point.k*cos(point.phi));
+            Vector<2> position = profile.position(s[i]);
+            double angle = profile.angle(s[i]);
+
+            double x_start = unit.getSelectedUnit().fromBase(position(0));
+            double y_start = unit.getSelectedUnit().fromBase(position(1));
+            double x_end = unit.getSelectedUnit().fromBase(position(0) - scale*k[i]*sin(angle));
+            double y_end = unit.getSelectedUnit().fromBase(position(1) + scale*k[i]*cos(angle));
+
+            auto line = new QCPCurve(this->xAxis, this->yAxis);
+            line->setPen({Qt::lightGray, 1});
+            line->setScatterSkip(0);
+            line->addData(x_start, y_start);
+            line->addData(x_end, y_end);
 
             curvature_outline->addData(x_end, y_end);
-            curvature_lines[i]->data()->clear();
-            curvature_lines[i]->addData(x_start, y_start);
-            curvature_lines[i]->addData(x_end, y_end);
+            curvature_lines.push_back(line);
         }
-        */
+
+        // Add profile segments
+
+        segment_curves.clear();
+        for(size_t i = 0; i < profile.get_nodes().size()-1; ++i) {
+            auto segment_curve = new QCPCurve(this->xAxis, this->yAxis);
+            segment_curves.push_back(segment_curve);
+
+            for(double s: Linspace<double>(profile.get_nodes()[i].s, profile.get_nodes()[i+1].s, N_SEGMENT_POINTS)) {
+                Vector<2> point = profile.position(s);
+                segment_curve->addData(
+                    unit.getSelectedUnit().fromBase(point(0)),
+                    unit.getSelectedUnit().fromBase(point(1))
+                );
+            }
+        }
+
+        // Add profile nodes
+
+        segment_nodes.clear();
+        for(auto& node: profile.get_nodes()) {
+            auto segment_node = new QCPCurve(this->xAxis, this->yAxis);
+            segment_nodes.push_back(segment_node);
+            segment_node->addData(
+                unit.getSelectedUnit().fromBase(node.position(0)),
+                unit.getSelectedUnit().fromBase(node.position(1))
+            );
+        }
     }
     catch(const std::invalid_argument& e) {
         // TODO: Show error message on plot
     }
 
+    updateSelection();
+    updateVisibility();
+
     this->rescaleAxes();
     this->replot();
 }
 
-void ProfileView::setCurvatureVisible(bool visible) {
-    curvature_outline->setVisible(visible);
-    for(auto line: curvature_lines) {
-        line->setVisible(visible);
+void ProfileView::updateSelection() {
+    for(int i = 0; i < segment_curves.size(); ++i) {
+        if(selection.contains(i)) {
+            segment_curves[i]->setPen({Qt::red, 2});
+            segment_curves[i]->setScatterSkip(0);
+        }
+        else {
+            segment_curves[i]->setPen({Qt::blue, 2});
+            segment_curves[i]->setScatterSkip(0);
+        }
+    }
+
+    for(int i = 0; i < segment_nodes.size(); ++i) {
+        if(selection.contains(i) || selection.contains(i-1)) {
+            segment_nodes[i]->setScatterStyle({QCPScatterStyle::ssSquare, Qt::red, 8});
+            segment_nodes[i]->setLineStyle(QCPCurve::lsNone);
+            segment_nodes[i]->setScatterSkip(0);
+        }
+        else {
+            segment_nodes[i]->setScatterStyle({QCPScatterStyle::ssSquare, Qt::blue, 8});
+            segment_nodes[i]->setLineStyle(QCPCurve::lsNone);
+            segment_nodes[i]->setScatterSkip(0);
+        }
     }
 }
 
-void ProfileView::setNodesVisible(bool visible) {
-    profile_nodes_unselected->setVisible(visible);
-    profile_nodes_selected->setVisible(visible);
+void ProfileView::updateVisibility() {
+    for(auto line: curvature_lines) {
+        line->setVisible(action_show_curvature->isChecked());
+    }
+
+    for(auto segment_node: segment_nodes) {
+        segment_node->setVisible(action_show_nodes->isChecked());
+    }
 }

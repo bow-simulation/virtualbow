@@ -12,6 +12,7 @@ public:
     virtual double s_start() const = 0;
     virtual double s_end() const = 0;
 
+    virtual double curvature(double s) const = 0;
     virtual double angle(double s) const = 0;
     virtual Vector<2> position(double s) const = 0;
 };

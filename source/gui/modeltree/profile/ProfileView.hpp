@@ -10,22 +10,25 @@ class ProfileView: public PlotWidget
 public:
     ProfileView(const UnitGroup& xy_unit);
     void setData(const ProfileInput& data);
-    void setSelection(const QVector<int>& indices);
+    void setSelection(const QList<int>& indices);
 
 private:
     const UnitGroup& unit;
 
+    QAction* action_show_curvature;
+    QAction* action_show_nodes;
+
     ProfileInput input;
-    QVector<int> selection;
+    QList<int> selection;
 
-    QCPCurve* profile_curve;
-    QCPCurve* profile_nodes_unselected;
-    QCPCurve* profile_nodes_selected;
-
-    QCPCurve* curvature_outline;
+    QList<QCPCurve*> segment_curves;
+    QList<QCPCurve*> segment_nodes;    // TODO: Use some item type for this?
     QList<QCPCurve*> curvature_lines;
 
     void updatePlot();
-    void setCurvatureVisible(bool visible);
-    void setNodesVisible(bool visible);
+    void updateSelection();
+    void updateVisibility();
+
+    //void setCurvatureVisible(bool visible);
+    //void setNodesVisible(bool visible);
 };

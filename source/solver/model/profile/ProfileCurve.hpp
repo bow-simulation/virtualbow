@@ -22,8 +22,14 @@ public:
     void add_segment(const SegmentInput& input);
 
     double length();
+    double curvature(double s) const;
     double angle(double s) const;
     Vector<2> position(double s) const;
+
+    // TODO
+    const std::vector<Point>& get_nodes() const {
+        return nodes;
+    }
 
 private:
     std::vector<Point> nodes;

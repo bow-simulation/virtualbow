@@ -39,13 +39,13 @@ ProfileEditor::ProfileEditor()
     });
 
     QObject::connect(profile_tree, &ProfileTree::modified, this, &ProfileEditor::modified);
-
-    /*
-    QObject::connect(&model, &TableModel::modified, this, &ProfileEditor::modified);
-    QObject::connect(this->selectionModel(), &QItemSelectionModel::selectionChanged, this, [&] {
-        emit this->rowSelectionChanged(getSelectedIndices());
+    QObject::connect(profile_tree->selectionModel(), &QItemSelectionModel::selectionChanged, this, [&] {
+        QList<int> indices;
+        for(QModelIndex index: profile_tree->selectionModel()->selectedRows()) {
+            indices.push_back(index.row());
+        }
+        emit selectionChanged(indices);
     });
-    */
 }
 
 ProfileInput ProfileEditor::getData() const {
@@ -54,24 +54,4 @@ ProfileInput ProfileEditor::getData() const {
 
 void ProfileEditor::setData(const ProfileInput& data) {
     profile_tree->setData(data);
-}
-
-QVector<int> ProfileEditor::getSelectedIndices() {
-    //QItemSelectionRange range = selectionModel()->selection().first();
-    QVector<int> selection;
-    /*
-    int index = 0;
-    for(int i = 0; i < model.rowCount(); ++i) {
-        QVariant arg = model.index(i, 0).data();
-        QVariant val = model.index(i, 1).data();
-        if(!arg.isNull() && !val.isNull()) {
-            if(i >= range.top() && i <= range.bottom()) {
-                selection.push_back(index);
-            }
-            ++index;
-        }
-    }
-    */
-
-    return selection;
 }

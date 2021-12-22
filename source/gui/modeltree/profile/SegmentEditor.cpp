@@ -76,11 +76,15 @@ LineSegmentEditor::LineSegmentEditor()
 }
 
 SegmentInput LineSegmentEditor::getData() const {
-    return LineInput();
+    return getProperties<LineConstraint>();
 }
 
 void LineSegmentEditor::setData(const SegmentInput& data) {
-
+    if(auto value = std::get_if<LineInput>(&data)) {
+        setProperties<LineConstraint>(*value);
+    } else {
+        throw std::invalid_argument("Wrong segment type");
+    }
 }
 
 ArcSegmentEditor::ArcSegmentEditor()
@@ -89,11 +93,15 @@ ArcSegmentEditor::ArcSegmentEditor()
 }
 
 SegmentInput ArcSegmentEditor::getData() const {
-    return ArcInput();
+    return getProperties<ArcConstraint>();
 }
 
 void ArcSegmentEditor::setData(const SegmentInput& data) {
-
+    if(auto value = std::get_if<ArcInput>(&data)) {
+        setProperties<ArcConstraint>(*value);
+    } else {
+        throw std::invalid_argument("Wrong segment type");
+    }
 }
 
 SpiralSegmentEditor::SpiralSegmentEditor()
@@ -102,11 +110,15 @@ SpiralSegmentEditor::SpiralSegmentEditor()
 }
 
 SegmentInput SpiralSegmentEditor::getData() const {
-    return SpiralInput();
+    return getProperties<SpiralConstraint>();
 }
 
 void SpiralSegmentEditor::setData(const SegmentInput& data) {
-
+    if(auto value = std::get_if<SpiralInput>(&data)) {
+        setProperties<SpiralConstraint>(*value);
+    } else {
+        throw std::invalid_argument("Wrong segment type");
+    }
 }
 
 SplineSegmentEditor::SplineSegmentEditor() {
