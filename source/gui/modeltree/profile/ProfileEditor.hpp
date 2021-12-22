@@ -15,10 +15,10 @@ public:
 
 signals:
     void modified();
-    void rowSelectionChanged(const QVector<int>& rows);
+    void selectionChanged(const QList<int>& indices);
 
 private:
     ProfileTree* profile_tree;
 
-    QVector<int> getSelectedIndices();
+    QList<int> getSelectedIndices();
 };

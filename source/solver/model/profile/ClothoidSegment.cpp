@@ -37,6 +37,10 @@ double ClothoidSegment::s_end() const {
     return s1;
 }
 
+double ClothoidSegment::curvature(double s) const {
+    return 2.0*a*s + b;
+}
+
 double ClothoidSegment::angle(double s) const {
     return (a*s + b)*s + c;
 }

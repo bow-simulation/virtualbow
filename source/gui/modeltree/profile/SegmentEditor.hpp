@@ -24,8 +24,8 @@ public:
     PropertyValueEditor(int rows, const QList<QString>& names,  const QList<UnitGroup*>& units);
 
 protected:
-    template<typename T>
-    void setProperties(const std::unordered_map<T, double>& data) {
+    template<typename KeyType>
+    void setProperties(const std::unordered_map<KeyType, double>& data) {
         QSignalBlocker blocker(this);    // Block modification signals
 
         int row = 0;
@@ -34,6 +34,17 @@ protected:
             spinners[row]->setValue(entry.second);
             ++row;
         }
+    }
+
+    template<typename KeyType>
+    std::unordered_map<KeyType, double> getProperties() const {
+        std::unordered_map<KeyType, double> data;
+        for(int row = 0; row < combos.size(); ++row) {
+            KeyType key = static_cast<KeyType>(combos[row]->currentIndex());
+            data[key] = spinners[row]->value();
+        }
+
+        return data;
     }
 
 private:
