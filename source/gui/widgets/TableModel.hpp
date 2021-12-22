@@ -7,7 +7,7 @@ class TableModel: public QAbstractTableModel {
     Q_OBJECT
 
 public:
-    TableModel(const QList<QString>& columnLabels, const QList<const UnitGroup*>& columnUnits, int rows, QObject *parent = nullptr);
+    TableModel(const QString& x_label, const QString& y_label, const UnitGroup& x_unit, const UnitGroup& y_unit, int rows, QObject *parent = nullptr);
 
     // Implementattion of QAbstractItemModel
 
@@ -20,14 +20,14 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     // Additional methods
-    const MatrixXd& getData() const;
-    void setData(const MatrixXd& matrix);
+    const std::vector<Vector<2>>& getData() const;
+    void setData(const std::vector<Vector<2>>& matrix);
 
 signals:
     void modified();
 
 private:
-    MatrixXd matrix;
+    std::vector<Vector<2>> points;
     QList<QString> columnLabels;
     QList<const UnitGroup*> columnUnits;
 };

@@ -50,8 +50,8 @@ std::string InputData::validate() const {
     if(width.size() < 2) {
         return "Width: At least two data points are needed";
     }
-    for(double w: width.col(1)) {
-        if(w <= 0.0) {
+    for(auto& point: width) {
+        if(point(1) <= 0.0) {
             return "Width: All width values must be positive";
         }
     }
@@ -69,8 +69,8 @@ std::string InputData::validate() const {
         if(layer.height.size() < 2) {
             return "Layer " + std::to_string(i) + " (" + layer.name + ")" + ": At least two data points for height are needed";
         }
-        for(double h: layer.height.col(1)) {
-            if(h < 0.0) {
+        for(auto& point: layer.height) {
+            if(point(1) < 0.0) {
                 return "Layer " + std::to_string(i) + " (" + layer.name + ")" + ": Height must not be negative";
             }
         }

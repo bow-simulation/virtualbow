@@ -8,7 +8,7 @@
 class SplineView: public PlotWidget {
 public:
     SplineView(const QString& x_label, const QString& y_label, const UnitGroup& x_unit, const UnitGroup& y_unit);
-    void setData(const MatrixXd& data);
+    void setData(const std::vector<Vector<2>>& data);
     void setSelection(const QVector<int>& indices);
 
 private:
@@ -17,7 +17,7 @@ private:
     const UnitGroup& x_unit;
     const UnitGroup& y_unit;
 
-    MatrixXd input = MatrixXd::Zero(0, 2);
+    std::vector<Vector<2>> input;
     QVector<int> selection;   
 
     void updatePlot();

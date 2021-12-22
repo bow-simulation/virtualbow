@@ -1,8 +1,8 @@
 #include "TableEditor.hpp"
 #include <algorithm>
 
-TableEditor::TableEditor(const QList<QString>& labels, const QList<const UnitGroup*>& units)
-    : model(labels, units, 100)
+TableEditor::TableEditor(const QString& x_label, const QString& y_label, const UnitGroup& x_unit, const UnitGroup& y_unit)
+    : model(x_label, y_label, x_unit, y_unit, 100)
 {
     setModel(&model);
 
@@ -12,11 +12,11 @@ TableEditor::TableEditor(const QList<QString>& labels, const QList<const UnitGro
     });
 }
 
-MatrixXd TableEditor::getData() const {
+std::vector<Vector<2>> TableEditor::getData() const {
     return model.getData();
 }
 
-void TableEditor::setData(const MatrixXd& data) {
+void TableEditor::setData(const std::vector<Vector<2>>& data) {
     model.setData(data);
 }
 

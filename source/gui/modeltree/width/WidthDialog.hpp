@@ -11,8 +11,8 @@ class WidthDialog: public PersistentDialog
 public:
     WidthDialog(QWidget* parent);
 
-    MatrixXd getData() const;
-    void setData(const MatrixXd& width);
+    std::vector<Vector<2>> getData() const;
+    void setData(const std::vector<Vector<2>>& width);
 
 signals:
     void modified();

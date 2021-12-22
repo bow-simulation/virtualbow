@@ -9,7 +9,7 @@
 class CubicSpline
 {
 public:
-    CubicSpline(const MatrixXd& input);
+    CubicSpline(const std::vector<Vector<2>>& input);
     double operator()(double x) const;
     double operator()(double x, double y_default) const;
 
