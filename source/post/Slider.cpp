@@ -5,7 +5,7 @@
 #include <QToolButton>
 #include <QPushButton>
 #include <QHBoxLayout>
-#include <Qlabel>
+#include <QLabel>
 #include <QSlider>
 #include <QMenu>
 #include <QTimer>

@@ -2,6 +2,7 @@
 #include <QOpenGLWidget>
 #include <QOpenGLExtraFunctions>
 #include <QVector3D>
+#include <memory>
 
 class InputData;
 class LayerLegend;

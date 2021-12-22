@@ -295,8 +295,8 @@ void LimbView::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void LimbView::wheelEvent(QWheelEvent* event) {
-    float mouse_ratio_x = float(event->position().x())/this->width();
-    float mouse_ratio_y = float(event->position().y())/this->height();
+    float mouse_ratio_x = float(event->x())/this->width();                 // event->position() is not available on Qt 5.9.5
+    float mouse_ratio_y = float(event->y())/this->height();                // event->position() is not available on Qt 5.9.5
     float delta_zoom = -ZOOM_SPEED*event->angleDelta().y()/120.0f*zoom;    // Dividing by 120 gives the number of 15 degree steps on a standard mouse
 
     shift_x -= (mouse_ratio_x - 0.5f)*delta_zoom;
