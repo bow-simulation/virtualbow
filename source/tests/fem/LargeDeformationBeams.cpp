@@ -1,10 +1,8 @@
 #include "solver/fem/System.hpp"
 #include "solver/fem/StaticSolver.hpp"
 #include "solver/fem/elements/BeamElement.hpp"
-
 #include <catch2/catch.hpp>
 #include <vector>
-#include <iostream>
 
 TEST_CASE("large-deformation-cantilever")
 {

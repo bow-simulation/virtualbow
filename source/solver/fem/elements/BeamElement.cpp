@@ -1,7 +1,5 @@
 #include "BeamElement.hpp"
 #include "solver/fem/System.hpp"
-
-#include <iostream>
 #include <cstdlib>
 
 BeamElement::BeamElement(System& system, Node node0, Node node1, double rhoA, double L)

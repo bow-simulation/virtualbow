@@ -1,7 +1,7 @@
 #include "solver/model/BeamUtils.hpp"
 #include "solver/numerics/Linspace.hpp"
 #include <catch2/catch.hpp>
-#include <iostream>
+#include <Eigen/LU>
 
 // Returns the stiffness matrix of a straight Euler-Bernoulli beam with orientation angle alpha
 Matrix<6, 6> element_stiffness_matrix(double EA, double EI, double L, double alpha)

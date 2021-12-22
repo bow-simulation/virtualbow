@@ -1,5 +1,5 @@
 #pragma once
-#include <Eigen/Dense>
+#include <Eigen/Core>
 
 template<size_t n, size_t k>
 using Matrix = Eigen::Matrix<double, n, k>;

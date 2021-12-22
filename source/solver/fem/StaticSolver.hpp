@@ -2,6 +2,7 @@
 #include "Node.hpp"
 #include "solver/numerics/Optimization.hpp"
 #include "solver/numerics/EigenTypes.hpp"
+#include <Eigen/Cholesky>
 
 class System;
 

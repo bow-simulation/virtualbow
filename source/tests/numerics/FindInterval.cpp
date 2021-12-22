@@ -1,7 +1,5 @@
 #include "solver/numerics/FindInterval.hpp"
 #include <catch2/catch.hpp>
-
-#include <iostream>
 #include <algorithm>
 
 TEST_CASE("find-interval")
