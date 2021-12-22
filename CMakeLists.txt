@@ -75,7 +75,7 @@ target_link_libraries(
 
 add_executable(
     virtualbow-slv
-    source/solver/main.cpp
+    source/solver/Main.cpp
 )
 
 target_link_libraries(
