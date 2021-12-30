@@ -1,7 +1,7 @@
 #pragma once
 #include <Eigen/Core>
 
-template<size_t n, size_t k>
+template<size_t n, size_t k = n>
 using Matrix = Eigen::Matrix<double, n, k>;
 
 template<size_t n, size_t k>
