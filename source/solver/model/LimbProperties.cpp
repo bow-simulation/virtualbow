@@ -25,15 +25,15 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
 {
     ContinuousLimb limb(input);
 
-    std::vector<double> s = linspace(limb.s_min(), limb.s_max(), n);
+    std::vector<double> s = linspace(0.0, limb.length(), n);
     for(size_t i = 0; i < n; ++i)
     {
         // Profile
-        CurvePoint r = limb.get_r(s[i]);
+        Vector<3> r = limb.get_r(s[i]);
         length[i] = s[i];
-        angle[i] = r.phi;
-        x_pos[i] = r.x;
-        y_pos[i] = r.y;
+        x_pos[i] = r[0];
+        y_pos[i] = r[1];
+        angle[i] = r[2];
 
         // Geometry
         width[i] = limb.get_w(s[i]);
