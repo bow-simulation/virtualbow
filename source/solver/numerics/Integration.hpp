@@ -56,6 +56,6 @@ private:
 
     template<typename Derived>
     static double inf_norm(const Eigen::MatrixBase<Derived>& delta) {
-        return delta.cwiseAbs().maxCoeff();    // Todo: Why not delta.lpNorm<Eigen::Infinity>() ?
+        return delta.template lpNorm<Eigen::Infinity>();
     }
 };
