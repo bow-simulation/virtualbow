@@ -16,12 +16,12 @@
 
 class ProfileCurve {
 public:
-    ProfileCurve(const Point& start);
-    ProfileCurve(const Point& start, const std::vector<SegmentInput>& inputs);
+    ProfileCurve();
+    ProfileCurve(const std::vector<SegmentInput>& inputs);
 
     void add_segment(const SegmentInput& input);
 
-    double length();
+    double length() const;
     double curvature(double s) const;
     double angle(double s) const;
     Vector<2> position(double s) const;

@@ -29,16 +29,16 @@ LimbMesh::LimbMesh(const InputData& input)
 
         // Iterate over segments, i.e. pairs of a previous and a next cross section
         for(size_t i = 0; i < n_segments; ++i) {
-            CurvePoint profile_prev = limb.get_r(lengths[i]);
-            CurvePoint profile_next = limb.get_r(lengths[i+1]);
+            Vector<3> profile_prev = limb.get_r(lengths[i]);
+            Vector<3> profile_next = limb.get_r(lengths[i+1]);
 
-            QVector3D center_prev  ( profile_prev.x, profile_prev.y, 0.0 );
+            QVector3D center_prev  ( profile_prev[0], profile_prev[1], 0.0 );
             QVector3D normal_w_prev( 0.0, 0.0, 1.0 );
-            QVector3D normal_h_prev(-sin(profile_prev.phi), cos(profile_prev.phi), 0.0 );
+            QVector3D normal_h_prev(-sin(profile_prev[2]), cos(profile_prev[2]), 0.0 );
 
-            QVector3D center_next  ( profile_next.x, profile_next.y, 0.0 );
+            QVector3D center_next  ( profile_next[0], profile_next[1], 0.0 );
             QVector3D normal_w_next( 0.0, 0.0, 1.0 );
-            QVector3D normal_h_next(-sin(profile_next.phi), cos(profile_next.phi), 0.0 );
+            QVector3D normal_h_next(-sin(profile_next[2]), cos(profile_next[2]), 0.0 );
 
             double w_prev = limb.get_w(lengths[i]);
             double w_next = limb.get_w(lengths[i+1]);
@@ -117,7 +117,7 @@ std::vector<double> LimbMesh::getEvalLengths(const ContinuousLimb& limb, unsigne
     // Calculate evaluation lengths inbetween intervals
     std::vector<double> lengths;
     for(size_t i = 0; i < intervals.size()-1; ++i) {
-        unsigned ni = std::ceil(n/(limb.s_max() - limb.s_min())*(intervals[i+1] - intervals[i]));
+        unsigned ni = std::ceil(n/limb.length()*(intervals[i+1] - intervals[i]));
         for(unsigned j = 0; j < ni; ++j) {
             double p = double(j)/(ni-1);
             lengths.push_back((1.0 - p)*intervals[i] + p*intervals[i+1]);

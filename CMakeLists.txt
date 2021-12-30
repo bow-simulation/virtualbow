@@ -53,7 +53,6 @@ add_library(
     source/solver/model/BeamUtils.cpp
     source/solver/model/ContinuousLimb.cpp
     source/solver/model/LimbProperties.cpp
-    source/solver/model/ProfileCurve.cpp
     source/solver/model/input/InputData.cpp
     source/solver/model/input/Conversion.cpp
     source/solver/model/output/OutputData.cpp
@@ -63,7 +62,6 @@ add_library(
     source/solver/model/profile/SplineSegment.cpp
     source/solver/numerics/CubicSpline.cpp
     source/solver/numerics/Fresnel.cpp
-    source/solver/numerics/Series.cpp
     source/solver/numerics/Sorting.cpp
     source/solver/numerics/Geometry.cpp
 )

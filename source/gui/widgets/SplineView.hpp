@@ -3,7 +3,6 @@
 #include "gui/units/UnitGroup.hpp"
 #include "solver/numerics/EigenTypes.hpp"
 #include "solver/numerics/CubicSpline.hpp"
-#include "solver/numerics/Series.hpp"
 
 class SplineView: public PlotWidget {
 public:

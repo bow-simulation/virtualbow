@@ -57,7 +57,7 @@ void ProfileView::updatePlot() {
     this->clearPlottables();
 
     try {
-        ProfileCurve profile(Point(), input);
+        ProfileCurve profile(input);
 
         // Add curvature
 

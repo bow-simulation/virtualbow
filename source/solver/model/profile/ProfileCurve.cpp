@@ -1,13 +1,13 @@
 #include "ProfileCurve.hpp"
 
-ProfileCurve::ProfileCurve(const Point& start)
-    : nodes({start})
+ProfileCurve::ProfileCurve()
+    : nodes({Point()})
 {
 
 }
 
-ProfileCurve::ProfileCurve(const Point& start, const std::vector<SegmentInput>& inputs)
-    : nodes({start})
+ProfileCurve::ProfileCurve(const std::vector<SegmentInput>& inputs)
+    : ProfileCurve()
 {
     for(auto& input: inputs) {
         add_segment(input);
@@ -24,7 +24,7 @@ void ProfileCurve::add_segment(const SegmentInput& input) {
     segments.push_back(std::move(segment));
 }
 
-double ProfileCurve::length() {
+double ProfileCurve::length() const {
     return nodes.back().s;
 }
 

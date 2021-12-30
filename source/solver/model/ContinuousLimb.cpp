@@ -35,8 +35,10 @@ double ContinuousLayer::get_E() const
 }
 
 ContinuousLimb::ContinuousLimb(const InputData& input)
-    : profile(input.profile, 0.5*input.dimensions.handle_length, input.dimensions.handle_setback, input.dimensions.handle_angle),
-      width(input.width)
+    : profile(input.profile),
+      width(input.width),
+      translation{0.5*input.dimensions.handle_length, input.dimensions.handle_setback},
+      rotation(input.dimensions.handle_angle)
 {
     for(const Layer& layer: input.layers) {
         layers.push_back(ContinuousLayer(*this, layer));
@@ -48,24 +50,29 @@ const std::vector<ContinuousLayer>& ContinuousLimb::get_layers() const
     return layers;
 }
 
-double ContinuousLimb::s_min() const
+double ContinuousLimb::length() const
 {
-    return profile.s_min();
-}
-
-double ContinuousLimb::s_max() const
-{
-    return profile.s_max();
+    return profile.length();
 }
 
 double ContinuousLimb::get_p(double s) const
 {
-    return (s - profile.s_min())/(profile.s_max() - profile.s_min());
+    return s/length();
 }
 
 double ContinuousLimb::get_s(double p) const
 {
-    return profile.s_min() + p*(profile.s_max() - profile.s_min());
+    return p*length();
+}
+
+Vector<3> ContinuousLimb::get_r(double s) const
+{
+    Vector<2> position = profile.position(s);
+    return {
+        translation[0] + cos(rotation)*position[0] - sin(rotation)*position[1],
+        translation[1] + sin(rotation)*position[0] + cos(rotation)*position[1],
+        rotation + profile.angle(s)
+    };
 }
 
 double ContinuousLimb::get_w(double s) const
@@ -92,12 +99,6 @@ small_vector<double, ContinuousLimb::n> ContinuousLimb::get_y(double s) const
     }
 
     return y;
-}
-
-// Returns the position and orientation of the profile curve (x, y, phi)
-CurvePoint ContinuousLimb::get_r(double s) const
-{
-    return profile(s);
 }
 
 // Calculates the section's stiffness parameters Cee, Ckk, Cek
