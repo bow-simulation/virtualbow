@@ -1,5 +1,8 @@
 #include "ProfileTree.hpp"
-#include "SegmentEditor.hpp"
+#include "segments/LineSegmentEditor.hpp"
+#include "segments/ArcSegmentEditor.hpp"
+#include "segments/SpiralSegmentEditor.hpp"
+#include "segments/SplineSegmentEditor.hpp"
 #include <QHBoxLayout>
 #include <QToolButton>
 #include <QPushButton>

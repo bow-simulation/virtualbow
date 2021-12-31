@@ -137,8 +137,17 @@ add_executable(
     source/gui/modeltree/profile/ProfileTree.hpp
     source/gui/modeltree/profile/ProfileView.cpp
     source/gui/modeltree/profile/ProfileView.hpp
-    source/gui/modeltree/profile/SegmentEditor.cpp
     source/gui/modeltree/profile/SegmentEditor.hpp
+    source/gui/modeltree/profile/segments/PropertyValueEditor.cpp
+    source/gui/modeltree/profile/segments/PropertyValueEditor.hpp
+    source/gui/modeltree/profile/segments/LineSegmentEditor.cpp
+    source/gui/modeltree/profile/segments/LineSegmentEditor.hpp
+    source/gui/modeltree/profile/segments/ArcSegmentEditor.cpp
+    source/gui/modeltree/profile/segments/ArcSegmentEditor.hpp
+    source/gui/modeltree/profile/segments/SpiralSegmentEditor.cpp
+    source/gui/modeltree/profile/segments/SpiralSegmentEditor.hpp
+    source/gui/modeltree/profile/segments/SplineSegmentEditor.cpp
+    source/gui/modeltree/profile/segments/SplineSegmentEditor.hpp
     source/gui/modeltree/settings/SettingsDialog.cpp
     source/gui/modeltree/settings/SettingsDialog.hpp
     source/gui/modeltree/string/StringDialog.cpp
