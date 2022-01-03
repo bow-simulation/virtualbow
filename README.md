@@ -1,6 +1,6 @@
 # VirtualBow
 
-[![Build Status](https://bow-simulation.visualstudio.com/virtualbow/_apis/build/status/bow-simulation.virtualbow?branchName=develop)](https://bow-simulation.visualstudio.com/virtualbow/_build/latest?definitionId=1&branchName=develop)
+![Build Status](https://github.com/bow-simulation/virtualbow/actions/workflows/build.yml/badge.svg)
 
 VirtualBow is a free, open-source software tool for designing and simulating bows.
 Visit http://www.virtualbow.org for more information about the program and its features.
@@ -15,6 +15,11 @@ Building VirtualBow requires CMake, a C++17 compiler and the following external 
 * [Eigen](http://eigen.tuxfamily.org/) (Master branch)
 * [Json](https://github.com/nlohmann/json)
 * [NLopt](https://github.com/stevengj/nlopt)
+
+The following dependencies are included directly in the source code:
+
+* [QCustomPlot](https://www.qcustomplot.com/)
+* [tk::spline](https://kluge.in-chemnitz.de/opensource/spline/)
 
 Optional pre-built dependencies for the supported platforms and compilers are available at [virtualbow-dependencies](https://github.com/bow-simulation/virtualbow-dependencies/releases).
 They each contain a file named `paths.cmake` that will set up the `CMAKE_PREFIX_PATH` such that the correct libraries are found by CMake.

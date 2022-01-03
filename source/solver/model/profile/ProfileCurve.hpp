@@ -36,5 +36,7 @@ private:
     std::vector<std::unique_ptr<ProfileSegment>> segments;
 
     std::unique_ptr<ProfileSegment> create_segment(const Point& start, const SegmentInput& input);
+
+    mutable size_t index = 0;
     size_t find_segment(double s) const;
 };

@@ -16,17 +16,11 @@ struct InputData {
     Settings settings;
     Dimensions dimensions;
     ProfileInput profile {
-        LineInput {
-            { LineConstraint::LENGTH, 1.0 }
-        },
-        ArcInput {
-            { ArcConstraint::LENGTH, 1.0 },
-            { ArcConstraint::K_START, 0.5 }
-        },
-        SpiralInput {
-            { SpiralConstraint::LENGTH, 1.5 },
-            { SpiralConstraint::K_START, 0.5 },
-            { SpiralConstraint::K_END, 1.5 }
+        SplineInput {
+            { 0.0, 0.0 },
+            { 1.0, 0.1 },
+            { 2.0, 0.4 },
+            { 3.0, 0.9 }
         }
     };
     std::vector<Vector<2>> width{{0.0, 0.06}, {1.0, 0.01}};

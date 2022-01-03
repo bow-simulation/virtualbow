@@ -1,6 +1,6 @@
 #pragma once
-#include "ClothoidSegment.hpp"
-#include "SplineSegment.hpp"
+#include "segments/ClothoidSegment.hpp"
+#include "segments/SplineSegment.hpp"
 
 #include <variant>
 #include <vector>

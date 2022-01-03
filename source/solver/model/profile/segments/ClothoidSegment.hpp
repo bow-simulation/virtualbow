@@ -1,5 +1,5 @@
 #pragma once
-#include "ProfileSegment.hpp"
+#include "solver/model/profile/ProfileSegment.hpp"
 #include <nlohmann/json.hpp>
 #include <unordered_map>
 
