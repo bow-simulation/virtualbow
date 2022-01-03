@@ -124,8 +124,13 @@ void ProfileView::updatePlot() {
             );
         }
     }
+    /*
     catch(const std::invalid_argument& e) {
         // TODO: Show error message on plot
+    }
+    */
+    catch(const std::exception& e) {
+        qInfo() << e.what();
     }
 
     updateSelection();

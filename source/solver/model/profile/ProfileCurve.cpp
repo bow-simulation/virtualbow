@@ -1,4 +1,5 @@
 #include "ProfileCurve.hpp"
+#include "solver/numerics/FindInterval.hpp"
 
 ProfileCurve::ProfileCurve()
     : nodes({Point()})
@@ -54,18 +55,12 @@ std::unique_ptr<ProfileSegment> ProfileCurve::create_segment(const Point& start,
         return std::make_unique<ClothoidSegment>(start, *value);
     }
     if(auto value = std::get_if<SplineInput>(&input)) {
-        throw std::runtime_error("Spline segment not yet implemented");
+        return std::make_unique<SplineSegment>(start, *value);
     }
 
     throw std::runtime_error("Unknown segment type");
 }
 
 size_t ProfileCurve::find_segment(double s) const {
-    for(size_t i = 0; i < segments.size(); ++i) {
-        if(s >= nodes[i].s && s <= nodes[i+1].s) {
-            return i;
-        }
-    }
-
-    throw std::invalid_argument("Segment index not found");
+    return find_interval(nodes, [](const Point& point) { return point.s; }, s, index);
 }

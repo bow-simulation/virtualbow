@@ -58,8 +58,8 @@ add_library(
     source/solver/model/output/OutputData.cpp
     source/solver/model/BowModel.cpp
     source/solver/model/profile/ProfileCurve.cpp
-    source/solver/model/profile/ClothoidSegment.cpp
-    source/solver/model/profile/SplineSegment.cpp
+    source/solver/model/profile/segments/ClothoidSegment.cpp
+    source/solver/model/profile/segments/SplineSegment.cpp
     source/solver/numerics/CubicSpline.cpp
     source/solver/numerics/Fresnel.cpp
     source/solver/numerics/Sorting.cpp
