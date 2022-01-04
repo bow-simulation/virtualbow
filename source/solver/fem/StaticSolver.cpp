@@ -78,7 +78,7 @@ StaticSolverDC::StaticSolverDC(System& system, Dof dof)
     : StaticSolver(system),
       dof(dof),
       target(0.0),
-      e_dof(unit_vector(system.dofs(), dof.index))
+      e_dof(VectorXd::Unit(system.dofs(), dof.index))
 {
     if(!dof.active) {
         throw std::invalid_argument("Displacement control not possible on fixed DOF");
@@ -94,13 +94,4 @@ void StaticSolverDC::constraint(const VectorXd& u, double lambda, double& c, dou
     c = u(dof.index) - target;
     dcdl = 0.0;
     dcdu = e_dof;
-}
-
-VectorXd StaticSolverDC::unit_vector(size_t n, size_t i) {
-    assert(i < n);
-
-    VectorXd vec = VectorXd::Zero(n);
-    vec(i) = 1.0;
-
-    return vec;
 }

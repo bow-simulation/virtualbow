@@ -61,6 +61,4 @@ private:
     Dof dof;
     double target;
     VectorXd e_dof;
-
-    static VectorXd unit_vector(size_t n, size_t i);
 };
