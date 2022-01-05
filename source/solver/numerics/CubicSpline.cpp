@@ -6,28 +6,20 @@
 #include <numeric>
 
 CubicSpline::CubicSpline(const std::vector<Vector<2>>& input) {
+    if(input.size() < 2) {
+        throw std::invalid_argument("At least two data points are needed");
+    }
+
     std::vector<double> x;
     std::vector<double> y;
 
-    // Extract x and y values from input, ignore rows that contain NaN
     for(auto& point: input) {
-        if(!std::isnan(point(0)) && !std::isnan(point(1))) {
             x.push_back(point(0));
             y.push_back(point(1));
-        }
     }
 
-    if(x.size() < 2) {
-        throw std::invalid_argument("At least two data points are needed");
-    }
-    if(x.size() != y.size()) {
-        throw std::invalid_argument("Argument length mismatch");
-    }
-
-    // Sort inputs by arguments
+    // Sort input and construct spline
     sort_by_argument(x, y);
-
-    // Construct monotonic spline
     spline = tk::spline(x, y, tk::spline::cspline, true);
 }
 

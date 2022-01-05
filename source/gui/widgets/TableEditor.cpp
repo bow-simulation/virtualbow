@@ -2,7 +2,7 @@
 #include <algorithm>
 
 TableEditor::TableEditor(const QString& x_label, const QString& y_label, const UnitGroup& x_unit, const UnitGroup& y_unit)
-    : model(x_label, y_label, x_unit, y_unit, 100)
+    : model(x_label, y_label, x_unit, y_unit)
 {
     setModel(&model);
 
