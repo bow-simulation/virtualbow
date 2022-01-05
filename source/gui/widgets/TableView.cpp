@@ -83,6 +83,6 @@ void TableView::pasteToSelection() {
 // https://www.walletfox.com/course/qtableviewcopypaste.php
 void TableView::deleteSelection() {
     for(QModelIndex index: selectedIndexes()) {
-        model()->setData(index, QString());
+        model()->setData(index, QVariant());
     }
 }

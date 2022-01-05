@@ -37,7 +37,7 @@ public:
 
     double length() const;    // Arc length of the limb
 
-    // TODO: Remove?
+    // TODO: Remove since s = p*length now?
     double get_p(double s) const;    // Calculates the relative position p in [0, 1] from arc length s
     double get_s(double p) const;    // Calculates the arc length from a relative position p in [0, 1]
 
