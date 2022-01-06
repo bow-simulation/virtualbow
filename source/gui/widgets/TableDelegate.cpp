@@ -1,19 +1,18 @@
 #include "TableDelegate.hpp"
-#include <QDoubleSpinBox>
+#include "gui/units/UnitDialog.hpp"
 
-TableDelegate::TableDelegate(QObject *parent)
-    : QStyledItemDelegate(parent)
+TableDelegate::TableDelegate(const TableSpinnerOptions& options, QObject* parent)
+    : QStyledItemDelegate(parent),
+      options(options)
 {
 
 }
 
 QWidget* TableDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
-    QDoubleSpinBox* editor = new QDoubleSpinBox(parent);
+    TableSpinner* editor = new TableSpinner(options, parent);
     editor->setFrame(false);
-    //editor->setMinimum(0);
-    //editor->setMaximum(100);
 
-    QObject::connect(editor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [=](double value){
+    QObject::connect(editor, QOverload<double>::of(&TableSpinner::valueChanged), this, [=](double value){
         const_cast<TableDelegate*>(this)->commitData(editor);    // Hack
     });
 
@@ -21,16 +20,16 @@ QWidget* TableDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem
 }
 
 void TableDelegate::setEditorData(QWidget* editor, const QModelIndex &index) const {
-    int value = index.model()->data(index, Qt::EditRole).toDouble();
+    double value = index.model()->data(index, Qt::EditRole).toDouble();
 
-    QDoubleSpinBox *spinbox = static_cast<QDoubleSpinBox*>(editor);
-    spinbox->setValue(value);
+    TableSpinner* spinner = static_cast<TableSpinner*>(editor);
+    spinner->setValue(value);
 }
 
 void TableDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
-    QDoubleSpinBox *spinbox = static_cast<QDoubleSpinBox*>(editor);
-    spinbox->interpretText();
-    double value = spinbox->value();
+    TableSpinner* spinner = static_cast<TableSpinner*>(editor);
+    spinner->interpretText();    // From Qt tutorial
+    double value = spinner->value();
 
     model->setData(index, value, Qt::EditRole);
 }

@@ -2,11 +2,12 @@
 #include "TableDelegate.hpp"
 #include <algorithm>
 
-TableEditor::TableEditor(const QString& x_label, const QString& y_label, const UnitGroup& x_unit, const UnitGroup& y_unit)
-    : model(x_label, y_label, x_unit, y_unit)
+TableEditor::TableEditor(const QString& x_label, const QString& y_label, const TableSpinnerOptions& x_options, const TableSpinnerOptions& y_options)
+    : model(x_label, y_label, x_options.units, y_options.units)
 {
     setModel(&model);
-    setItemDelegate(new TableDelegate());
+    setItemDelegateForColumn(0, new TableDelegate(x_options));
+    setItemDelegateForColumn(1, new TableDelegate(y_options));
 
     QObject::connect(&model, &TableModel::modified, this, &TableEditor::modified);
     QObject::connect(this->selectionModel(), &QItemSelectionModel::selectionChanged, this, [&] {
