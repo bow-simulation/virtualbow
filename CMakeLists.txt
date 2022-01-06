@@ -162,6 +162,8 @@ add_executable(
     source/gui/units/UnitGroup.hpp
     source/gui/units/UnitSystem.cpp
     source/gui/units/UnitSystem.hpp
+    source/gui/utils/DoubleRange.cpp
+    source/gui/utils/DoubleRange.hpp
     source/gui/widgets/DialogBase.cpp
     source/gui/widgets/DialogBase.hpp
     source/gui/widgets/DoubleEditor.cpp
@@ -187,6 +189,8 @@ add_executable(
     source/gui/widgets/TableEditor.hpp
     source/gui/widgets/TableModel.cpp
     source/gui/widgets/TableModel.hpp
+    source/gui/widgets/TableSpinner.cpp
+    source/gui/widgets/TableSpinner.hpp
     source/gui/widgets/TableView.cpp
     source/gui/widgets/TableView.hpp
     source/gui/widgets/qcustomplot/qcustomplot.cpp

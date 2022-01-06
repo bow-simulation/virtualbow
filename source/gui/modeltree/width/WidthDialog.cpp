@@ -2,8 +2,12 @@
 
 WidthDialog::WidthDialog(QWidget* parent)
     : PersistentDialog(parent, "WidthDialog", { 800, 400 }),    // Magic numbers
-      edit(new TableEditor("Position", "Width", UnitSystem::ratio, UnitSystem::length)),
-      view(new SplineView("Position", "Width", UnitSystem::ratio, UnitSystem::length))
+      edit(new TableEditor(
+          "Position", "Width",
+          TableSpinnerOptions(UnitSystem::ratio, DoubleRange::nonNegative(), 1e-4),
+          TableSpinnerOptions(UnitSystem::length, DoubleRange::positive(), 1e-4)
+      )),
+      view(new SplineView("Position", "Width", UnitSystem::ratio, UnitSystem::length))    
 {
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     QObject::connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
