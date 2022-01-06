@@ -1,10 +1,12 @@
 #include "TableEditor.hpp"
+#include "TableDelegate.hpp"
 #include <algorithm>
 
 TableEditor::TableEditor(const QString& x_label, const QString& y_label, const UnitGroup& x_unit, const UnitGroup& y_unit)
     : model(x_label, y_label, x_unit, y_unit)
 {
     setModel(&model);
+    setItemDelegate(new TableDelegate());
 
     QObject::connect(&model, &TableModel::modified, this, &TableEditor::modified);
     QObject::connect(this->selectionModel(), &QItemSelectionModel::selectionChanged, this, [&] {
