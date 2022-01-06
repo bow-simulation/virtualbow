@@ -128,7 +128,7 @@ void TableModel::setData(const std::vector<Vector<2>>& data) {
     }
 
     // Remove previous entries, keep track of all cells that potentially changed
-    QSet<QModelIndex> changed(entries.keyBegin(), entries.keyEnd());
+    QSet<QModelIndex> changed = entries.keys().toSet(); // Qt 5.14 and newer: changed(entries.keyBegin(), entries.keyEnd())
     entries.clear();
 
     // Create new entries, also add them to the change set

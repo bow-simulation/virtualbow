@@ -180,6 +180,9 @@ add_executable(
     source/gui/widgets/PlotWidget.hpp
     source/gui/widgets/SplineView.cpp
     source/gui/widgets/SplineView.hpp
+    source/gui/widgets/TableDelegate.cpp
+    source/gui/widgets/TableDelegate.hpp
+    source/gui/widgets/TableEditor.hpp
     source/gui/widgets/TableEditor.cpp
     source/gui/widgets/TableEditor.hpp
     source/gui/widgets/TableModel.cpp
