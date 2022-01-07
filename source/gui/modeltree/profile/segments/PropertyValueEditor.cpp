@@ -50,8 +50,8 @@ PropertyValueEditor::PropertyValueEditor(int rows, const QList<QString>& names, 
         };
         */
 
-        QObject::connect(spinner, QOverload<double>::of(&DoubleSpinBox::valueChanged), this, &SegmentEditor::modified);
-        QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SegmentEditor::modified);
+        QObject::connect(spinner, QOverload<double>::of(&DoubleSpinBox::valueChanged), this, &PropertyValueEditor::modified);
+        QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PropertyValueEditor::modified);
         QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, update_spinner_unit);
         //QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, update_combos_enabled);
         update_spinner_unit(combo->currentIndex());

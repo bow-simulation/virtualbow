@@ -1,6 +1,8 @@
 #pragma once
 #include "gui/modeltree/profile/SegmentEditor.hpp"
 
+class TableEditor;
+
 class SplineSegmentEditor: public SegmentEditor
 {
 public:
@@ -8,4 +10,7 @@ public:
 
     SegmentInput getData() const override;
     void setData(const SegmentInput& data);
+
+private:
+    TableEditor* table;
 };

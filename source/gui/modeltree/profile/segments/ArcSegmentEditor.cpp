@@ -13,7 +13,8 @@ SegmentInput ArcSegmentEditor::getData() const {
 void ArcSegmentEditor::setData(const SegmentInput& data) {
     if(auto value = std::get_if<ArcInput>(&data)) {
         setProperties<ArcConstraint>(*value);
-    } else {
+    }
+    else {
         throw std::invalid_argument("Wrong segment type");
     }
 }
