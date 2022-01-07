@@ -39,5 +39,7 @@
         <file>icons/segment-spiral.svg</file>
         <file>icons/list-remove.svg</file>
         <file>icons/segment-spline.svg</file>
+        <file>icons/list-move-down.svg</file>
+        <file>icons/list-move-up.svg</file>
     </qresource>
 </RCC>

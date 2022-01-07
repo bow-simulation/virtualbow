@@ -2,7 +2,7 @@
 #include "solver/model/profile/ProfileInput.hpp"
 #include <QWidget>
 
-class ProfileTree;
+class ProfileTreeView;
 
 class ProfileEditor: public QWidget {
     Q_OBJECT
@@ -18,7 +18,7 @@ signals:
     void selectionChanged(const QList<int>& indices);
 
 private:
-    ProfileTree* profile_tree;
+    ProfileTreeView* profile_tree;
 
     QList<int> getSelectedIndices();
 };
