@@ -1,26 +1,32 @@
 #include "SplineSegmentEditor.hpp"
-#include <QTableWidget>
-#include <QHeaderView>
+#include "gui/widgets/TableEditor.hpp"
+#include "gui/units/UnitSystem.hpp"
 #include <QVBoxLayout>
 
-SplineSegmentEditor::SplineSegmentEditor() {
-    auto table = new QTableWidget(50, 2);
-    table->setHorizontalHeaderLabels({"X [mm]", "Y [mm]"});
-    table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    table->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
-    table->verticalHeader()->setVisible(false);
-
+SplineSegmentEditor::SplineSegmentEditor()
+    : table(new TableEditor(
+          "X", "Y",
+          TableSpinnerOptions(UnitSystem::length, DoubleRange::unrestricted(), 1e-3),
+          TableSpinnerOptions(UnitSystem::length, DoubleRange::unrestricted(), 1e-3)
+      ))
+{
     auto vbox = new QVBoxLayout();
+    this->setLayout(vbox);
     vbox->setMargin(0);
     vbox->addWidget(table);
 
-    this->setLayout(vbox);
+    QObject::connect(table, &TableEditor::modified, this, &SplineSegmentEditor::modified);
 }
 
 SegmentInput SplineSegmentEditor::getData() const {
-    return SplineInput();
+    return table->getData();
 }
 
 void SplineSegmentEditor::setData(const SegmentInput& data) {
-
+    if(auto value = std::get_if<SplineInput>(&data)) {
+        table->setData(*value);
+    }
+    else {
+        throw std::invalid_argument("Wrong segment type");
+    }
 }

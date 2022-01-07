@@ -13,7 +13,8 @@ SegmentInput SpiralSegmentEditor::getData() const {
 void SpiralSegmentEditor::setData(const SegmentInput& data) {
     if(auto value = std::get_if<SpiralInput>(&data)) {
         setProperties<SpiralConstraint>(*value);
-    } else {
+    }
+    else {
         throw std::invalid_argument("Wrong segment type");
     }
 }
