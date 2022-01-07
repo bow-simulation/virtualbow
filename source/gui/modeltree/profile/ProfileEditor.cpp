@@ -1,41 +1,31 @@
 #include "ProfileEditor.hpp"
-#include "ProfileTree.hpp"
+#include "ProfileTreeView.hpp"
 #include "SegmentEditor.hpp"
 #include <algorithm>
-
 #include <QTableWidget>
 #include <QSplitter>
 #include <QVBoxLayout>
 
-ProfileEditor::ProfileEditor()
-    : profile_tree(new ProfileTree())
-{
-    auto placeholder = new QTableWidget();
-    placeholder->horizontalHeader()->setVisible(false);
-    placeholder->verticalHeader()->setVisible(false);
+#include <QLabel>
 
+ProfileEditor::ProfileEditor()
+    : profile_tree(new ProfileTreeView())
+{
     auto splitter = new QSplitter(Qt::Vertical);
     splitter->setChildrenCollapsible(false);
     splitter->addWidget(profile_tree);
-    splitter->addWidget(placeholder);
+    splitter->addWidget(new QLabel("Editor"));
     splitter->setStretchFactor(0, 1);
     splitter->setStretchFactor(1, 0);
 
     auto vbox = new QVBoxLayout();
+    this->setLayout(vbox);
     vbox->setMargin(0);
     vbox->addWidget(splitter);
 
-    this->setLayout(vbox);
-
-    QObject::connect(profile_tree, &QTreeWidget::itemSelectionChanged, this, [&, splitter, placeholder](){
-        auto selection = profile_tree->selectedItems();
-        if(selection.isEmpty()) {
-            splitter->replaceWidget(1, placeholder);
-        }
-        else if(selection.size() == 1) {
-            auto item = dynamic_cast<ProfileTreeItem*>(selection[0]);
-            splitter->replaceWidget(1, item->getEditor());
-        }
+    /*
+    QObject::connect(profile_tree, &ProfileTree::itemSelectionChanged, this, [&, splitter](){
+        splitter->replaceWidget(1, profile_tree->getSelectedEditor());
     });
 
     QObject::connect(profile_tree, &ProfileTree::modified, this, &ProfileEditor::modified);
@@ -46,6 +36,7 @@ ProfileEditor::ProfileEditor()
         }
         emit selectionChanged(indices);
     });
+    */
 }
 
 ProfileInput ProfileEditor::getData() const {
