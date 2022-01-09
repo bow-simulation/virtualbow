@@ -28,8 +28,9 @@ ProfileTreeHeader::ProfileTreeHeader(QWidget* parent, const QList<QToolButton*>&
     }
 }
 
-ProfileTreeView::ProfileTreeView() {
-    model = new ProfileTreeModel();
+ProfileTreeView::ProfileTreeView(ProfileTreeModel* model)
+    : model(model)
+{
     this->setModel(model);
 
     // Menu with actions for adding segments
@@ -89,9 +90,6 @@ ProfileTreeView::ProfileTreeView() {
     QObject::connect(this->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ProfileTreeView::updateButtons);
     updateButtons();
 
-    // Connect modification signals
-    QObject::connect(model, &ProfileTreeModel::modified, this, &ProfileTreeView::modified);
-
     auto header = new ProfileTreeHeader(this, {button_add, button_remove, button_up, button_down});
     header->setStretchLastSection(false);
     header->setSectionResizeMode(QHeaderView::Stretch);
@@ -106,15 +104,9 @@ ProfileTreeView::ProfileTreeView() {
     this->setDropIndicatorShown(true);
 }
 
-ProfileInput ProfileTreeView::getData() const {
-    return model->getData();
-}
-void ProfileTreeView::setData(const ProfileInput& data) {
-    model->setData(data);
-}
-
-// If no segment is selected, append new segment at the end
-// If one segment is selected, insert before selection
+// Adds a new segment with the given input
+// * If no segment is selected, append new segment at the end
+// * If one segment is selected, insert before selection
 void ProfileTreeView::onButtonAdd(const SegmentInput& input) {
     auto selection = this->selectionModel()->selectedIndexes();
     if(selection.empty()) {
@@ -125,10 +117,11 @@ void ProfileTreeView::onButtonAdd(const SegmentInput& input) {
     }
 }
 
-// Add is possible if none or exactly one item is selected
-// Remove is possible if the list contains at least one item
-// Move up is possible if one or more items are selected, except the first one
-// Move down is possible if one or more items are selected, except the last one
+// Enables/disables buttons based on the current selection and data
+// * Add is possible if none or exactly one item is selected
+// * Remove is possible if the list contains at least one item
+// * Move up is possible if one or more items are selected, except the first one
+// * Move down is possible if one or more items are selected, except the last one
 void ProfileTreeView::updateButtons() {
     auto selection = this->selectionModel()->selectedIndexes();
     bool first_selected = this->selectionModel()->isRowSelected(0);

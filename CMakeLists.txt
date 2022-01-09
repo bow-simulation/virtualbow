@@ -135,6 +135,8 @@ add_executable(
     source/gui/modeltree/profile/ProfileEditor.hpp
     source/gui/modeltree/profile/ProfileTreeView.cpp
     source/gui/modeltree/profile/ProfileTreeView.hpp
+    source/gui/modeltree/profile/ProfileSegmentView.cpp
+    source/gui/modeltree/profile/ProfileSegmentView.hpp
     source/gui/modeltree/profile/ProfileTreeModel.cpp
     source/gui/modeltree/profile/ProfileTreeModel.hpp
     source/gui/modeltree/profile/ProfileView.cpp
