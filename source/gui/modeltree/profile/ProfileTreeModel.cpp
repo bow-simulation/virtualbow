@@ -98,6 +98,19 @@ void ProfileTreeModel::moveSegmentsDown(QModelIndexList indexes) {
     emit modified();
 }
 
+const SegmentInput& ProfileTreeModel::getSegment(const QModelIndex& index) const {
+    if(index.isValid() && index.row() < input.size()) {
+        return input[index.row()];
+    }
+}
+
+void ProfileTreeModel::setSegment(const QModelIndex& index, const SegmentInput& segment) {
+    if(index.isValid() && index.row() < input.size()) {
+        input[index.row()] = segment;
+        emit dataChanged(index, index);
+        emit modified();
+    }
+}
 
 const ProfileInput& ProfileTreeModel::getData() const {
     return input;

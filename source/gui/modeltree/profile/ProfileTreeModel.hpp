@@ -27,6 +27,9 @@ public:
     void moveSegmentsUp(QModelIndexList indexes);
     void moveSegmentsDown(QModelIndexList indexes);
 
+    const SegmentInput& getSegment(const QModelIndex& index) const;
+    void setSegment(const QModelIndex& index, const SegmentInput& segment);
+
     const ProfileInput& getData() const;
     void setData(const ProfileInput& data);
 

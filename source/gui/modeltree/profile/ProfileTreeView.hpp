@@ -21,13 +21,7 @@ class ProfileTreeView: public QTreeView
     Q_OBJECT
 
 public:
-    ProfileTreeView();
-
-    ProfileInput getData() const;
-    void setData(const ProfileInput& data);
-
-signals:
-    void modified();
+    ProfileTreeView(ProfileTreeModel* model);
 
 private:
     ProfileTreeModel* model;
