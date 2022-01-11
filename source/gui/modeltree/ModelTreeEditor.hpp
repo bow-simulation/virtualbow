@@ -2,11 +2,14 @@
 #include "solver/model/input/InputData.hpp"
 #include <QTreeWidget>
 
-class ModelTreeEditor: public QTreeWidget {
+class ViewModel;
+
+class ModelTreeEditor: public QTreeWidget
+{
     Q_OBJECT
 
 public:
-    ModelTreeEditor();
+    ModelTreeEditor(ViewModel* model);
     const InputData& getData() const;
     void setData(const InputData& data);
 

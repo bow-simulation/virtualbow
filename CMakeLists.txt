@@ -94,14 +94,21 @@ add_executable(
     source/gui/Main.cpp
     source/gui/HelpMenu.cpp
     source/gui/HelpMenu.hpp
-    source/gui/MainEditor.cpp
-    source/gui/MainEditor.hpp
     source/gui/MainWindow.cpp
     source/gui/MainWindow.hpp
     source/gui/RecentFilesMenu.cpp
     source/gui/RecentFilesMenu.hpp
     source/gui/SimulationDialog.cpp
     source/gui/SimulationDialog.hpp
+
+    source/gui/viewmodel/ViewModel.cpp
+    source/gui/viewmodel/ViewModel.hpp
+
+    source/gui/treeview/TreeView.cpp
+    source/gui/treeview/TreeView.hpp
+    source/gui/treeview/TreeModel.cpp
+    source/gui/treeview/TreeModel.hpp
+
     source/gui/limbview/LayerColors.cpp
     source/gui/limbview/LayerColors.hpp
     source/gui/limbview/LayerLegend.cpp

@@ -2,8 +2,12 @@
 #include "solver/model/input/InputData.hpp"
 #include <QMainWindow>
 
-class MainEditor;
 class RecentFilesMenu;
+class ViewModel;
+class TreeView;
+class LimbView;
+
+class QLabel;
 
 class MainWindow: public QMainWindow {
 public:
@@ -15,6 +19,17 @@ public:
 private:
     const char* DEFAULT_FILENAME = "Unnamed";
     const QSize DEFAULT_SIZE = { 1200, 700 };
+
+    ViewModel* data_model;
+
+    TreeView* tree_view;
+    QLabel* property_view;
+    QLabel* plot_view;
+    LimbView* limb_view;
+
+    QDockWidget* dock_tree_view;
+    QDockWidget* dock_property_view;
+    QDockWidget* dock_plot_view;
 
     QAction* action_new;
     QAction* action_open;
@@ -28,7 +43,8 @@ private:
     RecentFilesMenu* menu_open_recent;
 
     InputData data;
-    MainEditor* editor;
+
+    void setEditingEnabled(bool enabled);
 
     void closeEvent(QCloseEvent *event) override;
 

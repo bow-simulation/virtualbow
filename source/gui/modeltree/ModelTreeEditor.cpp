@@ -1,5 +1,6 @@
 #include "ModelTreeEditor.hpp"
 #include "ModelTreeItem.hpp"
+#include "gui/viewmodel/ViewModel.hpp"
 #include "gui/modeltree/comment//CommentDialog.hpp"
 #include "gui/modeltree/profile/ProfileDialog.hpp"
 #include "gui/modeltree/width/WidthDialog.hpp"
@@ -10,7 +11,7 @@
 #include "gui/modeltree/damping/DampingDialog.hpp"
 #include "gui/modeltree/dimensions/DimensionsDialog.hpp"
 
-ModelTreeEditor::ModelTreeEditor() {
+ModelTreeEditor::ModelTreeEditor(ViewModel* model) {
     new ModelTreeItem<CommentDialog, std::string>(this, data.comment, "Comments", QIcon(":/icons/model-comments.svg"));
     new ModelTreeItem<SettingsDialog, Settings>(this, data.settings, "Settings", QIcon(":/icons/model-settings.svg"));
     new ModelTreeItem<DimensionsDialog, Dimensions>(this, data.dimensions, "Dimensions", QIcon(":/icons/model-dimensions.svg"));
@@ -28,7 +29,7 @@ ModelTreeEditor::ModelTreeEditor() {
         }
     });
 
-    this->setHeaderLabel("Model");
+    this->setHeaderHidden(true);
     this->expandAll();
     this->setItemsExpandable(false);
 }
