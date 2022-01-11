@@ -2,7 +2,9 @@
 #include "SimulationDialog.hpp"
 #include "RecentFilesMenu.hpp"
 #include "HelpMenu.hpp"
-#include "MainEditor.hpp"
+#include "treeview/TreeView.hpp"
+#include "limbview/LimbView.hpp"
+#include "viewmodel/ViewModel.hpp"
 #include "gui/units/UnitDialog.hpp"
 #include "config.hpp"
 
@@ -13,9 +15,14 @@
 #include <QFileDialog>
 #include <QApplication>
 
+#include <QDockWidget>
+#include <QLabel>
+
 MainWindow::MainWindow()
     : menu_open_recent(new RecentFilesMenu(this)),
-      editor(new MainEditor())
+      data_model(new ViewModel()),
+      tree_view(new TreeView(data_model)),
+      limb_view(new LimbView(data_model))
 {
     // Actions
     action_new = new QAction(QIcon(":/icons/document-new.svg"), "&New", this);
@@ -103,11 +110,39 @@ MainWindow::MainWindow()
     // Help menu
     this->menuBar()->addMenu(new HelpMenu(this));
 
+    property_view = new QLabel("TableView");
+    property_view->setStyleSheet("QLabel { background-color: white; }");
+
+    plot_view = new QLabel("2D View");
+    plot_view->setStyleSheet("QLabel { background-color: white; }");
+
+    dock_tree_view = new QDockWidget("Model");
+    dock_tree_view->setObjectName("TreeView");
+    dock_tree_view->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    dock_tree_view->setWidget(tree_view);
+
+    dock_property_view = new QDockWidget("Properties");
+    dock_property_view->setObjectName("PropertyView");
+    dock_property_view->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    dock_property_view->setWidget(property_view);
+
+    dock_plot_view = new QDockWidget("2D View");
+    dock_plot_view->setObjectName("PlotView");
+    dock_plot_view->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    dock_plot_view->setWidget(plot_view);
+
+    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+
+    addDockWidget(Qt::LeftDockWidgetArea, dock_tree_view);
+    addDockWidget(Qt::LeftDockWidgetArea, dock_property_view);
+    addDockWidget(Qt::BottomDockWidgetArea, dock_plot_view);
+
     // Main window
     this->setWindowIcon(QIcon(":/icons/logo.svg"));
-    this->setStyleSheet("QMainWindow { background-image:url(:/icons/background.png); background-position: center; background-repeat: no-repeat; }");
-    this->menuBar()->setAutoFillBackground(true);
-    this->setCentralWidget(editor);
+    this->setCentralWidget(limb_view);
     this->resize(DEFAULT_SIZE);
     setFilePath(QString());
 
@@ -119,11 +154,22 @@ MainWindow::MainWindow()
     // Load unit settings
     UnitSystem::loadFromSettings(settings);
 
+    /*
     // Set Window's modification indicator when data has changed
     QObject::connect(editor, &MainEditor::modified, [&]{
         InputData new_data = editor->getData();
         this->setModified(new_data != data);
     });
+    */
+
+    setEditingEnabled(false);
+}
+
+void MainWindow::setEditingEnabled(bool enabled) {
+    action_save->setEnabled(enabled);
+    action_save_as->setEnabled(enabled);
+    action_run_statics->setEnabled(enabled);
+    action_run_dynamics->setEnabled(enabled);
 }
 
 // Load input file from a file and show the contents in the editor
@@ -132,13 +178,12 @@ bool MainWindow::loadFromFile(const QString& path) {
     try {
         // Load data from path, set editor and window state
         data = InputData(path.toStdString());
-        editor->setData(data);
+        //editor->setData(data);
         setFilePath(path);
         setModified(false);
 
         // Add path to the menu of recently used files
         menu_open_recent->addPath(path);
-
         return true;
     }
     catch(const std::exception& e) {
@@ -151,7 +196,7 @@ bool MainWindow::loadFromFile(const QString& path) {
 // Returns true on success and false on failure
 bool MainWindow::saveToFile(const QString& path) {
     try {
-        data = editor->getData();
+        //data = editor->getData();
         data.save(path.toStdString());
         setFilePath(path);
         setModified(false);
@@ -196,7 +241,7 @@ void MainWindow::newFile() {
 
     // Set editor to new default content and save to the selected path
     data = InputData();
-    editor->setData(data);
+    //editor->setData(data);
     saveToFile(path);
 }
 
@@ -318,11 +363,7 @@ void MainWindow::setFilePath(const QString &path) {
 
     // If path is not empty, enable editing, saving and simulation
     bool enabled = !path.isEmpty();
-    editor->setVisible(enabled);
-    action_save->setEnabled(enabled);
-    action_save_as->setEnabled(enabled);
-    action_run_statics->setEnabled(enabled);
-    action_run_dynamics->setEnabled(enabled);
+    setEditingEnabled(enabled);
 }
 
 // Set the modified property of this window. Workaround to prevent QApplication::applicationDisplayName

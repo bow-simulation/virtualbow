@@ -22,31 +22,8 @@ struct InputData {
             { 1.0, 0.1 },
             { 2.0, 0.4 },
             { 3.0, 0.9 }
-        },
-        SplineInput {
-            { 0.0, 0.0 },
-            { 1.0, 0.1 },
-            { 2.0, 0.4 },
-            { 3.0, 0.9 }
-        },
-        SplineInput {
-            { 0.0, 0.0 },
-            { 1.0, 0.1 },
-            { 2.0, 0.4 },
-            { 3.0, 0.9 }
         }
     };
-
-    /*
-    ProfileInput profile {
-        SplineInput {
-            { 0.0, 0.0 },
-            { 1.0, 0.1 },
-            { 2.0, 0.4 },
-            { 3.0, 0.9 }
-        }
-    };
-    */
 
     std::vector<Vector<2>> width{{0.0, 0.06}, {1.0, 0.01}};
     std::vector<Layer> layers = {Layer()};
