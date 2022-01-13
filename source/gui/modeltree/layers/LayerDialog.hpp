@@ -1,6 +1,6 @@
 #pragma once
 #include "LayerEditor.hpp"
-#include "solver/model/input/Layers.hpp"
+#include "solver/model/input/InputData.hpp"
 #include "gui/widgets/PersistentDialog.hpp"
 #include "gui/widgets/EditableTabBar.hpp"
 #include "gui/units/UnitSystem.hpp"

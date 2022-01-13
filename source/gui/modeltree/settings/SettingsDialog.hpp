@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/model/input/Settings.hpp"
+#include "solver/model/input/InputData.hpp"
 #include "gui/widgets/IntegerEditor.hpp"
 #include "gui/widgets/DoubleEditor.hpp"
 #include "gui/units/UnitSystem.hpp"

@@ -31,10 +31,12 @@ public:
             });
 
             QObject::connect(dialog, &DialogType::rejected, [&] {
+                /*
                 if(data != backup) {
                     data = backup;
                     emit parent->modified();
                 }
+                */
             });
         }
 

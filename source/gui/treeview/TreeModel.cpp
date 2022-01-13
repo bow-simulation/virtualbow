@@ -1,4 +1,7 @@
 #include "TreeModel.hpp"
+#include "gui/viewmodel/ViewModel.hpp"
+
+#include <QDebug>
 
 TreeModel::TreeModel(ViewModel* model)
     : model(model) {
@@ -6,17 +9,70 @@ TreeModel::TreeModel(ViewModel* model)
 }
 
 int TreeModel::rowCount(const QModelIndex& parent) const {
-    return N_ROWS;
+    qInfo() << "rowCount for" << parent;
+
+    if(parent.isValid()) {
+        if(parent.column() > 0) {
+            return 0;
+        }
+        if(parent.row() == ROW_MATERIALS) {
+            qInfo() << "Rows:" << model->getData().materials.size();
+            return model->getData().materials.size();
+        }
+        if(parent.row() == ROW_PROFILE) {
+            qInfo() << "Rows:" << model->getData().profile.size();
+            return model->getData().profile.size();
+        }
+    }
+
+    qInfo() << "Rows:" << N_TOP_LEVEL_ROWS;
+    return N_TOP_LEVEL_ROWS;
 }
 
 int TreeModel::columnCount(const QModelIndex& parent) const {
     return 1;
 }
 
-QVariant TreeModel::data(const QModelIndex& index, int role) const {
-    if(!index.isValid()) {
-        return QVariant();
+QModelIndex TreeModel::index(int row, int column, const QModelIndex& parent) const {
+    /*
+    if(!hasIndex(row, column, parent)) {
+        return QModelIndex();
     }
+    */
+
+    if(!parent.isValid()) {
+        return createIndex(row, column, (quintptr) parent.row());
+    }
+    else {
+        return createIndex(row, column, (quintptr) -1);
+    }
+
+    return QModelIndex();
+}
+
+QModelIndex TreeModel::parent(const QModelIndex& index) const {
+    if(!index.isValid()) {
+        return QModelIndex();
+    }
+
+    int id = index.internalId();
+    if(id == -1) {
+        return QModelIndex();
+    }
+
+    return createIndex(id, 0, (quintptr) -1);
+}
+
+QVariant TreeModel::data(const QModelIndex& index, int role) const {
+    if(index.isValid() && role == Qt::DisplayRole) {
+        return "Test";
+    }
+
+    return QVariant();
+
+    /*
+
+    qInfo() << "Internal ID:" << index.internalId();
 
     if(role == Qt::DisplayRole) {
         switch(index.row()) {
@@ -61,7 +117,7 @@ QVariant TreeModel::data(const QModelIndex& index, int role) const {
                 return QIcon(":/icons/model-settings.svg");
 
             case ROW_MATERIALS:
-                return QIcon(":/icons/model-settings.svg");
+                return QIcon(":/icons/model-materials.svg");
 
             case ROW_DIMENSIONS:
                 return QIcon(":/icons/model-dimensions.svg");
@@ -87,4 +143,5 @@ QVariant TreeModel::data(const QModelIndex& index, int role) const {
     }
 
     return QVariant();
+    */
 }
