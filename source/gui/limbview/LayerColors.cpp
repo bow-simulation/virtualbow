@@ -1,5 +1,5 @@
 #include "LayerColors.hpp"
-#include "solver/model/input/Layers.hpp"
+#include "solver/model/input/InputData.hpp"
 #include "solver/model/LimbProperties.hpp"
 
 #include <boost/functional/hash.hpp>

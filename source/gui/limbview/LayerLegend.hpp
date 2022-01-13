@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/model/input/Layers.hpp"
+#include "solver/model/input/InputData.hpp"
 #include <QWidget>
 
 class QLabel;

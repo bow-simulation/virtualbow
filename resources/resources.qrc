@@ -41,5 +41,8 @@
         <file>icons/segment-spline.svg</file>
         <file>icons/list-move-down.svg</file>
         <file>icons/list-move-up.svg</file>
+        <file>icons/model-materials.svg</file>
+        <file>icons/model-layer.svg</file>
+        <file>icons/model-material.svg</file>
     </qresource>
 </RCC>

@@ -1,7 +1,24 @@
 #include "InputData.hpp"
 #include "Conversion.hpp"
+#include <nlohmann/json.hpp>
 #include <fstream>
 #include <iomanip>
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Settings, n_limb_elements, n_string_elements, n_draw_steps, arrow_clamp_force, time_span_factor, time_step_factor, sampling_rate)
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Material, name, rho, E)
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Dimensions, brace_height, draw_length, handle_length, handle_setback, handle_angle)
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Layer, name, height, rho, E)
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Masses, arrow, string_center, string_tip, limb_tip)
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Damping, damping_ratio_limbs, damping_ratio_string)
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(String, strand_stiffness, strand_density, n_strands)
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InputData, version, comment, settings, dimensions, profile, width, layers, string, masses, damping)
 
 InputData::InputData(const std::string& path) {
     std::ifstream stream(path);
