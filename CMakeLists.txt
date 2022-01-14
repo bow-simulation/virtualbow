@@ -94,6 +94,8 @@ add_executable(
     source/gui/Main.cpp
     source/gui/HelpMenu.cpp
     source/gui/HelpMenu.hpp
+    source/gui/KeyEventFilter.cpp
+    source/gui/KeyEventFilter.hpp
     source/gui/MainWindow.cpp
     source/gui/MainWindow.hpp
     source/gui/RecentFilesMenu.cpp
@@ -224,6 +226,8 @@ add_executable(
     source/post/Main.cpp
     source/gui/HelpMenu.cpp
     source/gui/HelpMenu.hpp
+    source/gui/KeyEventFilter.cpp
+    source/gui/KeyEventFilter.hpp
     source/gui/RecentFilesMenu.cpp
     source/gui/RecentFilesMenu.hpp
     source/gui/limbview/LayerColors.cpp
