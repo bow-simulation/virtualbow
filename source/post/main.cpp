@@ -1,4 +1,5 @@
 #include "MainWindow.hpp"
+#include "gui/KeyEventFilter.hpp"
 #include "config.hpp"
 #include <iostream>
 
@@ -11,6 +12,8 @@ int main(int argc, char* argv[]) {
     QLocale::setDefault(QLocale::C);
 
     QApplication application(argc, argv);
+    application.installEventFilter(new KeyEventFilter());
+
     QCommandLineParser parser;
     parser.addHelpOption();
     parser.addVersionOption();

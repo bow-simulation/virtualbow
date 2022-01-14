@@ -91,6 +91,8 @@ add_executable(
     source/gui/main.cpp
     source/gui/MainWindow.cpp
     source/gui/MainWindow.hpp
+    source/gui/KeyEventFilter.cpp
+    source/gui/KeyEventFilter.hpp
     source/gui/BaseDialog.cpp
     source/gui/BaseDialog.hpp
     source/gui/HelpMenu.cpp
@@ -200,6 +202,8 @@ add_executable(
     source/post/StressPlot.cpp
     source/post/StressPlot.hpp
     source/gui/qcustomplot/qcustomplot.cpp
+    source/gui/KeyEventFilter.cpp
+    source/gui/KeyEventFilter.hpp
     source/gui/RecentFilesMenu.cpp
     source/gui/RecentFilesMenu.hpp
     source/gui/HelpMenu.cpp
