@@ -1,7 +1,7 @@
 #pragma once
 #include <QTreeView>
 
-class ViewModel;
+class DataViewModel;
 
 class TreeModel: public QAbstractTableModel {
     Q_OBJECT
@@ -19,7 +19,7 @@ public:
     static const int ROW_MASSES = 8;
     static const int ROW_DAMPING = 9;
 
-    TreeModel(ViewModel* model);
+    TreeModel(DataViewModel* model);
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     int columnCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -30,5 +30,5 @@ public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
 private:
-    ViewModel* model;
+    DataViewModel* model;
 };

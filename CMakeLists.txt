@@ -103,13 +103,21 @@ add_executable(
     source/gui/SimulationDialog.cpp
     source/gui/SimulationDialog.hpp
 
-    source/gui/viewmodel/ViewModel.cpp
-    source/gui/viewmodel/ViewModel.hpp
+    source/gui/viewmodel/MainViewModel.cpp
+    source/gui/viewmodel/MainViewModel.hpp
+    source/gui/viewmodel/DataViewModel.cpp
+    source/gui/viewmodel/DataViewModel.hpp
 
     source/gui/treeview/TreeView.cpp
     source/gui/treeview/TreeView.hpp
     source/gui/treeview/TreeModel.cpp
     source/gui/treeview/TreeModel.hpp
+
+    source/gui/propertyview/PropertyView.cpp
+    source/gui/propertyview/PropertyView.hpp
+    source/gui/propertyview/CommentView.cpp
+    source/gui/propertyview/CommentView.hpp
+
 
     source/gui/limbview/LayerColors.cpp
     source/gui/limbview/LayerColors.hpp

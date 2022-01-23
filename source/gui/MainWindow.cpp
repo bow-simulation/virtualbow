@@ -3,8 +3,10 @@
 #include "RecentFilesMenu.hpp"
 #include "HelpMenu.hpp"
 #include "treeview/TreeView.hpp"
+#include "propertyview/PropertyView.hpp"
 #include "limbview/LimbView.hpp"
-#include "viewmodel/ViewModel.hpp"
+#include "viewmodel/MainViewModel.hpp"
+#include "viewmodel/DataViewModel.hpp"
 #include "gui/units/UnitDialog.hpp"
 #include "config.hpp"
 
@@ -20,9 +22,7 @@
 
 MainWindow::MainWindow()
     : menu_open_recent(new RecentFilesMenu(this)),
-      data_model(new ViewModel()),
-      tree_view(new TreeView(data_model)),
-      limb_view(new LimbView(data_model))
+      view_model(new MainViewModel())
 {
     // Actions
     action_new = new QAction(QIcon(":/icons/document-new.svg"), "&New", this);
@@ -110,26 +110,17 @@ MainWindow::MainWindow()
     // Help menu
     this->menuBar()->addMenu(new HelpMenu(this));
 
-    property_view = new QLabel("TableView");
-    property_view->setStyleSheet("QLabel { background-color: white; }");
-
-    plot_view = new QLabel("2D View");
-    plot_view->setStyleSheet("QLabel { background-color: white; }");
-
     dock_tree_view = new QDockWidget("Model");
     dock_tree_view->setObjectName("TreeView");
     dock_tree_view->setFeatures(QDockWidget::NoDockWidgetFeatures);
-    dock_tree_view->setWidget(tree_view);
 
     dock_property_view = new QDockWidget("Properties");
     dock_property_view->setObjectName("PropertyView");
     dock_property_view->setFeatures(QDockWidget::NoDockWidgetFeatures);
-    dock_property_view->setWidget(property_view);
 
     dock_plot_view = new QDockWidget("2D View");
     dock_plot_view->setObjectName("PlotView");
     dock_plot_view->setFeatures(QDockWidget::NoDockWidgetFeatures);
-    dock_plot_view->setWidget(plot_view);
 
     setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
@@ -140,11 +131,22 @@ MainWindow::MainWindow()
     addDockWidget(Qt::LeftDockWidgetArea, dock_property_view);
     addDockWidget(Qt::BottomDockWidgetArea, dock_plot_view);
 
+    dock_tree_view->setWidget(new TreeView(view_model->dataModel()));
+    dock_property_view->setWidget(new PropertyView(view_model->dataModel()));
+    dock_plot_view->setWidget(new QLabel("2D View"));
+    this->setCentralWidget(new LimbView(view_model->dataModel()));
+
+    // Connect window file path to view model
+    this->setWindowFilePath(view_model->displayPath());
+    QObject::connect(view_model, &MainViewModel::displayPathChanged, this, &MainWindow::setWindowFilePath);
+
+    // Connect modification indicator to view model
+    this->setWindowModified(view_model->isModified());
+    QObject::connect(view_model, &MainViewModel::modificationChanged, this, &MainWindow::setWindowModified);
+
     // Main window
     this->setWindowIcon(QIcon(":/icons/logo.svg"));
-    this->setCentralWidget(limb_view);
-    this->resize(DEFAULT_SIZE);
-    setFilePath(QString());
+    this->resize(DEFAULT_SIZE);    // Only on first run, on subsequent runs overwritten by user settings
 
     // Load geometry and state
     QSettings settings;
@@ -152,38 +154,15 @@ MainWindow::MainWindow()
     restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
 
     // Load unit settings
-    UnitSystem::loadFromSettings(settings);
-
-    /*
-    // Set Window's modification indicator when data has changed
-    QObject::connect(editor, &MainEditor::modified, [&]{
-        InputData new_data = editor->getData();
-        this->setModified(new_data != data);
-    });
-    */
-
-    setEditingEnabled(false);
+    UnitSystem::loadFromSettings(settings);    // TODO: Move to ViewModel
 }
 
-void MainWindow::setEditingEnabled(bool enabled) {
-    action_save->setEnabled(enabled);
-    action_save_as->setEnabled(enabled);
-    action_run_statics->setEnabled(enabled);
-    action_run_dynamics->setEnabled(enabled);
-}
-
-// Load input file from a file and show the contents in the editor
+// Attempts to load the given file
 // Returns true on success and false on failure
 bool MainWindow::loadFromFile(const QString& path) {
     try {
-        // Load data from path, set editor and window state
-        data = InputData(path.toStdString());
-        //editor->setData(data);
-        setFilePath(path);
-        setModified(false);
-
-        // Add path to the menu of recently used files
-        menu_open_recent->addPath(path);
+        view_model->loadFile(path);         // Load data from path
+        menu_open_recent->addPath(path);    // Add path to the menu of recently opened files
         return true;
     }
     catch(const std::exception& e) {
@@ -192,18 +171,12 @@ bool MainWindow::loadFromFile(const QString& path) {
     }
 }
 
-// Save the editor contents to a file
+// Attempts to save to the given file
 // Returns true on success and false on failure
 bool MainWindow::saveToFile(const QString& path) {
     try {
-        //data = editor->getData();
-        data.save(path.toStdString());
-        setFilePath(path);
-        setModified(false);
-
-        // Add path to the menu of recently used files
-        menu_open_recent->addPath(path);
-
+        view_model->saveFile(path);    // Save data to path
+        menu_open_recent->addPath(path);    // Add path to the menu of recently used files
         return true;
     }
     catch(const std::exception& e) {
@@ -232,17 +205,7 @@ void MainWindow::newFile() {
     if(!optionalSaveModifications()) {
         return;
     }
-
-    // Open file dialog, let user pick a new file name and location
-    QString path = showSaveFileDialog();
-    if(path.isEmpty()) {
-        return;    // Abort if no result (canceled)
-    }
-
-    // Set editor to new default content and save to the selected path
-    data = InputData();
-    //editor->setData(data);
-    saveToFile(path);
+    view_model->loadDefaults();
 }
 
 void MainWindow::open() {
@@ -257,8 +220,7 @@ void MainWindow::open() {
         return;    // Abort if no result (canceled)
     }
 
-    // Load editor content from the selected path
-    loadFromFile(path);
+    loadFromFile(path);    // Load the selected path
 }
 
 void MainWindow::openRecent(const QString& path) {
@@ -272,7 +234,19 @@ void MainWindow::openRecent(const QString& path) {
 }
 
 bool MainWindow::save() {
-    return saveToFile(this->windowFilePath());
+    // Retrieve the current file path from the view model
+    QString path = view_model->filePath();
+
+    // If the path is empty, the data isn't associated with a file yet.
+    // Let the user pick a location for the file in that case.
+    if(path.isEmpty()) {
+        path = showSaveFileDialog();
+        if(path.isEmpty()) {
+            return false;    // Abort if no result (canceled by the user)
+        }
+    }
+
+    return saveToFile(path);
 }
 
 bool MainWindow::saveAs() {
@@ -350,26 +324,4 @@ QString MainWindow::showSaveFileDialog() {
     }
 
     return QString();
-}
-
-// Set the path of the file currently opened in the editor.
-// May be empty to signal that no file is opened.
-void MainWindow::setFilePath(const QString &path) {
-    // Set the file path of this window. Workaround to prevent QApplication::applicationDisplayName
-    // from being appended to every dialog, see https://bugreports.qt.io/browse/QTBUG-70382
-    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_GUI);
-    setWindowFilePath(path);
-    QTimer::singleShot(0, [](){QApplication::setApplicationDisplayName(QString());});
-
-    // If path is not empty, enable editing, saving and simulation
-    bool enabled = !path.isEmpty();
-    setEditingEnabled(enabled);
-}
-
-// Set the modified property of this window. Workaround to prevent QApplication::applicationDisplayName
-// from being appended to every dialog, see https://bugreports.qt.io/browse/QTBUG-70382
-void MainWindow::setModified(bool modified) {
-    QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_GUI);
-    setWindowModified(modified);
-    QTimer::singleShot(0, [](){ QApplication::setApplicationDisplayName(QString()); });
 }

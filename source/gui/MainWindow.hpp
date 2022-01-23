@@ -3,8 +3,10 @@
 #include <QMainWindow>
 
 class RecentFilesMenu;
-class ViewModel;
+class MainViewModel;
+class DataViewModel;
 class TreeView;
+class PropertyView;
 class LimbView;
 
 class QLabel;
@@ -13,19 +15,11 @@ class MainWindow: public QMainWindow {
 public:
     MainWindow();
 
-    bool loadFromFile(const QString& path);
-    bool saveToFile(const QString& path);
-
 private:
     const char* DEFAULT_FILENAME = "Unnamed";
     const QSize DEFAULT_SIZE = { 1200, 700 };
 
-    ViewModel* data_model;
-
-    TreeView* tree_view;
-    QLabel* property_view;
-    QLabel* plot_view;
-    LimbView* limb_view;
+    MainViewModel* view_model;
 
     QDockWidget* dock_tree_view;
     QDockWidget* dock_property_view;
@@ -42,11 +36,10 @@ private:
 
     RecentFilesMenu* menu_open_recent;
 
-    InputData data;
-
-    void setEditingEnabled(bool enabled);
-
     void closeEvent(QCloseEvent *event) override;
+
+    bool loadFromFile(const QString& path);
+    bool saveToFile(const QString& path);
 
     void newFile();
     void open();
@@ -59,7 +52,4 @@ private:
     bool optionalSaveModifications();
     QString showOpenFileDialog();
     QString showSaveFileDialog();
-
-    void setFilePath(const QString& path);
-    void setModified(bool modified);
 };

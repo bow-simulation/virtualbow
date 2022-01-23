@@ -3,7 +3,7 @@
 #include "LayerLegend.hpp"
 #include "LayerColors.hpp"
 #include "OpenGLUtils.hpp"
-#include "gui/viewmodel/ViewModel.hpp"
+#include "gui/viewmodel/DataViewModel.hpp"
 #include "solver/model/input/InputData.hpp"
 #include "config.hpp"
 
@@ -17,7 +17,7 @@
 #include <QLabel>
 #include <QDate>
 
-LimbView::LimbView(const ViewModel* model)
+LimbView::LimbView(const DataViewModel* model)
     : legend(new LayerLegend()),
       background_shader(nullptr),
       model_shader(nullptr)
