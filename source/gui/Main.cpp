@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
     MainWindow window;
     window.show();
     if(args.size() == 1) {
-        //window.loadFromFile(args[0]);
+        window.loadFromFile(args[0]);
     }
 
     return application.exec();

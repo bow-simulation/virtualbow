@@ -14,13 +14,10 @@ public:
     void saveFile(const QString& path);
 
     const InputData& getData() const;
-    void setData(const InputData& data, QObject* source);
-
-    QString getComments() const;
-    void setComments(const QString& comment, QObject* source);
+    InputData& getData();
 
 signals:
-    void nothingSelected();    // TODO: noneSelected();
+    void noneSelected();
     void commentsSelected();
     void settingsSelected();
     void dimensionsSelected();
@@ -34,7 +31,8 @@ signals:
 
     void anyModified(QObject* source);
     void allModified(QObject* source);
-    void commentsModified(QObject* source);
+
+    void commentModified(QObject* source);
     void settingsModified(QObject* source);
     void dimensionsModified(QObject* source);
 

@@ -4,6 +4,7 @@
 #include "HelpMenu.hpp"
 #include "treeview/TreeView.hpp"
 #include "propertyview/PropertyView.hpp"
+#include "plotview/PlotView.hpp"
 #include "limbview/LimbView.hpp"
 #include "viewmodel/MainViewModel.hpp"
 #include "viewmodel/DataViewModel.hpp"
@@ -17,52 +18,49 @@
 #include <QFileDialog>
 #include <QApplication>
 
-#include <QDockWidget>
-#include <QLabel>
-
 MainWindow::MainWindow()
     : menu_open_recent(new RecentFilesMenu(this)),
       view_model(new MainViewModel())
 {
     // Actions
-    action_new = new QAction(QIcon(":/icons/document-new.svg"), "&New", this);
+    auto action_new = new QAction(QIcon(":/icons/document-new.svg"), "&New", this);
     QObject::connect(action_new, &QAction::triggered, this, &MainWindow::newFile);
     action_new->setShortcuts(QKeySequence::New);
     action_new->setMenuRole(QAction::NoRole);
 
-    action_open = new QAction(QIcon(":/icons/document-open.svg"), "&Open...", this);
+    auto action_open = new QAction(QIcon(":/icons/document-open.svg"), "&Open...", this);
     QObject::connect(action_open, &QAction::triggered, this, &MainWindow::open);
     action_open->setShortcuts(QKeySequence::Open);
     action_open->setMenuRole(QAction::NoRole);
 
-    action_save = new QAction(QIcon(":/icons/document-save.svg"), "&Save", this);
+    auto action_save = new QAction(QIcon(":/icons/document-save.svg"), "&Save", this);
     QObject::connect(action_save, &QAction::triggered, this, &MainWindow::save);
     action_save->setShortcuts(QKeySequence::Save);
     action_save->setMenuRole(QAction::NoRole);
 
-    action_save_as = new QAction(QIcon(":/icons/document-save-as.svg"), "Save &As...", this);
+    auto action_save_as = new QAction(QIcon(":/icons/document-save-as.svg"), "Save &As...", this);
     QObject::connect(action_save_as, &QAction::triggered, this, &MainWindow::saveAs);
     action_save_as->setShortcuts(QKeySequence::SaveAs);
     action_save_as->setMenuRole(QAction::NoRole);
 
-    action_quit = new QAction("&Quit", this);
+    auto action_quit = new QAction("&Quit", this);
     QObject::connect(action_quit, &QAction::triggered, this, &QWidget::close);
     action_quit->setShortcuts(QKeySequence::Quit);
     action_quit->setMenuRole(QAction::QuitRole);
 
-    action_run_statics = new QAction(QIcon(":/icons/run-statics"), "&Statics...", this);
+    auto action_run_statics = new QAction(QIcon(":/icons/run-statics"), "&Statics...", this);
     QObject::connect(action_run_statics, &QAction::triggered, [&]{ runSimulation("--static"); });
     action_run_statics->setShortcut(Qt::Key_F5);
     action_run_statics->setMenuRole(QAction::NoRole);
     action_run_statics->setIconVisibleInMenu(true);
 
-    action_run_dynamics = new QAction(QIcon(":/icons/run-dynamics"), "&Dynamics...", this);
+    auto action_run_dynamics = new QAction(QIcon(":/icons/run-dynamics"), "&Dynamics...", this);
     QObject::connect(action_run_dynamics, &QAction::triggered, [&]{ runSimulation("--dynamic"); });
     action_run_dynamics->setShortcut(Qt::Key_F6);
     action_run_dynamics->setMenuRole(QAction::NoRole);
     action_run_dynamics->setIconVisibleInMenu(true);
 
-    action_set_units = new QAction("&Units...", this);
+    auto action_set_units = new QAction("&Units...", this);
     QObject::connect(action_set_units, &QAction::triggered, this, [&]{
         UnitDialog dialog(this);
         dialog.exec();
@@ -110,30 +108,15 @@ MainWindow::MainWindow()
     // Help menu
     this->menuBar()->addMenu(new HelpMenu(this));
 
-    dock_tree_view = new QDockWidget("Model");
-    dock_tree_view->setObjectName("TreeView");
-    dock_tree_view->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    // Dock widgets and main widget
+    this->setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+    this->setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+    this->setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+    this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-    dock_property_view = new QDockWidget("Properties");
-    dock_property_view->setObjectName("PropertyView");
-    dock_property_view->setFeatures(QDockWidget::NoDockWidgetFeatures);
-
-    dock_plot_view = new QDockWidget("2D View");
-    dock_plot_view->setObjectName("PlotView");
-    dock_plot_view->setFeatures(QDockWidget::NoDockWidgetFeatures);
-
-    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
-    setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
-    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
-    setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
-
-    addDockWidget(Qt::LeftDockWidgetArea, dock_tree_view);
-    addDockWidget(Qt::LeftDockWidgetArea, dock_property_view);
-    addDockWidget(Qt::BottomDockWidgetArea, dock_plot_view);
-
-    dock_tree_view->setWidget(new TreeView(view_model->dataModel()));
-    dock_property_view->setWidget(new PropertyView(view_model->dataModel()));
-    dock_plot_view->setWidget(new QLabel("2D View"));
+    this->addDockWidget(Qt::LeftDockWidgetArea, new TreeView(view_model->dataModel()));
+    this->addDockWidget(Qt::LeftDockWidgetArea, new PropertyView(view_model->dataModel()));
+    this->addDockWidget(Qt::BottomDockWidgetArea, new PlotView(view_model->dataModel()));
     this->setCentralWidget(new LimbView(view_model->dataModel()));
 
     // Connect window file path to view model
@@ -146,7 +129,7 @@ MainWindow::MainWindow()
 
     // Main window
     this->setWindowIcon(QIcon(":/icons/logo.svg"));
-    this->resize(DEFAULT_SIZE);    // Only on first run, on subsequent runs overwritten by user settings
+    this->resize({1000, 600});    // Initial size, overwritten by stored window geometry if present
 
     // Load geometry and state
     QSettings settings;
@@ -317,7 +300,7 @@ QString MainWindow::showSaveFileDialog() {
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setNameFilter("Model Files (*.bow)");
     dialog.setDefaultSuffix("bow");
-    dialog.selectFile(this->windowFilePath().isEmpty() ? DEFAULT_FILENAME : this->windowFilePath());
+    dialog.selectFile(view_model->displayPath());
 
     if(dialog.exec() == QDialog::Accepted) {
         return dialog.selectedFiles().first();
