@@ -4,7 +4,7 @@
 #include <QVector3D>
 #include <memory>
 
-class ViewModel;
+class DataViewModel;
 class InputData;
 class LayerLegend;
 class QOpenGLShaderProgram;
@@ -35,7 +35,7 @@ private:
     const float ROT_SPEED = 0.15f;
 
 public:
-    LimbView(const ViewModel* model);
+    LimbView(const DataViewModel* model);
     void setData(const InputData& data);
 
     void viewProfile();

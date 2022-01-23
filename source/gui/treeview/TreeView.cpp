@@ -1,6 +1,6 @@
 #include "TreeView.hpp"
 #include "TreeModel.hpp"
-#include "gui/viewmodel/ViewModel.hpp"
+#include "gui/viewmodel/DataViewModel.hpp"
 #include <QTreeWidgetItem>
 #include <QToolButton>
 #include <QAction>
@@ -9,7 +9,27 @@
 #include <QMenu>
 #include <QLabel>
 
-TreeView::TreeView(ViewModel* model) {
+#include <QDebug>
+
+enum ItemType {
+    Comments = QTreeWidgetItem::UserType,  // Required by Qt
+    Settings,
+    Dimensions,
+    Materials,
+    Material,
+    Layers,
+    Layer,
+    Profile,
+    Segment,
+    Width,
+    String,
+    Masses,
+    Damping
+};
+
+TreeView::TreeView(DataViewModel* model)
+    : model(model)
+{
     createTopLevelItems();
 
     // Menu with actions for adding segments
@@ -49,83 +69,168 @@ TreeView::TreeView(ViewModel* model) {
 
     this->viewport()->setLayout(hbox);
     this->setHeaderHidden(true);
+    this->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+    QObject::connect(this, &QTreeWidget::itemSelectionChanged, this, [&, model]{
+        auto items = this->selectedItems();
+        if(items.size() == 1) {
+            switch(items[0]->type()) {
+            case ItemType::Comments:
+                model->commentsSelected();
+                break;
+
+            case ItemType::Settings:
+                model->settingsSelected();
+                break;
+
+            case ItemType::Dimensions:
+                model->dimensionsSelected();
+                break;
+
+            case ItemType::Materials:
+                model->materialsSelected();
+                break;
+
+            case ItemType::Material:
+                model->materialsSelected();
+                break;
+
+            case ItemType::Layers:
+                model->layersSelected();
+                break;
+
+            case ItemType::Layer:
+                model->layersSelected();
+                break;
+
+            case ItemType::Profile:
+                model->profileSelected();
+                break;
+
+            case ItemType::Segment:
+                model->profileSelected();
+                break;
+
+            case ItemType::Width:
+                model->widthSelected();
+                break;
+
+            case ItemType::String:
+                model->stringSelected();
+                break;
+
+            case ItemType::Masses:
+                model->massesSelected();
+                break;
+
+            case ItemType::Damping:
+                model->dampingSelected();
+                break;
+            }
+        }
+        else {
+            model->nothingSelected();
+        }
+    });
 }
 
 void TreeView::createTopLevelItems() {
-    auto item1 = new QTreeWidgetItem(this, {"Comments"});
-    item1->setIcon(0, QIcon(":/icons/model-comments.svg"));
-    addTopLevelItem(item1);
+    auto item_comments = new QTreeWidgetItem(this, {"Comments"}, ItemType::Comments);
+    item_comments->setIcon(0, QIcon(":/icons/model-comments.svg"));
+    addTopLevelItem(item_comments);
 
-    auto item2 = new QTreeWidgetItem(this, {"Settings"});
-    item2->setIcon(0, QIcon(":/icons/model-settings.svg"));
-    addTopLevelItem(item2);
+    auto item_settings = new QTreeWidgetItem(this, {"Settings"}, ItemType::Settings);
+    item_settings->setIcon(0, QIcon(":/icons/model-settings.svg"));
+    addTopLevelItem(item_settings);
 
-    auto item4 = new QTreeWidgetItem(this, {"Dimensions"});
-    item4->setIcon(0, QIcon(":/icons/model-dimensions.svg"));
-    addTopLevelItem(item4);
+    auto item_dimensions = new QTreeWidgetItem(this, {"Dimensions"}, ItemType::Dimensions);
+    item_dimensions->setIcon(0, QIcon(":/icons/model-dimensions.svg"));
+    addTopLevelItem(item_dimensions);    
 
-    auto item3 = new QTreeWidgetItem(this, {"Materials"});
-    item3->setIcon(0, QIcon(":/icons/model-materials.svg"));
-    addTopLevelItem(item3);
+    auto item_materials = new QTreeWidgetItem(this, {"Materials"}, ItemType::Materials);
+    item_materials->setIcon(0, QIcon(":/icons/model-materials.svg"));
+    addTopLevelItem(item_materials);
 
-    auto item5 = new QTreeWidgetItem(this, {"Profile"});
-    item5->setIcon(0, QIcon(":/icons/model-profile.svg"));
-    addTopLevelItem(item5);
+    auto item_layers = new QTreeWidgetItem(this, {"Layers"}, ItemType::Layers);
+    item_layers->setIcon(0, QIcon(":/icons/model-layers.svg"));
+    addTopLevelItem(item_layers);
 
-    auto item7 = new QTreeWidgetItem(this, {"Layers"});
-    item7->setIcon(0, QIcon(":/icons/model-layers.svg"));
-    addTopLevelItem(item7);
+    auto item_profile = new QTreeWidgetItem(this, {"Profile"}, ItemType::Profile);
+    item_profile->setIcon(0, QIcon(":/icons/model-profile.svg"));
+    addTopLevelItem(item_profile);
 
-    auto item6 = new QTreeWidgetItem(this, {"Width"});
-    item6->setIcon(0, QIcon(":/icons/model-width.svg"));
-    addTopLevelItem(item6);
+    auto item_width = new QTreeWidgetItem(this, {"Width"}, ItemType::Width);
+    item_width->setIcon(0, QIcon(":/icons/model-width.svg"));
+    addTopLevelItem(item_width);
 
-    auto item8 = new QTreeWidgetItem(this, {"String"});
-    item8->setIcon(0, QIcon(":/icons/model-string.svg"));
-    addTopLevelItem(item8);
+    auto item_string = new QTreeWidgetItem(this, {"String"}, ItemType::String);
+    item_string->setIcon(0, QIcon(":/icons/model-string.svg"));
+    addTopLevelItem(item_string);
 
-    auto item9 = new QTreeWidgetItem(this, {"Masses"});
-    item9->setIcon(0, QIcon(":/icons/model-masses.svg"));
-    addTopLevelItem(item9);
+    auto item_masses = new QTreeWidgetItem(this, {"Masses"}, ItemType::Masses);
+    item_masses->setIcon(0, QIcon(":/icons/model-masses.svg"));
+    addTopLevelItem(item_masses);
 
-    auto item10 = new QTreeWidgetItem(this, {"Damping"});
-    item10->setIcon(0, QIcon(":/icons/model-damping.svg"));
-    addTopLevelItem(item10);
+    auto item_damping = new QTreeWidgetItem(this, {"Damping"}, ItemType::Damping);
+    item_damping->setIcon(0, QIcon(":/icons/model-damping.svg"));
+    addTopLevelItem(item_damping);
 
-    createMaterialItems(item3);
-    createProfileItems(item5);
-    createLayerItems(item7);
+    createMaterialItems(item_materials);
+    createProfileItems(item_profile);
+    createLayerItems(item_layers);
 }
 
 void TreeView::createMaterialItems(QTreeWidgetItem* parent) {
-    auto item1 = new QTreeWidgetItem(parent, {"Ash"});
-    item1->setIcon(0, QIcon(":/icons/model-material.svg"));
-
-    auto item2 = new QTreeWidgetItem(parent, {"Elm"});
-    item2->setIcon(0, QIcon(":/icons/model-material.svg"));
-
-    auto item3 = new QTreeWidgetItem(parent, {"Yew"});
-    item3->setIcon(0, QIcon(":/icons/model-material.svg"));
+    for(auto& material: model->getData().materials) {
+        auto item = new QTreeWidgetItem(parent, {QString::fromStdString(material.name)}, ItemType::Material);
+        item->setIcon(0, QIcon(":/icons/model-material.svg"));
+    }
 }
 
-void TreeView::createProfileItems(QTreeWidgetItem* parent) {
-    auto item1 = new QTreeWidgetItem(parent, {"Line"});
-    item1->setIcon(0, QIcon(":/icons/segment-line.svg"));
+QIcon segmentIcon(const SegmentInput& segment) {
+    if(std::holds_alternative<LineInput>(segment)) {
+        return QIcon(":/icons/segment-line.svg");
+    }
+    if(std::holds_alternative<ArcInput>(segment)) {
+        return QIcon(":/icons/segment-arc.svg");
+    }
+    if(std::holds_alternative<SpiralInput>(segment)) {
+        return QIcon(":/icons/segment-spiral.svg");
+    }
+    if(std::holds_alternative<SplineInput>(segment)) {
+        return QIcon(":/icons/segment-spline.svg");
+    }
 
-    auto item2 = new QTreeWidgetItem(parent, {"Arc"});
-    item2->setIcon(0, QIcon(":/icons/segment-arc.svg"));
+    throw std::invalid_argument("Unknown segment type");
+}
 
-    auto item3 = new QTreeWidgetItem(parent, {"Spiral"});
-    item3->setIcon(0, QIcon(":/icons/segment-spiral.svg"));
+QString segmentText(const SegmentInput& segment) {
+    if(std::holds_alternative<LineInput>(segment)) {
+        return "Line";
+    }
+    if(std::holds_alternative<ArcInput>(segment)) {
+        return "Arc";
+    }
+    if(std::holds_alternative<SpiralInput>(segment)) {
+        return "Spiral";
+    }
+    if(std::holds_alternative<SplineInput>(segment)) {
+        return "Spline";
+    }
+
+    throw std::invalid_argument("Unknown segment type");
 }
 
 void TreeView::createLayerItems(QTreeWidgetItem* parent) {
-    auto item1 = new QTreeWidgetItem(parent, {"Layer 1"});
-    item1->setIcon(0, QIcon(":/icons/model-layer.svg"));
+    for(auto& layer: model->getData().layers) {
+        auto item = new QTreeWidgetItem(parent, {QString::fromStdString(layer.name)}, ItemType::Layer);
+        item->setIcon(0, QIcon(":/icons/model-layer.svg"));
+    }
+}
 
-    auto item2 = new QTreeWidgetItem(parent, {"Layer 2"});
-    item2->setIcon(0, QIcon(":/icons/model-layer.svg"));
-
-    auto item3 = new QTreeWidgetItem(parent, {"Layer 3"});
-    item3->setIcon(0, QIcon(":/icons/model-layer.svg"));
+void TreeView::createProfileItems(QTreeWidgetItem* parent) {
+    for(auto& segment: model->getData().profile) {
+        auto item = new QTreeWidgetItem(parent, {segmentText(segment)}, ItemType::Segment);
+        item->setIcon(0, segmentIcon(segment));
+    }
 }

@@ -1,9 +1,9 @@
 #include "TreeModel.hpp"
-#include "gui/viewmodel/ViewModel.hpp"
+#include "gui/viewmodel/DataViewModel.hpp"
 
 #include <QDebug>
 
-TreeModel::TreeModel(ViewModel* model)
+TreeModel::TreeModel(DataViewModel* model)
     : model(model) {
 
 }
