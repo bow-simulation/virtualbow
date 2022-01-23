@@ -1,11 +1,11 @@
 #pragma once
-#include <QTreeWidget>
-#include <QHeaderView>
-#include <functional>
+#include <QDockWidget>
 
 class DataViewModel;
+class QTreeWidget;
+class QTreeWidgetItem;
 
-class TreeView: public QTreeWidget {
+class TreeView: public QDockWidget {
     Q_OBJECT
 
 public:
@@ -13,11 +13,10 @@ public:
 
 private:
     DataViewModel* model;
+    QTreeWidget* tree;
 
     void createTopLevelItems();
     void createMaterialItems(QTreeWidgetItem* parent);
     void createLayerItems(QTreeWidgetItem* parent);
     void createProfileItems(QTreeWidgetItem* parent);
-
-
 };

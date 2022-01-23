@@ -2,7 +2,7 @@
 #include "gui/viewmodel/DataViewModel.hpp"
 
 #include <QDebug>
-
+/*
 TreeModel::TreeModel(DataViewModel* model)
     : model(model) {
 
@@ -34,11 +34,11 @@ int TreeModel::columnCount(const QModelIndex& parent) const {
 }
 
 QModelIndex TreeModel::index(int row, int column, const QModelIndex& parent) const {
-    /*
-    if(!hasIndex(row, column, parent)) {
-        return QModelIndex();
-    }
-    */
+
+    //if(!hasIndex(row, column, parent)) {
+    //    return QModelIndex();
+    /}
+
 
     if(!parent.isValid()) {
         return createIndex(row, column, (quintptr) parent.row());
@@ -70,7 +70,6 @@ QVariant TreeModel::data(const QModelIndex& index, int role) const {
 
     return QVariant();
 
-    /*
 
     qInfo() << "Internal ID:" << index.internalId();
 
@@ -143,5 +142,6 @@ QVariant TreeModel::data(const QModelIndex& index, int role) const {
     }
 
     return QVariant();
-    */
+
 }
+*/

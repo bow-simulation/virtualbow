@@ -1,6 +1,7 @@
 #include "TreeView.hpp"
 #include "TreeModel.hpp"
 #include "gui/viewmodel/DataViewModel.hpp"
+#include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QToolButton>
 #include <QAction>
@@ -28,8 +29,14 @@ enum ItemType {
 };
 
 TreeView::TreeView(DataViewModel* model)
-    : model(model)
+    : model(model),
+      tree(new QTreeWidget())
 {
+    this->setObjectName("PlotView");    // Required to save state of main window
+    this->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    this->setWindowTitle("Model");
+    this->setWidget(tree);
+
     createTopLevelItems();
 
     // Menu with actions for adding segments
@@ -67,12 +74,12 @@ TreeView::TreeView(DataViewModel* model)
     hbox->addWidget(button_up);
     hbox->addWidget(button_down);
 
-    this->viewport()->setLayout(hbox);
-    this->setHeaderHidden(true);
-    this->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    tree->viewport()->setLayout(hbox);
+    tree->setHeaderHidden(true);
+    tree->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-    QObject::connect(this, &QTreeWidget::itemSelectionChanged, this, [&, model]{
-        auto items = this->selectedItems();
+    QObject::connect(tree, &QTreeWidget::itemSelectionChanged, this, [&, model]{
+        auto items = tree->selectedItems();
         if(items.size() == 1) {
             switch(items[0]->type()) {
             case ItemType::Comments:
@@ -129,51 +136,51 @@ TreeView::TreeView(DataViewModel* model)
             }
         }
         else {
-            model->nothingSelected();
+            model->noneSelected();
         }
     });
 }
 
 void TreeView::createTopLevelItems() {
-    auto item_comments = new QTreeWidgetItem(this, {"Comments"}, ItemType::Comments);
+    auto item_comments = new QTreeWidgetItem(tree, {"Comments"}, ItemType::Comments);
     item_comments->setIcon(0, QIcon(":/icons/model-comments.svg"));
-    addTopLevelItem(item_comments);
+    tree->addTopLevelItem(item_comments);
 
-    auto item_settings = new QTreeWidgetItem(this, {"Settings"}, ItemType::Settings);
+    auto item_settings = new QTreeWidgetItem(tree, {"Settings"}, ItemType::Settings);
     item_settings->setIcon(0, QIcon(":/icons/model-settings.svg"));
-    addTopLevelItem(item_settings);
+    tree->addTopLevelItem(item_settings);
 
-    auto item_dimensions = new QTreeWidgetItem(this, {"Dimensions"}, ItemType::Dimensions);
+    auto item_dimensions = new QTreeWidgetItem(tree, {"Dimensions"}, ItemType::Dimensions);
     item_dimensions->setIcon(0, QIcon(":/icons/model-dimensions.svg"));
-    addTopLevelItem(item_dimensions);    
+    tree->addTopLevelItem(item_dimensions);
 
-    auto item_materials = new QTreeWidgetItem(this, {"Materials"}, ItemType::Materials);
+    auto item_materials = new QTreeWidgetItem(tree, {"Materials"}, ItemType::Materials);
     item_materials->setIcon(0, QIcon(":/icons/model-materials.svg"));
-    addTopLevelItem(item_materials);
+    tree->addTopLevelItem(item_materials);
 
-    auto item_layers = new QTreeWidgetItem(this, {"Layers"}, ItemType::Layers);
+    auto item_layers = new QTreeWidgetItem(tree, {"Layers"}, ItemType::Layers);
     item_layers->setIcon(0, QIcon(":/icons/model-layers.svg"));
-    addTopLevelItem(item_layers);
+    tree->addTopLevelItem(item_layers);
 
-    auto item_profile = new QTreeWidgetItem(this, {"Profile"}, ItemType::Profile);
+    auto item_profile = new QTreeWidgetItem(tree, {"Profile"}, ItemType::Profile);
     item_profile->setIcon(0, QIcon(":/icons/model-profile.svg"));
-    addTopLevelItem(item_profile);
+    tree->addTopLevelItem(item_profile);
 
-    auto item_width = new QTreeWidgetItem(this, {"Width"}, ItemType::Width);
+    auto item_width = new QTreeWidgetItem(tree, {"Width"}, ItemType::Width);
     item_width->setIcon(0, QIcon(":/icons/model-width.svg"));
-    addTopLevelItem(item_width);
+    tree->addTopLevelItem(item_width);
 
-    auto item_string = new QTreeWidgetItem(this, {"String"}, ItemType::String);
+    auto item_string = new QTreeWidgetItem(tree, {"String"}, ItemType::String);
     item_string->setIcon(0, QIcon(":/icons/model-string.svg"));
-    addTopLevelItem(item_string);
+    tree->addTopLevelItem(item_string);
 
-    auto item_masses = new QTreeWidgetItem(this, {"Masses"}, ItemType::Masses);
+    auto item_masses = new QTreeWidgetItem(tree, {"Masses"}, ItemType::Masses);
     item_masses->setIcon(0, QIcon(":/icons/model-masses.svg"));
-    addTopLevelItem(item_masses);
+    tree->addTopLevelItem(item_masses);
 
-    auto item_damping = new QTreeWidgetItem(this, {"Damping"}, ItemType::Damping);
+    auto item_damping = new QTreeWidgetItem(tree, {"Damping"}, ItemType::Damping);
     item_damping->setIcon(0, QIcon(":/icons/model-damping.svg"));
-    addTopLevelItem(item_damping);
+    tree->addTopLevelItem(item_damping);
 
     createMaterialItems(item_materials);
     createProfileItems(item_profile);

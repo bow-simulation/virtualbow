@@ -2,7 +2,7 @@
 #include <QTreeView>
 
 class DataViewModel;
-
+/*
 class TreeModel: public QAbstractTableModel {
     Q_OBJECT
 
@@ -32,3 +32,4 @@ public:
 private:
     DataViewModel* model;
 };
+*/
