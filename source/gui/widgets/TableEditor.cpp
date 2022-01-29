@@ -3,7 +3,7 @@
 #include <algorithm>
 
 TableEditor::TableEditor(const QString& x_label, const QString& y_label, const TableSpinnerOptions& x_options, const TableSpinnerOptions& y_options)
-    : model(x_label, y_label, x_options.units, y_options.units)
+    : model(x_label, y_label, x_options.units, y_options.units, this)
 {
     setModel(&model);
     setItemDelegateForColumn(0, new TableDelegate(x_options));

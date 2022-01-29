@@ -29,7 +29,7 @@ struct Dimensions {
 
 struct Layer {
     std::string name = "New layer";
-    std::vector<Vector<2>> height{{0.0, 0.015}, {1.0, 0.01}};
+    std::vector<Vector<2>> height{{0.0, 0.015}, {0.5, 0.0125}, {1.0, 0.01}};
     double rho = 675.0;
     double E = 12e9;
 };
@@ -83,16 +83,10 @@ struct InputData {
             { 1.0, 0.1 },
             { 2.0, 0.4 },
             { 3.0, 0.9 }
-        },
-        SplineInput {
-            { 0.0, 0.0 },
-            { 1.0, 0.1 },
-            { 2.0, 0.4 },
-            { 3.0, 0.9 }
         }
     };
 
-    std::vector<Vector<2>> width{{0.0, 0.06}, {1.0, 0.01}};
+    std::vector<Vector<2>> width{{0.0, 0.06}, {0.5, 0.03}, {1.0, 0.01}};
     std::vector<Layer> layers = {Layer()};
     String string;
     Masses masses;

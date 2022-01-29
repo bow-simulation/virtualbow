@@ -124,8 +124,8 @@ void ProfileTreeView::onButtonAdd(const SegmentInput& input) {
 // * Move down is possible if one or more items are selected, except the last one
 void ProfileTreeView::updateButtons() {
     auto selection = this->selectionModel()->selectedIndexes();
-    bool first_selected = this->selectionModel()->isRowSelected(0);
-    bool last_selected = this->selectionModel()->isRowSelected(model->rowCount()-1);
+    bool first_selected = this->selectionModel()->isRowSelected(0, QModelIndex());                     // TODO: Second parameter can be removed in Qt 5.15
+    bool last_selected = this->selectionModel()->isRowSelected(model->rowCount()-1, QModelIndex());    // TODO: Second parameter can be removed in Qt 5.15
 
     button_add->setEnabled(selection.size() <= 1);
     button_remove->setEnabled(model->rowCount() > 0);
