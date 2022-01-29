@@ -218,6 +218,13 @@ add_executable(
     source/gui/widgets/TableSpinner.hpp
     source/gui/widgets/TableView.cpp
     source/gui/widgets/TableView.hpp
+    source/gui/widgets/propertytree/PropertyTreeModel.cpp
+    source/gui/widgets/propertytree/PropertyTreeModel.hpp
+    source/gui/widgets/propertytree/PropertyTreeItem.cpp
+    source/gui/widgets/propertytree/PropertyTreeItem.hpp
+    source/gui/widgets/propertytree/PropertyTreeView.cpp
+    source/gui/widgets/propertytree/PropertyTreeView.hpp
+
     source/gui/widgets/qcustomplot/qcustomplot.cpp
 )
 

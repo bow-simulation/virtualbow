@@ -1,5 +1,8 @@
 #include "PropertyView.hpp"
 #include "gui/viewmodel/DataViewModel.hpp"
+#include "gui/widgets/propertytree/PropertyTreeView.hpp"
+#include "gui/widgets/propertytree/PropertyTreeModel.hpp"
+#include "gui/widgets/propertytree/PropertyTreeItem.hpp"
 #include "CommentView.hpp"
 #include <QStackedWidget>
 #include <QLabel>
@@ -76,50 +79,31 @@ void PropertyView::showComments() {
 // https://github.com/qtproject/qt-solutions/tree/master/qtpropertybrowser
 
 void PropertyView::showSettings() {
-    showWidget("Settings", settings, [](DataViewModel* model){
-        auto tree = new QTreeWidget();
-        tree->setColumnCount(2);
-        tree->header()->setSectionResizeMode(QHeaderView::Stretch);
-        tree->setHeaderLabels({"Property", "Value"});
-        //tree->header()->hide();
+    showWidget("Settings", settings, [&](DataViewModel* model) {
 
-        /*
-        QString style = "QTreeWidget::item:!selected "
-          "{ "
-            "border: 1px solid gainsboro; "
-            "border-left: none; "
-            "border-top: none; "
-          "}"
-          "QTreeWidget::item:selected {}";
-        tree->setStyleSheet(style);
-        */
+        auto root = new PropertyTreeItem();
 
-        QFont bold;
-        bold.setBold(true);
+        auto item_general = new PropertyTreeItem("General", QVariant(), root);
+        auto item_statics = new PropertyTreeItem("Statics", QVariant(), root);
+        auto item_dynamics = new PropertyTreeItem("Dynamics", QVariant(), root);
 
-        auto item1 = new QTreeWidgetItem(tree, {"General", ""});
-        item1->setFont(0, bold);
-        new QTreeWidgetItem(item1, {"Limb elements", "25"});
-        new QTreeWidgetItem(item1, {"String elements", "25"});
+        new PropertyTreeItem("Limb elements", 25, item_general);
+        new PropertyTreeItem("String elements", 25, item_general);
 
-        auto item2 = new QTreeWidgetItem(tree, {"Statics", ""});
-        item2->setFont(0, bold);
-        new QTreeWidgetItem(item2, {"Draw steps", "150"});
+        new PropertyTreeItem("Draw steps", 150, item_statics);
 
-        auto item3 = new QTreeWidgetItem(tree, {"Dynamics", ""});
-        item3->setFont(0, bold);
-        new QTreeWidgetItem(item3, {"Arrow clamp force", "0"});
-        new QTreeWidgetItem(item3, {"Time span factor", "1"});
-        new QTreeWidgetItem(item3, {"Time step factor", "1"});
-        new QTreeWidgetItem(item3, {"Sampling rate", "500"});
+        new PropertyTreeItem("Arrow clamp force", 0.0, item_dynamics);
+        new PropertyTreeItem("Time span factor", 1.0, item_dynamics);
+        new PropertyTreeItem("Time step factor", 1.5, item_dynamics);
+        new PropertyTreeItem("Sampling rate", 500.0, item_dynamics);
 
-        tree->expandAll();
+        auto tree = new PropertyTreeView(new PropertyTreeModel(root, this));
         return tree;
     });
 }
 
 #include <QTableWidget>
-#include <QtableWidgetItem>
+#include <QTableWidgetItem>
 
 void PropertyView::showDimensions() {
     showWidget("Dimensions", dimensions, [](DataViewModel* model){
@@ -164,19 +148,9 @@ void PropertyView::showDimensions() {
     });
 }
 
-#include "MassesView.hpp"
-#include <QTreeView>
-
 void PropertyView::showMasses() {
-    showWidget("Masses", masses, [](DataViewModel* model){
-        auto m = new TreeModel(
-            "Getting Started\tHow to familiarize yourself with Qt Designer\n    Launching Designer\tRunning the Qt Designer application\n    The User Interface\tHow to interact with Qt Designer\n"
-        );
-
-        auto tree = new QTreeView();
-        tree->setModel(m);
-
-        return tree;
+    showWidget("Masses", masses, [&](DataViewModel* model) {
+        return new QLabel("Hello");
     });
 }
 
