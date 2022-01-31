@@ -1,31 +1,26 @@
 #include "PropertyTreeItem.hpp"
 
-PropertyTreeItem::PropertyTreeItem(const QString& name, const QVariant& value, PropertyTreeItem* parent)
-    : parent(parent),
-      name(name),
-      value(value)
+PropertyTreeItem::PropertyTreeItem(QTreeWidgetItem* parent)
+    : QTreeWidgetItem(parent)
 {
-    if(parent != nullptr) {
-        parent->children.push_back(this);
+
+}
+
+QVariant PropertyTreeItem::data(int column, int role) const {
+    if(role == Qt::UserRole) {
+        return QVariant::fromValue((intptr_t) this);
     }
+    return QTreeWidgetItem::data(column, role);
 }
 
-PropertyTreeItem::~PropertyTreeItem() {
-    qDeleteAll(children);
+QWidget* PropertyTreeItem::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
+    return nullptr;  // Default: no editor
 }
 
-const QString& PropertyTreeItem::getName() const {
-    return name;
+void PropertyTreeItem::setEditorData(QWidget* editor, const QModelIndex& index) const {
+    // Default: do nothing
 }
 
-const QVariant& PropertyTreeItem::getValue() const {
-    return value;
-}
-
-PropertyTreeItem *PropertyTreeItem::getParent() {
-    return parent;
-}
-
-const QList<PropertyTreeItem*> PropertyTreeItem::getChildren() const {
-    return children;
+void PropertyTreeItem::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
+    // Default: do nothing
 }

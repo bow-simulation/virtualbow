@@ -218,12 +218,23 @@ add_executable(
     source/gui/widgets/TableSpinner.hpp
     source/gui/widgets/TableView.cpp
     source/gui/widgets/TableView.hpp
-    source/gui/widgets/propertytree/PropertyTreeModel.cpp
-    source/gui/widgets/propertytree/PropertyTreeModel.hpp
+
+    source/gui/widgets/propertytree/PropertyTreeWidget.cpp
+    source/gui/widgets/propertytree/PropertyTreeWidget.hpp
     source/gui/widgets/propertytree/PropertyTreeItem.cpp
     source/gui/widgets/propertytree/PropertyTreeItem.hpp
-    source/gui/widgets/propertytree/PropertyTreeView.cpp
-    source/gui/widgets/propertytree/PropertyTreeView.hpp
+    source/gui/widgets/propertytree/PropertyDelegate.cpp
+    source/gui/widgets/propertytree/PropertyDelegate.hpp
+    source/gui/widgets/propertytree/items/ColorTreeItem.cpp
+    source/gui/widgets/propertytree/items/ColorTreeItem.hpp
+    source/gui/widgets/propertytree/items/DoubleTreeItem.cpp
+    source/gui/widgets/propertytree/items/DoubleTreeItem.hpp
+    source/gui/widgets/propertytree/items/GroupTreeItem.cpp
+    source/gui/widgets/propertytree/items/GroupTreeItem.hpp
+    source/gui/widgets/propertytree/items/IntegerTreeItem.cpp
+    source/gui/widgets/propertytree/items/IntegerTreeItem.hpp
+    source/gui/widgets/propertytree/items/StringTreeItem.cpp
+    source/gui/widgets/propertytree/items/StringTreeItem.hpp
 
     source/gui/widgets/qcustomplot/qcustomplot.cpp
 )

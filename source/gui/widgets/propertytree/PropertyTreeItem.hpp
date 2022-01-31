@@ -1,23 +1,13 @@
 #pragma once
-#include <QList>
-#include <QVariant>
+#include <QTreeWidgetItem>
 
-class PropertyTreeItem
-{
+class PropertyTreeItem: public QTreeWidgetItem {
 public:
-    PropertyTreeItem(const QString& name = QString(), const QVariant& value = QVariant(), PropertyTreeItem* parent = nullptr);
-    ~PropertyTreeItem();
+    PropertyTreeItem(QTreeWidgetItem* parent);
 
-    const QString& getName() const;
-    const QVariant& getValue() const;
+    virtual QVariant data(int column, int role) const override;
 
-    PropertyTreeItem* getParent();
-    const QList<PropertyTreeItem*> getChildren() const;
-
-private:
-    PropertyTreeItem* parent;
-    QList<PropertyTreeItem*> children;
-
-    QString name;
-    QVariant value;
+    virtual QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const;
+    virtual void setEditorData(QWidget* editor, const QModelIndex& index) const;
+    virtual void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const;
 };
