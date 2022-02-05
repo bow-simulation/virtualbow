@@ -23,6 +23,7 @@ signals:
     void displayPathChanged(const QString& path);
     void modificationChanged(bool modified);
 
+
 private:
     DataViewModel* data_model;
     QString file_path;

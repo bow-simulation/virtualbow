@@ -114,9 +114,16 @@ MainWindow::MainWindow()
     this->setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-    this->addDockWidget(Qt::LeftDockWidgetArea, new TreeView(view_model->dataModel()));
-    this->addDockWidget(Qt::LeftDockWidgetArea, new PropertyView(view_model->dataModel()));
-    this->addDockWidget(Qt::BottomDockWidgetArea, new PlotView(view_model->dataModel()));
+    auto tree_view = new TreeView(view_model->dataModel());
+    auto property_view = new PropertyView();  // TODO: Rename
+    auto plot_view = new PlotView();
+
+    QObject::connect(tree_view, &TreeView::currentEditorChanged, property_view, &PropertyView::showEditor);
+    QObject::connect(tree_view, &TreeView::currentPlotChanged, plot_view, &PlotView::showPlot);
+
+    this->addDockWidget(Qt::LeftDockWidgetArea, tree_view);
+    this->addDockWidget(Qt::LeftDockWidgetArea, property_view);
+    this->addDockWidget(Qt::BottomDockWidgetArea, plot_view);
     this->setCentralWidget(new LimbView(view_model->dataModel()));
 
     // Connect window file path to view model

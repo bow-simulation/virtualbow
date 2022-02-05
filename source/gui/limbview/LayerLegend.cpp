@@ -22,7 +22,7 @@ LayerEntry::LayerEntry()
 }
 
 void LayerEntry::setData(const Layer& layer) {
-    symbol->setPixmap(getLayerPixmap(layer));
+    symbol->setPixmap(getLayerPixmap(layer, 24));
     label->setText(QString::fromStdString(layer.name));
 }
 

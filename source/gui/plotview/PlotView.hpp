@@ -1,10 +1,14 @@
 #pragma once
 #include <QDockWidget>
 
-class DataViewModel;
+class QStackedWidget;
 
-class PlotView: public QDockWidget
-{
+class PlotView: public QDockWidget {
 public:
-    PlotView(DataViewModel* model);
+    PlotView();
+    void showPlot(QWidget* plot);
+
+private:
+    QStackedWidget* stack;
+    QWidget* placeholder;
 };

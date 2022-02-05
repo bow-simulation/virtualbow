@@ -1,10 +1,22 @@
 #include "PlotView.hpp"
-#include "gui/viewmodel/DataViewModel.hpp"
-#include "gui/widgets/PlotWidget.hpp"
+#include <QStackedWidget>
+#include <QLabel>
 
-PlotView::PlotView(DataViewModel* model) {
-    this->setObjectName("PlotView");    // Required to save state of main window
+PlotView::PlotView()
+    : stack(new QStackedWidget()),
+      placeholder(new QLabel("Placeholder"))
+{
+    this->setWindowTitle("Plot");
+    this->setObjectName("PropertyView");    // Required to save state of main window
     this->setFeatures(QDockWidget::NoDockWidgetFeatures);
-    this->setWindowTitle("Graph");
-    this->setWidget(new PlotWidget());
+    this->setWidget(placeholder);
+}
+
+void PlotView::showPlot(QWidget* plot) {
+    if(plot == nullptr) {
+        this->setWidget(placeholder);
+    }
+    else {
+        this->setWidget(plot);
+    }
 }

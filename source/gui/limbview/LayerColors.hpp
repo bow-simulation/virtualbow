@@ -11,4 +11,5 @@ class LayerProperties;
 QColor getLayerColor(const Layer& layer);
 QColor getLayerColor(const LayerProperties& layer);
 QColor getLayerColor(double rho, double E);
-QPixmap getLayerPixmap(const Layer& layer);
+QPixmap getLayerPixmap(const Layer& layer, int size);
+QPixmap getColorPixmap(const QColor& color, int size);

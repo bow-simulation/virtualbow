@@ -16,19 +16,15 @@ public:
     const InputData& getData() const;
     InputData& getData();
 
-signals:
-    void noneSelected();
-    void commentsSelected();
-    void settingsSelected();
-    void dimensionsSelected();
-    void materialsSelected();
-    void layersSelected();
-    void profileSelected();
-    void widthSelected();
-    void stringSelected();
-    void massesSelected();
-    void dampingSelected();
+    Material& addMaterial(int index);
+    void removeMaterial(int index);
+    void swapMaterials(int i, int j);
 
+    Layer& addLayer(int index);
+    void removeLayer(int index);
+    void swapLayers(int i, int j);
+
+signals:
     void anyModified(QObject* source);
     void allModified(QObject* source);
 

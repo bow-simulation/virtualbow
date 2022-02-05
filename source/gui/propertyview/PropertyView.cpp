@@ -1,62 +1,27 @@
 #include "PropertyView.hpp"
-#include "gui/viewmodel/DataViewModel.hpp"
-#include "CommentView.hpp"
 #include <QStackedWidget>
 #include <QLabel>
 
-PropertyView::PropertyView(DataViewModel* model)
-    : model(model),
-      stack(new QStackedWidget())
+PropertyView::PropertyView()
+    : stack(new QStackedWidget()),
+      placeholder(new QLabel("Placeholder"))
 {
+    this->setWindowTitle("Properties");
     this->setObjectName("PropertyView");    // Required to save state of main window
     this->setFeatures(QDockWidget::NoDockWidgetFeatures);
-    this->setWidget(stack);    
-
-    QObject::connect(model, &DataViewModel::noneSelected, this, &PropertyView::showPlaceholder);
-    QObject::connect(model, &DataViewModel::commentsSelected, this, &PropertyView::showComments);
-    QObject::connect(model, &DataViewModel::settingsSelected, this, &PropertyView::showSettings);
-    QObject::connect(model, &DataViewModel::dimensionsSelected, this, &PropertyView::showDimensions);
-    // ...
-    QObject::connect(model, &DataViewModel::massesSelected, this, &PropertyView::showMasses);
-
-    showPlaceholder();
-
-    /*
-    QObject::connect(model, &DataViewModel::nothingSelected, this, [&, model, stack]{
-        stack->setCurrentWidget(placeholder);
-        this->setWindowTitle(DEFAULT_TILE);
-    });
-
-    QObject::connect(model, &DataViewModel::commentsSelected, this, [&, model, stack]{
-        if(comment_view == nullptr) {
-            comment_view = new CommentView(model);
-            stack->addWidget(comment_view);
-        }
-
-        stack->setCurrentWidget(comment_view);
-        this->setWindowTitle("Comments");
-    });
-    */
-
-    /*
-    QObject::connect(model, &DataViewModel::settingsSelected, this, [&]{
-        if(settings_view == nullptr) {
-            settings_view = new QLabel("Settings");
-            stack->addWidget(settings_view);
-        }
-        stack->setCurrentWidget(settings_view);
-    });
-
-    QObject::connect(model, &DataViewModel::dimensionsSelected, this, [&]{
-        if(dimensions_view == nullptr) {
-            dimensions_view = new QLabel("Dimensions");
-            stack->addWidget(dimensions_view);
-        }
-        stack->setCurrentWidget(dimensions_view);
-    });
-    */
+    this->setWidget(placeholder);
 }
 
+void PropertyView::showEditor(QWidget* editor) {
+    if(editor == nullptr) {
+        this->setWidget(placeholder);
+    }
+    else {
+        this->setWidget(editor);
+    }
+}
+
+/*
 void PropertyView::showPlaceholder() {
     showWidget("Properties", placeholder, [](DataViewModel* model){
         return new QWidget();
@@ -122,3 +87,4 @@ void PropertyView::showWidget(const QString& title, QWidget* widget, const std::
     stack->setCurrentWidget(widget);
     this->setWindowTitle(title);
 }
+*/

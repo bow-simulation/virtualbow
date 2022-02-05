@@ -117,8 +117,6 @@ add_executable(
     source/gui/propertyview/PropertyView.hpp
     source/gui/propertyview/CommentView.cpp
     source/gui/propertyview/CommentView.hpp
-    source/gui/propertyview/MassesView.cpp
-    source/gui/propertyview/MassesView.hpp
 
     source/gui/plotview/PlotView.cpp
     source/gui/plotview/PlotView.hpp
