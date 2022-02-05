@@ -1,5 +1,6 @@
 #include "ColorTreeItem.hpp"
 #include "GroupTreeItem.hpp"
+#include "gui/limbview/LayerColors.hpp"
 #include <QColorDialog>
 
 ColorTreeItem::ColorTreeItem(QString name, GroupTreeItem* parent)
@@ -15,8 +16,13 @@ QVariant ColorTreeItem::data(int column, int role) const {
         return name;
     }
 
-    if(column == 1 && (role == Qt::DecorationRole || role == Qt::EditRole)) {
-        return value;
+    if(column == 1) {
+        if(role == Qt::EditRole) {
+            return value;
+        }
+        if(role == Qt::DecorationRole) {
+            return getColorPixmap(value, 16);
+        }
     }
 
     return PropertyTreeItem::data(column, role);

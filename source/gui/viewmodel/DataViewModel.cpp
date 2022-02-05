@@ -31,3 +31,31 @@ const InputData& DataViewModel::getData() const {
 InputData& DataViewModel::getData() {
     return data;
 }
+
+Material& DataViewModel::addMaterial(int index) {
+    data.materials.insert(data.materials.begin() + index, Material());    // TODO: No duplicate names
+    return data.materials[index];
+}
+
+void DataViewModel::removeMaterial(int index) {
+    auto it = data.materials.begin() + index;
+    data.materials.erase(it);
+}
+
+void DataViewModel::swapMaterials(int i, int j) {
+    std::swap(data.materials[i], data.materials[j]);
+}
+
+Layer& DataViewModel::addLayer(int index) {
+    data.layers.insert(data.layers.begin() + index, Layer());    // TODO: No duplicate names
+    return data.layers[index];
+}
+
+void DataViewModel::removeLayer(int index) {
+    auto it = data.layers.begin() + index;
+    data.layers.erase(it);
+}
+
+void DataViewModel::swapLayers(int i, int j) {
+    std::swap(data.layers[i], data.layers[j]);
+}

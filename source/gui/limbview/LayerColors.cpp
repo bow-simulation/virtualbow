@@ -44,20 +44,21 @@ QColor getLayerColor(double rho, double E)
     return QColor::fromHsv(h(rng), s(rng), v(rng));
 }
 
-QPixmap getLayerPixmap(const Layer& layer)
+QPixmap getLayerPixmap(const Layer& layer, int size)
 {
-    const int size = 48;
-	const int offset = 6;
+    return getColorPixmap(getLayerColor(layer), size);
+}
 
+// Paints a rectangle of given color and size with a 1px dark grey border around it
+QPixmap getColorPixmap(const QColor& color, int size) {
     QPixmap pixmap(size, size);
-    pixmap.fill(Qt::transparent);
+    pixmap.fill(color);
 
     QPainterPath path;
-    path.addRect(offset, offset, size - 2*offset, size - 2*offset);
+    path.addRect(0, 0, size-1, size-1);
 
     QPainter painter(&pixmap);
-    painter.setRenderHint(QPainter::Antialiasing);
-	painter.fillPath(path, getLayerColor(layer));
+    painter.setPen(QColor::fromRgb(38, 38, 38));
     painter.drawPath(path);
 
     return pixmap;

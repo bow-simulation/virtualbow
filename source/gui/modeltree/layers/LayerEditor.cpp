@@ -62,19 +62,23 @@ Layer LayerEditor::getData() const
 
 void LayerEditor::setData(const Layer& layer)
 {
+    /*
     tabs->setTabText(tabs->indexOf(this), QString::fromStdString(layer.name));
     #ifndef __APPLE__
-    tabs->setTabIcon(tabs->indexOf(this), QIcon(getLayerPixmap(layer)));
+    tabs->setTabIcon(tabs->indexOf(this), QIcon(getLayerPixmap(layer), 16));
     #endif
     table->setData(layer.height);
     view->setData(layer.height);
     edit_E->setData(layer.E);
     edit_rho->setData(layer.rho);
+    */
 }
 
 void LayerEditor::updateTabIcon()
 {
+    /*
     #ifndef __APPLE__
-    tabs->setTabIcon(tabs->indexOf(this), QIcon(getLayerPixmap(getData())));
+    tabs->setTabIcon(tabs->indexOf(this), QIcon(getLayerPixmap(getData(), 16)));
     #endif
+    */
 }
