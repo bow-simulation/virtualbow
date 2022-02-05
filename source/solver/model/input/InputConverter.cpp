@@ -1,7 +1,6 @@
-#include "Conversion.hpp"
-#include <cmath>
+#include "InputConverter.hpp"
 
-void Conversion::to_current(json& obj) {
+void InputConverter::to_current(json& obj) {
     if(obj.contains("meta") && obj.at("meta").at("version") == "0.1") {
         convert_0_1_0_to_0_2_0(obj);
     }
@@ -45,16 +44,16 @@ void Conversion::to_current(json& obj) {
     throw std::runtime_error("Version not recognized.");
 }
 
-void Conversion::convert_0_7_1_to_0_8_0(json& obj) {
+void InputConverter::convert_0_7_1_to_0_8_0(json& obj) {
     obj["version"] = "0.8";
     obj["settings"]["arrow_clamp_force"] = 0.0;
 }
 
-void Conversion::convert_0_7_0_to_0_7_1(json& obj) {
+void InputConverter::convert_0_7_0_to_0_7_1(json& obj) {
     obj["version"] = "0.7.1";
 }
 
-void Conversion::convert_0_6_1_to_0_7_0(json& obj) {
+void InputConverter::convert_0_6_1_to_0_7_0(json& obj) {
     obj["version"] = "0.7";
     obj["comment"] = obj["meta"]["comments"];
     obj.erase("meta");
@@ -73,32 +72,37 @@ void Conversion::convert_0_6_1_to_0_7_0(json& obj) {
     json new_profile = json::array();
 
     double s0 = 0.0;
-    for(size_t i = 0; i < old_profile.size(); ++i) {
+    for(size_t i = 0; i < old_profile.size(); ++i)
+    {
         json section = old_profile.at(i);
         double s1 = s0 + section.at(0).get<double>();
         double k = section.at(1).get<double>();
         double d = epsilon*(s1 - s0);
 
-        if(i == 0) {
+        if(i == 0)
+        {
             // Section start point without transition
             new_profile.push_back(json::array());
             new_profile.back().push_back(s0);
             new_profile.back().push_back(k);
         }
-        else {
+        else
+        {
             // Section start point with transition
             new_profile.push_back(json::array());
             new_profile.back().push_back(s0 + d);
             new_profile.back().push_back(k);
         }
 
-        if(i == old_profile.size() - 1) {
+        if(i == old_profile.size() - 1)
+        {
             // Section end point without transition
             new_profile.push_back(json::array());
             new_profile.back().push_back(s1);
             new_profile.back().push_back(k);
         }
-        else {
+        else
+        {
             // Section end point with transition
             new_profile.push_back(json::array());
             new_profile.back().push_back(s1 - d);
@@ -111,11 +115,11 @@ void Conversion::convert_0_6_1_to_0_7_0(json& obj) {
     obj["profile"] = new_profile;
 }
 
-void Conversion::convert_0_6_0_to_0_6_1(json& obj) {
+void InputConverter::convert_0_6_0_to_0_6_1(json& obj) {
     obj["meta"]["version"] = "0.6.1";
 }
 
-void Conversion::convert_0_5_0_to_0_6_0(json& obj) {
+void InputConverter::convert_0_5_0_to_0_6_0(json& obj) {
     json obj2;
     obj2["meta"]["version"] = "0.6";
     obj2["meta"]["comments"] = obj.at("meta").at("comments");
@@ -126,7 +130,7 @@ void Conversion::convert_0_5_0_to_0_6_0(json& obj) {
     obj2["dimensions"]["brace_height"] = obj.at("operation").at("brace_height");
     obj2["dimensions"]["draw_length"] = obj.at("operation").at("draw_length");
     obj2["dimensions"]["handle_angle"] = obj.at("profile").at("angle");
-    obj2["dimensions"]["handle_length"] = 2.0*std::abs((double) obj.at("profile").at("x_pos"));
+    obj2["dimensions"]["handle_length"] = 2.0*abs((double) obj.at("profile").at("x_pos"));
     obj2["dimensions"]["handle_setback"] = obj.at("profile").at("y_pos");
     obj2["string"] = obj.at("string");
     obj2["masses"]["arrow"] = obj.at("operation").at("arrow_mass");
@@ -136,7 +140,7 @@ void Conversion::convert_0_5_0_to_0_6_0(json& obj) {
     obj = obj2;
 }
 
-void Conversion::convert_0_4_0_to_0_5_0(json& obj) {
+void InputConverter::convert_0_4_0_to_0_5_0(json& obj) {
     auto series_to_array = [](const json& input) {
         json output;
         for(size_t i = 0; i < input.at("args").size(); ++i) {
@@ -176,7 +180,7 @@ void Conversion::convert_0_4_0_to_0_5_0(json& obj) {
     obj = obj2;
 }
 
-void Conversion::convert_0_3_0_to_0_4_0(json& obj) {
+void InputConverter::convert_0_3_0_to_0_4_0(json& obj) {
     json obj2;
     obj2["meta"]["version"] = "0.4";
     obj2["meta"]["comments"] = obj.at("meta").at("comments");
@@ -215,7 +219,7 @@ void Conversion::convert_0_3_0_to_0_4_0(json& obj) {
     obj = obj2;
 }
 
-void Conversion::convert_0_2_0_to_0_3_0(json& obj) {
+void InputConverter::convert_0_2_0_to_0_3_0(json& obj) {
     json obj2;
     obj2["meta"]["version"] = "0.3";
     obj2["meta"]["comments"] = obj.at("meta").at("comments");
@@ -240,6 +244,6 @@ void Conversion::convert_0_2_0_to_0_3_0(json& obj) {
     obj = obj2;
 }
 
-void Conversion::convert_0_1_0_to_0_2_0(json& obj) {
+void InputConverter::convert_0_1_0_to_0_2_0(json& obj) {
     obj["meta"]["version"] = "0.2";
 }

@@ -113,6 +113,8 @@ std::vector<Vector<2>> equipartition(const std::vector<Vector<2>>& input, size_t
                 }
             }
         }
+
+        return 0.0;    // Should not be possible on valid input
     };
 
     // Find root of the partition function, use input curve lenth divided by number of

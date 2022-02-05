@@ -9,6 +9,8 @@ struct Point {
 
 class ProfileSegment {
 public:
+    virtual ~ProfileSegment() = default;
+
     virtual double s_start() const = 0;
     virtual double s_end() const = 0;
 
