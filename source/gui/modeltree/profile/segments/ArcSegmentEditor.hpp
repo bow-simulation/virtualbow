@@ -7,5 +7,5 @@ public:
     ArcSegmentEditor();
 
     SegmentInput getData() const override;
-    void setData(const SegmentInput& data);
+    void setData(const SegmentInput& data) override;
 };

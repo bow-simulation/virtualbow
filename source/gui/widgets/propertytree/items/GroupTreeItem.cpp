@@ -1,4 +1,3 @@
-#pragma once
 #include "gui/widgets/propertytree/PropertyTreeItem.hpp"
 
 class GroupTreeItem: public PropertyTreeItem {
