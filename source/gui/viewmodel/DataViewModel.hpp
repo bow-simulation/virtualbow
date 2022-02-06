@@ -16,13 +16,17 @@ public:
     const InputData& getData() const;
     InputData& getData();
 
-    Material& addMaterial(int index);
+    Material& createMaterial(int index, const QString& name);
     void removeMaterial(int index);
     void swapMaterials(int i, int j);
 
-    Layer& addLayer(int index);
+    Layer& createLayer(int index, const QString& name);
     void removeLayer(int index);
     void swapLayers(int i, int j);
+
+    void addSegment(int index, const SegmentInput& segment);
+    void removeSegment(int index);
+    void swapSegments(int i, int j);
 
 signals:
     void anyModified(QObject* source);

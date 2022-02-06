@@ -1,4 +1,6 @@
 #pragma once
+#include "TreeItem.hpp"
+#include "solver/model/input/InputData.hpp"    // TODO: Forward declare?
 #include <QDockWidget>
 #include <QTreeWidgetItem>
 
@@ -9,63 +11,10 @@ class QToolButton;
 class QMenu;
 class TreeItem;
 
-// TODO: Forward-declare
-#include "gui/viewmodel/DataViewModel.hpp"
-
-enum Types {
-    Comments = QTreeWidgetItem::UserType,  // Required by Qt
-    Settings,
-    Dimensions,
-    Materials,
-    Material,
-    Layers,
-    Layer,
-    Profile,
-    Segment,
-    Width,
-    String,
-    Masses,
-    Damping
-};
-
 // TODO:
 // * Items: Set Icon from type
 // * Items: Add createEditor and createPlot that creates editor by type
 // * Tree: Implement segment operations in viewmodel
-
-// Bugs:
-// * Remove crashes when there are no child items
-
-#include <QLabel>
-
-class TreeItem: public QTreeWidgetItem
-{
-public:
-    TreeItem(const QString& name, const QIcon& icon, Types type)
-        : QTreeWidgetItem({name}, type)
-    {
-        this->setIcon(0, icon);
-    }
-
-    QWidget* getEditor() {
-        if(editor == nullptr) {
-            editor = new QLabel(this->text(0));
-        }
-        return editor;
-    }
-
-    QWidget* getPlot() {
-        if(plot == nullptr) {
-            plot = new QLabel(this->text(0));
-        }
-        return plot;
-    }
-
-
-private:
-    QWidget* editor = nullptr;
-    QWidget* plot = nullptr;
-};
 
 class TreeView: public QDockWidget
 {
@@ -101,22 +50,27 @@ private:
 
     void createSegmentMenu();
     void createTopLevelItems();
-    QTreeWidgetItem* createMaterialItem(const struct Material& material) const;
-    QTreeWidgetItem* createLayerItem(const struct Layer& layer) const;
+    QTreeWidgetItem* createMaterialItem(const Material& material) const;
+    QTreeWidgetItem* createLayerItem(const Layer& layer) const;
     QTreeWidgetItem* createProfileItem(const SegmentInput& segment) const;
 
-    void swapTreeItems(QTreeWidgetItem* parent, int i, int j);
-    void updateButtons(TreeItem* selection);
+    QString createUniqueName(const QString& name, QTreeWidgetItem* parent) const;
 
-    void addMaterial(int index);
+    void swapTreeItems(QTreeWidgetItem* parent, int i, int j);
+    void insertTreeItem(QTreeWidgetItem* parent, QTreeWidgetItem* item, int index);
+    void removeTreeItem(QTreeWidgetItem* parent, int index);
+
+    void updateButtons();
+
+    void insertMaterial(int index);
     void removeMaterial(int index);
     void swapMaterials(int i, int j);
 
-    void addLayer(int index);
+    void insertLayer(int index);
     void removeLayer(int index);
     void swapLayers(int i, int j);
 
-    void addSegment(int index, const SegmentInput& segment);
-    void removeSegment(int index);
+    void insertSegment(int index, const SegmentInput& segment);
+    void removeSegment(int i);
     void swapSegments(int i, int j);
 };

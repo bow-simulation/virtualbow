@@ -110,8 +110,8 @@ add_executable(
 
     source/gui/treeview/TreeView.cpp
     source/gui/treeview/TreeView.hpp
-    source/gui/treeview/TreeModel.cpp
-    source/gui/treeview/TreeModel.hpp
+    source/gui/treeview/TreeItem.cpp
+    source/gui/treeview/TreeItem.hpp
 
     source/gui/propertyview/PropertyView.cpp
     source/gui/propertyview/PropertyView.hpp

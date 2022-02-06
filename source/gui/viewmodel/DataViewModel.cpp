@@ -32,30 +32,45 @@ InputData& DataViewModel::getData() {
     return data;
 }
 
-Material& DataViewModel::addMaterial(int index) {
-    data.materials.insert(data.materials.begin() + index, Material());    // TODO: No duplicate names
+Material& DataViewModel::createMaterial(int index, const QString& name) {
+    Material material;
+    material.name = name.toStdString();    // TODO: Give material a constructir for this
+
+    data.materials.insert(data.materials.begin() + index, material);    // TODO: No duplicate names?
     return data.materials[index];
 }
 
 void DataViewModel::removeMaterial(int index) {
-    auto it = data.materials.begin() + index;
-    data.materials.erase(it);
+    data.materials.erase(data.materials.begin() + index);
 }
 
 void DataViewModel::swapMaterials(int i, int j) {
     std::swap(data.materials[i], data.materials[j]);
 }
 
-Layer& DataViewModel::addLayer(int index) {
-    data.layers.insert(data.layers.begin() + index, Layer());    // TODO: No duplicate names
+Layer& DataViewModel::createLayer(int index, const QString& name) {
+    Layer layer;
+    layer.name = name.toStdString();    // TODO: Give layer a constructor for this
+
+    data.layers.insert(data.layers.begin() + index, layer);
     return data.layers[index];
 }
 
 void DataViewModel::removeLayer(int index) {
-    auto it = data.layers.begin() + index;
-    data.layers.erase(it);
+    data.layers.erase(data.layers.begin() + index);
 }
 
 void DataViewModel::swapLayers(int i, int j) {
     std::swap(data.layers[i], data.layers[j]);
+}
+
+void DataViewModel::addSegment(int index, const SegmentInput& segment) {
+    data.profile.insert(data.profile.begin() + index, segment);
+}
+
+void DataViewModel::removeSegment(int index) {
+    data.profile.erase(data.profile.begin() + index);
+}
+void DataViewModel::swapSegments(int i, int j) {
+    std::swap(data.profile[i], data.profile[j]);
 }
