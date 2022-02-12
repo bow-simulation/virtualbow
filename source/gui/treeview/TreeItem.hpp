@@ -24,6 +24,10 @@ public:
     QWidget* getEditor();
     QWidget* getPlot();
 
+protected:
+    virtual QWidget* createEditor() const;
+    virtual QWidget* createPlot() const;
+
 private:
     QWidget* editor = nullptr;
     QWidget* plot = nullptr;

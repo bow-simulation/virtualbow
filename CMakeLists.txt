@@ -112,11 +112,13 @@ add_executable(
     source/gui/treeview/TreeView.hpp
     source/gui/treeview/TreeItem.cpp
     source/gui/treeview/TreeItem.hpp
+    source/gui/treeview/items/CommentTreeItem.cpp
+    source/gui/treeview/items/CommentTreeItem.hpp
+    source/gui/treeview/items/SettingsTreeItem.cpp
+    source/gui/treeview/items/SettingsTreeItem.hpp
 
     source/gui/propertyview/PropertyView.cpp
     source/gui/propertyview/PropertyView.hpp
-    source/gui/propertyview/CommentView.cpp
-    source/gui/propertyview/CommentView.hpp
 
     source/gui/plotview/PlotView.cpp
     source/gui/plotview/PlotView.hpp

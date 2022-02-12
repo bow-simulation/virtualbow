@@ -1,5 +1,7 @@
 #include "TreeView.hpp"
 #include "gui/viewmodel/DataViewModel.hpp"
+#include "items/CommentTreeItem.hpp"
+#include "items/SettingsTreeItem.hpp"
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QToolButton>
@@ -161,7 +163,7 @@ TreeView::TreeView(DataViewModel* model)
     createSegmentMenu();
 
     // On selection of items
-    QObject::connect(tree, &QTreeWidget::currentItemChanged, this, [&](QTreeWidgetItem* current, QTreeWidgetItem* previous){
+    QObject::connect(tree, &QTreeWidget::currentItemChanged, this, [&](QTreeWidgetItem *current, QTreeWidgetItem *previous) {
         auto item = static_cast<TreeItem*>(current);
         emit currentEditorChanged(item->getEditor());    // Show editor associated with the item
         emit currentPlotChanged(item->getPlot());        // Show plot associated with the item
@@ -191,10 +193,10 @@ void TreeView::createSegmentMenu() {
 // -> Resets the selection
 // -> Resets all editors associated with the items
 void TreeView::createTopLevelItems() {
-    item_comments = new TreeItem("Comments", QIcon(":/icons/model-comments.svg"), TreeItemType::COMMENTS);
+    item_comments = new CommentTreeItem(model);
     tree->addTopLevelItem(item_comments);
 
-    item_settings = new TreeItem("Settings", QIcon(":/icons/model-settings.svg"), TreeItemType::SETTINGS);
+    item_settings = new SettingsTreeItem(model);
     tree->addTopLevelItem(item_settings);
 
     item_dimensions = new TreeItem("Dimensions", QIcon(":/icons/model-dimensions.svg"), TreeItemType::DIMENSIONS);
