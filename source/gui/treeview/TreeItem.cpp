@@ -10,14 +10,22 @@ TreeItem::TreeItem(const QString& name, const QIcon& icon, TreeItemType type)
 
 QWidget* TreeItem::getEditor() {
     if(editor == nullptr) {
-        editor = new QLabel(this->text(0));
+        editor = createEditor();
     }
     return editor;
 }
 
 QWidget* TreeItem::getPlot() {
     if(plot == nullptr) {
-        plot = new QLabel(this->text(0));
+        plot = createPlot();
     }
     return plot;
+}
+
+QWidget* TreeItem::createEditor() const {
+    return nullptr;
+}
+
+QWidget* TreeItem::createPlot() const {
+    return nullptr;
 }
