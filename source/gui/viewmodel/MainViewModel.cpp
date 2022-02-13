@@ -8,7 +8,7 @@ MainViewModel::MainViewModel()
       file_path(QString()),
       modified(false)
 {
-    QObject::connect(data_model, &DataViewModel::anyModified, this, [&]{
+    QObject::connect(data_model, &DataViewModel::modified, this, [&]{
         setModified(true);
     });
 }

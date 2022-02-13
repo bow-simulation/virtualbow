@@ -25,6 +25,7 @@ QVariant StringPropertyItem::data(int column, int role) const {
 void StringPropertyItem::setData(int column, int role, const QVariant &value) {
     if(column == 1 && role == Qt::EditRole) {
         this->value = value.toString();
+        emitDataChanged();
     }
 }
 

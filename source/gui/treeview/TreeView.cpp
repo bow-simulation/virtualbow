@@ -2,6 +2,14 @@
 #include "gui/viewmodel/DataViewModel.hpp"
 #include "items/CommentTreeItem.hpp"
 #include "items/SettingsTreeItem.hpp"
+#include "items/DimensionsTreeItem.hpp"
+#include "items/MaterialsTreeItem.hpp"
+#include "items/StringTreeItem.hpp"
+#include "items/MassesTreeItem.hpp"
+#include "items/DampingTreeItem.hpp"
+#include "items/WidthTreeItem.hpp"
+#include "items/LayersTreeItem.hpp"
+#include "items/ProfileTreeItem.hpp"
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QToolButton>
@@ -16,114 +24,61 @@
 
 TreeView::TreeView(DataViewModel* model)
     : model(model),
-      tree(new QTreeWidget())
+      tree(new QTreeWidget()),
+      menu_add_material(createMaterialMenu()),
+      menu_add_layer(createLayerMenu()),
+      menu_add_segment(createSegmentMenu())
 {
     this->setObjectName("PlotView");    // Required to save state of main window
     this->setFeatures(QDockWidget::NoDockWidgetFeatures);
     this->setWindowTitle("Model");
     this->setWidget(tree);
 
-
     button_add = new QToolButton();
     button_add->setIcon(QIcon(":/icons/list-add.svg"));
     button_add->setPopupMode(QToolButton::InstantPopup);
-    QObject::connect(button_add, &QToolButton::clicked, this, [&] {
-        auto item = static_cast<TreeItem*>(tree->currentItem());
-        switch(item->type()) {
-        case TreeItemType::MATERIALS:
-            insertMaterial(item->childCount());    // Add new material at the end
-            break;
-
-        case TreeItemType::MATERIAL:
-            insertMaterial(item_materials->indexOfChild(item) + 1);    // Add new material after selected
-            break;
-
-        case TreeItemType::LAYERS:
-            insertLayer(item->childCount());    // Add new layer at the end
-            break;
-
-        case TreeItemType::LAYER:
-            insertLayer(item_layers->indexOfChild(item) + 1);    // Add new material after selected
-            break;
-
-            // The case of added profile segments is handled by the context menu of the button,
-            // which is enabled if a profile or segment item is selected
-        }
-    });
 
     button_remove = new QToolButton();
     button_remove->setIcon(QIcon(":/icons/list-remove.svg"));
-    QObject::connect(button_remove, &QToolButton::clicked, this, [&, model] {
-        auto item = static_cast<TreeItem*>(tree->currentItem());
-        switch(item->type()) {
-        case TreeItemType::MATERIALS:
-            removeMaterial(item->childCount() - 1);    // Remove material from the end
-            break;
+    QObject::connect(button_remove, &QToolButton::clicked, this, [&] {
+        auto selected = static_cast<TreeItem*>(tree->currentItem());
+        auto parent = static_cast<TreeItem*>(selected->parent());
 
-        case TreeItemType::MATERIAL:
-            removeMaterial(item_materials->indexOfChild(item));    // Remove selected material
-            break;
-
-        case TreeItemType::LAYERS:
-            removeLayer(item->childCount() - 1);    // Remove layer from the end
-            break;
-
-        case TreeItemType::LAYER:
-            removeLayer(item_layers->indexOfChild(item));    // Remove selected layer
-            break;
-
-        case TreeItemType::PROFILE:
-            removeSegment(item->childCount() - 1);    // Remove segment from the end
-            break;
-
-        case TreeItemType::SEGMENT:
-            removeSegment(item_profile->indexOfChild(item));    // Remove selected segment
-            break;
+        if(parent != nullptr) {
+            // Remove selected item from parent
+            parent->removeChild(parent->indexOfChild(selected));
+        }
+        else {
+            // Remove last item from selected
+            selected->removeChild(selected->childCount() - 1);
         }
     });
 
     button_up = new QToolButton();
     button_up->setIcon(QIcon(":/icons/list-move-up.svg"));
-    QObject::connect(button_up, &QToolButton::clicked, this, [&, model] {
-        auto item = static_cast<TreeItem*>(tree->currentItem());
-        int i = item->parent()->indexOfChild(item);
+    QObject::connect(button_up, &QToolButton::clicked, this, [&] {
+        auto selected = static_cast<TreeItem*>(tree->currentItem());
+        auto parent = static_cast<TreeItem*>(selected->parent());
 
-        switch(item->type()) {
-        case TreeItemType::MATERIAL:
-            swapMaterials(i, i-1);
-            break;
-
-        case TreeItemType::LAYER:
-            swapLayers(i, i-1);
-            break;
-
-        case TreeItemType::SEGMENT:
-            swapSegments(i, i-1);
-            break;
+        if(parent != nullptr) {
+            int i = parent->indexOfChild(selected);
+            parent->swapChildren(i, i-1);
         }
     });
 
     button_down = new QToolButton();
     button_down->setIcon(QIcon(":/icons/list-move-down.svg"));
-    QObject::connect(button_down, &QToolButton::clicked, this, [&, model] {
-        auto item = static_cast<TreeItem*>(tree->currentItem());
-        int i = item->parent()->indexOfChild(item);
+    QObject::connect(button_down, &QToolButton::clicked, this, [&] {
+        auto selected = static_cast<TreeItem*>(tree->currentItem());
+        auto parent = static_cast<TreeItem*>(selected->parent());
 
-        switch(item->type()) {
-        case TreeItemType::MATERIAL:
-            swapMaterials(i, i+1);
-            break;
-
-        case TreeItemType::LAYER:
-            swapLayers(i, i+1);
-            break;
-
-        case TreeItemType::SEGMENT:
-            swapSegments(i, i+1);
-            break;
+        if(parent != nullptr) {
+            int i = parent->indexOfChild(selected);
+            parent->swapChildren(i, i+1);
         }
     });
 
+    /*
     // Key delete action removes selected items, but does nothing if none are selected.
     auto action_remove = new QAction(this);
     action_remove->setShortcut(QKeySequence::Delete);
@@ -144,6 +99,7 @@ TreeView::TreeView(DataViewModel* model)
             break;
         }
     });
+    */
 
     auto hbox = new QHBoxLayout();
     hbox->setAlignment(Qt::AlignTop);
@@ -156,94 +112,122 @@ TreeView::TreeView(DataViewModel* model)
     hbox->addWidget(button_down);
 
     tree->setLayout(hbox);
-    //tree->viewport()->setLayout(hbox);
     tree->setHeaderHidden(true);
     tree->setSelectionMode(QAbstractItemView::SingleSelection);
-    createTopLevelItems();
-    createSegmentMenu();
 
-    // On selection of items
-    QObject::connect(tree, &QTreeWidget::currentItemChanged, this, [&](QTreeWidgetItem *current, QTreeWidgetItem *previous) {
-        auto item = static_cast<TreeItem*>(current);
-        emit currentEditorChanged(item->getEditor());    // Show editor associated with the item
-        emit currentPlotChanged(item->getPlot());        // Show plot associated with the item
-        updateButtons();                                 // Update buttons according to selected item
+    //createTopLevelItems();
+    //createSegmentMenu();
+
+    // On selection of a tree item
+    QObject::connect(tree, &QTreeWidget::itemSelectionChanged, this, [&](){
+        auto items = tree->selectedItems();
+        if(items.size() == 1) {
+            auto item = static_cast<TreeItem*>(items[0]);
+            emit currentEditorChanged(item->getEditor());    // Show editor associated with the item
+            emit currentPlotChanged(item->getPlot());        // Show plot associated with the item
+        }
+        else {
+            emit currentEditorChanged(nullptr);
+            emit currentPlotChanged(nullptr);
+        }
+        updateButtons();    // Update buttons according to selection
     });
+
+    // (Re)build tree when data is loaded (resets all selections and editors)
+    QObject::connect(model, &DataViewModel::reloaded, this, &TreeView::rebuildTree);
 }
 
-void TreeView::createSegmentMenu() {
-    segment_menu = new QMenu();
-    auto add_segment_at_item = [&](const SegmentInput& segment) {
-        auto item = static_cast<TreeItem*>(tree->currentItem());
-        if(item->type() == TreeItemType::PROFILE) {
-            insertSegment(item->childCount(), segment);
-        }
-        else if(item->type() == TreeItemType::SEGMENT) {
-            insertSegment(item_profile->indexOfChild(item) + 1, segment);
-        }
-    };
+void TreeView::rebuildTree() {
+    // Remove existing items
+    tree->clear();
 
-    segment_menu->addAction(QIcon(":/icons/segment-line.svg"), "Line", this, [=]{ add_segment_at_item(LineInput()); });
-    segment_menu->addAction(QIcon(":/icons/segment-arc.svg"), "Arc", this, [=]{ add_segment_at_item(ArcInput()); });
-    segment_menu->addAction(QIcon(":/icons/segment-spiral.svg"), "Spiral", this, [=]{ add_segment_at_item(SpiralInput()); });
-    segment_menu->addAction(QIcon(":/icons/segment-spline.svg"), "Spline", this, [=]{ add_segment_at_item(SplineInput()); });
-}
-
-// TODO: Replace with "rebuildTree" that is triggered when the data model is reloaded
-// -> Resets the selection
-// -> Resets all editors associated with the items
-void TreeView::createTopLevelItems() {
+    // Add new items
     item_comments = new CommentTreeItem(model);
     tree->addTopLevelItem(item_comments);
 
     item_settings = new SettingsTreeItem(model);
     tree->addTopLevelItem(item_settings);
 
-    item_dimensions = new TreeItem("Dimensions", QIcon(":/icons/model-dimensions.svg"), TreeItemType::DIMENSIONS);
+    item_dimensions = new DimensionsTreeItem(model);
     tree->addTopLevelItem(item_dimensions);
 
-    item_materials = new TreeItem("Materials", QIcon(":/icons/model-materials.svg"), TreeItemType::MATERIALS);
+    item_materials = new MaterialsTreeItem(model);
     tree->addTopLevelItem(item_materials);
 
-    item_layers = new TreeItem("Layers", QIcon(":/icons/model-layers.svg"), TreeItemType::LAYERS);
+    item_layers = new LayersTreeItem(model);
     tree->addTopLevelItem(item_layers);
 
-    item_profile = new TreeItem("Profile", QIcon(":/icons/model-profile.svg"), TreeItemType::PROFILE);
+    item_profile = new ProfileTreeItem(model);
     tree->addTopLevelItem(item_profile);
 
-    item_width = new TreeItem("Width", QIcon(":/icons/model-width.svg"), TreeItemType::WIDTH);
+    item_width = new WidthTreeItem(model);
     tree->addTopLevelItem(item_width);
 
-    item_string = new TreeItem("String", QIcon(":/icons/model-string.svg"), TreeItemType::STRING);
+    item_string = new StringTreeItem(model);
     tree->addTopLevelItem(item_string);
 
-    item_masses = new TreeItem("Masses", QIcon(":/icons/model-masses.svg"), TreeItemType::MASSES);
+    item_masses = new MassesTreeItem(model);
     tree->addTopLevelItem(item_masses);
 
-    item_damping = new TreeItem("Damping", QIcon(":/icons/model-damping.svg"), TreeItemType::DAMPING);
+    item_damping = new DampingTreeItem(model);
     tree->addTopLevelItem(item_damping);
 
-    for(auto& material: model->getData().materials) {
-        item_materials->addChild(createMaterialItem(material));
-    }
-
-    for(auto& layer: model->getData().layers) {
-        item_layers->addChild(createLayerItem(layer));
-    }
-
-    for(auto& segment: model->getData().profile) {
-        item_profile->addChild(createProfileItem(segment));
-    }
+    // TODO?
+    // updateButtons();
 }
 
-// TODO: Why "struct tag" here?
-QTreeWidgetItem* TreeView::createMaterialItem(const struct Material& material) const {
-    return new TreeItem(QString::fromStdString(material.name), QIcon(":/icons/model-material.svg"), TreeItemType::MATERIAL);
+QMenu* TreeView::createMaterialMenu() {
+    auto menu = new QMenu();
+    menu->addAction(QIcon(":/icons/model-material.svg"), "New Material", this, [&]{
+        auto item = static_cast<TreeItem*>(tree->currentItem());
+        if(item->type() == TreeItemType::MATERIALS) {
+            // Category selected: Add new material at the end
+            item_materials->insertChild(item_materials->childCount(), new MaterialTreeItem(model, Material()));
+        }
+        else if(item->type() == TreeItemType::MATERIAL) {
+            // Material selected: Add new material after selection
+            item_materials->insertChild(item_materials->indexOfChild(item) + 1, new MaterialTreeItem(model, Material()));
+        }
+    });
+
+    return menu;
 }
 
-// TODO: Why "struct tag" here?
-QTreeWidgetItem* TreeView::createLayerItem(const struct Layer& layer) const {
-    return new TreeItem({QString::fromStdString(layer.name)}, QIcon(":/icons/model-layer.svg"), TreeItemType::LAYER);
+QMenu* TreeView::createLayerMenu() {
+    auto menu = new QMenu();
+    menu->addAction(QIcon(":/icons/model-layer.svg"), "New Layer", this, [=]{
+        auto item = static_cast<TreeItem*>(tree->currentItem());
+        if(item->type() == TreeItemType::LAYERS) {
+            // Category selected: Add new layer at the end
+            item_layers->insertChild(item_layers->childCount(), new LayerTreeItem(model, Layer()));
+        }
+        else if(item->type() == TreeItemType::LAYER) {
+            // Layer selected: Add new layer after selection
+            item_layers->insertChild(item_layers->indexOfChild(item) + 1, new LayerTreeItem(model, Layer()));
+        }
+    });
+
+    return menu;
+}
+
+QMenu* TreeView::createSegmentMenu() {
+    auto add_segment_at_item = [&](const SegmentInput& segment) {
+        auto item = static_cast<TreeItem*>(tree->currentItem());
+        if(item->type() == TreeItemType::PROFILE) {
+            item_profile->insertChild(item_profile->childCount(), new SegmentTreeItem(segment));
+        }
+        else if(item->type() == TreeItemType::SEGMENT) {
+            item_profile->insertChild(item_profile->indexOfChild(item) + 1, new SegmentTreeItem(segment));
+        }
+    };
+
+    auto menu = new QMenu();
+    menu->addAction(QIcon(":/icons/segment-line.svg"), "New Line", this, [=]{ add_segment_at_item(LineInput()); });
+    menu->addAction(QIcon(":/icons/segment-arc.svg"), "New Arc", this, [=]{ add_segment_at_item(ArcInput()); });
+    menu->addAction(QIcon(":/icons/segment-spiral.svg"), "New Spiral", this, [=]{ add_segment_at_item(SpiralInput()); });
+    menu->addAction(QIcon(":/icons/segment-spline.svg"), "New Spline", this, [=]{ add_segment_at_item(SplineInput()); });
+
+    return menu;
 }
 
 QIcon segmentIcon(const SegmentInput& segment) {
@@ -304,104 +288,35 @@ QString TreeView::createUniqueName(const QString& name, QTreeWidgetItem* parent)
     return unique;
 }
 
-void TreeView::swapTreeItems(QTreeWidgetItem* parent, int i, int j) {
-    int i_min = std::min(i, j);
-    int i_max = std::max(i, j);
-
-    if(i_min >= 0 && i_max < parent->childCount()) {
-        QTreeWidgetItem* current = tree->currentItem();
-        QTreeWidgetItem* item_max = parent->takeChild(i_max);
-        QTreeWidgetItem* item_min = parent->takeChild(i_min);
-
-        parent->insertChild(i_min, item_max);
-        parent->insertChild(i_max, item_min);
-
-        tree->setCurrentItem(current);    // Reset previously selected item
-        updateButtons();
-    }
-}
-
-void TreeView::insertTreeItem(QTreeWidgetItem* parent, QTreeWidgetItem* item, int index) {
-    if(index >= 0 && index <= parent->childCount()) {
-        parent->insertChild(index, item);
-        updateButtons();
-    }
-}
-
-void TreeView::removeTreeItem(QTreeWidgetItem* parent, int index) {
-    if(index >= 0 && index < parent->childCount()) {
-        parent->removeChild(parent->child(index));
-        updateButtons();
-    }
-}
-
 void TreeView::updateButtons() {
     QTreeWidgetItem* selection = tree->currentItem();
 
-    bool add_enabled = selection->type() == TreeItemType::MATERIALS || selection->type() == TreeItemType::MATERIAL ||
-                       selection->type() == TreeItemType::LAYERS    || selection->type() == TreeItemType::LAYER    ||
-                       selection->type() == TreeItemType::PROFILE   || selection->type() == TreeItemType::SEGMENT;
+    if(selection->type() == TreeItemType::MATERIALS || selection->type() == TreeItemType::MATERIAL) {
+        button_add->setMenu(menu_add_material);
+        button_add->setEnabled(true);
+    }
+    else if (selection->type() == TreeItemType::LAYERS || selection->type() == TreeItemType::LAYER) {
+        button_add->setMenu(menu_add_layer);
+        button_add->setEnabled(true);
+    }
+    else if (selection->type() == TreeItemType::PROFILE || selection->type() == TreeItemType::SEGMENT) {
+        button_add->setMenu(menu_add_segment);
+        button_add->setEnabled(true);
+    }
+    else {
+        button_add->setMenu(nullptr);
+        button_add->setEnabled(false);
+    }
 
     bool remove_enabled = (selection->type() == TreeItemType::MATERIALS && selection->childCount() > 0) || selection->type() == TreeItemType::MATERIAL ||
                           (selection->type() == TreeItemType::LAYERS && selection->childCount() > 0)    || selection->type() == TreeItemType::LAYER    ||
-                          (selection->type() == TreeItemType::PROFILE && selection->childCount() > 9)   || selection->type() == TreeItemType::SEGMENT;
+                          (selection->type() == TreeItemType::PROFILE && selection->childCount() > 0)   || selection->type() == TreeItemType::SEGMENT;
 
     bool reorder_enabled = selection->type() == TreeItemType::MATERIAL ||
                            selection->type() == TreeItemType::LAYER    ||
                            selection->type() == TreeItemType::SEGMENT;
 
-    button_add->setEnabled(add_enabled);
     button_remove->setEnabled(remove_enabled);
     button_up->setEnabled(reorder_enabled);
     button_down->setEnabled(reorder_enabled);
-
-    bool show_segment_menu = selection->type() == TreeItemType::PROFILE || selection->type() == TreeItemType::SEGMENT;
-    button_add->setMenu(show_segment_menu ? segment_menu : nullptr);
-}
-
-void TreeView::insertMaterial(int index) {
-    QString name = createUniqueName("New material", item_materials);
-    Material& material = model->createMaterial(index, name);
-    insertTreeItem(item_materials, createMaterialItem(material), index);
-}
-
-void TreeView::removeMaterial(int index) {
-    model->removeMaterial(index);
-    removeTreeItem(item_materials, index);
-}
-
-void TreeView::swapMaterials(int i, int j) {
-    model->swapMaterials(i, j);
-    swapTreeItems(item_materials, i, j);
-}
-
-void TreeView::insertLayer(int index) {
-    QString name = createUniqueName("New layer", item_layers);
-    Layer& layer = model->createLayer(index, name);
-    insertTreeItem(item_layers, createLayerItem(layer), index);
-}
-
-void TreeView::removeLayer(int index) {
-    model->removeLayer(index);
-    removeTreeItem(item_layers, index);
-}
-
-void TreeView::swapLayers(int i, int j) {
-    model->swapLayers(i, j);
-    swapTreeItems(item_layers, i, j);
-}
-
-void TreeView::insertSegment(int index, const SegmentInput& segment) {
-    model->addSegment(index, segment);
-    insertTreeItem(item_profile, createProfileItem(segment), index);
-}
-
-void TreeView::removeSegment(int index) {
-    model->removeSegment(index);
-    removeTreeItem(item_profile, index);
-}
-
-void TreeView::swapSegments(int i, int j) {
-    model->swapSegments(i, j);
-    swapTreeItems(item_profile, i, j);
 }

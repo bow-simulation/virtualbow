@@ -1,14 +1,12 @@
 #pragma once
 #include "gui/treeview/TreeItem.hpp"
-#include <string>
+#include "solver/model/input/InputData.hpp"
 
 class DataViewModel;
-class QPlainTextEdit;
 
-class CommentTreeItem: public TreeItem
-{
+class WidthTreeItem: public TreeItem {
 public:
-    CommentTreeItem(DataViewModel* model);
+    WidthTreeItem(DataViewModel* model);
     void updateModel();
     void updateView();
 

@@ -2,25 +2,39 @@
 #include "GroupPropertyItem.hpp"
 #include <QDoubleSpinBox>
 
-DoublePropertyItem::DoublePropertyItem(const DoubleProperty& property, GroupPropertyItem* parent)
+DoublePropertyItem::DoublePropertyItem(const QString& name, const UnitGroup* units, const DoubleRange& range, double step, GroupPropertyItem* parent)
     : PropertyTreeItem(parent),
-      property(property)
+      name(name),
+      units(units),
+      range(range),
+      step(step),
+      value(0.0)
+
 {
     this->setFlags(this->flags() | Qt::ItemIsEditable);
-    QObject::connect(this->property.unit, &UnitGroup::selectionChanged, [&]{ emitDataChanged(); });    // Update on unit changes
+    QObject::connect(units, &UnitGroup::selectionChanged, [&]{ emitDataChanged(); });    // Update on unit changes
+}
+
+double DoublePropertyItem::getValue() const {
+    return value;
+}
+
+void DoublePropertyItem::setValue(double value) {
+    this->value = value;
+    emitDataChanged();
 }
 
 QVariant DoublePropertyItem::data(int column, int role) const {
     if(column == 0 && role == Qt::DisplayRole) {
-        return property.name;
+        return name;
     }
 
     // For display role, convert the value to the specified unit and return as a string with unit label.
     // For the edit role, convert the value and return as double to be used by the editor
     if(column == 1) {
-        double unit_value = property.unit->getSelectedUnit().fromBase(property.get_value());
+        double unit_value = units->getSelectedUnit().fromBase(value);
         if(role == Qt::DisplayRole) {
-            return QString::number(unit_value) + " " + property.unit->getSelectedUnit().getName();
+            return QString::number(unit_value) + " " + units->getSelectedUnit().getName();
         }
         if(role == Qt::EditRole) {
             return unit_value;
@@ -32,8 +46,9 @@ QVariant DoublePropertyItem::data(int column, int role) const {
 
 void DoublePropertyItem::setData(int column, int role, const QVariant &value) {
     if(column == 1 && role == Qt::EditRole) {
-        double base_value = property.unit->getSelectedUnit().toBase(value.toDouble());
-        property.set_value(base_value);
+        double base_value = units->getSelectedUnit().toBase(value.toDouble());
+        this->value = base_value;
+        emitDataChanged();
     }
 }
 
@@ -41,10 +56,10 @@ QWidget* DoublePropertyItem::createEditor(QWidget* parent, const QStyleOptionVie
     // Assumes that the unit doesn't change during the lifetime of the editor
     QDoubleSpinBox* editor = new QDoubleSpinBox(parent);
     editor->setFrame(false);
-    editor->setMinimum(property.unit->getSelectedUnit().fromBase(property.range.min));
-    editor->setMaximum(property.unit->getSelectedUnit().fromBase(property.range.max));
-    editor->setSingleStep(property.unit->getSelectedUnit().fromBase(property.stepsize));
-    editor->setSuffix(" " + property.unit->getSelectedUnit().getName());
+    editor->setMinimum(units->getSelectedUnit().fromBase(range.min));
+    editor->setMaximum(units->getSelectedUnit().fromBase(range.max));
+    editor->setSingleStep(units->getSelectedUnit().fromBase(step));
+    editor->setSuffix(" " + units->getSelectedUnit().getName());
 
     return editor;
 }

@@ -2,20 +2,31 @@
 #include "GroupPropertyItem.hpp"
 #include <QSpinBox>
 
-IntegerPropertyItem::IntegerPropertyItem(const IntegerProperty& property, GroupPropertyItem* parent)
+IntegerPropertyItem::IntegerPropertyItem(const QString& name, const IntegerRange& range, GroupPropertyItem* parent)
     : PropertyTreeItem(parent),
-      property(property)
+      name(name),
+      range(range),
+      value(0)
 {
     this->setFlags(this->flags() | Qt::ItemIsEditable);
 }
 
+int IntegerPropertyItem::getValue() const {
+    return value;
+}
+
+void IntegerPropertyItem::setValue(int value) {
+    this->value = value;
+    emitDataChanged();
+}
+
 QVariant IntegerPropertyItem::data(int column, int role) const {
     if(column == 0 && role == Qt::DisplayRole) {
-        return property.name;
+        return name;
     }
 
     if(column == 1 && (role == Qt::DisplayRole || role == Qt::EditRole)) {
-        return property.get_value();
+        return value;
     }
 
     return PropertyTreeItem::data(column, role);
@@ -23,15 +34,16 @@ QVariant IntegerPropertyItem::data(int column, int role) const {
 
 void IntegerPropertyItem::setData(int column, int role, const QVariant &value) {
     if(column == 1 && role == Qt::EditRole) {
-        property.set_value(value.toInt());
+        this->value = value.toInt();
+        emitDataChanged();
     }
 }
 
 QWidget* IntegerPropertyItem::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
     QSpinBox* editor = new QSpinBox(parent);
     editor->setFrame(false);
-    editor->setMinimum(property.range.min);
-    editor->setMaximum(property.range.max);
+    editor->setMinimum(range.min);
+    editor->setMaximum(range.max);
 
     return editor;
 }

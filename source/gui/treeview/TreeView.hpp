@@ -9,7 +9,18 @@ class QTreeWidget;
 class QTreeWidgetItem;
 class QToolButton;
 class QMenu;
+
 class TreeItem;
+class CommentTreeItem;
+class SettingsTreeItem;
+class DimensionsTreeItem;
+class MaterialsTreeItem;
+class StringTreeItem;
+class MassesTreeItem;
+class DampingTreeItem;
+class WidthTreeItem;
+class LayersTreeItem;
+class ProfileTreeItem;
 
 // TODO:
 // * Items: Set Icon from type
@@ -35,42 +46,30 @@ private:
     QToolButton* button_remove;
     QToolButton* button_up;
     QToolButton* button_down;
-    QMenu* segment_menu;
 
-    QTreeWidgetItem* item_comments;
-    QTreeWidgetItem* item_settings;
-    QTreeWidgetItem* item_dimensions;
-    QTreeWidgetItem* item_materials;
-    QTreeWidgetItem* item_layers;
-    QTreeWidgetItem* item_profile;
-    QTreeWidgetItem* item_width;
-    QTreeWidgetItem* item_string;
-    QTreeWidgetItem* item_masses;
-    QTreeWidgetItem* item_damping;
+    QMenu* menu_add_material;
+    QMenu* menu_add_layer;
+    QMenu* menu_add_segment;
 
-    void createSegmentMenu();
-    void createTopLevelItems();
-    QTreeWidgetItem* createMaterialItem(const Material& material) const;
-    QTreeWidgetItem* createLayerItem(const Layer& layer) const;
+    CommentTreeItem* item_comments;
+    SettingsTreeItem* item_settings;
+    DimensionsTreeItem* item_dimensions;
+    MaterialsTreeItem* item_materials;
+    LayersTreeItem* item_layers;
+    ProfileTreeItem* item_profile;
+    WidthTreeItem* item_width;
+    StringTreeItem* item_string;
+    MassesTreeItem* item_masses;
+    DampingTreeItem* item_damping;
+
+    void rebuildTree();
+
+    QMenu* createMaterialMenu();
+    QMenu* createLayerMenu();
+    QMenu* createSegmentMenu();
+
     QTreeWidgetItem* createProfileItem(const SegmentInput& segment) const;
 
     QString createUniqueName(const QString& name, QTreeWidgetItem* parent) const;
-
-    void swapTreeItems(QTreeWidgetItem* parent, int i, int j);
-    void insertTreeItem(QTreeWidgetItem* parent, QTreeWidgetItem* item, int index);
-    void removeTreeItem(QTreeWidgetItem* parent, int index);
-
     void updateButtons();
-
-    void insertMaterial(int index);
-    void removeMaterial(int index);
-    void swapMaterials(int i, int j);
-
-    void insertLayer(int index);
-    void removeLayer(int index);
-    void swapLayers(int i, int j);
-
-    void insertSegment(int index, const SegmentInput& segment);
-    void removeSegment(int i);
-    void swapSegments(int i, int j);
 };

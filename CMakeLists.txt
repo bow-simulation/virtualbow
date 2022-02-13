@@ -116,6 +116,22 @@ add_executable(
     source/gui/treeview/items/CommentTreeItem.hpp
     source/gui/treeview/items/SettingsTreeItem.cpp
     source/gui/treeview/items/SettingsTreeItem.hpp
+    source/gui/treeview/items/DimensionsTreeItem.cpp
+    source/gui/treeview/items/DimensionsTreeItem.hpp
+    source/gui/treeview/items/MaterialsTreeItem.cpp
+    source/gui/treeview/items/MaterialsTreeItem.hpp
+    source/gui/treeview/items/StringTreeItem.cpp
+    source/gui/treeview/items/StringTreeItem.hpp
+    source/gui/treeview/items/MassesTreeItem.cpp
+    source/gui/treeview/items/MassesTreeItem.hpp
+    source/gui/treeview/items/DampingTreeItem.cpp
+    source/gui/treeview/items/DampingTreeItem.hpp
+    source/gui/treeview/items/WidthTreeItem.cpp
+    source/gui/treeview/items/WidthTreeItem.hpp
+    source/gui/treeview/items/LayersTreeItem.cpp
+    source/gui/treeview/items/LayersTreeItem.hpp
+    source/gui/treeview/items/ProfileTreeItem.cpp
+    source/gui/treeview/items/ProfileTreeItem.hpp
 
     source/gui/propertyview/PropertyView.cpp
     source/gui/propertyview/PropertyView.hpp

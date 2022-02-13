@@ -11,6 +11,14 @@ ColorPropertyItem::ColorPropertyItem(QString name, GroupPropertyItem* parent)
     this->setFlags(this->flags() | Qt::ItemIsEditable);
 }
 
+QColor ColorPropertyItem::getValue() const {
+    return value;
+}
+
+void ColorPropertyItem::setValue(const QColor& value) {
+    this->value = value;
+}
+
 QVariant ColorPropertyItem::data(int column, int role) const {
     if(column == 0 && role == Qt::DisplayRole) {
         return name;
@@ -31,6 +39,7 @@ QVariant ColorPropertyItem::data(int column, int role) const {
 void ColorPropertyItem::setData(int column, int role, const QVariant &value) {
     if(column == 1 && role == Qt::EditRole) {
         this->value = value.value<QColor>();
+        emitDataChanged();
     }
 }
 

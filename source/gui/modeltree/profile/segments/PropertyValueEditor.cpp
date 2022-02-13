@@ -9,9 +9,8 @@ PropertyValueEditor::PropertyValueEditor(int rows, const QList<QString>& names, 
     : units(units)
 {
     auto table = new QTableWidget(rows, 2);
-    table->setHorizontalHeaderLabels({"Property", "Value"});
     table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    table->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
+    table->horizontalHeader()->setVisible(false);
     table->verticalHeader()->setVisible(false);
 
     for(int i = 0; i < rows; ++i) {
