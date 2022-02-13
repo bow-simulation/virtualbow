@@ -25,7 +25,6 @@
         <file>shaders/BackgroundShader.frag</file>
         <file>shaders/ModelShader.frag</file>
         <file>shaders/ModelShader.vert</file>
-        <file>icons/background.png</file>
         <file>icons/run-dynamics.png</file>
         <file>icons/run-statics.png</file>
         <file>icons/view-top.png</file>

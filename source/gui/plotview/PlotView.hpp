@@ -2,6 +2,7 @@
 #include <QDockWidget>
 
 class QStackedWidget;
+class QLabel;
 
 class PlotView: public QDockWidget {
 public:
@@ -10,5 +11,5 @@ public:
 
 private:
     QStackedWidget* stack;
-    QWidget* placeholder;
+    QLabel* placeholder;
 };
