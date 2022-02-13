@@ -4,9 +4,9 @@
 #include <vector>
 
 struct Settings {
-    unsigned n_limb_elements = 20;
-    unsigned n_string_elements = 25;
-    unsigned n_draw_steps = 150;
+    int n_limb_elements = 20;
+    int n_string_elements = 25;
+    int n_draw_steps = 150;
     double arrow_clamp_force = 0.5;
     double time_span_factor = 1.5;
     double time_step_factor = 0.2;
@@ -15,6 +15,7 @@ struct Settings {
 
 struct Material {
     std::string name = "New material";
+    std::string color = "#ff9966";
     double rho = 675.0;
     double E = 12e9;
 };
@@ -29,6 +30,7 @@ struct Dimensions {
 
 struct Layer {
     std::string name = "New layer";
+    int material = 0;
     std::vector<Vector<2>> height{{0.0, 0.015}, {0.5, 0.0125}, {1.0, 0.01}};
     double rho = 675.0;
     double E = 12e9;
@@ -78,12 +80,10 @@ struct InputData {
     Dimensions dimensions;
 
     ProfileInput profile {
-        SplineInput {
-            { 0.0, 0.0 },
-            { 1.0, 0.1 },
-            { 2.0, 0.4 },
-            { 3.0, 0.9 }
-        }
+        SplineInput {{ 0.0, 0.0 }, { 1.0, 0.1 }, { 2.0, 0.4 }, { 3.0, 0.9 }},
+        LineInput {{LineConstraint::LENGTH, 1.0}},
+        ArcInput {{ArcConstraint::LENGTH, 1.0}, {ArcConstraint::K_START, 0.0}},
+        SpiralInput {{SpiralConstraint::LENGTH, 1.0}, {SpiralConstraint::K_START, 0.0}, {SpiralConstraint::K_END, 0.0}}
     };
 
     std::vector<Vector<2>> width{{0.0, 0.06}, {0.5, 0.03}, {1.0, 0.01}};

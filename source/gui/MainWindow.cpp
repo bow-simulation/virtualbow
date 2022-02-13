@@ -145,6 +145,9 @@ MainWindow::MainWindow()
 
     // Load unit settings
     UnitSystem::loadFromSettings(settings);    // TODO: Move to ViewModel
+
+    // Load defaults
+    newFile();
 }
 
 // Attempts to load the given file

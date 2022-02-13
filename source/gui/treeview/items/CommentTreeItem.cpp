@@ -6,22 +6,20 @@ CommentTreeItem::CommentTreeItem(DataViewModel* model)
     : TreeItem("Comments", QIcon(":/icons/model-comments.svg"), TreeItemType::COMMENTS),
       model(model)
 {
+    // Create editor
+    auto text_edit = new QPlainTextEdit();
+    text_edit->setWordWrapMode(QTextOption::NoWrap);
+    text_edit->setPlaceholderText("Empty");
+    setEditor(text_edit);
 
+    updateView();
+    QObject::connect(text_edit, &QPlainTextEdit::textChanged, [&] { updateModel(); });
 }
 
-QWidget* CommentTreeItem::createEditor() const {
-    // Create editor
-    auto editor = new QPlainTextEdit();
-    editor->setWordWrapMode(QTextOption::NoWrap);
-    editor->setPlaceholderText("Empty");
+void CommentTreeItem::updateModel() {
+    model->setComments(static_cast<QPlainTextEdit*>(editor)->toPlainText());
+}
 
-    // Set initial text from the view model
-    editor->setPlainText(model->get_comments());
-
-    // Update view model when text changed in the editor
-    QObject::connect(editor, &QPlainTextEdit::textChanged, [&, editor] {
-        model->set_comments(editor->toPlainText());
-    });
-
-    return editor;
+void CommentTreeItem::updateView() {
+    static_cast<QPlainTextEdit*>(editor)->setPlainText(model->getComments());
 }

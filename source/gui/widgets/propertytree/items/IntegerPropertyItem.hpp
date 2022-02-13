@@ -4,16 +4,12 @@
 
 class GroupPropertyItem;
 
-struct IntegerProperty {
-    QString name;
-    IntegerRange range;
-    std::function<double()> get_value;
-    std::function<void(double)> set_value;
-};
 
 class IntegerPropertyItem: public PropertyTreeItem {
 public:
-    IntegerPropertyItem(const IntegerProperty& property, GroupPropertyItem* parent = nullptr);
+    IntegerPropertyItem(const QString& name, const IntegerRange& range, GroupPropertyItem* parent = nullptr);
+    int getValue() const;
+    void setValue(int value);
 
     QVariant data(int column, int role) const override;
     void setData(int column, int role, const QVariant &value) override;
@@ -23,5 +19,7 @@ public:
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
 
 private:
-    IntegerProperty property;
+    QString name;
+    IntegerRange range;
+    int value;
 };

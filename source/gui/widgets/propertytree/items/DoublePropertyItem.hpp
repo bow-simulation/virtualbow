@@ -1,4 +1,5 @@
 #pragma once
+#include "gui/viewmodel/properties/DoubleProperty.hpp"
 #include "gui/widgets/propertytree/PropertyTreeItem.hpp"
 #include "gui/units/UnitSystem.hpp"
 #include "gui/utils/DoubleRange.hpp"
@@ -6,18 +7,13 @@
 
 class GroupPropertyItem;
 
-struct DoubleProperty {
-    QString name;
-    UnitGroup* unit;
-    DoubleRange range;
-    double stepsize;
-    std::function<double()> get_value;
-    std::function<void(double)> set_value;
-};
-
-class DoublePropertyItem: public PropertyTreeItem {
+class DoublePropertyItem: public PropertyTreeItem
+{
 public:
-    DoublePropertyItem(const DoubleProperty& property, GroupPropertyItem* parent = nullptr);
+    DoublePropertyItem(const QString& name, const UnitGroup* units, const DoubleRange& range, double step, GroupPropertyItem* parent = nullptr);
+
+    double getValue() const;
+    void setValue(double value);
 
     QVariant data(int column, int role) const override;
     void setData(int column, int role, const QVariant &value) override;
@@ -27,5 +23,9 @@ public:
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
 
 private:
-    DoubleProperty property;
+    QString name;
+    const UnitGroup* units;
+    DoubleRange range;
+    double step;
+    double value;
 };

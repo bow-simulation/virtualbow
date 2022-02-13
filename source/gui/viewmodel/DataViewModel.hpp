@@ -1,6 +1,9 @@
 #pragma once
 #include <QObject>
 #include "solver/model/input/InputData.hpp"
+#include "properties/DoubleProperty.hpp"
+#include "properties/IntegerProperty.hpp"
+#include "properties/StringProperty.hpp"
 
 class DataViewModel: public QObject
 {
@@ -16,54 +19,50 @@ public:
     const InputData& getData() const;
     InputData& getData();
 
-    // Comments
+    QString getComments() const;
+    void setComments(const QString& value);
 
-    QString get_comments() const;
-    void set_comments(const QString& value);
+    const Settings& getSettings() const;
+    void setSettings(const Settings& value);
 
-    // Settings
+    const Dimensions& getDimensions() const;
+    void setDimensions(const Dimensions& value);
 
-    int get_limb_elements() const;
-    void set_limb_elements(int value);
+    const std::vector<Material>& getMaterials() const;
+    void setMaterials(const std::vector<Material>& value);
 
-    int get_string_elements() const;
-    void set_string_elements(int value);
+    const std::vector<Layer>& getLayers() const;
+    void setLayers(const std::vector<Layer>& value);
 
-    int get_draw_steps() const;
-    void set_draw_steps(int value);
+    const ProfileInput& getProfile() const;
+    void setProfile(const ProfileInput& value);
 
-    double get_arrow_clamp_force() const;
-    void set_arrow_clamp_force(double value);
+    const std::vector<Vector<2>>& getWidth() const;
+    void setWidth(const std::vector<Vector<2>>& value);
 
-    double get_time_span_factor() const;
-    void set_time_span_factor(double value);
+    const String& getString() const;
+    void setString(const String& value);
 
-    double get_time_step_factor() const;
-    void set_time_step_factor(double value);
+    const Masses& getMasses() const;
+    void setMasses(const Masses& value);
 
-    double get_sampling_rate() const;
-    void set_sampling_rate(double value);
-
-
-    Material& createMaterial(int index, const QString& name);
-    void removeMaterial(int index);
-    void swapMaterials(int i, int j);
-
-    Layer& createLayer(int index, const QString& name);
-    void removeLayer(int index);
-    void swapLayers(int i, int j);
-
-    void addSegment(int index, const SegmentInput& segment);
-    void removeSegment(int index);
-    void swapSegments(int i, int j);
+    const Damping& getDamping() const;
+    void setDamping(const Damping& value);
 
 signals:
-    void anyModified();
-    void allModified();
+    void modified();
+    void reloaded();
 
     void commentModified();
     void settingsModified();
     void dimensionsModified();
+    void materialsModified();
+    void layersModified();
+    void profileModified();
+    void widthModified();
+    void stringModified();
+    void massesModified();
+    void dampingModified();
 
 private:
     InputData data;

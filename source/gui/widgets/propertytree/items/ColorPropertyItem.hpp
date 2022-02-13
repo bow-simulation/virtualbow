@@ -7,6 +7,9 @@ class ColorPropertyItem: public PropertyTreeItem {
 public:
     ColorPropertyItem(QString name, GroupPropertyItem* parent = nullptr);
 
+    QColor getValue() const;
+    void setValue(const QColor& value);
+
     QVariant data(int column, int role) const override;
     void setData(int column, int role, const QVariant &value) override;
 
