@@ -1,9 +1,9 @@
-#include "ColorTreeItem.hpp"
-#include "GroupTreeItem.hpp"
+#include "ColorPropertyItem.hpp"
+#include "GroupPropertyItem.hpp"
 #include "gui/limbview/LayerColors.hpp"
 #include <QColorDialog>
 
-ColorTreeItem::ColorTreeItem(QString name, GroupTreeItem* parent)
+ColorPropertyItem::ColorPropertyItem(QString name, GroupPropertyItem* parent)
     : PropertyTreeItem(parent),
       name(name),
       value(Qt::red)
@@ -11,7 +11,7 @@ ColorTreeItem::ColorTreeItem(QString name, GroupTreeItem* parent)
     this->setFlags(this->flags() | Qt::ItemIsEditable);
 }
 
-QVariant ColorTreeItem::data(int column, int role) const {
+QVariant ColorPropertyItem::data(int column, int role) const {
     if(column == 0 && role == Qt::DisplayRole) {
         return name;
     }
@@ -28,13 +28,13 @@ QVariant ColorTreeItem::data(int column, int role) const {
     return PropertyTreeItem::data(column, role);
 }
 
-void ColorTreeItem::setData(int column, int role, const QVariant &value) {
+void ColorPropertyItem::setData(int column, int role, const QVariant &value) {
     if(column == 1 && role == Qt::EditRole) {
         this->value = value.value<QColor>();
     }
 }
 
-QWidget* ColorTreeItem::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
+QWidget* ColorPropertyItem::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
     auto dialog = new QColorDialog(parent);
     dialog->setWindowModality(Qt::ApplicationModal);
     dialog->setWindowTitle("Color");
@@ -42,13 +42,13 @@ QWidget* ColorTreeItem::createEditor(QWidget* parent, const QStyleOptionViewItem
     return dialog;
 }
 
-void ColorTreeItem::setEditorData(QWidget* editor, const QModelIndex& index) const {
+void ColorPropertyItem::setEditorData(QWidget* editor, const QModelIndex& index) const {
     QColor value = index.model()->data(index, Qt::EditRole).value<QColor>();
     QColorDialog* dialog = static_cast<QColorDialog*>(editor);
     dialog->setCurrentColor(value);
 }
 
-void ColorTreeItem::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
+void ColorPropertyItem::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
     QColorDialog* dialog = static_cast<QColorDialog*>(editor);
     if(dialog->result() == QDialog::Accepted) {
         QColor value = dialog->currentColor();

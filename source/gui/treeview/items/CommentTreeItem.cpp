@@ -16,12 +16,11 @@ QWidget* CommentTreeItem::createEditor() const {
     editor->setPlaceholderText("Empty");
 
     // Set initial text from the view model
-    editor->setPlainText(QString::fromStdString(model->getData().comment));
+    editor->setPlainText(model->get_comments());
 
     // Update view model when text changed in the editor
     QObject::connect(editor, &QPlainTextEdit::textChanged, [&, editor] {
-        model->getData().comment = editor->toPlainText().toStdString();
-        model->commentModified(editor);
+        model->set_comments(editor->toPlainText());
     });
 
     return editor;

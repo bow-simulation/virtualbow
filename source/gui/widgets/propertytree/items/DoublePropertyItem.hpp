@@ -1,11 +1,23 @@
 #pragma once
 #include "gui/widgets/propertytree/PropertyTreeItem.hpp"
+#include "gui/units/UnitSystem.hpp"
+#include "gui/utils/DoubleRange.hpp"
+#include <functional>
 
-class GroupTreeItem;
+class GroupPropertyItem;
 
-class ColorTreeItem: public PropertyTreeItem {
+struct DoubleProperty {
+    QString name;
+    UnitGroup* unit;
+    DoubleRange range;
+    double stepsize;
+    std::function<double()> get_value;
+    std::function<void(double)> set_value;
+};
+
+class DoublePropertyItem: public PropertyTreeItem {
 public:
-    ColorTreeItem(QString name, GroupTreeItem* parent = nullptr);
+    DoublePropertyItem(const DoubleProperty& property, GroupPropertyItem* parent = nullptr);
 
     QVariant data(int column, int role) const override;
     void setData(int column, int role, const QVariant &value) override;
@@ -15,6 +27,5 @@ public:
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
 
 private:
-    QString name;
-    QColor value;
+    DoubleProperty property;
 };

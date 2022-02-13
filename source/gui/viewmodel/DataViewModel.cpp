@@ -12,12 +12,12 @@ DataViewModel::DataViewModel() {
 
 void DataViewModel::loadDefaults() {
     data = InputData();
-    emit allModified(this);
+    emit allModified();
 }
 
 void DataViewModel::loadFile(const QString& path) {
     data = InputData(path.toStdString());
-    emit allModified(this);
+    emit allModified();
 }
 
 void DataViewModel::saveFile(const QString& path) {
@@ -30,6 +30,78 @@ const InputData& DataViewModel::getData() const {
 
 InputData& DataViewModel::getData() {
     return data;
+}
+
+QString DataViewModel::get_comments() const {
+    return QString::fromStdString(data.comment);
+}
+
+void DataViewModel::set_comments(const QString& value) {
+    data.comment = value.toStdString();
+    emit commentModified();
+}
+
+int DataViewModel::get_limb_elements() const {
+    return data.settings.n_limb_elements;
+}
+
+void DataViewModel::set_limb_elements(int value) {
+    data.settings.n_limb_elements = value;
+    emit settingsModified();
+}
+
+int DataViewModel::get_string_elements() const {
+    return data.settings.n_string_elements;
+}
+
+void DataViewModel::set_string_elements(int value) {
+    data.settings.n_string_elements = value;
+    emit settingsModified();
+}
+
+int DataViewModel::get_draw_steps() const {
+    return data.settings.n_draw_steps;
+}
+
+void DataViewModel::set_draw_steps(int value) {
+    data.settings.n_draw_steps = value;
+    emit settingsModified();
+}
+
+double DataViewModel::get_arrow_clamp_force() const {
+    return data.settings.arrow_clamp_force;
+}
+
+void DataViewModel::set_arrow_clamp_force(double value) {
+    data.settings.arrow_clamp_force = value;
+    emit settingsModified();
+}
+
+double DataViewModel::get_time_span_factor() const {
+    return data.settings.time_span_factor;
+}
+
+void DataViewModel::set_time_span_factor(double value) {
+    data.settings.time_span_factor = value;
+    emit settingsModified();
+}
+
+double DataViewModel::get_time_step_factor() const {
+    return data.settings.time_step_factor;
+}
+
+void DataViewModel::set_time_step_factor(double value) {
+    data.settings.time_step_factor = value;
+    emit settingsModified();
+}
+
+double DataViewModel::get_sampling_rate() const {
+    return data.settings.sampling_rate;
+}
+
+void DataViewModel::set_sampling_rate(double value) {
+    data.settings.sampling_rate = value;
+    emit settingsModified();
 }
 
 Material& DataViewModel::createMaterial(int index, const QString& name) {

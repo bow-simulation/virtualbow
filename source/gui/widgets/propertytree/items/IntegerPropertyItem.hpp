@@ -1,11 +1,19 @@
 #pragma once
 #include "gui/widgets/propertytree/PropertyTreeItem.hpp"
+#include "gui/utils/DoubleRange.hpp"
 
-class GroupTreeItem;
+class GroupPropertyItem;
 
-class StringTreeItem: public PropertyTreeItem {
+struct IntegerProperty {
+    QString name;
+    IntegerRange range;
+    std::function<double()> get_value;
+    std::function<void(double)> set_value;
+};
+
+class IntegerPropertyItem: public PropertyTreeItem {
 public:
-    StringTreeItem(QString name, GroupTreeItem* parent = nullptr);
+    IntegerPropertyItem(const IntegerProperty& property, GroupPropertyItem* parent = nullptr);
 
     QVariant data(int column, int role) const override;
     void setData(int column, int role, const QVariant &value) override;
@@ -15,6 +23,5 @@ public:
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
 
 private:
-    QString name;
-    QString value;
+    IntegerProperty property;
 };
