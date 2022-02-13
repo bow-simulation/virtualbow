@@ -1,11 +1,11 @@
 #pragma once
 #include "gui/widgets/propertytree/PropertyTreeItem.hpp"
 
-class GroupTreeItem;
+class GroupPropertyItem;
 
-class IntegerTreeItem2: public PropertyTreeItem {
+class StringPropertyItem: public PropertyTreeItem {
 public:
-    IntegerTreeItem2(QString name, GroupTreeItem* parent = nullptr);
+    StringPropertyItem(QString name, GroupPropertyItem* parent = nullptr);
 
     QVariant data(int column, int role) const override;
     void setData(int column, int role, const QVariant &value) override;
@@ -16,5 +16,5 @@ public:
 
 private:
     QString name;
-    int value;
+    QString value;
 };

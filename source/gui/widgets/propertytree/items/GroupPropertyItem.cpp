@@ -1,6 +1,6 @@
-#include "GroupTreeItem.hpp"
+#include "GroupPropertyItem.hpp"
 
-GroupTreeItem::GroupTreeItem(QString name, GroupTreeItem* parent)
+GroupPropertyItem::GroupPropertyItem(QString name, GroupPropertyItem* parent)
     : PropertyTreeItem(parent)
 {
     QFont font;

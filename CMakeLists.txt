@@ -225,16 +225,16 @@ add_executable(
     source/gui/widgets/propertytree/PropertyTreeItem.hpp
     source/gui/widgets/propertytree/PropertyDelegate.cpp
     source/gui/widgets/propertytree/PropertyDelegate.hpp
-    source/gui/widgets/propertytree/items/ColorTreeItem.cpp
-    source/gui/widgets/propertytree/items/ColorTreeItem.hpp
-    source/gui/widgets/propertytree/items/DoubleTreeItem.cpp
-    source/gui/widgets/propertytree/items/DoubleTreeItem.hpp
-    source/gui/widgets/propertytree/items/GroupTreeItem.cpp
-    source/gui/widgets/propertytree/items/GroupTreeItem.hpp
-    source/gui/widgets/propertytree/items/IntegerTreeItem.cpp
-    source/gui/widgets/propertytree/items/IntegerTreeItem.hpp
-    source/gui/widgets/propertytree/items/StringTreeItem.cpp
-    source/gui/widgets/propertytree/items/StringTreeItem.hpp
+    source/gui/widgets/propertytree/items/ColorPropertyItem.cpp
+    source/gui/widgets/propertytree/items/ColorPropertyItem.hpp
+    source/gui/widgets/propertytree/items/DoublePropertyItem.cpp
+    source/gui/widgets/propertytree/items/DoublePropertyItem.hpp
+    source/gui/widgets/propertytree/items/GroupPropertyItem.cpp
+    source/gui/widgets/propertytree/items/GroupPropertyItem.hpp
+    source/gui/widgets/propertytree/items/IntegerPropertyItem.cpp
+    source/gui/widgets/propertytree/items/IntegerPropertyItem.hpp
+    source/gui/widgets/propertytree/items/StringPropertyItem.cpp
+    source/gui/widgets/propertytree/items/StringPropertyItem.hpp
 
     source/gui/widgets/qcustomplot/qcustomplot.cpp
 )

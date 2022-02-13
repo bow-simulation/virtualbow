@@ -1,12 +1,11 @@
 #pragma once
 #include "gui/widgets/propertytree/PropertyTreeItem.hpp"
-#include "gui/units/UnitSystem.hpp"
 
-class GroupTreeItem;
+class GroupPropertyItem;
 
-class DoubleTreeItem: public PropertyTreeItem {
+class ColorPropertyItem: public PropertyTreeItem {
 public:
-    DoubleTreeItem(QString name, GroupTreeItem* parent = nullptr);
+    ColorPropertyItem(QString name, GroupPropertyItem* parent = nullptr);
 
     QVariant data(int column, int role) const override;
     void setData(int column, int role, const QVariant &value) override;
@@ -17,6 +16,5 @@ public:
 
 private:
     QString name;
-    double value;
-    UnitGroup* units;
+    QColor value;
 };
