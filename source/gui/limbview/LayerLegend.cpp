@@ -21,8 +21,8 @@ LayerEntry::LayerEntry()
     this->setLayout(hbox);
 }
 
-void LayerEntry::setData(const Layer& layer) {
-    symbol->setPixmap(getLayerPixmap(layer, 24));
+void LayerEntry::setData(const Layer& layer, const std::vector<Material>& materials) {
+    symbol->setPixmap(getLayerPixmap(layer, materials, 24));
     label->setText(QString::fromStdString(layer.name));
 }
 
@@ -33,7 +33,7 @@ LayerLegend::LayerLegend()
     this->setLayout(vbox);
 }
 
-void LayerLegend::setData(const std::vector<Layer>& layers) {
+void LayerLegend::setData(const std::vector<Layer>& layers, const std::vector<Material>& materials) {
     while(vbox->count() < layers.size()) {
         vbox->addWidget(new LayerEntry());
     }
@@ -46,7 +46,7 @@ void LayerLegend::setData(const std::vector<Layer>& layers) {
 
     for(int i = 0; i < vbox->count(); ++i) {
         LayerEntry* layer = dynamic_cast<LayerEntry*>(vbox->itemAt(i)->widget());
-        layer->setData(layers[i]);
+        layer->setData(layers[i], materials);
     }
 
     vbox->update();

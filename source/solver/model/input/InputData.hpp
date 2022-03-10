@@ -32,8 +32,6 @@ struct Layer {
     std::string name = "New layer";
     int material = 0;
     std::vector<Vector<2>> height{{0.0, 0.015}, {0.5, 0.0125}, {1.0, 0.01}};
-    double rho = 675.0;
-    double E = 12e9;
 };
 
 struct Masses {

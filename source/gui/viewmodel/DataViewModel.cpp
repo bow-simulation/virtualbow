@@ -1,5 +1,5 @@
 #include "DataViewModel.hpp"
-#include "gui/units/UnitSystem.hpp"
+#include "gui/viewmodel/units/UnitSystem.hpp"
 
 DataViewModel::DataViewModel() {
     QObject::connect(this, &DataViewModel::reloaded, this, &DataViewModel::commentModified);

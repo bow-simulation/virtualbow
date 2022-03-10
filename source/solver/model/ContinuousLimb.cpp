@@ -1,10 +1,10 @@
 #include "ContinuousLimb.hpp"
 
-ContinuousLayer::ContinuousLayer(const ContinuousLimb& limb, const Layer& layer)
+ContinuousLayer::ContinuousLayer(const ContinuousLimb& limb, const Layer& layer, const Material& material)
     : limb(limb),
       height(layer.height),
-      rho(layer.rho),
-      E(layer.E)
+      rho(material.rho),
+      E(material.E)
 {
 
 }
@@ -41,7 +41,11 @@ ContinuousLimb::ContinuousLimb(const InputData& input)
       rotation(input.dimensions.handle_angle)
 {
     for(const Layer& layer: input.layers) {
-        layers.push_back(ContinuousLayer(*this, layer));
+        int material_index = layer.material;
+        if(material_index < 0 || material_index >= input.materials.size()) {
+            throw std::invalid_argument("Material index out of bounds");
+        }
+        layers.push_back(ContinuousLayer(*this, layer, input.materials[material_index]));
     }
 }
 

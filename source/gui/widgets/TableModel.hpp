@@ -1,7 +1,7 @@
 #pragma once
 #include <QAbstractTableModel>
 #include "solver/numerics/EigenTypes.hpp"
-#include "gui/units/UnitGroup.hpp"
+#include "gui/viewmodel/units/UnitGroup.hpp"
 
 class TableModel: public QAbstractTableModel {
     Q_OBJECT

@@ -9,6 +9,7 @@ class InputData;
 struct LayerProperties
 {
     std::string name;
+    std::string color;
     double rho;
     double E;
 
@@ -64,5 +65,5 @@ struct LimbProperties
     LimbProperties(const InputData& input, unsigned n);
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerProperties, name, rho, E, length, He_back, Hk_back, He_belly, Hk_belly)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerProperties, name, color, rho, E, length, He_back, Hk_back, He_belly, Hk_belly)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LimbProperties, length, angle, x_pos, y_pos, width, height, rhoA, Cee, Ckk, Cek, layers)

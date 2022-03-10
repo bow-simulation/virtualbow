@@ -1,7 +1,6 @@
 #pragma once
-#include "gui/viewmodel/properties/DoubleProperty.hpp"
 #include "gui/widgets/propertytree/PropertyTreeItem.hpp"
-#include "gui/units/UnitSystem.hpp"
+#include "gui/viewmodel/units/UnitSystem.hpp"
 #include "gui/utils/DoubleRange.hpp"
 #include <functional>
 

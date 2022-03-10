@@ -4,11 +4,6 @@
 
 class RecentFilesMenu;
 class MainViewModel;
-class DataViewModel;
-class TreeView;
-class PropertyView;
-class PlotView;
-class LimbView;
 
 class QLabel;
 

@@ -10,7 +10,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Material, name, rho, E)
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Dimensions, brace_height, draw_length, handle_length, handle_setback, handle_angle)
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Layer, name, height, rho, E)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Layer, name, material, height)
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Masses, arrow, string_center, string_tip, limb_tip)
 
@@ -77,11 +77,8 @@ std::string InputData::validate() const {
     for(size_t i = 0; i < layers.size(); ++i) {
         const Layer& layer = layers[i];
 
-        if(layer.rho <= 0.0) {
-            return "Layer " + std::to_string(i) + " (" + layer.name + ")" + ": rho must be positive";
-        }
-        if(layer.E <= 0.0) {
-            return "Layer " + std::to_string(i) + " (" + layer.name + ")" + ": E must be positive";
+        if(layer.material < 0 || layer.material >= materials.size()) {
+            return "Layer " + std::to_string(i) + " (" + layer.name + ")" + ": Material index out of bounds";
         }
         if(layer.height.size() < 2) {
             return "Layer " + std::to_string(i) + " (" + layer.name + ")" + ": At least two data points for height are needed";

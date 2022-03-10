@@ -26,8 +26,7 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
     ContinuousLimb limb(input);
 
     std::vector<double> s = linspace(0.0, limb.length(), n);
-    for(size_t i = 0; i < n; ++i)
-    {
+    for(size_t i = 0; i < n; ++i) {
         // Profile
         Vector<3> r = limb.get_r(s[i]);
         length[i] = s[i];
@@ -48,31 +47,33 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
 
         // Layer properties
         auto y = limb.get_y(s[i]);
-        for(size_t j = 0; j < input.layers.size(); ++j)
-        {
+        for(size_t j = 0; j < input.layers.size(); ++j) {
             layers[j].length(i) = s[i];
 
             // Todo: Add method to ContinuousLimb to calculate those
-            layers[j].He_back(i, i) =  input.layers[j].E;
-            layers[j].He_belly(i, i) = input.layers[j].E;
+            auto& material = input.materials.at(input.layers[j].material);
 
-            layers[j].Hk_back(i, i) = -input.layers[j].E*y[j];
-            layers[j].Hk_belly(i, i) = -input.layers[j].E*y[j+1];
+            layers[j].He_back(i, i) =  material.E;
+            layers[j].He_belly(i, i) = material.E;
+
+            layers[j].Hk_back(i, i) = -material.E*y[j];
+            layers[j].Hk_belly(i, i) = -material.E*y[j+1];
         }
     }
 
     // Calculate section masses
-    for(int i = 0; i < n-1; ++i)
-    {
+    for(int i = 0; i < n-1; ++i) {
         m[i] = 0.5*(rhoA(i+1) + rhoA(i))*(length(i+1) - length(i));
     }
 
     // More layer properties
-    for(size_t i = 0; i < input.layers.size(); ++i)
-    {
+    for(size_t i = 0; i < input.layers.size(); ++i) {
+        auto& material = input.materials.at(input.layers[i].material);
+
         layers[i].name = input.layers[i].name;
-        layers[i].rho = input.layers[i].rho;
-        layers[i].E = input.layers[i].E;
+        layers[i].color = material.color;
+        layers[i].rho = material.rho;
+        layers[i].E = material.E;
     }
 
 }

@@ -2,7 +2,7 @@
 #include "OutputWidget.hpp"
 #include "gui/HelpMenu.hpp"
 #include "gui/RecentFilesMenu.hpp"
-#include "gui/units/UnitDialog.hpp"
+#include "gui/UnitDialog.hpp"
 #include "config.hpp"
 #include <QMenuBar>
 #include <QMessageBox>

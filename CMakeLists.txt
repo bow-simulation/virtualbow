@@ -102,42 +102,8 @@ add_executable(
     source/gui/RecentFilesMenu.hpp
     source/gui/SimulationDialog.cpp
     source/gui/SimulationDialog.hpp
-
-    source/gui/viewmodel/MainViewModel.cpp
-    source/gui/viewmodel/MainViewModel.hpp
-    source/gui/viewmodel/DataViewModel.cpp
-    source/gui/viewmodel/DataViewModel.hpp
-
-    source/gui/treeview/TreeView.cpp
-    source/gui/treeview/TreeView.hpp
-    source/gui/treeview/TreeItem.cpp
-    source/gui/treeview/TreeItem.hpp
-    source/gui/treeview/items/CommentTreeItem.cpp
-    source/gui/treeview/items/CommentTreeItem.hpp
-    source/gui/treeview/items/SettingsTreeItem.cpp
-    source/gui/treeview/items/SettingsTreeItem.hpp
-    source/gui/treeview/items/DimensionsTreeItem.cpp
-    source/gui/treeview/items/DimensionsTreeItem.hpp
-    source/gui/treeview/items/MaterialsTreeItem.cpp
-    source/gui/treeview/items/MaterialsTreeItem.hpp
-    source/gui/treeview/items/StringTreeItem.cpp
-    source/gui/treeview/items/StringTreeItem.hpp
-    source/gui/treeview/items/MassesTreeItem.cpp
-    source/gui/treeview/items/MassesTreeItem.hpp
-    source/gui/treeview/items/DampingTreeItem.cpp
-    source/gui/treeview/items/DampingTreeItem.hpp
-    source/gui/treeview/items/WidthTreeItem.cpp
-    source/gui/treeview/items/WidthTreeItem.hpp
-    source/gui/treeview/items/LayersTreeItem.cpp
-    source/gui/treeview/items/LayersTreeItem.hpp
-    source/gui/treeview/items/ProfileTreeItem.cpp
-    source/gui/treeview/items/ProfileTreeItem.hpp
-
-    source/gui/propertyview/PropertyView.cpp
-    source/gui/propertyview/PropertyView.hpp
-
-    source/gui/plotview/PlotView.cpp
-    source/gui/plotview/PlotView.hpp
+    source/gui/UnitDialog.cpp
+    source/gui/UnitDialog.hpp
 
     source/gui/limbview/LayerColors.cpp
     source/gui/limbview/LayerColors.hpp
@@ -149,60 +115,64 @@ add_executable(
     source/gui/limbview/LimbView.hpp
     source/gui/limbview/OpenGLUtils.cpp
     source/gui/limbview/OpenGLUtils.hpp
-    source/gui/modeltree/GroupDialog.cpp
-    source/gui/modeltree/GroupDialog.hpp
-    source/gui/modeltree/ModelTreeEditor.cpp
-    source/gui/modeltree/ModelTreeEditor.hpp
-    source/gui/modeltree/ModelTreeItem.hpp
-    source/gui/modeltree/comment/CommentDialog.cpp
-    source/gui/modeltree/comment/CommentDialog.hpp
-    source/gui/modeltree/damping/DampingDialog.cpp
-    source/gui/modeltree/damping/DampingDialog.hpp
-    source/gui/modeltree/dimensions/DimensionsDialog.cpp
-    source/gui/modeltree/dimensions/DimensionsDialog.hpp
-    source/gui/modeltree/layers/LayerDialog.cpp
-    source/gui/modeltree/layers/LayerDialog.hpp
-    source/gui/modeltree/layers/LayerEditor.cpp
-    source/gui/modeltree/layers/LayerEditor.hpp
-    source/gui/modeltree/masses/MassesDialog.cpp
-    source/gui/modeltree/masses/MassesDialog.hpp
-    source/gui/modeltree/profile/ProfileDialog.cpp
-    source/gui/modeltree/profile/ProfileDialog.hpp
-    source/gui/modeltree/profile/ProfileEditor.cpp
-    source/gui/modeltree/profile/ProfileEditor.hpp
-    source/gui/modeltree/profile/ProfileTreeView.cpp
-    source/gui/modeltree/profile/ProfileTreeView.hpp
-    source/gui/modeltree/profile/ProfileSegmentView.cpp
-    source/gui/modeltree/profile/ProfileSegmentView.hpp
-    source/gui/modeltree/profile/ProfileTreeModel.cpp
-    source/gui/modeltree/profile/ProfileTreeModel.hpp
-    source/gui/modeltree/profile/ProfileView.cpp
-    source/gui/modeltree/profile/ProfileView.hpp
-    source/gui/modeltree/profile/SegmentEditor.hpp
-    source/gui/modeltree/profile/segments/PropertyValueEditor.cpp
-    source/gui/modeltree/profile/segments/PropertyValueEditor.hpp
-    source/gui/modeltree/profile/segments/LineSegmentEditor.cpp
-    source/gui/modeltree/profile/segments/LineSegmentEditor.hpp
-    source/gui/modeltree/profile/segments/ArcSegmentEditor.cpp
-    source/gui/modeltree/profile/segments/ArcSegmentEditor.hpp
-    source/gui/modeltree/profile/segments/SpiralSegmentEditor.cpp
-    source/gui/modeltree/profile/segments/SpiralSegmentEditor.hpp
-    source/gui/modeltree/profile/segments/SplineSegmentEditor.cpp
-    source/gui/modeltree/profile/segments/SplineSegmentEditor.hpp
-    source/gui/modeltree/settings/SettingsDialog.cpp
-    source/gui/modeltree/settings/SettingsDialog.hpp
-    source/gui/modeltree/string/StringDialog.cpp
-    source/gui/modeltree/string/StringDialog.hpp
-    source/gui/modeltree/width/WidthDialog.cpp
-    source/gui/modeltree/width/WidthDialog.hpp
-    source/gui/units/Unit.cpp
-    source/gui/units/Unit.hpp
-    source/gui/units/UnitDialog.cpp
-    source/gui/units/UnitDialog.hpp
-    source/gui/units/UnitGroup.cpp
-    source/gui/units/UnitGroup.hpp
-    source/gui/units/UnitSystem.cpp
-    source/gui/units/UnitSystem.hpp
+
+    source/gui/viewmodel/MainViewModel.cpp
+    source/gui/viewmodel/MainViewModel.hpp
+    source/gui/viewmodel/DataViewModel.cpp
+    source/gui/viewmodel/DataViewModel.hpp
+    source/gui/viewmodel/units/Unit.cpp
+    source/gui/viewmodel/units/Unit.hpp
+    source/gui/viewmodel/units/UnitGroup.cpp
+    source/gui/viewmodel/units/UnitGroup.hpp
+    source/gui/viewmodel/units/UnitSystem.cpp
+    source/gui/viewmodel/units/UnitSystem.hpp
+
+    source/gui/treedock/TreeDock.cpp
+    source/gui/treedock/TreeDock.hpp
+    source/gui/treedock/TreeItem.cpp
+    source/gui/treedock/TreeItem.hpp
+    source/gui/treedock/items/CommentTreeItem.cpp
+    source/gui/treedock/items/CommentTreeItem.hpp
+    source/gui/treedock/items/SettingsTreeItem.cpp
+    source/gui/treedock/items/SettingsTreeItem.hpp
+    source/gui/treedock/items/DimensionsTreeItem.cpp
+    source/gui/treedock/items/DimensionsTreeItem.hpp
+    source/gui/treedock/items/MaterialsTreeItem.cpp
+    source/gui/treedock/items/MaterialsTreeItem.hpp
+    source/gui/treedock/items/StringTreeItem.cpp
+    source/gui/treedock/items/StringTreeItem.hpp
+    source/gui/treedock/items/MassesTreeItem.cpp
+    source/gui/treedock/items/MassesTreeItem.hpp
+    source/gui/treedock/items/DampingTreeItem.cpp
+    source/gui/treedock/items/DampingTreeItem.hpp
+    source/gui/treedock/items/WidthTreeItem.cpp
+    source/gui/treedock/items/WidthTreeItem.hpp
+    source/gui/treedock/items/LayersTreeItem.cpp
+    source/gui/treedock/items/LayersTreeItem.hpp
+    source/gui/treedock/items/ProfileTreeItem.cpp
+    source/gui/treedock/items/ProfileTreeItem.hpp
+
+    source/gui/editdock/EditDock.cpp
+    source/gui/editdock/EditDock.hpp
+    source/gui/editdock/editors/SegmentEditor.hpp
+    source/gui/editdock/editors/LineSegmentEditor.cpp
+    source/gui/editdock/editors/LineSegmentEditor.hpp
+    source/gui/editdock/editors/ArcSegmentEditor.cpp
+    source/gui/editdock/editors/ArcSegmentEditor.hpp
+    source/gui/editdock/editors/SpiralSegmentEditor.cpp
+    source/gui/editdock/editors/SpiralSegmentEditor.hpp
+    source/gui/editdock/editors/SplineSegmentEditor.cpp
+    source/gui/editdock/editors/SplineSegmentEditor.hpp
+    source/gui/editdock/editors/PropertyValueEditor.cpp
+    source/gui/editdock/editors/PropertyValueEditor.hpp
+
+    source/gui/plotdock/PlotDock.cpp
+    source/gui/plotdock/PlotDock.hpp
+    source/gui/plotdock/plots/ProfileView.cpp
+    source/gui/plotdock/plots/ProfileView.hpp
+    source/gui/plotdock/plots/SplineView.cpp
+    source/gui/plotdock/plots/SplineView.hpp
+
     source/gui/utils/DoubleRange.cpp
     source/gui/utils/DoubleRange.hpp
     source/gui/widgets/DialogBase.cpp
@@ -221,8 +191,7 @@ add_executable(
     source/gui/widgets/PlotOverlayDialog.hpp
     source/gui/widgets/PlotWidget.cpp
     source/gui/widgets/PlotWidget.hpp
-    source/gui/widgets/SplineView.cpp
-    source/gui/widgets/SplineView.hpp
+
     source/gui/widgets/TableDelegate.cpp
     source/gui/widgets/TableDelegate.hpp
     source/gui/widgets/TableEditor.hpp
@@ -276,16 +245,16 @@ add_executable(
     source/gui/KeyEventFilter.hpp
     source/gui/RecentFilesMenu.cpp
     source/gui/RecentFilesMenu.hpp
+    source/gui/UnitDialog.cpp
+    source/gui/UnitDialog.hpp
     source/gui/limbview/LayerColors.cpp
     source/gui/limbview/LayerColors.hpp
-    source/gui/units/Unit.cpp
-    source/gui/units/Unit.hpp
-    source/gui/units/UnitDialog.cpp
-    source/gui/units/UnitDialog.hpp
-    source/gui/units/UnitGroup.cpp
-    source/gui/units/UnitGroup.hpp
-    source/gui/units/UnitSystem.cpp
-    source/gui/units/UnitSystem.hpp
+    source/gui/viewmodel/units/Unit.cpp
+    source/gui/viewmodel/units/Unit.hpp
+    source/gui/viewmodel/units/UnitGroup.cpp
+    source/gui/viewmodel/units/UnitGroup.hpp
+    source/gui/viewmodel/units/UnitSystem.cpp
+    source/gui/viewmodel/units/UnitSystem.hpp
     source/gui/widgets/DialogBase.cpp
     source/gui/widgets/DialogBase.hpp
     source/gui/widgets/PlotOverlayDialog.cpp

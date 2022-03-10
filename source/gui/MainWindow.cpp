@@ -2,13 +2,13 @@
 #include "SimulationDialog.hpp"
 #include "RecentFilesMenu.hpp"
 #include "HelpMenu.hpp"
-#include "treeview/TreeView.hpp"
-#include "propertyview/PropertyView.hpp"
-#include "plotview/PlotView.hpp"
+#include "treedock/TreeDock.hpp"
+#include "editdock/EditDock.hpp"
+#include "plotdock/PlotDock.hpp"
 #include "limbview/LimbView.hpp"
 #include "viewmodel/MainViewModel.hpp"
 #include "viewmodel/DataViewModel.hpp"
-#include "gui/units/UnitDialog.hpp"
+#include "gui/UnitDialog.hpp"
 #include "config.hpp"
 
 #include <QMenuBar>
@@ -19,8 +19,8 @@
 #include <QApplication>
 
 MainWindow::MainWindow()
-    : menu_open_recent(new RecentFilesMenu(this)),
-      view_model(new MainViewModel())
+    : view_model(new MainViewModel()),
+      menu_open_recent(new RecentFilesMenu(this))
 {
     // Actions
     auto action_new = new QAction(QIcon(":/icons/document-new.svg"), "&New", this);
@@ -114,17 +114,18 @@ MainWindow::MainWindow()
     this->setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-    auto tree_view = new TreeView(view_model->dataModel());
-    auto property_view = new PropertyView();  // TODO: Rename
-    auto plot_view = new PlotView();
+    auto limb_view = new LimbView(view_model->dataModel());
+    auto tree_dock = new TreeDock(view_model->dataModel());
+    auto edit_dock = new EditDock();
+    auto plot_dock = new PlotDock();
 
-    QObject::connect(tree_view, &TreeView::currentEditorChanged, property_view, &PropertyView::showEditor);
-    QObject::connect(tree_view, &TreeView::currentPlotChanged, plot_view, &PlotView::showPlot);
+    QObject::connect(tree_dock, &TreeDock::currentEditorChanged, edit_dock, &EditDock::showEditor);
+    QObject::connect(tree_dock, &TreeDock::currentPlotChanged, plot_dock, &PlotDock::showPlot);
 
-    this->addDockWidget(Qt::LeftDockWidgetArea, tree_view);
-    this->addDockWidget(Qt::LeftDockWidgetArea, property_view);
-    this->addDockWidget(Qt::BottomDockWidgetArea, plot_view);
-    this->setCentralWidget(new LimbView(view_model->dataModel()));
+    this->setCentralWidget(limb_view);
+    this->addDockWidget(Qt::LeftDockWidgetArea, tree_dock);
+    this->addDockWidget(Qt::LeftDockWidgetArea, edit_dock);
+    this->addDockWidget(Qt::BottomDockWidgetArea, plot_dock);
 
     // Connect window file path to view model
     this->setWindowFilePath(view_model->displayPath());
