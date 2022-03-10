@@ -1,5 +1,5 @@
 #include "NumberGrid.hpp"
-#include "gui/units/UnitGroup.hpp"
+#include "gui/viewmodel/units/UnitGroup.hpp"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGridLayout>

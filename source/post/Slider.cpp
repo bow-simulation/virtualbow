@@ -1,5 +1,5 @@
 #include "Slider.hpp"
-#include "gui/units/UnitGroup.hpp"
+#include "gui/viewmodel/units/UnitGroup.hpp"
 #include <QLineEdit>
 #include <QDoubleValidator>
 #include <QToolButton>

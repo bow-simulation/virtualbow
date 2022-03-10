@@ -1,6 +1,6 @@
 #pragma once
 #include "solver/numerics/EigenTypes.hpp"
-#include "gui/units/UnitGroup.hpp"
+#include "gui/viewmodel/units/UnitGroup.hpp"
 #include "TableView.hpp"
 #include "TableModel.hpp"
 #include "TableSpinner.hpp"

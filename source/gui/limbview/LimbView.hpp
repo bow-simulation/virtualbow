@@ -35,8 +35,8 @@ private:
     const float ROT_SPEED = 0.15f;
 
 public:
-    LimbView(const DataViewModel* model);
-    void setData(const InputData& data);
+    LimbView(DataViewModel* model);
+    void updateView();
 
     void viewProfile();
     void viewTop();
@@ -51,6 +51,7 @@ private:
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent* event) override;
 
+    DataViewModel* model;
     LayerLegend* legend;
 
     QPoint mouse_pos;

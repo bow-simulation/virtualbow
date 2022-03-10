@@ -1,5 +1,5 @@
 #include "TableDelegate.hpp"
-#include "gui/units/UnitDialog.hpp"
+#include "gui/UnitDialog.hpp"
 
 TableDelegate::TableDelegate(const TableSpinnerOptions& options, QObject* parent)
     : QStyledItemDelegate(parent),

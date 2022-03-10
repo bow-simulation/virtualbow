@@ -17,8 +17,9 @@
 #include <QLabel>
 #include <QDate>
 
-LimbView::LimbView(const DataViewModel* model)
-    : legend(new LayerLegend()),
+LimbView::LimbView(DataViewModel* model)
+    : model(model),
+      legend(new LayerLegend()),
       background_shader(nullptr),
       model_shader(nullptr)
 {
@@ -110,13 +111,18 @@ LimbView::LimbView(const DataViewModel* model)
     viewSymmetric(false);
     view3D();
 
-    setData(InputData());
+    // Update on changes to the model
+    QObject::connect(model, &DataViewModel::dimensionsModified, this, &LimbView::updateView);
+    QObject::connect(model, &DataViewModel::materialsModified, this, &LimbView::updateView);
+    QObject::connect(model, &DataViewModel::layersModified, this, &LimbView::updateView);
+    QObject::connect(model, &DataViewModel::profileModified, this, &LimbView::updateView);
+    QObject::connect(model, &DataViewModel::widthModified, this, &LimbView::updateView);
 }
 
-void LimbView::setData(const InputData& data) {
-    legend->setData(data.layers);
+void LimbView::updateView() {
+    legend->setData(model->getLayers(), model->getMaterials());
 
-    LimbMesh mesh(data);
+    LimbMesh mesh(model->getData());
     limb_right = std::make_unique<Model>(mesh.faces_right);
     limb_left = std::make_unique<Model>(mesh.faces_left);
 

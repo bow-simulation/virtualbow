@@ -14,7 +14,7 @@ LimbMesh::LimbMesh(const InputData& input)
         std::vector<double> lengths = getEvalLengths(limb, 1000);    // Magic number
 
         size_t n_layers = limb.get_layers().size();
-        size_t n_segments = lengths.size()-1;
+        size_t n_segments = lengths.size() - 1;
 
         // Transition points between layers at the left and right of the previous and next cross section
         std::vector<QVector3D> points_l_prev(n_layers+1);
@@ -24,7 +24,7 @@ LimbMesh::LimbMesh(const InputData& input)
 
         std::vector<QColor> colors(n_layers);
         for(size_t i = 0; i < n_layers; ++i) {
-            colors[i] = getLayerColor(input.layers[i]);
+            colors[i] = getLayerColor(input.layers[i], input.materials);
         }
 
         // Iterate over segments, i.e. pairs of a previous and a next cross section

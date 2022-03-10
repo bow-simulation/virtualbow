@@ -11,7 +11,7 @@ class ContinuousLimb;
 class ContinuousLayer
 {
 public:
-    ContinuousLayer(const ContinuousLimb& limb, const Layer& layer);
+    ContinuousLayer(const ContinuousLimb& limb, const Layer& layer, const Material& material);
 
     double s_min() const;
     double s_max() const;

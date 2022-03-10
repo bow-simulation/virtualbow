@@ -10,9 +10,9 @@ StressPlot::StressPlot(const LimbProperties& limb, const BowStates& states)
 {
     this->setupTopLegend();
 
-    for(int i = 0; i < limb.layers.size(); ++i) {
+    for(size_t i = 0; i < limb.layers.size(); ++i) {
         QString name = QString::fromStdString(limb.layers[i].name);
-        QColor layer_color = (limb.layers.size() > 1) ? getLayerColor(limb.layers[i]) : QColor(Qt::blue);
+        QColor layer_color = (limb.layers.size() > 1) ? QColor(QString::fromStdString(limb.layers[i].color)) : QColor(Qt::blue);
         QColor line_color = QColor::fromHsv(layer_color.hue(), 220, 220);    // Modify saturation and value to make colors better distinguishable
 
         this->addGraph();

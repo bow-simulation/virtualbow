@@ -1,6 +1,6 @@
 #pragma once
 #include "gui/widgets/PlotWidget.hpp"
-#include "gui/units/UnitGroup.hpp"
+#include "gui/viewmodel/units/UnitGroup.hpp"
 #include "solver/model/output/OutputData.hpp"
 
 class ComboPlot: public QWidget {

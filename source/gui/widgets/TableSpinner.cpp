@@ -1,5 +1,5 @@
 #include "TableSpinner.hpp"
-#include "gui/units/UnitGroup.hpp"
+#include "gui/viewmodel/units/UnitGroup.hpp"
 #include <limits>
 
 TableSpinner::TableSpinner(const TableSpinnerOptions& options, QWidget* parent)

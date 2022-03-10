@@ -1,9 +1,6 @@
 #pragma once
 #include <QObject>
 #include "solver/model/input/InputData.hpp"
-#include "properties/DoubleProperty.hpp"
-#include "properties/IntegerProperty.hpp"
-#include "properties/StringProperty.hpp"
 
 class DataViewModel: public QObject
 {
