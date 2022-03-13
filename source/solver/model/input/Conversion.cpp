@@ -39,10 +39,18 @@ void Conversion::to_current(json& obj) {
     }
 
     if(obj.at("version") == "0.8") {
+        convert_0_8_0_to_0_9_0(obj);
+    }
+
+    if(obj.at("version") == "0.9") {
         return;
     }
 
     throw std::runtime_error("Version not recognized.");
+}
+
+void Conversion::convert_0_8_0_to_0_9_0(json& obj) {
+    throw std::runtime_error("Conversion from 0.8 to 0.9 not yet implemented");
 }
 
 void Conversion::convert_0_7_1_to_0_8_0(json& obj) {
