@@ -6,7 +6,7 @@
 
 class DataViewModel;
 class InputData;
-class LayerLegend;
+class MaterialLegend;
 class QOpenGLShaderProgram;
 class Model;
 
@@ -52,7 +52,7 @@ private:
     void wheelEvent(QWheelEvent* event) override;
 
     DataViewModel* model;
-    LayerLegend* legend;
+    MaterialLegend* legend;
 
     QPoint mouse_pos;
     float shift_x;

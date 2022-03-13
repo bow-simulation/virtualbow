@@ -1,6 +1,6 @@
 #include "LimbView.hpp"
 #include "LimbMesh.hpp"
-#include "LayerLegend.hpp"
+#include "MaterialLegend.hpp"
 #include "LayerColors.hpp"
 #include "OpenGLUtils.hpp"
 #include "gui/viewmodel/DataViewModel.hpp"
@@ -19,7 +19,7 @@
 
 LimbView::LimbView(DataViewModel* model)
     : model(model),
-      legend(new LayerLegend()),
+      legend(new MaterialLegend()),
       background_shader(nullptr),
       model_shader(nullptr)
 {
@@ -120,7 +120,7 @@ LimbView::LimbView(DataViewModel* model)
 }
 
 void LimbView::updateView() {
-    legend->setData(model->getLayers(), model->getMaterials());
+    legend->setData(model->getMaterials());
 
     LimbMesh mesh(model->getData());
     limb_right = std::make_unique<Model>(mesh.faces_right);

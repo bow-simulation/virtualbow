@@ -29,6 +29,7 @@ void ProfileTreeItem::updateModel() {
             profile.push_back(item->getSegment());
         }
     }
+
     model->setProfile(profile);
     updatePlot();
 }
@@ -75,7 +76,7 @@ SegmentTreeItem::SegmentTreeItem(const SegmentInput& input)
 }
 
 SegmentInput SegmentTreeItem::getSegment() const {
-    return SegmentInput();
+    return static_cast<SegmentEditor*>(editor)->getData();
 }
 
 /*

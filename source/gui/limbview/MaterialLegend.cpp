@@ -1,9 +1,9 @@
-#include "LayerLegend.hpp"
+#include "MaterialLegend.hpp"
 #include "LayerColors.hpp"
 #include <QLabel>
 #include <QHBoxLayout>
 
-LayerEntry::LayerEntry()
+MaterialEntry::MaterialEntry()
     : symbol(new QLabel()),
       label(new QLabel())
 {
@@ -21,32 +21,32 @@ LayerEntry::LayerEntry()
     this->setLayout(hbox);
 }
 
-void LayerEntry::setData(const Layer& layer, const std::vector<Material>& materials) {
-    symbol->setPixmap(getLayerPixmap(layer, materials, 24));
-    label->setText(QString::fromStdString(layer.name));
+void MaterialEntry::setData(const Material& material) {
+    symbol->setPixmap(getColorPixmap(QColor(QString::fromStdString(material.color)), 24));
+    label->setText(QString::fromStdString(material.name));
 }
 
-LayerLegend::LayerLegend()
+MaterialLegend::MaterialLegend()
     : vbox(new QVBoxLayout())
 {
     vbox->setSpacing(2);
     this->setLayout(vbox);
 }
 
-void LayerLegend::setData(const std::vector<Layer>& layers, const std::vector<Material>& materials) {
-    while(vbox->count() < layers.size()) {
-        vbox->addWidget(new LayerEntry());
+void MaterialLegend::setData(const std::vector<Material>& materials) {
+    while(vbox->count() < materials.size()) {
+        vbox->addWidget(new MaterialEntry());
     }
 
-    while(vbox->count() > layers.size()) {
+    while(vbox->count() > materials.size()) {
         QWidget* widget = vbox->takeAt(0)->widget();
         widget->setParent(nullptr);
         widget->deleteLater();
     }
 
     for(int i = 0; i < vbox->count(); ++i) {
-        LayerEntry* layer = dynamic_cast<LayerEntry*>(vbox->itemAt(i)->widget());
-        layer->setData(layers[i], materials);
+        MaterialEntry* entry = dynamic_cast<MaterialEntry*>(vbox->itemAt(i)->widget());
+        entry->setData(materials[i]);
     }
 
     vbox->update();

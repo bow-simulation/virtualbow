@@ -115,16 +115,12 @@ void LayerTreeItem::updateCombo() {
     QSignalBlocker blocker(combo);
     QString selected = combo->currentText();
 
-    qInfo() << "Selected: " << selected;
-
     combo->clear();
     for(auto& material: model->getMaterials()) {
         combo->addItem(QString::fromStdString(material.name));
     }
 
     combo->setCurrentText(selected);
-
-    qInfo() << "After: " << combo->currentText();
 }
 
 void LayerTreeItem::updatePlot() {

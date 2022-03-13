@@ -62,26 +62,13 @@ struct InputData {
             .name = "Material A",
             .rho = 675.0,
             .E = 12e9,
-        },
-        Material {
-            .name = "Material B",
-            .rho = 675.0,
-            .E = 12e9,
-        },
-        Material {
-            .name = "Material C",
-            .rho = 675.0,
-            .E = 12e9,
         }
     };
 
     Dimensions dimensions;
 
     ProfileInput profile {
-        SplineInput {{ 0.0, 0.0 }, { 1.0, 0.1 }, { 2.0, 0.4 }, { 3.0, 0.9 }},
-        LineInput {{LineConstraint::LENGTH, 1.0}},
-        ArcInput {{ArcConstraint::LENGTH, 1.0}, {ArcConstraint::K_START, 0.0}},
-        SpiralInput {{SpiralConstraint::LENGTH, 1.0}, {SpiralConstraint::K_START, 0.0}, {SpiralConstraint::K_END, 0.0}}
+        SplineInput {{ 0.0, 0.0 }, { 0.267, 0.01 }, { 0.533, 0.04 }, { 0.8, 0.1 }}
     };
 
     std::vector<Vector<2>> width{{0.0, 0.06}, {0.5, 0.03}, {1.0, 0.01}};
