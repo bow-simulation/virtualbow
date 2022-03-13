@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Parameters
 
 set(APPLICATION_NAME "VirtualBow")
-set(APPLICATION_VERSION "0.8")
+set(APPLICATION_VERSION "0.9")
 set(APPLICATION_WEBSITE "https://www.virtualbow.org")
 set(APPLICATION_MAINTAINER "Stefan Pfeifer")
 set(APPLICATION_COPYRIGHT "Copyright (C) 2016-2021 Stefan Pfeifer")
