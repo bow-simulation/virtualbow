@@ -107,8 +107,8 @@ add_executable(
 
     source/gui/limbview/LayerColors.cpp
     source/gui/limbview/LayerColors.hpp
-    source/gui/limbview/LayerLegend.cpp
-    source/gui/limbview/LayerLegend.hpp
+    source/gui/limbview/MaterialLegend.cpp
+    source/gui/limbview/MaterialLegend.hpp
     source/gui/limbview/LimbMesh.cpp
     source/gui/limbview/LimbMesh.hpp
     source/gui/limbview/LimbView.cpp
