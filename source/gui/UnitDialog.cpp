@@ -1,4 +1,5 @@
 #include "UnitDialog.hpp"
+#include "gui/utils/UserSettings.hpp"
 #include <QLabel>
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -84,7 +85,7 @@ UnitDialog::UnitDialog(QWidget* parent)
     buttons->addButton(button_si, QDialogButtonBox::ResetRole);
     buttons->addButton(button_us, QDialogButtonBox::ResetRole);
     QObject::connect(buttons, &QDialogButtonBox::clicked, [&, buttons](QAbstractButton* button){
-        QSettings settings;
+        UserSettings settings;
         switch(buttons->standardButton(button)) {
         case QDialogButtonBox::Ok:
             accept();

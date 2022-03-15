@@ -3,7 +3,9 @@
 #include "gui/HelpMenu.hpp"
 #include "gui/RecentFilesMenu.hpp"
 #include "gui/UnitDialog.hpp"
+#include "gui/utils/UserSettings.hpp"
 #include "config.hpp"
+
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QFileDialog>
@@ -61,7 +63,7 @@ MainWindow::MainWindow()
     this->resize(INITIAL_SIZE);
 
     // Load geometry and state
-    QSettings settings;
+    UserSettings settings;
     restoreState(settings.value("OutputWindow/state").toByteArray());
     restoreGeometry(settings.value("OutputWindow/geometry").toByteArray());
 
@@ -74,7 +76,7 @@ MainWindow::MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event) {
     // Save state and geometry
-    QSettings settings;
+    UserSettings settings;
     settings.setValue("OutputWindow/state", saveState());
     settings.setValue("OutputWindow/geometry", saveGeometry());
 }
