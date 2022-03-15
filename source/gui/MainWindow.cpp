@@ -8,7 +8,8 @@
 #include "limbview/LimbView.hpp"
 #include "viewmodel/MainViewModel.hpp"
 #include "viewmodel/DataViewModel.hpp"
-#include "gui/UnitDialog.hpp"
+#include "utils/UserSettings.hpp"
+#include "UnitDialog.hpp"
 #include "config.hpp"
 
 #include <QMenuBar>
@@ -140,7 +141,7 @@ MainWindow::MainWindow()
     this->resize({1000, 600});    // Initial size, overwritten by stored window geometry if present
 
     // Load geometry and state
-    QSettings settings;
+    UserSettings settings;
     restoreState(settings.value("MainWindow/state").toByteArray());
     restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
 
@@ -183,7 +184,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     if(optionalSaveModifications()) {
         // Changes successfully saved or discarded
         // Continue closing, save window state and geometry
-        QSettings settings;
+        UserSettings settings;
         settings.setValue("MainWindow/state", saveState());
         settings.setValue("MainWindow/geometry", saveGeometry());
         event->accept();

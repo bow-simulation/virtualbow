@@ -6,6 +6,7 @@
 #include "EnergyPlot.hpp"
 #include "ComboPlot.hpp"
 #include "Slider.hpp"
+#include "gui/utils/UserSettings.hpp"
 
 OutputWidget::OutputWidget(const OutputData& data)
     : data(data),
@@ -52,7 +53,7 @@ OutputWidget::OutputWidget(const OutputData& data)
     this->setLayout(vbox);
     this->setAutoFillBackground(true);
 
-    QSettings settings;
+    UserSettings settings;
     int mode = settings.value("OutputWidget/selectedMode", int(enable_dynamics)).toInt();
 
     bool statics_checked = (mode == 0 || !enable_dynamics);
@@ -61,7 +62,7 @@ OutputWidget::OutputWidget(const OutputData& data)
 }
 
 OutputWidget::~OutputWidget() {
-    QSettings settings;
+    UserSettings settings;
     if(button_statics->isChecked()) {
         settings.setValue("OutputWidget/selectedMode", 0);
     }
@@ -147,12 +148,12 @@ StaticOutputWidget::StaticOutputWidget(const OutputData& data)
     vbox->addWidget(tabs);
     vbox->addWidget(slider);
 
-    QSettings settings;
+    UserSettings settings;
     tabs->setCurrentIndex(settings.value("StaticOutputWidget/selectedTab", tabs->currentIndex()).toInt());
 }
 
 StaticOutputWidget::~StaticOutputWidget() {
-    QSettings settings;
+    UserSettings settings;
     settings.setValue("StaticOutputWidget/selectedTab", tabs->currentIndex());
 }
 
@@ -225,11 +226,11 @@ DynamicOutputWidget::DynamicOutputWidget(const OutputData& data)
     vbox->addWidget(tabs);
     vbox->addWidget(slider);
 
-    QSettings settings;
+    UserSettings settings;
     tabs->setCurrentIndex(settings.value("DynamicOutputWidget/selectedTab", tabs->currentIndex()).toInt());
 }
 
 DynamicOutputWidget::~DynamicOutputWidget() {
-    QSettings settings;
+    UserSettings settings;
     settings.setValue("DynamicOutputWidget/selectedTab", tabs->currentIndex());
 }

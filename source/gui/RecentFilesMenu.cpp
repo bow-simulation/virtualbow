@@ -1,6 +1,6 @@
 #include "RecentFilesMenu.hpp"
+#include "gui/utils/UserSettings.hpp"
 
-#include <QSettings>
 #include <QFileInfo>
 
 RecentFilesMenu::RecentFilesMenu(QWidget* parent)
@@ -28,7 +28,7 @@ RecentFilesMenu::RecentFilesMenu(QWidget* parent)
     this->addAction(action_clear);
 
     // Read initial paths from settings
-    QSettings settings;
+    UserSettings settings;
     int size = settings.beginReadArray("MainWindow/recentFiles");
     for(int i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
@@ -39,7 +39,7 @@ RecentFilesMenu::RecentFilesMenu(QWidget* parent)
 
 RecentFilesMenu::~RecentFilesMenu() {
     // Save recent paths to settings
-    QSettings settings;
+    UserSettings settings;
     settings.beginWriteArray("MainWindow/recentFiles");
     for(int i = 0; i < recentFilePaths.size(); ++i) {
         settings.setArrayIndex(i);

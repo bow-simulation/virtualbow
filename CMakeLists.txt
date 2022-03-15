@@ -175,6 +175,9 @@ add_executable(
 
     source/gui/utils/DoubleRange.cpp
     source/gui/utils/DoubleRange.hpp
+    source/gui/utils/UserSettings.cpp
+    source/gui/utils/UserSettings.hpp
+
     source/gui/widgets/DialogBase.cpp
     source/gui/widgets/DialogBase.hpp
     source/gui/widgets/DoubleEditor.cpp
@@ -247,6 +250,8 @@ add_executable(
     source/gui/RecentFilesMenu.hpp
     source/gui/UnitDialog.cpp
     source/gui/UnitDialog.hpp
+    source/gui/utils/UserSettings.cpp
+    source/gui/utils/UserSettings.hpp
     source/gui/limbview/LayerColors.cpp
     source/gui/limbview/LayerColors.hpp
     source/gui/viewmodel/units/Unit.cpp
