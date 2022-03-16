@@ -12,7 +12,7 @@ namespace Eigen {
         object = json::array();
         for(size_t i = 0; i < matrix.rows(); ++i) {
             object.push_back(json::array());
-            for(size_t j = 0; j < matrix.cols(); ++i) {
+            for(size_t j = 0; j < matrix.cols(); ++j) {
                 object[i][j] = matrix(i, j);
             }
         }
