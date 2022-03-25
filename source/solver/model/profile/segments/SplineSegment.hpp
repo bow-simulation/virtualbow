@@ -1,7 +1,7 @@
 #pragma once
 #include "solver/model/profile/ProfileSegment.hpp"
 #include "solver/numerics/EigenSerialize.hpp"
-#include "solver/numerics/tkspline/spline.h"
+#include "solver/numerics/CubicSpline.hpp"
 #include <vector>
 
 using SplineInput = std::vector<Vector<2>>;
@@ -18,7 +18,7 @@ public:
     Vector<2> position(double s) const override;
 
 private:
-    tk::spline spline_t;    // t(s)
-    tk::spline spline_x;    // x(t)
-    tk::spline spline_y;    // y(t)
+    CubicSpline spline_t;    // t(s)
+    CubicSpline spline_x;    // x(t)
+    CubicSpline spline_y;    // y(t)
 };

@@ -26,14 +26,12 @@ inline size_t find_interval(const std::vector<T>& data, const F& map, double val
 // Returns an index i such that x[i] <= value <= x[i+1].
 // Requires x to be sorted. If the value is out of bounds, the index of the first or last interval is returned, respectively.
 // Uses a linear search starting with an optional initial guess.
-inline size_t find_interval(const std::vector<double>& x, double value, size_t start = 0)
-{
+inline size_t find_interval(const std::vector<double>& x, double value, size_t start = 0) {
     return find_interval(x, [](double x){ return x; }, value, start);
 }
 
 // Copypasta for VectorXd. Todo: Include this case in version above.
-inline size_t find_interval(const VectorXd& data, double value, size_t start)
-{
+inline size_t find_interval(const VectorXd& data, double value, size_t start) {
     assert(std::is_sorted(data.begin(), data.end()));
 
     start = clamp<size_t>(start, 0, data.size() - 1);

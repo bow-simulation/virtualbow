@@ -16,10 +16,9 @@ Building VirtualBow requires CMake, a C++17 compiler and the following external 
 * [Json](https://github.com/nlohmann/json)
 * [NLopt](https://github.com/stevengj/nlopt)
 
-The following dependencies are included directly in the source code:
+The following dependencies are already included by source code:
 
 * [QCustomPlot](https://www.qcustomplot.com/)
-* [tk::spline](https://kluge.in-chemnitz.de/opensource/spline/)
 
 Optional pre-built dependencies for the supported platforms and compilers are available at [virtualbow-dependencies](https://github.com/bow-simulation/virtualbow-dependencies/releases).
 They each contain a file named `paths.cmake` that will set up the `CMAKE_PREFIX_PATH` such that the correct libraries are found by CMake.

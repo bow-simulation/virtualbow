@@ -84,3 +84,156 @@ And finally, with equations (\ref{eq:viscoelastic-bar-result-zeta}) and (\ref{eq
 \begin{equation}
 \zeta = \frac{\pi(2k - 1)}{4L}\cdot\frac{\eta A}{\sqrt{\rho A \cdot EA}},\quad k \in \mathbb{Z}.
 \end{equation}
+
+\chapter{Cubic Spline Interpolation}
+
+Cubic splines are used to define some of the geometric features of the bow, namely the profile curve, width and layer heights.
+
+\section{Cubic $C^2$ Spline}
+
+Consider $n$ points $(x_{0},\,y_{0}) \ldots (x_{n-1},\,y_{n-1})$ with increasing values of $x$.
+We define the differences $\Delta x_{i} = x_{i+1} - x_{i}$ and $\Delta y_{i} = y_{i+1} - y_{i}$ as well as the slope $\delta_{i} = \Delta y_{i} / \Delta x_{i}$ of the secant line between two successive points.
+
+For each interval $x \in [x_{i},\,x_{i+1}]$ the data is interpolated by the cubic polynomial
+%
+\begin{align}
+f_{i}(x) &= h_{00}(t)\,y_{i} + h_{10}(t)\Delta x_{i}\,m_{i} + h_{01}(t)\,y_{i+1} + h_{11}(t)\Delta x_{i}\,m_{i+1} \\
+f_{i}'(x) &= \frac{h_{00}'(t)}{\Delta x_{i}}\,y_{i} + h_{10}'(t)\,m_{i} + \frac{h_{01}'(t)}{\Delta x_{i}}\,y_{i+1} + h_{11}'(t)\,m_{i+1} \\
+f_{i}''(x) &= \frac{h_{00}''(t)}{\Delta x_{i}^2}\,y_{i} + \frac{h_{10}''(t)}{\Delta x_{i}}\,m_{i} + \frac{h_{01}''(t)}{\Delta x_{i}^2}\,y_{i+1} + \frac{h_{11}''(t)}{\Delta x_{i}}\,m_{i+1}
+\end{align}
+%
+where $y_{i}$, $y_{i+1}$ and $m_{i}$, $m_{i+1}$ are the values and slopes at the interval boundaries, respectively and $h_{00}(t)\,\ldots\,h_{11}(t)$ are the hermite basis functions, defined as
+%
+\begin{equation}
+\begin{aligned}
+h_{00}(t) &= 2\,t^3 - 3\,t^2 + 1 \\
+h_{10}(t) &= t^3 - 2\,t^2 + t \\
+h_{01}(t) &= -2\,t^3 + 3\,t^2 \\
+h_{11}(t) &= t^3 - t^2
+\end{aligned}
+\quad
+\begin{aligned}
+h_{00}'(t) &= 6\,t^2 - 6\,t \\
+h_{10}'(t) &= 3\,t^2 - 4\,t + 1 \\
+h_{01}'(t) &= -6\,t^2 + 6\,t \\
+h_{11}'(t) &= 3\,t^2 - 2\,t
+\end{aligned}
+\quad
+\begin{aligned}
+h_{00}''(t) &= 12\,t - 6 \\
+h_{10}''(t) &= 6\,t - 4 \\
+h_{01}''(t) &= -12\,t + 6 \\
+h_{11}''(t) &= 6\,t - 2
+\end{aligned}
+\end{equation}
+%
+with $t = (x - x_{i})/(x_{i+1} - x_{i})$. The resulting spline by definition already interpolates the given function values and is $C^1$ continuous since adjacent segments share the same value and slope at the interval boundaries.
+To determine the $n$ unknown slopes $m_{i}$ we require the second derivatives at the connection points to match as well, making the curve $C^2$ continuous. This gives us $n-2$ continuity conditions, leaving two more conditions to make the problem uniquely determined.
+Those additional conditions are obtained from boundary considerations, e.g. by specifying the spline's first and/or second derivatives at the left and right endpoints.
+
+%https://math.stackexchange.com/questions/62360/natural-cubic-splines-vs-piecewise-hermite-splines
+
+Continuity conditions $f_{i-1}''(x_{i}) = f_{i}''(x_{i})$ for $i = 1 \ldots n-2$:
+%
+\begin{align}
+&\frac{h_{00}''(1)}{\Delta x_{i-1}^2}\,y_{i-1} + \frac{h_{10}''(1)}{\Delta x_{i-1}}\,m_{i-1} + \frac{h_{01}''(1)}{\Delta x_{i-1}^2}\,y_{i} + \frac{h_{11}''(1)}{\Delta x_{i-1}}\,m_{i} = \frac{h_{00}''(0)}{\Delta x_{i}^2}\,y_{i} + \frac{h_{10}''(0)}{\Delta x_{i}}\,m_{i} + \frac{h_{01}''(0)}{\Delta x_{i}^2}\,y_{i+1} + \frac{h_{11}''(0)}{\Delta x_{i}}\,m_{i+1} \notag \\
+&\frac{-2}{\Delta x_{i}}\,m_{i+1} + \left(\frac{-4}{\Delta x_{i}} - \frac{4}{\Delta x_{i-1}}\right)\,m_{i} - \frac{2}{\Delta x_{i-1}}\,m_{i-1} = \frac{6\,y_{i-1} + -6\,y_{i}}{\Delta x_{i-1}^2} - \frac{-6\,y_{i} + 6\,y_{i+1}}{\Delta x_{i}^2} \notag \\
+&\frac{1}{\Delta x_{i}}\,m_{i+1} + 2\left(\frac{1}{\Delta x_{i}} + \frac{1}{\Delta x_{i-1}}\right)\,m_{i} + \frac{1}{\Delta x_{i-1}}\,m_{i-1} = 3\left(\frac{\Delta\,y_{i}}{\Delta x_{i}^2} + \frac{\Delta y_{i-1}}{\Delta x_{i-1}^2}\right) \notag \\
+&\Delta x_{i-1}\,m_{i+1} + 2\left(\Delta x_{i} + \Delta x_{i-1}\right)\,m_{i} + \Delta x_{i}\,m_{i-1} = 3\left(\delta_{i}\,\Delta x_{i-1} + \delta_{i-1}\,\Delta x_{i}\right)
+\end{align}
+
+Boundary condition $f_{0}''(0) = y_{0}''$:
+
+\begin{align}
+\frac{h_{00}''(0)}{\Delta x_{0}^2}\,y_{0} + \frac{h_{10}''(0)}{\Delta x_{0}}\,m_{0} + \frac{h_{01}''(0)}{\Delta x_{0}^2}\,y_{1} + \frac{h_{11}''(0)}{\Delta x_{0}}\,m_{1} = y_{0}''& \notag \\
+\frac{-6}{\Delta x_{0}^2}\,y_{0} + \frac{-4}{\Delta x_{0}}\,m_{0} + \frac{6}{\Delta x_{0}^2}\,y_{1} + \frac{-2}{\Delta x_{0}}\,m_{1} = y_{0}''& \notag \\
+4\,m_{0} + 2\,m_{1} = 6\,\delta_{0} - \Delta x_{0}\,y_{0}''&
+\end{align}
+
+Boundary condition $f_{n-2}''(1) = y_{n-1}''$:
+
+\begin{align}
+\frac{h_{00}''(1)}{\Delta x_{n-2}^2}\,y_{n-2} + \frac{h_{10}''(1)}{\Delta x_{n-2}}\,m_{n-2} + \frac{h_{01}''(1)}{\Delta x_{n-2}^2}\,y_{n-1} + \frac{h_{11}''(1)}{\Delta x_{n-2}}\,m_{n-1} = y_{n-1}''& \notag \\
+\frac{6}{\Delta x_{n-2}^2}\,y_{n-2} + \frac{2}{\Delta x_{n-2}}\,m_{n-2} + \frac{-6}{\Delta x_{n-2}^2}\,y_{n-1} + \frac{4}{\Delta x_{n-2}}\,m_{n-1} = y_{n-1}''& \notag \\
+2\,m_{n-2} + 4\,m_{n-1} = 6\,\delta_{n-2} + \Delta x_{n-2}\,y_{n-1}''&
+\end{align}
+
+Boundary condition $f_{0}'(0) = y_{0}'$:
+%
+\begin{equation}
+m_{0} = y_{0}'
+\end{equation}
+
+Boundary condition $f_{n-1}'(1) = y_{n-1}'$:
+%
+\begin{equation}
+m_{n-1} = y_{n-1}'
+\end{equation}
+
+Combining the continuity and boundary conditions gives us the system of equations
+%
+\begin{equation}
+\begin{bmatrix}
+a_{0} & b_{0} \\
+& \ddots & \ddots & \ddots \\
+&& \Delta x_{i-1} & 2(\Delta x_{i} + \Delta x_{i-1}) & \Delta x_{i} \\
+&&& \ddots & \ddots & \ddots \\
+&&&& a_{n-1} & b_{n-1}
+\end{bmatrix}
+\begin{bmatrix}
+m_{0} \\
+\vdots \\
+m_{i} \\
+\vdots \\
+m_{n-1} \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+c_{0} \\
+\vdots \\
+3\left(\delta_{i}\,\Delta x_{i-1} + \delta_{i-1}\,\Delta x_{i}\right) \\
+\vdots \\
+c_{n-1} \\
+\end{bmatrix}
+\end{equation}
+
+where $a$, $b$ and $c$ depend on the choice of boundary conditions. Since the coefficient matrix has a tridiagonal structure it can be solved very efficiently by using the Thomas algorithm.
+
+\section{Monotonicity}
+
+Sometimes it is desirable for an interpolating curve to preserve monotonicity of the input data, i.e. not to introduce any local minima or maxima between the given data points.
+In VirtualBow this is used for the width and layer heights, not least to ensure that those quantities are always positive if the user entered positive values.
+
+One popular method for monotonic cubic interpolation is the Fritsch–Carlson method\cite{bib:fc80}, which operates on a cubic hermite spline like the one we defined above and adjusts the slopes according to some simple rules in order to make the spline monotonic within each interval.
+The only difference is that Fritsch and Carlson use finite differences to determine the initial slopes for their spline while we used the condition of $C^2$ continuity.
+
+After the initial slopes were computed, the first necessary condition for monotonicity in an interval is
+%
+\begin{equation}
+\mathrm{sgn}(m_{i}) = \mathrm{sgn}(m_{i+1}) = \mathrm{sgn}(\delta_{i})
+\end{equation}
+%
+which means that the slopes $m_{i}$ and $m_{i+1}$ must have the same direction as the slope $\delta_{i}$ of the secant.
+Any slopes that violate this condition are set to zero.
+With the slopes modified in this way, define $\alpha_{i} = m_{i}/\delta{i}$ and $\beta_{i} = m_{i+1}/\delta{i}$.
+A sufficient condition for the segment to be monotone is
+%
+\begin{equation}
+\alpha_{i}^2 + \beta_{i}^2 \le 9
+\end{equation}
+%
+i.e. the curve must be restricted to a circle of radius $3$ in the $\alpha$-$\beta$-plane.
+If this condition is violated in any segment, define the factor
+%
+\begin{equation}
+\tau_{i} = \frac{3}{\sqrt{\alpha_{i}^2 + \beta_{i}^2}}
+\end{equation}
+%
+and rescale the slopes as
+%
+\begin{equation}
+m_{i} = \tau_{i}\,\alpha_{i}\,\delta_{i},\quad m_{i+1} = \tau_{i}\,\beta_{i}\,\delta_{i}
+\end{equation}
+
+After these modifications the spline will be monotonous within each interval, but may no longer be $C^2$ continuous.
+Also the chosen boundary conditions may no longer be fulfilled.

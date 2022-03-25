@@ -2,7 +2,7 @@
 
 ContinuousLayer::ContinuousLayer(const ContinuousLimb& limb, const Layer& layer, const Material& material)
     : limb(limb),
-      height(layer.height),
+      height(layer.height, true),
       rho(material.rho),
       E(material.E)
 {
@@ -36,7 +36,7 @@ double ContinuousLayer::get_E() const
 
 ContinuousLimb::ContinuousLimb(const InputData& input)
     : profile(input.profile),
-      width(input.width),
+      width(input.width, true),
       translation{0.5*input.dimensions.handle_length, input.dimensions.handle_setback},
       rotation(input.dimensions.handle_angle)
 {
