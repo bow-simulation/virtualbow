@@ -16,8 +16,8 @@ SplineSegment::SplineSegment(const Point& start, const SplineInput& input) {
 
     // TODO: Set boundary conditions
 
-    spline_x = tk::spline(t, x);
-    spline_y = tk::spline(t, y);
+    spline_x = CubicSpline(t, x);
+    spline_y = CubicSpline(t, y);
 
     // Calculate arc length s over curve parameter t
 
@@ -26,22 +26,22 @@ SplineSegment::SplineSegment(const Point& start, const SplineInput& input) {
     t = linspace(0.0, 1.0, k);
 
     auto dsdt = [&](double t) {
-        return std::hypot(spline_x.deriv(1, t), spline_y.deriv(1, t));
+        return std::hypot(spline_x.deriv1(t), spline_y.deriv1(t));
     };
 
     for(size_t i = 1; i < k; ++i) {
         s[i] = s[i-1] + (t[i] - t[i-1])/6.0*(dsdt(t[i-1]) + 4.0*dsdt((t[i] + t[i-1])/2.0) + dsdt(t[i]));    // Simpson method
     }
 
-    spline_t = tk::spline(s, t);
+    spline_t = CubicSpline(s, t);
 }
 
 double SplineSegment::s_start() const {
-    return spline_t.get_x_min();
+    return spline_t.arg_min();
 }
 
 double SplineSegment::s_end() const {
-    return spline_t.get_x_max();
+    return spline_t.arg_max();
 }
 
 double SplineSegment::curvature(double s) const {

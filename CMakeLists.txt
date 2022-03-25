@@ -304,6 +304,7 @@ add_executable(
     source/tests/fem/LargeDeformationBeams.cpp
     source/tests/fem/TangentStiffness.cpp
     source/tests/model/BeamStiffnessMatrix.cpp
+    source/tests/numerics/CubicSpline.cpp
     source/tests/numerics/FindInterval.cpp
     source/tests/numerics/Geometry.cpp
 )

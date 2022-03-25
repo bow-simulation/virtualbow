@@ -55,7 +55,7 @@ void SplineView::updatePlot() {
 
     // Line
     try {
-        CubicSpline spline = CubicSpline(input);
+        CubicSpline spline = CubicSpline(input, true);
         for(double p: Linspace<double>(spline.arg_min(), spline.arg_max(), 500)) {    // Magic number
             this->graph(0)->addData(
                 x_unit.getSelectedUnit().fromBase(p),
