@@ -1,7 +1,12 @@
 #include "SplineSegment.hpp"
 #include "solver/numerics/Linspace.hpp"
 
+#include <iostream>
+
 SplineSegment::SplineSegment(const Point& start, const SplineInput& input) {
+    if(input.size() < 2) {
+        throw std::invalid_argument("At least two ppoints are required");
+    }
 
     // TODO: Add point 0 if missing
 
@@ -14,14 +19,13 @@ SplineSegment::SplineSegment(const Point& start, const SplineInput& input) {
         y.push_back(start.position[0] + point[1]);
     }
 
-    // TODO: Set boundary conditions
-
-    spline_x = CubicSpline(t, x);
-    spline_y = CubicSpline(t, y);
+    double N = std::hypot(x[1] - x[0], y[1] - y[0]);    // Length of normal vector at start, magic number motivated by cubic Bezier curve
+    spline_x = CubicSpline(t, x, false, BoundaryType::FIRST_DERIVATIVE, N*cos(start.angle));
+    spline_y = CubicSpline(t, y, false, BoundaryType::FIRST_DERIVATIVE, N*sin(start.angle));
 
     // Calculate arc length s over curve parameter t
 
-    const int k = 50*(t.size() - 1);    // Magic number
+    const size_t k = 50*(t.size() - 1);    // Magic number
     std::vector<double> s(k, start.s);
     t = linspace(0.0, 1.0, k);
 
@@ -45,11 +49,19 @@ double SplineSegment::s_end() const {
 }
 
 double SplineSegment::curvature(double s) const {
-    return 0.0;
+    double t = spline_t(s);
+    double dxdt = spline_x.deriv1(t);
+    double dydt = spline_y.deriv1(t);
+
+    double dxdt2 = spline_x.deriv2(t);
+    double dydt2 = spline_y.deriv2(t);
+
+    return (dxdt*dydt2 - dxdt2*dydt)/std::pow(dxdt*dxdt + dydt*dydt, 1.5);
 }
 
 double SplineSegment::angle(double s) const {
-    return 0.0;
+    double t = spline_t(s);
+    return std::atan2(spline_y.deriv1(t), spline_x.deriv1(t));
 }
 
 Vector<2> SplineSegment::position(double s) const {
