@@ -3,9 +3,6 @@
 #include "solver/model/profile/ProfileCurve.hpp"
 #include "solver/numerics/CubicSpline.hpp"
 
-#include <boost/container/small_vector.hpp>
-using boost::container::small_vector;
-
 class ContinuousLimb;
 
 class ContinuousLayer
@@ -30,7 +27,6 @@ private:
 class ContinuousLimb
 {
 public:
-    static constexpr int n = 15;
     ContinuousLimb(const InputData& input);
 
     const std::vector<ContinuousLayer>& get_layers() const;
@@ -45,7 +41,7 @@ public:
     double get_w(double s) const;    // Returns the limb's width at the specified arc length
     double get_h(double s) const;    // Calculates the total height of the section (sum of all layers)
 
-    small_vector<double, n> get_y(double s) const;    // Calculates the coordinates of all layer transitions from back to belly
+    std::vector<double> get_y(double s) const;    // Calculates the coordinates of all layer transitions from back to belly
     Matrix<2> get_C(double s) const;               // Calculates the section's stiffness parameters Cee, Ckk, Cek
     double get_rhoA(double s) const;                  // Calculates the section's linear density
 

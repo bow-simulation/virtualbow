@@ -95,9 +95,9 @@ double ContinuousLimb::get_h(double s) const
     return h;
 }
 
-small_vector<double, ContinuousLimb::n> ContinuousLimb::get_y(double s) const
+std::vector<double> ContinuousLimb::get_y(double s) const
 {
-    small_vector<double, n> y(layers.size() + 1);
+    std::vector<double> y(layers.size() + 1);
     for(size_t i = 0; i < layers.size(); ++i) {
         y[i+1] = y[i] - layers[i].get_h(s);
     }
@@ -112,7 +112,7 @@ Matrix<2, 2> ContinuousLimb::get_C(double s) const
     double Ckk = 0.0;
     double Cek = 0.0;
 
-    small_vector<double, n> y_pos = get_y(s);
+    std::vector<double> y_pos = get_y(s);
     for(size_t i = 0; i < layers.size(); ++i)
     {
         double h = layers[i].get_h(s);
