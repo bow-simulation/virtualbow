@@ -71,6 +71,7 @@ void ProfileView::updatePlot() {
         double scale = (k_max != 0.0) ? CURVATURE_SCALING*profile.length()/std::abs(k_max) : 0.0;
 
         auto curvature_outline = new QCPCurve(this->xAxis, this->yAxis);
+        curvature_outline->setName("Curvature outline");
         curvature_outline->setPen({Qt::darkGray, 1});
         curvature_outline->setScatterSkip(0);
 
@@ -101,6 +102,7 @@ void ProfileView::updatePlot() {
         segment_curves.clear();
         for(size_t i = 0; i < profile.get_nodes().size()-1; ++i) {
             auto segment_curve = new QCPCurve(this->xAxis, this->yAxis);
+            segment_curve->setName("Segment");
             segment_curves.push_back(segment_curve);
 
             for(double s: Linspace<double>(profile.get_nodes()[i].s, profile.get_nodes()[i+1].s, N_SEGMENT_POINTS)) {
@@ -117,6 +119,7 @@ void ProfileView::updatePlot() {
         segment_nodes.clear();
         for(auto& node: profile.get_nodes()) {
             auto segment_node = new QCPCurve(this->xAxis, this->yAxis);
+            segment_node->setName("Node");
             segment_nodes.push_back(segment_node);
             segment_node->addData(
                 unit.getSelectedUnit().fromBase(node.position(0)),

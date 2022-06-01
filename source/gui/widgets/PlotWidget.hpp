@@ -22,6 +22,7 @@ protected:
     void resizeEvent(QResizeEvent * event) override;
 
     void onExport();
+    void saveCsv(const QString& path);
 
 private:
     QMenu* menu;

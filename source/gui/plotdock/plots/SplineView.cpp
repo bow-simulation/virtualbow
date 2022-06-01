@@ -6,15 +6,18 @@ SplineView::SplineView(const QString& x_label, const QString& y_label, const Uni
 {
     // Line
     this->addGraph();
+    this->graph()->setName("Line");
     this->graph()->setPen({Qt::blue, 2});
 
     // Control points
     this->addGraph();
+    this->graph()->setName("Points");
     this->graph()->setScatterStyle({QCPScatterStyle::ssSquare, Qt::blue, 8});
     this->graph()->setLineStyle(QCPGraph::lsNone);
 
     // Selected points
     this->addGraph();
+    this->graph()->setName("Selected");
     this->graph()->setScatterStyle({QCPScatterStyle::ssSquare, Qt::red, Qt::red, 8});
     this->graph()->setLineStyle(QCPGraph::lsNone);
 
