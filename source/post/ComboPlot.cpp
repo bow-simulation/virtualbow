@@ -6,6 +6,8 @@ ComboPlot::ComboPlot()
       plot(new PlotWidget()),
       curve(new QCPCurve(plot->xAxis, plot->yAxis))
 {
+    curve->setName("Line");
+
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
     vbox->setContentsMargins({});

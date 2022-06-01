@@ -177,13 +177,14 @@ void PlotWidget::resizeEvent(QResizeEvent * event) {
 }
 
 void PlotWidget::onExport() {
-    const char* PDF_FILE  = "Portable Document Format (*.pdf)";
-    const char* PNG_FILE  = "PNG image (*.png)";
-    const char* BMP_FILE  = "BMP image (*.bmp)";
+    const char* PDF_FILE = "Portable Document Format (*.pdf)";
+    const char* PNG_FILE = "PNG image (*.png)";
+    const char* BMP_FILE = "BMP image (*.bmp)";
+    const char* CSV_FILE = "CSV file (*.csv)";
 
     QFileDialog dialog(this);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setNameFilters({PDF_FILE, PNG_FILE, BMP_FILE});
+    dialog.setNameFilters({PDF_FILE, PNG_FILE, BMP_FILE, CSV_FILE});
 
     // Todo: Is there a better way to connect default suffix to the selected name filter?
     // Todo: Handle the case of the save[...] methods returning false
@@ -197,6 +198,9 @@ void PlotWidget::onExport() {
         else if(filter == BMP_FILE) {
             dialog.setDefaultSuffix(".bmp");
         }
+        else if(filter == CSV_FILE) {
+            dialog.setDefaultSuffix(".csv");
+        }
     });
     emit dialog.filterSelected(PNG_FILE);
 
@@ -207,13 +211,60 @@ void PlotWidget::onExport() {
         const double scale = 2.0;    // Magic number
 
         if(filter == PDF_FILE) {
-            this->savePdf(path);
+            savePdf(path);
         }
         else if(filter == PNG_FILE) {
-            this->savePng(path, 0, 0, scale);
+            savePng(path, 0, 0, scale);
         }
         else if(filter == BMP_FILE) {
-            this->saveBmp(path, 0, 0, scale);
+            saveBmp(path, 0, 0, scale);
+        }
+        else if(filter == CSV_FILE) {
+            saveCsv(path);
+        }
+    }
+}
+
+void PlotWidget::saveCsv(const QString& path) {
+    QList<QString> headers;
+    QList<QList<double>> columns;
+
+    // Collect data from the plot
+    for(int i = 0; i < this->plottableCount(); ++i) {
+        auto plottable = this->plottable(i);
+        auto interface = dynamic_cast<QCPPlottableInterface1D*>(plottable);
+
+        // Only export if visible, has a name and data is not empty
+        if(interface != nullptr && plottable->visible() && !plottable->name().isEmpty() && interface->dataCount() > 0) {
+            QList<double> x_values, y_values;
+            for(int j = 0; j < interface->dataCount(); ++j) {
+                x_values.push_back(interface->dataMainKey(j));
+                y_values.push_back(interface->dataMainValue(j));
+            }
+
+            headers.push_back(plottable->name() + " (" + plottable->keyAxis()->label() + ")");
+            headers.push_back(plottable->name() + " (" + plottable->valueAxis()->label() + ")");
+            columns.push_back(x_values);
+            columns.push_back(y_values);
+        }
+    }
+
+    // Write data to a file as CSV
+    QFile file(path);
+    if(file.open(QIODevice::WriteOnly) && !headers.empty()) {
+        QTextStream stream(&file);
+        stream << headers.join(",") << endl;
+
+        // Number of rows is the maximum size of any of the columns
+        auto it = std::max_element(columns.begin(), columns.end(), [](auto& a, auto& b){ return a.size() < b.size(); });
+        int rows = it->size();
+
+        for(int i = 0; i < rows; ++i) {
+            QList<QString> entries;
+            for(auto& column: columns) {
+                entries.push_back(i < column.size() ? QString::number(column[i]) : "");
+            }
+            stream << entries.join(",") << endl;
         }
     }
 }
