@@ -232,14 +232,14 @@ void PlotWidget::saveCsv(const QString& path) {
     // Collect data from the plot
     for(int i = 0; i < this->plottableCount(); ++i) {
         auto plottable = this->plottable(i);
-        auto interface = dynamic_cast<QCPPlottableInterface1D*>(plottable);
+        auto interface1d = dynamic_cast<QCPPlottableInterface1D*>(plottable);
 
         // Only export if visible, has a name and data is not empty
-        if(interface != nullptr && plottable->visible() && !plottable->name().isEmpty() && interface->dataCount() > 0) {
+        if((interface1d != nullptr) && plottable->visible() && !plottable->name().isEmpty() && interface1d->dataCount() > 0) {
             QList<double> x_values, y_values;
-            for(int j = 0; j < interface->dataCount(); ++j) {
-                x_values.push_back(interface->dataMainKey(j));
-                y_values.push_back(interface->dataMainValue(j));
+            for(int j = 0; j < interface1d->dataCount(); ++j) {
+                x_values.push_back(interface1d->dataMainKey(j));
+                y_values.push_back(interface1d->dataMainValue(j));
             }
 
             headers.push_back(plottable->name() + " (" + plottable->keyAxis()->label() + ")");
