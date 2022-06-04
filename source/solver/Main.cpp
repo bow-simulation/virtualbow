@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        InputData input(input_path.toStdString());
+        InputData input(input_path.toLocal8Bit().toStdString());    // toLocal8Bit() for Windows, since toStdString() would convert to UTF8
 
         std::pair<int, int> previous = {-1, -1};
         OutputData output = BowModel::simulate(input, mode, [&](int p1, int p2) {
@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        output.save(output_path.toStdString());
+        output.save(output_path.toLocal8Bit().toStdString());    // toLocal8Bit() for Windows, since toStdString() would convert to UTF8
         return 0;
     }
     catch(const std::exception& e) {

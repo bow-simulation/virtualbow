@@ -161,7 +161,7 @@ bool MainWindow::loadFromFile(const QString& path) {
         return true;
     }
     catch(const std::exception& e) {
-        QMessageBox::critical(this, "Error", "Failed to open " + path + "\n" + e.what());
+        QMessageBox::critical(this, "Error", "Failed to open " + path + ":\n" + e.what());
         return false;
     }
 }
@@ -175,7 +175,7 @@ bool MainWindow::saveToFile(const QString& path) {
         return true;
     }
     catch(const std::exception& e) {
-        QMessageBox::critical(this, "Error", "Failed to save " + path + "\n" + e.what());
+        QMessageBox::critical(this, "Error", "Failed to save " + path + ":\n" + e.what());
         return false;
     }
 }
