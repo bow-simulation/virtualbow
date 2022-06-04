@@ -32,12 +32,12 @@ void DataViewModel::loadDefaults() {
 }
 
 void DataViewModel::loadFile(const QString& path) {
-    data = InputData(path.toStdString());
+    data = InputData(path.toLocal8Bit().toStdString());    // toLocal8Bit() for Windows, since toStdString() would convert to UTF8
     emit reloaded();
 }
 
 void DataViewModel::saveFile(const QString& path) {
-    data.save(path.toStdString());
+    data.save(path.toLocal8Bit().toStdString());    // toLocal8Bit() for Windows, since toStdString() would convert to UTF8
 }
 
 const InputData& DataViewModel::getData() const {

@@ -22,6 +22,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InputData, version, comment, settings, dimens
 
 InputData::InputData(const std::string& path) {
     std::ifstream stream(path);
+    stream.exceptions(~std::ofstream::goodbit);    // Make stream throw exception on failure
     json obj; stream >> obj;
 
     Conversion::to_current(obj);
@@ -33,6 +34,7 @@ void InputData::save(const std::string& path) const {
     to_json(obj, *this);
 
     std::ofstream stream(path);
+    stream.exceptions(~std::ofstream::goodbit);    // Make stream throw exception on failure
     stream << std::setw(4) << obj << std::endl;
 }
 

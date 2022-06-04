@@ -83,25 +83,25 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 void MainWindow::loadFile(const QString& path) {
     try {
-        data = OutputData(path.toStdString());
+        data = OutputData(path.toLocal8Bit().toStdString());    // toLocal8Bit() for Windows, since toStdString() would convert to UTF8
         this->setCentralWidget(new OutputWidget(data));
         this->setWindowFilePath(path);
         action_save_as->setEnabled(true);
         menu_open_recent->addPath(path);
     }
     catch(const std::exception& e) {
-        QMessageBox::critical(this, "Error", "Failed to open " + path + "\n" + e.what());
+        QMessageBox::critical(this, "Error", "Failed to open " + path + ":\n" + e.what());
     }
 }
 
 void MainWindow::saveFile(const QString &path) {
     try {
         auto widget = dynamic_cast<OutputWidget*>(this->centralWidget());
-        widget->getData().save(path.toStdString());
+        widget->getData().save(path.toLocal8Bit().toStdString());    // toLocal8Bit() for Windows, since toStdString() would convert to UTF8
         this->setWindowFilePath(path);
     }
     catch(const std::exception& e) {
-        QMessageBox::critical(this, "Error", "Failed to save " + path + "\n" + e.what());
+        QMessageBox::critical(this, "Error", "Failed to save " + path + ":\n" + e.what());
     }
 }
 
