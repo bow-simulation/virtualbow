@@ -1,5 +1,6 @@
 #pragma once
 #include "solver/numerics/EigenTypes.hpp"
+#include <vector>
 
 struct Point {
     double s = 0.0;

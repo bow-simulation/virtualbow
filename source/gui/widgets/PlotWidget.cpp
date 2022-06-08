@@ -185,6 +185,7 @@ void PlotWidget::onExport() {
     QFileDialog dialog(this);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setNameFilters({PDF_FILE, PNG_FILE, BMP_FILE, CSV_FILE});
+    dialog.selectFile("Export");
 
     // Todo: Is there a better way to connect default suffix to the selected name filter?
     // Todo: Handle the case of the save[...] methods returning false
@@ -202,6 +203,8 @@ void PlotWidget::onExport() {
             dialog.setDefaultSuffix(".csv");
         }
     });
+
+    dialog.selectNameFilter(PNG_FILE);
     emit dialog.filterSelected(PNG_FILE);
 
     if(dialog.exec() == QDialog::Accepted) {
