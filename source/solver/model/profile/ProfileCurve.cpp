@@ -17,12 +17,16 @@ ProfileCurve::ProfileCurve(const std::vector<SegmentInput>& inputs)
 
 void ProfileCurve::add_segment(const SegmentInput& input) {
     auto segment = create_segment(nodes.back(), input);
-    nodes.push_back(Point {
-        .s = segment->s_end(),
-        .angle = segment->angle(segment->s_end()),
-        .position = segment->position(segment->s_end())
-    });
+    nodes.push_back(segment->point(segment->s_end()));
     segments.push_back(std::move(segment));
+}
+
+const std::vector<std::unique_ptr<ProfileSegment>>& ProfileCurve::get_segments() const {
+    return segments;
+}
+
+const std::vector<Point>& ProfileCurve::get_nodes() const {
+    return nodes;
 }
 
 double ProfileCurve::length() const {

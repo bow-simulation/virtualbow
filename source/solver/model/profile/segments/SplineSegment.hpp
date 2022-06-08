@@ -17,6 +17,8 @@ public:
     double angle(double s) const override;
     Vector<2> position(double s) const override;
 
+    std::vector<Point> nodes() const override;
+
 private:
     CubicSpline spline_t;    // t(s)
     CubicSpline spline_x;    // x(t)

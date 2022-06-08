@@ -23,6 +23,9 @@ public:
 
     CubicSpline() = default;
 
+    const std::vector<double>& args() const;
+    const std::vector<double>& vals() const;
+
     double operator()(double arg) const;
     double operator()(double arg, double y_default) const;
 

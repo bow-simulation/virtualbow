@@ -122,6 +122,14 @@ CubicSpline::CubicSpline(const std::vector<Vector<2>>& input, bool monotonic,
 
 }
 
+const std::vector<double>& CubicSpline::args() const {
+    return x;
+}
+
+const std::vector<double>& CubicSpline::vals() const {
+    return y;
+}
+
 // Extrapolates on out of bounds access
 double CubicSpline::operator()(double arg) const {
     // TODO: Horner evaluation
