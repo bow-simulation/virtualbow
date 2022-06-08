@@ -68,3 +68,16 @@ Vector<2> SplineSegment::position(double s) const {
     double t = spline_t(s);
     return { spline_x(t), spline_y(t) };
 }
+
+std::vector<Point> SplineSegment::nodes() const {
+    std::vector<Point> nodes;
+    for(double t: spline_x.args()) {
+        nodes.push_back({
+            .s = 0.0,        // TODO
+            .angle = 0.0,    // TODO
+            .position = { spline_x(t), spline_y(t) }
+        });
+    }
+
+    return nodes;
+}

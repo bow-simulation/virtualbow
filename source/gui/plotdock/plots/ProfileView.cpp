@@ -117,7 +117,14 @@ void ProfileView::updatePlot() {
         // Add profile nodes
 
         segment_nodes.clear();
-        for(auto& node: profile.get_nodes()) {
+
+        std::vector<Point> nodes;
+        for(auto& segment: profile.get_segments()) {
+            std::vector<Point> segment_nodes = segment->nodes();
+            nodes.insert(nodes.end(), segment_nodes.begin(), segment_nodes.end());
+        }
+
+        for(auto& node: nodes) {
             auto segment_node = new QCPCurve(this->xAxis, this->yAxis);
             segment_node->setName("Node");
             segment_nodes.push_back(segment_node);

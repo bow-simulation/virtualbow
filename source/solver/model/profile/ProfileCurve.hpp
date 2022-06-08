@@ -20,16 +20,13 @@ public:
     ProfileCurve(const std::vector<SegmentInput>& inputs);
 
     void add_segment(const SegmentInput& input);
+    const std::vector<std::unique_ptr<ProfileSegment>>& get_segments() const;
+    const std::vector<Point>& get_nodes() const;
 
     double length() const;
     double curvature(double s) const;
     double angle(double s) const;
     Vector<2> position(double s) const;
-
-    // TODO
-    const std::vector<Point>& get_nodes() const {
-        return nodes;
-    }
 
 private:
     std::vector<Point> nodes;

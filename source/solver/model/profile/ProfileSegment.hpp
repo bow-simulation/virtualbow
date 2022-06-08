@@ -17,4 +17,7 @@ public:
     virtual double curvature(double s) const = 0;
     virtual double angle(double s) const = 0;
     virtual Vector<2> position(double s) const = 0;
+
+    virtual Point point(double s) const;
+    virtual std::vector<Point> nodes() const;
 };
