@@ -2,7 +2,7 @@
 #include "gui/viewmodel/units/UnitSystem.hpp"
 
 ArcSegmentEditor::ArcSegmentEditor()
-    : PropertyValueEditor(2, { "Length", "Curvature" }, { &UnitSystem::length, &UnitSystem::curvature }) {
+    : PropertyValueEditor(2, { "Length", "Radius" }, { &UnitSystem::length, &UnitSystem::length }) {
 
 }
 

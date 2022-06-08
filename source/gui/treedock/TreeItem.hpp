@@ -32,6 +32,8 @@ public:
     virtual void removeChild(int i);
     virtual void swapChildren(int i, int j);
 
+//    QVariant data(int column, int role) const override;
+
     int row() const;
 
 protected:

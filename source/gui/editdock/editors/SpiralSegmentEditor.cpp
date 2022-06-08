@@ -2,7 +2,7 @@
 #include "gui/viewmodel/units/UnitSystem.hpp"
 
 SpiralSegmentEditor::SpiralSegmentEditor()
-    : PropertyValueEditor(3, { "Length", "Curv. Start", "Curv. End" }, { &UnitSystem::length, &UnitSystem::curvature, &UnitSystem::curvature }) {
+    : PropertyValueEditor(3, { "Length", "R Start", "R End" }, { &UnitSystem::length, &UnitSystem::length, &UnitSystem::length }) {
 
 }
 
