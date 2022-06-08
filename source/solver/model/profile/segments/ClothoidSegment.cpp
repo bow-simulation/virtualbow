@@ -2,13 +2,28 @@
 #include "solver/numerics/Fresnel.hpp"
 #include <cmath>
 
+double radius_to_curvature(double r) {
+    if(r != 0.0) {
+        return 1.0/r;
+    }
+    else {
+        return 0.0;
+    }
+}
+
 ClothoidSegment::ClothoidSegment(const Point& start, const SpiralInput& input)
-    : ClothoidSegment(start, input.at(SpiralConstraint::LENGTH), input.at(SpiralConstraint::K_START), input.at(SpiralConstraint::K_END)) {
+    : ClothoidSegment(start, input.at(SpiralConstraint::LENGTH),
+                      radius_to_curvature(input.at(SpiralConstraint::R_START)),
+                      radius_to_curvature(input.at(SpiralConstraint::R_END)))
+{
 
 }
 
 ClothoidSegment::ClothoidSegment(const Point& start, const ArcInput& input)
-    : ClothoidSegment(start, input.at(ArcConstraint::LENGTH), input.at(ArcConstraint::K_START), input.at(ArcConstraint::K_START)) {
+    : ClothoidSegment(start, input.at(ArcConstraint::LENGTH),
+                      radius_to_curvature(input.at(ArcConstraint::R_START)),
+                      radius_to_curvature(input.at(ArcConstraint::R_START)))
+{
 
 }
 

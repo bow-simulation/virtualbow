@@ -51,6 +51,38 @@ void TreeItem::swapChildren(int i, int j) {
     }
 }
 
+/*
+QVariant TreeItem::data(int column, int role) const {
+    if(role == Qt::DisplayRole) {
+        QString text = QTreeWidgetItem::data(column, role).toString();    // Original text of this item
+
+        int total_count = 0;    // Number of items under the parent with the same name
+        int display_count = 0;    // Number of items with the same name until (and including) this item
+
+        if(this->parent() != nullptr) {
+            for(int i = 0; i < this->parent()->childCount(); ++i) {
+                if(this->parent()->child(i)->QTreeWidgetItem::data(column, role) == text) {
+                    total_count += 1;
+                    if(i <= this->row()) {
+                        display_count += 1;
+                    }
+                }
+            }
+        }
+
+        // If at least two items have the same name, show the display count after the original item text
+        if(total_count > 1) {
+            return text + " " + QString::number(display_count);
+        }
+        else {
+            return text;
+        }
+    }
+
+    return QTreeWidgetItem::data(column, role);
+}
+*/
+
 int TreeItem::row() const {
     auto parent = this->parent();
     if(parent != nullptr) {

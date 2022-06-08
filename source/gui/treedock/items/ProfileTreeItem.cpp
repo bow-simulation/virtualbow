@@ -82,7 +82,7 @@ SegmentInput SegmentTreeItem::getSegment() const {
 /*
 QVariant SegmentTreeItem::data(int column, int role) const {
     if(role == Qt::DisplayRole) {
-        return "(" + QString::number(this->row() + 1) + ") " + QTreeWidgetItem::data(column, role).toString();
+        return QString::number(this->row() + 1) + ": " + QTreeWidgetItem::data(column, role).toString();
     }
 
     return QTreeWidgetItem::data(column, role);
