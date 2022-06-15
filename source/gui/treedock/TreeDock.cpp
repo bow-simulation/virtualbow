@@ -78,28 +78,19 @@ TreeDock::TreeDock(DataViewModel* model)
         }
     });
 
-    /*
     // Key delete action removes selected items, but does nothing if none are selected.
     auto action_remove = new QAction(this);
     action_remove->setShortcut(QKeySequence::Delete);
     this->addAction(action_remove);
     QObject::connect(action_remove, &QAction::triggered, this, [&] {
-        auto item = static_cast<TreeItem*>(tree->currentItem());
-        switch(item->type()) {
-        case TreeItemType::MATERIAL:
-            removeMaterial(item_materials->indexOfChild(item));    // Remove selected material
-            break;
+        auto selected = static_cast<TreeItem*>(tree->currentItem());
+        auto parent = static_cast<TreeItem*>(selected->parent());
 
-        case TreeItemType::LAYER:
-            removeLayer(item_layers->indexOfChild(item));    // Remove selected layer
-            break;
-
-        case TreeItemType::SEGMENT:
-            removeSegment(item_profile->indexOfChild(item));    // Remove selected segment
-            break;
+        if(parent != nullptr) {
+            int i = parent->indexOfChild(selected);
+            parent->removeChild(i);
         }
     });
-    */
 
     auto hbox = new QHBoxLayout();
     hbox->setAlignment(Qt::AlignTop);
@@ -186,8 +177,7 @@ void TreeDock::rebuildTree() {
     item_damping = new DampingTreeItem(model);
     tree->addTopLevelItem(item_damping);
 
-    // TODO?
-    // updateButtons();
+    updateButtons();
 }
 
 QMenu* TreeDock::createMaterialMenu() {
@@ -305,15 +295,15 @@ QString TreeDock::createUniqueName(const QString& name, QTreeWidgetItem* parent)
 void TreeDock::updateButtons() {
     QTreeWidgetItem* selection = tree->currentItem();
 
-    if(selection->type() == TreeItemType::MATERIALS || selection->type() == TreeItemType::MATERIAL) {
+    if((selection != nullptr) && (selection->type() == TreeItemType::MATERIALS || selection->type() == TreeItemType::MATERIAL)) {
         button_add->setMenu(menu_add_material);
         button_add->setEnabled(true);
     }
-    else if (selection->type() == TreeItemType::LAYERS || selection->type() == TreeItemType::LAYER) {
+    else if((selection != nullptr) && (selection->type() == TreeItemType::LAYERS || selection->type() == TreeItemType::LAYER)) {
         button_add->setMenu(menu_add_layer);
         button_add->setEnabled(true);
     }
-    else if (selection->type() == TreeItemType::PROFILE || selection->type() == TreeItemType::SEGMENT) {
+    else if((selection != nullptr) && (selection->type() == TreeItemType::PROFILE || selection->type() == TreeItemType::SEGMENT)) {
         button_add->setMenu(menu_add_segment);
         button_add->setEnabled(true);
     }
@@ -322,13 +312,13 @@ void TreeDock::updateButtons() {
         button_add->setEnabled(false);
     }
 
-    bool remove_enabled = (selection->type() == TreeItemType::MATERIALS && selection->childCount() > 0) || selection->type() == TreeItemType::MATERIAL ||
-                          (selection->type() == TreeItemType::LAYERS && selection->childCount() > 0)    || selection->type() == TreeItemType::LAYER    ||
-                          (selection->type() == TreeItemType::PROFILE && selection->childCount() > 0)   || selection->type() == TreeItemType::SEGMENT;
+    bool remove_enabled = (selection != nullptr) && ((selection->type() == TreeItemType::MATERIALS && selection->childCount() > 0) || selection->type() == TreeItemType::MATERIAL ||
+                                                     (selection->type() == TreeItemType::LAYERS && selection->childCount() > 0)    || selection->type() == TreeItemType::LAYER    ||
+                                                     (selection->type() == TreeItemType::PROFILE && selection->childCount() > 0)   || selection->type() == TreeItemType::SEGMENT);
 
-    bool reorder_enabled = selection->type() == TreeItemType::MATERIAL ||
-                           selection->type() == TreeItemType::LAYER    ||
-                           selection->type() == TreeItemType::SEGMENT;
+    bool reorder_enabled = (selection != nullptr) && (selection->type() == TreeItemType::MATERIAL ||
+                                                      selection->type() == TreeItemType::LAYER    ||
+                                                      selection->type() == TreeItemType::SEGMENT);
 
     button_remove->setEnabled(remove_enabled);
     button_up->setEnabled(reorder_enabled);
