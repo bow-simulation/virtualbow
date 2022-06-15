@@ -13,19 +13,19 @@ ShapePlot::ShapePlot(const LimbProperties& limb, const BowStates& states, int ba
 
     for(int i = 0; i < background_states; ++i) {
         limb_right.append(new QCPCurve(this->xAxis, this->yAxis));
-        limb_right.back()->setPen({Qt::lightGray, 1});
+        limb_right.back()->setPen({Qt::lightGray, 1.0});
         limb_right.back()->setScatterSkip(0);
 
         limb_left.append(new QCPCurve(this->xAxis, this->yAxis));
-        limb_left.back()->setPen({Qt::lightGray, 1});
+        limb_left.back()->setPen({Qt::lightGray, 1.0});
         limb_left.back()->setScatterSkip(0);
 
         string_right.append(new QCPCurve(this->xAxis, this->yAxis));
-        string_right.back()->setPen({Qt::lightGray, 1});
+        string_right.back()->setPen({Qt::lightGray, 1.0});
         string_right.back()->setScatterSkip(0);
 
         string_left.append(new QCPCurve(this->xAxis, this->yAxis));
-        string_left.back()->setPen({Qt::lightGray, 1});
+        string_left.back()->setPen({Qt::lightGray, 1.0});
         string_left.back()->setScatterSkip(0);
     }
 
@@ -33,22 +33,22 @@ ShapePlot::ShapePlot(const LimbProperties& limb, const BowStates& states, int ba
 
     limb_right.append(new QCPCurve(this->xAxis, this->yAxis));
     limb_right.back()->setName("Limb right");
-    limb_right.back()->setPen({Qt::blue, 2});
+    limb_right.back()->setPen({Qt::blue, 2.0});
     limb_right.back()->setScatterSkip(0);
 
     limb_left.append(new QCPCurve(this->xAxis, this->yAxis));
     limb_left.back()->setName("Limb left");
-    limb_left.back()->setPen({Qt::blue, 2});
+    limb_left.back()->setPen({Qt::blue, 2.0});
     limb_left.back()->setScatterSkip(0);
 
     string_right.append(new QCPCurve(this->xAxis, this->yAxis));
     string_right.back()->setName("String right");
-    string_right.back()->setPen({Qt::blue, 1});
+    string_right.back()->setPen({Qt::blue, 2.0});
     string_right.back()->setScatterSkip(0);
 
     string_left.append(new QCPCurve(this->xAxis, this->yAxis));
     string_left.back()->setName("String left");
-    string_left.back()->setPen({Qt::blue, 1});
+    string_left.back()->setPen({Qt::blue, 2.0});
     string_left.back()->setScatterSkip(0);
 
     arrow = new QCPCurve(this->xAxis, this->yAxis);

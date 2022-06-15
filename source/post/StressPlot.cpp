@@ -1,6 +1,21 @@
 #include "StressPlot.hpp"
 #include "gui/limbview/LayerColors.hpp"
 
+// Colors stolen from Python's Matplotlib
+// https://stackoverflow.com/a/42091037
+const QList<QColor> COLOR_PALETTE = {
+    QColor("#1f77b4"),
+    QColor("#ff7f0e"),
+    QColor("#2ca02c"),
+    QColor("#d62728"),
+    QColor("#9467bd"),
+    QColor("#8c564b"),
+    QColor("#e377c2"),
+    QColor("#7f7f7f"),
+    QColor("#bcbd22"),
+    QColor("#17becf")
+};
+
 StressPlot::StressPlot(const LimbProperties& limb, const BowStates& states)
     : limb(limb),
       states(states),
@@ -12,16 +27,15 @@ StressPlot::StressPlot(const LimbProperties& limb, const BowStates& states)
 
     for(size_t i = 0; i < limb.layers.size(); ++i) {
         QString name = QString::fromStdString(limb.layers[i].name);
-        QColor layer_color = (limb.layers.size() > 1) ? QColor(QString::fromStdString(limb.layers[i].color)) : QColor(Qt::blue);
-        QColor line_color = QColor::fromHsv(layer_color.hue(), 220, 220);    // Modify saturation and value to make colors better distinguishable
+        QColor color = COLOR_PALETTE[i % COLOR_PALETTE.size()];  // Wrap around when colors exceeded
 
         this->addGraph();
         this->graph(2*i)->setName(name + " (back)");
-        this->graph(2*i)->setPen({QBrush(line_color), 1.0, Qt::SolidLine});
+        this->graph(2*i)->setPen({QBrush(color), 2.0, Qt::SolidLine});
 
         this->addGraph();
         this->graph(2*i+1)->setName(name + " (belly)");
-        this->graph(2*i+1)->setPen({QBrush(line_color), 1.0, Qt::DashLine});
+        this->graph(2*i+1)->setPen({QBrush(color), 2.0, Qt::DashLine});
     }
 
     QObject::connect(&unit_length, &UnitGroup::selectionChanged, this, &StressPlot::updatePlot);
