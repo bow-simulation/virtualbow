@@ -44,7 +44,7 @@ TreeDock::TreeDock(DataViewModel* model)
         auto selected = static_cast<TreeItem*>(tree->currentItem());
         auto parent = static_cast<TreeItem*>(selected->parent());
 
-        if(parent != nullptr) {
+        if(parent != nullptr && parent->childCount() > 1) {
             // Remove selected item from parent
             parent->removeChild(parent->indexOfChild(selected));
         }
@@ -87,7 +87,7 @@ TreeDock::TreeDock(DataViewModel* model)
         auto selected = static_cast<TreeItem*>(tree->currentItem());
         auto parent = static_cast<TreeItem*>(selected->parent());
 
-        if(parent != nullptr) {
+        if(parent != nullptr && parent->childCount() > 1) {
             int i = parent->indexOfChild(selected);
             parent->removeChild(i);
         }
