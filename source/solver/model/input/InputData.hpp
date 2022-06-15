@@ -57,13 +57,7 @@ struct InputData {
     std::string comment;
     Settings settings;
 
-    std::vector<Material> materials {
-        Material {
-            .name = "Material A",
-            .rho = 675.0,
-            .E = 12e9,
-        }
-    };
+    std::vector<Material> materials { Material() };
 
     Dimensions dimensions;
 

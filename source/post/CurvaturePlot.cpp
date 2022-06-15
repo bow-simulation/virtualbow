@@ -10,6 +10,7 @@ CurvaturePlot::CurvaturePlot(const LimbProperties& limb, const BowStates& states
 {
     this->addGraph();
     this->graph(0)->setName("Curvature");
+    this->graph(0)->setPen({Qt::blue, 2.0});
 
     QObject::connect(&unit_length, &UnitGroup::selectionChanged, this, &CurvaturePlot::updatePlot);
     QObject::connect(&unit_curvature, &UnitGroup::selectionChanged, this, &CurvaturePlot::updatePlot);

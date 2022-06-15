@@ -91,7 +91,7 @@ void EnergyPlot::updatePlot() {
             );
             graph_upper->setName(name);
             graph_upper->setBrush(color);
-            graph_upper->setPen(color);
+            graph_upper->setPen({QBrush(color), 2.0});
 
             if(graph_lower != nullptr) {
                 graph_upper->setChannelFillGraph(graph_lower);
@@ -113,7 +113,7 @@ void EnergyPlot::updatePlot() {
                 unit_x.getSelectedUnit().fromBase(energy)
             );
             graph->setName(name);
-            graph->setPen(color);
+            graph->setPen({QBrush(color), 2.0});
         };
     }
 

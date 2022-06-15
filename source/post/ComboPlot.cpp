@@ -7,6 +7,7 @@ ComboPlot::ComboPlot()
       curve(new QCPCurve(plot->xAxis, plot->yAxis))
 {
     curve->setName("Line");
+    curve->setPen({Qt::blue, 2.0});
 
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
