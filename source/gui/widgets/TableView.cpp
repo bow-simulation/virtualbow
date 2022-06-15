@@ -29,7 +29,8 @@ TableView::TableView() {
 
     auto action_delete = new QAction("&Delete", this);
     QObject::connect(action_delete, &QAction::triggered, this, &TableView::deleteSelection);
-    action_delete->setShortcuts(QKeySequence::Delete);
+    action_delete->setShortcut(QKeySequence::Delete);
+    action_delete->setShortcutContext(Qt::WidgetShortcut);
     this->addAction(action_delete);
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);

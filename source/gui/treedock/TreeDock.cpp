@@ -81,6 +81,7 @@ TreeDock::TreeDock(DataViewModel* model)
     // Key delete action removes selected items, but does nothing if none are selected.
     auto action_remove = new QAction(tree);
     action_remove->setShortcut(QKeySequence::Delete);
+    action_remove->setShortcutContext(Qt::WidgetShortcut);
     tree->addAction(action_remove);
     QObject::connect(action_remove, &QAction::triggered, this, [&] {
         auto selected = static_cast<TreeItem*>(tree->currentItem());
