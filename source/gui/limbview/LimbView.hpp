@@ -13,8 +13,8 @@ class Model;
 class LimbView: public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
 private:
-    const QColor BACKGROUND_COLOR_1 = QColor::fromHsv(200, 30, 70);
-    const QColor BACKGROUND_COLOR_2 = QColor::fromHsv(200, 30, 170);
+    const QColor BACKGROUND_COLOR_1 = QColor::fromHsv(200, 30, 120);
+    const QColor BACKGROUND_COLOR_2 = QColor::fromHsv(200, 30, 220);
 
     const QVector3D CAMERA_POSITION = { 0.0f, 0.0f, 10.0f };
     const QVector3D LIGHT_POSITION = { 0.0f, 5.0f, 10.0f };

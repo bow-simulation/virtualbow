@@ -207,14 +207,15 @@ void LimbView::initializeGL() {
     QDate date = QDate::currentDate();
     if(date.month() == 12 && (date.day() == 24 || date.day() == 25 || date.day() == 26)) {
         auto create_star = [&](float x0, float y0, float r, float R, float alpha, unsigned n, const QColor& color) {
+            float ratio = float(this->width())/float(this->height());
             float beta = 2.0*M_PI/n;
             float z0 = -0.1;
             for(unsigned i = 0; i < n; ++i) {
                 float phi = alpha + i*beta;
                 QVector3D p0(x0, y0, z0);
-                QVector3D p1(x0 - r*sin(phi - beta/2), y0 + r*cos(phi - beta/2), z0);
-                QVector3D p2(x0 - R*sin(phi), y0 + R*cos(phi), z0);
-                QVector3D p3(x0 - r*sin(phi + beta/2), y0 + r*cos(phi + beta/2), z0);
+                QVector3D p1(x0 - r*sin(phi - beta/2), y0 + ratio*r*cos(phi - beta/2), z0);
+                QVector3D p2(x0 - R*sin(phi), y0 + ratio*R*cos(phi), z0);
+                QVector3D p3(x0 - r*sin(phi + beta/2), y0 + ratio*r*cos(phi + beta/2), z0);
                 background_mesh.addQuad(p0, p1, p2, p3, color);
             }
         };
@@ -224,11 +225,11 @@ void LimbView::initializeGL() {
             return lower + static_cast<float>(rand())/static_cast<float>(RAND_MAX/(upper - lower));
         };
 
-        for(unsigned i = 0; i < 25; ++i) {
-            float x = random_in_range(-0.95f, 0.95f);
-            float y = random_in_range(-0.95f, 0.95f);
+        for(unsigned i = 0; i < 30; ++i) {
+            float x = random_in_range(-1.0f, 1.0f);
+            float y = random_in_range(-1.0f, 1.0f);
             float r = random_in_range(0.001f, 0.005f);
-            create_star(x, y, r, 3.0*r, 0.0, 5, BACKGROUND_COLOR_2.lighter(105));
+            create_star(x, y, r, 3.0*r, 0.0, 5, BACKGROUND_COLOR_2);
         }
     }
 

@@ -10,7 +10,7 @@ MaterialEntry::MaterialEntry()
     symbol->setFixedWidth(18);
     symbol->setFixedHeight(18);
     symbol->setScaledContents(true);
-    label->setStyleSheet("color: white; font: 14px;");
+    label->setStyleSheet("color: white; font: 16px;");
 
     auto hbox = new QHBoxLayout();
     hbox->setAlignment(Qt::AlignTop);
@@ -29,7 +29,7 @@ void MaterialEntry::setData(const Material& material) {
 MaterialLegend::MaterialLegend()
     : vbox(new QVBoxLayout())
 {
-    vbox->setSpacing(2);
+    vbox->setSpacing(10);
     this->setLayout(vbox);
 }
 
