@@ -4,22 +4,27 @@
 #include <iostream>
 
 SplineSegment::SplineSegment(const Point& start, const SplineInput& input) {
-    if(input.size() < 2) {
-        throw std::invalid_argument("At least two ppoints are required");
+    std::vector<double> x; x.reserve(input.size() + 1);
+    std::vector<double> y; y.reserve(input.size() + 1);
+
+    // Add point (0, 0) if missing
+    if(input.size() > 0 && !input[0].isZero()) {
+        x.push_back(start.position[0]);
+        y.push_back(start.position[1]);
     }
 
-    // TODO: Add point 0 if missing
-
-    std::vector<double> t = linspace(0.0, 1.0, input.size());
-    std::vector<double> x; x.reserve(input.size());
-    std::vector<double> y; y.reserve(input.size());
-
+    // Add points from input, relative to starting point
     for(auto& point: input) {
         x.push_back(start.position[0] + point[0]);
-        y.push_back(start.position[0] + point[1]);
+        y.push_back(start.position[1] + point[1]);
     }
 
-    double N = std::hypot(x[1] - x[0], y[1] - y[0]);    // Length of normal vector at start, magic number motivated by cubic Bezier curve
+    if(x.size() < 2) {
+        throw std::invalid_argument("At least two points are required");
+    }
+
+    double N = std::hypot(x[1] - x[0], y[1] - y[0]);         // Length of normal vector at start (magic number motivated by cubic Bezier curve)
+    std::vector<double> t = linspace(0.0, 1.0, x.size());    // Linearly spaced curve parameter
     spline_x = CubicSpline(t, x, false, BoundaryType::FIRST_DERIVATIVE, N*cos(start.angle));
     spline_y = CubicSpline(t, y, false, BoundaryType::FIRST_DERIVATIVE, N*sin(start.angle));
 
