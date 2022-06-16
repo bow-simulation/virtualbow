@@ -12,9 +12,9 @@ NLOHMANN_JSON_SERIALIZE_ENUM(ArcConstraint, {{ArcConstraint::LENGTH, "length"}, 
 enum class LineConstraint{ LENGTH };
 NLOHMANN_JSON_SERIALIZE_ENUM(LineConstraint, {{LineConstraint::LENGTH, "length"}})
 
-using SpiralInput = std::unordered_map<SpiralConstraint, double>;
-using ArcInput = std::unordered_map<ArcConstraint, double>;
-using LineInput = std::unordered_map<LineConstraint, double>;
+using SpiralInput = std::map<SpiralConstraint, double>;
+using ArcInput = std::map<ArcConstraint, double>;
+using LineInput = std::map<LineConstraint, double>;
 
 // Segment with curvature linearly varying over arc length.
 // Represents a clothoid, circular arc or a straight line depending on the choice of curvature.

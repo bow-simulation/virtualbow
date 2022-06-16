@@ -14,7 +14,7 @@ public:
 
 protected:
     template<typename KeyType>
-    void setProperties(const std::unordered_map<KeyType, double>& data) {
+    void setProperties(const std::map<KeyType, double>& data) {
         QSignalBlocker blocker(this);    // Block modification signals
 
         int row = 0;
@@ -26,8 +26,8 @@ protected:
     }
 
     template<typename KeyType>
-    std::unordered_map<KeyType, double> getProperties() const {
-        std::unordered_map<KeyType, double> data;
+    std::map<KeyType, double> getProperties() const {
+        std::map<KeyType, double> data;
         for(int row = 0; row < combos.size(); ++row) {
             KeyType key = static_cast<KeyType>(combos[row]->currentIndex());
             data[key] = static_cast<DoubleSpinBox*>(stacks[row]->currentWidget())->value();

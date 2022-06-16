@@ -33,24 +33,25 @@ PropertyValueEditor::PropertyValueEditor(int rows, const QList<QString>& names, 
         combos.push_back(combo);
         stacks.push_back(stack);
 
-        QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PropertyValueEditor::modified);
-        QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [stack](int index){
-            stack->setCurrentIndex(index);
+        //int last_index = combo->currentIndex();
+        QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=](int current_index) mutable {
+            /*
+            // Check if the selected index is already selected in another combobox
+            // If so, set the other combobox to the previous value of this one (i.e. switch the two)
+            for(QComboBox* other: combos) {
+                if(other != combo && other->currentIndex() == current_index) {
+                    other->setCurrentIndex(last_index);
+                }
+            }
+            */
+
+            // Show the associated widget for the selected index
+            stack->setCurrentIndex(current_index);
+
+            // Remember index and send modification signal
+            //last_index = current_index;
+            emit modified();
         });
-
-        /*
-        // Update the unis of the spinner depending on the combobox selection
-        auto update_spinner_unit = [this, spinner](int index) {
-            QSignalBlocker blocker(spinner);    // Block modification signal
-            spinner->setValue(0.0);
-            //spinner->setUnitGroup(this->units[index]);
-        };
-
-        QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PropertyValueEditor::modified);
-        QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, update_spinner_unit);
-        //QObject::connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, update_combos_enabled);
-        update_spinner_unit(combo->currentIndex());
-        */
     }
 
     auto vbox = new QVBoxLayout();
