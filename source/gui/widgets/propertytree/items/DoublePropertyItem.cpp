@@ -1,6 +1,6 @@
 #include "DoublePropertyItem.hpp"
 #include "GroupPropertyItem.hpp"
-#include <QDoubleSpinBox>
+#include "gui/widgets/DoubleSpinBox.hpp"
 
 DoublePropertyItem::DoublePropertyItem(const QString& name, const UnitGroup* units, const DoubleRange& range, GroupPropertyItem* parent)
     : PropertyTreeItem(parent),
@@ -29,14 +29,14 @@ QVariant DoublePropertyItem::data(int column, int role) const {
     }
 
     // For display role, convert the value to the specified unit and return as a string with unit label.
-    // For the edit role, convert the value and return as double to be used by the editor
+    // For the edit role, return the base value because the editor widget deals with the units.
     if(column == 1) {
         double unit_value = units->getSelectedUnit().fromBase(value);
         if(role == Qt::DisplayRole) {
             return QString::number(unit_value) + " " + units->getSelectedUnit().getName();
         }
         if(role == Qt::EditRole) {
-            return unit_value;
+            return value;
         }
     }
 
@@ -45,34 +45,28 @@ QVariant DoublePropertyItem::data(int column, int role) const {
 
 void DoublePropertyItem::setData(int column, int role, const QVariant &value) {
     if(column == 1 && role == Qt::EditRole) {
-        double base_value = units->getSelectedUnit().toBase(value.toDouble());
-        this->value = base_value;
+        this->value = value.toDouble();
         emitDataChanged();
     }
 }
 
 QWidget* DoublePropertyItem::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
-    // Assumes that the unit doesn't change during the lifetime of the editor
-    QDoubleSpinBox* editor = new QDoubleSpinBox(parent);
+    auto editor = new DoubleSpinBox(*units, range, parent);
     editor->setFrame(false);
-    editor->setMinimum(units->getSelectedUnit().fromBase(range.min));
-    editor->setMaximum(units->getSelectedUnit().fromBase(range.max));
-    editor->setSingleStep(units->getSelectedUnit().fromBase(range.step));
-    editor->setSuffix(" " + units->getSelectedUnit().getName());
 
     return editor;
 }
 
 void DoublePropertyItem::setEditorData(QWidget* editor, const QModelIndex& index) const {
     double value = index.model()->data(index, Qt::EditRole).toDouble();
-    auto spinBox = static_cast<QDoubleSpinBox*>(editor);
-    spinBox->setValue(value);
+    auto spinner = static_cast<DoubleSpinBox*>(editor);
+    spinner->setValue(value);
 }
 
 void DoublePropertyItem::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
-    QDoubleSpinBox* spinBox = static_cast<QDoubleSpinBox*>(editor);
-    spinBox->interpretText();
-    double value = spinBox->value();
+    auto spinner = static_cast<DoubleSpinBox*>(editor);
+    spinner->interpretText();
+    double value = spinner->value();
 
     model->setData(index, value, Qt::EditRole);
 }
