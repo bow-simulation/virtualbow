@@ -181,14 +181,10 @@ add_executable(
 
     source/gui/widgets/DialogBase.cpp
     source/gui/widgets/DialogBase.hpp
-    source/gui/widgets/DoubleEditor.cpp
-    source/gui/widgets/DoubleEditor.hpp
     source/gui/widgets/DoubleSpinBox.cpp
     source/gui/widgets/DoubleSpinBox.hpp
     source/gui/widgets/EditableTabBar.cpp
     source/gui/widgets/EditableTabBar.hpp
-    source/gui/widgets/IntegerEditor.cpp
-    source/gui/widgets/IntegerEditor.hpp
     source/gui/widgets/PersistentDialog.cpp
     source/gui/widgets/PersistentDialog.hpp
     source/gui/widgets/PlotOverlayDialog.cpp
@@ -203,8 +199,6 @@ add_executable(
     source/gui/widgets/TableEditor.hpp
     source/gui/widgets/TableModel.cpp
     source/gui/widgets/TableModel.hpp
-    source/gui/widgets/TableSpinner.cpp
-    source/gui/widgets/TableSpinner.hpp
     source/gui/widgets/TableView.cpp
     source/gui/widgets/TableView.hpp
 

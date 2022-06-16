@@ -48,10 +48,7 @@ LayerTreeItem::LayerTreeItem(DataViewModel* model, const Layer& layer)
     : TreeItem(QString::fromStdString(layer.name), QIcon(":/icons/model-layer.svg"), TreeItemType::LAYER),
       model(model)
 {
-    table = new TableEditor("Position", "Height",
-        TableSpinnerOptions(UnitSystem::ratio, DoubleRange::nonNegative(), 1e-4),
-        TableSpinnerOptions(UnitSystem::length, DoubleRange::positive(), 1e-4)
-    );
+    table = new TableEditor("Position", "Height", UnitSystem::ratio, UnitSystem::length, DoubleRange::nonNegative(1e-4), DoubleRange::positive(1e-4));
 
     combo = new QComboBox();
     updateCombo();

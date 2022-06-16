@@ -1,13 +1,15 @@
 #pragma once
+#include "gui/utils/DoubleRange.hpp"
 #include <QStyledItemDelegate>
-#include "TableSpinner.hpp"
+
+class UnitGroup;
 
 class TableDelegate: public QStyledItemDelegate
 {
     Q_OBJECT
 
 public:
-    TableDelegate(const TableSpinnerOptions& options, QObject* parent = nullptr);
+    TableDelegate(const UnitGroup& units, const DoubleRange& range, QObject* parent = nullptr);
 
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
@@ -17,5 +19,6 @@ public:
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
 private:
-    TableSpinnerOptions options;
+    const UnitGroup& units;
+    DoubleRange range;
 };

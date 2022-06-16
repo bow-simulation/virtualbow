@@ -7,10 +7,10 @@ MassesTreeItem::MassesTreeItem(DataViewModel* model)
     : TreeItem("Masses", QIcon(":/icons/model-masses.svg"), TreeItemType::MASSES),
       model(model)
 {
-    arrow = new DoublePropertyItem("Arrow", &UnitSystem::mass, DoubleRange::positive(), 0.001);
-    string_center = new DoublePropertyItem("String center", &UnitSystem::mass, DoubleRange::nonNegative(), 0.001);
-    string_tip = new DoublePropertyItem("String tip", &UnitSystem::mass, DoubleRange::nonNegative(), 0.001);
-    limb_tip = new DoublePropertyItem("Limb tip", &UnitSystem::mass, DoubleRange::nonNegative(), 0.001);
+    arrow = new DoublePropertyItem("Arrow", &UnitSystem::mass, DoubleRange::positive(1e-3));
+    string_center = new DoublePropertyItem("String center", &UnitSystem::mass, DoubleRange::nonNegative(1e-3));
+    string_tip = new DoublePropertyItem("String tip", &UnitSystem::mass, DoubleRange::nonNegative(1e-3));
+    limb_tip = new DoublePropertyItem("Limb tip", &UnitSystem::mass, DoubleRange::nonNegative(1e-3));
 
     auto tree = new PropertyTreeWidget();
     tree->addTopLevelItem(arrow);

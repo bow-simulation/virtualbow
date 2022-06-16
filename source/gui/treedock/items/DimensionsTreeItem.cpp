@@ -11,11 +11,11 @@ DimensionsTreeItem::DimensionsTreeItem(DataViewModel* model)
     auto group1 = new GroupPropertyItem("Draw");
     auto group2 = new GroupPropertyItem("Handle");
 
-    brace_height = new DoublePropertyItem("Brace height", &UnitSystem::length, DoubleRange::positive(), 0.001, group1);
-    draw_length = new DoublePropertyItem("Draw length", &UnitSystem::length, DoubleRange::positive(), 0.001, group1);
-    handle_length = new DoublePropertyItem("Length", &UnitSystem::length, DoubleRange::positive(), 0.001, group2);
-    handle_setback = new DoublePropertyItem("Setback", &UnitSystem::length, DoubleRange::unrestricted(), 0.001, group2);
-    handle_angle = new DoublePropertyItem("Angle", &UnitSystem::angle, DoubleRange::unrestricted(), 0.01, group2);
+    brace_height = new DoublePropertyItem("Brace height", &UnitSystem::length, DoubleRange::positive(1e-3), group1);
+    draw_length = new DoublePropertyItem("Draw length", &UnitSystem::length, DoubleRange::positive(1e-3), group1);
+    handle_length = new DoublePropertyItem("Length", &UnitSystem::length, DoubleRange::positive(1e-3), group2);
+    handle_setback = new DoublePropertyItem("Setback", &UnitSystem::length, DoubleRange::unrestricted(1e-3), group2);
+    handle_angle = new DoublePropertyItem("Angle", &UnitSystem::angle, DoubleRange::unrestricted(1e-3), group2);
 
     auto tree = new PropertyTreeWidget();
     tree->addTopLevelItem(group1);

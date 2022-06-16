@@ -8,8 +8,8 @@ StringTreeItem::StringTreeItem(DataViewModel* model)
     : TreeItem("String", QIcon(":/icons/model-string.svg"), TreeItemType::STRING),
       model(model)
 {
-    strand_stiffness = new DoublePropertyItem("Strand stiffness", &UnitSystem::linear_stiffness, DoubleRange::positive(), 1.0);
-    strand_density = new DoublePropertyItem("Strand density", &UnitSystem::linear_density, DoubleRange::positive(), 0.001);
+    strand_stiffness = new DoublePropertyItem("Strand stiffness", &UnitSystem::linear_stiffness, DoubleRange::positive(1.0));
+    strand_density = new DoublePropertyItem("Strand density", &UnitSystem::linear_density, DoubleRange::positive(1e-4));
     n_strands = new IntegerPropertyItem("Strands", IntegerRange::positive());
 
     auto tree = new PropertyTreeWidget();

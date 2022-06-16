@@ -7,8 +7,8 @@ DampingTreeItem::DampingTreeItem(DataViewModel* model)
     : TreeItem("Damping", QIcon(":/icons/model-damping.svg"), TreeItemType::DAMPING),
       model(model)
 {
-    damping_ratio_limbs = new DoublePropertyItem("Limbs", &UnitSystem::ratio, DoubleRange::inclusive(0.0, 1.0), 0.01);
-    damping_ratio_string = new DoublePropertyItem("String", &UnitSystem::ratio, DoubleRange::inclusive(0.0, 1.0), 0.01);
+    damping_ratio_limbs = new DoublePropertyItem("Limbs", &UnitSystem::ratio, DoubleRange::inclusive(0.0, 1.0, 1e-2));
+    damping_ratio_string = new DoublePropertyItem("String", &UnitSystem::ratio, DoubleRange::inclusive(0.0, 1.0, 1e-2));
 
     auto tree = new PropertyTreeWidget();
     tree->addTopLevelItem(damping_ratio_limbs);

@@ -2,12 +2,11 @@
 #include "GroupPropertyItem.hpp"
 #include <QDoubleSpinBox>
 
-DoublePropertyItem::DoublePropertyItem(const QString& name, const UnitGroup* units, const DoubleRange& range, double step, GroupPropertyItem* parent)
+DoublePropertyItem::DoublePropertyItem(const QString& name, const UnitGroup* units, const DoubleRange& range, GroupPropertyItem* parent)
     : PropertyTreeItem(parent),
       name(name),
       units(units),
       range(range),
-      step(step),
       value(0.0)
 
 {
@@ -58,7 +57,7 @@ QWidget* DoublePropertyItem::createEditor(QWidget* parent, const QStyleOptionVie
     editor->setFrame(false);
     editor->setMinimum(units->getSelectedUnit().fromBase(range.min));
     editor->setMaximum(units->getSelectedUnit().fromBase(range.max));
-    editor->setSingleStep(units->getSelectedUnit().fromBase(step));
+    editor->setSingleStep(units->getSelectedUnit().fromBase(range.step));
     editor->setSuffix(" " + units->getSelectedUnit().getName());
 
     return editor;

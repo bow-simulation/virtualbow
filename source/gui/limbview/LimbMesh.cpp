@@ -4,13 +4,13 @@
 #include "solver/numerics/CubicSpline.hpp"
 #include "solver/numerics/Linspace.hpp"
 
-
 LimbMesh::LimbMesh(const InputData& input)
     : faces_right(GL_QUADS),
       faces_left(GL_QUADS)
 {
     try {
         ContinuousLimb limb(input);
+
         std::vector<double> lengths = getEvalLengths(limb, 1000);    // Magic number
 
         size_t n_layers = limb.get_layers().size();
@@ -98,7 +98,7 @@ LimbMesh::LimbMesh(const InputData& input)
             }
         }
     }
-    catch(std::invalid_argument&) {
+    catch(std::exception&) {
 
     }
 }
