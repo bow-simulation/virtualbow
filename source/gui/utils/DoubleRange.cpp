@@ -1,6 +1,11 @@
 #include "DoubleRange.hpp"
 #include <limits>
 
+// Magic number used for approximating exclusive bounds.
+// Depends on precision of the spinboxes, since QDoubleSpinBox rounds minimum and maximum to the
+// given precision, so EPSILON = std::numeric_limits<double>::min() does not work.
+double EPSILON_EXCLUSIVE = 1e-6;
+
 DoubleRange DoubleRange::inclusive(double min, double max, double step) {
     return {
         .min = min,
@@ -11,8 +16,8 @@ DoubleRange DoubleRange::inclusive(double min, double max, double step) {
 
 DoubleRange DoubleRange::exclusive(double min, double max, double step) {
     return {
-        .min = min + std::numeric_limits<double>::min(),
-        .max = max - std::numeric_limits<double>::min(),
+        .min = min + EPSILON_EXCLUSIVE,
+        .max = max - EPSILON_EXCLUSIVE,
         .step = step
     };
 }
@@ -27,7 +32,7 @@ DoubleRange DoubleRange::unrestricted(double step) {
 
 DoubleRange DoubleRange::positive(double step) {
     return {
-        .min = std::numeric_limits<double>::min(),
+        .min = EPSILON_EXCLUSIVE,
         .max = std::numeric_limits<double>::max(),
         .step = step
     };
@@ -36,7 +41,7 @@ DoubleRange DoubleRange::positive(double step) {
 DoubleRange DoubleRange::negative(double step) {
     return {
         .min = std::numeric_limits<double>::lowest(),
-        .max = -std::numeric_limits<double>::min(),
+        .max = -EPSILON_EXCLUSIVE,
         .step = step
     };
 }

@@ -11,6 +11,10 @@ DoubleSpinBox::DoubleSpinBox(const UnitGroup& units, const DoubleRange& range, Q
     setMaximum(range.max);
     setSingleStep(range.step);
 
+    QObject::connect(this, QOverload<double>::of(&DoubleSpinBox::valueChanged), this, [=](double value){
+        qInfo() << "Value:" << value << ", Min:" << minimum() << ", Max:" << maximum();
+    });
+
     QObject::connect(&units, &UnitGroup::selectionChanged, this, &DoubleSpinBox::updateUnit);
     updateUnit();
 }
