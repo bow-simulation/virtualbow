@@ -1,19 +1,16 @@
 #include "DoubleSpinBox.hpp"
 #include "gui/utils/DoubleRange.hpp"
 #include "gui/viewmodel/units/UnitGroup.hpp"
+#include <limits>
 
 DoubleSpinBox::DoubleSpinBox(const UnitGroup& units, const DoubleRange& range, QWidget* parent)
     : QDoubleSpinBox(parent),
       units(units)
 {
-    setDecimals(6);        // Magic number
+    setDecimals(std::numeric_limits<double>::max());        // Magic number
     setMinimum(range.min);
     setMaximum(range.max);
     setSingleStep(range.step);
-
-    QObject::connect(this, QOverload<double>::of(&DoubleSpinBox::valueChanged), this, [=](double value){
-        qInfo() << "Value:" << value << ", Min:" << minimum() << ", Max:" << maximum();
-    });
 
     QObject::connect(&units, &UnitGroup::selectionChanged, this, &DoubleSpinBox::updateUnit);
     updateUnit();
