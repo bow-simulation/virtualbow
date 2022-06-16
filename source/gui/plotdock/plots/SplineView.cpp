@@ -66,7 +66,8 @@ void SplineView::updatePlot() {
             );
         }
     }
-    catch(std::invalid_argument& e) {
+    catch(std::exception& e) {
+        // TODO: Show error message on plot
         this->graph(0)->data()->clear();
     }
 

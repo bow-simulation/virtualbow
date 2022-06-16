@@ -2,26 +2,17 @@
 #include <QDoubleSpinBox>
 
 class UnitGroup;
-
-enum class Domain {
-    UNRESTRICTED,
-    POSITIVE,
-    NEGATIVE,
-    NON_POSITIVE,
-    NON_NEGATIVE
-};
+class DoubleRange;
 
 class DoubleSpinBox: public QDoubleSpinBox {
 public:
-    DoubleSpinBox(Domain range, QWidget* parent = nullptr);
-
-    void setUnitGroup(const UnitGroup* new_units);
+    DoubleSpinBox(const UnitGroup& units, const DoubleRange& range, QWidget* parent = nullptr);
 
     QString textFromValue(double value) const override;
     double valueFromText(const QString& text) const override;
 
 private:
-    const UnitGroup* units;
+    const UnitGroup& units;
     void updateUnit();
 
 signals:

@@ -40,34 +40,32 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation, int ro
     return QVariant();
 }
 
+// Return unit value for display and base value for editing (editor handles units itself)
 QVariant TableModel::data(const QModelIndex& index, int role) const {
-    if(role == Qt::DisplayRole || role == Qt::EditRole) {
-        if(index.isValid() && entries.contains(index)) {
-            double baseValue = entries.value(index);
-            double unitValue = columnUnits[index.column()]->getSelectedUnit().fromBase(baseValue);
-            return unitValue;
-        }
+    if(role == Qt::DisplayRole && index.isValid() && entries.contains(index)) {
+        double baseValue = entries.value(index);
+        return columnUnits[index.column()]->getSelectedUnit().fromBase(baseValue);
+    }
+
+    if(role == Qt::EditRole && index.isValid() && entries.contains(index)) {
+        return entries.value(index);
     }
 
     return QVariant();
 }
 
 bool TableModel::setData(const QModelIndex& index, const QVariant& value, int role) {
-    if(role == Qt::EditRole) {
-        if(index.isValid()) {
-            if(value.isNull()) {
-                entries.remove(index);
-            }
-            else {
-                double unitValue = value.toDouble();
-                double baseValue = columnUnits[index.column()]->getSelectedUnit().toBase(unitValue);
-                entries.insert(index, baseValue);
-            }
-
-            emit dataChanged(index, index);
-            emit modified();
-            return true;
+    if(role == Qt::EditRole && index.isValid()) {
+        if(value.isNull()) {
+            entries.remove(index);
         }
+        else {
+            entries.insert(index, value.toDouble());
+        }
+
+        emit dataChanged(index, index);
+        emit modified();
+        return true;
     }
 
     return false;

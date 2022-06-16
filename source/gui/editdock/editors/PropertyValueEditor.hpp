@@ -3,14 +3,14 @@
 #include "solver/model/profile/ProfileInput.hpp"
 #include "gui/widgets/DoubleSpinBox.hpp"
 #include <QComboBox>
+#include <QStackedWidget>
 
 class UnitGroup;
-class DoubleSpinBox;
 
 class PropertyValueEditor: public SegmentEditor
 {
 public:
-    PropertyValueEditor(int rows, const QList<QString>& names,  const QList<UnitGroup*>& units);
+    PropertyValueEditor(int rows, const QList<QString>& names,  const QList<UnitGroup*>& units, const QList<DoubleRange>& ranges);
 
 protected:
     template<typename KeyType>
@@ -20,7 +20,7 @@ protected:
         int row = 0;
         for(auto entry: data) {
             combos[row]->setCurrentIndex(static_cast<int>(entry.first));
-            spinners[row]->setValue(entry.second);
+            static_cast<DoubleSpinBox*>(stacks[row]->currentWidget())->setValue(entry.second);
             ++row;
         }
     }
@@ -30,7 +30,7 @@ protected:
         std::unordered_map<KeyType, double> data;
         for(int row = 0; row < combos.size(); ++row) {
             KeyType key = static_cast<KeyType>(combos[row]->currentIndex());
-            data[key] = spinners[row]->value();
+            data[key] = static_cast<DoubleSpinBox*>(stacks[row]->currentWidget())->value();
         }
 
         return data;
@@ -38,6 +38,5 @@ protected:
 
 private:
     QList<QComboBox*> combos;
-    QList<DoubleSpinBox*> spinners;
-    QList<UnitGroup*> units;
+    QList<QStackedWidget*> stacks;
 };

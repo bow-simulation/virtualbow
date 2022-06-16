@@ -1,9 +1,9 @@
 #pragma once
 #include <QStyledItemDelegate>
 
-class PropertyDelegate2: public QStyledItemDelegate {
+class PropertyDelegate: public QStyledItemDelegate {
 public:
-    PropertyDelegate2(QObject* parent = nullptr);
+    PropertyDelegate(QObject* parent = nullptr);
 
 private:
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;

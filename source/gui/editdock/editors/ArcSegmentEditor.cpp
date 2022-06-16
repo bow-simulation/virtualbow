@@ -1,8 +1,9 @@
 #include "ArcSegmentEditor.hpp"
 #include "gui/viewmodel/units/UnitSystem.hpp"
+#include "gui/utils/DoubleRange.hpp"
 
 ArcSegmentEditor::ArcSegmentEditor()
-    : PropertyValueEditor(2, { "Length", "Radius" }, { &UnitSystem::length, &UnitSystem::length }) {
+    : PropertyValueEditor(2, { "Length", "Radius" }, { &UnitSystem::length, &UnitSystem::length }, { DoubleRange::positive(1e-3), DoubleRange::unrestricted(1e-3) }) {
 
 }
 

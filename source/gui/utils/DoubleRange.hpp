@@ -3,15 +3,16 @@
 struct DoubleRange {
     double min;
     double max;
+    double step;
 
-    static DoubleRange inclusive(double min, double max);
-    static DoubleRange exclusive(double min, double max);
+    static DoubleRange inclusive(double min, double max, double step);
+    static DoubleRange exclusive(double min, double max, double step);
 
-    static DoubleRange unrestricted();
-    static DoubleRange positive();
-    static DoubleRange negative();
-    static DoubleRange nonPositive();
-    static DoubleRange nonNegative();
+    static DoubleRange unrestricted(double step);
+    static DoubleRange positive(double step);
+    static DoubleRange negative(double step);
+    static DoubleRange nonPositive(double step);
+    static DoubleRange nonNegative(double step);
 };
 
 // TODO: Unify with DoubleRange and make templated

@@ -51,10 +51,10 @@ MaterialTreeItem::MaterialTreeItem(DataViewModel* model, const Material& materia
     color = new ColorPropertyItem("Color");
     color->setValue(QString::fromStdString(material.color));
 
-    rho = new DoublePropertyItem("Rho", &UnitSystem::density, DoubleRange::positive(), 1.0);
+    rho = new DoublePropertyItem("Rho", &UnitSystem::density, DoubleRange::positive(1.0));
     rho->setValue(material.rho);
 
-    E = new DoublePropertyItem("E", &UnitSystem::density, DoubleRange::positive(), 1.0);
+    E = new DoublePropertyItem("E", &UnitSystem::elastic_modulus, DoubleRange::positive(1e8));
     E->setValue(material.E);
 
     auto tree = new PropertyTreeWidget();

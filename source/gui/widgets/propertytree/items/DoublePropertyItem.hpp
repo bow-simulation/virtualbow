@@ -9,7 +9,7 @@ class GroupPropertyItem;
 class DoublePropertyItem: public PropertyTreeItem
 {
 public:
-    DoublePropertyItem(const QString& name, const UnitGroup* units, const DoubleRange& range, double step, GroupPropertyItem* parent = nullptr);
+    DoublePropertyItem(const QString& name, const UnitGroup* units, const DoubleRange& range, GroupPropertyItem* parent = nullptr);
 
     double getValue() const;
     void setValue(double value);
@@ -25,6 +25,5 @@ private:
     QString name;
     const UnitGroup* units;
     DoubleRange range;
-    double step;
     double value;
 };

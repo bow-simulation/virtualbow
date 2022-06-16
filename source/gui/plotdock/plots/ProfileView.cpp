@@ -56,91 +56,92 @@ void ProfileView::updatePlot() {
 
     this->clearPlottables();
 
+    // Construct profile curve segment by segment, stop on first error
+    ProfileCurve profile;
     try {
-        ProfileCurve profile(input);
-
-        // Add curvature
-
-        std::vector<double> s = linspace(0.0, profile.length(), N_CURVATURE_POINTS);
-        std::vector<double> k; k.reserve(s.size());
-        for(double si: s) {
-            k.push_back(profile.curvature(si));
+        for(auto& segment: input) {
+            profile.add_segment(segment);
         }
+    }
+    catch(const std::exception& e) {
+        // TODO: Show error on plot
+    }
 
-        double k_max = *std::max_element(k.begin(), k.end(), [](double a, double b){ return std::abs(a) < std::abs(b); });
-        double scale = (k_max != 0.0) ? CURVATURE_SCALING*profile.length()/std::abs(k_max) : 0.0;
+    // Abort the curve is empty, otherwise draw the correct segments
+    if(profile.get_segments().empty()) {
+        return;
+    }
 
-        auto curvature_outline = new QCPCurve(this->xAxis, this->yAxis);
-        curvature_outline->setName("Curvature outline");
-        curvature_outline->setPen({Qt::darkGray, 1});
-        curvature_outline->setScatterSkip(0);
+    // Add curvature
+    std::vector<double> s = linspace(0.0, profile.length(), N_CURVATURE_POINTS);
+    std::vector<double> k; k.reserve(s.size());
+    for(double si: s) {
+        k.push_back(profile.curvature(si));
+    }
 
-        curvature_lines.clear();
-        curvature_lines.push_back(curvature_outline);
+    double k_max = *std::max_element(k.begin(), k.end(), [](double a, double b){ return std::abs(a) < std::abs(b); });
+    double scale = (k_max != 0.0) ? CURVATURE_SCALING*profile.length()/std::abs(k_max) : 0.0;
 
-        for(size_t i = 0; i < s.size(); ++i) {
-            Vector<2> position = profile.position(s[i]);
-            double angle = profile.angle(s[i]);
+    auto curvature_outline = new QCPCurve(this->xAxis, this->yAxis);
+    curvature_outline->setName("Curvature outline");
+    curvature_outline->setPen({Qt::darkGray, 1});
+    curvature_outline->setScatterSkip(0);
 
-            double x_start = unit.getSelectedUnit().fromBase(position(0));
-            double y_start = unit.getSelectedUnit().fromBase(position(1));
-            double x_end = unit.getSelectedUnit().fromBase(position(0) - scale*k[i]*sin(angle));
-            double y_end = unit.getSelectedUnit().fromBase(position(1) + scale*k[i]*cos(angle));
+    curvature_lines.clear();
+    curvature_lines.push_back(curvature_outline);
 
-            auto line = new QCPCurve(this->xAxis, this->yAxis);
-            line->setPen({Qt::lightGray, 1});
-            line->setScatterSkip(0);
-            line->addData(x_start, y_start);
-            line->addData(x_end, y_end);
+    for(size_t i = 0; i < s.size(); ++i) {
+        Vector<2> position = profile.position(s[i]);
+        double angle = profile.angle(s[i]);
 
-            curvature_outline->addData(x_end, y_end);
-            curvature_lines.push_back(line);
-        }
+        double x_start = unit.getSelectedUnit().fromBase(position(0));
+        double y_start = unit.getSelectedUnit().fromBase(position(1));
+        double x_end = unit.getSelectedUnit().fromBase(position(0) - scale*k[i]*sin(angle));
+        double y_end = unit.getSelectedUnit().fromBase(position(1) + scale*k[i]*cos(angle));
 
-        // Add profile segments
+        auto line = new QCPCurve(this->xAxis, this->yAxis);
+        line->setPen({Qt::lightGray, 1});
+        line->setScatterSkip(0);
+        line->addData(x_start, y_start);
+        line->addData(x_end, y_end);
 
-        segment_curves.clear();
-        for(size_t i = 0; i < profile.get_nodes().size()-1; ++i) {
-            auto segment_curve = new QCPCurve(this->xAxis, this->yAxis);
-            segment_curve->setName("Segment");
-            segment_curves.push_back(segment_curve);
+        curvature_outline->addData(x_end, y_end);
+        curvature_lines.push_back(line);
+    }
 
-            for(double s: Linspace<double>(profile.get_nodes()[i].s, profile.get_nodes()[i+1].s, N_SEGMENT_POINTS)) {
-                Vector<2> point = profile.position(s);
-                segment_curve->addData(
-                    unit.getSelectedUnit().fromBase(point(0)),
-                    unit.getSelectedUnit().fromBase(point(1))
-                );
-            }
-        }
+    // Add profile segments
+    segment_curves.clear();
+    for(size_t i = 0; i < profile.get_nodes().size()-1; ++i) {
+        auto segment_curve = new QCPCurve(this->xAxis, this->yAxis);
+        segment_curve->setName("Segment");
+        segment_curves.push_back(segment_curve);
 
-        // Add profile nodes
-
-        segment_nodes.clear();
-
-        std::vector<Point> nodes;
-        for(auto& segment: profile.get_segments()) {
-            std::vector<Point> segment_nodes = segment->nodes();
-            nodes.insert(nodes.end(), segment_nodes.begin(), segment_nodes.end());
-        }
-
-        for(auto& node: nodes) {
-            auto segment_node = new QCPCurve(this->xAxis, this->yAxis);
-            segment_node->setName("Node");
-            segment_nodes.push_back(segment_node);
-            segment_node->addData(
-                unit.getSelectedUnit().fromBase(node.position(0)),
-                unit.getSelectedUnit().fromBase(node.position(1))
+        for(double s: Linspace<double>(profile.get_nodes()[i].s, profile.get_nodes()[i+1].s, N_SEGMENT_POINTS)) {
+            Vector<2> point = profile.position(s);
+            segment_curve->addData(
+                unit.getSelectedUnit().fromBase(point(0)),
+                unit.getSelectedUnit().fromBase(point(1))
             );
         }
     }
-    /*
-    catch(const std::invalid_argument& e) {
-        // TODO: Show error message on plot
+
+    // Add profile nodes
+    segment_nodes.clear();
+
+    std::vector<Point> nodes;
+    for(auto& segment: profile.get_segments()) {
+        std::vector<Point> segment_nodes = segment->nodes();
+        nodes.insert(nodes.end(), segment_nodes.begin(), segment_nodes.end());
     }
-    */
-    catch(const std::exception& e) {
-        qInfo() << e.what();
+
+    for(auto& node: nodes) {
+        auto segment_node = new QCPCurve(this->xAxis, this->yAxis);
+        segment_node->setName("Node");
+        segment_nodes.push_back(segment_node);
+        segment_node->addData(
+            unit.getSelectedUnit().fromBase(node.position(0)),
+            unit.getSelectedUnit().fromBase(node.position(1))
+        );
     }
 
     updateSelection();

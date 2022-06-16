@@ -16,10 +16,10 @@ SettingsTreeItem::SettingsTreeItem(DataViewModel* model)
     n_limb_elements = new IntegerPropertyItem("Limb elements", IntegerRange::positive(), group1);
     n_string_elements = new IntegerPropertyItem("String elements", IntegerRange::positive(), group1);
     n_draw_steps = new IntegerPropertyItem("Draw steps", IntegerRange::positive(), group2);
-    arrow_clamp_force = new DoublePropertyItem("Arrow clamp force", &UnitSystem::force, DoubleRange::unrestricted(), 0.1, group3);
-    time_span_factor = new DoublePropertyItem("Time span factor", &UnitSystem::ratio, DoubleRange::positive(), 0.01, group3);
-    time_step_factor = new DoublePropertyItem("Time step factor", &UnitSystem::ratio, DoubleRange::exclusive(0.0, 1.0), 0.01, group3);
-    sampling_rate = new DoublePropertyItem("Sampling rate", &UnitSystem::frequency, DoubleRange::positive(), 100.0, group3);
+    arrow_clamp_force = new DoublePropertyItem("Arrow clamp force", &UnitSystem::force, DoubleRange::unrestricted(0.1), group3);
+    time_span_factor = new DoublePropertyItem("Time span factor", &UnitSystem::ratio, DoubleRange::positive(0.01), group3);
+    time_step_factor = new DoublePropertyItem("Time step factor", &UnitSystem::ratio, DoubleRange::exclusive(0.0, 1.0, 0.01), group3);
+    sampling_rate = new DoublePropertyItem("Sampling rate", &UnitSystem::frequency, DoubleRange::positive(100.0), group3);
 
     auto tree = new PropertyTreeWidget();
     tree->addTopLevelItem(group1);

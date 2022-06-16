@@ -1,17 +1,13 @@
 #include "PropertyDelegate.hpp"
 #include "PropertyTreeItem.hpp"
 
-#include <QDoubleSpinBox>
-#include <QDebug>
-#include <QTreeWidgetItem>
-
-PropertyDelegate2::PropertyDelegate2(QObject* parent)
+PropertyDelegate::PropertyDelegate(QObject* parent)
     : QStyledItemDelegate(parent)
 {
 
 }
 
-QWidget* PropertyDelegate2::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
+QWidget* PropertyDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
     if(index.column() == 1) {
         auto data = index.data(Qt::UserRole);
         auto item = (PropertyTreeItem*) data.value<intptr_t>();
@@ -24,7 +20,7 @@ QWidget* PropertyDelegate2::createEditor(QWidget* parent, const QStyleOptionView
     return nullptr;    // Prevent editing the first column (https://stackoverflow.com/a/4964668)
 }
 
-void PropertyDelegate2::setEditorData(QWidget* editor, const QModelIndex& index) const {
+void PropertyDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const {
     auto data = index.data(Qt::UserRole);
     auto item = (PropertyTreeItem*) data.value<intptr_t>();
 
@@ -33,7 +29,7 @@ void PropertyDelegate2::setEditorData(QWidget* editor, const QModelIndex& index)
     }
 }
 
-void PropertyDelegate2::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
+void PropertyDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
     auto data = index.data(Qt::UserRole);
     auto item = (PropertyTreeItem*) data.value<intptr_t>();
 
@@ -42,6 +38,6 @@ void PropertyDelegate2::setModelData(QWidget* editor, QAbstractItemModel* model,
     }
 }
 
-void PropertyDelegate2::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const {
+void PropertyDelegate::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const {
     editor->setGeometry(option.rect);
 }

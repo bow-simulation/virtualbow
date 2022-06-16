@@ -1,8 +1,9 @@
 #include "LineSegmentEditor.hpp"
 #include "gui/viewmodel/units/UnitSystem.hpp"
+#include "gui/utils/DoubleRange.hpp"
 
 LineSegmentEditor::LineSegmentEditor()
-    : PropertyValueEditor(1, { "Length" }, { &UnitSystem::length }) {
+    : PropertyValueEditor(1, { "Length" }, { &UnitSystem::length }, { DoubleRange::positive(1e-3) }) {
 
 }
 
