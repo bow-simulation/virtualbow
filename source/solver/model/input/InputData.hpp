@@ -31,7 +31,7 @@ struct Dimensions {
 struct Layer {
     std::string name = "New layer";
     int material = 0;
-    std::vector<Vector<2>> height{{0.0, 0.015}, {0.5, 0.0125}, {1.0, 0.01}};
+    std::vector<Vector<2>> height{{0.0, 0.015}, {1.0, 0.01}};
 };
 
 struct Masses {
@@ -42,8 +42,8 @@ struct Masses {
 };
 
 struct Damping {
-    double damping_ratio_limbs = 0.0;
-    double damping_ratio_string = 0.0;
+    double damping_ratio_limbs = 0.05;
+    double damping_ratio_string = 0.05;
 };
 
 struct String {
@@ -57,16 +57,14 @@ struct InputData {
     std::string comment;
     Settings settings;
 
-    std::vector<Material> materials { Material() };
+    std::vector<Material> materials = { Material() };
 
     Dimensions dimensions;
 
-    ProfileInput profile {
-        SplineInput {{ 0.0, 0.0 }, { 0.267, 0.01 }, { 0.533, 0.04 }, { 0.8, 0.1 }}
-    };
+    ProfileInput profile = {LineInput {{ LineConstraint::LENGTH, 0.8 }}};
+    std::vector<Vector<2>> width = {{0.0, 0.04}, {1.0, 0.01}};
+    std::vector<Layer> layers = { Layer() };
 
-    std::vector<Vector<2>> width{{0.0, 0.06}, {0.5, 0.03}, {1.0, 0.01}};
-    std::vector<Layer> layers = {Layer()};
     String string;
     Masses masses;
     Damping damping;
