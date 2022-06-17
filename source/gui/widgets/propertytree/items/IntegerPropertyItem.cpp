@@ -1,6 +1,6 @@
 #include "IntegerPropertyItem.hpp"
 #include "GroupPropertyItem.hpp"
-#include <QSpinBox>
+#include "gui/widgets/IntegerSpinBox.hpp"
 
 IntegerPropertyItem::IntegerPropertyItem(const QString& name, const IntegerRange& range, GroupPropertyItem* parent)
     : PropertyTreeItem(parent),
@@ -40,24 +40,22 @@ void IntegerPropertyItem::setData(int column, int role, const QVariant &value) {
 }
 
 QWidget* IntegerPropertyItem::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
-    QSpinBox* editor = new QSpinBox(parent);
+    auto editor = new IntegerSpinBox(range, parent);
     editor->setFrame(false);
-    editor->setMinimum(range.min);
-    editor->setMaximum(range.max);
 
     return editor;
 }
 
 void IntegerPropertyItem::setEditorData(QWidget* editor, const QModelIndex& index) const {
     int value = index.model()->data(index, Qt::EditRole).toInt();
-    QSpinBox* spinBox = static_cast<QSpinBox*>(editor);
-    spinBox->setValue(value);
+    auto spinner = static_cast<IntegerSpinBox*>(editor);
+    spinner->setValue(value);
 }
 
 void IntegerPropertyItem::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
-    QSpinBox* spinBox = static_cast<QSpinBox*>(editor);
-    spinBox->interpretText();    // From Qt examples, to make sure the latest changes are included
-    int value = spinBox->value();
+    auto spinner = static_cast<IntegerSpinBox*>(editor);
+    spinner->interpretText();    // From Qt examples, to make sure the latest changes are included
+    int value = spinner->value();
 
     model->setData(index, value, Qt::EditRole);
 }

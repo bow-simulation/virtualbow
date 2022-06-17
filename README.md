@@ -7,7 +7,7 @@ Visit http://www.virtualbow.org for more information about the project.
 
 # Building
 
-Building VirtualBow requires CMake, a C++17 compiler and the following external dependencies: 
+Building VirtualBow requires CMake, a C++17 compiler and the following external dependencies:
 
 * [Qt 5.9.5](https://www.qt.io/)
 * [Boost 1.79.0](https://www.boost.org/)
@@ -15,7 +15,9 @@ Building VirtualBow requires CMake, a C++17 compiler and the following external 
 * [Eigen 3.4.0](http://eigen.tuxfamily.org/)
 * [Json 3.10.5](https://github.com/nlohmann/json)
 
+Also used are [QCustomPlot](https://www.qcustomplot.com/) and [Calculate](https://github.com/newlawrence/Calculate), but those are already included in the source code.
 The version numbers are just the minimum needed, newer versions might work too.
+
 Optional pre-built dependencies for the supported platforms and compilers are available at [virtualbow-dependencies](https://github.com/bow-simulation/virtualbow-dependencies/releases).
 They each contain a file named `paths.cmake` that will set up the `CMAKE_PREFIX_PATH` so that the libraries are found by CMake.
 The easiest way to use it is by setting `CMAKE_TOOLCHAIN_FILE` to `paths.cmake` in your build,
@@ -44,7 +46,7 @@ On Linux, the Qt libraries packaged with the system are used.
 On Ubuntu they can be installed with
 
     sudo apt install qt5-default
-    
+
 The rest of the build process is the same on Linux and MacOS
 
     mkdir build && cd build

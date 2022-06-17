@@ -1,9 +1,8 @@
 #pragma once
 #include "gui/widgets/propertytree/PropertyTreeItem.hpp"
-#include "gui/utils/DoubleRange.hpp"
+#include "gui/utils/IntegerRange.hpp"
 
 class GroupPropertyItem;
-
 
 class IntegerPropertyItem: public PropertyTreeItem {
 public:
