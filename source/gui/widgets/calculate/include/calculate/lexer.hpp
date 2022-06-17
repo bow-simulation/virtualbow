@@ -31,19 +31,19 @@ constexpr const char separator[] = ",";
 
 
 template<bool>
-constexpr const char* real =
+static constexpr const char* real =
     R"(^[+\-]?\d+$)";
 
 template<>
-constexpr const char* real<false> =
+static constexpr const char* real<false> =
     R"(^[+\-]?(?:(?:NaN|Inf)|(?:(?:\d+\.?\d*|\.\d+)(?:[eE][+\-]?\d+)?))$)";
 
 template<bool>
-constexpr const char* complex =
+static constexpr const char* complex =
     R"(^(?:(?:(?:[+\-]?\d+?)(?:[+\-]?\d+?)[ij])|(?:(?:[+\-]?\d+)[ij]?))$)";
 
 template<>
-constexpr const char* complex<false> =
+static constexpr const char* complex<false> =
     R"(^(?:)"
     R"((?:(?:[+\-]?(?:(?:NaN|Inf)|(?:(?:\d+\.?\d*?|\.\d+?)(?:[eE][+\-]?\d+?)?))))"
     R"((?:[+\-](?:(?:NaN|Inf)|(?:(?:\d+\.?\d*?|\.\d+?)(?:[eE][+\-]?\d+?)?)))[ij])|)"
