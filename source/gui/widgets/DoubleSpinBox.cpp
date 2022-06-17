@@ -1,13 +1,17 @@
 #include "DoubleSpinBox.hpp"
 #include "gui/utils/DoubleRange.hpp"
 #include "gui/viewmodel/units/UnitGroup.hpp"
+#include "gui/widgets/calculate/include/calculate.hpp"
 #include <limits>
+#include <cmath>
+
+static calculate::Parser parser;
 
 DoubleSpinBox::DoubleSpinBox(const UnitGroup& units, const DoubleRange& range, QWidget* parent)
     : QDoubleSpinBox(parent),
       units(units)
 {
-    setDecimals(std::numeric_limits<double>::max());        // Magic number
+    setDecimals(std::numeric_limits<int>::max());
     setMinimum(range.min);
     setMaximum(range.max);
     setSingleStep(range.step);
@@ -21,10 +25,31 @@ QString DoubleSpinBox::textFromValue(double value) const {
 }
 
 double DoubleSpinBox::valueFromText(const QString& text) const {
-    QString number = text;
-    number.remove(suffix());
-    double value = number.toDouble();
+    QString input = text;
+    input.remove(suffix());
+
+    auto expression = parser.parse(input.toStdString());
+    double value = expression();
+
     return units.getSelectedUnit().toBase(value);
+}
+
+QValidator::State DoubleSpinBox::validate(QString& text, int& pos) const {
+    QString input = text;
+    input.remove(suffix());
+
+    try {
+        parser.parse(input.toStdString());
+        return QValidator::Acceptable;
+    }
+    catch(calculate::BaseError&) {
+        return QValidator::Intermediate;
+    }
+}
+
+void DoubleSpinBox::stepBy(int steps) {
+    QDoubleSpinBox::stepBy(steps);
+    emit stepped();
 }
 
 void DoubleSpinBox::updateUnit() {

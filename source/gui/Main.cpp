@@ -1,3 +1,39 @@
+/*
+#include <iostream>
+#include <string>
+#include <QString>
+#include "gui/widgets/calculate/include/calculate.hpp"
+
+int main() {
+    auto parser = calculate::Parser{};
+
+    try {
+        auto expression = parser.parse("(1+8)*3*sin(0)");
+        std::cout << expression() << std::endl;
+    }
+    catch(calculate::BaseError&) {
+        std::cout << "Invalid input";
+    }
+}
+*/
+
+/*
+#include <iostream>
+#include <string>
+#include <QString>
+#include "gui/widgets/atmsp/atmsp.h"
+
+int main() {
+    ATMSP<double> parser;
+    ATMSB<double> bytecode;
+
+    parser.parse(bytecode, "3.14", "");
+    double value = bytecode.run();
+
+    std::cout << "Input: " << "3.14" << ", Output: " << value << std::endl;
+}
+*/
+
 #include "MainWindow.hpp"
 #include "KeyEventFilter.hpp"
 #include "config.hpp"
