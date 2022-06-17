@@ -10,7 +10,7 @@ PlotDock::PlotDock() {
     this->setWindowTitle("Graph");
     this->setObjectName("PlotView");    // Required to save state of main window
     this->setFeatures(QDockWidget::NoDockWidgetFeatures);
-    this->setStyleSheet("background-image:url(:/icons/background.png); background-position: center; background-repeat: no-repeat;");
+    this->setStyleSheet("#PlotView { background-image:url(:/icons/background.png); background-position: center; background-repeat: no-repeat; }");
     this->setWidget(placeholder);
 }
 

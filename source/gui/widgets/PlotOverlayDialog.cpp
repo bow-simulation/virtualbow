@@ -80,9 +80,10 @@ PlotOverlayDialog::PlotOverlayDialog(PlotWidget* plot)
         });
     }
 
-    auto button_open = new QPushButton(QIcon(":/icons/folder-black.svg"), "");
-    //button_open->setFixedHeight(edit_image->sizeHint().height());    // Does not work on macOS (weird result)
-    QObject::connect(button_open, &QPushButton::clicked, [this, edit_image]{
+    auto button_open = new QToolButton();
+    button_open->setIcon(QIcon(":/icons/folder-black.svg"));
+    button_open->setFixedHeight(edit_image->sizeHint().height());
+    QObject::connect(button_open, &QToolButton::clicked, [this, edit_image]{
         QFileDialog dialog(this);
         dialog.setAcceptMode(QFileDialog::AcceptOpen);
         dialog.setFileMode(QFileDialog::ExistingFile);
