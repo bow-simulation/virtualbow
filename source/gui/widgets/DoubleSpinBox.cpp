@@ -1,11 +1,10 @@
 #include "DoubleSpinBox.hpp"
 #include "gui/utils/DoubleRange.hpp"
 #include "gui/viewmodel/units/UnitGroup.hpp"
-#include "gui/widgets/calculate/include/calculate.hpp"
 #include <limits>
 #include <cmath>
 
-static calculate::Parser parser;
+calculate::Parser DoubleSpinBox::parser = calculate::Parser{};
 
 DoubleSpinBox::DoubleSpinBox(const UnitGroup& units, const DoubleRange& range, QWidget* parent)
     : QDoubleSpinBox(parent),
@@ -28,7 +27,7 @@ double DoubleSpinBox::valueFromText(const QString& text) const {
     QString input = text;
     input.remove(suffix());
 
-    auto expression = parser.parse(input.toStdString());
+    auto expression = DoubleSpinBox::parser.parse(input.toStdString());
     double value = expression();
 
     return units.getSelectedUnit().toBase(value);
@@ -39,7 +38,7 @@ QValidator::State DoubleSpinBox::validate(QString& text, int& pos) const {
     input.remove(suffix());
 
     try {
-        parser.parse(input.toStdString());
+        DoubleSpinBox::parser.parse(input.toStdString());
         return QValidator::Acceptable;
     }
     catch(calculate::BaseError&) {

@@ -1,5 +1,6 @@
 #pragma once
 #include <QDoubleSpinBox>
+#include "gui/widgets/calculate/include/calculate.hpp"
 
 class UnitGroup;
 class DoubleRange;
@@ -15,6 +16,7 @@ signals:
 
 private:
     const UnitGroup& units;
+    static calculate::Parser parser;
 
     QString textFromValue(double value) const override;
     double valueFromText(const QString& text) const override;

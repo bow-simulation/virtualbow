@@ -1,5 +1,6 @@
 #pragma once
 #include <QDoubleSpinBox>
+#include "gui/widgets/calculate/include/calculate.hpp"
 
 class IntegerRange;
 
@@ -13,6 +14,8 @@ signals:
     void stepped();
 
 private:
+    static calculate::Parser parser;
+
     int valueFromText(const QString& text) const override;
     QValidator::State validate(QString &text, int &pos) const override;
     void stepBy(int steps) override;
