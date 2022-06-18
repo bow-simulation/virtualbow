@@ -25,25 +25,25 @@ namespace calculate {
 
 namespace defaults {
 
-constexpr const char left[] = "(";
-constexpr const char right[] = ")";
-constexpr const char separator[] = ",";
+inline const char left[] = "(";
+inline const char right[] = ")";
+inline const char separator[] = ",";
 
 
 template<bool>
-static constexpr const char* real =
+inline const char* real =
     R"(^[+\-]?\d+$)";
 
 template<>
-static constexpr const char* real<false> =
+inline const char* real<false> =
     R"(^[+\-]?(?:(?:NaN|Inf)|(?:(?:\d+\.?\d*|\.\d+)(?:[eE][+\-]?\d+)?))$)";
 
 template<bool>
-static constexpr const char* complex =
+inline const char* complex =
     R"(^(?:(?:(?:[+\-]?\d+?)(?:[+\-]?\d+?)[ij])|(?:(?:[+\-]?\d+)[ij]?))$)";
 
 template<>
-static constexpr const char* complex<false> =
+inline const char* complex<false> =
     R"(^(?:)"
     R"((?:(?:[+\-]?(?:(?:NaN|Inf)|(?:(?:\d+\.?\d*?|\.\d+?)(?:[eE][+\-]?\d+?)?))))"
     R"((?:[+\-](?:(?:NaN|Inf)|(?:(?:\d+\.?\d*?|\.\d+?)(?:[eE][+\-]?\d+?)?)))[ij])|)"
@@ -51,22 +51,22 @@ static constexpr const char* complex<false> =
     R"()$)";
 
 template<typename Type>
-constexpr const char* number = real<util::is_integral_v<Type>>;
+inline const char* number = real<util::is_integral_v<Type>>;
 
 template<typename Type>
-constexpr const char* number<std::complex<Type>> = complex<util::is_integral_v<Type>>;
+inline const char* number<std::complex<Type>> = complex<util::is_integral_v<Type>>;
 
-constexpr const char name[] = R"(^[A-Za-z_]+[A-Za-z_\d]*$)";
-constexpr const char sign[] = R"(^(?:[^A-Za-z\d.(),_\s]|(?:\.(?!\d)))+$)";
+inline const char name[] = R"(^[A-Za-z_]+[A-Za-z_\d]*$)";
+inline const char sign[] = R"(^(?:[^A-Za-z\d.(),_\s]|(?:\.(?!\d)))+$)";
 
 }
 
 
 namespace detail {
 
-constexpr const char scape[] = {'\\', '.', '^', '$', '*', '+', '?', '(', ')', '[', ']', '{', '}'};
+inline const char scape[] = {'\\', '.', '^', '$', '*', '+', '?', '(', ')', '[', ']', '{', '}'};
 
-constexpr const char split[] = R"(^(?:(?:(.*[^ij])([+\-].+)[ij])|(.*[^ij])|(.+)[ij])$)";
+inline const char split[] = R"(^(?:(?:(.*[^ij])([+\-].+)[ij])|(.*[^ij])|(.+)[ij])$)";
 
 
 template<typename Type>

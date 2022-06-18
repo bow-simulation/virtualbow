@@ -1,9 +1,8 @@
 #include "IntegerSpinBox.hpp"
 #include "gui/utils/IntegerRange.hpp"
-#include "gui/widgets/calculate/include/calculate.hpp"
 #include <cmath>
 
-static calculate::Parser parser;
+calculate::Parser IntegerSpinBox::parser = calculate::Parser{};
 
 IntegerSpinBox::IntegerSpinBox(const IntegerRange& range, QWidget* parent)
     : QSpinBox(parent)
@@ -16,7 +15,7 @@ int IntegerSpinBox::valueFromText(const QString& text) const {
     QString input = text;
     input.remove(suffix());
 
-    auto expression = parser.parse(input.toStdString());
+    auto expression = IntegerSpinBox::parser.parse(input.toStdString());
     return expression();
 }
 
@@ -25,7 +24,7 @@ QValidator::State IntegerSpinBox::validate(QString& text, int& pos) const {
     input.remove(suffix());
 
     try {
-        parser.parse(input.toStdString());
+        IntegerSpinBox::parser.parse(input.toStdString());
         return QValidator::Acceptable;
     }
     catch(calculate::BaseError&) {
