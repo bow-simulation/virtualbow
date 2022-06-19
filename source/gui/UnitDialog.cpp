@@ -13,9 +13,8 @@ UnitEditor::UnitEditor(UnitGroup& group) {
     auto combo = new QComboBox();
     for(int i = 0; i < group.getUnits().size(); ++i) {
         QString name = group.getUnits()[i].getName();
-        // Replace empty names with "-" and add index to units list as user data.
-        // Index provided by the combobox is useless because it also counts separators.
-        combo->addItem(name.isEmpty() ? "-" : name, QVariant(i));
+        // Add index to units list as user data (index provided by the combobox is useless because it also counts separators)
+        combo->addItem(name, QVariant(i));
         if(i > 0 && (group.getUnits()[i].getType() != group.getUnits()[i-1].getType())) {
             combo->insertSeparator(i);    // Insert separator(s) between different types of unit (SI, US)
         }

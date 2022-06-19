@@ -48,12 +48,12 @@ LayerTreeItem::LayerTreeItem(DataViewModel* model, const Layer& layer)
     : TreeItem(QString::fromStdString(layer.name), QIcon(":/icons/model-layer.svg"), TreeItemType::LAYER),
       model(model)
 {
-    table = new TableEditor("Position", "Height", UnitSystem::ratio, UnitSystem::length, DoubleRange::nonNegative(1e-4), DoubleRange::positive(1e-4));
+    table = new TableEditor("Length", "Height", UnitSystem::ratio, UnitSystem::length, DoubleRange::nonNegative(1e-4), DoubleRange::positive(1e-4));
 
     combo = new QComboBox();
     updateCombo();
 
-    setPlot(new SplineView("Position", "Height", UnitSystem::ratio, UnitSystem::length));
+    setPlot(new SplineView("Length", "Height", UnitSystem::ratio, UnitSystem::length));
     updatePlot();
 
     table->setData(layer.height);

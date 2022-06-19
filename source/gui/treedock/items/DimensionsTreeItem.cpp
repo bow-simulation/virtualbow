@@ -3,6 +3,7 @@
 #include "gui/widgets/propertytree/PropertyTreeWidget.hpp"
 #include "gui/widgets/propertytree/items/GroupPropertyItem.hpp"
 #include "gui/widgets/propertytree/items/DoublePropertyItem.hpp"
+#include <cmath>
 
 DimensionsTreeItem::DimensionsTreeItem(DataViewModel* model)
     : TreeItem("Dimensions", QIcon(":/icons/model-dimensions.svg"), TreeItemType::DIMENSIONS),
@@ -15,7 +16,7 @@ DimensionsTreeItem::DimensionsTreeItem(DataViewModel* model)
     draw_length = new DoublePropertyItem("Draw length", &UnitSystem::length, DoubleRange::positive(1e-3), group1);
     handle_length = new DoublePropertyItem("Length", &UnitSystem::length, DoubleRange::positive(1e-3), group2);
     handle_setback = new DoublePropertyItem("Setback", &UnitSystem::length, DoubleRange::unrestricted(1e-3), group2);
-    handle_angle = new DoublePropertyItem("Angle", &UnitSystem::angle, DoubleRange::unrestricted(1e-3), group2);
+    handle_angle = new DoublePropertyItem("Angle", &UnitSystem::angle, DoubleRange::unrestricted(0.25*M_PI/180), group2);
 
     auto tree = new PropertyTreeWidget();
     tree->addTopLevelItem(group1);

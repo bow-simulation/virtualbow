@@ -105,7 +105,6 @@ add_executable(
     source/gui/SimulationDialog.hpp
     source/gui/UnitDialog.cpp
     source/gui/UnitDialog.hpp
-
     source/gui/limbview/LayerColors.cpp
     source/gui/limbview/LayerColors.hpp
     source/gui/limbview/MaterialLegend.cpp
@@ -116,7 +115,6 @@ add_executable(
     source/gui/limbview/LimbView.hpp
     source/gui/limbview/OpenGLUtils.cpp
     source/gui/limbview/OpenGLUtils.hpp
-
     source/gui/viewmodel/MainViewModel.cpp
     source/gui/viewmodel/MainViewModel.hpp
     source/gui/viewmodel/DataViewModel.cpp
@@ -127,7 +125,6 @@ add_executable(
     source/gui/viewmodel/units/UnitGroup.hpp
     source/gui/viewmodel/units/UnitSystem.cpp
     source/gui/viewmodel/units/UnitSystem.hpp
-
     source/gui/treedock/TreeDock.cpp
     source/gui/treedock/TreeDock.hpp
     source/gui/treedock/TreeItem.cpp
@@ -152,7 +149,6 @@ add_executable(
     source/gui/treedock/items/LayersTreeItem.hpp
     source/gui/treedock/items/ProfileTreeItem.cpp
     source/gui/treedock/items/ProfileTreeItem.hpp
-
     source/gui/editdock/EditDock.cpp
     source/gui/editdock/EditDock.hpp
     source/gui/editdock/editors/SegmentEditor.hpp
@@ -166,21 +162,18 @@ add_executable(
     source/gui/editdock/editors/SplineSegmentEditor.hpp
     source/gui/editdock/editors/PropertyValueEditor.cpp
     source/gui/editdock/editors/PropertyValueEditor.hpp
-
     source/gui/plotdock/PlotDock.cpp
     source/gui/plotdock/PlotDock.hpp
     source/gui/plotdock/plots/ProfileView.cpp
     source/gui/plotdock/plots/ProfileView.hpp
     source/gui/plotdock/plots/SplineView.cpp
     source/gui/plotdock/plots/SplineView.hpp
-
     source/gui/utils/DoubleRange.cpp
     source/gui/utils/DoubleRange.hpp
     source/gui/utils/IntegerRange.cpp
     source/gui/utils/IntegerRange.hpp
     source/gui/utils/UserSettings.cpp
     source/gui/utils/UserSettings.hpp
-
     source/gui/widgets/DialogBase.cpp
     source/gui/widgets/DialogBase.hpp
     source/gui/widgets/DoubleSpinBox.cpp
@@ -204,7 +197,6 @@ add_executable(
     source/gui/widgets/TableModel.hpp
     source/gui/widgets/TableView.cpp
     source/gui/widgets/TableView.hpp
-
     source/gui/widgets/propertytree/PropertyTreeWidget.cpp
     source/gui/widgets/propertytree/PropertyTreeWidget.hpp
     source/gui/widgets/propertytree/PropertyTreeItem.cpp
@@ -221,7 +213,6 @@ add_executable(
     source/gui/widgets/propertytree/items/IntegerPropertyItem.hpp
     source/gui/widgets/propertytree/items/StringPropertyItem.cpp
     source/gui/widgets/propertytree/items/StringPropertyItem.hpp
-
     source/gui/widgets/qcustomplot/qcustomplot.cpp
 )
 
@@ -258,8 +249,18 @@ add_executable(
     source/gui/viewmodel/units/UnitGroup.hpp
     source/gui/viewmodel/units/UnitSystem.cpp
     source/gui/viewmodel/units/UnitSystem.hpp
+    source/gui/utils/DoubleRange.cpp
+    source/gui/utils/DoubleRange.hpp
+    source/gui/utils/IntegerRange.cpp
+    source/gui/utils/IntegerRange.hpp
+    source/gui/utils/UserSettings.cpp
+    source/gui/utils/UserSettings.hpp
     source/gui/widgets/DialogBase.cpp
     source/gui/widgets/DialogBase.hpp
+    source/gui/widgets/DoubleSpinBox.cpp
+    source/gui/widgets/DoubleSpinBox.hpp
+    source/gui/widgets/IntegerSpinBox.cpp
+    source/gui/widgets/IntegerSpinBox.hpp
     source/gui/widgets/PlotOverlayDialog.cpp
     source/gui/widgets/PlotOverlayDialog.hpp
     source/gui/widgets/PlotWidget.cpp

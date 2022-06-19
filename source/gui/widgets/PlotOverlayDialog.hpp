@@ -1,9 +1,9 @@
 #pragma once
 #include "gui/widgets/DialogBase.hpp"
 
+class DoubleSpinBox;
 class PlotWidget;
 class QCPItemPixmap;
-class QDoubleSpinBox;
 class QCheckBox;
 class QGroupBox;
 
@@ -19,11 +19,11 @@ private:
 
     QPixmap pixmap;
 
-    QDoubleSpinBox* spinner_extent_x;
-    QDoubleSpinBox* spinner_extent_y;
-    QDoubleSpinBox* spinner_offset_x;
-    QDoubleSpinBox* spinner_offset_y;
-    QDoubleSpinBox* spinner_angle;
+    DoubleSpinBox* spinner_extent_x;
+    DoubleSpinBox* spinner_extent_y;
+    DoubleSpinBox* spinner_offset_x;
+    DoubleSpinBox* spinner_offset_y;
+    DoubleSpinBox* spinner_angle;
     QCheckBox* cb_aspect_ratio;
 
     QGroupBox* group_image;

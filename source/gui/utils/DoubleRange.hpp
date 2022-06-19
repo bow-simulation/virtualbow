@@ -5,6 +5,9 @@ struct DoubleRange {
     double max;
     double step;
 
+    static const double DECIMALS;  // Number of decimals for tolerance
+    static const double EPSILON;   // Tolerance for inclusive bounds
+
     static DoubleRange inclusive(double min, double max, double step);
     static DoubleRange exclusive(double min, double max, double step);
 

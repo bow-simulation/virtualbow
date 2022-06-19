@@ -11,7 +11,7 @@ public:
     IntegerSpinBox(const IntegerRange& range, QWidget* parent = nullptr);
 
 signals:
-    void stepped();
+    void modified();
 
 private:
     static calculate::Parser parser;

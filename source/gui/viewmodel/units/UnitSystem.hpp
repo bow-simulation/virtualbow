@@ -22,6 +22,7 @@ public:
     static UnitGroup stress;
     static UnitGroup ratio;
     static UnitGroup frequency;
+    static UnitGroup none;
 
     static QVector<UnitGroup*> groups;
 
