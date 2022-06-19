@@ -1,9 +1,13 @@
 #include "PlotOverlayDialog.hpp"
 #include "gui/widgets/PlotWidget.hpp"
+#include "gui/widgets/DoubleSpinBox.hpp"
+#include "gui/viewmodel/units/UnitSystem.hpp"
+#include "gui/utils/DoubleRange.hpp"
+#include <cmath>
 
 // Magic numbers
 const int N_STEPS_TRANSLATION = 250;
-const double STEP_SIZE_ROTATION = 0.25;
+const double STEP_SIZE_ROTATION = 0.25*M_PI/180;
 const double BACKGROUND_OPACITY = 0.5;
 
 PlotOverlayDialog::PlotOverlayDialog(PlotWidget* plot)
@@ -29,16 +33,14 @@ PlotOverlayDialog::PlotOverlayDialog(PlotWidget* plot)
     QLabel* label_angle = new QLabel("Rotation");
     label_angle->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
-    spinner_extent_x = new QDoubleSpinBox();
-    spinner_extent_x->setRange(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max());
-    QObject::connect(spinner_extent_x, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&](){
+    spinner_extent_x = new DoubleSpinBox(UnitSystem::none, DoubleRange::unrestricted(1.0));
+    QObject::connect(spinner_extent_x, QOverload<double>::of(&DoubleSpinBox::valueChanged), [&](){
         updateAspectRatioY();
         updateItem();
     });
 
-    spinner_extent_y = new QDoubleSpinBox();
-    spinner_extent_y->setRange(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max());
-    QObject::connect(spinner_extent_y, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&](){
+    spinner_extent_y = new DoubleSpinBox(UnitSystem::none, DoubleRange::unrestricted(1.0));
+    QObject::connect(spinner_extent_y, QOverload<double>::of(&DoubleSpinBox::valueChanged), [&](){
         updateAspectRatioX();
         updateItem();
     });
@@ -51,19 +53,14 @@ PlotOverlayDialog::PlotOverlayDialog(PlotWidget* plot)
         }
     });
 
-    spinner_offset_x = new QDoubleSpinBox();
-    spinner_offset_x->setRange(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max());
-    QObject::connect(spinner_offset_x, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &PlotOverlayDialog::updateItem);
+    spinner_offset_x = new DoubleSpinBox(UnitSystem::none, DoubleRange::unrestricted(1.0));
+    QObject::connect(spinner_offset_x, &DoubleSpinBox::modified, this, &PlotOverlayDialog::updateItem);
 
-    spinner_offset_y = new QDoubleSpinBox();
-    spinner_offset_y->setRange(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max());
-    QObject::connect(spinner_offset_y, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &PlotOverlayDialog::updateItem);
+    spinner_offset_y = new DoubleSpinBox(UnitSystem::none, DoubleRange::unrestricted(1.0));
+    QObject::connect(spinner_offset_y, &DoubleSpinBox::modified, this, &PlotOverlayDialog::updateItem);
 
-    spinner_angle = new QDoubleSpinBox();
-    spinner_angle->setRange(-180.0, 180.0);
-    spinner_angle->setSingleStep(STEP_SIZE_ROTATION);
-    spinner_angle->setSuffix("°");
-    QObject::connect(spinner_angle, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &PlotOverlayDialog::updateItem);
+    spinner_angle = new DoubleSpinBox(UnitSystem::angle, DoubleRange::inclusive(-M_PI, M_PI, STEP_SIZE_ROTATION));
+    QObject::connect(spinner_angle, &DoubleSpinBox::modified, this, &PlotOverlayDialog::updateItem);
 
     auto edit_image = new QLineEdit();
     edit_image->setPlaceholderText("No file selected");
@@ -263,7 +260,7 @@ void PlotOverlayDialog::updateItem() {
     double angle = spinner_angle->value();          // Rotation of the image around its center
 
     QTransform translation = QTransform().translate(x_offset, y_offset);
-    QTransform rotation = QTransform().rotate(-angle);
+    QTransform rotation = QTransform().rotate(-180.8/M_PI*angle);
     QTransform transform = rotation*translation;
 
     QPointF p0 = transform*QPointF( 0.5*x_extent,  0.5*y_extent);

@@ -10,11 +10,13 @@ class DoubleSpinBox: public QDoubleSpinBox {
 
 public:
     DoubleSpinBox(const UnitGroup& units, const DoubleRange& range, QWidget* parent = nullptr);
+    void showUnit(bool value);
 
 signals:
-    void stepped();
+    void modified();
 
 private:
+    bool show_unit;
     const UnitGroup& units;
     static calculate::Parser parser;
 

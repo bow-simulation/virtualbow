@@ -73,6 +73,6 @@ namespace Units {
     const Unit One_Per_Foot = Unit("1/ft", US, 3.28084);
     const Unit One_Per_Inch = Unit("1/in", US, 39.370079);
 
-    const Unit No_Unit = Unit("", SI, 1.0);
+    const Unit No_Unit = Unit("-", SI, 1.0);
     const Unit Percent = Unit("%", SI, 1e-2);
 }

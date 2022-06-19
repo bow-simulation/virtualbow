@@ -12,9 +12,10 @@ TableDelegate::TableDelegate(const UnitGroup& units, const DoubleRange& range, Q
 
 QWidget* TableDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
     auto editor = new DoubleSpinBox(units, range, parent);
+    editor->showUnit(false);
     editor->setFrame(false);
 
-    QObject::connect(editor, &DoubleSpinBox::stepped, this, [=]{
+    QObject::connect(editor, &DoubleSpinBox::modified, this, [=]{
         const_cast<TableDelegate*>(this)->commitData(editor);    // Hack
     });
 

@@ -131,6 +131,10 @@ UnitGroup UnitSystem::frequency = UnitGroup("Frequency", {
     Units::Megahertz
 }, 0, 0);
 
+UnitGroup UnitSystem::none = UnitGroup("None", {
+    Units::No_Unit
+}, 0, 0);
+
 QVector<UnitGroup*> UnitSystem::groups = {
     &length,
     &angle,
@@ -149,7 +153,8 @@ QVector<UnitGroup*> UnitSystem::groups = {
     &curvature,
     &stress,
     &ratio,
-    &frequency
+    &frequency,
+    &none
 };
 
 void UnitSystem::loadFromSettings(const QSettings& settings) {

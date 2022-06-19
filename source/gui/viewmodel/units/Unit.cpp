@@ -8,8 +8,12 @@ Unit::Unit(const QString& name, UnitType type, double factor)
 
 }
 
-bool Unit::operator==(const Unit& other) {
+bool Unit::operator==(const Unit& other) const {
     return (name == other.name) && (type == other.type) && (factor == other.factor);
+}
+
+bool Unit::operator!=(const Unit& other) const {
+    return !operator==(other);
 }
 
 double Unit::fromBase(double value) const {

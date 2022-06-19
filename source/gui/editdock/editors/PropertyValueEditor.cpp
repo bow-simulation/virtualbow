@@ -20,7 +20,7 @@ PropertyValueEditor::PropertyValueEditor(int rows, const QList<QString>& names, 
 
         for(int j = 0; j < names.size(); ++j) {
             auto spinner = new DoubleSpinBox(*units[i], ranges[i]);
-            QObject::connect(spinner, QOverload<double>::of(&DoubleSpinBox::valueChanged), this, &PropertyValueEditor::modified);
+            QObject::connect(spinner, &DoubleSpinBox::modified, this, &PropertyValueEditor::modified);
             spinner->setFrame(false);
 
             combo->addItem(names[j], j);

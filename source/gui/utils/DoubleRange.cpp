@@ -1,5 +1,9 @@
 #include "DoubleRange.hpp"
 #include <limits>
+#include <cmath>
+
+const double DoubleRange::DECIMALS = 8;      // Magic number
+const double DoubleRange::EPSILON = std::pow(10, -DoubleRange::DECIMALS);
 
 DoubleRange DoubleRange::inclusive(double min, double max, double step) {
     return {
@@ -11,8 +15,8 @@ DoubleRange DoubleRange::inclusive(double min, double max, double step) {
 
 DoubleRange DoubleRange::exclusive(double min, double max, double step) {
     return {
-        .min = min + std::numeric_limits<double>::min(),
-        .max = max - std::numeric_limits<double>::min(),
+        .min = min + EPSILON,
+        .max = max - EPSILON,
         .step = step
     };
 }
@@ -27,7 +31,7 @@ DoubleRange DoubleRange::unrestricted(double step) {
 
 DoubleRange DoubleRange::positive(double step) {
     return {
-        .min = std::numeric_limits<double>::min(),
+        .min = EPSILON,
         .max = std::numeric_limits<double>::max(),
         .step = step
     };
@@ -36,7 +40,7 @@ DoubleRange DoubleRange::positive(double step) {
 DoubleRange DoubleRange::negative(double step) {
     return {
         .min = std::numeric_limits<double>::lowest(),
-        .max = -std::numeric_limits<double>::min(),
+        .max = -EPSILON,
         .step = step
     };
 }

@@ -8,8 +8,8 @@ WidthTreeItem::WidthTreeItem(DataViewModel* model)
     : TreeItem("Width", QIcon(":/icons/model-width.svg"), TreeItemType::WIDTH),
       model(model)
 {
-    auto table = new TableEditor("Position", "Width", UnitSystem::ratio, UnitSystem::length,  DoubleRange::nonNegative(1e-4), DoubleRange::positive(1e-4));
-    auto plot  = new SplineView("Position", "Width", UnitSystem::ratio, UnitSystem::length);
+    auto table = new TableEditor("Length", "Width", UnitSystem::ratio, UnitSystem::length,  DoubleRange::nonNegative(1e-4), DoubleRange::positive(1e-4));
+    auto plot  = new SplineView("Length", "Width", UnitSystem::ratio, UnitSystem::length);
 
     setEditor(table);
     setPlot(plot);

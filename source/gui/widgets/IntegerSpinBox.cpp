@@ -9,6 +9,8 @@ IntegerSpinBox::IntegerSpinBox(const IntegerRange& range, QWidget* parent)
 {
     setMinimum(range.min);
     setMaximum(range.max);
+
+    QObject::connect(this, &IntegerSpinBox::editingFinished, this, &IntegerSpinBox::modified);
 }
 
 int IntegerSpinBox::valueFromText(const QString& text) const {
@@ -34,5 +36,5 @@ QValidator::State IntegerSpinBox::validate(QString& text, int& pos) const {
 
 void IntegerSpinBox::stepBy(int steps) {
     QSpinBox::stepBy(steps);
-    emit stepped();
+    emit modified();
 }
