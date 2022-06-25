@@ -2,15 +2,11 @@
 #include "gui/treedock/TreeItem.hpp"
 #include "solver/model/input/InputData.hpp"
 
-class DataViewModel;
+class ViewModel;
 
 class WidthTreeItem: public TreeItem {
 public:
-    WidthTreeItem(DataViewModel* model);
-    void updateModel();
-    void updateEditor();
-    void updatePlot();
-
-private:
-    DataViewModel* model;
+    WidthTreeItem(ViewModel* model);
+    void updateModel(void* source) override;
+    void updateView(void *source) override;
 };

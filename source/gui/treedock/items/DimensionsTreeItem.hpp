@@ -2,18 +2,19 @@
 #include "gui/treedock/TreeItem.hpp"
 #include "solver/model/input/InputData.hpp"
 
-class DataViewModel;
+class ViewModel;
 class DoublePropertyItem;
+class PropertyTreeWidget;
 
 class DimensionsTreeItem: public TreeItem
 {
 public:
-    DimensionsTreeItem(DataViewModel* model);
-    void updateModel();
-    void updateView();
+    DimensionsTreeItem(ViewModel* model);
+    void updateModel(void* source) override;
+    void updateView(void* source) override;
 
 private:
-    DataViewModel* model;
+    PropertyTreeWidget* property_tree;
     DoublePropertyItem* brace_height;
     DoublePropertyItem* draw_length;
     DoublePropertyItem* handle_length;

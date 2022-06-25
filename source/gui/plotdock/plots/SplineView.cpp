@@ -1,8 +1,8 @@
 #include "SplineView.hpp"
 #include "solver/numerics/Linspace.hpp"
 
-SplineView::SplineView(const QString& x_label, const QString& y_label, const UnitGroup& x_unit, const UnitGroup& y_unit)
-    : x_label(x_label), y_label(y_label), x_unit(x_unit), y_unit(y_unit)
+SplineView::SplineView(const QString& x_label, const QString& y_label, const Quantity& x_quantity, const Quantity& y_quantity)
+    : x_label(x_label), y_label(y_label), x_quantity(x_quantity), y_quantity(y_quantity)
 {
     // Line
     this->addGraph();
@@ -34,8 +34,8 @@ SplineView::SplineView(const QString& x_label, const QString& y_label, const Uni
     this->contextMenu()->insertSeparator(before);
 
     // Update on unit changes
-    QObject::connect(&x_unit, &UnitGroup::selectionChanged, this, &SplineView::updatePlot);
-    QObject::connect(&y_unit, &UnitGroup::selectionChanged, this, &SplineView::updatePlot);
+    QObject::connect(&x_quantity, &Quantity::unitChanged, this, &SplineView::updatePlot);
+    QObject::connect(&y_quantity, &Quantity::unitChanged, this, &SplineView::updatePlot);
 }
 
 void SplineView::setData(const std::vector<Vector<2>>& data) {
@@ -49,8 +49,8 @@ void SplineView::setSelection(const QVector<int>& indices) {
 }
 
 void SplineView::updatePlot() {
-    this->xAxis->setLabel(x_label + " " + x_unit.getSelectedUnit().getLabel());
-    this->yAxis->setLabel(y_label + " " + y_unit.getSelectedUnit().getLabel());
+    this->xAxis->setLabel(x_label + " " + x_quantity.getUnit().getLabel());
+    this->yAxis->setLabel(y_label + " " + y_quantity.getUnit().getLabel());
 
     this->graph(0)->data()->clear();
     this->graph(1)->data()->clear();
@@ -61,8 +61,8 @@ void SplineView::updatePlot() {
         CubicSpline spline = CubicSpline(input, true);
         for(double p: Linspace<double>(spline.arg_min(), spline.arg_max(), 500)) {    // Magic number
             this->graph(0)->addData(
-                x_unit.getSelectedUnit().fromBase(p),
-                y_unit.getSelectedUnit().fromBase(spline(p))
+                x_quantity.getUnit().fromBase(p),
+                y_quantity.getUnit().fromBase(spline(p))
             );
         }
     }
@@ -75,14 +75,14 @@ void SplineView::updatePlot() {
     for(int i = 0; i < input.size(); ++i) {
         if(selection.contains(i)) {
             this->graph(2)->addData(
-                x_unit.getSelectedUnit().fromBase(input[i](0)),
-                y_unit.getSelectedUnit().fromBase(input[i](1))
+                x_quantity.getUnit().fromBase(input[i](0)),
+                y_quantity.getUnit().fromBase(input[i](1))
             );
         }
         else {
             this->graph(1)->addData(
-                x_unit.getSelectedUnit().fromBase(input[i](0)),
-                y_unit.getSelectedUnit().fromBase(input[i](1))
+                x_quantity.getUnit().fromBase(input[i](0)),
+                y_quantity.getUnit().fromBase(input[i](1))
             );
         }
     }

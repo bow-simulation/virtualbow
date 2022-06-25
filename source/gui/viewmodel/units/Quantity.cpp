@@ -1,7 +1,7 @@
-#include "UnitGroup.hpp"
+#include "Quantity.hpp"
 #include "UnitSystem.hpp"
 
-UnitGroup::UnitGroup(const QString& name, const QList<Unit>& units, int default_si, int default_us)
+Quantity::Quantity(const QString& name, const QList<Unit>& units, int default_si, int default_us)
     : name(name),
       units(units),
       default_si(default_si),
@@ -13,7 +13,7 @@ UnitGroup::UnitGroup(const QString& name, const QList<Unit>& units, int default_
     }
 }
 
-void UnitGroup::loadFromSettings(const QSettings& settings) {
+void Quantity::loadFromSettings(const QSettings& settings) {
     QVariant nameSetting = settings.value(getSettingsKey());
     if(nameSetting.isValid()) {
         for(int index = 0; index < units.size(); ++index) {
@@ -24,27 +24,27 @@ void UnitGroup::loadFromSettings(const QSettings& settings) {
     }
 }
 
-void UnitGroup::saveToSettings(QSettings& settings) const {
-    settings.setValue(getSettingsKey(), getSelectedUnit().getName());
+void Quantity::saveToSettings(QSettings& settings) const {
+    settings.setValue(getSettingsKey(), getUnit().getName());
 }
 
-QString UnitGroup::getSettingsKey() const {
+QString Quantity::getSettingsKey() const {
     return "Units/" + name.toLower().replace(" ", "_");
 }
 
-const QString& UnitGroup::getName() const {
+const QString& Quantity::getName() const {
     return name;
 }
 
-const QList<Unit>& UnitGroup::getUnits() const {
+const QList<Unit>& Quantity::getUnits() const {
     return units;
 }
 
-const Unit& UnitGroup::getSelectedUnit() const {
+const Unit& Quantity::getUnit() const {
     return units[selection];
 }
 
-void UnitGroup::setSelectedUnit(const Unit& unit) {
+void Quantity::setUnit(const Unit& unit) {
     for(int index = 0; index < units.length(); ++index) {
         if(units[index] == unit) {
             setSelectedIndex(index);
@@ -55,21 +55,21 @@ void UnitGroup::setSelectedUnit(const Unit& unit) {
     throw std::invalid_argument("Unit not in list");
 }
 
-void UnitGroup::setSelectedIndex(int index) {
+void Quantity::setSelectedIndex(int index) {
     if(index != selection) {
         selection = index;
-        emit selectionChanged(getSelectedUnit());
+        emit unitChanged(getUnit());
     }
 }
 
-int UnitGroup::getSelectedIndex() const {
+int Quantity::getSelectedIndex() const {
     return selection;
 }
 
-void UnitGroup::resetSI() {
+void Quantity::resetSI() {
     setSelectedIndex(default_si);
 }
 
-void UnitGroup::resetUS() {
+void Quantity::resetUS() {
     setSelectedIndex(default_us);
 }

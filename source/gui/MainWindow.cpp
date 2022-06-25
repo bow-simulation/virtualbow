@@ -6,8 +6,7 @@
 #include "editdock/EditDock.hpp"
 #include "plotdock/PlotDock.hpp"
 #include "limbview/LimbView.hpp"
-#include "viewmodel/MainViewModel.hpp"
-#include "viewmodel/DataViewModel.hpp"
+#include "viewmodel/ViewModel.hpp"
 #include "utils/UserSettings.hpp"
 #include "UnitDialog.hpp"
 #include "config.hpp"
@@ -20,7 +19,7 @@
 #include <QApplication>
 
 MainWindow::MainWindow()
-    : view_model(new MainViewModel()),
+    : view_model(new ViewModel()),
       menu_open_recent(new RecentFilesMenu(this))
 {
     // Actions
@@ -115,8 +114,8 @@ MainWindow::MainWindow()
     this->setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-    auto limb_view = new LimbView(view_model->dataModel());
-    auto tree_dock = new TreeDock(view_model->dataModel());
+    auto limb_view = new LimbView(view_model);
+    auto tree_dock = new TreeDock(view_model);
     auto edit_dock = new EditDock();
     auto plot_dock = new PlotDock();
 
@@ -130,11 +129,11 @@ MainWindow::MainWindow()
 
     // Connect window file path to view model
     this->setWindowFilePath(view_model->displayPath());
-    QObject::connect(view_model, &MainViewModel::displayPathChanged, this, &MainWindow::setWindowFilePath);
+    QObject::connect(view_model, &ViewModel::displayPathChanged, this, &MainWindow::setWindowFilePath);
 
     // Connect modification indicator to view model
     this->setWindowModified(view_model->isModified());
-    QObject::connect(view_model, &MainViewModel::modificationChanged, this, &MainWindow::setWindowModified);
+    QObject::connect(view_model, &ViewModel::modificationChanged, this, &MainWindow::setWindowModified);
 
     // Main window
     this->setWindowIcon(QIcon(":/icons/logo.svg"));
@@ -146,7 +145,7 @@ MainWindow::MainWindow()
     restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
 
     // Load unit settings
-    UnitSystem::loadFromSettings(settings);    // TODO: Move to ViewModel
+    Quantities::loadFromSettings(settings);    // TODO: Move to ViewModel
 
     // Load defaults
     newFile();

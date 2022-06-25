@@ -2,16 +2,16 @@
 #include "GroupPropertyItem.hpp"
 #include "gui/widgets/DoubleSpinBox.hpp"
 
-DoublePropertyItem::DoublePropertyItem(const QString& name, const UnitGroup* units, const DoubleRange& range, GroupPropertyItem* parent)
+DoublePropertyItem::DoublePropertyItem(const QString& name, const Quantity& quantity, const DoubleRange& range, GroupPropertyItem* parent)
     : PropertyTreeItem(parent),
       name(name),
-      units(units),
+      quantity(quantity),
       range(range),
       value(0.0)
 
 {
     this->setFlags(this->flags() | Qt::ItemIsEditable);
-    QObject::connect(units, &UnitGroup::selectionChanged, [&]{ emitDataChanged(); });    // Update on unit changes
+    QObject::connect(&quantity, &Quantity::unitChanged, [&]{ emitDataChanged(); });    // Update on unit changes
 }
 
 double DoublePropertyItem::getValue() const {
@@ -31,9 +31,9 @@ QVariant DoublePropertyItem::data(int column, int role) const {
     // For display role, convert the value to the specified unit and return as a string with unit label.
     // For the edit role, return the base value because the editor widget deals with the units.
     if(column == 1) {
-        double unit_value = units->getSelectedUnit().fromBase(value);
+        double unit_value = quantity.getUnit().fromBase(value);
         if(role == Qt::DisplayRole) {
-            return QString::number(unit_value) + " " + units->getSelectedUnit().getName();
+            return QString::number(unit_value) + " " + quantity.getUnit().getName();
         }
         if(role == Qt::EditRole) {
             return value;
@@ -51,7 +51,7 @@ void DoublePropertyItem::setData(int column, int role, const QVariant &value) {
 }
 
 QWidget* DoublePropertyItem::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
-    auto editor = new DoubleSpinBox(*units, range, parent);
+    auto editor = new DoubleSpinBox(quantity, range, parent);
     editor->setFrame(false);
 
     return editor;

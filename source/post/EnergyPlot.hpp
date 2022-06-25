@@ -5,14 +5,14 @@
 
 class EnergyPlot: public QWidget {
 public:
-    EnergyPlot(const BowStates& states, const std::vector<double>& parameter, const QString& label_x, const UnitGroup& unit_x, const UnitGroup& unit_y);
+    EnergyPlot(const BowStates& states, const std::vector<double>& parameter, const QString& label_x, const Quantity& quantity_x, const Quantity& quantity_y);
     void setStateIndex(int index);
 
 private:
     const BowStates& states;
     const std::vector<double>& parameter;
-    const UnitGroup& unit_x;
-    const UnitGroup& unit_y;
+    const Quantity& quantity_x;
+    const Quantity& quantity_y;
     QString label_x;
 
     PlotWidget* plot;

@@ -20,8 +20,8 @@ StressPlot::StressPlot(const LimbProperties& limb, const BowStates& states)
     : limb(limb),
       states(states),
       index(0),
-      unit_length(UnitSystem::length),
-      unit_stress(UnitSystem::stress)
+      quantity_length(Quantities::length),
+      quantity_stress(Quantities::stress)
 {
     this->setupTopLegend();
 
@@ -38,8 +38,8 @@ StressPlot::StressPlot(const LimbProperties& limb, const BowStates& states)
         this->graph(2*i+1)->setPen({QBrush(color), 2.0, Qt::DashLine});
     }
 
-    QObject::connect(&unit_length, &UnitGroup::selectionChanged, this, &StressPlot::updatePlot);
-    QObject::connect(&unit_stress, &UnitGroup::selectionChanged, this, &StressPlot::updatePlot);
+    QObject::connect(&quantity_length, &Quantity::unitChanged, this, &StressPlot::updatePlot);
+    QObject::connect(&quantity_stress, &Quantity::unitChanged, this, &StressPlot::updatePlot);
     updatePlot();
 }
 
@@ -59,23 +59,23 @@ void StressPlot::updateStresses() {
     for(int i = 0; i < limb.layers.size(); ++i) {
         const LayerProperties& layer = limb.layers[i];
         this->graph(2*i)->setData(
-            unit_length.getSelectedUnit().fromBase(layer.length),
-            unit_stress.getSelectedUnit().fromBase(layer.He_back*states.epsilon[index] + layer.Hk_back*states.kappa[index])
+            quantity_length.getUnit().fromBase(layer.length),
+            quantity_stress.getUnit().fromBase(layer.He_back*states.epsilon[index] + layer.Hk_back*states.kappa[index])
         );
         this->graph(2*i+1)->setData(
-            unit_length.getSelectedUnit().fromBase(layer.length),
-            unit_stress.getSelectedUnit().fromBase(layer.He_belly*states.epsilon[index] + layer.Hk_belly*states.kappa[index])
+            quantity_length.getUnit().fromBase(layer.length),
+            quantity_stress.getUnit().fromBase(layer.He_belly*states.epsilon[index] + layer.Hk_belly*states.kappa[index])
         );
     }
 }
 
 void StressPlot::updateAxes() {
-    this->xAxis->setLabel("Arc length " + unit_length.getSelectedUnit().getLabel());
-    this->yAxis->setLabel("Stress " + unit_stress.getSelectedUnit().getLabel());
+    this->xAxis->setLabel("Arc length " + quantity_length.getUnit().getLabel());
+    this->yAxis->setLabel("Stress " + quantity_stress.getUnit().getLabel());
 
     QCPRange x_range(
-        unit_length.getSelectedUnit().fromBase(limb.length.minCoeff()),
-        unit_length.getSelectedUnit().fromBase(limb.length.maxCoeff())
+        quantity_length.getUnit().fromBase(limb.length.minCoeff()),
+        quantity_length.getUnit().fromBase(limb.length.maxCoeff())
     );
     QCPRange y_range(
         0.0,
@@ -89,10 +89,10 @@ void StressPlot::updateAxes() {
             VectorXd sigma_back = layer.He_back*states.epsilon[i] + layer.Hk_back*states.kappa[i];
             VectorXd sigma_belly = layer.He_belly*states.epsilon[i] + layer.Hk_belly*states.kappa[i];
 
-            y_range.expand(unit_stress.getSelectedUnit().fromBase(sigma_back.minCoeff()));
-            y_range.expand(unit_stress.getSelectedUnit().fromBase(sigma_back.maxCoeff()));
-            y_range.expand(unit_stress.getSelectedUnit().fromBase(sigma_belly.minCoeff()));
-            y_range.expand(unit_stress.getSelectedUnit().fromBase(sigma_belly.maxCoeff()));
+            y_range.expand(quantity_stress.getUnit().fromBase(sigma_back.minCoeff()));
+            y_range.expand(quantity_stress.getUnit().fromBase(sigma_back.maxCoeff()));
+            y_range.expand(quantity_stress.getUnit().fromBase(sigma_belly.minCoeff()));
+            y_range.expand(quantity_stress.getUnit().fromBase(sigma_belly.maxCoeff()));
         }
     }
 

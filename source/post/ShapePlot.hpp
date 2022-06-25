@@ -11,7 +11,7 @@ public:
 private:
     const LimbProperties& limb;
     const BowStates& states;
-    const UnitGroup& unit;
+    const Quantity& quantity;
 
     int background_states;
     int index;

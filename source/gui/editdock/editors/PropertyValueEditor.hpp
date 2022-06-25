@@ -5,12 +5,12 @@
 #include <QComboBox>
 #include <QStackedWidget>
 
-class UnitGroup;
+class Quantity;
 
 class PropertyValueEditor: public SegmentEditor
 {
 public:
-    PropertyValueEditor(int rows, const QList<QString>& names,  const QList<UnitGroup*>& units, const QList<DoubleRange>& ranges);
+    PropertyValueEditor(int rows, const QList<QString>& names,  const QList<Quantity*>& quantities, const QList<DoubleRange>& ranges);
 
 protected:
     template<typename KeyType>

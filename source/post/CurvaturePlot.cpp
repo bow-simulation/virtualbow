@@ -5,15 +5,15 @@ CurvaturePlot::CurvaturePlot(const LimbProperties& limb, const BowStates& states
     : limb(limb),
       states(states),
       index(0),
-      unit_length(UnitSystem::length),
-      unit_curvature(UnitSystem::curvature)
+      quantity_length(Quantities::length),
+      quantity_curvature(Quantities::curvature)
 {
     this->addGraph();
     this->graph(0)->setName("Curvature");
     this->graph(0)->setPen({Qt::blue, 2.0});
 
-    QObject::connect(&unit_length, &UnitGroup::selectionChanged, this, &CurvaturePlot::updatePlot);
-    QObject::connect(&unit_curvature, &UnitGroup::selectionChanged, this, &CurvaturePlot::updatePlot);
+    QObject::connect(&quantity_length, &Quantity::unitChanged, this, &CurvaturePlot::updatePlot);
+    QObject::connect(&quantity_curvature, &Quantity::unitChanged, this, &CurvaturePlot::updatePlot);
     updatePlot();
 }
 
@@ -31,19 +31,19 @@ void CurvaturePlot::updatePlot() {
 
 void CurvaturePlot::updateCurvature() {
     this->graph(0)->setData(
-        unit_length.getSelectedUnit().fromBase(limb.length),
-        unit_curvature.getSelectedUnit().fromBase(states.kappa[index])
+        quantity_length.getUnit().fromBase(limb.length),
+        quantity_curvature.getUnit().fromBase(states.kappa[index])
     );
 }
 
 
 void CurvaturePlot::updateAxes() {
-    this->xAxis->setLabel("Arc length " + unit_length.getSelectedUnit().getLabel());
-    this->yAxis->setLabel("Curvature " + unit_curvature.getSelectedUnit().getLabel());
+    this->xAxis->setLabel("Arc length " + quantity_length.getUnit().getLabel());
+    this->yAxis->setLabel("Curvature " + quantity_curvature.getUnit().getLabel());
 
     QCPRange x_range(
-        unit_length.getSelectedUnit().fromBase(limb.length.minCoeff()),
-        unit_length.getSelectedUnit().fromBase(limb.length.maxCoeff())
+        quantity_length.getUnit().fromBase(limb.length.minCoeff()),
+        quantity_length.getUnit().fromBase(limb.length.maxCoeff())
     );
     QCPRange y_range(
         0.0,
@@ -52,7 +52,7 @@ void CurvaturePlot::updateAxes() {
 
     for(size_t i = 0; i < states.kappa.size(); ++i) {
         for(size_t j = 1; j < states.kappa[i].size(); j++) {
-            y_range.expand(unit_curvature.getSelectedUnit().fromBase(states.kappa[i][j]));
+            y_range.expand(quantity_curvature.getUnit().fromBase(states.kappa[i][j]));
         }
     }
 

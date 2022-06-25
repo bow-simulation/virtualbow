@@ -14,8 +14,8 @@ private:
     const BowStates& states;
     int index;
 
-    const UnitGroup& unit_length;
-    const UnitGroup& unit_stress;
+    const Quantity& quantity_length;
+    const Quantity& quantity_stress;
 
     void updatePlot();
     void updateStresses();

@@ -2,16 +2,13 @@
 #include "gui/treedock/TreeItem.hpp"
 #include <string>
 
-class DataViewModel;
+class ViewModel;
 class QPlainTextEdit;
 
 class CommentTreeItem: public TreeItem
 {
 public:
-    CommentTreeItem(DataViewModel* model);
-    void updateModel();
-    void updateView();
-
-private:
-    DataViewModel* model;
+    CommentTreeItem(ViewModel* model);
+    void updateModel(void* source) override;
+    void updateView(void* source) override;
 };

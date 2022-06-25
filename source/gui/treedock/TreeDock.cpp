@@ -1,5 +1,5 @@
 #include "TreeDock.hpp"
-#include "gui/viewmodel/DataViewModel.hpp"
+#include "gui/viewmodel/ViewModel.hpp"
 #include "items/CommentTreeItem.hpp"
 #include "items/SettingsTreeItem.hpp"
 #include "items/DimensionsTreeItem.hpp"
@@ -22,7 +22,7 @@
 
 #include <QDebug>
 
-TreeDock::TreeDock(DataViewModel* model)
+TreeDock::TreeDock(ViewModel* model)
     : model(model),
       tree(new QTreeWidget()),
       menu_add_material(createMaterialMenu()),
@@ -139,15 +139,11 @@ TreeDock::TreeDock(DataViewModel* model)
         updateButtons();    // Update buttons according to selection
     });
 
-    // (Re)build tree when data is loaded (resets all selections and editors)
-    QObject::connect(model, &DataViewModel::reloaded, this, &TreeDock::rebuildTree);
+    createTopLevelItems();
+    updateButtons();
 }
 
-void TreeDock::rebuildTree() {
-    // Remove existing items
-    tree->clear();
-
-    // Add new items
+void TreeDock::createTopLevelItems() {
     item_comments = new CommentTreeItem(model);
     tree->addTopLevelItem(item_comments);
 
@@ -177,8 +173,6 @@ void TreeDock::rebuildTree() {
 
     item_damping = new DampingTreeItem(model);
     tree->addTopLevelItem(item_damping);
-
-    updateButtons();
 }
 
 QMenu* TreeDock::createMaterialMenu() {
@@ -219,10 +213,10 @@ QMenu* TreeDock::createSegmentMenu() {
     auto add_segment_at_item = [&](const SegmentInput& segment) {
         auto item = static_cast<TreeItem*>(tree->currentItem());
         if(item->type() == TreeItemType::PROFILE) {
-            item_profile->insertChild(item_profile->childCount(), new SegmentTreeItem(segment));
+            item_profile->insertChild(item_profile->childCount(), new SegmentTreeItem(model, segment));
         }
         else if(item->type() == TreeItemType::SEGMENT) {
-            item_profile->insertChild(item_profile->indexOfChild(item) + 1, new SegmentTreeItem(segment));
+            item_profile->insertChild(item_profile->indexOfChild(item) + 1, new SegmentTreeItem(model, segment));
         }
     };
 
@@ -233,64 +227,6 @@ QMenu* TreeDock::createSegmentMenu() {
     menu->addAction(QIcon(":/icons/segment-spline.svg"), "New Spline", this, [=]{ add_segment_at_item(SplineInput({{0.0, 0.0}, {0.2, 0.0}})); });
 
     return menu;
-}
-
-QIcon segmentIcon(const SegmentInput& segment) {
-    if(std::holds_alternative<LineInput>(segment)) {
-        return QIcon(":/icons/segment-line.svg");
-    }
-    if(std::holds_alternative<ArcInput>(segment)) {
-        return QIcon(":/icons/segment-arc.svg");
-    }
-    if(std::holds_alternative<SpiralInput>(segment)) {
-        return QIcon(":/icons/segment-spiral.svg");
-    }
-    if(std::holds_alternative<SplineInput>(segment)) {
-        return QIcon(":/icons/segment-spline.svg");
-    }
-
-    throw std::invalid_argument("Unknown segment type");
-}
-
-QString segmentText(const SegmentInput& segment) {
-    if(std::holds_alternative<LineInput>(segment)) {
-        return "Line";
-    }
-    if(std::holds_alternative<ArcInput>(segment)) {
-        return "Arc";
-    }
-    if(std::holds_alternative<SpiralInput>(segment)) {
-        return "Spiral";
-    }
-    if(std::holds_alternative<SplineInput>(segment)) {
-        return "Spline";
-    }
-
-    throw std::invalid_argument("Unknown segment type");
-}
-
-QTreeWidgetItem* TreeDock::createProfileItem(const SegmentInput& segment) const {
-    return new TreeItem(segmentText(segment), segmentIcon(segment), TreeItemType::SEGMENT);
-}
-
-// Modifies the given name, if needed, by appending (2), (3), ... (n)
-// until it doesn't match any of the item names under parent anymore
-QString TreeDock::createUniqueName(const QString& name, QTreeWidgetItem* parent) const {
-    auto taken = [&](QString name){
-        for(int i = 0; i < parent->childCount(); ++i) {
-            if(parent->child(i)->text(0) == name) {
-                return true;
-            }
-        }
-        return false;
-    };
-
-    QString unique = name;
-    for(int number = 2; taken(unique); ++number) {
-        unique = name + " (" + QString::number(number) + ")";
-    }
-
-    return unique;
 }
 
 void TreeDock::updateButtons() {

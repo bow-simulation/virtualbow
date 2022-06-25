@@ -3,7 +3,7 @@
 #include "gui/utils/DoubleRange.hpp"
 
 SpiralSegmentEditor::SpiralSegmentEditor()
-    : PropertyValueEditor(3, { "Length", "R Start", "R End" }, { &UnitSystem::length, &UnitSystem::length, &UnitSystem::length }, { DoubleRange::positive(1e-3), DoubleRange::unrestricted(1e-3), DoubleRange::unrestricted(1e-3) }) {
+    : PropertyValueEditor(3, { "Length", "R Start", "R End" }, { &Quantities::length, &Quantities::length, &Quantities::length }, { DoubleRange::positive(1e-3), DoubleRange::unrestricted(1e-3), DoubleRange::unrestricted(1e-3) }) {
 
 }
 

@@ -3,7 +3,7 @@
 #include "gui/utils/DoubleRange.hpp"
 
 LineSegmentEditor::LineSegmentEditor()
-    : PropertyValueEditor(1, { "Length" }, { &UnitSystem::length }, { DoubleRange::positive(1e-3) }) {
+    : PropertyValueEditor(1, { "Length" }, { &Quantities::length }, { DoubleRange::positive(1e-3) }) {
 
 }
 

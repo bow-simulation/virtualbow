@@ -1,5 +1,5 @@
 #include "NumberGrid.hpp"
-#include "gui/viewmodel/units/UnitGroup.hpp"
+#include "gui/viewmodel/units/Quantity.hpp"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGridLayout>
@@ -45,7 +45,7 @@ void NumberGrid::addGroup(const QString& name) {
     currentColumn->insertWidget(i, group);
 }
 
-void NumberGrid::addValue(const QString& name, double value, const UnitGroup& unit) {
+void NumberGrid::addValue(const QString& name, double value, const Quantity& quantity) {
     if(currentColumn == nullptr) {
         addColumn();
     }
@@ -64,10 +64,10 @@ void NumberGrid::addValue(const QString& name, double value, const UnitGroup& un
     currentGrid->addWidget(edit, i, 1);
 
     auto update = [&, name, value, label, edit] {
-        label->setText(name + " " + unit.getSelectedUnit().getLabel());
-        edit->setText(QLocale().toString(unit.getSelectedUnit().fromBase(value)));
+        label->setText(name + " " + quantity.getUnit().getLabel());
+        edit->setText(QLocale().toString(quantity.getUnit().fromBase(value)));
     };
 
-    QObject::connect(&unit, &UnitGroup::selectionChanged, this, update);
+    QObject::connect(&quantity, &Quantity::unitChanged, this, update);
     update();
 }

@@ -1,13 +1,13 @@
 #pragma once
 #include <QAbstractTableModel>
 #include "solver/numerics/EigenTypes.hpp"
-#include "gui/viewmodel/units/UnitGroup.hpp"
+#include "gui/viewmodel/units/Quantity.hpp"
 
 class TableModel: public QAbstractTableModel {
     Q_OBJECT
 
 public:
-    TableModel(const QString& x_label, const QString& y_label, const UnitGroup& x_unit, const UnitGroup& y_unit, QObject *parent = nullptr);
+    TableModel(const QString& x_label, const QString& y_label, const Quantity& x_quantity, const Quantity& y_quantity, QObject *parent = nullptr);
 
     // Implementation of QAbstractItemModel
 
@@ -32,7 +32,7 @@ signals:
 
 private:
     QList<QString> columnLabels;
-    QList<const UnitGroup*> columnUnits;
+    QList<const Quantity*> columnUnits;
     QMap<QModelIndex, double> entries;
     int loadedRows;
 };

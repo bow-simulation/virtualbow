@@ -7,5 +7,4 @@ PropertyTreeWidget::PropertyTreeWidget() {
     this->setItemDelegate(new PropertyDelegate(this));   
     this->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     this->header()->hide();
-    //this->expandAll();
 }

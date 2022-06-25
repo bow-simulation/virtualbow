@@ -1,42 +1,47 @@
 #include "MassesTreeItem.hpp"
-#include "gui/viewmodel/DataViewModel.hpp"
+#include "gui/viewmodel/ViewModel.hpp"
 #include "gui/widgets/propertytree/PropertyTreeWidget.hpp"
 #include "gui/widgets/propertytree/items/DoublePropertyItem.hpp"
 
-MassesTreeItem::MassesTreeItem(DataViewModel* model)
-    : TreeItem("Masses", QIcon(":/icons/model-masses.svg"), TreeItemType::MASSES),
-      model(model)
+MassesTreeItem::MassesTreeItem(ViewModel* model)
+    : TreeItem(model, "Masses", QIcon(":/icons/model-masses.svg"), TreeItemType::MASSES)
 {
-    arrow = new DoublePropertyItem("Arrow", &UnitSystem::mass, DoubleRange::positive(1e-3));
-    string_center = new DoublePropertyItem("String center", &UnitSystem::mass, DoubleRange::nonNegative(1e-3));
-    string_tip = new DoublePropertyItem("String tip", &UnitSystem::mass, DoubleRange::nonNegative(1e-3));
-    limb_tip = new DoublePropertyItem("Limb tip", &UnitSystem::mass, DoubleRange::nonNegative(1e-3));
+    arrow = new DoublePropertyItem("Arrow", Quantities::mass, DoubleRange::positive(1e-3));
+    string_center = new DoublePropertyItem("String center", Quantities::mass, DoubleRange::nonNegative(1e-3));
+    string_tip = new DoublePropertyItem("String tip", Quantities::mass, DoubleRange::nonNegative(1e-3));
+    limb_tip = new DoublePropertyItem("Limb tip", Quantities::mass, DoubleRange::nonNegative(1e-3));
 
-    auto tree = new PropertyTreeWidget();
-    tree->addTopLevelItem(arrow);
-    tree->addTopLevelItem(string_center);
-    tree->addTopLevelItem(string_tip);
-    tree->addTopLevelItem(limb_tip);
-    tree->expandAll();
-    setEditor(tree);
+    property_tree = new PropertyTreeWidget();
+    property_tree->addTopLevelItem(arrow);
+    property_tree->addTopLevelItem(string_center);
+    property_tree->addTopLevelItem(string_tip);
+    property_tree->addTopLevelItem(limb_tip);
+    property_tree->expandAll();
+    setEditor(property_tree);
 
-    updateView();
-    QObject::connect(tree, &QTreeWidget::itemChanged, [&]{ updateModel(); });
+    updateView(nullptr);
+    QObject::connect(property_tree, &QTreeWidget::itemChanged, [=]{ updateModel(this); });
+    QObject::connect(model, &ViewModel::massesModified, [=](void* source){
+        updateView(source);
+    });
 }
 
-void MassesTreeItem::updateModel() {
+void MassesTreeItem::updateModel(void* source) {
     model->setMasses({
         .arrow = arrow->getValue(),
         .string_center = string_center->getValue(),
         .string_tip = string_tip->getValue(),
         .limb_tip = limb_tip->getValue()
-    });
+    }, source);
 }
 
-void MassesTreeItem::updateView() {
-    arrow->setValue(model->getMasses().arrow);
-    string_center->setValue(model->getMasses().string_center);
-    string_tip->setValue(model->getMasses().string_tip);
-    limb_tip->setValue(model->getMasses().limb_tip);
+void MassesTreeItem::updateView(void* source) {
+    if(source != this) {
+        QSignalBlocker blocker(property_tree);
+        arrow->setValue(model->getMasses().arrow);
+        string_center->setValue(model->getMasses().string_center);
+        string_tip->setValue(model->getMasses().string_tip);
+        limb_tip->setValue(model->getMasses().limb_tip);
+    }
 }
 

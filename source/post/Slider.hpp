@@ -1,7 +1,7 @@
 #pragma once
 #include <QWidget>
 
-class UnitGroup;
+class Quantity;
 class QLineEdit;
 class QLabel;
 class QSlider;
@@ -11,7 +11,7 @@ class Slider: public QWidget {
     Q_OBJECT
 
 public:
-    Slider(const std::vector<double>& values, const QString& text, const UnitGroup& unit);
+    Slider(const std::vector<double>& values, const QString& text, const Quantity& quantity);
     void addJumpAction(const QString& name, int index);
 
 signals:
@@ -28,7 +28,7 @@ private:
 
     const std::vector<double>& values;
     QString text;
-    const UnitGroup& unit;
+    const Quantity& quantity;
     int index;
 
     void updateLabels();

@@ -2,39 +2,30 @@
 #include "gui/treedock/TreeItem.hpp"
 #include "solver/model/input/InputData.hpp"
 
-class DataViewModel;
+class ViewModel;
 class TableEditor;
 class QComboBox;
 
 class LayersTreeItem: public TreeItem
 {
 public:
-    LayersTreeItem(DataViewModel* model);
-    void updateModel();
-    void updateView();
-
-    void insertChild(int i, QTreeWidgetItem* item) override;
-    void removeChild(int i) override;
-    void swapChildren(int i, int j) override;
-
-private:
-    DataViewModel* model;
+    LayersTreeItem(ViewModel* model);
+    void updateModel(void* source) override;
+    void updateView(void* source) override;
 };
 
 class LayerTreeItem: public TreeItem
 {
 public:
-    LayerTreeItem(DataViewModel* model, const Layer& layer);
+    LayerTreeItem(ViewModel* model, const Layer& layer);
     Layer getLayer() const;
 
 protected:
     void setData(int column, int role, const QVariant &value) override;
-    void updateModel();
     void updateCombo();
     void updatePlot();
 
 private:
-    DataViewModel* model;
     TableEditor* table;
     QComboBox* combo;
 };

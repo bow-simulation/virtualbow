@@ -4,7 +4,7 @@
 #include <QVector3D>
 #include <memory>
 
-class DataViewModel;
+class ViewModel;
 class InputData;
 class MaterialLegend;
 class QOpenGLShaderProgram;
@@ -35,7 +35,7 @@ private:
     const float ROT_SPEED = 0.15f;
 
 public:
-    LimbView(DataViewModel* model);
+    LimbView(ViewModel* model);
     void updateView();
 
     void viewProfile();
@@ -51,7 +51,7 @@ private:
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent* event) override;
 
-    DataViewModel* model;
+    ViewModel* model;
     MaterialLegend* legend;
 
     QPoint mouse_pos;

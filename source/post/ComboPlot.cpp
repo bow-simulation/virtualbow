@@ -34,9 +34,9 @@ ComboPlot::ComboPlot()
     QObject::connect(combo_y, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &ComboPlot::updatePlot);
 }
 
-void ComboPlot::addData(const QString& name, const std::vector<double>& data, const UnitGroup& unit) {
+void ComboPlot::addData(const QString& name, const std::vector<double>& data, const Quantity& quantity) {
     this->data.append(&data);
-    this->units.append(&unit);
+    this->quantities.append(&quantity);
 
     const QSignalBlocker blocker_x(combo_x);
     combo_x->addItem(name);
@@ -46,12 +46,12 @@ void ComboPlot::addData(const QString& name, const std::vector<double>& data, co
 
     // If the unit changes, update the plot only if the changing unit is currently selected
     auto conditional_update = [&]{
-        if(units[combo_x->currentIndex()] == &unit || units[combo_y->currentIndex()] == &unit) {
+        if(quantities[combo_x->currentIndex()] == &quantity || quantities[combo_y->currentIndex()] == &quantity) {
             updatePlot();
         }
     };
-    QObject::connect(&unit, &UnitGroup::selectionChanged, this, conditional_update);
-    QObject::connect(&unit, &UnitGroup::selectionChanged, this, conditional_update);
+    QObject::connect(&quantity, &Quantity::unitChanged, this, conditional_update);
+    QObject::connect(&quantity, &Quantity::unitChanged, this, conditional_update);
 }
 
 void ComboPlot::setCombination(int index_x, int index_y) {
@@ -63,8 +63,8 @@ void ComboPlot::updatePlot() {
     int index_x = combo_x->currentIndex();
     int index_y = combo_y->currentIndex();
 
-    Unit unit_x = units[index_x]->getSelectedUnit();
-    Unit unit_y = units[index_y]->getSelectedUnit();
+    Unit unit_x = quantities[index_x]->getUnit();
+    Unit unit_y = quantities[index_y]->getUnit();
 
     plot->xAxis->setLabel(combo_x->currentText() + " " + unit_x.getLabel());
     plot->yAxis->setLabel(combo_y->currentText() + " " + unit_y.getLabel());
