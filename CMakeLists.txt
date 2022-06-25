@@ -115,14 +115,12 @@ add_executable(
     source/gui/limbview/LimbView.hpp
     source/gui/limbview/OpenGLUtils.cpp
     source/gui/limbview/OpenGLUtils.hpp
-    source/gui/viewmodel/MainViewModel.cpp
-    source/gui/viewmodel/MainViewModel.hpp
-    source/gui/viewmodel/DataViewModel.cpp
-    source/gui/viewmodel/DataViewModel.hpp
+    source/gui/viewmodel/ViewModel.cpp
+    source/gui/viewmodel/ViewModel.hpp
     source/gui/viewmodel/units/Unit.cpp
     source/gui/viewmodel/units/Unit.hpp
-    source/gui/viewmodel/units/UnitGroup.cpp
-    source/gui/viewmodel/units/UnitGroup.hpp
+    source/gui/viewmodel/units/Quantity.cpp
+    source/gui/viewmodel/units/Quantity.hpp
     source/gui/viewmodel/units/UnitSystem.cpp
     source/gui/viewmodel/units/UnitSystem.hpp
     source/gui/treedock/TreeDock.cpp
@@ -245,8 +243,8 @@ add_executable(
     source/gui/limbview/LayerColors.hpp
     source/gui/viewmodel/units/Unit.cpp
     source/gui/viewmodel/units/Unit.hpp
-    source/gui/viewmodel/units/UnitGroup.cpp
-    source/gui/viewmodel/units/UnitGroup.hpp
+    source/gui/viewmodel/units/Quantity.cpp
+    source/gui/viewmodel/units/Quantity.hpp
     source/gui/viewmodel/units/UnitSystem.cpp
     source/gui/viewmodel/units/UnitSystem.hpp
     source/gui/utils/DoubleRange.cpp

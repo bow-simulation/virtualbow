@@ -3,7 +3,7 @@
 ShapePlot::ShapePlot(const LimbProperties& limb, const BowStates& states, int background_states)
     : limb(limb),
       states(states),
-      unit(UnitSystem::length),
+      quantity(Quantities::length),
       background_states(background_states),
       index(0)
 {
@@ -56,7 +56,7 @@ ShapePlot::ShapePlot(const LimbProperties& limb, const BowStates& states, int ba
     arrow->setLineStyle(QCPCurve::lsNone);
     arrow->setScatterStyle({QCPScatterStyle::ssCrossCircle, Qt::red, 10});
 
-    QObject::connect(&unit, &UnitGroup::selectionChanged, this, &ShapePlot::updatePlot);
+    QObject::connect(&quantity, &Quantity::unitChanged, this, &ShapePlot::updatePlot);
     updatePlot();
 }
 
@@ -83,12 +83,12 @@ void ShapePlot::updateBackgroundStates() {
 
         plotLimbOutline(limb_left[i], limb_right[i], states.x_pos_limb[j], states.y_pos_limb[j], states.angle_limb[j]);
         string_left[i]->setData(
-            unit.getSelectedUnit().fromBase(-states.x_pos_string[j]),
-            unit.getSelectedUnit().fromBase(states.y_pos_string[j])
+            quantity.getUnit().fromBase(-states.x_pos_string[j]),
+            quantity.getUnit().fromBase(states.y_pos_string[j])
         );
         string_right[i]->setData(
-            unit.getSelectedUnit().fromBase(states.x_pos_string[j]),
-            unit.getSelectedUnit().fromBase(states.y_pos_string[j])
+            quantity.getUnit().fromBase(states.x_pos_string[j]),
+            quantity.getUnit().fromBase(states.y_pos_string[j])
         );
     }
 
@@ -102,33 +102,33 @@ void ShapePlot::updateCurrentState() {
     plotLimbOutline(limb_left.back(), limb_right.back(), states.x_pos_limb[index], states.y_pos_limb[index], states.angle_limb[index]);
 
     string_right.back()->setData(
-        unit.getSelectedUnit().fromBase(states.x_pos_string[index]),
-        unit.getSelectedUnit().fromBase(states.y_pos_string[index])
+        quantity.getUnit().fromBase(states.x_pos_string[index]),
+        quantity.getUnit().fromBase(states.y_pos_string[index])
     );
     string_left.back()->setData(
-        unit.getSelectedUnit().fromBase(-states.x_pos_string[index]),
-        unit.getSelectedUnit().fromBase(states.y_pos_string[index])
+        quantity.getUnit().fromBase(-states.x_pos_string[index]),
+        quantity.getUnit().fromBase(states.y_pos_string[index])
     );
 
     arrow->data()->clear();
     arrow->addData(
-        unit.getSelectedUnit().fromBase(0.0),
-        unit.getSelectedUnit().fromBase(states.pos_arrow[index])
+        quantity.getUnit().fromBase(0.0),
+        quantity.getUnit().fromBase(states.pos_arrow[index])
     );
 }
 
 void ShapePlot::updateAxes() {
-    this->xAxis->setLabel("X " + unit.getSelectedUnit().getLabel());
-    this->yAxis->setLabel("Y " + unit.getSelectedUnit().getLabel());
+    this->xAxis->setLabel("X " + quantity.getUnit().getLabel());
+    this->yAxis->setLabel("Y " + quantity.getUnit().getLabel());
 
     QCPRange x_range;
     QCPRange y_range;
 
     auto expand = [&](const VectorXd& x_values, const VectorXd& y_values) {
         for(size_t i = 0; i < x_values.size(); ++i) {
-            x_range.expand(unit.getSelectedUnit().fromBase( x_values[i]));
-            x_range.expand(unit.getSelectedUnit().fromBase(-x_values[i]));
-            y_range.expand(unit.getSelectedUnit().fromBase( y_values[i]));
+            x_range.expand(quantity.getUnit().fromBase( x_values[i]));
+            x_range.expand(quantity.getUnit().fromBase(-x_values[i]));
+            y_range.expand(quantity.getUnit().fromBase( y_values[i]));
         }
     };
 
@@ -151,12 +151,12 @@ void ShapePlot::plotLimbOutline(QCPCurve* left, QCPCurve* right, const VectorXd&
         double xi = x[i];
         double yi = y[i];
         left->addData(
-            unit.getSelectedUnit().fromBase(-xi),
-            unit.getSelectedUnit().fromBase(yi)
+            quantity.getUnit().fromBase(-xi),
+            quantity.getUnit().fromBase(yi)
         );
         right->addData(
-            unit.getSelectedUnit().fromBase(xi),
-            unit.getSelectedUnit().fromBase(yi)
+            quantity.getUnit().fromBase(xi),
+            quantity.getUnit().fromBase(yi)
         );
     }
 
@@ -165,12 +165,12 @@ void ShapePlot::plotLimbOutline(QCPCurve* left, QCPCurve* right, const VectorXd&
         double xi = x[i] + limb.height[i]*sin(phi[i]);
         double yi = y[i] - limb.height[i]*cos(phi[i]);
         left->addData(
-            unit.getSelectedUnit().fromBase(-xi),
-            unit.getSelectedUnit().fromBase(yi)
+            quantity.getUnit().fromBase(-xi),
+            quantity.getUnit().fromBase(yi)
         );
         right->addData(
-            unit.getSelectedUnit().fromBase(xi),
-            unit.getSelectedUnit().fromBase(yi)
+            quantity.getUnit().fromBase(xi),
+            quantity.getUnit().fromBase(yi)
         );
     }
 }

@@ -3,7 +3,7 @@
 #include "MaterialLegend.hpp"
 #include "LayerColors.hpp"
 #include "OpenGLUtils.hpp"
-#include "gui/viewmodel/DataViewModel.hpp"
+#include "gui/viewmodel/ViewModel.hpp"
 #include "solver/model/input/InputData.hpp"
 #include "config.hpp"
 
@@ -17,7 +17,7 @@
 #include <QLabel>
 #include <QDate>
 
-LimbView::LimbView(DataViewModel* model)
+LimbView::LimbView(ViewModel* model)
     : model(model),
       legend(new MaterialLegend()),
       background_shader(nullptr),
@@ -112,11 +112,11 @@ LimbView::LimbView(DataViewModel* model)
     view3D();
 
     // Update on changes to the model
-    QObject::connect(model, &DataViewModel::dimensionsModified, this, &LimbView::updateView);
-    QObject::connect(model, &DataViewModel::materialsModified, this, &LimbView::updateView);
-    QObject::connect(model, &DataViewModel::layersModified, this, &LimbView::updateView);
-    QObject::connect(model, &DataViewModel::profileModified, this, &LimbView::updateView);
-    QObject::connect(model, &DataViewModel::widthModified, this, &LimbView::updateView);
+    QObject::connect(model, &ViewModel::dimensionsModified, this, &LimbView::updateView);
+    QObject::connect(model, &ViewModel::materialsModified, this, &LimbView::updateView);
+    QObject::connect(model, &ViewModel::layersModified, this, &LimbView::updateView);
+    QObject::connect(model, &ViewModel::profileModified, this, &LimbView::updateView);
+    QObject::connect(model, &ViewModel::widthModified, this, &LimbView::updateView);
 }
 
 void LimbView::updateView() {

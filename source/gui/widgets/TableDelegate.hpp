@@ -2,14 +2,14 @@
 #include "gui/utils/DoubleRange.hpp"
 #include <QStyledItemDelegate>
 
-class UnitGroup;
+class Quantity;
 
 class TableDelegate: public QStyledItemDelegate
 {
     Q_OBJECT
 
 public:
-    TableDelegate(const UnitGroup& units, const DoubleRange& range, QObject* parent = nullptr);
+    TableDelegate(const Quantity& quantity, const DoubleRange& range, QObject* parent = nullptr);
 
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
@@ -19,6 +19,6 @@ public:
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
 private:
-    const UnitGroup& units;
+    const Quantity& quantity;
     DoubleRange range;
 };

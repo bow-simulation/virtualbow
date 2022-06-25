@@ -3,7 +3,7 @@
 #include "gui/utils/DoubleRange.hpp"
 
 ArcSegmentEditor::ArcSegmentEditor()
-    : PropertyValueEditor(2, { "Length", "Radius" }, { &UnitSystem::length, &UnitSystem::length }, { DoubleRange::positive(1e-3), DoubleRange::unrestricted(1e-3) }) {
+    : PropertyValueEditor(2, { "Length", "Radius" }, { &Quantities::length, &Quantities::length }, { DoubleRange::positive(1e-3), DoubleRange::unrestricted(1e-3) }) {
 
 }
 

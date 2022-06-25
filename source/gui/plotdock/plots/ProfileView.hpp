@@ -1,18 +1,18 @@
 #pragma once
 #include "gui/widgets/PlotWidget.hpp"
-#include "gui/viewmodel/units/UnitGroup.hpp"
+#include "gui/viewmodel/units/Quantity.hpp"
 #include "solver/model/profile/ProfileInput.hpp"
 #include "solver/numerics/EigenTypes.hpp"
 
 class ProfileView: public PlotWidget
 {
 public:
-    ProfileView(const UnitGroup& xy_unit);
+    ProfileView(const Quantity& xy_quantity);
     void setData(const ProfileInput& data);
     void setSelection(const QList<int>& indices);
 
 private:
-    const UnitGroup& unit;
+    const Quantity& quantity;
 
     QAction* action_show_curvature;
     QAction* action_show_nodes;

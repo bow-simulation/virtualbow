@@ -7,7 +7,7 @@
 #include <QVBoxLayout>
 #include <QStackedWidget>
 
-PropertyValueEditor::PropertyValueEditor(int rows, const QList<QString>& names,  const QList<UnitGroup*>& units, const QList<DoubleRange>& ranges) {
+PropertyValueEditor::PropertyValueEditor(int rows, const QList<QString>& names,  const QList<Quantity*>& quantities, const QList<DoubleRange>& ranges) {
     auto table = new QTableWidget(rows, 2);
     table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     table->horizontalHeader()->setVisible(false);
@@ -19,7 +19,7 @@ PropertyValueEditor::PropertyValueEditor(int rows, const QList<QString>& names, 
         combo->setFrame(false);
 
         for(int j = 0; j < names.size(); ++j) {
-            auto spinner = new DoubleSpinBox(*units[i], ranges[i]);
+            auto spinner = new DoubleSpinBox(*quantities[i], ranges[i]);
             QObject::connect(spinner, &DoubleSpinBox::modified, this, &PropertyValueEditor::modified);
             spinner->setFrame(false);
 

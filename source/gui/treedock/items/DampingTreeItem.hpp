@@ -2,17 +2,18 @@
 #include "gui/treedock/TreeItem.hpp"
 #include "solver/model/input/InputData.hpp"
 
-class DataViewModel;
+class ViewModel;
 class DoublePropertyItem;
+class PropertyTreeWidget;
 
 class DampingTreeItem: public TreeItem {
 public:
-    DampingTreeItem(DataViewModel* model);
-    void updateModel();
-    void updateView();
+    DampingTreeItem(ViewModel* model);
+    void updateModel(void* source) override;
+    void updateView(void* source) override;
 
 private:
-    DataViewModel* model;
+    PropertyTreeWidget* property_tree;
     DoublePropertyItem* damping_ratio_limbs;
     DoublePropertyItem* damping_ratio_string;
 };

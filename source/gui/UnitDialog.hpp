@@ -6,7 +6,7 @@ class UnitDialog;
 
 class UnitEditor: public QWidget {
 public:
-    UnitEditor(UnitGroup& group);
+    UnitEditor(Quantity& group);
 };
 
 class UnitDialog: public QDialog {

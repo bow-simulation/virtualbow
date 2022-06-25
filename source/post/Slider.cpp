@@ -1,5 +1,5 @@
 #include "Slider.hpp"
-#include "gui/viewmodel/units/UnitGroup.hpp"
+#include "gui/viewmodel/units/Quantity.hpp"
 #include <QLineEdit>
 #include <QDoubleValidator>
 #include <QToolButton>
@@ -11,14 +11,14 @@
 #include <QTimer>
 #include <cmath>
 
-Slider::Slider(const std::vector<double>& values, const QString& text, const UnitGroup& unit)
+Slider::Slider(const std::vector<double>& values, const QString& text, const Quantity& quantity)
     : edit(new QLineEdit()),
       label(new QLabel()),
       slider(new QSlider(Qt::Horizontal)),
       menu(new QMenu()),
       values(values),
       text(text),
-      unit(unit),
+      quantity(quantity),
       index(0)
 {
     const int height = 30; // Magic number
@@ -136,7 +136,7 @@ Slider::Slider(const std::vector<double>& values, const QString& text, const Uni
         slider->setValue(slider->maximum());
     });
 
-    QObject::connect(&unit, &UnitGroup::selectionChanged, this, &Slider::updateLabels);
+    QObject::connect(&quantity, &Quantity::unitChanged, this, &Slider::updateLabels);
     updateLabels();
 }
 
@@ -147,7 +147,7 @@ void Slider::addJumpAction(const QString& name, int index) {
 }
 
 void Slider::updateLabels() {
-    double unitValue = unit.getSelectedUnit().fromBase(values[index]);
+    double unitValue = quantity.getUnit().fromBase(values[index]);
     edit->setText(QLocale().toString(unitValue));
-    label->setText(text + " " + unit.getSelectedUnit().getLabel());
+    label->setText(text + " " + quantity.getUnit().getLabel());
 }

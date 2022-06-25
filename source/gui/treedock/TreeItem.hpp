@@ -18,25 +18,29 @@ enum TreeItemType
     DAMPING
 };
 
-class DataViewModel;
+class ViewModel;
 
 class TreeItem: public QTreeWidgetItem
 {
 public:
-    TreeItem(const QString& name, const QIcon& icon, TreeItemType type);
+    TreeItem(ViewModel* model, const QString& name, const QIcon& icon, TreeItemType type);
 
     QWidget* getEditor();
     QWidget* getPlot();
 
     virtual void insertChild(int i, QTreeWidgetItem* item);
-    virtual void removeChild(int i);
     virtual void swapChildren(int i, int j);
+    virtual void removeChild(int i);
+
+    virtual void updateModel(void* source);
+    virtual void updateView(void* source);
 
 //    QVariant data(int column, int role) const override;
 
     int row() const;
 
 protected:
+    ViewModel* model;
     QWidget* editor;
     QWidget* plot;
 

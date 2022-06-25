@@ -33,13 +33,13 @@ PlotOverlayDialog::PlotOverlayDialog(PlotWidget* plot)
     QLabel* label_angle = new QLabel("Rotation");
     label_angle->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
-    spinner_extent_x = new DoubleSpinBox(UnitSystem::none, DoubleRange::unrestricted(1.0));
+    spinner_extent_x = new DoubleSpinBox(Quantities::none, DoubleRange::unrestricted(1.0));
     QObject::connect(spinner_extent_x, QOverload<double>::of(&DoubleSpinBox::valueChanged), [&](){
         updateAspectRatioY();
         updateItem();
     });
 
-    spinner_extent_y = new DoubleSpinBox(UnitSystem::none, DoubleRange::unrestricted(1.0));
+    spinner_extent_y = new DoubleSpinBox(Quantities::none, DoubleRange::unrestricted(1.0));
     QObject::connect(spinner_extent_y, QOverload<double>::of(&DoubleSpinBox::valueChanged), [&](){
         updateAspectRatioX();
         updateItem();
@@ -53,13 +53,13 @@ PlotOverlayDialog::PlotOverlayDialog(PlotWidget* plot)
         }
     });
 
-    spinner_offset_x = new DoubleSpinBox(UnitSystem::none, DoubleRange::unrestricted(1.0));
+    spinner_offset_x = new DoubleSpinBox(Quantities::none, DoubleRange::unrestricted(1.0));
     QObject::connect(spinner_offset_x, &DoubleSpinBox::modified, this, &PlotOverlayDialog::updateItem);
 
-    spinner_offset_y = new DoubleSpinBox(UnitSystem::none, DoubleRange::unrestricted(1.0));
+    spinner_offset_y = new DoubleSpinBox(Quantities::none, DoubleRange::unrestricted(1.0));
     QObject::connect(spinner_offset_y, &DoubleSpinBox::modified, this, &PlotOverlayDialog::updateItem);
 
-    spinner_angle = new DoubleSpinBox(UnitSystem::angle, DoubleRange::inclusive(-M_PI, M_PI, STEP_SIZE_ROTATION));
+    spinner_angle = new DoubleSpinBox(Quantities::angle, DoubleRange::inclusive(-M_PI, M_PI, STEP_SIZE_ROTATION));
     QObject::connect(spinner_angle, &DoubleSpinBox::modified, this, &PlotOverlayDialog::updateItem);
 
     auto edit_image = new QLineEdit();

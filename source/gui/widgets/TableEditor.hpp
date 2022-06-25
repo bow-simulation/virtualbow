@@ -9,7 +9,7 @@ class TableEditor: public TableView {
 
 public:
     TableEditor(const QString& x_label, const QString& y_label,
-                const UnitGroup& x_units, const UnitGroup& y_units,
+                const Quantity& x_quantity, const Quantity& y_quantity,
                 const DoubleRange& x_range, const DoubleRange& y_range);
 
     std::vector<Vector<2>> getData() const;

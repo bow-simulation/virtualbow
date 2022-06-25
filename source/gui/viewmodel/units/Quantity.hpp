@@ -2,14 +2,12 @@
 #include "Unit.hpp"
 #include <QtCore>
 
-class UnitSystem;
-
-class UnitGroup: public QObject {
+class Quantity: public QObject {
     Q_OBJECT
 
 public:
-    UnitGroup() = default;
-    UnitGroup(const QString& name, const QList<Unit>& units, int default_si, int default_us);
+    Quantity() = default;
+    Quantity(const QString& name, const QList<Unit>& quantities, int default_si, int default_us);
 
     void loadFromSettings(const QSettings& settings);
     void saveToSettings(QSettings& settings) const;
@@ -17,8 +15,8 @@ public:
     const QString& getName() const;
     const QList<Unit>& getUnits() const;
 
-    const Unit& getSelectedUnit() const;
-    void setSelectedUnit(const Unit& unit);
+    const Unit& getUnit() const;
+    void setUnit(const Unit& unit);
 
     void setSelectedIndex(int index);
     int getSelectedIndex() const;
@@ -27,7 +25,7 @@ public:
     void resetUS();
 
 signals:
-    void selectionChanged(const Unit& unit);
+    void unitChanged(const Unit& unit);
 
 private:
     QString name;

@@ -1,18 +1,20 @@
 #include "MaterialsTreeItem.hpp"
-#include "gui/viewmodel/DataViewModel.hpp"
+#include "gui/viewmodel/ViewModel.hpp"
 #include "gui/widgets/propertytree/PropertyTreeWidget.hpp"
 #include "gui/widgets/propertytree/items/StringPropertyItem.hpp"
 #include "gui/widgets/propertytree/items/ColorPropertyItem.hpp"
 #include "gui/widgets/propertytree/items/DoublePropertyItem.hpp"
 
-MaterialsTreeItem::MaterialsTreeItem(DataViewModel* model)
-    : TreeItem("Materials", QIcon(":/icons/model-materials.svg"), TreeItemType::MATERIALS),
-      model(model)
+MaterialsTreeItem::MaterialsTreeItem(ViewModel* model)
+    : TreeItem(model, "Materials", QIcon(":/icons/model-materials.svg"), TreeItemType::MATERIALS)
 {
-    updateView();
+    updateView(nullptr);
+    QObject::connect(model, &ViewModel::materialsModified, [=](void* source){
+        updateView(source);
+    });
 }
 
-void MaterialsTreeItem::updateModel() {
+void MaterialsTreeItem::updateModel(void* source) {
     std::vector<Material> materials;
     for(int i = 0; i < this->childCount(); ++i) {
         auto item = dynamic_cast<MaterialTreeItem*>(this->child(i));
@@ -20,41 +22,34 @@ void MaterialsTreeItem::updateModel() {
             materials.push_back(item->getMaterial());
         }
     }
-    model->setMaterials(materials);
+    model->setMaterials(materials, source);
 }
 
-void MaterialsTreeItem::updateView() {
-    for(auto& material: model->getMaterials()) {
-        auto item = new MaterialTreeItem(model, material);
-        this->addChild(item);
+void MaterialsTreeItem::updateView(void* source) {
+    if(source != this) {
+        // Remove children without notifying the model
+        while(this->childCount() > 0) {
+            QTreeWidgetItem::removeChild(this->child(0));
+        }
+
+        // Add new children
+        for(auto& material: model->getMaterials()) {
+            auto item = new MaterialTreeItem(model, material);
+            this->addChild(item);
+        }
     }
 }
 
-void MaterialsTreeItem::insertChild(int i, QTreeWidgetItem* item) {
-    TreeItem::insertChild(i, item);
-    updateModel();
-}
-
-void MaterialsTreeItem::removeChild(int i) {
-    TreeItem::removeChild(i);
-    updateModel();
-}
-
-void MaterialsTreeItem::swapChildren(int i, int j) {
-    TreeItem::swapChildren(i, j);
-    updateModel();
-}
-
-MaterialTreeItem::MaterialTreeItem(DataViewModel* model, const Material& material)
-    : TreeItem(QString::fromStdString(material.name), QIcon(":/icons/model-material.svg"), TreeItemType::MATERIAL)
+MaterialTreeItem::MaterialTreeItem(ViewModel* model, const Material& material)
+    : TreeItem(model, QString::fromStdString(material.name), QIcon(":/icons/model-material.svg"), TreeItemType::MATERIAL)
 {
     color = new ColorPropertyItem("Color");
     color->setValue(QString::fromStdString(material.color));
 
-    rho = new DoublePropertyItem("Rho", &UnitSystem::density, DoubleRange::positive(1.0));
+    rho = new DoublePropertyItem("Rho", Quantities::density, DoubleRange::positive(1.0));
     rho->setValue(material.rho);
 
-    E = new DoublePropertyItem("E", &UnitSystem::elastic_modulus, DoubleRange::positive(1e8));
+    E = new DoublePropertyItem("E", Quantities::elastic_modulus, DoubleRange::positive(1e8));
     E->setValue(material.E);
 
     auto tree = new PropertyTreeWidget();
@@ -68,7 +63,7 @@ MaterialTreeItem::MaterialTreeItem(DataViewModel* model, const Material& materia
 
     // Update view model on changes
     QObject::connect(tree, &QTreeWidget::itemChanged, [=]{
-        updateViewModel();
+        updateModel(parent());
     });
 }
 
@@ -83,12 +78,5 @@ Material MaterialTreeItem::getMaterial() const {
 
 void MaterialTreeItem::setData(int column, int role, const QVariant &value) {
     QTreeWidgetItem::setData(column, role, value);
-    updateViewModel();
-}
-
-void MaterialTreeItem::updateViewModel() {
-    auto parent = dynamic_cast<MaterialsTreeItem*>(this->parent());
-    if(parent != nullptr) {
-        parent->updateModel();
-    }
+    updateModel(parent());
 }

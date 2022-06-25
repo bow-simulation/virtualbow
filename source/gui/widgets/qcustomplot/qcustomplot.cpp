@@ -6037,16 +6037,16 @@ double QCPAxisTickerDateTime::dateTimeToKey(const QDate date)
   This QCPAxisTicker subclass generates ticks that corresponds to time intervals.
   
   The format of the time display in the tick labels is controlled with \ref setTimeFormat and \ref
-  setFieldWidth. The time coordinate is in the unit of seconds with respect to the time coordinate
+  setFieldWidth. The time coordinate is in the units of seconds with respect to the time coordinate
   zero. Unlike with QCPAxisTickerDateTime, the ticks don't correspond to a specific calendar date
   and time.
   
   The time can be displayed in milliseconds, seconds, minutes, hours and days. Depending on the
-  largest available unit in the format specified with \ref setTimeFormat, any time spans above will
-  be carried in that largest unit. So for example if the format string is "%m:%s" and a tick at
+  largest available units in the format specified with \ref setTimeFormat, any time spans above will
+  be carried in that largest units. So for example if the format string is "%m:%s" and a tick at
   coordinate value 7815 (being 2 hours, 10 minutes and 15 seconds) is created, the resulting tick
   label will show "130:15" (130 minutes, 15 seconds). If the format string is "%h:%m:%s", the hour
-  unit will be used and the label will thus be "02:10:15". Negative times with respect to the axis
+  units will be used and the label will thus be "02:10:15". Negative times with respect to the axis
   zero will carry a leading minus sign.
   
   The ticker can be created and assigned to an axis like this:
@@ -6098,11 +6098,11 @@ QCPAxisTickerTime::QCPAxisTickerTime() :
   - %%h for hours
   - %%d for days
   
-  The field width (zero padding) can be controlled for each unit with \ref setFieldWidth.
+  The field width (zero padding) can be controlled for each units with \ref setFieldWidth.
   
-  The largest unit that appears in \a format will carry all the remaining time of a certain tick
-  coordinate, even if it overflows the natural limit of the unit. For example, if %%m is the
-  largest unit it might become larger than 59 in order to consume larger time values. If on the
+  The largest units that appears in \a format will carry all the remaining time of a certain tick
+  coordinate, even if it overflows the natural limit of the units. For example, if %%m is the
+  largest units it might become larger than 59 in order to consume larger time values. If on the
   other hand %%h is available, the minutes will wrap around to zero after 59 and the time will
   carry to the hour digit.
 */
@@ -6110,42 +6110,42 @@ void QCPAxisTickerTime::setTimeFormat(const QString &format)
 {
   mTimeFormat = format;
   
-  // determine smallest and biggest unit in format, to optimize unit replacement and allow biggest
-  // unit to consume remaining time of a tick value and grow beyond its modulo (e.g. min > 59)
+  // determine smallest and biggest units in format, to optimize units replacement and allow biggest
+  // units to consume remaining time of a tick value and grow beyond its modulo (e.g. min > 59)
   mSmallestUnit = tuMilliseconds;
   mBiggestUnit = tuMilliseconds;
   bool hasSmallest = false;
   for (int i = tuMilliseconds; i <= tuDays; ++i)
   {
-    TimeUnit unit = static_cast<TimeUnit>(i);
-    if (mTimeFormat.contains(mFormatPattern.value(unit)))
+    TimeUnit units = static_cast<TimeUnit>(i);
+    if (mTimeFormat.contains(mFormatPattern.value(units)))
     {
       if (!hasSmallest)
       {
-        mSmallestUnit = unit;
+        mSmallestUnit = units;
         hasSmallest = true;
       }
-      mBiggestUnit = unit;
+      mBiggestUnit = units;
     }
   }
 }
 
 /*!
-  Sets the field widh of the specified \a unit to be \a width digits, when displayed in the tick
-  label. If the number for the specific unit is shorter than \a width, it will be padded with an
+  Sets the field widh of the specified \a units to be \a width digits, when displayed in the tick
+  label. If the number for the specific units is shorter than \a width, it will be padded with an
   according number of zeros to the left in order to reach the field width.
   
   \see setTimeFormat
 */
-void QCPAxisTickerTime::setFieldWidth(QCPAxisTickerTime::TimeUnit unit, int width)
+void QCPAxisTickerTime::setFieldWidth(QCPAxisTickerTime::TimeUnit units, int width)
 {
-  mFieldWidth[unit] = qMax(width, 1);
+  mFieldWidth[units] = qMax(width, 1);
 }
 
 /*! \internal
 
   Returns the tick step appropriate for time displays, depending on the provided \a range and the
-  smallest available time unit in the current format (\ref setTimeFormat). For example if the unit
+  smallest available time units in the current format (\ref setTimeFormat). For example if the units
   of seconds isn't available in the format, this method will not generate steps (like 2.5 minutes)
   that require sub-minute precision to be displayed correctly.
   
@@ -6236,14 +6236,14 @@ QString QCPAxisTickerTime::getTickLabel(double tick, const QLocale &locale, QCha
   bool negative = tick < 0;
   if (negative) tick *= -1;
   double values[tuDays+1]; // contains the msec/sec/min/... value with its respective modulo (e.g. minute 0..59)
-  double restValues[tuDays+1]; // contains the msec/sec/min/... value as if it's the largest available unit and thus consumes the remaining time
+  double restValues[tuDays+1]; // contains the msec/sec/min/... value as if it's the largest available units and thus consumes the remaining time
   
   restValues[tuMilliseconds] = tick*1000;
   values[tuMilliseconds] = modf(restValues[tuMilliseconds]/1000, &restValues[tuSeconds])*1000;
   values[tuSeconds] = modf(restValues[tuSeconds]/60, &restValues[tuMinutes])*60;
   values[tuMinutes] = modf(restValues[tuMinutes]/60, &restValues[tuHours])*60;
   values[tuHours] = modf(restValues[tuHours]/24, &restValues[tuDays])*24;
-  // no need to set values[tuDays] because days are always a rest value (there is no higher unit so it consumes all remaining time)
+  // no need to set values[tuDays] because days are always a rest value (there is no higher units so it consumes all remaining time)
   
   QString result = mTimeFormat;
   for (int i = mSmallestUnit; i <= mBiggestUnit; ++i)
@@ -6258,16 +6258,16 @@ QString QCPAxisTickerTime::getTickLabel(double tick, const QLocale &locale, QCha
 
 /*! \internal
   
-  Replaces all occurrences of the format pattern belonging to \a unit in \a text with the specified
-  \a value, using the field width as specified with \ref setFieldWidth for the \a unit.
+  Replaces all occurrences of the format pattern belonging to \a units in \a text with the specified
+  \a value, using the field width as specified with \ref setFieldWidth for the \a units.
 */
-void QCPAxisTickerTime::replaceUnit(QString &text, QCPAxisTickerTime::TimeUnit unit, int value) const
+void QCPAxisTickerTime::replaceUnit(QString &text, QCPAxisTickerTime::TimeUnit units, int value) const
 {
   QString valueStr = QString::number(value);
-  while (valueStr.size() < mFieldWidth.value(unit))
+  while (valueStr.size() < mFieldWidth.value(units))
     valueStr.prepend(QLatin1Char('0'));
   
-  text.replace(mFormatPattern.value(unit), valueStr);
+  text.replace(mFormatPattern.value(units), valueStr);
 }
 /* end of 'src/axis/axistickertime.cpp' */
 
@@ -6670,7 +6670,7 @@ void QCPAxisTickerPi::setFractionStyle(QCPAxisTickerPi::FractionStyle style)
 
 /*! \internal
   
-  Returns the tick step, using the constant's value (\ref setPiValue) as base unit. In consequence
+  Returns the tick step, using the constant's value (\ref setPiValue) as base units. In consequence
   the numerical/fractional part preceding the symbolic constant is made to have a readable
   mantissa.
   
@@ -6685,7 +6685,7 @@ double QCPAxisTickerPi::getTickStep(const QCPRange &range)
 
 /*! \internal
   
-  Returns the sub tick count, using the constant's value (\ref setPiValue) as base unit. In
+  Returns the sub tick count, using the constant's value (\ref setPiValue) as base units. In
   consequence the sub ticks divide the numerical/fractional part preceding the symbolic constant
   reasonably, and not the total tick coordinate.
   
@@ -14305,7 +14305,7 @@ bool QCustomPlot::savePdf(const QString &fileName, int width, int height, QCP::E
   it will be able to scale the image to match either a given size in real units of length (inch,
   centimeters, etc.), or the target display DPI. You can specify in which units \a resolution is
   given, by setting \a resolutionUnit. The \a resolution is converted to the format's expected
-  resolution unit internally.
+  resolution units internally.
 
   Returns true on success. If this function fails, most likely the PNG format isn't supported by
   the system, see Qt docs about QImageWriter::supportedImageFormats().
@@ -14355,7 +14355,7 @@ bool QCustomPlot::savePng(const QString &fileName, int width, int height, double
   it will be able to scale the image to match either a given size in real units of length (inch,
   centimeters, etc.), or the target display DPI. You can specify in which units \a resolution is
   given, by setting \a resolutionUnit. The \a resolution is converted to the format's expected
-  resolution unit internally.
+  resolution units internally.
 
   Returns true on success. If this function fails, most likely the JPEG format isn't supported by
   the system, see Qt docs about QImageWriter::supportedImageFormats().
@@ -14399,7 +14399,7 @@ bool QCustomPlot::saveJpg(const QString &fileName, int width, int height, double
   it will be able to scale the image to match either a given size in real units of length (inch,
   centimeters, etc.), or the target display DPI. You can specify in which units \a resolution is
   given, by setting \a resolutionUnit. The \a resolution is converted to the format's expected
-  resolution unit internally.
+  resolution units internally.
 
   Returns true on success. If this function fails, most likely the BMP format isn't supported by
   the system, see Qt docs about QImageWriter::supportedImageFormats().
@@ -15329,7 +15329,7 @@ QList<QCPLayerable*> QCustomPlot::layerableListAt(const QPointF &pos, bool onlyS
   tool which respects the metadata, it will be able to scale the image to match either a given size
   in real units of length (inch, centimeters, etc.), or the target display DPI. You can specify in
   which units \a resolution is given, by setting \a resolutionUnit. The \a resolution is converted
-  to the format's expected resolution unit internally.
+  to the format's expected resolution units internally.
 
   \see saveBmp, saveJpg, savePng, savePdf
 */
@@ -26086,7 +26086,7 @@ QCPRange QCPFinancial::getValueRange(bool &foundRange, QCP::SignDomain inSignDom
   QCPFinancialDataContainer&).
   
   The size of the bins can be controlled with \a timeBinSize in the same units as \a time is given.
-  For example, if the unit of \a time is seconds and single OHLC/Candlesticks should span an hour
+  For example, if the units of \a time is seconds and single OHLC/Candlesticks should span an hour
   each, set \a timeBinSize to 3600.
   
   \a timeBinOffset allows to control precisely at what \a time coordinate a bin should start. The

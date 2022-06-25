@@ -1,7 +1,9 @@
 #include "TreeItem.hpp"
+#include "gui/viewmodel/ViewModel.hpp"
 
-TreeItem::TreeItem(const QString& name, const QIcon& icon, TreeItemType type)
+TreeItem::TreeItem(ViewModel* model, const QString& name, const QIcon& icon, TreeItemType type)
     : QTreeWidgetItem({name}, type),
+      model(model),
       editor(nullptr),
       plot(nullptr)
 {
@@ -27,15 +29,9 @@ void TreeItem::setPlot(QWidget* plot) {
 void TreeItem::insertChild(int i, QTreeWidgetItem* item) {
     if(i >= 0 && i <= this->childCount()) {
         QTreeWidgetItem::insertChild(i, item);
+        updateModel(this);
     }
 }
-
-void TreeItem::removeChild(int i) {
-    if(i >= 0 && i < this->childCount()) {
-        QTreeWidgetItem::removeChild(this->child(i));
-    }
-}
-
 void TreeItem::swapChildren(int i, int j) {
     int i_min = std::min(i, j);
     int i_max = std::max(i, j);
@@ -48,6 +44,31 @@ void TreeItem::swapChildren(int i, int j) {
         QTreeWidgetItem::insertChild(i_min, item_max);
         QTreeWidgetItem::insertChild(i_max, item_min);
         this->treeWidget()->setCurrentItem(current);    // Reset previously selected item
+    }
+
+    updateModel(this);
+}
+
+void TreeItem::removeChild(int i) {
+    if(i >= 0 && i < this->childCount()) {
+        QTreeWidgetItem::removeChild(this->child(i));
+        updateModel(this);
+    }
+}
+
+// Default implementation: Let parent handle model update
+void TreeItem::updateModel(void* source) {
+    auto parent = dynamic_cast<TreeItem*>(this->parent());
+    if(parent != nullptr) {
+        parent->updateModel(source);
+    }
+}
+
+// Default implementation: Let parent handle view update
+void TreeItem::updateView(void* source) {
+    auto parent = dynamic_cast<TreeItem*>(this->parent());
+    if(parent != nullptr) {
+        parent->updateView(source);
     }
 }
 

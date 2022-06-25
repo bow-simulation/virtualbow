@@ -2,11 +2,11 @@
 #include <algorithm>
 #include <functional>
 
-EnergyPlot::EnergyPlot(const BowStates& states, const std::vector<double>& parameter, const QString& label_x, const UnitGroup& unit_x, const UnitGroup& unit_y)
+EnergyPlot::EnergyPlot(const BowStates& states, const std::vector<double>& parameter, const QString& label_x, const Quantity& quantity_x, const Quantity& quantity_y)
     : states(states),
       parameter(parameter),
-      unit_x(unit_x),
-      unit_y(unit_y),
+      quantity_x(quantity_x),
+      quantity_y(quantity_y),
       label_x(label_x),
       plot(new PlotWidget()),
       cb_stacked(new QCheckBox("Stacked")),
@@ -48,8 +48,8 @@ EnergyPlot::EnergyPlot(const BowStates& states, const std::vector<double>& param
     QObject::connect(cb_type, &QCheckBox::toggled, this, &EnergyPlot::updatePlot);
     QObject::connect(cb_part, &QCheckBox::toggled, this, &EnergyPlot::updatePlot);
 
-    QObject::connect(&unit_x, &UnitGroup::selectionChanged, this, &EnergyPlot::updatePlot);
-    QObject::connect(&unit_y, &UnitGroup::selectionChanged, this, &EnergyPlot::updatePlot);
+    QObject::connect(&quantity_x, &Quantity::unitChanged, this, &EnergyPlot::updatePlot);
+    QObject::connect(&quantity_y, &Quantity::unitChanged, this, &EnergyPlot::updatePlot);
     updatePlot();
 }
 
@@ -58,8 +58,8 @@ void EnergyPlot::setStateIndex(int index) {
 }
 
 void EnergyPlot::updatePlot() {
-    plot->xAxis->setLabel(label_x + " " + unit_x.getSelectedUnit().getLabel());
-    plot->yAxis->setLabel("Energy " + unit_y.getSelectedUnit().getLabel());
+    plot->xAxis->setLabel(label_x + " " + quantity_x.getUnit().getLabel());
+    plot->yAxis->setLabel("Energy " + quantity_y.getUnit().getLabel());
 
     // Function plot_energy adds a single energy to the plot
     std::function<void(const std::vector<double>& energy, const QString& name, const QColor& color)> plot_energy;
@@ -86,8 +86,8 @@ void EnergyPlot::updatePlot() {
             auto graph_upper = plot->addGraph();
 
             graph_upper->setData(
-                unit_x.getSelectedUnit().fromBase(parameter),
-                unit_y.getSelectedUnit().fromBase(e_upper)
+                quantity_x.getUnit().fromBase(parameter),
+                quantity_y.getUnit().fromBase(e_upper)
             );
             graph_upper->setName(name);
             graph_upper->setBrush(color);
@@ -109,8 +109,8 @@ void EnergyPlot::updatePlot() {
 
             auto graph = plot->addGraph();
             graph->setData(
-                unit_x.getSelectedUnit().fromBase(parameter),
-                unit_x.getSelectedUnit().fromBase(energy)
+                quantity_x.getUnit().fromBase(parameter),
+                quantity_x.getUnit().fromBase(energy)
             );
             graph->setName(name);
             graph->setPen({QBrush(color), 2.0});

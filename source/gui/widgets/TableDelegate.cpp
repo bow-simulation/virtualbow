@@ -1,17 +1,17 @@
 #include "TableDelegate.hpp"
-#include "gui/viewmodel/units/UnitGroup.hpp"
+#include "gui/viewmodel/units/Quantity.hpp"
 #include "gui/widgets/DoubleSpinBox.hpp"
 
-TableDelegate::TableDelegate(const UnitGroup& units, const DoubleRange& range, QObject* parent)
+TableDelegate::TableDelegate(const Quantity& quantity, const DoubleRange& range, QObject* parent)
     : QStyledItemDelegate(parent),
-      units(units),
+      quantity(quantity),
       range(range)
 {
 
 }
 
 QWidget* TableDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
-    auto editor = new DoubleSpinBox(units, range, parent);
+    auto editor = new DoubleSpinBox(quantity, range, parent);
     editor->showUnit(false);
     editor->setFrame(false);
 

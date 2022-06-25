@@ -4,7 +4,7 @@
 #include <QDockWidget>
 #include <QTreeWidgetItem>
 
-class DataViewModel;
+class ViewModel;
 class QTreeWidget;
 class QTreeWidgetItem;
 class QToolButton;
@@ -22,24 +22,19 @@ class WidthTreeItem;
 class LayersTreeItem;
 class ProfileTreeItem;
 
-// TODO:
-// * Items: Set Icon from type
-// * Items: Add createEditor and createPlot that creates editor by type
-// * Tree: Implement segment operations in viewmodel
-
 class TreeDock: public QDockWidget
 {
     Q_OBJECT
 
 public:
-    TreeDock(DataViewModel* model);
+    TreeDock(ViewModel* model);
 
 signals:
     void currentEditorChanged(QWidget* editor);
     void currentPlotChanged(QWidget* plot);
 
 private:
-    DataViewModel* model;
+    ViewModel* model;
     QTreeWidget* tree;
 
     QToolButton* button_add;
@@ -62,14 +57,10 @@ private:
     MassesTreeItem* item_masses;
     DampingTreeItem* item_damping;
 
-    void rebuildTree();
-
     QMenu* createMaterialMenu();
     QMenu* createLayerMenu();
     QMenu* createSegmentMenu();
 
-    QTreeWidgetItem* createProfileItem(const SegmentInput& segment) const;
-
-    QString createUniqueName(const QString& name, QTreeWidgetItem* parent) const;
+    void createTopLevelItems();
     void updateButtons();
 };

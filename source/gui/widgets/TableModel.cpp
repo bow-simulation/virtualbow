@@ -5,15 +5,15 @@
 const int INITIAL_ROWS = 25;    // Initial number of rows in the table
 const int DELTA_ROWS = 5;       // Number of rows to add when the end is reached
 
-TableModel::TableModel(const QString& x_label, const QString& y_label, const UnitGroup& x_unit, const UnitGroup& y_unit, QObject *parent)
+TableModel::TableModel(const QString& x_label, const QString& y_label, const Quantity& x_quantity, const Quantity& y_quantity, QObject *parent)
     : QAbstractTableModel(parent),
       columnLabels({x_label, y_label}),
-      columnUnits({&x_unit, &y_unit}),
+      columnUnits({&x_quantity, &y_quantity}),
       loadedRows(INITIAL_ROWS)
 {
-    // Update table on unit changes
+    // Update table on units changes
     for(int i = 0; i < columnUnits.size(); ++i) {
-        QObject::connect(columnUnits[i], &UnitGroup::selectionChanged, this, [&, i](const Unit& unit) {
+        QObject::connect(columnUnits[i], &Quantity::unitChanged, this, [&, i](const Unit& quantity) {
             emit headerDataChanged(Qt::Horizontal, i, i);
             emit dataChanged(index(0, i), index(rowCount() - 1, i));  // TODO: Only those that actually changed?
         });
@@ -31,7 +31,7 @@ int TableModel::columnCount(const QModelIndex& parent) const {
 QVariant TableModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
         QString name = columnLabels[section];
-        QString unit = columnUnits[section]->getSelectedUnit().getLabel();
+        QString unit = columnUnits[section]->getUnit().getLabel();
         QString separator = (!name.isEmpty() && !unit.isEmpty()) ? " " : QString();
 
         return name + separator + unit;
@@ -44,7 +44,7 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation, int ro
 QVariant TableModel::data(const QModelIndex& index, int role) const {
     if(role == Qt::DisplayRole && index.isValid() && entries.contains(index)) {
         double baseValue = entries.value(index);
-        return columnUnits[index.column()]->getSelectedUnit().fromBase(baseValue);
+        return columnUnits[index.column()]->getUnit().fromBase(baseValue);
     }
 
     if(role == Qt::EditRole && index.isValid() && entries.contains(index)) {

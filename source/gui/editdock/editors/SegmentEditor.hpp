@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QComboBox>
 
-class UnitGroup;
+class Quantity;
 class DoubleSpinBox;
 
 class SegmentEditor: public QWidget {

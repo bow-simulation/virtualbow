@@ -3,13 +3,13 @@
 #include <algorithm>
 
 TableEditor::TableEditor(const QString& x_label, const QString& y_label,
-                         const UnitGroup& x_units, const UnitGroup& y_units,
+                         const Quantity& x_quantity, const Quantity& y_quantity,
                          const DoubleRange& x_range, const DoubleRange& y_range)
-    : model(x_label, y_label, x_units, y_units, this)
+    : model(x_label, y_label, x_quantity, y_quantity, this)
 {
     setModel(&model);
-    setItemDelegateForColumn(0, new TableDelegate(x_units, x_range));
-    setItemDelegateForColumn(1, new TableDelegate(y_units, y_range));
+    setItemDelegateForColumn(0, new TableDelegate(x_quantity, x_range));
+    setItemDelegateForColumn(1, new TableDelegate(y_quantity, y_range));
 
     QObject::connect(&model, &TableModel::modified, this, &TableEditor::modified);
     QObject::connect(this->selectionModel(), &QItemSelectionModel::selectionChanged, this, [&] {

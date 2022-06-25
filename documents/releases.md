@@ -40,11 +40,11 @@ and requires [node-appdmg](https://github.com/LinusU/node-appdmg) for creating t
 
 # Release Checklist
 
+* Solve all issues in the current milestone
 * Update version number and copyright notice in
     * User manual
     * Theory manual
     * CMakeLists.txt
-* Solve all issues in the current milestone
 * Implement the conversion from bow files of the previous version
 * Execute basic manual tests defined below on all platforms and other tests if relevant
 * Update user manual, place copy into resources/docs
@@ -88,7 +88,7 @@ and requires [node-appdmg](https://github.com/LinusU/node-appdmg) for creating t
 
 Described below is what should be happen when one of the file menu actions (New File, Open, Save, Save As, Quit) is performed, depending on the state of the editor (no file loaded, file loaded, file modified) and the subsequent choices made by the user.
 
-- **No file loaded**
+- **No file loaded (default inputs)**
     - **New File:** Open a file dialog to pick a new filename and location
         - **Save:** Create new file at the chosen location and show its contents in the editor
         - **Cancel:** No action, back to the main window

@@ -7,8 +7,8 @@ const size_t N_SEGMENT_POINTS   = 100;
 const size_t N_CURVATURE_POINTS = 200;
 const double CURVATURE_SCALING  = 0.05;
 
-ProfileView::ProfileView(const UnitGroup& unit)
-    : unit(unit)
+ProfileView::ProfileView(const Quantity& quantity)
+    : quantity(quantity)
 {
     this->setAspectPolicy(PlotWidget::SCALE_Y);
 
@@ -36,7 +36,7 @@ ProfileView::ProfileView(const UnitGroup& unit)
     this->contextMenu()->insertSeparator(before);
 
     // Update on unit changes
-    QObject::connect(&unit, &UnitGroup::selectionChanged, this, &ProfileView::updatePlot);
+    QObject::connect(&quantity, &Quantity::unitChanged, this, &ProfileView::updatePlot);
 }
 
 void ProfileView::setData(const std::vector<SegmentInput>& data) {
@@ -51,8 +51,8 @@ void ProfileView::setSelection(const QList<int>& indices) {
 }
 
 void ProfileView::updatePlot() {
-    this->xAxis->setLabel("X " + unit.getSelectedUnit().getLabel());
-    this->yAxis->setLabel("Y " + unit.getSelectedUnit().getLabel());
+    this->xAxis->setLabel("X " + quantity.getUnit().getLabel());
+    this->yAxis->setLabel("Y " + quantity.getUnit().getLabel());
 
     this->clearPlottables();
 
@@ -94,10 +94,10 @@ void ProfileView::updatePlot() {
         Vector<2> position = profile.position(s[i]);
         double angle = profile.angle(s[i]);
 
-        double x_start = unit.getSelectedUnit().fromBase(position(0));
-        double y_start = unit.getSelectedUnit().fromBase(position(1));
-        double x_end = unit.getSelectedUnit().fromBase(position(0) - scale*k[i]*sin(angle));
-        double y_end = unit.getSelectedUnit().fromBase(position(1) + scale*k[i]*cos(angle));
+        double x_start = quantity.getUnit().fromBase(position(0));
+        double y_start = quantity.getUnit().fromBase(position(1));
+        double x_end = quantity.getUnit().fromBase(position(0) - scale*k[i]*sin(angle));
+        double y_end = quantity.getUnit().fromBase(position(1) + scale*k[i]*cos(angle));
 
         auto line = new QCPCurve(this->xAxis, this->yAxis);
         line->setPen({Qt::lightGray, 1});
@@ -119,8 +119,8 @@ void ProfileView::updatePlot() {
         for(double s: Linspace<double>(profile.get_nodes()[i].s, profile.get_nodes()[i+1].s, N_SEGMENT_POINTS)) {
             Vector<2> point = profile.position(s);
             segment_curve->addData(
-                unit.getSelectedUnit().fromBase(point(0)),
-                unit.getSelectedUnit().fromBase(point(1))
+                quantity.getUnit().fromBase(point(0)),
+                quantity.getUnit().fromBase(point(1))
             );
         }
     }
@@ -139,8 +139,8 @@ void ProfileView::updatePlot() {
         segment_node->setName("Node");
         segment_nodes.push_back(segment_node);
         segment_node->addData(
-            unit.getSelectedUnit().fromBase(node.position(0)),
-            unit.getSelectedUnit().fromBase(node.position(1))
+            quantity.getUnit().fromBase(node.position(0)),
+            quantity.getUnit().fromBase(node.position(1))
         );
     }
 

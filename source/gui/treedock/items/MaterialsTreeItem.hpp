@@ -2,7 +2,7 @@
 #include "gui/treedock/TreeItem.hpp"
 #include "solver/model/input/InputData.hpp"
 
-class DataViewModel;
+class ViewModel;
 class StringPropertyItem;
 class ColorPropertyItem;
 class DoublePropertyItem;
@@ -10,27 +10,19 @@ class DoublePropertyItem;
 class MaterialsTreeItem: public TreeItem
 {
 public:
-    MaterialsTreeItem(DataViewModel* model);
-    void updateModel();
-    void updateView();
-
-    void insertChild(int i, QTreeWidgetItem* item) override;
-    void removeChild(int i) override;
-    void swapChildren(int i, int j) override;
-
-private:
-    DataViewModel* model;
+    MaterialsTreeItem(ViewModel* model);
+    void updateModel(void* source) override;
+    void updateView(void* source) override;
 };
 
 class MaterialTreeItem: public TreeItem
 {
 public:
-    MaterialTreeItem(DataViewModel* model, const Material& material);
+    MaterialTreeItem(ViewModel* model, const Material& material);
     Material getMaterial() const;
 
 protected:
     void setData(int column, int role, const QVariant &value) override;
-    void updateViewModel();
 
 private:
     ColorPropertyItem* color;

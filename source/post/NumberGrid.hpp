@@ -1,7 +1,7 @@
 #pragma once
 #include <QWidget>
 
-class UnitGroup;
+class Quantity;
 class QHBoxLayout;
 class QVBoxLayout;
 class QGridLayout;
@@ -12,7 +12,7 @@ public:
 
     void addColumn();
     void addGroup(const QString& name);
-    void addValue(const QString& name, double value, const UnitGroup& unit);
+    void addValue(const QString& name, double value, const Quantity& quantity);
 
 private:
     QHBoxLayout* columnLayout;

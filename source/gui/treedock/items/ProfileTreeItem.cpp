@@ -1,5 +1,5 @@
 #include "ProfileTreeItem.hpp"
-#include "gui/viewmodel/DataViewModel.hpp"
+#include "gui/viewmodel/ViewModel.hpp"
 #include "gui/widgets/propertytree/PropertyTreeWidget.hpp"
 #include "gui/widgets/propertytree/items/GroupPropertyItem.hpp"
 #include "gui/widgets/propertytree/items/DoublePropertyItem.hpp"
@@ -11,17 +11,18 @@
 #include "gui/editdock/editors/SplineSegmentEditor.hpp"
 #include "gui/plotdock/plots/ProfileView.hpp"
 
-ProfileTreeItem::ProfileTreeItem(DataViewModel* model)
-    : TreeItem("Profile", QIcon(":/icons/model-profile.svg"), TreeItemType::PROFILE),
-      model(model)
+ProfileTreeItem::ProfileTreeItem(ViewModel* model)
+    : TreeItem(model, "Profile", QIcon(":/icons/model-profile.svg"), TreeItemType::PROFILE)
 {
-    setPlot(new ProfileView(UnitSystem::length));
+    setPlot(new ProfileView(Quantities::length));
 
-    updateChildren();
-    updatePlot();
+    updateView(nullptr);
+    QObject::connect(model, &ViewModel::profileModified, [=](void* source){
+        updateView(source);
+    });
 }
 
-void ProfileTreeItem::updateModel() {
+void ProfileTreeItem::updateModel(void* source) {
     ProfileInput profile;
     for(int i = 0; i < this->childCount(); ++i) {
         auto item = dynamic_cast<SegmentTreeItem*>(this->child(i));
@@ -30,64 +31,43 @@ void ProfileTreeItem::updateModel() {
         }
     }
 
-    model->setProfile(profile);
-    updatePlot();
+    model->setProfile(profile, source);
 }
 
-void ProfileTreeItem::updateChildren() {
-    for(auto& segment: model->getProfile()) {
-        auto item = new SegmentTreeItem(segment);
-        this->addChild(item);
+void ProfileTreeItem::updateView(void* source) {
+    if(source != this) {
+        // Remove children without notifying the model
+        while(this->childCount() > 0) {
+            QTreeWidgetItem::removeChild(this->child(0));
+        }
+
+        // Add new children
+        for(auto& segment: model->getProfile()) {
+            auto item = new SegmentTreeItem(model, segment);
+            this->addChild(item);
+        }
     }
+
+    // Update plot
+    auto profile_view = static_cast<ProfileView*>(plot);
+    profile_view->setData(model->getProfile());
 }
 
-void ProfileTreeItem::updatePlot() {
-    static_cast<ProfileView*>(plot)->setData(model->getProfile());
-}
-
-void ProfileTreeItem::insertChild(int i, QTreeWidgetItem* item) {
-    TreeItem::insertChild(i, item);
-    updateModel();
-}
-
-void ProfileTreeItem::removeChild(int i) {
-    TreeItem::removeChild(i);
-    updateModel();
-}
-
-void ProfileTreeItem::swapChildren(int i, int j) {
-    TreeItem::swapChildren(i, j);
-    updateModel();
-}
-
-SegmentTreeItem::SegmentTreeItem(const SegmentInput& input)
-    : TreeItem(segmentName(input), segmentIcon(input), TreeItemType::SEGMENT)
+SegmentTreeItem::SegmentTreeItem(ViewModel* model, const SegmentInput& input)
+    : TreeItem(model, segmentName(input), segmentIcon(input), TreeItemType::SEGMENT)
 {
     SegmentEditor* editor = segmentEditor(input);
     setEditor(editor);
 
     editor->setData(input);
-    QObject::connect(editor, &SegmentEditor::modified, [&]{
-        auto parent = dynamic_cast<ProfileTreeItem*>(this->parent());
-        if(parent != nullptr) {
-            parent->updateModel();
-        }
+    QObject::connect(editor, &SegmentEditor::modified, [=]{
+        updateModel(parent());
     });
 }
 
 SegmentInput SegmentTreeItem::getSegment() const {
     return static_cast<SegmentEditor*>(editor)->getData();
 }
-
-/*
-QVariant SegmentTreeItem::data(int column, int role) const {
-    if(role == Qt::DisplayRole) {
-        return QString::number(this->row() + 1) + ": " + QTreeWidgetItem::data(column, role).toString();
-    }
-
-    return QTreeWidgetItem::data(column, role);
-}
-*/
 
 QString SegmentTreeItem::segmentName(const SegmentInput& input) const {
     if(auto value = std::get_if<LineInput>(&input)) {

@@ -4,7 +4,7 @@
 #include <QVBoxLayout>
 
 SplineSegmentEditor::SplineSegmentEditor()
-    : table(new TableEditor("X", "Y", UnitSystem::length, UnitSystem::length, DoubleRange::unrestricted(1e-3), DoubleRange::unrestricted(1e-3)))
+    : table(new TableEditor("X", "Y", Quantities::length, Quantities::length, DoubleRange::unrestricted(1e-3), DoubleRange::unrestricted(1e-3)))
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);

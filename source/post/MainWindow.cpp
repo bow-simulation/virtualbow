@@ -67,8 +67,8 @@ MainWindow::MainWindow()
     restoreState(settings.value("OutputWindow/state").toByteArray());
     restoreGeometry(settings.value("OutputWindow/geometry").toByteArray());
 
-    // Load unit settings
-    UnitSystem::loadFromSettings(settings);
+    // Load units settings
+    Quantities::loadFromSettings(settings);
 
     // Disable saving until a file has been loaded
     action_save_as->setEnabled(false);
