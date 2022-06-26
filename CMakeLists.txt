@@ -3,6 +3,8 @@ project(virtualbow)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include(CheckCXXCompilerFlag)
+
 # Parameters
 
 set(APPLICATION_NAME "VirtualBow")
@@ -33,6 +35,10 @@ set(CMAKE_AUTORCC ON)
 configure_file(source/config.hpp.in ${CMAKE_BINARY_DIR}/config.hpp)
 include_directories(source ${PROJECT_BINARY_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
+
+# Compiler flags
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-math-errno")    # Don't make standard math functions set error flags
 
 # Target: Solver library
 
