@@ -41,10 +41,8 @@
         "string_center": 0.005,
         "string_tip": 0.005
     },
-    "meta": {
-        "comments": "",
-        "version": "0.7"
-    },
+    "comment": "",
+    "version": "0.7",
     "profile": [
         [
             0.0,

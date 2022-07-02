@@ -1,0 +1,303 @@
+{
+    "comment": "Glass data from Bearpaw:\nhttps://shop.bearpaw-products.com/WebshopB2C/Roll_Powerglass_Crystal_Clear/P-4349",
+    "damping": {
+        "damping_ratio_limbs": 0.0,
+        "damping_ratio_string": 0.0
+    },
+    "dimensions": {
+        "brace_height": 0.25,
+        "draw_length": 0.7,
+        "handle_angle": 0.0,
+        "handle_length": 0.0,
+        "handle_setback": 0.0
+    },
+    "layers": [
+        {
+            "height": [
+                [
+                    0.0,
+                    0.001
+                ],
+                [
+                    1.0,
+                    0.001
+                ]
+            ],
+            "material": 0,
+            "name": "Layer 1"
+        },
+        {
+            "height": [
+                [
+                    0.0,
+                    0.036
+                ],
+                [
+                    0.01,
+                    0.036
+                ],
+                [
+                    0.2,
+                    0.007
+                ],
+                [
+                    0.25,
+                    0.0033
+                ],
+                [
+                    0.3,
+                    0.003
+                ],
+                [
+                    1.0,
+                    0.0029
+                ]
+            ],
+            "material": 1,
+            "name": "Layer 2"
+        },
+        {
+            "height": [
+                [
+                    0.0,
+                    0.001
+                ],
+                [
+                    1.0,
+                    0.001
+                ]
+            ],
+            "material": 2,
+            "name": "Layer 3"
+        }
+    ],
+    "masses": {
+        "arrow": 0.025,
+        "limb_tip": 0.0,
+        "string_center": 0.0,
+        "string_tip": 0.0
+    },
+    "materials": [
+        {
+            "E": 41000000000.0,
+            "color": "#1f77b4",
+            "name": "Glass",
+            "rho": 1920.0
+        },
+        {
+            "E": 13000000000.0,
+            "color": "#ff7f0e",
+            "name": "Maple",
+            "rho": 705.0
+        },
+        {
+            "E": 41000000000.0,
+            "color": "#1f77b4",
+            "name": "Glass",
+            "rho": 1920.0
+        }
+    ],
+    "profile": [
+        {
+            "parameters": [
+                [
+                    "length",
+                    0.1
+                ],
+                [
+                    "r_start",
+                    -0.15384615384615385
+                ],
+                [
+                    "r_end",
+                    0.0
+                ]
+            ],
+            "type": "spiral"
+        },
+        {
+            "parameters": [
+                [
+                    "length",
+                    0.13999999999999999
+                ]
+            ],
+            "type": "line"
+        },
+        {
+            "parameters": [
+                [
+                    "length",
+                    0.06
+                ],
+                [
+                    "r_start",
+                    0.0
+                ],
+                [
+                    "r_end",
+                    1.0
+                ]
+            ],
+            "type": "spiral"
+        },
+        {
+            "parameters": [
+                [
+                    "length",
+                    0.10000000000000003
+                ],
+                [
+                    "radius",
+                    1.0
+                ]
+            ],
+            "type": "arc"
+        },
+        {
+            "parameters": [
+                [
+                    "length",
+                    0.09999999999999998
+                ],
+                [
+                    "r_start",
+                    1.0
+                ],
+                [
+                    "r_end",
+                    0.3333333333333333
+                ]
+            ],
+            "type": "spiral"
+        },
+        {
+            "parameters": [
+                [
+                    "length",
+                    0.09999999999999998
+                ],
+                [
+                    "r_start",
+                    0.3333333333333333
+                ],
+                [
+                    "r_end",
+                    0.25
+                ]
+            ],
+            "type": "spiral"
+        },
+        {
+            "parameters": [
+                [
+                    "length",
+                    0.08000000000000007
+                ],
+                [
+                    "r_start",
+                    0.25
+                ],
+                [
+                    "r_end",
+                    0.125
+                ]
+            ],
+            "type": "spiral"
+        },
+        {
+            "parameters": [
+                [
+                    "length",
+                    0.04499999999999993
+                ],
+                [
+                    "r_start",
+                    0.125
+                ],
+                [
+                    "r_end",
+                    0.1
+                ]
+            ],
+            "type": "spiral"
+        }
+    ],
+    "settings": {
+        "arrow_clamp_force": 0.0,
+        "n_draw_steps": 150,
+        "n_limb_elements": 25,
+        "n_string_elements": 30,
+        "sampling_rate": 10000.0,
+        "time_span_factor": 1.5,
+        "time_step_factor": 0.2
+    },
+    "string": {
+        "n_strands": 12,
+        "strand_density": 0.0005,
+        "strand_stiffness": 3500.0
+    },
+    "version": "0.9",
+    "width": [
+        [
+            0.0,
+            0.016
+        ],
+        [
+            0.0965517,
+            0.016
+        ],
+        [
+            0.124138,
+            0.018
+        ],
+        [
+            0.151724,
+            0.023
+        ],
+        [
+            0.17931,
+            0.0305
+        ],
+        [
+            0.206897,
+            0.037
+        ],
+        [
+            0.234483,
+            0.0395
+        ],
+        [
+            0.275862,
+            0.0408
+        ],
+        [
+            0.344828,
+            0.0412
+        ],
+        [
+            0.689655,
+            0.0372
+        ],
+        [
+            0.758621,
+            0.0355
+        ],
+        [
+            0.827586,
+            0.0318
+        ],
+        [
+            0.896552,
+            0.0264
+        ],
+        [
+            0.965517,
+            0.018
+        ],
+        [
+            1.0,
+            0.012
+        ]
+    ]
+}

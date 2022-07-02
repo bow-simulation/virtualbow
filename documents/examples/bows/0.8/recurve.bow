@@ -1,11 +1,12 @@
 {
+    "comment": "",
     "damping": {
         "damping_ratio_limbs": 0.0,
         "damping_ratio_string": 0.0
     },
     "dimensions": {
-        "brace_height": 0.14,
-        "draw_length": 0.69,
+        "brace_height": 0.2,
+        "draw_length": 0.7,
         "handle_angle": 0.0,
         "handle_length": 0.0,
         "handle_setback": 0.0
@@ -44,15 +45,15 @@
                 ],
                 [
                     0.7,
-                    0.011
+                    0.009
                 ],
                 [
                     0.8,
-                    0.014
+                    0.012
                 ],
                 [
                     1.0,
-                    0.015
+                    0.012
                 ]
             ],
             "name": "hazel",
@@ -60,24 +61,39 @@
         }
     ],
     "masses": {
-        "arrow": 0.08,
+        "arrow": 0.04,
         "limb_tip": 0.005,
         "string_center": 0.005,
         "string_tip": 0.005
     },
-    "comment": "",
-    "version": "0.7",
     "profile": [
         [
             0.0,
             0.0
         ],
         [
-            0.86,
+            0.6534,
             0.0
+        ],
+        [
+            0.6605000000000001,
+            3.0
+        ],
+        [
+            0.7095,
+            3.0
+        ],
+        [
+            0.7115,
+            6.0
+        ],
+        [
+            0.8600000000000001,
+            6.0
         ]
     ],
     "settings": {
+        "arrow_clamp_force": 0.0,
         "n_draw_steps": 150,
         "n_limb_elements": 40,
         "n_string_elements": 45,
@@ -86,10 +102,11 @@
         "time_step_factor": 0.5
     },
     "string": {
-        "n_strands": 10,
+        "n_strands": 14,
         "strand_density": 0.0005,
         "strand_stiffness": 3500.0
     },
+    "version": "0.8",
     "width": [
         [
             0.0,
@@ -113,7 +130,7 @@
         ],
         [
             0.9,
-            0.03
+            0.023
         ],
         [
             1.0,

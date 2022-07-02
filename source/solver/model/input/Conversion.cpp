@@ -30,19 +30,19 @@ void Conversion::to_current(json& obj) {
         convert_0_6_1_to_0_7_0(obj);
     }
 
-    if(obj.at("version") == "0.7") {
+    if(obj.contains("version") && obj.at("version") == "0.7") {
         convert_0_7_0_to_0_7_1(obj);
     }
 
-    if(obj.at("version") == "0.7.1") {
+    if(obj.contains("version") && obj.at("version") == "0.7.1") {
         convert_0_7_1_to_0_8_0(obj);
     }
 
-    if(obj.at("version") == "0.8") {
+    if(obj.contains("version") && obj.at("version") == "0.8") {
         convert_0_8_0_to_0_9_0(obj);
     }
 
-    if(obj.at("version") == "0.9") {
+    if(obj.contains("version") && obj.at("version") == "0.9") {
         return;
     }
 
@@ -50,7 +50,93 @@ void Conversion::to_current(json& obj) {
 }
 
 void Conversion::convert_0_8_0_to_0_9_0(json& obj) {
-    throw std::runtime_error("Conversion from 0.8 to 0.9 not yet implemented");
+    obj["version"] = "0.9";
+
+    // In previous versions, the colors were ransomly generated based on the material properties (same properties -> same color)
+    // Starting with version 0.9 the colors can be chosen by users, so we have to pick some initial color here. Instead of replicating the old
+    // random algorithm, they are chosen out of a fixed color palette (taken from Python's Matplotlib,  https://stackoverflow.com/a/42091037)
+    const std::array<std::string, 10> color_palette = { "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf" };
+    std::map<double, std::string> used_colors;
+
+    int next_color = 0;
+    auto material_color = [&](double rho, double E) {
+        // Check if the material (rho, E) was already assigned a color
+        // If not, assign it the next color in the palette (with wrap-around)
+        double key = rho*E;
+        auto it = used_colors.find(key);
+        if(it == used_colors.end()) {
+            used_colors[key] = color_palette[next_color % color_palette.size()];
+            next_color += 1;
+        }
+
+        return used_colors[key];
+    };
+
+    // Create new material from each layer and make layer refer to that material
+    // Also name material after layer and give layers a generic name instead
+    obj["materials"] = json::array();
+    for(size_t i = 0; i < obj.at("layers").size(); ++i) {
+        json& layer = obj.at("layers").at(i);
+
+        obj["materials"].push_back({
+            {"name", layer.at("name")},
+            {"color", material_color(layer.at("rho"), layer.at("E"))},
+            {"rho", layer.at("rho")},
+            {"E", layer.at("E")}
+        });
+
+        layer["name"] = "Layer " + std::to_string(i+1);
+        layer["material"] = i;
+        layer.erase("rho");
+        layer.erase("E");
+    }
+
+    json old_profile = obj.at("profile");
+    json new_profile = json::array();
+
+    auto curvature_to_radius = [](double kappa) {
+        return (kappa != 0.0) ? 1.0/kappa : 0.0;
+    };
+
+    // Convert old profile definition to line, arc and spiral segments
+    for(size_t i = 0; i < old_profile.size() - 1; ++i) {
+        json prev = old_profile.at(i);
+        json next = old_profile.at(i+1);
+
+        double length = next.at(0).get<double>() - prev.at(0).get<double>();
+        double kappa0 = prev.at(1).get<double>();
+        double kappa1 = next.at(1).get<double>();
+
+        if(kappa0 == 0.0 && kappa1 == 0.0) {
+            new_profile.push_back({
+                {"parameters", json::array({
+                     {"length", length}
+                })},
+                {"type", "line"}
+            });
+        }
+        else if(kappa0 == kappa1) {
+            new_profile.push_back({
+                {"parameters", json::array({
+                     {"length", length},
+                     {"radius", curvature_to_radius(kappa0)}
+                })},
+                {"type", "arc"}
+            });
+        }
+        else {
+            new_profile.push_back({
+                {"parameters", json::array({
+                     {"length", length},
+                     {"r_start", curvature_to_radius(kappa0)},
+                     {"r_end", curvature_to_radius(kappa1)}
+                })},
+                {"type", "spiral"}
+            });
+        }
+    }
+
+    obj["profile"] = new_profile;
 }
 
 void Conversion::convert_0_7_1_to_0_8_0(json& obj) {
