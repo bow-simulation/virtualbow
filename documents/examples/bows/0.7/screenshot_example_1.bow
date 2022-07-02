@@ -79,10 +79,8 @@
         "string_center": 0.0,
         "string_tip": 0.0
     },
-    "meta": {
-        "comments": "Glass data from Bearpaw:\nhttps://shop.bearpaw-products.com/WebshopB2C/Roll_Powerglass_Crystal_Clear/P-4349",
-        "version": "0.7"
-    },
+    "comment": "Glass data from Bearpaw:\nhttps://shop.bearpaw-products.com/WebshopB2C/Roll_Powerglass_Crystal_Clear/P-4349",
+    "version": "0.7",
     "profile": [
         [
             0.0,
