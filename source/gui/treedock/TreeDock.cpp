@@ -44,15 +44,17 @@ TreeDock::TreeDock(ViewModel* model)
         auto selected = static_cast<TreeItem*>(tree->currentItem());
         auto parent = static_cast<TreeItem*>(selected->parent());
 
-        if(parent != nullptr && parent->childCount() > 1) {
-            // Remove selected item from parent
-            //parent->removeChild(parent->indexOfChild(selected));
-            model->removeMaterial(parent->indexOfChild(selected), this);
-        }
-        else {
-            // Remove last item from selected
-            //selected->removeChild(selected->childCount() - 1);
-            model->removeMaterial(selected->childCount() - 1, this);
+        // Remove selected item from parent or last item, if the parent was selected
+        int index = (parent != nullptr) ? parent->indexOfChild(selected) : selected->childCount() - 1;
+
+        switch(selected->type()) {
+            case MATERIAL:
+                model->removeMaterial(index, this);
+                break;
+
+            case LAYER:
+                model->removeLayer(index, this);
+                break;
         }
     });
 
@@ -63,21 +65,38 @@ TreeDock::TreeDock(ViewModel* model)
         auto parent = static_cast<TreeItem*>(selected->parent());
 
         if(parent != nullptr) {
-            int i = parent->indexOfChild(selected);
-            //parent->swapChildren(i, i-1);
-            model->swapMaterials(i, i-1, this);
+            int index = parent->indexOfChild(selected);
+
+            switch(selected->type()) {
+                case MATERIAL:
+                    model->swapMaterials(index, index - 1, this);
+                    break;
+
+                case LAYER:
+                    model->swapLayers(index, index - 1, this);
+                    break;
+            }
         }
     });
 
     button_down = new QToolButton();
     button_down->setIcon(QIcon(":/icons/list-move-down.svg"));
-    QObject::connect(button_down, &QToolButton::clicked, this, [&] {
+    QObject::connect(button_down, &QToolButton::clicked, this, [=] {
         auto selected = static_cast<TreeItem*>(tree->currentItem());
         auto parent = static_cast<TreeItem*>(selected->parent());
 
         if(parent != nullptr) {
-            int i = parent->indexOfChild(selected);
-            parent->swapChildren(i, i+1);
+            int index = parent->indexOfChild(selected);
+
+            switch(selected->type()) {
+                case MATERIAL:
+                    model->swapMaterials(index, index + 1, this);
+                    break;
+
+                case LAYER:
+                    model->swapLayers(index, index + 1, this);
+                    break;
+            }
         }
     });
 
@@ -86,13 +105,21 @@ TreeDock::TreeDock(ViewModel* model)
     action_remove->setShortcut(QKeySequence::Delete);
     action_remove->setShortcutContext(Qt::WidgetShortcut);
     tree->addAction(action_remove);
-    QObject::connect(action_remove, &QAction::triggered, this, [&] {
+    QObject::connect(action_remove, &QAction::triggered, this, [=] {
         auto selected = static_cast<TreeItem*>(tree->currentItem());
         auto parent = static_cast<TreeItem*>(selected->parent());
 
         if(parent != nullptr && parent->childCount() > 1) {
-            int i = parent->indexOfChild(selected);
-            parent->removeChild(i);
+            int index = parent->indexOfChild(selected);
+            switch(selected->type()) {
+                case MATERIAL:
+                    model->removeMaterial(index, this);
+                    break;
+
+                case LAYER:
+                    model->removeLayer(index, this);
+                    break;
+            }
         }
     });
 
@@ -114,7 +141,7 @@ TreeDock::TreeDock(ViewModel* model)
     //createSegmentMenu();
 
     // On selection of a tree item
-    QObject::connect(tree, &QTreeWidget::itemSelectionChanged, this, [&](){
+    QObject::connect(tree, &QTreeWidget::itemSelectionChanged, this, [=](){
         auto items = tree->selectedItems();
         if(items.size() == 1) {
             auto item = static_cast<TreeItem*>(items[0]);
@@ -180,17 +207,15 @@ void TreeDock::createTopLevelItems() {
 
 QMenu* TreeDock::createMaterialMenu() {
     auto menu = new QMenu();
-    menu->addAction(QIcon(":/icons/model-material.svg"), "New Material", this, [&]{
+    menu->addAction(QIcon(":/icons/model-material.svg"), "New Material", this, [=]{
         auto item = static_cast<TreeItem*>(tree->currentItem());
         if(item->type() == TreeItemType::MATERIALS) {
             // Category selected: Add new material at the end
             model->insertMaterial(item_materials->childCount(), Material(), this);
-            //item_materials->insertChild(item_materials->childCount(), new MaterialTreeItem(model, Material()));
         }
         else if(item->type() == TreeItemType::MATERIAL) {
             // Material selected: Add new material after selection
             model->insertMaterial(item_materials->indexOfChild(item) + 1, Material(), this);
-            //item_materials->insertChild(item_materials->indexOfChild(item) + 1, new MaterialTreeItem(model, Material()));
         }
     });
 
@@ -203,11 +228,11 @@ QMenu* TreeDock::createLayerMenu() {
         auto item = static_cast<TreeItem*>(tree->currentItem());
         if(item->type() == TreeItemType::LAYERS) {
             // Category selected: Add new layer at the end
-            item_layers->insertChild(item_layers->childCount(), new LayerTreeItem(model, Layer()));
+            model->insertLayer(item_layers->childCount(), Layer(), this);
         }
         else if(item->type() == TreeItemType::LAYER) {
             // Layer selected: Add new layer after selection
-            item_layers->insertChild(item_layers->indexOfChild(item) + 1, new LayerTreeItem(model, Layer()));
+            model->insertLayer(item_layers->indexOfChild(item) + 1, Layer(), this);
         }
     });
 
@@ -215,7 +240,7 @@ QMenu* TreeDock::createLayerMenu() {
 }
 
 QMenu* TreeDock::createSegmentMenu() {
-    auto add_segment_at_item = [&](const SegmentInput& segment) {
+    auto add_segment_at_item = [=](const SegmentInput& segment) {
         auto item = static_cast<TreeItem*>(tree->currentItem());
         if(item->type() == TreeItemType::PROFILE) {
             item_profile->insertChild(item_profile->childCount(), new SegmentTreeItem(model, segment));
