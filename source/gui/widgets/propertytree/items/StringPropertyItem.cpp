@@ -10,6 +10,15 @@ StringPropertyItem::StringPropertyItem(QString name, GroupPropertyItem* parent)
     this->setFlags(this->flags() | Qt::ItemIsEditable);
 }
 
+QString StringPropertyItem::getValue() const {
+    return value;
+}
+
+void StringPropertyItem::setValue(const QString& value) {
+    this->value = value;
+    emitDataChanged();
+}
+
 QVariant StringPropertyItem::data(int column, int role) const {
     if(column == 0 && role == Qt::DisplayRole) {
         return name;

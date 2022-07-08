@@ -29,7 +29,6 @@ void TreeItem::setPlot(QWidget* plot) {
 void TreeItem::insertChild(int i, QTreeWidgetItem* item) {
     if(i >= 0 && i <= this->childCount()) {
         QTreeWidgetItem::insertChild(i, item);
-        updateModel(this);
     }
 }
 void TreeItem::swapChildren(int i, int j) {
@@ -45,14 +44,17 @@ void TreeItem::swapChildren(int i, int j) {
         QTreeWidgetItem::insertChild(i_max, item_min);
         this->treeWidget()->setCurrentItem(current);    // Reset previously selected item
     }
-
-    updateModel(this);
 }
 
 void TreeItem::removeChild(int i) {
     if(i >= 0 && i < this->childCount()) {
         QTreeWidgetItem::removeChild(this->child(i));
-        updateModel(this);
+    }
+}
+
+void TreeItem::removeChildren() {
+    while(this->childCount() > 0) {
+        QTreeWidgetItem::removeChild(this->child(0));
     }
 }
 

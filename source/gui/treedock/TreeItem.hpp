@@ -31,6 +31,7 @@ public:
     virtual void insertChild(int i, QTreeWidgetItem* item);
     virtual void swapChildren(int i, int j);
     virtual void removeChild(int i);
+    virtual void removeChildren();
 
     virtual void updateModel(void* source);
     virtual void updateView(void* source);

@@ -40,29 +40,32 @@ TreeDock::TreeDock(ViewModel* model)
 
     button_remove = new QToolButton();
     button_remove->setIcon(QIcon(":/icons/list-remove.svg"));
-    QObject::connect(button_remove, &QToolButton::clicked, this, [&] {
+    QObject::connect(button_remove, &QToolButton::clicked, this, [=] {
         auto selected = static_cast<TreeItem*>(tree->currentItem());
         auto parent = static_cast<TreeItem*>(selected->parent());
 
         if(parent != nullptr && parent->childCount() > 1) {
             // Remove selected item from parent
-            parent->removeChild(parent->indexOfChild(selected));
+            //parent->removeChild(parent->indexOfChild(selected));
+            model->removeMaterial(parent->indexOfChild(selected), this);
         }
         else {
             // Remove last item from selected
-            selected->removeChild(selected->childCount() - 1);
+            //selected->removeChild(selected->childCount() - 1);
+            model->removeMaterial(selected->childCount() - 1, this);
         }
     });
 
     button_up = new QToolButton();
     button_up->setIcon(QIcon(":/icons/list-move-up.svg"));
-    QObject::connect(button_up, &QToolButton::clicked, this, [&] {
+    QObject::connect(button_up, &QToolButton::clicked, this, [=] {
         auto selected = static_cast<TreeItem*>(tree->currentItem());
         auto parent = static_cast<TreeItem*>(selected->parent());
 
         if(parent != nullptr) {
             int i = parent->indexOfChild(selected);
-            parent->swapChildren(i, i-1);
+            //parent->swapChildren(i, i-1);
+            model->swapMaterials(i, i-1, this);
         }
     });
 
@@ -181,11 +184,13 @@ QMenu* TreeDock::createMaterialMenu() {
         auto item = static_cast<TreeItem*>(tree->currentItem());
         if(item->type() == TreeItemType::MATERIALS) {
             // Category selected: Add new material at the end
-            item_materials->insertChild(item_materials->childCount(), new MaterialTreeItem(model, Material()));
+            model->insertMaterial(item_materials->childCount(), Material(), this);
+            //item_materials->insertChild(item_materials->childCount(), new MaterialTreeItem(model, Material()));
         }
         else if(item->type() == TreeItemType::MATERIAL) {
             // Material selected: Add new material after selection
-            item_materials->insertChild(item_materials->indexOfChild(item) + 1, new MaterialTreeItem(model, Material()));
+            model->insertMaterial(item_materials->indexOfChild(item) + 1, Material(), this);
+            //item_materials->insertChild(item_materials->indexOfChild(item) + 1, new MaterialTreeItem(model, Material()));
         }
     });
 

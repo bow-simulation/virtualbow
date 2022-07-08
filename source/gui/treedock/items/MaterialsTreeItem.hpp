@@ -11,15 +11,15 @@ class MaterialsTreeItem: public TreeItem
 {
 public:
     MaterialsTreeItem(ViewModel* model);
-    void updateModel(void* source) override;
-    void updateView(void* source) override;
+    void initFromModel();
 };
 
 class MaterialTreeItem: public TreeItem
 {
 public:
-    MaterialTreeItem(ViewModel* model, const Material& material);
+    MaterialTreeItem(ViewModel* model);
     Material getMaterial() const;
+    void setMaterial(const Material& material);
 
 protected:
     void setData(int column, int role, const QVariant &value) override;

@@ -30,7 +30,10 @@ public:
     void setDimensions(const Dimensions& value, void* source);
 
     const std::vector<Material>& getMaterials() const;
-    void setMaterials(const std::vector<Material>& value, void* source);
+    void modifyMaterial(int i, const Material& material, void* source);
+    void insertMaterial(int i, const Material& material, void* source);
+    void removeMaterial(int i, void* source);
+    void swapMaterials(int i, int j, void* source);
 
     const std::vector<Layer>& getLayers() const;
     void setLayers(const std::vector<Layer>& value, void* source);
@@ -60,7 +63,13 @@ signals:
     void commentModified(void* source);
     void settingsModified(void* source);
     void dimensionsModified(void* source);
+
     void materialsModified(void* source);
+    void materialModified(int i, void* source);
+    void materialInserted(int i, void* source);
+    void materialRemoved(int i, void* source);
+    void materialsSwapped(int i, int j, void* source);
+
     void layersModified(void* source);
     void profileModified(void* source);
     void widthModified(void* source);
