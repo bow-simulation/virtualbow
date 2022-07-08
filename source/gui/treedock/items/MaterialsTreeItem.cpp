@@ -8,49 +8,55 @@
 MaterialsTreeItem::MaterialsTreeItem(ViewModel* model)
     : TreeItem(model, "Materials", QIcon(":/icons/model-materials.svg"), TreeItemType::MATERIALS)
 {
-    updateView(nullptr);
-    QObject::connect(model, &ViewModel::materialsModified, [=](void* source){
-        updateView(source);
+    QObject::connect(model, &ViewModel::reloaded, [=]{
+        initFromModel();
     });
+
+    QObject::connect(model, &ViewModel::materialModified, [=](int i, void* source) {
+        if(source != this) {
+            auto item = dynamic_cast<MaterialTreeItem*>(this->child(i));
+            item->setMaterial(model->getData().materials[i]);
+        }
+    });
+
+    QObject::connect(model, &ViewModel::materialInserted, [=](int i, void* source) {
+        if(source != this) {
+            auto item = new MaterialTreeItem(model);
+            item->setMaterial(model->getData().materials[i]);
+            this->insertChild(i, item);
+        }
+    });
+
+    QObject::connect(model, &ViewModel::materialRemoved, [=](int i, void* source) {
+        if(source != this) {
+            this->removeChild(i);
+        }
+    });
+
+    QObject::connect(model, &ViewModel::materialsSwapped, [=](int i, int j, void* source) {
+        if(source != this) {
+            this->swapChildren(i, j);
+        }
+    });
+
+    initFromModel();
 }
 
-void MaterialsTreeItem::updateModel(void* source) {
-    std::vector<Material> materials;
-    for(int i = 0; i < this->childCount(); ++i) {
-        auto item = dynamic_cast<MaterialTreeItem*>(this->child(i));
-        if(item != nullptr) {
-            materials.push_back(item->getMaterial());
-        }
+void MaterialsTreeItem::initFromModel() {
+    this->removeChildren();
+    for(auto& material: model->getMaterials()) {
+        auto item = new MaterialTreeItem(model);
+        item->setMaterial(material);
+        this->addChild(item);
     }
-    model->setMaterials(materials, source);
 }
 
-void MaterialsTreeItem::updateView(void* source) {
-    if(source != this) {
-        // Remove children without notifying the model
-        while(this->childCount() > 0) {
-            QTreeWidgetItem::removeChild(this->child(0));
-        }
-
-        // Add new children
-        for(auto& material: model->getMaterials()) {
-            auto item = new MaterialTreeItem(model, material);
-            this->addChild(item);
-        }
-    }
-}
-
-MaterialTreeItem::MaterialTreeItem(ViewModel* model, const Material& material)
-    : TreeItem(model, QString::fromStdString(material.name), QIcon(":/icons/model-material.svg"), TreeItemType::MATERIAL)
+MaterialTreeItem::MaterialTreeItem(ViewModel* model)
+    : TreeItem(model, "", QIcon(":/icons/model-material.svg"), TreeItemType::MATERIAL)
 {
     color = new ColorPropertyItem("Color");
-    color->setValue(QString::fromStdString(material.color));
-
     rho = new DoublePropertyItem("Rho", Quantities::density, DoubleRange::positive(1.0));
-    rho->setValue(material.rho);
-
     E = new DoublePropertyItem("E", Quantities::elastic_modulus, DoubleRange::positive(1e8));
-    E->setValue(material.E);
 
     auto tree = new PropertyTreeWidget();
     tree->addTopLevelItem(color);
@@ -61,9 +67,9 @@ MaterialTreeItem::MaterialTreeItem(ViewModel* model, const Material& material)
     this->setEditor(tree);
     this->setFlags(this->flags() | Qt::ItemIsEditable);
 
-    // Update view model on changes
+    // Update viewmodel on changes
     QObject::connect(tree, &QTreeWidget::itemChanged, [=]{
-        updateModel(parent());
+        model->modifyMaterial(row(), getMaterial(), parent());
     });
 }
 
@@ -76,7 +82,18 @@ Material MaterialTreeItem::getMaterial() const {
     };
 }
 
+void MaterialTreeItem::setMaterial(const Material& material) {
+    QSignalBlocker blocker(editor);
+
+    this->setText(0, QString::fromStdString(material.name));
+    color->setValue(QString::fromStdString(material.color));
+    rho->setValue(material.rho);
+    E->setValue(material.E);
+}
+
 void MaterialTreeItem::setData(int column, int role, const QVariant &value) {
     QTreeWidgetItem::setData(column, role, value);
-    updateModel(parent());
+    if(role == Qt::EditRole) {
+        model->modifyMaterial(row(), getMaterial(), parent());
+    }
 }

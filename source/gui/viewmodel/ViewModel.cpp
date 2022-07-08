@@ -123,8 +123,27 @@ const std::vector<Material>& ViewModel::getMaterials() const {
     return data.materials;
 }
 
-void ViewModel::setMaterials(const std::vector<Material>& value, void* source) {
-    data.materials = value;
+void ViewModel::modifyMaterial(int i, const Material& material, void* source) {
+    data.materials[i] = material;
+    emit materialModified(i, source);
+    emit materialsModified(source);
+}
+
+void ViewModel::insertMaterial(int i, const Material& material, void* source) {
+    data.materials.insert(data.materials.begin() + i, material);
+    emit materialInserted(i, source);
+    emit materialsModified(source);
+}
+
+void ViewModel::removeMaterial(int i, void* source) {
+    data.materials.erase(data.materials.begin() + i);
+    emit materialRemoved(i, source);
+    emit materialsModified(source);
+}
+
+void ViewModel::swapMaterials(int i, int j, void* source) {
+    std::swap(data.materials[i], data.materials[j]);
+    emit materialsSwapped(i, j, source);
     emit materialsModified(source);
 }
 
