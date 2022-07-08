@@ -30,13 +30,17 @@ public:
     void setDimensions(const Dimensions& value, void* source);
 
     const std::vector<Material>& getMaterials() const;
-    void modifyMaterial(int i, const Material& material, void* source);
-    void insertMaterial(int i, const Material& material, void* source);
-    void removeMaterial(int i, void* source);
-    void swapMaterials(int i, int j, void* source);
+    void modifyMaterial(size_t i, const Material& material, void* source);
+    void insertMaterial(size_t i, const Material& material, void* source);
+    void removeMaterial(size_t i, void* source);
+    void swapMaterials(size_t i, size_t j, void* source);
 
     const std::vector<Layer>& getLayers() const;
-    void setLayers(const std::vector<Layer>& value, void* source);
+    void modifyLayer(size_t i, const Layer& material, void* source);
+    void insertLayer(size_t i, const Layer& material, void* source);
+    void removeLayer(size_t i, void* source);
+    void swapLayers(size_t i, size_t j, void* source);
+
 
     const ProfileInput& getProfile() const;
     void setProfile(const ProfileInput& value, void* source);
@@ -65,13 +69,23 @@ signals:
     void dimensionsModified(void* source);
 
     void materialsModified(void* source);
-    void materialModified(int i, void* source);
-    void materialInserted(int i, void* source);
-    void materialRemoved(int i, void* source);
-    void materialsSwapped(int i, int j, void* source);
+    void materialModified(size_t i, void* source);
+    void materialInserted(size_t i, void* source);
+    void materialRemoved(size_t i, void* source);
+    void materialsSwapped(size_t i, size_t j, void* source);
 
     void layersModified(void* source);
+    void layerModified(size_t i, void* source);
+    void layerInserted(size_t i, void* source);
+    void layerRemoved(size_t i, void* source);
+    void layersSwapped(size_t i, size_t j, void* source);
+
     void profileModified(void* source);
+    void segmentModified(size_t i, void* source);
+    void segmentInserted(size_t i, void* source);
+    void segmentRemoved(size_t i, void* source);
+    void segmentsSwapped(size_t i, size_t j, void* source);
+
     void widthModified(void* source);
     void stringModified(void* source);
     void massesModified(void* source);

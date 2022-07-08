@@ -8,21 +8,21 @@
 MaterialsTreeItem::MaterialsTreeItem(ViewModel* model)
     : TreeItem(model, "Materials", QIcon(":/icons/model-materials.svg"), TreeItemType::MATERIALS)
 {
-    QObject::connect(model, &ViewModel::reloaded, [=]{
+    QObject::connect(model, &ViewModel::reloaded, [=] {
         initFromModel();
     });
 
     QObject::connect(model, &ViewModel::materialModified, [=](int i, void* source) {
         if(source != this) {
             auto item = dynamic_cast<MaterialTreeItem*>(this->child(i));
-            item->setMaterial(model->getData().materials[i]);
+            item->setMaterial(model->getMaterials()[i]);
         }
     });
 
     QObject::connect(model, &ViewModel::materialInserted, [=](int i, void* source) {
         if(source != this) {
             auto item = new MaterialTreeItem(model);
-            item->setMaterial(model->getData().materials[i]);
+            item->setMaterial(model->getMaterials()[i]);
             this->insertChild(i, item);
         }
     });

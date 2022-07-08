@@ -123,37 +123,122 @@ const std::vector<Material>& ViewModel::getMaterials() const {
     return data.materials;
 }
 
-void ViewModel::modifyMaterial(int i, const Material& material, void* source) {
-    data.materials[i] = material;
-    emit materialModified(i, source);
-    emit materialsModified(source);
+void ViewModel::modifyMaterial(size_t i, const Material& material, void* source) {
+    if(i < data.materials.size()) {
+        data.materials[i] = material;
+        emit materialModified(i, source);
+        emit materialsModified(source);
+    }
 }
 
-void ViewModel::insertMaterial(int i, const Material& material, void* source) {
-    data.materials.insert(data.materials.begin() + i, material);
-    emit materialInserted(i, source);
-    emit materialsModified(source);
+void ViewModel::insertMaterial(size_t i, const Material& material, void* source) {
+    if(i <= data.materials.size()) {
+        // Insert material at given index
+        data.materials.insert(data.materials.begin() + i, material);
+        emit materialInserted(i, source);
+        emit materialsModified(source);
+
+        // Increment references to all materials >= that index
+        bool modified = false;
+        for(size_t j = 0; j < data.layers.size(); ++j) {
+            if(data.layers[j].material >= i) {
+                data.layers[j].material += 1;
+                emit layerModified(j, source);
+                modified = true;
+            }
+        }
+
+        if(modified) {
+            emit layersModified(source);
+        }
+    }
 }
 
-void ViewModel::removeMaterial(int i, void* source) {
-    data.materials.erase(data.materials.begin() + i);
-    emit materialRemoved(i, source);
-    emit materialsModified(source);
+void ViewModel::removeMaterial(size_t i, void* source) {
+    if(i < data.materials.size()) {
+        // Remove material at the given index
+        data.materials.erase(data.materials.begin() + i);
+        emit materialRemoved(i, source);
+        emit materialsModified(source);
+
+        // Remove references to the material
+        bool modified = false;
+        for(size_t j = 0; j < data.layers.size(); ++j) {
+            if(data.layers[j].material == i) {
+                data.layers[j].material = 0;
+                emit layerModified(j, source);
+                modified = true;
+            }
+        }
+
+        if(modified) {
+            emit layersModified(source);
+        }
+    }
 }
 
-void ViewModel::swapMaterials(int i, int j, void* source) {
-    std::swap(data.materials[i], data.materials[j]);
-    emit materialsSwapped(i, j, source);
-    emit materialsModified(source);
+void ViewModel::swapMaterials(size_t i, size_t j, void* source) {
+    if(i != j && i < data.materials.size() && j < data.materials.size()) {
+        // Swap the two materials
+        std::swap(data.materials[i], data.materials[j]);
+        emit materialsSwapped(i, j, source);
+        emit materialsModified(source);
+
+        // Swap references to the materials
+        bool modified = false;
+        for(size_t k = 0; k < data.layers.size(); ++k) {
+            if(data.layers[k].material == i) {
+                data.layers[k].material = j;
+                emit layerModified(k, source);
+                modified = true;
+            }
+            else if(data.layers[k].material == j) {
+                data.layers[k].material = i;
+                emit layerModified(k, source);
+                modified = true;
+            }
+        }
+
+        if(modified) {
+            emit layersModified(source);
+        }
+    }
 }
 
 const std::vector<Layer>& ViewModel::getLayers() const {
     return data.layers;
 }
 
-void ViewModel::setLayers(const std::vector<Layer>& value, void* source) {
-    data.layers = value;
-    emit layersModified(source);
+void ViewModel::modifyLayer(size_t i, const Layer& layer, void* source) {
+    if(i < data.layers.size()) {
+        data.layers[i] = layer;
+        emit layerModified(i, source);
+        emit layersModified(source);
+    }
+}
+
+void ViewModel::insertLayer(size_t i, const Layer& layer, void* source) {
+    if(i <= data.layers.size()) {
+        data.layers.insert(data.layers.begin() + i, layer);
+        emit layerInserted(i, source);
+        emit layersModified(source);
+    }
+}
+
+void ViewModel::removeLayer(size_t i, void* source) {
+    if(i < data.layers.size()) {
+        data.layers.erase(data.layers.begin() + i);
+        emit layerRemoved(i, source);
+        emit layersModified(source);
+    }
+}
+
+void ViewModel::swapLayers(size_t i, size_t j, void* source) {
+    if(i != j && i < data.layers.size() && j < data.layers.size()) {
+        std::swap(data.layers[i], data.layers[j]);
+        emit layersSwapped(i, j, source);
+        emit layersModified(source);
+    }
 }
 
 const ProfileInput& ViewModel::getProfile() const {

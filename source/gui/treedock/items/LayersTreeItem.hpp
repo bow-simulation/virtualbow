@@ -10,15 +10,15 @@ class LayersTreeItem: public TreeItem
 {
 public:
     LayersTreeItem(ViewModel* model);
-    void updateModel(void* source) override;
-    void updateView(void* source) override;
+    void initFromModel();
 };
 
 class LayerTreeItem: public TreeItem
 {
 public:
-    LayerTreeItem(ViewModel* model, const Layer& layer);
+    LayerTreeItem(ViewModel* model);
     Layer getLayer() const;
+    void setLayer(const Layer& layer);
 
 protected:
     void setData(int column, int role, const QVariant &value) override;

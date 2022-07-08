@@ -7,55 +7,62 @@
 LayersTreeItem::LayersTreeItem(ViewModel* model)
     : TreeItem(model, "Layers", QIcon(":/icons/model-layers.svg"), TreeItemType::LAYERS)
 {
-    updateView(nullptr);
-    QObject::connect(model, &ViewModel::layersModified, [=](void* source){
-        updateView(source);
+    QObject::connect(model, &ViewModel::reloaded, [=] {
+        initFromModel();
     });
+
+    QObject::connect(model, &ViewModel::layerModified, [=](int i, void* source) {
+        if(source != this) {
+            auto item = dynamic_cast<LayerTreeItem*>(this->child(i));
+            item->setLayer(model->getLayers()[i]);
+        }
+    });
+
+    QObject::connect(model, &ViewModel::layerInserted, [=](int i, void* source) {
+        if(source != this) {
+            auto item = new LayerTreeItem(model);
+            item->setLayer(model->getLayers()[i]);
+            this->insertChild(i, item);
+        }
+    });
+
+    QObject::connect(model, &ViewModel::layerRemoved, [=](int i, void* source) {
+        if(source != this) {
+            this->removeChild(i);
+        }
+    });
+
+    QObject::connect(model, &ViewModel::layersSwapped, [=](int i, int j, void* source) {
+        if(source != this) {
+            this->swapChildren(i, j);
+        }
+    });
+
+    initFromModel();
 }
 
-void LayersTreeItem::updateModel(void* source) {
-    std::vector<Layer> layers;
-    for(int i = 0; i < this->childCount(); ++i) {
-        auto item = dynamic_cast<LayerTreeItem*>(this->child(i));
-        if(item != nullptr) {
-            layers.push_back(item->getLayer());
-        }
+void LayersTreeItem::initFromModel() {
+    this->removeChildren();
+    for(auto& layer: model->getLayers()) {
+        auto item = new LayerTreeItem(model);
+        item->setLayer(layer);
+        this->addChild(item);
     }
-    model->setLayers(layers, source);
 }
 
-void LayersTreeItem::updateView(void* source) {
-    if(source != this) {
-        // Remove children without notifying the model
-        while(this->childCount() > 0) {
-            QTreeWidgetItem::removeChild(this->child(0));
-        }
-
-        // Add new children
-        for(auto& layer: model->getLayers()) {
-            auto item = new LayerTreeItem(model, layer);
-            this->addChild(item);
-        }
-    }
-}
-
-LayerTreeItem::LayerTreeItem(ViewModel* model, const Layer& layer)
-    : TreeItem(model, QString::fromStdString(layer.name), QIcon(":/icons/model-layer.svg"), TreeItemType::LAYER)
+LayerTreeItem::LayerTreeItem(ViewModel* model)
+    : TreeItem(model, "", QIcon(":/icons/model-layer.svg"), TreeItemType::LAYER)
 {
     table = new TableEditor("Length", "Height", Quantities::ratio, Quantities::length, DoubleRange::nonNegative(1e-4), DoubleRange::positive(1e-4));
-
     combo = new QComboBox();
     updateCombo();
 
     setPlot(new SplineView("Length", "Height", Quantities::ratio, Quantities::length));
     updatePlot();
 
-    table->setData(layer.height);
-    combo->setCurrentIndex(layer.material);
-
     QObject::connect(combo, &QComboBox::currentTextChanged, [=]{ updateModel(parent()); });
     QObject::connect(table, &TableEditor::modified, [=]{
-        updateModel(parent());
+        model->modifyLayer(row(), getLayer(), parent());
         updatePlot();
     });
 
@@ -77,17 +84,25 @@ LayerTreeItem::LayerTreeItem(ViewModel* model, const Layer& layer)
     this->setFlags(this->flags() | Qt::ItemIsEditable);
 }
 
-void LayerTreeItem::setData(int column, int role, const QVariant &value) {
-    QTreeWidgetItem::setData(column, role, value);
-    updateModel(parent());
-}
-
 Layer LayerTreeItem::getLayer() const {
     return {
         .name = this->text(0).toStdString(),
         .material = combo->currentIndex(),
         .height = table->getData()
     };
+}
+
+void LayerTreeItem::setLayer(const Layer& layer) {
+    this->setText(0, QString::fromStdString(layer.name));
+    table->setData(layer.height);
+    combo->setCurrentIndex(layer.material);
+}
+
+void LayerTreeItem::setData(int column, int role, const QVariant &value) {
+    QTreeWidgetItem::setData(column, role, value);
+    if(role == Qt::EditRole) {
+        model->modifyLayer(row(), getLayer(), parent());
+    }
 }
 
 void LayerTreeItem::updateCombo() {
