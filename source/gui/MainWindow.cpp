@@ -137,7 +137,7 @@ MainWindow::MainWindow()
 
     // Main window
     this->setWindowIcon(QIcon(":/icons/logo.svg"));
-    this->resize({1000, 600});    // Initial size, overwritten by stored window geometry if present
+    this->resize({1200, 800});    // Initial size, overwritten by stored window geometry if present
 
     // Load geometry and state
     UserSettings settings;
