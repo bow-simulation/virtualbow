@@ -36,14 +36,16 @@ public:
     void swapMaterials(size_t i, size_t j, void* source);
 
     const std::vector<Layer>& getLayers() const;
-    void modifyLayer(size_t i, const Layer& material, void* source);
-    void insertLayer(size_t i, const Layer& material, void* source);
+    void modifyLayer(size_t i, const Layer& layer, void* source);
+    void insertLayer(size_t i, const Layer& layer, void* source);
     void removeLayer(size_t i, void* source);
     void swapLayers(size_t i, size_t j, void* source);
 
-
     const ProfileInput& getProfile() const;
-    void setProfile(const ProfileInput& value, void* source);
+    void modifySegment(size_t i, const SegmentInput& segment, void* source);
+    void insertSegment(size_t i, const SegmentInput& segment, void* source);
+    void removeSegment(size_t i, void* source);
+    void swapSegments(size_t i, size_t j, void* source);
 
     const std::vector<Vector<2>>& getWidth() const;
     void setWidth(const std::vector<Vector<2>>& value, void* source);

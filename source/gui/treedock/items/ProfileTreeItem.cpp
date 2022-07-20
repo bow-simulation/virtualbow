@@ -14,14 +14,54 @@
 ProfileTreeItem::ProfileTreeItem(ViewModel* model)
     : TreeItem(model, "Profile", QIcon(":/icons/model-profile.svg"), TreeItemType::PROFILE)
 {
-    setPlot(new ProfileView(Quantities::length));
-
-    updateView(nullptr);
-    QObject::connect(model, &ViewModel::profileModified, [=](void* source){
-        updateView(source);
+    auto plot = new ProfileView(Quantities::length);
+    setPlot(plot);
+    QObject::connect(model, &ViewModel::profileModified, plot, [=]{
+        plot->setData(model->getProfile());
     });
+
+    QObject::connect(model, &ViewModel::reloaded, [=] {
+        initFromModel();
+    });
+
+    QObject::connect(model, &ViewModel::segmentModified, [=](int i, void* source) {
+        if(source != this) {
+            auto item = dynamic_cast<SegmentTreeItem*>(this->child(i));
+            item->setSegment(model->getProfile()[i]);
+        }
+    });
+
+    QObject::connect(model, &ViewModel::segmentInserted, [=](int i, void* source) {
+        if(source != this) {
+            auto item = new SegmentTreeItem(model, model->getProfile()[i]);
+            this->insertChild(i, item);
+        }
+    });
+
+    QObject::connect(model, &ViewModel::segmentRemoved, [=](int i, void* source) {
+        if(source != this) {
+            this->removeChild(i);
+        }
+    });
+
+    QObject::connect(model, &ViewModel::segmentsSwapped, [=](int i, int j, void* source) {
+        if(source != this) {
+            this->swapChildren(i, j);
+        }
+    });
+
+    initFromModel();
 }
 
+void ProfileTreeItem::initFromModel() {
+    this->removeChildren();
+    for(auto& segment: model->getProfile()) {
+        auto item = new SegmentTreeItem(model, segment);
+        this->addChild(item);
+    }
+}
+
+/*
 void ProfileTreeItem::updateModel(void* source) {
     ProfileInput profile;
     for(int i = 0; i < this->childCount(); ++i) {
@@ -52,21 +92,28 @@ void ProfileTreeItem::updateView(void* source) {
     auto profile_view = static_cast<ProfileView*>(plot);
     profile_view->setData(model->getProfile());
 }
+*/
 
-SegmentTreeItem::SegmentTreeItem(ViewModel* model, const SegmentInput& input)
-    : TreeItem(model, segmentName(input), segmentIcon(input), TreeItemType::SEGMENT)
+SegmentTreeItem::SegmentTreeItem(ViewModel* model, const SegmentInput& segment)
+    : TreeItem(model, segmentName(segment), segmentIcon(segment), TreeItemType::SEGMENT)
 {
-    SegmentEditor* editor = segmentEditor(input);
+    SegmentEditor* editor = segmentEditor(segment);
     setEditor(editor);
+    setSegment(segment);
 
-    editor->setData(input);
+    // Update viewmodel on changes
     QObject::connect(editor, &SegmentEditor::modified, [=]{
-        updateModel(parent());
+        model->modifySegment(row(), getSegment(), parent());
     });
+
 }
 
 SegmentInput SegmentTreeItem::getSegment() const {
     return static_cast<SegmentEditor*>(editor)->getData();
+}
+
+void SegmentTreeItem::setSegment(const SegmentInput& segment) {
+    static_cast<SegmentEditor*>(editor)->setData(segment);
 }
 
 QString SegmentTreeItem::segmentName(const SegmentInput& input) const {

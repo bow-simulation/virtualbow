@@ -245,9 +245,36 @@ const ProfileInput& ViewModel::getProfile() const {
     return data.profile;
 }
 
-void ViewModel::setProfile(const ProfileInput& value, void* source) {
-    data.profile = value;
-    emit profileModified(source);
+void ViewModel::modifySegment(size_t i, const SegmentInput& segment, void* source) {
+    if(i < data.profile.size()) {
+        data.profile[i] = segment;
+        emit segmentModified(i, source);
+        emit profileModified(source);
+    }
+}
+
+void ViewModel::insertSegment(size_t i, const SegmentInput& segment, void* source) {
+    if(i <= data.profile.size()) {
+        data.profile.insert(data.profile.begin() + i, segment);
+        emit segmentInserted(i, source);
+        emit profileModified(source);
+    }
+}
+
+void ViewModel::removeSegment(size_t i, void* source) {
+    if(i < data.profile.size()) {
+        data.profile.erase(data.profile.begin() + i);
+        emit segmentRemoved(i, source);
+        emit profileModified(source);
+    }
+}
+
+void ViewModel::swapSegments(size_t i, size_t j, void* source) {
+    if(i != j && i < data.profile.size() && j < data.profile.size()) {
+        std::swap(data.profile[i], data.profile[j]);
+        emit segmentsSwapped(i, j, source);
+        emit profileModified(source);
+    }
 }
 
 const std::vector<Vector<2>>& ViewModel::getWidth() const {
