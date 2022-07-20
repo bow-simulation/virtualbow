@@ -10,14 +10,14 @@ class SegmentEditor;
 class ProfileTreeItem: public TreeItem {
 public:
     ProfileTreeItem(ViewModel* model);
-    void updateModel(void* source) override;
-    void updateView(void* source) override;
+    void initFromModel();
 };
 
 class SegmentTreeItem: public TreeItem {
 public:
-    SegmentTreeItem(ViewModel* model, const SegmentInput& input);
+    SegmentTreeItem(ViewModel* model, const SegmentInput& segment);
     SegmentInput getSegment() const;
+    void setSegment(const SegmentInput& segment);
 
 private:
     QString segmentName(const SegmentInput& input) const;

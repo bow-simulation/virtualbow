@@ -55,6 +55,10 @@ TreeDock::TreeDock(ViewModel* model)
             case LAYER:
                 model->removeLayer(index, this);
                 break;
+
+            case SEGMENT:
+                model->removeSegment(index, this);
+                break;
         }
     });
 
@@ -74,6 +78,10 @@ TreeDock::TreeDock(ViewModel* model)
 
                 case LAYER:
                     model->swapLayers(index, index - 1, this);
+                    break;
+
+                case SEGMENT:
+                    model->swapSegments(index, index - 1, this);
                     break;
             }
         }
@@ -95,6 +103,10 @@ TreeDock::TreeDock(ViewModel* model)
 
                 case LAYER:
                     model->swapLayers(index, index + 1, this);
+                    break;
+
+                case SEGMENT:
+                    model->swapSegments(index, index + 1, this);
                     break;
             }
         }
@@ -243,10 +255,10 @@ QMenu* TreeDock::createSegmentMenu() {
     auto add_segment_at_item = [=](const SegmentInput& segment) {
         auto item = static_cast<TreeItem*>(tree->currentItem());
         if(item->type() == TreeItemType::PROFILE) {
-            item_profile->insertChild(item_profile->childCount(), new SegmentTreeItem(model, segment));
+            model->insertSegment(item_profile->childCount(), segment, this);
         }
         else if(item->type() == TreeItemType::SEGMENT) {
-            item_profile->insertChild(item_profile->indexOfChild(item) + 1, new SegmentTreeItem(model, segment));
+            model->insertSegment(item_profile->indexOfChild(item) + 1, segment, this);
         }
     };
 
