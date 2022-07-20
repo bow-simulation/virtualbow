@@ -1,0 +1,68 @@
+== Solver
+
+The solver is the part of VirtualBow that actually performs the required calculations.
+It is invoked automatically by the model editor when a simulation is started, but can also be used on its own for advanced use cases.
+
+=== Command Line Interface
+
+The executables for the three components of VirtualBow are named
+
+----
+virtualbow-gui        // Model editor
+virtualbow-slv        // Solver
+virtualbow-post       // Result viewer
+----
+
+The solver executable takes a `.bow` model file as its input, performs the simulation and saves the results as a `.res` file that can be opened by the result viewer.
+The type of simulation (static or dynamic) as well as other options are set by the command line arguments.
+The detailed usage as shown by the `--help` option is:
+
+----
+Usage: virtualbow-slv [options] input output
+
+Options:
+  -?, -h, --help  Displays this help.
+  -v, --version   Displays version information.
+  -s, --static    Run a static simulation.
+  -d, --dynamic   Run a dynamic simulation.
+  -p, --progress  Print simulation progress.
+
+Arguments:
+  input           Model file (.bow)
+  output          Result file (.res)
+----
+
+NOTE: To use the command line interfaces on Windows you have to either specify the complete path to the respective executable or add the installation directory to your `PATH` environment variable.
+There is an option to do this automatically during installation of VirtualBow.
+
+NOTE: On MacOS, the VirtualBow executables are hidden inside the application bundle.
+They can be accessed by their full path though, or their location can be temporarily added to the `PATH` environment variable with the command `export PATH = $PATH:/Applications/VirtualBow.app/Contents/MacOS`.
+Put this line into your `.bash_profile` if you want it to be permanently added.
+
+<<<
+=== File Formats
+
+The input files of the solver are `.bow` model files as created by the model editor.
+The model files use the text based https://www.json.org/[JSON (JavaScript Object Notation)] format.
+JSON is a very common exchange format for hierarchical data in the form of objects, arrays, strings, numbers and more.
+Since the format is text based, it is easy to inspect and modify with a text editor.
+
+The output files of the solver are `.res` result files that can be opened with the result viewer.
+The result files use the binary https://msgpack.org/[MessagePack] format.
+MessagePack is very similar to JSON (see [input files](input_files.md)) in the kind of data it can represent, but more space efficient due to being a binary format.
+Unlike the input files, the output files cannot be inspected with a text editor.
+
+For use cases like scripting (see <<#_scripting>>) that require reading and writing `.bow` or `.res` files , the exact contents are specified in <<#_file_specifications>>.
+
+<<<
+=== Scripting
+
+The main use of the solver as a standalone application is the ability to write programs that automatically launch simulations and analyze the results.
+This is especially useful when a large number of simulations needs to be done, for example when performing design optimizations or exploring the influence of certain model parameters on the simulation results.
+
+Scripts that interoperate with VirtualBow have to be able to call the solver via the command line interface (see <<#_command_line_interface>>) as well as read and write the model and result files that constitute the input and output of the solver.
+For a detailed description of those files, see <<#_file_formats>> and the specifications in <<#_file_specifications>>.
+
+As a consequence of the model and result file formats, any programming language that supports JSON and MessagePack can be used.
+Since both are fairl common formats, most languages either have built-in support or external libraries available.
+Basic examples for Python, Malab and Julia can be found in <<#_example_scripts>>.

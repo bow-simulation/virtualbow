@@ -1,0 +1,28 @@
+= VirtualBow User Manual
+Version 0.9, Published {localdate}
+:homepage: https://www.virtualbow.org
+:doctype: book
+:lang: en
+:toc: left
+:toclevels: 2
+:numbered:
+:xrefstyle: short
+:favicon: images/favicon.svg
+:title-logo-image: images/favicon.svg
+:stem: latexmath
+:source-highlighter: pygments
+:stylesheet: styles/html-style.css
+// asciidoc-pdf
+:pdf-style: styles/pdf-style.yml
+// asciidoc-multipage
+:multipage-level: 2
+
+include::introduction.adoc[]
+
+include::model-editor.adoc[]
+
+include::result-viewer.adoc[]
+
+include::solver.adoc[]
+
+include::appendix.adoc[]

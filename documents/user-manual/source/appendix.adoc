@@ -1,0 +1,233 @@
+[appendix]
+== File Specifications
+
+=== Model Files
+
+NOTE: The following specification is subject to change.
+Even though the goal is to keep compatibility with older model files as much as possible, scripts working with `.bow` files should always expect incompatibilities with newer versions of VirtualBow.
+
+[%autowidth, width=100%]
+|===
+| Field                                                               | Type       | Unit       | Description
+
+| version                                                             | String     | --         | VirtualBow version number
+| comment                                                             | String     | --         | User comments
+| settings {                                                          |            |            |
+| {nbsp}{nbsp}{nbsp}{nbsp} n_limb_elements                            | Integer    | --         | Number of limb elements
+| {nbsp}{nbsp}{nbsp}{nbsp} n_string_elements                          | Integer    | --         | Number of string elements
+| {nbsp}{nbsp}{nbsp}{nbsp} n_draw_steps                               | Integer    | --         | Number of draw steps
+| {nbsp}{nbsp}{nbsp}{nbsp} arrow_clamp_force                          | Double     | --         | Arrow clamp force
+| {nbsp}{nbsp}{nbsp}{nbsp} time_span_factor                           | Double     | --         | Time span factor
+| {nbsp}{nbsp}{nbsp}{nbsp} time_step_factor                           | Double     | --         | Time step factor
+| {nbsp}{nbsp}{nbsp}{nbsp} sampling_rate                              | Double     | --         | Sampling rate
+| }                                                                   |            |            |
+| dimensions {                                                        |            |            |
+| {nbsp}{nbsp}{nbsp}{nbsp} brace_height                               | Double     | m          | Brace height
+| {nbsp}{nbsp}{nbsp}{nbsp} draw_length                                | Double     | m          | Draw length
+| {nbsp}{nbsp}{nbsp}{nbsp} handle_length                              | Double     | m          | Handle length
+| {nbsp}{nbsp}{nbsp}{nbsp} handle_setback                             | Double     | m          | Handle setback
+| {nbsp}{nbsp}{nbsp}{nbsp} handle_angle                               | Double     | m          | Handle angle
+| }                                                                   |            |            |
+| profile                                                             | Double[][] | m, 1/m     | Table with arc length and curvature
+| width                                                               | Double[][] | -- , m      | Table with position and width
+| layers [                                                            |            |            |
+| {nbsp}{nbsp}{nbsp}{nbsp} {                                          |            |            |
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} name              | String     |            | Layer name
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} height            | Double[][] | -- , m      | Table with position and height
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} rho               | Double     | kg/m³      | Density of the material
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} E                 | Double     | Pa         | Elastic modulus of the material
+| {nbsp}{nbsp}{nbsp}{nbsp} }                                          |            |            |
+| {nbsp}{nbsp}{nbsp}{nbsp} {                                          |            |            |
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} ...               |            |            |
+| {nbsp}{nbsp}{nbsp}{nbsp} }                                          |            |            |
+| ]                                                                   |            |            |
+| string {                                                            |            |            |
+| {nbsp}{nbsp}{nbsp}{nbsp} strand_stiffness                           | Double     | N          | Stiffness of the string material
+| {nbsp}{nbsp}{nbsp}{nbsp} strand_density                             | Double     | kg/m       | Density of the string material
+| {nbsp}{nbsp}{nbsp}{nbsp} n_strands                                  | Integer    | --         | Number of strands
+| }                                                                   |            |            |
+| masses {                                                            |            |            |
+| {nbsp}{nbsp}{nbsp}{nbsp} arrow                                      | Double     | kg         | Mass of the arrow
+| {nbsp}{nbsp}{nbsp}{nbsp} string_center                              | Double     | kg         | Additional mass at string center
+| {nbsp}{nbsp}{nbsp}{nbsp} string_tip                                 | Double     | kg         | Additional mass at string tips
+| {nbsp}{nbsp}{nbsp}{nbsp} limb_tip                                   | Double     | kg         | Additional mass at limb tips
+| }                                                                   |            |            |
+| damping {                                                           |            |            |
+| {nbsp}{nbsp}{nbsp}{nbsp} damping_ratio_limbs                        | Double     | --         | Damping ratio of the limbs
+| {nbsp}{nbsp}{nbsp}{nbsp} damping_ratio_string                       | Double     | --         | Damping ratio of the string
+| }                                                                   |            |            |
+|===
+
+<<<
+=== Result Files
+
+NOTE: The following specification is subject to change.
+Scripts that work with `.res` files should therefore expect incompatibilities with newer versions of VirtualBow.
+
+[NOTE]
+====
+For space efficiency reasons, the stress values for each layer aren't stored directly in the result files.
+Instead, each layer has two constant matrices stem:[H_{e\mathrm{\ (back/belly)}}] that relate the longitudinal strains stem:[\varepsilon] to the resulting stresses at the back or belly side of the layer as well as two matrices stem:[H_{k\mathrm{\ (back/belly)}}] that do the same for the bending curvature stem:[\kappa].
+The total stress is the sum of the stresses due to longitudinal strain and bending curvature and can be calculated as
+
+[stem]
+++++
+\sigma = H_e \cdot \varepsilon + H_k \cdot \kappa
+++++
+
+where the dot (stem:[\cdot]) represents a matrix-vector multiplication.
+The result is a vector of stresses corresponding to the nodes of the layer.
+====
+
+[%hardbreaks]
+**P:** Number of limb nodes
+**Q:** Number of string nodes
+**R:** Number of layer nodes
+
+[%autowidth, width=100%]
+|===
+| Field                                                                                                        | Type         | Unit    | Description
+
+| setup {                                                                                                      |              |         |
+| {nbsp}{nbsp}{nbsp}{nbsp} string_length                                                                       | Double       | m       | Length of the string
+| {nbsp}{nbsp}{nbsp}{nbsp} string_mass                                                                         | Double       | kg      | Mass of the string, including additional masses
+| {nbsp}{nbsp}{nbsp}{nbsp} limb_mass                                                                           | Double       | kg      | Mass of the limb, including additional masses
+| {nbsp}{nbsp}{nbsp}{nbsp} limb_properties {                                                                   |              |         |
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} length                                                     | Double[P]    | m       | Arc lengths of the limb nodes (unbraced)
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} angle                                                      | Double[P]    | rad     | Rotation angles of the limb nodes (unbraced)
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} x_pos                                                      | Double[P]    | m       | X coordinates of the limb nodes (unbraced)
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} y_pos                                                      | Double[P]    | m       | Y coordinates of the limb nodes (unbraced)
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} width                                                      | Double[P]    | m       | Cross section width
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} height                                                     | Double[P]    | m       | Cross section height (all layers)
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} rhoA                                                       | Double[P]    | kg/m    | Linear density of the sections
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} Cee                                                        | Double[P]    | N       | Longitudinal stiffness of the sections
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} Ckk                                                        | Double[P]    | Nm²     | Bending stiffness of the sections
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} Cek                                                        | Double[P]    | Nm      | Coupling between bending and elongation
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} layers [                                                   |              |         |
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {                                 |              |         |
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} length   | Double[R]    | m       | Arc lengths of the layer nodes
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} He_back  | Double[R][P] | N/m²    | Stress evaluation matrix (back)
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} Hk_back  | Double[R][P] | N/m     | Stress evaluation matrix (back)
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} He_belly | Double[R][P] | N/m²    | Stress evaluation matrix (belly)
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} Hk_belly | Double[R][P] | N/m     | Stress evaluation matrix (belly)
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} }                                 |              |         |
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {                                 |              |         |
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} ...      |              |         |
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} }                                 |              |         |
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} ]                                                          |              |         |
+| {nbsp}{nbsp}{nbsp}{nbsp} }                                                                                   |              |         |
+| }                                                                                                            |              |         |
+| statics {                                                                                                    |              |         |
+| {nbsp}{nbsp}{nbsp}{nbsp} final_draw_force                                                                    | Double       | N       | Final draw force
+| {nbsp}{nbsp}{nbsp}{nbsp} drawing_work                                                                        | Double       | J       | Drawing work
+| {nbsp}{nbsp}{nbsp}{nbsp} energy storage factor                                                               | Double       | --      | Energy storage factor
+| {nbsp}{nbsp}{nbsp}{nbsp} max_string_force_index                                                              | Integer      | --      | Simulation state with maximum absolute string force
+| {nbsp}{nbsp}{nbsp}{nbsp} max_grip_force_index                                                                | Integer      | --      | Simulation state with maximum absolute grip force
+| {nbsp}{nbsp}{nbsp}{nbsp} max_draw_force_index                                                                | Integer      | --      | Simulation state with maximum absolute draw force
+| {nbsp}{nbsp}{nbsp}{nbsp} min_stress_value                                                                    | Double[]     | Pa      | Minimum stress for each layer
+| {nbsp}{nbsp}{nbsp}{nbsp} min_stress_index                                                                    | Integer[][]  | --      | Simulation state and layer node for each minimum stress value
+| {nbsp}{nbsp}{nbsp}{nbsp} max_stress_value                                                                    | Double[]     | Pa      | Maximum stress for each layer
+| {nbsp}{nbsp}{nbsp}{nbsp} max_stress_index                                                                    | Integer[][]  | --      | Simulation state and layer node for each maximum stress value
+| {nbsp}{nbsp}{nbsp}{nbsp} states {                                                                            |              |         |
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} ...                                                        |              |         | Sequence of bow states (see table below)
+| {nbsp}{nbsp}{nbsp}{nbsp} }                                                                                   |              |         |
+| }                                                                                                            |              |         |
+| dynamics {                                                                                                   |              |         |
+| {nbsp}{nbsp}{nbsp}{nbsp} final_pos_arrow                                                                     | Double       | m       | Position of the arrow at departure
+| {nbsp}{nbsp}{nbsp}{nbsp} final_vel_arrow                                                                     | Double       | m/s     | Velocity of the arrow at departure
+| {nbsp}{nbsp}{nbsp}{nbsp} final_e_kin_arrow                                                                   | Double       | J       | Kinetic energy of the arrow at departure
+| {nbsp}{nbsp}{nbsp}{nbsp} final_e_pot_limbs                                                                   | Double       | J       | Potential energy of the limbs at arrow departure
+| {nbsp}{nbsp}{nbsp}{nbsp} final_e_kin_limbs                                                                   | Double       | J       | Kinetic energy of the limbs at arrow departure
+| {nbsp}{nbsp}{nbsp}{nbsp} final_e_pot_string                                                                  | Double       | J       | Potential energy of the string at arrow departure
+| {nbsp}{nbsp}{nbsp}{nbsp} final_e_kin_string                                                                  | Double       | J       | Kinetic energy of the string at arrow departure
+| {nbsp}{nbsp}{nbsp}{nbsp} efficiency                                                                          | Double       | --      | Degree of efficiency
+| {nbsp}{nbsp}{nbsp}{nbsp} max_string_force_index                                                              | Integer      | --      | Simulation state with maximum absolute string force
+| {nbsp}{nbsp}{nbsp}{nbsp} max_grip_force_index                                                                | Integer      | --      | Simulation state with maximum absolute grip force
+| {nbsp}{nbsp}{nbsp}{nbsp} arrow_departure_index                                                               | Integer      | --      | Simulation state at which the arrow departs with the string
+| {nbsp}{nbsp}{nbsp}{nbsp} min_stress_value                                                                    | Double[]     | Pa      | Minimum stress for each layer
+| {nbsp}{nbsp}{nbsp}{nbsp} min_stress_index                                                                    | Integer[][]  | --      | Simulation state and layer node for each stress value
+| {nbsp}{nbsp}{nbsp}{nbsp} max_stress_value                                                                    | Double[]     | Pa      | Maximum stress for each layer
+| {nbsp}{nbsp}{nbsp}{nbsp} max_stress_index                                                                    | Integer[][]  | --      | Simulation state and layer node for each stress value
+| {nbsp}{nbsp}{nbsp}{nbsp} states {                                                                            |              |         |
+| {nbsp}{nbsp}{nbsp}{nbsp} {nbsp}{nbsp}{nbsp}{nbsp} ...                                                        |              |         | Sequence of bow states (see table below)
+| {nbsp}{nbsp}{nbsp}{nbsp} }                                                                                   |              |         |
+| }                                                                                                            |              |         |
+|===
+
+[%hardbreaks]
+**N:** Number of simulation steps
+**P:** Number of limb nodes
+**Q:** Number of string nodes
+
+[%autowidth, width=100%]
+|===
+| Field                                  | Type         | Unit    | Description
+
+| states {                               |              |         |
+| {nbsp}{nbsp}{nbsp}{nbsp} time          | Double[N]    | s       | Time
+| {nbsp}{nbsp}{nbsp}{nbsp} draw_length   | Double[N]    | m       | Draw length
+| {nbsp}{nbsp}{nbsp}{nbsp} draw_force    | Double[N]    | N       | Draw force
+| {nbsp}{nbsp}{nbsp}{nbsp} string_force  | Double[N]    | N       | String force (total)
+| {nbsp}{nbsp}{nbsp}{nbsp} strand_force  | Double[N]    | N       | String force (strand)
+| {nbsp}{nbsp}{nbsp}{nbsp} grip_force    | Double[N]    | N       | Grip force
+| {nbsp}{nbsp}{nbsp}{nbsp} pos_arrow     | Double[N]    | m       | Arrow position
+| {nbsp}{nbsp}{nbsp}{nbsp} vel_arrow     | Double[N]    | m/s     | Arrow velocity
+| {nbsp}{nbsp}{nbsp}{nbsp} acc_arrow     | Double[N]    | m/s²    | Arrow acceleration
+| {nbsp}{nbsp}{nbsp}{nbsp} x_pos_limb    | Double[N][P] | m       | X coordinates of the limb nodes
+| {nbsp}{nbsp}{nbsp}{nbsp} y_pos_limb    | Double[N][P] | m       | Y coordinates of the limb nodes
+| {nbsp}{nbsp}{nbsp}{nbsp} angle_limb    | Double[N][P] | rad     | Rotation angles of the limb nodes
+| {nbsp}{nbsp}{nbsp}{nbsp} epsilon       | Double[N][P] | --      | Longitudinal strain at the limb nodes
+| {nbsp}{nbsp}{nbsp}{nbsp} kappa         | Double[N][P] | m       | Bending curvature at the limb nodes
+| {nbsp}{nbsp}{nbsp}{nbsp} x_pos_string  | Double[N][Q] | m       | X coordinates of the string nodes
+| {nbsp}{nbsp}{nbsp}{nbsp} y_pos_string  | Double[N][Q] | m       | Y coordinates of the string nodes
+| {nbsp}{nbsp}{nbsp}{nbsp} e_pot_limbs   | Double[N]    | J       | Potential energy of the limbs
+| {nbsp}{nbsp}{nbsp}{nbsp} e_kin_limbs   | Double[N]    | J       | Kinetic energy of the limbs
+| {nbsp}{nbsp}{nbsp}{nbsp} e_pot_string  | Double[N]    | J       | Potential energy of the string
+| {nbsp}{nbsp}{nbsp}{nbsp} e_kin_string  | Double[N]    | J       | Kinetic energy of the string
+| {nbsp}{nbsp}{nbsp}{nbsp} e_kin_arrow   | Double[N]    | J       | Kinetic energy of the arrow
+| }                                      |              |         |
+|===
+
+[appendix]
+== Example Scripts
+
+The next sections show how to use some programming languages that are popular in scientific computing with VirtualBow.
+The goal is to perform the following series of basic tasks:
+
+1. Load, modify and save a model file
+2. Run a static simulation with the model file
+3. Load the result file and evaluate the maximum stress of the first layer at full draw
+
+<<<
+=== Python
+
+The python example below uses two external packages, https://pypi.org/project/msgpack/[msgpack] for reading the result files and https://pypi.org/project/numpy/[NumPy] for evaluating the stresses.
+They can be installed with `pip install msgpack numpy`.
+
+[source, python]
+----
+include::scripts/python.py[]
+----
+
+<<<
+=== Matlab
+
+This example uses the https://de.mathworks.com/matlabcentral/fileexchange/33381[JSONLab] library, which can read and write both JSON and MessagePack files.
+
+NOTE: The minimum required version of JSONLab is `2.0`. Older versions have a bug when loading empty arrays, which can be the case in VirtualBow result files.
+
+[source, matlab]
+----
+include::scripts/matlab.m[]
+----
+
+<<<
+=== Julia
+
+Two external packages are used here, https://juliahub.com/ui/Packages/JSON/uf6oy[JSON] for loading model files and https://juliahub.com/ui/Packages/MsgPack/oDgLV[MsgPack] for loading result files.
+They can be installed with `julia> import Pkg; Pkg.add("JSON"); Pkg.add("MsgPack")`.
+
+[source, julia]
+----
+include::scripts/julia.jl[]
+----

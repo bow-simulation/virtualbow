@@ -1,0 +1,169 @@
+== Result Viewer
+
+The result viewer is used to open and visualize simulation results that are stored in `.res` files.
+It is launched automatically by the model editor when a simulation has finished, but it can also be used as a standalone application.
+
+[#img-result-viewer]
+.Screenshot of the result viewer
+image::images/screenshots/result-viewer.png[width=600, pdfwidth=90%]
+
+After loading a result file you can use the buttons on the bottom right corner of the window to switch between static and dynamic results, if available.
+The results themselves are organized in different tabs, which will be explained in the next sections.
+
+Below the tabs there is a slider where you can change the current state of the bow that is being viewed, either by draw length in the static case or by time in the dynamic case.
+This value applies to all of the tabs.
+Drag the slider to a specific position or use the play buttons to show the simulation results as a continuous animation.
+The input field and the dropdown menu next to it allow you to jump directly to special points in the results, for example where certain forces or stresses reach their maximum.
+
+<<<
+=== Characteristics
+
+Shows all results that can be expressed as a single value.
+Some of them differ between statics and dynamics.
+
+[#img-characteristics]
+.Screenshot of the characteristics tab
+image::images/screenshots/characteristics.png[width=600, pdfwidth=90%]
+
+==== Statics
+
+* **Final draw force:** The draw force of the bow at full draw
+
+* **Drawing work:** Total work done by drawing the bow. This work is stored in the bow as potential elastic energy and later partially transfered to the arrow, depending on the bow's efficiency. It is equal to the area under the force-draw curve of the bow.
+
+* **Energy storage factor:** This value indicates how good the shape of the draw curve is in terms of energy storage. It is defined as the energy stored by the bow in relation to the energy that would have been stored with a linear draw curve. The energy storage factor increases the "more convex" the shape of the draw curve is.
+
+** **Factor < 1:** The draw curve stores less energy than a linear draw curve
+
+** **Factor = 1:** The draw curve stores as much energy as a linear draw curve
+
+** **Factor > 1:** The draw curve stores more energy than a linear draw curve
+
+* **Limb mass:** Total mass of a single bow limb, including the additional tip mass
+
+* **String mass:** Total mass of the bow string, including additional masses
+
+* **String length:** Length of the string, determined by the desired brace height
+
+==== Dynamics
+
+* **Final arrow velocity:** Velocity of the arrow when departing from the bow
+
+* **Degree of efficiency:** The bow's degree of efficiency, i.e. how much of the energy input (drawing work) is converted into useful output (kinetic energy of the arrow)
+
+* **Kinetic energy arrow:** Kinetic energy of the arrow on departure from the string
+
+* **Kinetic energy limbs:** Kinetic energy of the limbs on arrow departure
+
+* **Kinetic energy string:** Kinetic energy of the string on arrow departure
+
+==== Common
+
+* **Minimum and maximum stresses:** Maximum stress by absolute value for each layer. Positive values indicate tension, negative values compression.
+
+* **Maximum absolute forces:** Maximum forces by absolute value. Entries are the draw force, the string force and the grip support force, i.e. the force that would be required to hold the bow handle.
+
+<<<
+=== Shape
+
+Shows the shape of the limb and string as well as the position of the arrow at different stages of either the draw (statics) or the shot (dynamics).
+The little red circle symbolizes the back end of the arrow.
+You can use the slider at the bottom to change the current state of the bow or to view all states as a continuous animation.
+
+[#img-shape]
+.Screenshot of the shape tab
+image::images/screenshots/shape.png[width=600, pdfwidth=90%]
+
+<<<
+=== Stress
+
+Shows the stress distribution along the limb for each one of the layers, evaluated at the back and belly sides.
+Positive values indicate tension, negative values compression.
+
+[#img-stress]
+.Screenshot of the stress tab
+image::images/screenshots/stress.png[width=600, pdfwidth=90%]
+
+<<<
+=== Curvature
+
+Shows the curvature of the limb along its length.
+This is not the total curvature but rather the difference to the unbraced shape.
+
+[#img-curvature]
+.Screenshot of the curvature tab
+image::images/screenshots/curvature.png[width=600, pdfwidth=90%]
+
+<<<
+=== Energy
+
+This plot shows how the energy stored in the bow develops during the simulation and how it is distributed between components (limbs, string arrow) and type of energy (potential/elastic or kinetic).
+
+In the static case it shows how the elastic energy of the limbs and string develops during draw.
+No kinetic energies are shown, because they are zero in static analysis.
+
+[#img-energy-statics]
+.Screenshot of the energy tab for static results
+image::images/screenshots/energy-statics.png[width=600, pdfwidth=90%]
+
+In the dynamic case it shows how the initial potential energy of the limbs is transferred to the arrow and other components of the bow and how much unused energy stays in the bow after the departure of the arrow.
+
+[#img-energy-dynamics]
+.Screenshot of the energy tab for dynamic results
+image::images/screenshots/energy-dynamics.png[width=600, pdfwidth=90%]
+
+In both cases there are three options for display that can be selected individually:
+
+* **Stacked:** Stack the energies on top of each other, so it can bee seen how they add up
+* **Group by component:** Group the energies only by component (limbs, string, arrow)
+* **Group by type:** Group the energies only by type (potential, kinetic)
+
+<<<
+=== Other Plots
+
+Here you can combine arbitrary simulation results and plot them together in order to visualize things that aren't shown on any of the default plots.
+Examples are the draw curve of the bow (draw force over draw length) or the velocity of the arrow over time.
+See <<#tbl-other-plots-static>> and <<#tbl-other-plots-dynamic>> for the data that is available in static and dynamic analysis, respectively.
+
+[#img-other-plots]
+.Screenshot of the other plots tab
+image::images/screenshots/other-plots.png[width=600, pdfwidth=90%]
+
+[%unbreakable]
+--
+[#tbl-other-plots-static, %autowidth, width=100%]
+.Data series available in static analysis
+|===
+| Data Series               | Description
+
+| Draw length               | Length to which the bow is drawn
+| Draw force                | Draw force of the bow
+| String force (total)      | Tension force in the string
+| String force (strand)     | String tension per strand
+| Grip force                | Force that is required to hold the grip
+| Pot. energy limbs         | Potential energy of the limbs
+| Pot. energy string        | Potential energy of the string
+|===
+--
+
+[%unbreakable]
+--
+[#tbl-other-plots-dynamic, %autowidth, width=100%]
+.Data series available in dynamic analysis
+|===
+| Data Series               | Description
+
+| Time                      | Time since the release of the shot
+| Arrow position            | Position of the arrow
+| Arrow velocity            | Velocity of the arrow
+| Arrow acceleration        | Acceleration of the arrow
+| String force (total)      | Tension force in the string
+| String force (strand)     | String tension per strand
+| Grip force                | Force that is required to hold the grip
+| Pot. energy limbs         | Potential energy of the limbs
+| Kin. energy limbs         | Kinetic energy of the limbs
+| Pot. energy string        | Potential energy of the string
+| Kin. energy string        | Kinetic energy of the string
+| Kin. energy arrow         | Kinetic energy of the arrow
+|===
+--
