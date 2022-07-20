@@ -1,0 +1,19 @@
+extends: default
+
+#base:
+#  font-family: Helvetica
+
+page:
+  margin: [2.5cm, 2.5cm, 2.0cm, 2.5cm]
+
+image:
+  align: center
+  
+caption:
+  align: center
+  
+# https://github.com/asciidoctor/asciidoctor-pdf/issues/531
+table:
+  align: center
+  head:
+    background-color: #f7f8f7
