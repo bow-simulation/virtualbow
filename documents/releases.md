@@ -86,47 +86,77 @@ and requires [node-appdmg](https://github.com/LinusU/node-appdmg) for creating t
 
 ## File Actions
 
-Described below is what should be happen when one of the file menu actions (New File, Open, Save, Save As, Quit) is performed, depending on the state of the editor (no file loaded, file loaded, file modified) and the subsequent choices made by the user.
+Described below is what should be happen when one of the file menu actions (New File, Open, Save, Save As, Quit) is performed, depending on the state of the editor (no file loaded (unmodified), no file loaded (modified), file loaded, file loaded (modified)) and the subsequent choices made by the user.
 
-- **No file loaded (default inputs)**
-    - **New File:** Open a file dialog to pick a new filename and location
-        - **Save:** Create new file at the chosen location and show its contents in the editor
-        - **Cancel:** No action, back to the main window
+- **No file loaded (unmodified)**
+    - **New File:** Nothing happens (inputs are the defaults already)
     - **Open:** Open a file dialog and let the user pick an existing file
         - **Open:** Open the chosen file and show its contents in the editor
         - **Cancel:** No action, back to the main window
-    - **Save:** Disabled
-    - **Save As:** Disabled
-    - **Quit:** Exit the application
-
-- **File loaded**
-    - **New File:** Open a file dialog to pick a new filename and location
-        - **Save:** Create new file at the chosen location and show its contents in the editor
+    - **Save:** Open a file dialog to pick a filename and location
+        - **Save:** Save contents to the chosen location and show them in the editor
         - **Cancel:** No action, back to the main window
-    - **Open:** Open a file dialog and let the user pick an existing file
-        - **Open:** Open the chosen file and show its contents in the editor
-        - **Cancel:** No action, back to the main window
-    - **Save:** Save the contents of the editor to the current file (no effect)
-    - **Save As:** Open a file dialog to pick a new filename and location
+    - **Save As:** Open a file dialog to pick a filename and location
         - **Save:** Save contents to the chosen location and show them in the editor
         - **Cancel:** No action, back to the main window
     - **Quit:** Exit the application
 
-- **File modified**
-    - **New File:** Ask whether to save changes to the current file
-        - **Yes:** Save current editor content. Open a file dialog to pick a new filename and location
-            - **Save:** Create new file at the chosen location and show its contents in the editor
+- **No file loaded (modified)**
+    - **New File:** Ask whether to save the current changes
+        - **Yes:** Open a file dialog to pick a filename and location
+            - **Save:** Create new file at the chosen location and save editor contents. Then reset inputs to defaults and window caption to "Unnamed".
             - **Cancel:** No action, back to the main window
-        - **No:** Create new file at the chosen location and show its contents in the editor
+        - **No:** Reset inputs to defaults and window caption to "Unnamed"
         - **Cancel:** No action, back to the main window
-     - **Open:** Ask whether to save changes to the current file
-        - **Yes:** Save current editor content. Open file dialog and let the user pick an existing file
-            - **Open:** Create new file at the chosen location and show its contents in the editor
+     - **Open:** Ask whether to save the current changes
+        - **Yes:** Open file dialog and let the user pick a filename and location
+            - **Save:** Save editor content to the chosen location. Then open file dialog and let user pick an existing file.
+                - **Open:** Open chosen file and show its contents in the editor
+                - **Cancel:** No action, back to the main window
             - **Cancel:** No action, back to the main window
-        - **No:** Create new file at the chosen location and show its contents in the editor
+        - **No:** Open file dialog and let the user pick an existing file
+            - **Open:** Open chosen file and show its contents in the editor
+            - **Cancel:** No action, back to the main window
+        - **Cancel:** No action, back to the main window
+    - **Save:** Open a file dialog to pick a filename and location
+        - **Save:** Save contents to the chosen location and show them in the editor
+        - **Cancel:** No action, back to the main window
+    - **Save As:** Open a file dialog to pick a filename and location
+        - **Save:** Save contents to the chosen location and show them in the editor
+        - **Cancel:** No action, back to the main window
+    - **Quit:** Ask whether to save changes to the current file
+        - **Yes:** Open file dialog and let the user pick a filename and location
+            - **Save:** Save editor content to the chosen location
+            - **Cancel:** No action, back to the main window
+        - **No:** Exit the application
+        - **Cancel:** No action, back to the main window
+
+- **File loaded (unmodified)**
+    - **New File:** Reset inputs to defaults and window caption to "Unnamed"
+    - **Open:** Open a file dialog and let the user pick an existing file
+        - **Open:** Open the chosen file and show its contents in the editor
         - **Cancel:** No action, back to the main window
     - **Save:** Save the contents of the editor to the current file
-    - **Save As:** Open a file dialog to pick a new filename and location
+    - **Save As:** Open a file dialog to pick a filename and location
+        - **Save:** Save contents to the chosen location and show them in the editor
+        - **Cancel:** No action, back to the main window
+    - **Quit:** Exit the application
+
+- **File loaded (modified)**
+    - **New File:** Ask whether to save changes to the current file
+        - **Yes:** Save current editor content. Reset inputs to defaults and window caption to "Unnamed"
+        - **No:** Reset inputs to defaults and window caption to "Unnamed"
+        - **Cancel:** No action, back to the main window
+    - **Open:** Ask whether to save changes to the current file
+        - **Yes:** Save current editor content. Open file dialog and let the user pick an existing file
+            - **Open:** Open chosen file and show its contents in the editor
+            - **Cancel:** No action, back to the main window
+        - **No:** Open file dialog and let the user pick an existing file
+            - **Open:** Open chosen file and show its contents in the editor
+            - **Cancel:** No action, back to the main window
+        - **Cancel:** No action, back to the main window
+    - **Save:** Save the contents of the editor to the current file
+    - **Save As:** Open a file dialog to pick a filename and location
         - **Save:** Save contents to the chosen location and show them in the editor
         - **Cancel:** No action, back to the main window
     - **Quit:** Ask whether to save changes to the current file
