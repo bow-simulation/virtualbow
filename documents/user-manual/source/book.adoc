@@ -6,6 +6,7 @@ Version 0.9, Published {localdate}
 :toc: left
 :toclevels: 2
 :numbered:
+:nofooter:
 :xrefstyle: short
 :favicon: images/favicon.svg
 :title-logo-image: images/favicon.svg

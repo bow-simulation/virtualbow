@@ -3,9 +3,9 @@
 The solver is the part of VirtualBow that actually performs the required calculations.
 It is invoked automatically by the model editor when a simulation is started, but can also be used on its own for advanced use cases.
 
-=== Command Line Interface
+=== Command Line
 
-The executables for the three components of VirtualBow are named
+The VirtualBow executables are named
 
 ----
 virtualbow-gui        // Model editor
@@ -40,7 +40,7 @@ They can be accessed by their full path though, or their location can be tempora
 Put this line into your `.bash_profile` if you want it to be permanently added.
 
 <<<
-=== File Formats
+=== Input/Output Formats
 
 The input files of the solver are `.bow` model files as created by the model editor.
 The model files use the text based https://www.json.org/[JSON (JavaScript Object Notation)] format.

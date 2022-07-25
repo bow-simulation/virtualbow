@@ -1,6 +1,5 @@
 == Introduction
 
-VirtualBow is a software for simulating the physics of bow and arrow.
 This manual will show you how to use VirtualBow and understand its various input parameters and output results.
 For support, feedback or to get the latest version of the software and this manual please visit the project's website at https://www.virtualbow.org/.
 
@@ -8,7 +7,7 @@ With VirtualBow you can design bow models, simulate their static and dynamic beh
 Like many other simulation tools, VirtualBow consists of three distinct components: A model editor, a solver and a result viewer.
 
 The model editor is the most important part of the application from a user’s perspective.
-Here you can create, edit and save `.bow` files that contain your designs and also start simulations.
+Here you can create, edit and save `.bow` files that contain your designs.
 In the background, the actual work of running a simulation is done by the solver.
 It takes the `.bow` file, performs the required calculations and saves the results as a `.res` result file.
 Finally, the result viewer is used to open and visualizes the `.res` file produced by the solver.
