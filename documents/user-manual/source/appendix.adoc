@@ -1,5 +1,4 @@
-[appendix]
-== File Specifications
+== Appendix
 
 === Model Files
 
@@ -59,6 +58,7 @@ Even though the goal is to keep compatibility with older model files as much as 
 |===
 
 <<<
+
 === Result Files
 
 NOTE: The following specification is subject to change.
@@ -188,18 +188,66 @@ The result is a vector of stresses corresponding to the nodes of the layer.
 | }                                      |              |         |
 |===
 
-[appendix]
-== Example Scripts
+=== Bending Test [[bending-test]]
 
-The next sections show how to use some programming languages that are popular in scientific computing with VirtualBow.
-The goal is to perform the following series of basic tasks:
+A bending test is a good way to experimentally determine the elastic modulus stem:[E] of a material.
+Starting point is a material sample with a constant width stem:[w] and height stem:[h].
+It is important that the dimensions, especially the height, are fairly precise, since they have a large influence on the final result.
+
+
+The useful length stem:[l] of the sample should be much larger than the cross section dimensions such that it can bend enough for easy measuring while still staying in the elastic range of the material.
+On the other hand, the sample shouldn't be so long that it bends significantly under its own weight either.
+A suggestion would be stem:[l \ge 100 \cdot h].
+
+To perform the test, the sample is either clamped on one end, as shown in <<#img-setup-clamped>>, or placed between two supports as shown in <<#img-setup-three-point>>.
+It is then subjected to a force stem:[F] and the resulting deflection stem:[s] is measured.
+A good way to apply an accurate force is to use a known weight stem:[m], suspended for example on a thread, and calculate the force as stem:[F = m \cdot g] with stem:[g=9.81\frac{m}{s^2}].
+Alternatively, an accurate bow/hanging scale might also work.
+
+Finally the elastic modulus can be calulated from the measured deflection depending on the chosen setup.
+
+**Clamped Setup**
+
+[#img-setup-clamped]
+.Bending test with a clamped setup
+image::images/bending-test/setup-clamped.svg[width=400, pdfwidth=60%]
+
+In this setup the sample is clamped on one end and the force is applied on the free end.
+The elastic modulus can be calculated as
+
+[stem]
+++++
+s = \frac{Fl^3}{3EI} \quad \Rightarrow \quad E = \frac{Fl^3}{3Is} = \frac{4Fl^3}{wh^3 s}.
+++++
+
+
+
+**Three-point Setup**
+
+[#img-setup-three-point]
+.Bending test with a three-point setup
+image::images/bending-test/setup-three-point.svg[width=400, pdfwidth=60%]
+
+In this setup the sample is placed between two supports with distance stem:[l] and the force is applied in the middle.
+The elastic modulus can be calculated as
+
+[stem]
+++++
+s = \frac{Fl^3}{48EI} \quad \Rightarrow \quad E = \frac{Fl^3}{48Is} = \frac{Fl^3}{4wh^3 s}.
+++++
+
+
+=== Scripting Examples
+
+This is a collection of example scripts in different programming languages that show how to interface with VirtualBow.
+Each of them performs the same series of basic tasks:
 
 1. Load, modify and save a model file
 2. Run a static simulation with the model file
 3. Load the result file and evaluate the maximum stress of the first layer at full draw
 
 <<<
-=== Python
+==== Python
 
 The python example below uses two external packages, https://pypi.org/project/msgpack/[msgpack] for reading the result files and https://pypi.org/project/numpy/[NumPy] for evaluating the stresses.
 They can be installed with `pip install msgpack numpy`.
@@ -210,7 +258,7 @@ include::scripts/python.py[]
 ----
 
 <<<
-=== Matlab
+==== Matlab
 
 This example uses the https://de.mathworks.com/matlabcentral/fileexchange/33381[JSONLab] library, which can read and write both JSON and MessagePack files.
 
@@ -222,7 +270,7 @@ include::scripts/matlab.m[]
 ----
 
 <<<
-=== Julia
+==== Julia
 
 Two external packages are used here, https://juliahub.com/ui/Packages/JSON/uf6oy[JSON] for loading model files and https://juliahub.com/ui/Packages/MsgPack/oDgLV[MsgPack] for loading result files.
 They can be installed with `julia> import Pkg; Pkg.add("JSON"); Pkg.add("MsgPack")`.
@@ -231,3 +279,18 @@ They can be installed with `julia> import Pkg; Pkg.add("JSON"); Pkg.add("MsgPack
 ----
 include::scripts/julia.jl[]
 ----
+
+=== Tips & Tricks
+
+* Units
+
+* Plot overlay
+
+* Plot exports
+
+* Number inputs
+    * Scrolling
+    * Decimal Separator
+    * Arithmetic expression
+
+* Copy/Paste with tables
