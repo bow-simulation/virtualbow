@@ -1,17 +1,20 @@
 # Introduction
 
-This manual will show you how to use VirtualBow and understand its various input parameters and output results.
+Welcome to the user manual for VirtualBow!
+
+This manual will help you understand how to use this software for designing bows, running simulations and interpreting the results.
 For support, feedback or to get the latest version of the software and this manual please visit the project's website at [https://www.virtualbow.org/](https://www.virtualbow.org/).
 
-With VirtualBow you can design bow models, simulate their static and dynamic behaviour and visualize the results.
 Like many other simulation tools, VirtualBow consists of three distinct components: A model editor, a solver and a result viewer.
 
-The model editor is the most important part of the application from a user's perspective.
-Here you can create, edit and save `.bow` files that contain your designs.
-In the background, the actual work of running a simulation is done by the solver.
+- The model editor is the most important part of the application from a user's perspective.
+Here you can create, edit and save your designs, which will be stored as `.bow` files.
+
+- In the background, the actual work of running a simulation is done by the solver.
 It takes the `.bow` file, performs the required calculations and saves the results as a `.res` result file.
-Finally, the result viewer is used to open and visualizes the `.res` file produced by the solver.
+
+- Finally, the result viewer is used to open and visualize the `.res` file produced by the solver.
 Here you can view the simulation results and evaluate your designs.
 
-It is worth noting that the solver and result viewer can be used on their own as well, which might be important for some use cases.
-The following chapters will show you how to use VirtualBow and its components, starting with the model editor.
+The layout of this manual follows this separation.
+The coming chapters will therefore explain each of these components in more detail, starting with the model editor.

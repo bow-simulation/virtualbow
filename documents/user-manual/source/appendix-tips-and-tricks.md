@@ -58,31 +58,32 @@ The proile plot, for example, has options to show or hide nodes or visualize the
 Number input fields may seem simple, but there are a few details worth knowing to use them more effectively.
 
 <figure>
-  <img src="images/screenshots/editor/spinbox.png" style="width:200px">
+  <img src="images/screenshots/editor/spinbox.png" style="width:150px">
   <figcaption><b>Figure:</b> Number input field</figcaption>
 </figure>
 
 **Arithmetic expressions**
 
 Most number input fields in VirtualBow accept arithmetic expressions.
-This means that you can enter expressions like `1 + 5/2`, press enter, and it will be automatically evaluated to `3.5`.
+This means that you can enter expressions like `1 + 5/2`, press enter, and it will automatically be evaluated to `3.5`.
 Supported operations are `+`, `-`, `*`, `/`, `^` and grouping with `(` and `)`.
 
 **Decimal separator**
 
 VirtualBow uses a dot (`.`) as the decimal separator for numbers, regardless of local conventions.
 However, since some countries use a comma (`,`) instead, their keyboard layouts have a comma on the number block, making it cumbersome to enter numbers with a dot.
-Therefore the comma on the number pad is automatically converted to a dot, so that the number pad can be used normally.
+Therefore, to make things easier, the comma on the number pad is automatically converted to a dot.
 
 **Scrolling**
 
-The scroll wheel on the mouse can be used to move through a whole ranges of values quickly.
-This is especially useful when editing the bow's geometry and observing the changes in the plots and the 3d view.
+The little arrow buttons on the right of the input field can be used to increment/decrement the value.
+Scrolling the mouse wheel while the field is selected does the same thing, just faster.
+This can be used to quickly move through a whole range of values, which is especially useful when editing the bow's geometry and observing the changes in the plots and the 3d view.
 
 ## Tables
 
 Content in tables can be copied, cut, pasted and deleted using either the context menu or the standard shortcuts.
-This also works between VirtualBow and other applications, like Excel or LibreOffice Calc.
+Copy and paste also works between VirtualBow and other applications, for example spreadsheet software like Excel or LibreOffice Calc.
 
 <figure>
   <img src="images/screenshots/editor/tableview.png" style="width:250px">
