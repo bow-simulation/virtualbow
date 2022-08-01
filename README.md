@@ -45,7 +45,7 @@ Contributions that fix issues with MSVC will be accepted.
 On Linux, the Qt libraries packaged with the system are used.
 On Ubuntu they can be installed with
 
-    sudo apt install qt5-default
+    sudo apt install qtbase5-dev
 
 The rest of the build process is the same on Linux and MacOS
 
