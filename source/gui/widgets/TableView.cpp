@@ -57,7 +57,7 @@ void TableView::copySelection() {
     for(int i = range.top(); i <= range.bottom(); ++i) {
         QStringList rowContent;
         for(auto j = range.left(); j <= range.right(); ++j) {
-            rowContent.append(model()->index(i, j).data().toString());
+            rowContent.append(model()->index(i, j).data(Qt::DisplayRole).toString());
         }
         text += rowContent.join("\t") + "\n";
     }
@@ -76,7 +76,7 @@ void TableView::pasteToSelection() {
     for(int i = 0; i < rowContents.size(); ++i) {
         QStringList columnContents = rowContents.at(i).split("\t");
         for(int j = 0; j < columnContents.size(); ++j) {
-            model()->setData(model()->index(i0 + i, j0 + j), columnContents.at(j));
+            model()->setData(model()->index(i0 + i, j0 + j), columnContents.at(j), Qt::DisplayRole);
         }
     }
 }

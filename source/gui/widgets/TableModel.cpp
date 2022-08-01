@@ -48,24 +48,30 @@ QVariant TableModel::data(const QModelIndex& index, int role) const {
     }
 
     if(role == Qt::EditRole && index.isValid() && entries.contains(index)) {
-        return entries.value(index);
+        return entries.value(index);  // Edit widgets handle units themselves
     }
 
     return QVariant();
 }
 
 bool TableModel::setData(const QModelIndex& index, const QVariant& value, int role) {
-    if(role == Qt::EditRole && index.isValid()) {
+    if(index.isValid()) {
         if(value.isNull()) {
             entries.remove(index);
         }
         else {
-            entries.insert(index, value.toDouble());
-        }
+            if(role == Qt::DisplayRole) {
+                double baseValue = columnUnits[index.column()]->getUnit().toBase(value.toDouble());
+                entries.insert(index, baseValue);
+            }
+            else if(role == Qt::EditRole) {
+                entries.insert(index, value.toDouble());  // Edit widgets handle units themselves
+            }
 
-        emit dataChanged(index, index);
-        emit modified();
-        return true;
+            emit dataChanged(index, index);
+            emit modified();
+            return true;
+        }
     }
 
     return false;
