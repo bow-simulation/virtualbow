@@ -4,17 +4,24 @@
 #include <unordered_map>
 
 enum class SpiralConstraint{ LENGTH, R_START, R_END };
-NLOHMANN_JSON_SERIALIZE_ENUM(SpiralConstraint, {{SpiralConstraint::LENGTH, "length"}, {SpiralConstraint::R_START, "r_start"}, {SpiralConstraint::R_END, "r_end"}})
-
-enum class ArcConstraint{ LENGTH, R_START };
-NLOHMANN_JSON_SERIALIZE_ENUM(ArcConstraint, {{ArcConstraint::LENGTH, "length"}, {ArcConstraint::R_START, "radius"}})
-
+enum class ArcConstraint{ LENGTH, RADIUS };
 enum class LineConstraint{ LENGTH };
-NLOHMANN_JSON_SERIALIZE_ENUM(LineConstraint, {{LineConstraint::LENGTH, "length"}})
 
 using SpiralInput = std::map<SpiralConstraint, double>;
 using ArcInput = std::map<ArcConstraint, double>;
 using LineInput = std::map<LineConstraint, double>;
+
+// Nlohmann::json requires map types to have keys that are convertible to strings.
+// This is not true in this case, so the (de)serialization is defined manually.
+
+void to_json(nlohmann::json& obj, const SpiralInput& input);
+void from_json(const nlohmann::json& obj, SpiralInput& input);
+
+void to_json(nlohmann::json& obj, const ArcInput& input);
+void from_json(const nlohmann::json& obj, ArcInput& input);
+
+void to_json(nlohmann::json& obj, const LineInput& input);
+void from_json(const nlohmann::json& obj, LineInput& input);
 
 // Segment with curvature linearly varying over arc length.
 // Represents a clothoid, circular arc or a straight line depending on the choice of curvature.

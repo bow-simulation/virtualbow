@@ -2,6 +2,81 @@
 #include "solver/numerics/Fresnel.hpp"
 #include <cmath>
 
+void to_json(nlohmann::json& obj, const SpiralInput& input) {
+    for(auto& entry: input) {
+        switch(entry.first) {
+        case SpiralConstraint::LENGTH:
+            obj["length"] = entry.second;
+            break;
+
+        case SpiralConstraint::R_START:
+            obj["r_start"] = entry.second;
+            break;
+
+        case SpiralConstraint::R_END:
+            obj["r_end"] = entry.second;
+            break;
+        }
+    }
+}
+
+void from_json(const nlohmann::json& obj, SpiralInput& input) {
+    for(auto& entry: obj.items()) {
+        if(entry.key() == "length") {
+            input[SpiralConstraint::LENGTH] = entry.value();
+        }
+        else if(entry.key() == "r_start") {
+            input[SpiralConstraint::R_START] = entry.value();
+        }
+        else if(entry.key() == "r_end") {
+            input[SpiralConstraint::R_END] = entry.value();
+        }
+    }
+}
+
+void to_json(nlohmann::json& obj, const ArcInput& input) {
+    for(auto& entry: input) {
+        switch(entry.first) {
+        case ArcConstraint::LENGTH:
+            obj["length"] = entry.second;
+            break;
+
+        case ArcConstraint::RADIUS:
+            obj["radius"] = entry.second;
+            break;
+        }
+    }
+}
+
+void from_json(const nlohmann::json& obj, ArcInput& input) {
+    for(auto& entry: obj.items()) {
+        if(entry.key() == "length") {
+            input[ArcConstraint::LENGTH] = entry.value();
+        }
+        else if(entry.key() == "radius") {
+            input[ArcConstraint::RADIUS] = entry.value();
+        }
+    }
+}
+
+void to_json(nlohmann::json& obj, const LineInput& input) {
+    for(auto& entry: input) {
+        switch(entry.first) {
+        case LineConstraint::LENGTH:
+            obj["length"] = entry.second;
+            break;
+        }
+    }
+}
+
+void from_json(const nlohmann::json& obj, LineInput& input) {
+    for(auto& entry: obj.items()) {
+        if(entry.key() == "length") {
+            input[LineConstraint::LENGTH] = entry.value();
+        }
+    }
+}
+
 double radius_to_curvature(double r) {
     if(r != 0.0) {
         return 1.0/r;
@@ -21,8 +96,8 @@ ClothoidSegment::ClothoidSegment(const Point& start, const SpiralInput& input)
 
 ClothoidSegment::ClothoidSegment(const Point& start, const ArcInput& input)
     : ClothoidSegment(start, input.at(ArcConstraint::LENGTH),
-                      radius_to_curvature(input.at(ArcConstraint::R_START)),
-                      radius_to_curvature(input.at(ArcConstraint::R_START)))
+                      radius_to_curvature(input.at(ArcConstraint::RADIUS)),
+                      radius_to_curvature(input.at(ArcConstraint::RADIUS)))
 {
 
 }
