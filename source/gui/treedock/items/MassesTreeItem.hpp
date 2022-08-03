@@ -9,8 +9,8 @@ class PropertyTreeWidget;
 class MassesTreeItem: public TreeItem {
 public:
     MassesTreeItem(ViewModel* model);
-    void updateModel(void* source) override;
-    void updateView(void* source) override;
+    void updateModel(void* source);
+    void updateView(void* source);
 
 private:
     PropertyTreeWidget* property_tree;

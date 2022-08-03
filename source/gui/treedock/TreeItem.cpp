@@ -58,22 +58,6 @@ void TreeItem::removeChildren() {
     }
 }
 
-// Default implementation: Let parent handle model update
-void TreeItem::updateModel(void* source) {
-    auto parent = dynamic_cast<TreeItem*>(this->parent());
-    if(parent != nullptr) {
-        parent->updateModel(source);
-    }
-}
-
-// Default implementation: Let parent handle view update
-void TreeItem::updateView(void* source) {
-    auto parent = dynamic_cast<TreeItem*>(this->parent());
-    if(parent != nullptr) {
-        parent->updateView(source);
-    }
-}
-
 /*
 QVariant TreeItem::data(int column, int role) const {
     if(role == Qt::DisplayRole) {

@@ -46,8 +46,8 @@ void MaterialsTreeItem::initFromModel() {
     this->removeChildren();
     for(auto& material: model->getMaterials()) {
         auto item = new MaterialTreeItem(model);
-        item->setMaterial(material);
         this->addChild(item);
+        item->setMaterial(material);
     }
 }
 

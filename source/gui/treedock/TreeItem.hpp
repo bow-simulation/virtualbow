@@ -33,11 +33,6 @@ public:
     virtual void removeChild(int i);
     virtual void removeChildren();
 
-    virtual void updateModel(void* source);
-    virtual void updateView(void* source);
-
-//    QVariant data(int column, int role) const override;
-
     int row() const;
 
 protected:

@@ -9,6 +9,6 @@ class CommentTreeItem: public TreeItem
 {
 public:
     CommentTreeItem(ViewModel* model);
-    void updateModel(void* source) override;
-    void updateView(void* source) override;
+    void updateModel(void* source);
+    void updateView(void* source);
 };
