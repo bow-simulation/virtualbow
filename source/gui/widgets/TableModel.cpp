@@ -67,11 +67,12 @@ bool TableModel::setData(const QModelIndex& index, const QVariant& value, int ro
             else if(role == Qt::EditRole) {
                 entries.insert(index, value.toDouble());  // Edit widgets handle units themselves
             }
-
-            emit dataChanged(index, index);
-            emit modified();
-            return true;
         }
+
+        emit dataChanged(index, index);
+        emit modified();
+
+        return true;
     }
 
     return false;
