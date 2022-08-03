@@ -264,7 +264,7 @@ QMenu* TreeDock::createSegmentMenu() {
 
     auto menu = new QMenu();
     menu->addAction(QIcon(":/icons/segment-line.svg"), "New Line", this, [=]{ add_segment_at_item(LineInput{{LineConstraint::LENGTH, 0.2}}); });
-    menu->addAction(QIcon(":/icons/segment-arc.svg"), "New Arc", this, [=]{ add_segment_at_item(ArcInput{{ArcConstraint::LENGTH, 0.2}, {ArcConstraint::R_START, 0.5}}); });
+    menu->addAction(QIcon(":/icons/segment-arc.svg"), "New Arc", this, [=]{ add_segment_at_item(ArcInput{{ArcConstraint::LENGTH, 0.2}, {ArcConstraint::RADIUS, 0.5}}); });
     menu->addAction(QIcon(":/icons/segment-spiral.svg"), "New Spiral", this, [=]{ add_segment_at_item(SpiralInput({{SpiralConstraint::LENGTH, 0.2}, {SpiralConstraint::R_START, 0.5}, {SpiralConstraint::R_END, 0.5}})); });
     menu->addAction(QIcon(":/icons/segment-spline.svg"), "New Spline", this, [=]{ add_segment_at_item(SplineInput({{0.0, 0.0}, {0.2, 0.0}})); });
 

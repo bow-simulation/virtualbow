@@ -65,6 +65,7 @@ add_library(
     source/solver/model/BowModel.cpp
     source/solver/model/profile/ProfileCurve.cpp
     source/solver/model/profile/ProfileSegment.cpp
+    source/solver/model/profile/ProfileInput.cpp
     source/solver/model/profile/segments/ClothoidSegment.cpp
     source/solver/model/profile/segments/SplineSegment.cpp
     source/solver/numerics/CubicSpline.cpp

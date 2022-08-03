@@ -71,7 +71,6 @@ bool TableModel::setData(const QModelIndex& index, const QVariant& value, int ro
 
         emit dataChanged(index, index);
         emit modified();
-
         return true;
     }
 
