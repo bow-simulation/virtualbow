@@ -10,6 +10,10 @@ ProfileCurve::ProfileCurve()
 ProfileCurve::ProfileCurve(const std::vector<SegmentInput>& inputs)
     : ProfileCurve()
 {
+    if(inputs.empty()) {
+        throw std::runtime_error("At least one profile segment is required");
+    }
+
     for(auto& input: inputs) {
         add_segment(input);
     }
@@ -34,18 +38,33 @@ double ProfileCurve::length() const {
 }
 
 double ProfileCurve::curvature(double s) const {
-    size_t index = find_segment(s);
-    return segments[index]->curvature(s);
+    if(segments.empty()) {
+        return 0.0;
+    }
+    else {
+        size_t index = find_segment(s);
+        return segments[index]->curvature(s);
+    }
 }
 
 double ProfileCurve::angle(double s) const {
-    size_t index = find_segment(s);
-    return segments[index]->angle(s);
+    if(segments.empty()) {
+        return nodes.back().angle;
+    }
+    else {
+        size_t index = find_segment(s);
+        return segments[index]->angle(s);
+    }
 }
 
 Vector<2> ProfileCurve::position(double s) const {
-    size_t index = find_segment(s);
-    return segments[index]->position(s);
+    if(segments.empty()) {
+        return nodes.back().position;
+    }
+    else {
+        size_t index = find_segment(s);
+        return segments[index]->position(s);
+    }
 }
 
 std::unique_ptr<ProfileSegment> ProfileCurve::create_segment(const Point& start, const SegmentInput& input) {
