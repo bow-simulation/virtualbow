@@ -38,6 +38,7 @@ UnitEditor::UnitEditor(Quantity& quantity) {
     });
 
     auto hbox = new QHBoxLayout();
+    hbox->setContentsMargins(5, 0, 5, 0);
     hbox->addWidget(label, 1);
     hbox->addWidget(combo, 0);
     setLayout(hbox);
