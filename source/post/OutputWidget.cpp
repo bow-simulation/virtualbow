@@ -170,11 +170,18 @@ DynamicOutputWidget::DynamicOutputWidget(const OutputData& data)
     numbers->addValue("Kinetic energy arrow", data.dynamics.final_e_kin_arrow, Quantities::energy);
     numbers->addValue("Kinetic energy limbs", data.dynamics.final_e_kin_limbs, Quantities::energy);
     numbers->addValue("Kinetic energy string", data.dynamics.final_e_kin_string, Quantities::energy);
+
     numbers->addColumn();
-    numbers->addGroup("Maximum absolute stresses");
-    for (size_t i = 0; i < data.dynamics.max_stress_value.size(); ++i) {
+    numbers->addGroup("Minimum stress by layer");
+    for(size_t i = 0; i < data.statics.min_stress_index.size(); ++i) {
+        numbers->addValue(QString::fromStdString(data.setup.limb_properties.layers[i].name), data.dynamics.min_stress_value[i], Quantities::stress);
+    }
+    numbers->addGroup("Maximum stress by layer");
+    for(size_t i = 0; i < data.statics.max_stress_index.size(); ++i) {
         numbers->addValue(QString::fromStdString(data.setup.limb_properties.layers[i].name), data.dynamics.max_stress_value[i], Quantities::stress);
     }
+
+    numbers->addColumn();
     numbers->addGroup("Maximum absolute forces");
     numbers->addValue("String force (total)", data.dynamics.states.string_force[data.dynamics.max_string_force_index], Quantities::force);
     numbers->addValue("String force (strand)", data.dynamics.states.strand_force[data.dynamics.max_string_force_index], Quantities::force);
