@@ -109,28 +109,28 @@ void Conversion::convert_0_8_0_to_0_9_0(json& obj) {
 
         if(kappa0 == 0.0 && kappa1 == 0.0) {
             new_profile.push_back({
-                {"parameters", json::array({
+                {"parameters", {
                      {"length", length}
-                })},
+                }},
                 {"type", "line"}
             });
         }
         else if(kappa0 == kappa1) {
             new_profile.push_back({
-                {"parameters", json::array({
+                {"parameters", {
                      {"length", length},
                      {"radius", curvature_to_radius(kappa0)}
-                })},
+                }},
                 {"type", "arc"}
             });
         }
         else {
             new_profile.push_back({
-                {"parameters", json::array({
+                {"parameters", {
                      {"length", length},
                      {"r_start", curvature_to_radius(kappa0)},
                      {"r_end", curvature_to_radius(kappa1)}
-                })},
+                }},
                 {"type", "spiral"}
             });
         }
