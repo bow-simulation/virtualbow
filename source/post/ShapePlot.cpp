@@ -43,12 +43,12 @@ ShapePlot::ShapePlot(const LimbProperties& limb, const BowStates& states, int ba
 
     string_right.append(new QCPCurve(this->xAxis, this->yAxis));
     string_right.back()->setName("String right");
-    string_right.back()->setPen({Qt::darkMagenta, 2.0});
+    string_right.back()->setPen({Qt::blue, 2.0});
     string_right.back()->setScatterSkip(0);
 
     string_left.append(new QCPCurve(this->xAxis, this->yAxis));
     string_left.back()->setName("String left");
-    string_left.back()->setPen({Qt::darkMagenta, 2.0});
+    string_left.back()->setPen({Qt::blue, 2.0});
     string_left.back()->setScatterSkip(0);
 
     arrow = new QCPCurve(this->xAxis, this->yAxis);
