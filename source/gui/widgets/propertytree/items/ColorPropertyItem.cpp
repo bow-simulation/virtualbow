@@ -45,8 +45,8 @@ void ColorPropertyItem::setData(int column, int role, const QVariant &value) {
 
 QWidget* ColorPropertyItem::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
     auto dialog = new QColorDialog(parent);
-    dialog->setWindowModality(Qt::ApplicationModal);
     dialog->setWindowTitle("Color");
+    dialog->open();
 
     return dialog;
 }
@@ -58,9 +58,8 @@ void ColorPropertyItem::setEditorData(QWidget* editor, const QModelIndex& index)
 }
 
 void ColorPropertyItem::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
-    QColorDialog* dialog = static_cast<QColorDialog*>(editor);
+    auto dialog = static_cast<QColorDialog*>(editor);
     if(dialog->result() == QDialog::Accepted) {
-        QColor value = dialog->currentColor();
-        model->setData(index, value, Qt::EditRole);
+        model->setData(index, dialog->currentColor(), Qt::EditRole);
     }
 }
