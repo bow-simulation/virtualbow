@@ -45,6 +45,8 @@ void ColorPropertyItem::setData(int column, int role, const QVariant &value) {
 
 QWidget* ColorPropertyItem::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
     auto dialog = new QColorDialog(parent);
+    dialog->setWindowModality(Qt::ApplicationModal);
+    dialog->setOption(QColorDialog::DontUseNativeDialog);
     dialog->setWindowTitle("Color");
     dialog->open();
 
