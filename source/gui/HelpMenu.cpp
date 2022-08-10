@@ -23,25 +23,26 @@ HelpMenu::HelpMenu(QWidget* parent)
     this->addAction(action_about);
 }
 
-// Todo: Hard-coded paths?
-void HelpMenu::help()
-{
-    QList<QString> paths = {
-        QCoreApplication::applicationDirPath() + "/manual.pdf",                // Windows
-        QCoreApplication::applicationDirPath() + "/../Resources/manual.pdf",   // MacOS
-        "/usr/share/virtualbow/manual.pdf"                                     // Linux
-    };
+void HelpMenu::help() {
 
-    for(const QString& path: paths) {
-        if(QFileInfo::exists(path)) {
-            if(!QDesktopServices::openUrl(QUrl::fromLocalFile(path))) {
-                QMessageBox::critical(this->parentWidget(), "Error", "Failed to open file " + path);
-            }
-            return;
-        }
+#ifdef Q_OS_WIN
+    // Location of the user manual on Windows
+    QString path = QCoreApplication::applicationDirPath() + "/user-manual/index.html";
+#endif
+
+#ifdef Q_OS_LINUX
+    // Location of the user manual on Linux
+    QString path = "/usr/share/virtualbow/user-manual/index.html";
+#endif
+
+#ifdef Q_OS_MACOS
+    // Location of the user manual on macOS
+    QString path = QCoreApplication::applicationDirPath() + "/../Resources/user-manual/index.html";
+#endif
+
+    if(!QDesktopServices::openUrl(QUrl::fromLocalFile(path))) {
+        QMessageBox::critical(this->parentWidget(), "Error", "Failed to open file " + path);
     }
-
-    QMessageBox::critical(this->parentWidget(), "Error", "Failed to open the user manual, file not found.");
 }
 
 void HelpMenu::about()

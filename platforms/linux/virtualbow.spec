@@ -41,4 +41,4 @@ rm -rf %{buildroot}
 /usr/share/applications/virtualbow-gui.desktop
 /usr/share/applications/virtualbow-post.desktop
 /usr/share/icons/hicolor/scalable/apps/virtualbow.svg
-/usr/share/virtualbow/manual.pdf
+/usr/share/virtualbow/user-manual

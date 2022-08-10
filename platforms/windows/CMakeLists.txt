@@ -14,10 +14,9 @@ set_target_properties(virtualbow-gui PROPERTIES WIN32_EXECUTABLE TRUE)
 set_target_properties(virtualbow-post PROPERTIES WIN32_EXECUTABLE TRUE)
 
 # Copy necessary resources into application directory
-configure_file(${CMAKE_SOURCE_DIR}/resources/docs/manual.pdf ${CMAKE_BINARY_DIR}/application/manual.pdf COPYONLY)
+file(COPY ${CMAKE_SOURCE_DIR}/resources/docs/user-manual DESTINATION ${CMAKE_BINARY_DIR}/application)
 
-# Target: Copy shared libraries to application directory
-
+# Target: Copy shared libraries to application directory (missed by windeployqt in CI build)
 add_custom_target(copy-dependencies DEPENDS virtualbow-gui virtualbow-slv virtualbow-post)
 add_custom_command(
     TARGET copy-dependencies
@@ -32,7 +31,6 @@ add_custom_command(
 )
 
 # Target: Inno Setup installer
-
 configure_file(setup.iss ${CMAKE_BINARY_DIR}/setup.iss)
 add_custom_target(iss-installer DEPENDS copy-dependencies)
 add_custom_command(
