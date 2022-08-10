@@ -1,5 +1,4 @@
 # Build an .app bundle as the main target, specify metadata and resource files
-
 set_target_properties(
     virtualbow-gui
     virtualbow-slv
@@ -10,11 +9,10 @@ set_target_properties(
 )
 
 configure_file(Info.plist ${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/Info.plist)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/logo.icns ${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/Resources/logo.icns COPYONLY)
-configure_file(${CMAKE_SOURCE_DIR}/resources/docs/manual.pdf ${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/Resources/manual.pdf COPYONLY)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/logo.icns DESTINATION ${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/Resources/logo.icns)
+file(COPY ${CMAKE_SOURCE_DIR}/resources/docs/user-manual DESTINATION ${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/Resources)
 
 # Target: Copy shared libraries to application directory
-
 add_custom_target(copy-dependencies DEPENDS virtualbow-gui virtualbow-slv virtualbow-post)
 add_custom_command(
     TARGET copy-dependencies
@@ -26,7 +24,6 @@ add_custom_command(
 )
 
 # Target: Dmg Installer
-
 configure_file(installer.json ${CMAKE_BINARY_DIR}/installer.json)
 add_custom_target(dmg-installer DEPENDS copy-dependencies)
 add_custom_command(
