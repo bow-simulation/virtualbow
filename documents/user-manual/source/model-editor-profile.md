@@ -42,8 +42,8 @@ It can also be zero, in this case the arc turns into a straight line.
 
 ## Spiral Segments
 
-The spiral segment describes an https://en.wikipedia.org/wiki/Euler_spiral[Euler spiral], a curve that linearly transitions between two curvatures.
-It is therefore well suited for making smooth transitions between arcs of different radius or lines and arcs.
+The spiral segment describes an [Euler spiral](https://en.wikipedia.org/wiki/Euler_spiral), a curve that linearly transitions between two curvatures.
+It is therefore well suited for making smooth transitions between lines and arcs or arcs of different radius.
 It is defined by a starting radius, and end radius and a length.
 
 > **Note:** The start and end radius can be positive, negative or zero (similar to the arc segment).
