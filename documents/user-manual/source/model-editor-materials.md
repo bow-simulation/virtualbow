@@ -3,15 +3,21 @@
 This is a list of materials that can later be assigned to the layers of the bow.
 
 <figure>
-  <img src="images/screenshots/editor/materials.png" style="width:400px">
-  <figcaption><b>Figure:</b> Materials in the model tree and their properties</figcaption>
+  <img src="images/screenshots/editor/materials.png" style="width:200px">
+  <figcaption><b>Figure:</b> Materials in the model tree</figcaption>
 </figure>
 
 If the _Materials_ category in the model tree is selected, the buttons (<img src="images/icons/list-add.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-remove.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-up.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-down.svg" style="width:20; vertical-align:middle">) can be used to add, remove and reorder materials.
 Materials can be renamed by double-clicking and entering a new name.
+
+<figure>
+  <img src="images/screenshots/editor/material.png" style="width:200px">
+  <figcaption><b>Figure:</b> Material properties</figcaption>
+</figure>
+
 For each material, the following properties are needed:
 
-- **Color:** Color used for display
+- **Color:** Color of the material (only used for display)
 
 - **Rho:** Density (mass per unit volume)
 

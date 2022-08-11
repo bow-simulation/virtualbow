@@ -18,7 +18,7 @@ There are also two pre-defined sets of defaults, one for SI units and one for US
 You can use those by clicking either of the buttons on the bottom left.
 
 It is worth noting that the units only affect how values are shown in the user interface.
-The data in the model and result files is always stored in SI base units, so they can be exchanged with other users who might have different units preferences.
+The data in the model and result files is always stored in SI base units, so they can be exchanged with other users who might have different unit preferences.
 
 ## Plots
 
@@ -51,7 +51,7 @@ Supported export formats are:
 **Other options**
 
 Some of the plots have additional context menu entries.
-The proile plot, for example, has options to show or hide nodes or visualize the curvature.
+The profile plot, for example, has options to show or hide nodes or visualize the curvature.
 
 ## Number inputs
 
@@ -72,7 +72,7 @@ Supported operations are `+`, `-`, `*`, `/`, `^` and grouping with `(` and `)`.
 
 VirtualBow uses a dot (`.`) as the decimal separator for numbers, regardless of local conventions.
 However, since some countries use a comma (`,`) instead, their keyboard layouts have a comma on the number block, making it cumbersome to enter numbers with a dot.
-Therefore, to make things easier, the comma on the number pad is automatically converted to a dot.
+Therefore, to make things easier for such users, the comma on the number pad is automatically converted to a dot.
 
 **Scrolling**
 

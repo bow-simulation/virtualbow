@@ -6,7 +6,8 @@
 > **Note:** For space efficiency reasons, the stress values for each layer aren't stored directly in the result files.
 > Instead, each layer has two constant matrices \\(H_{e\mathrm{\ (back/belly)}}\\) that relate the longitudinal strains \\(\varepsilon\\) to the resulting stresses at the back or belly side of the layer as well as two matrices \\(H_{k\mathrm{\ (back/belly)}}\\) that do the same for the bending curvature \\(\kappa\\).
 > The total stress is the sum of the stresses due to longitudinal strain and bending curvature and can be calculated as
-> \\[\sigma = H_e \cdot \varepsilon + H_k \cdot \kappa\\]
+> \\[\sigma_\mathrm{back} = H_{e,\mathrm{\ back}} \cdot \varepsilon + H_{k,\mathrm{\ back}} \cdot \kappa\\]
+> \\[\sigma_\mathrm{belly} = H_{e,\mathrm{\ belly}} \cdot \varepsilon + H_{k,\mathrm{\ belly}} \cdot \kappa\\]
 > where the dot (\\(\cdot\\)) represents a matrix-vector multiplication.
 > The result is a vector of stresses corresponding to the nodes of the layer.
 
