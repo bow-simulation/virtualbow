@@ -3,10 +3,11 @@
 #include "gui/limbview/LayerColors.hpp"
 #include <QColorDialog>
 #include <QApplication>
+#include <QKeyEvent>
 
 // According to the answers in [1], dialogs can be used directly as editors in a delegate.
 // This is also supported by the internal Qt code shown in [2].
-// Hovever, this approach turned out to have some issues:
+// However, this approach turned out to have some issues:
 //
 // * On Linux it mostly worked, except on Linux Mint where the dialog would just disappear when clicking on it (probably an older Qt version)
 // * On Windows, the dialog would pop up in a weird location with the title bar not visible, so couldn't be moved either. Didn't manage to move it in code.
@@ -14,6 +15,7 @@
 //
 // So the other solution was picked: Create a wrapper widget that opens the dialog as a child.
 // The final hurdle is to get the widget to trigger the item delegate when the dialog is finished, see [2].
+// This worked with a FocusOut event on Windows and Linux, but on Mac only with a key press event.
 //
 // [1] https://stackoverflow.com/q/40264262
 // [2] https://stackoverflow.com/q/30063133
@@ -27,10 +29,12 @@ public:
         // When the dialog is closed, send a QEvent::FocusOut event to trigger the item delegate
         // to update the model (using clearFocus() does not work).
         QObject::connect(dialog, &QColorDialog::finished, [=](int result) {
-            QEvent event(QEvent::FocusOut);
+            //QEvent event(QEvent::KeyPress);
+            QKeyEvent event(QEvent::KeyPress, Qt::Key_Enter, Qt::NoModifier);
             QApplication::sendEvent(this, &event);
         });
 
+	dialog->setOption(QColorDialog::DontUseNativeDialog);
         dialog->setWindowModality(Qt::ApplicationModal);
         dialog->setWindowTitle("Color");
         dialog->show();
