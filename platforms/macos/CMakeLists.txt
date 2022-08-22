@@ -9,7 +9,7 @@ set_target_properties(
 )
 
 configure_file(Info.plist ${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/Info.plist)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/logo.icns DESTINATION ${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/Resources/logo.icns)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/logo.icns DESTINATION ${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/Resources)
 file(COPY ${CMAKE_SOURCE_DIR}/resources/docs/user-manual DESTINATION ${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/Resources)
 
 # Target: Copy shared libraries to application directory
