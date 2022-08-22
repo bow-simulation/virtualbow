@@ -15,3 +15,5 @@ Below the tabs there is a slider where you can change the current state of the b
 This value applies to all of the tabs.
 Drag the slider to a specific position or use the play buttons to show the simulation results as a continuous animation.
 The input field and the dropdown menu next to it allow you to jump directly to special points in the results, for example where certain forces or stresses reach their maximum.
+
+> **Note:** The physical units that are used throughout the result viewer can be changed under _Options_ - _Units_.

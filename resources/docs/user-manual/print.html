@@ -1,0 +1,1167 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>VirtualBow User Manual</title>
+        <meta name="robots" content="noindex" />
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <!-- MathJax -->
+        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="introduction.html">Introduction</a></li><li class="chapter-item expanded "><a href="model-editor.html"><strong aria-hidden="true">1.</strong> Model Editor</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="model-editor-comments.html"><strong aria-hidden="true">1.1.</strong> Comments</a></li><li class="chapter-item expanded "><a href="model-editor-settings.html"><strong aria-hidden="true">1.2.</strong> Settings</a></li><li class="chapter-item expanded "><a href="model-editor-dimensions.html"><strong aria-hidden="true">1.3.</strong> Dimensions</a></li><li class="chapter-item expanded "><a href="model-editor-materials.html"><strong aria-hidden="true">1.4.</strong> Materials</a></li><li class="chapter-item expanded "><a href="model-editor-layers.html"><strong aria-hidden="true">1.5.</strong> Layers</a></li><li class="chapter-item expanded "><a href="model-editor-profile.html"><strong aria-hidden="true">1.6.</strong> Profile</a></li><li class="chapter-item expanded "><a href="model-editor-width.html"><strong aria-hidden="true">1.7.</strong> Width</a></li><li class="chapter-item expanded "><a href="model-editor-string.html"><strong aria-hidden="true">1.8.</strong> String</a></li><li class="chapter-item expanded "><a href="model-editor-masses.html"><strong aria-hidden="true">1.9.</strong> Masses</a></li><li class="chapter-item expanded "><a href="model-editor-damping.html"><strong aria-hidden="true">1.10.</strong> Damping</a></li></ol></li><li class="chapter-item expanded "><a href="result-viewer.html"><strong aria-hidden="true">2.</strong> Result Viewer</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="result-viewer-characteristics.html"><strong aria-hidden="true">2.1.</strong> Characteristics</a></li><li class="chapter-item expanded "><a href="result-viewer-shape.html"><strong aria-hidden="true">2.2.</strong> Shape</a></li><li class="chapter-item expanded "><a href="result-viewer-stress.html"><strong aria-hidden="true">2.3.</strong> Stress</a></li><li class="chapter-item expanded "><a href="result-viewer-curvature.html"><strong aria-hidden="true">2.4.</strong> Curvature</a></li><li class="chapter-item expanded "><a href="result-viewer-energy.html"><strong aria-hidden="true">2.5.</strong> Energy</a></li><li class="chapter-item expanded "><a href="result-viewer-others.html"><strong aria-hidden="true">2.6.</strong> Other Plots</a></li></ol></li><li class="chapter-item expanded "><a href="solver.html"><strong aria-hidden="true">3.</strong> Solver</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="solver-command-line.html"><strong aria-hidden="true">3.1.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="solver-file-formats.html"><strong aria-hidden="true">3.2.</strong> File Formats</a></li><li class="chapter-item expanded "><a href="solver-scripting.html"><strong aria-hidden="true">3.3.</strong> Scripting</a></li></ol></li><li class="chapter-item expanded "><a href="appendix.html"><strong aria-hidden="true">4.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="appendix-model-files.html"><strong aria-hidden="true">4.1.</strong> A - Model Files</a></li><li class="chapter-item expanded "><a href="appendix-result-files.html"><strong aria-hidden="true">4.2.</strong> B - Result Files</a></li><li class="chapter-item expanded "><a href="appendix-bending-test.html"><strong aria-hidden="true">4.3.</strong> C - Bending Test</a></li><li class="chapter-item expanded "><a href="appendix-tips-and-tricks.html"><strong aria-hidden="true">4.4.</strong> D - Tips & Tricks</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">VirtualBow User Manual</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
+<p>Welcome to the user manual for VirtualBow!</p>
+<p>This manual will help you understand how to use this software for designing bows, simulating their performance and interpreting the results.
+Like many other simulation tools, VirtualBow consists of three distinct components: A model editor, a solver and a result viewer.</p>
+<ul>
+<li>
+<p>The <strong>model editor</strong> is the most important part of the application from a user's perspective.
+Here you can create, edit and save your designs, which will be stored as <code>.bow</code> files.</p>
+</li>
+<li>
+<p>The <strong>solver</strong> does the actual work of running a simulation.
+It takes a <code>.bow</code> file, performs the required calculations and saves the results as a <code>.res</code> file.</p>
+</li>
+<li>
+<p>Finally, the <strong>result viewer</strong> is used to open and visualize the <code>.res</code> files produced by the solver.
+Here you can view the simulation results and evaluate your designs.</p>
+</li>
+</ul>
+<p>The layout of this manual follows this parition.
+The coming chapters will therefore explain each of these components in more detail, starting with the model editor.
+For support, feedback or to get the latest version of the software please visit the project's website at</p>
+<blockquote>
+<p><a href="https://www.virtualbow.org/">https://www.virtualbow.org/</a></p>
+</blockquote>
+<blockquote>
+<p><strong>Note:</strong> Please keep in mind that VirtualBow is still under development.
+The simulation results are still largely unverified and should not be taken at face value yet, although many users already reported good agreement.</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="model-editor"><a class="header" href="#model-editor">Model Editor</a></h1>
+<p>The model editor is the first thing you will see when opening VirtualBow.
+Here you can design your bows, specify their physical properties and start simulations to investigate their performance.</p>
+<figure>
+  <img src="images/screenshots/editor/model-editor.png" style="width:90%">
+  <figcaption><b>Figure:</b> Screenshot of the model editor</figcaption>
+</figure>
+<h2 id="loading-and-saving-files"><a class="header" href="#loading-and-saving-files">Loading and saving files</a></h2>
+<p>Use the file menu and/or the toolbar buttons on the top to create, open and save bow models.
+Bow models are stored as <code>.bow</code> files on disk, which contain all the physical parameters of the bow.
+You could share those files with other users and they would be able to open and view your creations.</p>
+<blockquote>
+<p><strong>Note:</strong> VirtualBow's goal is to keep compatibility with older <code>.bow</code> files as much as possible, so you should be able to open files that were created with older versions.
+Keep in mind though that saving will overwrite the file in the new format.</p>
+</blockquote>
+<h2 id="editing-the-bow-model"><a class="header" href="#editing-the-bow-model">Editing the bow model</a></h2>
+<p>The main view of the editor is a 3D visualization of the bow's current geometry.
+Use the mouse to rotate (left button), shift (middle button) and zoom (mouse wheel) the perspective.
+More view options are available through the buttons on the bottom.
+Besides this 3D view, the editor interface contains three additional panels:</p>
+<ul>
+<li>
+<p><strong>Model</strong>: The model tree on the top left shows how the bow model is organized, with various categories of physical properties.
+If an item in the model tree is selected, its details are shown in the <em>Properties</em> and/or the <em>Graph</em> panels.
+Some categories can be edited in the tree by adding, removing or renaming items, namely <em>Materials</em>, <em>Layers</em> and <em>Profile</em>.</p>
+</li>
+<li>
+<p><strong>Properties</strong>: The property editor shows the details of the currently selected item in the model tree.
+Here you can view and edit the physical properties of the bow model.</p>
+</li>
+<li>
+<p><strong>Graph</strong>: The graph view will show any graphs/plots that are associated with the selected item in the model tree.
+The graphs reflect the current properties and change as the properties are being edited.</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong> The physical units that are used throughout the model editor can be changed under <em>Options</em> - <em>Units</em>.</p>
+</blockquote>
+<h2 id="running-simulations"><a class="header" href="#running-simulations">Running Simulations</a></h2>
+<p>Simulations can be started with the <em>Simuate</em> menu or by clicking one of the toolbar buttons.
+Any changes to the bow are automatically saved and the VirtualBow solver is invoked on the model file.
+There are two different simulation modes:</p>
+<ul>
+<li>
+<p><img src="images/icons/run-statics.svg" style="width:20; vertical-align:top"> <strong>Statics</strong>:
+The static simulation analyzes the bow as it is being drawn from brace height to full draw.
+One of the results is the force/draw curve, for example.
+This mode is called static since the bow is considered to be in static equilibrium at each stage of the draw.</p>
+</li>
+<li>
+<p><img src="images/icons/run-dynamics.svg" style="width:20; vertical-align:top"> <strong>Dynamics</strong>:
+The dynamic simulation analyzes the bow and arrow in motion as the string is released from full draw.
+It adds things like arrow speed and degree of efficiency to the results.
+Since it requires the initial state of the bow at full draw, the dynamic simulation will always be preceded by a static simulation as well.</p>
+</li>
+</ul>
+<p>The simulation results are stored as a <code>.res</code> file next to the model file and automatically opened in the result viewer for analysis.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="comments"><a class="header" href="#comments">Comments</a></h1>
+<p>The comments are the first item in the model tree and are only used for documentation.
+Any notes about the bow, its paramters or the simulation results can be added here.</p>
+<figure>
+  <img src="images/screenshots/editor/comments.png" style="width:200px">
+  <figcaption><b>Figure:</b> Comments</figcaption>
+</figure><div style="break-before: page; page-break-before: always;"></div><h1 id="settings"><a class="header" href="#settings">Settings</a></h1>
+<p>The settings can be used for tweaking the simulation.
+Usually the default values should be fine though, so if you're reading this manual for the first time you might want to skip this section.</p>
+<figure>
+  <img src="images/screenshots/editor/settings.png" style="width:200px">
+  <figcaption><b>Figure:</b> Settings</figcaption>
+</figure>
+<p>Since the default settings are meant to be a good general choice, they favor accuracy and reliability over simulation speed.
+So for specific use cases it could make sense to find more efficient settings.
+Think about running a large number of scripted simulations, for example.
+On the other hand, even the default settings might sometimes fail with certain bow designs such that different settings have to be used.</p>
+<p>The settings are divided into general settings that affect both simulation modes as well as specific settings for the static and dynamic simulations.</p>
+<p><strong>General</strong></p>
+<ul>
+<li>
+<p><strong>Limb elements:</strong> Number of finite elements that are used to approximate the limb. More elements increase the accuracy but also the computing time.</p>
+</li>
+<li>
+<p><strong>String elements:</strong> Number of finite elements that are used to approximate the string. This number can usually be reduced if the bow has no recurve. In the case of a static analysis with no recurve it can even be set to one without losing any accuracy.</p>
+</li>
+</ul>
+<p><strong>Statics</strong></p>
+<ul>
+<li><strong>Draw steps:</strong> Number of steps that are performed by the static simulation from brace height to full draw. This determines the resolution of the static results. You can usually decrease this value to speed up the simulation, especially if you're only interested in the dynamic results.</li>
+</ul>
+<p><strong>Dynamics</strong></p>
+<ul>
+<li>
+<p><strong>Arrow clamp force:</strong> The force that the arrow has to overcome in order to separate from the string.
+This value is chosen fairly small by default and can improve the simulation results for very light arrows.</p>
+</li>
+<li>
+<p><strong>Time span factor:</strong> This factor controls the time period that is being simulated. A value of 1 corresponds to the time at which the arrow passes the brace height. The default value is larger than that in order to capture some of the things that tend to happen after the arrow left the bow (e.g. the maximum forces/stresses on limb and string).</p>
+</li>
+<li>
+<p><strong>Time step factor:</strong> When simulating the dynamics of the bow, the program will repeatedly use the current state of the bow at time stem:[t] to calculate the next state at time stem:[t + \Delta t] where stem:[\Delta t] is some small timestep. We want this timestep to be as large as possible to keep the required number of steps low. But it still has to be small enough to get an accurate and stable solution. The program will try to estimate this optimal timestep, but to be on the safe side the estimation is multiplied with a factor between 0 and 1 that you can choose here.</p>
+</li>
+<li>
+<p><strong>Sampling rate:</strong> The sampling rate limits the time resolution of the dynamic results. This is done because the dynamic simulation usually produces much finer grained data than is actually useful. Not including all of that in the final output reduces the size of the result files and the simulation time.</p>
+</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="dimensions"><a class="header" href="#dimensions">Dimensions</a></h1>
+<p>The dimensions define some overall lengths and angles of the bow, including an optional stiff middle section.</p>
+<figure>
+  <img src="images/screenshots/editor/dimensions.png" style="width:200px">
+  <figcaption><b>Figure:</b> Dimensions</figcaption>
+</figure>
+<p><strong>Draw</strong></p>
+<ul>
+<li>
+<p><strong>Brace height:</strong> Distance between the deepest point of the handle and the string at rest</p>
+</li>
+<li>
+<p><strong>Draw length:</strong> Distance between the deepest point of the handle and the string at full draw</p>
+</li>
+</ul>
+<p><strong>Handle</strong></p>
+<ul>
+<li>
+<p><strong>Length:</strong> Optional length of a stiff middle section (grip/riser) between the limbs</p>
+</li>
+<li>
+<p><strong>Setback:</strong> Distance between the deepest point of the grip and the attachment point of the limbs to the middle section</p>
+</li>
+<li>
+<p><strong>Angle:</strong> Angle at which the limbs are attached to the middle section</p>
+</li>
+</ul>
+<p>See the image below for a visual definition of the dimensions.</p>
+<figure>
+  <img src="images/dimensions.svg" style="width:200px">
+  <figcaption><b>Figure:</b> Definition of the dimensions</figcaption>
+</figure><div style="break-before: page; page-break-before: always;"></div><h1 id="materials"><a class="header" href="#materials">Materials</a></h1>
+<p>This is a list of materials that can later be assigned to the layers of the bow.</p>
+<figure>
+  <img src="images/screenshots/editor/materials.png" style="width:200px">
+  <figcaption><b>Figure:</b> Materials in the model tree</figcaption>
+</figure>
+<p>If the <em>Materials</em> category in the model tree is selected, the buttons (<img src="images/icons/list-add.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-remove.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-up.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-down.svg" style="width:20; vertical-align:middle">) can be used to add, remove and reorder materials.
+Materials can be renamed by double-clicking and entering a new name.</p>
+<figure>
+  <img src="images/screenshots/editor/material.png" style="width:200px">
+  <figcaption><b>Figure:</b> Material properties</figcaption>
+</figure>
+<p>For each material, the following properties are needed:</p>
+<ul>
+<li>
+<p><strong>Color:</strong> Color of the material (only used for display)</p>
+</li>
+<li>
+<p><strong>Rho:</strong> Density (mass per unit volume)</p>
+</li>
+<li>
+<p><strong>E:</strong> Elastic modulus (measure of stiffness)</p>
+</li>
+</ul>
+<p>For synthetic materials like e.g. fiber-reinforced composites you can often find the mechanical properties in a datasheet provided by the manufacturer.
+Natural materials like wood are more difficult, because their properties can vary quite a bit.
+Average numbers can be found at <a href="http://www.wood-database.com">http://www.wood-database.com</a> and other websites, which should be a good starting point.
+The alternative is to determine the material properties by experiment with a bending test.
+For more information on that see <a href="appendix-bending-test.html">Appendix C</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="layers"><a class="header" href="#layers">Layers</a></h1>
+<p>Layers define the makeup of the bow in the thickness/height direction.
+A bow can have multiple layers of different materials or only a single layer (self bows).</p>
+<figure>
+  <img src="images/screenshots/editor/layers.png" style="width:200px">
+  <figcaption><b>Figure:</b> Layers in the model tree</figcaption>
+</figure>
+<p>If the <em>Layers</em> category in the model tree is selected, the buttons (<img src="images/icons/list-add.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-remove.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-up.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-down.svg" style="width:20; vertical-align:middle">) can be used to add, remove and reorder layers.
+Layers can be renamed by double-clicking and entering a new name.</p>
+<figure>
+  <img src="images/screenshots/editor/layer.png" style="width:800px">
+  <figcaption><b>Figure:</b> Layer properties</figcaption>
+</figure>
+<p>Each layer consists of a material and a height/thickness distribution.
+The material can be selected from the drop-down list, which shows all materials that were previously added under <a href="model-editor-materials.html">Materials</a>.</p>
+<p>The height distribution is defined by a table of relative length and height values.
+Each table row must contain a relative length along the limb (from 0% to 100%) and the corresponding layer height.
+Layer heights may be zero over portions of the length.
+This is useful for modelling layers that don't cover the whole limb.
+Common examples for this are fadeouts and tip wedges.</p>
+<p>The actual height distribution is constructed as a smooth curve (monotone cubic spline) passing through the supplied values and is shown in the <em>Graph</em> panel.
+You can use the context menu for additional options on the plot, like showing/hiding control points or adding an overlay image.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="profile"><a class="header" href="#profile">Profile</a></h1>
+<p>The profile defines the shape of the (back of the) bow in unbraced state.</p>
+<figure>
+  <img src="images/screenshots/editor/profile.png" style="width:200px">
+  <figcaption><b>Figure:</b> Profile segments in the model tree</figcaption>
+</figure>
+<p>If the <em>Profile</em> category in the model tree is selected, the buttons (<img src="images/icons/list-add.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-remove.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-up.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-down.svg" style="width:20; vertical-align:middle">) can be used to add, remove and reorder segments of different types that make up the profile curve (e.g. lines, arcs and more).
+The properties of each segment depend on its type and are explained below.
+The resulting shape of the profile curve is shown in the <em>Graph</em> panel.
+You can use the context menu for additional options on the plot, like showing/hiding control points, curvature or adding an overlay image.</p>
+<figure>
+  <img src="images/screenshots/editor/profile-plot.png" style="width:800px">
+  <figcaption><b>Figure:</b> Profile plot</figcaption>
+</figure>
+<blockquote>
+<p><strong>Note:</strong> The profile curve always starts at (0, 0) and with a horizontal angle. Any offsets in the actual bow can be achieved with the parameters in <a href="model-editor-dimensions.html">Dimensions</a>.</p>
+</blockquote>
+<h2 id="line-segments"><a class="header" href="#line-segments">Line Segments</a></h2>
+<p>The line segment is simply a straight line.
+Its only editable property is the length of the line.</p>
+<figure>
+  <img src="images/segment-line.svg" style="width:500px">
+  <figcaption><b>Figure:</b> Line segment properties</figcaption>
+</figure>
+<h2 id="arc-segments"><a class="header" href="#arc-segments">Arc Segments</a></h2>
+<p>The arc segment describes a circular arc with given length and radius.</p>
+<blockquote>
+<p><strong>Note:</strong> The radius can be positive or negative, which makes the arc curve into different directions.
+It can also be zero, in this case the arc turns into a straight line.</p>
+</blockquote>
+<figure>
+  <img src="images/segment-arc.svg" style="width:400px">
+  <figcaption><b>Figure:</b> Arc segment properties</figcaption>
+</figure>
+<h2 id="spiral-segments"><a class="header" href="#spiral-segments">Spiral Segments</a></h2>
+<p>The spiral segment describes an <a href="https://en.wikipedia.org/wiki/Euler_spiral">Euler spiral</a>, a curve that linearly transitions between two curvatures.
+It is therefore well suited for making smooth transitions between lines and arcs or arcs of different radius.
+It is defined by a starting radius, and end radius and a length.</p>
+<blockquote>
+<p><strong>Note:</strong> The start and end radius can be positive, negative or zero (similar to the arc segment).</p>
+</blockquote>
+<figure>
+  <img src="images/segment-spiral.svg" style="width:400px">
+  <figcaption><b>Figure:</b> Spiral segment properties</figcaption>
+</figure>
+<h2 id="spline-segments"><a class="header" href="#spline-segments">Spline Segments</a></h2>
+<p>The spline segment interpolates a table of <code>(x, y)</code> values with a cubic spline.
+The values are measured relative to the starting point of the segment/the end point of the previous segment.</p>
+<figure>
+  <img src="images/segment-spline.svg" style="width:400px">
+  <figcaption><b>Figure:</b> Spline segment properties</figcaption>
+</figure><div style="break-before: page; page-break-before: always;"></div><h1 id="width"><a class="header" href="#width">Width</a></h1>
+<p>This defines the limb's width along its length.
+The width is the same for all layers of the bow.</p>
+<figure>
+  <img src="images/screenshots/editor/width.png" style="width:800px">
+  <figcaption><b>Figure:</b> Width properties</figcaption>
+</figure>
+<p>The width distribution is defined by a table of relative length and width values.
+Each table row must contain a relative length along the limb (from 0% to 100%) and the corresponding width.
+The actual width distribution is constructed as a smooth curve (monotone cubic spline) passing through the supplied values and is shown in the <em>Graph</em> panel.
+You can use the context menu for additional options on the plot, like showing/hiding control points or adding an overlay image.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="string"><a class="header" href="#string">String</a></h1>
+<p>The string is defined by its material properties and the number of strands being used.
+Its length is determined automatically from the brace height that was set under <em>Dimensions</em>.</p>
+<figure>
+  <img src="images/screenshots/editor/string.png" style="width:200px">
+  <figcaption><b>Figure:</b> String properties</figcaption>
+</figure>
+<p>The following three properties are required:</p>
+<ul>
+<li>
+<p><strong>Strand density:</strong> Linear density of a single strand (mass per unit length)</p>
+</li>
+<li>
+<p><strong>Strand stiffness:</strong> Stiffness of a single strand (force per unit strain)</p>
+</li>
+<li>
+<p><strong>Number of strands:</strong> Total number of strands in the string</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong> Mass and stiffness of the string can be important for dynamic analysis.
+The effect on the static results however is small, provided that the stiffness is high enough to prevent significant elongation.</p>
+</blockquote>
+<p>The linear density of a string material can be easily determined with an accurate scale (weight divided by length), the stiffness however is more difficult to obtain.
+Manufacturers usually don't publish this number.
+The table below shows the results of tensile tests for three common bow string materials.
+They were done by the German Institutes for Textile and Fiber Research <sup class="footnote-reference"><a href="#1">1</a></sup> in July 2018.</p>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Material</th><th style="text-align: left">Density [kg/m]</th><th style="text-align: left">Breaking strength [N]</th><th style="text-align: left">Elongation at break [%]</th><th style="text-align: left">Stiffness [N/100%]</th></tr></thead><tbody>
+<tr><td style="text-align: left">Dacron B50</td><td style="text-align: left">370e-6</td><td style="text-align: left">180</td><td style="text-align: left">8.5</td><td style="text-align: left">2118</td></tr>
+<tr><td style="text-align: left">Fastflight Plus</td><td style="text-align: left">176e-6</td><td style="text-align: left">318</td><td style="text-align: left">2.9</td><td style="text-align: left">10966</td></tr>
+<tr><td style="text-align: left">BCY 452X</td><td style="text-align: left">192e-6</td><td style="text-align: left">309</td><td style="text-align: left">2.5</td><td style="text-align: left">12360</td></tr>
+</tbody></table>
+</div>
+<p><strong>Table:</strong> Material properties for common string materials. The stiffness values are a linear estimation from breaking strength and elongation.</p>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p><a href="https://www.ditf.de/en/">https://www.ditf.de/en/</a></p>
+</div>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="masses"><a class="header" href="#masses">Masses</a></h1>
+<p>Here you can set the mass of the arrow as well as some other optional masses.</p>
+<figure>
+  <img src="images/screenshots/editor/masses.png" style="width:200px">
+  <figcaption><b>Figure:</b> Mass properties</figcaption>
+</figure>
+<p>Only the mass of the arrow is actually required.
+The other ones account for optional weights at various points of the bow and may be set to zero if not needed.
+Masses in general only have an effect in dynamic analysis.</p>
+<ul>
+<li>
+<p><strong>Arrow:</strong> Mass of the arrow</p>
+</li>
+<li>
+<p><strong>String center:</strong> Additional masses at the string center (e.g. serving, nocking point)</p>
+</li>
+<li>
+<p><strong>String tip:</strong> Additional masses at the ends of the string (e.g. serving)</p>
+</li>
+<li>
+<p><strong>Limb tip:</strong> Additional masses at the limb tips (e.g. tip overlays, extending nocks)</p>
+</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="damping"><a class="header" href="#damping">Damping</a></h1>
+<p>Damping allows to account for energy dissipation, for example due to internal friction/hysteresis of the materials.
+It only has an effect in dynamic analysis.</p>
+<figure>
+  <img src="images/screenshots/editor/damping.png" style="width:200px">
+  <figcaption><b>Figure:</b> Damping properties</figcaption>
+</figure>
+<p>Since modelling all the different forms of energy dissipation in a bow in an exact way would be too complex, the damping is reduced to two empirical values:
+The damping ratio of the <strong>Limbs</strong> and the damping ratio of the <strong>String</strong>.</p>
+<p>The damping ratio characterizes how quickly oscillations decay over time:</p>
+<ul>
+<li>
+<p>An oscillation with a damping ratio of 0% is undamped, it doesn't dissipate any energy and just keeps going with a constant amplitude.</p>
+</li>
+<li>
+<p>The higher the damping ratio the faster the amplitudes decay over time, losing energy with each oscillation.</p>
+</li>
+<li>
+<p>Once the damping ratio reaches 100% there is no longer any oscillation (no overshoot), this is called critical damping.</p>
+</li>
+</ul>
+<p>See also the table below for a visualization of those three cases.</p>
+<div class="table-wrapper"><table><thead><tr><th>Damping</th><th>Amplitude</th></tr></thead><tbody>
+<tr><td>0%</td><td><img src="images/damping-ratio-00.svg" style="width:200px"></td></tr>
+<tr><td>10%</td><td><img src="images/damping-ratio-01.svg" style="width:200px"></td></tr>
+<tr><td>100%</td><td><img src="images/damping-ratio-10.svg" style="width:200px"></td></tr>
+</tbody></table>
+</div>
+<blockquote>
+<p><strong>Note:</strong> The damping ratios of a bow's limbs and string are mostly empirical and there isn't yet much practical experience.
+Realistic values are probably in the range of 1 - 10% though.</p>
+</blockquote>
+<blockquote>
+<p><strong>Note:</strong> Due to numerical issues, high damping ratios (&gt; 10%) might not work very well right now.</p>
+</blockquote>
+<blockquote>
+<p><strong>Note:</strong> In more technical terms, the limb's damping ratio applies to its first eigenmode in unbraced state and the string's damping ratio applies to its first eigenmode in longitudinal direction.</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="result-viewer"><a class="header" href="#result-viewer">Result Viewer</a></h1>
+<p>The result viewer is used to open and visualize simulation results that are stored in <code>.res</code> files.
+It is launched automatically by the model editor when a simulation has finished, but it can also be used as a standalone application.</p>
+<figure>
+  <img src="images/screenshots/viewer/result-viewer.png" style="width:90%">
+  <figcaption><b>Figure:</b> Screenshot of the result viewer</figcaption>
+</figure>
+<p>After loading a result file you can use the buttons on the bottom right corner of the window to switch between static and dynamic results, if available.
+The results themselves are organized in different tabs, which will be explained in the next sections.</p>
+<p>Below the tabs there is a slider where you can change the current state of the bow that is being viewed, either by draw length in the static case or by time in the dynamic case.
+This value applies to all of the tabs.
+Drag the slider to a specific position or use the play buttons to show the simulation results as a continuous animation.
+The input field and the dropdown menu next to it allow you to jump directly to special points in the results, for example where certain forces or stresses reach their maximum.</p>
+<blockquote>
+<p><strong>Note:</strong> The physical units that are used throughout the result viewer can be changed under <em>Options</em> - <em>Units</em>.</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="characteristics"><a class="header" href="#characteristics">Characteristics</a></h1>
+<p>Shows all results that can be expressed as a single value.
+Some of them are specific to static or dynamic analysis, others are common in both.</p>
+<figure>
+  <img src="images/screenshots/viewer/characteristics.png" style="width:90%">
+  <figcaption><b>Figure:</b> Screenshot of the static characteristics tab</figcaption>
+</figure>
+<p><strong>Statics</strong></p>
+<ul>
+<li>
+<p><strong>Final draw force:</strong> The draw force of the bow at full draw</p>
+</li>
+<li>
+<p><strong>Drawing work:</strong> Total work done by drawing the bow. This work is stored in the bow as potential elastic energy and later partially transfered to the arrow, depending on the bow's efficiency. It is equal to the area under the force-draw curve of the bow.</p>
+</li>
+<li>
+<p><strong>Energy storage factor:</strong> This value indicates how good the shape of the draw curve is in terms of energy storage. It is defined as the energy stored by the bow in relation to the energy that would have been stored with a linear draw curve. The energy storage factor increases the &quot;more convex&quot; the shape of the draw curve is.</p>
+</li>
+<li>
+<p><strong>Factor &lt; 1:</strong> The draw curve stores less energy than a linear draw curve</p>
+</li>
+<li>
+<p><strong>Factor = 1:</strong> The draw curve stores as much energy as a linear draw curve</p>
+</li>
+<li>
+<p><strong>Factor &gt; 1:</strong> The draw curve stores more energy than a linear draw curve</p>
+</li>
+<li>
+<p><strong>Limb mass:</strong> Total mass of a single bow limb, including the additional tip mass</p>
+</li>
+<li>
+<p><strong>String mass:</strong> Total mass of the bow string, including additional masses</p>
+</li>
+<li>
+<p><strong>String length:</strong> Length of the string, determined by the desired brace height</p>
+</li>
+</ul>
+<p><strong>Dynamics</strong></p>
+<ul>
+<li>
+<p><strong>Final arrow velocity:</strong> Velocity of the arrow when departing from the bow</p>
+</li>
+<li>
+<p><strong>Degree of efficiency:</strong> The bow's degree of efficiency, i.e. how much of the energy input (drawing work) is converted into useful output (kinetic energy of the arrow)</p>
+</li>
+<li>
+<p><strong>Kinetic energy arrow:</strong> Kinetic energy of the arrow on departure from the string</p>
+</li>
+<li>
+<p><strong>Kinetic energy limbs:</strong> Kinetic energy of the limbs on arrow departure</p>
+</li>
+<li>
+<p><strong>Kinetic energy string:</strong> Kinetic energy of the string on arrow departure</p>
+</li>
+</ul>
+<p><strong>Common</strong></p>
+<ul>
+<li>
+<p><strong>Minimum and maximum stresses:</strong> Maximum stress by absolute value for each layer. Positive values indicate tension, negative values compression.</p>
+</li>
+<li>
+<p><strong>Maximum absolute forces:</strong> Maximum forces by absolute value. Entries are the draw force, the string force and the grip support force, i.e. the force that would be required to hold the bow handle.</p>
+</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="shape"><a class="header" href="#shape">Shape</a></h1>
+<p>Shows the shape of the limb and string as well as the position of the arrow at different stages of either the draw (statics) or the shot (dynamics).
+The little red circle symbolizes the back end of the arrow.
+You can use the slider at the bottom to change the current state of the bow or to view all states as a continuous animation.</p>
+<figure>
+  <img src="images/screenshots/viewer/shape.png" style="width:90%">
+  <figcaption><b>Figure:</b> Screenshot of the shape tab</figcaption>
+</figure><div style="break-before: page; page-break-before: always;"></div><h1 id="stress"><a class="header" href="#stress">Stress</a></h1>
+<p>Shows the stress distribution along the limb for each one of the layers, evaluated at the back and belly sides.
+Positive values indicate tension, negative values compression.</p>
+<figure>
+  <img src="images/screenshots/viewer/stress.png" style="width:90%">
+  <figcaption><b>Figure:</b> Screenshot of stress tab</figcaption>
+</figure><div style="break-before: page; page-break-before: always;"></div><h1 id="curvature"><a class="header" href="#curvature">Curvature</a></h1>
+<p>Shows the curvature of the limb along its length.
+This is not the total curvature but rather the difference to the unbraced shape.</p>
+<figure>
+  <img src="images/screenshots/viewer/curvature.png" style="width:90%">
+  <figcaption><b>Figure:</b> Screenshot of the curvature tab</figcaption>
+</figure><div style="break-before: page; page-break-before: always;"></div><h1 id="energy"><a class="header" href="#energy">Energy</a></h1>
+<p>This plot shows how the energy stored in the bow develops during the simulation and how it is distributed between components (limbs, string arrow) and type of energy (potential/elastic or kinetic).</p>
+<p>In the static case it shows how the elastic energy of the limbs and string develops during draw.
+No kinetic energies are shown, because they are zero in static analysis.</p>
+<figure>
+  <img src="images/screenshots/viewer/energy-statics.png" style="width:90%">
+  <figcaption><b>Figure:</b> Screenshot of the energy tab for static results</figcaption>
+</figure>
+<p>In the dynamic case it shows how the initial potential energy of the limbs is transferred to the arrow and other components of the bow and how much unused energy stays in the bow after the departure of the arrow.</p>
+<figure>
+  <img src="images/screenshots/viewer/energy-dynamics.png" style="width:90%">
+  <figcaption><b>Figure:</b> Screenshot of the energy tab for dynamic results</figcaption>
+</figure>
+<p>In both cases there are three options for display that can be selected individually:</p>
+<ul>
+<li>
+<p><strong>Stacked:</strong> Stack the energies on top of each other, so it can bee seen how they add up</p>
+</li>
+<li>
+<p><strong>Group by component:</strong> Group the energies only by component (limbs, string, arrow)</p>
+</li>
+<li>
+<p><strong>Group by type:</strong> Group the energies only by type (potential, kinetic)</p>
+</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="other-plots"><a class="header" href="#other-plots">Other Plots</a></h1>
+<p>Here you can combine arbitrary simulation results and plot them together in order to visualize things that aren't shown on any of the default plots.
+Examples are the draw curve of the bow (draw force over draw length) or the velocity of the arrow over time.</p>
+<figure>
+  <img src="images/screenshots/viewer/other-plots.png" style="width:90%">
+  <figcaption><b>Figure:</b> Screenshot of the other plots tab</figcaption>
+</figure>
+<p>Data series available in static analysis:</p>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Data Series</th><th style="text-align: left">Description</th></tr></thead><tbody>
+<tr><td style="text-align: left">Draw length</td><td style="text-align: left">Length to which the bow is drawn</td></tr>
+<tr><td style="text-align: left">Draw force</td><td style="text-align: left">Draw force of the bow</td></tr>
+<tr><td style="text-align: left">String force (total)</td><td style="text-align: left">Tension force in the string</td></tr>
+<tr><td style="text-align: left">String force (strand)</td><td style="text-align: left">String tension per strand</td></tr>
+<tr><td style="text-align: left">Grip force</td><td style="text-align: left">Force that is required to hold the grip</td></tr>
+<tr><td style="text-align: left">Pot. energy limbs</td><td style="text-align: left">Potential energy of the limbs</td></tr>
+<tr><td style="text-align: left">Pot. energy string</td><td style="text-align: left">Potential energy of the string</td></tr>
+</tbody></table>
+</div>
+<p>Data series available in dynamic analysis:</p>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Data Series</th><th style="text-align: left">Description</th></tr></thead><tbody>
+<tr><td style="text-align: left">Time</td><td style="text-align: left">Time since the release of the shot</td></tr>
+<tr><td style="text-align: left">Arrow position</td><td style="text-align: left">Position of the arrow</td></tr>
+<tr><td style="text-align: left">Arrow velocity</td><td style="text-align: left">Velocity of the arrow</td></tr>
+<tr><td style="text-align: left">Arrow acceleration</td><td style="text-align: left">Acceleration of the arrow</td></tr>
+<tr><td style="text-align: left">String force (total)</td><td style="text-align: left">Tension force in the string</td></tr>
+<tr><td style="text-align: left">String force (strand)</td><td style="text-align: left">String tension per strand</td></tr>
+<tr><td style="text-align: left">Grip force</td><td style="text-align: left">Force that is required to hold the grip</td></tr>
+<tr><td style="text-align: left">Pot. energy limbs</td><td style="text-align: left">Potential energy of the limbs</td></tr>
+<tr><td style="text-align: left">Kin. energy limbs</td><td style="text-align: left">Kinetic energy of the limbs</td></tr>
+<tr><td style="text-align: left">Pot. energy string</td><td style="text-align: left">Potential energy of the string</td></tr>
+<tr><td style="text-align: left">Kin. energy string</td><td style="text-align: left">Kinetic energy of the string</td></tr>
+<tr><td style="text-align: left">Kin. energy arrow</td><td style="text-align: left">Kinetic energy of the arrow</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="solver"><a class="header" href="#solver">Solver</a></h1>
+<p>The solver is the part of VirtualBow that actually performs the required calculations.
+It only has a command line interface and is invoked automatically by the model editor when a simulation is started, but can also be used on its own for advanced use cases.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="command-line"><a class="header" href="#command-line">Command Line</a></h1>
+<p>The VirtualBow executables are named</p>
+<pre><code>virtualbow-gui        // Model editor
+virtualbow-slv        // Solver
+virtualbow-post       // Result viewer
+</code></pre>
+<p>The solver executable takes a <code>.bow</code> model file as its input, performs the simulation and saves the results as a <code>.res</code> file that can be opened by the result viewer.
+The type of simulation (static or dynamic) as well as other options are set by the command line arguments.
+The detailed usage as shown by the <code>--help</code> option is:</p>
+<p>Usage: virtualbow-slv [options] input output</p>
+<pre><code>Options:
+  -?, -h, --help  Displays this help.
+  -v, --version   Displays version information.
+  -s, --static    Run a static simulation.
+  -d, --dynamic   Run a dynamic simulation.
+  -p, --progress  Print simulation progress.
+
+Arguments:
+  input           Model file (.bow)
+  output          Result file (.res)
+</code></pre>
+<p>NOTE: To use the command line interfaces on Windows you have to either specify the complete path to the respective executable or add the installation directory to your <code>PATH</code> environment variable.
+There is an option to do this automatically during installation of VirtualBow.</p>
+<p>NOTE: On MacOS, the VirtualBow executables are hidden inside the application bundle.
+They can be accessed by their full path though, or their location can be temporarily added to the <code>PATH</code> environment variable with the command <code>export PATH = $PATH:/Applications/VirtualBow.app/Contents/MacOS</code>.
+Put this line into your <code>.bash_profile</code> if you want it to be permanently added.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="file-formats"><a class="header" href="#file-formats">File Formats</a></h1>
+<h2 id="input"><a class="header" href="#input">Input</a></h2>
+<p>The input files of the solver are <code>.bow</code> model files as created by the model editor.
+Those files use the text based JSON<sup class="footnote-reference"><a href="#1">1</a></sup> format.
+JSON (JavaScript Object Notation) is a very common exchange format for hierarchical data in the form of objects, arrays, strings, numbers and more.
+Since the format is text based, it is easy to inspect and modify with a text editor.</p>
+<p>A detailed specification of the model files can be found in <a href="appendix-model-files.html">Appendix A</a>.</p>
+<h2 id="output"><a class="header" href="#output">Output</a></h2>
+<p>The output files of the solver are <code>.res</code> result files that can be opened with the result viewer.
+The result files use the binary MessagePack<sup class="footnote-reference"><a href="#2">2</a></sup> format.
+MessagePack is very similar to JSON in the kind of data it can represent, but more space efficient due to being a binary format.
+Unlike the input files, the output files cannot be inspected with a text editor.</p>
+<p>A detailed specification of the model files can be found in <a href="appendix-result-files.html">Appendix B</a>.</p>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p><a href="https://www.json.org/">https://www.json.org/</a></p>
+</div>
+<div class="footnote-definition" id="2"><sup class="footnote-definition-label">2</sup>
+<p><a href="https://msgpack.org/">https://msgpack.org/</a></p>
+</div>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="scripting"><a class="header" href="#scripting">Scripting</a></h1>
+<p>The main use of the solver as a standalone application is the ability to write programs that automatically launch simulations and analyze the results.
+This is especially useful for performing design optimizations or exploring the influence of certain model parameters on the simulation results.</p>
+<p>Scripts that interoperate with VirtualBow have to be able to call the solver via the command line interface as well as read and write the model and result files that constitute the input and output of the solver.
+As a consequence of the file formats, any programming language that supports JSON and MessagePack can be used.
+Both are fairly common formats and most languages have either built-in support or there are external libraries available.</p>
+<p>For getting started, the following sections show how to interface with VirtualBow for some programming languages commonly used in scientific computing.
+Each of the examples performs the same series of basic tasks:</p>
+<ol>
+<li>Load, modify and save a model file</li>
+<li>Run a static simulation with the model file</li>
+<li>Load the result file and evaluate the maximum stress of the first layer at full draw</li>
+</ol>
+<h2 id="python"><a class="header" href="#python">Python</a></h2>
+<p>The python example below uses two external packages, <a href="https://pypi.org/project/msgpack/">msgpack</a> for reading the result files and <a href="https://pypi.org/project/numpy/">numpy</a> for evaluating the stresses.
+They can be installed with <code>pip install msgpack numpy</code>.</p>
+<pre><code class="language-python">import json, msgpack      # Loading and saving model and result files
+import numpy as np        # Evaluating stresses
+import subprocess         # Runnig the simulation
+
+# Load model file
+with open(&quot;input.bow&quot;, &quot;r&quot;) as file:
+    input = json.load(file)
+
+# Modify model data
+input[&quot;string&quot;][&quot;n_strands&quot;] += 1
+
+# Save model file
+with open(&quot;input.bow&quot;, &quot;w&quot;) as file:
+    json.dump(input, file, indent=2)
+
+# Run a static simulation
+subprocess.call([&quot;virtualbow-slv&quot;, &quot;--static&quot;, &quot;input.bow&quot;, &quot;output.res&quot;])
+
+# Load the result file
+with open(&quot;output.res&quot;, &quot;rb&quot;) as file:
+    output = msgpack.unpack(file, raw=False)
+
+# Evaluate stresses
+He_back = np.array(output[&quot;setup&quot;][&quot;limb_properties&quot;][&quot;layers&quot;][0][&quot;He_back&quot;])
+Hk_back = np.array(output[&quot;setup&quot;][&quot;limb_properties&quot;][&quot;layers&quot;][0][&quot;Hk_back&quot;])
+
+epsilon = np.array(output[&quot;statics&quot;][&quot;states&quot;][&quot;epsilon&quot;][-1])
+kappa   = np.array(output[&quot;statics&quot;][&quot;states&quot;][&quot;kappa&quot;][-1])
+sigma = He_back.dot(epsilon) + Hk_back.dot(kappa)
+
+print(sigma.max())
+</code></pre>
+<h2 id="matlab"><a class="header" href="#matlab">Matlab</a></h2>
+<p>This Matlab example uses the <a href="https://de.mathworks.com/matlabcentral/fileexchange/33381">JSONLab</a> library, which can read and write both JSON and MessagePack files.</p>
+<pre><code class="language-matlab">% Load model file
+input = loadjson('input.bow');
+
+% Modify model data
+input.string.n_strands = input.string.n_strands + 1;
+
+% Save model file
+savejson('', input, 'input.bow');
+
+% Run a static simulation
+system('virtualbow-slv --static input.bow output.res');
+
+% Load the result file
+output = loadmsgpack('output.res');
+
+% Evaluate stresses
+He_back = output.setup.limb_properties.layers{1}.He_back;
+Hk_back = output.setup.limb_properties.layers{1}.Hk_back;
+
+epsilon = output.statics.states.epsilon(:,end);
+kappa   = output.statics.states.kappa(:,end);
+sigma = He_back*epsilon + Hk_back*kappa;
+
+disp(max(sigma));
+</code></pre>
+<h2 id="julia"><a class="header" href="#julia">Julia</a></h2>
+<p>For the Julia example, two external packages are used: <a href="https://juliahub.com/ui/Packages/JSON/uf6oy">JSON</a> for loading model files and <a href="https://juliahub.com/ui/Packages/MsgPack/oDgLV">MsgPack</a> for loading result files.
+They can be installed with <code>julia&gt; import Pkg; Pkg.add(&quot;JSON&quot;); Pkg.add(&quot;MsgPack&quot;)</code>.</p>
+<pre><code class="language-julia">using JSON        # Loading and saving model files
+using MsgPack     # Loading result files
+
+# Load model file
+stream = open(&quot;input.bow&quot;, &quot;r&quot;)
+input = JSON.parse(stream)
+close(stream)
+
+# Modify model data
+input[&quot;string&quot;][&quot;n_strands&quot;] += 1
+
+# Save model file
+stream = open(&quot;input.bow&quot;, &quot;w&quot;)
+JSON.print(stream, input, 2)
+close(stream)
+
+# Run a static simulation
+run(`virtualbow-slv --static input.bow output.res`)
+
+# Load the result file
+stream = open(&quot;output.res&quot;, &quot;r&quot;)
+output = unpack(stream)
+close(stream)
+
+# Evaluate stresses
+He_back = hcat(output[&quot;setup&quot;][&quot;limb_properties&quot;][&quot;layers&quot;][1][&quot;He_back&quot;]... )
+Hk_back = hcat(output[&quot;setup&quot;][&quot;limb_properties&quot;][&quot;layers&quot;][1][&quot;Hk_back&quot;]... )
+
+epsilon = output[&quot;statics&quot;][&quot;states&quot;][&quot;epsilon&quot;][end]
+kappa   = output[&quot;statics&quot;][&quot;states&quot;][&quot;kappa&quot;][end]
+sigma = He_back*epsilon + Hk_back*kappa
+
+println(max(sigma...))
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="appendix"><a class="header" href="#appendix">Appendix</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="model-files"><a class="header" href="#model-files">Model Files</a></h1>
+<blockquote>
+<p><strong>Note:</strong> The following specification is subject to change.
+Scripts that work directly with <code>.bow</code> files should therefore expect incompatibilities with new releases of VirtualBow.</p>
+</blockquote>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Field</th><th style="text-align: left">Type</th><th style="text-align: left">Unit</th><th style="text-align: left">Description</th></tr></thead><tbody>
+<tr><td style="text-align: left">version</td><td style="text-align: left">String</td><td style="text-align: left">--</td><td style="text-align: left">VirtualBow version number</td></tr>
+<tr><td style="text-align: left">comment</td><td style="text-align: left">String</td><td style="text-align: left">--</td><td style="text-align: left">User comments</td></tr>
+<tr><td style="text-align: left">settings {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     n_limb_elements</td><td style="text-align: left">Integer</td><td style="text-align: left">--</td><td style="text-align: left">Number of limb elements</td></tr>
+<tr><td style="text-align: left">     n_string_elements</td><td style="text-align: left">Integer</td><td style="text-align: left">--</td><td style="text-align: left">Number of string elements</td></tr>
+<tr><td style="text-align: left">     n_draw_steps</td><td style="text-align: left">Integer</td><td style="text-align: left">--</td><td style="text-align: left">Number of draw steps</td></tr>
+<tr><td style="text-align: left">     arrow_clamp_force</td><td style="text-align: left">Double</td><td style="text-align: left">--</td><td style="text-align: left">Arrow clamp force</td></tr>
+<tr><td style="text-align: left">     time_span_factor</td><td style="text-align: left">Double</td><td style="text-align: left">--</td><td style="text-align: left">Time span factor</td></tr>
+<tr><td style="text-align: left">     time_step_factor</td><td style="text-align: left">Double</td><td style="text-align: left">--</td><td style="text-align: left">Time step factor</td></tr>
+<tr><td style="text-align: left">     sampling_rate</td><td style="text-align: left">Double</td><td style="text-align: left">--</td><td style="text-align: left">Sampling rate</td></tr>
+<tr><td style="text-align: left">}</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">dimensions {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     brace_height</td><td style="text-align: left">Double</td><td style="text-align: left">m</td><td style="text-align: left">Brace height</td></tr>
+<tr><td style="text-align: left">     draw_length</td><td style="text-align: left">Double</td><td style="text-align: left">m</td><td style="text-align: left">Draw length</td></tr>
+<tr><td style="text-align: left">     handle_length</td><td style="text-align: left">Double</td><td style="text-align: left">m</td><td style="text-align: left">Handle length</td></tr>
+<tr><td style="text-align: left">     handle_setback</td><td style="text-align: left">Double</td><td style="text-align: left">m</td><td style="text-align: left">Handle setback</td></tr>
+<tr><td style="text-align: left">     handle_angle</td><td style="text-align: left">Double</td><td style="text-align: left">m</td><td style="text-align: left">Handle angle</td></tr>
+<tr><td style="text-align: left">}</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">materials [</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">          name</td><td style="text-align: left">String</td><td style="text-align: left"></td><td style="text-align: left">Name</td></tr>
+<tr><td style="text-align: left">          color</td><td style="text-align: left">String</td><td style="text-align: left"></td><td style="text-align: left">Color</td></tr>
+<tr><td style="text-align: left">          rho</td><td style="text-align: left">Double</td><td style="text-align: left">kg/m³</td><td style="text-align: left">Density</td></tr>
+<tr><td style="text-align: left">          E</td><td style="text-align: left">Double</td><td style="text-align: left">Pa</td><td style="text-align: left">Elastic modulus</td></tr>
+<tr><td style="text-align: left">     }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">          ...</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">]</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">layers [</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">          name</td><td style="text-align: left">String</td><td style="text-align: left"></td><td style="text-align: left">Name</td></tr>
+<tr><td style="text-align: left">          material</td><td style="text-align: left">Integer</td><td style="text-align: left"></td><td style="text-align: left">Material index</td></tr>
+<tr><td style="text-align: left">          height</td><td style="text-align: left">Double[][]</td><td style="text-align: left">-- , m</td><td style="text-align: left">Table of relative length and height</td></tr>
+<tr><td style="text-align: left">     }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">          ...</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">]</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">profile [</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">          type: &quot;line&quot;</td><td style="text-align: left">String</td><td style="text-align: left"></td><td style="text-align: left">Line segment</td></tr>
+<tr><td style="text-align: left">          parameters {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">               length</td><td style="text-align: left">Double</td><td style="text-align: left">m</td><td style="text-align: left">Length</td></tr>
+<tr><td style="text-align: left">          }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">          type: &quot;arc&quot;</td><td style="text-align: left">String</td><td style="text-align: left"></td><td style="text-align: left">Arc segment</td></tr>
+<tr><td style="text-align: left">          parameters {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">               length</td><td style="text-align: left">Double</td><td style="text-align: left">m</td><td style="text-align: left">Length</td></tr>
+<tr><td style="text-align: left">               radius</td><td style="text-align: left">Double</td><td style="text-align: left">m</td><td style="text-align: left">Radius</td></tr>
+<tr><td style="text-align: left">          }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">          type: &quot;spiral&quot;</td><td style="text-align: left">String</td><td style="text-align: left"></td><td style="text-align: left">Spiral segment</td></tr>
+<tr><td style="text-align: left">          parameters {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">               length</td><td style="text-align: left">Double</td><td style="text-align: left">m</td><td style="text-align: left">Length</td></tr>
+<tr><td style="text-align: left">               r_start</td><td style="text-align: left">Double</td><td style="text-align: left">m</td><td style="text-align: left">Start radius</td></tr>
+<tr><td style="text-align: left">               r_end</td><td style="text-align: left">Double</td><td style="text-align: left">m</td><td style="text-align: left">End radius</td></tr>
+<tr><td style="text-align: left">          }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">          type: &quot;spline&quot;</td><td style="text-align: left">String</td><td style="text-align: left"></td><td style="text-align: left">Spline segment</td></tr>
+<tr><td style="text-align: left">          parameters {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">               points</td><td style="text-align: left">Double[][]</td><td style="text-align: left">m , m</td><td style="text-align: left">List of (x, y) points</td></tr>
+<tr><td style="text-align: left">          }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">          ...</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">]</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">width</td><td style="text-align: left">Double[][]</td><td style="text-align: left">-- , m</td><td style="text-align: left">Table of relative length and width</td></tr>
+<tr><td style="text-align: left">string {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     strand_stiffness</td><td style="text-align: left">Double</td><td style="text-align: left">N</td><td style="text-align: left">Stiffness of the string material</td></tr>
+<tr><td style="text-align: left">     strand_density</td><td style="text-align: left">Double</td><td style="text-align: left">kg/m</td><td style="text-align: left">Density of the string material</td></tr>
+<tr><td style="text-align: left">     n_strands</td><td style="text-align: left">Integer</td><td style="text-align: left">--</td><td style="text-align: left">Number of strands</td></tr>
+<tr><td style="text-align: left">}</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">masses {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     arrow</td><td style="text-align: left">Double</td><td style="text-align: left">kg</td><td style="text-align: left">Mass of the arrow</td></tr>
+<tr><td style="text-align: left">     string_center</td><td style="text-align: left">Double</td><td style="text-align: left">kg</td><td style="text-align: left">Additional mass at string center</td></tr>
+<tr><td style="text-align: left">     string_tip</td><td style="text-align: left">Double</td><td style="text-align: left">kg</td><td style="text-align: left">Additional mass at string tips</td></tr>
+<tr><td style="text-align: left">     limb_tip</td><td style="text-align: left">Double</td><td style="text-align: left">kg</td><td style="text-align: left">Additional mass at limb tips</td></tr>
+<tr><td style="text-align: left">}</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">damping {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     damping_ratio_limbs</td><td style="text-align: left">Double</td><td style="text-align: left">--</td><td style="text-align: left">Damping ratio of the limbs</td></tr>
+<tr><td style="text-align: left">     damping_ratio_string</td><td style="text-align: left">Double</td><td style="text-align: left">--</td><td style="text-align: left">Damping ratio of the string</td></tr>
+<tr><td style="text-align: left">}</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="result-files"><a class="header" href="#result-files">Result Files</a></h1>
+<blockquote>
+<p><strong>Note:</strong> The following specification is subject to change.
+Scripts that work directly with <code>.res</code> files should therefore expect incompatibilities with new releases of VirtualBow.</p>
+</blockquote>
+<blockquote>
+<p><strong>Note:</strong> For space efficiency reasons, the stress values for each layer aren't stored directly in the result files.
+Instead, each layer has two constant matrices \(H_{e\mathrm{\ (back/belly)}}\) that relate the longitudinal strains \(\varepsilon\) to the resulting stresses at the back or belly side of the layer as well as two matrices \(H_{k\mathrm{\ (back/belly)}}\) that do the same for the bending curvature \(\kappa\).
+The total stress is the sum of the stresses due to longitudinal strain and bending curvature and can be calculated as
+\[\sigma_\mathrm{back} = H_{e,\mathrm{\ back}} \cdot \varepsilon + H_{k,\mathrm{\ back}} \cdot \kappa\]
+\[\sigma_\mathrm{belly} = H_{e,\mathrm{\ belly}} \cdot \varepsilon + H_{k,\mathrm{\ belly}} \cdot \kappa\]
+where the dot (\(\cdot\)) represents a matrix-vector multiplication.
+The result is a vector of stresses corresponding to the nodes of the layer.</p>
+</blockquote>
+<p><strong>P:</strong> Number of limb nodes</p>
+<p><strong>Q:</strong> Number of string nodes</p>
+<p><strong>R:</strong> Number of layer nodes</p>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Field</th><th style="text-align: left">Type</th><th style="text-align: left">Unit</th><th style="text-align: left">Description</th></tr></thead><tbody>
+<tr><td style="text-align: left">setup {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     string_length</td><td style="text-align: left">Double</td><td style="text-align: left">m</td><td style="text-align: left">Length of the string</td></tr>
+<tr><td style="text-align: left">     string_mass</td><td style="text-align: left">Double</td><td style="text-align: left">kg</td><td style="text-align: left">Mass of the string, including additional masses</td></tr>
+<tr><td style="text-align: left">     limb_mass</td><td style="text-align: left">Double</td><td style="text-align: left">kg</td><td style="text-align: left">Mass of the limb, including additional masses</td></tr>
+<tr><td style="text-align: left">     limb_properties {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">          length</td><td style="text-align: left">Double[P]</td><td style="text-align: left">m</td><td style="text-align: left">Arc lengths of the limb nodes (unbraced)</td></tr>
+<tr><td style="text-align: left">          angle</td><td style="text-align: left">Double[P]</td><td style="text-align: left">rad</td><td style="text-align: left">Rotation angles of the limb nodes (unbraced)</td></tr>
+<tr><td style="text-align: left">          x_pos</td><td style="text-align: left">Double[P]</td><td style="text-align: left">m</td><td style="text-align: left">X coordinates of the limb nodes (unbraced)</td></tr>
+<tr><td style="text-align: left">          y_pos</td><td style="text-align: left">Double[P]</td><td style="text-align: left">m</td><td style="text-align: left">Y coordinates of the limb nodes (unbraced)</td></tr>
+<tr><td style="text-align: left">          width</td><td style="text-align: left">Double[P]</td><td style="text-align: left">m</td><td style="text-align: left">Cross section width</td></tr>
+<tr><td style="text-align: left">          height</td><td style="text-align: left">Double[P]</td><td style="text-align: left">m</td><td style="text-align: left">Cross section height (all layers)</td></tr>
+<tr><td style="text-align: left">          rhoA</td><td style="text-align: left">Double[P]</td><td style="text-align: left">kg/m</td><td style="text-align: left">Linear density of the sections</td></tr>
+<tr><td style="text-align: left">          Cee</td><td style="text-align: left">Double[P]</td><td style="text-align: left">N</td><td style="text-align: left">Longitudinal stiffness of the sections</td></tr>
+<tr><td style="text-align: left">          Ckk</td><td style="text-align: left">Double[P]</td><td style="text-align: left">Nm²</td><td style="text-align: left">Bending stiffness of the sections</td></tr>
+<tr><td style="text-align: left">          Cek</td><td style="text-align: left">Double[P]</td><td style="text-align: left">Nm</td><td style="text-align: left">Coupling between bending and elongation</td></tr>
+<tr><td style="text-align: left">          layers [</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">               {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">                    length</td><td style="text-align: left">Double[R]</td><td style="text-align: left">m</td><td style="text-align: left">Arc lengths of the layer nodes</td></tr>
+<tr><td style="text-align: left">                    He_back</td><td style="text-align: left">Double[R][P]</td><td style="text-align: left">N/m²</td><td style="text-align: left">Stress evaluation matrix (back)</td></tr>
+<tr><td style="text-align: left">                    Hk_back</td><td style="text-align: left">Double[R][P]</td><td style="text-align: left">N/m</td><td style="text-align: left">Stress evaluation matrix (back)</td></tr>
+<tr><td style="text-align: left">                    He_belly</td><td style="text-align: left">Double[R][P]</td><td style="text-align: left">N/m²</td><td style="text-align: left">Stress evaluation matrix (belly)</td></tr>
+<tr><td style="text-align: left">                    Hk_belly</td><td style="text-align: left">Double[R][P]</td><td style="text-align: left">N/m</td><td style="text-align: left">Stress evaluation matrix (belly)</td></tr>
+<tr><td style="text-align: left">               }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">               {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">                    ...</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">               }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">          ]</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">}</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">statics {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     final_draw_force</td><td style="text-align: left">Double</td><td style="text-align: left">N</td><td style="text-align: left">Final draw force</td></tr>
+<tr><td style="text-align: left">     drawing_work</td><td style="text-align: left">Double</td><td style="text-align: left">J</td><td style="text-align: left">Drawing work</td></tr>
+<tr><td style="text-align: left">     energy storage factor</td><td style="text-align: left">Double</td><td style="text-align: left">--</td><td style="text-align: left">Energy storage factor</td></tr>
+<tr><td style="text-align: left">     max_string_force_index</td><td style="text-align: left">Integer</td><td style="text-align: left">--</td><td style="text-align: left">Simulation state with maximum absolute string force</td></tr>
+<tr><td style="text-align: left">     max_grip_force_index</td><td style="text-align: left">Integer</td><td style="text-align: left">--</td><td style="text-align: left">Simulation state with maximum absolute grip force</td></tr>
+<tr><td style="text-align: left">     max_draw_force_index</td><td style="text-align: left">Integer</td><td style="text-align: left">--</td><td style="text-align: left">Simulation state with maximum absolute draw force</td></tr>
+<tr><td style="text-align: left">     min_stress_value</td><td style="text-align: left">Double[]</td><td style="text-align: left">Pa</td><td style="text-align: left">Minimum stress for each layer</td></tr>
+<tr><td style="text-align: left">     min_stress_index</td><td style="text-align: left">Integer[][]</td><td style="text-align: left">--</td><td style="text-align: left">Simulation state and layer node for each minimum stress value</td></tr>
+<tr><td style="text-align: left">     max_stress_value</td><td style="text-align: left">Double[]</td><td style="text-align: left">Pa</td><td style="text-align: left">Maximum stress for each layer</td></tr>
+<tr><td style="text-align: left">     max_stress_index</td><td style="text-align: left">Integer[][]</td><td style="text-align: left">--</td><td style="text-align: left">Simulation state and layer node for each maximum stress value</td></tr>
+<tr><td style="text-align: left">     states {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">          ...</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left">Sequence of bow states (see table below)</td></tr>
+<tr><td style="text-align: left">     }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">}</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">dynamics {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     final_pos_arrow</td><td style="text-align: left">Double</td><td style="text-align: left">m</td><td style="text-align: left">Position of the arrow at departure</td></tr>
+<tr><td style="text-align: left">     final_vel_arrow</td><td style="text-align: left">Double</td><td style="text-align: left">m/s</td><td style="text-align: left">Velocity of the arrow at departure</td></tr>
+<tr><td style="text-align: left">     final_e_kin_arrow</td><td style="text-align: left">Double</td><td style="text-align: left">J</td><td style="text-align: left">Kinetic energy of the arrow at departure</td></tr>
+<tr><td style="text-align: left">     final_e_pot_limbs</td><td style="text-align: left">Double</td><td style="text-align: left">J</td><td style="text-align: left">Potential energy of the limbs at arrow departure</td></tr>
+<tr><td style="text-align: left">     final_e_kin_limbs</td><td style="text-align: left">Double</td><td style="text-align: left">J</td><td style="text-align: left">Kinetic energy of the limbs at arrow departure</td></tr>
+<tr><td style="text-align: left">     final_e_pot_string</td><td style="text-align: left">Double</td><td style="text-align: left">J</td><td style="text-align: left">Potential energy of the string at arrow departure</td></tr>
+<tr><td style="text-align: left">     final_e_kin_string</td><td style="text-align: left">Double</td><td style="text-align: left">J</td><td style="text-align: left">Kinetic energy of the string at arrow departure</td></tr>
+<tr><td style="text-align: left">     efficiency</td><td style="text-align: left">Double</td><td style="text-align: left">--</td><td style="text-align: left">Degree of efficiency</td></tr>
+<tr><td style="text-align: left">     max_string_force_index</td><td style="text-align: left">Integer</td><td style="text-align: left">--</td><td style="text-align: left">Simulation state with maximum absolute string force</td></tr>
+<tr><td style="text-align: left">     max_grip_force_index</td><td style="text-align: left">Integer</td><td style="text-align: left">--</td><td style="text-align: left">Simulation state with maximum absolute grip force</td></tr>
+<tr><td style="text-align: left">     arrow_departure_index</td><td style="text-align: left">Integer</td><td style="text-align: left">--</td><td style="text-align: left">Simulation state at which the arrow departs with the string</td></tr>
+<tr><td style="text-align: left">     min_stress_value</td><td style="text-align: left">Double[]</td><td style="text-align: left">Pa</td><td style="text-align: left">Minimum stress for each layer</td></tr>
+<tr><td style="text-align: left">     min_stress_index</td><td style="text-align: left">Integer[][]</td><td style="text-align: left">--</td><td style="text-align: left">Simulation state and layer node for each stress value</td></tr>
+<tr><td style="text-align: left">     max_stress_value</td><td style="text-align: left">Double[]</td><td style="text-align: left">Pa</td><td style="text-align: left">Maximum stress for each layer</td></tr>
+<tr><td style="text-align: left">     max_stress_index</td><td style="text-align: left">Integer[][]</td><td style="text-align: left">--</td><td style="text-align: left">Simulation state and layer node for each stress value</td></tr>
+<tr><td style="text-align: left">     states {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">          ...</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left">Sequence of bow states (see table below)</td></tr>
+<tr><td style="text-align: left">     }</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">}</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+</tbody></table>
+</div>
+<p><strong>N:</strong> Number of simulation steps</p>
+<p><strong>P:</strong> Number of limb nodes</p>
+<p><strong>Q:</strong> Number of string nodes</p>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Field</th><th style="text-align: left">Type</th><th style="text-align: left">Unit</th><th style="text-align: left">Description</th></tr></thead><tbody>
+<tr><td style="text-align: left">states {</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">     time</td><td style="text-align: left">Double[N]</td><td style="text-align: left">s</td><td style="text-align: left">Time</td></tr>
+<tr><td style="text-align: left">     draw_length</td><td style="text-align: left">Double[N]</td><td style="text-align: left">m</td><td style="text-align: left">Draw length</td></tr>
+<tr><td style="text-align: left">     draw_force</td><td style="text-align: left">Double[N]</td><td style="text-align: left">N</td><td style="text-align: left">Draw force</td></tr>
+<tr><td style="text-align: left">     string_force</td><td style="text-align: left">Double[N]</td><td style="text-align: left">N</td><td style="text-align: left">String force (total)</td></tr>
+<tr><td style="text-align: left">     strand_force</td><td style="text-align: left">Double[N]</td><td style="text-align: left">N</td><td style="text-align: left">String force (strand)</td></tr>
+<tr><td style="text-align: left">     grip_force</td><td style="text-align: left">Double[N]</td><td style="text-align: left">N</td><td style="text-align: left">Grip force</td></tr>
+<tr><td style="text-align: left">     pos_arrow</td><td style="text-align: left">Double[N]</td><td style="text-align: left">m</td><td style="text-align: left">Arrow position</td></tr>
+<tr><td style="text-align: left">     vel_arrow</td><td style="text-align: left">Double[N]</td><td style="text-align: left">m/s</td><td style="text-align: left">Arrow velocity</td></tr>
+<tr><td style="text-align: left">     acc_arrow</td><td style="text-align: left">Double[N]</td><td style="text-align: left">m/s²</td><td style="text-align: left">Arrow acceleration</td></tr>
+<tr><td style="text-align: left">     x_pos_limb</td><td style="text-align: left">Double[N][P]</td><td style="text-align: left">m</td><td style="text-align: left">X coordinates of the limb nodes</td></tr>
+<tr><td style="text-align: left">     y_pos_limb</td><td style="text-align: left">Double[N][P]</td><td style="text-align: left">m</td><td style="text-align: left">Y coordinates of the limb nodes</td></tr>
+<tr><td style="text-align: left">     angle_limb</td><td style="text-align: left">Double[N][P]</td><td style="text-align: left">rad</td><td style="text-align: left">Rotation angles of the limb nodes</td></tr>
+<tr><td style="text-align: left">     epsilon</td><td style="text-align: left">Double[N][P]</td><td style="text-align: left">--</td><td style="text-align: left">Longitudinal strain at the limb nodes</td></tr>
+<tr><td style="text-align: left">     kappa</td><td style="text-align: left">Double[N][P]</td><td style="text-align: left">m</td><td style="text-align: left">Bending curvature at the limb nodes</td></tr>
+<tr><td style="text-align: left">     x_pos_string</td><td style="text-align: left">Double[N][Q]</td><td style="text-align: left">m</td><td style="text-align: left">X coordinates of the string nodes</td></tr>
+<tr><td style="text-align: left">     y_pos_string</td><td style="text-align: left">Double[N][Q]</td><td style="text-align: left">m</td><td style="text-align: left">Y coordinates of the string nodes</td></tr>
+<tr><td style="text-align: left">     e_pot_limbs</td><td style="text-align: left">Double[N]</td><td style="text-align: left">J</td><td style="text-align: left">Potential energy of the limbs</td></tr>
+<tr><td style="text-align: left">     e_kin_limbs</td><td style="text-align: left">Double[N]</td><td style="text-align: left">J</td><td style="text-align: left">Kinetic energy of the limbs</td></tr>
+<tr><td style="text-align: left">     e_pot_string</td><td style="text-align: left">Double[N]</td><td style="text-align: left">J</td><td style="text-align: left">Potential energy of the string</td></tr>
+<tr><td style="text-align: left">     e_kin_string</td><td style="text-align: left">Double[N]</td><td style="text-align: left">J</td><td style="text-align: left">Kinetic energy of the string</td></tr>
+<tr><td style="text-align: left">     e_kin_arrow</td><td style="text-align: left">Double[N]</td><td style="text-align: left">J</td><td style="text-align: left">Kinetic energy of the arrow</td></tr>
+<tr><td style="text-align: left">}</td><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="bending-test"><a class="header" href="#bending-test">Bending Test</a></h1>
+<p>A bending test is a good way to experimentally determine the elastic modulus \(E\) of a material.
+Starting point is a material sample with a constant width \(w\) and height \(h\).
+It is important that the dimensions, especially the height, are fairly precise, since they have a large influence on the final result.</p>
+<p>The useful length \(l\) of the sample should be much larger than the cross section dimensions such that it can bend enough for easy measuring while still staying in the elastic range of the material.
+On the other hand, the sample shouldn't be so long that it bends significantly under its own weight either.
+A suggestion would be \(l \ge 100 \cdot h\).</p>
+<p>To perform the test, the sample is either clamped on one end, as shown in <a href="appendix-bending-test.html#clamped-setup">Clamped Setup</a>, or placed between two supports as shown in <a href="appendix-bending-test.html#three-point-setup">Three-point Setup</a>.
+It is then subjected to a force \(F\) and the resulting deflection \(s\) is measured.
+Finally the elastic modulus can be calulated from the measured deflection depending on the chosen setup.</p>
+<p>A good way to apply an accurate force is to use a known weight \(m\), suspended for example on a thread, and calculate the force as \(F = m \cdot g\) with \(g=9.81\frac{m}{s^2}\).
+Alternatively, an accurate bow/hanging scale might also work.</p>
+<h2 id="clamped-setup"><a class="header" href="#clamped-setup">Clamped Setup</a></h2>
+<figure>
+  <img src="images/bending-test/setup-clamped.svg" style="width:450px">
+</figure>
+<p>In this setup the sample is clamped on one end and the force is applied on the free end.
+The elastic modulus can be calculated as</p>
+<p>\[E = \frac{Fl^3}{3Is} = \frac{4Fl^3}{wh^3 s}\]</p>
+<h2 id="three-point-setup"><a class="header" href="#three-point-setup">Three-point Setup</a></h2>
+<figure>
+  <img src="images/bending-test/setup-three-point.svg" style="width:400px">
+</figure>
+<p>In this setup the sample is placed between two rolling supports with distance \(l\) and the force is applied in the middle.
+The elastic modulus can be calculated as</p>
+<p>\[E = \frac{Fl^3}{48Is} = \frac{Fl^3}{4wh^3 s}\]</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="tips--tricks"><a class="header" href="#tips--tricks">Tips &amp; Tricks</a></h1>
+<p>This section contains various notes about useful features of VirtualBow that didn't reall fit anywhere else in this manual.</p>
+<h2 id="units"><a class="header" href="#units">Units</a></h2>
+<p>Manually converting between units is tedious and error-prone.
+That's why all inputs and outputs in VirtualBow have a configurable unit that can be changed under <em>Options</em> - <em>Units</em>.</p>
+<figure>
+  <img src="images/screenshots/editor/units.png" style="width:400px">
+  <figcaption><b>Figure:</b> Unit selection dialog</figcaption>
+</figure>
+<p>In this dialog you can select units for different categories of values.
+Changing the unit for <em>Length</em>, for example, will change the unit everywhere where lengths are shown (e.g. width, layer height, dimensions).
+There are also two pre-defined sets of defaults, one for SI units and one for US units.
+You can use those by clicking either of the buttons on the bottom left.</p>
+<p>It is worth noting that the units only affect how values are shown in the user interface.
+The data in the model and result files is always stored in SI base units, so they can be exchanged with other users who might have different unit preferences.</p>
+<h2 id="plots"><a class="header" href="#plots">Plots</a></h2>
+<p><strong>Background images</strong></p>
+<p>Any plot can be given a background image.
+After selecting <em>Background image...</em> in the plot's context menu, you can load an image and adjust its position and orientation.</p>
+<figure>
+  <img src="images/screenshots/editor/plot-overlay.png" style="width:600px">
+  <figcaption><b>Figure:</b> Background image dialog</figcaption>
+</figure>
+<p>This feature can be used to model existing bows more easily or to compare the simulation results with actual photographs.
+Background images are only temporary, they are not saved with the model files.</p>
+<p><strong>File exports</strong></p>
+<p>Plots can be exported to various image and data formats using the menu entry <em>Export as...</em>.
+Supported export formats are:</p>
+<ul>
+<li>
+<p>PDF vector graphic</p>
+</li>
+<li>
+<p>PNG image</p>
+</li>
+<li>
+<p>BMP image</p>
+</li>
+<li>
+<p>CSV table</p>
+</li>
+</ul>
+<p><strong>Other options</strong></p>
+<p>Some of the plots have additional context menu entries.
+The profile plot, for example, has options to show or hide nodes or visualize the curvature.</p>
+<h2 id="number-inputs"><a class="header" href="#number-inputs">Number inputs</a></h2>
+<p>Number input fields may seem simple, but there are a few details worth knowing to use them more effectively.</p>
+<figure>
+  <img src="images/screenshots/editor/spinbox.png" style="width:150px">
+  <figcaption><b>Figure:</b> Number input field</figcaption>
+</figure>
+<p><strong>Arithmetic expressions</strong></p>
+<p>Most number input fields in VirtualBow accept arithmetic expressions.
+This means that you can enter expressions like <code>1 + 5/2</code>, press enter, and it will automatically be evaluated to <code>3.5</code>.
+Supported operations are <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>^</code> and grouping with <code>(</code> and <code>)</code>.</p>
+<p><strong>Decimal separator</strong></p>
+<p>VirtualBow uses a dot (<code>.</code>) as the decimal separator for numbers, regardless of local conventions.
+However, since some countries use a comma (<code>,</code>) instead, their keyboard layouts have a comma on the number block, making it cumbersome to enter numbers with a dot.
+Therefore, to make things easier for such users, the comma on the number pad is automatically converted to a dot.</p>
+<p><strong>Scrolling</strong></p>
+<p>The little arrow buttons on the right of the input field can be used to increment/decrement the value.
+Scrolling the mouse wheel while the field is selected does the same thing, just faster.
+This can be used to quickly move through a whole range of values, which is especially useful when editing the bow's geometry and observing the changes in the plots and the 3d view.</p>
+<h2 id="tables"><a class="header" href="#tables">Tables</a></h2>
+<p>Content in tables can be copied, cut, pasted and deleted using either the context menu or the standard shortcuts.
+Copy and paste also works between VirtualBow and other applications, for example spreadsheet software like Excel or LibreOffice Calc.</p>
+<figure>
+  <img src="images/screenshots/editor/tableview.png" style="width:250px">
+  <figcaption><b>Figure:</b> Table context menu</figcaption>
+</figure>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            MathJax.Hub.Register.StartupHook('End', function() {
+                window.setTimeout(window.print, 100);
+            });
+        });
+        </script>
+    </body>
+</html>

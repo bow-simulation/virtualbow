@@ -29,7 +29,7 @@ After selecting *Background image...* in the plot's context menu, you can load a
 
 <figure>
   <img src="images/screenshots/editor/plot-overlay.png" style="width:600px">
-  <figcaption><b>Figure:</b> Table context menu</figcaption>
+  <figcaption><b>Figure:</b> Background image dialog</figcaption>
 </figure>
 
 This feature can be used to model existing bows more easily or to compare the simulation results with actual photographs.

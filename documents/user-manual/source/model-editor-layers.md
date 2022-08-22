@@ -26,3 +26,4 @@ This is useful for modelling layers that don't cover the whole limb.
 Common examples for this are fadeouts and tip wedges.
 
 The actual height distribution is constructed as a smooth curve (monotone cubic spline) passing through the supplied values and is shown in the _Graph_ panel.
+You can use the context menu for additional options on the plot, like showing/hiding control points or adding an overlay image.
