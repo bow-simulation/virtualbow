@@ -20,5 +20,5 @@ For support, feedback or to get the latest version of the software please visit 
 
 > [https://www.virtualbow.org/](https://www.virtualbow.org/)
 
-Please keep in mind that VirtualBow is still under development!
+> **Note:** Please keep in mind that VirtualBow is still under development.
 The simulation results are still largely unverified and should not be taken at face value yet, although many users already reported good agreement.

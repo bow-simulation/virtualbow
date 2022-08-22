@@ -10,6 +10,7 @@ The profile defines the shape of the (back of the) bow in unbraced state.
 If the _Profile_ category in the model tree is selected, the buttons (<img src="images/icons/list-add.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-remove.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-up.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-down.svg" style="width:20; vertical-align:middle">) can be used to add, remove and reorder segments of different types that make up the profile curve (e.g. lines, arcs and more).
 The properties of each segment depend on its type and are explained below.
 The resulting shape of the profile curve is shown in the _Graph_ panel.
+You can use the context menu for additional options on the plot, like showing/hiding control points, curvature or adding an overlay image.
 
 <figure>
   <img src="images/screenshots/editor/profile-plot.png" style="width:800px">
