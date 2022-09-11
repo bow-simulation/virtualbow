@@ -88,7 +88,7 @@ StaticOutputWidget::StaticOutputWidget(const OutputData& data)
     numbers->addGroup("Properties");
     numbers->addValue("Limb mass", data.setup.limb_mass, Quantities::mass);
     numbers->addValue("String mass", data.setup.string_mass, Quantities::mass);
-    numbers->addValue("String length", data.setup.string_length, Quantities::mass);
+    numbers->addValue("String length", data.setup.string_length, Quantities::length);
 
     numbers->addColumn();
     numbers->addGroup("Minimum stress by layer");
