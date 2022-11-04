@@ -27,7 +27,6 @@ public:
     const std::vector<double>& vals() const;
 
     double operator()(double arg) const;
-    double operator()(double arg, double y_default) const;
 
     double deriv1(double arg) const;
     double deriv2(double arg) const;
