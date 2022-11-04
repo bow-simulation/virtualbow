@@ -21,7 +21,15 @@ double ContinuousLayer::s_max() const
 
 double ContinuousLayer::get_h(double s) const
 {
-    return height(limb.get_p(s), 0.0);  // Zero if out of bounds
+    const double epsilon = 1e-8;     // Out of bounds tolerance
+    double p = limb.get_p(s);        // Calculate relative position
+
+    if(p + epsilon >= height.arg_min() && p - epsilon <= height.arg_max()) {
+        return height(p);
+    }
+    else {
+        return 0.0;    // If out of bounds, return 0
+    }
 }
 
 double ContinuousLayer::get_rho() const

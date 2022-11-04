@@ -145,15 +145,6 @@ double CubicSpline::operator()(double arg) const {
     return h_00(t)*y[index] + h_10(t)*dx*m[index] + h_01(t)*y[index + 1] + h_11(t)*dx*m[index + 1];
 }
 
-// Returns default value on out of bounds access
-double CubicSpline::operator()(double arg, double default_value) const {
-    if(arg >= x.front() && arg <= x.back()) {
-        return operator()(arg);
-    } else {
-        return default_value;
-    }
-}
-
 double CubicSpline::deriv1(double arg) const {
     // TODO: Horner evaluation
     auto dhdt_00 = [](double t) { return 6*t*t - 6*t; };
