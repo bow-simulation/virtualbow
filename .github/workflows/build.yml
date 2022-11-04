@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: egor-tensin/setup-mingw@v2
       
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           path: virtualbow  
       
@@ -35,12 +35,12 @@ jobs:
           cmake --build . --target iss-installer -j4
           virtualbow-test
         
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: windows-application
           path: build/application
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: windows-packages
           path: build/packages
@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           path: virtualbow
       
@@ -67,12 +67,12 @@ jobs:
           cmake --build . --target rpm-package -j4
           ./virtualbow-test
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: linux-application
           path: build/application
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: linux-packages
           path: build/packages
@@ -81,7 +81,7 @@ jobs:
     runs-on: macos-11
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           path: virtualbow
       
@@ -103,12 +103,12 @@ jobs:
       - name: Display file structure
         run: ls -R
       
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: macos-application
           path: build/application
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: macos-packages
           path: build/packages
