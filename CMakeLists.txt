@@ -8,12 +8,12 @@ include(CheckCXXCompilerFlag)
 # Parameters
 
 set(APPLICATION_NAME "VirtualBow")
-set(APPLICATION_VERSION "0.9")
+set(APPLICATION_VERSION "0.9.1")
 set(APPLICATION_WEBSITE "https://www.virtualbow.org")
 set(APPLICATION_MAINTAINER "Stefan Pfeifer")
 set(APPLICATION_COPYRIGHT "Copyright (C) 2016-2022 Stefan Pfeifer")
 set(APPLICATION_LICENSE "GNU General Public License v3.0")
-set(APPLICATION_DESCRIPTION_SHORT "Bow and arrow physics simulation")
+set(APPLICATION_DESCRIPTION_SHORT "Bow design tool")
 set(APPLICATION_DESCRIPTION_LONG "Software tool for designing and simulating bows")
 
 # External libraries

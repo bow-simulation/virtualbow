@@ -8,6 +8,8 @@ public:
     static void to_current(json& obj);
 
 private:
+    static void convert_0_9_0_to_0_9_1(json& obj);
+
     static void convert_0_8_0_to_0_9_0(json& obj);
 
     static void convert_0_7_1_to_0_8_0(json& obj);
