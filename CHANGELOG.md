@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.9.1
+
+### Fixed
+
+* Wrong unit on string length result
+* Error in computation of the limb geometry that leads to unwanted sharp limb tips
+
 ## v0.9.0
 
 ### Added
