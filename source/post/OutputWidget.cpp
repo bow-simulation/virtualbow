@@ -7,6 +7,7 @@
 #include "ComboPlot.hpp"
 #include "Slider.hpp"
 #include "gui/utils/UserSettings.hpp"
+#include "gui/utils/ScrollArea.hpp"
 
 OutputWidget::OutputWidget(const OutputData& data)
     : data(data),
@@ -76,6 +77,8 @@ const OutputData& OutputWidget::getData() {
     return data;
 }
 
+#include <QScrollArea>
+
 StaticOutputWidget::StaticOutputWidget(const OutputData& data)
     : tabs(new QTabWidget())
 {
@@ -121,7 +124,7 @@ StaticOutputWidget::StaticOutputWidget(const OutputData& data)
     plot_combo->addData("Pot. energy string", data.statics.states.e_pot_string, Quantities::energy);
     plot_combo->setCombination(0, 1);
 
-    tabs->addTab(numbers, "Characteristics");
+    tabs->addTab(scrollArea(numbers), "Characteristics");
     tabs->addTab(plot_shapes, "Shape");
     tabs->addTab(plot_stress, "Stress");
     tabs->addTab(plot_curvature, "Curvature");
@@ -206,7 +209,7 @@ DynamicOutputWidget::DynamicOutputWidget(const OutputData& data)
     plot_combo->addData("Kin. energy arrow", data.dynamics.states.e_kin_arrow, Quantities::energy);
     plot_combo->setCombination(0, 1);
 
-    tabs->addTab(numbers, "Characteristics");
+    tabs->addTab(scrollArea(numbers), "Characteristics");
     tabs->addTab(plot_shapes, "Shape");
     tabs->addTab(plot_stress, "Stress");
     tabs->addTab(plot_curvature, "Curvature");
