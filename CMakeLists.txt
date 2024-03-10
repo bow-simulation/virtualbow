@@ -179,6 +179,7 @@ add_executable(
     source/gui/utils/IntegerRange.hpp
     source/gui/utils/UserSettings.cpp
     source/gui/utils/UserSettings.hpp
+    source/gui/utils/ScrollArea.hpp
     source/gui/widgets/DialogBase.cpp
     source/gui/widgets/DialogBase.hpp
     source/gui/widgets/DoubleSpinBox.cpp
@@ -260,6 +261,7 @@ add_executable(
     source/gui/utils/IntegerRange.hpp
     source/gui/utils/UserSettings.cpp
     source/gui/utils/UserSettings.hpp
+    source/gui/utils/ScrollArea.hpp
     source/gui/widgets/DialogBase.cpp
     source/gui/widgets/DialogBase.hpp
     source/gui/widgets/DoubleSpinBox.cpp
