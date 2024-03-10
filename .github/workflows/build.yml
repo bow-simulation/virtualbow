@@ -19,7 +19,7 @@ jobs:
       run:
         shell: cmd
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: virtualbow  
       
@@ -36,12 +36,12 @@ jobs:
           cmake --build . --target iss-installer -j4
           virtualbow-test
         
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: windows-application
           path: build/application
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: windows-packages
           path: build/packages
@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: virtualbow
       
@@ -68,12 +68,12 @@ jobs:
           cmake --build . --target rpm-package -j4
           ./virtualbow-test
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: linux-application
           path: build/application
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: linux-packages
           path: build/packages
@@ -82,7 +82,7 @@ jobs:
     runs-on: macos-11
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: virtualbow
       
@@ -104,28 +104,28 @@ jobs:
       - name: Display file structure
         run: ls -R
       
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: macos-application
           path: build/application
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: macos-packages
           path: build/packages
 
   develop-release:
     if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     needs: [build-windows, build-linux, build-macos]
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: windows-packages
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: linux-packages
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: macos-packages
 
@@ -147,16 +147,16 @@ jobs:
           
   tagged-release:
     if: startsWith(github.ref, 'refs/tags')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     needs: [build-windows, build-linux, build-macos]
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: windows-packages
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: linux-packages
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: macos-packages
 
