@@ -16,7 +16,7 @@ set_target_properties(virtualbow-post PROPERTIES WIN32_EXECUTABLE TRUE)
 # Copy necessary resources into application directory
 file(COPY ${CMAKE_SOURCE_DIR}/resources/docs/user-manual DESTINATION ${CMAKE_BINARY_DIR}/application)
 
-# Target: Copy shared libraries to application directory (missed by windeployqt in CI build)
+# Target: Copy shared libraries to application directory with windeployqt
 add_custom_target(copy-dependencies DEPENDS virtualbow-gui virtualbow-slv virtualbow-post)
 add_custom_command(
     TARGET copy-dependencies
@@ -24,10 +24,6 @@ add_custom_command(
     ${CMAKE_BINARY_DIR}/application/virtualbow-gui.exe
     ${CMAKE_BINARY_DIR}/application/virtualbow-slv.exe
     ${CMAKE_BINARY_DIR}/application/virtualbow-post.exe
-    # Workaround for libraries not being deployed in azure build environment
-    COMMAND ${CMAKE_COMMAND} -E copy ${QT_BINARY_DIR}/libgcc_s_seh-1.dll ${CMAKE_BINARY_DIR}/application
-    COMMAND ${CMAKE_COMMAND} -E copy ${QT_BINARY_DIR}/libstdc++-6.dll ${CMAKE_BINARY_DIR}/application
-    COMMAND ${CMAKE_COMMAND} -E copy ${QT_BINARY_DIR}/libwinpthread-1.dll ${CMAKE_BINARY_DIR}/application
 )
 
 # Target: Inno Setup installer
