@@ -55,18 +55,25 @@ The rest of the build process is the same on Linux and MacOS
 
 # Contributing
 
-The development of VirtualBow is planned and coordinated openly by using GitHub's [issue tracker](https://github.com/bow-simulation/virtualbow/issues) and the [milestones](https://github.com/bow-simulation/virtualbow/milestones) feature.
-Feel free to participate by creating new issues or commenting on existing ones.
+Contributions of any kind are very welcome!
 
-For contributing to this repository please follow the steps below:
+The development of VirtualBow is discussed and planned publicly on our [issue tracker](https://github.com/bow-simulation/virtualbow/issues) and the [discussions](https://github.com/bow-simulation/virtualbow/discussions).
+Feel free to participate by either commenting on existing topics or opening your own ones for feedback, new ideas, feature requests or bug reports.
+If you plan a larger contribution, consider discussing it with us first to make sure that it fits the scope and vision of the project.
 
-1. Fork the repository and create a new branch from `develop`
-2. Implement, commit and push your changes
-3. Create a pull request back to the `develop` branch of this repository. Link any relevant [issues](https://github.com/bow-simulation/virtualbow/issues).
-4. Wait and see if the build pipeline passes. Keep updating your branch until it does.
-5. Your changes will be reviewed for merging as soon as possible
+For actually contributing to this repository please follow these steps:
 
-All contributions are appreciated!
+1. **Fork the repository** and create a new branch for your changes from the latest `develop` branch. The branching strategy used in this repository is called [Git Flow](https://nvie.com/posts/a-successful-git-branching-model/) in case you want to learn more about it.
+
+2. **Implement and test your changes** and add unit tests and/or documentation for your new code if applicable. The code style used in VirtualBow is not explicitly specified anywhere and not 100% consistent either. Just try to match the style of the existing/surrounding code reasonably well.
+
+3. **Create a pull request** against the `develop` branch of this repository. Write a short summary of your changes and include any other relevant information like e.g. links to related issues or discussions.
+
+4. **Wait and see if the build pipeline passes.** This automatic process ensures that the project still compiles successfully and all tests work as expected. Don't worry if this step fails initially, you can keep updating your branch with new commits until all checks have passed.
+
+5. **Sign the Contributor License Agreement**. If this is your first contribution to VirtualBow, you will be asked to sign our [Contributor License Agreement](https://cla-assistant.io/bow-simulation/virtualbow) (CLA). This document clarifies the rights to your contribution and ensures that we can use your contribution(s) for our purposes. Our CLA is adapted from the [Apache Individual Contributor License Agreement](https://www.apache.org/licenses/icla.pdf) with only minor changes, so it is a fairly standard license agreement.
+
+6. **You are almost done!** Your changes will now be reviewed for merging as soon as possible.
 
 # License
 
