@@ -7,8 +7,11 @@
 #include <QDialogButtonBox>
 #include <QCoreApplication>
 #include <QDir>
+#include <cmath>
 
-SimulationDialog::SimulationDialog(QWidget* parent, const QString& input, const QString& output, const QString& flag)
+#include <iostream>
+
+SimulationDialog::SimulationDialog(QWidget* parent, const QString& input, const QString& output, bool dynamic)
     : DialogBase(parent)
 {
     auto vbox = new QVBoxLayout();
@@ -26,7 +29,7 @@ SimulationDialog::SimulationDialog(QWidget* parent, const QString& input, const 
 
     // Create dynamic progress bar
     QProgressBar* progress2 = nullptr;
-    if(flag == "--dynamic") {
+    if(dynamic) {
         progress2 = new QProgressBar();
         progress2->setMinimumWidth(350);    // Magic number
 		progress2->setTextVisible(false);    // Looks bad on Windows otherwise
@@ -44,7 +47,7 @@ SimulationDialog::SimulationDialog(QWidget* parent, const QString& input, const 
     auto process = new QProcess(this);
     process->setWorkingDirectory(QCoreApplication::applicationDirPath());
     process->setProgram(QDir(QCoreApplication::applicationDirPath()).filePath("virtualbow-slv"));
-    process->setArguments({ input, output, flag, "--progress" });
+    process->setArguments({ dynamic ? "dynamic" : "static", input, output, "--progress" });
 
     QObject::connect(this, &QDialog::rejected, this, [=] {
         // User canceled the dialog: Terminate process and wait until it has finished
@@ -68,14 +71,35 @@ SimulationDialog::SimulationDialog(QWidget* parent, const QString& input, const 
         }
     });
 
-    QObject::connect(process, &QProcess::readyRead, this, [=] {
+    QObject::connect(process, &QProcess::readyReadStandardOutput, this, [=] {
         QString line(process->readAll());
-        if(progress1 != nullptr) {
-            progress1->setValue(line.section("\t", 0, 0).toInt());
+
+        QStringList parts = line.split(",");
+        if(parts.size() != 2) {
+            return;
         }
-        if(progress2 != nullptr) {
-            progress2->setValue(line.section("\t", 1, 1).toInt());
+
+        QStringList parts_stage = parts[0].split(":");
+        if(parts_stage.size() != 2) {
+            return;
         }
+
+        QStringList parts_progress = parts[1].split(":");
+        if(parts_progress.size() != 2) {
+            return;
+        }
+
+        QString stage = parts_stage[1].trimmed();
+        QString progress = parts_progress[1].remove("%").trimmed();
+        int value = round(progress.toDouble());
+
+        if(stage == "statics" && progress1 != nullptr) {
+            progress1->setValue(value);
+        }
+        else if(stage == "dynamics" && progress2 != nullptr) {
+            progress2->setValue(value);
+        }
+
     });
 
     QObject::connect(process, &QProcess::errorOccurred, this, [=](QProcess::ProcessError error) {
@@ -86,7 +110,6 @@ SimulationDialog::SimulationDialog(QWidget* parent, const QString& input, const 
     process->start();
 }
 
-void SimulationDialog::closeEvent(QCloseEvent *event)
-{
+void SimulationDialog::closeEvent(QCloseEvent *event) {
     this->reject();
 }
