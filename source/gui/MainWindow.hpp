@@ -1,5 +1,4 @@
 #pragma once
-#include "solver/model/input/InputData.hpp"
 #include <QMainWindow>
 
 class RecentFilesMenu;
@@ -26,7 +25,7 @@ private:
     bool save();
     bool saveAs();
 
-    void runSimulation(const QString& flag);
+    void runSimulation(bool dynamic);
 
     bool optionalSaveModifications();
     QString showOpenFileDialog();

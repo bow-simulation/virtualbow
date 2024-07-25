@@ -49,13 +49,13 @@ MainWindow::MainWindow()
     action_quit->setMenuRole(QAction::QuitRole);
 
     auto action_run_statics = new QAction(QIcon(":/icons/run-statics"), "&Statics...", this);
-    QObject::connect(action_run_statics, &QAction::triggered, [&]{ runSimulation("--static"); });
+    QObject::connect(action_run_statics, &QAction::triggered, [&]{ runSimulation(false); });
     action_run_statics->setShortcut(Qt::Key_F5);
     action_run_statics->setMenuRole(QAction::NoRole);
     action_run_statics->setIconVisibleInMenu(true);
 
     auto action_run_dynamics = new QAction(QIcon(":/icons/run-dynamics"), "&Dynamics...", this);
-    QObject::connect(action_run_dynamics, &QAction::triggered, [&]{ runSimulation("--dynamic"); });
+    QObject::connect(action_run_dynamics, &QAction::triggered, [&]{ runSimulation(true); });
     action_run_dynamics->setShortcut(Qt::Key_F6);
     action_run_dynamics->setMenuRole(QAction::NoRole);
     action_run_dynamics->setIconVisibleInMenu(true);
@@ -252,7 +252,7 @@ bool MainWindow::saveAs() {
     return false;
 }
 
-void MainWindow::runSimulation(const QString& flag) {
+void MainWindow::runSimulation(bool dynamic) {
     if(!save()) {
         return;
     }
@@ -262,7 +262,7 @@ void MainWindow::runSimulation(const QString& flag) {
     QString output_file = info.absolutePath() + QDir::separator() + info.completeBaseName() + ".res";
 
     // Run Simulation, launch Post on results if successful
-    SimulationDialog dialog(this, this->windowFilePath(), output_file, flag);
+    SimulationDialog dialog(this, this->windowFilePath(), output_file, dynamic);
     if(dialog.exec() == QDialog::Accepted) {
         QProcess::startDetached(
             QDir(QCoreApplication::applicationDirPath()).filePath("virtualbow-post"),
