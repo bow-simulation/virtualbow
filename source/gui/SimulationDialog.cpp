@@ -78,6 +78,11 @@ SimulationDialog::SimulationDialog(QWidget* parent, const QString& input, const 
         }
     });
 
+    QObject::connect(process, &QProcess::errorOccurred, this, [=](QProcess::ProcessError error) {
+        QMessageBox::critical(this, "Error", "Could not run the simulation, solver process failed to start.");
+        this->reject();
+    });
+
     process->start();
 }
 
