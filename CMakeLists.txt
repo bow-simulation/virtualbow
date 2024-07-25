@@ -44,25 +44,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-math-errno")    # Don't make standa
 
 add_library(
     virtualbow-lib STATIC
-    source/solver/fem/elements/BarElement.cpp
-    source/solver/fem/elements/BeamElement.cpp
-    source/solver/fem/elements/MassElement.cpp
-    source/solver/fem/elements/ContactElement.cpp
-    source/solver/fem/elements/ContactHandler.cpp
-    source/solver/fem/elements/ConstraintElement.cpp
-    source/solver/fem/Node.cpp
-    source/solver/fem/Element.cpp
-    source/solver/fem/StaticSolver.cpp
-    source/solver/fem/DynamicSolver.cpp
-    source/solver/fem/EigenvalueSolver.cpp
-    source/solver/fem/System.cpp
-    source/solver/model/BeamUtils.cpp
     source/solver/model/ContinuousLimb.cpp
     source/solver/model/LimbProperties.cpp
     source/solver/model/input/InputData.cpp
     source/solver/model/input/Conversion.cpp
     source/solver/model/output/OutputData.cpp
-    source/solver/model/BowModel.cpp
     source/solver/model/profile/ProfileCurve.cpp
     source/solver/model/profile/ProfileSegment.cpp
     source/solver/model/profile/ProfileInput.cpp
@@ -71,7 +57,7 @@ add_library(
     source/solver/numerics/CubicSpline.cpp
     source/solver/numerics/Fresnel.cpp
     source/solver/numerics/Sorting.cpp
-    source/solver/numerics/Geometry.cpp
+
 )
 
 target_link_libraries(
@@ -79,19 +65,6 @@ target_link_libraries(
     ${Boost_LIBRARIES}
     Eigen3::Eigen
     nlohmann_json::nlohmann_json
-)
-
-# Target: Solver executable
-
-add_executable(
-    virtualbow-slv
-    source/solver/Main.cpp
-)
-
-target_link_libraries(
-    virtualbow-slv
-    virtualbow-lib
-    Qt5::Core
 )
 
 # Target: Gui executable
@@ -300,32 +273,10 @@ target_link_libraries(
     Qt5::PrintSupport
 )
 
-# Target: Test executable
-
-add_executable(
-    virtualbow-test
-    source/tests/Main.cpp
-    source/tests/fem/BarTrusses.cpp
-    source/tests/fem/HarmonicOscillator.cpp
-    source/tests/fem/LargeDeformationBeams.cpp
-    source/tests/fem/TangentStiffness.cpp
-    source/tests/model/BeamStiffnessMatrix.cpp
-    source/tests/numerics/CubicSpline.cpp
-    source/tests/numerics/FindInterval.cpp
-    source/tests/numerics/Geometry.cpp
-)
-
-target_link_libraries(
-    virtualbow-test
-    virtualbow-lib
-    Catch2::Catch2
-)
-
 # Change output directories
 
 set_target_properties(
     virtualbow-gui
-    virtualbow-slv
     virtualbow-post
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/application
