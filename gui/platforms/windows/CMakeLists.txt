@@ -1,12 +1,9 @@
 # Define math constants for MSVC
 target_compile_definitions(virtualbow-gui PRIVATE _USE_MATH_DEFINES)
-target_compile_definitions(virtualbow-slv PRIVATE _USE_MATH_DEFINES)
 target_compile_definitions(virtualbow-post PRIVATE _USE_MATH_DEFINES)
-target_compile_definitions(virtualbow-test PRIVATE _USE_MATH_DEFINES)
 
 # Set executable icons
 target_sources(virtualbow-gui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icons-gui.rc)
-target_sources(virtualbow-slv PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icons-slv.rc)
 target_sources(virtualbow-post PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/icons-post.rc)
 
 # Make virtualbow-gui and virtualbow-post GUI applications

@@ -1,0 +1,136 @@
+{
+    "comment": "This is a comment!",
+    "damping": {
+        "damping_ratio_limbs": 0.03,
+        "damping_ratio_string": 0.05
+    },
+    "dimensions": {
+        "brace_height": 0.2,
+        "draw_length": 0.7,
+        "handle_angle": 0.02,
+        "handle_length": 0.1,
+        "handle_setback": 0.01
+    },
+    "layers": [
+        {
+            "height": [
+                [
+                    0.0,
+                    0.002
+                ],
+                [
+                    1.0,
+                    0.002
+                ]
+            ],
+            "material": 0,
+            "name": "Layer 1"
+        },
+        {
+            "height": [
+                [
+                    0.0,
+                    0.01
+                ],
+                [
+                    1.0,
+                    0.005
+                ]
+            ],
+            "material": 1,
+            "name": "Layer 2"
+        },
+        {
+            "height": [
+                [
+                    0.0,
+                    0.002
+                ],
+                [
+                    1.0,
+                    0.002
+                ]
+            ],
+            "material": 2,
+            "name": "Layer 3"
+        }
+    ],
+    "masses": {
+        "arrow": 0.025,
+        "limb_tip": 0.002,
+        "string_center": 0.005,
+        "string_tip": 0.004
+    },
+    "materials": [
+        {
+            "E": 15000000000.0,
+            "color": "#1f77b4",
+            "name": "Back",
+            "rho": 600.0
+        },
+        {
+            "E": 5000000000.0,
+            "color": "#ff7f0e",
+            "name": "Core",
+            "rho": 400.0
+        },
+        {
+            "E": 15000000000.0,
+            "color": "#1f77b4",
+            "name": "Belly",
+            "rho": 600.0
+        }
+    ],
+    "profile": [
+        {
+            "parameters": {
+                "length": 0.3
+            },
+            "type": "line"
+        },
+        {
+            "parameters": {
+                "length": 0.3,
+                "r_end": 1.0,
+                "r_start": 0.0
+            },
+            "type": "spiral"
+        },
+        {
+            "parameters": {
+                "length": 0.20000000000000007,
+                "radius": 1.0
+            },
+            "type": "arc"
+        }
+    ],
+    "settings": {
+        "arrow_clamp_force": 0.0,
+        "n_draw_steps": 150,
+        "n_limb_elements": 20,
+        "n_string_elements": 25,
+        "sampling_rate": 10000.0,
+        "time_span_factor": 1.5,
+        "time_step_factor": 0.2
+    },
+    "string": {
+        "n_strands": 12,
+        "strand_density": 0.0005,
+        "strand_stiffness": 3500.0
+    },
+    "version": "0.9.1",
+    "width": [
+        [
+            0.0,
+            0.06
+        ],
+        [
+            0.5,
+            0.05
+        ],
+        [
+            1.0,
+            0.01
+        ]
+    ]
+}

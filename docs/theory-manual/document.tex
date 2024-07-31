@@ -6,6 +6,9 @@
 \usepackage{float} % Placement of figures with H
 \renewcommand{\familydefault}{\sfdefault} % Use sans-serif font (https://tex.stackexchange.com/a/2097)
 
+% Features
+\usepackage{subcaption}    % Figures in a grid
+
 % Maths
 \usepackage{graphicx}
 \usepackage{amsmath}
@@ -16,6 +19,7 @@
 % Custom operators
 \DeclareMathOperator*{\argmin}{\arg\!\min}    % https://tex.stackexchange.com/a/5255
 \DeclareMathOperator*{\argmax}{\arg\!\max}    % https://tex.stackexchange.com/a/5255
+\DeclareMathOperator*{\arsinh}{arsinh}    % https://tex.stackexchange.com/a/5255
 \DeclareMathOperator*{\sgn}{sgn}
 
 \usepackage[hidelinks, pdfusetitle]{hyperref}
@@ -23,11 +27,12 @@
 
 % Settings
 % \allowdisplaybreaks		% Break aligned equations over pages
+\setcounter{MaxMatrixCols}{20}  % https://tex.stackexchange.com/questions/436646/
 
 % Parameters
-\newcommand{\version}{0.9.1}
+\newcommand{\version}{0.9.0}
 \newcommand{\website}{\href{http://www.virtualbow.org/}{\texttt{\textcolor{blue}{http://www.virtualbow.org/}}}}
-\newcommand{\copyrights}{Copyright (C) 2016-2022 Stefan Pfeifer}
+\newcommand{\copyrights}{Copyright (C) 2016-2023 Stefan Pfeifer}
 
 \begin{document}
 
@@ -36,7 +41,7 @@
 \tableofcontents
 
 \input{latex/introduction.tex}
-\input{latex/model.tex}
+\input{latex/bow-model.tex}
 \input{latex/equations.tex}
 \input{latex/solution.tex}
 \input{latex/validation.tex}
@@ -44,12 +49,8 @@
 \appendix
 
 \input{latex/appendix.tex}
-\input{latex/bibliography.tex}
+
+\bibliographystyle{plain}
+\bibliography{references}
 
 \end{document}
-
-% Todo:
-% - Set version number and website.
-%   Perhaps define them somewhere central.
-% - Add metadata?
-% - Unify Bib entries. How to mark entries as german properly?

@@ -1,0 +1,71 @@
+{
+    "comment": "",
+    "damping": {
+        "damping_ratio_limbs": 0.0,
+        "damping_ratio_string": 0.0
+    },
+    "dimensions": {
+        "brace_height": 0.12,
+        "draw_length": 0.6,
+        "handle_angle": 0.0,
+        "handle_length": 0.0,
+        "handle_setback": 0.0
+    },
+    "layers": [
+        {
+            "E": 15000000000.0,
+            "height": [
+                [
+                    0.0,
+                    0.017
+                ],
+                [
+                    1.0,
+                    0.008
+                ]
+            ],
+            "name": "New layer",
+            "rho": 600.0
+        }
+    ],
+    "masses": {
+        "arrow": 0.001,
+        "limb_tip": 0.0,
+        "string_center": 0.0,
+        "string_tip": 0.0
+    },
+    "profile": [
+        [
+            0.0,
+            0.0
+        ],
+        [
+            0.8,
+            0.0
+        ]
+    ],
+    "settings": {
+        "n_draw_steps": 150,
+        "n_limb_elements": 20,
+        "n_string_elements": 25,
+        "sampling_rate": 10000.0,
+        "time_span_factor": 1.5,
+        "time_step_factor": 0.2
+    },
+    "string": {
+        "n_strands": 12,
+        "strand_density": 0.0005,
+        "strand_stiffness": 35000.0
+    },
+    "version": "0.7",
+    "width": [
+        [
+            0.0,
+            0.04
+        ],
+        [
+            1.0,
+            0.008
+        ]
+    ]
+}

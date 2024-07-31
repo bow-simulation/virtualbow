@@ -1,0 +1,210 @@
+{
+    "comment": "003 Binghan project 62\" hybrid longbow\nAdded an inserted riser block\nLimb length increased by .18018m\nProfile modified with ration .50815m curvature -1.967922\nWidthprofile adjusted constant on first 180mm\nAddition of the riser block on one Bamboo layer\n\"handle\" length 2x49.219=0.09838m\nSetback 0.011388\nHandle Angle +7.9° = 0.13788\n\nWith V6:\n135.082N -> 30.36 lbf (-8.5%)\n\nWith v7.1:\n148.679N -> 33.4 lbf (+0.6%...!...)\n\nMeasured 33.2# @ 28\"\n",
+    "damping": {
+        "damping_ratio_limbs": 0.0,
+        "damping_ratio_string": 0.0
+    },
+    "dimensions": {
+        "brace_height": 0.175,
+        "draw_length": 0.66675,
+        "handle_angle": 0.13788,
+        "handle_length": 0.09838,
+        "handle_setback": 0.011388
+    },
+    "layers": [
+        {
+            "E": 40000000000.0,
+            "height": [
+                [
+                    0.0,
+                    0.001
+                ],
+                [
+                    1.0,
+                    0.001
+                ]
+            ],
+            "name": "Gordon Glass Back",
+            "rho": 1882.0
+        },
+        {
+            "E": 10000000000.0,
+            "height": [
+                [
+                    0.0,
+                    0.00105
+                ],
+                [
+                    1.0,
+                    0.00105
+                ]
+            ],
+            "name": "Cherry back",
+            "rho": 600.0
+        },
+        {
+            "E": 15000000000.0,
+            "height": [
+                [
+                    0.0,
+                    0.0011
+                ],
+                [
+                    1.0,
+                    0.0011
+                ]
+            ],
+            "name": "Action boo",
+            "rho": 600.0
+        },
+        {
+            "E": 15000000000.0,
+            "height": [
+                [
+                    0.0,
+                    0.04425
+                ],
+                [
+                    0.069,
+                    0.0225
+                ],
+                [
+                    0.1381,
+                    0.0101
+                ],
+                [
+                    0.2071,
+                    0.0025
+                ],
+                [
+                    0.2486,
+                    0.0011
+                ],
+                [
+                    1.0,
+                    0.0011
+                ]
+            ],
+            "name": "Action boo with riser",
+            "rho": 600.0
+        },
+        {
+            "E": 10000000000.0,
+            "height": [
+                [
+                    0.0,
+                    0.00266
+                ],
+                [
+                    1.0,
+                    0.00136
+                ]
+            ],
+            "name": "Cherry belly",
+            "rho": 600.0
+        },
+        {
+            "E": 40000000000.0,
+            "height": [
+                [
+                    0.0,
+                    0.001
+                ],
+                [
+                    1.0,
+                    0.001
+                ]
+            ],
+            "name": "Gordon glass belly",
+            "rho": 1882.0
+        }
+    ],
+    "masses": {
+        "arrow": 0.025,
+        "limb_tip": 0.003,
+        "string_center": 0.002,
+        "string_tip": 0.005
+    },
+    "profile": [
+        [
+            0.0,
+            -1.967922
+        ],
+        [
+            0.17900982000000001,
+            -1.967922
+        ],
+        [
+            0.182178,
+            0.0
+        ],
+        [
+            0.315458,
+            0.0
+        ],
+        [
+            0.31817800000000007,
+            0.677
+        ],
+        [
+            0.451458,
+            0.677
+        ],
+        [
+            0.4541780000000001,
+            1.25
+        ],
+        [
+            0.587458,
+            1.25
+        ],
+        [
+            0.5901780000000001,
+            1.43
+        ],
+        [
+            0.7248180000000001,
+            1.43
+        ]
+    ],
+    "settings": {
+        "n_draw_steps": 150,
+        "n_limb_elements": 40,
+        "n_string_elements": 45,
+        "sampling_rate": 10000.0,
+        "time_span_factor": 1.5,
+        "time_step_factor": 0.5
+    },
+    "string": {
+        "n_strands": 12,
+        "strand_density": 0.000182,
+        "strand_stiffness": 14086.0
+    },
+    "version": "0.7.1",
+    "width": [
+        [
+            0.0,
+            0.0343
+        ],
+        [
+            0.248,
+            0.0343
+        ],
+        [
+            0.436,
+            0.0313
+        ],
+        [
+            0.624,
+            0.026
+        ],
+        [
+            0.812,
+            0.0193
+        ],
+        [
+            1.0,
+            0.0118
+        ]
+    ]
+}

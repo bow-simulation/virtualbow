@@ -1,0 +1,156 @@
+{
+  "version": "0.1",
+  "comment": "This is a comment!",
+  "settings": {
+    "n_limb_elements": 20,
+    "n_limb_eval_points": 100,
+    "n_string_elements": 25,
+    "n_draw_steps": 150,
+    "arrow_clamp_force": 0.0,
+    "time_span_factor": 1.5,
+    "time_step_factor": 0.2,
+    "sampling_rate": 10000.0
+  },
+  "dimensions": {
+    "brace_height": 0.2,
+    "draw_length": 0.7,
+    "handle_length": 0.1,
+    "handle_setback": 0.01,
+    "handle_angle": 0.02
+  },
+  "materials": [
+    {
+      "name": "Back",
+      "color": "#1f77b4",
+      "rho": 600.0,
+      "E": 15000000000.0,
+      "G": 5357142857.142858
+    },
+    {
+      "name": "Core",
+      "color": "#ff7f0e",
+      "rho": 400.0,
+      "E": 5000000000.0,
+      "G": 1785714285.7142859
+    },
+    {
+      "name": "Belly",
+      "color": "#1f77b4",
+      "rho": 600.0,
+      "E": 15000000000.0,
+      "G": 5357142857.142858
+    }
+  ],
+  "layers": [
+    {
+      "name": "Layer 1",
+      "material": 0,
+      "height": [
+        [
+          0.0,
+          0.002
+        ],
+        [
+          1.0,
+          0.002
+        ]
+      ]
+    },
+    {
+      "name": "Layer 2",
+      "material": 1,
+      "height": [
+        [
+          0.0,
+          0.01
+        ],
+        [
+          1.0,
+          0.005
+        ]
+      ]
+    },
+    {
+      "name": "Layer 3",
+      "material": 2,
+      "height": [
+        [
+          0.0,
+          0.002
+        ],
+        [
+          1.0,
+          0.002
+        ]
+      ]
+    }
+  ],
+  "profile": {
+    "alignment": "section-back",
+    "segments": [
+      {
+        "type": "line",
+        "length": 0.3
+      },
+      {
+        "type": "spiral",
+        "length": 0.3,
+        "radius0": 0.0,
+        "radius1": 1.0
+      },
+      {
+        "type": "arc",
+        "length": 0.20000000000000007,
+        "radius": 1.0
+      },
+      {
+        "type": "spline",
+        "points": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.05,
+            0.01
+          ],
+          [
+            0.1,
+            0.0
+          ]
+        ]
+      }
+    ]
+  },
+  "width": {
+    "points": [
+      [
+        0.0,
+        0.06
+      ],
+      [
+        0.5,
+        0.05
+      ],
+      [
+        1.0,
+        0.01
+      ]
+    ]
+  },
+  "string": {
+    "n_strands": 12,
+    "strand_density": 0.0005,
+    "strand_stiffness": 3500.0
+  },
+  "masses": {
+    "arrow": 0.025,
+    "limb_tip": 0.002,
+    "string_center": 0.005,
+    "string_tip": 0.004
+  },
+  "damping": {
+    "damping_ratio_limbs": 0.03,
+    "damping_ratio_string": 0.05
+  }
+}

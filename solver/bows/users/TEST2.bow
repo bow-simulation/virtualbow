@@ -1,0 +1,118 @@
+{
+    "comment": "",
+    "damping": {
+        "damping_ratio_limbs": 0.0,
+        "damping_ratio_string": 0.0
+    },
+    "dimensions": {
+        "brace_height": 0.2,
+        "draw_length": 0.7,
+        "handle_angle": -0.25,
+        "handle_length": 0.4,
+        "handle_setback": 0.0
+    },
+    "layers": [
+        {
+            "height": [
+                [
+                    0.0,
+                    0.001
+                ],
+                [
+                    1.0,
+                    0.001
+                ]
+            ],
+            "material": 0,
+            "name": "Layer 1"
+        },
+        {
+            "height": [
+                [
+                    0.0,
+                    0.0055
+                ],
+                [
+                    1.0,
+                    0.0045
+                ]
+            ],
+            "material": 1,
+            "name": "Layer 2"
+        },
+        {
+            "height": [
+                [
+                    0.0,
+                    0.001
+                ],
+                [
+                    1.0,
+                    0.001
+                ]
+            ],
+            "material": 2,
+            "name": "Layer 3"
+        }
+    ],
+    "masses": {
+        "arrow": 0.04,
+        "limb_tip": 0.005,
+        "string_center": 0.005,
+        "string_tip": 0.005
+    },
+    "materials": [
+        {
+            "E": 41340000000.0,
+            "color": "#1f77b4",
+            "name": "fibre",
+            "rho": 1500.0
+        },
+        {
+            "E": 15000000000.0,
+            "color": "#ff7f0e",
+            "name": "bamboo",
+            "rho": 600.0
+        },
+        {
+            "E": 41340000000.0,
+            "color": "#1f77b4",
+            "name": "fibre",
+            "rho": 1500.0
+        }
+    ],
+    "profile": [
+        {
+            "parameters": {
+                "length": 0.55,
+                "radius": 1.0
+            },
+            "type": "arc"
+        }
+    ],
+    "settings": {
+        "arrow_clamp_force": 0.0,
+        "n_draw_steps": 150,
+        "n_limb_elements": 40,
+        "n_string_elements": 45,
+        "sampling_rate": 10000.0,
+        "time_span_factor": 1.5,
+        "time_step_factor": 0.5
+    },
+    "string": {
+        "n_strands": 12,
+        "strand_density": 0.0005,
+        "strand_stiffness": 3500.0
+    },
+    "version": "0.9.1",
+    "width": [
+        [
+            0.0,
+            0.038
+        ],
+        [
+            1.0,
+            0.017
+        ]
+    ]
+}

@@ -1,0 +1,328 @@
+{
+    "comment": "",
+    "damping": {
+        "damping_ratio_limbs": 0.0,
+        "damping_ratio_string": 0.0
+    },
+    "dimensions": {
+        "brace_height": 0.2,
+        "draw_length": 0.7,
+        "handle_angle": 0.0,
+        "handle_length": 0.0,
+        "handle_setback": 0.0
+    },
+    "layers": [
+        {
+            "height": [
+                [
+                    0.0,
+                    0.000762
+                ],
+                [
+                    1.0,
+                    0.000762
+                ]
+            ],
+            "material": 0,
+            "name": "Layer 1"
+        },
+        {
+            "height": [
+                [
+                    0.0,
+                    0.003
+                ],
+                [
+                    1.0,
+                    0.003
+                ]
+            ],
+            "material": 1,
+            "name": "Layer 2"
+        },
+        {
+            "height": [
+                [
+                    0.0,
+                    0.000762
+                ],
+                [
+                    1.0,
+                    0.000762
+                ]
+            ],
+            "material": 2,
+            "name": "Layer 3"
+        }
+    ],
+    "masses": {
+        "arrow": 0.025,
+        "limb_tip": 0.005,
+        "string_center": 0.005,
+        "string_tip": 0.005
+    },
+    "materials": [
+        {
+            "E": 41340000000.0,
+            "color": "#1f77b4",
+            "name": "Glas",
+            "rho": 1882.0
+        },
+        {
+            "E": 19000000000.0,
+            "color": "#ff7f0e",
+            "name": "Bambus",
+            "rho": 674.0
+        },
+        {
+            "E": 41340000000.0,
+            "color": "#1f77b4",
+            "name": "Glas",
+            "rho": 1882.0
+        }
+    ],
+    "profile": [
+        {
+            "parameters": {
+                "length": 0.06443066989178721,
+                "radius": 0.3511199999999997
+            },
+            "type": "arc"
+        },
+        {
+            "parameters": {
+                "length": 0.0011323856582697578,
+                "r_end": 1.2263099999999998,
+                "r_start": 0.3511199999999997
+            },
+            "type": "spiral"
+        },
+        {
+            "parameters": {
+                "length": 0.04719393946604007,
+                "radius": 1.2263099999999998
+            },
+            "type": "arc"
+        },
+        {
+            "parameters": {
+                "length": 0.0010253013310794756,
+                "r_end": -1.8218399999999995,
+                "r_start": 1.2263099999999998
+            },
+            "type": "spiral"
+        },
+        {
+            "parameters": {
+                "length": 0.05328559097974897,
+                "radius": -1.8218399999999995
+            },
+            "type": "arc"
+        },
+        {
+            "parameters": {
+                "length": 0.0009745236817530478,
+                "r_end": -0.6653000000000014,
+                "r_start": -1.8218399999999995
+            },
+            "type": "spiral"
+        },
+        {
+            "parameters": {
+                "length": 0.04221772983204994,
+                "radius": -0.6653000000000014
+            },
+            "type": "arc"
+        },
+        {
+            "parameters": {
+                "length": 0.0007395333890225786,
+                "r_end": -0.3147599999999996,
+                "r_start": -0.6653000000000014
+            },
+            "type": "spiral"
+        },
+        {
+            "parameters": {
+                "length": 0.030256542292162902,
+                "radius": -0.3147599999999996
+            },
+            "type": "arc"
+        },
+        {
+            "parameters": {
+                "length": 0.0008472194359257501,
+                "r_end": 0.42206000000000066,
+                "r_start": -0.3147599999999996
+            },
+            "type": "spiral"
+        },
+        {
+            "parameters": {
+                "length": 0.05277096242856158,
+                "radius": 0.42206000000000066
+            },
+            "type": "arc"
+        },
+        {
+            "parameters": {
+                "length": 0.0008974445663709196,
+                "r_end": 0.27350000000000024,
+                "r_start": 0.42206000000000066
+            },
+            "type": "spiral"
+        },
+        {
+            "parameters": {
+                "length": 0.03517860507578563,
+                "radius": 0.27350000000000024
+            },
+            "type": "arc"
+        },
+        {
+            "parameters": {
+                "length": 0.0009796044399253412,
+                "r_end": 0.8889999999999983,
+                "r_start": 0.27350000000000024
+            },
+            "type": "spiral"
+        },
+        {
+            "parameters": {
+                "length": 0.060822630036899694,
+                "radius": 0.8889999999999983
+            },
+            "type": "arc"
+        },
+        {
+            "parameters": {
+                "length": 0.00113983922646671,
+                "r_end": 0.19057000000000007,
+                "r_start": 0.8889999999999983
+            },
+            "type": "spiral"
+        },
+        {
+            "parameters": {
+                "length": 0.050881614156839894,
+                "radius": 0.19057000000000007
+            },
+            "type": "arc"
+        },
+        {
+            "parameters": {
+                "length": 0.0007266245673556715,
+                "r_end": 0.23212,
+                "r_start": 0.19057000000000007
+            },
+            "type": "spiral"
+        },
+        {
+            "parameters": {
+                "length": 0.020327593444017744,
+                "radius": 0.23212
+            },
+            "type": "arc"
+        },
+        {
+            "parameters": {
+                "length": 0.00036905559501410057,
+                "r_end": 0.056160000000000015,
+                "r_start": 0.23212
+            },
+            "type": "spiral"
+        },
+        {
+            "parameters": {
+                "length": 0.015839854867369052,
+                "radius": 0.056160000000000015
+            },
+            "type": "arc"
+        },
+        {
+            "parameters": {
+                "length": 0.0003952209952013397,
+                "r_end": 0.08019000000000008,
+                "r_start": 0.056160000000000015
+            },
+            "type": "spiral"
+        },
+        {
+            "parameters": {
+                "length": 0.022891802662367233,
+                "radius": 0.08019000000000008
+            },
+            "type": "arc"
+        },
+        {
+            "parameters": {
+                "length": 0.0006648039929590954,
+                "r_end": 0.18976000000000004,
+                "r_start": 0.08019000000000008
+            },
+            "type": "spiral"
+        },
+        {
+            "parameters": {
+                "length": 0.042258988647621676,
+                "radius": 0.18976000000000004
+            },
+            "type": "arc"
+        },
+        {
+            "parameters": {
+                "length": 0.00089489910837659,
+                "r_end": 1.8322200000000008,
+                "r_start": 0.18976000000000004
+            },
+            "type": "spiral"
+        },
+        {
+            "parameters": {
+                "length": 0.04544112397328515,
+                "radius": 1.8322200000000008
+            },
+            "type": "arc"
+        },
+        {
+            "parameters": {
+                "length": 0.0008729353265641837,
+                "r_end": 2.093599999999999,
+                "r_start": 1.8322200000000008
+            },
+            "type": "spiral"
+        },
+        {
+            "parameters": {
+                "length": 0.04051578841806269,
+                "radius": 2.093599999999999
+            },
+            "type": "arc"
+        }
+    ],
+    "settings": {
+        "arrow_clamp_force": 0.0,
+        "n_draw_steps": 150,
+        "n_limb_elements": 40,
+        "n_string_elements": 45,
+        "sampling_rate": 10000.0,
+        "time_span_factor": 1.5,
+        "time_step_factor": 0.5
+    },
+    "string": {
+        "n_strands": 12,
+        "strand_density": 0.0005,
+        "strand_stiffness": 3500.0
+    },
+    "version": "0.9.1",
+    "width": [
+        [
+            0.0,
+            0.04
+        ],
+        [
+            1.0,
+            0.015
+        ]
+    ]
+}
