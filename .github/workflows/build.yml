@@ -31,10 +31,9 @@ jobs:
       - name: Build and test
         run: |
           mkdir build && cd build
-          cmake ../virtualbow -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../windows-mingw_64/paths.cmake
+          cmake ../virtualbow/gui -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../windows-mingw_64/paths.cmake
           cmake --build . -j4
           cmake --build . --target iss-installer -j4
-          virtualbow-test
         
       - uses: actions/upload-artifact@v4
         with:
@@ -62,11 +61,10 @@ jobs:
       - name: Build and test
         run: |
           mkdir build && cd build
-          cmake ../virtualbow -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../linux-gcc_64/paths.cmake
+          cmake ../virtualbow/gui -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../linux-gcc_64/paths.cmake
           cmake --build . -j4
           cmake --build . --target deb-package -j4
           cmake --build . --target rpm-package -j4
-          ./virtualbow-test
 
       - uses: actions/upload-artifact@v4
         with:
@@ -96,14 +94,10 @@ jobs:
       - name: Build and test
         run: |
           mkdir build && cd build
-          cmake ../virtualbow -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../macos-clang_64/paths.cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13
+          cmake ../virtualbow/gui -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../macos-clang_64/paths.cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13
           cmake --build . -j4
           cmake --build . --target dmg-installer -j4
-          ./virtualbow-test
-      
-      - name: Display file structure
-        run: ls -R
-      
+           
       - uses: actions/upload-artifact@v4
         with:
           name: macos-application
