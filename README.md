@@ -2,20 +2,29 @@
 
 ![Build Status](https://github.com/bow-simulation/virtualbow/actions/workflows/build.yml/badge.svg)
 
-VirtualBow is a free, open-source software tool for designing and simulating bows.
+VirtualBow software tool for designing and simulating bows.
 Visit http://www.virtualbow.org for more information about the project.
 
 # Building
 
-Building VirtualBow requires CMake, a C++17 compiler and the following external dependencies:
+## Solver
+
+The solver is the part that does the numerical computations and is written in Rust.
+Building the solver therefore requires a Rust compiler and the Cargo build tool.
+Building the solver executable is as easy as running `cargo build --release`, which automatically downloads and compiles the required dependencies as well.
+To run the tests, use `cargo test --release` (the release flag helps with performance since the simulation is very slow in debug mode).
+
+## GUI
+
+The VirtualBow GUI application built around the solver is written in C++.
+Building it requires, in addition to the solver requirements, CMake, a C++17 compiler and the following external dependencies:
 
 * [Qt 5.9.5](https://www.qt.io/)
 * [Boost 1.79.0](https://www.boost.org/)
-* [Catch 2.13.9](https://github.com/catchorg/Catch2)
 * [Eigen 3.4.0](http://eigen.tuxfamily.org/)
 * [Json 3.10.5](https://github.com/nlohmann/json)
 
-Also used are [QCustomPlot](https://www.qcustomplot.com/) and [Calculate](https://github.com/newlawrence/Calculate), but those are already included in the source code.
+Also used are [QCustomPlot](https://www.qcustomplot.com/) and [Calculate](https://github.com/newlawrence/Calculate), but those are already included with this repository.
 The version numbers are just the minimum needed, newer versions might work too.
 
 Optional pre-built dependencies for the supported platforms and compilers are available at [virtualbow-dependencies](https://github.com/bow-simulation/virtualbow-dependencies/releases).
@@ -27,20 +36,20 @@ The easiest way to use it is by setting `CMAKE_TOOLCHAIN_FILE` to `paths.cmake` 
 If you're using Qt Creator you can set this property under *Projects* - *Build Settings* - *CMake*. (If the configuration step keeps failing, try *Build* - *Clear CMake Configuration* and then run CMake again via *Build* - *Run CMake*.)
 
 Below are some brief instructions for building on the supported platforms.
-When in doubt, see the CI build definitions of [virtualbow](.github/workflows/build.yml) and [virtualbow-dependencies](https://github.com/bow-simulation/virtualbow-dependencies/blob/master/.github/workflows/build.yml) for the definitive source of truth.
+When in doubt, see the CI build definitions of [virtualbow](.github/workflows/build.yml) and [virtualbow-dependencies](https://github.com/bow-simulation/virtualbow-dependencies/blob/master/.github/workflows/build.yml) for how they are actually compiled for releases.
 
-## Windows
+### Windows
 
 Using the GCC compiler and tools provided by [MinGW-w64](https://wiki.qt.io/MinGW),
 
     mkdir build && cd build
-    cmake ../virtualbow -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=[...]/paths.cmake -DCMAKE_BUILD_TYPE=Release
+    cmake ../virtualbow/gui -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=[...]/paths.cmake -DCMAKE_BUILD_TYPE=Release
     cmake --build .
 
 Building with Microsoft Visual C++ should also be possible, but it is not officially supported or tested.
 Contributions that fix issues with MSVC will be accepted.
 
-## Linux and MacOS
+### Linux and MacOS
 
 On Linux, the Qt libraries packaged with the system are used.
 On Ubuntu they can be installed with
@@ -77,4 +86,4 @@ For actually contributing to this repository please follow these steps:
 
 # License
 
-VirtualBow is released under the GNU General Public License v3.0.
+VirtualBow is released under the [PolyForm Noncommercial License 1.0.0](LICENSE.md) and is therefore free to use for non-commercial (e.g. personal or academic) purposes.

@@ -1,0 +1,9 @@
+pub mod bisection;
+pub mod differentiation;
+pub mod root_finding;
+pub mod integration;
+pub mod cubic_spline;
+pub mod linear_spline;
+pub mod tridiagonal;
+pub mod functions;
+pub mod intervals;

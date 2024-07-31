@@ -282,6 +282,18 @@ set_target_properties(
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/application
 )
 
+# Target: Solver executable (Rust)
+# Invokes Cargo to build the release version of the solver and copies the executable into the application directory
+# https://stackoverflow.com/a/50027621/10489834
+
+add_custom_target(virtualbow-slv)
+add_custom_command(
+    TARGET virtualbow-slv
+    COMMAND cargo build --release --manifest-path=${CMAKE_CURRENT_SOURCE_DIR}/../solver/Cargo.toml
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../solver/target/release/virtualbow-slv ${CMAKE_BINARY_DIR}/application/ ||
+            ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../solver/target/release/virtualbow-slv.exe ${CMAKE_BINARY_DIR}/application/
+)
+
 # Platform specifics
 
 if(WIN32)

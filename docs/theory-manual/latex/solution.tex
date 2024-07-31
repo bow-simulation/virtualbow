@@ -1,3 +1,5 @@
+%!TeX root=../document.tex
+
 \chapter{Solving the Equations of Motion}
 
 \section{Static Solution}
@@ -45,13 +47,22 @@ Solving for $\Delta\boldsymbol{u}_i$ leads to the iterative procedure
 \boldsymbol{u}_{i+1} &= \boldsymbol{u}_i + \Delta\boldsymbol{u}_i.\label{eq:statics:newton_iteration}
 \end{align}
 
-In the implementation the tangent stiffness matrix is not actually inverted, because that's expensive and potentially inaccurate. Instead,~$\Delta\boldsymbol{u}_i$ is obtained by solving the equivalent linear system of equations using a decomposition of the stiffness matrix. The symmetry of the tangent stiffness can be used here. (It isn't necessarily positive definite though, like the stiffness matrices of linear mechanical systems.)
+In the implementation the tangent stiffness matrix is not actually inverted, because that's expensive and potentially inaccurate. Instead,~$\Delta\boldsymbol{u}_i$ is obtained by solving the equivalent linear system of equations using a decomposition of the stiffness matrix.
+Since it is symmetrix, an algorithm that exploits this can be selected.
+(The tangent stiffness matrix isn't necessarily positive definite though, unlike the stiffness matrices of some linear mechanical systems.)
 
-Convergence criteria are usually formulated in terms of change in displacement~$\Delta\boldsymbol{u}$, the residuum $\boldsymbol{p} - \boldsymbol{q}$ or their product $\Delta\boldsymbol{u}^\mathsf{T}(\boldsymbol{p}-\boldsymbol{q})$ (which has the dimension of an energy). We will use the energy criterion
+In order to stop the iteration when an acceptable level of accuracy is reached, we need a stopping or convergence criterion.
+Convergence criteria are commonly formulated in terms of either the displacement step $\Delta\boldsymbol{u}$, the residuum forces $\boldsymbol{p} - \boldsymbol{q}$ or a combination of both.
+For our purposes we will use the displacement-based criterion
 
-\begin{equation*}
-\Delta\boldsymbol{u}_{i}^\mathsf{T}(\boldsymbol{p}-\boldsymbol{q}(\boldsymbol{u}_i)) < \varepsilon
-\end{equation*}
+\begin{equation}
+| \Delta\boldsymbol{u}_{i} | \ < \ \varepsilon_{\mathrm{rel}} \cdot | \boldsymbol{u}_{i} | \ + \ \varepsilon_{\mathrm{abs}}\label{eq:convergence_basic}
+\end{equation}
+
+where $| \cdot |$ denotes the coefficient-wise absolute value and~$\varepsilon_{\mathrm{rel}}$ and~$\varepsilon_{\mathrm{abs}}$ are relative and absolute error tolerances.
+Doing a coefficient-wise, relative comparison of the displacement step with the current displacement vector as a reference avoids scaling problems, since the coefficients of~$\boldsymbol{u}$ can have different units and magnitude.
+The absolute error tolerance~$\varepsilon_{\mathrm{abs}}$ is needed when one or more reference displacements are zero.
+It is typically chosen much smaller than the relative error tolerance~$\varepsilon_{\mathrm{rel}}$.
 
 The basic Newton-Raphson method can be improved and extended in many ways, for example by combining it with a line search or by avoiding the calculation of the tangent stiffness matrix at every iteration (simplified Newton-Raphson method, BFGS method \textcolor{red}{[Source]}).
 
@@ -139,14 +150,28 @@ To calculate $\Delta \lambda_i$, we substitute~(\ref{eq:auxiliary_disp_dc}) into
 &\frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})\Delta\boldsymbol{u_{i}} + \frac{\partial c}{\partial \lambda}(\boldsymbol{u_{i}},\,\lambda_{i})\,\Delta \lambda_{i} = -c(\boldsymbol{u_{i}},\,\lambda_{i})\notag\\
 &\frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})(\boldsymbol{\alpha} + \boldsymbol{\beta}\,\Delta \lambda_{i}) + \frac{\partial c}{\partial \lambda}(\boldsymbol{u_{i}},\,\lambda_{i})\,\Delta \lambda_{i} = -c(\boldsymbol{u_{i}},\,\lambda_{i})\notag\\
 &\ \ \vdots\notag\\
-&\Delta \lambda_{i} = -\frac{c(\boldsymbol{u_{i}},\,\lambda_{i}) + \frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})\,\boldsymbol{\alpha}}{\frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})\,\boldsymbol{\beta} + \frac{\partial c}{\partial \lambda}(\boldsymbol{u_{i}},\,\lambda_{i})}.\label{eq:res_load_factor}
+&\Delta \lambda_{i} = -\frac{c(\boldsymbol{u_{i}},\,\lambda_{i}) + \frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})^\intercal\,\boldsymbol{\alpha}}{\frac{\partial c}{\partial \lambda}(\boldsymbol{u_{i}},\,\lambda_{i}) + \frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})^\intercal\,\boldsymbol{\beta}}.\label{eq:res_load_factor}
 \end{align}
 
-The Newton-Raphson iteration is now complete. To summarize: First, calculate $\boldsymbol{\alpha}$ and~$\boldsymbol{\beta}$ by solving~(\ref{eq:auxiliary_1}) and~(\ref{eq:auxiliary_2}). Then calculate the increment of the load parameter by using~(\ref{eq:res_load_factor}). The increment in displacements is then obtained by equation~(\ref{eq:auxiliary_disp_dc}).\\
+To summarize: First, calculate $\boldsymbol{\alpha}$ and~$\boldsymbol{\beta}$ by solving~(\ref{eq:auxiliary_1}) and~(\ref{eq:auxiliary_2}). Then calculate the increment of the load parameter by using~(\ref{eq:res_load_factor}). The increment in displacements is then obtained by equation~(\ref{eq:auxiliary_disp_dc}).
+
+From equation (\ref{eq:res_load_factor}) we can see that the load factor increment $\Delta \lambda_{i}$ is invalid if $\frac{\partial c}{\partial \lambda} + \frac{\partial c}{\partial \boldsymbol{u}}^\intercal\,\boldsymbol{\beta} = 0$, i.e. the denominator of the expression vanishes.
+This needs to be checked by the implementation and usually points to an ill-posed problem with regards to the imposed constraint function.
+
+
+Applying the convergence criterion (\ref{eq:convergence_basic}) from the base method to (\ref{eq:total_dc_lin}) is equivalent to the two criteria
+%
+\begin{align}
+| \Delta\boldsymbol{u}_{i} | \ &< \ \varepsilon_{\mathrm{rel}} \cdot | \boldsymbol{u}_{i} | \ + \ \varepsilon_{\mathrm{abs}}, \\
+| \Delta \lambda_{i} | \ &< \ \varepsilon_{\mathrm{rel}} \cdot | \lambda_{i} | \ + \ \varepsilon_{\mathrm{abs}},
+\end{align}
+
+both of which must be satisfied in order for the iteration to be stopped.
 
 \subsection{Constraints for load- and displacement control}
 
-Finally, the constraint function and the parametrisation of the load vector have to be chosen. To get a displacement controlled method as initially stated we choose the constraint function as
+Finally, the constraint function has to be chosen.
+To get a displacement controlled method as initially stated we choose the constraint function as
 %
 \begin{align}
 \boldsymbol{c}(\boldsymbol{u},\,\lambda) = u^{(k)} - \overline{u}
@@ -178,126 +203,277 @@ There is one last extension to the Newton-Raphson method that is needed for our 
 
 \textcolor{red}{Todo: Explain line search and why it helps with contact handling}
 
+\subsection{Equilibrium paths and step size control}
+
+With the displacement controlled Newton-Raphson method we can solve for static equilibrium at any given displacement.
+We often want to do this repeatedly for a whole range of target displacements.
+The static simulation of the bow, for example, produces a series of equilibrium states from brace height to full draw from which things like the force-draw curve can be extracted.
+Even if the intermediate states were of no interest, sometimes the target displacement may be too far from the initial displacement such that the Newton-Raphson iterations only converge if multiple smaller displacement steps are being made.
+
+The easiest way to do this is to use a fixed number of equal displacement steps.
+This works fine as long as there is good converge at each step.
+However, during some part of this equilibrium path the step size might be too large so that there is either no convergence or many iterations are needed at each step.
+In this case we would like to decrease the step size temporarily.
+Conversely, if convergence gets better we would like to increase the displacement step again for efficiency.
+This adaption is called step size control.
+
+The method used in VirtualBow first calculates a lower and upper bound on the displacement step as
+%
+\begin{align}
+\Delta u_\mathrm{min} &= \frac{u_\mathrm{target} - u_\mathrm{start}}{n_\mathrm{max}}, \\
+\Delta u_\mathrm{max} &= \frac{u_\mathrm{target} - u_\mathrm{start}}{n_\mathrm{min}}.
+\end{align}
+
+Here,~$n_\mathrm{min}$ and~$n_\mathrm{max}$ are parameters that determine the minimum number of steps in the output as well as the maximum number of steps before the procedure is aborted.
+Another required parameter is the desired number of iterations $\mathrm{iter\_target}$ at each displacement step.
+
+We start the step size control with the maximum step of~$\Delta u = \Delta u_\mathrm{max}$.
+After performing the Newton-Raphson iterations we adjust the step size depending on whether the iteration was successful or not.
+
+\textbf{Success:} If the iterations converged, the step size is adjusted based on the number of iterations $\mathrm{iter\_actual}$ that were needed and the desired number of iterations $\mathrm{iter\_target}$:
+%
+$$
+\Delta u := \mathrm{clamp} \left\lbrace \Delta u \sqrt{\frac{\mathrm{iter\_target}}{\mathrm{iter\_actual}}},\,\Delta u_\mathrm{min},\,\Delta u_\mathrm{max} \right\rbrace
+$$
+
+In other words, the step size is decreased if more iterations than desired were needed and increased if fewer were needed.
+Also the step size is never decreased below~$\Delta u_\mathrm{min}$ or increased above~$\Delta u_\mathrm{max}$.
+
+\textbf{Failure:} In the case of iteration failure, the number of iterations can't be used to adjust the step size.
+But we know that the step size has to be reduced in order to increase the chance for a successful iteration.
+That's why it is multiplied with a reduction factor~$0 < r < 1$,
+%
+$$
+\Delta u := r \cdot \Delta u.
+$$
+
+The simulation is aborted if there was a failure and the step size can not be decreased any further (because the lower bound~$\Delta u_\mathrm{min}$ was already reached).
+
 \newpage
 \subsection{Finding the Braced Equilibrium State}
 
-\textcolor{red}{Length of the string...}
+The first part of the static simulation is also the most tricky: Finding the equilibrium state of the bow at a given brace height.
+Especially older versions of VirtualBow would frequently struggle with this step and give users cryptic error messages from failed solution attempts.
+The bracing method described in the following is the result of a lot of trial and error and seems to be the most robust so far, even though still not perfect.
 
+One difficulty of bracing is that the braced state of the bow tends to be "far away" from the initial, unbraced state.
+Newton-Raphson iterations however are much more efficient and robust when having a good initial guess, i.e. an initial state that is not very far from the desired equilibrium.
+So ideally we would like to go from the unbraced to the braced state in a series of intermediate equilibrium states.
+The other difficulty is that the length of the string is not known in advance, only the brace height that the bow should have when the string is applied.
+
+The current bracing method tries to solve both of these problems by applying a string to the bow that is initially too long and iteratively shorten it until the desired brace height is reached.
+By controlling/limiting how much the string is shortened in each step, the solution process is more likely to converge.
+
+As shown in figure \ref{fig:bracing-method-1}, a string with initial length $l_{0}$ is applied to the unbraced configuration of the bow such that it passes through the desired brace height on the $y$ axis.
+The initial length is chosen such that there is no tension yet in the string.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/solution/bracing-method-1}
+\caption{Unbraced state}
+\label{fig:bracing-method-1}
+\end{figure}
+
+At the point where the string intersects the $y$ axis, it has a positive slope of $\Delta y / \Delta x$ as measured against the $x$ direction.
+If this initial slope were negative, the bow model would have to be rejected as invalid because the brace height is too low for the given limb geometry.
+The actual bracing process now consists of successively shortening the string and iterating for equilibrium until the slope reaches zero, while keeping the string center pinned at the desired brace height via displacement control.
+This pinning of the string ensures a favorable angle between string and limb.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/solution/bracing-method-2}
+\caption{Braced state}
+\label{fig:bracing-method-2}
+\end{figure}
+
+As the string becomes shorter, the slope decreases until it crosses into the negative.
+The final string length $l_*$ is the length for which the slope is approximately zero.
+This is shown in figure \ref{fig:bracing-method-2}.
+So it all reduces to the problem of finding the root $\frac{\Delta y}{\Delta y}(l) = 0$ of the slope as a function of the string length.
+This can be made dimensionless by introducing the length factor $p = \frac{l}{l_{0}}$ and writing the slope as $\frac{\Delta y}{\Delta y}(p)$ instead.
+Figure \ref{fig:bracing-plot} shows that relationship for a real example, where the final string length is found to be approximately $0.96\,l_{0}$.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/solution/bracing-plot}
+\caption{Slope over string length for a real example}
+\label{fig:bracing-plot}
+\end{figure}
+
+However, if we just use one of the many standard root finding algorithms for this, it might make big steps in string length and cause the underlying Newton-Raphson iteration to fail.
+Instead, the method starts at $p = 1$ and treats the problem like finding an equilibrium path with the path parameter $p$.
+This parameter is controlled just as described in the previous section, taking into account maximum and minumum bounds on the step size and the performance of the static iterations.
+A dedicated root finding algorithm is only used after the first negative slope is encountered in order to hone in on a precise final result.
+Currently this is the regula falsi method, which is simple and effective when derivatives are not available and the interval in which the root lies is known.
+
+\newpage
 \section{Dynamic Solution}
 
-The equations of motion together with the initial displacements~$\boldsymbol{u}_0$ and velocities~$\boldsymbol{v}_0$ of the system form the second-order initial value problem
-
+The equations of motion of the system take the form of a second-order ordinary differential equation (ODE).
+Together with the initial displacements~$\boldsymbol{u}_0$ and velocities~$\mathbf{v}_0$ at time $t_0$ they form the second-order initial value problem
+%
 \begin{align}
-\boldsymbol{M}\ddot{\boldsymbol{u}} &+ \boldsymbol{q}(\boldsymbol{u},\,\ddot{\boldsymbol{u}}) = \boldsymbol{p},\quad \boldsymbol{u}(0) = \boldsymbol{u}_0,\ \ddot{\boldsymbol{u}}(0) = \boldsymbol{v}_0.\label{eq:dynamics:system_equation}
+&\boldsymbol{M}\ddot{\boldsymbol{u}} + \boldsymbol{D}\dot{\boldsymbol{u}} + \boldsymbol{Q}(\boldsymbol{u}) = \boldsymbol{P}(t) \label{eq:dynamics:system_equation} \\
+&\boldsymbol{u}(t_0) = \boldsymbol{u}_0 \\
+&\dot{\boldsymbol{u}}(t_0) = \mathbf{v}_0
 \end{align}
 
-for the displacements~$\boldsymbol{u}(t)$.
+whose solution is the time progression~$\boldsymbol{u}(t),\,t > t_0$ of the displacements.
+Since the ODE (\ref{eq:dynamics:system_equation}) is also nonlinear, there is no general analytical solution to this problem and we once again have to employ numerical methods.
 
-Numerical solution methods for initial value problems can be grouped into explicit and implicit ones.
+Numerical solution of ODEs is an extensive topic and a large number of algorithms with different advantages and disadvantages is available.
+Most general algorithms require equation~(\ref{eq:dynamics:system_equation}) to be transformed into an equivalent first order system of the form~$\dot{\boldsymbol{x}} = \boldsymbol{f}(\boldsymbol{x},\,t)$, with the state vector $\boldsymbol{x}(t)$ that combines the information of the displacements as well as the velocities.
+The common choice of $\boldsymbol{x}(t) = (\boldsymbol{u}(t),\,\dot{\boldsymbol{u}}(t))^\intercal$ leads to the first order ODE
+
+\begin{equation}
+\frac{d}{dt}
+\underbrace{
+\begin{bmatrix}
+\boldsymbol{u}(t) \\
+\dot{\boldsymbol{u}}(t)
+\end{bmatrix}
+}_{\boldsymbol{x}(t)}
+=
+\underbrace{
+\begin{bmatrix}
+\dot{\boldsymbol{u}}(t) \\
+\boldsymbol{M}^{-1}\left(\boldsymbol{P}(t) - \boldsymbol{D}\dot{\boldsymbol{u}} - \boldsymbol{Q}(\boldsymbol{u})\right)
+\end{bmatrix}
+}_{\boldsymbol{f}(\boldsymbol{x},\,t)}.
+\end{equation}
+
+Early prototypes of VirtualBow followed this approach and solved the resulting first order problem with methods provided by the C++ library Odeint \cite{bib:ahnert2011}.
+Especially the error controlled Runge-Kutta methods worked reasonably well.
+In addition to those general methods, there are also numerous methods that have been developed with finite elements/structural dynamics in mind.
+Those operate directly on the second order problem~(\ref{eq:dynamics:system_equation}) and are usually more effective for this type of problem.
+
+All numerical methods for solving ODEs can be grouped into either explicit and implicit ones.
 Explicit methods use the current state of the system at time~$t$ to calculate the next state at~$t + \Delta t$.
-Implicit methods instead find the next state by solving an equation that involves the current and the next state.
+Implicit methods instead find the next state by solving an equation that involves the current as well as the next state.
 In the context of finite element analysis, implicit methods require equilibrium iterations at every time step involving the system's tangent stiffness matrix, while explicit methods only require simple vector operations.
 Implicit methods therefore have a higher computational cost per step, but can make up for it by requiring less steps overall, as their better stability allows them to use much larger step sizes than explicit methods.
 
 Explicit methods are easier to implement and are a good choice for small time scales, like impact and wave propagation problems.
 They are most effective when the computation of the time steps is fast, so they work well with constant, diagonal (lumped) mass matrices and simple elements with low-order shape functions.
 
-Implicit methods in contrast are well suited for larger time scales, where explicit algorithms would need too many steps.
+Implicit methods in contrast are well suited for larger time scales, where explicit algorithms would need an excessive number of steps.
 Examples are structural response problems or numerically stiff systems, i.e. systems whose eigenfrequencies range from very small to very large.
 
-VirtualBow currently uses the central difference method \cite{bib:dynamic_solution}, which is an explicit method often used in FEM.
-Based on it's properties and the advantages of explicit methods it seems like a good choice.
-However, implicit methods have not yet been tested with VirtualBow. The Newmark-beta method \textcolor{red}{Source} for example might be worth a try.
+From version 0.1 to 0.9, VirtualBow used the explicit central difference method \cite{bib:bathe2006}, which is probably one of the most popular explicit methods in finite element analysis.
+Later versions use the Generalized-$\alpha$ method instead, which is an implicit method and closely related to the also very popular Newmark-$\beta$ method.
 
-VirtualBow previously used the Runge-Kutta-Fehlberg-7-8 method provided by the \textcolor{red}{the odeint library}.
-It performed worse than the central difference method, probably because of the high number of function evaluations carried out by an order~7/8 Runge-Kutta scheme.
-The big advantage however was the timestep control based on error estimation, which meant that absolutely no user input regarding the timestep was necessary.
+\subsection{Newmark-$\boldsymbol{\beta}$ Method}
 
-\subsection{The Central Difference Method}
-
-The continuous solution $\boldsymbol{u}(t)$ is approximated by the discrete values~$\boldsymbol{u}_i = \boldsymbol{u}(t_{i})$ at the equidistant time steps~$t_i = i\cdot\Delta t$,\ \ $i \in \mathbb{N}$.
-The acceleration~$\ddot{\boldsymbol{u}}_i$ can be approximated by a central difference quotient as
-
+The continuous solution $\boldsymbol{u}(t)$ is approximated by the discrete values~$\boldsymbol{u}_i = \boldsymbol{u}(t_{i})$, with time steps of $\Delta t = t_{i+1} - t_{i}$ between the solution points.
+The core of the Newmark method~\cite{bib:bathe2006} is a set of approximations that express the displacements $\boldsymbol{u}_{n+1}$ and velocities $\mathbf{v}_{n+1}$ at the next timestep in terms of the known state $\boldsymbol{u}_{n}$, $\mathbf{v}_{n}$, $\boldsymbol{a}_{n}$ at the previous timestep as well as the unknown acceleration~$\boldsymbol{a}_{n+1}$:
+%
 \begin{align}
-\ddot{\boldsymbol{u}}_i &= \frac{\boldsymbol{u}_{i+1} - 2\,\boldsymbol{u}_{i} + \boldsymbol{u}_{i-1}}{\Delta t^2}\label{eq:dynamics:difference_acceleration}
+&\boldsymbol{u}_{n+1} = \boldsymbol{u}_{n} + \Delta t\,\mathbf{v}_{n} + \Delta t^2 \left( \left(\nicefrac{1}{2} - \beta\right)\boldsymbol{a}_{n} + \beta\,\boldsymbol{a}_{n+1} \right) \label{eq:newmark_u} \\
+&\mathbf{v}_{n+1} = \mathbf{v}_{n} + (1 - \gamma)\Delta t\,\boldsymbol{a}_{n} + \gamma\,\Delta t\,\boldsymbol{a}_{n+1} \label{eq:newmark_v}
 \end{align}
 
-Solving for~$\boldsymbol{u}_{i+1}$ and calculating the accelerations~$\ddot{\boldsymbol{u}}_{i}$ from the equation of motion~(\ref{eq:dynamics:system_equation}) leads to
+The choice of the parameters $\beta$ and $\gamma$ determines how the acceleration is assumed to vary within the interval and leads to different variants of the scheme, e.g. $\beta = \frac{1}{4},\,\gamma = \frac{1}{2}$ for the average constant acceleration method or $\beta = \frac{1}{6},\,\gamma = \frac{1}{2}$ for the linear acceleration method.
 
+With (\ref{eq:newmark_u}) and (\ref{eq:newmark_v}) there are two equations for the three unknowns $\boldsymbol{u}_{n+1}$, $\mathbf{v}_{n+1}$ and $\boldsymbol{a}_{n+1}$.
+The third equation is obtained by applying the equation of motion (\ref{eq:dynamics:system_equation}) to the end of the interval,
+
+\begin{equation}
+\boldsymbol{M}\boldsymbol{a}_{n+1} + \boldsymbol{D}\mathbf{v}_{n+1} + \boldsymbol{Q}(\boldsymbol{u}_{n+1}) = \boldsymbol{P}(t_{n+1}). \label{eq:newmark_balance}
+\end{equation}
+
+This is what makes the method implicit, since an equation involving the current state as well as the yet unknown next state of the system has to be solved in each step.
+Finding the accelerations $\boldsymbol{a}_{n+1}$ is equivalent to finding the root of the function
+
+$$
+\boldsymbol{F}(\boldsymbol{a}_{n+1}) = \boldsymbol{M}\boldsymbol{a}_{n+1} + \boldsymbol{D}\mathbf{v}_{n+1}(\boldsymbol{a}_{n+1}) + \boldsymbol{Q}(\boldsymbol{u}_{n+1}(\boldsymbol{a}_{n+1})) - \boldsymbol{P}(t_{n+1})
+$$
+
+which can be done with Newton-Raphson iterations very similar to the case of static equilibrium.
+The jacobian matrix required for this can be calculated as
+
+$$
+\frac{\partial \boldsymbol{F}}{\partial \boldsymbol{a}_{n+1}} = \boldsymbol{M} + \gamma \Delta t \boldsymbol{D} + \beta \Delta t^2 \boldsymbol{K}(\boldsymbol{u}_{n+1}(\boldsymbol{a}_{n+1}))
+$$
+
+and includes the tangent stiffness matrix $\boldsymbol{K}$ of the system, together with other constant terms.
+
+
+\subsection{Generalized-$\boldsymbol{\alpha}$ Method}
+
+The Newmark method is the basis for various other methods that improve on some of its numerical properties.
+One of those is the Generalized-$\alpha$ method~\cite{bib:chung1993}, which itself is a generalization of various other Newmark-derived schemes.
+Its key improvement over the classical Newmark method is configurable numerical dissipation, i.e. damping of spurious oscillations in the high frequency range that are not properly resolved.
+
+A good description and analysis of the method for the nonlinear case can be found in \cite{bib:erlicher2002}.
+
+The Newmark approximations (\ref{eq:newmark_v}), (\ref{eq:newmark_u}) are used as before, but the balance equation~(\ref{eq:newmark_balance}) is modified to
+%
+\begin{equation}
+\boldsymbol{M}\boldsymbol{a}_{n+1-\alpha_m} + \boldsymbol{D}\mathbf{v}_{n+1-\alpha_f} + \boldsymbol{Q}_{n+1-\alpha_f} = \boldsymbol{P}_{n+1-\alpha_f},
+\end{equation}
+
+so the equation of motion is not evaluated at the interval end~$t_{n+1}$ but at two points~$t_{n+1-\alpha_m}$ and~ $t_{n+1-\alpha_f}$ within the interval instead.
+This can be configured with the additional parameters $\alpha_{m}$ and $\alpha_{f}$.
+The intermediate displacements, velocities and accelerations are interpolated as
+%
 \begin{align}
-\boldsymbol{u}_{i+1} &= 2\,\boldsymbol{u}_{i} - \boldsymbol{u}_{i-1} + \Delta t^2\,\ddot{\boldsymbol{u}}_{i}\notag\\
-&= 2\,\boldsymbol{u}_{i} - \boldsymbol{u}_{i-1} + \Delta t^2\,\boldsymbol{M}^{-1}(\boldsymbol{p}_i - \boldsymbol{q}_i).
+\boldsymbol{u}_{i+1-\alpha_f} &= (1 - \alpha_f)\,\boldsymbol{u}_{i+1} + \alpha_f\boldsymbol{u}_{i} \\
+\mathbf{v}_{i+1-\alpha_f} &= (1 - \alpha_f)\,\mathbf{v}_{i+1} + \alpha_f\mathbf{v}_{i} \\
+\boldsymbol{a}_{i+1-\alpha_m} &= (1 - \alpha_m)\,\boldsymbol{a}_{i+1} + \alpha_m\boldsymbol{a}_{i}
 \end{align}
 
-This expression is already the core of the method, it allows the calculation of the next displacements~$\boldsymbol{u}_{i+1}$ from the current and previous system states.
-It only involves cheap vector operations as the mass matrix is diagonal and doesn't have to be "actually" inverted.
-
-Only the velocity is still missing. For this the central difference quotients of the displacements~$\boldsymbol{u}_{i+1}$,~$\boldsymbol{u}_{i}$ and~$\boldsymbol{u}_{i-1}$ are used to calculate the intermediate velocities
-
+For the evaluation of the forces there are several alternatives described in \cite{bib:erlicher2002}.
+The most simple one, referred to by the authors as the \textit{generalized trapezoidal rule}, is
+%
 \begin{align}
-\dot{\boldsymbol{u}}_{i+\frac{1}{2}} &= \frac{\boldsymbol{u}_{i+1} - \boldsymbol{u}_{i}}{\Delta t},\\
-\dot{\boldsymbol{u}}_{i-\frac{1}{2}} &= \frac{\boldsymbol{u}_{i} - \boldsymbol{u}_{i-1}}{\Delta t}.
-\end{align} 
-
-The actual new velocity~$\dot{\boldsymbol{u}}_{i+1}$ is linearly extrapolated from those,
-
-\begin{align}
-\dot{\boldsymbol{u}}_{i+1} &= \dot{\boldsymbol{u}}_{i+\frac{1}{2}} + \frac{1}{2}\,\left(\dot{\boldsymbol{u}}_{i+\frac{1}{2}} - \dot{\boldsymbol{u}}_{i-\frac{1}{2}}\right),\notag\\
-&= \frac{1}{\Delta t}\,\left(\frac{3}{2}\,\dot{\boldsymbol{u}}_{i+1} - 2\,\dot{\boldsymbol{u}}_{i} + \frac{1}{2}\,\dot{\boldsymbol{u}}_{i-1}\right).
+\boldsymbol{Q}_{n+1-\alpha_f} =  (1 - \alpha_f)\,\boldsymbol{Q}_{i+1} + \alpha_f\boldsymbol{Q}_{i}, \\
+\boldsymbol{P}_{n+1-\alpha_f} =  (1 - \alpha_f)\,\boldsymbol{P}_{i+1} + \alpha_f\boldsymbol{P}_{i}.
 \end{align}
 
-This last step is actually a custom modification as far as I can tell.
-All descriptions of the central difference method that I've seen end with the calculation of~$\dot{\boldsymbol{u}}_{i+\frac{1}{2}}$.
-
-The initialisation of the procedure needs some special attention, as the method uses the previous displacements~$\boldsymbol{u}_{i-1}$ that don't exist yet at time~$t = 0$.
-Instead,~$\boldsymbol{u}_{-1}$ is estimated by using finite difference approximations of the system's initial velocity and acceleration:
-
+With this, the system of equations to solve in each iteration, including its jacobian matrix, becomes
+%
 \begin{align}
-\dot{\boldsymbol{u}}_0 &= \frac{\boldsymbol{u}_{1} - \boldsymbol{u}_{-1}}{2\,\Delta t},\\
-\ddot{\boldsymbol{u}}_0 &= \frac{\boldsymbol{u}_{1} - 2\,\boldsymbol{u}_{0} + \boldsymbol{u}_{-1}}{\Delta t^2},\\
-&\Rightarrow \boldsymbol{u}_{-1} = \boldsymbol{u}_{0} - \Delta t\,\dot{\boldsymbol{u}}_{0} + \frac{\Delta t^2}{2}\,\ddot{\boldsymbol{u}}_{0}.
+\boldsymbol{F}(\boldsymbol{a}_{n+1}) &= \boldsymbol{M}\boldsymbol{a}_{n+1-\alpha_m} + \boldsymbol{D}\mathbf{v}_{n+1-\alpha_f} + \boldsymbol{Q}_{n+1-\alpha_f} - \boldsymbol{P}_{n+1-\alpha_f}, \\
+\frac{\partial \boldsymbol{F}}{\partial \boldsymbol{a}_{n+1}} &= (1 - \alpha_m)\boldsymbol{M} + (1 - \alpha_f)\left( \gamma \Delta t \boldsymbol{D} + \beta \Delta t^2 \boldsymbol{K}(\boldsymbol{u}_{n+1}(\boldsymbol{a}_{n+1})) \right).
 \end{align}
 
-A last but very important question is how to choose the timestep~$\Delta t$.
-The timestep influences the computational effort, the accuracy of the solution but most importantly the stability of the algorithm.
-A too large time step will lead to a solution that "explodes" numerically.
-For linear, conservative mechanical systems of the form
+The numerical damping of high-frequency modes is controlled with the spectral radius $\rho_{\infty} \in [0,\,1]$ at infinity.
+A value of 1 corresponds to no numerical dissipation, while 0 corresponds to the so-called asymptotic annihilation of the high-frequency response.
+The other constants are chosen as
 
-\begin{align}
-\boldsymbol{M}\ddot{\boldsymbol{u}} + \boldsymbol{K}\boldsymbol{u} = \boldsymbol{p}
-\end{align}
+\begin{equation}
+\alpha_m = \frac{2\rho_{\infty} - 1}{\rho_{\infty} + 1},\quad \alpha_f = \frac{\rho_{\infty}}{\rho_{\infty} + 1},\quad \beta = \frac{1}{4}\left(1 - \alpha_m + \alpha_f\right)^2,\quad \gamma = \frac{1}{2} - \alpha_m + \alpha_f.
+\end{equation}
 
-the stability condition is
+These relations guarantee second order accuracy as well as unconditional stability in the linear case.
 
-\begin{align}
-\Delta t \le \frac{2}{\omega_{max}}\label{eq:timestep_bound}
-\end{align}
+\newpage
+\subsection{Adaptive time step}
 
-where~$\omega_{max}$ is the maximum natural frequency \cite{bib:dynamic_solution} of the system.
-Unfortunately there is no such analytical bound on~$\Delta t$ that guarantees stability for nonlinear systems.
-A common thing to do is to linearise the system around the current configuration and apply (\ref{eq:timestep_bound}) anyway.
-A safety factor~$0 < \beta < 1$ is introduced to account for the uncertainties and the timestep is set to
+In the previous sections the timestep $\Delta t$ was implicitly assumed to be constant.
 
-\begin{align}
-\Delta t = \beta \frac{2}{\omega_{max}}.
-\end{align}
+\cite{bib:hulbert1995}
 
-This doesn't guarantee stability in a strict sense, but it's okay for practical purposes. A common choice is~$\beta = 0.9$ but VirtualBow uses a lower value for the sake of robustness. The frequency $\omega_{max}$ is sometimes estimated by using the bound
+With $\Delta \boldsymbol{u} = \boldsymbol{u}_{i+1} - \boldsymbol{u}_{i}$
 
-\begin{align}
-\omega_{max} \le \max_{i}\,\{\omega_{max,\,i}\}
-\end{align}
+\begin{equation}
+\omega^2 = \left\vert \frac{\Delta \boldsymbol{u}^\intercal \boldsymbol{K} \Delta \boldsymbol{u}}{\Delta \boldsymbol{u}^\intercal   \boldsymbol{M} \Delta \boldsymbol{u}} \right\vert, \quad T = \frac{2\pi}{\omega}
+\end{equation}
 
-where $\omega_{max,\,i}$ is the maximum natural frequency of the respective finite element~$i$. But this leads to larger time steps than necessary and actually causes more implementation effort than just solving the generalised eigenvalue problem
+\begin{equation}
+\Delta t = \frac{T}{N}
+\end{equation}
 
-\begin{align}
-\left(\boldsymbol{M} - \omega^2\boldsymbol{K}\right)\boldsymbol{\bar{u}} = 0\label{eq:natural_frequencies}
-\end{align}
+Other option:
 
-which is what VirtualBow does.
+\begin{equation}
+\Delta t_{i+1} = \Delta t_{i} \cdot \sqrt{\frac{e_{\mathrm{target}}}{e_{\mathrm{actual}}}}
+\end{equation}
 
-\textcolor{red}{No damping here. For a version with damping see the LS-Dyna theoretical manual of 2006.}
 
+
+
+\newpage
 \subsection{Stopping Criterion and Progress Estimation}
 
 The dynamic simulation is carried out until some stopping criterion is satisfied.
@@ -332,47 +508,67 @@ This approximation is far from exact, but it is good enough for progress estimat
 After the arrow has reached the braced position, the actual value of $T$ is known and used for the rest of the simulation.
 
 \newpage
-\section{Model setup}
+\section{Modal Analysis}
 
-\subsection{Finding the damping parameters}
+The goal of a modal analysis is to determine the natural frequencies and mode shapes of a system.
+None of the simulation results in VirtualBow require a modal analysis, but natural frequencies are used in some of the verification tests as an easy way to compare the dynamic properties of two systems.
 
-The damping parameter $\eta A$ of the string is determined analytically such that the damping ratio associated with the first (longitudinal) natural frequency matches the user supplied value. From Appendix \ref{chapter:viscoelastic-bar-vibrations} it follows that
-%
+Starting point is the linearization of the equations of motion~(\ref{eq:global-equation-of-motion}) for the case of free vibration,
+
 \begin{equation}
-\eta A = \frac{4L}{\pi}\,\sqrt{\rho A\,EA}\,\zeta
+\boldsymbol{M}\ddot{\boldsymbol{u}} + \boldsymbol{D}\dot{\boldsymbol{u}} + \boldsymbol{K}\boldsymbol{u} = \boldsymbol{0} \label{eq:solution:ode-linearized}
 \end{equation}
 
-in order for this to be true, where $L$ is half the total length of the string to match the boundary conditions used.
+with the displacement vector $\boldsymbol{u}$ being measured relative to the displacements at which the system was linearized.
+Since this is a linear, homogenous differential equation, we can assume its solutions to take the form $\boldsymbol{u}(t) = \hat{\boldsymbol{u}}\,e^{\lambda\,t}$ with $\hat{\boldsymbol{u}} \in \mathbb{R}^n$ and $\lambda \in \mathbb{C}$. Substituting this into (\ref{eq:solution:ode-linearized}) gives us the condition
 
-\subsection{Distributing string elements}
+\begin{equation}
+\left(\lambda^2 \boldsymbol{M} + \lambda \boldsymbol{D} + \boldsymbol{K}\right)\hat{\boldsymbol{u}} = \boldsymbol{0}. \label{eq:solution:quadratic-evp}
+\end{equation}
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.8\textwidth]{figures/setup/line-distance}
-\caption{Problem}
-\label{fig:solution:dynamic_progress}
-\end{figure}
+This is a quadratic eigenvalue problem \cite{bib:dw07}, whose solution are the $n$ eigenvalues $\lambda_{i}$ and eigenvectors $\hat{\boldsymbol{u}}_{i}$, which we call the mode shapes of the system.
+For underdamped systems, the eigenvalues come in complex conjugated pairs
 
-Problem: Find a point $P$ on the line between $A$ and $B$ which has the euclidean distance $d$ to point $C$.
+\begin{equation}
+\lambda = -\zeta \pm i\,\omega,
+\end{equation}
 
-Parametrisation of the points $P$:
+where each pair corresponds to a harmonic oscillation with damping ratio $\zeta = -\mathrm{Re}(\lambda)$ and damped frequency $\omega = |\mathrm{Im}(\lambda)|$.
+The corresponding undamed natural frequency can be calculated from those as $\omega_{0} = \sqrt{\omega^2 + \zeta^2}$.
 
-\begin{align*}
-P(\eta) &= A + \eta\,(B-A),\quad \eta \in [0,\,1]
-\end{align*}
+In order to compute the solution to the quadratic eigenvalue problem~(\ref{eq:solution:quadratic-evp}) it can be helpful to transform it into the more common (linear) generalized eigenvalue problem
 
-Distance condition:
+\begin{equation}
+\boldsymbol{A}\boldsymbol{v} = \lambda\boldsymbol{B}\boldsymbol{v}
+\end{equation}
 
-\begin{align*}
-&\lVert C - P(\eta)\rVert = d\\
-\Leftrightarrow\:&\lVert
+using the following auxiliary matrices (see approach II from \cite{bib:dw07})
+
+\begin{equation}
+\boldsymbol{A}
+=
 \begin{bmatrix}
-c_x - a_x - \eta\,(b_x - a_x) \\ c_y - a_y - \eta\,(b_y - a_y)
-\end{bmatrix}
-\rVert = d\\
-\Leftrightarrow\:&\left(c_x - a_x - \eta\,(b_x - a_x)\right)^2 + \left(c_y - a_y - \eta\,(b_y - a_y)\right)^2 = d^2\\
-\Leftrightarrow\:&\left((b_x - a_x)^2 + (b_y - a_y)^2\right)\,\eta^2-2\left((c_x - a_x)(b_x - a_x) + (c_y - a_y)(b_y - a_y)\right)\,\eta\\
-&+(c_x - a_x)^2 + (c_y - a_y)^2 - d^2 = 0
-\end{align*}
+\boldsymbol{0} & \boldsymbol{K} \\
+\boldsymbol{K} & \boldsymbol{D}
+\end{bmatrix},
+\quad
+\boldsymbol{B}
+=
+\begin{bmatrix}
+\boldsymbol{K} & \boldsymbol{0} \\
+\boldsymbol{0} & \boldsymbol{-M}
+\end{bmatrix},
+\quad
+\boldsymbol{v}
+=
+\begin{bmatrix}
+\boldsymbol{u} \\
+\dot{\boldsymbol{u}}
+\end{bmatrix}.
+\end{equation}
 
-This is a quadratic equation for $\eta$. Take smallest solution in $[0,\,1]$.
+This can now be solved with standard methods, which we don't have to implement ourselves.
+It can be noted that $\boldsymbol{A}$ and $\boldsymbol{B}$ are symmetric, which can be exploited when looking for an efficient algorithm, but not positive definite.
+
+
+
