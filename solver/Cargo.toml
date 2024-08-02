@@ -3,6 +3,14 @@ name = "virtualbow-slv"
 version = "0.10.0"
 edition = "2021"
 
+[lib]
+name = "virtualbow"
+path = "src/lib.rs"
+
+[[bin]]
+name = "virtualbow-slv"
+path = "src/bin.rs"
+
 [dependencies]
 nalgebra = { version = "0.33.0", features = ["serde-serialize", "rand"] }
 serde = { version = "1.0.203", features = ["derive"] }

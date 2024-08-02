@@ -437,7 +437,7 @@ impl Damping {
 #[cfg(test)]
 mod tests {
     use crate::bow::model::BowModel;
-    use crate::ModelError;
+    use crate::bow::errors::ModelError;
 
     #[test]
     fn test_load_model() {

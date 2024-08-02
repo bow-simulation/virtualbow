@@ -1,31 +1,11 @@
-#![allow(non_snake_case)]
-#![allow(mixed_script_confusables)]
-#![allow(dead_code)]
+use virtualbow::bow::simulation::{Simulation, SimulationMode};
+use virtualbow::bow::errors::ModelError;
+use virtualbow::bow::model::BowModel;
 
-#[cfg(test)]
-#[macro_use]
-extern crate approx;
-
-#[cfg(test)]
-#[macro_use]
-extern crate assert_matches;
-
-#[macro_use]
-extern crate downcast_rs;
-
-mod fem;
-mod numerics;
-mod bow;
-
-#[cfg(test)]
-mod tests;
+use clap::Parser;
 
 use std::path::PathBuf;
 use std::process::ExitCode;
-use clap::Parser;
-use crate::bow::errors::ModelError;
-use crate::bow::model::BowModel;
-use crate::bow::simulation::{Simulation, SimulationMode};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None, disable_version_flag = true)]
