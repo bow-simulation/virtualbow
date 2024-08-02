@@ -164,7 +164,7 @@ pub struct LayerSetup {
 #[cfg(test)]
 mod tests {
     use crate::bow::output::Output;
-    use crate::ModelError;
+    use crate::bow::errors::ModelError;
 
     #[test]
     fn test_load_output() {
