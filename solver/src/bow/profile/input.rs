@@ -9,7 +9,7 @@ use crate::bow::profile::segments::spline::{SplineInput, SplineSegment};
 // Common data type for all possible segment inputs,
 // including methods for validation and creating the corresponding segment curves
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 #[serde(tag = "type")]
 pub enum SegmentInput {
     #[serde(rename = "line")]
