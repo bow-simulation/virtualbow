@@ -11,7 +11,7 @@ use crate::bow::profile::input::SegmentInput;
 use crate::bow::profile::segments::clothoid::LineInput;
 use crate::bow::versioning::{VersionedWrapper, VersionedWrapperRef};
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct BowModel {
     pub comment: String,
     pub settings: Settings,
@@ -135,7 +135,7 @@ impl Default for BowModel {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Settings {
     pub n_limb_elements: usize,
     pub n_limb_eval_points: usize,
@@ -178,7 +178,7 @@ impl Settings {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Dimensions {
     pub brace_height: f64,
     pub draw_length: f64,
@@ -304,7 +304,7 @@ impl Layer {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Profile {
     pub alignment: LayerAlignment,
     pub segments: Vec<SegmentInput>,
@@ -327,7 +327,7 @@ impl Profile {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Width {
     pub points: Vec<[f64; 2]>
 }
@@ -365,7 +365,7 @@ impl Width {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct BowString {
     pub n_strands: usize,
     pub strand_density: f64,
@@ -388,7 +388,7 @@ impl BowString {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Masses {
     pub arrow: f64,
     pub limb_tip: f64,
@@ -415,7 +415,7 @@ impl Masses {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Damping {
     pub damping_ratio_limbs: f64,
     pub damping_ratio_string: f64,
