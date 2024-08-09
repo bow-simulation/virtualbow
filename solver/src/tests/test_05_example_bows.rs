@@ -145,24 +145,24 @@ fn perform_bow_test(file: &str) {
 
     let mut plotter = Plotter::new();
 
-    for u in &states.pos_limb[0] {
+    for u in &states.limb_pos[0] {
         plotter.add_point((u[0], u[1]), (0.0, 0.0), "Bending Line (braced)", "x [m]", "y [m]");
     }
 
-    for u in &states.pos_limb[n-1] {
+    for u in &states.limb_pos[n-1] {
         plotter.add_point((u[0], u[1]), (0.0, 0.0), "Bending Line (drawn)", "x [m]", "y [m]");
     }
 
     for (i, state) in states.iter().enumerate() {
         // Check limb starting point (positions and angle)
-        assert_abs_diff_eq!(state.pos_limb[0][0], 0.5*model.dimensions.handle_length, epsilon=1e-12);
-        assert_abs_diff_eq!(state.pos_limb[0][1], model.dimensions.handle_setback, epsilon=1e-12);
-        assert_abs_diff_eq!(state.pos_limb[0][2], model.dimensions.handle_angle, epsilon=1e-12);
+        assert_abs_diff_eq!(state.limb_pos[0][0], 0.5*model.dimensions.handle_length, epsilon=1e-12);
+        assert_abs_diff_eq!(state.limb_pos[0][1], model.dimensions.handle_setback, epsilon=1e-12);
+        assert_abs_diff_eq!(state.limb_pos[0][2], model.dimensions.handle_angle, epsilon=1e-12);
 
         // Reference values for string force and grip force based on static considerations
-        let pos_string_a = state.pos_string[1];
-        let pos_string_b = state.pos_string[0];
-        let alpha = f64::atan((pos_string_b[1] - pos_string_a[1])/(pos_string_b[0] - pos_string_a[0]));
+        let string_pos_a = state.string_pos[1];
+        let string_pos_b = state.string_pos[0];
+        let alpha = f64::atan((string_pos_b[1] - string_pos_a[1])/(string_pos_b[0] - string_pos_a[0]));
         let draw_force_ref = 2.0*state.string_force*f64::sin(alpha);    // Reference draw force according to the string force
         let grip_force_ref = draw_force_ref;
 
@@ -185,34 +185,34 @@ fn perform_bow_test(file: &str) {
         assert_abs_diff_eq!(drawing_work, drawing_work_ref, epsilon=1e-3*states.e_pot_limbs[0]);
 
         // Limb endpoint
-        let x_end = state.pos_limb.last().unwrap()[0];
-        let y_end = state.pos_limb.last().unwrap()[1];
+        let x_end = state.limb_pos.last().unwrap()[0];
+        let y_end = state.limb_pos.last().unwrap()[1];
 
         // Cartesian components of the string force
         let Fx = -state.string_force*f64::cos(alpha);
         let Fy = -state.string_force*f64::sin(alpha);
 
         for (j, &s) in output.setup.limb.length.iter().enumerate() {
-            let x = state.pos_limb[j][0];
-            let y = state.pos_limb[j][1];
-            let φ = state.pos_limb[j][2];
+            let x = state.limb_pos[j][0];
+            let y = state.limb_pos[j][1];
+            let φ = state.limb_pos[j][2];
 
             // Reference values for cross section forces based on equilibrium with the string force
             let M_ref = Fy*(x_end - x) - Fx*(y_end - y);
             let N_ref = Fx*f64::cos(φ) + Fy*f64::sin(φ);
             let Q_ref = Fy*f64::cos(φ) - Fx*f64::sin(φ);
 
-            plotter.add_point((s, state.limb_forces[j][0]), (s, N_ref), &format!("Normal Force {}", i), "Length [m]", "Normal force [N]");
-            assert_abs_diff_eq!(state.limb_forces[j][0], N_ref, epsilon=1e-3*statics.final_draw_force);
+            plotter.add_point((s, state.limb_force[j][0]), (s, N_ref), &format!("Normal Force {}", i), "Length [m]", "Normal force [N]");
+            assert_abs_diff_eq!(state.limb_force[j][0], N_ref, epsilon=1e-3*statics.final_draw_force);
 
-            plotter.add_point((s, state.limb_forces[j][1]), (s, M_ref), &format!("Bending Moment {}", i), "Length [m]", "Bending moment [Nm]");
-            assert_abs_diff_eq!(state.limb_forces[j][1], M_ref, epsilon=1e-3*statics.final_draw_force*model.dimensions.draw_length);
+            plotter.add_point((s, state.limb_force[j][1]), (s, M_ref), &format!("Bending Moment {}", i), "Length [m]", "Bending moment [Nm]");
+            assert_abs_diff_eq!(state.limb_force[j][1], M_ref, epsilon=1e-3*statics.final_draw_force*model.dimensions.draw_length);
 
-            plotter.add_point((s, state.limb_forces[j][2]), (s, Q_ref), &format!("Shear Force {}", i), "Length [m]", "Shear force [N]");
-            assert_abs_diff_eq!(state.limb_forces[j][2], Q_ref, epsilon=1e-3*statics.final_draw_force);
+            plotter.add_point((s, state.limb_force[j][2]), (s, Q_ref), &format!("Shear Force {}", i), "Length [m]", "Shear force [N]");
+            assert_abs_diff_eq!(state.limb_force[j][2], Q_ref, epsilon=1e-3*statics.final_draw_force);
 
             // Check if forces and strains are consistent with the cross section stiffness matrix
-            assert_abs_diff_eq!(state.limb_forces[j], output.setup.limb.stiffness[j]*state.limb_strains[j], epsilon=1e-9);
+            assert_abs_diff_eq!(state.limb_force[j], output.setup.limb.stiffness[j]*state.limb_strain[j], epsilon=1e-9);
         }
     }
 }
