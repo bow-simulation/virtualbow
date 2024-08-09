@@ -291,14 +291,14 @@ impl<'a> Simulation<'a> {
 
         let limb_tip = self.limb_nodes.last().unwrap();
 
-        let pos_string = self.string_node.map(|node| vec![
-            [ system.get_displacement(limb_tip.x()), system.get_displacement(limb_tip.y()) ],
-            [ system.get_displacement(node.x()), system.get_displacement(node.y()) ],
+        let string_pos = self.string_node.map(|node| vec![
+            vector![ system.get_displacement(limb_tip.x()), system.get_displacement(limb_tip.y()) ],
+            vector![ system.get_displacement(node.x()), system.get_displacement(node.y()) ],
         ]).unwrap_or_default();
 
         let vel_string = self.string_node.map(|node| vec![
-            [ system.get_velocity(limb_tip.x()), system.get_velocity(limb_tip.y()) ],
-            [ system.get_velocity(node.x()), system.get_velocity(node.y()) ],
+            vector![ system.get_velocity(limb_tip.x()), system.get_velocity(limb_tip.y()) ],
+            vector![ system.get_velocity(node.x()), system.get_velocity(node.y()) ],
         ]).unwrap_or_default();
 
         /*
@@ -311,19 +311,19 @@ impl<'a> Simulation<'a> {
         // Evaluate positions, forces and strains at the limb's evaluation points
 
         let mut limb_pos = Vec::new();  // TODO: Capacity
-        let mut limb_strains = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
-        let mut limb_forces = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
+        let mut limb_strain = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
+        let mut limb_force = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
 
         for &element in &self.limb_elements {
             let element = system.element_ref::<BeamElementCoRot>(element);
             element.eval_positions().for_each(|u| limb_pos.push(u));
-            element.eval_strains().for_each(|e| limb_strains.push(e));
-            element.eval_forces().for_each(|f| limb_forces.push(f));
+            element.eval_strains().for_each(|e| limb_strain.push(e));
+            element.eval_forces().for_each(|f| limb_force.push(f));
         }
 
         // The grip force is the y component of the forces at the start of the limb.
         // Defined to be positive on "pressure", therefore the minus sign, and multiplied by two for symmetry.
-        let grip_force = -2.0*(limb_forces[0][2]*f64::cos(limb_pos[0][2]) + limb_forces[0][0]*f64::sin(limb_pos[0][2]));
+        let grip_force = -2.0*(limb_force[0][2]*f64::cos(limb_pos[0][2]) + limb_force[0][0]*f64::sin(limb_pos[0][2]));
 
         let e_pot_limbs = 2.0*self.limb_elements.iter().map(|&e| {
             system.element_ref::<BeamElementCoRot>(e).potential_energy()
@@ -340,23 +340,23 @@ impl<'a> Simulation<'a> {
             time,
             draw_length,
 
-            pos_limb: limb_pos,
-            vel_limb: vec![],
-            acc_limb: vec![],
+            limb_pos: limb_pos,
+            limb_vel: vec![],
+            limb_acc: vec![],
 
-            pos_string,
-            vel_string,
-            acc_string: vec![],
+            string_pos: string_pos,
+            string_vel: vel_string,
+            string_acc: vec![],
 
-            limb_strains,
-            limb_forces,
+            limb_strain: limb_strain,
+            limb_force: limb_force,
 
-            layer_strains: vec![vec![]],
-            layer_stresses: vec![vec![]],
+            layer_strain: vec![vec![]],
+            layer_stress: vec![vec![]],
 
-            pos_arrow: 0.0,
-            vel_arrow: 0.0,
-            acc_arrow: 0.0,
+            arrow_pos: 0.0,
+            arrow_vel: 0.0,
+            arrow_acc: 0.0,
 
             e_pot_limbs,
             e_kin_limbs,
