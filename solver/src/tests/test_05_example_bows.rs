@@ -141,18 +141,20 @@ fn perform_bow_test(file: &str) {
 
     let statics = output.statics.unwrap();
     let states = statics.states;
-    let n = states.len();
 
+    // Create a plot of the bending line in braced and fully drawn state
     let mut plotter = Plotter::new();
-
     for u in &states.limb_pos[0] {
         plotter.add_point((u[0], u[1]), (0.0, 0.0), "Bending Line (braced)", "x [m]", "y [m]");
     }
-
-    for u in &states.limb_pos[n-1] {
+    for u in &states.limb_pos[states.len()-1] {
         plotter.add_point((u[0], u[1]), (0.0, 0.0), "Bending Line (drawn)", "x [m]", "y [m]");
     }
 
+    // Check if number of states matches settings
+    assert_eq!(states.len(), model.settings.n_draw_steps + 1);
+
+    // Perform checks on each state
     for (i, state) in states.iter().enumerate() {
         // Check limb starting point (positions and angle)
         assert_abs_diff_eq!(state.limb_pos[0][0], 0.5*model.dimensions.handle_length, epsilon=1e-12);

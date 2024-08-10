@@ -83,6 +83,7 @@ impl Default for BowModel {
             settings: Settings {
                 n_limb_elements: 30,
                 n_limb_eval_points: 100,  // TODO
+                n_layer_eval_points: 100,  // TODO
                 n_string_elements: 1,    // TODO
                 n_draw_steps: 100,
                 arrow_clamp_force: 0.5,
@@ -139,6 +140,7 @@ impl Default for BowModel {
 pub struct Settings {
     pub n_limb_elements: usize,
     pub n_limb_eval_points: usize,
+    pub n_layer_eval_points: usize,
     pub n_string_elements: usize,
     pub n_draw_steps: usize,
     pub arrow_clamp_force: f64,
@@ -154,6 +156,9 @@ impl Settings {
         }
         if self.n_limb_eval_points < 2 {
             return Err(ModelError::SettingsInvalidLimbEvalPoints(self.n_limb_eval_points));
+        }
+        if self.n_layer_eval_points < 2 {
+            return Err(ModelError::SettingsInvalidLayerEvalPoints(self.n_layer_eval_points));
         }
         if self.n_string_elements < 1 {
             return Err(ModelError::SettingsInvalidStringElements(self.n_string_elements));
