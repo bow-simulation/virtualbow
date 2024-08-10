@@ -267,7 +267,7 @@ impl<'a> Simulation<'a> {
         }
 
         let mut solver = StaticSolver::new(&mut system, Settings::default());
-        for lambda in lin_space(0.0..=1.0, model.settings.n_draw_steps) {
+        for lambda in lin_space(0.0..=1.0, model.settings.n_draw_steps + 1) {
             solver.solve_equilibrium_load_controlled(lambda).expect("Static solver failed");
         }
 

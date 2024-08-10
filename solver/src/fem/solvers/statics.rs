@@ -200,7 +200,7 @@ impl<'a> StaticSolver<'a> {
             }
         }
         else {
-            for displacement in lin_space(self.system.get_displacement(dof)..=target, steps - 1) {
+            for displacement in lin_space(self.system.get_displacement(dof)..=target, steps + 1) {
                 self.solve_equilibrium_displacement_controlled(dof, displacement).map_err(|e| ContinuationError::IterationFailed(target, e))?;
                 if !callback(self.system, &self.statics) {
                     return Err(ContinuationError::AbortedByCaller)
