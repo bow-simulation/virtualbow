@@ -4,6 +4,7 @@
   "settings": {
     "n_limb_elements": 20,
     "n_limb_eval_points": 100,
+    "n_layer_eval_points": 100,
     "n_string_elements": 25,
     "n_draw_steps": 150,
     "arrow_clamp_force": 0.0,
