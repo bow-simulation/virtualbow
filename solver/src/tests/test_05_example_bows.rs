@@ -151,11 +151,39 @@ fn perform_bow_test(file: &str) {
         plotter.add_point((u[0], u[1]), (0.0, 0.0), "Bending Line (drawn)", "x [m]", "y [m]");
     }
 
+    // Check basic dimensions of the setup data
+    assert_eq!(output.setup.limb.layers.len(), model.layers.len());
+    for layer in &output.setup.limb.layers {
+        assert_eq!(layer.length.len(), model.settings.n_layer_eval_points);
+    }
+    assert_eq!(output.setup.limb.length.len(), model.settings.n_limb_eval_points);
+    assert_eq!(output.setup.limb.width.len(), model.settings.n_limb_eval_points);
+    assert_eq!(output.setup.limb.height.len(), model.settings.n_limb_eval_points);
+    assert_eq!(output.setup.limb.position.len(), model.settings.n_limb_eval_points);
+
     // Check if number of states matches settings
     assert_eq!(states.len(), model.settings.n_draw_steps + 1);
 
     // Perform checks on each state
     for (i, state) in states.iter().enumerate() {
+        // Check basic dimensions
+        assert_eq!(state.limb_pos.len(), model.settings.n_limb_eval_points);
+        assert_eq!(state.limb_vel.len(), model.settings.n_limb_eval_points);
+        assert_eq!(state.limb_acc.len(), model.settings.n_limb_eval_points);
+        assert_eq!(state.string_pos.len(), 2);
+        assert_eq!(state.string_vel.len(), 2);
+        assert_eq!(state.string_acc.len(), 2);
+        assert_eq!(state.limb_strain.len(), model.settings.n_limb_eval_points);
+        assert_eq!(state.limb_force.len(), model.settings.n_limb_eval_points);
+        assert_eq!(state.layer_strain.len(), model.layers.len());
+        assert_eq!(state.layer_stress.len(), model.layers.len());
+        for layer in state.layer_strain {
+            assert_eq!(layer.len(), model.settings.n_layer_eval_points);
+        }
+        for layer in state.layer_stress {
+            assert_eq!(layer.len(), model.settings.n_layer_eval_points);
+        }
+
         // Check limb starting point (positions and angle)
         assert_abs_diff_eq!(state.limb_pos[0][0], 0.5*model.dimensions.handle_length, epsilon=1e-12);
         assert_abs_diff_eq!(state.limb_pos[0][1], model.dimensions.handle_setback, epsilon=1e-12);
@@ -212,9 +240,6 @@ fn perform_bow_test(file: &str) {
 
             plotter.add_point((s, state.limb_force[j][2]), (s, Q_ref), &format!("Shear Force {}", i), "Length [m]", "Shear force [N]");
             assert_abs_diff_eq!(state.limb_force[j][2], Q_ref, epsilon=1e-3*statics.final_draw_force);
-
-            // Check if forces and strains are consistent with the cross section stiffness matrix
-            assert_abs_diff_eq!(state.limb_force[j], output.setup.limb.stiffness[j]*state.limb_strain[j], epsilon=1e-9);
         }
     }
 }

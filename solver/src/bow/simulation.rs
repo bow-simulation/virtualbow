@@ -14,7 +14,7 @@ use crate::bow::sections::section::LayeredCrossSection;
 use crate::bow::errors::ModelError;
 use crate::bow::profile::profile::{CurvePoint, ProfileCurve};
 use crate::bow::model::BowModel;
-use crate::bow::output::{Dynamics, LimbSetup, Output, Setup, State, StateVec, Statics};
+use crate::bow::output::{Dynamics, LayerSetup, LimbSetup, Output, Setup, State, StateVec, Statics};
 use crate::numerics::root_finding::regula_falsi;
 
 #[derive(ValueEnum, Debug, Copy, Clone)]
@@ -69,11 +69,24 @@ impl<'a> Simulation<'a> {
             system.add_element(&[limb_nodes[i], limb_nodes[i+1]], element)
         }).collect();
 
+        // Layer setup data
+        let layers = model.layers.iter().map(|layer| {
+            let h0 = layer.height.first().unwrap()[0];
+            let h1 = layer.height.last().unwrap()[1];
+            LayerSetup {
+                length: lin_space(h0..=h1, model.settings.n_layer_eval_points).collect(),
+            }
+        }).collect();
+        
         // Additional setup data
+        let limb_position = s_eval.iter().map(|&s| {
+            let position = profile.position(s);
+            vector![position[0], position[1], profile.angle(s)]
+        }).collect();
         let limb_width = s_eval.iter().map(|&s| { section.width(s) }).collect();
         let limb_height = s_eval.iter().map(|&s| { section.height(s) }).collect();
-        let limb_density = s_eval.iter().map(|&s| { section.rhoA(s) }).collect();
-        let limb_stiffness = s_eval.iter().map(|&s| { section.C(s) }).collect();
+        //let limb_density = s_eval.iter().map(|&s| { section.rhoA(s) }).collect();
+        //let limb_stiffness = s_eval.iter().map(|&s| { section.C(s) }).collect();
 
         // Only add string node and element if required
         let (string_node, string_element) = if string {
@@ -98,14 +111,15 @@ impl<'a> Simulation<'a> {
 
         let setup = Setup {
             limb: LimbSetup {
-                layers: vec![],    // TODO
+                layers: layers,
                 length: s_eval,
-                position: vec![],    // TODO
+                position: limb_position,
                 width: limb_width,
                 height: limb_height,
-                density: limb_density,
-                stiffness: limb_stiffness,
             },
+            string_length: 0.0,
+            string_mass: 0.0,
+            limb_mass: 0.0,
         };
 
         let simulation = Self {
@@ -296,7 +310,7 @@ impl<'a> Simulation<'a> {
             vector![ system.get_displacement(node.x()), system.get_displacement(node.y()) ],
         ]).unwrap_or_default();
 
-        let vel_string = self.string_node.map(|node| vec![
+        let string_vel = self.string_node.map(|node| vec![
             vector![ system.get_velocity(limb_tip.x()), system.get_velocity(limb_tip.y()) ],
             vector![ system.get_velocity(node.x()), system.get_velocity(node.y()) ],
         ]).unwrap_or_default();
@@ -340,19 +354,19 @@ impl<'a> Simulation<'a> {
             time,
             draw_length,
 
-            limb_pos: limb_pos,
-            limb_vel: vec![],
-            limb_acc: vec![],
+            limb_pos,
+            limb_vel: vec![SVector::zeros(); self.model.settings.n_limb_eval_points],
+            limb_acc: vec![SVector::zeros(); self.model.settings.n_limb_eval_points],
 
-            string_pos: string_pos,
-            string_vel: vel_string,
-            string_acc: vec![],
+            string_pos,
+            string_vel,
+            string_acc: vec![SVector::zeros(); 2],
 
-            limb_strain: limb_strain,
-            limb_force: limb_force,
+            limb_strain,
+            limb_force,
 
-            layer_strain: vec![vec![]],
-            layer_stress: vec![vec![]],
+            layer_strain: vec![vec![(0.0, 0.0); self.model.settings.n_layer_eval_points]; self.model.layers.len()],
+            layer_stress: vec![vec![(0.0, 0.0); self.model.settings.n_layer_eval_points]; self.model.layers.len()],
 
             arrow_pos: 0.0,
             arrow_vel: 0.0,

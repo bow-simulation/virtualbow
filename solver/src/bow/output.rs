@@ -79,6 +79,10 @@ impl Default for Output {
 #[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
 pub struct Setup {
     pub limb: LimbSetup,
+
+    pub string_length: f64,
+    pub string_mass: f64,
+    pub limb_mass: f64,
 }
 
 #[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
@@ -160,22 +164,16 @@ pub struct LimbSetup {
     // Layer properties
     pub layers: Vec<LayerSetup>,
 
-    // Nodes
+    // Geometry at eval points
     pub length: Vec<f64>,
     pub position: Vec<SVector<f64, 3>>,    // x, y, φ
-
-    // Section profile
     pub width: Vec<f64>,
     pub height: Vec<f64>,
-
-    // Section properties
-    pub density: Vec<f64>,
-    pub stiffness: Vec<SMatrix<f64, 3, 3>>,        // epsilon, kappa, gamma
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct LayerSetup {
-    length: Vec<f64>,    // Arc lengths at which the layer is evaluated
+    pub length: Vec<f64>,    // Arc lengths at which the layer is evaluated
 }
 
 #[cfg(test)]
@@ -183,7 +181,6 @@ mod tests {
     use crate::bow::output::Output;
     use crate::bow::errors::ModelError;
 
-    /*
     #[test]
     fn test_load_output() {
         // IO error when loading from an invalid path
@@ -207,7 +204,6 @@ mod tests {
         // No error when loading a valid output file
         assert_matches!(Output::load("bows/tests/valid.res"), Ok(_));
     }
-    */
 
     #[test]
     fn test_save_output() {

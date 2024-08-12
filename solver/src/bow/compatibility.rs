@@ -121,7 +121,7 @@ fn convert_v2_to_v3(value: &mut Value) -> Result<(), ModelError> {
             material.insert("G".into(), json!(G));
         });
 
-    // New settings entry for number of evaluation points
+    // New settings entries for number of evaluation points
     value["settings"]["n_limb_eval_points"] = json!(100);
     value["settings"]["n_layer_eval_points"] = json!(100);
 

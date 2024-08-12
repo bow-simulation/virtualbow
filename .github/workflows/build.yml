@@ -28,7 +28,12 @@ jobs:
           choco install ninja
           curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.5.0/windows-mingw_64.zip && 7z x windows-mingw_64.zip
 
-      - name: Build and test
+      - name: Build and test solver
+        run: |
+          cd virtualbow/solver
+          cargo test --release
+
+      - name: Build and test application
         run: |
           mkdir build && cd build
           cmake ../virtualbow/gui -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../windows-mingw_64/paths.cmake
@@ -58,7 +63,12 @@ jobs:
           sudo apt install -y ninja-build qt5-default
           curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.5.0/linux-gcc_64.zip && unzip linux-gcc_64.zip
 
-      - name: Build and test
+      - name: Build and test solver
+        run: |
+          cd virtualbow/solver
+          cargo test --release
+
+      - name: Build and test application
         run: |
           mkdir build && cd build
           cmake ../virtualbow/gui -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../linux-gcc_64/paths.cmake
@@ -91,7 +101,12 @@ jobs:
           curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.5.0/macos-clang_64.zip && unzip macos-clang_64.zip
           chmod -R 755 macos-clang_64
 
-      - name: Build and test
+      - name: Build and test solver
+        run: |
+          cd virtualbow/solver
+          cargo test --release
+
+      - name: Build and test application
         run: |
           mkdir build && cd build
           cmake ../virtualbow/gui -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../macos-clang_64/paths.cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13

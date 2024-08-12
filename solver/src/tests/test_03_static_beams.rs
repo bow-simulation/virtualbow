@@ -47,9 +47,9 @@ fn linear_straight_uniform_elongation() {
     // Compute static deflection
     let (setup, state) = Simulation::simulate_static_load(&model, F, 0.0, 0.0).unwrap();
 
-    // Extract cross section stiffnesses
-    let C = setup.limb.stiffness[0];
-    let EA = C[(0, 0)];
+    // Reference cross section stiffnesses
+    let A = w*h;
+    let EA = E*A;
 
     let mut plotter = Plotter::new();
     for i in 0..setup.limb.length.len() {
@@ -115,10 +115,11 @@ fn linear_straight_uniform_cantilever() {
     // Compute static deflection
     let (setup, state) = Simulation::simulate_static_load(&model, 0.0, F, 0.0).unwrap();
 
-    // Extract cross section stiffnesses
-    let C = setup.limb.stiffness[0];
-    let EI = C[(1, 1)];
-    let GA = C[(2, 2)];
+    // Reference cross section stiffnesses
+    let I = w*h.powi(3)/12.0;
+    let A = w*h;
+    let EI = E*I;
+    let GA = G*A;
 
     let mut plotter = Plotter::new();
     for i in 0..setup.limb.length.len() {
@@ -173,7 +174,7 @@ fn linear_straight_uniform_coilup() {
     let mut model = BowModel::default();
     model.settings.n_limb_elements = 50;
     model.settings.n_limb_eval_points = 100;
-    model.settings.n_draw_steps = 10;
+    model.settings.n_draw_steps = 9;
     model.materials = vec![Material::new("", "", rho, E, G)];
     model.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Line(LineInput::new(l))]);
     model.width = Width::new(vec![[0.0, w], [1.0, w]]);

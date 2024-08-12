@@ -7,8 +7,5 @@ CMakeSettings.json
 .vs/
 out/
 
-# VirtualBow
-*.res 
-
 # MacOS
 .DS_Store
