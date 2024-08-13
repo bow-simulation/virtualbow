@@ -6,131 +6,131 @@ use crate::tests::utils::plotter::Plotter;
 // Tests with the example bows
 
 #[test]
-fn hybrid_longbow_including_riser_fade() {
-    perform_bow_test("bows/users/003 hybrid longbow including riser fade.bow");
+fn bow_69w865k9() {
+    perform_bow_test("bows/users/69w865k9.bow");
 }
 
 #[test]
-fn hybrid_longbow_with_riser_block() {
-    perform_bow_test("bows/users/003 hybrid longbow with riser block.bow");
+fn bow_5g6c4m63() {
+    perform_bow_test("bows/users/5g6c4m63.bow");
 }
 
 /*
 // Needs string contact to brace
 #[test]
-fn aktuell_170() {
-    perform_bow_test("bows/users/aktuell-170.bow");
+fn bow_mt22m5gs() {
+    perform_bow_test("bows/users/mt22m5gs.bow");
 }
 */
 
 #[test]
-fn am_1896_444() {
-    perform_bow_test("bows/users/Am.1896-.444.bow");
+fn bow_hu78d41t() {
+    perform_bow_test("bows/users/hu78d41t.bow");
 }
 
 #[test]
-fn big_paddle_ash() {
-    perform_bow_test("bows/users/Big paddle ash.bow");
+fn bow_nv1x16ok() {
+    perform_bow_test("bows/users/nv1x16ok.bow");
 }
 
 /*
 // Recurve
 #[test]
-fn goguryeo_hwarang2013() {
-    perform_bow_test("bows/users/Goguryeo_hwarang2013.bow");
+fn bow_d75f0aoh() {
+    perform_bow_test("bows/users/d75f0aoh.bow");
 }
 */
 
 /*
 // File does not load
 #[test]
-fn joshs_bow() {
-    perform_bow_test("bows/users/Joshs bow.bow");
+fn bow_j290alr2() {
+    perform_bow_test("bows/users/j290alr2.bow");
 }
 */
 
 /*
 // Recurve
 #[test]
-fn komposiitti() {
-    perform_bow_test("bows/users/komposiitti.bow");
+fn bow_cz183o6o() {
+    perform_bow_test("bows/users/cz183o6o.bow");
 }
 */
 
 /*
 // Recurve
 #[test]
-fn komposiitti_2() {
-    perform_bow_test("bows/users/komposiitti 2.bow");
+fn bow_2r77c5r2() {
+    perform_bow_test("bows/users/2r77c5r2.bow");
 }
 */
 
 #[test]
-fn mollegabet1() {
-    perform_bow_test("bows/users/mollegabet1.bow");
+fn bow_w517u4bs() {
+    perform_bow_test("bows/users/w517u4bs.bow");
 }
 
 #[test]
-fn paddlebow() {
-    perform_bow_test("bows/users/paddlebow.bow");
+fn bow_5y3n27ra() {
+    perform_bow_test("bows/users/5y3n27ra.bow");
 }
 
 #[test]
-fn problem() {
-    perform_bow_test("bows/users/Problem.bow");
+fn bow_b282hcap() {
+    perform_bow_test("bows/users/b282hcap.bow");
 }
 
 #[test]
-fn problematic_model() {
-    perform_bow_test("bows/users/Problematic model.bow");
+fn bow_7b34ggm3() {
+    perform_bow_test("bows/users/7b34ggm3.bow");
 }
 
 /*
 // Rercurve
 #[test]
-fn ragim_black_bear() {
-    perform_bow_test("bows/users/RAGIM_Black_Bear.bow");
+fn bow_7j2rnu0n() {
+    perform_bow_test("bows/users/7j2rnu0n.bow");
 }
 */
 
 /*
 // File does not load
 #[test]
-fn recurve() {
-    perform_bow_test("bows/users/recurve.bow");
+fn bow_ibp08w9x() {
+    perform_bow_test("bows/users/ibp08w9x.bow");
 }
 */
 
 #[test]
-fn test() {
-    perform_bow_test("bows/users/TEST.bow");
+fn bow_36d2b7az() {
+    perform_bow_test("bows/users/36d2b7az.bow");
 }
 
 #[test]
-fn test2() {
-    perform_bow_test("bows/users/TEST2.bow");
+fn bow_834ozgt0() {
+    perform_bow_test("bows/users/834ozgt0.bow");
 }
 
 #[test]
-fn testbow() {
-    perform_bow_test("bows/users/testbow.bow");
+fn bow_v074x8zj() {
+    perform_bow_test("bows/users/v074x8zj.bow");
 }
 
 #[test]
-fn u1() {
-    perform_bow_test("bows/users/U1.bow");
+fn bow_7263zcsk() {
+    perform_bow_test("bows/users/7263zcsk.bow");
 }
 
 #[test]
-fn virtuaalimassatesti() {
-    perform_bow_test("bows/users/virtuaalimassatesti.bow");
+fn bow_c2h3p5y2() {
+    perform_bow_test("bows/users/c2h3p5y2.bow");
 }
 
 /*
 // File does not load
 #[test]
-fn wooden_crossbow() {
-    perform_bow_test("bows/users/Wooden crossbow.bow");
+fn bow_v3u2t11b() {
+    perform_bow_test("bows/users/v3u2t11b.bow");
 }
 */
 
