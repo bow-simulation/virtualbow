@@ -1,8 +1,8 @@
 #include "StressPlot.hpp"
 #include "pre/limbview/LayerColors.hpp"
+#include "pre/viewmodel/units/UnitSystem.hpp"
 
-// Colors stolen from Python's Matplotlib
-// https://stackoverflow.com/a/42091037
+// Colors from Python's Matplotlib (https://stackoverflow.com/a/42091037)
 const QList<QColor> COLOR_PALETTE = {
     QColor("#1f77b4"),
     QColor("#ff7f0e"),
@@ -16,7 +16,7 @@ const QList<QColor> COLOR_PALETTE = {
     QColor("#17becf")
 };
 
-StressPlot::StressPlot(const LimbProperties& limb, const BowStates& states)
+StressPlot::StressPlot(const LimbSetup& limb, const StateVec& states)
     : limb(limb),
       states(states),
       index(0),
@@ -25,17 +25,17 @@ StressPlot::StressPlot(const LimbProperties& limb, const BowStates& states)
 {
     this->setupTopLegend();
 
-    for(size_t i = 0; i < limb.layers.size(); ++i) {
-        QString name = QString::fromStdString(limb.layers[i].name);
-        QColor color = COLOR_PALETTE[i % COLOR_PALETTE.size()];  // Wrap around when colors exceeded
+    for(size_t iLayer = 0; iLayer < limb.layers.size(); ++iLayer) {
+        QString name = QString::fromStdString("TODO" /*limb.layers[i].name*/);
+        QColor color = COLOR_PALETTE[iLayer % COLOR_PALETTE.size()];  // Wrap around when colors are exhausted
 
         this->addGraph();
-        this->graph(2*i)->setName(name + " (back)");
-        this->graph(2*i)->setPen({QBrush(color), 2.0, Qt::SolidLine});
+        this->graph(2*iLayer)->setName(name + " (back)");
+        this->graph(2*iLayer)->setPen({QBrush(color), 2.0, Qt::SolidLine});
 
         this->addGraph();
-        this->graph(2*i+1)->setName(name + " (belly)");
-        this->graph(2*i+1)->setPen({QBrush(color), 2.0, Qt::DashLine});
+        this->graph(2*iLayer+1)->setName(name + " (belly)");
+        this->graph(2*iLayer+1)->setPen({QBrush(color), 2.0, Qt::DashLine});
     }
 
     QObject::connect(&quantity_length, &Quantity::unitChanged, this, &StressPlot::updatePlot);
@@ -56,16 +56,20 @@ void StressPlot::updatePlot() {
 }
 
 void StressPlot::updateStresses() {
-    for(int i = 0; i < limb.layers.size(); ++i) {
-        const LayerProperties& layer = limb.layers[i];
-        this->graph(2*i)->setData(
-            quantity_length.getUnit().fromBase(layer.length),
-            quantity_stress.getUnit().fromBase(layer.He_back*states.epsilon[index] + layer.Hk_back*states.kappa[index])
-        );
-        this->graph(2*i+1)->setData(
-            quantity_length.getUnit().fromBase(layer.length),
-            quantity_stress.getUnit().fromBase(layer.He_belly*states.epsilon[index] + layer.Hk_belly*states.kappa[index])
-        );
+    for(size_t iLayer = 0; iLayer < limb.layers.size(); ++iLayer) {
+        this->graph(2*iLayer)->data()->clear();
+        this->graph(2*iLayer+1)->data()->clear();
+
+        for(size_t iLength = 0; iLength < limb.layers[iLayer].length.size(); ++iLength) {
+            this->graph(2*iLayer)->addData(
+                quantity_length.getUnit().fromBase(limb.layers[iLayer].length[iLength]),
+                quantity_stress.getUnit().fromBase(std::get<0>(states.layer_stress[index][iLayer][iLength]))
+            );
+            this->graph(2*iLayer+1)->addData(
+                quantity_length.getUnit().fromBase(limb.layers[iLayer].length[iLength]),
+                quantity_stress.getUnit().fromBase(std::get<1>(states.layer_stress[index][iLayer][iLength]))
+            );
+        }
     }
 }
 
@@ -74,25 +78,24 @@ void StressPlot::updateAxes() {
     this->yAxis->setLabel("Stress " + quantity_stress.getUnit().getLabel());
 
     QCPRange x_range(
-        quantity_length.getUnit().fromBase(limb.length.minCoeff()),
-        quantity_length.getUnit().fromBase(limb.length.maxCoeff())
+        quantity_length.getUnit().fromBase(limb.length.front()),
+        quantity_length.getUnit().fromBase(limb.length.back())
     );
     QCPRange y_range(
         0.0,
         0.0
     );
 
-    for(auto& layer: limb.layers)
-    {
-        for(size_t i = 0; i < states.time.size(); ++i)
-        {
-            VectorXd sigma_back = layer.He_back*states.epsilon[i] + layer.Hk_back*states.kappa[i];
-            VectorXd sigma_belly = layer.He_belly*states.epsilon[i] + layer.Hk_belly*states.kappa[i];
-
-            y_range.expand(quantity_stress.getUnit().fromBase(sigma_back.minCoeff()));
-            y_range.expand(quantity_stress.getUnit().fromBase(sigma_back.maxCoeff()));
-            y_range.expand(quantity_stress.getUnit().fromBase(sigma_belly.minCoeff()));
-            y_range.expand(quantity_stress.getUnit().fromBase(sigma_belly.maxCoeff()));
+    for(size_t iState = 0; iState < states.layer_stress.size(); ++iState) {
+        for(size_t iLayer = 0; iLayer < states.layer_stress[iState].size(); ++iLayer) {
+            for(size_t iLength = 0; iLength < states.layer_stress[iState][iLayer].size(); ++iLength) {
+                y_range.expand(quantity_stress.getUnit().fromBase(
+                    std::get<0>(states.layer_stress[iState][iLayer][iLength])
+                ));
+                y_range.expand(quantity_stress.getUnit().fromBase(
+                    std::get<1>(states.layer_stress[iState][iLayer][iLength])
+                ));
+            }
         }
     }
 

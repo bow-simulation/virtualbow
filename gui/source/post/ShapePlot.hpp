@@ -1,16 +1,16 @@
 #pragma once
 #include "pre/widgets/PlotWidget.hpp"
-#include "pre/viewmodel/units/UnitSystem.hpp"
-#include "solver/model/output/OutputData.hpp"
+#include "pre/viewmodel/units/Quantity.hpp"
+#include "solver/model/output2/OutputData2.hpp"
 
 class ShapePlot: public PlotWidget {
 public:
-    ShapePlot(const LimbProperties& limb, const BowStates& states, int background_states);
+    ShapePlot(const LimbSetup& limb, const StateVec& states, int background_states);
     void setStateIndex(int i);
 
 private:
-    const LimbProperties& limb;
-    const BowStates& states;
+    const LimbSetup& limb;
+    const StateVec& states;
     const Quantity& quantity;
 
     int background_states;
@@ -28,5 +28,7 @@ private:
     void updateCurrentState();
     void updateAxes();
 
-    void plotLimbOutline(QCPCurve* left, QCPCurve* right, const VectorXd& x, const VectorXd& y, const VectorXd& phi);
+    void plotLimbOutline(QCPCurve* left, QCPCurve* right, const std::vector<std::array<double, 3>>& position);
+    void plotString(QCPCurve* left, QCPCurve* right, const std::vector<std::array<double, 2>>& position);
+    void plotArrow(double position);
 };

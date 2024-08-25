@@ -1,3 +1,5 @@
+#include "solver/model/output2/OutputData2.hpp"
+#include "pre/viewmodel/units/UnitSystem.hpp"
 #include "OutputWidget.hpp"
 #include "NumberGrid.hpp"
 #include "ShapePlot.hpp"
@@ -9,13 +11,13 @@
 #include "pre/utils/UserSettings.hpp"
 #include "pre/utils/ScrollArea.hpp"
 
-OutputWidget::OutputWidget(const OutputData& data)
+OutputWidget::OutputWidget(const OutputData2& data)
     : data(data),
       button_statics(new QPushButton("Statics")),
       button_dynamics(new QPushButton("Dynamics"))
 {
-    bool enable_statics = !data.statics.states.time.empty();
-    bool enable_dynamics = !data.dynamics.states.time.empty();
+    bool enable_statics = data.statics.has_value();
+    bool enable_dynamics = data.dynamics.has_value();
 
     auto stack = new QStackedLayout();
     if(enable_statics) {
@@ -72,22 +74,19 @@ OutputWidget::~OutputWidget() {
     }
 }
 
-
-const OutputData& OutputWidget::getData() {
+const OutputData2& OutputWidget::getData() {
     return data;
 }
 
-#include <QScrollArea>
-
-StaticOutputWidget::StaticOutputWidget(const OutputData& data)
+StaticOutputWidget::StaticOutputWidget(const OutputData2& data)
     : tabs(new QTabWidget())
 {
     auto numbers = new NumberGrid();
     numbers->addColumn();
     numbers->addGroup("Performance");
-    numbers->addValue("Final draw force", data.statics.final_draw_force, Quantities::force);
-    numbers->addValue("Drawing work", data.statics.drawing_work, Quantities::energy);
-    numbers->addValue("Energy storage factor", data.statics.energy_storage_factor, Quantities::ratio);
+    numbers->addValue("Final draw force", data.statics->final_draw_force, Quantities::force);
+    numbers->addValue("Drawing work", data.statics->drawing_work, Quantities::energy);
+    numbers->addValue("Energy storage factor", data.statics->storage_factor, Quantities::ratio);
     numbers->addGroup("Properties");
     numbers->addValue("Limb mass", data.setup.limb_mass, Quantities::mass);
     numbers->addValue("String mass", data.setup.string_mass, Quantities::mass);
@@ -95,33 +94,33 @@ StaticOutputWidget::StaticOutputWidget(const OutputData& data)
 
     numbers->addColumn();
     numbers->addGroup("Minimum stress by layer");
-    for(size_t i = 0; i < data.statics.min_stress_index.size(); ++i) {
-        numbers->addValue(QString::fromStdString(data.setup.limb_properties.layers[i].name), data.statics.min_stress_value[i], Quantities::stress);
+    for(size_t i = 0; i < data.statics->min_layer_stresses.size(); ++i) {
+        numbers->addValue(QString::fromStdString("TODO"), std::get<0>(data.statics->min_layer_stresses[i]), Quantities::stress);
     }
     numbers->addGroup("Maximum stress by layer");
-    for(size_t i = 0; i < data.statics.max_stress_index.size(); ++i) {
-        numbers->addValue(QString::fromStdString(data.setup.limb_properties.layers[i].name), data.statics.max_stress_value[i], Quantities::stress);
+    for(size_t i = 0; i < data.statics->max_layer_stresses.size(); ++i) {
+        numbers->addValue(QString::fromStdString("TODO"), std::get<0>(data.statics->max_layer_stresses[i]), Quantities::stress);
     }
 
     numbers->addColumn();
     numbers->addGroup("Maximum absolute forces");
-    numbers->addValue("Draw force", data.statics.states.draw_force[data.statics.max_draw_force_index], Quantities::force);
-    numbers->addValue("Grip force", data.statics.states.grip_force[data.statics.max_grip_force_index], Quantities::force);
-    numbers->addValue("String force (total)", data.statics.states.string_force[data.statics.max_string_force_index], Quantities::force);
-    numbers->addValue("String force (strand)", data.statics.states.strand_force[data.statics.max_string_force_index],  Quantities::force);
+    numbers->addValue("Draw force", std::get<0>(data.statics->max_draw_force), Quantities::force);
+    numbers->addValue("Grip force", std::get<0>(data.statics->max_grip_force), Quantities::force);
+    numbers->addValue("String force (total)", std::get<0>(data.statics->max_string_force), Quantities::force);
+    numbers->addValue("String force (strand)", 0.0,  Quantities::force);
 
-    auto plot_shapes = new ShapePlot(data.setup.limb_properties, data.statics.states, 4);
-    auto plot_stress = new StressPlot(data.setup.limb_properties, data.statics.states);
-    auto plot_curvature = new CurvaturePlot(data.setup.limb_properties, data.statics.states);
-    auto plot_energy = new EnergyPlot(data.statics.states, data.statics.states.draw_length, "Draw length", Quantities::length, Quantities::energy);
+    auto plot_shapes = new ShapePlot(data.setup.limb, data.statics->states, 4);
+    auto plot_stress = new StressPlot(data.setup.limb, data.statics->states);
+    auto plot_curvature = new CurvaturePlot(data.setup.limb, data.statics->states);
+    auto plot_energy = new EnergyPlot(data.statics->states, data.statics->states.draw_length, "Draw length", Quantities::length, Quantities::energy);
     auto plot_combo = new ComboPlot();
-    plot_combo->addData("Draw length", data.statics.states.draw_length, Quantities::length);
-    plot_combo->addData("Draw force", data.statics.states.draw_force, Quantities::force);
-    plot_combo->addData("String force (total)", data.statics.states.string_force, Quantities::force);
-    plot_combo->addData("String force (strand)", data.statics.states.strand_force, Quantities::force);
-    plot_combo->addData("Grip force", data.statics.states.grip_force, Quantities::force);
-    plot_combo->addData("Pot. energy limbs", data.statics.states.e_pot_limbs, Quantities::energy);
-    plot_combo->addData("Pot. energy string", data.statics.states.e_pot_string, Quantities::energy);
+    plot_combo->addData("Draw length", data.statics->states.draw_length, Quantities::length);
+    plot_combo->addData("Draw force", data.statics->states.draw_force, Quantities::force);
+    plot_combo->addData("String force (total)", data.statics->states.string_force, Quantities::force);
+    plot_combo->addData("String force (strand)", data.statics->states.strand_force, Quantities::force);
+    plot_combo->addData("Grip force", data.statics->states.grip_force, Quantities::force);
+    plot_combo->addData("Pot. energy limbs", data.statics->states.e_pot_limbs, Quantities::energy);
+    plot_combo->addData("Pot. energy string", data.statics->states.e_pot_string, Quantities::energy);
     plot_combo->setCombination(0, 1);
 
     tabs->addTab(scrollArea(numbers), "Characteristics");
@@ -131,12 +130,12 @@ StaticOutputWidget::StaticOutputWidget(const OutputData& data)
     tabs->addTab(plot_energy, "Energy");
     tabs->addTab(plot_combo, "Other Plots");
 
-    auto slider = new Slider(data.statics.states.draw_length, "Draw length", Quantities::length);
-    slider->addJumpAction("Max. draw force", data.statics.max_draw_force_index);
-    slider->addJumpAction("Max. grip force", data.statics.max_grip_force_index);
-    slider->addJumpAction("Max. string force", data.statics.max_string_force_index);
-    for (size_t i = 0; i < data.statics.max_stress_index.size(); ++i) {
-        slider->addJumpAction(QString::fromStdString("Max. stress for layer:" + data.setup.limb_properties.layers[i].name), data.statics.max_stress_index[i].first);
+    auto slider = new Slider(data.statics->states.draw_length, "Draw length", Quantities::length);
+    slider->addJumpAction("Max. draw force", std::get<1>(data.statics->max_draw_force));
+    slider->addJumpAction("Max. grip force", std::get<1>(data.statics->max_grip_force));
+    slider->addJumpAction("Max. string force", std::get<1>(data.statics->max_string_force));
+    for (size_t i = 0; i < data.statics->max_layer_stresses.size(); ++i) {
+        slider->addJumpAction(QString::fromStdString("Max. stress for layer: TODO"), std::get<0>(data.statics->max_layer_stresses[i]));
     }
 
     QObject::connect(slider, &Slider::indexChanged, plot_shapes, &ShapePlot::setStateIndex);
@@ -161,9 +160,10 @@ StaticOutputWidget::~StaticOutputWidget() {
 }
 
 
-DynamicOutputWidget::DynamicOutputWidget(const OutputData& data)
+DynamicOutputWidget::DynamicOutputWidget(const OutputData2& data)
     : tabs(new QTabWidget())
 {
+    /*
     auto numbers = new NumberGrid();
     numbers->addColumn();
     numbers->addGroup("Performance");
@@ -238,6 +238,7 @@ DynamicOutputWidget::DynamicOutputWidget(const OutputData& data)
 
     UserSettings settings;
     tabs->setCurrentIndex(settings.value("DynamicOutputWidget/selectedTab", tabs->currentIndex()).toInt());
+    */
 }
 
 DynamicOutputWidget::~DynamicOutputWidget() {

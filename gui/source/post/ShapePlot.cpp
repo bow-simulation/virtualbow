@@ -1,6 +1,7 @@
 #include "ShapePlot.hpp"
+#include "pre/viewmodel/units/UnitSystem.hpp"
 
-ShapePlot::ShapePlot(const LimbProperties& limb, const BowStates& states, int background_states)
+ShapePlot::ShapePlot(const LimbSetup& limb, const StateVec& states, int background_states)
     : limb(limb),
       states(states),
       quantity(Quantities::length),
@@ -80,41 +81,20 @@ void ShapePlot::updateBackgroundStates() {
 
     for(int i = 0; i < intermediate_states; ++i) {
         size_t j = (intermediate_states == 1) ? 0 : i*(states.time.size() - 1)/(intermediate_states - 1);
-
-        plotLimbOutline(limb_left[i], limb_right[i], states.x_pos_limb[j], states.y_pos_limb[j], states.angle_limb[j]);
-        string_left[i]->setData(
-            quantity.getUnit().fromBase(-states.x_pos_string[j]),
-            quantity.getUnit().fromBase(states.y_pos_string[j])
-        );
-        string_right[i]->setData(
-            quantity.getUnit().fromBase(states.x_pos_string[j]),
-            quantity.getUnit().fromBase(states.y_pos_string[j])
-        );
+        plotLimbOutline(limb_left[i], limb_right[i], states.limb_pos[j]);
+        plotString(string_left[i], string_right[i], states.string_pos[j]);
     }
 
     if(intermediate_states >= 0) {
         // Unbraced state
-        plotLimbOutline(limb_left[intermediate_states], limb_right[intermediate_states], limb.x_pos, limb.y_pos, limb.angle);
+        plotLimbOutline(limb_left[intermediate_states], limb_right[intermediate_states], limb.position);
     }
 }
 
 void ShapePlot::updateCurrentState() {
-    plotLimbOutline(limb_left.back(), limb_right.back(), states.x_pos_limb[index], states.y_pos_limb[index], states.angle_limb[index]);
-
-    string_right.back()->setData(
-        quantity.getUnit().fromBase(states.x_pos_string[index]),
-        quantity.getUnit().fromBase(states.y_pos_string[index])
-    );
-    string_left.back()->setData(
-        quantity.getUnit().fromBase(-states.x_pos_string[index]),
-        quantity.getUnit().fromBase(states.y_pos_string[index])
-    );
-
-    arrow->data()->clear();
-    arrow->addData(
-        quantity.getUnit().fromBase(0.0),
-        quantity.getUnit().fromBase(states.pos_arrow[index])
-    );
+    plotLimbOutline(limb_left.back(), limb_right.back(), states.limb_pos[index]);
+    plotString(string_left.back(), string_right.back(), states.string_pos[index]);
+    plotArrow(states.arrow_pos[index]);
 }
 
 void ShapePlot::updateAxes() {
@@ -124,35 +104,46 @@ void ShapePlot::updateAxes() {
     QCPRange x_range;
     QCPRange y_range;
 
-    auto expand = [&](const VectorXd& x_values, const VectorXd& y_values) {
-        for(size_t i = 0; i < x_values.size(); ++i) {
-            x_range.expand(quantity.getUnit().fromBase( x_values[i]));
-            x_range.expand(quantity.getUnit().fromBase(-x_values[i]));
-            y_range.expand(quantity.getUnit().fromBase( y_values[i]));
+    auto expand2 = [&](const std::vector<std::array<double, 2>>& position) {
+        for(size_t i = 0; i < position.size(); ++i) {
+            x_range.expand(quantity.getUnit().fromBase( position[i][0]));
+            x_range.expand(quantity.getUnit().fromBase(-position[i][0]));
+            y_range.expand(quantity.getUnit().fromBase( position[i][1]));
         }
     };
 
-    expand(limb.x_pos, limb.y_pos);
+    auto expand3 = [&](const std::vector<std::array<double, 3>>& position) {
+        for(size_t i = 0; i < position.size(); ++i) {
+            x_range.expand(quantity.getUnit().fromBase( position[i][0]));
+            x_range.expand(quantity.getUnit().fromBase(-position[i][0]));
+            y_range.expand(quantity.getUnit().fromBase( position[i][1]));
+        }
+    };
+
+    expand3(limb.position);
     for(size_t i = 0; i < states.time.size(); ++i) {
         // Add 0.5*height as an estimated upper bound
-        expand(states.x_pos_limb[i] + 0.5*limb.height, states.y_pos_limb[i] + 0.5*limb.height);
-        expand(states.x_pos_string[i], states.y_pos_string[i]);
+        //expand(states.x_pos_limb[i] + 0.5*limb.height, states.y_pos_limb[i] + 0.5*limb.height);
+        //expand(states.x_pos_string[i], states.y_pos_string[i]);
+        expand3(states.limb_pos[i]);
+        expand2(states.string_pos[i]);
     }
 
     this->setAxesLimits(x_range, y_range);
 }
 
-void ShapePlot::plotLimbOutline(QCPCurve* left, QCPCurve* right, const VectorXd& x, const VectorXd& y, const VectorXd& phi) {
+void ShapePlot::plotLimbOutline(QCPCurve* left, QCPCurve* right, const std::vector<std::array<double, 3>>& position) {
     left->data()->clear();
     right->data()->clear();
 
     // Iterate forward and draw back
-    for(int i = 0; i < phi.size(); ++i) {
-        double xi = x[i];
-        double yi = y[i];
+    for(int i = 0; i < position.size(); ++i) {
+        double xi = position[i][0];
+        double yi = position[i][1];
+
         left->addData(
             quantity.getUnit().fromBase(-xi),
-            quantity.getUnit().fromBase(yi)
+            quantity.getUnit().fromBase( yi)
         );
         right->addData(
             quantity.getUnit().fromBase(xi),
@@ -161,16 +152,44 @@ void ShapePlot::plotLimbOutline(QCPCurve* left, QCPCurve* right, const VectorXd&
     }
 
     // Iterate backward and plot belly
-    for(int i = phi.size() - 1; i >= 0; --i) {
-        double xi = x[i] + limb.height[i]*sin(phi[i]);
-        double yi = y[i] - limb.height[i]*cos(phi[i]);
+    for(int i = position.size() - 1; i >= 0; --i) {
+        double xi = position[i][0] + limb.height[i]*sin(position[i][2]);
+        double yi = position[i][1] - limb.height[i]*cos(position[i][2]);
+
         left->addData(
             quantity.getUnit().fromBase(-xi),
-            quantity.getUnit().fromBase(yi)
+            quantity.getUnit().fromBase( yi)
         );
         right->addData(
             quantity.getUnit().fromBase(xi),
             quantity.getUnit().fromBase(yi)
         );
     }
+}
+
+void ShapePlot::plotString(QCPCurve* left, QCPCurve* right, const std::vector<std::array<double, 2>>& position) {
+    left->data()->clear();
+    right->data()->clear();
+
+    for(int i = 0; i < position.size(); ++i) {
+        double xi = position[i][0];
+        double yi = position[i][1];
+
+        left->addData(
+            quantity.getUnit().fromBase(-xi),
+            quantity.getUnit().fromBase( yi)
+        );
+        right->addData(
+            quantity.getUnit().fromBase(xi),
+            quantity.getUnit().fromBase(yi)
+        );
+    }
+}
+
+void ShapePlot::plotArrow(double position) {
+    arrow->data()->clear();
+    arrow->addData(
+        quantity.getUnit().fromBase(0.0),
+        quantity.getUnit().fromBase(position)
+    );
 }
