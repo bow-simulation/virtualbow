@@ -1,5 +1,6 @@
 #pragma once
 #include "solver/model/output/OutputData.hpp"
+#include "solver/model/output2/OutputData2.hpp"
 #include <QWidget>
 
 class QPushButton;
@@ -7,19 +8,19 @@ class QTabWidget;
 
 class OutputWidget: public QWidget {
 public:
-    OutputWidget(const OutputData& data);
+    OutputWidget(const OutputData2& data);
     ~OutputWidget() override;
-    const OutputData& getData();
+    const OutputData2& getData();
 
 private:
-    OutputData data;
+    OutputData2 data;
     QPushButton* button_statics;
     QPushButton* button_dynamics;
 };
 
 class StaticOutputWidget: public QWidget {
 public:
-    StaticOutputWidget(const OutputData& data);
+    StaticOutputWidget(const OutputData2& data);
     ~StaticOutputWidget() override;
 
 private:
@@ -28,7 +29,7 @@ private:
 
 class DynamicOutputWidget: public QWidget {
 public:
-    DynamicOutputWidget(const OutputData& data);
+    DynamicOutputWidget(const OutputData2& data);
     ~DynamicOutputWidget() override;
 
 private:
