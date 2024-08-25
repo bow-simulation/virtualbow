@@ -1,5 +1,6 @@
 #pragma once
 #include "solver/numerics/EigenTypes.hpp"
+#include "solver/numerics/EigenSerialize.hpp"
 #include <nlohmann/json.hpp>
 #include <vector>
 
