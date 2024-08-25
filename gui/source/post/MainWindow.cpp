@@ -4,7 +4,6 @@
 #include "pre/RecentFilesMenu.hpp"
 #include "pre/UnitDialog.hpp"
 #include "pre/utils/UserSettings.hpp"
-#include "config.hpp"
 
 #include <QMenuBar>
 #include <QMessageBox>
