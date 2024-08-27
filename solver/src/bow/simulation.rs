@@ -81,7 +81,7 @@ impl<'a> Simulation<'a> {
         // Additional setup data
         let limb_position = s_eval.iter().map(|&s| {
             let position = profile.position(s);
-            vector![position[0], position[1], profile.angle(s)]
+            [position[0], position[1], profile.angle(s)]
         }).collect();
         let limb_width = s_eval.iter().map(|&s| { section.width(s) }).collect();
         let limb_height = s_eval.iter().map(|&s| { section.height(s) }).collect();
@@ -306,13 +306,13 @@ impl<'a> Simulation<'a> {
         let limb_tip = self.limb_nodes.last().unwrap();
 
         let string_pos = self.string_node.map(|node| vec![
-            vector![ system.get_displacement(limb_tip.x()), system.get_displacement(limb_tip.y()) ],
-            vector![ system.get_displacement(node.x()), system.get_displacement(node.y()) ],
+            [ system.get_displacement(limb_tip.x()), system.get_displacement(limb_tip.y()) ],
+            [ system.get_displacement(node.x()), system.get_displacement(node.y()) ],
         ]).unwrap_or_default();
 
         let string_vel = self.string_node.map(|node| vec![
-            vector![ system.get_velocity(limb_tip.x()), system.get_velocity(limb_tip.y()) ],
-            vector![ system.get_velocity(node.x()), system.get_velocity(node.y()) ],
+            [ system.get_velocity(limb_tip.x()), system.get_velocity(limb_tip.y()) ],
+            [ system.get_velocity(node.x()), system.get_velocity(node.y()) ],
         ]).unwrap_or_default();
 
         /*
@@ -324,15 +324,15 @@ impl<'a> Simulation<'a> {
 
         // Evaluate positions, forces and strains at the limb's evaluation points
 
-        let mut limb_pos = Vec::new();  // TODO: Capacity
-        let mut limb_strain = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
-        let mut limb_force = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
+        let mut limb_pos    = Vec::<[f64; 3]>::new();  // TODO: Capacity
+        let mut limb_strain = Vec::<[f64; 3]>::new();  // TODO: Capacity
+        let mut limb_force  = Vec::<[f64; 3]>::new();  // TODO: Capacity
 
         for &element in &self.limb_elements {
             let element = system.element_ref::<BeamElementCoRot>(element);
-            element.eval_positions().for_each(|u| limb_pos.push(u));
-            element.eval_strains().for_each(|e| limb_strain.push(e));
-            element.eval_forces().for_each(|f| limb_force.push(f));
+            element.eval_positions().for_each(|u| limb_pos.push(u.into()));
+            element.eval_strains().for_each(|e| limb_strain.push(e.into()));
+            element.eval_forces().for_each(|f| limb_force.push(f.into()));
         }
 
         // The grip force is the y component of the forces at the start of the limb.
@@ -355,12 +355,12 @@ impl<'a> Simulation<'a> {
             draw_length,
 
             limb_pos,
-            limb_vel: vec![SVector::zeros(); self.model.settings.n_limb_eval_points],
-            limb_acc: vec![SVector::zeros(); self.model.settings.n_limb_eval_points],
+            limb_vel: vec![[0.0; 3]; self.model.settings.n_limb_eval_points],
+            limb_acc: vec![[0.0; 3]; self.model.settings.n_limb_eval_points],
 
             string_pos,
             string_vel,
-            string_acc: vec![SVector::zeros(); 2],
+            string_acc: vec![[0.0; 2]; 2],
 
             limb_strain,
             limb_force,
