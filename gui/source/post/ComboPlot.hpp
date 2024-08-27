@@ -1,7 +1,6 @@
 #pragma once
 #include "pre/widgets/PlotWidget.hpp"
 #include "pre/viewmodel/units/Quantity.hpp"
-#include "solver/model/output/OutputData.hpp"
 
 class ComboPlot: public QWidget {
 public:

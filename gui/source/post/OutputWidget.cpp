@@ -1,4 +1,4 @@
-#include "solver/model/output2/OutputData2.hpp"
+#include "solver/model/output/OutputData.hpp"
 #include "pre/viewmodel/units/UnitSystem.hpp"
 #include "OutputWidget.hpp"
 #include "NumberGrid.hpp"
@@ -11,7 +11,7 @@
 #include "pre/utils/UserSettings.hpp"
 #include "pre/utils/ScrollArea.hpp"
 
-OutputWidget::OutputWidget(const OutputData2& data)
+OutputWidget::OutputWidget(const OutputData& data)
     : data(data),
       button_statics(new QPushButton("Statics")),
       button_dynamics(new QPushButton("Dynamics"))
@@ -74,11 +74,11 @@ OutputWidget::~OutputWidget() {
     }
 }
 
-const OutputData2& OutputWidget::getData() {
+const OutputData& OutputWidget::getData() {
     return data;
 }
 
-StaticOutputWidget::StaticOutputWidget(const OutputData2& data)
+StaticOutputWidget::StaticOutputWidget(const OutputData& data)
     : tabs(new QTabWidget())
 {
     auto numbers = new NumberGrid();
@@ -160,7 +160,7 @@ StaticOutputWidget::~StaticOutputWidget() {
 }
 
 
-DynamicOutputWidget::DynamicOutputWidget(const OutputData2& data)
+DynamicOutputWidget::DynamicOutputWidget(const OutputData& data)
     : tabs(new QTabWidget())
 {
     /*

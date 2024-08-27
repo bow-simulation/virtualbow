@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <functional>
 
-EnergyPlot::EnergyPlot(const StateVec& states, const std::vector<double>& parameter, const QString& label_x, const Quantity& quantity_x, const Quantity& quantity_y)
+EnergyPlot::EnergyPlot(const States& states, const std::vector<double>& parameter, const QString& label_x, const Quantity& quantity_x, const Quantity& quantity_y)
     : states(states),
       parameter(parameter),
       quantity_x(quantity_x),

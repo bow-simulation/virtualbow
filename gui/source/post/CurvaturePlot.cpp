@@ -1,7 +1,7 @@
 #include "CurvaturePlot.hpp"
 #include "pre/viewmodel/units/UnitSystem.hpp"
 
-CurvaturePlot::CurvaturePlot(const LimbSetup& limb, const StateVec& states)
+CurvaturePlot::CurvaturePlot(const LimbSetup& limb, const States& states)
     : limb(limb),
       states(states),
       index(0),

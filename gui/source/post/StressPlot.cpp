@@ -16,7 +16,7 @@ const QList<QColor> COLOR_PALETTE = {
     QColor("#17becf")
 };
 
-StressPlot::StressPlot(const LimbSetup& limb, const StateVec& states)
+StressPlot::StressPlot(const LimbSetup& limb, const States& states)
     : limb(limb),
       states(states),
       index(0),

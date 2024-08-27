@@ -82,7 +82,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 void MainWindow::loadFile(const QString& path) {
     try {
-        data = OutputData2(path.toLocal8Bit().toStdString());    // toLocal8Bit() for Windows, since toStdString() would convert to UTF8
+        data = OutputData(path.toLocal8Bit().toStdString());    // toLocal8Bit() for Windows, since toStdString() would convert to UTF8
         this->setCentralWidget(new OutputWidget(data));
         this->setWindowFilePath(path);
         action_save_as->setEnabled(true);
