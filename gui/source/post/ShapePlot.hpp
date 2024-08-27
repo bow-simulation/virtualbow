@@ -1,16 +1,16 @@
 #pragma once
 #include "pre/widgets/PlotWidget.hpp"
 #include "pre/viewmodel/units/Quantity.hpp"
-#include "solver/model/output2/OutputData2.hpp"
+#include "solver/model/output/OutputData.hpp"
 
 class ShapePlot: public PlotWidget {
 public:
-    ShapePlot(const LimbSetup& limb, const StateVec& states, int background_states);
+    ShapePlot(const LimbSetup& limb, const States& states, int background_states);
     void setStateIndex(int i);
 
 private:
     const LimbSetup& limb;
-    const StateVec& states;
+    const States& states;
     const Quantity& quantity;
 
     int background_states;

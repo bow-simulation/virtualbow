@@ -48,7 +48,6 @@ add_library(
     source/solver/model/input/InputData.cpp
     source/solver/model/input/Conversion.cpp
     source/solver/model/output/OutputData.cpp
-    source/solver/model/output2/OutputData2.cpp
     source/solver/model/profile/ProfileCurve.cpp
     source/solver/model/profile/ProfileSegment.cpp
     source/solver/model/profile/ProfileInput.cpp
@@ -57,7 +56,6 @@ add_library(
     source/solver/numerics/CubicSpline.cpp
     source/solver/numerics/Fresnel.cpp
     source/solver/numerics/Sorting.cpp
-
 )
 
 target_link_libraries(

@@ -1,7 +1,7 @@
 #include "ShapePlot.hpp"
 #include "pre/viewmodel/units/UnitSystem.hpp"
 
-ShapePlot::ShapePlot(const LimbSetup& limb, const StateVec& states, int background_states)
+ShapePlot::ShapePlot(const LimbSetup& limb, const States& states, int background_states)
     : limb(limb),
       states(states),
       quantity(Quantities::length),

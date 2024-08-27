@@ -1,6 +1,5 @@
 #pragma once
 #include "solver/model/output/OutputData.hpp"
-#include "solver/model/output2/OutputData2.hpp"
 #include <QMainWindow>
 
 class RecentFilesMenu;
@@ -21,7 +20,7 @@ private:
     QAction* action_set_units;
     RecentFilesMenu* menu_open_recent;
 
-    OutputData2 data;
+    OutputData data;
 
     void closeEvent(QCloseEvent *event) override;
 
