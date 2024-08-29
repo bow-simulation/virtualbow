@@ -3,13 +3,13 @@ use itertools::Itertools;
 use crate::fem::system::system::System;
 
 #[derive(Copy, Clone, Debug)]
-pub struct ModeInfo {
+pub struct Mode {
     pub omega0: f64,    // Undamped frequency
     pub omega: f64,     // Damped frequency
     pub zeta: f64       // Damping ratio
 }
 
-impl ModeInfo {
+impl Mode {
     pub fn new(lambda: Complex<f64>) -> Self {
         Self {
             omega0: lambda.abs(),
@@ -20,7 +20,7 @@ impl ModeInfo {
 }
 
 // Finds the natural frequencies of the system
-pub fn natural_frequencies(system: &mut System) -> Vec<ModeInfo> {
+pub fn natural_frequencies(system: &mut System) -> Vec<Mode> {
     let mut eval = system.default_eigen_eval();
     system.eval_eigen(&mut eval);
 
@@ -31,7 +31,7 @@ pub fn natural_frequencies(system: &mut System) -> Vec<ModeInfo> {
     );
 }
 
-pub fn natural_frequencies_from_matrices(M: &DVector<f64>, D: &DMatrix<f64>, K: &DMatrix<f64>) -> Vec<ModeInfo> {
+pub fn natural_frequencies_from_matrices(M: &DVector<f64>, D: &DMatrix<f64>, K: &DMatrix<f64>) -> Vec<Mode> {
     let A = stack![
         0, K;
         K, D;
@@ -47,10 +47,10 @@ pub fn natural_frequencies_from_matrices(M: &DVector<f64>, D: &DMatrix<f64>, K: 
     let lambda = (B_inv*A).complex_eigenvalues();
 
     // Create natural frequency result for each pair of complex conjugated eigenvalues
-    let mut results: Vec<ModeInfo> = lambda.iter()
+    let mut results: Vec<Mode> = lambda.iter()
         .tuple_windows()
         .filter(|(l1, l2)| l1.conj().eq(l2))    // TODO: Should there be a small tolerance here?
-        .map(|(l1, _)| ModeInfo::new(*l1))
+        .map(|(l1, _)| Mode::new(*l1))
         .collect();
 
     // Sort results by undamped natural frequency

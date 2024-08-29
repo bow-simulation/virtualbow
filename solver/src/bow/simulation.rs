@@ -5,7 +5,7 @@ use itertools::Itertools;
 use nalgebra::{SVector, vector};
 use crate::fem::elements::bar::BarElement;
 use crate::fem::elements::beam::{BeamElementCoRot, CrossSection, PlanarCurve};
-use crate::fem::solvers::eigen::{ModeInfo, natural_frequencies};
+use crate::fem::solvers::eigen::{Mode, natural_frequencies};
 use crate::fem::solvers::statics::{Settings, StaticSolver};
 use crate::fem::system::element::Element;
 use crate::fem::system::nodes::{Constraints, GebfNode, PointNode};
@@ -13,8 +13,8 @@ use crate::fem::system::system::{StaticEval, System};
 use crate::bow::sections::section::LayeredCrossSection;
 use crate::bow::errors::ModelError;
 use crate::bow::profile::profile::{CurvePoint, ProfileCurve};
-use crate::bow::model::BowModel;
-use crate::bow::output::{Dynamics, LayerSetup, LimbSetup, Output, Setup, State, StateVec, Statics};
+use crate::bow::input::BowInput;
+use crate::bow::output::{Dynamics, LayerInfo, LimbInfo, BowOutput, Common, State, StateVec, Statics};
 use crate::numerics::root_finding::regula_falsi;
 
 #[derive(ValueEnum, Debug, Copy, Clone)]
@@ -24,8 +24,8 @@ pub enum SimulationMode {
 }
 
 pub struct Simulation<'a> {
-    model: &'a BowModel,
-    setup: Setup,
+    model: &'a BowInput,
+    info: Common,
     limb_nodes: Vec<GebfNode>,
     limb_elements: Vec<usize>,
 
@@ -43,7 +43,7 @@ impl<'a> Simulation<'a> {
     const BRACING_TARGET_ITER: usize = 5;        // Desired number of iterations for the static solver
 
     // Set up the simulation either with or without string, depending on simulation mode
-    fn new(model: &'a BowModel, string: bool) -> Result<(Simulation, System), ModelError> {
+    fn new(model: &'a BowInput, string: bool) -> Result<(Simulation, System), ModelError> {
         // Check basic validity of the model data and propagate any errors
         model.validate()?;
 
@@ -71,13 +71,14 @@ impl<'a> Simulation<'a> {
 
         // Layer setup data
         let layers = model.layers.iter().map(|layer| {
-            let h0 = layer.height.first().unwrap()[0];
-            let h1 = layer.height.last().unwrap()[1];
-            LayerSetup {
-                length: lin_space(h0..=h1, model.settings.n_layer_eval_points).collect(),
+            let l0 = profile.s_start() + profile.length()*layer.height.first().unwrap()[0];    // Start arc length of the layer
+            let l1 = profile.s_start() + profile.length()*layer.height.last().unwrap()[0];     // End arc length of the layer
+            LayerInfo {
+                name: layer.name.clone(),
+                length: lin_space(l0..=l1, model.settings.n_layer_eval_points).collect(),
             }
-        }).collect();
-        
+        }).collect_vec();
+
         // Additional setup data
         let limb_position = s_eval.iter().map(|&s| {
             let position = profile.position(s);
@@ -109,14 +110,14 @@ impl<'a> Simulation<'a> {
             (None, None)
         };
 
-        let setup = Setup {
-            limb: LimbSetup {
-                layers: layers,
+        let setup = Common {
+            limb: LimbInfo {
                 length: s_eval,
                 position: limb_position,
                 width: limb_width,
                 height: limb_height,
             },
+            layers,
             string_length: 0.0,
             string_mass: 0.0,
             limb_mass: 0.0,
@@ -124,7 +125,7 @@ impl<'a> Simulation<'a> {
 
         let simulation = Self {
             model,
-            setup,
+            info: setup,
             limb_nodes,
             limb_elements,
             string_node,
@@ -135,7 +136,7 @@ impl<'a> Simulation<'a> {
     }
 
     // Callback: (phase, progress) -> continue
-    pub fn simulate<F>(model: &'a BowModel, mode: SimulationMode, mut callback: F) -> Result<Output, ModelError>
+    pub fn simulate<F>(model: &'a BowInput, mode: SimulationMode, mut callback: F) -> Result<BowOutput, ModelError>
         where F: FnMut(&str, f64) -> bool
     {
         let (simulation, mut system) = Self::new(&model, true)?;
@@ -222,10 +223,11 @@ impl<'a> Simulation<'a> {
         let e_pot_back = states.e_pot_limbs.last().unwrap() + states.e_pot_string.last().unwrap();
 
         let final_draw_force = draw_force_back;
-        let drawing_work = e_pot_back - e_pot_front;
+        let final_drawing_work = e_pot_back - e_pot_front;
         let storage_factor = (e_pot_back - e_pot_front)/(0.5*(draw_length_back - draw_length_front)*draw_force_back);
 
         let max_string_force = states.string_force.iter().enumerate().map(|(a, b)| {(*b, a)}).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();  // TODO: Write function for this
+        let max_strand_force = (max_string_force.0/(model.string.n_strands as f64), max_string_force.1);
         let max_grip_force = states.grip_force.iter().enumerate().map(|(a, b)| {(*b, a)}).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();      // TODO: Write function for this
         let max_draw_force = states.draw_force.iter().enumerate().map(|(a, b)| {(*b, a)}).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();      // TODO: Write function for this
 
@@ -233,13 +235,14 @@ impl<'a> Simulation<'a> {
         let statics = Some(Statics {
             states,
             final_draw_force,
-            drawing_work,
+            final_drawing_work,
             storage_factor,
             max_string_force,
+            max_strand_force,
             max_grip_force,
             max_draw_force,
-            min_layer_stresses: vec![],
-            max_layer_stresses: vec![],
+            min_layer_stresses: vec![(0.0, 0, 0); model.layers.len()],
+            max_layer_stresses: vec![(0.0, 0, 0); model.layers.len()],
         });
 
         // TODO: Implement dynamic simulation
@@ -248,30 +251,30 @@ impl<'a> Simulation<'a> {
             SimulationMode::Dynamic => Some(Dynamics::default())
         };
 
-        Ok(Output {
-            setup: simulation.setup,
+        Ok(BowOutput {
+            common: simulation.info,
             statics,
             dynamics,
         })
     }
 
-    pub fn simulate_statics(model: &'a BowModel) -> Result<Output, ModelError> {
+    pub fn simulate_statics(model: &'a BowInput) -> Result<BowOutput, ModelError> {
         Self::simulate(model, SimulationMode::Static, |_, _| true)
     }
 
-    pub fn simulate_dynamics(model: &'a BowModel) -> Result<Output, ModelError> {
+    pub fn simulate_dynamics(model: &'a BowInput) -> Result<BowOutput, ModelError> {
         Self::simulate(model, SimulationMode::Dynamic, |_, _| true)
     }
 
-    pub fn simulate_natural_frequencies(model: &'a BowModel) -> Result<(Setup, Vec<ModeInfo>), ModelError> {
+    pub fn simulate_natural_frequencies(model: &'a BowInput) -> Result<(Common, Vec<Mode>), ModelError> {
         let (simulation, mut system) = Self::new(&model, false)?;
         let results = natural_frequencies(&mut system);
-        Ok((simulation.setup, results))
+        Ok((simulation.info, results))
     }
 
     // Simulates a static load (two forces, one moment) applied to the limb tip like a cantilever.
     // This is only used for testing the bow bow against other simulations/results.
-    pub fn simulate_static_load(model: &'a BowModel, Fx: f64, Fy: f64, Mz: f64) -> Result<(Setup, State), ModelError> {
+    pub fn simulate_static_load(model: &'a BowInput, Fx: f64, Fy: f64, Mz: f64) -> Result<(Common, State), ModelError> {
         let (simulation, mut system) = Self::new(&model, false)?;
 
         if let Some(node) = simulation.limb_nodes.last() {
@@ -288,7 +291,7 @@ impl<'a> Simulation<'a> {
         let statics = solver.statics.clone();  // Only for the borrow checker
         let state = simulation.get_bow_state(&system, &statics);
 
-        Ok((simulation.setup, state))
+        Ok((simulation.info, state))
     }
 
     // TODO: Lett mutation, write functions for intermediate results

@@ -8,19 +8,19 @@ use crate::bow::errors::ModelError;
 use crate::bow::versioning::{VersionedWrapper, VersionedWrapperRef};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
-pub struct Output {
-    pub setup: Setup,
+pub struct BowOutput {
+    pub common: Common,
     pub statics: Option<Statics>,
     pub dynamics: Option<Dynamics>,
 }
 
-impl Output {
+impl BowOutput {
     // Current version of the output format, increase when incompatible changes are made.
     pub const FILE_VERSION: u64 = 3;
 
     // Loads output from a msgpack file, including a version check.
     // Since output files make no attempt at backwards compatibility, the version is simply checked for equality and rejected on mismatch.
-    pub fn load<P: AsRef<Path>>(path: P) -> Result<Output, ModelError> {
+    pub fn load<P: AsRef<Path>>(path: P) -> Result<BowOutput, ModelError> {
         let file = File::open(&path).map_err(|e| ModelError::OutputLoadFileError(path.as_ref().to_owned(), e))?;
         let mut reader = BufReader::new(file);
 
@@ -65,10 +65,10 @@ impl Output {
     }
 }
 
-impl Default for Output {
+impl Default for BowOutput {
     fn default() -> Self {
         Self {
-            setup: Default::default(),
+            common: Default::default(),
             statics: None,
             dynamics: None,
         }
@@ -76,8 +76,9 @@ impl Default for Output {
 }
 
 #[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
-pub struct Setup {
-    pub limb: LimbSetup,
+pub struct Common {
+    pub limb: LimbInfo,
+    pub layers: Vec<LayerInfo>,
 
     pub string_length: f64,
     pub string_mass: f64,
@@ -89,10 +90,11 @@ pub struct Statics {
     pub states: StateVec,
 
     pub final_draw_force: f64,
-    pub drawing_work: f64,
+    pub final_drawing_work: f64,
     pub storage_factor: f64,
 
     pub max_string_force: (f64, usize),    // (value, state)
+    pub max_strand_force: (f64, usize),    // (value, state)
     pub max_grip_force: (f64, usize),      // (value, state)
     pub max_draw_force: (f64, usize),      // (value, state)
 
@@ -159,11 +161,7 @@ pub struct State {
 }
 
 #[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
-pub struct LimbSetup {
-    // Layer properties
-    pub layers: Vec<LayerSetup>,
-
-    // Geometry at eval points
+pub struct LimbInfo {
     pub length: Vec<f64>,
     pub position: Vec<[f64; 3]>,    // x, y, φ
     pub width: Vec<f64>,
@@ -171,42 +169,43 @@ pub struct LimbSetup {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
-pub struct LayerSetup {
+pub struct LayerInfo {
+    pub name: String,
     pub length: Vec<f64>,    // Arc lengths at which the layer is evaluated
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::bow::output::Output;
+    use crate::bow::output::BowOutput;
     use crate::bow::errors::ModelError;
 
     #[test]
     fn test_load_output() {
         // IO error when loading from an invalid path
-        assert_matches!(Output::load("bows/tests/nonexistent.res"), Err(ModelError::OutputLoadFileError(_, _)));
+        assert_matches!(BowOutput::load("bows/tests/nonexistent.res"), Err(ModelError::OutputLoadFileError(_, _)));
 
         // Decoding error due to invalid file contents (invalid messagepack)
-        assert_matches!(Output::load("bows/tests/invalid_msgpack_1.res"), Err(ModelError::OutputDecodeMsgPackError(_)));
+        assert_matches!(BowOutput::load("bows/tests/invalid_msgpack_1.res"), Err(ModelError::OutputDecodeMsgPackError(_)));
 
         // Decoding error due to invalid file contents (valid messagepack but invalid structure)
-        assert_matches!(Output::load("bows/tests/invalid_msgpack_2.res"), Err(ModelError::OutputInterpretMsgPackError(_)));
+        assert_matches!(BowOutput::load("bows/tests/invalid_msgpack_2.res"), Err(ModelError::OutputInterpretMsgPackError(_)));
 
         // Error when loading results without version entry
-        assert_matches!(Output::load("bows/tests/no_version.res"), Err(ModelError::OutputVersionNotFound));
+        assert_matches!(BowOutput::load("bows/tests/no_version.res"), Err(ModelError::OutputVersionNotFound));
 
         // Error when loading results with an invalid version entry (wrong type)
-        assert_matches!(Output::load("bows/tests/invalid_version.res"), Err(ModelError::OutputVersionInvalid(_)));
+        assert_matches!(BowOutput::load("bows/tests/invalid_version.res"), Err(ModelError::OutputVersionInvalid(_)));
 
         // Error when loading results with a different version
-        assert_matches!(Output::load("bows/tests/new_version.res"), Err(ModelError::OutputVersionMismatch(_)));
+        assert_matches!(BowOutput::load("bows/tests/new_version.res"), Err(ModelError::OutputVersionMismatch(_)));
 
         // No error when loading a valid output file
-        assert_matches!(Output::load("bows/tests/valid.res"), Ok(_));
+        assert_matches!(BowOutput::load("bows/tests/valid.res"), Ok(_));
     }
 
     #[test]
     fn test_save_output() {
-        let output = Output::default();
+        let output = BowOutput::default();
 
         // IO error from saving to an invalid path
         assert_matches!(output.save("bows/tests/nonexistent/output.res"), Err(ModelError::OutputSaveFileError(_, _)));

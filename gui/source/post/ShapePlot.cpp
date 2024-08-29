@@ -1,8 +1,8 @@
 #include "ShapePlot.hpp"
 #include "pre/viewmodel/units/UnitSystem.hpp"
 
-ShapePlot::ShapePlot(const LimbSetup& limb, const States& states, int background_states)
-    : limb(limb),
+ShapePlot::ShapePlot(const Common& common, const States& states, int background_states)
+    : common(common),
       states(states),
       quantity(Quantities::length),
       background_states(background_states),
@@ -87,7 +87,7 @@ void ShapePlot::updateBackgroundStates() {
 
     if(intermediate_states >= 0) {
         // Unbraced state
-        plotLimbOutline(limb_left[intermediate_states], limb_right[intermediate_states], limb.position);
+        plotLimbOutline(limb_left[intermediate_states], limb_right[intermediate_states], common.limb.position);
     }
 }
 
@@ -120,7 +120,7 @@ void ShapePlot::updateAxes() {
         }
     };
 
-    expand3(limb.position);
+    expand3(common.limb.position);
     for(size_t i = 0; i < states.time.size(); ++i) {
         // Add 0.5*height as an estimated upper bound
         //expand(states.x_pos_limb[i] + 0.5*limb.height, states.y_pos_limb[i] + 0.5*limb.height);
@@ -153,8 +153,8 @@ void ShapePlot::plotLimbOutline(QCPCurve* left, QCPCurve* right, const std::vect
 
     // Iterate backward and plot belly
     for(int i = position.size() - 1; i >= 0; --i) {
-        double xi = position[i][0] + limb.height[i]*sin(position[i][2]);
-        double yi = position[i][1] - limb.height[i]*cos(position[i][2]);
+        double xi = position[i][0] + common.limb.height[i]*sin(position[i][2]);
+        double yi = position[i][1] - common.limb.height[i]*cos(position[i][2]);
 
         left->addData(
             quantity.getUnit().fromBase(-xi),

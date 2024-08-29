@@ -1,4 +1,4 @@
-use crate::bow::output::Output;
+use crate::bow::output::BowOutput;
 use assert_cmd::assert::OutputAssertExt;
 use assert_cmd::cargo::CommandCargoExt;
 use predicates::prelude::predicate;

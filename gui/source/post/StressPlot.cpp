@@ -16,8 +16,8 @@ const QList<QColor> COLOR_PALETTE = {
     QColor("#17becf")
 };
 
-StressPlot::StressPlot(const LimbSetup& limb, const States& states)
-    : limb(limb),
+StressPlot::StressPlot(const Common& common, const States& states)
+    : common(common),
       states(states),
       index(0),
       quantity_length(Quantities::length),
@@ -25,9 +25,9 @@ StressPlot::StressPlot(const LimbSetup& limb, const States& states)
 {
     this->setupTopLegend();
 
-    for(size_t iLayer = 0; iLayer < limb.layers.size(); ++iLayer) {
-        QString name = QString::fromStdString("TODO" /*limb.layers[i].name*/);
-        QColor color = COLOR_PALETTE[iLayer % COLOR_PALETTE.size()];  // Wrap around when colors are exhausted
+    for(size_t iLayer = 0; iLayer < common.layers.size(); ++iLayer) {
+        QString name = QString::fromStdString(common.layers[iLayer].name);
+        QColor color = COLOR_PALETTE[iLayer % COLOR_PALETTE.size()];    // Wrap around when all colors have been used
 
         this->addGraph();
         this->graph(2*iLayer)->setName(name + " (back)");
@@ -56,17 +56,17 @@ void StressPlot::updatePlot() {
 }
 
 void StressPlot::updateStresses() {
-    for(size_t iLayer = 0; iLayer < limb.layers.size(); ++iLayer) {
+    for(size_t iLayer = 0; iLayer < common.layers.size(); ++iLayer) {
         this->graph(2*iLayer)->data()->clear();
         this->graph(2*iLayer+1)->data()->clear();
 
-        for(size_t iLength = 0; iLength < limb.layers[iLayer].length.size(); ++iLength) {
+        for(size_t iLength = 0; iLength < common.layers[iLayer].length.size(); ++iLength) {
             this->graph(2*iLayer)->addData(
-                quantity_length.getUnit().fromBase(limb.layers[iLayer].length[iLength]),
+                quantity_length.getUnit().fromBase(common.layers[iLayer].length[iLength]),
                 quantity_stress.getUnit().fromBase(std::get<0>(states.layer_stress[index][iLayer][iLength]))
             );
             this->graph(2*iLayer+1)->addData(
-                quantity_length.getUnit().fromBase(limb.layers[iLayer].length[iLength]),
+                quantity_length.getUnit().fromBase(common.layers[iLayer].length[iLength]),
                 quantity_stress.getUnit().fromBase(std::get<1>(states.layer_stress[index][iLayer][iLength]))
             );
         }
@@ -78,8 +78,8 @@ void StressPlot::updateAxes() {
     this->yAxis->setLabel("Stress " + quantity_stress.getUnit().getLabel());
 
     QCPRange x_range(
-        quantity_length.getUnit().fromBase(limb.length.front()),
-        quantity_length.getUnit().fromBase(limb.length.back())
+        quantity_length.getUnit().fromBase(common.limb.length.front()),
+        quantity_length.getUnit().fromBase(common.limb.length.back())
     );
     QCPRange y_range(
         0.0,

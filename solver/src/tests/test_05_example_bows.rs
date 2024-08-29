@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use crate::bow::model::BowModel;
+use crate::bow::input::BowInput;
 use crate::bow::simulation::Simulation;
 use crate::tests::utils::plotter::Plotter;
 
@@ -135,7 +135,7 @@ fn bow_v3u2t11b() {
 */
 
 fn perform_bow_test(file: &str) {
-    let model = BowModel::load(file).expect("Failed to load bow file");
+    let model = BowInput::load(file).expect("Failed to load bow file");
     let output = Simulation::simulate_statics(&model).unwrap();
     //output.save_json(outfile).expect("Failed to save simulation output");
 
@@ -152,14 +152,18 @@ fn perform_bow_test(file: &str) {
     }
 
     // Check basic dimensions of the setup data
-    assert_eq!(output.setup.limb.layers.len(), model.layers.len());
-    for layer in &output.setup.limb.layers {
+    assert_eq!(output.common.layers.len(), model.layers.len());
+    for layer in &output.common.layers {
         assert_eq!(layer.length.len(), model.settings.n_layer_eval_points);
     }
-    assert_eq!(output.setup.limb.length.len(), model.settings.n_limb_eval_points);
-    assert_eq!(output.setup.limb.width.len(), model.settings.n_limb_eval_points);
-    assert_eq!(output.setup.limb.height.len(), model.settings.n_limb_eval_points);
-    assert_eq!(output.setup.limb.position.len(), model.settings.n_limb_eval_points);
+    assert_eq!(output.common.limb.length.len(), model.settings.n_limb_eval_points);
+    assert_eq!(output.common.limb.width.len(), model.settings.n_limb_eval_points);
+    assert_eq!(output.common.limb.height.len(), model.settings.n_limb_eval_points);
+    assert_eq!(output.common.limb.position.len(), model.settings.n_limb_eval_points);
+
+    // Basic dimension of the fixed static data
+    assert_eq!(statics.min_layer_stresses.len(), model.layers.len());
+    assert_eq!(statics.max_layer_stresses.len(), model.layers.len());
 
     // Check if number of states matches settings
     assert_eq!(states.len(), model.settings.n_draw_steps + 1);
@@ -177,12 +181,8 @@ fn perform_bow_test(file: &str) {
         assert_eq!(state.limb_force.len(), model.settings.n_limb_eval_points);
         assert_eq!(state.layer_strain.len(), model.layers.len());
         assert_eq!(state.layer_stress.len(), model.layers.len());
-        for layer in state.layer_strain {
-            assert_eq!(layer.len(), model.settings.n_layer_eval_points);
-        }
-        for layer in state.layer_stress {
-            assert_eq!(layer.len(), model.settings.n_layer_eval_points);
-        }
+        assert!(state.layer_strain.iter().all(|layer| layer.len() == model.settings.n_layer_eval_points));
+        assert!(state.layer_stress.iter().all(|layer| layer.len() == model.settings.n_layer_eval_points));
 
         // Check limb starting point (positions and angle)
         assert_abs_diff_eq!(state.limb_pos[0][0], 0.5*model.dimensions.handle_length, epsilon=1e-12);
@@ -222,7 +222,7 @@ fn perform_bow_test(file: &str) {
         let Fx = -state.string_force*f64::cos(alpha);
         let Fy = -state.string_force*f64::sin(alpha);
 
-        for (j, &s) in output.setup.limb.length.iter().enumerate() {
+        for (j, &s) in output.common.limb.length.iter().enumerate() {
             let x = state.limb_pos[j][0];
             let y = state.limb_pos[j][1];
             let φ = state.limb_pos[j][2];

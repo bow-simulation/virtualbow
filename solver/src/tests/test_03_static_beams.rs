@@ -1,7 +1,7 @@
 use std::f64::consts::{FRAC_PI_4, TAU};
 use nalgebra::DVector;
 use crate::bow::sections::section::LayerAlignment;
-use crate::bow::model::{BowModel, Layer, Material, Profile, Width};
+use crate::bow::input::{BowInput, Layer, Material, Profile, Width};
 use crate::bow::profile::input::SegmentInput;
 use crate::bow::profile::segments::clothoid::{ArcInput, LineInput};
 use crate::bow::simulation::Simulation;
@@ -35,7 +35,7 @@ fn linear_straight_uniform_elongation() {
     let rho = 7850.0;
 
     // Beam bow
-    let mut model = BowModel::default();
+    let mut model = BowInput::default();
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = 100;
     model.settings.n_draw_steps = 5;
@@ -103,7 +103,7 @@ fn linear_straight_uniform_cantilever() {
     let rho = 7850.0;
 
     // Beam bow
-    let mut model = BowModel::default();
+    let mut model = BowInput::default();
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = 100;
     model.settings.n_draw_steps = 5;
@@ -171,7 +171,7 @@ fn linear_straight_uniform_coilup() {
     let rho = 7850.0;
 
     // Beam bow
-    let mut model = BowModel::default();
+    let mut model = BowInput::default();
     model.settings.n_limb_elements = 50;
     model.settings.n_limb_eval_points = 100;
     model.settings.n_draw_steps = 9;
@@ -246,7 +246,7 @@ fn nonlinear_straight_uniform_cantilever() {
     let Fy = 200.0;
 
     // Beam bow
-    let mut model = BowModel::default();
+    let mut model = BowInput::default();
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = u_ref.len();
     model.settings.n_draw_steps = 5;
@@ -331,7 +331,7 @@ fn nonlinear_straight_tapered_cantilever() {
     let Fy = 100.0;
 
     // Beam bow
-    let mut model = BowModel::default();
+    let mut model = BowInput::default();
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = u_ref.len();
     model.settings.n_draw_steps = 5;
@@ -417,7 +417,7 @@ fn nonlinear_curved_uniform_cantilever() {
     let Fy = 200.0;
 
     // Beam bow
-    let mut model = BowModel::default();
+    let mut model = BowInput::default();
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = u_ref.len();
     model.settings.n_draw_steps = 5;
@@ -503,7 +503,7 @@ fn nonlinear_curved_tapered_cantilever() {
     let Fy = 100.0;
 
     // Beam bow
-    let mut model = BowModel::default();
+    let mut model = BowInput::default();
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = u_ref.len();
     model.settings.n_draw_steps = 5;
@@ -584,7 +584,7 @@ fn nonlinear_straight_uniform_cantilever_offsets() {
 
     let solve_for_alignment = |alignment: LayerAlignment| {
         // Beam bow
-        let mut model = BowModel::default();
+        let mut model = BowInput::default();
         model.settings.n_limb_elements = 25;
         model.settings.n_limb_eval_points = 100;
         model.settings.n_draw_steps = 5;
@@ -680,7 +680,7 @@ fn nonlinear_curved_uniform_cantilever_offsets() {
         let ld = rd/r*l;
 
         // Beam bow
-        let mut model = BowModel::default();
+        let mut model = BowInput::default();
         model.settings.n_limb_elements = 20;
         model.settings.n_limb_eval_points = 100;
         model.settings.n_draw_steps = 5;

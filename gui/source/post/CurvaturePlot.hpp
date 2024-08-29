@@ -5,11 +5,11 @@
 
 class CurvaturePlot: public PlotWidget {
 public:
-    CurvaturePlot(const LimbSetup& limb, const States& states);
+    CurvaturePlot(const Common& common, const States& states);
     void setStateIndex(int i);
 
 private:
-    const LimbSetup& limb;
+    const Common& common;
     const States& states;
     int index;
 

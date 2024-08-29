@@ -4,7 +4,7 @@ use crate::fem::elements::mass::MassElement;
 use crate::fem::system::nodes::Constraints;
 use crate::fem::system::system::System;
 use crate::bow::sections::section::{LayerAlignment, LayeredCrossSection};
-use crate::bow::model::{Layer, Material, Width};
+use crate::bow::input::{Layer, Material, Width};
 use crate::bow::profile::profile::CurvePoint;
 use crate::bow::profile::segments::clothoid::{ArcInput, ClothoidSegment};
 use crate::tests::utils;
