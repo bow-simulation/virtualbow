@@ -5,11 +5,11 @@
 
 class StressPlot: public PlotWidget {
 public:
-    StressPlot(const LimbSetup& limb, const States& states);
+    StressPlot(const Common& common, const States& states);
     void setStateIndex(int i);
 
 private:
-    const LimbSetup& limb;
+    const Common& common;
     const States& states;
     int index;
 

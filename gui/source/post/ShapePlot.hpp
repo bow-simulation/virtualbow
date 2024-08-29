@@ -5,11 +5,11 @@
 
 class ShapePlot: public PlotWidget {
 public:
-    ShapePlot(const LimbSetup& limb, const States& states, int background_states);
+    ShapePlot(const Common& common, const States& states, int background_states);
     void setStateIndex(int i);
 
 private:
-    const LimbSetup& limb;
+    const Common& common;
     const States& states;
     const Quantity& quantity;
 

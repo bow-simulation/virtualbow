@@ -15,7 +15,7 @@ struct nlohmann::adl_serializer<std::optional<T>> {
         }
     }
     static void to_json(json & json, std::optional<T> t) {
-        if (t) {
+        if(t) {
             json = *t;
         } else {
             json = nullptr;
@@ -23,24 +23,31 @@ struct nlohmann::adl_serializer<std::optional<T>> {
     }
 };
 
-struct LayerSetup {
+struct LayerInfo {
+    std::string name;
     std::vector<double> length;
 };
 
-struct LimbSetup {
-    // Layer properties
-    std::vector<LayerSetup> layers;
-
-    // Geometry at eval points
+struct LimbInfo {
     std::vector<double> length;
     std::vector<std::array<double, 3>> position;
     std::vector<double> width;
     std::vector<double> height;
 };
 
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerInfo, name, length)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LimbInfo, length, position, width, height)
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerSetup, length)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LimbSetup, length, position, width, height, layers)
+struct Common {
+    LimbInfo limb;
+    std::vector<LayerInfo> layers;
+
+    double limb_mass;
+    double string_mass;
+    double string_length;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Common, limb, layers, limb_mass, string_mass, string_length)
 
 struct States {
     std::vector<double> time;
@@ -104,23 +111,15 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     strand_force
 )
 
-struct Setup {
-    LimbSetup limb;
-    double limb_mass;
-    double string_mass;
-    double string_length;
-};
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Setup, limb, limb_mass, string_mass, string_length)
-
 struct Statics {
     States states;
 
     double final_draw_force;
-    double drawing_work;
+    double final_drawing_work;
     double storage_factor;
 
     std::tuple<double, unsigned> max_string_force;
+    std::tuple<double, unsigned> max_strand_force;
     std::tuple<double, unsigned> max_grip_force;
     std::tuple<double, unsigned> max_draw_force;
 
@@ -132,9 +131,10 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     Statics,
     states,
     final_draw_force,
-    drawing_work,
+    final_drawing_work,
     storage_factor,
     max_string_force,
+    max_strand_force,
     max_grip_force,
     max_draw_force,
     min_layer_stresses,
@@ -156,6 +156,7 @@ struct Dynamics {
     double energy_efficiency;
 
     std::tuple<double, unsigned> max_string_force;
+    std::tuple<double, unsigned> max_strand_force;
     std::tuple<double, unsigned> max_grip_force;
     std::tuple<double, unsigned> max_draw_force;
 
@@ -175,6 +176,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     final_e_kin_string,
     energy_efficiency,
     max_string_force,
+    max_strand_force,
     max_grip_force,
     max_draw_force,
     min_layer_stresses,
@@ -182,7 +184,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
 )
 
 struct OutputData {
-    Setup setup;
+    Common common;
     std::optional<Statics> statics;
     std::optional<Dynamics> dynamics;
 
@@ -192,4 +194,4 @@ struct OutputData {
     void save(const std::string& path) const;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(OutputData, setup, statics, dynamics)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(OutputData, common, statics, dynamics)

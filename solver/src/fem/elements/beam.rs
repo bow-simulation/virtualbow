@@ -503,7 +503,7 @@ mod tests {
     use nalgebra::{DMatrix, matrix, SMatrix, stack, vector};
     use crate::fem::elements::beam::{CrossSection, LinearBeamSegment, PlanarCurve};
     use crate::bow::sections::section::{LayerAlignment, LayeredCrossSection};
-    use crate::bow::model::{Layer, Material, Width};
+    use crate::bow::input::{Layer, Material, Width};
     use crate::bow::profile::profile::CurvePoint;
     use crate::bow::profile::segments::clothoid::{ArcInput, ClothoidSegment, LineInput};
 

@@ -4,7 +4,7 @@ use std::hash::{Hash, Hasher};
 use itertools::Itertools;
 use serde_json::{json, Value};
 use crate::bow::errors::ModelError;
-use crate::bow::model::BowModel;
+use crate::bow::input::BowInput;
 
 // Converts the json definition of a bow file to the currently required format, if necessary and possible.
 // Each time the input format changes, the version counter must be increased and a new conversion function must be added.
@@ -12,17 +12,17 @@ use crate::bow::model::BowModel;
 pub fn convert_to_current_format(value: &mut Value) -> Result<(), ModelError> {
     let version = get_file_version(value)?;
 
-    if version > BowModel::FILE_VERSION {
+    if version > BowInput::FILE_VERSION {
         return Err(ModelError::InputVersionTooNew(version));
     }
 
-    for current in version..BowModel::FILE_VERSION {
+    for current in version..BowInput::FILE_VERSION {
         match current {
             0 => convert_v0_to_v1(value)?,
             1 => convert_v1_to_v2(value)?,
             2 => convert_v2_to_v3(value)?,
-            BowModel::FILE_VERSION => (),
-            BowModel::FILE_VERSION.. => unreachable!(),
+            BowInput::FILE_VERSION => (),
+            BowInput::FILE_VERSION.. => unreachable!(),
         }
     }
 
@@ -64,8 +64,8 @@ fn get_application_version<'a>(version: u64) -> Option<&'a str> {
         0 => Some("0.7.0"),
         1 => Some("0.8.0"),
         2 => Some("0.9.0"),
-        BowModel::FILE_VERSION => Some(env!("CARGO_PKG_VERSION")),
-        BowModel::FILE_VERSION.. => unreachable!(),
+        BowInput::FILE_VERSION => Some(env!("CARGO_PKG_VERSION")),
+        BowInput::FILE_VERSION.. => unreachable!(),
     }
 }
 
@@ -255,7 +255,7 @@ fn convert_v0_to_v1(value: &mut Value) -> Result<(), ModelError> {
 mod tests {
     use std::io::Error;
     use itertools::Itertools;
-    use crate::bow::model::BowModel;
+    use crate::bow::input::BowInput;
 
     #[test]
     fn test_model_conversion() -> Result<(), Error> {
@@ -276,9 +276,9 @@ mod tests {
                     .filter(|path| path.extension().map(|s| s == "bow").unwrap())
                     .map(|file| {
                         println!("\t- Load {:?}", file.file_name().unwrap());
-                        BowModel::load(file).expect("Failed to load model")
+                        BowInput::load(file).expect("Failed to load model")
                     })
-                    .collect::<Vec<BowModel>>();
+                    .collect::<Vec<BowInput>>();
 
                 // Compare loaded models for equality
                 models.iter().tuple_windows().for_each(|(a, b)| {
@@ -287,13 +287,13 @@ mod tests {
 
                 // Save model file in the latest version
                 let model = models.last().unwrap();
-                let file = &path.join(format!("v{}.bow", BowModel::FILE_VERSION));
+                let file = &path.join(format!("v{}.bow", BowInput::FILE_VERSION));
                 println!("\t- Save {:?}", file.file_name().unwrap());
                 model.save(file).unwrap();
 
                 // Load it again and check for equality
                 println!("\t- Load {:?}", file.file_name().unwrap());
-                let loaded = BowModel::load(file).expect("Failed to load model");
+                let loaded = BowInput::load(file).expect("Failed to load model");
                 assert_eq!(loaded, *model, "Model data must be equal");
             }
         }

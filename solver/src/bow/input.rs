@@ -12,7 +12,7 @@ use crate::bow::profile::segments::clothoid::LineInput;
 use crate::bow::versioning::{VersionedWrapper, VersionedWrapperRef};
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
-pub struct BowModel {
+pub struct BowInput {
     pub comment: String,
     pub settings: Settings,
     pub dimensions: Dimensions,
@@ -25,12 +25,12 @@ pub struct BowModel {
     pub damping: Damping,
 }
 
-impl BowModel {
+impl BowInput {
     // Current version of the bow model format, increase when incompatible changes are made.
     pub const FILE_VERSION: u64 = 3;
 
     // Loads a bow bow from a json file, including necessary conversions from older file formats for compatibility.
-    pub fn load<P: AsRef<Path>>(path: P) -> Result<BowModel, ModelError> {
+    pub fn load<P: AsRef<Path>>(path: P) -> Result<BowInput, ModelError> {
         let file = File::open(&path).map_err(|e| ModelError::InputLoadFileError(path.as_ref().to_owned(), e))?;
         let mut reader = BufReader::new(file);
 
@@ -75,7 +75,7 @@ impl BowModel {
     }
 }
 
-impl Default for BowModel {
+impl Default for BowInput {
     // Valid default values for a new bow bow
     fn default() -> Self {
         Self {
@@ -441,45 +441,45 @@ impl Damping {
 
 #[cfg(test)]
 mod tests {
-    use crate::bow::model::BowModel;
+    use crate::bow::input::BowInput;
     use crate::bow::errors::ModelError;
 
     #[test]
     fn test_load_model() {
         // IO error when loading from an invalid path
-        assert_matches!(BowModel::load("bows/tests/nonexistent.bow"), Err(ModelError::InputLoadFileError(_, _)));
+        assert_matches!(BowInput::load("bows/tests/nonexistent.bow"), Err(ModelError::InputLoadFileError(_, _)));
 
         // Deserialization error due to invalid file contents (no valid json)
-        assert_matches!(BowModel::load("bows/tests/invalid_json_1.bow"), Err(ModelError::InputDeserializeJsonError(_)));
+        assert_matches!(BowInput::load("bows/tests/invalid_json_1.bow"), Err(ModelError::InputDeserializeJsonError(_)));
 
         // Deserialization error due to invalid file contents (valid json but invalid structure)
-        assert_matches!(BowModel::load("bows/tests/invalid_json_2.bow"), Err(ModelError::InputInterpretJsonError(_)));
+        assert_matches!(BowInput::load("bows/tests/invalid_json_2.bow"), Err(ModelError::InputInterpretJsonError(_)));
 
         // Error when loading a bow file without version entry
-        assert_matches!(BowModel::load("bows/tests/no_version.bow"), Err(ModelError::InputVersionNotFound));
+        assert_matches!(BowInput::load("bows/tests/no_version.bow"), Err(ModelError::InputVersionNotFound));
 
         // Error when loading a bow files with an invalid version entry (wrong type)
-        assert_matches!(BowModel::load("bows/tests/invalid_version_1.bow"), Err(ModelError::InputVersionInvalid(_)));
+        assert_matches!(BowInput::load("bows/tests/invalid_version_1.bow"), Err(ModelError::InputVersionInvalid(_)));
 
         // Error when loading a bow files with an invalid version entry (version does not exist)
-        assert_matches!(BowModel::load("bows/tests/invalid_version_2.bow"), Err(ModelError::InputVersionInvalid(_)));
+        assert_matches!(BowInput::load("bows/tests/invalid_version_2.bow"), Err(ModelError::InputVersionInvalid(_)));
 
         // Error when loading a bow file with a version that is too old
-        assert_matches!(BowModel::load("bows/tests/old_version.bow"), Err(ModelError::InputVersionTooOld(_)));
+        assert_matches!(BowInput::load("bows/tests/old_version.bow"), Err(ModelError::InputVersionTooOld(_)));
 
         // Error when loading a bow file with a version that is too new
-        assert_matches!(BowModel::load("bows/tests/new_version.bow"), Err(ModelError::InputVersionTooNew(_)));
+        assert_matches!(BowInput::load("bows/tests/new_version.bow"), Err(ModelError::InputVersionTooNew(_)));
 
         // Error when loading a bow file that can not be converted to the current format
-        assert_matches!(BowModel::load("bows/tests/inconvertible.bow"), Err(ModelError::InputConversionError(_, _, _)));
+        assert_matches!(BowInput::load("bows/tests/inconvertible.bow"), Err(ModelError::InputConversionError(_, _, _)));
 
         // No error when loading a valid bow model
-        assert_matches!(BowModel::load("bows/tests/valid.bow"), Ok(_));
+        assert_matches!(BowInput::load("bows/tests/valid.bow"), Ok(_));
     }
 
     #[test]
     fn test_save_model() {
-        let model = BowModel::default();
+        let model = BowInput::default();
 
         // IO error from saving to an invalid path
         assert_matches!(model.save("bows/tests/nonexistent/valid.bow"), Err(ModelError::InputSaveFileError(_, _)));
