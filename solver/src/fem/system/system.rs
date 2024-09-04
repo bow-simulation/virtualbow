@@ -62,6 +62,8 @@ impl StaticEval {
 #[derive(Clone)]
 pub struct DynamicEval {
     M: DVector<f64>,    // Mass matrix
+    K: DMatrix<f64>,    // Tangent stiffness matrix
+    D: DMatrix<f64>,    // Tangent damping matrix
     p: DVector<f64>,    // External forces
     q: DVector<f64>,    // Internal forces
     a: DVector<f64>,    // Accelerations
@@ -70,6 +72,14 @@ pub struct DynamicEval {
 impl DynamicEval {
     pub fn get_mass_matrix(&self) -> &DVector<f64> {
         &self.M
+    }
+
+    pub fn get_stiffness_matrix(&self) -> &DMatrix<f64> {
+        &self.K
+    }
+
+    pub fn get_damping_matrix(&self) -> &DMatrix<f64> {
+        &self.D
     }
 
     pub fn get_external_forces(&self) -> &DVector<f64> {
@@ -250,7 +260,7 @@ impl System {
         self.v.copy_from(value);
     }
 
-    pub fn default_static_eval(&self) -> StaticEval {
+    pub fn create_static_eval(&self) -> StaticEval {
         let mut eval = StaticEval {
             λ: 1.0,
             p: DVector::<f64>::zeros(self.n_dofs()),
@@ -268,13 +278,15 @@ impl System {
         eval
     }
 
-    pub fn default_dynamic_eval(&self) -> DynamicEval {
+    pub fn create_dynamic_eval(&self) -> DynamicEval {
         // Create state with zero values
         let mut eval = DynamicEval {
+            M: DVector::<f64>::zeros(self.n_dofs()),
             p: DVector::<f64>::zeros(self.n_dofs()),
             q: DVector::<f64>::zeros(self.n_dofs()),
             a: DVector::<f64>::zeros(self.n_dofs()),
-            M: DVector::<f64>::zeros(self.n_dofs()),
+            K: DMatrix::<f64>::zeros(self.n_dofs(), self.n_dofs()),
+            D: DMatrix::<f64>::zeros(self.n_dofs(), self.n_dofs()),
         };
 
         // Initialize mass matrix, because it has to be done only once per dynamic simulation
@@ -286,7 +298,7 @@ impl System {
         eval
     }
 
-    pub fn default_eigen_eval(&self) -> EigenEval {
+    pub fn create_eigen_eval(&self) -> EigenEval {
         // Create state with zero values
         let mut eval = EigenEval {
             M: DVector::<f64>::zeros(self.n_dofs()),
@@ -304,32 +316,34 @@ impl System {
     }
 
     // TODO: Unify with other eval functions
-    pub fn eval_statics(&mut self, statics: &mut StaticEval) {
+    pub fn eval_statics(&mut self, eval: &mut StaticEval) {
         // Set to zero in case of previous values
-        statics.q.fill(0.0);
-        statics.K.fill(0.0);
+        eval.q.fill(0.0);
+        eval.K.fill(0.0);
 
         // Iterate over elements, set their state and add their contributions to the results
         for (dofs, element) in &mut self.elements {
             let u_view = PositionView::new(&self.u, dofs);
             let v_view = VelocityView::new(&self.v, dofs);
 
-            let mut q_view = Some(VectorView::new(&mut statics.q, dofs));
-            let mut k_view = Some(MatrixView::new(&mut statics.K, dofs));
+            let mut q_view = Some(VectorView::new(&mut eval.q, dofs));
+            let mut k_view = Some(MatrixView::new(&mut eval.K, dofs));
 
             element.set_state_and_evaluate(&u_view, &v_view, q_view.as_mut(), k_view.as_mut(), None);
         }
     }
 
     // TODO: Unify with other eval functions
-    pub fn eval_dynamics(&mut self, dynamics: &mut DynamicEval) {
+    pub fn eval_dynamics(&mut self, eval: &mut DynamicEval) {
         // Set to zero in case of previous values
-        dynamics.q.fill(0.0);
+        eval.K.fill(0.0);
+        eval.D.fill(0.0);
+        eval.p.fill(0.0);
+        eval.q.fill(0.0);
 
         // Evaluate external forces
-        dynamics.p.fill(0.0);
         for (dof, force) in &self.forces {
-            let mut p_view = VectorView::new(&mut dynamics.p, std::slice::from_ref(dof));
+            let mut p_view = VectorView::new(&mut eval.p, std::slice::from_ref(dof));
             p_view.add(SVector::<f64, 1>::from_element(force(self.t)));
         }
 
@@ -337,13 +351,16 @@ impl System {
         for (dofs, element) in &mut self.elements {
             let u_view = PositionView::new(&self.u, dofs);
             let v_view = VelocityView::new(&self.v, dofs);
-            let mut q_view = Some(VectorView::new(&mut dynamics.q, dofs));
 
-            element.set_state_and_evaluate(&u_view, &v_view, q_view.as_mut(), None, None);
+            let mut q_view = Some(VectorView::new(&mut eval.q, dofs));
+            let mut k_view = Some(MatrixView::new(&mut eval.K, dofs));
+            let mut d_view = Some(MatrixView::new(&mut eval.D, dofs));
+
+            element.set_state_and_evaluate(&u_view, &v_view, q_view.as_mut(), k_view.as_mut(), d_view.as_mut());
         }
 
         // Evaluate accelerations
-        dynamics.a.copy_from(&(&dynamics.p - &dynamics.q).component_div(&dynamics.M));
+        eval.a.copy_from(&(&eval.p - &eval.q).component_div(&eval.M));
     }
 
     // TODO: Unify with other eval functions

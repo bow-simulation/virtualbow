@@ -136,7 +136,7 @@ fn bow_v3u2t11b() {
 
 fn perform_bow_test(file: &str) {
     let model = BowInput::load(file).expect("Failed to load bow file");
-    let output = Simulation::simulate_statics(&model).unwrap();
+    let output = Simulation::simulate_dynamics(&model).unwrap();
     //output.save_json(outfile).expect("Failed to save simulation output");
 
     let statics = output.statics.unwrap();

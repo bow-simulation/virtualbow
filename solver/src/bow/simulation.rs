@@ -6,21 +6,28 @@ use nalgebra::{SVector, vector};
 use crate::fem::elements::bar::BarElement;
 use crate::fem::elements::beam::{BeamElementCoRot, CrossSection, PlanarCurve};
 use crate::fem::solvers::eigen::{Mode, natural_frequencies};
-use crate::fem::solvers::statics::{Settings, StaticSolver};
+use crate::fem::solvers::statics::StaticSolver;
 use crate::fem::system::element::Element;
 use crate::fem::system::nodes::{Constraints, GebfNode, PointNode};
-use crate::fem::system::system::{StaticEval, System};
+use crate::fem::system::system::{DynamicEval, StaticEval, System};
 use crate::bow::sections::section::LayeredCrossSection;
 use crate::bow::errors::ModelError;
 use crate::bow::profile::profile::{CurvePoint, ProfileCurve};
 use crate::bow::input::BowInput;
 use crate::bow::output::{Dynamics, LayerInfo, LimbInfo, BowOutput, Common, State, StateVec, Statics};
+use crate::fem::solvers::{dynamics, statics};
+use crate::fem::solvers::dynamics::DynamicSolver;
 use crate::numerics::root_finding::regula_falsi;
 
-#[derive(ValueEnum, Debug, Copy, Clone)]
+#[derive(ValueEnum, PartialEq, Debug, Copy, Clone)]
 pub enum SimulationMode {
     Static,
     Dynamic
+}
+
+pub enum SystemEval<'a> {
+    Static(&'a StaticEval),
+    Dynamic(&'a DynamicEval),
 }
 
 pub struct Simulation<'a> {
@@ -141,114 +148,146 @@ impl<'a> Simulation<'a> {
     {
         let (simulation, mut system) = Self::new(&model, true)?;
 
-        let l0 = system.element_ref::<BarElement>(simulation.string_element.unwrap()).get_initial_length();
-        system.add_force(simulation.string_node.unwrap().y(), move |_t| { -1.0 });
+        let statics = {
+            let l0 = system.element_ref::<BarElement>(simulation.string_element.unwrap()).get_initial_length();
+            system.add_force(simulation.string_node.unwrap().y(), move |_t| { -1.0 });
 
-        // Initial values for the string factor, the slope and the step size for iterating on the string factor
-        let mut factor1 = 1.0;
-        let mut slope1 = simulation.get_string_slope(&system);
-        let mut delta = Self::BRACING_DELTA_START;
+            // Initial values for the string factor, the slope and the step size for iterating on the string factor
+            let mut factor1 = 1.0;
+            let mut slope1 = simulation.get_string_slope(&system);
+            let mut delta = Self::BRACING_DELTA_START;
 
-        // Abort if the initial slope is negative, which means that the supplied brace height is too
-        if slope1 < 0.0 {
-            // TODO: Determine the minimum required brace height and put it into the error message
-            return Err(ModelError::SimulationBraceHeightTooLow(model.dimensions.brace_height));
-        }
+            // Abort if the initial slope is negative, which means that the supplied brace height is too
+            if slope1 < 0.0 {
+                // TODO: Determine the minimum required brace height and put it into the error message
+                return Err(ModelError::SimulationBraceHeightTooLow(model.dimensions.brace_height));
+            }
 
-        // Applies the given string length to the bow, solves for static equilibrium with the string pinned at brace height.
-        // Returns the slope of the string as well as the return state of the static solver.
-        // The root of this function is the string length that braces the bow with the desired brace height.
-        let mut try_string_length = |factor: f64| {
-            system.element_mut::<BarElement>(simulation.string_element.unwrap()).set_initial_length(factor*l0);
+            // Applies the given string length to the bow, solves for static equilibrium with the string pinned at brace height.
+            // Returns the slope of the string as well as the return state of the static solver.
+            // The root of this function is the string length that braces the bow with the desired brace height.
+            let mut try_string_length = |factor: f64| {
+                system.element_mut::<BarElement>(simulation.string_element.unwrap()).set_initial_length(factor * l0);
 
-            let mut solver = StaticSolver::new(&mut system, Settings::default());
-            let result = solver.solve_equilibrium_displacement_controlled(simulation.string_node.unwrap().y(), -model.dimensions.brace_height);
-            let slope = simulation.get_string_slope(&system);
+                let mut solver = StaticSolver::new(&mut system, statics::Settings::default());
+                let result = solver.solve_equilibrium_displacement_controlled(simulation.string_node.unwrap().y(), -model.dimensions.brace_height);
+                let slope = simulation.get_string_slope(&system);
 
-            (slope, result)
+                (slope, result)
+            };
+
+            // Iterate on the string length factor in order to find the braced equilibrium state
+            loop {
+                // Try new factor reduced by step size
+                let factor2 = factor1 - delta;
+                let (slope2, result) = try_string_length(factor1 - delta);
+
+                if let Ok(info) = result {
+                    // Static iteration success
+                    if slope2 <= 0.0 {
+                        // Sign change of the slope: Almost done, do the rest by root finding
+                        let try_string_length = |factor| { try_string_length(factor).0 };  // TODO: Error handling, do something with the solver information
+                        regula_falsi(try_string_length, factor1, factor2, slope1, slope2, 0.0, Self::BRACING_SLOPE_TOL, Self::BRACING_MAX_ROOT_ITER).ok_or(ModelError::SimulationBracingNoConvergence)?;
+                        break;
+                    } else {
+                        // Otherwise apply step and continue
+                        factor1 = factor2;
+                        slope1 = slope2;
+
+                        // Adjust step size according to static solver performance
+                        delta *= (Self::BRACING_TARGET_ITER as f64) / (info.iterations as f64);
+                    }
+                } else {
+                    // Static iteration failure: Reduce step size by a generic factor
+                    delta /= 2.0;
+                }
+
+                // Abort if the step size becomes too small
+                if delta < Self::BRACING_DELTA_MIN {
+                    return Err(ModelError::SimulationBracingNoSignChange)
+                }
+            }
+
+            // "Draw" the bow by solving for a static equilibrium path of the string node from brace height to full draw
+            // and store each intermediate step in the static output.
+            let mut states = StateVec::new();
+            let mut solver = StaticSolver::new(&mut system, statics::Settings::default());
+
+            solver.equilibrium_path_displacement_controlled(simulation.string_node.unwrap().y(), -model.dimensions.draw_length, model.settings.n_draw_steps, &mut |system, eval| {
+                let state = simulation.get_bow_state(&system, SystemEval::Static(&eval));
+                let progress = 100.0 * (state.draw_length - model.dimensions.brace_height) / (model.dimensions.draw_length - model.dimensions.brace_height);
+                states.push(state);
+                callback("statics", progress)
+            }).map_err(|e| ModelError::SimulationStaticSolutionFailed(e))?;
+
+            // Compute additional static output values
+
+            let draw_length_front = *states.draw_length.first().unwrap();
+            let draw_length_back = *states.draw_length.last().unwrap();
+            let draw_force_back = *states.draw_force.last().unwrap();
+            let e_pot_front = states.e_pot_limbs.first().unwrap() + states.e_pot_string.first().unwrap();
+            let e_pot_back = states.e_pot_limbs.last().unwrap() + states.e_pot_string.last().unwrap();
+
+            let final_draw_force = draw_force_back;
+            let final_drawing_work = e_pot_back - e_pot_front;
+            let storage_factor = (e_pot_back - e_pot_front) / (0.5 * (draw_length_back - draw_length_front) * draw_force_back);
+
+            let max_string_force = states.string_force.iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();  // TODO: Write function for this
+            let max_strand_force = (max_string_force.0 / (model.string.n_strands as f64), max_string_force.1);
+            let max_grip_force = states.grip_force.iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();      // TODO: Write function for this
+            let max_draw_force = states.draw_force.iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();      // TODO: Write function for this
+
+            // Collect static outputs
+            Some(Statics {
+                states,
+                final_draw_force,
+                final_drawing_work,
+                storage_factor,
+                max_string_force,
+                max_strand_force,
+                max_grip_force,
+                max_draw_force,
+                min_layer_stresses: vec![(0.0, 0, 0); model.layers.len()],
+                max_layer_stresses: vec![(0.0, 0, 0); model.layers.len()],
+            })
         };
 
-        // Iterate on the string length factor in order to find the braced equilibrium state
-        loop {
-            // Try new factor reduced by step size
-            let factor2 = factor1 - delta;
-            let (slope2, result) = try_string_length(factor1 - delta);
+        // Perform dynamic simulation, if required
+        let dynamics = {
+            if mode == SimulationMode::Dynamic {
+                let mut states = StateVec::new();
+                let mut solver = DynamicSolver::new(&mut system, dynamics::Settings { timestep: 1e-6, ..Default::default() });
 
-            if let Ok(info) = result {
-                // Static iteration success
-                if slope2  <= 0.0 {
-                    // Sign change of the slope: Almost done, do the rest by root finding
-                    let try_string_length = |factor| { try_string_length(factor).0 };  // TODO: Error handling, do something with the solver information
-                    regula_falsi(try_string_length, factor1, factor2, slope1, slope2, 0.0, Self::BRACING_SLOPE_TOL, Self::BRACING_MAX_ROOT_ITER).ok_or(ModelError::SimulationBracingNoConvergence)?;
-                    break;
-                }
-                else {
-                    // Otherwise apply step and continue
-                    factor1 = factor2;
-                    slope1 = slope2;
+                solver.solve(&mut |system, eval| {
+                    let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval));
+                    //let progress = 100.0 * (state.draw_length - model.dimensions.brace_height) / (model.dimensions.draw_length - model.dimensions.brace_height);
+                    states.push(state);
+                    //callback("statics", progress)
 
-                    // Adjust step size according to static solver performance
-                    delta *= (Self::BRACING_TARGET_ITER as f64)/(info.iterations as f64);
-                }
+                    return system.get_time() < 1e-2;
+                });
+
+                Some(Dynamics {
+                    states,
+                    final_arrow_pos: 0.0,
+                    final_arrow_vel: 0.0,
+                    final_e_kin_arrow: 0.0,
+                    final_e_pot_limbs: 0.0,
+                    final_e_kin_limbs: 0.0,
+                    final_e_pot_string: 0.0,
+                    final_e_kin_string: 0.0,
+                    energy_efficiency: 0.0,
+                    max_string_force: (0.0, 0),
+                    max_strand_force: (0.0, 0),
+                    max_grip_force: (0.0, 0),
+                    max_draw_force: (0.0, 0),
+                    min_layer_stresses: vec![(0.0, 0, 0); model.layers.len()],
+                    max_layer_stresses: vec![(0.0, 0, 0); model.layers.len()],
+                })
             }
             else {
-                // Static iteration failure: Reduce step size by a generic factor
-                delta /= 2.0;
+                None
             }
-
-            // Abort if the step size becomes too small
-            if delta < Self::BRACING_DELTA_MIN {
-                return Err(ModelError::SimulationBracingNoSignChange)
-            }
-        }
-
-        // "Draw" the bow by solving for a static equilibrium path of the string node from brace height to full draw
-        // and store each intermediate step in the static output.
-        let mut states = StateVec::new();
-        let mut solver = StaticSolver::new(&mut system, Settings::default());
-
-        solver.equilibrium_path_displacement_controlled(simulation.string_node.unwrap().y(), -model.dimensions.draw_length, model.settings.n_draw_steps, &mut |system, statics| {
-            let state = simulation.get_bow_state(&system, &statics);
-            let progress = 100.0*(state.draw_length - model.dimensions.brace_height)/(model.dimensions.draw_length - model.dimensions.brace_height);
-            states.push(state);
-            callback("statics", progress)
-        }).map_err(|e| ModelError::SimulationStaticSolutionFailed(e))?;
-
-        // Compute additional static output values
-
-        let draw_length_front = *states.draw_length.first().unwrap();
-        let draw_length_back = *states.draw_length.last().unwrap();
-        let draw_force_back = *states.draw_force.last().unwrap();
-        let e_pot_front = states.e_pot_limbs.first().unwrap() + states.e_pot_string.first().unwrap();
-        let e_pot_back = states.e_pot_limbs.last().unwrap() + states.e_pot_string.last().unwrap();
-
-        let final_draw_force = draw_force_back;
-        let final_drawing_work = e_pot_back - e_pot_front;
-        let storage_factor = (e_pot_back - e_pot_front)/(0.5*(draw_length_back - draw_length_front)*draw_force_back);
-
-        let max_string_force = states.string_force.iter().enumerate().map(|(a, b)| {(*b, a)}).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();  // TODO: Write function for this
-        let max_strand_force = (max_string_force.0/(model.string.n_strands as f64), max_string_force.1);
-        let max_grip_force = states.grip_force.iter().enumerate().map(|(a, b)| {(*b, a)}).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();      // TODO: Write function for this
-        let max_draw_force = states.draw_force.iter().enumerate().map(|(a, b)| {(*b, a)}).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();      // TODO: Write function for this
-
-        // Collect static outputs
-        let statics = Some(Statics {
-            states,
-            final_draw_force,
-            final_drawing_work,
-            storage_factor,
-            max_string_force,
-            max_strand_force,
-            max_grip_force,
-            max_draw_force,
-            min_layer_stresses: vec![(0.0, 0, 0); model.layers.len()],
-            max_layer_stresses: vec![(0.0, 0, 0); model.layers.len()],
-        });
-
-        // TODO: Implement dynamic simulation
-        let dynamics = match mode {
-            SimulationMode::Static => None,
-            SimulationMode::Dynamic => Some(Dynamics::default())
         };
 
         Ok(BowOutput {
@@ -283,22 +322,25 @@ impl<'a> Simulation<'a> {
             system.add_force(node.φ(), move |_t| { Mz });
         }
 
-        let mut solver = StaticSolver::new(&mut system, Settings::default());
+        let mut solver = StaticSolver::new(&mut system, statics::Settings::default());
         for lambda in lin_space(0.0..=1.0, model.settings.n_draw_steps + 1) {
             solver.solve_equilibrium_load_controlled(lambda).expect("Static solver failed");
         }
 
-        let statics = solver.statics.clone();  // Only for the borrow checker
-        let state = simulation.get_bow_state(&system, &statics);
+        let eval = solver.statics.clone();  // Only for the borrow checker
+        let state = simulation.get_bow_state(&system, SystemEval::Static(&eval));
 
         Ok((simulation.info, state))
     }
 
     // TODO: Lett mutation, write functions for intermediate results
-    fn get_bow_state(&self, system: &System, statics: &StaticEval) -> State {
+    fn get_bow_state(&self, system: &System, eval: SystemEval) -> State {
         let time = system.get_time();
         let draw_length = self.string_node.map(|node| { -system.get_displacement(node.y()) }).unwrap_or(0.0);
-        let draw_force = self.string_node.map(|node| { -2.0*statics.get_scaled_external_force(node.y()) }).unwrap_or(0.0);
+        let draw_force = match eval {
+            SystemEval::Static(eval) => self.string_node.map(|node| { -2.0*eval.get_scaled_external_force(node.y()) }).unwrap_or(0.0),
+            SystemEval::Dynamic(eval) => self.string_node.map(|node| { -2.0*eval.get_external_force(node.y()) }).unwrap_or(0.0)
+        };
 
         let string_element = self.string_element.map(|e| { system.element_ref::<BarElement>(e) });
         let string_force = string_element.map(BarElement::normal_force).unwrap_or(0.0);

@@ -35,7 +35,7 @@ pub fn check_system_invariants(system: &mut System) {
 
 // Evaluates the system's mass matrix and verifies that it is symmetric and positive definite
 pub fn check_mass_matrix(system: &mut System) {
-    let mut eigen = system.default_eigen_eval();
+    let mut eigen = system.create_eigen_eval();
     system.eval_eigen(&mut eigen);
 
     // Mass matrix must be positive definite
@@ -45,7 +45,7 @@ pub fn check_mass_matrix(system: &mut System) {
 // Evaluates the system's tangent stiffness matrix and verifies that it is symmetric
 // and equal to the derivative of the internal forces with respect to the displacements
 pub fn check_stiffness_matrix(system: &mut System, u: &DVector<f64>, v: &DVector<f64>) {
-    let mut statics = system.default_static_eval();
+    let mut statics = system.create_static_eval();
 
     system.set_displacements(&u);
     system.set_velocities(&v);
@@ -74,8 +74,8 @@ pub fn check_stiffness_matrix(system: &mut System, u: &DVector<f64>, v: &DVector
 // and equal to the derivative of the internal forces with respect to the velocities
 pub fn check_damping_matrix(system: &mut System, u: &DVector<f64>, v: &DVector<f64>) {
     // TODO: Replace bothj benlow by single evaluation of implicit dynamics
-    let mut eigen = system.default_eigen_eval();
-    let mut statics = system.default_static_eval();
+    let mut eigen = system.create_eigen_eval();
+    let mut statics = system.create_static_eval();
 
     system.set_displacements(&u);
     system.set_velocities(&v);
@@ -102,7 +102,7 @@ pub fn check_damping_matrix(system: &mut System, u: &DVector<f64>, v: &DVector<f
 
 // Checks if the kinetic energy is consistent with the mass matrix and velocities of the system
 pub fn check_kinetic_energy(system: &mut System, u: &DVector<f64>, v: &DVector<f64>) {
-    let mut eigen = system.default_eigen_eval();
+    let mut eigen = system.create_eigen_eval();
 
     system.set_displacements(&u);
     system.set_velocities(&v);
@@ -119,7 +119,7 @@ pub fn check_kinetic_energy(system: &mut System, u: &DVector<f64>, v: &DVector<f
 pub fn check_potential_energy(system: &mut System, u: &DVector<f64>) {
     let v = DVector::<f64>::zeros(system.n_dofs());
 
-    let mut statics = system.default_static_eval();
+    let mut statics = system.create_static_eval();
 
     system.set_displacements(&u);
     system.set_velocities(&v);

@@ -270,6 +270,7 @@ impl BeamElementCoRot {
 
     // Divides the given curve into a number of equally spaced elements.
     // Returns a list of elements as well as the arc lengths, positions and angles of the nodes.
+    // TODO: Return values s_nodes, u_node might not be needed if the evaluation works properly
     pub fn discretize<C, S>(curve: &C, section: &S, s_eval: &[f64], n_elements: usize) -> (Vec<LinearBeamSegment>, Vec<f64>, Vec<SVector<f64, 3>>)
         where C: PlanarCurve,
               S: CrossSection

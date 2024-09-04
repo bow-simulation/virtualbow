@@ -193,6 +193,8 @@ add_executable(
     source/pre/widgets/qcustomplot/qcustomplot.cpp
 )
 
+target_compile_definitions(virtualbow-gui PRIVATE JSON_HAS_CPP_17)
+
 target_link_libraries(
     virtualbow-gui
     virtualbow-lib
@@ -263,6 +265,8 @@ add_executable(
     source/post/StressPlot.cpp
     source/post/StressPlot.hpp
 )
+
+target_compile_definitions(virtualbow-post PRIVATE JSON_HAS_CPP_17)
 
 target_link_libraries(
     virtualbow-post
