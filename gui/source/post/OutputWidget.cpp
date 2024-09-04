@@ -134,7 +134,7 @@ StaticOutputWidget::StaticOutputWidget(const OutputData& data)
     slider->addJumpAction("Max. draw force", std::get<1>(data.statics->max_draw_force));
     slider->addJumpAction("Max. grip force", std::get<1>(data.statics->max_grip_force));
     slider->addJumpAction("Max. string force", std::get<1>(data.statics->max_string_force));
-    for (size_t i = 0; i < data.statics->max_layer_stresses.size(); ++i) {
+    for(size_t i = 0; i < data.statics->max_layer_stresses.size(); ++i) {
         slider->addJumpAction(QString::fromStdString("Max. stress for layer: TODO"), std::get<0>(data.statics->max_layer_stresses[i]));
     }
 

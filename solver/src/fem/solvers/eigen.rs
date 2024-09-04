@@ -21,7 +21,7 @@ impl Mode {
 
 // Finds the natural frequencies of the system
 pub fn natural_frequencies(system: &mut System) -> Vec<Mode> {
-    let mut eval = system.default_eigen_eval();
+    let mut eval = system.create_eigen_eval();
     system.eval_eigen(&mut eval);
 
     return natural_frequencies_from_matrices(

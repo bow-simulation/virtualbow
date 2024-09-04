@@ -54,7 +54,7 @@ pub struct StaticSolver<'a> {
 
 impl<'a> StaticSolver<'a> {
     pub fn new(system: &'a mut System, settings: Settings) -> Self {
-        let statics = system.default_static_eval();
+        let statics = system.create_static_eval();
         Self {
             system,
             settings,

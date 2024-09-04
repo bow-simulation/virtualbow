@@ -2,22 +2,23 @@
 #include <nlohmann/json.hpp>
 #include <optional>
 
-// Serializing std::optional
-// TODO: Can be removed after updating to newest version of nlohmann::json
-// https://github.com/nlohmann/json/issues/1749
+// Serializing std::optional, https://github.com/nlohmann/json/issues/1749
 template<typename T>
 struct nlohmann::adl_serializer<std::optional<T>> {
-    static void from_json(const json & j, std::optional<T>& opt) {
+    static void from_json(const json& j, std::optional<T>& opt) {
         if(j.is_null()) {
             opt = std::nullopt;
-        } else {
+        }
+        else {
             opt = j.get<T>();
         }
     }
-    static void to_json(json & json, std::optional<T> t) {
+
+    static void to_json(json& json, std::optional<T> t) {
         if(t) {
             json = *t;
-        } else {
+        }
+        else {
             json = nullptr;
         }
     }

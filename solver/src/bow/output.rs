@@ -117,6 +117,7 @@ pub struct Dynamics {
     pub energy_efficiency: f64,
 
     pub max_string_force: (f64, usize),    // (value, state)
+    pub max_strand_force: (f64, usize),    // (value, state)
     pub max_grip_force: (f64, usize),      // (value, state)
     pub max_draw_force: (f64, usize),      // (value, state)
 
