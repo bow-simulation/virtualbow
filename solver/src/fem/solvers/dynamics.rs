@@ -14,7 +14,7 @@ pub struct Settings {
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            method: MethodParameters::newmark(),
+            method: MethodParameters::alpha(0.0),
             timestep: 1e-6,
             epsilon_rel: 1e-08,
             epsilon_abs: 1e-10,
@@ -26,6 +26,8 @@ impl Default for Settings {
 
 #[derive(Copy, Clone)]
 pub struct MethodParameters {
+    alpha_m: f64,
+    alpha_f: f64,
     beta: f64,
     gamma: f64,
 }
@@ -34,8 +36,25 @@ impl MethodParameters {
     // Newmark with parameters for average constant acceleration (unconditionally stable in the linear case)
     pub fn newmark() -> Self {
         Self {
+            alpha_m: 0.0,
+            alpha_f: 0.0,
             beta: 0.25,
             gamma: 0.50,
+        }
+    }
+
+    // Generalized alpha method with spectral radium rho_inf € [0, 1] at infinity
+    pub fn alpha(rho_inf: f64) -> Self {
+        assert!(rho_inf >= 0.0 && rho_inf <= 1.0);
+
+        let alpha_m = (2.0*rho_inf - 1.0)/(rho_inf + 1.0);
+        let alpha_f = rho_inf/(rho_inf + 1.0);
+
+        Self {
+            beta: 0.25*(1.0 - alpha_m + alpha_f).powi(2),
+            gamma: 0.5 - alpha_m + alpha_f,
+            alpha_m,
+            alpha_f,
         }
     }
 }
@@ -57,7 +76,9 @@ impl<'a> DynamicSolver<'a> {
         where F: FnMut(&System, &DynamicEval) -> bool
     {
         // Commonly used settings
-        let beta = self.settings.method.beta;
+        let alpha_m = self.settings.method.alpha_m;
+        let alpha_f = self.settings.method.alpha_f;
+        let beta  = self.settings.method.beta;
         let gamma = self.settings.method.gamma;
         let dt = self.settings.timestep;
 
@@ -79,20 +100,34 @@ impl<'a> DynamicSolver<'a> {
             let u_current = self.system.get_displacements().clone();
             let v_current = self.system.get_velocities().clone();
             let a_current = eval.get_accelerations().clone();
+            let p_current = eval.get_external_forces().clone();
+            let q_current = eval.get_internal_forces().clone();
 
-            let mut a_next = a_current.clone();  // DVector::zeros(n);
+            // Next displacements, velocities and accelerations to be iterated on
+            let mut a_next = a_current.clone();  // Initial value is last value
             let mut v_next = &v_current + dt*(1.0 - gamma)*&a_current + dt*gamma*&a_next;
             let mut u_next = &u_current + dt*&v_current + dt*dt*((0.5 - beta)*&a_current + beta*&a_next);
 
             // Next acceleration to iterate on
             for i in 0..self.settings.max_iterations {
+                //let u_alpha = (1.0 - alpha_f)*&u_next + alpha_f*&u_current;
+                //let v_alpha = (1.0 - alpha_f)*&v_next + alpha_f*&v_current;
+                //let a_alpha = (1.0 - alpha_m)*&a_next + alpha_m*&a_current;
+
                 self.system.set_time(t + dt);
                 self.system.set_displacements(&u_next);
                 self.system.set_velocities(&v_next);
                 self.system.eval_dynamics(&mut eval);
 
-                let r: DVector<f64> = eval.get_external_forces() - eval.get_internal_forces() - eval.get_mass_matrix().component_mul(&a_next);
-                let drda: DMatrix<f64> = DMatrix::<f64>::from_diagonal(eval.get_mass_matrix()) + dt*gamma*eval.get_damping_matrix() + dt*dt*beta*eval.get_stiffness_matrix();
+                let p_next = eval.get_external_forces();
+                let q_next = eval.get_internal_forces();
+
+                let a_alpha = (1.0 - alpha_m)*&a_next + alpha_m*&a_current;
+                let p_alpha = (1.0 - alpha_f)*p_next + alpha_f*&p_current;
+                let q_alpha = (1.0 - alpha_f)*q_next + alpha_f*&q_current;
+
+                let r: DVector<f64> = p_alpha - q_alpha - eval.get_mass_matrix().component_mul(&a_alpha);
+                let drda: DMatrix<f64> = (1.0 - alpha_m)*DMatrix::<f64>::from_diagonal(eval.get_mass_matrix()) + (1.0 - alpha_f)*(dt*gamma*eval.get_damping_matrix() + dt*dt*beta*eval.get_stiffness_matrix());
 
                 let decomposition = drda.lu();
                 let delta_a = decomposition.solve(&r).unwrap();
