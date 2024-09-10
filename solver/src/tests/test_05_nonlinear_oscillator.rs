@@ -2,7 +2,7 @@ use std::f64::consts::PI;
 use spec_math::Ellip;
 use crate::fem::elements::bar::BarElement;
 use crate::fem::elements::mass::MassElement;
-use crate::fem::solvers::dynamics::{DynamicSolver, MethodParameters, Settings};
+use crate::fem::solvers::dynamics::{DynamicSolver, Settings};
 use crate::fem::system::nodes::Constraints;
 use crate::fem::system::system::System;
 use crate::tests::utils;
@@ -41,7 +41,7 @@ fn nonlinear_pendulum() {
     utils::checks::check_system_invariants(&mut system);
 
     let mut plotter = Plotter::new();
-    let mut solver = DynamicSolver::new(&mut system, Settings { timestep: 1e-3, method: MethodParameters::newmark(), ..Default::default() });
+    let mut solver = DynamicSolver::new(&mut system, Settings { timestep: 1e-3, ..Default::default() });
 
     solver.solve(&mut |system, eval| {
         let t = system.get_time();
