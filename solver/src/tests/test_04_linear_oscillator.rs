@@ -4,7 +4,7 @@ use iter_num_tools::lin_space;
 use nalgebra::{Complex, ComplexField, DMatrix, DVector, Dyn, LU, stack};
 use crate::fem::elements::bar::BarElement;
 use crate::fem::elements::mass::MassElement;
-use crate::fem::solvers::dynamics::{DynamicSolver, Settings};
+use crate::fem::solvers::dynamics::{DynamicSolver, MethodParameters, Settings};
 use crate::fem::system::nodes::{Constraints, PointNode};
 use crate::fem::system::system::System;
 use crate::tests::utils;
@@ -45,7 +45,7 @@ fn mass_spring_damper_1() {
     assert!(delta < omega0);    // Make sure the system is underdamped
 
     let mut plotter = Plotter::new();
-    let mut solver = DynamicSolver::new(&mut system, Settings { timestep: T/100.0, ..Default::default() });
+    let mut solver = DynamicSolver::new(&mut system, Settings { timestep: T/100.0, method: MethodParameters::newmark(), ..Default::default() });
 
     solver.solve(&mut |system, eval| {
         // Numerical solution
@@ -63,14 +63,13 @@ fn mass_spring_damper_1() {
         plotter.add_point((system.get_time(), v_sys), (system.get_time(), v_ref), "velocity", "Time [s]", "Velocity [m/s]");
         plotter.add_point((system.get_time(), a_sys), (system.get_time(), a_ref), "acceleration", "Time [s]", "Acceleration [m/s]");
 
-        //assert!(f64::abs(x_sys - x_ref) < 1e-3);
-        //assert!(f64::abs(v_sys - v_ref) < 1e-3);
-        //assert!(f64::abs(a_sys - a_ref) < 1e-2);
+        assert_abs_diff_eq!(x_sys, x_ref, epsilon=1e-3);
+        assert_abs_diff_eq!(v_sys, v_ref, epsilon=1e-3);
+        assert_abs_diff_eq!(a_sys, a_ref, epsilon=1e-2);
 
         return system.get_time() < (N as f64)*T;
     });
 }
-
 
 #[test]
 fn mass_spring_damper_n() {
@@ -88,7 +87,6 @@ fn mass_spring_damper_n() {
     // Analytical system matrices
 
     let M = DVector::<f64>::from_element(n, m);
-
     let D = DMatrix::<f64>::from_fn(n, n, |i, j| {
         match i.abs_diff(j) {
             0 => 2.0*d,
@@ -96,7 +94,6 @@ fn mass_spring_damper_n() {
             _ => 0.0
         }
     });
-
     let K = DMatrix::<f64>::from_fn(n, n, |i, j| {
         match i.abs_diff(j) {
             0 => 2.0*k,
@@ -154,16 +151,16 @@ fn mass_spring_damper_n() {
         system.add_force(nodes[i+1].x(), move |t| p*f64::cos(omega*t));
     }
 
-    //utils::checks::check_system_invariants(&mut system);
+    utils::checks::check_system_invariants(&mut system);
 
     let mut plotter = Plotter::new();
     let mut solver = DynamicSolver::new(&mut system, Settings { timestep: period/1000.0, ..Default::default() });
 
-    solver.solve(&mut |system, dynamics| {
+    solver.solve(&mut |system, eval| {
         // Evaluate fem system and reference solution
         let u_sys = DVector::<f64>::from_fn(system.n_dofs(), |i, _| { system.get_displacement(nodes[i+1].x()) - lengths[i+1] });
         let v_sys = DVector::<f64>::from_fn(system.n_dofs(), |i, _| { system.get_velocity(nodes[i+1].x()) });
-        let a_sys = DVector::<f64>::from_fn(system.n_dofs(), |i, _| { dynamics.get_acceleration(nodes[i+1].x()) });
+        let a_sys = DVector::<f64>::from_fn(system.n_dofs(), |i, _| { eval.get_acceleration(nodes[i+1].x()) });
         let (u_ref, v_ref, a_ref) = ref_solver.evaluate(system.get_time());
 
         for i in 0..n {
@@ -172,9 +169,9 @@ fn mass_spring_damper_n() {
             plotter.add_point((system.get_time(), a_sys[i]), (system.get_time(), a_ref[i]), &format!("acceleration_{:02}", i), "Time [s]", "Acceleration [m/s]");
         }
 
-        //assert_abs_diff_eq!(u_sys, u_ref, epsilon=1e-3*u_max);    // TODO: Accuracy
-        //assert_abs_diff_eq!(v_sys, v_ref, epsilon=1e-3);    // TODO: Accuracy
-        //assert_abs_diff_eq!(a_sys, a_ref, epsilon=5e-2*p_max/m);    // TODO: Accuracy
+        assert_abs_diff_eq!(u_sys, u_ref, epsilon=1e-3*u_max);
+        assert_abs_diff_eq!(v_sys, v_ref, epsilon=1e-1);            // TODO: Reference
+        assert_abs_diff_eq!(a_sys, a_ref, epsilon=1e-1*p_max/m);    // TODO: Accuracy
 
         return system.get_time() < period;
     });

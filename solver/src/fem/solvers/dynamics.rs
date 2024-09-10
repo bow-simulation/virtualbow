@@ -14,7 +14,7 @@ pub struct Settings {
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            method: MethodParameters::alpha(0.0),
+            method: MethodParameters::newmark(),
             timestep: 1e-6,
             epsilon_rel: 1e-08,
             epsilon_abs: 1e-10,
@@ -44,7 +44,7 @@ impl MethodParameters {
     }
 
     // Generalized alpha method with spectral radium rho_inf € [0, 1] at infinity
-    pub fn alpha(rho_inf: f64) -> Self {
+    pub fn gen_alpha(rho_inf: f64) -> Self {
         assert!(rho_inf >= 0.0 && rho_inf <= 1.0);
 
         let alpha_m = (2.0*rho_inf - 1.0)/(rho_inf + 1.0);
@@ -110,10 +110,6 @@ impl<'a> DynamicSolver<'a> {
 
             // Next acceleration to iterate on
             for i in 0..self.settings.max_iterations {
-                //let u_alpha = (1.0 - alpha_f)*&u_next + alpha_f*&u_current;
-                //let v_alpha = (1.0 - alpha_f)*&v_next + alpha_f*&v_current;
-                //let a_alpha = (1.0 - alpha_m)*&a_next + alpha_m*&a_current;
-
                 self.system.set_time(t + dt);
                 self.system.set_displacements(&u_next);
                 self.system.set_velocities(&v_next);

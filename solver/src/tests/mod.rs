@@ -4,4 +4,5 @@ mod test_01_element_properties;
 mod test_02_static_trusses;
 mod test_03_static_beams;
 mod test_04_linear_oscillator;
-mod test_05_example_bows;
+mod test_05_nonlinear_oscillator;
+mod test_06_example_bows;
