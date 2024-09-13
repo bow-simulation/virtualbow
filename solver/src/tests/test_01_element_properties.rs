@@ -1,5 +1,5 @@
 use crate::fem::elements::bar::BarElement;
-use crate::fem::elements::beam::{BeamElementCoRot, LinearBeamSegment};
+use crate::fem::elements::beam::{BeamElement, LinearBeamSegment};
 use crate::fem::elements::mass::MassElement;
 use crate::fem::system::nodes::Constraints;
 use crate::fem::system::system::System;
@@ -40,7 +40,7 @@ fn beam_element() {
     let segment = LinearBeamSegment::new(&curve, &section, 0.0, l, &[]);
 
     let mut system = System::new();
-    let element = BeamElementCoRot::new(&segment);
+    let element = BeamElement::new(&segment);
     let node0 = system.create_beam_node(&segment.p0, Constraints::all_free());
     let node1 = system.create_beam_node(&segment.p1, Constraints::all_free());
     system.add_element(&[node0, node1], element);

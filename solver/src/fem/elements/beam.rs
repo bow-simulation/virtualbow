@@ -237,7 +237,7 @@ impl LinearBeamSegment {
     }
 }
 
-pub struct BeamElementCoRot {
+pub struct BeamElement {
     // Constant data
     M: SVector<f64, 6>,       // Element mass matrix
     K: SMatrix<f64, 3, 3>,    // Linear stiffness matrix
@@ -263,7 +263,7 @@ pub struct BeamElementCoRot {
     Q: SVector<f64, 6>,       // Nonlinear forces
 }
 
-impl BeamElementCoRot {
+impl BeamElement {
     // Number of nodes and Gauss integration points
     pub const N_NODES: usize = 4;
     pub const N_GAUSS: usize = 3;
@@ -421,7 +421,7 @@ impl BeamElementCoRot {
     }
 }
 
-impl Element for BeamElementCoRot {
+impl Element for BeamElement {
     fn evaluate_mass_matrix(&self, M: &mut VectorView) {
         M.add(self.M);
     }
