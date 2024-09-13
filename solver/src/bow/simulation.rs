@@ -2,9 +2,9 @@ use std::f64::consts::{PI, FRAC_PI_2};
 use clap::ValueEnum;
 use iter_num_tools::lin_space;
 use itertools::Itertools;
-use nalgebra::{SVector, vector};
+use nalgebra::vector;
 use crate::fem::elements::bar::BarElement;
-use crate::fem::elements::beam::{BeamElementCoRot, CrossSection, PlanarCurve};
+use crate::fem::elements::beam::{BeamElement, CrossSection, PlanarCurve};
 use crate::fem::solvers::eigen::{Mode, natural_frequencies};
 use crate::fem::solvers::statics::StaticSolver;
 use crate::fem::system::element::Element;
@@ -38,12 +38,7 @@ pub struct Simulation<'a> {
     limb_elements: Vec<usize>,
 
     string_node: PointNode,
-    string_element: Option<usize>,
-
-    //mass_element_limb_tip: usize,
-    //mass_element_string_tip: usize,
-    //mass_element_string_center: usize,
-    //mass_element_arrow: usize,
+    string_element: usize,
 
     // Arrow mass element positioned at the string center
     arrow_element: usize,
@@ -75,8 +70,8 @@ impl<'a> Simulation<'a> {
         let section = LayeredCrossSection::new(profile.length(), &model.width, &model.layers, &model.materials, model.profile.alignment)?;
 
         let s_eval = lin_space(profile.s_start()..=profile.s_end(), model.settings.n_limb_eval_points).collect_vec();           // Lengths at which the limb quantities are evaluated (positions, stress, strain, ...)
-        let (segments, _s_nodes, u_nodes) = BeamElementCoRot::discretize(&profile, &section, &s_eval, model.settings.n_limb_elements);
-        let elements = segments.iter().map(|segment| BeamElementCoRot::new(segment) );
+        let (segments, _s_nodes, u_nodes) = BeamElement::discretize(&profile, &section, &s_eval, model.settings.n_limb_elements);
+        let elements = segments.iter().map(|segment| BeamElement::new(segment) );
 
         let mut system = System::new();
 
@@ -122,28 +117,19 @@ impl<'a> Simulation<'a> {
             system.create_xy_node(0.0, y_str, Constraints::all_fixed())
         };
 
-        // Only add a string element if the string option is true
-        let string_element = if string {
-            let l = f64::hypot(x_tip, y_str - y_tip);
-            let EA = (model.string.n_strands as f64)*model.string.strand_stiffness;
-            let rhoA = (model.string.n_strands as f64)*model.string.strand_density;
-            let etaA = 4.0*l/PI*f64::sqrt(rhoA*EA)*model.damping.damping_ratio_string;
+        // The string element only gets non-zero parameters if the string option is true
+        let l = f64::hypot(x_tip, y_str - y_tip);
+        let EA = if string { (model.string.n_strands as f64)*model.string.strand_stiffness } else { 0.0 };
+        let rhoA = if string { (model.string.n_strands as f64)*model.string.strand_density } else { 0.0 };
+        let etaA = if string { 4.0*l/PI*f64::sqrt(rhoA*EA)*model.damping.damping_ratio_string } else { 0.0 };
+        let string_element = BarElement::new(rhoA, etaA, EA, l);
+        let string_element = system.add_element(&[limb_nodes.last().unwrap().point(), string_node], string_element);
 
-            let element = BarElement::new(rhoA, etaA, EA, l);
-            let element = system.add_element(&[limb_nodes.last().unwrap().point(), string_node], element);
-
-            Some(element)
-        }
-        else {
-            None
-        };
-
-        // Add mass elements
-        let arrow_element = system.add_element(&[string_node], MassElement::new(model.masses.arrow));
-        //MassElement mass_limb_tip(system, nodes_limb.back(), input.masses.limb_tip);
-        //MassElement mass_string_tip(system, nodes_string.back(), input.masses.string_tip);
-        //MassElement mass_string_center(system, nodes_string.front(), 0.5*input.masses.string_center);   // 0.5 because of symmetry
-        //MassElement arrow_mass(system, node_arrow, 0.5*input.masses.arrow);                             // 0.5 because of symmetry
+        // Add arrow mass and other additional masses
+        let arrow_element = system.add_element(&[string_node], MassElement::new(0.5*model.masses.arrow));
+        system.add_element(&[string_node], MassElement::new(0.5*model.masses.string_center));
+        system.add_element(&[limb_nodes.last().unwrap().point()], MassElement::new(model.masses.limb_tip));
+        system.add_element(&[limb_nodes.last().unwrap().point()], MassElement::new(model.masses.string_tip));
 
         let info = Common {
             limb: LimbInfo {
@@ -179,7 +165,7 @@ impl<'a> Simulation<'a> {
         let (mut simulation, mut system) = Self::new(&model, true)?;
 
         let statics = {
-            let l0 = system.element_ref::<BarElement>(simulation.string_element.unwrap()).get_initial_length();
+            let l0 = system.element_ref::<BarElement>(simulation.string_element).get_initial_length();
             system.add_force(simulation.string_node.y(), move |_t| { -1.0 });
 
             // Initial values for the string factor, the slope and the step size for iterating on the string factor
@@ -197,7 +183,7 @@ impl<'a> Simulation<'a> {
             // Returns the slope of the string as well as the return state of the static solver.
             // The root of this function is the string length that braces the bow with the desired brace height.
             let mut try_string_length = |factor: f64| {
-                system.element_mut::<BarElement>(simulation.string_element.unwrap()).set_initial_length(factor * l0);
+                system.element_mut::<BarElement>(simulation.string_element).set_initial_length(factor * l0);
 
                 let mut solver = StaticSolver::new(&mut system, statics::Settings::default());
                 let result = solver.solve_equilibrium_displacement_controlled(simulation.string_node.y(), -model.dimensions.brace_height);
@@ -409,8 +395,7 @@ impl<'a> Simulation<'a> {
             SystemEval::Dynamic(eval) => -2.0*eval.get_external_force(self.string_node.y())
         };
 
-        let string_element = self.string_element.map(|e| { system.element_ref::<BarElement>(e) });
-        let string_force = string_element.map(BarElement::normal_force).unwrap_or(0.0);
+        let string_force = system.element_ref::<BarElement>(self.string_element).normal_force();
         let strand_force = string_force/(self.model.string.n_strands as f64);
 
         // The evaluation of the arrow position, velocity and acceleration depends on whether the arrow has separated from the string.
@@ -462,7 +447,7 @@ impl<'a> Simulation<'a> {
         let mut limb_force  = Vec::<[f64; 3]>::new();  // TODO: Capacity
 
         for &element in &self.limb_elements {
-            let element = system.element_ref::<BeamElementCoRot>(element);
+            let element = system.element_ref::<BeamElement>(element);
             element.eval_positions().for_each(|u| limb_pos.push(u.into()));
             element.eval_strains().for_each(|e| limb_strain.push(e.into()));
             element.eval_forces().for_each(|f| limb_force.push(f.into()));
@@ -473,15 +458,15 @@ impl<'a> Simulation<'a> {
         let grip_force = -2.0*(limb_force[0][2]*f64::cos(limb_pos[0][2]) + limb_force[0][0]*f64::sin(limb_pos[0][2]));
 
         let e_pot_limbs = 2.0*self.limb_elements.iter().map(|&e| {
-            system.element_ref::<BeamElementCoRot>(e).potential_energy()
+            system.element_ref::<BeamElement>(e).potential_energy()
         }).sum::<f64>();
 
         let e_kin_limbs = 2.0*self.limb_elements.iter().map(|&e| {
-            system.element_ref::<BeamElementCoRot>(e).kinetic_energy()
+            system.element_ref::<BeamElement>(e).kinetic_energy()
         }).sum::<f64>();
 
-        let e_pot_string = self.string_element.map(|e| 2.0*system.element_ref::<BarElement>(e).potential_energy()).unwrap_or(0.0);
-        let e_kin_string = self.string_element.map(|e| 2.0*system.element_ref::<BarElement>(e).kinetic_energy()).unwrap_or(0.0);
+        let e_pot_string = 2.0*system.element_ref::<BarElement>(self.string_element).potential_energy();
+        let e_kin_string = 2.0*system.element_ref::<BarElement>(self.string_element).kinetic_energy();
 
         State {
             time,
