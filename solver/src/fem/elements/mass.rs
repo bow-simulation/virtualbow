@@ -14,6 +14,10 @@ impl MassElement {
             v: SVector::zeros()
         }
     }
+
+    pub fn set_mass(&mut self, m: f64) {
+        self.M = SVector::from_element(m);
+    }
 }
 
 impl Element for MassElement {

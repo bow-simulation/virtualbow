@@ -136,7 +136,7 @@ fn bow_v3u2t11b() {
 
 fn perform_bow_test(file: &str) {
     let model = BowInput::load(file).expect("Failed to load bow file");
-    let output = Simulation::simulate_statics(&model).unwrap();
+    let output = Simulation::simulate_dynamics(&model).unwrap();
     //output.save_json(outfile).expect("Failed to save simulation output");
 
     let statics = output.statics.unwrap();
@@ -168,7 +168,7 @@ fn perform_bow_test(file: &str) {
     // Check if number of states matches settings
     assert_eq!(states.len(), model.settings.n_draw_steps + 1);
 
-    // Perform checks on each state
+    // Perform checks on each static state
     for (i, state) in states.iter().enumerate() {
         // Check basic dimensions
         assert_eq!(state.limb_pos.len(), model.settings.n_limb_eval_points);
@@ -241,5 +241,15 @@ fn perform_bow_test(file: &str) {
             plotter.add_point((s, state.limb_force[j][2]), (s, Q_ref), &format!("Shear Force {}", i), "Length [m]", "Shear force [N]");
             assert_abs_diff_eq!(state.limb_force[j][2], Q_ref, epsilon=1e-3*statics.final_draw_force);
         }
+    }
+
+    let dynamics = output.dynamics.unwrap();
+    let states = dynamics.states;
+
+    // Perform checks on each dynamic state
+    for (i, state) in states.iter().enumerate() {
+        plotter.add_point((*state.time, *state.arrow_pos), (*state.time, 0.0), "Arrow Position", "Time [s]", "Position [m]");
+        plotter.add_point((*state.time, *state.arrow_vel), (*state.time, 0.0), "Arrow Velocity", "Time [s]", "Velocity [m/s]");
+        plotter.add_point((*state.time, *state.arrow_acc), (*state.time, 0.0), "Arrow Acceleration", "Time [s]", "Acceleration [m/s²]");
     }
 }

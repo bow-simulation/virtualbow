@@ -33,6 +33,7 @@ pub enum ModelError {
     SettingsInvalidArrowClampForce(f64),
     SettingsInvalidTimeSpanFactor(f64),
     SettingsInvalidTimeStepFactor(f64),
+    SettingsInvalidTimeOutFactor(f64),
     SettingsInvalidSamplingRate(f64),
 
     DimensionsInvalidBraceHeight(f64),
@@ -121,8 +122,9 @@ impl Display for ModelError {
             ModelError::SettingsInvalidStringElements(value)  => write!(f, "Settings: Number of string elements must be at least 1 but actual number is {value}.")?,
             ModelError::SettingsInvalidDrawSteps(value)       => write!(f, "Settings: Number of draw steps must be at least 1 but actual number is {value}.")?,
             ModelError::SettingsInvalidArrowClampForce(value) => write!(f, "Settings: Arrow clamp force must be a non-negative number but actual value is {value}.")?,
-            ModelError::SettingsInvalidTimeSpanFactor(value)  => write!(f, "Settings: Time span factor must be a non-negative number but actual value is {value}.")?,
-            ModelError::SettingsInvalidTimeStepFactor(value)  => write!(f, "Settings: Time step factor must be a non-negative number but actual value is {value}.")?,
+            ModelError::SettingsInvalidTimeSpanFactor(value)  => write!(f, "Settings: Timespan factor must be a non-negative number but actual value is {value}.")?,
+            ModelError::SettingsInvalidTimeStepFactor(value)  => write!(f, "Settings: Timestep factor must be a non-negative number but actual value is {value}.")?,
+            ModelError::SettingsInvalidTimeOutFactor(value)   => write!(f, "Settings: Timeout factor must be a non-negative number but actual value is {value}.")?,
             ModelError::SettingsInvalidSamplingRate(value)    => write!(f, "Settings: Sampling rate must be a positive number but actual value is {value}.")?,
 
             ModelError::DimensionsInvalidBraceHeight(value)   => write!(f, "Dimensions: Brace height must be a finite number, actual value is {value}.")?,

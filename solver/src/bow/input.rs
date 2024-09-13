@@ -87,8 +87,9 @@ impl Default for BowInput {
                 n_string_elements: 1,    // TODO
                 n_draw_steps: 100,
                 arrow_clamp_force: 0.5,
-                time_span_factor: 1.5,
-                time_step_factor: 0.2,
+                timespan_factor: 1.5,
+                timestep_factor: 0.2,
+                timeout_factor: 5.0,
                 sampling_rate: 10000.0
             },
             dimensions: Dimensions {
@@ -144,8 +145,9 @@ pub struct Settings {
     pub n_string_elements: usize,
     pub n_draw_steps: usize,
     pub arrow_clamp_force: f64,
-    pub time_span_factor: f64,
-    pub time_step_factor: f64,
+    pub timespan_factor: f64,
+    pub timestep_factor: f64,
+    pub timeout_factor: f64,
     pub sampling_rate: f64
 }
 
@@ -169,11 +171,14 @@ impl Settings {
         if !self.arrow_clamp_force.is_finite() || self.arrow_clamp_force < 0.0 {
             return Err(ModelError::SettingsInvalidArrowClampForce(self.arrow_clamp_force));
         }
-        if !self.time_span_factor.is_finite() || self.time_span_factor < 0.0 {
-            return Err(ModelError::SettingsInvalidTimeSpanFactor(self.time_span_factor));
+        if !self.timespan_factor.is_finite() || self.timespan_factor < 0.0 {
+            return Err(ModelError::SettingsInvalidTimeSpanFactor(self.timespan_factor));
         }
-        if !self.time_step_factor.is_finite() || self.time_step_factor < 0.0 {
-            return Err(ModelError::SettingsInvalidTimeStepFactor(self.time_step_factor));
+        if !self.timestep_factor.is_finite() || self.timestep_factor < 0.0 {
+            return Err(ModelError::SettingsInvalidTimeStepFactor(self.timestep_factor));
+        }
+        if !self.timeout_factor.is_finite() || self.timeout_factor < 0.0 {
+            return Err(ModelError::SettingsInvalidTimeOutFactor(self.timeout_factor));
         }
         if !self.sampling_rate.is_finite() || self.sampling_rate <= 0.0 {
             return Err(ModelError::SettingsInvalidSamplingRate(self.sampling_rate));
