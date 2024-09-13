@@ -1,4 +1,4 @@
-use std::f64::consts::PI;
+use std::f64::consts::{PI, FRAC_PI_2};
 use clap::ValueEnum;
 use iter_num_tools::lin_space;
 use itertools::Itertools;
@@ -15,6 +15,7 @@ use crate::bow::errors::ModelError;
 use crate::bow::profile::profile::{CurvePoint, ProfileCurve};
 use crate::bow::input::BowInput;
 use crate::bow::output::{Dynamics, LayerInfo, LimbInfo, BowOutput, Common, State, StateVec, Statics};
+use crate::fem::elements::mass::MassElement;
 use crate::fem::solvers::{dynamics, statics};
 use crate::fem::solvers::dynamics::DynamicSolver;
 use crate::numerics::root_finding::regula_falsi;
@@ -36,8 +37,20 @@ pub struct Simulation<'a> {
     limb_nodes: Vec<GebfNode>,
     limb_elements: Vec<usize>,
 
-    string_node: Option<PointNode>,
+    string_node: PointNode,
     string_element: Option<usize>,
+
+    //mass_element_limb_tip: usize,
+    //mass_element_string_tip: usize,
+    //mass_element_string_center: usize,
+    //mass_element_arrow: usize,
+
+    // Arrow mass element positioned at the string center
+    arrow_element: usize,
+
+    // None if the arrow is still attached to the string
+    // Otherwise the time, position and velocity at separation from the string
+    arrow_separation: Option<(f64, f64, f64)>,
 }
 
 impl<'a> Simulation<'a> {
@@ -96,28 +109,43 @@ impl<'a> Simulation<'a> {
         //let limb_density = s_eval.iter().map(|&s| { section.rhoA(s) }).collect();
         //let limb_stiffness = s_eval.iter().map(|&s| { section.C(s) }).collect();
 
-        // Only add string node and element if required
-        let (string_node, string_element) = if string {
-            let x_tip = u_nodes.last().unwrap()[0];
-            let y_tip = u_nodes.last().unwrap()[1];
-            let y_str = -model.dimensions.brace_height;
+        // Limb tip and string center positions
+        let x_tip = u_nodes.last().unwrap()[0];
+        let y_tip = u_nodes.last().unwrap()[1];
+        let y_str = -model.dimensions.brace_height;
 
+        // Add string center node and make it fixed in the case of no string
+        let string_node = if string {
+            system.create_xy_node(0.0, y_str, Constraints::y_pos_free())
+        }
+        else {
+            system.create_xy_node(0.0, y_str, Constraints::all_fixed())
+        };
+
+        // Only add a string element if the string option is true
+        let string_element = if string {
             let l = f64::hypot(x_tip, y_str - y_tip);
             let EA = (model.string.n_strands as f64)*model.string.strand_stiffness;
             let rhoA = (model.string.n_strands as f64)*model.string.strand_density;
             let etaA = 4.0*l/PI*f64::sqrt(rhoA*EA)*model.damping.damping_ratio_string;
 
-            let node = system.create_xy_node(0.0, y_str, Constraints::y_pos_free());
             let element = BarElement::new(rhoA, etaA, EA, l);
-            let element = system.add_element(&[limb_nodes.last().unwrap().point(), node], element);
+            let element = system.add_element(&[limb_nodes.last().unwrap().point(), string_node], element);
 
-            (Some(node), Some(element))
+            Some(element)
         }
         else {
-            (None, None)
+            None
         };
 
-        let setup = Common {
+        // Add mass elements
+        let arrow_element = system.add_element(&[string_node], MassElement::new(model.masses.arrow));
+        //MassElement mass_limb_tip(system, nodes_limb.back(), input.masses.limb_tip);
+        //MassElement mass_string_tip(system, nodes_string.back(), input.masses.string_tip);
+        //MassElement mass_string_center(system, nodes_string.front(), 0.5*input.masses.string_center);   // 0.5 because of symmetry
+        //MassElement arrow_mass(system, node_arrow, 0.5*input.masses.arrow);                             // 0.5 because of symmetry
+
+        let info = Common {
             limb: LimbInfo {
                 length: s_eval,
                 position: limb_position,
@@ -132,11 +160,13 @@ impl<'a> Simulation<'a> {
 
         let simulation = Self {
             model,
-            info: setup,
+            info,
             limb_nodes,
             limb_elements,
             string_node,
             string_element,
+            arrow_element,
+            arrow_separation: None,
         };
 
         Ok((simulation, system))
@@ -146,11 +176,11 @@ impl<'a> Simulation<'a> {
     pub fn simulate<F>(model: &'a BowInput, mode: SimulationMode, mut callback: F) -> Result<BowOutput, ModelError>
         where F: FnMut(&str, f64) -> bool
     {
-        let (simulation, mut system) = Self::new(&model, true)?;
+        let (mut simulation, mut system) = Self::new(&model, true)?;
 
         let statics = {
             let l0 = system.element_ref::<BarElement>(simulation.string_element.unwrap()).get_initial_length();
-            system.add_force(simulation.string_node.unwrap().y(), move |_t| { -1.0 });
+            system.add_force(simulation.string_node.y(), move |_t| { -1.0 });
 
             // Initial values for the string factor, the slope and the step size for iterating on the string factor
             let mut factor1 = 1.0;
@@ -170,7 +200,7 @@ impl<'a> Simulation<'a> {
                 system.element_mut::<BarElement>(simulation.string_element.unwrap()).set_initial_length(factor * l0);
 
                 let mut solver = StaticSolver::new(&mut system, statics::Settings::default());
-                let result = solver.solve_equilibrium_displacement_controlled(simulation.string_node.unwrap().y(), -model.dimensions.brace_height);
+                let result = solver.solve_equilibrium_displacement_controlled(simulation.string_node.y(), -model.dimensions.brace_height);
                 let slope = simulation.get_string_slope(&system);
 
                 (slope, result)
@@ -189,7 +219,8 @@ impl<'a> Simulation<'a> {
                         let try_string_length = |factor| { try_string_length(factor).0 };  // TODO: Error handling, do something with the solver information
                         regula_falsi(try_string_length, factor1, factor2, slope1, slope2, 0.0, Self::BRACING_SLOPE_TOL, Self::BRACING_MAX_ROOT_ITER).ok_or(ModelError::SimulationBracingNoConvergence)?;
                         break;
-                    } else {
+                    }
+                    else {
                         // Otherwise apply step and continue
                         factor1 = factor2;
                         slope1 = slope2;
@@ -213,7 +244,7 @@ impl<'a> Simulation<'a> {
             let mut states = StateVec::new();
             let mut solver = StaticSolver::new(&mut system, statics::Settings::default());
 
-            solver.equilibrium_path_displacement_controlled(simulation.string_node.unwrap().y(), -model.dimensions.draw_length, model.settings.n_draw_steps, &mut |system, eval| {
+            solver.equilibrium_path_displacement_controlled(simulation.string_node.y(), -model.dimensions.draw_length, model.settings.n_draw_steps, &mut |system, eval| {
                 let state = simulation.get_bow_state(&system, SystemEval::Static(&eval));
                 let progress = 100.0 * (state.draw_length - model.dimensions.brace_height) / (model.dimensions.draw_length - model.dimensions.brace_height);
                 states.push(state);
@@ -255,17 +286,53 @@ impl<'a> Simulation<'a> {
         // Perform dynamic simulation, if required
         let dynamics = {
             if mode == SimulationMode::Dynamic {
+                let settings = dynamics::Settings { timestep: 1e-4, ..Default::default() };
                 let mut states = StateVec::new();
-                let mut solver = DynamicSolver::new(&mut system, dynamics::Settings { timestep: 1e-6, ..Default::default() });
 
+                // Estimate timeout after which to abort the simulation
+                let k_bow = statics.as_ref().unwrap().final_draw_force/(model.dimensions.draw_length - model.dimensions.brace_height);
+                let t_max = model.settings.timeout_factor*FRAC_PI_2*f64::sqrt(model.masses.arrow/k_bow);
+
+                // Simulate the first part of the shot until either the arrow separates from the string
+                // or the timeout is reached for some reason
+                let mut solver = DynamicSolver::new(&mut system, settings);
                 solver.solve(&mut |system, eval| {
+                    // Evaluate current bow state
                     let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval));
-                    //let progress = 100.0 * (state.draw_length - model.dimensions.brace_height) / (model.dimensions.draw_length - model.dimensions.brace_height);
-                    states.push(state);
-                    //callback("statics", progress)
 
-                    return system.get_time() < 1e-2;
+                    // Check for separation of the arrow (negative acceleration overcomes clamp force)
+                    // On separation, remember the time, position and velocity
+                    if state.arrow_acc <= -model.settings.arrow_clamp_force/model.masses.arrow {
+                        simulation.arrow_separation = Some((state.time, state.arrow_pos, state.arrow_vel));
+                    }
+
+                    // Push bow state into the final results
+                    states.push(state);
+
+                    // Continue the simulation as long as the arrow is not separated
+                    // and the timeout has not yet been reached
+                    return simulation.arrow_separation.is_none() && system.get_time() < t_max;
                 });
+
+                // Simulate the second part of the shot after arrow separation,
+                // but only if separation actually occurred
+                if simulation.arrow_separation.is_some() {
+                    // Set the arrow mass to zero since the arrow is no longer attached to the string
+                    system.element_mut::<MassElement>(simulation.arrow_element).set_mass(0.0);
+
+                    // The end time is the time until arrow separation multiplied by the time span factor
+                    let t_end = model.settings.timespan_factor*system.get_time();
+
+                    let mut solver = DynamicSolver::new(&mut system, settings);
+                    solver.solve(&mut |system, eval| {
+                        // Evaluate and push back current bow state
+                        let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval));
+                        states.push(state);
+
+                        // Continue as long as the end time is not reached
+                        return system.get_time() < t_end;
+                    });
+                }
 
                 Some(Dynamics {
                     states,
@@ -336,29 +403,50 @@ impl<'a> Simulation<'a> {
     // TODO: Lett mutation, write functions for intermediate results
     fn get_bow_state(&self, system: &System, eval: SystemEval) -> State {
         let time = system.get_time();
-        let draw_length = self.string_node.map(|node| { -system.get_displacement(node.y()) }).unwrap_or(0.0);
+        let draw_length = -system.get_displacement(self.string_node.y());
         let draw_force = match eval {
-            SystemEval::Static(eval) => self.string_node.map(|node| { -2.0*eval.get_scaled_external_force(node.y()) }).unwrap_or(0.0),
-            SystemEval::Dynamic(eval) => self.string_node.map(|node| { -2.0*eval.get_external_force(node.y()) }).unwrap_or(0.0)
+            SystemEval::Static(eval) => -2.0*eval.get_scaled_external_force(self.string_node.y()),
+            SystemEval::Dynamic(eval) => -2.0*eval.get_external_force(self.string_node.y())
         };
 
         let string_element = self.string_element.map(|e| { system.element_ref::<BarElement>(e) });
         let string_force = string_element.map(BarElement::normal_force).unwrap_or(0.0);
         let strand_force = string_force/(self.model.string.n_strands as f64);
 
+        // The evaluation of the arrow position, velocity and acceleration depends on whether the arrow has separated from the string.
+        // If the arrow is still attached, the data of the node at the string center is used.
+        // If the arrow is separated, its motion is calculated from the velocity at separation.
+        let (arrow_acc, arrow_vel, arrow_pos) = if let Some((t0, s0, v0)) = self.arrow_separation {
+            (
+                0.0,                   // Acceleration is zero since no forces act on the arrow anymore
+                v0,                    // Velocity is constant since acceleration is zero
+                s0 + v0*(time - t0)    // Position develops according to initial position and velocity
+            )
+        }
+        else {
+            (
+                match eval {
+                    SystemEval::Static(_) => 0.0,
+                    SystemEval::Dynamic(eval) => eval.get_acceleration(self.string_node.y())
+                },
+                system.get_velocity(self.string_node.y()),
+                system.get_displacement(self.string_node.y()),
+            )
+        };
+
         // String kinematics
 
         let limb_tip = self.limb_nodes.last().unwrap();
 
-        let string_pos = self.string_node.map(|node| vec![
+        let string_pos = vec![
             [ system.get_displacement(limb_tip.x()), system.get_displacement(limb_tip.y()) ],
-            [ system.get_displacement(node.x()), system.get_displacement(node.y()) ],
-        ]).unwrap_or_default();
+            [ system.get_displacement(self.string_node.x()), system.get_displacement(self.string_node.y()) ],
+        ];
 
-        let string_vel = self.string_node.map(|node| vec![
+        let string_vel = vec![
             [ system.get_velocity(limb_tip.x()), system.get_velocity(limb_tip.y()) ],
-            [ system.get_velocity(node.x()), system.get_velocity(node.y()) ],
-        ]).unwrap_or_default();
+            [ system.get_velocity(self.string_node.x()), system.get_velocity(self.string_node.y()) ],
+        ];
 
         /*
         let acc_string = self.string_node.map(|node| vec![
@@ -413,9 +501,9 @@ impl<'a> Simulation<'a> {
             layer_strain: vec![vec![(0.0, 0.0); self.model.settings.n_layer_eval_points]; self.model.layers.len()],
             layer_stress: vec![vec![(0.0, 0.0); self.model.settings.n_layer_eval_points]; self.model.layers.len()],
 
-            arrow_pos: 0.0,
-            arrow_vel: 0.0,
-            arrow_acc: 0.0,
+            arrow_pos,
+            arrow_vel,
+            arrow_acc,
 
             e_pot_limbs,
             e_kin_limbs,
@@ -434,7 +522,7 @@ impl<'a> Simulation<'a> {
     fn get_string_slope(&self, system: &System) -> f64 {
         let x_tip = system.get_displacement(self.limb_nodes.last().unwrap().x());
         let y_tip = system.get_displacement(self.limb_nodes.last().unwrap().y());
-        let y_str = system.get_displacement(self.string_node.unwrap().y());
+        let y_str = system.get_displacement(self.string_node.y());
         (y_tip - y_str)/x_tip
     }
 }

@@ -124,6 +124,11 @@ fn convert_v2_to_v3(value: &mut Value) -> Result<(), ModelError> {
     // New settings entries for number of evaluation points
     value["settings"]["n_limb_eval_points"] = json!(100);
     value["settings"]["n_layer_eval_points"] = json!(100);
+    value["settings"]["timeout_factor"] = json!(5.0);
+
+    // Renamed settings
+    value["settings"]["timespan_factor"] = json!(value["settings"]["time_span_factor"]);
+    value["settings"]["timestep_factor"] = json!(value["settings"]["time_step_factor"]);
 
     // Move width to width/points
     value["width"] = json!({

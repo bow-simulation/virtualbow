@@ -8,8 +8,9 @@
     "n_string_elements": 25,
     "n_draw_steps": 150,
     "arrow_clamp_force": 0.0,
-    "time_span_factor": 1.5,
-    "time_step_factor": 0.2,
+    "timespan_factor": 1.5,
+    "timestep_factor": 0.2,
+    "timeout_factor": 5.0,
     "sampling_rate": 10000.0
   },
   "dimensions": {
