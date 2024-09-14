@@ -23,7 +23,7 @@ impl PointNode {
     }
 
     pub fn oriented(&self) -> OrientedNode {
-        OrientedNode::new(self.dofs[0], self.dofs[1], Dof::new_fixed(0.0))
+        OrientedNode::new(self.dofs[0], self.dofs[1], Dof::Fixed(0.0))
     }
 
     pub fn x(&self) -> Dof {

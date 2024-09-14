@@ -148,16 +148,16 @@ impl<'a> StaticSolver<'a> {
     // Solve for equilibrium of the system with a displacement constraint in the form of a given target displacement for a dof
     pub fn solve_equilibrium_displacement_controlled(&mut self, dof: Dof, u_target: f64) -> Result<IterationInfo, IterationError> {
         match dof {
-            Dof::Free { index, offset } => {
+            Dof::Free(i) => {
                 return self.solve_equilibrium_constrained(|u, _lambda, dcdu, dcdλ| {
                     dcdu.fill(0.0);
-                    dcdu[index] = 1.0;
+                    dcdu[i] = 1.0;
                     *dcdλ = 0.0;
 
-                    return u[index] + offset - u_target;
+                    return u[i] - u_target;
                 });
             },
-            Dof::Fixed { offset: _ } => {
+            Dof::Fixed(_) => {
                 panic!("Can't perform displacement control on a fixed dof");
             }
         }

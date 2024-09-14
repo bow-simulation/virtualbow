@@ -39,8 +39,8 @@ impl<'a> AffineView<'a> {
     // Transform from vector and dof to scalar value. Static function to be used independently.
     pub fn transform(vector: &DVector<f64>, dof: Dof) -> f64 {
         match dof {
-            Dof::Fixed{offset} => offset,
-            Dof::Free{index, offset} => offset + vector[index]
+            Dof::Fixed(u) => u,
+            Dof::Free(i) => vector[i]
         }
     }
 }
@@ -76,8 +76,8 @@ impl<'a> LinearView<'a> {
     // Transform from vector and dof to scalar value. Static function to be used independently.
     pub fn transform(vector: &DVector<f64>, dof: Dof) -> f64 {
         match dof {
-            Dof::Fixed{offset: _} => 0.0,
-            Dof::Free{index, offset: _} => vector[index]
+            Dof::Fixed(_) => 0.0,
+            Dof::Free(i) => vector[i]
         }
     }
 }
@@ -102,11 +102,11 @@ impl<'a> VectorView<'a> {
     pub fn add<const N: usize>(&mut self, rhs: SVector<f64, N>) {
         for (row, value) in rhs.iter().enumerate() {
             match self.dofs[row] {
-                Dof::Fixed{offset: _} => {
+                Dof::Fixed(_) => {
                     // Do nothing since the local value has no link to the global vector
                 },
-                Dof::Free{index, offset: _} => {
-                    self.vector[index] += value;
+                Dof::Free(i) => {
+                    self.vector[i] += value;
                 }
             }
         }
@@ -133,8 +133,8 @@ impl<'a> MatrixView<'a> {
     pub fn add<const N: usize>(&mut self, rhs: &SMatrix<f64, N, N>) {
         for row in 0..N {
             for col in 0..N {
-                if let Dof::Free{index: i, offset: _} = self.dofs[row] {
-                    if let Dof::Free{index: j, offset: _} = self.dofs[col] {
+                if let Dof::Free(i) = self.dofs[row] {
+                    if let Dof::Free(j) = self.dofs[col] {
                         self.matrix[(i, j)] += rhs[(row, col)];
                     }
                 }
@@ -151,22 +151,22 @@ mod tests {
 
     #[test]
     fn test_views() {
-        let dof1 = Dof::new_fixed(1.0);
-        let dof2 = Dof::new_free(2, 1.0);
-        let dof3 = Dof::new_free(4, 1.0);
-        let dof4 = Dof::new_free(6, 1.0);
+        let dof1 = Dof::Fixed(1.0);
+        let dof2 = Dof::Free(2);
+        let dof3 = Dof::Free(4);
+        let dof4 = Dof::Free(6);
         let dofs = &[dof1, dof2, dof3, dof4];
 
         {
-            let vector = DVector::<f64>::from_column_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]);
+            let vector = dvector![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
             let view = PositionView::new(&vector, dofs);
 
-            assert_eq!(view.get::<4>(), vector![1.0, 4.0, 6.0, 8.0]);
+            assert_eq!(view.get::<4>(), vector![1.0, 3.0, 5.0, 7.0]);
         }
 
 
         {
-            let vector = DVector::<f64>::from_column_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]);
+            let vector = dvector![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
             let view = VelocityView::new(&vector, dofs);
 
             assert_eq!(view.get::<4>(), vector![0.0, 3.0, 5.0, 7.0]);
