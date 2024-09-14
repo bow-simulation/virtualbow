@@ -8,7 +8,7 @@ use crate::fem::elements::beam::{BeamElement, CrossSection, PlanarCurve};
 use crate::fem::solvers::eigen::{Mode, natural_frequencies};
 use crate::fem::solvers::statics::StaticSolver;
 use crate::fem::system::element::Element;
-use crate::fem::system::nodes::{Constraints, GebfNode, PointNode};
+use crate::fem::system::nodes::{Constraints, OrientedNode, PointNode};
 use crate::fem::system::system::{DynamicEval, StaticEval, System};
 use crate::bow::sections::section::LayeredCrossSection;
 use crate::bow::errors::ModelError;
@@ -34,7 +34,7 @@ pub enum SystemEval<'a> {
 pub struct Simulation<'a> {
     model: &'a BowInput,
     info: Common,
-    limb_nodes: Vec<GebfNode>,
+    limb_nodes: Vec<OrientedNode>,
     limb_elements: Vec<usize>,
 
     string_node: PointNode,
@@ -75,7 +75,7 @@ impl<'a> Simulation<'a> {
 
         let mut system = System::new();
 
-        let limb_nodes: Vec<GebfNode> = u_nodes.iter().enumerate().map(|(i, u)| {
+        let limb_nodes: Vec<OrientedNode> = u_nodes.iter().enumerate().map(|(i, u)| {
             let constraints = if i != 0 { Constraints::all_free() } else { Constraints::all_fixed() };
             system.create_beam_node(u, constraints)
         }).collect();

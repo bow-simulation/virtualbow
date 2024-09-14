@@ -1,9 +1,10 @@
 use super::element::Element;
 use super::dof::Dof;
-use super::nodes::{Node, PointNode, GebfNode};
+use super::nodes::{Node, PointNode, OrientedNode};
 use super::views::{PositionView, VelocityView, VectorView, MatrixView};
 use super::nodes::Constraints;
 use nalgebra::{DMatrix, DVector, SVector};
+use crate::fem::system::views::{AccelerationView, ForceView};
 
 // The system struct holds the elements, external forces and their mapping to the dofs that make up the fem system.
 // It also holds the current system state: time, displacements and velocities.
@@ -43,7 +44,7 @@ impl StaticEval {
     }
 
     pub fn get_scaled_external_force(&self, dof: Dof) -> f64 {
-        self.λ*VelocityView::transform(&self.p, dof)    // TODO: VelocityView does the right thing, but the name is misleading here. Maybe LinearView/AffineView?
+        self.λ*ForceView::transform(&self.p, dof)
     }
 
     pub fn get_internal_forces(&self) -> &DVector<f64> {
@@ -51,7 +52,7 @@ impl StaticEval {
     }
 
     pub fn get_internal_force(&self, dof: Dof) -> f64 {
-        VelocityView::transform(&self.q, dof)    // TODO: Bad naming "VelocityView"
+        ForceView::transform(&self.q, dof)
     }
 
     pub fn get_tangent_stiffness_matrix(&self) -> &DMatrix<f64> {
@@ -87,7 +88,7 @@ impl DynamicEval {
     }
 
     pub fn get_external_force(&self, dof: Dof) -> f64 {
-        VelocityView::transform(&self.p, dof)    // TODO: Bad naming "VelocityView"
+        ForceView::transform(&self.p, dof)
     }
 
     pub fn get_internal_forces(&self) -> &DVector<f64> {
@@ -95,7 +96,7 @@ impl DynamicEval {
     }
 
     pub fn get_internal_force(&self, dof: Dof) -> f64 {
-        VelocityView::transform(&self.q, dof)    // TODO: Bad naming "VelocityView"
+        ForceView::transform(&self.q, dof)
     }
 
     pub fn get_accelerations(&self) -> &DVector<f64> {
@@ -103,7 +104,7 @@ impl DynamicEval {
     }
 
     pub fn get_acceleration(&self, dof: Dof) -> f64 {
-        VelocityView::transform(&self.a, dof)    // TODO: Bad naming "VelocityView"
+        AccelerationView::transform(&self.a, dof)
     }
 }
 
@@ -180,12 +181,12 @@ impl System {
 
     // Creates a planar node with three degrees of freedom, two displacementd and a rotation.
     // Displacements: [x, y, φ]
-    pub fn create_beam_node(&mut self, u: &SVector<f64, 3>, constraints: Constraints) -> GebfNode {
+    pub fn create_beam_node(&mut self, u: &SVector<f64, 3>, constraints: Constraints) -> OrientedNode {
         let dof_x = if constraints.x_pos_fixed { self.create_fixed_dof(u[0]) } else { self.create_free_dof(u[0], 1.0) };
         let dof_y = if constraints.y_pos_fixed { self.create_fixed_dof(u[1]) } else { self.create_free_dof(u[1], 1.0) };
         let dof_φ = if constraints.y_pos_fixed { self.create_fixed_dof(u[2]) } else { self.create_free_dof(u[2], 1.0) };
 
-        GebfNode::new(dof_x, dof_y, dof_φ)
+        OrientedNode::new(dof_x, dof_y, dof_φ)
     }
 
     // Creates a single unconstrained dof. Mainly used internally
@@ -198,7 +199,6 @@ impl System {
         Dof::Free {
             index: self.n_dofs() - 1,
             offset,
-            scale
         }
     }
 
