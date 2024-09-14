@@ -172,41 +172,28 @@ impl System {
     }
 
     // Creates a planar node with two degrees of freedom in x and y direction.
-    pub fn create_xy_node(&mut self, x0: f64, y0: f64, constraints: Constraints) -> PointNode {
-        let dof_x = if constraints.x_pos_fixed { self.create_fixed_dof(x0) } else { self.create_free_dof(x0, 1.0) };
-        let dof_y = if constraints.y_pos_fixed { self.create_fixed_dof(y0) } else { self.create_free_dof(y0, 1.0) };
+    pub fn create_point_node(&mut self, u: &SVector<f64, 2>, constraints: Constraints) -> PointNode {
+        let dof_x = if constraints.x_pos_fixed { Dof::Fixed(u[0]) } else { self.create_free_dof(u[0], 0.0) };
+        let dof_y = if constraints.y_pos_fixed { Dof::Fixed(u[1]) } else { self.create_free_dof(u[1], 0.0) };
 
         PointNode::new(dof_x, dof_y)
     }
 
-    // Creates a planar node with three degrees of freedom, two displacementd and a rotation.
-    // Displacements: [x, y, φ]
-    pub fn create_beam_node(&mut self, u: &SVector<f64, 3>, constraints: Constraints) -> OrientedNode {
-        let dof_x = if constraints.x_pos_fixed { self.create_fixed_dof(u[0]) } else { self.create_free_dof(u[0], 1.0) };
-        let dof_y = if constraints.y_pos_fixed { self.create_fixed_dof(u[1]) } else { self.create_free_dof(u[1], 1.0) };
-        let dof_φ = if constraints.y_pos_fixed { self.create_fixed_dof(u[2]) } else { self.create_free_dof(u[2], 1.0) };
+    // Creates a planar node with three degrees of freedom, two displacements in x and y and a rotation angle.
+    pub fn create_oriented_node(&mut self, u: &SVector<f64, 3>, constraints: Constraints) -> OrientedNode {
+        let dof_x = if constraints.x_pos_fixed { Dof::Fixed(u[0]) } else { self.create_free_dof(u[0], 0.0) };
+        let dof_y = if constraints.y_pos_fixed { Dof::Fixed(u[1]) } else { self.create_free_dof(u[1], 0.0) };
+        let dof_φ = if constraints.y_pos_fixed { Dof::Fixed(u[2]) } else { self.create_free_dof(u[2], 0.0) };
 
         OrientedNode::new(dof_x, dof_y, dof_φ)
     }
 
-    // Creates a single unconstrained dof. Mainly used internally
-    pub fn create_free_dof(&mut self, offset: f64, scale: f64) -> Dof {
-        assert_ne!(scale, 0.0, "Dof scale must not be zero");
+    // Creates a single unconstrained dof with initial position and velocity. Mainly used internally.
+    pub fn create_free_dof(&mut self, u: f64, v: f64) -> Dof {
+        self.u = self.u.push(u);
+        self.v = self.v.push(v);
 
-        self.u = self.u.push(0.0);
-        self.v = self.v.push(0.0);
-
-        Dof::Free {
-            index: self.n_dofs() - 1,
-            offset,
-        }
-    }
-
-    // Created a single fixed dof. Mainly used internally.
-    pub fn create_fixed_dof(&mut self, offset: f64) -> Dof {
-        Dof::Fixed {
-            offset
-        }
+        Dof::Free(self.n_dofs() - 1)
     }
 
     // Returns the number of degrees of freedom of the system.

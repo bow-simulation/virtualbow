@@ -1,4 +1,5 @@
 use std::f64::consts::SQRT_2;
+use nalgebra::vector;
 use crate::fem::elements::bar::BarElement;
 use crate::fem::solvers::statics::{Settings, StaticSolver};
 use crate::fem::system::nodes::Constraints;
@@ -20,8 +21,8 @@ fn linear_bar_truss_1() {
     let F_ref = EA/a*(x_ref - a);    // Reference force
 
     let mut system = System::new();
-    let node1 = system.create_xy_node(0.0, 0.0, Constraints::all_fixed());
-    let node2 = system.create_xy_node(a, 0.0, Constraints::x_pos_free());
+    let node1 = system.create_point_node(&vector![0.0, 0.0], Constraints::all_fixed());
+    let node2 = system.create_point_node(&vector![a, 0.0], Constraints::x_pos_free());
 
     system.add_element(&[node1, node2], BarElement::new(rhoA, 0.0, EA, a));
     system.add_force(node2.x(), move |_t|{ F_ref });
@@ -52,10 +53,10 @@ fn linear_bar_truss_3() {
 
     let mut system = System::new();
 
-    let node1 = system.create_xy_node(0.0,   0.0, Constraints::all_fixed());
-    let node2 = system.create_xy_node(  a,   0.0, Constraints::all_free());
-    let node3 = system.create_xy_node(  a,     a, Constraints::all_free());
-    let node4 = system.create_xy_node(0.0, 2.0*a, Constraints::all_fixed());
+    let node1 = system.create_point_node(&vector![0.0, 0.0], Constraints::all_fixed());
+    let node2 = system.create_point_node(&vector![a, 0.0], Constraints::all_free());
+    let node3 = system.create_point_node(&vector![a, a], Constraints::all_free());
+    let node4 = system.create_point_node(&vector![0.0, 2.0*a], Constraints::all_fixed());
 
     system.add_element(&[node1, node2], BarElement::new(rhoA, 0.0, EA, a));
     system.add_element(&[node2, node3], BarElement::new(rhoA, 0.0, EA, a));
@@ -84,16 +85,16 @@ fn linear_bar_truss_4() {
     let s_ref = (4.0 + 2.0*SQRT_2)*F_ref* a /EA;
 
     let mut system = System::new();
-    let node_01 = system.create_xy_node(  0.0, 0.0, Constraints::pos_fixed());
-    let node_02 = system.create_xy_node(    a, 0.0, Constraints::all_free());
-    let node_03 = system.create_xy_node(2.0*a, 0.0, Constraints::all_free());
-    let node_04 = system.create_xy_node(3.0*a, 0.0, Constraints::all_free());
-    let node_05 = system.create_xy_node(4.0*a, 0.0, Constraints::x_pos_free());
-    let node_06 = system.create_xy_node(  0.0,   a, Constraints::all_free());
-    let node_07 = system.create_xy_node(    a,   a, Constraints::all_free());
-    let node_08 = system.create_xy_node(2.0*a,   a, Constraints::all_free());
-    let node_09 = system.create_xy_node(3.0*a,   a, Constraints::all_free());
-    let node_10 = system.create_xy_node(4.0*a,   a, Constraints::all_free());
+    let node_01 = system.create_point_node(&vector![0.0, 0.0], Constraints::pos_fixed());
+    let node_02 = system.create_point_node(&vector![a, 0.0], Constraints::all_free());
+    let node_03 = system.create_point_node(&vector![2.0*a, 0.0], Constraints::all_free());
+    let node_04 = system.create_point_node(&vector![3.0*a, 0.0], Constraints::all_free());
+    let node_05 = system.create_point_node(&vector![4.0*a, 0.0], Constraints::x_pos_free());
+    let node_06 = system.create_point_node(&vector![0.0, a], Constraints::all_free());
+    let node_07 = system.create_point_node(&vector![a, a], Constraints::all_free());
+    let node_08 = system.create_point_node(&vector![2.0*a, a], Constraints::all_free());
+    let node_09 = system.create_point_node(&vector![3.0*a, a], Constraints::all_free());
+    let node_10 = system.create_point_node(&vector![4.0*a, a], Constraints::all_free());
 
     system.add_element(&[node_01, node_02], BarElement::new(rhoA, 0.0, EA, a));
     system.add_element(&[node_02, node_03], BarElement::new(rhoA, 0.0, EA, a));
@@ -136,8 +137,8 @@ fn nonlinear_bar_truss_1() {
     let rhoA = 0.785;
 
     let mut system = System::new();
-    let n1 = system.create_xy_node(0.0, 0.0, Constraints::all_fixed());
-    let n2 = system.create_xy_node(a, b, Constraints::y_pos_free());
+    let n1 = system.create_point_node(&vector![0.0, 0.0], Constraints::all_fixed());
+    let n2 = system.create_point_node(&vector![a, b], Constraints::y_pos_free());
     let e1 = system.add_element(&[n1, n2], BarElement::new(rhoA, 0.0, EA, f64::hypot(a, b)));
     system.add_force(n2.y(), |_t| { -1.0 });
 
@@ -176,9 +177,9 @@ fn nonlinear_bar_truss_2() {
     let rhoA = 0.785;
 
     let mut system = System::new();
-    let node0 = system.create_xy_node(  0.0, 0.0, Constraints::all_fixed());
-    let node1 = system.create_xy_node(    a,   c, Constraints::all_free());
-    let node2 = system.create_xy_node(a + b, 0.0, Constraints::all_fixed());
+    let node0 = system.create_point_node(&vector![0.0, 0.0], Constraints::all_fixed());
+    let node1 = system.create_point_node(&vector![a, c], Constraints::all_free());
+    let node2 = system.create_point_node(&vector![a + b, 0.0], Constraints::all_fixed());
 
     let bar01 = system.add_element(&[node0, node1], BarElement::new(rhoA, 0.0, EA, f64::hypot(a, c)));
     let bar12 = system.add_element(&[node1, node2], BarElement::new(rhoA, 0.0, EA, f64::hypot(b, c)));

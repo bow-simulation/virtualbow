@@ -1,18 +1,15 @@
+// The Dof enum represents a single degree of freedom of the FEM system.
+// It can either be free or fixed:
+//  - In the free case it is defined by the index of the corresponding system state
+//  - In the fixed case it is defined by a constant position/angle value
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Dof {
-    Free{ index: usize, offset: f64 },
-    Fixed{ offset: f64 },
+    Free(usize),
+    Fixed(f64),
 }
 
 impl Dof {
-    pub fn new_free(index: usize, offset: f64) -> Self {
-        Self::Free { index, offset }
-    }
-
-    pub fn new_fixed(offset: f64) -> Self {
-        Self::Fixed { offset }
-    }
-
     pub fn is_fixed(&self) -> bool {
         matches!(self, Dof::Fixed{..})
     }

@@ -1,7 +1,7 @@
 use crate::fem::solvers::eigen::natural_frequencies_from_matrices;
 use std::f64::consts::{PI, TAU};
 use iter_num_tools::lin_space;
-use nalgebra::{Complex, ComplexField, DMatrix, DVector, Dyn, LU, stack};
+use nalgebra::{Complex, ComplexField, DMatrix, DVector, Dyn, LU, stack, vector};
 use crate::fem::elements::bar::BarElement;
 use crate::fem::elements::mass::MassElement;
 use crate::fem::solvers::dynamics::{DynamicSolver, Settings};
@@ -26,8 +26,8 @@ fn mass_spring_damper_1() {
     let x0 = 0.1;   // Initial displacement
 
     let mut system = System::new();
-    let node_a = system.create_xy_node(0.0, 0.0, Constraints::all_fixed());
-    let node_b = system.create_xy_node(l + x0, 0.0, Constraints::x_pos_free());
+    let node_a = system.create_point_node(&vector![0.0, 0.0], Constraints::all_fixed());
+    let node_b = system.create_point_node(&vector![l + x0, 0.0], Constraints::x_pos_free());
 
     system.add_element(&[node_a, node_b], BarElement::spring(0.0, d, k, l));
     system.add_element(&[node_b], MassElement::new(m));
@@ -131,7 +131,7 @@ fn mass_spring_damper_n() {
         } else {
             (*s, Constraints::all_fixed())
         };
-        nodes.push(system.create_xy_node(position, 0.0, constraints));
+        nodes.push(system.create_point_node(&vector![position, 0.0], constraints));
     }
 
     // Add bar elements between nodes

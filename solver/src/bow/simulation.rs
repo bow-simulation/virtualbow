@@ -77,7 +77,7 @@ impl<'a> Simulation<'a> {
 
         let limb_nodes: Vec<OrientedNode> = u_nodes.iter().enumerate().map(|(i, u)| {
             let constraints = if i != 0 { Constraints::all_free() } else { Constraints::all_fixed() };
-            system.create_beam_node(u, constraints)
+            system.create_oriented_node(u, constraints)
         }).collect();
 
         let limb_elements: Vec<usize> = elements.into_iter().enumerate().map(|(i, element)| {
@@ -111,10 +111,10 @@ impl<'a> Simulation<'a> {
 
         // Add string center node and make it fixed in the case of no string
         let string_node = if string {
-            system.create_xy_node(0.0, y_str, Constraints::y_pos_free())
+            system.create_point_node(&vector![0.0, y_str], Constraints::y_pos_free())
         }
         else {
-            system.create_xy_node(0.0, y_str, Constraints::all_fixed())
+            system.create_point_node(&vector![0.0, y_str], Constraints::all_fixed())
         };
 
         // The string element only gets non-zero parameters if the string option is true

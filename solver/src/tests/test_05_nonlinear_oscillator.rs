@@ -1,4 +1,5 @@
 use std::f64::consts::PI;
+use nalgebra::vector;
 use spec_math::Ellip;
 use crate::fem::elements::bar::BarElement;
 use crate::fem::elements::mass::MassElement;
@@ -31,8 +32,8 @@ fn nonlinear_pendulum() {
     let c = f64::sin(φ0 /2.0);
 
     let mut system = System::new();
-    let node_a = system.create_xy_node(0.0, 0.0, Constraints::all_fixed());
-    let node_b = system.create_xy_node(x0, y0, Constraints::all_free());
+    let node_a = system.create_point_node(&vector![0.0, 0.0], Constraints::all_fixed());
+    let node_b = system.create_point_node(&vector![x0, y0], Constraints::all_free());
 
     system.add_element(&[node_a, node_b], BarElement::spring(0.0, d, k, l));
     system.add_element(&[node_b], MassElement::new(m));
