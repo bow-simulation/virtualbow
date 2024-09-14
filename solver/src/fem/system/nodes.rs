@@ -22,6 +22,10 @@ impl PointNode {
         }
     }
 
+    pub fn oriented(&self) -> OrientedNode {
+        OrientedNode::new(self.dofs[0], self.dofs[1], Dof::new_fixed(0.0))
+    }
+
     pub fn x(&self) -> Dof {
         self.dofs[0]
     }
@@ -32,65 +36,17 @@ impl PointNode {
 }
 
 #[derive(Copy, Clone, Debug)]
-pub struct AncfNode {
-    dofs: [Dof; 6]
-}
-
-impl Node for AncfNode {
-    fn dofs(&self) -> &[Dof] {
-        &self.dofs
-    }
-}
-
-impl AncfNode {
-    pub fn new(x: Dof, y: Dof, dxds: Dof, dyds: Dof, dxds2: Dof, dyds2: Dof) -> Self {
-        Self {
-            dofs: [x, y, dxds, dyds, dxds2, dyds2]
-        }
-    }
-
-    pub fn point(&self) -> PointNode {
-        PointNode::new(self.dofs[0], self.dofs[1])
-    }
-
-    pub fn x(&self) -> Dof {
-        self.dofs[0]
-    }
-
-    pub fn y(&self) -> Dof {
-        self.dofs[1]
-    }
-
-    pub fn dxds(&self) -> Dof {
-        self.dofs[2]
-    }
-
-    pub fn dyds(&self) -> Dof {
-        self.dofs[3]
-    }
-
-    pub fn dxds2(&self) -> Dof {
-        self.dofs[4]
-    }
-
-    pub fn dyds2(&self) -> Dof {
-        self.dofs[5]
-    }
-}
-
-
-#[derive(Copy, Clone, Debug)]
-pub struct GebfNode {
+pub struct OrientedNode {
     dofs: [Dof; 3]
 }
 
-impl Node for GebfNode {
+impl Node for OrientedNode {
     fn dofs(&self) -> &[Dof] {
         &self.dofs
     }
 }
 
-impl GebfNode {
+impl OrientedNode {
     pub fn new(x: Dof, y: Dof, φ: Dof) -> Self {
         Self {
             dofs: [x, y, φ]

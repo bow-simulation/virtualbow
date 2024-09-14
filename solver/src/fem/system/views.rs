@@ -2,13 +2,19 @@ use crate::fem::system::dof::Dof;
 
 use nalgebra::{DVector, DMatrix, SVector, SMatrix};
 
-// Local read-only view into the global position vector as defined by a list of dofs
-pub struct PositionView<'a> {
+// Some shorthands for more clarity
+pub type PositionView<'a> = AffineView<'a>;
+pub type VelocityView<'a> = LinearView<'a>;
+pub type AccelerationView<'a> = LinearView<'a>;
+pub type ForceView<'a> = LinearView<'a>;
+
+// Local read-only view into a global vector as defined by a list of dofs, including offsets
+pub struct AffineView<'a> {
     vector: &'a DVector<f64>,
     dofs: &'a [Dof]
 }
 
-impl<'a> PositionView<'a> {
+impl<'a> AffineView<'a> {
     // Create a new view that references the given vector and dofs
     pub fn new(vector: &'a DVector<f64>, dofs: &'a [Dof]) -> Self {
         Self {
@@ -34,24 +40,23 @@ impl<'a> PositionView<'a> {
     pub fn transform(vector: &DVector<f64>, dof: Dof) -> f64 {
         match dof {
             Dof::Fixed{offset} => offset,
-            Dof::Free{index, offset, scale} => offset + scale*vector[index]
+            Dof::Free{index, offset} => offset + vector[index]
         }
     }
 }
 
-// Local read-only view into the global velocity vector as defined by a list of dofs
-// Only difference is that the offset disappears from deriving the position
-pub struct VelocityView<'a> {
+// Local read-only view into a global vector as defined by a list of dofs, disregarding offsets
+pub struct LinearView<'a> {
     vector: &'a DVector<f64>,
     dofs: &'a [Dof]
 }
 
-impl<'a> VelocityView<'a> {
+impl<'a> LinearView<'a> {
     // Create a new view that references the given vector and dofs
     pub fn new(vector: &'a DVector<f64>, dofs: &'a [Dof]) -> Self {
         Self {
-            vector: vector,
-            dofs: dofs
+            vector,
+            dofs
         }
     }
 
@@ -72,7 +77,7 @@ impl<'a> VelocityView<'a> {
     pub fn transform(vector: &DVector<f64>, dof: Dof) -> f64 {
         match dof {
             Dof::Fixed{offset: _} => 0.0,
-            Dof::Free{index, offset: _, scale} => scale*vector[index]
+            Dof::Free{index, offset: _} => vector[index]
         }
     }
 }
@@ -87,8 +92,8 @@ impl<'a> VectorView<'a> {
     // Create a new view that references the given vector and dofs
     pub fn new(vector: &'a mut DVector<f64>, dofs: &'a [Dof]) -> Self {
         Self {
-            vector: vector,
-            dofs: dofs
+            vector,
+            dofs
         }
     }
 
@@ -100,8 +105,8 @@ impl<'a> VectorView<'a> {
                 Dof::Fixed{offset: _} => {
                     // Do nothing since the local value has no link to the global vector
                 },
-                Dof::Free{index, offset: _, scale} => {
-                    self.vector[index] += scale*value;
+                Dof::Free{index, offset: _} => {
+                    self.vector[index] += value;
                 }
             }
         }
@@ -128,9 +133,9 @@ impl<'a> MatrixView<'a> {
     pub fn add<const N: usize>(&mut self, rhs: &SMatrix<f64, N, N>) {
         for row in 0..N {
             for col in 0..N {
-                if let Dof::Free{index: i, offset: _, scale: si} = self.dofs[row] {
-                    if let Dof::Free{index: j, offset: _, scale: sj} = self.dofs[col] {
-                        self.matrix[(i, j)] += si*sj*rhs[(row, col)];
+                if let Dof::Free{index: i, offset: _} = self.dofs[row] {
+                    if let Dof::Free{index: j, offset: _} = self.dofs[col] {
+                        self.matrix[(i, j)] += rhs[(row, col)];
                     }
                 }
             }
@@ -140,23 +145,23 @@ impl<'a> MatrixView<'a> {
 
 #[cfg(test)]
 mod tests {
-    use nalgebra::{DVector, DMatrix, SVector, SMatrix};
+    use nalgebra::{DVector, DMatrix, SVector, SMatrix, vector, dvector, matrix, dmatrix};
     use crate::fem::system::dof::Dof;
     use super::*;
 
     #[test]
     fn test_views() {
-        let dof1 = Dof::Fixed { offset: 1.0 };
-        let dof2 = Dof::Free { index: 2, offset: 1.0, scale: 1.5 };
-        let dof3 = Dof::Free { index: 4, offset: 1.0, scale: 1.5 };
-        let dof4 = Dof::Free { index: 6, offset: 1.0, scale: 1.5 };
+        let dof1 = Dof::new_fixed(1.0);
+        let dof2 = Dof::new_free(2, 1.0);
+        let dof3 = Dof::new_free(4, 1.0);
+        let dof4 = Dof::new_free(6, 1.0);
         let dofs = &[dof1, dof2, dof3, dof4];
 
         {
             let vector = DVector::<f64>::from_column_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]);
             let view = PositionView::new(&vector, dofs);
 
-            assert_eq!(view.get::<4>(), SVector::<f64, 4>::new(1.0, 5.5, 8.5, 11.5));
+            assert_eq!(view.get::<4>(), vector![1.0, 4.0, 6.0, 8.0]);
         }
 
 
@@ -164,33 +169,32 @@ mod tests {
             let vector = DVector::<f64>::from_column_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]);
             let view = VelocityView::new(&vector, dofs);
 
-            assert_eq!(view.get::<4>(), SVector::<f64, 4>::new(0.0, 4.5, 7.5, 10.5));
+            assert_eq!(view.get::<4>(), vector![0.0, 3.0, 5.0, 7.0]);
         }
 
         {
             let mut vector = DVector::<f64>::zeros(8);
             let mut view = VectorView::new(&mut vector, dofs);
-            view.add(SVector::<f64, 4>::new(1.0, 2.0, 3.0, 4.0));
+            view.add(vector![1.0, 2.0, 3.0, 4.0]);
 
-            assert_eq!(vector, DVector::<f64>::from_column_slice(&[0.0, 0.0, 3.0, 0.0, 4.5, 0.0, 6.0, 0.0]));
+            assert_eq!(vector, dvector![0.0, 0.0, 2.0, 0.0, 3.0, 0.0, 4.0, 0.0]);
         }
 
         {
             let mut matrix = DMatrix::<f64>::zeros(8, 8);
             let mut view = MatrixView::new(&mut matrix, dofs);
-            view.add(&SMatrix::<f64, 4, 4>::from_column_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0]));
+            view.add(&matrix![1.0, 2.0, 3.0, 4.0; 5.0, 6.0, 7.0, 8.0; 9.0, 10.0, 11.0, 12.0; 13.0, 14.0, 15.0, 16.0]);
 
-            assert_eq!(matrix[(2, 2)], 13.50);
-            assert_eq!(matrix[(2, 4)], 22.50);
-            assert_eq!(matrix[(2, 6)], 31.50);
-            
-            assert_eq!(matrix[(4, 2)], 15.75);
-            assert_eq!(matrix[(4, 4)], 24.75);
-            assert_eq!(matrix[(4, 6)], 33.75);
-
-            assert_eq!(matrix[(6, 2)], 18.00);
-            assert_eq!(matrix[(6, 4)], 27.00);
-            assert_eq!(matrix[(6, 6)], 36.00);
+            assert_eq!(matrix, dmatrix![
+                0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0.0, 0.0;
+                0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0.0, 0.0;
+                0.0, 0.0,  6.0, 0.0,  7.0, 0.0,  8.0, 0.0;
+                0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0.0, 0.0;
+                0.0, 0.0, 10.0, 0.0, 11.0, 0.0, 12.0, 0.0;
+                0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0.0, 0.0;
+                0.0, 0.0, 14.0, 0.0, 15.0, 0.0, 16.0, 0.0;
+                0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0.0, 0.0;
+            ]);
         }
     }
 }
