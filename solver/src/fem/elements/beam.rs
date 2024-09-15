@@ -37,12 +37,6 @@ pub trait PlanarCurve {
 
     // Position vector [x(s), y(s)]
     fn position(&self, s: f64) -> SVector<f64, 2>;
-
-    // First derivative [x'(s), y'(s)]
-    fn deriv1(&self, s: f64) -> SVector<f64, 2>;
-
-    // Second derivative [x''(s), y''(s)]
-    fn deriv2(&self, s: f64) -> SVector<f64, 2>;
 }
 
 // Cross section properties of a beam, parameterized over its arc length s

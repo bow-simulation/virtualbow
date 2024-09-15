@@ -23,7 +23,7 @@ downcast-rs = "1.2.1"
 unzip3 = "1.0.0"
 rayon = "1.10.0"
 fresnel = "0.1.0"
-soa_derive = "0.13.0"
+soa-rs = { version = "0.7.2", features = ["serde"] }
 num = "0.4.3"
 clap = { version = "4.5.7", features = ["derive"]}
 

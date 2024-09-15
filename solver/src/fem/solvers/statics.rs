@@ -49,16 +49,16 @@ pub enum ContinuationError {
 pub struct StaticSolver<'a> {
     system: &'a mut System,
     settings: Settings,
-    pub statics: StaticEval  // TODO: Make private and deal with issues
+    pub eval: StaticEval
 }
 
 impl<'a> StaticSolver<'a> {
     pub fn new(system: &'a mut System, settings: Settings) -> Self {
-        let statics = system.create_static_eval();
+        let eval = system.create_static_eval();
         Self {
             system,
             settings,
-            statics
+            eval
         }
     }
 
@@ -81,17 +81,17 @@ impl<'a> StaticSolver<'a> {
         for i in 1..=self.settings.max_iterations {
             // Apply state to system and elements and evaluate internal forces and tangent stiffness matrix
             self.system.set_displacements(&u);
-            self.system.eval_statics(&mut self.statics);
+            self.system.eval_statics(&mut self.eval);
 
             // Factorize stiffness matrix, calculate out of balance loads and auxiliary vectors alpha and beta
-            let decomposition = self.statics.get_tangent_stiffness_matrix().clone().lu();
+            let decomposition = self.eval.get_tangent_stiffness_matrix().clone().lu();
 
-            let delta_q = self.statics.get_load_factor()*self.statics.get_unscaled_external_forces() - self.statics.get_internal_forces();
+            let delta_q = self.eval.get_load_factor()*self.eval.get_unscaled_external_forces() - self.eval.get_internal_forces();
             let alpha = decomposition.solve(&delta_q).ok_or(IterationError::LinearSolutionFailed)?;
-            let beta = decomposition.solve(&self.statics.get_unscaled_external_forces()).ok_or(IterationError::LinearSolutionFailed)?;
+            let beta = decomposition.solve(&self.eval.get_unscaled_external_forces()).ok_or(IterationError::LinearSolutionFailed)?;
 
             // Evaluate constraint and calculate change in load parameter and displacement
-            let c = constraint(&u, self.statics.get_load_factor(), &mut dcdu, &mut dcdλ);
+            let c = constraint(&u, self.eval.get_load_factor(), &mut dcdu, &mut dcdλ);
             let delta_λ = -(c + dcdu.dot(&alpha))/(dcdλ + dcdu.dot(&beta));
             let delta_u = &alpha + delta_λ *&beta;
 
@@ -106,7 +106,7 @@ impl<'a> StaticSolver<'a> {
             let abs_error_λ = delta_λ.abs();
 
             let stopping_criterion_u = abs_error_u < self.settings.epsilon_rel*u.amax() + self.settings.epsilon_abs;
-            let stopping_criterion_λ = abs_error_λ < self.settings.epsilon_rel*self.statics.get_load_factor().abs() + self.settings.epsilon_abs;
+            let stopping_criterion_λ = abs_error_λ < self.settings.epsilon_rel*self.eval.get_load_factor().abs() + self.settings.epsilon_abs;
             if stopping_criterion_u && stopping_criterion_λ {
                 return Ok(IterationInfo{ iterations: i });
             }
@@ -127,7 +127,7 @@ impl<'a> StaticSolver<'a> {
             }
 
             // Apply changes to load factor and displacements
-            self.statics.set_load_factor(self.statics.get_load_factor() + delta_λ);
+            self.eval.set_load_factor(self.eval.get_load_factor() + delta_λ);
             u += &delta_u;
         }
 
@@ -136,7 +136,7 @@ impl<'a> StaticSolver<'a> {
     }
 
     // Solve for equilibrium of the system with a load constraint in the form of a given load factor
-    pub fn solve_equilibrium_load_controlled(&mut self, λ_target: f64) -> Result<IterationInfo, IterationError> {
+    pub fn equilibrium_load_controlled(&mut self, λ_target: f64) -> Result<IterationInfo, IterationError> {
         self.solve_equilibrium_constrained(|_u, lambda, dcdu, dcdλ| {
             dcdu.fill(0.0);
             *dcdλ = 1.0;
@@ -146,7 +146,7 @@ impl<'a> StaticSolver<'a> {
     }
 
     // Solve for equilibrium of the system with a displacement constraint in the form of a given target displacement for a dof
-    pub fn solve_equilibrium_displacement_controlled(&mut self, dof: Dof, u_target: f64) -> Result<IterationInfo, IterationError> {
+    pub fn equilibrium_displacement_controlled(&mut self, dof: Dof, u_target: f64) -> Result<IterationInfo, IterationError> {
         match dof {
             Dof::Free(i) => {
                 return self.solve_equilibrium_constrained(|u, _lambda, dcdu, dcdλ| {
@@ -163,22 +163,22 @@ impl<'a> StaticSolver<'a> {
         }
     }
 
-    // Callback: (system) -> ()
-    pub fn equilibrium_path_load_controlled<F>(&mut self, steps: usize, callback: F) -> Result<(), ContinuationError>
-        where F: Fn(&System, &StaticEval) -> bool
+    // points = steps + 1
+    pub fn equilibrium_path_load_controlled<F>(&mut self, steps: usize, callback: &mut F) -> Result<(), ContinuationError>
+        where F: FnMut(&System, &StaticEval) -> bool
     {
         // If the number of intermediate load steps is zero, perform only one solution for lambda = 1.
         // Otherwise divide the range lambda = [0, 1] into the required number of steps and solve each point.
         if steps == 0 {
-            self.solve_equilibrium_load_controlled(1.0).map_err(|e| ContinuationError::IterationFailed(1.0, e))?;
-            if !callback(self.system, &self.statics) {
+            self.equilibrium_load_controlled(1.0).map_err(|e| ContinuationError::IterationFailed(1.0, e))?;
+            if !callback(self.system, &self.eval) {
                 return Err(ContinuationError::AbortedByCaller)
             }
         }
         else {
-            for lambda in lin_space(0.0..=1.0, steps - 1) {
-                self.solve_equilibrium_load_controlled(lambda).map_err(|e| ContinuationError::IterationFailed(lambda, e))?;
-                if !callback(self.system, &self.statics) {
+            for lambda in lin_space(0.0..=1.0, steps + 1) {
+                self.equilibrium_load_controlled(lambda).map_err(|e| ContinuationError::IterationFailed(lambda, e))?;
+                if !callback(self.system, &self.eval) {
                     return Err(ContinuationError::AbortedByCaller)
                 }
             }
@@ -187,22 +187,22 @@ impl<'a> StaticSolver<'a> {
         return Ok(());
     }
 
-    // Callback: (system) -> ()
+    // points = steps + 1
     pub fn equilibrium_path_displacement_controlled<F>(&mut self, dof: Dof, target: f64, steps: usize, callback: &mut F) -> Result<(), ContinuationError>
         where F: FnMut(&System, &StaticEval) -> bool
     {
         // If the number of intermediate load steps is zero, perform only one solution for lambda = 1.
         // Otherwise divide the range lambda = [0, 1] into the required number of steps and solve each point.
         if steps == 0 {
-            self.solve_equilibrium_displacement_controlled(dof, target).map_err(|e| ContinuationError::IterationFailed(target, e))?;
-            if !callback(self.system, &self.statics) {
+            self.equilibrium_displacement_controlled(dof, target).map_err(|e| ContinuationError::IterationFailed(target, e))?;
+            if !callback(self.system, &self.eval) {
                 return Err(ContinuationError::AbortedByCaller)
             }
         }
         else {
             for displacement in lin_space(self.system.get_displacement(dof)..=target, steps + 1) {
-                self.solve_equilibrium_displacement_controlled(dof, displacement).map_err(|e| ContinuationError::IterationFailed(target, e))?;
-                if !callback(self.system, &self.statics) {
+                self.equilibrium_displacement_controlled(dof, displacement).map_err(|e| ContinuationError::IterationFailed(target, e))?;
+                if !callback(self.system, &self.eval) {
                     return Err(ContinuationError::AbortedByCaller)
                 }
             }

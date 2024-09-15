@@ -144,10 +144,10 @@ fn perform_bow_test(file: &str) {
 
     // Create a plot of the bending line in braced and fully drawn state
     let mut plotter = Plotter::new();
-    for u in &states.limb_pos[0] {
+    for u in &states.limb_pos()[0] {
         plotter.add_point((u[0], u[1]), (0.0, 0.0), "Bending Line (braced)", "x [m]", "y [m]");
     }
-    for u in &states.limb_pos[states.len()-1] {
+    for u in &states.limb_pos()[states.len()-1] {
         plotter.add_point((u[0], u[1]), (0.0, 0.0), "Bending Line (drawn)", "x [m]", "y [m]");
     }
 
@@ -204,7 +204,7 @@ fn perform_bow_test(file: &str) {
         assert_abs_diff_eq!(*state.grip_force, grip_force_ref, epsilon=1e-3*statics.final_draw_force);
 
         // Actual drawing work as elastic energy of limb and string compared to the initial (braced) state
-        let drawing_work = *state.e_pot_limbs + *state.e_pot_string - (states.e_pot_limbs[0] + states.e_pot_string[0]);
+        let drawing_work = *state.e_pot_limbs + *state.e_pot_string - (states.e_pot_limbs()[0] + states.e_pot_string()[0]);
 
         // Drawing work numerically approximated by integrating the force-draw curve
         let drawing_work_ref: f64 = states.iter().take(i+1).tuple_windows().map(|(prev, next)| {
@@ -212,7 +212,7 @@ fn perform_bow_test(file: &str) {
         }).sum();
 
         plotter.add_point((*state.draw_length, drawing_work), (*state.draw_length, drawing_work_ref), "Drawing Work", "Draw length [m]", "Drawing work [N]");
-        assert_abs_diff_eq!(drawing_work, drawing_work_ref, epsilon=1e-3*states.e_pot_limbs[0]);
+        assert_abs_diff_eq!(drawing_work, drawing_work_ref, epsilon=1e-3*states.e_pot_limbs()[0]);
 
         // Limb endpoint
         let x_end = state.limb_pos.last().unwrap()[0];

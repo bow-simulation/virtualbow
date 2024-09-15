@@ -90,16 +90,6 @@ impl PlanarCurve for ProfileCurve {
         let index = self.find_segment_index(s);
         self.segments[index].position(s)
     }
-
-    fn deriv1(&self, s: f64) -> SVector<f64, 2> {
-        let index = self.find_segment_index(s);
-        self.segments[index].deriv1(s)
-    }
-
-    fn deriv2(&self, s: f64) -> SVector<f64, 2> {
-        let index = self.find_segment_index(s);
-        self.segments[index].deriv2(s)
-    }
 }
 
 #[cfg(test)]
