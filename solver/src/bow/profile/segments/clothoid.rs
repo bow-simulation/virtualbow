@@ -219,21 +219,4 @@ impl PlanarCurve for ClothoidSegment {
             ]
         }
     }
-
-    fn deriv1(&self, s: f64) -> SVector<f64, 2> {
-        let phi = self.angle(s);
-        vector![
-            f64::cos(phi),
-            f64::sin(phi)
-        ]
-    }
-
-    fn deriv2(&self, s: f64) -> SVector<f64, 2> {
-        let phi = self.angle(s);
-        let k = self.curvature(s);
-        vector![
-           -k*f64::sin(phi),
-            k*f64::cos(phi)
-        ]
-    }
 }

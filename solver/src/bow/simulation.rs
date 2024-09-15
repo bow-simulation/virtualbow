@@ -3,6 +3,7 @@ use clap::ValueEnum;
 use iter_num_tools::lin_space;
 use itertools::Itertools;
 use nalgebra::vector;
+use soa_rs::Soa;
 use crate::fem::elements::bar::BarElement;
 use crate::fem::elements::beam::{BeamElement, CrossSection, PlanarCurve};
 use crate::fem::solvers::eigen::{Mode, natural_frequencies};
@@ -14,7 +15,7 @@ use crate::bow::sections::section::LayeredCrossSection;
 use crate::bow::errors::ModelError;
 use crate::bow::profile::profile::{CurvePoint, ProfileCurve};
 use crate::bow::input::BowInput;
-use crate::bow::output::{Dynamics, LayerInfo, LimbInfo, BowOutput, Common, State, StateVec, Statics};
+use crate::bow::output::{Dynamics, LayerInfo, LimbInfo, BowOutput, Common, State, Statics};
 use crate::fem::elements::mass::MassElement;
 use crate::fem::solvers::{dynamics, statics};
 use crate::fem::solvers::dynamics::DynamicSolver;
@@ -186,7 +187,7 @@ impl<'a> Simulation<'a> {
                 system.element_mut::<BarElement>(simulation.string_element).set_initial_length(factor * l0);
 
                 let mut solver = StaticSolver::new(&mut system, statics::Settings::default());
-                let result = solver.solve_equilibrium_displacement_controlled(simulation.string_node.y(), -model.dimensions.brace_height);
+                let result = solver.equilibrium_displacement_controlled(simulation.string_node.y(), -model.dimensions.brace_height);
                 let slope = simulation.get_string_slope(&system);
 
                 (slope, result)
@@ -227,7 +228,7 @@ impl<'a> Simulation<'a> {
 
             // "Draw" the bow by solving for a static equilibrium path of the string node from brace height to full draw
             // and store each intermediate step in the static output.
-            let mut states = StateVec::new();
+            let mut states = Soa::<State>::new();
             let mut solver = StaticSolver::new(&mut system, statics::Settings::default());
 
             solver.equilibrium_path_displacement_controlled(simulation.string_node.y(), -model.dimensions.draw_length, model.settings.n_draw_steps, &mut |system, eval| {
@@ -239,20 +240,20 @@ impl<'a> Simulation<'a> {
 
             // Compute additional static output values
 
-            let draw_length_front = *states.draw_length.first().unwrap();
-            let draw_length_back = *states.draw_length.last().unwrap();
-            let draw_force_back = *states.draw_force.last().unwrap();
-            let e_pot_front = states.e_pot_limbs.first().unwrap() + states.e_pot_string.first().unwrap();
-            let e_pot_back = states.e_pot_limbs.last().unwrap() + states.e_pot_string.last().unwrap();
+            let draw_length_front = *states.draw_length().first().unwrap();
+            let draw_length_back = *states.draw_length().last().unwrap();
+            let draw_force_back = *states.draw_force().last().unwrap();
+            let e_pot_front = states.e_pot_limbs().first().unwrap() + states.e_pot_string().first().unwrap();
+            let e_pot_back = states.e_pot_limbs().last().unwrap() + states.e_pot_string().last().unwrap();
 
             let final_draw_force = draw_force_back;
             let final_drawing_work = e_pot_back - e_pot_front;
             let storage_factor = (e_pot_back - e_pot_front) / (0.5 * (draw_length_back - draw_length_front) * draw_force_back);
 
-            let max_string_force = states.string_force.iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();  // TODO: Write function for this
+            let max_string_force = states.string_force().iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();  // TODO: Write function for this
             let max_strand_force = (max_string_force.0 / (model.string.n_strands as f64), max_string_force.1);
-            let max_grip_force = states.grip_force.iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();      // TODO: Write function for this
-            let max_draw_force = states.draw_force.iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();      // TODO: Write function for this
+            let max_grip_force = states.grip_force().iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();      // TODO: Write function for this
+            let max_draw_force = states.draw_force().iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();      // TODO: Write function for this
 
             // Collect static outputs
             Some(Statics {
@@ -273,7 +274,7 @@ impl<'a> Simulation<'a> {
         let dynamics = {
             if mode == SimulationMode::Dynamic {
                 let settings = dynamics::Settings { timestep: 1e-4, ..Default::default() };
-                let mut states = StateVec::new();
+                let mut states = Soa::<State>::new();
 
                 // Estimate timeout after which to abort the simulation
                 let k_bow = statics.as_ref().unwrap().final_draw_force/(model.dimensions.draw_length - model.dimensions.brace_height);
@@ -376,14 +377,15 @@ impl<'a> Simulation<'a> {
         }
 
         let mut solver = StaticSolver::new(&mut system, statics::Settings::default());
-        for lambda in lin_space(0.0..=1.0, model.settings.n_draw_steps + 1) {
-            solver.solve_equilibrium_load_controlled(lambda).expect("Static solver failed");
-        }
+        let mut states = Soa::<State>::new();
 
-        let eval = solver.statics.clone();  // Only for the borrow checker
-        let state = simulation.get_bow_state(&system, SystemEval::Static(&eval));
+        solver.equilibrium_path_load_controlled(model.settings.n_draw_steps, &mut |system, eval| {
+            let state = simulation.get_bow_state(&system, SystemEval::Static(&eval));
+            states.push(state);
+            return true;
+        }).map_err(|e| ModelError::SimulationStaticSolutionFailed(e))?;
 
-        Ok((simulation.info, state))
+        Ok((simulation.info, states.pop().unwrap()))
     }
 
     // TODO: Lett mutation, write functions for intermediate results
