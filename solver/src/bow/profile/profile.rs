@@ -1,4 +1,4 @@
-use nalgebra::{SVector, vector};
+use nalgebra::SVector;
 use crate::fem::elements::beam::PlanarCurve;
 use crate::bow::errors::ModelError;
 use crate::bow::profile::input::SegmentInput;

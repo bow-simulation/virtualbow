@@ -3,13 +3,11 @@ pub mod spline;
 
 #[cfg(test)]
 mod tests {
-    use iter_num_tools::lin_space;
-    use nalgebra::{DVector, vector};
+    use nalgebra::vector;
     use crate::fem::elements::beam::PlanarCurve;
     use crate::bow::profile::profile::CurvePoint;
     use crate::bow::profile::segments::clothoid::{ArcInput, ClothoidSegment, LineInput, SpiralInput};
     use crate::bow::profile::segments::spline::{SplineInput, SplineSegment};
-    use crate::numerics::differentiation::differentiate_1_to_n;
 
     #[test]
     fn test_line_segment() {

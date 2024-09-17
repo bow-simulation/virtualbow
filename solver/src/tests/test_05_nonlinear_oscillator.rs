@@ -91,5 +91,5 @@ fn nonlinear_pendulum() {
         assert_abs_diff_eq!(y_ddot_num, y_ddot_ref, epsilon=1e-1);
 
         return t < 10.0;
-    });
+    }).unwrap();
 }

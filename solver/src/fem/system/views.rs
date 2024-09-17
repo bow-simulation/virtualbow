@@ -145,7 +145,7 @@ impl<'a> MatrixView<'a> {
 
 #[cfg(test)]
 mod tests {
-    use nalgebra::{DVector, DMatrix, SVector, SMatrix, vector, dvector, matrix, dmatrix};
+    use nalgebra::{DVector, DMatrix, vector, dvector, matrix, dmatrix};
     use crate::fem::system::dof::Dof;
     use super::*;
 
