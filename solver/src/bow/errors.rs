@@ -1,7 +1,9 @@
 use std::fmt::{Display, Formatter};
-use crate::fem::solvers::statics::{ContinuationError, IterationError};
 
 use std::path::PathBuf;
+use crate::fem::solvers::dynamics::DynamicSolverError;
+use crate::fem::solvers::eigen::EigenSolverError;
+use crate::fem::solvers::statics::StaticSolverError;
 
 #[derive(Debug)]
 pub enum ModelError {
@@ -90,7 +92,9 @@ pub enum ModelError {
     SimulationBraceHeightTooLow(f64),
     SimulationBracingNoSignChange,
     SimulationBracingNoConvergence,
-    SimulationStaticSolutionFailed(ContinuationError)
+    SimulationEigenSolutionFailed(EigenSolverError),
+    SimulationStaticSolutionFailed(StaticSolverError),
+    SimulationDynamicSolutionFailed(DynamicSolverError),
 }
 
 impl Display for ModelError {
@@ -178,19 +182,12 @@ impl Display for ModelError {
             ModelError::SplineSegmentTooFewPoints(index, value)   => write!(f, "Profile curve: Spline segment at index {index} requires at least two control points but actual number is {value}.")?,
             ModelError::SplineSegmentInvalidPoint(index, point)   => write!(f, "Profile curve: Spline segment at index {index} requires finite control points but found actual value {point:?}.")?,
 
-            ModelError::SimulationBraceHeightTooLow(value)    => write!(f, "Simulation: The specified brace height of {value} is too low for the given bow profile.")?,
-            ModelError::SimulationBracingNoSignChange         => write!(f, "Simulation: Failed to find the braced equilibrium state of the bow. No sign change of the string angle was found within the allowed number of iterations.")?,
-            ModelError::SimulationBracingNoConvergence        => write!(f, "Simulation: Failed to find the braced equilibrium state of the bow. Terminal root finding algorithm did not converge to the required accuracy within the allowed number of iterations.")?,
-            ModelError::SimulationStaticSolutionFailed(error) => match error {
-                ContinuationError::IterationFailed(draw, error) => match error {
-                    // TODO: Maybe implement display trait for those sub-errors instead of matching here? Similar to json errors above.
-                    IterationError::LinearSolutionFailed  => write!(f, "Simulation: Static solution failed at draw length {draw} due to failed decomposition/solution of the tangent stiffness matrix.")?,
-                    IterationError::InvalidConstraintEval => write!(f, "Simulation: Static solution failed at draw length {draw} due to the constraint function being singular.")?,
-                    IterationError::MaxIterationsReached  => write!(f, "Simulation: Static solution failed at draw length {draw} due to the maximum number of iterations being exceeded.")?,
-                    IterationError::MaxStagnationReached  => write!(f, "Simulation: Static solution failed at draw length {draw} due to the maximum number of stagnating iterations being exceeded.")?,
-                },
-                ContinuationError::AbortedByCaller => write!(f, "Simulation: Static solution has been aborted by the caller.")?,
-            },
+            ModelError::SimulationBraceHeightTooLow(value)     => write!(f, "Simulation: The specified brace height of {value} is too low for the given bow profile.")?,
+            ModelError::SimulationBracingNoSignChange          => write!(f, "Simulation: Failed to find the braced equilibrium state of the bow. No sign change of the string angle was found within the allowed number of iterations.")?,
+            ModelError::SimulationBracingNoConvergence         => write!(f, "Simulation: Failed to find the braced equilibrium state of the bow. Terminal root finding algorithm did not converge to the required accuracy within the allowed number of iterations.")?,
+            ModelError::SimulationEigenSolutionFailed(error)   => write!(f, "Simulation: Failure during eigenvalue solution: {error}")?,
+            ModelError::SimulationStaticSolutionFailed(error)  => write!(f, "Simulation: Failure during the static simulation: {error}")?,
+            ModelError::SimulationDynamicSolutionFailed(error) => write!(f, "Simulation: Failure during the dynamic simulation: {error}")?,
         }
 
         Ok(())

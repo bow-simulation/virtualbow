@@ -299,7 +299,7 @@ impl<'a> Simulation<'a> {
                     // Continue the simulation as long as the arrow is not separated
                     // and the timeout has not yet been reached
                     return simulation.arrow_separation.is_none() && system.get_time() < t_max;
-                });
+                }).map_err(|e| ModelError::SimulationDynamicSolutionFailed(e))?;
 
                 // Simulate the second part of the shot after arrow separation,
                 // but only if separation actually occurred
@@ -318,7 +318,7 @@ impl<'a> Simulation<'a> {
 
                         // Continue as long as the end time is not reached
                         return system.get_time() < t_end;
-                    });
+                    }).map_err(|e| ModelError::SimulationDynamicSolutionFailed(e))?;
                 }
 
                 Some(Dynamics {
@@ -361,7 +361,7 @@ impl<'a> Simulation<'a> {
 
     pub fn simulate_natural_frequencies(model: &'a BowInput) -> Result<(Common, Vec<Mode>), ModelError> {
         let (simulation, mut system) = Self::new(&model, false)?;
-        let results = natural_frequencies(&mut system);
+        let results = natural_frequencies(&mut system).map_err(|e| ModelError::SimulationEigenSolutionFailed(e))?;
         Ok((simulation.info, results))
     }
 

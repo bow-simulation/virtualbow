@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use nalgebra::{DMatrix, DVector};
 use crate::fem::system::system::{System, DynamicEval};
 
@@ -22,6 +23,33 @@ impl Default for Settings {
     }
 }
 
+#[derive(PartialEq, Debug)]
+pub enum DynamicSolverError {
+    LinearSolutionFailed,     // Decomposition of the tangent stiffness matrix or solution of the linear system failed
+    NonFiniteStateIncrement,  // The displacement delta is not finite, i.e. contains NaN or Inf values
+    MaxIterationsReached,     // Maximum number of iterations was reached without convergence
+    MaxStagnationReached,     // Maximum number of iterations without improvement was reached
+    AbortedByCaller           // Aborted by the callback function's return value  // TODO: Add separate end condition function in addition to the callback in order to detect this
+}
+
+impl Display for DynamicSolverError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DynamicSolverError::LinearSolutionFailed    => write!(f, "Decomposition/solution of the tangent stiffness matrix failed.")?,
+            DynamicSolverError::NonFiniteStateIncrement => write!(f, "Encountered a non-finite displacement increment.")?,
+            DynamicSolverError::MaxIterationsReached    => write!(f, "Maximum number of iterations exceeded.")?,
+            DynamicSolverError::MaxStagnationReached    => write!(f, "Maximum number of stagnating iterations exceeded.")?,
+            DynamicSolverError::AbortedByCaller         => write!(f, "Aborted by the caller.")?,
+        }
+
+        Ok(())
+    }
+}
+
+impl std::error::Error for DynamicSolverError {
+
+}
+
 pub struct DynamicSolver<'a> {
     system: &'a mut System,
     settings: Settings
@@ -35,7 +63,7 @@ impl<'a> DynamicSolver<'a> {
         }
     }
 
-    pub fn solve<F>(&mut self, callback: &mut F)
+    pub fn solve<F>(&mut self, callback: &mut F) -> Result<(), DynamicSolverError>
         where F: FnMut(&System, &DynamicEval) -> bool
     {
         // Constant average acceleration (unconditionally stable for linear systems)
@@ -52,7 +80,7 @@ impl<'a> DynamicSolver<'a> {
         // and provide callback information at t = t0.
         self.system.eval_dynamics(&mut eval);
         if !callback(&self.system, &eval) {
-            return;
+            return Ok(());
         }
 
         let dt = self.settings.timestep;
@@ -67,6 +95,9 @@ impl<'a> DynamicSolver<'a> {
             let mut v_next = &v_current + dt*(1.0 - gamma)*&a_current + dt*gamma*&a_next;
             let mut u_next = &u_current + dt*&v_current + dt*dt*((0.5 - beta)*&a_current + beta*&a_next);
 
+            let mut min_error_a = f64::INFINITY;
+            let mut stagnations = 0_u32;
+
             // Next acceleration to iterate on
             for i in 0..self.settings.max_iterations {
                 self.system.set_time(t + dt);
@@ -78,9 +109,36 @@ impl<'a> DynamicSolver<'a> {
                 let drda: DMatrix<f64> = DMatrix::<f64>::from_diagonal(eval.get_mass_matrix()) + dt*gamma*eval.get_damping_matrix() + dt*dt*beta*eval.get_stiffness_matrix();
 
                 let decomposition = drda.lu();
-                let delta_a = decomposition.solve(&r).unwrap();
-                if delta_a.amax() < self.settings.epsilon_rel*a_next.amax() + self.settings.epsilon_abs {
+                let delta_a = decomposition.solve(&r).ok_or(DynamicSolverError::LinearSolutionFailed)?;
+
+                // Check if the acceleration increment is finite
+                if !delta_a.iter().cloned().all(f64::is_finite) {
+                    return Err(DynamicSolverError::NonFiniteStateIncrement);
+                }
+
+                // Check for convergence
+                let abs_error_a = delta_a.amax();
+                if abs_error_a < self.settings.epsilon_rel*a_next.amax() + self.settings.epsilon_abs {
                     break;
+                }
+
+                // Check for number of iterations
+                if i == self.settings.max_iterations - 1 {
+                    return Err(DynamicSolverError::MaxIterationsReached);
+                }
+
+                // Check if the error has been decreased
+                // If yes, record the new minimum and reset the stagnation counter
+                // If no, increase the stagnation counter and return error if the limit is reached
+                if abs_error_a < min_error_a {
+                    min_error_a = abs_error_a;
+                    stagnations = 0;
+                }
+                else {
+                    stagnations += 1;
+                    if stagnations == self.settings.max_stagnation {
+                        return Err(DynamicSolverError::MaxStagnationReached);
+                    }
                 }
 
                 a_next += &delta_a;
@@ -91,7 +149,7 @@ impl<'a> DynamicSolver<'a> {
             t += dt;
 
             if !callback(&self.system, &eval) {
-                break;
+                return Ok(());
             }
         }
     }

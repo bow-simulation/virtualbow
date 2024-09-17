@@ -1,3 +1,4 @@
+/*
 use crate::bow::output::BowOutput;
 use assert_cmd::assert::OutputAssertExt;
 use assert_cmd::cargo::CommandCargoExt;
@@ -9,7 +10,6 @@ use std::process::Command;
 // TODO: After adding a library target they don't work anymore at all
 // https://rust-cli.github.io/book/tutorial/testing.html#testing-cli-applications-by-running-them
 
-/*
 #[test]
 fn command_none() {
     // Calling virtualbow without arguments should fail with an error message

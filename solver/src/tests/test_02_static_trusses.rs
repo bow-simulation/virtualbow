@@ -30,7 +30,7 @@ fn linear_bar_truss_1() {
     utils::checks::check_system_invariants(&mut system);
 
     let mut solver = StaticSolver::new(&mut system, Settings::default());
-    solver.equilibrium_load_controlled(1.0).expect("Static solver failed");
+    solver.equilibrium_load_controlled(1.0).unwrap();
 
     let x_sys = system.get_displacement(node2.x());
     assert_relative_eq!(x_sys, x_ref, max_relative=1e-6);
@@ -69,7 +69,7 @@ fn linear_bar_truss_3() {
     utils::checks::check_system_invariants(&mut system);
 
     let mut solver = StaticSolver::new(&mut system, Settings::default());
-    solver.equilibrium_load_controlled(1.0).expect("Static solver failed");
+    solver.equilibrium_load_controlled(1.0).unwrap();
 
     assert_relative_eq!(system.get_displacement(node3.x()), x_ref, max_relative=1e-3);
     assert_relative_eq!(system.get_displacement(node3.y()), y_ref, max_relative=1e-3);
@@ -123,7 +123,7 @@ fn linear_bar_truss_4() {
     utils::checks::check_system_invariants(&mut system);
 
     let mut solver = StaticSolver::new(&mut system, Settings::default());
-    solver.equilibrium_load_controlled(1.0).expect("Static solver failed");
+    solver.equilibrium_load_controlled(1.0).unwrap();
 
     assert_relative_eq!(system.get_displacement(node_03.x()), 2.0*a, max_relative=1e-3);
     assert_relative_eq!(system.get_displacement(node_03.y()), -s_ref, max_relative=1e-3);

@@ -68,7 +68,7 @@ fn mass_spring_damper_1() {
         assert_abs_diff_eq!(a_sys, a_ref, epsilon=1e-2);
 
         return system.get_time() < (N as f64)*T;
-    });
+    }).unwrap();
 }
 
 #[test]
@@ -112,7 +112,7 @@ fn mass_spring_damper_n() {
     let v0 = DVector::<f64>::zeros(n);
 
     // Compute period of the first eigenmode
-    let modes = natural_frequencies_from_matrices(&M, &D, &K);
+    let modes = natural_frequencies_from_matrices(&M, &D, &K).unwrap();
     let period = TAU/modes[0].omega0;    // Period of the lowest eigenfrequency
     let omega = 5.0*modes[0].omega0;     // Frequency of the excitation
 
@@ -174,7 +174,7 @@ fn mass_spring_damper_n() {
         assert_abs_diff_eq!(a_sys, a_ref, epsilon=1e-1*p_max/m);    // TODO: Accuracy
 
         return system.get_time() < period;
-    });
+    }).unwrap();
 }
 
 // Analytical solver for linear dynamic systems with harmonic excitations.
