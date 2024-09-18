@@ -24,19 +24,30 @@ pub trait PlanarCurve {
     // Arc length at the end of the curve
     fn s_end(&self) -> f64;
 
+    // Position vector [x(s), y(s)]
+    fn position(&self, s: f64) -> SVector<f64, 2>;
+
+    // Angle between curve tangent and the x axis
+    fn angle(&self, s: f64) -> f64;
+
+    // Curvature, first derivative of the tangent angle
+    fn curvature(&self, s: f64) -> f64;
+
     // Arc length of the curve from start to end
     fn length(&self) -> f64 {
         self.s_end() - self.s_start()
     }
 
-    // Curvature, first derivative of the tangent angle
-    fn curvature(&self, s: f64) -> f64;
-
-    // Angle between curve tangent and the x axis
-    fn angle(&self, s: f64) -> f64;
-
-    // Position vector [x(s), y(s)]
-    fn position(&self, s: f64) -> SVector<f64, 2>;
+    // Position and angle [x(s), y(s), φ(s)]
+    fn point(&self, s: f64) -> SVector<f64, 3> {
+        let r = self.position(s);
+        let φ = self.angle(s);
+        vector![
+            r[0],
+            r[1],
+            φ
+        ]
+    }
 }
 
 // Cross section properties of a beam, parameterized over its arc length s
@@ -51,8 +62,10 @@ pub trait CrossSection {
     // (epilon, kappa, gamma) -> (normal force, bending moment, shear force)
     fn C(&self, s: f64) -> SMatrix<f64, 3, 3>;
 
-    // Total width and height, irrespective of any layers
+    // Total width
     fn width(&self, s: f64) -> f64;
+
+    // Total height of all layers
     fn height(&self, s: f64) -> f64;
 
     // Stress evaluation constants
@@ -74,15 +87,15 @@ pub struct LinearBeamSegment {
     pub p1: SVector<f64, 3>,            // Ending point (x, y, φ)
     pub pe: Vec<SVector<f64, 3>>,       // Eval points (x, y, φ)
 
-    pub u_eval: Vec<SMatrix<f64, 3, 6>>,
-    pub C_inv: Vec<SMatrix<f64, 3, 3>>,
+    pub ue: Vec<SMatrix<f64, 3, 6>>,
+    pub Ci: Vec<SMatrix<f64, 3, 3>>,
 
     pub K: SMatrix<f64, 6, 6>,              // Stiffness matrix
     pub M: SVector<f64, 6>                  // Lumped mass matrix
 }
 
 impl LinearBeamSegment {
-    pub fn new<C, S>(curve: &C, section: &S, s0: f64, s1: f64, s_eval: &[f64]) -> Self
+    pub fn new<C, S>(curve: &C, section: &S, s0: f64, s1: f64, se: &[f64]) -> Self
         where C: PlanarCurve,
               S: CrossSection
     {
@@ -92,24 +105,10 @@ impl LinearBeamSegment {
         // Fixed number of integration intervals
         let n_integration = 1000;
 
-        // Segment starting point
-        let r0 = curve.position(s0);    // TODO: Let curve return position and angle in one call
-        let φ0 = curve.angle(s0);
-
-        // Segment endpoint
-        let r1 = curve.position(s1);    // TODO: Let curve return position and angle in one call
-        let φ1 = curve.angle(s1);
-
-        // Evaluation points
-        let pe = s_eval.iter().map(|&s| {
-            let r = curve.position(s);    // TODO: Let curve return position and angle in one call
-            let φ = curve.angle(s);
-            vector![
-                r[0],
-                r[1],
-                φ
-            ]
-        }).collect_vec();
+        // Segment starting point, endpoint and evaluation points
+        let p0 = curve.point(s0);
+        let p1 = curve.point(s1);
+        let pe = se.iter().map(|&s| { curve.point(s) }).collect_vec();
 
         let H = |s, sn| -> SMatrix<f64, 3, 3> {
             let r = curve.position(s);
@@ -145,9 +144,9 @@ impl LinearBeamSegment {
         // - Last eval point to segment end, if present
 
         // TODO: Nicer way to do this?
-        let mut s_integ = Vec::with_capacity(2 + s_eval.len());
+        let mut s_integ = Vec::with_capacity(2 + se.len());
         s_integ.push(s0);
-        s_integ.extend_from_slice(s_eval);
+        s_integ.extend_from_slice(se);
         s_integ.push(s1);
 
         let mut I = vec![SMatrix::<f64, 3, 3>::zeros()];
@@ -158,10 +157,10 @@ impl LinearBeamSegment {
 
         // Compute inverse stiffness matrices at nodes and eval points
 
-        let K0n_inv = s_eval.iter().enumerate().map(|(i, &sn)| { -B(s0, sn).transpose()*(I.last().unwrap() - I[i+1]) }).collect_vec();
+        let K0n_inv = se.iter().enumerate().map(|(i, &sn)| { -B(s0, sn).transpose()*(I.last().unwrap() - I[i+1]) }).collect_vec();
         let K00_inv = I.last().unwrap();
 
-        let K1n_inv = s_eval.iter().enumerate().map(|(i, &sn)| { B(s0, sn).transpose()*I[i+1]*B(s0, s1) }).collect_vec();
+        let K1n_inv = se.iter().enumerate().map(|(i, &sn)| { B(s0, sn).transpose()*I[i+1]*B(s0, s1) }).collect_vec();
         let K11_inv = B(s0, s1).transpose()*I.last().unwrap()*B(s0, s1);
 
         // Complete stiffness matrix
@@ -178,11 +177,11 @@ impl LinearBeamSegment {
 
         // Evaluation matrices
 
-        let u_eval = s_eval.iter().enumerate().map(|(i, _)| {
+        let ue = se.iter().enumerate().map(|(i, _)| {
             stack![K0n_inv[i]*K00, K1n_inv[i]*K11]
         }).collect();
 
-        let C_inv = s_eval.iter().map(|&s| {
+        let Ci = se.iter().map(|&s| {
             section.C(s).try_inverse().expect("Failed to invert section stiffness matrix")
         }).collect();
 
@@ -219,12 +218,12 @@ impl LinearBeamSegment {
         Self {
             s0,
             s1,
-            se: s_eval.to_vec(),
-            p0: vector![r0[0], r0[1], φ0],    // TODO: Let curve return position and angle in one call
-            p1: vector![r1[0], r1[1], φ1],    // TODO: Let curve return position and angle in one call
+            se: se.to_vec(),
+            p0,
+            p1,
             pe,
-            u_eval,
-            C_inv,
+            ue,
+            Ci,
             K,
             M,
         }
@@ -333,7 +332,7 @@ impl BeamElement {
         let p0 = vector![segment.p0[0], segment.p0[1], a0];
         let pe = segment.pe.iter().map(|&pe| R0.transpose()*(pe - p0)).collect();
 
-        let u_eval = segment.u_eval.iter().map(|E| E*T ).collect();
+        let u_eval = segment.ue.iter().map(|E| E*T ).collect();
 
         let M = segment.M;
 
@@ -348,7 +347,7 @@ impl BeamElement {
             β0: segment.p0[2] - a0,
             β1: segment.p1[2] - a0,
             u_eval,
-            C_inv: segment.C_inv.clone(),
+            C_inv: segment.Ci.clone(),
             u: Default::default(),
             q: Default::default(),
             v: Default::default(),
@@ -534,7 +533,7 @@ mod tests {
 
         // Check displacement evaluation matrices
         for i in 0..=n_elements {
-            assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.u_eval[i], epsilon=1e-6);
+            assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.ue[i], epsilon=1e-6);
         }
     }
 
@@ -560,7 +559,7 @@ mod tests {
 
         // Check displacement evaluation matrices
         for i in 0..=n_elements {
-            assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.u_eval[i], epsilon=1e-3);    // TODO: Precision?
+            assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.ue[i], epsilon=1e-3);    // TODO: Precision?
         }
     }
 
@@ -586,7 +585,7 @@ mod tests {
 
         // Check displacement evaluation matrices
         for i in 0..=n_elements {
-            assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.u_eval[i], epsilon=1e-3);    // TODO: Precision?
+            assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.ue[i], epsilon=1e-3);    // TODO: Precision?
         }
     }
 
