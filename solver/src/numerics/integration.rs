@@ -1,3 +1,4 @@
+use std::fmt::{Debug, Display, Formatter};
 use nalgebra::SMatrix;
 
 // Integrates the given function using the adaptive Simpson method (https://en.wikipedia.org/wiki/Adaptive_Simpson%27s_method) with a given numerical tolerance and maximum recursion depth.
@@ -6,13 +7,17 @@ use nalgebra::SMatrix;
 pub fn integrate_adaptive<F, const R: usize, const C: usize>(mut f: F, a: f64, b: f64, epsilon: f64, max_recursion: u32) -> Option<SMatrix<f64, R, C>>
     where F: FnMut(f64) -> SMatrix<f64, R, C>,
 {
-    //assert!(b >= a, "Integral bounds must be in ascending order");  // TODO: Reenable after solving numerical imperfections between evaluation points
-
     let fa = f(a);
     let fb = f(b);
 
     let whole = simpson_quadrature(&mut f, a, b, fa, fb);
-    simpson_quadrature_recursive(&mut f, a, b, fa, fb, whole, epsilon, max_recursion)
+    let result = simpson_quadrature_recursive(&mut f, a, b, fa, fb, whole, epsilon, max_recursion)?;
+
+    return if a <= b {
+        Some(result)
+    } else {
+        Some(-result)
+    }
 }
 
 struct Triple<const R: usize, const C: usize> {
@@ -37,8 +42,8 @@ fn simpson_quadrature_recursive<F, const R: usize, const C: usize>(f: &mut F, a:
     }
     else {
         return Some(
-              simpson_quadrature_recursive(f, a, whole.m, fa, whole.fm, left, epsilon/2.0, n-1)?
-            + simpson_quadrature_recursive(f, whole.m, b, whole.fm, fb, right, epsilon/2.0, n-1)?
+            simpson_quadrature_recursive(f, a, whole.m, fa, whole.fm, left, epsilon/2.0, n-1)?
+                + simpson_quadrature_recursive(f, whole.m, b, whole.fm, fb, right, epsilon/2.0, n-1)?
         );
     }
 }
@@ -57,20 +62,26 @@ fn simpson_quadrature<F, const R: usize, const C: usize>(f: &mut F, a: f64, b: f
     }
 }
 
-// Integrates the given function using the trapezoidal rule and a fixed number of sample points
-pub fn integrate_fixed<F, const R: usize, const C: usize>(mut f: F, a: f64, b: f64, n: usize) -> Option<SMatrix<f64, R, C>>
+// Integrates the given function using the simpson rule and a fixed number of sample points
+// Implementation based on http://camillecarvalho.org/math-131/lectures/lecture_11.html
+// Has no error control but also can't fail as a result.
+pub fn integrate_fixed<F, const R: usize, const C: usize>(mut f: F, a: f64, b: f64, n: usize) -> SMatrix<f64, R, C>
     where F: FnMut(f64) -> SMatrix<f64, R, C>,
 {
-    //assert!(b >= a, "Integral bounds must be in ascending order");  // TODO: Reenable after solving numerical imperfections between evaluation points
+    assert!(n % 2 == 0, "Number of integration intervals must be even");
 
     let h = (b - a)/(n as f64);
+    let mut r = f(a) + f(b);
 
-    let I1: SMatrix<f64, R, C> = 0.5*(f(a) + f(b));
-    let I2: SMatrix<f64, R, C> = (1..=n-1).map(|i| f(a + (i as f64)*h)).sum();
+    for i in (1..n).step_by(2) {
+        r += 4.0*f(a + (i as f64)*h);
+    }
 
-    Some(h*(I1 + I2))
+    for i in (2..n-1).step_by(2) {
+        r += 2.0*f(a + (i as f64)*h);
+    }
 
-    //Some(h*(0.5*f(a) + 0.5*f(b) + (1..=n-1).map(|i| f(a + (i as f64)*h)).sum()))
+    return r*h/3.0;
 }
 
 #[cfg(test)]
@@ -88,16 +99,26 @@ mod tests {
         let F_ref = vector![0.5, 0.25];
 
         assert_abs_diff_eq!(F_num, F_ref, epsilon=1e-8);
+
+        let F_num = integrate_adaptive(f, b, a, 1e-8, 10).expect("Integration failed");
+        let F_ref = vector![-0.5, -0.25];
+
+        assert_abs_diff_eq!(F_num, F_ref, epsilon=1e-8);
     }
 
     #[test]
-    fn test_trapezoidal_rule() {
+    fn test_fixed_simpson() {
         let f = |x: f64| { vector![x, x.powi(3)] };
         let a = 0.0;
         let b = 1.0;
 
-        let F_num = integrate_fixed(f, a, b, 10000).expect("Integration failed");
+        let F_num = integrate_fixed(f, a, b, 100);
         let F_ref = vector![0.5, 0.25];
+
+        assert_abs_diff_eq!(F_num, F_ref, epsilon=1e-8);
+
+        let F_num = integrate_fixed(f, b, a, 100);
+        let F_ref = vector![-0.5, -0.25];
 
         assert_abs_diff_eq!(F_num, F_ref, epsilon=1e-8);
     }
