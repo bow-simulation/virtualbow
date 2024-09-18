@@ -89,6 +89,9 @@ impl LinearBeamSegment {
         assert!(s1 > s0, "Starting length must be larger than ending length");
         //assert!(s_eval.iter().all(|&s| s >= s0 && s <= s1), "Evaluation points must lie within start and endpoint");  // TODO: Check with tolerance?
 
+        // Fixed number of integration intervals
+        let n_integration = 1000;
+
         // Segment starting point
         let r0 = curve.position(s0);    // TODO: Let curve return position and angle in one call
         let φ0 = curve.angle(s0);
@@ -150,8 +153,7 @@ impl LinearBeamSegment {
         let mut I = vec![SMatrix::<f64, 3, 3>::zeros()];
         s_integ.iter().tuple_windows().for_each(|(&sa, &sb)| {
             let last = I.last().unwrap();
-            //I.push(last + integrate_adaptive(dIds, sa, sb, 1e-9, 10).expect("Failed to compute segment stiffness matrix"));  // TODO: Magic numbers
-            I.push(last + integrate_fixed(dIds, sa, sb, 1000).expect("Failed to compute segment stiffness matrix"));  // TODO: Magic numbers  // TODO: Better integration method
+            I.push(last + integrate_fixed(dIds, sa, sb, n_integration));
         });
 
         // Compute inverse stiffness matrices at nodes and eval points
@@ -187,10 +189,8 @@ impl LinearBeamSegment {
         // Lumped mass matrix
 
         let sm = 0.5*(s0 + s1);  // Segment midpoint
-        //let m0 = integrate_adaptive(|s|{ vector![ section.rhoA(s) ] }, s0, sm, 1e-9, 10).expect("Failed to compute segment mass")[0];    // Mass of the first segment half
-        //let m1 = integrate_adaptive(|s|{ vector![ section.rhoA(s) ] }, sm, s1, 1e-9, 10).expect("Failed to compute segment mass")[0];    // Mass of the second segment half
-        let m0 = integrate_fixed(|s|{ vector![ section.rhoA(s) ] }, s0, sm, 1000).expect("Failed to compute segment mass")[0];    // Mass of the first segment half  // TODO: Better integration method
-        let m1 = integrate_fixed(|s|{ vector![ section.rhoA(s) ] }, sm, s1, 1000).expect("Failed to compute segment mass")[0];    // Mass of the second segment half  // TODO: Better integration method
+        let m0 = integrate_fixed(|s|{ vector![ section.rhoA(s) ] }, s0, sm, n_integration)[0];    // Mass of the first segment half
+        let m1 = integrate_fixed(|s|{ vector![ section.rhoA(s) ] }, sm, s1, n_integration)[0];    // Mass of the second segment half
         let J0 = 0.5*(s1 - s0)*section.rhoI(s0);    // Lumped rotary inertia of the first node
         let J1 = 0.5*(s1 - s0)*section.rhoI(s1);    // Lumped rotary inertia of the second node
 
