@@ -2,9 +2,9 @@ use std::f64::consts::{FRAC_PI_2, TAU};
 use fresnel::fresnl;
 use nalgebra::{SVector, vector};
 use serde::{Deserialize, Serialize};
-use crate::fem::elements::beam::PlanarCurve;
 use crate::bow::errors::ModelError;
 use crate::bow::profile::profile::CurvePoint;
+use crate::fem::elements::beam::geometry::PlanarCurve;
 
 // Curve segment whose curvature varies linearly varying over its arc length.
 // Can represent a clothoid, circular arc or a straight line depending on the choice of parameters.
@@ -152,28 +152,6 @@ impl PlanarCurve for ClothoidSegment {
         self.s1
     }
 
-    fn curvature(&self, s: f64) -> f64 {
-        2.0*self.a*s + self.b
-    }
-
-    fn angle(&self, s: f64) -> f64 {
-        (self.a*s + self.b)*s + self.c
-    }
-
-    // Curvature varies linearly between s0 and s1:
-    // k(s) = (k1 - k0)/(s1 - s0)*s + (s1*k0 - s0*k1)/(s1 - s0)
-    //
-    // Therefore, the tangent angle is (https://en.wikipedia.org/wiki/Tangential_angle)
-    // phi(s) = phi0 + integrate k(t) dt from s0 to s
-    //        = phi0 + (s1*k0 - s0*k1)/(s1 - s0)*(s - s0) + 1/2*(k1 - k0)/(s1 - s0)*(s^2 - s0^2)
-    //        = a*s^2 + b*s + c
-    //
-    // Quadratic coefficients of the tangent angle:
-    //
-    // a = 0.5*(k1 - k0)/(s1 - s0);
-    // b = (s1*k0 - s0*k1)/(s1 - s0);
-    // c = phi0 - b*s0 - a*s0*s0;
-
     fn position(&self, s: f64) -> SVector<f64, 2> {
         // The curve's coordinates are (https://en.wikipedia.org/wiki/Tangential_angle)
         // x(s) = x0 + integrate cos(phi(t)) dt from s0 to s
@@ -218,5 +196,27 @@ impl PlanarCurve for ClothoidSegment {
                 self.y0 + f64::sin(self.c)*(s - self.s0)
             ]
         }
+    }
+
+    fn angle(&self, s: f64) -> f64 {
+        (self.a*s + self.b)*s + self.c
+    }
+
+    // Curvature varies linearly between s0 and s1:
+    // k(s) = (k1 - k0)/(s1 - s0)*s + (s1*k0 - s0*k1)/(s1 - s0)
+    //
+    // Therefore, the tangent angle is (https://en.wikipedia.org/wiki/Tangential_angle)
+    // phi(s) = phi0 + integrate k(t) dt from s0 to s
+    //        = phi0 + (s1*k0 - s0*k1)/(s1 - s0)*(s - s0) + 1/2*(k1 - k0)/(s1 - s0)*(s^2 - s0^2)
+    //        = a*s^2 + b*s + c
+    //
+    // Quadratic coefficients of the tangent angle:
+    //
+    // a = 0.5*(k1 - k0)/(s1 - s0);
+    // b = (s1*k0 - s0*k1)/(s1 - s0);
+    // c = phi0 - b*s0 - a*s0*s0;
+
+    fn curvature(&self, s: f64) -> f64 {
+        2.0*self.a*s + self.b
     }
 }

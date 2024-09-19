@@ -1,8 +1,8 @@
 use nalgebra::{DVector, matrix, SMatrix, SVector, vector};
 use serde::{Deserialize, Serialize};
-use crate::fem::elements::beam::CrossSection;
 use crate::bow::errors::ModelError;
 use crate::bow::input::{Layer, Material, Width};
+use crate::fem::elements::beam::geometry::CrossSection;
 use crate::numerics::cubic_spline::{BoundaryCondition, CubicSpline, Extrapolation};
 use crate::numerics::intervals::{Bound, Interval};
 

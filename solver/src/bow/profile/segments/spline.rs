@@ -3,9 +3,9 @@
 use iter_num_tools::lin_space;
 use nalgebra::{SVector, vector};
 use serde::{Deserialize, Serialize};
-use crate::fem::elements::beam::PlanarCurve;
 use crate::bow::errors::ModelError;
 use crate::bow::profile::profile::CurvePoint;
+use crate::fem::elements::beam::geometry::PlanarCurve;
 use crate::numerics::cubic_spline::BoundaryCondition::{FirstDerivative, SecondDerivative};
 use crate::numerics::cubic_spline::{CubicSpline, Extrapolation};
 
@@ -104,16 +104,12 @@ impl PlanarCurve for SplineSegment {
         self.spline_t.arg_max()
     }
 
-    fn curvature(&self, s: f64) -> f64 {
+    fn position(&self, s: f64) -> SVector<f64, 2> {
         let t = self.spline_t.value(s, Extrapolation::Cubic);
-
-        let dxdt = self.spline_x.deriv1(t, Extrapolation::Cubic);
-        let dydt = self.spline_y.deriv1(t, Extrapolation::Cubic);
-
-        let dxdt2 = self.spline_x.deriv2(t, Extrapolation::Cubic);
-        let dydt2 = self.spline_y.deriv2(t, Extrapolation::Cubic);
-
-        (dxdt*dydt2 - dxdt2*dydt)/f64::hypot(dxdt, dydt).powi(3)
+        vector![
+            self.spline_x.value(t, Extrapolation::Cubic),
+            self.spline_y.value(t, Extrapolation::Cubic)
+        ]
     }
 
     fn angle(&self, s: f64) -> f64 {
@@ -124,11 +120,15 @@ impl PlanarCurve for SplineSegment {
         )
     }
 
-    fn position(&self, s: f64) -> SVector<f64, 2> {
+    fn curvature(&self, s: f64) -> f64 {
         let t = self.spline_t.value(s, Extrapolation::Cubic);
-        vector![
-            self.spline_x.value(t, Extrapolation::Cubic),
-            self.spline_y.value(t, Extrapolation::Cubic)
-        ]
+
+        let dxdt = self.spline_x.deriv1(t, Extrapolation::Cubic);
+        let dydt = self.spline_y.deriv1(t, Extrapolation::Cubic);
+
+        let dxdt2 = self.spline_x.deriv2(t, Extrapolation::Cubic);
+        let dydt2 = self.spline_y.deriv2(t, Extrapolation::Cubic);
+
+        (dxdt*dydt2 - dxdt2*dydt)/f64::hypot(dxdt, dydt).powi(3)
     }
 }

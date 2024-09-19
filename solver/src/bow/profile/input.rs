@@ -1,10 +1,10 @@
 use std::fmt::Debug;
 use serde::{Deserialize, Serialize};
-use crate::fem::elements::beam::PlanarCurve;
 use crate::bow::errors::ModelError;
 use crate::bow::profile::profile::CurvePoint;
 use crate::bow::profile::segments::clothoid::{ArcInput, ClothoidSegment, LineInput, SpiralInput};
 use crate::bow::profile::segments::spline::{SplineInput, SplineSegment};
+use crate::fem::elements::beam::geometry::PlanarCurve;
 
 // Common data type for all possible segment inputs,
 // including methods for validation and creating the corresponding segment curves
