@@ -41,8 +41,10 @@ fn beam_element() {
     let section = LayeredCrossSection::new(l, &width, &vec![layer], &vec![material], LayerAlignment::SectionCenter).unwrap();
     let segment = LinearBeamSegment::new(&curve, &section, 0.0, l, &[]);
 
+    let mut element = BeamElement::new(&segment);
+    element.set_rayleigh_damping(0.1);
+
     let mut system = System::new();
-    let element = BeamElement::new(&segment);
     let node0 = system.create_oriented_node(&segment.p0, Constraints::all_free());
     let node1 = system.create_oriented_node(&segment.p1, Constraints::all_free());
     system.add_element(&[node0, node1], element);

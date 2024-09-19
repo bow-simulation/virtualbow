@@ -1,4 +1,3 @@
-use std::fmt::{Debug, Display, Formatter};
 use nalgebra::SMatrix;
 
 // Integrates the given function using the adaptive Simpson method (https://en.wikipedia.org/wiki/Adaptive_Simpson%27s_method) with a given numerical tolerance and maximum recursion depth.
