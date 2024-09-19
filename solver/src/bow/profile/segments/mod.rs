@@ -4,10 +4,10 @@ pub mod spline;
 #[cfg(test)]
 mod tests {
     use nalgebra::vector;
-    use crate::fem::elements::beam::PlanarCurve;
     use crate::bow::profile::profile::CurvePoint;
     use crate::bow::profile::segments::clothoid::{ArcInput, ClothoidSegment, LineInput, SpiralInput};
     use crate::bow::profile::segments::spline::{SplineInput, SplineSegment};
+    use crate::fem::elements::beam::geometry::PlanarCurve;
 
     #[test]
     fn test_line_segment() {

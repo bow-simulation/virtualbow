@@ -1,6 +1,5 @@
 use nalgebra::vector;
 use crate::fem::elements::bar::BarElement;
-use crate::fem::elements::beam::{BeamElement, LinearBeamSegment};
 use crate::fem::elements::mass::MassElement;
 use crate::fem::system::nodes::Constraints;
 use crate::fem::system::system::System;
@@ -8,6 +7,8 @@ use crate::bow::sections::section::{LayerAlignment, LayeredCrossSection};
 use crate::bow::input::{Layer, Material, Width};
 use crate::bow::profile::profile::CurvePoint;
 use crate::bow::profile::segments::clothoid::{ArcInput, ClothoidSegment};
+use crate::fem::elements::beam::beam::BeamElement;
+use crate::fem::elements::beam::linear::LinearBeamSegment;
 use crate::tests::utils;
 
 // These tests perform basic consistency checks on the various elements

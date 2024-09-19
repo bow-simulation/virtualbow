@@ -5,7 +5,6 @@ use itertools::Itertools;
 use nalgebra::vector;
 use soa_rs::Soa;
 use crate::fem::elements::bar::BarElement;
-use crate::fem::elements::beam::{BeamElement, CrossSection, PlanarCurve};
 use crate::fem::solvers::eigen::{Mode, natural_frequencies};
 use crate::fem::solvers::statics::StaticSolver;
 use crate::fem::system::element::Element;
@@ -16,6 +15,8 @@ use crate::bow::errors::ModelError;
 use crate::bow::profile::profile::{CurvePoint, ProfileCurve};
 use crate::bow::input::BowInput;
 use crate::bow::output::{Dynamics, LayerInfo, LimbInfo, BowOutput, Common, State, Statics};
+use crate::fem::elements::beam::beam::BeamElement;
+use crate::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
 use crate::fem::elements::mass::MassElement;
 use crate::fem::solvers::{dynamics, statics};
 use crate::fem::solvers::dynamics::DynamicSolver;
@@ -96,14 +97,9 @@ impl<'a> Simulation<'a> {
         }).collect_vec();
 
         // Additional setup data
-        let limb_position = s_eval.iter().map(|&s| {
-            let position = profile.position(s);
-            [position[0], position[1], profile.angle(s)]
-        }).collect();
+        let limb_position = s_eval.iter().map(|&s| { profile.point(s).into() }).collect();
         let limb_width = s_eval.iter().map(|&s| { section.width(s) }).collect();
         let limb_height = s_eval.iter().map(|&s| { section.height(s) }).collect();
-        //let limb_density = s_eval.iter().map(|&s| { section.rhoA(s) }).collect();
-        //let limb_stiffness = s_eval.iter().map(|&s| { section.C(s) }).collect();
 
         // Limb tip and string center positions
         let x_tip = u_nodes.last().unwrap()[0];

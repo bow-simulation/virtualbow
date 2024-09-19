@@ -1,7 +1,7 @@
 use nalgebra::SVector;
-use crate::fem::elements::beam::PlanarCurve;
 use crate::bow::errors::ModelError;
 use crate::bow::profile::input::SegmentInput;
+use crate::fem::elements::beam::geometry::PlanarCurve;
 use crate::numerics::bisection::bisect_right_by;
 
 #[derive(Copy ,Clone, PartialEq)]
@@ -76,9 +76,9 @@ impl PlanarCurve for ProfileCurve {
         self.segments.last().unwrap().s_end()    // Ensured by construction
     }
 
-    fn curvature(&self, s: f64) -> f64 {
+    fn position(&self, s: f64) -> SVector<f64, 2> {
         let index = self.find_segment_index(s);
-        self.segments[index].curvature(s)
+        self.segments[index].position(s)
     }
 
     fn angle(&self, s: f64) -> f64 {
@@ -86,9 +86,9 @@ impl PlanarCurve for ProfileCurve {
         self.segments[index].angle(s)
     }
 
-    fn position(&self, s: f64) -> SVector<f64, 2> {
+    fn curvature(&self, s: f64) -> f64 {
         let index = self.find_segment_index(s);
-        self.segments[index].position(s)
+        self.segments[index].curvature(s)
     }
 }
 
