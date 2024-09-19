@@ -73,7 +73,11 @@ impl<'a> Simulation<'a> {
 
         let s_eval = lin_space(profile.s_start()..=profile.s_end(), model.settings.n_limb_eval_points).collect_vec();           // Lengths at which the limb quantities are evaluated (positions, stress, strain, ...)
         let (segments, _s_nodes, u_nodes) = BeamElement::discretize(&profile, &section, &s_eval, model.settings.n_limb_elements);
-        let elements = segments.iter().map(|segment| BeamElement::new(segment) );
+        let elements = segments.iter().map(|segment| {
+            let mut e = BeamElement::new(segment);
+            e.set_rayleigh_damping(0.001);
+            e
+        });
 
         let mut system = System::new();
 

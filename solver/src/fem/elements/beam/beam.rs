@@ -20,6 +20,7 @@ pub struct BeamElement {
     // Constant data
     M: SVector<f64, 6>,       // Element mass matrix
     K: SMatrix<f64, 3, 3>,    // Linear stiffness matrix
+    D: SMatrix<f64, 3, 3>,    // Linear stiffness matrix
 
     s0: f64,                   // Arc length at left node
     s1: f64,                   // Arc length at right node
@@ -35,11 +36,12 @@ pub struct BeamElement {
 
     // State dependent data
 
-    u: SVector<f64, 3>,       // Local displacements
-    q: SVector<f64, 6>,       // Total displacements
-    v: SVector<f64, 6>,       // Total velocities
-    f: SVector<f64, 3>,       // Linear forces
-    Q: SVector<f64, 6>,       // Nonlinear forces
+    u: SVector<f64, 6>,    // Total displacements
+    v: SVector<f64, 6>,    // Total velocities
+    ul: SVector<f64, 3>,   // Local displacements
+    vl: SVector<f64, 3>,   // Local velocities
+    Qe: SVector<f64, 6>,    // Total elastic forces
+    Qd: SVector<f64, 6>,    // Total damping forces
 }
 
 impl BeamElement {
@@ -125,6 +127,7 @@ impl BeamElement {
         Self {
             M,
             K,
+            D: SMatrix::zeros(),
             s0: segment.s0,
             s1: segment.s1,
             se: segment.se.clone(),
@@ -135,11 +138,16 @@ impl BeamElement {
             u_eval,
             C_inv: segment.Ci.clone(),
             u: Default::default(),
-            q: Default::default(),
             v: Default::default(),
-            f: Default::default(),
-            Q: Default::default(),
+            ul: Default::default(),
+            vl: Default::default(),
+            Qe: Default::default(),
+            Qd: Default::default(),
         }
+    }
+
+    pub fn set_rayleigh_damping(&mut self, alpha: f64) {
+        self.D = alpha*self.K;
     }
 
     pub fn eval_lengths(&self) -> &[f64] {
@@ -149,13 +157,13 @@ impl BeamElement {
     pub fn eval_positions(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {
         // Local transformation
         // TODO: Redundant computations, store when evaluating forces
-        let dx = self.q[3] - self.q[0];
-        let dy = self.q[4] - self.q[1];
+        let dx = self.u[3] - self.u[0];
+        let dy = self.u[4] - self.u[1];
         let a0 = f64::atan2(dy, dx);
 
         let p0 = vector![
-            self.q[0],
-            self.q[1],
+            self.u[0],
+            self.u[1],
             a0
         ];
 
@@ -166,18 +174,18 @@ impl BeamElement {
         ];
 
         self.se.iter().enumerate().map(move |(i, _)| {
-            p0 + R*(self.pe[i] + self.u_eval[i]*self.u)
+            p0 + R*(self.pe[i] + self.u_eval[i]*self.ul)
         })
     }
 
     // TODO: Duplicate calculation with eval_positions(), maybe combine
     pub fn eval_forces(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {
-        let Fx = self.Q[3];
-        let Fy = self.Q[4];
-        let Mz = self.Q[5];
+        let Fx = self.Qe[3];
+        let Fy = self.Qe[4];
+        let Mz = self.Qe[5];
 
-        let x1 = self.q[3];
-        let y1 = self.q[4];
+        let x1 = self.u[3];
+        let y1 = self.u[4];
 
         self.eval_positions().map(move |p| {
             let x = p[0];
@@ -205,11 +213,11 @@ impl Element for BeamElement {
         M.add(self.M);
     }
 
-    fn set_state_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, mut q: Option<&mut VectorView>, mut K: Option<&mut MatrixView>, mut _D: Option<&mut MatrixView>) {
+    fn set_state_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, mut q: Option<&mut VectorView>, mut K: Option<&mut MatrixView>, mut D: Option<&mut MatrixView>) {
         // Update element state, including strain and curvature
         //self.u = u.get();
         self.v = v.get();
-        self.q = u.get();
+        self.u = u.get();
 
         let dx = u.at(3) - u.at(0);
         let dy = u.at(4) - u.at(1);
@@ -221,23 +229,26 @@ impl Element for BeamElement {
         let dφ0 = normalize_angle(u.at(2) - a - self.β0);
         let dφ1 = normalize_angle(u.at(5) - a - self.β1);
 
-        self.u = vector![dl, dφ0, dφ1];
+        let J = matrix![
+            -dx/l    , -dy/l    , 0.0, dx/l    ,  dy/l    , 0.0;
+            -dy/(l*l),  dx/(l*l), 1.0, dy/(l*l), -dx/(l*l), 0.0;
+            -dy/(l*l),  dx/(l*l), 0.0, dy/(l*l), -dx/(l*l), 1.0;
+        ];
+
+        self.ul = vector![dl, dφ0, dφ1];
+        self.vl = J*self.v;
 
         if q.is_some() || K.is_some() {
-            let f = self.K*self.u;
-            self.f = f; // TODO
+            let fe = self.K*self.ul;    // Local elastic forces
+            let fd = self.D*self.vl;    // Local damping forces
+            let ft = fe + fd;           // Total local forces
 
-            let J = matrix![
-                -dx/l    , -dy/l    , 0.0, dx/l    ,  dy/l    , 0.0;
-                -dy/(l*l),  dx/(l*l), 1.0, dy/(l*l), -dx/(l*l), 0.0;
-                -dy/(l*l),  dx/(l*l), 0.0, dy/(l*l), -dx/(l*l), 1.0;
-            ];
-
-            self.Q = J.transpose()*f;
+            self.Qe = J.transpose()*fe;
+            self.Qd = J.transpose()*fd;
 
             // Compute elastic forces if needed
             if let Some(ref mut q) = q {
-                q.add(J.transpose()*f);
+                q.add(self.Qe + self.Qd);
             }
 
             // Compute stiffness matrix if needed
@@ -261,14 +272,23 @@ impl Element for BeamElement {
                     -c4,  c5, 0.0, c4, -c5, 0.0;
                 ];
 
-                let Kn: SMatrix<f64, 6, 6> = stack![dJ0.transpose()*f, dJ1.transpose()*f, SVector::<f64, 6>::zeros(), -dJ0.transpose()*f, -dJ1.transpose()*f, SVector::<f64, 6>::zeros()];
-                K.add(&(Kn + J.transpose()*self.K*J));
+                let Kk = stack![dJ0.transpose()*ft, dJ1.transpose()*ft, SVector::<f64, 6>::zeros(), -dJ0.transpose()*ft, -dJ1.transpose()*ft, SVector::<f64, 6>::zeros()];
+                let Kd = J.transpose()*self.D*stack![dJ0*self.v, dJ1*self.v, SVector::<f64, 3>::zeros(), -dJ0*self.v, -dJ1*self.v, SVector::<f64, 3>::zeros()];
+
+                K.add(&(
+                    Kk + Kd + J.transpose()*self.K*J
+                ));
+            }
+
+            // Compute damping matrix if needed
+            if let Some(ref mut D) = D {
+                D.add(&(J.transpose()*self.D*J));
             }
         }
     }
 
     fn potential_energy(&self) -> f64 {
-        return 0.5*self.u.dot(&(self.K*self.u));
+        return 0.5*self.ul.dot(&(self.K*self.ul));
     }
 
     fn kinetic_energy(&self) -> f64 {
