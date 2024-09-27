@@ -42,7 +42,7 @@ fn beam_element() {
     let segment = LinearBeamSegment::new(&curve, &section, 0.0, l, &[]);
 
     let mut element = BeamElement::new(&segment);
-    element.set_rayleigh_damping(0.1);
+    element.set_damping(0.1);
 
     let mut system = System::new();
     let node0 = system.create_oriented_node(&segment.p0, Constraints::all_free());

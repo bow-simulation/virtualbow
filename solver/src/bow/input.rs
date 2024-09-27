@@ -433,10 +433,10 @@ pub struct Damping {
 
 impl Damping {
     pub fn validate(&self) -> Result<(), ModelError> {
-        if !self.damping_ratio_limbs.is_finite() || self.damping_ratio_limbs < 0.0 {
+        if !self.damping_ratio_limbs.is_finite() || self.damping_ratio_limbs < 0.0  || self.damping_ratio_limbs > 1.0 {
             return Err(ModelError::DampingInvalidLimbDampingRatio(self.damping_ratio_limbs));
         }
-        if !self.damping_ratio_string.is_finite() || self.damping_ratio_string < 0.0 {
+        if !self.damping_ratio_string.is_finite() || self.damping_ratio_string < 0.0 || self.damping_ratio_string > 1.0 {
             return Err(ModelError::DampingInvalidStringDampingRatio(self.damping_ratio_string));
         }
 

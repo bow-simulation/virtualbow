@@ -36,7 +36,7 @@ fn mass_spring_damper_1() {
     // Constants for the analytical solution
     let delta = d/(2.0*m);                                // Decay constant
     let omega0 = f64::sqrt(k/m);                          // Natural frequency of the undamped system
-    let omega = f64::sqrt(omega0*omega0 - delta*delta);   // Natural frequency
+    let omega = f64::sqrt(omega0*omega0 - delta*delta);   // Damped frequency
     let T = 2.0*PI/omega;                                 // Period length
     let N = 3;                                            // Number of periods to simulate
     let A = delta/omega*x0;
@@ -113,8 +113,8 @@ fn mass_spring_damper_n() {
 
     // Compute period of the first eigenmode
     let modes = natural_frequencies_from_matrices(&M, &D, &K).unwrap();
-    let period = TAU/modes[0].omega0;    // Period of the lowest eigenfrequency
-    let omega = 5.0*modes[0].omega0;     // Frequency of the excitation
+    let period = TAU/modes[0].omega;    // Period of the lowest eigenfrequency
+    let omega = 5.0*modes[0].omega;     // Frequency of the excitation
 
     // Reference solution
     let ref_solver = LinearSolver::new(&DMatrix::from_diagonal(&M), &D, &K, &u0, &v0, &p0, omega);

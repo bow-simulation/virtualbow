@@ -32,6 +32,14 @@ F.~N. Fritsch and R.~E. Carlson.
 \newblock Monotone piecewise cubic interpolation.
 \newblock {\em SIAM Journal on Numerical Analysis}, 17(2):238--246, 1980.
 
+\bibitem{bib:rayleigh-damping}
+Guillermo Giraldo.
+\newblock How to compute the coefficients for rayleigh damping?
+\newblock
+  \url{https://www.simscale.com/knowledge-base/rayleigh-damping-coefficients},
+  2021.
+\newblock [Online; accessed 24-September-2024].
+
 \bibitem{bib:tm2}
 Dietmar Gross, Werner Hauger, Jörg Schröder, and Wolfgang~A. Wall.
 \newblock {\em Technische Mechanik 2: - Elastostatik (Springer-Lehrbuch)}.
@@ -67,6 +75,12 @@ B.~W. Kooi and J.~A. Sparenberg.
 B.~W. Kooi and J.~A. Sparenberg.
 \newblock On the mechanics of the arrow: Archer's paradox.
 \newblock {\em Journal of Engineering Mathematics}, 31(2):285--303, May 1997.
+
+\bibitem{bib:li95}
+G.~Lallement and Daniel Inman.
+\newblock A tutorial on complex eigenvalues.
+\newblock {\em Proceedings of SPIE - The International Society for Optical
+  Engineering}, 01 1995.
 
 \bibitem{bib:ma80}
 W.~C. Marlow.

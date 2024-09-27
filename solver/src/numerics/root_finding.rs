@@ -1,7 +1,7 @@
 use nalgebra::{DMatrix, DVector};
 
 // Multi-dimensional Newton method for dynamically sized vectors
-pub fn newton_method<F>(function: &F, x0: &DVector<f64>, ftol: f64, iter: usize) -> Option<DVector<f64>>
+pub fn find_root_newton<F>(function: &F, x0: &DVector<f64>, ftol: f64, iter: usize) -> Option<DVector<f64>>
     where F: Fn(&DVector<f64>) -> (DVector<f64>, DMatrix<f64>)
 {
     let mut x = x0.clone();
@@ -19,8 +19,8 @@ pub fn newton_method<F>(function: &F, x0: &DVector<f64>, ftol: f64, iter: usize)
 }
 
 // One-dimensional secant method (https://en.wikipedia.org/wiki/Secant_method)
-// TODO: Remove if not actually used?
-pub fn secant_method<F>(mut f: F, mut x0: f64, mut f0: f64, mut x1: f64, mut f1: f64, ftol: f64, iter: usize) -> Option<f64>
+// TODO: Remove if unused
+pub fn find_root_secant<F>(mut f: F, mut x0: f64, mut f0: f64, mut x1: f64, mut f1: f64, ftol: f64, iter: usize) -> Option<f64>
     where F: FnMut(f64) -> f64
 {
     for _ in 0..iter {
@@ -46,7 +46,7 @@ pub fn secant_method<F>(mut f: F, mut x0: f64, mut f0: f64, mut x1: f64, mut f1:
 // In this version, the function values at the initial interval bounds are supplied by the caller
 // in order to avoid re-computation when they're already known.
 // TODO: Have a look at Brent's method: https://en.wikipedia.org/wiki/Brent%27s_method
-pub fn regula_falsi<F>(mut f: F, mut a: f64, mut b: f64, mut fa: f64, mut fb: f64, xtol: f64, ftol: f64, iter: usize) -> Option<f64>
+pub fn find_root_falsi<F>(mut f: F, mut a: f64, mut b: f64, mut fa: f64, mut fb: f64, xtol: f64, ftol: f64, iter: usize) -> Option<f64>
     where F: FnMut(f64) -> f64
 {
     let mut side = 0;
@@ -113,7 +113,7 @@ mod tests {
         };
 
         let x0 = DVector::from_row_slice(&[4.0, 1.0, -0.5]);
-        let x_num = newton_method(&function, &x0, 1e-8, 50).expect("Failed to find solution");
+        let x_num = find_root_newton(&function, &x0, 1e-8, 50).expect("Failed to find solution");
         let x_ref = DVector::from_row_slice(&[4.094047142323228, 1.2318378396357232, -0.5601417633888767]);
 
         assert_abs_diff_eq!(x_num, x_ref, epsilon=1e-6);
@@ -128,8 +128,8 @@ mod tests {
         // Reference solution from https://en.wikipedia.org/wiki/Regula_falsi
         let x_ref = 0.865474033101614;
 
-        let x_ab = regula_falsi(&f, a, b, f(a), f(b), 0.0, 1e-15, 50).expect("Solution failed");
-        let x_ba = regula_falsi(&f, b, a, f(b), f(a), 0.0, 1e-15, 50).expect("Solution failed");
+        let x_ab = find_root_falsi(&f, a, b, f(a), f(b), 0.0, 1e-15, 50).expect("Solution failed");
+        let x_ba = find_root_falsi(&f, b, a, f(b), f(a), 0.0, 1e-15, 50).expect("Solution failed");
 
         assert_abs_diff_eq!(x_ab, x_ref, epsilon=1e-15);
         assert_abs_diff_eq!(x_ba, x_ref, epsilon=1e-15);
@@ -141,7 +141,7 @@ mod tests {
 
         let x0 = -1.0;
         let x1 = 1.0;
-        let x_num = secant_method(&f, x0, f(x0), x1, f(x1), 1e-8, 50).expect("Failed to find solution");
+        let x_num = find_root_secant(&f, x0, f(x0), x1, f(x1), 1e-8, 50).expect("Failed to find solution");
         let x_ref = 0.0;
 
         assert_abs_diff_eq!(x_num, x_ref, epsilon=1e-6);

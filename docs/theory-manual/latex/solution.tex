@@ -511,7 +511,9 @@ After the arrow has reached the braced position, the actual value of $T$ is know
 \section{Modal Analysis}
 
 The goal of a modal analysis is to determine the natural frequencies and mode shapes of a system.
-None of the simulation results in VirtualBow require a modal analysis, but natural frequencies are used in some of the verification tests as an easy way to compare the dynamic properties of two systems.
+Natural frequencies are used in VirtualBow for determining the damping that is applied to the bow limb (see \ref{sec:rayleigh-damping}) and also in some of the verification tests as a quick way to check the dynamical properties of a system.
+
+\subsection{Generalized Eigenvalue Problem}
 
 Starting point is the linearization of the equations of motion~(\ref{eq:global-equation-of-motion}) for the case of free vibration,
 
@@ -519,24 +521,17 @@ Starting point is the linearization of the equations of motion~(\ref{eq:global-e
 \boldsymbol{M}\ddot{\boldsymbol{u}} + \boldsymbol{D}\dot{\boldsymbol{u}} + \boldsymbol{K}\boldsymbol{u} = \boldsymbol{0} \label{eq:solution:ode-linearized}
 \end{equation}
 
-with the displacement vector $\boldsymbol{u}$ being measured relative to the displacements at which the system was linearized.
-Since this is a linear, homogenous differential equation, we can assume its solutions to take the form $\boldsymbol{u}(t) = \hat{\boldsymbol{u}}\,e^{\lambda\,t}$ with $\hat{\boldsymbol{u}} \in \mathbb{R}^n$ and $\lambda \in \mathbb{C}$. Substituting this into (\ref{eq:solution:ode-linearized}) gives us the condition
+with the displacement vector $\boldsymbol{u}$ being measured relative to the displacements at which the system has been linearized.
+Since modal analysis is inherently tied to the dynamics of linear systems, the results are only meaningful for small relative displacements.
+
+Since (\ref{eq:solution:ode-linearized}) is a linear, homogenous differential equation, we can assume its solutions to take the form $\boldsymbol{u}(t) = \hat{\boldsymbol{u}}\,e^{\lambda\,t}$ with $\hat{\boldsymbol{u}} \in \mathbb{R}^n$ and $\lambda \in \mathbb{C}$. Substituting this into the equation gives us the condition
 
 \begin{equation}
 \left(\lambda^2 \boldsymbol{M} + \lambda \boldsymbol{D} + \boldsymbol{K}\right)\hat{\boldsymbol{u}} = \boldsymbol{0}. \label{eq:solution:quadratic-evp}
 \end{equation}
 
 This is a quadratic eigenvalue problem \cite{bib:dw07}, whose solution are the $n$ eigenvalues $\lambda_{i}$ and eigenvectors $\hat{\boldsymbol{u}}_{i}$, which we call the mode shapes of the system.
-For underdamped systems, the eigenvalues come in complex conjugated pairs
-
-\begin{equation}
-\lambda = -\zeta \pm i\,\omega,
-\end{equation}
-
-where each pair corresponds to a harmonic oscillation with damping ratio $\zeta = -\mathrm{Re}(\lambda)$ and damped frequency $\omega = |\mathrm{Im}(\lambda)|$.
-The corresponding undamed natural frequency can be calculated from those as $\omega_{0} = \sqrt{\omega^2 + \zeta^2}$.
-
-In order to compute the solution to the quadratic eigenvalue problem~(\ref{eq:solution:quadratic-evp}) it can be helpful to transform it into the more common (linear) generalized eigenvalue problem
+In order to compute a solution, it can be helpful to transform (\ref{eq:solution:quadratic-evp}) into the more common linear generalized eigenvalue problem
 
 \begin{equation}
 \boldsymbol{A}\boldsymbol{v} = \lambda\boldsymbol{B}\boldsymbol{v}
@@ -570,5 +565,57 @@ using the following auxiliary matrices (see approach II from \cite{bib:dw07})
 This can now be solved with standard methods, which we don't have to implement ourselves.
 It can be noted that $\boldsymbol{A}$ and $\boldsymbol{B}$ are symmetric, which can be exploited when looking for an efficient algorithm, but not positive definite.
 
+\subsection{Evaluating Modal Properties}
 
+For an underdamped system, which is the case if $4\boldsymbol{K} - \boldsymbol{D}^2$ is positive definite, the eigenvalues come in complex conjugated pairs of the form \cite{bib:li95}
 
+\begin{equation}
+\lambda_{i,\,i+1} = -\zeta_{i}\omega_{i} \pm j\omega_{i}\sqrt{1 - \zeta_{i}^2}
+\end{equation}
+
+where $\omega_{i}$ is the $i$-th undamped natural frequency and $\zeta_{i}$ is the $i$-th modal damping ratio.
+When given the eigenvalue $\lambda_{i} = a_{i} + jb_{i}$ with $a_{i} = \mathrm{Re}(\lambda_i)$ and $b_{i} = \mathrm{Im}(\lambda_i)$, those can be calculated as
+
+\begin{equation}
+\omega_{i} = \sqrt{a_{i}^2 + b_{i}^2}, \quad \zeta_{i} = -\frac{a_{i}}{\sqrt{a_{i}^2 + b_{i}^2}}.
+\end{equation}
+
+\subsection{Damping of the Bow Limb}
+\label{sec:rayleigh-damping}
+
+One of the use cases of modal analysis in VirtualBow is the identification of damping parameters for the bow limb.
+The damping model that is utilized for this is called \textit{Rayleigh damping} or \textit{proportional damping}, which is a simple approach that is very popular when only little is known about the underlying physical details of the damping.
+The idea is to write the damping matrix as a weighted sum of the stiffness- and mass matrix,
+
+\begin{equation}
+\boldsymbol{D} = \alpha\boldsymbol{K} + \beta\boldsymbol{M}
+\end{equation}
+
+with the factor $\alpha$ for stiffness-proportional damping and the factor $\beta$ for mass-proportional damping.
+It can be shown \cite{bib:rayleigh-damping} that natural frequencies and corresponding damping ratios in such a system are related by 
+
+\begin{equation}
+\zeta_{i} = \frac{1}{2}\left(\alpha\,\omega_{i} + \frac{\beta}{\omega_{i}}\right).
+\end{equation}
+
+This relationship can be used for identifying $\alpha$ and $\beta$ from prescribed values of the damping ratio at specific modes.
+In our case we use stiffness-proportional damping only, so $\beta$ is set to zero.
+If we pick a damping ratio of $\zeta_{0}$ for the first mode of the system, we can determine the required Rayleigh parameter $\alpha$ as
+
+\begin{equation}
+\zeta_{0} = \frac{1}{2}\alpha\,\omega_{0} \quad \Rightarrow \quad \alpha = \frac{2\zeta_{0}}{\omega_{0}}. \label{eq:rayleigh-alpha-identification}
+\end{equation}
+
+In practice this works as follows for the bow limb.
+The value $\zeta_{0}$ is set by users as the damping ratio of the first eigenmode of the limb (without string attached).
+This is supposed to be an empirical value that can be experimentally determined on real bows and then chosen from experience for simulations.
+
+When the bow simulation is set up, the limb is initialized without damping at first.
+With this undamped limb model, before the string is attached, a modal analysis is performed to determine its first undamped natural frequency $\omega_{0}$.
+Using this frequency and the prescribed damping ratio $\zeta_{0}$, the required damping coefficient $\alpha$ is determined from equation (\ref{eq:rayleigh-alpha-identification}) and the damping matrices of the beam elements are initialized accordingly
+
+\textcolor{red}{TODO: Link to beam element}
+
+\textcolor{red}{TODO: Relationship to nonlinear analysis}
+
+\textcolor{red}{TODO:Damping should also be mentioned and explained in the modelling chapter with links to/from here}
