@@ -148,7 +148,7 @@ impl Display for ModelError {
 
             ModelError::HeightControlPointsTooFew(value)               => write!(f, "Height: At least 2 control points are required but actual number is {value}.")?,
             ModelError::HeightControlPointsNotSorted(a, b)             => write!(f, "Height: Control points must be sorted by length but found actual values {a}, {b}.")?,
-            ModelError::HeightControlPointsInvalidRange(a, b)          => write!(f, "Height: Control points must be within the range [0, 1] but actual range is [{a}, {b}].")?,
+            ModelError::HeightControlPointsInvalidRange(a, b)          => write!(f, "Height: Control points must be in the range [0, 1] but actual range is [{a}, {b}].")?,
             ModelError::HeightControlPointsInvalidBoundaryValue(a, b)  => write!(f, "Height: Boundary control points must be non-negative and finite but actual value found is [{a}, {b}].")?,
             ModelError::HeightControlPointsInvalidInteriorValue(a, b)  => write!(f, "Height: Intermediate control points must be positive and finite but actual value found is [{a}, {b}].")?,
             ModelError::HeightControlPointsDiscontinuousBoundary(a, b) => write!(f, "Height: Boundary control point at relative length {a} must be zero for continuity but actual value is {b}.")?,
@@ -162,8 +162,8 @@ impl Display for ModelError {
             ModelError::MassesInvalidStringCenterMass(value) => write!(f, "Masses: String center mass must be a non-negative number but actual value is {value}.")?,
             ModelError::MassesInvalidStringTipMass(value)    => write!(f, "Masses: Strand tip mass must be a non-negative number but actual value is {value}.")?,
 
-            ModelError::DampingInvalidLimbDampingRatio(value)   => write!(f, "Damping: Limb damping ratio must be a non-negative number but actual value is {value}.")?,
-            ModelError::DampingInvalidStringDampingRatio(value) => write!(f, "Damping: String damping ratio must be a non-negative number but actual value is {value}.")?,
+            ModelError::DampingInvalidLimbDampingRatio(value)   => write!(f, "Damping: Limb damping ratio must be in the range [0, 1] but actual value is {value}.")?,
+            ModelError::DampingInvalidStringDampingRatio(value) => write!(f, "Damping: String damping ratio must be in the range [0, 1] but actual value is {value}.")?,
 
             ModelError::CrossSectionInvalidLength(value)               => write!(f, "Cross section: Length must be positive and finite nut actual value is {value}.")?,
             ModelError::CrossSectionNoLayers                           => write!(f, "Cross section: At least one layer is required.")?,

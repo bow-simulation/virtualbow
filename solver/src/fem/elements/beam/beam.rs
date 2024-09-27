@@ -146,7 +146,7 @@ impl BeamElement {
         }
     }
 
-    pub fn set_rayleigh_damping(&mut self, alpha: f64) {
+    pub fn set_damping(&mut self, alpha: f64) {
         self.D = alpha*self.K;
     }
 

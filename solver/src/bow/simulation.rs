@@ -20,7 +20,7 @@ use crate::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
 use crate::fem::elements::mass::MassElement;
 use crate::fem::solvers::{dynamics, statics};
 use crate::fem::solvers::dynamics::DynamicSolver;
-use crate::numerics::root_finding::regula_falsi;
+use crate::numerics::root_finding::find_root_falsi;
 
 #[derive(ValueEnum, PartialEq, Debug, Copy, Clone)]
 pub enum SimulationMode {
@@ -60,7 +60,7 @@ impl<'a> Simulation<'a> {
     const BRACING_TARGET_ITER: usize = 5;        // Desired number of iterations for the static solver
 
     // Set up the simulation either with or without string, depending on simulation mode
-    fn new(model: &'a BowInput, string: bool) -> Result<(Simulation, System), ModelError> {
+    fn new(model: &'a BowInput, string: bool, damping: bool) -> Result<(Simulation, System), ModelError> {
         // Check basic validity of the model data and propagate any errors
         model.validate()?;
 
@@ -73,11 +73,7 @@ impl<'a> Simulation<'a> {
 
         let s_eval = lin_space(profile.s_start()..=profile.s_end(), model.settings.n_limb_eval_points).collect_vec();           // Lengths at which the limb quantities are evaluated (positions, stress, strain, ...)
         let (segments, _s_nodes, u_nodes) = BeamElement::discretize(&profile, &section, &s_eval, model.settings.n_limb_elements);
-        let elements = segments.iter().map(|segment| {
-            let mut e = BeamElement::new(segment);
-            e.set_rayleigh_damping(0.001);
-            e
-        });
+        let elements = segments.iter().map(|segment| BeamElement::new(segment));
 
         let mut system = System::new();
 
@@ -89,6 +85,41 @@ impl<'a> Simulation<'a> {
         let limb_elements: Vec<usize> = elements.into_iter().enumerate().map(|(i, element)| {
             system.add_element(&[limb_nodes[i], limb_nodes[i+1]], element)
         }).collect();
+
+        // Limb tip mass
+        system.add_element(&[limb_nodes.last().unwrap().point()], MassElement::new(model.masses.limb_tip));
+
+        // If damping properties are to be initialized and the specified damping ratio for the limb is not zero,
+        // repeatedly perform a modal analysis of the limb without string and set the damping coefficients of the beam elements according to the desired damping ratio
+        if damping && model.damping.damping_ratio_limbs != 0.0 {
+            /*
+            // Applies the damping parameter alpha to all limb elements, performs a modal analysis and returns the error in damping ratio
+            let mut try_damping_parameter = |alpha| {
+                for &e in &limb_elements {
+                    system.element_mut::<BeamElement>(e).set_damping(alpha);
+                }
+                let modes = natural_frequencies(&mut system).unwrap(); // TODO: Error handling .map_err(|e| ModelError::SimulationEigenSolutionFailed(e))?;
+                
+                println!("Zeta = {}, Soll = {}", modes[0].zeta, model.damping.damping_ratio_limbs);               
+                return modes[0].zeta - model.damping.damping_ratio_limbs;
+            };
+
+            let alpha0 = 0.0;
+            let error0 = -model.damping.damping_ratio_limbs;
+
+            let alpha1 = 0.001;
+            let error1 = try_damping_parameter(alpha1);
+
+            // TODO: Tolerances and error handling
+            root_secant_method(&mut try_damping_parameter, alpha0, error0, alpha1, error1, 1e-4, 25).ok_or(ModelError::SimulationBracingNoConvergence)?;
+            */
+            
+            let modes = natural_frequencies(&mut system).map_err(|e| ModelError::SimulationEigenSolutionFailed(e))?;
+            let alpha = 2.0*model.damping.damping_ratio_limbs/modes[0].omega;           
+            for &e in &limb_elements {
+                system.element_mut::<BeamElement>(e).set_damping(alpha);
+            }
+        }
 
         // Layer setup data
         let layers = model.layers.iter().map(|layer| {
@@ -126,10 +157,9 @@ impl<'a> Simulation<'a> {
         let string_element = BarElement::new(rhoA, etaA, EA, l);
         let string_element = system.add_element(&[limb_nodes.last().unwrap().point(), string_node], string_element);
 
-        // Add arrow mass and other additional masses
+        // Add arrow mass and other remaining additional masses
         let arrow_element = system.add_element(&[string_node], MassElement::new(0.5*model.masses.arrow));
         system.add_element(&[string_node], MassElement::new(0.5*model.masses.string_center));
-        system.add_element(&[limb_nodes.last().unwrap().point()], MassElement::new(model.masses.limb_tip));
         system.add_element(&[limb_nodes.last().unwrap().point()], MassElement::new(model.masses.string_tip));
 
         let info = Common {
@@ -163,7 +193,7 @@ impl<'a> Simulation<'a> {
     pub fn simulate<F>(model: &'a BowInput, mode: SimulationMode, mut callback: F) -> Result<BowOutput, ModelError>
         where F: FnMut(&str, f64) -> bool
     {
-        let (mut simulation, mut system) = Self::new(&model, true)?;
+        let (mut simulation, mut system) = Self::new(&model, true, mode == SimulationMode::Dynamic)?;
 
         let statics = {
             let l0 = system.element_ref::<BarElement>(simulation.string_element).get_initial_length();
@@ -184,7 +214,7 @@ impl<'a> Simulation<'a> {
             // Returns the slope of the string as well as the return state of the static solver.
             // The root of this function is the string length that braces the bow with the desired brace height.
             let mut try_string_length = |factor: f64| {
-                system.element_mut::<BarElement>(simulation.string_element).set_initial_length(factor * l0);
+                system.element_mut::<BarElement>(simulation.string_element).set_initial_length(factor*l0);
 
                 let mut solver = StaticSolver::new(&mut system, statics::Settings::default());
                 let result = solver.equilibrium_displacement_controlled(simulation.string_node.y(), -model.dimensions.brace_height);
@@ -204,7 +234,7 @@ impl<'a> Simulation<'a> {
                     if slope2 <= 0.0 {
                         // Sign change of the slope: Almost done, do the rest by root finding
                         let try_string_length = |factor| { try_string_length(factor).0 };  // TODO: Error handling, do something with the solver information
-                        regula_falsi(try_string_length, factor1, factor2, slope1, slope2, 0.0, Self::BRACING_SLOPE_TOL, Self::BRACING_MAX_ROOT_ITER).ok_or(ModelError::SimulationBracingNoConvergence)?;
+                        find_root_falsi(try_string_length, factor1, factor2, slope1, slope2, 0.0, Self::BRACING_SLOPE_TOL, Self::BRACING_MAX_ROOT_ITER).ok_or(ModelError::SimulationBracingNoConvergence)?;
                         break;
                     }
                     else {
@@ -359,16 +389,16 @@ impl<'a> Simulation<'a> {
         Self::simulate(model, SimulationMode::Dynamic, |_, _| true)
     }
 
-    pub fn simulate_natural_frequencies(model: &'a BowInput) -> Result<(Common, Vec<Mode>), ModelError> {
-        let (simulation, mut system) = Self::new(&model, false)?;
-        let results = natural_frequencies(&mut system).map_err(|e| ModelError::SimulationEigenSolutionFailed(e))?;
-        Ok((simulation.info, results))
+    pub fn simulate_limb_modes(model: &'a BowInput) -> Result<(Common, Vec<Mode>), ModelError> {
+        let (simulation, mut system) = Self::new(&model, false, true)?;
+        let modes = natural_frequencies(&mut system).map_err(|e| ModelError::SimulationEigenSolutionFailed(e))?;
+        Ok((simulation.info, modes))
     }
 
     // Simulates a static load (two forces, one moment) applied to the limb tip like a cantilever.
     // This is only used for testing the bow bow against other simulations/results.
-    pub fn simulate_static_load(model: &'a BowInput, Fx: f64, Fy: f64, Mz: f64) -> Result<(Common, State), ModelError> {
-        let (simulation, mut system) = Self::new(&model, false)?;
+    pub fn simulate_static_limb(model: &'a BowInput, Fx: f64, Fy: f64, Mz: f64) -> Result<(Common, State), ModelError> {
+        let (simulation, mut system) = Self::new(&model, false, false)?;
 
         if let Some(node) = simulation.limb_nodes.last() {
             system.add_force(node.x(), move |_t| { Fx });

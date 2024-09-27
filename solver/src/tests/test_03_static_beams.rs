@@ -45,7 +45,7 @@ fn linear_straight_uniform_elongation() {
     model.layers = vec![Layer::new("", 0, vec![[0.0, h], [1.0, h]])];
 
     // Compute static deflection
-    let (setup, state) = Simulation::simulate_static_load(&model, F, 0.0, 0.0).unwrap();
+    let (setup, state) = Simulation::simulate_static_limb(&model, F, 0.0, 0.0).unwrap();
 
     // Reference cross section stiffnesses
     let A = w*h;
@@ -113,7 +113,7 @@ fn linear_straight_uniform_cantilever() {
     model.layers = vec![Layer::new("", 0, vec![[0.0, h], [1.0, h]])];
 
     // Compute static deflection
-    let (setup, state) = Simulation::simulate_static_load(&model, 0.0, F, 0.0).unwrap();
+    let (setup, state) = Simulation::simulate_static_limb(&model, 0.0, F, 0.0).unwrap();
 
     // Reference cross section stiffnesses
     let I = w*h.powi(3)/12.0;
@@ -186,7 +186,7 @@ fn linear_straight_uniform_coilup() {
     let M = E*I/R;
 
     // Compute static deflection
-    let (setup, state) = Simulation::simulate_static_load(&model, 0.0, 0.0, M).unwrap();
+    let (setup, state) = Simulation::simulate_static_limb(&model, 0.0, 0.0, M).unwrap();
 
     let mut plotter = Plotter::new();
     for i in 0..setup.limb.length.len() {
@@ -256,7 +256,7 @@ fn nonlinear_straight_uniform_cantilever() {
     model.layers = vec![Layer::new("", 0, vec![[0.0, h0], [1.0, h1]])];
 
     // Compute static deflection
-    let (setup, state) = Simulation::simulate_static_load(&model, Fx, Fy, 0.0).unwrap();
+    let (setup, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
 
     let mut plotter = Plotter::new();
 
@@ -294,10 +294,10 @@ fn nonlinear_straight_uniform_cantilever() {
     }
 
     // Compute natural frequencies
-    let (_, modes) = Simulation::simulate_natural_frequencies(&model).unwrap();
+    let (_, modes) = Simulation::simulate_limb_modes(&model).unwrap();
     let f: Vec<f64> = modes.iter()
         .take(6)
-        .map(|mode| mode.omega0/TAU)
+        .map(|mode| mode.omega/TAU)
         .collect();
 
     // Check natural frequencies against reference solution
@@ -341,7 +341,7 @@ fn nonlinear_straight_tapered_cantilever() {
     model.layers = vec![Layer::new("", 0, vec![[0.0, h0], [1.0, h1]])];
 
     // Compute static deflection
-    let (setup, state) = Simulation::simulate_static_load(&model, Fx, Fy, 0.0).unwrap();
+    let (setup, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
 
     let mut plotter = Plotter::new();
 
@@ -379,10 +379,10 @@ fn nonlinear_straight_tapered_cantilever() {
     }
 
     // Compute natural frequencies
-    let (_, modes) = Simulation::simulate_natural_frequencies(&model).unwrap();
+    let (_, modes) = Simulation::simulate_limb_modes(&model).unwrap();
     let f: Vec<f64> = modes.iter()
         .take(6)
-        .map(|mode| mode.omega0/TAU)
+        .map(|mode| mode.omega/TAU)
         .collect();
 
     // Check natural frequencies against reference solution
@@ -427,7 +427,7 @@ fn nonlinear_curved_uniform_cantilever() {
     model.layers = vec![Layer::new("", 0, vec![[0.0, h0], [1.0, h1]])];
 
     // Compute static deflection
-    let (setup, state) = Simulation::simulate_static_load(&model, Fx, Fy, 0.0).unwrap();
+    let (setup, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
 
     let mut plotter = Plotter::new();
 
@@ -465,10 +465,10 @@ fn nonlinear_curved_uniform_cantilever() {
     }
 
     // Compute natural frequencies
-    let (_, modes) = Simulation::simulate_natural_frequencies(&model).unwrap();
+    let (_, modes) = Simulation::simulate_limb_modes(&model).unwrap();
     let f: Vec<f64> = modes.iter()
         .take(6)
-        .map(|mode| mode.omega0/TAU)
+        .map(|mode| mode.omega/TAU)
         .collect();
 
     // Check natural frequencies against reference solution
@@ -513,7 +513,7 @@ fn nonlinear_curved_tapered_cantilever() {
     model.layers = vec![Layer::new("", 0, vec![[0.0, h0], [1.0, h1]])];
 
     // Compute static deflection
-    let (setup, state) = Simulation::simulate_static_load(&model, Fx, Fy, 0.0).unwrap();
+    let (setup, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
 
     let mut plotter = Plotter::new();
 
@@ -551,10 +551,10 @@ fn nonlinear_curved_tapered_cantilever() {
     }
 
     // Compute natural frequencies
-    let (_, modes) = Simulation::simulate_natural_frequencies(&model).unwrap();
+    let (_, modes) = Simulation::simulate_limb_modes(&model).unwrap();
     let f: Vec<f64> = modes.iter()
         .take(6)
-        .map(|mode| mode.omega0/TAU)
+        .map(|mode| mode.omega/TAU)
         .collect();
 
     // Check natural frequencies against reference solution
@@ -600,13 +600,13 @@ fn nonlinear_straight_uniform_cantilever_offsets() {
         model.layers = vec![Layer::new("", 0, vec![[0.0, h], [1.0, h]])];
 
         // Compute static deflection
-        let (_, state) = Simulation::simulate_static_load(&model, Fx, Fy, 0.0).unwrap();
+        let (_, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
 
         // Compute natural frequencies
-        let (_, modes) = Simulation::simulate_natural_frequencies(&model).unwrap();
+        let (_, modes) = Simulation::simulate_limb_modes(&model).unwrap();
         let f: Vec<f64> = modes.iter()
             .take(6)
-            .map(|mode| mode.omega0/TAU)
+            .map(|mode| mode.omega/TAU)
             .collect();
 
         (state.limb_pos, f)
@@ -691,13 +691,13 @@ fn nonlinear_curved_uniform_cantilever_offsets() {
         model.layers = vec![Layer::new("", 0, vec![[0.0, h], [1.0, h]])];
 
         // Compute static deflection
-        let (_, state) = Simulation::simulate_static_load(&model, Fx, Fy, 0.0).unwrap();
+        let (_, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
 
         // Compute natural frequencies
-        let (_, modes) = Simulation::simulate_natural_frequencies(&model).unwrap();
+        let (_, modes) = Simulation::simulate_limb_modes(&model).unwrap();
         let f: Vec<f64> = modes.iter()
             .take(6)
-            .map(|mode| mode.omega0/TAU)
+            .map(|mode| mode.omega/TAU)
             .collect();
 
         (state.limb_pos, f)
