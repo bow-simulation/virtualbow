@@ -34,8 +34,8 @@ pub enum SystemEval<'a> {
 }
 
 pub struct Simulation<'a> {
-    model: &'a BowInput,
-    info: Common,
+    input: &'a BowInput,
+
     limb_nodes: Vec<OrientedNode>,
     limb_elements: Vec<usize>,
 
@@ -59,20 +59,20 @@ impl<'a> Simulation<'a> {
     const BRACING_MAX_ROOT_ITER: usize = 20;     // Maximum number of iterations for the terminal root finding algorithm
     const BRACING_TARGET_ITER: usize = 5;        // Desired number of iterations for the static solver
 
-    // Set up the simulation either with or without string, depending on simulation mode
-    fn new(model: &'a BowInput, string: bool, damping: bool) -> Result<(Simulation, System), ModelError> {
+    // Set up the simulation either with or without string and with or without damping, depending on simulation mode.
+    fn initialize(input: &'a BowInput, string: bool, damping: bool) -> Result<(System, Simulation, Common), ModelError> {
         // Check basic validity of the model data and propagate any errors
-        model.validate()?;
+        input.validate()?;
 
         // Profile curve with starting point according to dimension settings
-        let start = CurvePoint::new(0.0, model.dimensions.handle_angle, vector![0.5*model.dimensions.handle_length, model.dimensions.handle_setback]);
-        let profile = ProfileCurve::new(start, &model.profile.segments)?;
+        let start = CurvePoint::new(0.0, input.dimensions.handle_angle, vector![0.5*input.dimensions.handle_length, input.dimensions.handle_setback]);
+        let profile = ProfileCurve::new(start, &input.profile.segments)?;
 
         // Section properties according to layers, materils and alignment to the profile curve
-        let section = LayeredCrossSection::new(profile.length(), &model.width, &model.layers, &model.materials, model.profile.alignment)?;
+        let section = LayeredCrossSection::new(profile.length(), &input.width, &input.layers, &input.materials, input.profile.alignment)?;
 
-        let s_eval = lin_space(profile.s_start()..=profile.s_end(), model.settings.n_limb_eval_points).collect_vec();           // Lengths at which the limb quantities are evaluated (positions, stress, strain, ...)
-        let (segments, _s_nodes, u_nodes) = BeamElement::discretize(&profile, &section, &s_eval, model.settings.n_limb_elements);
+        let s_eval = lin_space(profile.s_start()..=profile.s_end(), input.settings.n_limb_eval_points).collect_vec();           // Lengths at which the limb quantities are evaluated (positions, stress, strain, ...)
+        let (segments, _s_nodes, u_nodes) = BeamElement::discretize(&profile, &section, &s_eval, input.settings.n_limb_elements);
         let elements = segments.iter().map(|segment| BeamElement::new(segment));
 
         let mut system = System::new();
@@ -86,26 +86,26 @@ impl<'a> Simulation<'a> {
             system.add_element(&[limb_nodes[i], limb_nodes[i+1]], element)
         }).collect();
 
-        // Limb tip mass
-        system.add_element(&[limb_nodes.last().unwrap().point()], MassElement::new(model.masses.limb_tip));
+        // Limb tip mass, required for limb damping calculation
+        system.add_element(&[limb_nodes.last().unwrap().point()], MassElement::new(input.masses.limb_tip));
 
         // If damping properties are to be initialized and the specified damping ratio for the limb is not zero,
-        // repeatedly perform a modal analysis of the limb without string and set the damping coefficients of the beam elements according to the desired damping ratio
-        if damping && model.damping.damping_ratio_limbs != 0.0 {
+        // perform a modal analysis of the limb without string and set the damping parameter of the beam elements according to the desired damping ratio.
+        if damping && input.damping.damping_ratio_limbs != 0.0 {
             let modes = natural_frequencies(&mut system).map_err(|e| ModelError::SimulationEigenSolutionFailed(e))?;
-            let alpha = 2.0*model.damping.damping_ratio_limbs/modes[0].omega;           
+            let alpha = 2.0* input.damping.damping_ratio_limbs/modes[0].omega;
             for &e in &limb_elements {
                 system.element_mut::<BeamElement>(e).set_damping(alpha);
             }
         }
 
         // Layer setup data
-        let layers = model.layers.iter().map(|layer| {
+        let layers = input.layers.iter().map(|layer| {
             let l0 = profile.s_start() + profile.length()*layer.height.first().unwrap()[0];    // Start arc length of the layer
             let l1 = profile.s_start() + profile.length()*layer.height.last().unwrap()[0];     // End arc length of the layer
             LayerInfo {
                 name: layer.name.clone(),
-                length: lin_space(l0..=l1, model.settings.n_layer_eval_points).collect(),
+                length: lin_space(l0..=l1, input.settings.n_layer_eval_points).collect(),
             }
         }).collect_vec();
 
@@ -117,7 +117,7 @@ impl<'a> Simulation<'a> {
         // Limb tip and string center positions
         let x_tip = u_nodes.last().unwrap()[0];
         let y_tip = u_nodes.last().unwrap()[1];
-        let y_str = -model.dimensions.brace_height;
+        let y_str = -input.dimensions.brace_height;
 
         // Add string center node and make it fixed in the case of no string
         let string_node = if string {
@@ -129,33 +129,19 @@ impl<'a> Simulation<'a> {
 
         // The string element only gets non-zero parameters if the string option is true
         let l = f64::hypot(x_tip, y_str - y_tip);
-        let EA = if string { (model.string.n_strands as f64)*model.string.strand_stiffness } else { 0.0 };
-        let rhoA = if string { (model.string.n_strands as f64)*model.string.strand_density } else { 0.0 };
-        let etaA = 0.0;    // Damping is determined later when the length of the string is known
-        let string_element = BarElement::new(rhoA, etaA, EA, l);
+        let EA = if string { (input.string.n_strands as f64)* input.string.strand_stiffness } else { 0.0 };
+        let rhoA = if string { (input.string.n_strands as f64)* input.string.strand_density } else { 0.0 };
+        let string_element = BarElement::new(rhoA, 0.0, EA, l);    // Damping is determined later when the length of the string is known
         let string_element = system.add_element(&[limb_nodes.last().unwrap().point(), string_node], string_element);
 
-        // Add arrow mass and other remaining additional masses
-        let arrow_element = system.add_element(&[string_node], MassElement::new(0.5*model.masses.arrow));
-        system.add_element(&[string_node], MassElement::new(0.5*model.masses.string_center));
-        system.add_element(&[limb_nodes.last().unwrap().point()], MassElement::new(model.masses.string_tip));
+        // Arrow mass and other remaining additional masses
+        let arrow_element = system.add_element(&[string_node], MassElement::new(0.5* input.masses.arrow));
+        system.add_element(&[string_node], MassElement::new(0.5* input.masses.string_center));
+        system.add_element(&[limb_nodes.last().unwrap().point()], MassElement::new(input.masses.string_tip));
 
-        let info = Common {
-            limb: LimbInfo {
-                length: s_eval,
-                position: limb_position,
-                width: limb_width,
-                height: limb_height,
-            },
-            layers,
-            string_length: 0.0,
-            string_mass: 0.0,
-            limb_mass: 0.0,
-        };
-
+        // Finish the simulation info object
         let simulation = Self {
-            model,
-            info,
+            input,
             limb_nodes,
             limb_elements,
             string_node,
@@ -164,18 +150,10 @@ impl<'a> Simulation<'a> {
             arrow_separation: None,
         };
 
-        Ok((simulation, system))
-    }
-
-    // Callback: (phase, progress) -> continue
-    pub fn simulate<F>(model: &'a BowInput, mode: SimulationMode, mut callback: F) -> Result<BowOutput, ModelError>
-        where F: FnMut(&str, f64) -> bool
-    {
-        let (mut simulation, mut system) = Self::new(&model, true, mode == SimulationMode::Dynamic)?;
-
-        let statics = {
-            let l0 = system.element_ref::<BarElement>(simulation.string_element).get_initial_length();
-            system.add_force(simulation.string_node.y(), move |_t| { -1.0 });
+        // If string is to be initialized, perform bracing simulation
+        if string {
+            let l0 = system.element_ref::<BarElement>(string_element).get_initial_length();
+            system.add_force(string_node.y(), move |_t| { -1.0 });
 
             // Initial values for the string factor, the slope and the step size for iterating on the string factor
             let mut factor1 = 1.0;
@@ -185,7 +163,7 @@ impl<'a> Simulation<'a> {
             // Abort if the initial slope is negative, which means that the supplied brace height is too
             if slope1 < 0.0 {
                 // TODO: Determine the minimum required brace height and put it into the error message
-                return Err(ModelError::SimulationBraceHeightTooLow(model.dimensions.brace_height));
+                return Err(ModelError::SimulationBraceHeightTooLow(input.dimensions.brace_height));
             }
 
             // Applies the given string length to the bow, solves for static equilibrium with the string pinned at brace height.
@@ -194,8 +172,8 @@ impl<'a> Simulation<'a> {
             let mut try_string_length = |factor: f64| {
                 system.element_mut::<BarElement>(simulation.string_element).set_initial_length(factor*l0);
 
-                let mut solver = StaticSolver::new(&mut system, statics::Settings::default());
-                let result = solver.equilibrium_displacement_controlled(simulation.string_node.y(), -model.dimensions.brace_height);
+                let mut solver = StaticSolver::new(&mut system, statics::Settings::default());    // TODO: Don't construct new solver in each iteration
+                let result = solver.equilibrium_displacement_controlled(simulation.string_node.y(), -input.dimensions.brace_height);
                 let slope = simulation.get_string_slope(&system);
 
                 (slope, result)
@@ -236,13 +214,35 @@ impl<'a> Simulation<'a> {
 
             // After the string length is known, we can calculate the viscosity that is required
             // for achieving the prescribed string damping ratio
-            // TODO: Do both of these in the setup of the simulation?
             let l = system.element_ref::<BarElement>(simulation.string_element).get_initial_length();
-            let rhoA = system.element_ref::<BarElement>(simulation.string_element).get_linear_density();
-            let EA = system.element_ref::<BarElement>(simulation.string_element).get_linear_stiffness();
-            let etaA = 4.0*l/PI*f64::sqrt(rhoA*EA)*model.damping.damping_ratio_string;
+            let etaA = 4.0*l/PI*f64::sqrt(rhoA*EA)* input.damping.damping_ratio_string;
             system.element_mut::<BarElement>(simulation.string_element).set_linear_damping(etaA);
+        }
 
+        let common = Common {
+            limb: LimbInfo {
+                length: s_eval,
+                position: limb_position,
+                width: limb_width,
+                height: limb_height,
+            },
+            layers,
+            string_length: 0.0,
+            string_mass: 0.0,
+            limb_mass: 0.0,
+        };
+
+        Ok((system, simulation, common))
+    }
+
+    // Callback: (phase, progress) -> continue
+    pub fn simulate<F>(model: &'a BowInput, mode: SimulationMode, mut callback: F) -> Result<BowOutput, ModelError>
+        where F: FnMut(&str, f64) -> bool
+    {
+        // Initialize simulation. String always, but damping only in dynamic mode (saves an einegvalue analysis).
+        let (mut system, mut simulation, common) = Self::initialize(&model, true, mode == SimulationMode::Dynamic)?;
+
+        let statics = {
             // "Draw" the bow by solving for a static equilibrium path of the string node from brace height to full draw
             // and store each intermediate step in the static output.
             let mut states = Soa::<State>::new();
@@ -362,7 +362,7 @@ impl<'a> Simulation<'a> {
         };
 
         Ok(BowOutput {
-            common: simulation.info,
+            common,
             statics,
             dynamics,
         })
@@ -377,15 +377,15 @@ impl<'a> Simulation<'a> {
     }
 
     pub fn simulate_limb_modes(model: &'a BowInput) -> Result<(Common, Vec<Mode>), ModelError> {
-        let (simulation, mut system) = Self::new(&model, false, true)?;
+        let (mut system, simulaion, common) = Self::initialize(&model, false, true)?;
         let modes = natural_frequencies(&mut system).map_err(|e| ModelError::SimulationEigenSolutionFailed(e))?;
-        Ok((simulation.info, modes))
+        Ok((common, modes))
     }
 
     // Simulates a static load (two forces, one moment) applied to the limb tip like a cantilever.
     // This is only used for testing the bow bow against other simulations/results.
     pub fn simulate_static_limb(model: &'a BowInput, Fx: f64, Fy: f64, Mz: f64) -> Result<(Common, State), ModelError> {
-        let (simulation, mut system) = Self::new(&model, false, false)?;
+        let (mut system, simulation, common) = Self::initialize(&model, false, false)?;
 
         if let Some(node) = simulation.limb_nodes.last() {
             system.add_force(node.x(), move |_t| { Fx });
@@ -402,10 +402,10 @@ impl<'a> Simulation<'a> {
             return true;
         }).map_err(|e| ModelError::SimulationStaticSolutionFailed(e))?;
 
-        Ok((simulation.info, states.pop().unwrap()))
+        Ok((common, states.pop().unwrap()))
     }
 
-    // TODO: Lett mutation, write functions for intermediate results
+    // TODO: Let mutation, write functions for intermediate results
     fn get_bow_state(&self, system: &System, eval: SystemEval) -> State {
         let time = system.get_time();
         let draw_length = -system.get_displacement(self.string_node.y());
@@ -415,7 +415,7 @@ impl<'a> Simulation<'a> {
         };
 
         let string_force = system.element_ref::<BarElement>(self.string_element).normal_force();
-        let strand_force = string_force/(self.model.string.n_strands as f64);
+        let strand_force = string_force/(self.input.string.n_strands as f64);
 
         // The evaluation of the arrow position, velocity and acceleration depends on whether the arrow has separated from the string.
         // If the arrow is still attached, the data of the node at the string center is used.
@@ -492,8 +492,8 @@ impl<'a> Simulation<'a> {
             draw_length,
 
             limb_pos,
-            limb_vel: vec![[0.0; 3]; self.model.settings.n_limb_eval_points],
-            limb_acc: vec![[0.0; 3]; self.model.settings.n_limb_eval_points],
+            limb_vel: vec![[0.0; 3]; self.input.settings.n_limb_eval_points],
+            limb_acc: vec![[0.0; 3]; self.input.settings.n_limb_eval_points],
 
             string_pos,
             string_vel,
@@ -502,8 +502,8 @@ impl<'a> Simulation<'a> {
             limb_strain,
             limb_force,
 
-            layer_strain: vec![vec![(0.0, 0.0); self.model.settings.n_layer_eval_points]; self.model.layers.len()],
-            layer_stress: vec![vec![(0.0, 0.0); self.model.settings.n_layer_eval_points]; self.model.layers.len()],
+            layer_strain: vec![vec![(0.0, 0.0); self.input.settings.n_layer_eval_points]; self.input.layers.len()],
+            layer_stress: vec![vec![(0.0, 0.0); self.input.settings.n_layer_eval_points]; self.input.layers.len()],
 
             arrow_pos,
             arrow_vel,
