@@ -48,14 +48,6 @@ impl BarElement {
         self.etaA = etaA;
     }
 
-    pub fn get_linear_density(&self) -> f64 {
-        self.rhoA
-    }
-
-    pub fn get_linear_stiffness(&self) -> f64 {
-        self.EA
-    }
-
     pub fn normal_force(&self) -> f64 {
         self.N
     }
