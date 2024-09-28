@@ -92,28 +92,6 @@ impl<'a> Simulation<'a> {
         // If damping properties are to be initialized and the specified damping ratio for the limb is not zero,
         // repeatedly perform a modal analysis of the limb without string and set the damping coefficients of the beam elements according to the desired damping ratio
         if damping && model.damping.damping_ratio_limbs != 0.0 {
-            /*
-            // Applies the damping parameter alpha to all limb elements, performs a modal analysis and returns the error in damping ratio
-            let mut try_damping_parameter = |alpha| {
-                for &e in &limb_elements {
-                    system.element_mut::<BeamElement>(e).set_damping(alpha);
-                }
-                let modes = natural_frequencies(&mut system).unwrap(); // TODO: Error handling .map_err(|e| ModelError::SimulationEigenSolutionFailed(e))?;
-                
-                println!("Zeta = {}, Soll = {}", modes[0].zeta, model.damping.damping_ratio_limbs);               
-                return modes[0].zeta - model.damping.damping_ratio_limbs;
-            };
-
-            let alpha0 = 0.0;
-            let error0 = -model.damping.damping_ratio_limbs;
-
-            let alpha1 = 0.001;
-            let error1 = try_damping_parameter(alpha1);
-
-            // TODO: Tolerances and error handling
-            root_secant_method(&mut try_damping_parameter, alpha0, error0, alpha1, error1, 1e-4, 25).ok_or(ModelError::SimulationBracingNoConvergence)?;
-            */
-            
             let modes = natural_frequencies(&mut system).map_err(|e| ModelError::SimulationEigenSolutionFailed(e))?;
             let alpha = 2.0*model.damping.damping_ratio_limbs/modes[0].omega;           
             for &e in &limb_elements {
@@ -153,7 +131,7 @@ impl<'a> Simulation<'a> {
         let l = f64::hypot(x_tip, y_str - y_tip);
         let EA = if string { (model.string.n_strands as f64)*model.string.strand_stiffness } else { 0.0 };
         let rhoA = if string { (model.string.n_strands as f64)*model.string.strand_density } else { 0.0 };
-        let etaA = if string { 4.0*l/PI*f64::sqrt(rhoA*EA)*model.damping.damping_ratio_string } else { 0.0 };
+        let etaA = 0.0;    // Damping is determined later when the length of the string is known
         let string_element = BarElement::new(rhoA, etaA, EA, l);
         let string_element = system.add_element(&[limb_nodes.last().unwrap().point(), string_node], string_element);
 
@@ -255,6 +233,15 @@ impl<'a> Simulation<'a> {
                     return Err(ModelError::SimulationBracingNoSignChange)
                 }
             }
+
+            // After the string length is known, we can calculate the viscosity that is required
+            // for achieving the prescribed string damping ratio
+            // TODO: Do both of these in the setup of the simulation?
+            let l = system.element_ref::<BarElement>(simulation.string_element).get_initial_length();
+            let rhoA = system.element_ref::<BarElement>(simulation.string_element).get_linear_density();
+            let EA = system.element_ref::<BarElement>(simulation.string_element).get_linear_stiffness();
+            let etaA = 4.0*l/PI*f64::sqrt(rhoA*EA)*model.damping.damping_ratio_string;
+            system.element_mut::<BarElement>(simulation.string_element).set_linear_damping(etaA);
 
             // "Draw" the bow by solving for a static equilibrium path of the string node from brace height to full draw
             // and store each intermediate step in the static output.

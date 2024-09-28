@@ -36,12 +36,24 @@ impl BarElement {
         Self::new(m/l0, d*l0, k*l0, l0)
     }
 
+    pub fn get_initial_length(&self) -> f64 {
+        self.l0
+    }
+
     pub fn set_initial_length(&mut self, l0: f64) {
         self.l0 = l0;
     }
 
-    pub fn get_initial_length(&self) -> f64 {
-        self.l0
+    pub fn set_linear_damping(&mut self, etaA: f64) {
+        self.etaA = etaA;
+    }
+
+    pub fn get_linear_density(&self) -> f64 {
+        self.rhoA
+    }
+
+    pub fn get_linear_stiffness(&self) -> f64 {
+        self.EA
     }
 
     pub fn normal_force(&self) -> f64 {
