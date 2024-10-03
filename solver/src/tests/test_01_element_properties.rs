@@ -9,10 +9,24 @@ use crate::bow::profile::profile::CurvePoint;
 use crate::bow::profile::segments::clothoid::{ArcInput, ClothoidSegment};
 use crate::fem::elements::beam::beam::BeamElement;
 use crate::fem::elements::beam::linear::LinearBeamSegment;
+use crate::fem::elements::string::StringElement;
 use crate::tests::utils;
+
+use std::f64::consts::FRAC_PI_2;
 
 // These tests perform basic consistency checks on the various elements
 // See the utils::checks::check_system_invariants function for the details
+
+#[test]
+fn mass_element() {
+    let m = 1.5;
+
+    let mut system = System::new();
+    let node = system.create_point_node(&vector![0.0, 0.0], Constraints::all_free());
+    system.add_element(&[&node], MassElement::new(m));
+
+    utils::checks::check_system_invariants(&mut system);
+}
 
 #[test]
 fn bar_element() {
@@ -24,7 +38,28 @@ fn bar_element() {
     let mut system = System::new();
     let node1 = system.create_point_node(&vector![0.0, 0.0], Constraints::all_free());
     let node2 = system.create_point_node(&vector![0.0, 0.0], Constraints::all_free());
-    system.add_element(&[node1, node2], BarElement::new(rhoA, etaA, EA, L));
+    system.add_element(&[&node1, &node2], BarElement::new(rhoA, etaA, EA, L));
+
+    utils::checks::check_system_invariants(&mut system);
+}
+
+#[test]
+fn string_element() {
+    let L = 1.5;
+    let EA = 2100.0;
+    let etaA = 400.0;
+    let rhoA = 0.785;
+
+    let mut system = System::new();
+    let node0 = system.create_oriented_node(&vector![0.0, 0.0, FRAC_PI_2 + 0.1], Constraints::all_free());
+    let node1 = system.create_oriented_node(&vector![-1.0, 1.0, FRAC_PI_2 + 0.1], Constraints::all_free());
+    let node2 = system.create_oriented_node(&vector![0.0, 2.0, FRAC_PI_2 + 0.1], Constraints::all_free());
+    let node3 = system.create_oriented_node(&vector![0.0, 2.5, FRAC_PI_2 + 0.1], Constraints::all_free());
+    let node4 = system.create_oriented_node(&vector![0.0, 3.0, FRAC_PI_2 + 0.1], Constraints::all_free());
+
+    let offsets = vec![0.1, -0.1, -0.15, -0.15, -0.1];
+
+    system.add_element(&[&node0, &node1, &node2, &node3, &node4], StringElement::new(rhoA, etaA, EA, L, offsets));
 
     utils::checks::check_system_invariants(&mut system);
 }
@@ -47,18 +82,7 @@ fn beam_element() {
     let mut system = System::new();
     let node0 = system.create_oriented_node(&segment.p0, Constraints::all_free());
     let node1 = system.create_oriented_node(&segment.p1, Constraints::all_free());
-    system.add_element(&[node0, node1], element);
-
-    utils::checks::check_system_invariants(&mut system);
-}
-
-#[test]
-fn mass_element() {
-    let m = 1.5;
-
-    let mut system = System::new();
-    let node = system.create_point_node(&vector![0.0, 0.0], Constraints::all_free());
-    system.add_element(&[node], MassElement::new(m));
+    system.add_element(&[&node0, &node1], element);
 
     utils::checks::check_system_invariants(&mut system);
 }

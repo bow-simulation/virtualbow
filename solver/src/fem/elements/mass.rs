@@ -22,7 +22,7 @@ impl MassElement {
 
 impl Element for MassElement {
     fn evaluate_mass_matrix(&self, M: &mut VectorView) {
-        M.add(self.M);
+        M.add_vec(self.M);
     }
 
     fn set_state_and_evaluate(&mut self, _u: &PositionView, v: &VelocityView, _q: Option<&mut VectorView>, _K: Option<&mut MatrixView>, _D: Option<&mut MatrixView>) {

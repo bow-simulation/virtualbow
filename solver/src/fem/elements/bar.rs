@@ -26,7 +26,7 @@ impl BarElement {
             l0,
             M: SVector::<f64, 4>::from_element(0.5*rhoA*l0),
             v: SVector::zeros(),
-            l: 0.0,
+            l: l0,
             N: 0.0
         }
     }
@@ -55,7 +55,7 @@ impl BarElement {
 
 impl Element for BarElement {
     fn evaluate_mass_matrix(&self, M: &mut VectorView) {
-        M.add(self.M);
+        M.add_vec(self.M);
     }
 
     fn set_state_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, q: Option<&mut VectorView>, K: Option<&mut MatrixView>, D: Option<&mut MatrixView>) {
@@ -99,19 +99,19 @@ impl Element for BarElement {
 
         // Compute elastic forces, if needed
         if let Some(q) = q {
-            q.add(self.N*self.l0*dedu);
+            q.add_vec(self.N*self.l0*dedu);
         }
 
         // Compute tangent stiffness, if needed
         if let Some(K) = K {
             let dNdu = self.EA*dedu + self.etaA*de_dtdu;
-            K.add(&(self.l0*dedu*dNdu.transpose() + self.l0*self.N*de_dudu));
+            K.add_mat(&(self.l0*dedu*dNdu.transpose() + self.l0*self.N*de_dudu));
         }
 
         // Compute damping matrix, if needed
         if let Some(D) = D {
             let dNdv = self.etaA*de_dtdv;
-            D.add(&(self.l0*dNdv*dedu.transpose()));
+            D.add_mat(&(self.l0*dNdv*dedu.transpose()));
         }
     }
 

@@ -153,7 +153,9 @@ impl System {
     }
 
     // Adds an element to the system by specifying its nodes (connectivity) and the element itself.
-    pub fn add_element<T: Element + Send + 'static>(&mut self, nodes: &[impl Node], element: T) -> usize {
+    pub fn add_element<E>(&mut self, nodes: &[&dyn Node], element: E) -> usize
+        where E: Element + Send + 'static
+    {
         let mut dofs = Vec::new();
         for node in nodes {
             dofs.extend_from_slice(node.dofs());
@@ -259,7 +261,7 @@ impl System {
         eval.p.fill(0.0);
         for (dof, force) in &self.forces {
             let mut p_view = VectorView::new(&mut eval.p, std::slice::from_ref(dof));
-            p_view.add(SVector::<f64, 1>::from_element(force(self.t)));
+            p_view.add_vec(SVector::<f64, 1>::from_element(force(self.t)));
         }
 
         eval
@@ -331,7 +333,7 @@ impl System {
         // Evaluate external forces
         for (dof, force) in &self.forces {
             let mut p_view = VectorView::new(&mut eval.p, std::slice::from_ref(dof));
-            p_view.add(SVector::<f64, 1>::from_element(force(self.t)));
+            p_view.add_vec(SVector::<f64, 1>::from_element(force(self.t)));
         }
 
         // Iterate over elements, set their state and add their contributions to the results
@@ -351,6 +353,7 @@ impl System {
     }
 
     // TODO: Unify with other eval functions
+    // TODO: Is there a way to make this take self as non-mutable?
     pub fn eval_eigen(&mut self, eval: &mut EigenEval) {
         // Set to zero in case of previous values
         eval.K.fill(0.0);

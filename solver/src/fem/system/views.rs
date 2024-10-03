@@ -23,6 +23,11 @@ impl<'a> AffineView<'a> {
         }
     }
 
+    // Number of dofs
+    pub fn len(&self) -> usize {
+        self.dofs.len()
+    }
+
     // Get the local position associated with the dof of given index
     pub fn at(&self, index: usize) -> f64 {
         Self::transform(self.vector, self.dofs[index])
@@ -58,6 +63,11 @@ impl<'a> LinearView<'a> {
             vector,
             dofs
         }
+    }
+
+    // Number of dofs
+    pub fn len(&self) -> usize {
+        self.dofs.len()
     }
 
     // Get the local position associated with the dof of given index
@@ -97,18 +107,28 @@ impl<'a> VectorView<'a> {
         }
     }
 
+    // Number of dofs
+    pub fn len(&self) -> usize {
+        self.dofs.len()
+    }
+
+    pub fn add(&mut self, row: usize, value: f64) {
+        match self.dofs[row] {
+            Dof::Fixed(_) => {
+                // Do nothing since the local value has no link to the global vector
+            },
+            Dof::Free(i) => {
+                self.vector[i] += value;
+            }
+        }
+    }
+
     // Add the local contributions of all dofs as a fixed size vector
     // TODO: Assert against wrong dimension N?
-    pub fn add<const N: usize>(&mut self, rhs: SVector<f64, N>) {
-        for (row, value) in rhs.iter().enumerate() {
-            match self.dofs[row] {
-                Dof::Fixed(_) => {
-                    // Do nothing since the local value has no link to the global vector
-                },
-                Dof::Free(i) => {
-                    self.vector[i] += value;
-                }
-            }
+    // TODO: Replace with implementation of operator +=?
+    pub fn add_vec<const N: usize>(&mut self, rhs: SVector<f64, N>) {
+        for (row, &value) in rhs.iter().enumerate() {
+            self.add(row, value);
         }
     }
 }
@@ -123,21 +143,31 @@ impl<'a> MatrixView<'a> {
     // Create a new view that references the given vector and dofs
     pub fn new(matrix: &'a mut DMatrix<f64>, dofs: &'a [Dof]) -> Self {
         Self {
-            matrix: matrix,
-            dofs: dofs
+            matrix,
+            dofs
+        }
+    }
+
+    // Number of dofs
+    pub fn len(&self) -> usize {
+        self.dofs.len()
+    }
+
+    pub fn add(&mut self, row: usize, col: usize, value: f64) {
+        if let Dof::Free(i) = self.dofs[row] {
+            if let Dof::Free(j) = self.dofs[col] {
+                self.matrix[(i, j)] += value;
+            }
         }
     }
 
     // Add the local contributions of all dofs as a fixed size matrix
     // TODO: Assert against wrong dimension N?
-    pub fn add<const N: usize>(&mut self, rhs: &SMatrix<f64, N, N>) {
+    // TODO: Replace with implementation of operator +=?
+    pub fn add_mat<const N: usize>(&mut self, rhs: &SMatrix<f64, N, N>) {
         for row in 0..N {
             for col in 0..N {
-                if let Dof::Free(i) = self.dofs[row] {
-                    if let Dof::Free(j) = self.dofs[col] {
-                        self.matrix[(i, j)] += rhs[(row, col)];
-                    }
-                }
+                self.add(row, col, rhs[(row, col)]);
             }
         }
     }
@@ -175,7 +205,7 @@ mod tests {
         {
             let mut vector = DVector::<f64>::zeros(8);
             let mut view = VectorView::new(&mut vector, dofs);
-            view.add(vector![1.0, 2.0, 3.0, 4.0]);
+            view.add_vec(vector![1.0, 2.0, 3.0, 4.0]);
 
             assert_eq!(vector, dvector![0.0, 0.0, 2.0, 0.0, 3.0, 0.0, 4.0, 0.0]);
         }
@@ -183,7 +213,7 @@ mod tests {
         {
             let mut matrix = DMatrix::<f64>::zeros(8, 8);
             let mut view = MatrixView::new(&mut matrix, dofs);
-            view.add(&matrix![1.0, 2.0, 3.0, 4.0; 5.0, 6.0, 7.0, 8.0; 9.0, 10.0, 11.0, 12.0; 13.0, 14.0, 15.0, 16.0]);
+            view.add_mat(&matrix![1.0, 2.0, 3.0, 4.0; 5.0, 6.0, 7.0, 8.0; 9.0, 10.0, 11.0, 12.0; 13.0, 14.0, 15.0, 16.0]);
 
             assert_eq!(matrix, dmatrix![
                 0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0.0, 0.0;

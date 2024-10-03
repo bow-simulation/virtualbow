@@ -1,11 +1,11 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2024.9.22)  22 SEP 2024 01:23
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.3.29)  6 OCT 2024 22:45
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **equations.tex
 (./equations.tex
-LaTeX2e <2023-11-01> patch level 1
-L3 programming layer <2024-01-22>
+LaTeX2e <2021-11-15> patch level 1
+L3 programming layer <2022-01-21>
 ! Undefined control sequence.
 l.3 \chapter
             {Equations of Motion}
@@ -1350,7 +1350,7 @@ or  <return>  to continue without it.
 [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
 ! Undefined control sequence.
 <write> ...local-equation-of-motion}{{1}{\thepage 
-                                                  }{}{}{}}
+                                                  }}
 l.26 \newpage
              
 The control sequence at the end of the top line
@@ -1359,7 +1359,7 @@ misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
-\newlabel{eq:local-equation-of-motion}{{1}{}{}{}{}}
+\newlabel{eq:local-equation-of-motion}{{1}{}}
 ]
 ! Undefined control sequence.
 l.27 \subsection
@@ -5840,12 +5840,12 @@ l.99 }
       _{\boldsymbol{A}_{k}}
 (That makes 100 errors; please try again.) 
 Here is how much of TeX's memory you used:
- 37 strings out of 476139
- 773 string characters out of 5794454
- 1927975 words of memory out of 5000000
- 22142 multiletter control sequences out of 15000+600000
- 558377 words of font info for 37 fonts, out of 8000000 for 9000
+ 29 strings out of 480204
+ 553 string characters out of 5895010
+ 289111 words of memory out of 5000000
+ 18077 multiletter control sequences out of 15000+600000
+ 469567 words of font info for 29 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 22i,9n,23p,466b,107s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 23i,9n,23p,463b,105s stack positions out of 5000i,500n,10000p,200000b,80000s
 
 !  ==> Fatal error occurred, no output PDF file produced!
