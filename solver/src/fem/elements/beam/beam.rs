@@ -210,7 +210,7 @@ impl BeamElement {
 
 impl Element for BeamElement {
     fn evaluate_mass_matrix(&self, M: &mut VectorView) {
-        M.add(self.M);
+        M.add_vec(self.M);
     }
 
     fn set_state_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, mut q: Option<&mut VectorView>, mut K: Option<&mut MatrixView>, mut D: Option<&mut MatrixView>) {
@@ -248,7 +248,7 @@ impl Element for BeamElement {
 
             // Compute elastic forces if needed
             if let Some(ref mut q) = q {
-                q.add(self.Qe + self.Qd);
+                q.add_vec(self.Qe + self.Qd);
             }
 
             // Compute stiffness matrix if needed
@@ -275,14 +275,14 @@ impl Element for BeamElement {
                 let Kk = stack![dJ0.transpose()*ft, dJ1.transpose()*ft, SVector::<f64, 6>::zeros(), -dJ0.transpose()*ft, -dJ1.transpose()*ft, SVector::<f64, 6>::zeros()];
                 let Kd = J.transpose()*self.D*stack![dJ0*self.v, dJ1*self.v, SVector::<f64, 3>::zeros(), -dJ0*self.v, -dJ1*self.v, SVector::<f64, 3>::zeros()];
 
-                K.add(&(
+                K.add_mat(&(
                     Kk + Kd + J.transpose()*self.K*J
                 ));
             }
 
             // Compute damping matrix if needed
             if let Some(ref mut D) = D {
-                D.add(&(J.transpose()*self.D*J));
+                D.add_mat(&(J.transpose()*self.D*J));
             }
         }
     }

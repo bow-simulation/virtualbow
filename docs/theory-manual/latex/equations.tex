@@ -2147,6 +2147,241 @@ Even though there is no shear deformation in Euler-Bernoulli beam theory, the to
 Q(s) = C_{kk}'(s)\,\kappa(s) + C_{ek}'(s)\,\varepsilon(s) + C_{kk}(s)\,\kappa'(s) + C_{ek}(s)\,\varepsilon'(s)
 \end{equation}
 
+\newpage
+\section{String Element (New)}
+
+The model for the string is an idealized spring of initial length $l_{0}$ and with constant cross section properties, given by the linear mass $\rho A$, stiffness $EA$ and damping $\eta A$.
+
+As shown in figure \ref{fig:elements:string-element}, the current shape of the string is defined by its starting- and endpoint as well as the surface points of the limb that it contacts inbetween.
+\textcolor{red}{Explain: No internal dynamics in the string, different from the old string model.}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\linewidth]{figures/elements/string-element-new.jpg}
+\caption{Contact interface between limb and string}
+\label{fig:elements:string-element}
+\end{figure}
+
+The displacement vector $\boldsymbol{u}$ describing the string's configuration therefore has to include the starting point $x_{0}, y_{0}$ at the string center as well as the $n$ limb nodes $x_{i},\,y_{i},\,\varphi_{i}$ with $i = 1\,\ldots\,n-1$, the last of which also defines the endpoint of the string at the limb tip.
+\textcolor{red}{Explain: $n$ does not have to be the whole number of nodes, can be just a subset where the string is considered likely to contact.}
+
+\begin{equation}
+\boldsymbol{u} = \begin{bmatrix}
+x_{0}, & y_{0}, & x_{1}, & y_{1}, & \varphi_{1}, & \cdots & x_{n-1}, & y_{n-1}, & \varphi_{n-1}
+\end{bmatrix}^\intercal
+\end{equation}
+
+The first step in evaluating the generalized forces of this element is to determine which of the limb nodes make contact with the string.
+First of all, as can be seen in figure \ref{fig:elements:string-element}, the limb nodes are not the points where the string makes physical contact.
+The actual contact points at the belly surface of the limb are given by
+
+\begin{align}
+\bar{x}_{0} &= x_{0}, \quad \bar{x}_{i} = x_{i} - d_{i}\sin(\varphi_{i}) \\
+\bar{y}_{0} &= y_{0}, \quad \bar{y}_{i} = y_{i} + d_{i}\cos(\varphi_{i})
+\end{align}
+
+where $d_{i}$ are the perpendicular distances from the limb centerline to the surface of the limb as defined by the limb's cross section geometry.
+The task of finding the contact points is then equivalent to finding the convex envelope of the points $\{x_{0},\,y_{0},\,\bar{x}_{1},\,\bar{y}_{1},\,\ldots,\,\bar{x}_{n-1},\,\bar{y}_{n-1}\}$.
+
+\textcolor{red}{TODO: Describe algorithm for the convex envelope}
+
+Having found the contact points we now know the exact geometrical configuration of the string and can begin formulating the internal forces for the element.
+Let's denote all points that are part of the convex envelope with the index $k$.
+The length between two surface points $i$ and $j$ is given by
+
+\begin{equation}
+l_{ij} = \sqrt{(\bar{x}_j - \bar{x}_i)^2 + (\bar{y}_j - \bar{y}_i)^2}
+\end{equation}
+
+The total length of the string is the sum of all line segments of the convex envelope,
+
+\begin{equation}
+l(\boldsymbol{u}) = \sum_{k} L_{k,k-1}.
+\end{equation}
+
+We use the visco-elastic Kelvin-Voigt material model to relate the stress in the string to the strain $\varepsilon$ and the strain rate $\dot{\varepsilon}$,
+
+\begin{equation}
+\sigma = E\,\varepsilon + \eta\,\dot{\varepsilon}.
+\end{equation}
+
+We further assume that the strain is constant over the whole length of the string.
+This effectively disregards any internal dynamics within the string and assumes that it is always in static equilibrium.
+The strain and strain rate can then be expressed in terms of the overall length $l$ as
+
+\begin{equation}
+\varepsilon = \frac{l(\boldsymbol{u}) - l_{0}}{l_{0}}, \quad \dot{\varepsilon} = \frac{1}{l_{0}}\frac{\partial l}{\partial \boldsymbol{u}}\dot{\boldsymbol{u}}
+\end{equation}
+
+Virtual work of the internal forces:
+
+\begin{align}
+\delta W_{I} &= \int_{V} \sigma\,\delta\varepsilon\,dV = \int_{0}^{l_{0}}\int_{A} \sigma\,\delta\varepsilon\,dA\,ds = \left(EA\,\varepsilon + \eta A\,\dot{\varepsilon}\right)l_{0}\frac{\partial\varepsilon}{\partial\boldsymbol{u}}\delta\boldsymbol{u}
+\end{align}
+
+And therefore the internal forces
+
+\begin{equation}
+\boldsymbol{Q}(\boldsymbol{u},\,\dot{\boldsymbol{u}}) = \left(EA\varepsilon + \eta A\dot{\varepsilon}\right)l_{0}\frac{\partial\varepsilon}{\partial\boldsymbol{u}} = \underbrace{\left(k(l - l_{0}) + d\dot{l}\right)}_{N(\boldsymbol{u},\,\dot{\boldsymbol{u}})}\frac{\partial l}{\partial\boldsymbol{u}}
+\end{equation}
+
+where $k = \frac{EA}{l_{0}}$ is the stiffness of the string and $d = \frac{\eta A}{l_{0}}$ is the damping and $N$ the normal force along the string.
+The tangent stiffness matrix is derived as
+
+\begin{align}
+\boldsymbol{K} = \frac{\partial\boldsymbol{Q}}{\partial\boldsymbol{u}} &= \left(k\frac{\partial l}{\partial\boldsymbol{u}}^\intercal + d\frac{\partial\dot{l}}{\partial\boldsymbol{u}}^\intercal\right)\frac{\partial l}{\partial\boldsymbol{u}} + \left(k(l - l_{0}) + d\dot{l}\right)\frac{\partial^2 l}{\partial\boldsymbol{u}^2} \notag \\
+&= \left(k\frac{\partial l}{\partial\boldsymbol{u}}^\intercal + d\dot{\boldsymbol{u}}^\intercal\frac{\partial^2 l}{\partial\boldsymbol{u}^2}\right)\frac{\partial l}{\partial\boldsymbol{u}} + \left(k(l - l_{0}) + d\dot{l}\right)\frac{\partial^2 l}{\partial\boldsymbol{u}^2} \\
+\notag \\
+\boldsymbol{D} = \frac{\partial\boldsymbol{Q}}{\partial\dot{\boldsymbol{u}}} &= d\frac{\partial\dot{l}}{\partial\dot{\boldsymbol{u}}}^\intercal\frac{\partial l}{\partial\boldsymbol{u}} = d\,\frac{\partial l}{\partial\boldsymbol{u}}^\intercal\frac{\partial l}{\partial\boldsymbol{u}}
+\end{align}
+
+\newpage
+
+\begin{align}
+L(\boldsymbol{u}) &= \sum_{k} L_{k,k-1} \notag \\
+&= \sum_{k} \sqrt{(\bar{x}_{k} - \bar{x}_{k-1})^2 + (\bar{y}_{k} - \bar{y}_{k-1})^2} \notag \\
+&= \ldots + \sqrt{(\bar{x}_{k} - \bar{x}_{k-1})^2 + (\bar{y}_{k} - \bar{y}_{k-1})^2} + \sqrt{(\bar{x}_{k+1} - \bar{x}_{k})^2 + (\bar{y}_{k+1} - \bar{y}_{k})^2} \ldots
+\end{align}
+
+The partial derivatives of this length with respect to the contact points, which we are going to need later, is obtained as
+
+\begin{align}
+\frac{\partial L}{\partial \bar{x}_{k}} &= \frac{\bar{x}_{k} - \bar{x}_{k-1}}{L_{k,k-1}} - \frac{\bar{x}_{k+1} - \bar{x}_{k}}{L_{k+1,k}}, \\
+\notag \\
+\frac{\partial L}{\partial \bar{y}_{k}} &= \frac{\bar{y}_{k} - \bar{y}_{k-1}}{L_{k,k-1}} - \frac{\bar{y}_{k+1} - \bar{y}_{k}}{L_{k+1,k}},
+\end{align}
+
+if $k$ is an intermediate node.
+If $k$ is however the first or last node in the chain, the repective term of the sum vanishes.
+We can express those partial derivatives in terms of the nodal coordinates by using the chain rule,
+
+\begin{align}
+\frac{\partial L}{\partial x_{k}} &= \frac{\partial L}{\partial \bar{x}_{k}}\underbrace{\frac{\partial \bar{x}_{k}}{\partial x_{k}}}_{= 1} = \frac{\partial L}{\partial \bar{x}_{k}} \\
+\frac{\partial L}{\partial y_{k}} &= \frac{\partial L}{\partial \overline{y}_{k}}\underbrace{\frac{\partial \bar{y}_{k}}{\partial y_{k}}}_{= 1} = \frac{\partial L}{\partial \bar{y}_{k}} \\
+\frac{\partial L}{\partial \varphi_{k}} &= \frac{\partial L}{\partial \overline{x}_{k}}\frac{\partial \bar{x}_{k}}{\partial \varphi_{k}} + \frac{\partial L}{\partial \bar{y}_{k}}\frac{\partial \bar{y}_{k}}{\partial \varphi_{k}} = -d_{k}\left(\frac{\partial L}{\partial \bar{x}_{k}}\cos(\varphi_{k}) + \frac{\partial L}{\partial \bar{y}_{k}}\sin(\varphi_{k})\right)
+\end{align}
+
+Using these component-wise expressions we can assemble the gradient vector $\frac{\partial L}{\partial \boldsymbol{u}}$.
+Since we are also going to need the second derivative $\frac{\partial^2 L}{\partial \boldsymbol{u}^2}$, we carry on by deriving the results further with respect to $x_{k}$, $y_{k}$ and $\varphi_{k}$.
+
+% WolframAlpha queries:
+% https://www.wolframalpha.com/input?i2d=true&i=D%5B%5C%2840%29Sqrt%5BPower%5B%5C%2840%29x1+-+x0%5C%2841%29%2C2%5D%2BPower%5B%5C%2840%29y1+-+y0%5C%2841%29%2C2%5D%5D%2BSqrt%5BPower%5B%5C%2840%29x2+-+x1%5C%2841%29%2C2%5D%2BPower%5B%5C%2840%29y2+-+y1%5C%2841%29%2C2%5D%5D%5C%2841%29%2C%7Bx1%2C2%7D%5D
+% https://www.wolframalpha.com/input?i2d=true&i=D%5B%5C%2840%29Sqrt%5BPower%5B%5C%2840%29x1+-+x0%5C%2841%29%2C2%5D%2BPower%5B%5C%2840%29y1+-+y0%5C%2841%29%2C2%5D%5D%2BSqrt%5BPower%5B%5C%2840%29x2+-+x1%5C%2841%29%2C2%5D%2BPower%5B%5C%2840%29y2+-+y1%5C%2841%29%2C2%5D%5D%5C%2841%29%2C%7By1%2C2%7D%5D
+\begin{align}
+\frac{\partial^2 L}{\partial x_{k} \partial x_{k}} &= \frac{1}{L_{k,k-1}}\left( 1 - \left(\frac{\bar{x}_{k} - \bar{x}_{k-1}}{L_{k,k-1}}\right)^2 \right) + \frac{1}{L_{k,k+1}}\left( 1 - \left(\frac{\bar{x}_{k+1} - \bar{x}_{k}}{L_{k,k+1}}\right)^2 \right) \\
+\notag \\
+\frac{\partial^2 L}{\partial y_{k} \partial y_{k}} &= \frac{1}{L_{k,k-1}}\left( 1 - \left(\frac{\bar{y}_{k} - \bar{y}_{k-1}}{L_{k,k-1}}\right)^2 \right) + \frac{1}{L_{k,k+1}}\left( 1 - \left(\frac{\bar{y}_{k+1} - \bar{y}_{k}}{L_{k,k+1}}\right)^2 \right) \\
+\notag \\
+\frac{\partial^2 L}{\partial x_{k} \partial y_{k}} &= -\frac{(\bar{x}_{k} - \bar{x}_{k-1})(\bar{y}_{k} - \bar{y}_{k-1})}{L_{k,k-1}^3} - \frac{(\bar{x}_{k+1} - \bar{x}_{k})(\bar{y}_{k+1} - \bar{y}_{k})}{L_{k+1,k}^3}
+\end{align}
+
+The derivatives involving angles can be expressed in terms of the other ones as,
+
+\begin{align}
+\frac{\partial^2 L}{\partial x_{k} \partial \varphi_{k}} &= -d_{k}\left( \frac{\partial^2 L}{\partial x_{k} \partial x_{k}}\cos(\varphi_{k}) + \frac{\partial^2 L}{\partial x_{k} \partial y_{k}}\sin(\varphi_{k})\right) \\
+\notag \\
+\frac{\partial^2 L}{\partial y_{k} \partial \varphi_{k}} &= -d_{k}\left( \frac{\partial^2 L}{\partial y_{k} \partial y_{k}}\sin(\varphi_{k}) + \frac{\partial^2 L}{\partial x_{k} \partial y_{k}}\cos(\varphi_{k})\right) \\
+\notag \\
+\frac{\partial^2 L}{\partial \varphi_{k} \partial \varphi_{k}} &= -d_{k}\left(\left(\frac{\partial^2 L}{\partial x_{k} \partial \varphi_{k}} + \frac{\partial L}{\partial \bar{y}_{k}}\right)\cos(\varphi_{k}) + \left(\frac{\partial^2 L}{\partial y_{k} \partial \varphi_{k}} - \frac{\partial L}{\partial \bar{x}_{k}}\right)\sin(\varphi_{k})\right)
+\end{align}
+
+
+
+Elastic energy:
+
+\begin{equation}
+\Pi(\boldsymbol{u}) = \frac{1}{2}\frac{EA}{L_{0}}\left(L(\boldsymbol{u}) - L_{0}\right)^2
+\end{equation}
+
+Generalied forces:
+
+\begin{equation}
+\boldsymbol{Q}(\boldsymbol{u}) = \frac{\partial\Pi}{\partial\boldsymbol{u}} = EA\,\frac{L(\boldsymbol{u}) - L_{0}}{L_{0}}\,\frac{\partial L}{\partial\boldsymbol{u}}
+\end{equation}
+
+Partial derivatives of the string length:
+
+\newpage
+
+Different derivation:
+
+\begin{equation}
+L_{ij} = \sqrt{(\bar{x}_j - \bar{x}_i)^2 + (\bar{y}_j - \bar{y}_i)^2}
+\end{equation}
+
+First derivatives with respect to the nodal positions and rotations:
+
+% https://www.wolframalpha.com/input?i=derive+sqrt%28%28x1+-+x0%29%5E2+%2B+%28y1+-+y0%29%5E2%29+wrt+x0
+% https://www.wolframalpha.com/input?i=derive+sqrt%28%28x1+-+x0%29%5E2+%2B+%28y1+-+y0%29%5E2%29+wrt+y0
+% https://www.wolframalpha.com/input?i=derive+sqrt%28%28x1+-+x0%29%5E2+%2B+%28y1+-+y0%29%5E2%29+wrt+x1
+% https://www.wolframalpha.com/input?i=derive+sqrt%28%28x1+-+x0%29%5E2+%2B+%28y1+-+y0%29%5E2%29+wrt+y1
+
+\begin{align}
+\frac{\partial L_{ij}}{\partial x_i} &= \frac{x_i - x_j}{L_{i,j}} \\
+\frac{\partial L_{ij}}{\partial y_i} &= \frac{y_i - y_j}{L_{i,j}} \\
+\frac{\partial L_{ij}}{\partial \varphi_i} &= -d_{i}\left(\frac{\partial L_{ij}}{\partial x_i}\cos(\varphi_i) + \frac{\partial L_{ij}}{\partial y_i}\sin(\varphi_i)\right)\\
+\frac{\partial L_{ij}}{\partial x_j} &= -\frac{\partial L_{i,j}}{\partial x_i} \\
+\frac{\partial L_{ij}}{\partial y_j} &= -\frac{\partial L_{i,j}}{\partial y_i} \\
+\frac{\partial L_{ij}}{\partial \varphi_j} &= -d_{j}\left(\frac{\partial L_{ij}}{\partial x_j}\cos(\varphi_j) + \frac{\partial L_{ij}}{\partial y_j}\sin(\varphi_j)\right)
+\end{align}
+
+
+
+Second derivatives (omitting symmetric ones):
+
+% https://www.wolframalpha.com/input?i2d=true&i=Partial%5B%5C%2840%29Sqrt%5BPower%5B%5C%2840%29x1+-+x0%5C%2841%29%2C2%5D%2BPower%5B%5C%2840%29y1+-+y0%5C%2841%29%2C2%5D%5D%5C%2841%29%2Cx0%2Cx0%5D
+
+\begin{align}
+\frac{\partial L_{ij}}{\partial x_i \partial x_i} &= \frac{(y_j - y_i)^2}{L_{ij}^3} \\
+\frac{\partial L_{ij}}{\partial x_i \partial y_i} &= -\frac{(x_j - x_i)(y_j - y_i)}{L_{ij}^3} \\
+\frac{\partial L_{ij}}{\partial x_i \partial x_j} &= -\frac{\partial L_{ij}}{\partial x_i \partial x_i} \\
+\frac{\partial L_{ij}}{\partial x_i \partial y_j} &= -\frac{\partial L_{ij}}{\partial x_i \partial y_i} \\
+\notag \\
+\frac{\partial L_{ij}}{\partial y_i \partial y_i} &= \frac{(x_j - x_i)^2}{L_{ij}^3} \\
+\frac{\partial L_{ij}}{\partial y_i \partial x_j} &= -\frac{\partial L_{ij}}{\partial x_i \partial y_i} \\
+\frac{\partial L_{ij}}{\partial y_i \partial y_j} &= -\frac{\partial L_{ij}}{\partial y_i \partial y_i} \\
+\notag \\
+\frac{\partial L_{ij}}{\partial x_j \partial x_j} &= \frac{\partial L_{ij}}{\partial x_i \partial x_i} \\
+\frac{\partial L_{ij}}{\partial x_j \partial y_j} &= \frac{\partial L_{ij}}{\partial x_i \partial y_i} \\
+\notag \\
+\frac{\partial L_{ij}}{\partial y_j \partial y_j} &= \frac{\partial L_{ij}}{\partial y_i \partial y_i}
+\end{align}
+
+\newpage
+Angles:
+
+Combination i, i:
+
+\begin{align}
+\frac{\partial^2 L_{ij}}{\partial x_{i} \partial \varphi_{j}} &= -d_{i}\left( \frac{\partial^2 L_{ij}}{\partial x_{i} \partial x_{i}}\cos(\varphi_{i}) + \frac{\partial^2 L_{ij}}{\partial x_{i} \partial y_{i}}\sin(\varphi_{i})\right) \\
+\frac{\partial^2 L_{ij}}{\partial y_{i} \partial \varphi_{i}} &= -d_{i}\left( \frac{\partial^2 L_{ij}}{\partial y_{i} \partial y_{i}}\sin(\varphi_{i}) + \frac{\partial^2 L_{ij}}{\partial x_{i} \partial y_{i}}\cos(\varphi_{i})\right) \\
+\frac{\partial^2 L_{ij}}{\partial \varphi_{i} \partial \varphi_{i}} &= -d_{i}\left(\left(\frac{\partial^2 L_{ij}}{\partial x_{i} \partial \varphi_{i}} + \frac{\partial L}{\partial \bar{y}_{i}}\right)\cos(\varphi_{i}) + \left(\frac{\partial^2 L_{ij}}{\partial y_{i} \partial \varphi_{i}} - \frac{\partial L}{\partial \bar{x}_{i}}\right)\sin(\varphi_{i})\right)
+\end{align}
+
+Combination j, j:
+
+\begin{align}
+\frac{\partial^2 L_{ij}}{\partial x_{j} \partial \varphi_{j}} &= -d_{j}\left( \frac{\partial^2 L_{ij}}{\partial x_{j} \partial x_{j}}\cos(\varphi_{j}) + \frac{\partial^2 L_{ij}}{\partial x_{j} \partial y_{j}}\sin(\varphi_{j})\right) \\
+\frac{\partial^2 L_{ij}}{\partial y_{j} \partial \varphi_{j}} &= -d_{j}\left( \frac{\partial^2 L_{ij}}{\partial y_{j} \partial y_{j}}\sin(\varphi_{j}) + \frac{\partial^2 L_{ij}}{\partial x_{j} \partial y_{j}}\cos(\varphi_{j})\right) \\
+\frac{\partial^2 L_{ij}}{\partial \varphi_{j} \partial \varphi_{j}} &= -d_{j}\left(\left(\frac{\partial^2 L_{ij}}{\partial x_{j} \partial \varphi_{j}} + \frac{\partial L}{\partial \bar{y}_{j}}\right)\cos(\varphi_{j}) + \left(\frac{\partial^2 L_{ij}}{\partial y_{j} \partial \varphi_{j}} - \frac{\partial L}{\partial \bar{x}_{j}}\right)\sin(\varphi_{j})\right)
+\end{align}
+
+Combination i, j
+
+\begin{align}
+\frac{\partial^2 L_{ij}}{\partial x_{i} \partial \varphi_{j}} &= -d_{j}\left( \frac{\partial^2 L_{ij}}{\partial x_{i} \partial x_{j}}\cos(\varphi_{j}) + \frac{\partial^2 L_{ij}}{\partial x_{i} \partial y_{j}}\sin(\varphi_{j})\right) \\
+\frac{\partial^2 L_{ij}}{\partial y_{i} \partial \varphi_{j}} &= -d_{j}\left( \frac{\partial^2 L_{ij}}{\partial y_{i} \partial y_{j}}\cos(\varphi_{j}) + \frac{\partial^2 L_{ij}}{\partial y_{i} \partial x_{j}}\sin(\varphi_{j}) \right) \\
+\frac{\partial^2 L_{ij}}{\partial \varphi_{i} \partial \varphi_{j}} &= -d_{i}\left( \frac{\partial^2 L_{ij}}{\partial x_{i} \partial \varphi_{j}}\cos(\varphi_{i}) + \frac{\partial^2 L_{ij}}{\partial y_{i} \partial \varphi_{j}}\sin(\varphi_{i})\right)
+\end{align}
+
+Combination j,i
+
+\begin{align}
+\frac{\partial^2 L_{ij}}{\partial x_{j} \partial \varphi_{i}} &= -d_{i}\left( \frac{\partial^2 L_{ij}}{\partial x_{i} \partial x_{j}}\cos(\varphi_{i}) + \frac{\partial^2 L_{ij}}{\partial x_{i} \partial y_{j}}\sin(\varphi_{i})\right) \\
+\frac{\partial^2 L_{ij}}{\partial y_{j} \partial \varphi_{i}} &= -d_{i}\left( \frac{\partial^2 L_{ij}}{\partial x_{i} \partial y_{j}}\cos(\varphi_{i}) + \frac{\partial^2 L_{ij}}{\partial y_{i} \partial y_{j}}\sin(\varphi_{i}) \right)
+\end{align}
+
+
 
 \newpage
 \section{String Element}
@@ -2157,7 +2392,7 @@ The string is modeled as an infinitely thin line with linear density $\rho A$, e
 \centering
 \includegraphics[width=0.6\linewidth]{figures/elements/string-element.png}
 \caption{Model of the string}
-\label{fig:elements:string-element}
+\label{fig:elements:string-element-old}
 \end{figure}
 
 \subsection{Single string element}
@@ -2300,3 +2535,6 @@ T &= \frac{1}{2}\,\rho A \, \int_{0}^{L} \dot{r}(s)^\intercal\,\dot{r}(s)\,ds \\
 &= \frac{1}{2}\,\rho A \, \sum_{i=0}^{n-2} \int_{t=0}^{t=1} \dot{r}_{i}(s)^\intercal\,\dot{r}_{i}(s)\,ds \\
 &= \frac{1}{2}\,\rho A \, \sum_{i=0}^{n-2} \int_{0}^{\frac{\overline{L}_{i}\overline{L}}{L}} \dot{r}_{i}(s)^\intercal\,\dot{r}_{i}(s)\,ds \\
 \end{align*}
+
+
+

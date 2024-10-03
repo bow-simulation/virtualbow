@@ -23,7 +23,6 @@ pub fn check_system_invariants(system: &mut System) {
         check_mass_matrix(system);
         check_stiffness_matrix(system, &u, &v);
         check_damping_matrix(system, &u, &v);
-
         check_kinetic_energy(system, &u, &v);
         check_potential_energy(system, &u);
     }
@@ -38,8 +37,8 @@ pub fn check_mass_matrix(system: &mut System) {
     let mut eigen = system.create_eigen_eval();
     system.eval_eigen(&mut eigen);
 
-    // Mass matrix must be positive definite
-    assert!(eigen.get_mass_matrix().min() > 0.0);
+    // Mass matrix must be positive semi-definite
+    assert!(eigen.get_mass_matrix().min() >= 0.0);
 }
 
 // Evaluates the system's tangent stiffness matrix and verifies that it is symmetric

@@ -35,8 +35,8 @@ fn nonlinear_pendulum() {
     let node_a = system.create_point_node(&vector![0.0, 0.0], Constraints::all_fixed());
     let node_b = system.create_point_node(&vector![x0, y0], Constraints::all_free());
 
-    system.add_element(&[node_a, node_b], BarElement::spring(0.0, d, k, l));
-    system.add_element(&[node_b], MassElement::new(m));
+    system.add_element(&[&node_a, &node_b], BarElement::spring(0.0, d, k, l));
+    system.add_element(&[&node_b], MassElement::new(m));
     system.add_force(node_b.y(), move |_t| -m*g);
 
     utils::checks::check_system_invariants(&mut system);

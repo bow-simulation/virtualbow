@@ -1,6 +1,6 @@
 use crate::fem::system::dof::Dof;
 
-pub trait Node: Copy + Clone {
+pub trait Node {
     fn dofs(&self) -> &[Dof];
 }
 

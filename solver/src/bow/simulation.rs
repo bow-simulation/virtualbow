@@ -5,7 +5,7 @@ use itertools::Itertools;
 use nalgebra::vector;
 use soa_rs::Soa;
 use crate::fem::elements::bar::BarElement;
-use crate::fem::solvers::eigen::{Mode, natural_frequencies};
+use crate::fem::solvers::eigen::{Mode, natural_frequencies, natural_frequencies_from_matrices};
 use crate::fem::solvers::statics::StaticSolver;
 use crate::fem::system::element::Element;
 use crate::fem::system::nodes::{Constraints, OrientedNode, PointNode};
@@ -83,11 +83,11 @@ impl<'a> Simulation<'a> {
         }).collect();
 
         let limb_elements: Vec<usize> = elements.into_iter().enumerate().map(|(i, element)| {
-            system.add_element(&[limb_nodes[i], limb_nodes[i+1]], element)
+            system.add_element(&[&limb_nodes[i], &limb_nodes[i+1]], element)
         }).collect();
 
         // Limb tip mass, required for limb damping calculation
-        system.add_element(&[limb_nodes.last().unwrap().point()], MassElement::new(input.masses.limb_tip));
+        system.add_element(&[&limb_nodes.last().unwrap().point()], MassElement::new(input.masses.limb_tip));
 
         // If damping properties are to be initialized and the specified damping ratio for the limb is not zero,
         // perform a modal analysis of the limb without string and set the damping parameter of the beam elements according to the desired damping ratio.
@@ -97,6 +97,8 @@ impl<'a> Simulation<'a> {
             for &e in &limb_elements {
                 system.element_mut::<BeamElement>(e).set_damping(alpha);
             }
+
+            println!("{}, {}", -1.0, modes[0].omega);
         }
 
         // Layer setup data
@@ -132,12 +134,12 @@ impl<'a> Simulation<'a> {
         let EA = if string { (input.string.n_strands as f64)* input.string.strand_stiffness } else { 0.0 };
         let rhoA = if string { (input.string.n_strands as f64)* input.string.strand_density } else { 0.0 };
         let string_element = BarElement::new(rhoA, 0.0, EA, l);    // Damping is determined later when the length of the string is known
-        let string_element = system.add_element(&[limb_nodes.last().unwrap().point(), string_node], string_element);
+        let string_element = system.add_element(&[&limb_nodes.last().unwrap().point(), &string_node], string_element);
 
         // Arrow mass and other remaining additional masses
-        let arrow_element = system.add_element(&[string_node], MassElement::new(0.5* input.masses.arrow));
-        system.add_element(&[string_node], MassElement::new(0.5* input.masses.string_center));
-        system.add_element(&[limb_nodes.last().unwrap().point()], MassElement::new(input.masses.string_tip));
+        let arrow_element = system.add_element(&[&string_node], MassElement::new(0.5* input.masses.arrow));
+        system.add_element(&[&string_node], MassElement::new(0.5* input.masses.string_center));
+        system.add_element(&[&limb_nodes.last().unwrap().point()], MassElement::new(input.masses.string_tip));
 
         // Finish the simulation info object
         let simulation = Self {
@@ -313,6 +315,10 @@ impl<'a> Simulation<'a> {
                     // Push bow state into the final results
                     states.push(state);
 
+                    let modes = natural_frequencies_from_matrices(eval.get_mass_matrix(), eval.get_damping_matrix(), eval.get_stiffness_matrix()).unwrap();
+                    println!("{}, {}", system.get_time(), modes[0].omega);
+
+
                     // Continue the simulation as long as the arrow is not separated
                     // and the timeout has not yet been reached
                     return simulation.arrow_separation.is_none() && system.get_time() < t_max;
@@ -332,6 +338,9 @@ impl<'a> Simulation<'a> {
                         // Evaluate and push back current bow state
                         let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval));
                         states.push(state);
+
+                        let modes = natural_frequencies_from_matrices(eval.get_mass_matrix(), eval.get_damping_matrix(), eval.get_stiffness_matrix()).unwrap();
+                        println!("{}, {}", system.get_time(), modes[0].omega);
 
                         // Continue as long as the end time is not reached
                         return system.get_time() < t_end;
@@ -377,7 +386,7 @@ impl<'a> Simulation<'a> {
     }
 
     pub fn simulate_limb_modes(model: &'a BowInput) -> Result<(Common, Vec<Mode>), ModelError> {
-        let (mut system, simulaion, common) = Self::initialize(&model, false, true)?;
+        let (mut system, _simulaion, common) = Self::initialize(&model, false, true)?;
         let modes = natural_frequencies(&mut system).map_err(|e| ModelError::SimulationEigenSolutionFailed(e))?;
         Ok((common, modes))
     }

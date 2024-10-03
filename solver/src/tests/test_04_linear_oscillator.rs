@@ -29,8 +29,8 @@ fn mass_spring_damper_1() {
     let node_a = system.create_point_node(&vector![0.0, 0.0], Constraints::all_fixed());
     let node_b = system.create_point_node(&vector![l + x0, 0.0], Constraints::x_pos_free());
 
-    system.add_element(&[node_a, node_b], BarElement::spring(0.0, d, k, l));
-    system.add_element(&[node_b], MassElement::new(m));
+    system.add_element(&[&node_a, &node_b], BarElement::spring(0.0, d, k, l));
+    system.add_element(&[&node_b], MassElement::new(m));
     utils::checks::check_system_invariants(&mut system);
 
     // Constants for the analytical solution
@@ -137,12 +137,12 @@ fn mass_spring_damper_n() {
     // Add bar elements between nodes
     for i in 0..nodes.len()-1 {
         let l = lengths[i+1] - lengths[i];
-        system.add_element(&[nodes[i], nodes[i+1]], BarElement::spring(0.0, d, k, l));
+        system.add_element(&[&nodes[i], &nodes[i+1]], BarElement::spring(0.0, d, k, l));
     }
 
     // Add mass elements at nodes
     for i in 1..nodes.len()-1 {
-        system.add_element(&[nodes[i]], MassElement::new(m));
+        system.add_element(&[&nodes[i]], MassElement::new(m));
     }
 
     // Add external forces

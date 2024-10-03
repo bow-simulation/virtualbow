@@ -7,3 +7,4 @@ pub mod linear_spline;
 pub mod tridiagonal;
 pub mod functions;
 pub mod intervals;
+pub mod geometry;

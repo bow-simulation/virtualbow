@@ -24,7 +24,7 @@ fn linear_bar_truss_1() {
     let node1 = system.create_point_node(&vector![0.0, 0.0], Constraints::all_fixed());
     let node2 = system.create_point_node(&vector![a, 0.0], Constraints::x_pos_free());
 
-    system.add_element(&[node1, node2], BarElement::new(rhoA, 0.0, EA, a));
+    system.add_element(&[&node1, &node2], BarElement::new(rhoA, 0.0, EA, a));
     system.add_force(node2.x(), move |_t|{ F_ref });
 
     utils::checks::check_system_invariants(&mut system);
@@ -58,10 +58,10 @@ fn linear_bar_truss_3() {
     let node3 = system.create_point_node(&vector![a, a], Constraints::all_free());
     let node4 = system.create_point_node(&vector![0.0, 2.0*a], Constraints::all_fixed());
 
-    system.add_element(&[node1, node2], BarElement::new(rhoA, 0.0, EA, a));
-    system.add_element(&[node2, node3], BarElement::new(rhoA, 0.0, EA, a));
-    system.add_element(&[node1, node3], BarElement::new(rhoA, 0.0, EA, SQRT_2*a));
-    system.add_element(&[node3, node4], BarElement::new(rhoA, 0.0, 2.0*EA, SQRT_2*a));
+    system.add_element(&[&node1, &node2], BarElement::new(rhoA, 0.0, EA, a));
+    system.add_element(&[&node2, &node3], BarElement::new(rhoA, 0.0, EA, a));
+    system.add_element(&[&node1, &node3], BarElement::new(rhoA, 0.0, EA, SQRT_2*a));
+    system.add_element(&[&node3, &node4], BarElement::new(rhoA, 0.0, 2.0*EA, SQRT_2*a));
 
     system.add_force(node2.x(), move |_t|{ F_ref/SQRT_2 });
     system.add_force(node2.y(), move |_t|{ -F_ref/SQRT_2 });
@@ -96,26 +96,26 @@ fn linear_bar_truss_4() {
     let node_09 = system.create_point_node(&vector![3.0*a, a], Constraints::all_free());
     let node_10 = system.create_point_node(&vector![4.0*a, a], Constraints::all_free());
 
-    system.add_element(&[node_01, node_02], BarElement::new(rhoA, 0.0, EA, a));
-    system.add_element(&[node_02, node_03], BarElement::new(rhoA, 0.0, EA, a));
-    system.add_element(&[node_03, node_04], BarElement::new(rhoA, 0.0, EA, a));
-    system.add_element(&[node_04, node_05], BarElement::new(rhoA, 0.0, EA, a));
+    system.add_element(&[&node_01, &node_02], BarElement::new(rhoA, 0.0, EA, a));
+    system.add_element(&[&node_02, &node_03], BarElement::new(rhoA, 0.0, EA, a));
+    system.add_element(&[&node_03, &node_04], BarElement::new(rhoA, 0.0, EA, a));
+    system.add_element(&[&node_04, &node_05], BarElement::new(rhoA, 0.0, EA, a));
 
-    system.add_element(&[node_06, node_07], BarElement::new(rhoA, 0.0, EA, a));
-    system.add_element(&[node_07, node_08], BarElement::new(rhoA, 0.0, EA, a));
-    system.add_element(&[node_08, node_09], BarElement::new(rhoA, 0.0, EA, a));
-    system.add_element(&[node_09, node_10], BarElement::new(rhoA, 0.0, EA, a));
+    system.add_element(&[&node_06, &node_07], BarElement::new(rhoA, 0.0, EA, a));
+    system.add_element(&[&node_07, &node_08], BarElement::new(rhoA, 0.0, EA, a));
+    system.add_element(&[&node_08, &node_09], BarElement::new(rhoA, 0.0, EA, a));
+    system.add_element(&[&node_09, &node_10], BarElement::new(rhoA, 0.0, EA, a));
 
-    system.add_element(&[node_01, node_06], BarElement::new(rhoA, 0.0, EA, a));
-    system.add_element(&[node_02, node_07], BarElement::new(rhoA, 0.0, EA, a));
-    system.add_element(&[node_03, node_08], BarElement::new(rhoA, 0.0, EA, a));
-    system.add_element(&[node_04, node_09], BarElement::new(rhoA, 0.0, EA, a));
-    system.add_element(&[node_05, node_10], BarElement::new(rhoA, 0.0, EA, a));
+    system.add_element(&[&node_01, &node_06], BarElement::new(rhoA, 0.0, EA, a));
+    system.add_element(&[&node_02, &node_07], BarElement::new(rhoA, 0.0, EA, a));
+    system.add_element(&[&node_03, &node_08], BarElement::new(rhoA, 0.0, EA, a));
+    system.add_element(&[&node_04, &node_09], BarElement::new(rhoA, 0.0, EA, a));
+    system.add_element(&[&node_05, &node_10], BarElement::new(rhoA, 0.0, EA, a));
 
-    system.add_element(&[node_01, node_07], BarElement::new(rhoA, 0.0, EA, SQRT_2* a));
-    system.add_element(&[node_07, node_03], BarElement::new(rhoA, 0.0, EA, SQRT_2* a));
-    system.add_element(&[node_03, node_09], BarElement::new(rhoA, 0.0, EA, SQRT_2* a));
-    system.add_element(&[node_09, node_05], BarElement::new(rhoA, 0.0, EA, SQRT_2* a));
+    system.add_element(&[&node_01, &node_07], BarElement::new(rhoA, 0.0, EA, SQRT_2* a));
+    system.add_element(&[&node_07, &node_03], BarElement::new(rhoA, 0.0, EA, SQRT_2* a));
+    system.add_element(&[&node_03, &node_09], BarElement::new(rhoA, 0.0, EA, SQRT_2* a));
+    system.add_element(&[&node_09, &node_05], BarElement::new(rhoA, 0.0, EA, SQRT_2* a));
 
     system.add_force(node_02.y(), move |_t|{ -F_ref });
     system.add_force(node_04.y(), move |_t|{ -F_ref });
@@ -137,24 +137,24 @@ fn nonlinear_bar_truss_1() {
     let rhoA = 0.785;
 
     let mut system = System::new();
-    let n1 = system.create_point_node(&vector![0.0, 0.0], Constraints::all_fixed());
-    let n2 = system.create_point_node(&vector![a, b], Constraints::y_pos_free());
-    let e1 = system.add_element(&[n1, n2], BarElement::new(rhoA, 0.0, EA, f64::hypot(a, b)));
-    system.add_force(n2.y(), |_t| { -1.0 });
+    let node1 = system.create_point_node(&vector![0.0, 0.0], Constraints::all_fixed());
+    let node2 = system.create_point_node(&vector![a, b], Constraints::y_pos_free());
+    let element = system.add_element(&[&node1, &node2], BarElement::new(rhoA, 0.0, EA, f64::hypot(a, b)));
+    system.add_force(node2.y(), |_t| { -1.0 });
 
     let mut plotter = Plotter::new();
     let mut solver = StaticSolver::new(&mut system, Settings::default());
 
-    let result = solver.equilibrium_path_displacement_controlled(n2.y(), -b, 100, &mut |system, statics| {
-        let y = system.get_displacement(n2.y());
+    let result = solver.equilibrium_path_displacement_controlled(node2.y(), -b, 100, &mut |system, statics| {
+        let y = system.get_displacement(node2.y());
         let ly = f64::hypot(a, y);
         let l0 = f64::hypot(a, b);
 
         let N_ref = EA*(ly - l0)/l0;
         let F_ref = y*N_ref/ly;
 
-        let N_sys = system.element_ref::<BarElement>(e1).normal_force();
-        let F_sys = statics.get_scaled_external_force(n2.y());
+        let N_sys = system.element_ref::<BarElement>(element).normal_force();
+        let F_sys = statics.get_scaled_external_force(node2.y());
 
         plotter.add_point((y, F_sys), (y, F_ref), "Applied Force", "y [m]", "F [N]");
         plotter.add_point((y, N_sys), (y, N_ref), "Normal Force", "y [m]", "N [N]");
@@ -181,8 +181,8 @@ fn nonlinear_bar_truss_2() {
     let node1 = system.create_point_node(&vector![a, c], Constraints::all_free());
     let node2 = system.create_point_node(&vector![a + b, 0.0], Constraints::all_fixed());
 
-    let bar01 = system.add_element(&[node0, node1], BarElement::new(rhoA, 0.0, EA, f64::hypot(a, c)));
-    let bar12 = system.add_element(&[node1, node2], BarElement::new(rhoA, 0.0, EA, f64::hypot(b, c)));
+    let bar01 = system.add_element(&[&node0, &node1], BarElement::new(rhoA, 0.0, EA, f64::hypot(a, c)));
+    let bar12 = system.add_element(&[&node1, &node2], BarElement::new(rhoA, 0.0, EA, f64::hypot(b, c)));
 
     system.add_force(node1.y(), |_t| { -1.0 });
 

@@ -37,7 +37,7 @@ fn verify_analytic_damping_ratio() {
     // Add bar elements between nodes
     for i in 0..nodes.len()-1 {
         let l = lengths[i+1] - lengths[i];
-        system.add_element(&[nodes[i], nodes[i+1]], BarElement::new(rhoA, etaA, EA, l));
+        system.add_element(&[&nodes[i], &nodes[i+1]], BarElement::new(rhoA, etaA, EA, l));
     }
 
     // Compute eigen-modes of the system and compare with analytical solution
