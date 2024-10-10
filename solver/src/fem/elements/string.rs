@@ -6,9 +6,8 @@ use crate::numerics::geometry::{convex_envelope, Orientation};
 
 pub struct StringElement {
     // Constant data
-    rhoA: f64,            // Linear density
-    etaA: f64,            // Linear damping
     EA: f64,              // Linear stiffness
+    ηA: f64,            // Linear damping
     l0: f64,              // Initial length
     offsets: Vec<f64>,    // Distances between limb nodes and contact points
 
@@ -26,14 +25,13 @@ pub struct StringElement {
 }
 
 impl StringElement {
-    pub fn new(rhoA: f64, etaA: f64, EA: f64, l0: f64, offsets: Vec<f64>) -> Self {
+    pub fn new(EA: f64, ηA: f64, l0: f64, offsets: Vec<f64>) -> Self {
         let n_points = offsets.len();
 
         Self {
-            rhoA,
-            etaA,
             EA,
-            l0: l0,
+            ηA,
+            l0,
             offsets,
             points: vec![SVector::zeros(); n_points],   // Size: Number of nodes,
             angles: vec![0.0; n_points],                // Size: Number of nodes,
@@ -49,14 +47,47 @@ impl StringElement {
     }
 
     // Creates a string element between two points without offsets, equivalent to a bar element
-    pub fn bar(rhoA: f64, etaA: f64, EA: f64, l0: f64) -> Self {
-        Self::new(rhoA, etaA, EA, l0, vec![0.0; 2])
+    pub fn bar(EA: f64, ηA: f64, l0: f64) -> Self {
+        Self::new(EA, ηA, l0, vec![0.0; 2])
     }
+
+    // Creates a bar with spring parameters, i.e. mass (total), damping and stiffness instead of cross section properties
+    pub fn spring(k: f64, d: f64, l0: f64) -> Self {
+        Self::bar(k*l0, d*l0, l0)
+    }
+
+    pub fn get_initial_length(&self) -> f64 {
+        self.l0
+    }
+
+    pub fn set_initial_length(&mut self, l0: f64) {
+        self.l0 = l0;
+    }
+
+    pub fn set_linear_damping(&mut self, ηA: f64) {
+        self.ηA = ηA;
+    }
+
+    // Total normal force
+    pub fn normal_force(&self) -> f64 {
+        self.Nt
+    }
+
+    // Elastic component of the normal force
+    pub fn normal_force_elastic(&self) -> f64 {
+        self.Ne
+    }
+
+    // Viscous component of the normal force
+    pub fn normal_force_viscous(&self) -> f64 {
+        self.Nv
+    }
+
 }
 
 impl Element for StringElement {
-    fn evaluate_mass_matrix(&self, M: &mut VectorView) {
-
+    fn evaluate_mass_matrix(&self, _M: &mut VectorView) {
+        // Element has no mass properties
     }
 
     fn set_state_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, mut q: Option<&mut VectorView>, mut K: Option<&mut MatrixView>, mut D: Option<&mut MatrixView>) {
@@ -170,7 +201,7 @@ impl Element for StringElement {
         let dldt: f64 = self.dldu.iter().enumerate().map(|(i, dldu)| dldu*v.at(i)).sum();
 
         self.Ne = self.EA/self.l0 *(self.lt - self.l0);
-        self.Nv = self.etaA/self.l0* dldt;
+        self.Nv = self.ηA /self.l0*dldt;
         self.Nt = self.Ne + self.Nv;
 
         if let Some(ref mut q) = q {
@@ -183,7 +214,7 @@ impl Element for StringElement {
             for j in 0..self.dldu.len() {
                 let dldt_du_j: f64 = self.dldu2.column(j).iter().enumerate().map(|(k, dldu2)| dldu2*v.at(k)).sum();
                 for i in 0..self.dldu.len() {
-                    K.add(i, j, self.EA/self.l0*self.dldu[j]*self.dldu[i] + self.etaA/self.l0* dldt_du_j *self.dldu[i] + self.Nt*self.dldu2[(j, i)]);
+                    K.add(i, j, self.EA/self.l0*self.dldu[j]*self.dldu[i] + self.ηA/self.l0*dldt_du_j *self.dldu[i] + self.Nt*self.dldu2[(j, i)]);
                 }
             }
         }
@@ -191,7 +222,7 @@ impl Element for StringElement {
         if let Some(ref mut D) = D {
             for i in 0..self.dldu.len() {
                 for j in 0..self.dldu.len() {
-                    D.add(i, j, self.etaA/self.l0*self.dldu[i]*self.dldu[j]);
+                    D.add(i, j, self.ηA /self.l0*self.dldu[i]*self.dldu[j]);
                 }
             }
         }

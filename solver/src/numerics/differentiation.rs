@@ -145,7 +145,7 @@ fn diff_ridders<F>(function: &mut F, origin: f64, mut stepsize: f64, contract: f
             // Compute extrapolations of various orders, requiring no new function evaluations.
             // This is a recursion relation based on Neville's method.
             let factor = contract.powi(2*j as i32);
-            let current_estimate = (&table[i][j-1]* factor - &table[i-1][j-1])/(factor - 1.0);
+            let current_estimate = (&table[i][j-1]*factor - &table[i-1][j-1])/(factor - 1.0);
             table[i].push(current_estimate.clone());
 
             // The error strategy is to compare each new extrapolation to one

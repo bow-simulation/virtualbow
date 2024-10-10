@@ -1,7 +1,6 @@
 use nalgebra::vector;
-use crate::fem::elements::bar::BarElement;
 use crate::fem::elements::mass::MassElement;
-use crate::fem::system::nodes::Constraints;
+use crate::fem::system::node::Constraints;
 use crate::fem::system::system::System;
 use crate::bow::sections::section::{LayerAlignment, LayeredCrossSection};
 use crate::bow::input::{Layer, Material, Width};
@@ -22,23 +21,8 @@ fn mass_element() {
     let m = 1.5;
 
     let mut system = System::new();
-    let node = system.create_point_node(&vector![0.0, 0.0], Constraints::all_free());
-    system.add_element(&[&node], MassElement::new(m));
-
-    utils::checks::check_system_invariants(&mut system);
-}
-
-#[test]
-fn bar_element() {
-    let L = 1.5;
-    let EA = 2100.0;
-    let etaA = 400.0;
-    let rhoA = 0.785;
-
-    let mut system = System::new();
-    let node1 = system.create_point_node(&vector![0.0, 0.0], Constraints::all_free());
-    let node2 = system.create_point_node(&vector![0.0, 0.0], Constraints::all_free());
-    system.add_element(&[&node1, &node2], BarElement::new(rhoA, etaA, EA, L));
+    let node = system.create_node(&vector![0.0, 0.0, 0.0], Constraints::all_free());
+    system.add_element(&[node], MassElement::new(m));
 
     utils::checks::check_system_invariants(&mut system);
 }
@@ -47,19 +31,18 @@ fn bar_element() {
 fn string_element() {
     let L = 1.5;
     let EA = 2100.0;
-    let etaA = 400.0;
-    let rhoA = 0.785;
+    let ηA = 400.0;
 
     let mut system = System::new();
-    let node0 = system.create_oriented_node(&vector![0.0, 0.0, FRAC_PI_2 + 0.1], Constraints::all_free());
-    let node1 = system.create_oriented_node(&vector![-1.0, 1.0, FRAC_PI_2 + 0.1], Constraints::all_free());
-    let node2 = system.create_oriented_node(&vector![0.0, 2.0, FRAC_PI_2 + 0.1], Constraints::all_free());
-    let node3 = system.create_oriented_node(&vector![0.0, 2.5, FRAC_PI_2 + 0.1], Constraints::all_free());
-    let node4 = system.create_oriented_node(&vector![0.0, 3.0, FRAC_PI_2 + 0.1], Constraints::all_free());
+    let node0 = system.create_node(&vector![0.0, 0.0, FRAC_PI_2 + 0.1], Constraints::all_free());
+    let node1 = system.create_node(&vector![-1.0, 1.0, FRAC_PI_2 + 0.1], Constraints::all_free());
+    let node2 = system.create_node(&vector![0.0, 2.0, FRAC_PI_2 + 0.1], Constraints::all_free());
+    let node3 = system.create_node(&vector![0.0, 2.5, FRAC_PI_2 + 0.1], Constraints::all_free());
+    let node4 = system.create_node(&vector![0.0, 3.0, FRAC_PI_2 + 0.1], Constraints::all_free());
 
     let offsets = vec![0.1, -0.1, -0.15, -0.15, -0.1];
 
-    system.add_element(&[&node0, &node1, &node2, &node3, &node4], StringElement::new(rhoA, etaA, EA, L, offsets));
+    system.add_element(&[node0, node1, node2, node3, node4], StringElement::new(EA, ηA, L, offsets));
 
     utils::checks::check_system_invariants(&mut system);
 }
@@ -80,9 +63,9 @@ fn beam_element() {
     element.set_damping(0.1);
 
     let mut system = System::new();
-    let node0 = system.create_oriented_node(&segment.p0, Constraints::all_free());
-    let node1 = system.create_oriented_node(&segment.p1, Constraints::all_free());
-    system.add_element(&[&node0, &node1], element);
+    let node0 = system.create_node(&segment.p0, Constraints::all_free());
+    let node1 = system.create_node(&segment.p1, Constraints::all_free());
+    system.add_element(&[node0, node1], element);
 
     utils::checks::check_system_invariants(&mut system);
 }

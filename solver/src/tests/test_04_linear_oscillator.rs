@@ -2,10 +2,10 @@ use crate::fem::solvers::eigen::natural_frequencies_from_matrices;
 use std::f64::consts::{PI, TAU};
 use iter_num_tools::lin_space;
 use nalgebra::{Complex, ComplexField, DMatrix, DVector, Dyn, LU, stack, vector};
-use crate::fem::elements::bar::BarElement;
 use crate::fem::elements::mass::MassElement;
+use crate::fem::elements::string::StringElement;
 use crate::fem::solvers::dynamics::{DynamicSolver, Settings};
-use crate::fem::system::nodes::{Constraints, PointNode};
+use crate::fem::system::node::{Constraints, Node};
 use crate::fem::system::system::System;
 use crate::tests::utils;
 use crate::tests::utils::plotter::Plotter;
@@ -26,11 +26,11 @@ fn mass_spring_damper_1() {
     let x0 = 0.1;   // Initial displacement
 
     let mut system = System::new();
-    let node_a = system.create_point_node(&vector![0.0, 0.0], Constraints::all_fixed());
-    let node_b = system.create_point_node(&vector![l + x0, 0.0], Constraints::x_pos_free());
+    let node_a = system.create_node(&vector![0.0, 0.0, 0.0], Constraints::all_fixed());
+    let node_b = system.create_node(&vector![l + x0, 0.0, 0.0], Constraints::x_pos_free());
 
-    system.add_element(&[&node_a, &node_b], BarElement::spring(0.0, d, k, l));
-    system.add_element(&[&node_b], MassElement::new(m));
+    system.add_element(&[node_a, node_b], StringElement::spring(k, d, l));
+    system.add_element(&[node_b], MassElement::new(m));
     utils::checks::check_system_invariants(&mut system);
 
     // Constants for the analytical solution
@@ -122,7 +122,7 @@ fn mass_spring_damper_n() {
     // Finite element solution
 
     let mut system = System::new();
-    let mut nodes = Vec::<PointNode>::new();
+    let mut nodes = Vec::<Node>::new();
 
     let lengths: Vec<f64> = lin_space(0.0..=L, n+2).collect();
     for (i, s) in lengths.iter().enumerate() {
@@ -131,18 +131,18 @@ fn mass_spring_damper_n() {
         } else {
             (*s, Constraints::all_fixed())
         };
-        nodes.push(system.create_point_node(&vector![position, 0.0], constraints));
+        nodes.push(system.create_node(&vector![position, 0.0, 0.0], constraints));
     }
 
     // Add bar elements between nodes
     for i in 0..nodes.len()-1 {
         let l = lengths[i+1] - lengths[i];
-        system.add_element(&[&nodes[i], &nodes[i+1]], BarElement::spring(0.0, d, k, l));
+        system.add_element(&[nodes[i], nodes[i+1]], StringElement::spring(k, d, l));
     }
 
     // Add mass elements at nodes
     for i in 1..nodes.len()-1 {
-        system.add_element(&[&nodes[i]], MassElement::new(m));
+        system.add_element(&[nodes[i]], MassElement::new(m));
     }
 
     // Add external forces
