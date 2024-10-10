@@ -133,8 +133,8 @@ fn linear_straight_uniform_cantilever() {
 
         // Analytical reference solution (https://en.wikipedia.org/wiki/Timoshenko%E2%80%93Ehrenfest_beam_theory)
         let x_ref = setup.limb.length[i];
-        let y_ref = F/GA* x_num - F/EI* x_num.powi(2)*(x_num/6.0 - l/2.0);
-        let φ_ref = F/EI* x_num*(l - x_num/2.0);
+        let y_ref = F/GA*x_num - F/EI*x_num.powi(2)*(x_num/6.0 - l/2.0);
+        let φ_ref = F/EI*x_num*(l - x_num/2.0);
         let N_ref = 0.0;
         let M_ref = F*(l - x_num);
         let Q_ref = F;

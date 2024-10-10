@@ -1,10 +1,10 @@
 use std::f64::consts::PI;
 use nalgebra::vector;
 use spec_math::Ellip;
-use crate::fem::elements::bar::BarElement;
 use crate::fem::elements::mass::MassElement;
+use crate::fem::elements::string::StringElement;
 use crate::fem::solvers::dynamics::{DynamicSolver, Settings};
-use crate::fem::system::nodes::Constraints;
+use crate::fem::system::node::Constraints;
 use crate::fem::system::system::System;
 use crate::tests::utils;
 use crate::tests::utils::plotter::Plotter;
@@ -32,11 +32,11 @@ fn nonlinear_pendulum() {
     let c = f64::sin(φ0 /2.0);
 
     let mut system = System::new();
-    let node_a = system.create_point_node(&vector![0.0, 0.0], Constraints::all_fixed());
-    let node_b = system.create_point_node(&vector![x0, y0], Constraints::all_free());
+    let node_a = system.create_node(&vector![0.0, 0.0, 0.0], Constraints::all_fixed());
+    let node_b = system.create_node(&vector![x0, y0, 0.0], Constraints::pos_free());
 
-    system.add_element(&[&node_a, &node_b], BarElement::spring(0.0, d, k, l));
-    system.add_element(&[&node_b], MassElement::new(m));
+    system.add_element(&[node_a, node_b], StringElement::spring(k, d, l));
+    system.add_element(&[node_b], MassElement::new(m));
     system.add_force(node_b.y(), move |_t| -m*g);
 
     utils::checks::check_system_invariants(&mut system);

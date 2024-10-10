@@ -1,22 +1,25 @@
-use nalgebra::SVector;
+use nalgebra::{SVector, vector};
 
 use crate::fem::system::{element::Element, views::{MatrixView, PositionView, VelocityView, VectorView}};
 
 pub struct MassElement {
-    M: SVector<f64, 2>,    // Mass matrix
-    v: SVector<f64, 2>,    // Current velocity
+    M: SVector<f64, 3>,    // Mass matrix
+    v: SVector<f64, 3>,    // Current velocity
 }
 
 impl MassElement {
     pub fn new(m: f64) -> Self {
-        Self {
-            M: SVector::from_element(m),
+        let mut element = Self {
+            M: SVector::zeros(),
             v: SVector::zeros()
-        }
+        };
+
+        element.set_mass(m);
+        element
     }
 
     pub fn set_mass(&mut self, m: f64) {
-        self.M = SVector::from_element(m);
+        self.M = vector![m, m, 0.0];
     }
 }
 

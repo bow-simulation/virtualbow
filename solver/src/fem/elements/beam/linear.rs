@@ -115,8 +115,8 @@ impl LinearBeamSegment {
         // Lumped mass matrix
 
         let sm = 0.5*(s0 + s1);  // Segment midpoint
-        let m0 = integrate_fixed(|s|{ vector![ section.rhoA(s) ] }, s0, sm, n_integration)[0];    // Mass of the first segment half
-        let m1 = integrate_fixed(|s|{ vector![ section.rhoA(s) ] }, sm, s1, n_integration)[0];    // Mass of the second segment half
+        let m0 = integrate_fixed(|s|{ vector![ section.ρA(s) ] }, s0, sm, n_integration)[0];    // Mass of the first segment half
+        let m1 = integrate_fixed(|s|{ vector![ section.ρA(s) ] }, sm, s1, n_integration)[0];    // Mass of the second segment half
         let J0 = 0.5*(s1 - s0)*section.rhoI(s0);    // Lumped rotary inertia of the first node
         let J1 = 0.5*(s1 - s0)*section.rhoI(s1);    // Lumped rotary inertia of the second node
 
@@ -133,11 +133,11 @@ impl LinearBeamSegment {
         // Alternative: integrating both mass and rotary inertia at the nodes only
         // TODO: Test against natural frequencies and decide
         let M = 0.5*(s1 - s0)*vector![
-            section.rhoA(s0),
-            section.rhoA(s0),
+            section.ρA(s0),
+            section.ρA(s0),
             section.rhoI(s0),
-            section.rhoA(s1),
-            section.rhoA(s1),
+            section.ρA(s1),
+            section.ρA(s1),
             section.rhoI(s1)
         ];
         */

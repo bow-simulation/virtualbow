@@ -39,7 +39,7 @@ pub trait PlanarCurve {
 // Cross section properties, parameterized over arc length s
 pub trait CrossSection {
     // Linear density, i.e. mass per unit length
-    fn rhoA(&self, s: f64) -> f64;
+    fn ρA(&self, s: f64) -> f64;
 
     // Rotary inertia per unit length
     fn rhoI(&self, s: f64) -> f64;

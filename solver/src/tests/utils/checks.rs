@@ -16,6 +16,20 @@ pub fn check_system_invariants(system: &mut System) {
 
     // Generate random states and check each of them
     let n_samples = 10*system.n_dofs();
+
+    // Zero velocity
+    for _ in 0..n_samples {
+        let u = &u_backup + 0.1*DVector::<f64>::new_random(system.n_dofs()).add_scalar(-0.5);
+        let v = DVector::<f64>::zeros(system.n_dofs());
+
+        check_mass_matrix(system);
+        check_stiffness_matrix(system, &u, &v);
+        check_damping_matrix(system, &u, &v);
+        check_kinetic_energy(system, &u, &v);
+        check_potential_energy(system, &u);
+    }
+
+    // Nonzero velocity
     for _ in 0..n_samples {
         let u = &u_backup + 0.1*DVector::<f64>::new_random(system.n_dofs()).add_scalar(-0.5);
         let v = &v_backup + 0.1*DVector::<f64>::new_random(system.n_dofs()).add_scalar(-0.5);
@@ -61,11 +75,12 @@ pub fn check_stiffness_matrix(system: &mut System, u: &DVector<f64>, v: &DVector
     // Check error of the derivative approximation
     // assert!(error < NUM_DIFF_MAX_ERROR);
 
-    // Tangent stiffness matrix must be symmetric
-    // TODO: Not under the influence of damping though, test this with v = 0
-    // assert_abs_diff_eq!(&K_sys, &K_sys.transpose(), epsilon=K_num.amax()*EPSILON_RELATIVE + EPSILON_ABSOLUTE);
+    // Tangent stiffness matrix must be symmetric, if there is no velocity influence
+    if v.amax() == 0.0 {
+        assert_abs_diff_eq!(&K_sys, &K_sys.transpose(), epsilon=K_num.amax()*EPSILON_RELATIVE + EPSILON_ABSOLUTE);
+    }
 
-    // Tangent stiffness matrix must be equal to numeric derivative
+    // Tangent stiffness matrix must be equal to numeric derivative of the internal forces
     assert_abs_diff_eq!(&K_sys, &K_num, epsilon=K_num.amax()*EPSILON_RELATIVE + EPSILON_ABSOLUTE)
 }
 
@@ -95,7 +110,7 @@ pub fn check_damping_matrix(system: &mut System, u: &DVector<f64>, v: &DVector<f
     // TODO: Not in general though (gyroscopic forces?)
     // assert_abs_diff_eq!(&D_sys, &D_sys.transpose(), epsilon=D_num.amax()*EPSILON_RELATIVE + EPSILON_ABSOLUTE);
 
-    // Tangent damping matrix must be equal to numeric derivative
+    // Tangent damping matrix must be equal to numeric derivative of the internal forces
     assert_abs_diff_eq!(&D_sys, &D_num, epsilon=D_num.amax()*EPSILON_RELATIVE + EPSILON_ABSOLUTE);
 }
 

@@ -1,8 +1,8 @@
 use super::element::Element;
 use super::dof::Dof;
-use super::nodes::{Node, PointNode, OrientedNode};
+use super::node::Node;
 use super::views::{PositionView, VelocityView, VectorView, MatrixView};
-use super::nodes::Constraints;
+use super::node::Constraints;
 use nalgebra::{DMatrix, DVector, SVector};
 use crate::fem::system::views::{AccelerationView, ForceView};
 
@@ -153,7 +153,7 @@ impl System {
     }
 
     // Adds an element to the system by specifying its nodes (connectivity) and the element itself.
-    pub fn add_element<E>(&mut self, nodes: &[&dyn Node], element: E) -> usize
+    pub fn add_element<E>(&mut self, nodes: &[Node], element: E) -> usize
         where E: Element + Send + 'static
     {
         let mut dofs = Vec::new();
@@ -173,21 +173,14 @@ impl System {
         self.forces.push((dof, Box::new(force)));
     }
 
-    // Creates a planar node with two degrees of freedom in x and y direction.
-    pub fn create_point_node(&mut self, u: &SVector<f64, 2>, constraints: Constraints) -> PointNode {
-        let dof_x = if constraints.x_pos_fixed { Dof::Fixed(u[0]) } else { self.create_free_dof(u[0], 0.0) };
-        let dof_y = if constraints.y_pos_fixed { Dof::Fixed(u[1]) } else { self.create_free_dof(u[1], 0.0) };
-
-        PointNode::new(dof_x, dof_y)
-    }
 
     // Creates a planar node with three degrees of freedom, two displacements in x and y and a rotation angle.
-    pub fn create_oriented_node(&mut self, u: &SVector<f64, 3>, constraints: Constraints) -> OrientedNode {
+    pub fn create_node(&mut self, u: &SVector<f64, 3>, constraints: Constraints) -> Node {
         let dof_x = if constraints.x_pos_fixed { Dof::Fixed(u[0]) } else { self.create_free_dof(u[0], 0.0) };
         let dof_y = if constraints.y_pos_fixed { Dof::Fixed(u[1]) } else { self.create_free_dof(u[1], 0.0) };
-        let dof_φ = if constraints.y_pos_fixed { Dof::Fixed(u[2]) } else { self.create_free_dof(u[2], 0.0) };
+        let dof_φ = if constraints.z_rot_fixed { Dof::Fixed(u[2]) } else { self.create_free_dof(u[2], 0.0) };
 
-        OrientedNode::new(dof_x, dof_y, dof_φ)
+        Node::new(dof_x, dof_y, dof_φ)
     }
 
     // Creates a single unconstrained dof with initial position and velocity. Mainly used internally.
@@ -209,12 +202,12 @@ impl System {
 
     pub fn element_ref<T: Element + 'static>(&self, index: usize) -> &T {
         let (_, element) = &self.elements[index];
-        element.downcast_ref::<T>().expect("Bad element cast!")
+        element.downcast_ref::<T>().expect("Invalid element cast!")
     }
 
     pub fn element_mut<T: Element + 'static>(&mut self, index: usize) -> &mut T {
         let (_, element) = &mut self.elements[index];
-        element.downcast_mut::<T>().expect("Bad element cast!")
+        element.downcast_mut::<T>().expect("Invalid element cast!")
     }
 
     pub fn get_time(&self) -> f64 {

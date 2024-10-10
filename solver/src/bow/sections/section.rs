@@ -173,7 +173,7 @@ impl LayeredCrossSection {
 }
 
 impl CrossSection for LayeredCrossSection {
-    fn rhoA(&self, s: f64) -> f64 {
+    fn ρA(&self, s: f64) -> f64 {
         let p = s/self.length;
         let w = self.width.value(p, Extrapolation::Constant);
         self.layers.iter().map(|layer| {
@@ -376,7 +376,7 @@ mod tests {
 
         assert_abs_diff_eq!(section.width(s), w, epsilon=1e-9);
         assert_abs_diff_eq!(section.height(s), h, epsilon=1e-9);
-        assert_abs_diff_eq!(section.rhoA(s), rho*w*h, epsilon=1e-9);
+        assert_abs_diff_eq!(section.ρA(s), rho*w*h, epsilon=1e-9);
         assert_abs_diff_eq!(section.C(s), C_ref, epsilon=1e-9);
 
         // Reference point is section back
@@ -389,7 +389,7 @@ mod tests {
 
         assert_abs_diff_eq!(section.width(s), w, epsilon=1e-9);
         assert_abs_diff_eq!(section.height(s), h, epsilon=1e-9);
-        assert_abs_diff_eq!(section.rhoA(s), rho*w*h, epsilon=1e-9);
+        assert_abs_diff_eq!(section.ρA(s), rho*w*h, epsilon=1e-9);
         assert_abs_diff_eq!(section.C(s), C_ref, epsilon=1e-9);
 
         // Reference point is section belly
@@ -402,7 +402,7 @@ mod tests {
 
         assert_abs_diff_eq!(section.width(s), w, epsilon=1e-9);
         assert_abs_diff_eq!(section.height(s), h, epsilon=1e-9);
-        assert_abs_diff_eq!(section.rhoA(s), rho*w*h, epsilon=1e-9);
+        assert_abs_diff_eq!(section.ρA(s), rho*w*h, epsilon=1e-9);
         assert_abs_diff_eq!(section.C(s), C_ref, epsilon=1e-9);
    }
 
@@ -461,7 +461,7 @@ mod tests {
 
         assert_abs_diff_eq!(section.width(s), w, epsilon=1e-12);
         assert_abs_diff_eq!(section.height(s), h1 + h2 + h3, epsilon=1e-12);
-        assert_abs_diff_eq!(section.rhoA(s), rho1*A1 + rho2*A2 + rho3*A3, epsilon=1e-12);
+        assert_abs_diff_eq!(section.ρA(s), rho1*A1 + rho2*A2 + rho3*A3, epsilon=1e-12);
         assert_abs_diff_eq!(section.C(s), C_ref, epsilon=1e-9);
     }
 
