@@ -1,0 +1,96 @@
+\begin{thebibliography}{10}
+
+\bibitem{bib:ahnert2011}
+Karsten Ahnert and Mario Mulansky.
+\newblock Odeint – solving ordinary differential equations in c++.
+\newblock {\em AIP Conference Proceedings}, 1389(1):1586--1589, 2011.
+
+\bibitem{bib:bathe2006}
+K.J. Bathe.
+\newblock {\em Finite Element Procedures}.
+\newblock Prentice Hall, 2006.
+
+\bibitem{bib:chung1993}
+J.~Chung and G.~M. Hulbert.
+\newblock {A Time Integration Algorithm for Structural Dynamics With Improved
+  Numerical Dissipation: The Generalized-$\alpha$ Method}.
+\newblock {\em Journal of Applied Mechanics}, 60(2):371--375, 06 1993.
+
+\bibitem{bib:dw07}
+David~M. Day and Timothy~F. Walsh.
+\newblock Quadratic eigenvalue problems.
+\newblock Technical report, Sandia National Laboratories, 2007.
+
+\bibitem{bib:erlicher2002}
+S.~Erlicher, L.~Bonaventura, and O.~S. Bursi.
+\newblock The analysis of the generalized-$\alpha$ method for non-linear
+  dynamic problems.
+\newblock {\em Computational Mechanics}, 28(2):83--104, Mar 2002.
+
+\bibitem{bib:fc80}
+F.~N. Fritsch and R.~E. Carlson.
+\newblock Monotone piecewise cubic interpolation.
+\newblock {\em SIAM Journal on Numerical Analysis}, 17(2):238--246, 1980.
+
+\bibitem{bib:rayleigh-damping}
+Guillermo Giraldo.
+\newblock How to compute the coefficients for rayleigh damping?
+\newblock
+  \url{https://www.simscale.com/knowledge-base/rayleigh-damping-coefficients},
+  2021.
+\newblock [Online; accessed 24-September-2024].
+
+\bibitem{bib:tm2}
+Dietmar Gross, Werner Hauger, Jörg Schröder, and Wolfgang~A. Wall.
+\newblock {\em Technische Mechanik 2: - Elastostatik (Springer-Lehrbuch)}.
+\newblock Springer, Berlin, 11 edition, 2011.
+
+\bibitem{bib:hi37}
+C.~N. Hickman.
+\newblock The dynamics of a bow and arrow.
+\newblock {\em Journal of Applied Physics}, 8(6):404--409, 1937.
+
+\bibitem{bib:hulbert1995}
+Gregory~M. Hulbert and Insik Jang.
+\newblock Automatic time step control algorithms for structural dynamics.
+\newblock {\em Computer Methods in Applied Mechanics and Engineering},
+  126(1):155--178, 1995.
+
+\bibitem{bib:kooi81}
+B.~W. Kooi.
+\newblock On the mechanics of the bow and arrow.
+\newblock {\em Journal of Engineering Mathematics}, 15(2):119--145, Apr 1981.
+
+\bibitem{bib:kooi91}
+B.~W. Kooi.
+\newblock On the mechanics of the modern working-recurve bow.
+\newblock {\em Computational Mechanics}, 8(5):291--304, Sep 1991.
+
+\bibitem{bib:kosp80}
+B.~W. Kooi and J.~A. Sparenberg.
+\newblock On the static deformation of a bow.
+\newblock {\em Journal of Engineering Mathematics}, 14(1):27--45, Jan 1980.
+
+\bibitem{bib:kosp97}
+B.~W. Kooi and J.~A. Sparenberg.
+\newblock On the mechanics of the arrow: Archer's paradox.
+\newblock {\em Journal of Engineering Mathematics}, 31(2):285--303, May 1997.
+
+\bibitem{bib:li95}
+G.~Lallement and Daniel Inman.
+\newblock A tutorial on complex eigenvalues.
+\newblock {\em Proceedings of SPIE - The International Society for Optical
+  Engineering}, 01 1995.
+
+\bibitem{bib:ma80}
+W.~C. Marlow.
+\newblock Bow and arrow dynamics.
+\newblock {\em American Journal of Physics}, 49(4):320--333, 1981.
+
+\bibitem{bib:catenary}
+Wikipedia.
+\newblock {Catenary} --- {W}ikipedia{,} the free encyclopedia.
+\newblock \url{https://en.wikipedia.org/wiki/Catenary}, 2022.
+\newblock [Online; accessed 04-October-2022].
+
+\end{thebibliography}
