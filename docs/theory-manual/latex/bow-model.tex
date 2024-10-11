@@ -82,6 +82,83 @@ In subsequent papers titled \textit{On the mechanics of the bow and arrow}~\cite
 
 In the paper \textit{On the Mechanics of the Arrow: Archer's Paradox}~\cite{bib:kosp97}, Kooi refines his model even more by including an elastic arrow with a sliding contact to the bow's grip. This makes it possible to analyze the Archer's Paradox: The phenomenon of arrows going around the grip of a bow by performing a bending motion in the horizontal plane. The dynamics of the arrow are however treated partly decoupled from the bow's dynamics: Only the influence of the bow on the arrow's motion is considered, the other way around is neglected. This is in line with our assumption from section~\ref{section:model-scope} that the bending motion of the arrow doesn't contribute much to a bow's overall performance and is therefore out of scope for our model.
 
+\newpage
+\section{Beam Theories}
+
+Consider a sandwich cantilever beam of length $L = 0.6\,\unit{m}$ that consists of a core layer, covered by two equal face layers.
+The core layer has a thickness of $t_c$ and a shear modulus of $G_c$ and the face sheets have a thickness of $t_f$ and an elastic modulus of $E_f$ depending on the choice of material.
+
+According to Zenkert (An Introduction to Sandwich Structures), the deflection of such a beam, assuming that the stiffness of the face sheets is much higher than that of the core, is calculated as the sum of bending deformation $w_b$ and shear deformation $w_s$ as
+
+\begin{align}
+w_s &= \frac{FL}{S} \\
+w_b &= \frac{FL^3}{3D}
+\end{align}
+
+with the shear stiffness $S = \frac{G_c d^2}{t_c}$ and the bending stiffness $D = \frac{E_f t_f d^2}{2}$.
+Since we are interested in the relevance of the shear deformation compared to the bending deformation, we calculate the ratio of the two as
+
+\begin{equation}
+\eta = \frac{w_s}{w_b} = \frac{FL}{S}\frac{3D}{FL^3} = \frac{3D}{SL^2}
+\end{equation}
+
+Table \ref{tbl:material-shear-ratio} shows this ratio for different combinations of materials.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{| c | c c c c |}
+\hline
+Face & Glass & Carbon & Carbon & Carbon \\
+\hline
+$E_f$ & 39000 MPa & 180000 MPa & 180000 MPa & 180000 MPa \\
+$t_f$ & 1.0\,\unit{mm} & 0.5\,\unit{mm} & 0.5\,\unit{mm} & 0.5\,\unit{mm} \\
+\hline
+Core & Wood & Wood & Foam (stiff) & Foam (soft) \\
+\hline
+$G_c$ & 3600 MPa & 3600 MPa & 150 MPa & 25 MPa \\
+$t_c$ & 4\,\unit{mm} & 4\,\unit{mm} & 4\,\unit{mm} & 4\,\unit{mm} \\
+\hline
+$\eta$ & 0.02\,\% & 0.04\,\% & 1.0\,\% & 6.0\,\% \\
+\hline
+\end{tabular}
+\caption{Table to test captions and labels.}
+\label{tbl:material-shear-ratio}
+\end{table}
+
+Wood: Hypothetical soft wood with $v = 0.4$. Others from Zenkert.
+
+% Python code used for calculations:
+%
+%	L = 0.6      # Beam length
+%	
+%	# Face: Fiberglass
+%	#Ef = 39000e6     # Face elastic modulus
+%	#tf = 0.0010      # Face thickness
+%	
+%	# Face: Carbon
+%	Ef = 180000e6     # Face elastic modulus
+%	tf = 0.0005        # Face thickness
+%	
+%	# Core: Wood
+%	#Gc = 3600e6                 # Core shear modulus
+%	#tc = 0.0040                 # Core thickness
+%	
+%	# Core: Foam (stiff)
+%	#Gc = 150e6                  # Core shear modulus
+%	#tc = 0.0040                 # Core thickness
+%	
+%	# Core: Foam (soft)
+%	Gc = 25e6                   # Core shear modulus
+%	tc = 0.0040                 # Core thickness
+%	
+%	d = tc + tf         # Distance between center of faces
+%	S = Gc*d**2/tc      # Shear stiffness
+%	D = Ef*tf*d**2/2    # Bending stiffness
+%	
+%	n = 3*D/(L**2*S)
+%	
+%	print("Ratio shear/bending: {} %".format(n*100))
+
 \section{Model Definition}
 
 We have now learned enough in order to define our own bow model. First of all a few words on the general modeling approach. As we saw in the previous section, any decently complex bow model cannot be solved analytically but has to be combined with some sort of numerical method for calculating an approximate solution. Models based on continuum mechanics (e.g. Euler-Bernoulli beam theory) always have an infinite number of degrees of freedom and will eventually have to be approximated by a discrete system with finitely many degrees of freedom in order to be solvable by a computer program. This step is called discretization. Kooi for example, like a true mathematician, formulates the complete equations of motion for his continuous bow model and only then starts to employ a discretization technique (in this case a finite difference method) to solve those equations. This results in a clear separation between the mathematical model and the numerical solution methods.

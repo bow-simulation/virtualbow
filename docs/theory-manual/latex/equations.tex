@@ -281,538 +281,6 @@ Because the internal forces are zero, the tangent stiffness and damping matrices
 \end{equation}
 
 \newpage
-\section{Bar Element}
-
-A bar only transfers forces in longitudinal direction, it has no bending stiffness. Figure~\ref{fig:bar-element-1} shows a bar with an initial length of~$l$ that is subjected to a normal force~$N$ which causes it to elongate by~$\Delta l$.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.75\textwidth]{figures/elements/bar-element-1}
-\caption{Elongation of a bar under load}
-\label{fig:bar-element-1}
-\end{figure}
-
-In order to simulate the damping properties of the string, a viscoelastic material model of the form
-
-\begin{equation}
-\sigma = E\,\varepsilon + \eta\,\dot{\varepsilon}
-\end{equation}
-
-is chosen. Here $E$ is the elastic modulus and $\eta$ the viscosity of the material. This model is called the Kelvin-Voigt model and combines linear elastic and linear viscous behaviour. The normal force in the bar given a constant cross section area $A$ is therefore
-
-\begin{align}
-N &= \sigma A \notag \\
-&= EA\,\varepsilon + \eta A\,\dot{\varepsilon} \notag \\
-&= \frac{EA}{l}\,\Delta l + \frac{\eta A}{l}\,\Delta \dot{l} \\
-&= k\,\Delta l + d\,\Delta \dot{l}.\label{eq:bar-constitutive}
-\end{align}
-
-The product~$EA$ is also called the longitudinal stiffness.
-By setting~$\varepsilon = \frac{\Delta l}{l}$ it was implicitly assumed that the strain is constant over the length of the element.
-The resulting normal force (\ref{eq:bar-constitutive}) has the same form as a linear spring with stiffness~$k = \frac{EA}{l}$ and damping~$d = \frac{\eta A}{l}$.
-
-The bar is now placed between the two nodes A and B as shown in figure~\ref{fig:bar-element-2}. Its configuration is described by the nodal displacements~$\boldsymbol{u} = (u_0,\,u_1,\,u_2,\,u_3)^\mathsf{T}$.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.6\textwidth]{figures/elements/bar-element-2}
-\caption{Bar element}
-\label{fig:bar-element-2}
-\end{figure}
-
-The position vectors of the two nodes are given by
-
-\begin{equation}
-\boldsymbol{r}_A =
-\begin{bmatrix} u_0 \\ u_1 \end{bmatrix}, \quad
-\boldsymbol{r}_B =
-\begin{bmatrix} u_2 \\ u_3 \end{bmatrix}.\label{bar:node-positions}
-\end{equation}
-
-The mass of the element is assumed to be concentrated at the nodes, so that each of them is carrying half of the total mass.
-This is called a lumped mass approach and will later lead to a constant, diagonal mass matrix.
-For a bar with density~$\rho$ the mass of a node is therefore~$\frac{1}{2}\rho A L$. With this in mind we can write down Newton's second law of motion for each of the two nodes,
-%
-\begin{align}
-\frac{\rho A L}{2}\,\ddot{\boldsymbol{r}}_A = \boldsymbol{q}_A + \boldsymbol{p}_A,\label{eq:bar-newton-1}\\
-\frac{\rho A L}{2}\,\ddot{\boldsymbol{r}}_B = \boldsymbol{q}_B + \boldsymbol{p}_B.\label{eq:bar-newton-2}
-\end{align}
-
-Here,~$\boldsymbol{q}_A$,~$\boldsymbol{q}_B$ are the elastic forces that the bar exerts to the respective nodes and~$\boldsymbol{p}_A$,~$\boldsymbol{p}_B$ are the externally applied loads. The elastic forces can be obtained by multiplying the scalar normal force~$N$ in the bar~(\ref{eq:bar-constitutive}) with the tangent vector of the connecting line between the two nodes to account for the direction.
-With defining $\Delta\boldsymbol{r} = \boldsymbol{r}_B - \boldsymbol{r}_A$ they become
-%
-\begin{equation}
-\boldsymbol{q}_A = N\cdot\frac{\Delta\boldsymbol{r}}{\lVert\Delta\boldsymbol{r}\rVert},\quad \boldsymbol{q}_B = -\boldsymbol{q}_A.\label{eq:bar-elastic}
-\end{equation}
-
-The elongation~$\Delta l$ can be calculated by subtracting the initial length of the element from its actual length,
-%
-\begin{align}
-\Delta L &= \lVert\Delta\boldsymbol{r}\rVert - l,\label{eq:bar-elongation} \\
-\Delta \dot{L} &= \frac{d}{dt}\,\lVert\Delta\boldsymbol{r}\rVert = \frac{\Delta\boldsymbol{r}^\intercal}{\lVert\Delta\boldsymbol{r}\rVert}\Delta\dot{\boldsymbol{r}}.\label{eq:bar-elongation-velocity}
-\end{align}
-
-Combining equations~(\ref{eq:bar-newton-1}),~(\ref{eq:bar-newton-2}) with~(\ref{eq:bar-elastic}),~(\ref{eq:bar-elongation}) and (\ref{eq:bar-elongation-velocity}) leads to the element's equation of motion,
-
-\begin{equation}
-\frac{\rho Al}{2}
-\begin{bmatrix}
-\ddot{\boldsymbol{r}}_A \\ \ddot{\boldsymbol{r}}_B
-\end{bmatrix}
-+
-\frac{1}{\lVert\Delta\boldsymbol{r}\rVert}
-\left(
-\frac{\eta A}{l}
-\frac{\Delta\boldsymbol{r}^\intercal\Delta\dot{\boldsymbol{r}}}{\lVert\Delta\boldsymbol{r}\rVert}
-+
-\frac{EA}{L}\left(\lVert\Delta\boldsymbol{r}\rVert - l\right)
-\right)
-\begin{bmatrix}
--\Delta\boldsymbol{r} \\ \phantom{-}\Delta\boldsymbol{r}
-\end{bmatrix}
-=
-\begin{bmatrix}
-\boldsymbol{p}_A \\ \boldsymbol{p}_B
-\end{bmatrix}.
-\end{equation}
-
-\textcolor{red}{TODO: Redo remaining calculations from here on...}
-
-With~(\ref{bar:node-positions}) and the abbreviations $\Delta x = u_{2} - u_{0}$, $\Delta y = u_{3} - u_{1}$ this expands to
-
-\begin{equation}
-\underbrace{
-\frac{\rho A L}{2}
-\begin{bmatrix}
-1\\
-& 1\\
-&& 1\\
-&&& 1
-\end{bmatrix}
-}_{\boldsymbol{M}}
-\underbrace{
-\begin{bmatrix}
-\ddot{u}_0\\
-\ddot{u}_1\\
-\ddot{u}_2\\
-\ddot{u}_3
-\end{bmatrix}
-}_{\boldsymbol{\ddot{u}}}
-+
-\underbrace{
-\frac{\eta A}{L}
-\begin{bmatrix}
--\Delta \dot{x}\\
--\Delta \dot{y}\\
-\ \ \Delta \dot{x}\\
-\ \ \Delta \dot{y}
-\end{bmatrix}
-+
-\frac{EA}{L}\left(1 - \frac{L}{\sqrt{\Delta x^2 + \Delta y^2}}\right)
-\begin{bmatrix}
--\Delta x\\
--\Delta y\\
-\ \ \Delta x\\
-\ \ \Delta y
-\end{bmatrix}
-}_{\boldsymbol{q}(\boldsymbol{u},\,\dot{\boldsymbol{u}})}
-=
-\underbrace{
-\begin{bmatrix}
-p_0\\
-p_1\\
-p_2\\
-p_3
-\end{bmatrix}
-}_{\boldsymbol{p}}.
-\end{equation}
-
-Note that the vector~$\boldsymbol{q}$ of internal forces depends on the displacements in a nonlinear way despite the bar itself being considered linear-elastic. The nonlinearity arises only from the geometry of the arbitrarily large nodal displacements. This is called geometric nonlinearity as opposed to material nonlinearity.
-
-Deriving the internal forces with respect to $\boldsymbol{u}$ results in the tangent stiffness matrix
-%
-\begin{align*}
-\boldsymbol{K} = \frac{\partial \boldsymbol{q}}{\partial \boldsymbol{u}} &=
-\frac{EA}{L}\left(1 - \frac{L}{\sqrt{\Delta x^2 + \Delta y^2}}\right)
-\begin{bmatrix}
-1 & 0 & -1 & 0\\
-0 & 1 & 0 & -1\\
--1 & 0 & 1 & 0\\
-0 & -1 & 0 & 1
-\end{bmatrix}\\
-&+
-\frac{EA}{(\sqrt{\Delta x^2 + \Delta y^2})^{3}}
-\begin{bmatrix}
-\Delta x^2 & \Delta x \Delta y & -\Delta x^2 & -\Delta x \Delta y\\
-\Delta x \Delta y & \Delta y^2 & -\Delta x \Delta y & - \Delta y^2\\
--\Delta x^2 & -\Delta x \Delta y & \Delta x^2 & \Delta x \Delta y\\
--\Delta x \Delta y & -\Delta y^2 & \Delta x \Delta y & \Delta y^2
-\end{bmatrix}.\\
-\end{align*}
-
-Similarly, deriving the internal forces with respect to $\dot{\boldsymbol{u}}$ results in the tangent damping matrix
-%
-\begin{align*}
-\boldsymbol{D} = \frac{\partial \boldsymbol{q}}{\partial \dot{\boldsymbol{u}}} &=
-\frac{\eta A}{L}
-\begin{bmatrix}
-1 & 0 & -1 & 0\\
-0 & 1 & 0 & -1\\
--1 & 0 & 1 & 0\\
-0 & -1 & 0 & 1
-\end{bmatrix}.
-\end{align*}
-
-\newpage
-\section{Bar Element (Systematic)}
-
-Define the length $s \in [0,\,l_{0}]$ along the undeformed bar and the position vector $\boldsymbol{r}(s) = [x(s),\,y(s)]^\intercal$ of each point in the bar.
-As coordinates, we chose the vector $\boldsymbol{u}(t) = [\boldsymbol{r}_{0}(t),\,\boldsymbol{r}_{1}(t)]^\intercal = [x_0,\,y_0,\,x_1,\,y_1]^\intercal$
-
-Then approximate the continuous position field by linear interpolation,
-
-\begin{align}
-\boldsymbol{r}(s,\,\boldsymbol{u}) &= \left(1 - \frac{s}{l_{0}}\right)\,\boldsymbol{r}_{0} + \frac{s}{l_{0}}\,\boldsymbol{r}_{1} =
-\underbrace{
-\begin{bmatrix}
-1 - \nicefrac{s}{l_{0}} & 0  & \nicefrac{s}{l_{0}} & 0 \\
-0 & 1 - \nicefrac{s}{l_{0}} & 0 & \nicefrac{s}{l_{0}}
-\end{bmatrix}
-}_{\boldsymbol{S}(s)}
-\underbrace{
-\begin{bmatrix}
-\boldsymbol{r}_{0} \\
-\boldsymbol{r}_{1}
-\end{bmatrix}
-}_{\boldsymbol{u}(t)}
-\end{align}
-
-Which is expressed as a product of the time-independent shape function matrix $\boldsymbol{S}(s)$ and the time-dependent nodal displacements $\boldsymbol{u}(t)$.
-
-The mass matrix is derived from the kinetic energy of the element,
-
-\begin{align}
-T &= \frac{1}{2}\int_{0}^{l_{0}} \rho A\,\dot{\boldsymbol{r}}^\intercal\dot{\boldsymbol{r}}\,ds \\
-&= \frac{1}{2} \dot{\boldsymbol{u}}^\intercal \underbrace{\left( \rho A \int_{0}^{l} \boldsymbol{S}^\intercal \boldsymbol{S}\,ds \right)}_{\boldsymbol{M}} \dot{\boldsymbol{u}}
-\end{align}
-
-Evaluating the integral leads to the constant mass matrix
-
-\begin{equation}
-\boldsymbol{M} = \rho Al_{0} \begin{bmatrix}
-\nicefrac{1}{3} & 0 & \nicefrac{1}{6} & 0\\
-0 & \nicefrac{1}{3} & 0 & \nicefrac{1}{6}\\
-\nicefrac{1}{6} & 0 & \nicefrac{1}{3} & 0\\
-0 & \nicefrac{1}{6} & 0 & \nicefrac{1}{3}
-\end{bmatrix}.
-\end{equation}
-
-Longitudinal strain and strain rate:
-
-\begin{align}
-\varepsilon &= \lVert\boldsymbol{r}'\rVert - 1 = \lVert \boldsymbol{S}'\boldsymbol{u} \rVert - 1 \\
-\dot{\varepsilon} &= \left(\frac{\partial \varepsilon}{\partial \boldsymbol{r}'}\right)^\intercal\frac{\partial \boldsymbol{r}'}{\partial t} = \frac{\boldsymbol{r}'^\intercal\dot{\boldsymbol{r}'}}{\lVert\boldsymbol{r}'\rVert} = \frac{\boldsymbol{u}^\intercal\boldsymbol{S}'^\intercal\boldsymbol{S}' \dot{\boldsymbol{u}}}{\lVert \boldsymbol{S}'\boldsymbol{u} \rVert}
-\end{align}
-
-Both are actually constant over the length of the element due to the choice of linear interpolation functions, which can be shown by evaluating the first derivative of the shape function matrix,
-
-\begin{align}
-\boldsymbol{S}' &= \frac{1}{l_{0}}
-\begin{bmatrix}
-\phantom{-}\boldsymbol{I}_{2 \times 2} & -\boldsymbol{I}_{2 \times 2}
-\end{bmatrix} \\
-\boldsymbol{S}'^\intercal\boldsymbol{S}' &= \frac{1}{l_{0}^2}
-\begin{bmatrix}
-\phantom{-}\boldsymbol{I}_{2 \times 2} & -\boldsymbol{I}_{2 \times 2} \\
--\boldsymbol{I}_{2 \times 2} & \phantom{-}\boldsymbol{I}_{2 \times 2}
-\end{bmatrix}
-\end{align}
-
-%We can evaluate $\boldsymbol{r}'$ and $\lVert\boldsymbol{r}'\rVert$ in terms of the nodal positions as:
-
-%\begin{align}
-%\boldsymbol{r}' &= \boldsymbol{S}'\boldsymbol{u} = \frac{1}{l_{0}}\left(\boldsymbol{r}_{1} - \boldsymbol{r}_{0}\right) = \frac{\Delta\boldsymbol{r}}{l_{0}} \\
-%\lVert\boldsymbol{r}'\rVert &= \frac{\lVert\Delta\boldsymbol{r}\rVert}{l_{0}} = \frac{l}{l_{0}}
-%\end{align}
-
-%With those, the strain can be written as
-
-%\begin{equation}
-%\varepsilon = \frac{l}{l_{0}} - 1, \quad \dot{\varepsilon} = \frac{\Delta\boldsymbol{r}^\intercal\Delta\dot{\boldsymbol{r}}}{l\,l_{0}}
-%\end{equation}
-
-%Here we used the current length $l = \lVert\Delta\boldsymbol{r}\rVert$ of the bar.
-
-Material law (Kelvin-Voigt material):
-
-\begin{align}
-\sigma &= E\,\varepsilon + \eta\,\dot{\varepsilon} \\
-N &= \sigma A = EA\,\varepsilon + \eta A\,\dot{\varepsilon}
-\end{align}
-
-Virtual work of the internal forces:
-
-\begin{align}
-\delta W_{I} &= \int_{V} \sigma\,\delta\varepsilon\,dV = \int_{0}^{l_{0}} N\,\delta\varepsilon\,ds = \int_{0}^{l_{0}} \left( EA\,\varepsilon + \eta A\,\dot{\varepsilon} \right)\,\delta\varepsilon\,ds \\
-&= \int_{0}^{l_{0}} \left( EA\,\varepsilon + \eta A\,\dot{\varepsilon} \right)\,\frac{\partial \varepsilon}{\partial \boldsymbol{u}}\delta\boldsymbol{u}\,ds
-\end{align}
-
-Therefore the internal forces are
-
-\begin{align}
-\boldsymbol{Q} &= \int_{0}^{l_{0}} \left( EA\,\varepsilon + \eta A\,\dot{\varepsilon} \right)\,\frac{\partial \varepsilon}{\partial \boldsymbol{u}}\,ds \\
-&= \left( EA\,\varepsilon + \eta A\,\dot{\varepsilon} \right)\,l_{0}\frac{\partial \varepsilon}{\partial \boldsymbol{u}} \\
-&= Nl_{0}\frac{\partial \varepsilon}{\partial \boldsymbol{u}}
-\end{align}
-
-The following partial derivatives of the strain with respect to the nodal coordinates will be required later:
-
-\begin{align}
-\frac{\partial \varepsilon}{\partial \boldsymbol{u}} &= \left(\frac{\partial \varepsilon}{\partial \boldsymbol{r}'}\right)^\intercal\frac{\partial \boldsymbol{r}'}{\partial \boldsymbol{u}} = \frac{\boldsymbol{r}'^\intercal\boldsymbol{S}'}{\lVert \boldsymbol{r}' \rVert} = \frac{\boldsymbol{u}^\intercal\boldsymbol{S}'^\intercal\boldsymbol{S}'}{\lVert \boldsymbol{r}' \rVert} = \frac{\boldsymbol{S}'^\intercal\boldsymbol{S}'\boldsymbol{u}}{\lVert \boldsymbol{S}'\boldsymbol{u} \rVert} \\
-\frac{\partial^2 \varepsilon}{\partial \boldsymbol{u}^2} &= \boldsymbol{S}'^\intercal\left(\frac{1}{\lVert\boldsymbol{r}'\rVert}\left(\boldsymbol{I}_{2 \times 2} - \frac{\boldsymbol{r}'\boldsymbol{r}'^\intercal}{\lVert\boldsymbol{r}'\rVert^2}\right) \right)\boldsymbol{S}' \\
-\frac{\partial \dot{\varepsilon}}{\partial \boldsymbol{u}} &= \frac{\partial}{\partial t}\frac{\partial \varepsilon}{\partial \boldsymbol{u}} = \frac{\partial}{\partial \boldsymbol{u}}\left( \frac{\partial \varepsilon}{\partial \boldsymbol{u}} \right)\frac{\partial\boldsymbol{u}}{\partial t} = \frac{\partial^2 \varepsilon}{\partial \boldsymbol{u}^2}\dot{\boldsymbol{u}} \\
-\frac{\partial \dot{\varepsilon}}{\partial \dot{\boldsymbol{u}}} &= \frac{\boldsymbol{S}'^\intercal\boldsymbol{S}'\boldsymbol{u}}{\lVert \boldsymbol{S}'\boldsymbol{u} \rVert} \\
-\end{align}
-
-Derivatives of the normal force:
-
-\begin{align}
-\frac{\partial N}{\partial \boldsymbol{u}} &= EA\frac{\partial \varepsilon}{\partial \boldsymbol{u}} + \eta A\frac{\partial \dot{\varepsilon}}{\partial \boldsymbol{u}} \\
-\frac{\partial N}{\partial \dot{\boldsymbol{u}}} &= \eta A\frac{\partial \dot{\varepsilon}}{\partial \dot{\boldsymbol{u}}}
-\end{align}
-
-
-Tangent stiffness and damping matrices:
-
-\begin{align}
-\boldsymbol{K} &= \frac{\partial \boldsymbol{Q}}{\partial \boldsymbol{u}} = l_{0}\frac{\partial N}{\partial \boldsymbol{u}}\frac{\partial \varepsilon}{\partial \boldsymbol{u}} + Nl_{0}\frac{\partial^2 \varepsilon}{\partial \boldsymbol{u}^2} \\
-\boldsymbol{D} &= \frac{\partial \boldsymbol{Q}}{\partial \dot{\boldsymbol{u}}} = l_{0}\frac{\partial N}{\partial \dot{\boldsymbol{u}}}\frac{\partial \varepsilon}{\partial \boldsymbol{u}}
-\end{align}
-
-
-
-\newpage
-
-%\begin{align}
-%\frac{\partial \varepsilon}{\partial \boldsymbol{u}} &= \frac{\partial \varepsilon}{\partial \boldsymbol{r}'}\frac{\partial \boldsymbol{r}'}{\boldsymbol{u}} = \frac{ \boldsymbol{r}'^\intercal\boldsymbol{S}'}{\lVert \boldsymbol{r}' \rVert} = \frac{\frac{1}{l_{0}}\Delta\boldsymbol{r}\frac{1}{l_{0}}\begin{bmatrix}
-%-\boldsymbol{I},\,\boldsymbol{I}
-%\end{bmatrix}}{\frac{1}{l_{0}}\lVert\Delta\boldsymbol{r}\rVert} \\
-%&= \frac{1}{l\,l_{0}}
-%\begin{bmatrix}
-%-\Delta\boldsymbol{r} \\
-%\Delta\boldsymbol{r}
-%\end{bmatrix}
-%\end{align}
-
-%Putting everything together and introducing the stiffness $k = EA/l_{0}$ and damping $d = \eta A/l_{0}$:
-
-%\begin{align}
-%N &= \frac{EA}{l_{0}}\left(l - l_{0}\right) + \frac{\eta A}{l_{0}}\frac{\Delta\boldsymbol{r}^\intercal\Delta\dot{\boldsymbol{r}}}{l} \\
-%\boldsymbol{Q} &= \frac{N}{l}
-%\begin{bmatrix}
-%-\Delta\boldsymbol{r} \\
-%\phantom{-}\Delta\boldsymbol{r}
-%\end{bmatrix}
-%\end{align}
-
-%In order to determine the tangent stiffness and damping matrices we first compute the partial derivatives of the normal force $N$,
-
-%\begin{align}
-%\frac{\partial N}{\partial \boldsymbol{u}} &= \frac{\partial}{\partial \Delta\boldsymbol{r}}\left( \frac{EA}{l_{0}}\left(\lVert\Delta\boldsymbol{r}\rVert - l_{0}\right) + \frac{\eta A}{l_{0}}\frac{\Delta\boldsymbol{r}^\intercal\Delta\dot{\boldsymbol{r}}}{\lVert\Delta\boldsymbol{r}\rVert} \right)\frac{\partial \Delta\boldsymbol{r}}{\partial \boldsymbol{u}} = \frac{EA}{l_{0}\,l}\begin{bmatrix} -\Delta\boldsymbol{r} \\ \phantom{-}\Delta\boldsymbol{r} \end{bmatrix} \\
-%\notag \\
-%\frac{\partial N}{\partial \dot{\boldsymbol{u}}} &= \frac{\partial N}{\partial \Delta\dot{\boldsymbol{r}}}\frac{\partial \Delta\dot{\boldsymbol{r}}}{\partial \dot{\boldsymbol{u}}} = \frac{\eta A}{l_{0}\,l}\begin{bmatrix} -\Delta\boldsymbol{r} \\ \phantom{-}\Delta\boldsymbol{r} \end{bmatrix}
-%\end{align}
-
-%Tangent damping matrix:
-
-%\begin{align}
-%\boldsymbol{D} = \frac{\partial \boldsymbol{Q}}{\partial \dot{\boldsymbol{u}}} = \frac{1}{l}\frac{\partial N}{\partial \dot{\boldsymbol{u}}}\begin{bmatrix} -\Delta\boldsymbol{r} \\ \phantom{-}\Delta\boldsymbol{r} \end{bmatrix}
-%=
-%\frac{\eta A}{l_{0}l^2}
-%\begin{bmatrix}
-%\Delta x^2 & \Delta x \Delta y & -\Delta x^2 & -\Delta x \Delta y \\
-%\Delta x \Delta y & \Delta y^2 & -\Delta x \Delta y & - \Delta y^2 \\
-%-\Delta x^2 & -\Delta x \Delta y & \Delta x^2 & \Delta x \Delta y \\
-%-\Delta x \Delta y & -\Delta y^2 & \Delta x \Delta y & \Delta y^2
-%\end{bmatrix}
-%\end{align}
-
-%Tangent stiffness matrix (part 1):
-
-%\begin{align}
-%\boldsymbol{K}_{1} &= \frac{1}{l}\frac{\partial N}{\partial \boldsymbol{u}}\begin{bmatrix} -\Delta\boldsymbol{r} \\ \phantom{-}\Delta\boldsymbol{r} \end{bmatrix} = \frac{EA}{l_{0}l^2}\begin{bmatrix} -\Delta\boldsymbol{r} \\ \phantom{-}\Delta\boldsymbol{r} \end{bmatrix}\begin{bmatrix} -\Delta\boldsymbol{r} \\ \phantom{-}\Delta\boldsymbol{r} \end{bmatrix}
-%\end{align}
-
-%Tangent stiffness matrix (complete):
-% Source for first step: https://math.stackexchange.com/questions/2882762
-
-%\begin{align}
-%\boldsymbol{K} &=
-%\frac{\partial N}{\partial \boldsymbol{u}}
-%\frac{1}{l}
-%\begin{bmatrix}
-%-\Delta\boldsymbol{r} \\
-%\phantom{-}\Delta\boldsymbol{r}
-%\end{bmatrix}
-%+
-%N\frac{\partial}{\partial \boldsymbol{u}}\left(\frac{1}{l}\begin{bmatrix} -\Delta\boldsymbol{r} \\ \phantom{-}\Delta\boldsymbol{r} \end{bmatrix} \right) \\
-%&=
-%\frac{EA}{l_{0}l^2}\begin{bmatrix} -\Delta\boldsymbol{r} \\ \phantom{-}\Delta\boldsymbol{r} \end{bmatrix}\begin{bmatrix} -\Delta\boldsymbol{r} \\ \phantom{-}\Delta\boldsymbol{r} \end{bmatrix}
-%+
-%N
-%\begin{bmatrix}
-%-\frac{1}{\lVert\Delta\boldsymbol{r}\rVert}\left(\boldsymbol{I}_{2 \times 2} - \frac{\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal}{\lVert\Delta\boldsymbol{r}\rVert^2}\right) \\
-%\frac{1}{\lVert\Delta\boldsymbol{r}\rVert}\left(\boldsymbol{I}_{2 \times 2} - \frac{\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal}{\lVert\Delta\boldsymbol{r}\rVert^2}\right)
-%\end{bmatrix}
-%\begin{bmatrix}
-%-\boldsymbol{I}_{2 \times 2},\,\boldsymbol{I}_{2 \times 2}
-%\end{bmatrix} \\
-%&=
-%\frac{EA}{l_{0}l^2}
-%\begin{bmatrix}
-%\phantom{-}\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal & -\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal \\
-%-\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal & \phantom{-}\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal
-%\end{bmatrix}
-%+
-%N
-%\left(
-%\frac{1}{\lVert\Delta\boldsymbol{r}\rVert}
-%\begin{bmatrix}
-%-\boldsymbol{I}_{2 \times 2} \\
-%\phantom{-}\boldsymbol{I}_{2 \times 2}
-%\end{bmatrix}
-%+
-%\frac{1}{\lVert\Delta\boldsymbol{r}\rVert^3}
-%\begin{bmatrix}
-%\phantom{-}\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal \\
-%-\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal
-%\end{bmatrix}
-%\right)
-%\begin{bmatrix}
-%-\boldsymbol{I}_{2 \times 2},\,\boldsymbol{I}_{2 \times 2}
-%\end{bmatrix} \\
-%&=
-%\frac{EA}{l_{0}l^2}
-%\begin{bmatrix}
-%\phantom{-}\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal & -\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal \\
-%-\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal & \phantom{-}\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal
-%\end{bmatrix}
-%+
-%\frac{N}{l}
-%\begin{bmatrix}
-%\phantom{-}\boldsymbol{I}_{2 \times 2} & -\boldsymbol{I}_{2 \times 2} \\
-%-\boldsymbol{I}_{2 \times 2} & \phantom{-}\boldsymbol{I}_{2 \times 2}
-%\end{bmatrix}
-%+
-%\frac{N}{l^3}
-%\begin{bmatrix}
-%\phantom{-}\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal & -\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal \\
-%-\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal & \phantom{-}\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal
-%\end{bmatrix} \\
-%&=
-%\frac{N}{l}
-%\begin{bmatrix}
-%\phantom{-}\boldsymbol{I}_{2 \times 2} & -\boldsymbol{I}_{2 \times 2} \\
-%-\boldsymbol{I}_{2 \times 2} & \phantom{-}\boldsymbol{I}_{2 \times 2}
-%\end{bmatrix}
-%+
-%\left(\frac{N}{l^3} + \frac{EA}{l_{0}l^2}\right)
-%\begin{bmatrix}
-%\phantom{-}\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal & -\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal \\
-%-\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal & \phantom{-}\Delta\boldsymbol{r}\Delta\boldsymbol{r}^\intercal
-%\end{bmatrix}
-%\end{align}
-
-
-
-
-%Elastic energy, elastic forces and tangent stiffness matrix
-
-%\begin{align*}
-%\Pi &= \frac{1}{2}\,\rho A \int_{0}^{l} \varepsilon^2\,ds \\
-%\boldsymbol{Q} &= \frac{\partial \Pi}{\partial \boldsymbol{u}} = \rho A \int_{0}^{l} \varepsilon\,\frac{\partial \varepsilon}{\partial \boldsymbol{u}}\,ds \\
-%\boldsymbol{K} &= \frac{\partial \boldsymbol{Q}}{\partial \boldsymbol{u}} = \int_{0}^{l} \varepsilon\,\frac{\partial^2 \varepsilon}{\partial \boldsymbol{u}^2} +  \frac{\partial \varepsilon}{\partial \boldsymbol{u}}\frac{\partial \varepsilon}{\partial \boldsymbol{u}}^\intercal\,ds
-%\end{align*}
-
-\newpage
-\section{Beam Theories}
-
-Consider a sandwich cantilever beam of length $L = 0.6\,\unit{m}$ that consists of a core layer, covered by two equal face layers.
-The core layer has a thickness of $t_c$ and a shear modulus of $G_c$ and the face sheets have a thickness of $t_f$ and an elastic modulus of $E_f$ depending on the choice of material.
-
-According to Zenkert (An Introduction to Sandwich Structures), the deflection of such a beam, assuming that the stiffness of the face sheets is much higher than that of the core, is calculated as the sum of bending deformation $w_b$ and shear deformation $w_s$ as
-
-\begin{align}
-w_s &= \frac{FL}{S} \\
-w_b &= \frac{FL^3}{3D}
-\end{align}
-
-with the shear stiffness $S = \frac{G_c d^2}{t_c}$ and the bending stiffness $D = \frac{E_f t_f d^2}{2}$.
-Since we are interested in the relevance of the shear deformation compared to the bending deformation, we calculate the ratio of the two as
-
-\begin{equation}
-\eta = \frac{w_s}{w_b} = \frac{FL}{S}\frac{3D}{FL^3} = \frac{3D}{SL^2}
-\end{equation}
-
-Table \ref{tbl:material-shear-ratio} shows this ratio for different combinations of materials.
-
-\begin{table}[h!]
-\centering
-\begin{tabular}{| c | c c c c |}
-\hline
-Face & Glass & Carbon & Carbon & Carbon \\
-\hline
-$E_f$ & 39000 MPa & 180000 MPa & 180000 MPa & 180000 MPa \\
-$t_f$ & 1.0\,\unit{mm} & 0.5\,\unit{mm} & 0.5\,\unit{mm} & 0.5\,\unit{mm} \\
-\hline
-Core & Wood & Wood & Foam (stiff) & Foam (soft) \\
-\hline
-$G_c$ & 3600 MPa & 3600 MPa & 150 MPa & 25 MPa \\
-$t_c$ & 4\,\unit{mm} & 4\,\unit{mm} & 4\,\unit{mm} & 4\,\unit{mm} \\
-\hline
-$\eta$ & 0.02\,\% & 0.04\,\% & 1.0\,\% & 6.0\,\% \\
-\hline
-\end{tabular}
-\caption{Table to test captions and labels.}
-\label{tbl:material-shear-ratio}
-\end{table}
-
-Wood: Hypothetical soft wood with $v = 0.4$. Others from Zenkert.
-
-% Python code used for calculations:
-%
-%	L = 0.6      # Beam length
-%	
-%	# Face: Fiberglass
-%	#Ef = 39000e6     # Face elastic modulus
-%	#tf = 0.0010      # Face thickness
-%	
-%	# Face: Carbon
-%	Ef = 180000e6     # Face elastic modulus
-%	tf = 0.0005        # Face thickness
-%	
-%	# Core: Wood
-%	#Gc = 3600e6                 # Core shear modulus
-%	#tc = 0.0040                 # Core thickness
-%	
-%	# Core: Foam (stiff)
-%	#Gc = 150e6                  # Core shear modulus
-%	#tc = 0.0040                 # Core thickness
-%	
-%	# Core: Foam (soft)
-%	Gc = 25e6                   # Core shear modulus
-%	tc = 0.0040                 # Core thickness
-%	
-%	d = tc + tf         # Distance between center of faces
-%	S = Gc*d**2/tc      # Shear stiffness
-%	D = Ef*tf*d**2/2    # Bending stiffness
-%	
-%	n = 3*D/(L**2*S)
-%	
-%	print("Ratio shear/bending: {} %".format(n*100))
-
-
-\newpage
 \section{Beam Element (Co-Rotational)}
 
 \textcolor{red}{TODO: Short outline of the co-rotational approach.}
@@ -2148,7 +1616,35 @@ Q(s) = C_{kk}'(s)\,\kappa(s) + C_{ek}'(s)\,\varepsilon(s) + C_{kk}(s)\,\kappa'(s
 \end{equation}
 
 \newpage
-\section{String Element (New)}
+\section{String Element}
+
+A bar only transfers forces in longitudinal direction, it has no bending stiffness. Figure~\ref{fig:bar-element-1} shows a bar with an initial length of~$l$ that is subjected to a normal force~$N$ which causes it to elongate by~$\Delta l$.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/elements/bar-element-1}
+\caption{Elongation of a bar under load}
+\label{fig:bar-element-1}
+\end{figure}
+
+In order to simulate the damping properties of the string, a viscoelastic material model of the form
+
+\begin{equation}
+\sigma = E\,\varepsilon + \eta\,\dot{\varepsilon}
+\end{equation}
+
+is chosen. Here $E$ is the elastic modulus and $\eta$ the viscosity of the material. This model is called the Kelvin-Voigt model and combines linear elastic and linear viscous behaviour. The normal force in the bar given a constant cross section area $A$ is therefore
+
+\begin{align}
+N &= \sigma A \notag \\
+&= EA\,\varepsilon + \eta A\,\dot{\varepsilon} \notag \\
+&= \frac{EA}{l}\,\Delta l + \frac{\eta A}{l}\,\Delta \dot{l} \\
+&= k\,\Delta l + d\,\Delta \dot{l}.\label{eq:bar-constitutive}
+\end{align}
+
+The product~$EA$ is also called the longitudinal stiffness.
+By setting~$\varepsilon = \frac{\Delta l}{l}$ it was implicitly assumed that the strain is constant over the length of the element.
+The resulting normal force (\ref{eq:bar-constitutive}) has the same form as a linear spring with stiffness~$k = \frac{EA}{l}$ and damping~$d = \frac{\eta A}{l}$.
 
 The model for the string is an idealized spring of initial length $l_{0}$ and with constant cross section properties, given by the linear mass $\rho A$, stiffness $EA$ and damping $\eta A$.
 
@@ -2196,7 +1692,7 @@ l_{ij} = \sqrt{(\bar{x}_j - \bar{x}_i)^2 + (\bar{y}_j - \bar{y}_i)^2}
 The total length of the string is the sum of all line segments of the convex envelope,
 
 \begin{equation}
-l(\boldsymbol{u}) = \sum_{k} L_{k,k-1}.
+l(\boldsymbol{u}) = \sum_{k} L_{k-1,k}.
 \end{equation}
 
 We use the visco-elastic Kelvin-Voigt material model to relate the stress in the string to the strain $\varepsilon$ and the strain rate $\dot{\varepsilon}$,
@@ -2235,81 +1731,74 @@ The tangent stiffness matrix is derived as
 \boldsymbol{D} = \frac{\partial\boldsymbol{Q}}{\partial\dot{\boldsymbol{u}}} &= d\frac{\partial\dot{l}}{\partial\dot{\boldsymbol{u}}}^\intercal\frac{\partial l}{\partial\boldsymbol{u}} = d\,\frac{\partial l}{\partial\boldsymbol{u}}^\intercal\frac{\partial l}{\partial\boldsymbol{u}}
 \end{align}
 
-\newpage
-
-\begin{align}
-L(\boldsymbol{u}) &= \sum_{k} L_{k,k-1} \notag \\
-&= \sum_{k} \sqrt{(\bar{x}_{k} - \bar{x}_{k-1})^2 + (\bar{y}_{k} - \bar{y}_{k-1})^2} \notag \\
-&= \ldots + \sqrt{(\bar{x}_{k} - \bar{x}_{k-1})^2 + (\bar{y}_{k} - \bar{y}_{k-1})^2} + \sqrt{(\bar{x}_{k+1} - \bar{x}_{k})^2 + (\bar{y}_{k+1} - \bar{y}_{k})^2} \ldots
-\end{align}
-
-The partial derivatives of this length with respect to the contact points, which we are going to need later, is obtained as
-
-\begin{align}
-\frac{\partial L}{\partial \bar{x}_{k}} &= \frac{\bar{x}_{k} - \bar{x}_{k-1}}{L_{k,k-1}} - \frac{\bar{x}_{k+1} - \bar{x}_{k}}{L_{k+1,k}}, \\
-\notag \\
-\frac{\partial L}{\partial \bar{y}_{k}} &= \frac{\bar{y}_{k} - \bar{y}_{k-1}}{L_{k,k-1}} - \frac{\bar{y}_{k+1} - \bar{y}_{k}}{L_{k+1,k}},
-\end{align}
-
-if $k$ is an intermediate node.
-If $k$ is however the first or last node in the chain, the repective term of the sum vanishes.
-We can express those partial derivatives in terms of the nodal coordinates by using the chain rule,
-
-\begin{align}
-\frac{\partial L}{\partial x_{k}} &= \frac{\partial L}{\partial \bar{x}_{k}}\underbrace{\frac{\partial \bar{x}_{k}}{\partial x_{k}}}_{= 1} = \frac{\partial L}{\partial \bar{x}_{k}} \\
-\frac{\partial L}{\partial y_{k}} &= \frac{\partial L}{\partial \overline{y}_{k}}\underbrace{\frac{\partial \bar{y}_{k}}{\partial y_{k}}}_{= 1} = \frac{\partial L}{\partial \bar{y}_{k}} \\
-\frac{\partial L}{\partial \varphi_{k}} &= \frac{\partial L}{\partial \overline{x}_{k}}\frac{\partial \bar{x}_{k}}{\partial \varphi_{k}} + \frac{\partial L}{\partial \bar{y}_{k}}\frac{\partial \bar{y}_{k}}{\partial \varphi_{k}} = -d_{k}\left(\frac{\partial L}{\partial \bar{x}_{k}}\cos(\varphi_{k}) + \frac{\partial L}{\partial \bar{y}_{k}}\sin(\varphi_{k})\right)
-\end{align}
-
-Using these component-wise expressions we can assemble the gradient vector $\frac{\partial L}{\partial \boldsymbol{u}}$.
-Since we are also going to need the second derivative $\frac{\partial^2 L}{\partial \boldsymbol{u}^2}$, we carry on by deriving the results further with respect to $x_{k}$, $y_{k}$ and $\varphi_{k}$.
-
-% WolframAlpha queries:
-% https://www.wolframalpha.com/input?i2d=true&i=D%5B%5C%2840%29Sqrt%5BPower%5B%5C%2840%29x1+-+x0%5C%2841%29%2C2%5D%2BPower%5B%5C%2840%29y1+-+y0%5C%2841%29%2C2%5D%5D%2BSqrt%5BPower%5B%5C%2840%29x2+-+x1%5C%2841%29%2C2%5D%2BPower%5B%5C%2840%29y2+-+y1%5C%2841%29%2C2%5D%5D%5C%2841%29%2C%7Bx1%2C2%7D%5D
-% https://www.wolframalpha.com/input?i2d=true&i=D%5B%5C%2840%29Sqrt%5BPower%5B%5C%2840%29x1+-+x0%5C%2841%29%2C2%5D%2BPower%5B%5C%2840%29y1+-+y0%5C%2841%29%2C2%5D%5D%2BSqrt%5BPower%5B%5C%2840%29x2+-+x1%5C%2841%29%2C2%5D%2BPower%5B%5C%2840%29y2+-+y1%5C%2841%29%2C2%5D%5D%5C%2841%29%2C%7By1%2C2%7D%5D
-\begin{align}
-\frac{\partial^2 L}{\partial x_{k} \partial x_{k}} &= \frac{1}{L_{k,k-1}}\left( 1 - \left(\frac{\bar{x}_{k} - \bar{x}_{k-1}}{L_{k,k-1}}\right)^2 \right) + \frac{1}{L_{k,k+1}}\left( 1 - \left(\frac{\bar{x}_{k+1} - \bar{x}_{k}}{L_{k,k+1}}\right)^2 \right) \\
-\notag \\
-\frac{\partial^2 L}{\partial y_{k} \partial y_{k}} &= \frac{1}{L_{k,k-1}}\left( 1 - \left(\frac{\bar{y}_{k} - \bar{y}_{k-1}}{L_{k,k-1}}\right)^2 \right) + \frac{1}{L_{k,k+1}}\left( 1 - \left(\frac{\bar{y}_{k+1} - \bar{y}_{k}}{L_{k,k+1}}\right)^2 \right) \\
-\notag \\
-\frac{\partial^2 L}{\partial x_{k} \partial y_{k}} &= -\frac{(\bar{x}_{k} - \bar{x}_{k-1})(\bar{y}_{k} - \bar{y}_{k-1})}{L_{k,k-1}^3} - \frac{(\bar{x}_{k+1} - \bar{x}_{k})(\bar{y}_{k+1} - \bar{y}_{k})}{L_{k+1,k}^3}
-\end{align}
-
-The derivatives involving angles can be expressed in terms of the other ones as,
-
-\begin{align}
-\frac{\partial^2 L}{\partial x_{k} \partial \varphi_{k}} &= -d_{k}\left( \frac{\partial^2 L}{\partial x_{k} \partial x_{k}}\cos(\varphi_{k}) + \frac{\partial^2 L}{\partial x_{k} \partial y_{k}}\sin(\varphi_{k})\right) \\
-\notag \\
-\frac{\partial^2 L}{\partial y_{k} \partial \varphi_{k}} &= -d_{k}\left( \frac{\partial^2 L}{\partial y_{k} \partial y_{k}}\sin(\varphi_{k}) + \frac{\partial^2 L}{\partial x_{k} \partial y_{k}}\cos(\varphi_{k})\right) \\
-\notag \\
-\frac{\partial^2 L}{\partial \varphi_{k} \partial \varphi_{k}} &= -d_{k}\left(\left(\frac{\partial^2 L}{\partial x_{k} \partial \varphi_{k}} + \frac{\partial L}{\partial \bar{y}_{k}}\right)\cos(\varphi_{k}) + \left(\frac{\partial^2 L}{\partial y_{k} \partial \varphi_{k}} - \frac{\partial L}{\partial \bar{x}_{k}}\right)\sin(\varphi_{k})\right)
-\end{align}
+We make no attempt at deriving a mass matrix for this element, instead we keep it massless.
+The total mass $\rho A l_{0}$ of the string is instead divided between the point mass at the string center and the point mass at the limb tip of the bow model by $\nicefrac{1}{3}$ and $\nicefrac{2}{3}$, respectively.
+These fractions come from symmetry considerations: Actually, when considering the whole bow, the string has a length of $2l_{0}$ and therefore a mass of $2\rho A l_{0}$.
+This mass is then evenly divided between three points: $\nicefrac{1}{3}$, i.e. $\nicefrac{2}{3}\,\rho A l_{0}$ at the upper limb tip, $\nicefrac{1}{3}$ the lower limb tip and $\nicefrac{1}{3}$ at the string center.
+When going back to the symmetric half-model of the bow, the center mass gets split in half, leading to $\nicefrac{1}{3}\,\rho A l_{0}$ at the string center and $\nicefrac{2}{3}\,\rho A l_{0}$ at the limb tip.
+The same modellinig of the string mass was also used by Kooi \cite{bib:kooi81}.
 
 
-
-Elastic energy:
+The last remaining task is to compute the required derivatives $\partial l/\partial \boldsymbol{u}$ and $\partial^2 l/\partial \boldsymbol{u}^2$ of the length with respect to the displacement vector.
+Since the total length $l$ is a sum of partial lenbgths $l_{ij}$ between the contact points, we can compute the derivatives of the partial lengths with respect to their adjacent nodes and assemble the full derivative as
 
 \begin{equation}
-\Pi(\boldsymbol{u}) = \frac{1}{2}\frac{EA}{L_{0}}\left(L(\boldsymbol{u}) - L_{0}\right)^2
+\renewcommand\arraystretch{1.5}
+\frac{\partial l}{\partial \boldsymbol{u}} = \sum_{k} \frac{\partial l_{k-1,k}}{\partial \boldsymbol{u}} =
+\begin{bmatrix}
+\frac{\partial l_{01}}{\partial x_{0}} \\
+\frac{\partial l_{01}}{\partial y_{0}} \\
+\frac{\partial l_{01}}{\partial \varphi_{0}} \\
+\frac{\partial l_{01}}{\partial x_{1}} \\
+\frac{\partial l_{01}}{\partial y_{1}} \\
+\frac{\partial l_{01}}{\partial \varphi_{1}} \\
+0 \\
+0 \\
+0 \\
+0 \\
+0 \\
+0 \\
+\vdots
+\end{bmatrix}
++
+\begin{bmatrix}
+0 \\
+0 \\
+0 \\
+\frac{\partial l_{12}}{\partial x_{1}} \\
+\frac{\partial l_{12}}{\partial y_{1}} \\
+\frac{\partial l_{12}}{\partial \varphi_{1}} \\
+\frac{\partial l_{12}}{\partial x_{2}} \\
+\frac{\partial l_{12}}{\partial y_{2}} \\
+\frac{\partial l_{12}}{\partial \varphi_{2}} \\
+0 \\
+0 \\
+0 \\
+\vdots
+\end{bmatrix}
++
+\begin{bmatrix}
+0 \\
+0 \\
+0 \\
+0 \\
+0 \\
+0 \\
+\frac{\partial l_{23}}{\partial x_{2}} \\
+\frac{\partial l_{23}}{\partial y_{2}} \\
+\frac{\partial l_{23}}{\partial \varphi_{2}} \\
+\frac{\partial l_{23}}{\partial x_{3}} \\
+\frac{\partial l_{23}}{\partial y_{3}} \\
+\frac{\partial l_{23}}{\partial \varphi_{3}} \\
+\vdots
+\end{bmatrix}
++
+\cdots
 \end{equation}
 
-Generalied forces:
+Analogous for the second derivative $\partial^2 l/\partial \boldsymbol{u}^2$, which results in a block-diagonal structure of overlapping $6 \times 6$ blocks.
 
-\begin{equation}
-\boldsymbol{Q}(\boldsymbol{u}) = \frac{\partial\Pi}{\partial\boldsymbol{u}} = EA\,\frac{L(\boldsymbol{u}) - L_{0}}{L_{0}}\,\frac{\partial L}{\partial\boldsymbol{u}}
-\end{equation}
-
-Partial derivatives of the string length:
-
-\newpage
-
-Different derivation:
-
-\begin{equation}
-L_{ij} = \sqrt{(\bar{x}_j - \bar{x}_i)^2 + (\bar{y}_j - \bar{y}_i)^2}
-\end{equation}
-
-First derivatives with respect to the nodal positions and rotations:
+First derivatives of $l_{ij}$ with respect to the positions and rotations of nodes $i$ and $j$:
 
 % https://www.wolframalpha.com/input?i=derive+sqrt%28%28x1+-+x0%29%5E2+%2B+%28y1+-+y0%29%5E2%29+wrt+x0
 % https://www.wolframalpha.com/input?i=derive+sqrt%28%28x1+-+x0%29%5E2+%2B+%28y1+-+y0%29%5E2%29+wrt+y0
@@ -2317,17 +1806,11 @@ First derivatives with respect to the nodal positions and rotations:
 % https://www.wolframalpha.com/input?i=derive+sqrt%28%28x1+-+x0%29%5E2+%2B+%28y1+-+y0%29%5E2%29+wrt+y1
 
 \begin{align}
-\frac{\partial L_{ij}}{\partial x_i} &= \frac{x_i - x_j}{L_{i,j}} \\
-\frac{\partial L_{ij}}{\partial y_i} &= \frac{y_i - y_j}{L_{i,j}} \\
-\frac{\partial L_{ij}}{\partial \varphi_i} &= -d_{i}\left(\frac{\partial L_{ij}}{\partial x_i}\cos(\varphi_i) + \frac{\partial L_{ij}}{\partial y_i}\sin(\varphi_i)\right)\\
-\frac{\partial L_{ij}}{\partial x_j} &= -\frac{\partial L_{i,j}}{\partial x_i} \\
-\frac{\partial L_{ij}}{\partial y_j} &= -\frac{\partial L_{i,j}}{\partial y_i} \\
-\frac{\partial L_{ij}}{\partial \varphi_j} &= -d_{j}\left(\frac{\partial L_{ij}}{\partial x_j}\cos(\varphi_j) + \frac{\partial L_{ij}}{\partial y_j}\sin(\varphi_j)\right)
+\frac{\partial L_{ij}}{\partial x_i} &= \frac{x_i - x_j}{L_{i,j}} , & \frac{\partial L_{ij}}{\partial y_i} &= \frac{y_i - y_j}{L_{i,j}}, & \frac{\partial L_{ij}}{\partial \varphi_i} &= -d_{i}\left(\frac{\partial L_{ij}}{\partial x_i}\cos(\varphi_i) + \frac{\partial L_{ij}}{\partial y_i}\sin(\varphi_i)\right) \\
+\frac{\partial L_{ij}}{\partial x_j} &= -\frac{\partial L_{i,j}}{\partial x_i}, & \frac{\partial L_{ij}}{\partial y_j} &= -\frac{\partial L_{i,j}}{\partial y_i}, & \frac{\partial L_{ij}}{\partial \varphi_j} &= -d_{j}\left(\frac{\partial L_{ij}}{\partial x_j}\cos(\varphi_j) + \frac{\partial L_{ij}}{\partial y_j}\sin(\varphi_j)\right)
 \end{align}
 
-
-
-Second derivatives (omitting symmetric ones):
+Second derivatives (omitting symmetric ones since $\frac{\partial l}{\partial a \partial b} = \frac{\partial l}{\partial b \partial a}$):
 
 % https://www.wolframalpha.com/input?i2d=true&i=Partial%5B%5C%2840%29Sqrt%5BPower%5B%5C%2840%29x1+-+x0%5C%2841%29%2C2%5D%2BPower%5B%5C%2840%29y1+-+y0%5C%2841%29%2C2%5D%5D%5C%2841%29%2Cx0%2Cx0%5D
 
@@ -2380,161 +1863,3 @@ Combination j,i
 \frac{\partial^2 L_{ij}}{\partial x_{j} \partial \varphi_{i}} &= -d_{i}\left( \frac{\partial^2 L_{ij}}{\partial x_{i} \partial x_{j}}\cos(\varphi_{i}) + \frac{\partial^2 L_{ij}}{\partial x_{i} \partial y_{j}}\sin(\varphi_{i})\right) \\
 \frac{\partial^2 L_{ij}}{\partial y_{j} \partial \varphi_{i}} &= -d_{i}\left( \frac{\partial^2 L_{ij}}{\partial x_{i} \partial y_{j}}\cos(\varphi_{i}) + \frac{\partial^2 L_{ij}}{\partial y_{i} \partial y_{j}}\sin(\varphi_{i}) \right)
 \end{align}
-
-
-
-\newpage
-\section{String Element}
-
-The string is modeled as an infinitely thin line with linear density $\rho A$, elasticity $EA$ and initial length $L$.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.6\linewidth]{figures/elements/string-element.png}
-\caption{Model of the string}
-\label{fig:elements:string-element-old}
-\end{figure}
-
-\subsection{Single string element}
-
-Displacement vector $\boldsymbol{u} = (x_0,\,y_0,\,x_1,\,y_1)^\intercal$. The current length of the element is
-
-$$
-\overline{L}(\boldsymbol{u}) = \sqrt{(x_{1} - x{0})^2 + (y_{1} - y{0})^2}.
-$$
-
-Each point on the element can be described by the line
-
-\begin{align*}
-r(s,\,\boldsymbol{u}) &= \begin{bmatrix} x_0 \\ y_0 \end{bmatrix}(1 - \zeta) + \begin{bmatrix} x_1 \\ y_1 \end{bmatrix} \zeta, \quad \zeta = \frac{s}{L} \in [0,\,1] \\
-&=
-\begin{bmatrix}
-1 - \zeta & 0 & \zeta & 0 \\
-0 & 1 - \zeta & 0 & \zeta
-\end{bmatrix}
-\begin{bmatrix}
-x_0 \\ y_0 \\ x_1 \\ y_1
-\end{bmatrix}
-\\
-&= \boldsymbol{S}(s) \cdot \boldsymbol{u}
-\end{align*}
-
-Kinetic energy of the element
-
-\begin{align*}
-T &= \frac{1}{2}\,\rho A \, \int_{0}^{L} \dot{r}(s)^\intercal\,\dot{r}(s)\,ds \\
-&= \frac{1}{2}\,\dot{\boldsymbol{u}}^\intercal \underbrace{\left( \rho A \int_0^L \boldsymbol{S}^\intercal(s) \boldsymbol{S}(s)\,ds \right)}_{\boldsymbol{M}}\,\dot{\boldsymbol{u}} \\
-\boldsymbol{M} &= \rho AL
-\begin{bmatrix}
-\nicefrac{1}{3} & 0 & \nicefrac{1}{6} & 0 \\
-0 & \nicefrac{1}{3} & 0 & \nicefrac{1}{6} \\
-\nicefrac{1}{6} & 0 & \nicefrac{1}{3} & 0 \\
-0 & \nicefrac{1}{6} & 0 & \nicefrac{1}{3}
-\end{bmatrix}
-\end{align*}
-
-\subsection{String with one contact point}
-
-Displacement vector $\boldsymbol{u} = (x_0,\,y_0,\,x_1,\,y_1,\,x_2,\,y_2)^\intercal$. The current length of the element is
-
-$$
-\overline{L}(\boldsymbol{u}) =
-\underbrace{
-\sqrt{(x_{1} - x{0})^2 + (y_{1} - y{0})^2}
-}_{\overline{L}_{01}}
-+
-\underbrace{
-\sqrt{(x_{2} - x{1})^2 + (y_{2} - y{1})^2}
-}_{\overline{L}_{12}}
-$$
-
-Assuming constant strain over the length of the string, the initial arc length $s$ and elongated arc length $\overline{s}$ have a constant ratio,
-
-\begin{align*}
-\frac{s}{\overline{s}} = \frac{L}{\overline{L}}
-\end{align*}
-
-$$
-r(s,\,\boldsymbol{u}) =
-\begin{cases} 
- r_0(s,\,\boldsymbol{u}), & \text{if } s \in [ 0, \, \frac{\overline{L}_1}{\overline{L}}L [ \\
- r_1(s,\,\boldsymbol{u}), & \text{if } s \in [ \frac{\overline{L}_1}{\overline{L}}L, \, L ]
-\end{cases}
-$$
-
-\begin{align*}
-r_{01}(\zeta,\,\boldsymbol{u}) &= \begin{bmatrix} x_0 \\ y_0 \end{bmatrix}(1 - \zeta) + \begin{bmatrix} x_1 \\ y_1 \end{bmatrix} \zeta
-=
-\underbrace{
-\begin{bmatrix}
-1 - \zeta & 0 & \zeta & 0 & 0 & 0\\
-0 & 1 - \zeta & 0 & \zeta & 0 & 0
-\end{bmatrix}
-}_{\boldsymbol{S}_{01}(\zeta)}
-\boldsymbol{u} \\
-r_{12}(\zeta,\,\boldsymbol{u}) &= \begin{bmatrix} x_1 \\ y_1 \end{bmatrix}(1 - \zeta) + \begin{bmatrix} x_2 \\ y_2 \end{bmatrix} \zeta
-=
-\underbrace{
-\begin{bmatrix}
-0 & 0 & 1 - \zeta & 0 & \zeta & 0 \\
-0 & 0 & 0 & 1 - \zeta & 0 & \zeta
-\end{bmatrix}
-}_{\boldsymbol{S}_{12}(\zeta)}
-\boldsymbol{u}
-\end{align*}
-
-\begin{align*}
-T &= \frac{1}{2}\rho A  \left( \int_{0}^{L_{01}} \dot{r}_{01}^\intercal(\zeta(s), \boldsymbol{u})\,\dot{r}_{01}(\zeta(s), \boldsymbol{u})\,ds + \int_{0}^{L_{12}} \dot{r}^\intercal_{12}(\zeta(s), \boldsymbol{u})\,\dot{r}_{12}(\zeta(s), \boldsymbol{u})\,ds \right)
-\end{align*}
-
-Transformation with $\zeta(s) = \frac{s}{L_{ij}}$ and $\zeta'(s) = \frac{1}{L_{ij}}$:
-
-\begin{align*}
-T &= \frac{1}{2}\rho A  \left( L_{01} \int_{0}^{1} \dot{r}_{01}^\intercal(\zeta, \boldsymbol{u})\,\dot{r}_{01}(\zeta, \boldsymbol{u})\,d\zeta + L_{12} \int_{0}^{1} \dot{r}^\intercal_{12}(\zeta, \boldsymbol{u})\,\dot{r}_{12}(\zeta, \boldsymbol{u})\,d\zeta \right) \\
-&= \frac{1}{2} \dot{\boldsymbol{u}}^\intercal \rho A \left( L_{01} \int_{0}^{1} \boldsymbol{S}_{01}^\intercal(\zeta)\,\boldsymbol{S}_{01}(\zeta)\,d\zeta +  L_{12} \int_{0}^{1} \boldsymbol{S}^\intercal_{12}(\zeta)\,\boldsymbol{S}_{12}(\zeta)\,d\zeta \right) \dot{\boldsymbol{u}} \\
-&= \frac{1}{2} \dot{\boldsymbol{u}}^\intercal \rho A L \left( \frac{\overline{L}_{01}}{\overline{L}} \int_{0}^{1} \boldsymbol{S}_{01}^\intercal(\zeta)\,\boldsymbol{S}_{01}(\zeta)\,d\zeta + \frac{\overline{L}_{12}}{\overline{L}} \int_{0}^{1} \boldsymbol{S}^\intercal_{12}(\zeta)\,\boldsymbol{S}_{12}(\zeta)\,d\zeta \right) \dot{\boldsymbol{u}}
-\end{align*}
-
-\newpage
-
-The elongated length $\overline{L}$ can be calculated as the sum of the distances between the points,
-
-$$
-\overline{L} = \sum_{i=0}^{n-2} L_{i}
-$$
-
-with the distances $\overline{L}_{i}$ between point $p_{i}$ and $p_{i+1}$ being
-
-$$
-\overline{L}_{i} = \sqrt{(x_{i+1} - x{i})^2 + (y_{i+1} - y{i})^2}.
-$$
-
-Each segment line can be described as the line
-
-$$
-r_{i}(t) = p_{i} + (p_{i+1} - p_{i}) \cdot t, \quad t \in [0,\,1].
-$$
-
-In order to parametrize this by arc length, we distinguish between the arc length $s$ along the undeformed string and the arc length $\overline{s}$ along the elongated string.
-If we assume that the string is internally in static equilibrium at all times, the strain in the string is evenly distributed, i.e. constant and we can write
-
-\begin{align*}
-\frac{s}{\overline{s}} = \frac{L}{\overline{L}}
-\end{align*}
-
-Furthermore, within a single line segment, we have $\overline{s} = t \cdot \overline{L}_{i}$, so we can express $t$ as
-
-\begin{align*}
-t = \frac{s}{\overline{L}_{i}}\frac{\overline{L}}{L}
-\end{align*}
-
-The kinetic energy of the string is
-
-\begin{align*}
-T &= \frac{1}{2}\,\rho A \, \int_{0}^{L} \dot{r}(s)^\intercal\,\dot{r}(s)\,ds \\
-&= \frac{1}{2}\,\rho A \, \sum_{i=0}^{n-2} \int_{t=0}^{t=1} \dot{r}_{i}(s)^\intercal\,\dot{r}_{i}(s)\,ds \\
-&= \frac{1}{2}\,\rho A \, \sum_{i=0}^{n-2} \int_{0}^{\frac{\overline{L}_{i}\overline{L}}{L}} \dot{r}_{i}(s)^\intercal\,\dot{r}_{i}(s)\,ds \\
-\end{align*}
-
-
-
