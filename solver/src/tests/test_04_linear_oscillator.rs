@@ -5,7 +5,7 @@ use nalgebra::{Complex, ComplexField, DMatrix, DVector, Dyn, LU, stack, vector};
 use crate::fem::elements::mass::MassElement;
 use crate::fem::elements::string::StringElement;
 use crate::fem::solvers::dynamics::{DynamicSolver, Settings};
-use crate::fem::system::node::{Constraints, Node};
+use crate::fem::system::node::Node;
 use crate::fem::system::system::System;
 use crate::tests::utils;
 use crate::tests::utils::plotter::Plotter;
@@ -26,8 +26,8 @@ fn mass_spring_damper_1() {
     let x0 = 0.1;   // Initial displacement
 
     let mut system = System::new();
-    let node_a = system.create_node(&vector![0.0, 0.0, 0.0], Constraints::all_fixed());
-    let node_b = system.create_node(&vector![l + x0, 0.0, 0.0], Constraints::x_pos_free());
+    let node_a = system.create_node(&vector![0.0, 0.0, 0.0], &[false, false, false]);
+    let node_b = system.create_node(&vector![l + x0, 0.0, 0.0], &[true, false, false]);
 
     system.add_element(&[node_a, node_b], StringElement::spring(k, d, l));
     system.add_element(&[node_b], MassElement::new(m));
@@ -126,12 +126,12 @@ fn mass_spring_damper_n() {
 
     let lengths: Vec<f64> = lin_space(0.0..=L, n+2).collect();
     for (i, s) in lengths.iter().enumerate() {
-        let (position, constraints) = if (*s != 0.0) && (*s != L) {
-            (*s + u0[i-1], Constraints::x_pos_free())
+        let (position, free) = if (*s != 0.0) && (*s != L) {
+            (*s + u0[i-1], [true, false, false])
         } else {
-            (*s, Constraints::all_fixed())
+            (*s, [false, false, false])
         };
-        nodes.push(system.create_node(&vector![position, 0.0, 0.0], constraints));
+        nodes.push(system.create_node(&vector![position, 0.0, 0.0], &free));
     }
 
     // Add bar elements between nodes

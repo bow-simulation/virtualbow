@@ -4,7 +4,7 @@ use nalgebra::vector;
 use crate::fem::elements::mass::MassElement;
 use crate::fem::elements::string::StringElement;
 use crate::fem::solvers::eigen::natural_frequencies;
-use crate::fem::system::node::{Constraints, Node};
+use crate::fem::system::node::Node;
 use crate::fem::system::system::System;
 use crate::tests::utils::plotter::Plotter;
 
@@ -27,12 +27,7 @@ fn verify_analytic_damping_ratio() {
 
     let lengths: Vec<f64> = lin_space(0.0..=L, n+2).collect();
     for (i, &s) in lengths.iter().enumerate() {
-        let constraints = if s != 0.0 {
-            Constraints::x_pos_free()
-        } else {
-            Constraints::all_fixed()
-        };
-        nodes.push(system.create_node(&vector![s, 0.0, 0.0], constraints));
+        nodes.push(system.create_node(&vector![s, 0.0, 0.0], &[i != 0, false, false]));
     }
 
     // Add bar elements between nodes
@@ -53,8 +48,8 @@ fn verify_analytic_damping_ratio() {
     let mut plotter = Plotter::new();
     for (i, mode) in modes.iter().enumerate() {
         let k = i + 1;
-        let omega_ref = PI*((2*k - 1) as f64)/(2.0*L)*f64::sqrt(EA/ ρA);
-        let zeta_ref = PI*((2*k - 1) as f64)/(4.0*L)*ηA /f64::sqrt(ρA *EA);
+        let omega_ref = PI*((2*k - 1) as f64)/(2.0*L)*f64::sqrt(EA/ρA);
+        let zeta_ref = PI*((2*k - 1) as f64)/(4.0*L)*ηA /f64::sqrt(ρA*EA);
 
         plotter.add_point((i as f64, mode.omega), (i as f64, omega_ref), "Modal Frequency", "Mode [-]", "Omega [1/s]");
         plotter.add_point((i as f64, mode.zeta), (i as f64, zeta_ref), "Modal Damping", "Mode [-]", "Zeta [-]");

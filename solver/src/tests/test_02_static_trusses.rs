@@ -2,7 +2,6 @@ use std::f64::consts::SQRT_2;
 use nalgebra::vector;
 use crate::fem::elements::string::StringElement;
 use crate::fem::solvers::statics::{Settings, StaticSolver};
-use crate::fem::system::node::Constraints;
 use crate::fem::system::system::System;
 use crate::tests::utils;
 use crate::tests::utils::plotter::Plotter;
@@ -15,14 +14,13 @@ use crate::tests::utils::plotter::Plotter;
 fn linear_bar_truss_1() {
     let a = 1.0;
     let EA = 21000.0;
-    let ρA = 0.785;
 
     let x_ref = a + 0.001;           // Reference displacement
     let F_ref = EA/a*(x_ref - a);    // Reference force
 
     let mut system = System::new();
-    let node1 = system.create_node(&vector![0.0, 0.0, 0.0], Constraints::all_fixed());
-    let node2 = system.create_node(&vector![a, 0.0, 0.0], Constraints::x_pos_free());
+    let node1 = system.create_node(&vector![0.0, 0.0, 0.0], &[false, false, false]);
+    let node2 = system.create_node(&vector![a, 0.0, 0.0], &[true, false, false]);
 
     system.add_element(&[node1, node2], StringElement::bar(EA, 0.0, a));
     system.add_force(node2.x(), move |_t|{ F_ref });
@@ -52,10 +50,10 @@ fn linear_bar_truss_3() {
 
     let mut system = System::new();
 
-    let node1 = system.create_node(&vector![0.0, 0.0, 0.0], Constraints::all_fixed());
-    let node2 = system.create_node(&vector![a, 0.0, 0.0], Constraints::pos_free());
-    let node3 = system.create_node(&vector![a, a, 0.0], Constraints::pos_free());
-    let node4 = system.create_node(&vector![0.0, 2.0*a, 0.0], Constraints::all_fixed());
+    let node1 = system.create_node(&vector![0.0, 0.0, 0.0], &[false, false, false]);
+    let node2 = system.create_node(&vector![a, 0.0, 0.0], &[true, true, false]);
+    let node3 = system.create_node(&vector![a, a, 0.0], &[true, true, false]);
+    let node4 = system.create_node(&vector![0.0, 2.0*a, 0.0], &[false, false, false]);
 
     system.add_element(&[node1, node2], StringElement::bar(EA, 0.0, a));
     system.add_element(&[node2, node3], StringElement::bar(EA, 0.0, a));
@@ -83,16 +81,16 @@ fn linear_bar_truss_4() {
     let s_ref = (4.0 + 2.0*SQRT_2)*F_ref*a/EA;
 
     let mut system = System::new();
-    let node_01 = system.create_node(&vector![0.0, 0.0, 0.0], Constraints::all_fixed());
-    let node_02 = system.create_node(&vector![a, 0.0, 0.0], Constraints::pos_free());
-    let node_03 = system.create_node(&vector![2.0*a, 0.0, 0.0], Constraints::pos_free());
-    let node_04 = system.create_node(&vector![3.0*a, 0.0, 0.0], Constraints::pos_free());
-    let node_05 = system.create_node(&vector![4.0*a, 0.0, 0.0], Constraints::x_pos_free());
-    let node_06 = system.create_node(&vector![0.0, a, 0.0], Constraints::pos_free());
-    let node_07 = system.create_node(&vector![a, a, 0.0], Constraints::pos_free());
-    let node_08 = system.create_node(&vector![2.0*a, a, 0.0], Constraints::pos_free());
-    let node_09 = system.create_node(&vector![3.0*a, a, 0.0], Constraints::pos_free());
-    let node_10 = system.create_node(&vector![4.0*a, a, 0.0], Constraints::pos_free());
+    let node_01 = system.create_node(&vector![0.0, 0.0, 0.0], &[false, false, false]);
+    let node_02 = system.create_node(&vector![a, 0.0, 0.0], &[true, true, false]);
+    let node_03 = system.create_node(&vector![2.0*a, 0.0, 0.0], &[true, true, false]);
+    let node_04 = system.create_node(&vector![3.0*a, 0.0, 0.0], &[true, true, false]);
+    let node_05 = system.create_node(&vector![4.0*a, 0.0, 0.0], &[true, false, false]);
+    let node_06 = system.create_node(&vector![0.0, a, 0.0], &[true, true, false]);
+    let node_07 = system.create_node(&vector![a, a, 0.0], &[true, true, false]);
+    let node_08 = system.create_node(&vector![2.0*a, a, 0.0], &[true, true, false]);
+    let node_09 = system.create_node(&vector![3.0*a, a, 0.0], &[true, true, false]);
+    let node_10 = system.create_node(&vector![4.0*a, a, 0.0], &[true, true, false]);
 
     system.add_element(&[node_01, node_02], StringElement::bar(EA, 0.0, a));
     system.add_element(&[node_02, node_03], StringElement::bar(EA, 0.0, a));
@@ -134,8 +132,8 @@ fn nonlinear_bar_truss_1() {
     let EA = 21000.0;
 
     let mut system = System::new();
-    let node1 = system.create_node(&vector![0.0, 0.0, 0.0], Constraints::all_fixed());
-    let node2 = system.create_node(&vector![a, b, 0.0], Constraints::y_pos_free());
+    let node1 = system.create_node(&vector![0.0, 0.0, 0.0], &[false, false, false]);
+    let node2 = system.create_node(&vector![a, b, 0.0], &[false, true, false]);
     let element = system.add_element(&[node1, node2], StringElement::bar(EA, 0.0, f64::hypot(a, b)));
     system.add_force(node2.y(), |_t| { -1.0 });
 
@@ -173,9 +171,9 @@ fn nonlinear_bar_truss_2() {
     let EA = 21000.0;
 
     let mut system = System::new();
-    let node0 = system.create_node(&vector![0.0, 0.0, 0.0], Constraints::all_fixed());
-    let node1 = system.create_node(&vector![a, c, 0.0], Constraints::pos_free());
-    let node2 = system.create_node(&vector![a + b, 0.0, 0.0], Constraints::all_fixed());
+    let node0 = system.create_node(&vector![0.0, 0.0, 0.0], &[false, false, false]);
+    let node1 = system.create_node(&vector![a, c, 0.0], &[true, true, false]);
+    let node2 = system.create_node(&vector![a + b, 0.0, 0.0], &[false, false, false]);
 
     let bar01 = system.add_element(&[node0, node1], StringElement::bar(EA, 0.0, f64::hypot(a, c)));
     let bar12 = system.add_element(&[node1, node2], StringElement::bar(EA, 0.0, f64::hypot(b, c)));

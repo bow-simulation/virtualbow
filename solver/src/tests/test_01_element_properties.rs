@@ -1,6 +1,5 @@
 use nalgebra::vector;
 use crate::fem::elements::mass::MassElement;
-use crate::fem::system::node::Constraints;
 use crate::fem::system::system::System;
 use crate::bow::sections::section::{LayerAlignment, LayeredCrossSection};
 use crate::bow::input::{Layer, Material, Width};
@@ -21,7 +20,7 @@ fn mass_element() {
     let m = 1.5;
 
     let mut system = System::new();
-    let node = system.create_node(&vector![0.0, 0.0, 0.0], Constraints::all_free());
+    let node = system.create_node(&vector![0.0, 0.0, 0.0], &[true, true, true]);
     system.add_element(&[node], MassElement::new(m));
 
     utils::checks::check_system_invariants(&mut system);
@@ -34,11 +33,11 @@ fn string_element() {
     let ηA = 400.0;
 
     let mut system = System::new();
-    let node0 = system.create_node(&vector![0.0, 0.0, FRAC_PI_2 + 0.1], Constraints::all_free());
-    let node1 = system.create_node(&vector![-1.0, 1.0, FRAC_PI_2 + 0.1], Constraints::all_free());
-    let node2 = system.create_node(&vector![0.0, 2.0, FRAC_PI_2 + 0.1], Constraints::all_free());
-    let node3 = system.create_node(&vector![0.0, 2.5, FRAC_PI_2 + 0.1], Constraints::all_free());
-    let node4 = system.create_node(&vector![0.0, 3.0, FRAC_PI_2 + 0.1], Constraints::all_free());
+    let node0 = system.create_node(&vector![0.0, 0.0, FRAC_PI_2 + 0.1], &[true, true, true]);
+    let node1 = system.create_node(&vector![-1.0, 1.0, FRAC_PI_2 + 0.1], &[true, true, true]);
+    let node2 = system.create_node(&vector![0.0, 2.0, FRAC_PI_2 + 0.1], &[true, true, true]);
+    let node3 = system.create_node(&vector![0.0, 2.5, FRAC_PI_2 + 0.1], &[true, true, true]);
+    let node4 = system.create_node(&vector![0.0, 3.0, FRAC_PI_2 + 0.1], &[true, true, true]);
 
     let offsets = vec![0.1, -0.1, -0.15, -0.15, -0.1];
 
@@ -63,8 +62,8 @@ fn beam_element() {
     element.set_damping(0.1);
 
     let mut system = System::new();
-    let node0 = system.create_node(&segment.p0, Constraints::all_free());
-    let node1 = system.create_node(&segment.p1, Constraints::all_free());
+    let node0 = system.create_node(&segment.p0, &[true, true, true]);
+    let node1 = system.create_node(&segment.p1, &[true, true, true]);
     system.add_element(&[node0, node1], element);
 
     utils::checks::check_system_invariants(&mut system);

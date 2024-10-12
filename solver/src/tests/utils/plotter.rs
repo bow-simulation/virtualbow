@@ -49,6 +49,7 @@ impl Plotter {
 
 impl Drop for Plotter {
     fn drop(&mut self) {
+        /*
         // Determine output path from thread name, which corresponds to the test being run
         // https://users.rust-lang.org/t/reliably-getting-name-of-currently-running-test-with-rust-test-threads-1/65138
         let thread_name = std::thread::current().name()
@@ -67,6 +68,7 @@ impl Drop for Plotter {
         self.plots.iter().for_each(|(info, data)| {
             create_plot(&output_path, &info, &data);
         });
+        */
     }
 }
 
