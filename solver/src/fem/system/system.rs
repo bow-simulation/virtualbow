@@ -2,7 +2,6 @@ use super::element::Element;
 use super::dof::Dof;
 use super::node::Node;
 use super::views::{PositionView, VelocityView, VectorView, MatrixView};
-use super::node::Constraints;
 use nalgebra::{DMatrix, DVector, SVector};
 use crate::fem::system::views::{AccelerationView, ForceView};
 
@@ -175,10 +174,10 @@ impl System {
 
 
     // Creates a planar node with three degrees of freedom, two displacements in x and y and a rotation angle.
-    pub fn create_node(&mut self, u: &SVector<f64, 3>, constraints: Constraints) -> Node {
-        let dof_x = if constraints.x_pos_fixed { Dof::Fixed(u[0]) } else { self.create_free_dof(u[0], 0.0) };
-        let dof_y = if constraints.y_pos_fixed { Dof::Fixed(u[1]) } else { self.create_free_dof(u[1], 0.0) };
-        let dof_φ = if constraints.z_rot_fixed { Dof::Fixed(u[2]) } else { self.create_free_dof(u[2], 0.0) };
+    pub fn create_node(&mut self, u: &SVector<f64, 3>, free: &[bool; 3]) -> Node {
+        let dof_x = if free[0] { self.create_free_dof(u[0], 0.0) } else { Dof::Fixed(u[0]) };
+        let dof_y = if free[1] { self.create_free_dof(u[1], 0.0) } else { Dof::Fixed(u[1]) };
+        let dof_φ = if free[2] { self.create_free_dof(u[2], 0.0) } else { Dof::Fixed(u[2]) };
 
         Node::new(dof_x, dof_y, dof_φ)
     }

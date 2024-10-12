@@ -4,7 +4,6 @@ use spec_math::Ellip;
 use crate::fem::elements::mass::MassElement;
 use crate::fem::elements::string::StringElement;
 use crate::fem::solvers::dynamics::{DynamicSolver, Settings};
-use crate::fem::system::node::Constraints;
 use crate::fem::system::system::System;
 use crate::tests::utils;
 use crate::tests::utils::plotter::Plotter;
@@ -32,8 +31,8 @@ fn nonlinear_pendulum() {
     let c = f64::sin(φ0 /2.0);
 
     let mut system = System::new();
-    let node_a = system.create_node(&vector![0.0, 0.0, 0.0], Constraints::all_fixed());
-    let node_b = system.create_node(&vector![x0, y0, 0.0], Constraints::pos_free());
+    let node_a = system.create_node(&vector![0.0, 0.0, 0.0], &[false, false, false]);
+    let node_b = system.create_node(&vector![x0, y0, 0.0], &[true, true, false]);
 
     system.add_element(&[node_a, node_b], StringElement::spring(k, d, l));
     system.add_element(&[node_b], MassElement::new(m));

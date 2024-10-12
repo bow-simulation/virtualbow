@@ -7,7 +7,7 @@ use soa_rs::Soa;
 use crate::fem::solvers::eigen::{Mode, natural_frequencies, natural_frequencies_from_matrices};
 use crate::fem::solvers::statics::StaticSolver;
 use crate::fem::system::element::Element;
-use crate::fem::system::node::{Constraints, Node};
+use crate::fem::system::node::Node;
 use crate::fem::system::system::{DynamicEval, StaticEval, System};
 use crate::bow::sections::section::LayeredCrossSection;
 use crate::bow::errors::ModelError;
@@ -78,8 +78,7 @@ impl<'a> Simulation<'a> {
         let mut system = System::new();
 
         let limb_nodes: Vec<Node> = u_nodes.iter().enumerate().map(|(i, u)| {
-            let constraints = if i != 0 { Constraints::all_free() } else { Constraints::all_fixed() };
-            system.create_node(u, constraints)
+            system.create_node(u, &[i != 0; 3])    // First node is fixed, all others
         }).collect();
 
         let limb_elements: Vec<usize> = elements.into_iter().enumerate().map(|(i, element)| {
@@ -123,10 +122,10 @@ impl<'a> Simulation<'a> {
 
         // Add string center node and make it fixed in the case of no string
         let string_node = if string {
-            system.create_node(&vector![0.0, y_str, 0.0], Constraints::y_pos_free())
+            system.create_node(&vector![0.0, y_str, 0.0], &[false, true, false])
         }
         else {
-            system.create_node(&vector![0.0, y_str, 0.0], Constraints::all_fixed())
+            system.create_node(&vector![0.0, y_str, 0.0], &[false, false, false])
         };
 
         // The string element only gets non-zero parameters if the string option is true
