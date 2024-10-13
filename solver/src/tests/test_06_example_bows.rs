@@ -241,7 +241,7 @@ fn perform_bow_test(file: &str) {
         let Fx = -state.string_force*f64::cos(alpha);
         let Fy = -state.string_force*f64::sin(alpha);
 
-        for (j, &s) in output.common.limb.length.iter().enumerate() {
+        for (j, &_s) in output.common.limb.length.iter().enumerate() {
             let x = state.limb_pos[j][0];
             let y = state.limb_pos[j][1];
             let φ = state.limb_pos[j][2];

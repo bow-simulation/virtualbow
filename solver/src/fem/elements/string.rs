@@ -112,7 +112,7 @@ impl Element for StringElement {
 
         // Step 3: Compute partial lengths and total length from contact points
         self.lengths.clear();
-        self.lengths.extend(self.indices.iter().tuple_windows().map(|(&i, &j)| (self.points[i] - self.points[j]).norm()));
+        self.lengths.extend(self.indices.iter().tuple_windows().map(|(&i, &j)| (self.points[j] - self.points[i]).norm()));
         self.lt = self.lengths.iter().sum();
 
         // Step 4: Compute partial derivatives of the length as needed for Q, K and D
@@ -134,11 +134,11 @@ impl Element for StringElement {
             let φj = self.angles[j];
             let dj = self.offsets[j];
 
-            let Lij = self.lengths[k];
+            let lij = self.lengths[k];
 
             if q.is_some() || K.is_some() {
-                let dl_dxi = (xi - xj)/Lij;
-                let dl_dyi = (yi - yj)/Lij;
+                let dl_dxi = (xi - xj)/lij;
+                let dl_dyi = (yi - yj)/lij;
                 let dl_dφi = -di*(dl_dxi*f64::cos(φi) + dl_dyi*f64::sin(φi));
 
                 let dl_dxj = -dl_dxi;
@@ -155,12 +155,12 @@ impl Element for StringElement {
                 }
 
                 if K.is_some() {
-                    let dl_dxi_dxi = (yj - yi).powi(2)/Lij.powi(3);
-                    let dl_dxi_dyi = -(xj - xi)*(yj - yi)/Lij.powi(3);
+                    let dl_dxi_dxi = (yj - yi).powi(2)/lij.powi(3);
+                    let dl_dxi_dyi = -(xj - xi)*(yj - yi)/lij.powi(3);
                     let dl_dxi_dxj = -dl_dxi_dxi;
                     let dl_dxi_dyj = -dl_dxi_dyi;
 
-                    let dl_dyi_dyi = (xj - xi).powi(2)/Lij.powi(3);
+                    let dl_dyi_dyi = (xj - xi).powi(2)/lij.powi(3);
                     let dl_dyi_dxj = -dl_dxi_dyi;
                     let dl_dyi_dyj = -dl_dyi_dyi;
 
@@ -214,7 +214,7 @@ impl Element for StringElement {
             for j in 0..self.dldu.len() {
                 let dldt_du_j: f64 = self.dldu2.column(j).iter().enumerate().map(|(k, dldu2)| dldu2*v.at(k)).sum();
                 for i in 0..self.dldu.len() {
-                    K.add(i, j, self.EA/self.l0*self.dldu[j]*self.dldu[i] + self.ηA/self.l0*dldt_du_j *self.dldu[i] + self.Nt*self.dldu2[(j, i)]);
+                    K.add(i, j, self.EA/self.l0*self.dldu[j]*self.dldu[i] + self.ηA/self.l0*dldt_du_j*self.dldu[i] + self.Nt*self.dldu2[(i, j)]);
                 }
             }
         }
@@ -230,6 +230,7 @@ impl Element for StringElement {
 
     fn potential_energy(&self) -> f64 {
         0.5*self.Nt*(self.lt - self.l0)
+        //self.lt
     }
 
     fn kinetic_energy(&self) -> f64 {
