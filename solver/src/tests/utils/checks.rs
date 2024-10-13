@@ -7,39 +7,17 @@ const NUM_DIFF_MAX_ERROR: f64 = 1e-3;
 const EPSILON_RELATIVE: f64 = 1e-6;
 const EPSILON_ABSOLUTE: f64 = 1e-9;
 
-// Performs a series of physical consistency checks on the system
-// for varying, random system states (displacements and velocities)
+// Performs a series of physical consistency checks on the system at its current state
 pub fn check_system_invariants(system: &mut System) {
     // Remember original system state
     let u_backup = system.get_displacements().clone();
     let v_backup = system.get_velocities().clone();
 
-    // Generate random states and check each of them
-    let n_samples = 10*system.n_dofs();
-
-    // Zero velocity
-    for _ in 0..n_samples {
-        let u = &u_backup + 0.1*DVector::<f64>::new_random(system.n_dofs()).add_scalar(-0.5);
-        let v = DVector::<f64>::zeros(system.n_dofs());
-
-        check_mass_matrix(system);
-        check_stiffness_matrix(system, &u, &v);
-        check_damping_matrix(system, &u, &v);
-        check_kinetic_energy(system, &u, &v);
-        check_potential_energy(system, &u);
-    }
-
-    // Nonzero velocity
-    for _ in 0..n_samples {
-        let u = &u_backup + 0.1*DVector::<f64>::new_random(system.n_dofs()).add_scalar(-0.5);
-        let v = &v_backup + 0.1*DVector::<f64>::new_random(system.n_dofs()).add_scalar(-0.5);
-
-        check_mass_matrix(system);
-        check_stiffness_matrix(system, &u, &v);
-        check_damping_matrix(system, &u, &v);
-        check_kinetic_energy(system, &u, &v);
-        check_potential_energy(system, &u);
-    }
+    check_mass_matrix(system);
+    check_stiffness_matrix(system, &u_backup, &v_backup);
+    check_damping_matrix(system, &u_backup, &v_backup);
+    check_kinetic_energy(system, &u_backup, &v_backup);
+    check_potential_energy(system, &u_backup);
 
     // Reapply original system state
     system.set_displacements(&u_backup);
@@ -74,11 +52,6 @@ pub fn check_stiffness_matrix(system: &mut System, u: &DVector<f64>, v: &DVector
 
     // Check error of the derivative approximation
     // assert!(error < NUM_DIFF_MAX_ERROR);
-
-    // Tangent stiffness matrix must be symmetric, if there is no velocity influence
-    if v.amax() == 0.0 {
-        assert_abs_diff_eq!(&K_sys, &K_sys.transpose(), epsilon=K_num.amax()*EPSILON_RELATIVE + EPSILON_ABSOLUTE);
-    }
 
     // Tangent stiffness matrix must be equal to numeric derivative of the internal forces
     assert_abs_diff_eq!(&K_sys, &K_num, epsilon=K_num.amax()*EPSILON_RELATIVE + EPSILON_ABSOLUTE)

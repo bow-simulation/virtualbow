@@ -1,4 +1,4 @@
-use nalgebra::vector;
+use nalgebra::{dvector, vector};
 use crate::fem::elements::mass::MassElement;
 use crate::fem::system::system::System;
 use crate::bow::sections::section::{LayerAlignment, LayeredCrossSection};
@@ -10,8 +10,6 @@ use crate::fem::elements::beam::linear::LinearBeamSegment;
 use crate::fem::elements::string::StringElement;
 use crate::tests::utils;
 
-use std::f64::consts::FRAC_PI_2;
-
 // These tests perform basic consistency checks on the various elements
 // See the utils::checks::check_system_invariants function for the details
 
@@ -20,7 +18,7 @@ fn mass_element() {
     let m = 1.5;
 
     let mut system = System::new();
-    let node = system.create_node(&vector![0.0, 0.0, 0.0], &[true, true, true]);
+    let node = system.create_node(&vector![0.0, 0.0, 0.0], &[true; 3]);
     system.add_element(&[node], MassElement::new(m));
 
     utils::checks::check_system_invariants(&mut system);
@@ -28,22 +26,61 @@ fn mass_element() {
 
 #[test]
 fn string_element() {
-    let L = 1.5;
+    let l = 1.5;
     let EA = 2100.0;
     let ηA = 400.0;
 
-    let mut system = System::new();
-    let node0 = system.create_node(&vector![0.0, 0.0, FRAC_PI_2 + 0.1], &[true, true, true]);
-    let node1 = system.create_node(&vector![-1.0, 1.0, FRAC_PI_2 + 0.1], &[true, true, true]);
-    let node2 = system.create_node(&vector![0.0, 2.0, FRAC_PI_2 + 0.1], &[true, true, true]);
-    let node3 = system.create_node(&vector![0.0, 2.5, FRAC_PI_2 + 0.1], &[true, true, true]);
-    let node4 = system.create_node(&vector![0.0, 3.0, FRAC_PI_2 + 0.1], &[true, true, true]);
+    // Two nodes
+    {
+        let mut system = System::new();
+        let node0 = system.create_node(&vector![0.0, 0.0, 1.5], &[true; 3]);
+        let node1 = system.create_node(&vector![0.0, 1.0, 1.5], &[true; 3]);
 
-    let offsets = vec![0.1, -0.1, -0.15, -0.15, -0.1];
+        let offsets = vec![-0.1, -0.1];
+        system.add_element(&[node0, node1], StringElement::new(EA, ηA, l, offsets));
 
-    system.add_element(&[node0, node1, node2, node3, node4], StringElement::new(EA, ηA, L, offsets));
+        utils::checks::check_system_invariants(&mut system);
+    }
 
-    utils::checks::check_system_invariants(&mut system);
+    // Three nodes, middle node has contact
+    {
+        let mut system = System::new();
+        let node0 = system.create_node(&vector![0.0, 0.0, 1.5], &[true; 3]);
+        let node1 = system.create_node(&vector![0.1, 1.0, 1.5], &[true; 3]);
+        let node2 = system.create_node(&vector![0.0, 2.0, 1.5], &[true; 3]);
+
+        let offsets = vec![-0.1, -0.1, -0.1];
+        system.add_element(&[node0, node1, node2], StringElement::new(EA, ηA, l, offsets));
+
+        utils::checks::check_system_invariants(&mut system);
+    }
+
+    // Three nodes, middle node has no contact
+    {
+        let mut system = System::new();
+        let node0 = system.create_node(&vector![0.0, 0.0, 1.5], &[true; 3]);
+        let node1 = system.create_node(&vector![-0.1, 1.0, 1.5], &[true; 3]);
+        let node2 = system.create_node(&vector![0.0, 2.0, 1.5], &[true; 3]);
+    
+        let offsets = vec![-0.1, -0.1, -0.1];
+        system.add_element(&[node0, node1, node2], StringElement::new(EA, ηA, l, offsets));
+    
+        utils::checks::check_system_invariants(&mut system);
+    }
+
+    // Four nodes, middle nodes have contact
+    {
+        let mut system = System::new();
+        let node0 = system.create_node(&vector![0.0, 0.0, 1.5], &[true; 3]);
+        let node1 = system.create_node(&vector![0.1, 1.0, 1.5], &[true; 3]);
+        let node2 = system.create_node(&vector![0.1, 2.0, 1.5], &[true; 3]);
+        let node3 = system.create_node(&vector![0.0, 3.0, 1.5], &[true; 3]);
+        
+        let offsets = vec![-0.1, -0.1, -0.1, -0.1];
+        system.add_element(&[node0, node1, node2, node3], StringElement::new(EA, ηA, l, offsets));
+        
+        utils::checks::check_system_invariants(&mut system);
+    }
 }
 
 #[test]
@@ -62,9 +99,28 @@ fn beam_element() {
     element.set_damping(0.1);
 
     let mut system = System::new();
-    let node0 = system.create_node(&segment.p0, &[true, true, true]);
-    let node1 = system.create_node(&segment.p1, &[true, true, true]);
+    let node0 = system.create_node(&segment.p0, &[true; 3]);
+    let node1 = system.create_node(&segment.p1, &[true; 3]);
     system.add_element(&[node0, node1], element);
 
+    let u0 = system.get_displacements().clone();
+    let v0 = system.get_displacements().clone();
+
+    // Check at some different system states
+
+    system.set_displacements(&(&u0 + dvector![0.5, 0.5, 0.5, 0.5, 0.5, 0.5]));
+    system.set_velocities(&(&v0 + dvector![0.5, 0.5, 0.5, 0.5, 0.5, 0.5]));
+    utils::checks::check_system_invariants(&mut system);
+
+    system.set_displacements(&(&u0 + dvector![0.5, 0.5, 0.5, -0.5, -0.5, -0.5]));
+    system.set_velocities(&(&v0 + dvector![0.5, 0.5, 0.5, -0.5, -0.5, -0.5]));
+    utils::checks::check_system_invariants(&mut system);
+
+    system.set_displacements(&(&u0 + dvector![0.5, -0.5, 0.5, -0.5, 0.5, -0.5]));
+    system.set_velocities(&(&v0 + dvector![0.5, -0.5, 0.5, -0.5, 0.5, -0.5]));
+    utils::checks::check_system_invariants(&mut system);
+
+    system.set_displacements(&(&u0 + dvector![-5.0, -5.0, -5.0, 5.0, 5.0, 5.0]));
+    system.set_velocities(&(&v0 + dvector![5.0, 5.0, 5.0, -5.0, -5.0, -5.0]));
     utils::checks::check_system_invariants(&mut system);
 }
