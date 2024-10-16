@@ -344,23 +344,28 @@ The common choice of $\boldsymbol{x}(t) = (\boldsymbol{u}(t),\,\dot{\boldsymbol{
 
 Early prototypes of VirtualBow followed this approach and solved the resulting first order problem with methods provided by the C++ library Odeint \cite{bib:ahnert2011}.
 Especially the error controlled Runge-Kutta methods worked reasonably well.
-In addition to those general methods, there are also numerous methods that have been developed with finite elements/structural dynamics in mind.
-Those operate directly on the second order problem~(\ref{eq:dynamics:system_equation}) and are usually more effective for this type of problem.
+However, in addition to such general methods for first order systems, there are also numerous methods that have been developed with finite elements/structural dynamics in mind.
+They operate directly on the second order problem~(\ref{eq:dynamics:system_equation}) and are usually more effective for this type of problem.
 
-All numerical methods for solving ODEs can be grouped into either explicit and implicit ones.
+Apart from the order of the ODE, all numerical methods for solving ODEs can be grouped into either explicit and implicit ones.
 Explicit methods use the current state of the system at time~$t$ to calculate the next state at~$t + \Delta t$.
 Implicit methods instead find the next state by solving an equation that involves the current as well as the next state.
-In the context of finite element analysis, implicit methods require equilibrium iterations at every time step involving the system's tangent stiffness matrix, while explicit methods only require simple vector operations.
-Implicit methods therefore have a higher computational cost per step, but can make up for it by requiring less steps overall, as their better stability allows them to use much larger step sizes than explicit methods.
+In the context of finite element analysis, implicit methods require equilibrium iterations at every time step involving the system's tangent stiffness and damping matrices, while explicit methods only require simple vector operations to compute the next solution state.
+Implicit methods therefore have a higher computational cost per step, but can make up for it by requiring less steps overall, since their better stability properties allow them to use much larger step sizes than explicit methods.
 
 Explicit methods are easier to implement and are a good choice for small time scales, like impact and wave propagation problems.
 They are most effective when the computation of the time steps is fast, so they work well with constant, diagonal (lumped) mass matrices and simple elements with low-order shape functions.
-
 Implicit methods in contrast are well suited for larger time scales, where explicit algorithms would need an excessive number of steps.
 Examples are structural response problems or numerically stiff systems, i.e. systems whose eigenfrequencies range from very small to very large.
 
-From version 0.1 to 0.9, VirtualBow used the explicit central difference method \cite{bib:bathe2006}, which is probably one of the most popular explicit methods in finite element analysis.
-Later versions use the Generalized-$\alpha$ method instead, which is an implicit method and closely related to the also very popular Newmark-$\beta$ method.
+Based on these criteria, implicit methods should be the better fit for simulating the dynamics of a bow.
+However, from version 0.1 to 0.9, VirtualBow used the explicit central difference method \cite{bib:bathe2006}, which is one of the standard explicit methods in finite element analysis.
+The reason for this choice was the relatively simple implementation and a sufficiently good performance.
+
+Starting with version 0.10, VirtualBow uses the Newmark-$\beta$ method instead, which is a popular implicit method that is commonly used in structural dynamics.
+The initial plan was to use the Generalized-$\alpha$ method, which is closely related to the Newmark method and improves some of its properties.
+It was however decided to release VirtualBow with the simpler Newmark method first to gain some experience and feedback and only switch to the Generalized-$\alpha$ method later if a clear advantage for the bow simulation can be shown.
+That's why both of these methods are documented below even though only one is used.
 
 \subsection{Newmark-$\boldsymbol{\beta}$ Method}
 
