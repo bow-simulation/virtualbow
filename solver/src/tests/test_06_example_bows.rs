@@ -15,13 +15,11 @@ fn bow_5g6c4m63() {
     perform_bow_test("bows/users/5g6c4m63.bow");
 }
 
-/*
 // Needs string contact to brace
 #[test]
 fn bow_mt22m5gs() {
     perform_bow_test("bows/users/mt22m5gs.bow");
 }
-*/
 
 /*
 // TODO: Malformed geometry for some reason (bad conversion?)
@@ -36,13 +34,11 @@ fn bow_nv1x16ok() {
     perform_bow_test("bows/users/nv1x16ok.bow");
 }
 
-/*
 // Recurve
 #[test]
 fn bow_d75f0aoh() {
     perform_bow_test("bows/users/d75f0aoh.bow");
 }
-*/
 
 /*
 // File does not load
@@ -52,21 +48,17 @@ fn bow_j290alr2() {
 }
 */
 
-/*
 // Recurve
 #[test]
 fn bow_cz183o6o() {
     perform_bow_test("bows/users/cz183o6o.bow");
 }
-*/
 
-/*
 // Recurve
 #[test]
 fn bow_2r77c5r2() {
     perform_bow_test("bows/users/2r77c5r2.bow");
 }
-*/
 
 /*
 // Dynamic simulation fails
@@ -91,13 +83,11 @@ fn bow_7b34ggm3() {
     perform_bow_test("bows/users/7b34ggm3.bow");
 }
 
-/*
-// Rercurve
+// Recurve
 #[test]
 fn bow_7j2rnu0n() {
     perform_bow_test("bows/users/7j2rnu0n.bow");
 }
-*/
 
 /*
 // File does not load
@@ -193,9 +183,9 @@ fn perform_bow_test(file: &str) {
         assert_eq!(state.limb_pos.len(), model.settings.n_limb_eval_points);
         assert_eq!(state.limb_vel.len(), model.settings.n_limb_eval_points);
         assert_eq!(state.limb_acc.len(), model.settings.n_limb_eval_points);
-        assert_eq!(state.string_pos.len(), 2);
-        assert_eq!(state.string_vel.len(), 2);
-        assert_eq!(state.string_acc.len(), 2);
+        assert!(state.string_pos.len() >= 2);
+        assert!(state.string_vel.len() >= 2);
+        assert!(state.string_acc.len() >= 2);
         assert_eq!(state.limb_strain.len(), model.settings.n_limb_eval_points);
         assert_eq!(state.limb_force.len(), model.settings.n_limb_eval_points);
         assert_eq!(state.layer_strain.len(), model.layers.len());
@@ -233,32 +223,36 @@ fn perform_bow_test(file: &str) {
         //plotter.add_point((*state.draw_length, drawing_work), (*state.draw_length, drawing_work_ref), "Drawing Work", "Draw length [m]", "Drawing work [N]");
         assert_abs_diff_eq!(drawing_work, drawing_work_ref, epsilon=1e-3*states.e_pot_limbs()[0]);
 
-        // Limb endpoint
-        let x_end = state.limb_pos.last().unwrap()[0];
-        let y_end = state.limb_pos.last().unwrap()[1];
+        // Check equilibrium of forces and moments if the string does not contact the limb.
+        // TODO: Handle the case when it does, which is more complicated because of the contact forces.
+        if state.limb_pos.len() == 2 {
+            // Limb endpoint
+            let x_end = state.limb_pos.last().unwrap()[0];
+            let y_end = state.limb_pos.last().unwrap()[1];
 
-        // Cartesian components of the string force
-        let Fx = -state.string_force*f64::cos(alpha);
-        let Fy = -state.string_force*f64::sin(alpha);
+            // Cartesian components of the string force
+            let Fx = -state.string_force*f64::cos(alpha);
+            let Fy = -state.string_force*f64::sin(alpha);
 
-        for (j, &_s) in output.common.limb.length.iter().enumerate() {
-            let x = state.limb_pos[j][0];
-            let y = state.limb_pos[j][1];
-            let φ = state.limb_pos[j][2];
+            for (j, &_s) in output.common.limb.length.iter().enumerate() {
+                let x = state.limb_pos[j][0];
+                let y = state.limb_pos[j][1];
+                let φ = state.limb_pos[j][2];
 
-            // Reference values for cross section forces based on equilibrium with the string force
-            let M_ref = Fy*(x_end - x) - Fx*(y_end - y);
-            let N_ref = Fx*f64::cos(φ) + Fy*f64::sin(φ);
-            let Q_ref = Fy*f64::cos(φ) - Fx*f64::sin(φ);
+                // Reference values for cross section forces based on equilibrium with the string force
+                let M_ref = Fy*(x_end - x) - Fx*(y_end - y);
+                let N_ref = Fx*f64::cos(φ) + Fy*f64::sin(φ);
+                let Q_ref = Fy*f64::cos(φ) - Fx*f64::sin(φ);
 
-            //plotter.add_point((s, state.limb_force[j][0]), (s, N_ref), &format!("Normal Force {}", i), "Length [m]", "Normal force [N]");
-            assert_abs_diff_eq!(state.limb_force[j][0], N_ref, epsilon=1e-3*statics.final_draw_force);
+                //plotter.add_point((s, state.limb_force[j][0]), (s, N_ref), &format!("Normal Force {}", i), "Length [m]", "Normal force [N]");
+                assert_abs_diff_eq!(state.limb_force[j][0], N_ref, epsilon=1e-3*statics.final_draw_force);
 
-            //plotter.add_point((s, state.limb_force[j][1]), (s, M_ref), &format!("Bending Moment {}", i), "Length [m]", "Bending moment [Nm]");
-            assert_abs_diff_eq!(state.limb_force[j][1], M_ref, epsilon=1e-3*statics.final_draw_force*model.dimensions.draw_length);
+                //plotter.add_point((s, state.limb_force[j][1]), (s, M_ref), &format!("Bending Moment {}", i), "Length [m]", "Bending moment [Nm]");
+                assert_abs_diff_eq!(state.limb_force[j][1], M_ref, epsilon=1e-3*statics.final_draw_force*model.dimensions.draw_length);
 
-            //plotter.add_point((s, state.limb_force[j][2]), (s, Q_ref), &format!("Shear Force {}", i), "Length [m]", "Shear force [N]");
-            assert_abs_diff_eq!(state.limb_force[j][2], Q_ref, epsilon=1e-3*statics.final_draw_force);
+                //plotter.add_point((s, state.limb_force[j][2]), (s, Q_ref), &format!("Shear Force {}", i), "Length [m]", "Shear force [N]");
+                assert_abs_diff_eq!(state.limb_force[j][2], Q_ref, epsilon=1e-3*statics.final_draw_force);
+            }
         }
     }
 

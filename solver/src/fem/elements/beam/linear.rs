@@ -192,9 +192,6 @@ mod tests {
         let C_sec = section.C(0.0);
         let K_ref = LinearBeamSegmentFEM::element_stiffness_matrix(C_sec[(0, 0)], C_sec[(1, 1)], C_sec[(2, 2)], curve.length(), alpha);
 
-        println!("Error K_num = {}", (segment_num.K - K_ref).component_div(&K_ref));
-        println!("Error K_fem = {}", (segment_num.K - K_ref).component_div(&K_ref));
-
         // Check stiffness matrices
         assert_relative_eq!(segment_num.K, K_ref, max_relative=1e-9);
         assert_relative_eq!(segment_fem.K, K_ref, max_relative=1e-6);
