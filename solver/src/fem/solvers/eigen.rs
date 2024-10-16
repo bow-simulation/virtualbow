@@ -5,6 +5,7 @@ use crate::fem::system::system::System;
 
 #[derive(PartialEq, Debug)]
 pub enum EigenSolverError {
+    SingularMassMatrix,
     MatrixInversionFailed,
     NonFiniteEigenvalues,
 }
@@ -12,6 +13,7 @@ pub enum EigenSolverError {
 impl Display for EigenSolverError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
+            EigenSolverError::SingularMassMatrix    => write!(f, "The system has a singular mass matrix.")?,
             EigenSolverError::MatrixInversionFailed => write!(f, "Inversion of the system matrix failed.")?,
             EigenSolverError::NonFiniteEigenvalues  => write!(f, "At least one of the computed Eigenvalues is non-finite.")?,
         }
@@ -69,9 +71,13 @@ pub fn natural_frequencies_from_matrices(M: &DVector<f64>, D: &DMatrix<f64>, K: 
     ];
     */
 
+    // Check if the mass matrix is positive definite
+    if M.amax() < 0.0 {
+        return Err(EigenSolverError::SingularMassMatrix);
+    }
+    
     // Compute the complex eigenvalues for A*v = lambda*B*v by inverting B and solving B^(-1)*A*v = lambda*v.
     // Using a generalized eigenvalue solver would have been better, but nalgebra currently doesn't have one.
-
     let M_inv = DMatrix::from_diagonal(&M.map(|m| 1.0/m));
     let A = stack![
         0, DMatrix::identity(M.len(), M.len());

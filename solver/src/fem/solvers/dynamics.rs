@@ -25,6 +25,7 @@ impl Default for Settings {
 
 #[derive(PartialEq, Debug)]
 pub enum DynamicSolverError {
+    SingularMassMatrix,       // The mass matrix is singular, i.e. cannot be inverted
     LinearSolutionFailed,     // Decomposition of the tangent stiffness matrix or solution of the linear system failed
     NonFiniteStateIncrement,  // The displacement delta is not finite, i.e. contains NaN or Inf values
     MaxIterationsReached,     // Maximum number of iterations was reached without convergence
@@ -35,6 +36,7 @@ pub enum DynamicSolverError {
 impl Display for DynamicSolverError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
+            DynamicSolverError::SingularMassMatrix      => write!(f, "The system has a singular mass matrix.")?,
             DynamicSolverError::LinearSolutionFailed    => write!(f, "Decomposition/solution of the tangent stiffness matrix failed.")?,
             DynamicSolverError::NonFiniteStateIncrement => write!(f, "Encountered a non-finite displacement increment.")?,
             DynamicSolverError::MaxIterationsReached    => write!(f, "Maximum number of iterations exceeded.")?,
@@ -76,8 +78,12 @@ impl<'a> DynamicSolver<'a> {
         // Solver state
         let mut t = self.system.get_time();
 
-        // First evaluation at start of the simulated interval to make acceleration available
-        // and provide callback information at t = t0.
+        // Check if the mass matrix is positive definite
+        if eval.get_mass_matrix().amax() < 0.0 {
+            return Err(DynamicSolverError::SingularMassMatrix);
+        }
+
+        // First evaluation at start of the simulated interval to make acceleration available and provide callback information at t = t0.
         self.system.eval_dynamics(&mut eval);
         if !callback(&self.system, &eval) {
             return Ok(());
