@@ -56,6 +56,10 @@ impl StringElement {
         Self::bar(k*l0, d*l0, l0)
     }
 
+    pub fn get_current_length(&self) -> f64 {
+        self.lt
+    }
+
     pub fn get_initial_length(&self) -> f64 {
         self.l0
     }
@@ -83,6 +87,9 @@ impl StringElement {
         self.Nv
     }
 
+    pub fn contact_points(&self) -> impl Iterator<Item=SVector<f64, 2>> + '_ {
+        self.indices.iter().map(|&i| self.points[i])
+    }
 }
 
 impl Element for StringElement {

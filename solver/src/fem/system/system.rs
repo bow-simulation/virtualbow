@@ -296,6 +296,16 @@ impl System {
         eval
     }
 
+    // Evaluates the element with the current system state
+    // Only necessary in special occasions, usually the solvers do this anyway.
+    pub fn eval_element(&mut self, index: usize) {
+        let (dofs, element) = &mut self.elements[index];
+        let u_view = PositionView::new(&self.u, dofs);
+        let v_view = VelocityView::new(&self.v, dofs);
+
+        element.set_state_and_evaluate(&u_view, &v_view, None, None, None);
+    }
+
     // TODO: Unify with other eval functions
     pub fn eval_statics(&mut self, eval: &mut StaticEval) {
         // Set to zero in case of previous values
