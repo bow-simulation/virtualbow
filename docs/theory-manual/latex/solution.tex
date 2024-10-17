@@ -358,6 +358,8 @@ They are most effective when the computation of the time steps is fast, so they 
 Implicit methods in contrast are well suited for larger time scales, where explicit algorithms would need an excessive number of steps.
 Examples are structural response problems or numerically stiff systems, i.e. systems whose eigenfrequencies range from very small to very large.
 
+\textcolor{red}{Stability od implicit and explicit methods.}
+
 Based on these criteria, implicit methods should be the better fit for simulating the dynamics of a bow.
 However, from version 0.1 to 0.9, VirtualBow used the explicit central difference method \cite{bib:bathe2006}, which is one of the standard explicit methods in finite element analysis.
 The reason for this choice was the relatively simple implementation and a sufficiently good performance.
@@ -402,6 +404,7 @@ $$
 
 and includes the tangent stiffness matrix $\boldsymbol{K}$ of the system, together with other constant terms.
 
+\textcolor{red}{Mention: Newmark is second-order accurate}
 
 \subsection{Generalized-$\boldsymbol{\alpha}$ Method}
 
@@ -452,31 +455,108 @@ The other constants are chosen as
 
 These relations guarantee second order accuracy as well as unconditional stability in the linear case.
 
-\newpage
 \subsection{Adaptive time step}
 
-In the previous sections the timestep $\Delta t$ was implicitly assumed to be constant.
+Selecting the step size $\Delta t$ for time integration is a tradeoff between accuracy and computational effort.
+Smaller timesteps lead to a more detailed solution with less numerical error, while larger timesteps require fewer steps overall and therefore reduce the computational cost.
+Ideally we would like to choose a timestep that is as large as possible while still maintaining a prescribed degree of accuracy.
+However, this ideal timestep will generally vary over time.
+Sections where the solution is relatively smooth and uneventful allow for larger timesteps while sections with frequent changes require smaller timesteps in order to accurately resolve all details.
+We are therefore looking for an algorithm that estimates the current accuracy of the solution and increases or decreases the timestep accordingly.
 
-\cite{bib:hulbert1995}
+Many such automatic time stepping algorithms have been proposed in the literature, both for general problems and in the context of structural dynamics.
+We can't possibly assess all of them here, but \cite{bib:rossi2014} gives a good overview of various methods for structural dynamics and also compares three of them in more detail by solving various example problems.
+Of the three methods investigated, the one by Bergan and Mollestad \cite{bib:bergan1985} seems to be the most well-established, is conceptually simple and doesn't perform worse overall than the newer methods it was compared against.
 
-With $\Delta \boldsymbol{u} = \boldsymbol{u}_{i+1} - \boldsymbol{u}_{i}$
+The method is based on a so-called current characteristic frequency $\omega$ and an associated current characteristic period $T$, which are defined as
 
 \begin{equation}
 \omega^2 = \left\vert \frac{\Delta \boldsymbol{u}^\intercal \boldsymbol{K} \Delta \boldsymbol{u}}{\Delta \boldsymbol{u}^\intercal   \boldsymbol{M} \Delta \boldsymbol{u}} \right\vert, \quad T = \frac{2\pi}{\omega}
 \end{equation}
 
+with $\Delta \boldsymbol{u} = \boldsymbol{u}_{i} - \boldsymbol{u}_{i-1}$ being the displacement increment during the last time step.
+The current characteristic frequency is based on Rayleigh's quotient and provides an approximation for the frequency that currently dominates the system's dynamic response.
+It is in general not equal to any of the natural frequencies of the system.
+
+Let $N$ be the number of desired time steps per characteristic period.
+This value can be chosen in order to control how accurately the solution is to be resolved.
+A value of $N = 20$ is mentioned as typical in \cite{bib:rossi2014} with $N = 1000$ being a high accuracy and $N = 10$ being a low accuracy.
+From the current characteristic period and the desired time steps per period we can calculate the estimated optimal timestep as
+
 \begin{equation}
-\Delta t = \frac{T}{N}
+\Delta t^* = \frac{T}{N}.
 \end{equation}
 
-Other option:
+In figure \ref{fig:adaptive-timestep}, the current characteristic frequency and the resulting optimal timestep are shown for the dynamic simulation for a simple example bow.
+The actual timestep was kept constant for this experiment.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/solution/adaptive-timestep}
+\caption{Example for the estimated frequency~$\omega$ and the associated timestep~$\Delta t^*$ for~$N = 50$. Marked in red is the departure of the arrow.}
+\label{fig:adaptive-timestep}
+\end{figure}
+
+It can be seen that the characteristic frequency varies greatly over the duration of the simulation, which confirms the usefulness of adaptive time stepping for dynamic bow simulations.
+The characteristic frequency is high at the start of the simulation, presumably because the sudden change of releasing the arrow sends a lot of initial oscillations through the string and the bow limbs.
+After this initial disturbance settles down, the motion of the bow turns into a more steady and continuous acceleration of limbs and arrow, represented by a relatively smooth section with a low characteristic frequency and larger optimal time steps.
+The second spike in characteristic frequency occurs when the string reaches brace height and the arrow separates from the bow.
+
+Having verified the applicability of the Bergan and Mollestad method for our use case of simulating bows, we still have to define the actual algorithm by which the step size is adjusted.
+The easiest solution would be to always choose the estimated optimal step size~$\Delta t^*$ as the next step size,
 
 \begin{equation}
-\Delta t_{i+1} = \Delta t_{i} \cdot \sqrt{\frac{e_{\mathrm{target}}}{e_{\mathrm{actual}}}}
+\Delta t_{i+1} = \Delta t^*_{i+1}.
 \end{equation}
 
+In the original method however, the authors introduce a tuning function $f$ as
 
+\begin{equation}
+\Delta t_{i+1} = f(\xi_{i})\,\Delta t_{i}, \quad \xi_{i} = \frac{\Delta t^*_{i+1}}{\Delta t_{i}}
+\end{equation}
 
+in order to moderate the increase or decrease in step size based on the ratio $\xi_{i}$ between the optimal step size and the previously selected step size.
+Their proposed tuning function is defined as
+%
+\begin{align}
+f(\xi_{i}) = \begin{cases}
+1, & \text{if $\nicefrac{1}{\xi_{p}} < \xi_{i} < \xi_{p}$} \\
+2, & \text{if $\xi_{i} > \xi_{m}$} \\
+\xi_{i}, & \text{otherwise}
+\end{cases}.
+\end{align}
+
+Figure \ref{fig:adaptive-timestep-tuning} shows the graph of this function.
+It evaluates to $f(\xi_{i}) = \xi_{i}$ over most of its domain, which means that the suggested timestep is applied, except for the following two modifications:
+
+\begin{itemize}
+\item A plateau around $\xi_{i} = 1$, controlled by the parameter $\xi_{p}$ with a typical value given as $1.3$ or $1.4$.
+This plateau prevents the timestep from changing too frequently when the relative changes are only small.
+The reasoning behind this feature comes from linear dynamic analysis where changing the timestep causes an additional cost because the matrix expressions in the Newmark scheme have to be factorized once again.
+This is way less important in nonlinear dynamic analysis, where the factorizations have to be done at each timestep anyway. \textcolor{red}{TODO: Document actual choice of this parameter, whether used or not.}
+\item A limitation of the increase in step size to a factor of $\xi_{m}$, which is typicallay chosen as $2$.
+This prevents the timestep from prematurely increasing too much.
+The decrease in step size remains unlimited.
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/solution/adaptive-timestep-tuning}
+\caption{Tuning function $f(\xi_{i})$ suggested by Bergan and Mollestad}
+\label{fig:adaptive-timestep-tuning}
+\end{figure}
+
+The method only ever adaptively changes the next timestep based on the estimated apparent frequency from the previous timestep.
+It does not retroactively reject timesteps that were too large, like some other methods do.
+Also it needs to be started with an initial timestep $\Delta t_{0}$ that is then modified by the method.
+This initial timestep should be chosen on the lower side, such that the method increases the step size in the first few iterations.
+
+\textcolor{red}{Mention advantage: Easier to understand setting for users to pick.}
+
+\newpage
+\subsection{Event detection and location}
+
+\textcolor{red}{TODO}
 
 \newpage
 \subsection{Stopping Criterion and Progress Estimation}

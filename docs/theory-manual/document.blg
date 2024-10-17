@@ -1,50 +1,52 @@
-This is BibTeX, Version 0.99d (TeX Live 2023/Debian)
+This is BibTeX, Version 0.99d
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: document.aux
+Reallocating 'name_of_file' (item size: 1) to 6 items.
 The style file: plain.bst
+Reallocating 'name_of_file' (item size: 1) to 11 items.
 Database file #1: references.bib
 Warning--I didn't find a database entry for "bib:curved-beam-stiffness-matrix"
 Warning--I didn't find a database entry for "bib:wiki-sandwich"
 Warning--I didn't find a database entry for "fem_script_uni_bochum"
-You've used 17 entries,
+You've used 18 entries,
             2118 wiz_defined-function locations,
-            608 strings with 6251 characters,
-and the built_in function-call counts, 4915 in all, are:
-= -- 479
-> -- 194
+            615 strings with 6517 characters,
+and the built_in function-call counts, 5299 in all, are:
+= -- 515
+> -- 217
 < -- 0
-+ -- 80
-- -- 60
-* -- 345
-:= -- 846
-add.period$ -- 53
-call.type$ -- 17
-change.case$ -- 81
++ -- 91
+- -- 68
+* -- 376
+:= -- 912
+add.period$ -- 56
+call.type$ -- 18
+change.case$ -- 88
 chr.to.int$ -- 0
-cite$ -- 17
-duplicate$ -- 177
-empty$ -- 417
-format.name$ -- 60
-if$ -- 1025
+cite$ -- 18
+duplicate$ -- 188
+empty$ -- 443
+format.name$ -- 68
+if$ -- 1102
 int.to.chr$ -- 0
-int.to.str$ -- 17
-missing$ -- 16
-newline$ -- 90
-num.names$ -- 34
-pop$ -- 73
+int.to.str$ -- 18
+missing$ -- 17
+newline$ -- 95
+num.names$ -- 36
+pop$ -- 78
 preamble$ -- 1
-purify$ -- 64
+purify$ -- 70
 quote$ -- 0
-skip$ -- 120
+skip$ -- 127
 stack$ -- 0
-substring$ -- 316
-swap$ -- 16
+substring$ -- 344
+swap$ -- 17
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 64
+type$ -- 68
 warning$ -- 0
-while$ -- 45
-width$ -- 19
-write$ -- 189
+while$ -- 48
+width$ -- 20
+write$ -- 200
 (There were 3 warnings)
