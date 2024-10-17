@@ -358,6 +358,8 @@ They are most effective when the computation of the time steps is fast, so they 
 Implicit methods in contrast are well suited for larger time scales, where explicit algorithms would need an excessive number of steps.
 Examples are structural response problems or numerically stiff systems, i.e. systems whose eigenfrequencies range from very small to very large.
 
+\textcolor{red}{Stability od implicit and explicit methods.}
+
 Based on these criteria, implicit methods should be the better fit for simulating the dynamics of a bow.
 However, from version 0.1 to 0.9, VirtualBow used the explicit central difference method \cite{bib:bathe2006}, which is one of the standard explicit methods in finite element analysis.
 The reason for this choice was the relatively simple implementation and a sufficiently good performance.
@@ -452,8 +454,22 @@ The other constants are chosen as
 
 These relations guarantee second order accuracy as well as unconditional stability in the linear case.
 
-\newpage
 \subsection{Adaptive time step}
+
+Selecting the timestep $\Delta t$ is a tradeoff between accuracy and computational effort.
+Ideally we would chose a timestep that is as large as possible but also small enough such that the computed solution is still reasonably accurate.
+This minimum required timestep will generally vary over time.
+Sections of the solution that are relatively smooth and uneventful allow for larger timesteps while sections with frequent changes require a smaller timestep in order to accurately resolve all the details.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/solution/adaptive-timestep}
+\caption{Example for the estimated frequency~$\omega$ and the associated timestep~$\Delta t$ for~$N = 50$ during an example simulation. Marked in red is the departure of the arrow.}
+\label{fig:adaptive-timestep}
+\end{figure}
+
+
+
 
 In the previous sections the timestep $\Delta t$ was implicitly assumed to be constant.
 
@@ -462,7 +478,7 @@ In the previous sections the timestep $\Delta t$ was implicitly assumed to be co
 With $\Delta \boldsymbol{u} = \boldsymbol{u}_{i+1} - \boldsymbol{u}_{i}$
 
 \begin{equation}
-\omega^2 = \left\vert \frac{\Delta \boldsymbol{u}^\intercal \boldsymbol{K} \Delta \boldsymbol{u}}{\Delta \boldsymbol{u}^\intercal   \boldsymbol{M} \Delta \boldsymbol{u}} \right\vert, \quad T = \frac{2\pi}{\omega}
+\omega = \left\vert \frac{\Delta \boldsymbol{u}^\intercal \boldsymbol{K} \Delta \boldsymbol{u}}{\Delta \boldsymbol{u}^\intercal   \boldsymbol{M} \Delta \boldsymbol{u}} \right\vert, \quad T = \frac{2\pi}{\omega}
 \end{equation}
 
 \begin{equation}
