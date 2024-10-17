@@ -2,6 +2,8 @@ use std::fmt::{Display, Formatter};
 use nalgebra::{DMatrix, DVector};
 use crate::fem::system::system::{System, DynamicEval};
 
+use super::eigen::natural_frequencies_from_matrices;
+
 #[derive(Copy, Clone)]
 pub struct Settings {
     pub timestep: f64,          // Time step
@@ -91,6 +93,8 @@ impl<'a> DynamicSolver<'a> {
 
         let dt = self.settings.timestep;
 
+        println!("");
+
         loop {
             // Current displacements, velocities and accelerations
             let u_current = self.system.get_displacements().clone();
@@ -153,6 +157,18 @@ impl<'a> DynamicSolver<'a> {
             }
 
             t += dt;
+
+            // Eigenfrequencies at the end of the timestep
+
+            let delta_u = &u_next - &u_current;
+
+            let num: f64 = delta_u.dot(&(eval.get_stiffness_matrix()*&delta_u));
+            let den: f64 = delta_u.dot(&(eval.get_mass_matrix().component_mul(&delta_u)));
+
+            let n_steps_per_period = 50;
+
+            let omega = f64::sqrt(f64::abs(num/den));
+            println!("{}, {}, {}", t, omega, std::f64::consts::TAU/(omega*(n_steps_per_period as f64)));
 
             if !callback(&self.system, &eval) {
                 return Ok(());
