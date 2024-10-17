@@ -10,6 +10,12 @@ K.J. Bathe.
 \newblock {\em Finite Element Procedures}.
 \newblock Prentice Hall, 2006.
 
+\bibitem{bib:bergan1985}
+Pål~G. Bergan and Egil Mollestad.
+\newblock An automatic time-stepping algorithm for dynamic problems.
+\newblock {\em Computer Methods in Applied Mechanics and Engineering},
+  49(3):299--318, 1985.
+
 \bibitem{bib:chung1993}
 J.~Chung and G.~M. Hulbert.
 \newblock {A Time Integration Algorithm for Structural Dynamics With Improved
@@ -50,12 +56,6 @@ C.~N. Hickman.
 \newblock The dynamics of a bow and arrow.
 \newblock {\em Journal of Applied Physics}, 8(6):404--409, 1937.
 
-\bibitem{bib:hulbert1995}
-Gregory~M. Hulbert and Insik Jang.
-\newblock Automatic time step control algorithms for structural dynamics.
-\newblock {\em Computer Methods in Applied Mechanics and Engineering},
-  126(1):155--178, 1995.
-
 \bibitem{bib:kooi81}
 B.~W. Kooi.
 \newblock On the mechanics of the bow and arrow.
@@ -86,6 +86,13 @@ G.~Lallement and Daniel Inman.
 W.~C. Marlow.
 \newblock Bow and arrow dynamics.
 \newblock {\em American Journal of Physics}, 49(4):320--333, 1981.
+
+\bibitem{bib:rossi2014}
+Diogo~Folador Rossi, Walnório~Graça Ferreira, Webe~João Mansur, and
+  Adenilcia Fernanda~Grobério Calenzani.
+\newblock A review of automatic time-stepping strategies on numerical time
+  integration for structural dynamics analysis.
+\newblock {\em Engineering Structures}, 80:118--136, 2014.
 
 \bibitem{bib:catenary}
 Wikipedia.
