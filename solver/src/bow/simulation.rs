@@ -19,7 +19,7 @@ use crate::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
 use crate::fem::elements::mass::MassElement;
 use crate::fem::elements::string::StringElement;
 use crate::fem::solvers::{dynamics, statics};
-use crate::fem::solvers::dynamics::DynamicSolver;
+use crate::fem::solvers::dynamics::{DynamicSolver, TimeStep};
 use crate::numerics::root_finding::find_root_falsi;
 
 #[derive(ValueEnum, PartialEq, Debug, Copy, Clone)]
@@ -291,7 +291,8 @@ impl<'a> Simulation<'a> {
         // Perform dynamic simulation, if required
         let dynamics = {
             if mode == SimulationMode::Dynamic {
-                let settings = dynamics::Settings { timestep: 1e-4, ..Default::default() };
+                //let settings = dynamics::Settings { timestep: TimeStep::Fixed(1e-6), ..Default::default() };
+                let settings = dynamics::Settings { timestep: TimeStep::Adaptive{ min_timestep: 1e-6, max_timestep: 1e-4, steps_per_period: 250 }, ..Default::default() };
                 let mut states = Soa::<State>::new();
 
                 // Estimate timeout after which to abort the simulation

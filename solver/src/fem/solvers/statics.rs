@@ -65,7 +65,7 @@ impl std::error::Error for StaticSolverError {
 pub struct StaticSolver<'a> {
     system: &'a mut System,
     settings: Settings,
-    pub eval: StaticEval
+    eval: StaticEval
 }
 
 impl<'a> StaticSolver<'a> {
