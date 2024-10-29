@@ -155,7 +155,7 @@ fn linear_straight_uniform_cantilever() {
 }
 
 #[test]
-fn linear_straight_uniform_coilup() {
+fn nonlinear_straight_uniform_coilup() {
     // A straight beam with uniform cross section is subjected to a bending moment at its free end.
     // Even though the problem is nonlinear and the deformations large, the analytical solution of this case
     // is known - the beam is deformed into a circular arch and eventually into a full circle.
@@ -174,7 +174,7 @@ fn linear_straight_uniform_coilup() {
     let mut model = BowInput::default();
     model.settings.n_limb_elements = 50;
     model.settings.n_limb_eval_points = 100;
-    model.settings.n_draw_steps = 9;
+    model.settings.n_draw_steps = 50;
     model.materials = vec![Material::new("", "", rho, E, G)];
     model.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Line(LineInput::new(l))]);
     model.width = Width::new(vec![[0.0, w], [1.0, w]]);

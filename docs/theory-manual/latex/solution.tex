@@ -56,10 +56,9 @@ Since the tangent stiffness matrix is symmetric, an algorithm that exploits this
 (The tangent stiffness matrix isn't necessarily positive definite though, unlike the stiffness matrices of some linear mechanical systems.)
 
 In order to stop the iteration when an acceptable level of accuracy is reached, we need a stopping or convergence criterion.
-Formulating a convergence criterion that works for all edge cases and that whose numerical tolerances scale well with different systems is surprisingly tricky.
+Formulating a convergence criterion that works for all edge cases and whose numerical tolerances scale well with different systems is surprisingly tricky.
 
-
-Convergence criteria are commonly formulated in terms of either the displacement step $\Delta\boldsymbol{u}$, the residual forces $\boldsymbol{R}$ or their product $\Delta\boldsymbol{u}^\intercal\boldsymbol{R}$, which has the dimension of an energy.
+Convergence criteria are commonly formulated in terms of either the displacement step~$\Delta\boldsymbol{u}$, the residual forces~$\boldsymbol{R}$ or their product~$\Delta\boldsymbol{u}^\intercal\boldsymbol{R}$, which has the dimension of an energy.
 Convergence criteria can furthermore be based either on the absolute error of the respective quantity or on a relative error with respect to the start of the iteration.
 An overview of some of the possibilities is shown in table~\ref{tbl:convergence-criteria}.
 
@@ -75,18 +74,18 @@ $\Delta\boldsymbol{u}$ & $\lVert \Delta\boldsymbol{u}_{i} \rVert < \varepsilon_\
 $\Delta\boldsymbol{u}^\intercal\boldsymbol{R}$ & $\lVert \Delta\boldsymbol{u}_{i}^\intercal\boldsymbol{R}_{i} \rVert < \varepsilon_\mathrm{abs}$ & $\lVert \Delta\boldsymbol{u}_{i}^\intercal\boldsymbol{R}_{i} \rVert \,/\, \lVert \Delta\boldsymbol{u}_{0}^\intercal\boldsymbol{R}_{0} \rVert < \varepsilon_\mathrm{rel}$ \\
 \hline
 \end{tabular}
-\caption{Different absolute and relative convergence criteria for the Newton-Raphson method. The vector norm $\rVert.\rVert$ can be chosen freely.}
+\caption{Different absolute and relative convergence criteria for the Newton-Raphson method. The vector norm $\rVert.\rVert$ can also be chosen freely.}
 \label{tbl:convergence-criteria}
 \end{table}
 
 Each choice has advantages and disadvantages, which will make it necessary to combine some of those criteria.
 Between absolute and relative criteria, the relative criteria are more appealing because they are dimensionless and independent of the overall scale of the system.
-This means that we can find a generic value for the tolerance $\varepsilon_\mathrm{rel}$ that will work most of the time.
-The absolute tolerances $\varepsilon_\mathrm{abs}$ on the other hand represent a different accuracy depending on what a typical force, displacement or energy in the system is.
-Unfortunately though, relative criteria don't work for the very first iteration or when the system is already in static equilibrium.
+This means that we can find a generic value for the tolerance $\varepsilon_\mathrm{rel}$ that will work most of the time and for very different systems.
+The absolute tolerances $\varepsilon_\mathrm{abs}$ on the other hand represent a different accuracy depending on what typical forces, displacements or energies arise in the system.
+Unfortunately though, relative criteria are not defined for the very first iteration and also don't work when the system was already in (or close to) static equilibrium at the start of the iterations.
 That's why they have to be combined with an absolute criterion.
 
-Since the thing we want to compute are the equilibrium displacements, it would make sense to use a criterion on $\Delta u$ and stop when the displacements do not change meaningfully anymore.
+Since the thing we want to compute are the equilibrium displacements, it would make sense to use a criterion on $\Delta\boldsymbol{u}$ and stop when the displacements do not change meaningfully anymore.
 It is however possible that the iterative displacement change is very small while the out of balance loads $\boldsymbol{R}$ are still large, which is why \textcolor{red}{Chrisfield} advises against using a displacement based criterion on its own without supplementing it with a force based one.
 
 Criteria based on the residual forces or displacement increments also suffer from an additional scaling problem.
@@ -99,22 +98,10 @@ The condition $\Delta\boldsymbol{u}^\intercal\boldsymbol{R} = \boldsymbol{0}$ is
 Or, as \textcolor{red}{Chrisfield} puts it, the condition merely implies that a stationary energy position has been reached along the current search direction $\Delta\boldsymbol{u}$, which frequently occurs when the solution is still a very long way from equilibrium.
 He therefore warns that such criteria should be used with great caution.
 
-
-
-
-
-
-
-For our purposes we will use the displacement-based criterion
-
-\begin{equation}
-| \Delta\boldsymbol{u}_{i} | \ < \ \varepsilon_{\mathrm{rel}} \cdot | \boldsymbol{u}_{i} | \ + \ \varepsilon_{\mathrm{abs}}\label{eq:convergence_basic}
-\end{equation}
-
-where $| \cdot |$ denotes the coefficient-wise absolute value and~$\varepsilon_{\mathrm{rel}}$ and~$\varepsilon_{\mathrm{abs}}$ are relative and absolute error tolerances.
-Doing a coefficient-wise, relative comparison of the displacement step with the current displacement vector as a reference avoids scaling problems, since the coefficients of~$\boldsymbol{u}$ can have different units and magnitude.
-The absolute error tolerance~$\varepsilon_{\mathrm{abs}}$ is needed when one or more reference displacements are zero.
-It is typically chosen much smaller than the relative error tolerance~$\varepsilon_{\mathrm{rel}}$.
+VirtualBow currently uses the absolute and relative error of the residual forces as the convergence criterion.
+The iteration is stopped when either of those falls below a certain tolerance.
+The infinity or maximum norm $\lVert \boldsymbol{R} \rVert_{\infty}$ is chosen as the vector norm, which is the maximum absolute value of the vector.
+The scaling issue between translational and rotational degrees of freedom was solved by completely ignoring it.
 
 The basic Newton-Raphson method can be improved and extended in many ways, for example by combining it with a line search or by avoiding the calculation of the tangent stiffness matrix at every iteration (simplified Newton-Raphson method, BFGS method \textcolor{red}{[Source]}).
 
@@ -127,89 +114,69 @@ A solution to this is displacement control, where we prescribe a value for one o
 The following derivation has been adapted from \cite{fem_script_uni_bochum}. Displacement control is a special case of a wider class of methods where the equilibrium equations are modified as
 %
 \begin{align}
-\boldsymbol{q}(\boldsymbol{u}) - \lambda\,\boldsymbol{p} &= 0,\label{eq:equilibrium_dc}\\
+\boldsymbol{Q}(\boldsymbol{u}) - \lambda\,\boldsymbol{P} &= 0,\label{eq:equilibrium_dc}\\
 c(\boldsymbol{u},\,\lambda) &= 0.\label{eq:constraint_dc}
 \end{align}
 %
-Here the external forces are scaled by the unknown load factor $\lambda$. To compensate for this additional unknown, a scalar constraint~$c(\boldsymbol{u},\,\lambda) = 0$ on the displacements and the load parameter is introduced. Depending on the choice of constraint the method can be turned into load control, displacement control or other more sophisticated schemes like the arc-length method. We will carry out the derivation for the general case and specify the constraints later. This is also how these methods are implemented in VirtualBow: A general implementation for arbitrary constraints that is then specialized into load controlled and displacement controlled methods by providing the necessary constraints.
+Here the external forces are scaled by the unknown load factor $\lambda$. To compensate for this additional unknown, a scalar constraint~$c(\boldsymbol{u},\,\lambda) = 0$ on the displacements and the load parameter is introduced. Depending on the choice of constraint the method can be turned into load control, displacement control or other more sophisticated schemes like the arc-length method. We will carry out the derivation for the general case and specify the constraints later.
 
-The system of nonlinear equations (\ref{eq:equilibrium_dc}), (\ref{eq:constraint_dc}) has to be solved for the displacements~$\boldsymbol{u}$ and the load parameter~$\lambda$. Like before, the Newton-Raphson method is used: The equations are linearised around a given approximation~$\{\boldsymbol{u}_i,\,\lambda_i\}$ and solved to obtain an improved approximiation~$\{\boldsymbol{u}_{i+1},\,\lambda_{i+1}\}$. This is repeated iteratively until displacements and load parameter satisfy the equilibrium equations~(\ref{eq:equilibrium_dc}) as well as the constraint equation~(\ref{eq:constraint_dc}) reasonably well as determined by some convergence criterion.
-
-Carrying out the linearisation leads to the two equations
+Let us first restate equations (\ref{eq:equilibrium_dc}) and (\ref{eq:constraint_dc}) in more general terms as
 %
 \begin{align}
-\boldsymbol{q}(\boldsymbol{u}) - \lambda\,\boldsymbol{p}\:&\approx\:\boldsymbol{q}(\boldsymbol{u_{i}}) - \lambda_i\,\boldsymbol{p} + 
-\underbrace{
-\frac{\partial \boldsymbol{q}}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}})
-}_{\boldsymbol{K_{i}}}
-\underbrace{
-(\boldsymbol{u_{i+1}} - \boldsymbol{u_{i}})
-}_{\Delta\boldsymbol{u_{i}}}
-- \boldsymbol{p}
-\underbrace{
-\,(\lambda_{i+1} - \lambda_{i})
-}_{\Delta \lambda_{i}}
-\notag\\
-&\approx\ \boldsymbol{q}(\boldsymbol{u_{i}}) - \lambda_i\,\boldsymbol{p} + \boldsymbol{K_{i}}\,\Delta\boldsymbol{u_{i}} - \boldsymbol{p}\,\Delta \lambda_{i}\label{eq:equilibrium_dc_lin}\\
-\notag\\
-c(\boldsymbol{u},\,\lambda) \ &\approx\ c(\boldsymbol{u_{i}},\,\lambda_{i}) + \frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})(\boldsymbol{u_{i+1}} - \boldsymbol{u_{i}}) + \frac{\partial c}{\partial \lambda}(\boldsymbol{u_{i}},\,\lambda_{i})(\lambda_{i+1} - \lambda_{i})\notag\\
-&\approx\ c(\boldsymbol{u_{i}},\,\lambda_{i}) + \frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})\,\Delta\boldsymbol{u_{i}} + \frac{\partial c}{\partial \lambda}(\boldsymbol{u_{i}},\,\lambda_{i})\,\Delta \lambda_{i}\label{eq:constraints_dc_lin}
+\boldsymbol{f}(\boldsymbol{x},\,\lambda) &= \boldsymbol{0} \label{eq:equilibrium_dc_gen} \\
+c(\boldsymbol{x},\,\lambda) &= 0 \label{eq:constraint_dc_gen}
 \end{align}
 
-Equations~(\ref{eq:equilibrium_dc_lin}) and~(\ref{eq:constraints_dc_lin}) can written as the single linear system of equations
+with the functions~$\boldsymbol{f}: \mathbb{R}^n,\,\mathbb{R} \rightarrow \mathbb{R}^n$ and~$c: \mathbb{R}^n,\,\mathbb{R} \rightarrow \mathbb{R}$.
+This system of nonlinear equations has to be solved for the unknown vector~$\boldsymbol{x}$ and the scalar parameter~$\lambda$.
+Like before, the Newton-Raphson method is used: The equations are linearized around a given approximation~$\{\boldsymbol{x}_i,\,\lambda_i\}$ and the resulting linear system is solved to obtain an improved approximiation~$\{\boldsymbol{x}_{i+1},\,\lambda_{i+1}\}$.
+This process is repeated iteratively until~$\boldsymbol{x}$ and~$\lambda$ satisfy both the vector equation as well as the scalar constraint reasonably well as determined by some convergence criterion.
+Carrying out the linearization leads to the two equations
 %
 \begin{align}
+\boldsymbol{f}(\boldsymbol{x}_{i} + \Delta\boldsymbol{x}_{i},\,\lambda_{i} + \Delta\lambda_{i}) &= \boldsymbol{f}(\boldsymbol{x}_{i},\,\lambda_{i}) + \frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}}\,\Delta\boldsymbol{x}_{i} + \frac{\partial\boldsymbol{f}}{\partial\lambda}\,\Delta\lambda_{i} \label{eq:equilibrium_dc_lin} \\
+c(\boldsymbol{x}_{i} + \Delta\boldsymbol{x}_{i},\,\lambda_{i} + \Delta\lambda_{i}) &= c(\boldsymbol{x}_{i},\,\lambda_{i}) + \frac{\partial c}{\partial\boldsymbol{x}}\,\Delta\boldsymbol{x}_{i} + \frac{\partial c}{\partial\lambda}\,\Delta\lambda_{i} \label{eq:constraints_dc_lin}
+\end{align}
+
+In order to solve this for the solution increments~$\Delta\boldsymbol{x}_{i}$ and~$\Delta\lambda_{i}$, we could rearrange the equations ~(\ref{eq:equilibrium_dc_lin}) and~(\ref{eq:constraints_dc_lin}) into the single linear system
+%
+\begin{align}
+\renewcommand{\arraystretch}{1.5}
 \begin{bmatrix}
-\boldsymbol{K_{i}} & -\boldsymbol{p}\\
-\frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i}) & \frac{\partial c}{\partial \lambda}(\boldsymbol{u_{i}},\,\lambda_{i})
+\frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}} & \frac{\partial\boldsymbol{f}}{\partial\lambda} \\
+\frac{\partial c}{\partial\boldsymbol{x}} & \frac{\partial c}{\partial\lambda}
 \end{bmatrix}
 \begin{bmatrix}
-\Delta\boldsymbol{u_{i}}\\
-\Delta \lambda_{i}
+\Delta\boldsymbol{x_{i}}\\
+\Delta\lambda_{i}
 \end{bmatrix}
 =
+-
 \begin{bmatrix}
-\lambda_i\,\boldsymbol{p} - \boldsymbol{q}(\boldsymbol{u_{i}})\\
--\boldsymbol{c}(\boldsymbol{u_{i}},\,f_{i})
+\boldsymbol{f}(\boldsymbol{x}_{i},\,\lambda_{i}) \\
+c(\boldsymbol{x}_{i},\,\lambda_{i})
 \end{bmatrix}.\label{eq:total_dc_lin}
 \end{align}
-%
-Solving this for the increments in displacement and load factor $\{\Delta\boldsymbol{u_{i}},\,\Delta \lambda_{i}\}$ allows us to calculate the next values as
-%
-\begin{align}
-\boldsymbol{u_{i+1}} = \boldsymbol{u_{i}} + \Delta\boldsymbol{u_{i}}\\
-\lambda_{i+1} = \lambda_{i} + \Delta \lambda_{i}.
-\end{align}
-%
-However, directly solving~(\ref{eq:total_dc_lin}) is not  numerically efficient because the augmented stiffness matrix is no longer symmetric. A much better way to solve this is block elimination. We use the first row of~(\ref{eq:total_dc_lin}) to express~$\Delta\boldsymbol{u_{i}}$ as
+
+and solve this with standard methods.
+It is however much more efficient to solve this by block elimination, i.e. by considering the equations separately.
+From equation (\ref{eq:equilibrium_dc_lin}), the unknowns $\Delta\boldsymbol{x}_{i}$ can be expressed as
 %
 \begin{align}
-\Delta\boldsymbol{u_{i}} &= \boldsymbol{\alpha} + \boldsymbol{\beta}\,\Delta \lambda_{i}.\label{eq:auxiliary_disp_dc}
-\end{align}
-%
-With the auxiliary vectors
-%
-\begin{align}
-\boldsymbol{\alpha} &= \boldsymbol{K_{i}^{-1}}(\lambda_i\,\boldsymbol{p} - \boldsymbol{q}(\boldsymbol{u_{i}}))\label{eq:auxiliary_1}\\
-\boldsymbol{\beta} &= \boldsymbol{K_{i}^{-1}}\,\boldsymbol{p}\label{eq:auxiliary_2}
-\end{align}
-%
-These can be computed efficiently by exploiting the symmetry of the stiffness matrix $\boldsymbol{K_{i}}$.
-%
-To calculate $\Delta \lambda_i$, we substitute~(\ref{eq:auxiliary_disp_dc}) into the second row of~(\ref{eq:total_dc_lin}) which gives us
-%
-\begin{align}
-&\frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})\Delta\boldsymbol{u_{i}} + \frac{\partial c}{\partial \lambda}(\boldsymbol{u_{i}},\,\lambda_{i})\,\Delta \lambda_{i} = -c(\boldsymbol{u_{i}},\,\lambda_{i})\notag\\
-&\frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})(\boldsymbol{\alpha} + \boldsymbol{\beta}\,\Delta \lambda_{i}) + \frac{\partial c}{\partial \lambda}(\boldsymbol{u_{i}},\,\lambda_{i})\,\Delta \lambda_{i} = -c(\boldsymbol{u_{i}},\,\lambda_{i})\notag\\
-&\ \ \vdots\notag\\
-&\Delta \lambda_{i} = -\frac{c(\boldsymbol{u_{i}},\,\lambda_{i}) + \frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})^\intercal\,\boldsymbol{\alpha}}{\frac{\partial c}{\partial \lambda}(\boldsymbol{u_{i}},\,\lambda_{i}) + \frac{\partial c}{\partial \boldsymbol{u}}(\boldsymbol{u_{i}},\,\lambda_{i})^\intercal\,\boldsymbol{\beta}}.\label{eq:res_load_factor}
+\Delta\boldsymbol{x}_{i} &= \underbrace{-\left(\frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}}\right)^{-1}\boldsymbol{f}(\boldsymbol{x}_{i},\,\lambda_{i})}_{\boldsymbol{\alpha}} \underbrace{- \left(\frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}}\right)^{-1}\frac{\partial\boldsymbol{f}}{\partial\lambda}}_{\boldsymbol{\beta}}\Delta\lambda_{i} \notag \\
+&= \boldsymbol{\alpha} + \boldsymbol{\beta}\,\Delta\lambda_{i} \label{eq:auxiliary_disp_dc}
 \end{align}
 
-To summarize: First, calculate $\boldsymbol{\alpha}$ and~$\boldsymbol{\beta}$ by solving~(\ref{eq:auxiliary_1}) and~(\ref{eq:auxiliary_2}). Then calculate the increment of the load parameter by using~(\ref{eq:res_load_factor}). The increment in displacements is then obtained by equation~(\ref{eq:auxiliary_disp_dc}).
+with the auxiliary vectors $\boldsymbol{\alpha}$ and $\boldsymbol{\beta}$ being computed by factorizing the jacobian matrix $\frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}}$ and computing two solutions with different right hand sides.
+Substituting (\ref{eq:auxiliary_disp_dc}) into the second equation (\ref{eq:constraints_dc_lin}) results in the parameter increment
 
-From equation (\ref{eq:res_load_factor}) we can see that the load factor increment $\Delta \lambda_{i}$ is invalid if $\frac{\partial c}{\partial \lambda} + \frac{\partial c}{\partial \boldsymbol{u}}^\intercal\,\boldsymbol{\beta} = 0$, i.e. the denominator of the expression vanishes.
-This needs to be checked by the implementation and usually points to an ill-posed problem with regards to the imposed constraint function.
+\begin{equation}
+\Delta\lambda_{i} = -\frac{c(\boldsymbol{x}_{i},\,\lambda_{i}) + \frac{\partial c}{\partial\boldsymbol{x}}\,\boldsymbol{\alpha}}{\frac{\partial c}{\partial\lambda} + \frac{\partial c}{\partial\boldsymbol{x}}\,\boldsymbol{\beta}}.\label{eq:res_load_factor}
+\end{equation}
 
+This can then be used to compute $\Delta\boldsymbol{x}_{i}$ according to (\ref{eq:auxiliary_disp_dc}).
+From equation (\ref{eq:res_load_factor}) we can see that the parameter increment $\Delta \lambda_{i}$ is invalid if $\frac{\partial c}{\partial \lambda} + \frac{\partial c}{\partial \boldsymbol{x}}\,\boldsymbol{\beta} = 0$, i.e. the denominator of the expression vanishes.
+This needs to be checked in each iteration and usually points to an ill-posed problem with regards to the imposed constraint function.
 
 Applying the convergence criterion (\ref{eq:convergence_basic}) from the base method to (\ref{eq:total_dc_lin}) is equivalent to the two criteria
 %

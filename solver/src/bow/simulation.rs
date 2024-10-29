@@ -18,8 +18,8 @@ use crate::fem::elements::beam::beam::BeamElement;
 use crate::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
 use crate::fem::elements::mass::MassElement;
 use crate::fem::elements::string::StringElement;
-use crate::fem::solvers::{dynamics, statics};
-use crate::fem::solvers::dynamics::{DynamicSolver, TimeStep};
+use crate::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, TimeStep};
+use crate::numerics::newton;
 use crate::numerics::root_finding::find_root_falsi;
 
 #[derive(ValueEnum, PartialEq, Debug, Copy, Clone)]
@@ -169,7 +169,7 @@ impl<'a> Simulation<'a> {
             let mut try_string_length = |factor: f64| {
                 system.element_mut::<StringElement>(simulation.string_element).set_initial_length(factor*l0);
 
-                let mut solver = StaticSolver::new(&mut system, statics::Settings::default());    // TODO: Don't construct new solver in each iteration
+                let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());    // TODO: Don't construct new solver in each iteration
                 let result = solver.equilibrium_displacement_controlled(simulation.string_nodes[0].y(), -input.dimensions.brace_height);
                 let slope = simulation.get_string_slope(&system);
 
@@ -247,7 +247,7 @@ impl<'a> Simulation<'a> {
             // "Draw" the bow by solving for a static equilibrium path of the string node from brace height to full draw
             // and store each intermediate step in the static output.
             let mut states = Soa::<State>::new();
-            let mut solver = StaticSolver::new(&mut system, statics::Settings::default());
+            let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());
 
             solver.equilibrium_path_displacement_controlled(simulation.string_nodes[0].y(), -model.dimensions.draw_length, model.settings.n_draw_steps, &mut |system, eval| {
                 let state = simulation.get_bow_state(&system, SystemEval::Static(&eval));
@@ -292,7 +292,7 @@ impl<'a> Simulation<'a> {
         let dynamics = {
             if mode == SimulationMode::Dynamic {
                 //let settings = dynamics::Settings { timestep: TimeStep::Fixed(1e-6), ..Default::default() };
-                let settings = dynamics::Settings { timestep: TimeStep::Adaptive{ min_timestep: 1e-6, max_timestep: 1e-4, steps_per_period: 250 }, ..Default::default() };
+                let settings = DynamicSolverSettings { timestep: TimeStep::Adaptive{ min_timestep: 1e-6, max_timestep: 1e-4, steps_per_period: 250 }, ..Default::default() };
                 let mut states = Soa::<State>::new();
 
                 // Estimate timeout after which to abort the simulation
@@ -395,7 +395,7 @@ impl<'a> Simulation<'a> {
             system.add_force(node.φ(), move |_t| { Mz });
         }
 
-        let mut solver = StaticSolver::new(&mut system, statics::Settings::default());
+        let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());
         let mut states = Soa::<State>::new();
 
         solver.equilibrium_path_load_controlled(model.settings.n_draw_steps, &mut |system, eval| {
