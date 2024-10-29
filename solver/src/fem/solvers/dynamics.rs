@@ -1,16 +1,12 @@
 use std::fmt::{Debug, Display, Formatter};
 use nalgebra::{DMatrix, DVector};
 use crate::fem::system::system::{System, DynamicEval};
-use crate::numerics::newton;
-use crate::numerics::newton::solve_newton;
+use crate::numerics::newton::{NewtonError, NewtonSettings, solve_newton};
 
-#[derive(Copy, Clone)]
-pub struct Settings {
-    pub timestep: TimeStep,    // Time step settings
-    pub epsilon_rel: f64,      // Relative tolerance
-    pub epsilon_abs: f64,      // Absolute tolerance
-    pub max_iterations: u32,   // Maximum number of iterations per load step
-    pub max_stagnation: u32    // Maximum number of iterations that don't improve the objective
+#[derive(Copy, Clone, Default)]
+pub struct DynamicSolverSettings {
+    pub timestep: TimeStep,       // Time step settings
+    pub newton: NewtonSettings  // Settings for Newton iteration
 }
 
 #[derive(Copy, Clone)]
@@ -23,37 +19,17 @@ pub enum TimeStep {
     }
 }
 
-impl Default for Settings {
-    fn default() -> Self {
-        Self {
-            timestep: TimeStep::default(),
-            epsilon_rel: 1e-08,
-            epsilon_abs: 1e-10,
-            max_iterations: 50,
-            max_stagnation: 10
-        }
-    }
-}
-
 impl Default for TimeStep {
     fn default() -> Self {
-        /*
-        Self::Adaptive {
-            min_time_step: 1e-6,
-            max_time_step: 1e-3,
-            steps_per_period: 50,
-        }
-        */
-
         Self::Fixed(1e-6)
     }
 }
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum DynamicSolverError {
-    EquilibriumError(newton::Error),    // Error during the equilibrium iterations
-    SingularMassMatrix,       // The mass matrix is singular, i.e. cannot be inverted
-    AbortedByCaller           // Aborted by the callback function's return value  // TODO: Add separate end condition function in addition to the callback in order to detect this
+    EquilibriumError(NewtonError),    // Error during the equilibrium iterations
+    SingularMassMatrix,               // The mass matrix is singular, i.e. cannot be inverted
+    AbortedByCaller                   // Aborted by the callback function's return value  // TODO: Add separate end condition function in addition to the callback in order to detect this
 }
 
 impl Display for DynamicSolverError {
@@ -74,11 +50,11 @@ impl std::error::Error for DynamicSolverError {
 
 pub struct DynamicSolver<'a> {
     system: &'a mut System,
-    settings: Settings
+    settings: DynamicSolverSettings
 }
 
 impl<'a> DynamicSolver<'a> {
-    pub fn new(system: &'a mut System, settings: Settings) -> Self {
+    pub fn new(system: &'a mut System, settings: DynamicSolverSettings) -> Self {
         Self {
             system,
             settings
@@ -127,7 +103,7 @@ impl<'a> DynamicSolver<'a> {
             // Residuum function
             // Input: Accelerations at next time point
             // Output: Residuum and its jacobian at next time point
-            let residuum = |a_next: &DVector<f64>, r_next: &mut DVector<f64>, drda: &mut DMatrix<f64>| {
+            let mut residuum = |a_next: &DVector<f64>, r_next: &mut DVector<f64>, drda: &mut DMatrix<f64>| {
                 v_next.copy_from(&(&v_current + dt*(1.0 - gamma)*&a_current + dt*gamma*a_next));
                 u_next.copy_from(&(&u_current + dt*&v_current + dt*dt*((0.5 - beta)*&a_current + beta*a_next)));
 
@@ -140,7 +116,8 @@ impl<'a> DynamicSolver<'a> {
                 drda.copy_from(&(DMatrix::<f64>::from_diagonal(eval.get_mass_matrix()) + dt*gamma*eval.get_damping_matrix() + dt*dt*beta*eval.get_stiffness_matrix()));
             };
 
-            solve_newton(residuum, a_current.clone(), newton::Settings::default()).map_err(|e| DynamicSolverError::EquilibriumError(e))?;
+            solve_newton(&mut residuum, a_current.clone(), self.settings.newton)
+                .map_err(|e| DynamicSolverError::EquilibriumError(e))?;
 
             t += dt;
 

@@ -4,7 +4,7 @@ use iter_num_tools::lin_space;
 use nalgebra::{Complex, ComplexField, DMatrix, DVector, Dyn, LU, stack, vector};
 use crate::fem::elements::mass::MassElement;
 use crate::fem::elements::string::StringElement;
-use crate::fem::solvers::dynamics::{DynamicSolver, Settings, TimeStep};
+use crate::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, TimeStep};
 use crate::fem::system::node::Node;
 use crate::fem::system::system::System;
 use crate::tests::utils;
@@ -45,7 +45,7 @@ fn mass_spring_damper_1() {
     assert!(delta < omega0);    // Make sure the system is underdamped
 
     let mut plotter = Plotter::new();
-    let mut solver = DynamicSolver::new(&mut system, Settings { timestep: TimeStep::Fixed(T/100.0), ..Default::default() });
+    let mut solver = DynamicSolver::new(&mut system, DynamicSolverSettings { timestep: TimeStep::Fixed(T/100.0), ..Default::default() });
 
     solver.solve(&mut |system, eval| {
         // Numerical solution
@@ -154,7 +154,7 @@ fn mass_spring_damper_n() {
     utils::checks::check_system_invariants(&mut system);
 
     let mut plotter = Plotter::new();
-    let mut solver = DynamicSolver::new(&mut system, Settings { timestep: TimeStep::Fixed(period/1000.0), ..Default::default() });
+    let mut solver = DynamicSolver::new(&mut system, DynamicSolverSettings { timestep: TimeStep::Fixed(period/1000.0), ..Default::default() });
 
     solver.solve(&mut |system, eval| {
         // Evaluate fem system and reference solution

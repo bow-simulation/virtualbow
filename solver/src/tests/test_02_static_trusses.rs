@@ -1,8 +1,9 @@
 use std::f64::consts::SQRT_2;
 use nalgebra::vector;
 use crate::fem::elements::string::StringElement;
-use crate::fem::solvers::statics::{Settings, StaticSolver};
+use crate::fem::solvers::statics::StaticSolver;
 use crate::fem::system::system::System;
+use crate::numerics::newton::NewtonSettings;
 use crate::tests::utils;
 use crate::tests::utils::plotter::Plotter;
 
@@ -27,7 +28,7 @@ fn linear_bar_truss_1() {
 
     utils::checks::check_system_invariants(&mut system);
 
-    let mut solver = StaticSolver::new(&mut system, Settings::default());
+    let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
     solver.equilibrium_load_controlled(1.0).unwrap();
 
     let x_sys = system.get_displacement(node2.x());
@@ -65,7 +66,7 @@ fn linear_bar_truss_3() {
 
     utils::checks::check_system_invariants(&mut system);
 
-    let mut solver = StaticSolver::new(&mut system, Settings::default());
+    let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
     solver.equilibrium_load_controlled(1.0).unwrap();
 
     assert_relative_eq!(system.get_displacement(node3.x()), x_ref, max_relative=1e-3);
@@ -118,7 +119,7 @@ fn linear_bar_truss_4() {
 
     utils::checks::check_system_invariants(&mut system);
 
-    let mut solver = StaticSolver::new(&mut system, Settings::default());
+    let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
     solver.equilibrium_load_controlled(1.0).unwrap();
 
     assert_relative_eq!(system.get_displacement(node_03.x()), 2.0*a, max_relative=1e-3);
@@ -138,7 +139,7 @@ fn nonlinear_bar_truss_1() {
     system.add_force(node2.y(), |_t| { -1.0 });
 
     let mut plotter = Plotter::new();
-    let mut solver = StaticSolver::new(&mut system, Settings::default());
+    let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
 
     let result = solver.equilibrium_path_displacement_controlled(node2.y(), -b, 100, &mut |system, statics| {
         let y = system.get_displacement(node2.y());
@@ -181,7 +182,7 @@ fn nonlinear_bar_truss_2() {
     system.add_force(node1.y(), |_t| { -1.0 });
 
     let mut plotter = Plotter::new();
-    let mut solver = StaticSolver::new(&mut system, Settings::default());
+    let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
 
     let result = solver.equilibrium_path_displacement_controlled(node1.y(), -c, 100, &mut |system, statics| {
         let x = system.get_displacement(node1.x());
