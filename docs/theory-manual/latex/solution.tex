@@ -106,6 +106,7 @@ The scaling issue between translational and rotational degrees of freedom was so
 The basic Newton-Raphson method can be improved and extended in many ways, for example by combining it with a line search or by avoiding the calculation of the tangent stiffness matrix at every iteration (simplified Newton-Raphson method, BFGS method \textcolor{red}{[Source]}).
 
 \subsection{Constrained Newton-Raphson method}
+\label{sec:constrained-newton-raphson}
 
 In the previous section the Newton-Raphson method was applied to the problem of calculating the equilibrium displacements of a system when all applied forces are known. This method is used in VirtualBow for finding the braced equilibrium state of the bow (see section \textcolor{red}{[Reference]}). However, when calculating the draw curve we don't actually know the draw forces, just the displacement of the string center. \textcolor{red}{Also: Load decrease.}
 
@@ -178,16 +179,16 @@ This can then be used to compute $\Delta\boldsymbol{x}_{i}$ according to (\ref{e
 From equation (\ref{eq:res_load_factor}) we can see that the parameter increment $\Delta \lambda_{i}$ is invalid if $\frac{\partial c}{\partial \lambda} + \frac{\partial c}{\partial \boldsymbol{x}}\,\boldsymbol{\beta} = 0$, i.e. the denominator of the expression vanishes.
 This needs to be checked in each iteration and usually points to an ill-posed problem with regards to the imposed constraint function.
 
-Applying the convergence criterion (\ref{eq:convergence_basic}) from the base method to (\ref{eq:total_dc_lin}) is equivalent to the two criteria
+When applying a residual-based convergence criterion, we have to verify that both~$\boldsymbol{f}$ and~$c$ have become sufficiently small as determined by an absolute or relative error.
+The relative and absolute stopping conditions are therefore
 %
 \begin{align}
-| \Delta\boldsymbol{u}_{i} | \ &< \ \varepsilon_{\mathrm{rel}} \cdot | \boldsymbol{u}_{i} | \ + \ \varepsilon_{\mathrm{abs}}, \\
-| \Delta \lambda_{i} | \ &< \ \varepsilon_{\mathrm{rel}} \cdot | \lambda_{i} | \ + \ \varepsilon_{\mathrm{abs}},
+\lVert \boldsymbol{f}_{i} \rVert / \lVert \boldsymbol{f}_{0} \rVert \ &< \ \varepsilon_{\mathrm{rel}} & &\mathrm{AND} & \lVert c_{i} \rVert / \lVert c_{0} \rVert \ &< \ \varepsilon_{\mathrm{rel}}, \\
+\lVert \boldsymbol{f}_{i} \rVert \ &< \ \varepsilon_{\mathrm{abs}} & &\mathrm{AND} & \lVert c_{i} \rVert \ &< \ \varepsilon_{\mathrm{abs}}.
 \end{align}
 
-both of which must be satisfied in order for the iteration to be stopped.
 
-\subsection{Constraints for load- and displacement control}
+\subsubsection*{Load- and displacement control}
 
 Finally, the constraint function has to be chosen.
 To get a displacement controlled method as initially stated we choose the constraint function as
@@ -216,12 +217,6 @@ with the desired load factor $\overline{\lambda}$. Partial derivatives:
 \frac{\partial c}{\partial \lambda} = 1,
 \end{align*}
 
-\subsection{Line search}
-
-There is one last extension to the Newton-Raphson method that is needed for our purposes and that is line search. 
-
-\textcolor{red}{Todo: Explain line search and why it helps with contact handling}
-
 \subsection{Equilibrium paths and step size control}
 
 With the displacement controlled Newton-Raphson method we can solve for static equilibrium at any given displacement.
@@ -243,7 +238,7 @@ The method used in VirtualBow first calculates a lower and upper bound on the di
 \Delta u_\mathrm{max} &= \frac{u_\mathrm{target} - u_\mathrm{start}}{n_\mathrm{min}}.
 \end{align}
 
-Here,~$n_\mathrm{min}$ and~$n_\mathrm{max}$ are parameters that determine the minimum number of steps in the output as well as the maximum number of steps before the procedure is aborted.
+Here,~$n_\mathrm{min}$ and~$n_\mathrm{max}$ are parameters that determine the minimum resolution of the output as well as the maximum resolution before the procedure is aborted when the steps become too small.
 Another required parameter is the desired number of iterations $\mathrm{iter\_target}$ at each displacement step.
 
 We start the step size control with the maximum step of~$\Delta u = \Delta u_\mathrm{max}$.
@@ -406,17 +401,17 @@ The third equation is obtained by applying the equation of motion (\ref{eq:dynam
 \end{equation}
 
 This is what makes the method implicit, since an equation involving the current state as well as the yet unknown next state of the system has to be solved.
-Finding the accelerations $\boldsymbol{a}_{n+1}$ is equivalent to finding the root of the function
+Finding the accelerations $\boldsymbol{a}_{n+1}$ is equivalent to finding the root of the residual forces
 
 \begin{equation}
-\boldsymbol{F}(\boldsymbol{a}_{n+1}) = \boldsymbol{M}\boldsymbol{a}_{n+1} + \boldsymbol{Q}(\boldsymbol{u}_{n+1}(\boldsymbol{a}_{n+1}),\,\mathbf{v}_{n+1}(\boldsymbol{a}_{n+1})) - \boldsymbol{P}(t_{n+1})
+\boldsymbol{R}(\boldsymbol{a}_{n+1}) = \boldsymbol{M}\boldsymbol{a}_{n+1} + \boldsymbol{Q}(\boldsymbol{u}_{n+1}(\boldsymbol{a}_{n+1}),\,\mathbf{v}_{n+1}(\boldsymbol{a}_{n+1})) - \boldsymbol{P}(t_{n+1}) \label{eq:newmark-residual}
 \end{equation}
 
 which can be done with Newton-Raphson iterations very similar to the case of static equilibrium.
 The jacobian matrix required for this can be calculated as
 
 \begin{equation}
-\frac{\partial \boldsymbol{F}}{\partial \boldsymbol{a}_{n+1}} = \boldsymbol{M} + \gamma \Delta t \boldsymbol{D}(\boldsymbol{u}_{n+1},\,\mathbf{v}_{n+1}) + \beta \Delta t^2 \boldsymbol{K}(\boldsymbol{u}_{n+1},\,\mathbf{v}_{n+1})
+\frac{\partial \boldsymbol{R}}{\partial \boldsymbol{a}_{n+1}} = \boldsymbol{M} + \gamma \Delta t \boldsymbol{D}(\boldsymbol{u}_{n+1},\,\mathbf{v}_{n+1}) + \beta \Delta t^2 \boldsymbol{K}(\boldsymbol{u}_{n+1},\,\mathbf{v}_{n+1})
 \end{equation}
 
 and involves the tangent stiffness- and damping matrices $\boldsymbol{K}$ and $\boldsymbol{D}$ of the system, together with other constant terms.
@@ -464,8 +459,8 @@ The most simple one, referred to by the authors as the \textit{generalized trape
 With this, the system of equations to solve in each iteration, including its jacobian matrix, becomes
 %
 \begin{align}
-\boldsymbol{F}(\boldsymbol{a}_{n+1}) &= \boldsymbol{M}\boldsymbol{a}_{n+1-\alpha_m} + \boldsymbol{Q}_{n+1-\alpha_f} - \boldsymbol{P}_{n+1-\alpha_f}, \\
-\frac{\partial \boldsymbol{F}}{\partial \boldsymbol{a}_{n+1}} &= (1 - \alpha_m)\boldsymbol{M} + (1 - \alpha_f)\left( \gamma \Delta t \boldsymbol{D}_{n+1} + \beta \Delta t^2 \boldsymbol{K}_{n+1} \right).
+\boldsymbol{R}(\boldsymbol{a}_{n+1}) &= \boldsymbol{M}\boldsymbol{a}_{n+1-\alpha_m} + \boldsymbol{Q}_{n+1-\alpha_f} - \boldsymbol{P}_{n+1-\alpha_f}, \\
+\frac{\partial \boldsymbol{R}}{\partial \boldsymbol{a}_{n+1}} &= (1 - \alpha_m)\boldsymbol{M} + (1 - \alpha_f)\left( \gamma \Delta t \boldsymbol{D}_{n+1} + \beta \Delta t^2 \boldsymbol{K}_{n+1} \right).
 \end{align}
 
 The numerical damping of high-frequency modes is controlled by specifying the spectral radius $\rho_{\infty} \in [0,\,1]$ at infinity.
@@ -588,9 +583,83 @@ The method only ever adaptively changes the next timestep based on the estimated
 It does not retroactively reject timesteps that were too large, like some other methods do.
 
 \newpage
-\subsection{Event detection and location}
+\subsection{Stopping event detection and location}
 
-\textcolor{red}{TODO}
+The dynamic simulation in VirtualBow is divided into two sequential phases.
+The first phase starts at full draw with the release of the bow string and ends when the arrow has reached the point where it separates from the string and starts flying freely.
+After this phase, the simulation model is modified by removing the arrow, which is modelled as a point mass, from the string.
+In the second phase the motion of the bow without arrow is then simulated for an additional amount of time in order to capture what happens to the bow after the arrow has left.
+This time period is controlled by the "time span factor" in the simulation settings of the software.
+The two phases of the dynamic simulation pose different requirements on the dynamic solver when it comes to stopping the simulation.
+
+The second phase is the easier one in this regard.
+Here the time integration is to be stopped at a given time~$t = t_\mathrm{end}$.
+The only minor complication is that~$t_\mathrm{end}$ does not necessarily line up with the actual time points~$t_{i}$ of the solution and might therefore not be reached exactly.
+This is however easily solved by truncating the last timestep accordingly.
+
+The first phase is more complicated since it does not end at a known time.
+Instead it ends when a certain event in the solution has occurred, namely the separation of the arrow.
+This event is associated with the current accelerations, since the arrow leaves the string as soon as it experiences a negative acceleration that is high enough to overcome the clamping force that holds it on the string.
+This event condition can be formulated as
+
+\begin{equation}
+e(\boldsymbol{a}) = \boldsymbol{a}[\mathrm{arrow}] + \frac{F_{\mathrm{clamp}}}{m_{\mathrm{arrow}}} = 0 \label{eq:event-function-arrow}
+\end{equation}
+
+with $e(\boldsymbol{a})$ being an event function that takes in the current state of the system (in our case only the accelerationa are needed) and returns zero when the condition for the event is fulfilled.
+The fist task is to detect the occurrence of this event while stepping through the numerical solution process.
+We assume that an event has occurred betwen times~$t_{i}$ and~$t_{i+1}$ if there was a sign change of the event function,
+
+\begin{equation}
+\sgn\left\{ e(\boldsymbol{a}_{i}) \right\} \neq \sgn\left\{ e(\boldsymbol{a}_{i+1}) \right\}.
+\end{equation}
+
+Technically speaking, any odd number of events could have occurred during that timestep.
+Conversely, intervals with no sign change could technically contain any even number of events that go undetected with this approach.
+None of that is pracically relevant for our bow simulation though since the timesteps are usually small enough to make multiple events very unlikely.
+Events can further be narrowed down by only looking for positive or negative sign changes.
+In the case of arrow separation (\ref{eq:event-function-arrow}) for example, we are looking for a negative sign change from positive to negative.
+
+When an event that should stop the simulation (e.g. arrow separation) is detected between~$t_{i}$ and~$t_{i+1}$, we know that the last time step was actually too large.
+If we were being sloppy, we could just stop the simulation at $t_{i+1}$, perform the arrow separation and accept the imperfection that the separation event actually occurred slightly earlier.
+This is exactly what VirtualBow did when still using an explicit solution method for the dynamic analysis.
+The much smaller timesteps compared to implicit methods made this possible without being to inaccurate.
+But by looking back at figure \ref{fig:adaptive-timestep} we can see that this approach would lead to large errors when using the Newmark method, since the timesteps are far too large.
+
+We therefore have to go the long route and do something more accurate.
+The overshooting time point~$t_{i+1}$ is therefore discarded and we restart at~$t_{i}$, this time trying to find a new timestep such that the event occurs exactly at the end of the interval.
+This is done by treating the timestep as an additional unknown in the Newmark iterations.
+The equilibrium equation (\ref{eq:newmark-residual}) for finding the accelerations at the end of the time interval therefore becomes
+
+\begin{equation}
+\boldsymbol{R}(\boldsymbol{a}_{i+1},\,\Delta t) = \boldsymbol{0}. \label{eq:event-location-equation}
+\end{equation}
+
+Introducing the additional unknown $\Delta t$ requires us to add an equation as well.
+This additional equation or constraint is given by the requirement that the event takes place at $t_{i+1}$, which means that the event function (\ref{eq:event-function-arrow}) must be zero there,
+
+\begin{equation}
+e(\boldsymbol{a}_{i+1}) = 0. \label{eq:event-location-constraint}
+\end{equation}
+
+So the final task is to solve equation (\ref{eq:event-location-equation}) with the scalar constraint (\ref{eq:event-location-constraint}), which yields both the accelerations $\boldsymbol{a}_{i+1}$ and the correct timestep $\Delta t$.
+If this problem seems familiar, it's because it is mathematically equivalent to the problem of displacement control in static analysis, where the static equilibrium equations are solved under the constraint that one of the displacements must match a prescribed value.
+We can therefore apply the same numerical method here, namely the constrained Newton-Raphson method, which was outlined in section \ref{sec:constrained-newton-raphson}.
+
+The partial derivative of the residual forces with respect to the step size, which is required for this, is obtained as
+%
+\begin{align}
+\frac{\partial \boldsymbol{R}}{\partial \Delta t} = \frac{\partial \boldsymbol{Q}_{n+1}}{\partial \boldsymbol{u}_{n+1}}\frac{\partial \boldsymbol{u}_{n+1}}{\partial \Delta t} + \frac{\partial \boldsymbol{Q}_{n+1}}{\partial \boldsymbol{\mathrm{v}}_{n+1}}\frac{\partial \boldsymbol{\mathrm{v}}_{n+1}}{\partial \Delta t} &= \boldsymbol{K}_{n+1}\left(\boldsymbol{\mathrm{v}}_{n} + 2\Delta t\left(\left(\nicefrac{1}{2} - \beta\right)\boldsymbol{a}_{n} + \beta \boldsymbol{a}_{n+1}\right) \right) \notag \\
+&+ \boldsymbol{D}_{n+1}\left((1 - \gamma)\boldsymbol{a}_{n} + \gamma\boldsymbol{a}_{n+1}\right)
+\end{align}
+
+and the partial derivatives of the event function are
+%
+\begin{equation}
+\frac{\partial e}{\partial\boldsymbol{a}_{i+1}} = \boldsymbol{e}_{\mathrm{arrow}}, \quad \frac{\partial e}{\partial\Delta t} = 0
+\end{equation}
+
+where $\boldsymbol{e}_{\mathrm{arrow}}$ is the unit vector in the direction that represents the arrow's motion.
 
 \newpage
 \subsection{Stopping Criterion and Progress Estimation}
@@ -625,6 +694,8 @@ T = \frac{u_T - \bar{u}}{\bar{v}} + \bar{t}.
 
 This approximation is far from exact, but it is good enough for progress estimation and gets better the closer the arrow is to the braced position.
 After the arrow has reached the braced position, the actual value of $T$ is known and used for the rest of the simulation.
+
+\textcolor{red}{TODO: Document timeout for the first phase of the dynamic simulation}
 
 \newpage
 \section{Modal Analysis}

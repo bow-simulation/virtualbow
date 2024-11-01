@@ -3,7 +3,7 @@ use nalgebra::vector;
 use spec_math::Ellip;
 use crate::fem::elements::mass::MassElement;
 use crate::fem::elements::string::StringElement;
-use crate::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, TimeStep};
+use crate::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
 use crate::fem::system::system::System;
 use crate::tests::utils;
 use crate::tests::utils::plotter::Plotter;
@@ -41,9 +41,9 @@ fn nonlinear_pendulum() {
     utils::checks::check_system_invariants(&mut system);
 
     let mut plotter = Plotter::new();
-    let mut solver = DynamicSolver::new(&mut system, DynamicSolverSettings { timestep: TimeStep::Fixed(1e-3), ..Default::default() });
+    let mut solver = DynamicSolver::new(&mut system, DynamicSolverSettings { time_stepping: TimeStepping::Fixed(1e-3), ..Default::default() });
 
-    solver.solve(&mut |system, eval| {
+    solver.solve(StopCondition::Time(10.0), &mut |system, eval| {
         let t = system.get_time();
 
         // Analytical solution
@@ -89,6 +89,6 @@ fn nonlinear_pendulum() {
         assert_abs_diff_eq!(y_dot_num, y_dot_ref, epsilon=1e-2);
         assert_abs_diff_eq!(y_ddot_num, y_ddot_ref, epsilon=1e-1);
 
-        return t < 10.0;
+        return true;
     }).unwrap();
 }

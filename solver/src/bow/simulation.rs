@@ -18,7 +18,7 @@ use crate::fem::elements::beam::beam::BeamElement;
 use crate::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
 use crate::fem::elements::mass::MassElement;
 use crate::fem::elements::string::StringElement;
-use crate::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, TimeStep};
+use crate::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
 use crate::numerics::newton;
 use crate::numerics::root_finding::find_root_falsi;
 
@@ -291,54 +291,46 @@ impl<'a> Simulation<'a> {
         // Perform dynamic simulation, if required
         let dynamics = {
             if mode == SimulationMode::Dynamic {
-                //let settings = dynamics::Settings { timestep: TimeStep::Fixed(1e-6), ..Default::default() };
-                let settings = DynamicSolverSettings { timestep: TimeStep::Adaptive{ min_timestep: 1e-6, max_timestep: 1e-4, steps_per_period: 250 }, ..Default::default() };
-                let mut states = Soa::<State>::new();
-
                 // Estimate timeout after which to abort the simulation
                 let k_bow = statics.as_ref().unwrap().final_draw_force/(model.dimensions.draw_length - model.dimensions.brace_height);
                 let t_max = model.settings.timeout_factor*FRAC_PI_2*f64::sqrt(model.masses.arrow/k_bow);
 
+                //let settings = dynamics::Settings { timestep: TimeStep::Fixed(1e-6), ..Default::default() };
+                let settings = DynamicSolverSettings { time_stepping: TimeStepping::Adaptive{ min_timestep: 1e-6, max_timestep: 1e-4, steps_per_period: 250 }, max_time: t_max, ..Default::default() };
+                let mut states = Soa::<State>::new();
+
                 // Simulate the first part of the shot until either the arrow separates from the string
                 // or the timeout is reached for some reason
+                let stop_condition = StopCondition::Acceleration(simulation.string_nodes[0].y(), -model.settings.arrow_clamp_force/model.masses.arrow, -1);    // Condition for arrow separation
+
                 let mut solver = DynamicSolver::new(&mut system, settings);
-                solver.solve(&mut |system, eval| {
-                    // Evaluate current bow state
+                solver.solve(stop_condition, &mut |system, eval| {
+                    // Evaluate current bow state and add to results
                     let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval));
-
-                    // Check for separation of the arrow (negative acceleration overcomes clamp force)
-                    // On separation, remember the time, position and velocity
-                    if state.arrow_acc <= -model.settings.arrow_clamp_force/model.masses.arrow {
-                        simulation.arrow_separation = Some((state.time, state.arrow_pos, state.arrow_vel));
-                    }
-
-                    // Push bow state into the final results
                     states.push(state);
 
-                    // Continue the simulation as long as the arrow is not separated
-                    // and the timeout has not yet been reached
-                    return simulation.arrow_separation.is_none() && system.get_time() < t_max;
+                    return true;
                 }).map_err(|e| ModelError::SimulationDynamicSolutionFailed(e))?;
 
-                // Simulate the second part of the shot after arrow separation,
-                // but only if separation actually occurred
-                if simulation.arrow_separation.is_some() {
-                    // Set the arrow mass to zero since the arrow is no longer attached to the string
-                    system.element_mut::<MassElement>(simulation.arrow_element).set_mass(0.0);
+                // Record arrow state at the time of separation from the string
+                let state = states.last().unwrap();
+                simulation.arrow_separation = Some((*state.time, *state.arrow_pos, *state.arrow_vel));
 
-                    // The end time is the time until arrow separation multiplied by the time span factor
-                    let t_end = model.settings.timespan_factor*system.get_time();
+                // Simulate the second part of the shot after arrow separation
+                // The end time is the time until arrow separation multiplied by the time span factor
+                let stop_condition = StopCondition::Time(model.settings.timespan_factor*system.get_time());
 
-                    let mut solver = DynamicSolver::new(&mut system, settings);
-                    solver.solve(&mut |system, eval| {
-                        // Evaluate and push back current bow state
-                        let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval));
-                        states.push(state);
+                // Set the arrow mass to zero since the arrow is no longer attached to the string
+                system.element_mut::<MassElement>(simulation.arrow_element).set_mass(0.0);
 
-                        // Continue as long as the end time is not reached
-                        return system.get_time() < t_end;
-                    }).map_err(|e| ModelError::SimulationDynamicSolutionFailed(e))?;
-                }
+                let mut solver = DynamicSolver::new(&mut system, settings);
+                solver.solve(stop_condition, &mut |system, eval| {
+                    // Evaluate and push back current bow state
+                    let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval));
+                    states.push(state);
+
+                    return true;
+                }).map_err(|e| ModelError::SimulationDynamicSolutionFailed(e))?;
 
                 Some(Dynamics {
                     states,
