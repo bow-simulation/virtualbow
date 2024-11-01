@@ -1,12 +1,13 @@
+use std::cell::Cell;
 use crate::fem::solvers::eigen::natural_frequencies_from_matrices;
 use std::f64::consts::{PI, TAU};
 use iter_num_tools::lin_space;
 use nalgebra::{Complex, ComplexField, DMatrix, DVector, Dyn, LU, stack, vector};
 use crate::fem::elements::mass::MassElement;
 use crate::fem::elements::string::StringElement;
-use crate::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, TimeStep};
+use crate::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, DynamicSolverError, StopCondition, TimeStepping};
 use crate::fem::system::node::Node;
-use crate::fem::system::system::System;
+use crate::fem::system::system::{DynamicEval, System};
 use crate::tests::utils;
 use crate::tests::utils::plotter::Plotter;
 
@@ -45,13 +46,22 @@ fn mass_spring_damper_1() {
     assert!(delta < omega0);    // Make sure the system is underdamped
 
     let mut plotter = Plotter::new();
-    let mut solver = DynamicSolver::new(&mut system, DynamicSolverSettings { timestep: TimeStep::Fixed(T/100.0), ..Default::default() });
+    let mut solver = DynamicSolver::new(&mut system, DynamicSolverSettings { time_stepping: TimeStepping::Fixed(T/100.0), max_time: 10.0, ..Default::default() });
 
-    solver.solve(&mut |system, eval| {
+    let t_end = Cell::new(0.0);
+    let a_end = Cell::new(0.0);
+
+    // Simulation callback that verifies the solution against analytical expressions
+    let mut callback = |system: &System, eval: &DynamicEval| {
         // Numerical solution
+        let t_sys = system.get_time();
         let x_sys = system.get_displacement(node_b.x()) - l;
         let v_sys = system.get_velocity(node_b.x());
         let a_sys = eval.get_acceleration(node_b.x());
+
+        // Record endpoint
+        t_end.set(t_sys);
+        a_end.set(a_sys);
 
         // Analytical solution
         let t = system.get_time();
@@ -63,12 +73,29 @@ fn mass_spring_damper_1() {
         plotter.add_point((system.get_time(), v_sys), (system.get_time(), v_ref), "velocity", "Time [s]", "Velocity [m/s]");
         plotter.add_point((system.get_time(), a_sys), (system.get_time(), a_ref), "acceleration", "Time [s]", "Acceleration [m/s]");
 
-        assert_abs_diff_eq!(x_sys, x_ref, epsilon=1e-3);
+        assert_abs_diff_eq!(x_sys, x_ref, epsilon=1e-4);
         assert_abs_diff_eq!(v_sys, v_ref, epsilon=1e-3);
         assert_abs_diff_eq!(a_sys, a_ref, epsilon=1e-2);
 
-        return system.get_time() < (N as f64)*T;
-    }).unwrap();
+        return true;
+    };
+
+    // Simulate until the acceleration crosses into the positive and verify end condition
+    solver.solve(StopCondition::Acceleration(node_b.x(), 0.0, 1), &mut callback).unwrap();
+    assert_abs_diff_eq!(a_end.get(), 0.0, epsilon=1e-6);
+
+    // Simulate until the acceleration crosses into the negative again and verify end condition
+    solver.solve(StopCondition::Acceleration(node_b.x(), 0.0, -1), &mut callback).unwrap();
+    assert_abs_diff_eq!(a_end.get(), 0.0, epsilon=1e-6);
+
+    // Simulate until a specified end time and verify end condition
+    solver.solve(StopCondition::Time((N as f64)*T), &mut callback).unwrap();
+    assert_abs_diff_eq!(t_end.get(), (N as f64)*T, epsilon=1e-6);
+
+    // Simulate further along with an unreachable stop condition and verify that an error is returned
+    // Don't check accuracy of the solution in this last section
+    let result = solver.solve(StopCondition::Acceleration(node_b.x(), f64::INFINITY, 1), &mut |_, _| { true });
+    assert_matches!(result, Err(DynamicSolverError::MaxTimeReached));
 }
 
 #[test]
@@ -154,9 +181,9 @@ fn mass_spring_damper_n() {
     utils::checks::check_system_invariants(&mut system);
 
     let mut plotter = Plotter::new();
-    let mut solver = DynamicSolver::new(&mut system, DynamicSolverSettings { timestep: TimeStep::Fixed(period/1000.0), ..Default::default() });
+    let mut solver = DynamicSolver::new(&mut system, DynamicSolverSettings { time_stepping: TimeStepping::Fixed(period/1000.0), ..Default::default() });
 
-    solver.solve(&mut |system, eval| {
+    solver.solve(StopCondition::Time(period), &mut |system, eval| {
         // Evaluate fem system and reference solution
         let u_sys = DVector::<f64>::from_fn(system.n_dofs(), |i, _| { system.get_displacement(nodes[i+1].x()) - lengths[i+1] });
         let v_sys = DVector::<f64>::from_fn(system.n_dofs(), |i, _| { system.get_velocity(nodes[i+1].x()) });
@@ -173,7 +200,7 @@ fn mass_spring_damper_n() {
         assert_abs_diff_eq!(v_sys, v_ref, epsilon=1e-1);            // TODO: Reference
         assert_abs_diff_eq!(a_sys, a_ref, epsilon=1e-1*p_max/m);    // TODO: Accuracy
 
-        return system.get_time() < period;
+        return true;
     }).unwrap();
 }
 
