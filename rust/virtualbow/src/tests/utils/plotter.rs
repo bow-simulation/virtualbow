@@ -12,7 +12,7 @@ use itertools::chain;
 
 // Utility for creating simple comparison plots for tests without having to aggregate the data manually.
 // Create an instance and add points for various plots as needed. When the instance goes out of scope,
-// the plot images are written to a directory named after the currently running test.
+// the plot images are written to the target directory, named after the currently running test.
 // Inspired by https://github.com/fabianboesiger/debug-plotter
 
 pub struct Plotter {
@@ -51,10 +51,11 @@ impl Drop for Plotter {
     fn drop(&mut self) {
         // Determine output path from thread name, which corresponds to the test being run
         // https://users.rust-lang.org/t/reliably-getting-name-of-currently-running-test-with-rust-test-threads-1/65138
+        // https://github.com/rust-lang/cargo/issues/9661
         let thread_name = std::thread::current().name()
             .expect("Failed to determine thread name")
             .to_string();
-        let output_path = thread_name.replace("::", "/");
+        let output_path = "target/".to_string() + &thread_name.replace("::", "/");
 
         // Create output directory, if it doesn't yet exist and remove any previous files
         std::fs::create_dir_all(&output_path).expect("Failed to create output directory");

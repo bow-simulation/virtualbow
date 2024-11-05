@@ -1,0 +1,13 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "virtualbow",
+    "virtualbow-cli"
+]
+
+[workspace.package]
+version = "0.10.0"
+edition = "2021"
+authors = ["Stefan Pfeifer <s-pfeifer@gmx.net>"]
+homepage = "https://www.virtualbow.org"

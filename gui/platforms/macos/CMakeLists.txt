@@ -1,7 +1,7 @@
 # Build an .app bundle as the main target, specify metadata and resource files
 set_target_properties(
     virtualbow-gui
-    virtualbow-slv
+    virtualbow-cli
     virtualbow-post
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS
@@ -13,13 +13,13 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/logo.icns DESTINATION ${CMAKE_BINARY_DIR}/
 file(COPY ${CMAKE_SOURCE_DIR}/resources/docs/user-manual DESTINATION ${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/Resources)
 
 # Target: Copy shared libraries to application directory
-add_custom_target(copy-dependencies DEPENDS virtualbow-gui virtualbow-slv virtualbow-post)
+add_custom_target(copy-dependencies DEPENDS virtualbow-gui virtualbow-cli virtualbow-post)
 add_custom_command(
     TARGET copy-dependencies
     COMMAND ${QT_BINARY_DIR}/macdeployqt
         ${CMAKE_BINARY_DIR}/application/VirtualBow.app
         -executable=${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS/virtualbow-gui
-        -executable=${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS/virtualbow-slv
+        -executable=${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS/virtualbow-cli
         -executable=${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS/virtualbow-post
 )
 

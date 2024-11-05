@@ -14,7 +14,7 @@ with open("input.bow", "w") as file:
     json.dump(input, file, indent=2)
 
 # Run a static simulation
-subprocess.call(["virtualbow-slv", "--static", "input.bow", "output.res"])
+subprocess.call(["virtualbow-cli", "--static", "input.bow", "output.res"])
 
 # Load the result file
 with open("output.res", "rb") as file:

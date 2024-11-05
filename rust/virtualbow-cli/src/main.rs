@@ -1,11 +1,12 @@
 use virtualbow::bow::simulation::{Simulation, SimulationMode};
 use virtualbow::bow::errors::ModelError;
 use virtualbow::bow::input::BowInput;
-
 use clap::Parser;
-
 use std::path::PathBuf;
 use std::process::ExitCode;
+
+#[cfg(test)]
+mod tests;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None, disable_version_flag = true)]

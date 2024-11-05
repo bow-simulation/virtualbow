@@ -8,7 +8,7 @@ input.string.n_strands = input.string.n_strands + 1;
 savejson('', input, 'input.bow');
 
 % Run a static simulation
-system('virtualbow-slv --static input.bow output.res');
+system('virtualbow-cli --static input.bow output.res');
 
 % Load the result file
 output = loadmsgpack('output.res');

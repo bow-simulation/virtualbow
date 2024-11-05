@@ -14,12 +14,12 @@ set_target_properties(virtualbow-post PROPERTIES WIN32_EXECUTABLE TRUE)
 file(COPY ${CMAKE_SOURCE_DIR}/resources/docs/user-manual DESTINATION ${CMAKE_BINARY_DIR}/application)
 
 # Target: Copy shared libraries to application directory with windeployqt
-add_custom_target(copy-dependencies DEPENDS virtualbow-gui virtualbow-slv virtualbow-post)
+add_custom_target(copy-dependencies DEPENDS virtualbow-gui virtualbow-cli virtualbow-post)
 add_custom_command(
     TARGET copy-dependencies
     COMMAND ${QT_BINARY_DIR}/windeployqt
     ${CMAKE_BINARY_DIR}/application/virtualbow-gui.exe
-    ${CMAKE_BINARY_DIR}/application/virtualbow-slv.exe
+    ${CMAKE_BINARY_DIR}/application/virtualbow-cli.exe
     ${CMAKE_BINARY_DIR}/application/virtualbow-post.exe
 )
 
