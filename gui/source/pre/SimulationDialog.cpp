@@ -46,7 +46,7 @@ SimulationDialog::SimulationDialog(QWidget* parent, const QString& input, const 
     // Create solver process
     auto process = new QProcess(this);
     process->setWorkingDirectory(QCoreApplication::applicationDirPath());
-    process->setProgram(QDir(QCoreApplication::applicationDirPath()).filePath("virtualbow-slv"));
+    process->setProgram(QDir(QCoreApplication::applicationDirPath()).filePath("virtualbow-cli"));
     process->setArguments({ dynamic ? "dynamic" : "static", input, output, "--progress" });
 
     QObject::connect(this, &QDialog::rejected, this, [=] {

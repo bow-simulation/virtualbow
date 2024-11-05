@@ -35,7 +35,7 @@ rm -rf %{buildroot}
 %files
 %defattr(755,root,root)
 /usr/bin/virtualbow-gui
-/usr/bin/virtualbow-slv
+/usr/bin/virtualbow-cli
 /usr/bin/virtualbow-post
 %defattr(644,root,root)
 /usr/share/applications/virtualbow-gui.desktop

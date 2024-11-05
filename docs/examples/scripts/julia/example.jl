@@ -15,7 +15,7 @@ JSON.print(stream, input, 2)
 close(stream)
 
 # Run a static simulation
-run(`virtualbow-slv --static input.bow output.res`)
+run(`virtualbow-cli --static input.bow output.res`)
 
 # Load the result file
 stream = open("output.res", "r")

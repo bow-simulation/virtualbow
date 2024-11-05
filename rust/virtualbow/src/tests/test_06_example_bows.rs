@@ -264,5 +264,6 @@ fn perform_bow_test(file: &str) {
         plotter.add_point((*state.time, *state.arrow_pos), (*state.time, 0.0), "Arrow Position", "Time [s]", "Position [m]");
         plotter.add_point((*state.time, *state.arrow_vel), (*state.time, 0.0), "Arrow Velocity", "Time [s]", "Velocity [m/s]");
         plotter.add_point((*state.time, *state.arrow_acc), (*state.time, 0.0), "Arrow Acceleration", "Time [s]", "Acceleration [m/s²]");
+        plotter.add_point((*state.time, *state.string_force), (0.0, 0.0), "Dynamic String Force", "Time [s]", "String force [N]");
     }
 }

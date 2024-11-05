@@ -4,7 +4,7 @@ The VirtualBow executables are named
 
 ```
 virtualbow-gui        // Model editor
-virtualbow-slv        // Solver
+virtualbow-cli        // Solver
 virtualbow-post       // Result viewer
 ```
 
@@ -12,7 +12,7 @@ The solver executable takes a `.bow` model file as its input, performs the simul
 The type of simulation (static or dynamic) as well as other options are set by the command line arguments.
 The detailed usage as shown by the `--help` option is:
 
-Usage: virtualbow-slv [options] input output
+Usage: virtualbow-cli [options] input output
 
 ```
 Options:

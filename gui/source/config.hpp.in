@@ -6,7 +6,7 @@ namespace Config
     static const char* ORGANIZATION_DOMAIN = "@APPLICATION_WEBSITE@";
 
     static const char* APPLICATION_NAME_GUI = "virtualbow-gui";
-    static const char* APPLICATION_NAME_SLV = "virtualbow-slv";
+    static const char* APPLICATION_NAME_SLV = "virtualbow-cli";
     static const char* APPLICATION_NAME_POST = "virtualbow-post";
 
     static const char* APPLICATION_DISPLAY_NAME_GUI = "VirtualBow";
