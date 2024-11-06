@@ -673,29 +673,63 @@ The simplest solution would be to simulate until a fixed time is reached.
 This makes the progress estimation very easy, but it also has some drawbacks.
 It would require users to specify the simulation time, which can only be found by trial and error and might have to be adjusted for different bows.
 
-The current approach is to simulate the time interval~$[0,\,\alpha\,T]$ where~$T$ is the time for the arrow to reach brace height and~$\alpha$ is an arbitrary positive factor.
-The default value is~$\alpha = 1.5$. The simulation progress at time~$\overline{t}$ can now be written as
+The current approach is to simulate a time interval of~$[0,\,\alpha\,T]$ where~$T$ is the (yet unknown) time for the arrow to reach brace height and~$\alpha$ is an arbitrary positive factor.
+The default value is~$\alpha = 1.5$. The simulation progress at time~$t$ can now be formally written as
 
 \begin{equation}
-\rm{progress} = \frac{\overline{t}}{\alpha\,T}\cdot 100\%.
+\mathrm{progress} = \frac{t}{\alpha\,T} \label{eq:solution:progress}
 \end{equation}
 
-But only formally, because~$T$ is not yet known as long as~$\overline{t} < T$, i.e. as long as the arrow has not yet actually reached brace height.
-For this first part of the simulation~$T$ is estimated by using the current time $\overline{t}$, arrow position $\overline{u}$ and arrow velocity $\overline{v}$ and extrapolating to the time when the arrow will reach the braced position $u_T$.
-Assuming constant velocity, which is a very crude approximation, we can extrapolate the arrow position as
+i.e. the fraction of simulated time to the total amount of time.
+But only formally, because~$T$ is unknown as long as~$t < T$, i.e. as long as the arrow has not yet actually reached brace height.
+For this first part of the simulation~$T$ is estimated by using the current time~$t$ and position~$u$ of the arrow and extrapolate to the time when the arrow will reach brace height.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/solution/dynamic-progress}
+\caption{Arrow position $u(t)$ during the shot}
+\label{fig:solution:dynamic-progress}
+\end{figure}
+
+The progression of the arrow position, denoted by~$u(t)$, typically looks somewhat like figure~\ref{fig:solution:dynamic-progress}.
+It starts at time~$t = 0$ at full draw~$u_0$ with zero velocity, then increasingly accelerates and reaches brace height~$u_T$ at the time~$t = T$ by definition.
+If the acceleration of the arrow is assumed to depend approximately linearly on the distance to brace height (linear force draw curve), then~$u(t)$ will resemble the cosine quarter-wave
+
 \begin{equation}
-u(t) = \bar{u} + \bar{v}(t - \bar{t}).\label{eq:solution:progress:ansatz}
+u(t) \approx \left(u_{0} - u_{T}\right)\cos{\left(C\,t\right)} + u_{T} \label{eq:solution:progress:ansatz}
 \end{equation}
 
-Now $T$ can be calculated from by using the condition~$u(T) = u_T$, with results in
+with the constant~$C$ that is yet to be determined.
+This is of course only a very crude approximation, but it is good enough for estimating the simulation progress.
+If we know the current time $t$ and position $u$, we can rearrange equation~(\ref{eq:solution:progress:ansatz}) to get a current value for the constant $C$,
+
 \begin{equation}
-T = \frac{u_T - \bar{u}}{\bar{v}} + \bar{t}.
+C = \frac{1}{t}\,\arccos{\left(\frac{u - u_{T}}{u_{0} - u_{T}}\right)}. \label{eq:solution:progress:constant}
 \end{equation}
 
-This approximation is far from exact, but it is good enough for progress estimation and gets better the closer the arrow is to the braced position.
-After the arrow has reached the braced position, the actual value of $T$ is known and used for the rest of the simulation.
+Knowing~$C$, the time~$T$ can be extrapolated from~(\ref{eq:solution:progress:ansatz}) using the condition~$u(T) = u_{T}$,
 
-\textcolor{red}{TODO: Document timeout for the first phase of the dynamic simulation}
+\begin{equation}
+T = \frac{\pi}{2C} = \frac{\pi}{2}\,t\cdot\arccos\left(\frac{u - u_{T}}{u_{0} - u_{T}}\right)^{-1}.
+\end{equation}
+
+Inserting this estimate for $T$ into~(\ref{eq:solution:progress}) results in the final expression for the estimated progress,
+
+\begin{equation}
+\mathrm{progress} = \frac{2}{\alpha}\arccos\left(\frac{u - u_{T}}{u_{0} - u_{T}}\right).
+\end{equation}
+
+This estimate is used until the arrow has reached brace height.
+Then the actual value for~$T$ is known and used within~(\ref{eq:solution:progress}) for the rest of the simulation.
+A numerical example for the simulation progress over time is shown in figure \ref{fig:solution:dynamic-progress-estimated}.
+The resulting curve is very close to a straight line here, which means that the progress corresponds very well to the simulation time, which is exactly what we want.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/solution/dynamic-progress-estimated}
+\caption{Example for the Simulation progress over time. Marked in grey is the point where the brace height has been reached.}
+\label{fig:solution:dynamic-progress-estimated}
+\end{figure}
 
 \newpage
 \section{Modal Analysis}

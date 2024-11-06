@@ -3,6 +3,7 @@ use clap::ValueEnum;
 use iter_num_tools::lin_space;
 use itertools::Itertools;
 use nalgebra::vector;
+use num::traits::FloatConst;
 use soa_rs::Soa;
 use crate::fem::solvers::eigen::{Mode, natural_frequencies};
 use crate::fem::solvers::statics::StaticSolver;
@@ -198,7 +199,8 @@ impl<'a> Simulation<'a> {
                         // Adjust step size according to static solver performance
                         delta *= (Self::BRACING_TARGET_ITER as f64) / (info.iterations as f64);
                     }
-                } else {
+                }
+                else {
                     // Static iteration failure: Reduce step size by a generic factor
                     delta /= 2.0;
                 }
@@ -251,9 +253,9 @@ impl<'a> Simulation<'a> {
 
             solver.equilibrium_path_displacement_controlled(simulation.string_nodes[0].y(), -model.dimensions.draw_length, model.settings.n_draw_steps, &mut |system, eval| {
                 let state = simulation.get_bow_state(&system, SystemEval::Static(&eval));
-                let progress = 100.0*(state.draw_length - model.dimensions.brace_height)/(model.dimensions.draw_length - model.dimensions.brace_height);
+                let progress = (state.draw_length - model.dimensions.brace_height)/(model.dimensions.draw_length - model.dimensions.brace_height);
                 states.push(state);
-                callback("statics", progress)
+                callback("statics", 100.0*progress)
             }).map_err(|e| ModelError::SimulationStaticSolutionFailed(e))?;
 
             // Compute additional static output values
@@ -303,13 +305,40 @@ impl<'a> Simulation<'a> {
                 // or the timeout is reached for some reason
                 let stop_condition = StopCondition::Acceleration(simulation.string_nodes[0].y(), -model.settings.arrow_clamp_force/model.masses.arrow, -1);    // Condition for arrow separation
 
+                let mut brace_crossing_time = f64::INFINITY;    // Time when the arrow crosses brace height, initially unknown
+                let mut estimated = true;                       // Whether the time is estimated or already known
+                let mut progress = 0.0;                         // Estimated simulation progress
+
                 let mut solver = DynamicSolver::new(&mut system, settings);
                 solver.solve(stop_condition, &mut |system, eval| {
-                    // Evaluate current bow state and add to results
+                    // Evaluate current bow state
                     let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval));
+
+                    // Only update the brace crossing time if it is estimated,
+                    // no need to update once it is known
+                    if estimated {
+                        let ut = state.arrow_pos;                   // Current arrow travel
+                        let u0 = -model.dimensions.draw_length;     // Arrow travel at full draw
+                        let uT = -model.dimensions.brace_height;    // Arrow travel at brace height
+
+                        if ut < uT {
+                            // Arrow hasn't yet reached brace height: Update estimate for crossing time from current time and velocity
+                            brace_crossing_time = FRAC_PI_2*state.time/f64::acos((ut - uT)/(u0 - uT));
+                        }
+                        else {
+                            // Arrow has reached brace height: Set crossing time to current time and stop estimations
+                            brace_crossing_time = state.time;
+                            estimated = false;
+                        }
+                    }
+
+                    // Estimate progress and use maximum to ensure that progress never decreases
+                    progress = f64::max(progress, state.time/(model.settings.timespan_factor*brace_crossing_time));
+
+                    // Add bow state to the results
                     states.push(state);
 
-                    return true;
+                    return callback("dynamics", 100.0*progress);
                 }).map_err(|e| ModelError::SimulationDynamicSolutionFailed(e))?;
 
                 // Record arrow state at the time of separation from the string
@@ -318,18 +347,20 @@ impl<'a> Simulation<'a> {
 
                 // Simulate the second part of the shot after arrow separation
                 // The end time is the time until arrow separation multiplied by the time span factor
-                let stop_condition = StopCondition::Time(model.settings.timespan_factor*system.get_time());
+                let end_time = model.settings.timespan_factor*brace_crossing_time;
+                let stop_condition = StopCondition::Time(end_time);
 
                 // Set the arrow mass to zero since the arrow is no longer attached to the string
                 system.element_mut::<MassElement>(simulation.arrow_element).set_mass(0.0);
 
                 let mut solver = DynamicSolver::new(&mut system, settings);
                 solver.solve(stop_condition, &mut |system, eval| {
-                    // Evaluate and push back current bow state
+                    // Evaluate current bow state, estimate progress and add state
                     let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval));
+                    progress = state.time/end_time;
                     states.push(state);
 
-                    return true;
+                    return callback("dynamics", 100.0*progress);
                 }).map_err(|e| ModelError::SimulationDynamicSolutionFailed(e))?;
 
                 Some(Dynamics {
