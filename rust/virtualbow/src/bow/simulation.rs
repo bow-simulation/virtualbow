@@ -347,6 +347,7 @@ impl<'a> Simulation<'a> {
 
                 // Simulate the second part of the shot after arrow separation
                 // The end time is the time until arrow separation multiplied by the time span factor
+                let start_time = system.get_time();
                 let end_time = model.settings.timespan_factor*brace_crossing_time;
                 let stop_condition = StopCondition::Time(end_time);
 
@@ -355,10 +356,13 @@ impl<'a> Simulation<'a> {
 
                 let mut solver = DynamicSolver::new(&mut system, settings);
                 solver.solve(stop_condition, &mut |system, eval| {
-                    // Evaluate current bow state, estimate progress and add state
-                    let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval));
-                    progress = state.time/end_time;
-                    states.push(state);
+                    // Skip the first time step, which is identical to the last timestep of the previous solution phase
+                    if system.get_time() > start_time {
+                        // Evaluate current bow state, update progress and add state
+                        let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval));
+                        progress = state.time/end_time;
+                        states.push(state);
+                    }
 
                     return callback("dynamics", 100.0*progress);
                 }).map_err(|e| ModelError::SimulationDynamicSolutionFailed(e))?;
