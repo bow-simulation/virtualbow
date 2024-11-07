@@ -393,7 +393,12 @@ mod tests {
         assert_abs_diff_eq!(spline.deriv2(x_min, Extrapolation::Linear), 0.0, epsilon=1e-12);
         assert_abs_diff_eq!(spline.deriv2(x_max, Extrapolation::Linear), 0.0, epsilon=1e-12);
 
-        // Cubic extrapolation
-        // TODO
+        // Cubic extrapolation (reference values taken from previous run)
+        assert_abs_diff_eq!(spline.value(x_min, Extrapolation::Cubic), -0.3906250000000000, epsilon=1e-12);
+        assert_abs_diff_eq!(spline.value(x_max, Extrapolation::Cubic), 0.6244212962962961, epsilon=1e-12);
+        assert_abs_diff_eq!(spline.deriv1(x_min, Extrapolation::Cubic), 1.927083333333334, epsilon=1e-12);
+        assert_abs_diff_eq!(spline.deriv1(x_max, Extrapolation::Cubic), -1.6701388888888888, epsilon=1e-12);
+        assert_abs_diff_eq!(spline.deriv2(x_min, Extrapolation::Cubic), -0.8750000000000000, epsilon=1e-12);
+        assert_abs_diff_eq!(spline.deriv2(x_max, Extrapolation::Cubic), 0.48611111111111116, epsilon=1e-12);
     }
 }
