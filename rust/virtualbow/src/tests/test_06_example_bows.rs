@@ -174,8 +174,11 @@ fn perform_bow_test(file: &str) {
     assert_eq!(statics.min_layer_stresses.len(), model.layers.len());
     assert_eq!(statics.max_layer_stresses.len(), model.layers.len());
 
-    // Check if number of states matches settings
+    // Check if number of static states matches settings
     assert_eq!(states.len(), model.settings.n_draw_steps + 1);
+
+    // Check if static states are sorted by strictly increasing draw length with no duplicates
+    assert!(states.draw_length().windows(2).all(|x| x[0] < x[1]));
 
     // Perform checks on each static state
     for (i, state) in states.iter().enumerate() {
@@ -258,6 +261,9 @@ fn perform_bow_test(file: &str) {
 
     let dynamics = output.dynamics.unwrap();
     let states = dynamics.states;
+
+    // Check if dynamic states are sorted by strictly increasing time with no duplicates
+    assert!(states.time().windows(2).all(|x| x[0] < x[1]));
 
     // Perform checks on each dynamic state
     for (_, state) in states.iter().enumerate() {
