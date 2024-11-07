@@ -3,7 +3,6 @@ use clap::ValueEnum;
 use iter_num_tools::lin_space;
 use itertools::Itertools;
 use nalgebra::vector;
-use num::traits::FloatConst;
 use soa_rs::Soa;
 use crate::fem::solvers::eigen::{Mode, natural_frequencies};
 use crate::fem::solvers::statics::StaticSolver;
