@@ -156,6 +156,10 @@ impl LayeredCrossSection {
         Ok(())
     }
 
+    pub fn length(&self) -> f64 {
+        self.length
+    }
+
     pub fn stress(&self, s: f64, i: usize) -> StressEval {
         let p = s/self.length;
         let h: Vec<f64> = self.layers.iter().map(|layer| layer.height.value(p, Extrapolation::Constant)).collect();
@@ -169,6 +173,12 @@ impl LayeredCrossSection {
             factors_btm: vector![layer.material.E, -layer.material.E*y_btm, 0.0],
             factors_top: vector![layer.material.E, -layer.material.E*y_top, 0.0],
         }
+    }
+
+    pub fn layer_bounds(&self, s: f64) -> DVector<f64> {
+        let p = s/self.length;
+        let h: Vec<f64> = self.layers.iter().map(|layer| layer.height.value(p, Extrapolation::Constant)).collect();
+        compute_layer_bounds(&h, self.alignment)
     }
 }
 

@@ -102,9 +102,9 @@ impl Default for BowInput {
             materials: vec![Material {
                 name: "".to_string(),
                 color: "".to_string(),
-                rho: 0.0,
-                E: 0.0,
-                G: 0.0
+                rho: 1.0,
+                E: 1.0,
+                G: 1.0
             }],
             layers: vec![Layer {
                 name: "Unnamed".to_string(),
