@@ -89,6 +89,9 @@ pub enum ModelError {
     SplineSegmentTooFewPoints(usize, usize),
     SplineSegmentInvalidPoint(usize, [f64;2]),
 
+    GeometrySelfIntersectionBack(f64),
+    GeometrySelfIntersectionBelly(f64),
+
     SimulationBraceHeightTooLow(f64),
     SimulationBracingNoSignChange,
     SimulationBracingNoConvergence,
@@ -181,6 +184,9 @@ impl Display for ModelError {
             ModelError::SpiralSegmentInvalidRadius2(index, value) => write!(f, "Profile curve: Spiral segment at index {index} has an invalid end radius, must be a finite number but actual value is {value}.")?,
             ModelError::SplineSegmentTooFewPoints(index, value)   => write!(f, "Profile curve: Spline segment at index {index} requires at least two control points but actual number is {value}.")?,
             ModelError::SplineSegmentInvalidPoint(index, point)   => write!(f, "Profile curve: Spline segment at index {index} requires finite control points but found actual value {point:?}.")?,
+
+            ModelError::GeometrySelfIntersectionBack(length) => write!(f, "Limb geometry: Self-intersection at the back of the limb at arc length {length}, curvature is too high for the thickness.")?,
+            ModelError::GeometrySelfIntersectionBelly(length) => write!(f, "Limb geometry: Self-intersection at the belly of the limb at arc length {length}, curvature is too high for the thickness.")?,
 
             ModelError::SimulationBraceHeightTooLow(value)     => write!(f, "Simulation: The specified brace height of {value} is too low for the given bow profile.")?,
             ModelError::SimulationBracingNoSignChange          => write!(f, "Simulation: Failed to find the braced equilibrium state of the bow. No sign change of the string angle was found within the allowed number of iterations.")?,

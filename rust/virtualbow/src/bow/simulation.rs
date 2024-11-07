@@ -9,13 +9,12 @@ use crate::fem::solvers::statics::StaticSolver;
 use crate::fem::system::element::Element;
 use crate::fem::system::node::Node;
 use crate::fem::system::system::{DynamicEval, StaticEval, System};
-use crate::bow::sections::section::LayeredCrossSection;
 use crate::bow::errors::ModelError;
-use crate::bow::profile::profile::{CurvePoint, ProfileCurve};
+use crate::bow::geometry::LimbGeometry;
 use crate::bow::input::BowInput;
 use crate::bow::output::{Dynamics, LayerInfo, LimbInfo, BowOutput, Common, State, Statics};
 use crate::fem::elements::beam::beam::BeamElement;
-use crate::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
+use crate::fem::elements::beam::geometry::PlanarCurve;
 use crate::fem::elements::mass::MassElement;
 use crate::fem::elements::string::StringElement;
 use crate::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
@@ -64,20 +63,27 @@ impl<'a> Simulation<'a> {
         // Check basic validity of the model data and propagate any errors
         input.validate()?;
 
-        // Profile curve with starting point according to dimension settings
-        let start = CurvePoint::new(0.0, input.dimensions.handle_angle, vector![0.5*input.dimensions.handle_length, input.dimensions.handle_setback]);
-        let profile = ProfileCurve::new(start, &input.profile.segments)?;
+        // Create bow geometry from input,
+        let geometry = LimbGeometry::new(&input)?;
 
-        // Section properties according to layers, materils and alignment to the profile curve
-        let section = LayeredCrossSection::new(profile.length(), &input.width, &input.layers, &input.materials, input.profile.alignment)?;
+        // Layer setup data
+        let layers = input.layers.iter().map(|layer| {
+            let l0 = geometry.profile.s_start() + geometry.profile.length()*layer.height.first().unwrap()[0];    // Start arc length of the layer
+            let l1 = geometry.profile.s_start() + geometry.profile.length()*layer.height.last().unwrap()[0];     // End arc length of the layer
+            LayerInfo {
+                name: layer.name.clone(),
+                length: lin_space(l0..=l1, input.settings.n_layer_eval_points).collect(),
+            }
+        }).collect_vec();
 
-        let s_eval = lin_space(profile.s_start()..=profile.s_end(), input.settings.n_limb_eval_points).collect_vec();           // Lengths at which the limb quantities are evaluated (positions, stress, strain, ...)
-        let (segments, _s_nodes, u_nodes) = BeamElement::discretize(&profile, &section, &s_eval, input.settings.n_limb_elements);
-        let elements = segments.iter().map(|segment| BeamElement::new(segment));
+        // Discretize geometry into evaluation points and elements
+        let geometry = geometry.discretize(input.settings.n_limb_eval_points, input.settings.n_limb_elements);
+
+        let elements = geometry.segments.iter().map(|segment| BeamElement::new(segment));
 
         let mut system = System::new();
 
-        let limb_nodes: Vec<Node> = u_nodes.iter().enumerate().map(|(i, u)| {
+        let limb_nodes: Vec<Node> = geometry.u_nodes.iter().enumerate().map(|(i, u)| {
             system.create_node(u, &[i != 0; 3])    // First node is fixed, all others
         }).collect();
 
@@ -98,20 +104,7 @@ impl<'a> Simulation<'a> {
             }
         }
 
-        // Layer setup data
-        let layers = input.layers.iter().map(|layer| {
-            let l0 = profile.s_start() + profile.length()*layer.height.first().unwrap()[0];    // Start arc length of the layer
-            let l1 = profile.s_start() + profile.length()*layer.height.last().unwrap()[0];     // End arc length of the layer
-            LayerInfo {
-                name: layer.name.clone(),
-                length: lin_space(l0..=l1, input.settings.n_layer_eval_points).collect(),
-            }
-        }).collect_vec();
-
         // Additional setup data
-        let limb_position = s_eval.iter().map(|&s| { profile.point(s).into() }).collect();
-        let limb_width = s_eval.iter().map(|&s| { section.width(s) }).collect();
-        let limb_height = s_eval.iter().map(|&s| { section.height(s) }).collect();
 
         // String center node that is fixed in the case of no string.
         // The rest of the string nodes come from the limb.
@@ -223,10 +216,10 @@ impl<'a> Simulation<'a> {
 
         let common = Common {
             limb: LimbInfo {
-                length: s_eval,
-                position: limb_position,
-                width: limb_width,
-                height: limb_height,
+                length: geometry.s_eval,
+                position: geometry.position,
+                width: geometry.width,
+                height: geometry.height,
             },
             layers,
             string_length: 0.0,
