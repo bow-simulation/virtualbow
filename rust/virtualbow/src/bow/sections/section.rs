@@ -287,9 +287,9 @@ mod tests {
 
     #[test]
     fn test_error_conditions() {
-        let materials = vec![Material::new("", "", 7000.0, 200e9, 80.9)];
+        let materials = vec![Material::new("material", "#000000", 7000.0, 200e9, 80.9)];
         let width = Width::new(vec![[0.0, 0.05], [1.0, 0.05]]);
-        let layers = vec![Layer::new("", 0, vec![[0.0, 0.02], [1.0, 0.02]])];
+        let layers = vec![Layer::new("layer", 0, vec![[0.0, 0.02], [1.0, 0.02]])];
 
         // 1. Valid single layer model
         assert!(LayeredCrossSection::new(1.5, &width, &layers, &materials, LayerAlignment::SectionCenter).is_ok());
@@ -308,24 +308,24 @@ mod tests {
         assert_matches!(LayeredCrossSection::new(1.5, &Width::new(vec![[0.0, 0.05], [1.0, 0.0]]), &layers, &materials, LayerAlignment::SectionCenter), Err(ModelError::WidthControlPointsInvalidValue(1.0, 0.0)));
 
         // 4. Invalid layers
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("", 0, vec![])], &materials, LayerAlignment::SectionCenter), Err(ModelError::HeightControlPointsTooFew(0)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("", 0, vec![[0.0, 0.02]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::HeightControlPointsTooFew(1)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("", 0, vec![[1.0, 0.02], [0.0, 0.02]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::HeightControlPointsNotSorted(1.0, 0.0)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("", 0, vec![[-0.1, 0.02], [1.0, 0.02]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::HeightControlPointsInvalidRange(-0.1, 1.0)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("", 0, vec![[0.0, 0.02], [1.1, 0.02]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::HeightControlPointsInvalidRange(0.0, 1.1)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("", 0, vec![[0.0, 0.0], [0.5, 0.0], [1.0, 0.0]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::HeightControlPointsInvalidInteriorValue(0.5, 0.0)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("", 0, vec![[0.0, -0.1], [0.5, 0.02], [1.0, 0.0]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::HeightControlPointsInvalidBoundaryValue(0.0, -0.1)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("", 0, vec![[0.1, 0.02], [1.0, 0.02]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::HeightControlPointsDiscontinuousBoundary(0.1, 0.02)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("", 0, vec![[0.0, 0.02], [0.9, 0.02]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::HeightControlPointsDiscontinuousBoundary(0.9, 0.02)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", 0, vec![])], &materials, LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsTooFew(0)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", 0, vec![[0.0, 0.02]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsTooFew(1)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", 0, vec![[1.0, 0.02], [0.0, 0.02]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsNotSorted(1.0, 0.0)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", 0, vec![[-0.1, 0.02], [1.0, 0.02]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsInvalidRange(-0.1, 1.0)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", 0, vec![[0.0, 0.02], [1.1, 0.02]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsInvalidRange(0.0, 1.1)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", 0, vec![[0.0, 0.0], [0.5, 0.0], [1.0, 0.0]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsInvalidInteriorValue(0.5, 0.0)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", 0, vec![[0.0, -0.1], [0.5, 0.02], [1.0, 0.0]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsInvalidBoundaryValue(0.0, -0.1)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", 0, vec![[0.1, 0.02], [1.0, 0.02]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(0.1, 0.02)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", 0, vec![[0.0, 0.02], [0.9, 0.02]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(0.9, 0.02)));
 
         // 5. Invalid cross section
         assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![], &materials, LayerAlignment::SectionCenter), Err(ModelError::CrossSectionNoLayers));
         assert_matches!(LayeredCrossSection::new(1.5, &width, &layers, &vec![], LayerAlignment::SectionCenter), Err(ModelError::CrossSectionNoMaterials));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("abc", 1, vec![[0.0, 0.02], [1.0, 0.02]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::CrossSectionInvalidMaterialIndex(_, 1)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", 1, vec![[0.0, 0.02], [1.0, 0.02]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::CrossSectionInvalidMaterialIndex(_, 1)));
         assert_matches!(LayeredCrossSection::new(1.5, &width, &layers, &materials, LayerAlignment::LayerBack(1)), Err(ModelError::CrossSectionInvalidAlignmentIndex(1)));
         assert_matches!(LayeredCrossSection::new(1.5, &width, &layers, &materials, LayerAlignment::LayerBelly(1)), Err(ModelError::CrossSectionInvalidAlignmentIndex(1)));
         assert_matches!(LayeredCrossSection::new(1.5, &width, &layers, &materials, LayerAlignment::LayerCenter(1)), Err(ModelError::CrossSectionInvalidAlignmentIndex(1)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("", 0, vec![[0.0, 0.02], [1.0, 0.0]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::CrossSectionZeroCombinedHeight(1.0)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", 0, vec![[0.0, 0.02], [1.0, 0.0]])], &materials, LayerAlignment::SectionCenter), Err(ModelError::CrossSectionZeroCombinedHeight(1.0)));
     }
 
     #[test]
@@ -373,8 +373,8 @@ mod tests {
         let h = 0.02;
 
         let width = Width::new(vec![[0.0, w], [1.0, w]]);
-        let materials = vec![Material::new("", "", rho, E, G)];
-        let layers = vec![Layer::new("", 0, vec![[0.0, h], [1.0, h]])];
+        let materials = vec![Material::new("material", "#000000", rho, E, G)];
+        let layers = vec![Layer::new("layer", 0, vec![[0.0, h], [1.0, h]])];
 
         // Reference point is section center
         let section = LayeredCrossSection::new(l, &width, &layers, &materials, LayerAlignment::SectionCenter).unwrap();
@@ -453,14 +453,14 @@ mod tests {
         let I2 = A2*(h2.powi(2)/12.0 + y2.powi(2));
         let I3 = A3*(h3.powi(2)/12.0 + y3.powi(2));
 
-        let material1 = Material { name: "".to_string(), color: "".to_string(), rho: rho1, E: E1, G: G1 };
-        let material2 = Material { name: "".to_string(), color: "".to_string(), rho: rho2, E: E2, G: G2 };
-        let material3 = Material { name: "".to_string(), color: "".to_string(), rho: rho3, E: E3, G: G3 };
+        let material1 = Material { name: "A".to_string(), color: "#000000".to_string(), rho: rho1, E: E1, G: G1 };
+        let material2 = Material { name: "B".to_string(), color: "#000000".to_string(), rho: rho2, E: E2, G: G2 };
+        let material3 = Material { name: "C".to_string(), color: "#000000".to_string(), rho: rho3, E: E3, G: G3 };
 
         let width = Width::new(vec![[0.0, w], [1.0, w]]);
-        let layer1 = Layer::new("", 0, vec![[0.0, h1], [1.0, h1]]);
-        let layer2 = Layer::new("", 1, vec![[0.0, h2], [1.0, h2]]);
-        let layer3 = Layer::new("", 2, vec![[0.0, h3], [1.0, h3]]);
+        let layer1 = Layer::new("layer", 0, vec![[0.0, h1], [1.0, h1]]);
+        let layer2 = Layer::new("layer", 1, vec![[0.0, h2], [1.0, h2]]);
+        let layer3 = Layer::new("layer", 2, vec![[0.0, h3], [1.0, h3]]);
 
         let section = LayeredCrossSection::new(l, &width, &vec![layer1, layer2, layer3], &vec![material1, material2, material3], LayerAlignment::SectionCenter).unwrap();
         let C_ref = matrix![
@@ -501,15 +501,15 @@ mod tests {
         let epsilon_u = 2.38e-4;
         let sigma_ref = &[(2.38e6, -0.14e6), (-0.07e6, -1.32e6), (-2.64e6, -5.16e6), (-2.58e6, -3.83e6), (-7.66e6, -10.18e6)];
 
-        let material_c = Material { name: "".to_string(), color: "".to_string(), rho: rho, E: Ec, G: 0.5*Ec };
-        let material_s = Material { name: "".to_string(), color: "".to_string(), rho: rho, E: Es, G: 0.5*Es };
+        let material_c = Material { name: "C".to_string(), color: "#000000".to_string(), rho: rho, E: Ec, G: 0.5*Ec };
+        let material_s = Material { name: "S".to_string(), color: "#000000".to_string(), rho: rho, E: Es, G: 0.5*Es };
 
         let width = Width::new(vec![[0.0, w], [1.0, w]]);
-        let layer1 = Layer::new("", 0, vec![[0.0, h], [1.0, h]]);
-        let layer2 = Layer::new("", 1, vec![[0.0, h], [1.0, h]]);
-        let layer3 = Layer::new("", 0, vec![[0.0, h], [1.0, h]]);
-        let layer4 = Layer::new("", 1, vec![[0.0, h], [1.0, h]]);
-        let layer5 = Layer::new("", 0, vec![[0.0, h], [1.0, h]]);
+        let layer1 = Layer::new("layer", 0, vec![[0.0, h], [1.0, h]]);
+        let layer2 = Layer::new("layer", 1, vec![[0.0, h], [1.0, h]]);
+        let layer3 = Layer::new("layer", 0, vec![[0.0, h], [1.0, h]]);
+        let layer4 = Layer::new("layer", 1, vec![[0.0, h], [1.0, h]]);
+        let layer5 = Layer::new("layer", 0, vec![[0.0, h], [1.0, h]]);
 
         let section = LayeredCrossSection::new(l, &width, &vec![layer1, layer2, layer3, layer4, layer5], &vec![material_c, material_s], LayerAlignment::SectionCenter).unwrap();
 

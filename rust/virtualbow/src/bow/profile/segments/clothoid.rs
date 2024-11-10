@@ -24,8 +24,10 @@ impl LineInput {
     }
 
     pub fn validate(&self, index: usize) -> Result<(), ModelError> {
-        if !self.length.is_finite() || self.length <= 0.0 {
-            return Err(ModelError::LineSegmentInvalidLength(index, self.length));
+        let &Self { length } = self;
+
+        if !length.is_finite() || length <= 0.0 {
+            return Err(ModelError::LineSegmentInvalidLength(index, length));
         }
 
         Ok(())
@@ -49,11 +51,13 @@ impl ArcInput {
     }
 
     pub fn validate(&self, index: usize) -> Result<(), ModelError> {
-        if !self.length.is_finite() || self.length <= 0.0 {
-            return Err(ModelError::ArcSegmentInvalidLength(index, self.length));
+        let &Self { length, radius } = self;
+
+        if !length.is_finite() || length <= 0.0 {
+            return Err(ModelError::ArcSegmentInvalidLength(index, length));
         }
-        if !self.radius.is_finite() {
-            return Err(ModelError::ArcSegmentInvalidRadius(index, self.radius));
+        if !radius.is_finite() {
+            return Err(ModelError::ArcSegmentInvalidRadius(index, radius));
         }
 
         Ok(())
@@ -79,14 +83,16 @@ impl SpiralInput {
     }
 
     pub fn validate(&self, index: usize) -> Result<(), ModelError> {
-        if !self.length.is_finite() || self.length <= 0.0 {
-            return Err(ModelError::SpiralSegmentInvalidLength(index, self.length));
+        let &Self { length, radius0, radius1 } = self;
+
+        if !length.is_finite() || length <= 0.0 {
+            return Err(ModelError::SpiralSegmentInvalidLength(index, length));
         }
-        if !self.radius0.is_finite() {
-            return Err(ModelError::SpiralSegmentInvalidRadius1(index, self.radius0));
+        if !radius0.is_finite() {
+            return Err(ModelError::SpiralSegmentInvalidRadius1(index, radius0));
         }
-        if !self.radius1.is_finite() {
-            return Err(ModelError::SpiralSegmentInvalidRadius2(index, self.radius1));
+        if !radius1.is_finite() {
+            return Err(ModelError::SpiralSegmentInvalidRadius2(index, radius1));
         }
 
         Ok(())
