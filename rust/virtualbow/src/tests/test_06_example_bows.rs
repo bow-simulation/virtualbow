@@ -175,7 +175,7 @@ fn perform_bow_test(file: &str) {
     assert_eq!(statics.max_layer_stresses.len(), model.layers.len());
 
     // Check if number of static states matches settings
-    assert_eq!(states.len(), model.settings.n_draw_steps + 1);
+    assert_eq!(states.len(), model.settings.min_draw_resolution + 1);
 
     // Check if static states are sorted by strictly increasing draw length with no duplicates
     assert!(states.draw_length().windows(2).all(|x| x[0] < x[1]));

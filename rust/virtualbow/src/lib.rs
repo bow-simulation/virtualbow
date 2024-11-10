@@ -16,6 +16,7 @@ extern crate downcast_rs;
 pub mod bow;
 mod fem;
 mod numerics;
+mod utils;
 
 #[cfg(test)]
 mod tests;

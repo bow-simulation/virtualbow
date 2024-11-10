@@ -5,13 +5,14 @@
     "n_limb_elements": 30,
     "n_limb_eval_points": 100,
     "n_layer_eval_points": 100,
-    "n_string_elements": 1,
-    "n_draw_steps": 100,
+    "min_draw_resolution": 100,
+    "max_draw_resolution": 100,
     "arrow_clamp_force": 0.5,
     "timespan_factor": 1.5,
-    "timestep_factor": 0.2,
-    "timeout_factor": 5.0,
-    "sampling_rate": 10000.0
+    "timeout_factor": 10.0,
+    "min_timestep": 1e-6,
+    "max_timestep": 0.0001,
+    "steps_per_period": 250
   },
   "dimensions": {
     "brace_height": 0.2,
@@ -22,8 +23,8 @@
   },
   "materials": [
     {
-      "name": "",
-      "color": "",
+      "name": "Default",
+      "color": "#000000",
       "rho": 1.0,
       "E": 1.0,
       "G": 1.0

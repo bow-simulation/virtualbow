@@ -24,10 +24,12 @@ impl SplineInput {
     }
 
     pub fn validate(&self, index: usize) -> Result<(), ModelError> {
-        if self.points.len() < 2 {
-            return Err(ModelError::SplineSegmentTooFewPoints(index, self.points.len()));
+        let Self { points } = self;
+
+        if points.len() < 2 {
+            return Err(ModelError::SplineSegmentTooFewPoints(index, points.len()));
         }
-        for point in &self.points {
+        for point in points {
             if !point[0].is_finite() || !point[1].is_finite() {
                 return Err(ModelError::SplineSegmentInvalidPoint(index, *point));
             }

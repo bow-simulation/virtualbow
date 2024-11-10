@@ -180,9 +180,9 @@ mod tests {
         let start = CurvePoint::new(0.0, alpha, vector![1.5, 2.0]);
         let curve = ClothoidSegment::line(&start, &LineInput{ length });
 
-        let material = Material::new("Steel", "", 7850.0, 210e9, 80e9);
+        let material = Material::new("Steel", "#000000", 7850.0, 210e9, 80e9);
         let width = Width::new(vec![[0.0, 0.01], [1.0, 0.01]]);
-        let layer = Layer::new("", 0, vec![[0.0, 0.01], [1.0, 0.01]]);
+        let layer = Layer::new("layer", 0, vec![[0.0, 0.01], [1.0, 0.01]]);
         let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], LayerAlignment::SectionCenter).expect("Failed to construct cross section");
 
         let n_elements = 100;
@@ -210,9 +210,9 @@ mod tests {
         let start = CurvePoint::new(0.0, 0.1, vector![1.5, 2.0]);
         let curve = ClothoidSegment::arc(&start, &ArcInput{ length: 0.8, radius: 0.4 });
 
-        let material = Material::new("Steel", "", 7850.0, 210e9, 80e9);
+        let material = Material::new("Steel", "#000000", 7850.0, 210e9, 80e9);
         let width = Width::new(vec![[0.0, 0.01], [1.0, 0.01]]);
-        let layer = Layer::new("", 0, vec![[0.0, 0.01], [1.0, 0.01]]);
+        let layer = Layer::new("layer", 0, vec![[0.0, 0.01], [1.0, 0.01]]);
         let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], LayerAlignment::SectionCenter).expect("Failed to construct cross section");
 
         let n_elements = 100;
@@ -236,9 +236,9 @@ mod tests {
         let start = CurvePoint::new(0.0, 0.1, vector![1.5, 2.0]);
         let curve = ClothoidSegment::arc(&start, &ArcInput{ length: 0.8, radius: 0.4 });
 
-        let material = Material::new("Steel", "", 7850.0, 210e9, 80e9);
+        let material = Material::new("Steel", "#000000", 7850.0, 210e9, 80e9);
         let width = Width::new(vec![[0.0, 0.01], [1.0, 0.005]]);
-        let layer = Layer::new("", 0, vec![[0.0, 0.01], [1.0, 0.005]]);
+        let layer = Layer::new("layer", 0, vec![[0.0, 0.01], [1.0, 0.005]]);
         let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], LayerAlignment::SectionCenter).expect("Failed to construct cross section");
 
         let n_elements = 100;

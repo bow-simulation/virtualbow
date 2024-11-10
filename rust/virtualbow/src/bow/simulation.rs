@@ -243,7 +243,7 @@ impl<'a> Simulation<'a> {
             let mut states = Soa::<State>::new();
             let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());
 
-            solver.equilibrium_path_displacement_controlled(simulation.string_nodes[0].y(), -model.dimensions.draw_length, model.settings.n_draw_steps, &mut |system, eval| {
+            solver.equilibrium_path_displacement_controlled(simulation.string_nodes[0].y(), -model.dimensions.draw_length, model.settings.min_draw_resolution, &mut |system, eval| {
                 let state = simulation.get_bow_state(&system, SystemEval::Static(&eval));
                 let progress = (state.draw_length - model.dimensions.brace_height)/(model.dimensions.draw_length - model.dimensions.brace_height);
                 states.push(state);
@@ -288,9 +288,9 @@ impl<'a> Simulation<'a> {
                 // Estimate timeout after which to abort the simulation
                 let k_bow = statics.as_ref().unwrap().final_draw_force/(model.dimensions.draw_length - model.dimensions.brace_height);
                 let t_max = model.settings.timeout_factor*FRAC_PI_2*f64::sqrt(model.masses.arrow/k_bow);
+                let step = TimeStepping::Adaptive{ min_timestep: model.settings.min_timestep, max_timestep: model.settings.max_timestep, steps_per_period: model.settings.steps_per_period };
 
-                //let settings = dynamics::Settings { timestep: TimeStep::Fixed(1e-6), ..Default::default() };
-                let settings = DynamicSolverSettings { time_stepping: TimeStepping::Adaptive{ min_timestep: 1e-6, max_timestep: 1e-4, steps_per_period: 250 }, max_time: t_max, ..Default::default() };
+                let settings = DynamicSolverSettings { time_stepping: step, max_time: t_max, ..Default::default() };
                 let mut states = Soa::<State>::new();
 
                 // Simulate the first part of the shot until either the arrow separates from the string
@@ -417,7 +417,7 @@ impl<'a> Simulation<'a> {
         let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());
         let mut states = Soa::<State>::new();
 
-        solver.equilibrium_path_load_controlled(model.settings.n_draw_steps, &mut |system, eval| {
+        solver.equilibrium_path_load_controlled(model.settings.min_draw_resolution, &mut |system, eval| {
             let state = simulation.get_bow_state(&system, SystemEval::Static(&eval));
             states.push(state);
             return true;
