@@ -87,10 +87,8 @@ impl Default for BowInput {
                 n_limb_elements: 30,
                 n_limb_eval_points: 100,  // TODO
                 n_layer_eval_points: 100,  // TODO
-
                 min_draw_resolution: 100,
                 max_draw_resolution: 100,
-
                 arrow_clamp_force: 0.5,
                 timespan_factor: 1.5,
                 timeout_factor: 10.0,
@@ -105,25 +103,20 @@ impl Default for BowInput {
                 handle_setback: 0.0,
                 handle_angle: 0.0
             },
-            materials: vec![Material {
-                name: "Default".to_string(),
-                color: "#000000".to_string(),
-                rho: 1.0,
-                E: 1.0,
-                G: 1.0
-            }],
-            layers: vec![Layer {
-                name: "Unnamed".to_string(),
-                material: 0,
-                height: vec![[0.0, 0.001], [1.0, 0.001]],
-            }],
-            profile: Profile {
-                alignment: LayerAlignment::SectionBack,
-                segments: vec![SegmentInput::Line(LineInput::new(1.0))]
-            },
-            width: Width {
-                points: vec![[0.0, 0.05], [0.5, 0.04], [1.0, 0.01]]
-            },
+            materials: vec![
+                Material::new("Default", "#000000", 1.0, 1.0, 1.0)
+            ],
+            layers: vec![
+                Layer::new("Unnamed", "Default", vec![[0.0, 0.001], [1.0, 0.001]])
+            ],
+            profile: Profile::new(LayerAlignment::SectionBack, vec![
+                SegmentInput::Line(LineInput::new(1.0))
+            ]),
+            width: Width::new(vec![
+                [0.0, 0.05],
+                [0.5, 0.04],
+                [1.0, 0.01]
+            ]),
             string: BowString {
                 n_strands: 1,
                 strand_density: 1.0,
@@ -282,17 +275,17 @@ impl Material {
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Layer {
     pub name: String,
-    pub material: usize,
+    pub material: String,
     pub height: Vec<[f64; 2]>,
 }
 
 impl Layer {
     const REL_LENGTH_TOL: f64 = 1e-9;    // Tolerance used for validating inputs that are relative lengths
 
-    pub fn new(name: &str, material: usize, height: Vec<[f64; 2]>) -> Self {
+    pub fn new(name: &str, material: &str, height: Vec<[f64; 2]>) -> Self {
         Self {
             name: name.to_string(),
-            material,
+            material: material.to_string(),
             height
         }
     }
@@ -364,7 +357,18 @@ impl Profile {
     }
 
     pub fn validate(&self) -> Result<(), ModelError> {
-        let Self {alignment: _, segments } = self;
+        let Self {alignment, segments } = self;
+
+        match alignment {
+            LayerAlignment::LayerBack(name) | LayerAlignment::LayerBelly(name) | LayerAlignment::LayerCenter(name) => {
+                if name.is_empty() {
+                    return Err(ModelError::ProfileAnlignemtInvalidLayerName(name.clone()));
+                }
+            }
+            _ => {
+                // Other alignment options don't need validation
+            }
+        }
 
         for (index, segment) in segments.iter().enumerate() {
             segment.validate(index)?;

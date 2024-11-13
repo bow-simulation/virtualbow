@@ -112,14 +112,29 @@ fn convert_v2_to_v3(value: &mut Value) -> Result<(), ModelError> {
     // Older versions did not have the shear modulus as a material property, therefore calculate a default
     // value based on the elastic modulus and a poisson ratio of 0.4
     let materials = value["materials"].as_array_mut().ok_or(ModelError::InputConversionError(2, 3, "Entry 'materials' not found or invalid".to_string()))?;
-    materials.iter_mut()
-        .for_each(|material| {
-            let material = material.as_object_mut().expect("Material must be an object");
-            let E = material["E"].as_f64().expect("Invalid elastic modulus");
-            let G = E/(2.0*(1.0 + 0.4));
+    materials.iter_mut().for_each(|material| {
+        let material = material.as_object_mut().expect("Material must be an object");
+        let E = material["E"].as_f64().expect("Invalid elastic modulus");
+        let G = E/(2.0*(1.0 + 0.4));
 
-            material.insert("G".into(), json!(G));
-        });
+        material.insert("G".into(), json!(G));
+    });
+
+    // Layers reference the materials by name instead of index in newer versions
+    let materials = value["materials"].as_array().ok_or(ModelError::InputConversionError(2, 3, "Entry 'materials' not found or invalid".to_string())).cloned()?;
+    let layers = value["layers"].as_array_mut().ok_or(ModelError::InputConversionError(2, 3, "Entry 'layers' not found or invalid".to_string()))?;
+
+    for layer in layers {
+        let index = layer["material"].as_u64().expect("Material index must be an unsigned integer");
+        layer["material"] = json!(materials[index as usize]["name"]);
+    }
+
+    /*
+    layers.iter_mut().for_each(|layer| {
+        let index = layer["material"].as_u64().expect("Material index must be an unsigned integer");
+        layer["material"] = json!(materials[index as usize]["name"]);
+    });
+    */
 
     // New/renamed settings entries
     value["settings"] = json!({
