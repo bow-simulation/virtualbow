@@ -33,7 +33,7 @@
   "layers": [
     {
       "name": "Unnamed",
-      "material": 0,
+      "material": "Default",
       "height": [
         [
           0.0,

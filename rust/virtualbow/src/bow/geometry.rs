@@ -20,13 +20,13 @@ impl LimbGeometry {
         let profile = ProfileCurve::new(start, &input.profile.segments)?;
 
         // Section properties according to layers, materils and alignment to the profile curve
-        let section = LayeredCrossSection::new(profile.length(), &input.width, &input.layers, &input.materials, input.profile.alignment)?;
+        let section = LayeredCrossSection::new(profile.length(), &input.width, &input.layers, &input.materials, &input.profile.alignment)?;
 
         // Check for self-intersecting geometry, which is the case when the thickness of the limb is higher than the radius of curvature
         // Since we can't check this analytically, we check for a fixed number of points along the length of the limb
         for s in lin_space(profile.s_start()..=profile.s_end(), 1000) {  // TODO: Magic number
             let kappa = profile.curvature(s);
-            let bounds = section.layer_bounds(s);
+            let (bounds, _) = section.layer_bounds(s);
 
             let y_belly = bounds[0];                // At least one layer, ensured by the section
             let y_back = bounds[bounds.len()-1];    // At least one layer, ensured by the section
@@ -123,18 +123,18 @@ mod tests {
     #[test]
     fn test_error_conditions() {
         let mut input = BowInput::default();
-        input.layers = vec![Layer { name: "Unnamed".to_string(), material: 0, height: vec![[0.0, 0.01], [1.0, 0.01]] }];
+        input.layers = vec![Layer::new("Unnamed", "Default", vec![[0.0, 0.01], [1.0, 0.01]])];
 
         // 1. Profile curve with no self-intersection
-        input.profile = Profile { alignment: LayerAlignment::SectionCenter, segments: vec![SegmentInput::Line(LineInput::new(1.0))] };
-        let geometry = LimbGeometry::new(&input).unwrap();
+        input.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Line(LineInput::new(1.0))]);
+        let _geometry = LimbGeometry::new(&input).unwrap();
 
         // 2. Profile that produces a self-intersection at the back
-        input.profile = Profile { alignment: LayerAlignment::SectionCenter, segments: vec![SegmentInput::Arc(ArcInput::new(1.0, 0.001))] };
+        input.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Arc(ArcInput::new(1.0, 0.001))]);
         assert_matches!(LimbGeometry::new(&input), Err(ModelError::GeometrySelfIntersectionBack(0.0)));
 
         // 3. Profile that produces a self-intersection at the belly
-        input.profile = Profile { alignment: LayerAlignment::SectionCenter, segments: vec![SegmentInput::Arc(ArcInput::new(1.0, -0.001))] };
+        input.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Arc(ArcInput::new(1.0, -0.001))]);
         assert_matches!(LimbGeometry::new(&input), Err(ModelError::GeometrySelfIntersectionBelly(0.0)));
     }
 }
