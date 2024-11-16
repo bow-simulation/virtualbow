@@ -1,4 +1,4 @@
-use nalgebra::{SMatrix, SVector, vector};
+use nalgebra::{DMatrix, SMatrix, SVector, vector};
 
 // This module contains common traits for describing a beam's geometry
 
@@ -45,7 +45,7 @@ pub trait CrossSection {
     fn rhoI(&self, s: f64) -> f64;
 
     // Full cross section stiffness matrix that describes the relation
-    // (epilon, kappa, gamma) -> (normal force, bending moment, shear force)
+    // (epsilon, kappa, gamma) -> (normal force, bending moment, shear force)
     fn C(&self, s: f64) -> SMatrix<f64, 3, 3>;
 
     // Total width
@@ -54,12 +54,11 @@ pub trait CrossSection {
     // Total height of all layers
     fn height(&self, s: f64) -> f64;
 
-    // Stress evaluation constants
-    // TODO: Better name
-    //fn stress(&self, s: f64) -> DMatrix<f64>;
+    // Returns a strain evaluation matrix for the cross section at arc length s.
+    // When multiplied with the strain vector [epsilon, kappa, gamma], this matrix produces the strains of the cross section at implementation-specific points of interest.
+    fn strain_eval(&self, s: f64) -> DMatrix<f64>;
 
-    // Variation of strain over the cross section height
-    fn strain(&self, epsilon: f64, kappa: f64, y: f64) -> f64 {
-        epsilon - kappa*y
-    }
+    // Returns a stress evaluation matrix for the cross section at arc length s.
+    // When multiplied with the strain vector [epsilon, kappa, gamma], this matrix produces the stresses of the cross section at implementation-specific points of interest.
+    fn stress_eval(&self, s: f64) -> DMatrix<f64>;
 }

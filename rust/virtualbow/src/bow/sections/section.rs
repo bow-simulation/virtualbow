@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use itertools::Itertools;
-use nalgebra::{DMatrix, DVector, matrix, SMatrix, SVector, vector};
+use nalgebra::{DMatrix, dmatrix, DVector, matrix, SMatrix, SVector, vector};
 use serde::{Deserialize, Serialize};
 use crate::bow::errors::ModelError;
 use crate::bow::input::{Layer, Material, Width};
@@ -35,8 +35,8 @@ pub enum LayerAlignment {
 
 #[derive(Debug)]
 pub struct LayerGeometry {
-    height: CubicSpline,
-    material: Material,
+    pub height: CubicSpline,
+    pub material: Material,
 }
 
 #[derive(Debug)]
@@ -243,14 +243,8 @@ impl LayeredCrossSection {
         self.length
     }
 
-    pub fn stress(&self, s: f64, i: usize) -> StressEval {
-        let layer = &self.layers[i];
-        let (y, _) = self.layer_bounds(s);
-
-        StressEval {
-            factors_btm: vector![layer.material.E, -layer.material.E*y[i], 0.0],
-            factors_top: vector![layer.material.E, -layer.material.E*y[i+1], 0.0],
-        }
+    pub fn layers(&self) -> &Vec<LayerGeometry> {
+        &self.layers
     }
 
     // Computes the layer boundaries at arc length s. Also returns the heights as a by product.
@@ -336,10 +330,49 @@ impl CrossSection for LayeredCrossSection {
         let p = s/self.length;
         self.layers.iter().map(|layer| layer.height.value(p, Extrapolation::Constant)).sum()
     }
+
+    // Strain evaluation matrix. Produces normal strains at back and belly of each layer.
+    fn strain_eval(&self, s: f64) -> DMatrix<f64> {
+        // Layer bounds are the points of interest
+        let (y, _) = self.layer_bounds(s);
+
+        // Normal strain is epsilon - kappa*y
+        let matrix = DMatrix::from_fn(2*self.layers.len(), 3, |i, j| {
+            let k = (i+1)/2;  // Index of the current y position
+            match j {
+                0 =>   1.0,    // Factor for epsilon
+                1 => -y[k],    // Factor for kappa
+                _ =>   0.0     // Factor for gamma
+            }
+        });
+
+        matrix
+    }
+
+    // Stress evaluation matrix. Produces stresses at back and belly of each layer.
+    fn stress_eval(&self, s: f64) -> DMatrix<f64> {
+        // Layer bounds are the points of interest
+        let (y, _) = self.layer_bounds(s);
+
+        // Normal stress is E*(epsilon - kappa*y)
+        let matrix = DMatrix::from_fn(2*self.layers.len(), 3, |i, j| {
+            let k = (i+1)/2;  // Index of the current y position
+            let l = i/2;      // Index of the current layer
+
+            self.layers[l].material.E * match j {
+                0 =>   1.0,    // Factor for epsilon
+                1 => -y[k],    // Factor for kappa
+                _ =>   0.0     // Factor for gamma
+            }
+        });
+
+        matrix
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use nalgebra::dvector;
     use super::*;
 
     #[test]
@@ -568,7 +601,7 @@ mod tests {
         // Reference strains and stresses
         let epsilon_o = -10.18e-4;
         let epsilon_u = 2.38e-4;
-        let sigma_ref = &[(2.38e6, -0.14e6), (-0.07e6, -1.32e6), (-2.64e6, -5.16e6), (-2.58e6, -3.83e6), (-7.66e6, -10.18e6)];
+        let sigma_ref = dvector![2.38e6, -0.14e6, -0.07e6, -1.32e6, -2.64e6, -5.16e6, -2.58e6, -3.83e6, -7.66e6, -10.18e6];
 
         let material_c = Material::new("C", "#000000", rho, Ec, 0.5*Ec);
         let material_s = Material::new("S", "#000000", rho, Es, 0.5*Es);
@@ -582,26 +615,21 @@ mod tests {
 
         let section = LayeredCrossSection::new(l, &width, &vec![layer1, layer2, layer3, layer4, layer5], &vec![material_c, material_s], &LayerAlignment::SectionCenter).unwrap();
 
-        let C = section.C(s);
-        //let H = section.stress(s);
+        // Determine generalized strains from normal force and torque by inverting/solving the stiffness relation
+        let strains = section.C(s).qr().solve(&vector![N, M, 0.0]).unwrap();
 
-        // Determine strains from normal force and torque by inverting/solving the stiffness relation
-        let strains = C.qr().solve(&vector![N, M, 0.0]).unwrap();
-        let epsilon = strains[0];
-        let kappa = strains[1];
-        let _gamma = strains[2];
+        // Evaluate and check section normal strains
+        let strain_eval = section.strain_eval(s);
+        let result = &strain_eval*&strains;
 
-        // Check strains
-        assert_relative_eq!(section.strain(epsilon, kappa, 2.5*h), epsilon_o, max_relative=1e-2);
-        assert_relative_eq!(section.strain(epsilon, kappa, -2.5*h), epsilon_u, max_relative=1e-2);
+        assert_relative_eq!(result[0], epsilon_u, max_relative=1e-2);
+        assert_relative_eq!(result[9], epsilon_o, max_relative=1e-2);
 
-        // Check stresses
-        for i in 0..section.layers.len() {
-            let stress = section.stress(s, i);
-            let (sigma_u, sigma_o) = stress.eval(&strains);
+        // Evaluate and check section normal stresses
+        let stress_eval = section.stress_eval(s);
+        let result = &stress_eval*&strains;
 
-            assert_relative_eq!(sigma_u, sigma_ref[i].0, max_relative=1e-2);
-            assert_relative_eq!(sigma_o, sigma_ref[i].1, max_relative=1e-2);
-        }
+        assert_relative_eq!(result, sigma_ref, max_relative=1e-2);
+
     }
 }
