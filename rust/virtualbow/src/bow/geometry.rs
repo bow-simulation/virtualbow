@@ -50,17 +50,17 @@ impl LimbGeometry {
     // Divides the given curve into a number of equally spaced elements.
     // Returns a list of elements as well as the arc lengths, positions and angles of the nodes.
     pub fn discretize(&self, n_eval_points: usize, n_elements: usize) -> DiscreteLimbGeometry {
-        let s_eval = lin_space(self.profile.s_start()..=self.profile.s_end(), n_eval_points).collect_vec();
+        // Arc lengths along the profile where the element nodes are placed and their positions
         let s_nodes = lin_space(self.profile.s_start()..=self.profile.s_end(), n_elements + 1).collect_vec();
-
-        // TODO: Assert that s_eval is sorted and in range of the curve
-
         let u_nodes = s_nodes.iter().map(|&s| self.profile.point(s)).collect_vec();
 
-        // TODO: Better solution for numerical issues?
-        let tolerance = 1e-9;
+        // Equidistant evaluation points along the length of the limb
+        let s_eval = lin_space(self.profile.s_start()..=self.profile.s_end(), n_eval_points).collect_vec();
 
         let segments = s_nodes.iter().tuple_windows().enumerate().map(|(i, (&s0, &s1))| {
+            // TODO: Better solution for numerical issues?
+            let tolerance = 1e-9;
+
             // TODO: More efficient implementation than filtering each time
             let s_eval = if i == 0 {
                 s_eval.iter().copied().filter(|&s| s >= s0 - tolerance && s <= s1 ).collect_vec()    // Include left boundary with tolerance
@@ -96,13 +96,15 @@ pub struct DiscreteLimbGeometry {
     pub segments: Vec<LinearBeamSegment>,    // Linear beam segment properties
     pub s_nodes: Vec<f64>,                   // Arc lengths of the element nodes
     pub u_nodes: Vec<SVector<f64, 3>>,       // Positions (x, y, φ) of the element nodes
-    pub s_eval: Vec<f64>,                    // Arc lengths at which the limb quantities are evaluated (positions, stress, strain, ...)
+    pub s_eval: Vec<f64>,                    // Arc lengths at which the limb quantities are evaluated (positions, forces, ...)
 
     // TODO: Unify with rest
     pub position: Vec<[f64;3]>,
     pub width: Vec<f64>,
     pub height: Vec<f64>
 }
+
+
 
 #[cfg(test)]
 mod tests {
