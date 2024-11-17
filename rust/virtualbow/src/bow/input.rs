@@ -85,8 +85,7 @@ impl Default for BowInput {
             comment: "".into(),
             settings: Settings {
                 n_limb_elements: 30,
-                n_limb_eval_points: 100,  // TODO
-                n_layer_eval_points: 100,  // TODO
+                n_limb_eval_points: 1000,  // TODO
                 min_draw_resolution: 100,
                 max_draw_resolution: 100,
                 arrow_clamp_force: 0.5,
@@ -140,7 +139,6 @@ impl Default for BowInput {
 pub struct Settings {
     pub n_limb_elements: usize,
     pub n_limb_eval_points: usize,
-    pub n_layer_eval_points: usize,
 
     pub min_draw_resolution: usize,
     pub max_draw_resolution: usize,
@@ -155,16 +153,13 @@ pub struct Settings {
 
 impl Settings {
     pub fn validate(&self) -> Result<(), ModelError> {
-        let &Self { n_limb_elements, n_limb_eval_points, n_layer_eval_points, min_draw_resolution, max_draw_resolution, arrow_clamp_force, timespan_factor, timeout_factor, min_timestep, max_timestep, steps_per_period } = self;
+        let &Self { n_limb_elements, n_limb_eval_points, min_draw_resolution, max_draw_resolution, arrow_clamp_force, timespan_factor, timeout_factor, min_timestep, max_timestep, steps_per_period } = self;
 
         if n_limb_elements < 1 {
             return Err(ModelError::SettingsInvalidLimbElements(n_limb_elements));
         }
         if n_limb_eval_points < 2 {
             return Err(ModelError::SettingsInvalidLimbEvalPoints(n_limb_eval_points));
-        }
-        if n_layer_eval_points < 2 {
-            return Err(ModelError::SettingsInvalidLayerEvalPoints(n_layer_eval_points));
         }
         if min_draw_resolution < 1 {
             return Err(ModelError::SettingsInvalidMinDrawResolution(min_draw_resolution));

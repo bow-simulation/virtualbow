@@ -29,7 +29,6 @@ pub enum ModelError {
 
     SettingsInvalidLimbElements(usize),
     SettingsInvalidLimbEvalPoints(usize),
-    SettingsInvalidLayerEvalPoints(usize),
     SettingsInvalidMinDrawResolution(usize),
     SettingsInvalidMaxDrawResolution(usize),
     SettingsInvalidArrowClampForce(f64),
@@ -132,7 +131,6 @@ impl Display for ModelError {
 
             ModelError::SettingsInvalidLimbElements(value)      => write!(f, "Settings: Number of limb elements must be at least 1 but actual number is {value}.")?,
             ModelError::SettingsInvalidLimbEvalPoints(value)    => write!(f, "Settings: Number of limb evaluation points must be at least 2 but actual number is {value}.")?,
-            ModelError::SettingsInvalidLayerEvalPoints(value)   => write!(f, "Settings: Number of layer evaluation points must be at least 2 but actual number is {value}.")?,
             ModelError::SettingsInvalidMinDrawResolution(value) => write!(f, "Settings: Minimum draw length resolution must be at least 1 but actual number is {value}.")?,
             ModelError::SettingsInvalidMaxDrawResolution(value) => write!(f, "Settings: Maximum draw length resolution must be at least 1 but actual number is {value}.")?,
             ModelError::SettingsInvalidArrowClampForce(value)   => write!(f, "Settings: Arrow clamp force must be a non-negative number but actual value is {value}.")?,

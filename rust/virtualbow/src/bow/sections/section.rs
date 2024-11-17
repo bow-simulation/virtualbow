@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use itertools::Itertools;
-use nalgebra::{DMatrix, dmatrix, DVector, matrix, SMatrix, SVector, vector};
+use nalgebra::{DMatrix, DVector, matrix, SMatrix, SVector};
 use serde::{Deserialize, Serialize};
 use crate::bow::errors::ModelError;
 use crate::bow::input::{Layer, Material, Width};
@@ -372,7 +372,7 @@ impl CrossSection for LayeredCrossSection {
 
 #[cfg(test)]
 mod tests {
-    use nalgebra::dvector;
+    use nalgebra::{dvector, vector};
     use super::*;
 
     #[test]

@@ -160,11 +160,23 @@ fn perform_bow_test(file: &str) {
         plotter.add_point((u[0], u[1]), (0.0, 0.0), "Bending Line (drawn)", "x [m]", "y [m]");
     }
 
+    // Create a plot of the stresses in braced and fully drawn state
+
+    for (i, stresses) in states.layer_stress()[0].iter().enumerate() {
+        for (j, (stress_belly, stress_back)) in stresses.iter().enumerate() {
+            plotter.add_point((output.common.limb.length[j], *stress_back), (0.0, 0.0), &format!("Stress Layer {i} Back (braced)"), "Length [m]", "Normal Stress [Pa]");
+            plotter.add_point((output.common.limb.length[j], *stress_belly), (0.0, 0.0), &format!("Stress Layer {i} Belly (braced)"), "Length [m]", "Normal Stress [Pa]");
+        }
+    }
+    for (i, stresses) in states.layer_stress()[states.len()-1].iter().enumerate() {
+        for (j, (stress_belly, stress_back)) in stresses.iter().enumerate() {
+            plotter.add_point((output.common.limb.length[j], *stress_back), (0.0, 0.0), &format!("Stress Layer {i} Back (drawn)"), "Length [m]", "Normal Stress [Pa]");
+            plotter.add_point((output.common.limb.length[j], *stress_belly), (0.0, 0.0), &format!("Stress Layer {i} Belly (drawn)"), "Length [m]", "Normal Stress [Pa]");
+        }
+    }
+
     // Check basic dimensions of the setup data
     assert_eq!(output.common.layers.len(), model.layers.len());
-    for layer in &output.common.layers {
-        assert_eq!(layer.length.len(), model.settings.n_layer_eval_points);
-    }
     assert_eq!(output.common.limb.length.len(), model.settings.n_limb_eval_points);
     assert_eq!(output.common.limb.width.len(), model.settings.n_limb_eval_points);
     assert_eq!(output.common.limb.height.len(), model.settings.n_limb_eval_points);
@@ -193,8 +205,6 @@ fn perform_bow_test(file: &str) {
         assert_eq!(state.limb_force.len(), model.settings.n_limb_eval_points);
         assert_eq!(state.layer_strain.len(), model.layers.len());
         assert_eq!(state.layer_stress.len(), model.layers.len());
-        assert!(state.layer_strain.iter().all(|layer| layer.len() == model.settings.n_layer_eval_points));
-        assert!(state.layer_stress.iter().all(|layer| layer.len() == model.settings.n_layer_eval_points));
 
         // Check limb starting point (positions and angle)
         assert_abs_diff_eq!(state.limb_pos[0][0], 0.5*model.dimensions.handle_length, epsilon=1e-12);
