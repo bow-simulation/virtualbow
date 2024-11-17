@@ -1,8 +1,7 @@
 use std::f64::consts::{PI, FRAC_PI_2};
 use clap::ValueEnum;
-use iter_num_tools::lin_space;
 use itertools::Itertools;
-use nalgebra::vector;
+use nalgebra::{SVector, vector};
 use soa_rs::Soa;
 use crate::fem::solvers::eigen::{Mode, natural_frequencies};
 use crate::fem::solvers::statics::StaticSolver;
@@ -10,11 +9,10 @@ use crate::fem::system::element::Element;
 use crate::fem::system::node::Node;
 use crate::fem::system::system::{DynamicEval, StaticEval, System};
 use crate::bow::errors::ModelError;
-use crate::bow::geometry::LimbGeometry;
+use crate::bow::geometry::{DiscreteLimbGeometry, LimbGeometry};
 use crate::bow::input::BowInput;
 use crate::bow::output::{Dynamics, LayerInfo, LimbInfo, BowOutput, Common, State, Statics};
 use crate::fem::elements::beam::beam::BeamElement;
-use crate::fem::elements::beam::geometry::PlanarCurve;
 use crate::fem::elements::mass::MassElement;
 use crate::fem::elements::string::StringElement;
 use crate::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
@@ -34,6 +32,7 @@ pub enum SystemEval<'a> {
 
 pub struct Simulation<'a> {
     input: &'a BowInput,
+    geometry: DiscreteLimbGeometry,
 
     limb_nodes: Vec<Node>,
     limb_elements: Vec<usize>,
@@ -68,11 +67,8 @@ impl<'a> Simulation<'a> {
 
         // Layer setup data
         let layers = input.layers.iter().map(|layer| {
-            let l0 = geometry.profile.s_start() + geometry.profile.length()*layer.height.first().unwrap()[0];    // Start arc length of the layer
-            let l1 = geometry.profile.s_start() + geometry.profile.length()*layer.height.last().unwrap()[0];     // End arc length of the layer
             LayerInfo {
-                name: layer.name.clone(),
-                length: lin_space(l0..=l1, input.settings.n_layer_eval_points).collect(),
+                name: layer.name.clone()
             }
         }).collect_vec();
 
@@ -133,6 +129,7 @@ impl<'a> Simulation<'a> {
         // Finish the simulation info object
         let simulation = Self {
             input,
+            geometry,
             limb_nodes,
             limb_elements,
             string_nodes,
@@ -216,10 +213,10 @@ impl<'a> Simulation<'a> {
 
         let common = Common {
             limb: LimbInfo {
-                length: geometry.s_eval,
-                position: geometry.position,
-                width: geometry.width,
-                height: geometry.height,
+                length: simulation.geometry.s_eval.clone(),
+                position: simulation.geometry.position.clone(),
+                width: simulation.geometry.width.clone(),
+                height: simulation.geometry.height.clone(),
             },
             layers,
             string_length: 0.0,
@@ -473,15 +470,34 @@ impl<'a> Simulation<'a> {
 
         // Evaluate positions, forces and strains at the limb's evaluation points
 
-        let mut limb_pos    = Vec::<[f64; 3]>::new();  // TODO: Capacity
-        let mut limb_strain = Vec::<[f64; 3]>::new();  // TODO: Capacity
-        let mut limb_force  = Vec::<[f64; 3]>::new();  // TODO: Capacity
+        let mut limb_pos    = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
+        let mut limb_strain = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
+        let mut limb_force  = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
 
         for &element in &self.limb_elements {
             let element = system.element_ref::<BeamElement>(element);
             element.eval_positions().for_each(|u| limb_pos.push(u.into()));
             element.eval_strains().for_each(|e| limb_strain.push(e.into()));
             element.eval_forces().for_each(|f| limb_force.push(f.into()));
+        }
+
+        let mut layer_strain = vec![Vec::<(f64, f64)>::new(); self.input.layers.len()];  // TODO: Capacity
+        let mut layer_stress = vec![Vec::<(f64, f64)>::new(); self.input.layers.len()];  // TODO: Capacity
+
+        for i in 0..limb_strain.len() {
+            // Stresses and strains at the layer boundaries
+            let strain = &self.geometry.strain_eval[i]*&limb_strain[i];
+            let stress = &self.geometry.stress_eval[i]*&limb_strain[i];
+
+            // Two subsequent strain results make up the belly and back strain of a layer
+            strain.iter().cloned().tuples().enumerate().for_each(|(j, strain_tuple): (usize, (f64, f64))| {
+                layer_strain[j].push(strain_tuple);
+            });
+
+            // Two subsequent stress results make up the belly and back stress of a layer
+            stress.iter().cloned().tuples().enumerate().for_each(|(j, stress_tuple): (usize, (f64, f64))| {
+                layer_stress[j].push(stress_tuple);
+            });
         }
 
         // The grip force is the y component of the forces at the start of the limb.
@@ -504,8 +520,8 @@ impl<'a> Simulation<'a> {
             draw_length,
 
             limb_pos,
-            limb_vel: vec![[0.0; 3]; self.input.settings.n_limb_eval_points],
-            limb_acc: vec![[0.0; 3]; self.input.settings.n_limb_eval_points],
+            limb_vel: vec![[0.0; 3].into(); self.input.settings.n_limb_eval_points],
+            limb_acc: vec![[0.0; 3].into(); self.input.settings.n_limb_eval_points],
 
             string_pos,
             string_vel,
@@ -514,8 +530,8 @@ impl<'a> Simulation<'a> {
             limb_strain,
             limb_force,
 
-            layer_strain: vec![vec![(0.0, 0.0); self.input.settings.n_layer_eval_points]; self.input.layers.len()],
-            layer_stress: vec![vec![(0.0, 0.0); self.input.settings.n_layer_eval_points]; self.input.layers.len()],
+            layer_strain,
+            layer_stress,
 
             arrow_pos,
             arrow_vel,

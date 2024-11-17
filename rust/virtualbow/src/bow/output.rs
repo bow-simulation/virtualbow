@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{BufReader, Write};
 use std::path::Path;
+use nalgebra::SVector;
 use serde::{Deserialize, Serialize};
 use rmpv::Value;
 use soa_rs::{Soa, Soars};
@@ -131,19 +132,19 @@ pub struct State {
     pub time: f64,
     pub draw_length: f64,
 
-    pub limb_pos: Vec<[f64; 3]>,    // x, y, φ
-    pub limb_vel: Vec<[f64; 3]>,    // x, y, φ
-    pub limb_acc: Vec<[f64; 3]>,    // x, y, φ
+    pub limb_pos: Vec<SVector<f64, 3>>,    // x, y, φ
+    pub limb_vel: Vec<SVector<f64, 3>>,    // x, y, φ
+    pub limb_acc: Vec<SVector<f64, 3>>,    // x, y, φ
 
     pub string_pos: Vec<[f64; 2]>,    // x, y
     pub string_vel: Vec<[f64; 2]>,    // x, y
     pub string_acc: Vec<[f64; 2]>,    // x, y
 
-    pub limb_strain: Vec<[f64; 3]>,    // epsilon, kappa, gamma
-    pub limb_force: Vec<[f64; 3]>,     // N, M, Q
+    pub limb_strain: Vec<SVector<f64, 3>>,    // epsilon, kappa, gamma
+    pub limb_force: Vec<SVector<f64, 3>>,     // N, M, Q
 
-    pub layer_strain: Vec<Vec<(f64, f64)>>,    // layer, point, back/belly
-    pub layer_stress: Vec<Vec<(f64, f64)>>,    // layer, point, back/belly
+    pub layer_strain: Vec<Vec<(f64, f64)>>,    // layer, point, belly/back
+    pub layer_stress: Vec<Vec<(f64, f64)>>,    // layer, point, belly/back
 
     pub arrow_pos: f64,
     pub arrow_vel: f64,
@@ -171,8 +172,7 @@ pub struct LimbInfo {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct LayerInfo {
-    pub name: String,
-    pub length: Vec<f64>,    // Arc lengths at which the layer is evaluated
+    pub name: String
 }
 
 #[cfg(test)]

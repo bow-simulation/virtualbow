@@ -3,8 +3,7 @@
   "comment": "This is a comment!",
   "settings": {
     "n_limb_elements": 20,
-    "n_limb_eval_points": 100,
-    "n_layer_eval_points": 100,
+    "n_limb_eval_points": 1000,
     "min_draw_resolution": 150,
     "max_draw_resolution": 150,
     "arrow_clamp_force": 0.0,

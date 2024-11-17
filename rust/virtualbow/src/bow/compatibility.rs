@@ -139,8 +139,7 @@ fn convert_v2_to_v3(value: &mut Value) -> Result<(), ModelError> {
     // New/renamed settings entries
     value["settings"] = json!({
         "n_limb_elements": value["settings"]["n_limb_elements"],
-        "n_limb_eval_points": 100,
-        "n_layer_eval_points": 100,
+        "n_limb_eval_points": 1000,
         "min_draw_resolution": value["settings"]["n_draw_steps"],
         "max_draw_resolution": value["settings"]["n_draw_steps"],
         "arrow_clamp_force": value["settings"]["arrow_clamp_force"],

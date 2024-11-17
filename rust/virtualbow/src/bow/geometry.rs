@@ -1,6 +1,6 @@
 use iter_num_tools::lin_space;
 use itertools::Itertools;
-use nalgebra::{SVector, vector};
+use nalgebra::{DMatrix, SVector, vector};
 use crate::bow::errors::ModelError;
 use crate::bow::input::BowInput;
 use crate::bow::profile::profile::{CurvePoint, ProfileCurve};
@@ -75,15 +75,20 @@ impl LimbGeometry {
             LinearBeamSegment::new(&self.profile, &self.section, s0, s1, &s_eval)
         }).collect();
 
-        let position = s_eval.iter().map(|&s| { self.profile.point(s).into() }).collect();
-        let width = s_eval.iter().map(|&s| { self.section.width(s) }).collect();
-        let height = s_eval.iter().map(|&s| { self.section.height(s) }).collect();
+        let strain_eval = s_eval.iter().map(|&s| self.section.strain_eval(s)).collect();
+        let stress_eval = s_eval.iter().map(|&s| self.section.stress_eval(s)).collect();
+
+        let position = s_eval.iter().map(|&s| self.profile.point(s).into()).collect();
+        let width = s_eval.iter().map(|&s| self.section.width(s)).collect();
+        let height = s_eval.iter().map(|&s| self.section.height(s)).collect();
 
         DiscreteLimbGeometry {
             segments,
             s_nodes,
             u_nodes,
             s_eval,
+            strain_eval,
+            stress_eval,
             position,
             width,
             height
@@ -96,7 +101,10 @@ pub struct DiscreteLimbGeometry {
     pub segments: Vec<LinearBeamSegment>,    // Linear beam segment properties
     pub s_nodes: Vec<f64>,                   // Arc lengths of the element nodes
     pub u_nodes: Vec<SVector<f64, 3>>,       // Positions (x, y, φ) of the element nodes
+
     pub s_eval: Vec<f64>,                    // Arc lengths at which the limb quantities are evaluated (positions, forces, ...)
+    pub strain_eval: Vec<DMatrix<f64>>,      // Strain evaluation matrices for each evaluation point
+    pub stress_eval: Vec<DMatrix<f64>>,      // Stress evaluation matrices for each evaluation point
 
     // TODO: Unify with rest
     pub position: Vec<[f64;3]>,
