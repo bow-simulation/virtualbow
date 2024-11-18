@@ -1,5 +1,4 @@
 #include "StressPlot.hpp"
-#include "pre/limbview/LayerColors.hpp"
 #include "pre/viewmodel/units/UnitSystem.hpp"
 
 // Colors from Python's Matplotlib (https://stackoverflow.com/a/42091037)
@@ -60,13 +59,13 @@ void StressPlot::updateStresses() {
         this->graph(2*iLayer)->data()->clear();
         this->graph(2*iLayer+1)->data()->clear();
 
-        for(size_t iLength = 0; iLength < common.layers[iLayer].length.size(); ++iLength) {
+        for(size_t iLength = 0; iLength < common.limb.length.size(); ++iLength) {
             this->graph(2*iLayer)->addData(
-                quantity_length.getUnit().fromBase(common.layers[iLayer].length[iLength]),
+                quantity_length.getUnit().fromBase(common.limb.length[iLength]),
                 quantity_stress.getUnit().fromBase(std::get<0>(states.layer_stress[index][iLayer][iLength]))
             );
             this->graph(2*iLayer+1)->addData(
-                quantity_length.getUnit().fromBase(common.layers[iLayer].length[iLength]),
+                quantity_length.getUnit().fromBase(common.limb.length[iLength]),
                 quantity_stress.getUnit().fromBase(std::get<1>(states.layer_stress[index][iLayer][iLength]))
             );
         }

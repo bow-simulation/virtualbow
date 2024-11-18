@@ -26,7 +26,6 @@ struct nlohmann::adl_serializer<std::optional<T>> {
 
 struct LayerInfo {
     std::string name;
-    std::vector<double> length;
 };
 
 struct LimbInfo {
@@ -36,7 +35,7 @@ struct LimbInfo {
     std::vector<double> height;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerInfo, name, length)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerInfo, name)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LimbInfo, length, position, width, height)
 
 struct Common {
@@ -142,7 +141,6 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     max_layer_stresses
 )
 
-
 struct Dynamics {
     States states;
 
@@ -185,6 +183,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
 )
 
 struct OutputData {
+    unsigned version;
     Common common;
     std::optional<Statics> statics;
     std::optional<Dynamics> dynamics;
@@ -195,4 +194,4 @@ struct OutputData {
     void save(const std::string& path) const;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(OutputData, common, statics, dynamics)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(OutputData, version, common, statics, dynamics)

@@ -3,8 +3,8 @@ use std::io::{BufReader, Write};
 use std::path::Path;
 use nalgebra::SVector;
 use serde::{Deserialize, Serialize};
+use soa_derive::StructOfArray;
 use rmpv::Value;
-use soa_rs::{Soa, Soars};
 use crate::bow::errors::ModelError;
 use crate::bow::versioning::{VersionedWrapper, VersionedWrapperRef};
 
@@ -88,7 +88,7 @@ pub struct Common {
 
 #[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
 pub struct Statics {
-    pub states: Soa<State>,
+    pub states: StateVec,
 
     pub final_draw_force: f64,
     pub final_drawing_work: f64,
@@ -105,7 +105,7 @@ pub struct Statics {
 
 #[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
 pub struct Dynamics {
-    pub states: Soa<State>,
+    pub states: StateVec,
 
     pub final_arrow_pos: f64,
     pub final_arrow_vel: f64,
@@ -126,8 +126,8 @@ pub struct Dynamics {
     pub max_layer_stresses: Vec<(f64, usize, usize)>,    // (value, state, node) for each layer
 }
 
-#[derive(Soars, Deserialize, PartialEq, Debug)]
-#[soa_derive(include(Ref), Serialize, PartialEq, Debug)]
+#[derive(StructOfArray, Serialize, Deserialize, PartialEq, Debug)]
+#[soa_derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct State {
     pub time: f64,
     pub draw_length: f64,
