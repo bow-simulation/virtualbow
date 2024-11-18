@@ -2,7 +2,6 @@ use std::f64::consts::{PI, FRAC_PI_2};
 use clap::ValueEnum;
 use itertools::Itertools;
 use nalgebra::{SVector, vector};
-use soa_rs::Soa;
 use crate::fem::solvers::eigen::{Mode, natural_frequencies};
 use crate::fem::solvers::statics::StaticSolver;
 use crate::fem::system::element::Element;
@@ -11,7 +10,7 @@ use crate::fem::system::system::{DynamicEval, StaticEval, System};
 use crate::bow::errors::ModelError;
 use crate::bow::geometry::{DiscreteLimbGeometry, LimbGeometry};
 use crate::bow::input::BowInput;
-use crate::bow::output::{Dynamics, LayerInfo, LimbInfo, BowOutput, Common, State, Statics};
+use crate::bow::output::{Dynamics, LayerInfo, LimbInfo, BowOutput, Common, State, StateVec, Statics};
 use crate::fem::elements::beam::beam::BeamElement;
 use crate::fem::elements::mass::MassElement;
 use crate::fem::elements::string::StringElement;
@@ -237,7 +236,7 @@ impl<'a> Simulation<'a> {
         let statics = {
             // "Draw" the bow by solving for a static equilibrium path of the string node from brace height to full draw
             // and store each intermediate step in the static output.
-            let mut states = Soa::<State>::new();
+            let mut states = StateVec::new();
             let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());
 
             solver.equilibrium_path_displacement_controlled(simulation.string_nodes[0].y(), -model.dimensions.draw_length, model.settings.min_draw_resolution, &mut |system, eval| {
@@ -249,20 +248,20 @@ impl<'a> Simulation<'a> {
 
             // Compute additional static output values
 
-            let draw_length_front = *states.draw_length().first().unwrap();
-            let draw_length_back = *states.draw_length().last().unwrap();
-            let draw_force_back = *states.draw_force().last().unwrap();
-            let e_pot_front = states.e_pot_limbs().first().unwrap() + states.e_pot_string().first().unwrap();
-            let e_pot_back = states.e_pot_limbs().last().unwrap() + states.e_pot_string().last().unwrap();
+            let draw_length_front = *states.draw_length.first().unwrap();
+            let draw_length_back = *states.draw_length.last().unwrap();
+            let draw_force_back = *states.draw_force.last().unwrap();
+            let e_pot_front = states.e_pot_limbs.first().unwrap() + states.e_pot_string.first().unwrap();
+            let e_pot_back = states.e_pot_limbs.last().unwrap() + states.e_pot_string.last().unwrap();
 
             let final_draw_force = draw_force_back;
             let final_drawing_work = e_pot_back - e_pot_front;
             let storage_factor = (e_pot_back - e_pot_front) / (0.5*(draw_length_back - draw_length_front)*draw_force_back);
 
-            let max_string_force = states.string_force().iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();  // TODO: Write function for this
+            let max_string_force = states.string_force.iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();  // TODO: Write function for this
             let max_strand_force = (max_string_force.0 / (model.string.n_strands as f64), max_string_force.1);
-            let max_grip_force = states.grip_force().iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();      // TODO: Write function for this
-            let max_draw_force = states.draw_force().iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();      // TODO: Write function for this
+            let max_grip_force = states.grip_force.iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();      // TODO: Write function for this
+            let max_draw_force = states.draw_force.iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();      // TODO: Write function for this
 
             // Collect static outputs
             Some(Statics {
@@ -288,7 +287,7 @@ impl<'a> Simulation<'a> {
                 let step = TimeStepping::Adaptive{ min_timestep: model.settings.min_timestep, max_timestep: model.settings.max_timestep, steps_per_period: model.settings.steps_per_period };
 
                 let settings = DynamicSolverSettings { time_stepping: step, max_time: t_max, ..Default::default() };
-                let mut states = Soa::<State>::new();
+                let mut states = StateVec::new();
 
                 // Simulate the first part of the shot until either the arrow separates from the string
                 // or the timeout is reached for some reason
@@ -331,7 +330,7 @@ impl<'a> Simulation<'a> {
                 }).map_err(|e| ModelError::SimulationDynamicSolutionFailed(e))?;
 
                 // Record arrow state at the time of separation from the string
-                let state = states.last().unwrap();
+                let state = states.iter().last().unwrap();
                 simulation.arrow_separation = Some((*state.time, *state.arrow_pos, *state.arrow_vel));
 
                 // Simulate the second part of the shot after arrow separation
@@ -412,7 +411,7 @@ impl<'a> Simulation<'a> {
         }
 
         let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());
-        let mut states = Soa::<State>::new();
+        let mut states = StateVec::new();
 
         solver.equilibrium_path_load_controlled(model.settings.min_draw_resolution, &mut |system, eval| {
             let state = simulation.get_bow_state(&system, SystemEval::Static(&eval));
