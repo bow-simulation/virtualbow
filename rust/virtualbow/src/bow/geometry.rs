@@ -19,8 +19,10 @@ impl LimbGeometry {
         let start = CurvePoint::new(0.0, input.dimensions.handle_angle, vector![0.5*input.dimensions.handle_length, input.dimensions.handle_setback]);
         let profile = ProfileCurve::new(start, &input.profile.segments)?;
 
-        // Section properties according to layers, materils and alignment to the profile curve
-        let section = LayeredCrossSection::new(profile.length(), &input.width, &input.layers, &input.materials, &input.profile.alignment)?;
+        // Section properties according to layers, materials and alignment to the profile curve
+        // Layers in the mode definition are from back to belly, but here we define the layers from belly to back (direction of the y axis), so the model layers are reversed
+        let layers = input.layers.iter().cloned().rev().collect();
+        let section = LayeredCrossSection::new(profile.length(), &input.width, &layers, &input.materials, &input.profile.alignment)?;
 
         // Check for self-intersecting geometry, which is the case when the thickness of the limb is higher than the radius of curvature
         // Since we can't check this analytically, we check for a fixed number of points along the length of the limb
