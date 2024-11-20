@@ -10,13 +10,10 @@ fn bow_69w865k9() {
     perform_bow_test("bows/users/69w865k9.bow");
 }
 
-/*
-// Dynamic solition doesn't work (anymore)
 #[test]
 fn bow_5g6c4m63() {
     perform_bow_test("bows/users/5g6c4m63.bow");
 }
-*/
 
 #[test]
 fn bow_mt22m5gs() {
