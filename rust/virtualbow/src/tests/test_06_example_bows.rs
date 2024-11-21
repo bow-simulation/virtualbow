@@ -216,6 +216,11 @@ fn perform_bow_test(file: &str) {
         let draw_force_ref = 2.0*state.string_force*f64::sin(alpha);    // Reference draw force according to the string force
         let grip_force_ref = draw_force_ref;
 
+        // For the first state, the string angle alpha must be zero
+        if i == 0 {
+            assert_abs_diff_eq!(alpha, 0.0, epsilon=1e-6);
+        }
+
         plotter.add_point((*state.draw_length, *state.string_force), (0.0, 0.0), "String Force", "Draw length [m]", "String force [N]");
         plotter.add_point((*state.draw_length, *state.draw_force), (*state.draw_length, draw_force_ref), "Draw Force", "Draw length [m]", "Draw force [N]");
         plotter.add_point((*state.draw_length, *state.grip_force), (*state.draw_length, grip_force_ref), "Grip Force", "Draw length [m]", "Grip force [N]");
