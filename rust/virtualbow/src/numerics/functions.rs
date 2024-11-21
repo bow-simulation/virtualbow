@@ -15,9 +15,26 @@ pub fn normalize_angle(mut angle: f64) -> f64 {
     }
 }
 
+// Sign function for floats that returns 1.0 for x > 0.0, -1.0 for x < 0.0 and 0.0 for x = 0.0.
+// The last condition differentiates it from Rust's f64::signum (see also https://github.com/rust-lang/rust/issues/57543)
+pub fn sign(x: f64) -> f64 {
+    return if x == 0.0 {
+        0.0
+    }
+    else if x > 0.0 {
+        1.0
+    }
+    else if x < 0.0 {
+        -1.0
+    }
+    else {
+        f64::NAN
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::numerics::functions::normalize_angle;
+    use crate::numerics::functions::{normalize_angle, sign};
     use std::f64::consts::TAU;
 
     #[test]
@@ -51,5 +68,23 @@ mod tests {
         assert_abs_diff_eq!(normalize_angle(-0.1 - 3.0*TAU), -0.1, epsilon=1e-12);
         assert_abs_diff_eq!(normalize_angle( 3.1 - 3.0*TAU),  3.1, epsilon=1e-12);
         assert_abs_diff_eq!(normalize_angle(-3.1 - 3.0*TAU), -3.1, epsilon=1e-12);
+    }
+
+    #[test]
+    fn test_signum() {
+        // Positive
+        assert_eq!(sign(f64::INFINITY), 1.0);
+        assert_eq!(sign(5.0), 1.0);
+
+        // Negative
+        assert_eq!(sign(f64::NEG_INFINITY), -1.0);
+        assert_eq!(sign(-5.0), -1.0);
+
+        // Zero
+        assert_eq!(sign(0.0), 0.0);
+        assert_eq!(sign(-0.0), 0.0);
+
+        // NaN
+        assert!(sign(f64::NAN).is_nan());
     }
 }

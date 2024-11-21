@@ -68,7 +68,7 @@ impl LayeredCrossSection {
         let (material_map, layer_map) = Self::validate(length, width, layers, materials, alignment)?;
 
         // Construct width spline
-        let width = CubicSpline::from_points(&width.points, false, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
+        let width = CubicSpline::from_points(&width.points, true, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
 
         // Construct layer geometries
         let layers = layers.iter().map(|layer| {

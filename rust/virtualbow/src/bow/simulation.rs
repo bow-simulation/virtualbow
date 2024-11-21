@@ -139,6 +139,7 @@ impl<'a> Simulation<'a> {
 
         // If string is to be initialized, perform bracing simulation
         if string {
+            // Direction of the applied force for displacement control
             system.add_force(simulation.string_nodes[0].y(), move |_t| { -1.0 });
 
             // Initial values for the string factor, the slope and the step size for iterating on the string factor
@@ -152,7 +153,7 @@ impl<'a> Simulation<'a> {
                 return Err(ModelError::SimulationBraceHeightTooLow(input.dimensions.brace_height));
             }
 
-            // Applies the given string length to the bow, solves for static equilibrium with the string pinned at brace height.
+            // Function that applies the given string length to the bow, solves for static equilibrium with the string pinned at brace height.
             // Returns the slope of the string as well as the return state of the static solver.
             // The root of this function is the string length that braces the bow with the desired brace height.
             let mut try_string_length = |factor: f64| {
@@ -549,12 +550,13 @@ impl<'a> Simulation<'a> {
         }
     }
 
-    // Returns the slope of the string against the x direction at its center
+    // Returns the slope of the string at the centerpoint against the x direction
     fn get_string_slope(&self, system: &System) -> f64 {
-        let x_tip = system.get_displacement(self.limb_nodes.last().unwrap().x());
-        let y_tip = system.get_displacement(self.limb_nodes.last().unwrap().y());
-        let y_str = system.get_displacement(self.string_nodes[0].y());
-        (y_tip - y_str)/x_tip
+        let mut string_pos = system.element_ref::<StringElement>(self.string_element).contact_points();
+        let pos0 = string_pos.next().unwrap();    // String must always have at least two contact nodes
+        let pos1 = string_pos.next().unwrap();    // String must always have at least two contact nodes
+
+        (pos1[1] - pos0[1])/(pos1[0] - pos0[0])
     }
 }
 
