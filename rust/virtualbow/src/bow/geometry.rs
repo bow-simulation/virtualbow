@@ -1,6 +1,6 @@
 use iter_num_tools::lin_space;
 use itertools::Itertools;
-use nalgebra::{DMatrix, SVector, vector};
+use nalgebra::{DMatrix, DVector, SVector, vector};
 use crate::bow::errors::ModelError;
 use crate::bow::input::BowInput;
 use crate::bow::profile::profile::{CurvePoint, ProfileCurve};
@@ -55,6 +55,7 @@ impl LimbGeometry {
         // Arc lengths along the profile where the element nodes are placed and their positions
         let s_nodes = lin_space(self.profile.s_start()..=self.profile.s_end(), n_elements + 1).collect_vec();
         let u_nodes = s_nodes.iter().map(|&s| self.profile.point(s)).collect_vec();
+        let y_nodes = s_nodes.iter().map(|&s| self.section.layer_bounds(s).0).collect_vec();
 
         // Equidistant evaluation points along the length of the limb
         let s_eval = lin_space(self.profile.s_start()..=self.profile.s_end(), n_eval_points).collect_vec();
@@ -88,6 +89,7 @@ impl LimbGeometry {
             segments,
             s_nodes,
             u_nodes,
+            y_nodes,
             s_eval,
             strain_eval,
             stress_eval,
@@ -103,6 +105,7 @@ pub struct DiscreteLimbGeometry {
     pub segments: Vec<LinearBeamSegment>,    // Linear beam segment properties
     pub s_nodes: Vec<f64>,                   // Arc lengths of the element nodes
     pub u_nodes: Vec<SVector<f64, 3>>,       // Positions (x, y, φ) of the element nodes
+    pub y_nodes: Vec<DVector<f64>>,          // Layer bounds at nodes (y in cross section coordinates)
 
     pub s_eval: Vec<f64>,                    // Arc lengths at which the limb quantities are evaluated (positions, forces, ...)
     pub strain_eval: Vec<DMatrix<f64>>,      // Strain evaluation matrices for each evaluation point
