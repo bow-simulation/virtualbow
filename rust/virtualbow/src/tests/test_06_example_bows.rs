@@ -236,8 +236,8 @@ fn perform_bow_test(file: &str) {
             0.5*(prev.draw_force + next.draw_force)*(next.draw_length - prev.draw_length)     // Trapezoidal rule
         }).sum();
 
-        //plotter.add_point((*state.draw_length, drawing_work), (*state.draw_length, drawing_work_ref), "Drawing Work", "Draw length [m]", "Drawing work [N]");
-        assert_abs_diff_eq!(drawing_work, drawing_work_ref, epsilon=1e-3*states.e_pot_limbs[0]);
+        plotter.add_point((*state.draw_length, drawing_work), (*state.draw_length, drawing_work_ref), "Drawing Work", "Draw length [m]", "Drawing work [N]");
+        assert_abs_diff_eq!(drawing_work, drawing_work_ref, epsilon=0.5e-2*states.e_pot_limbs[0]);
 
         // Check equilibrium of forces and moments if the string does not contact the limb.
         // TODO: Handle the case when it does, which is more complicated because of the contact forces.

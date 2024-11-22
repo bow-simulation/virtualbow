@@ -104,7 +104,7 @@ impl<'a> Simulation<'a> {
         // String center node that is fixed in the case of no string.
         // The rest of the string nodes come from the limb.
         let string_center = system.create_node(&vector![0.0, -input.dimensions.brace_height, 0.0], &[false, string, false]);
-        let mut string_nodes = vec![string_center];
+        let mut string_nodes = vec![string_center];  // TODO: Preallocate
         string_nodes.extend_from_slice(&limb_nodes);
 
         // Arrow mass element is placed at the string center
@@ -114,7 +114,8 @@ impl<'a> Simulation<'a> {
         let EA = if string { (input.string.n_strands as f64)*input.string.strand_stiffness } else { 0.0 };
         let ρA = if string { (input.string.n_strands as f64)*input.string.strand_density } else { 0.0 };
 
-        let offsets = vec![0.0; limb_nodes.len() + 1];
+        let mut offsets = vec![0.0];                              // Offset at the string node is zero TODO: Preallocate
+        offsets.extend(geometry.y_nodes.iter().map(|y| y[0]));    // Offsets between the limb nodes and the belly surface of the limb
         let string_element = StringElement::new(EA, 0.0, 1.0, offsets);    // Damping is determined later when the length of the string is known
         let string_element = system.add_element(&string_nodes, string_element);
 
