@@ -39,7 +39,7 @@ mod tests {
     #[test]
     fn test_spline_segment() {
         let start = CurvePoint::new(1.5, 0.2, vector![2.5, 5.4]);
-        let input = SplineInput{ points: vec![[0.0, 0.0], [1.0, 1.0], [2.0, 4.0], [3.0, 9.0]] };
+        let input = SplineInput{ points: vec![(0.0, 0.0), (1.0, 1.0), (2.0, 4.0), (3.0, 9.0)] };
 
         let segment = SplineSegment::new(&start, &input);
         test_segment(&start, &segment, 1e-12);

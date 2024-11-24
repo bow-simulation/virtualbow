@@ -13,11 +13,11 @@ use crate::numerics::cubic_spline::{CubicSpline, Extrapolation};
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct SplineInput {
-    pub points: Vec<[f64; 2]>
+    pub points: Vec<(f64, f64)>
 }
 
 impl SplineInput {
-    pub fn new(points: Vec<[f64; 2]>) -> Self {
+    pub fn new(points: Vec<(f64, f64)>) -> Self {
         Self {
             points
         }
@@ -30,7 +30,7 @@ impl SplineInput {
             return Err(ModelError::SplineSegmentTooFewPoints(index, points.len()));
         }
         for point in points {
-            if !point[0].is_finite() || !point[1].is_finite() {
+            if !point.0.is_finite() || !point.1.is_finite() {
                 return Err(ModelError::SplineSegmentInvalidPoint(index, *point));
             }
         }
@@ -51,15 +51,15 @@ impl SplineSegment {
         let mut y = Vec::<f64>::with_capacity(input.points.len() + 1);
 
         // Add point (0, 0) if missing
-        if !input.points.is_empty() && input.points[0] != [0.0, 0.0] {
+        if !input.points.is_empty() && input.points[0] != (0.0, 0.0) {
             x.push(start.r[0]);
             y.push(start.r[1]);
         }
 
         // Add points from model, relative to starting point
         for point in &input.points {
-            x.push(start.r[0] + point[0]);
-            y.push(start.r[1] + point[1]);
+            x.push(start.r[0] + point.0);
+            y.push(start.r[1] + point.1);
         }
 
         assert!(x.len() >= 2, "At least two points are required");

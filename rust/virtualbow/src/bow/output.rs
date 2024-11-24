@@ -136,9 +136,9 @@ pub struct State {
     pub limb_vel: Vec<SVector<f64, 3>>,    // x, y, φ
     pub limb_acc: Vec<SVector<f64, 3>>,    // x, y, φ
 
-    pub string_pos: Vec<[f64; 2]>,    // x, y
-    pub string_vel: Vec<[f64; 2]>,    // x, y
-    pub string_acc: Vec<[f64; 2]>,    // x, y
+    pub string_pos: Vec<SVector<f64, 2>>,    // x, y
+    pub string_vel: Vec<SVector<f64, 2>>,    // x, y
+    pub string_acc: Vec<SVector<f64, 2>>,    // x, y
 
     pub limb_strain: Vec<SVector<f64, 3>>,    // epsilon, kappa, gamma
     pub limb_force: Vec<SVector<f64, 3>>,     // N, M, Q
@@ -165,7 +165,7 @@ pub struct State {
 #[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
 pub struct LimbInfo {
     pub length: Vec<f64>,
-    pub position: Vec<[f64; 3]>,    // x, y, φ
+    pub position: Vec<SVector<f64, 3>>,    // x, y, φ
     pub width: Vec<f64>,
     pub height: Vec<f64>,
 }

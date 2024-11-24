@@ -463,7 +463,7 @@ impl<'a> Simulation<'a> {
         // String kinematics
 
         let string_pos = system.element_ref::<StringElement>(self.string_element).contact_points().map(|p| p.into()).collect_vec();
-        let string_vel = vec![[0.0, 0.0]; string_pos.len()];  // TODO
+        let string_vel = vec![SVector::zeros(); string_pos.len()];  // TODO
 
         /*
         let acc_string = self.string_node.map(|node| vec![
@@ -529,7 +529,7 @@ impl<'a> Simulation<'a> {
 
             string_pos,
             string_vel,
-            string_acc: vec![[0.0; 2]; 2],
+            string_acc: vec![SVector::zeros(); 2],
 
             limb_strain,
             limb_force,

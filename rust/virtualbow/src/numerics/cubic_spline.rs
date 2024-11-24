@@ -25,14 +25,14 @@ pub struct CubicSpline {
 impl CubicSpline {
     pub fn from_components(args: &[f64], vals: &[f64], monotonic: bool, bc_left: BoundaryCondition, bc_right: BoundaryCondition) -> Self {
         Self::from_iter(
-            args.iter().zip(vals).map(|(&x, &y)| [x, y]),
+            args.iter().copied().zip(vals.iter().copied()),
             monotonic,
             bc_left,
             bc_right
         )
     }
 
-    pub fn from_points(points: &[[f64; 2]], monotonic: bool, bc_left: BoundaryCondition, bc_right: BoundaryCondition) -> Self {
+    pub fn from_points(points: &[(f64, f64)], monotonic: bool, bc_left: BoundaryCondition, bc_right: BoundaryCondition) -> Self {
         Self::from_iter(
             points.iter().copied(),
             monotonic,
@@ -41,8 +41,8 @@ impl CubicSpline {
         )
     }
 
-    pub fn from_iter<I: IntoIterator<Item=[f64; 2]>>(points: I, monotonic: bool, bc_left: BoundaryCondition, bc_right: BoundaryCondition) -> Self {
-        let (x, y): (Vec<f64>, Vec<f64>) = points.into_iter().map(|p| (p[0], p[1])).unzip();
+    pub fn from_iter<I: IntoIterator<Item=(f64, f64)>>(points: I, monotonic: bool, bc_left: BoundaryCondition, bc_right: BoundaryCondition) -> Self {
+        let (x, y): (Vec<f64>, Vec<f64>) = points.into_iter().unzip();
         let n = x.len();
 
         assert!(n >= 2, "At least two data points are required");
@@ -270,7 +270,7 @@ mod tests {
         let x1 = 5.0;
         let y1 = 2.5;
 
-        let spline = CubicSpline::from_points(&vec![[x0, y0], [x1, y1]], false, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
+        let spline = CubicSpline::from_points(&vec![(x0, y0), (x1, y1)], false, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
         for x in lin_space(x0..=x1, 100) {
             let d_ref = (y1 - y0)/(x1 - x0);
             let y_ref = y0 + (x - x0)*d_ref;
@@ -394,7 +394,7 @@ mod tests {
         let x_min = 0.5;  // Out of bounds to the left
         let x_max = 5.5;  // Out of bounds to the right
 
-        let spline = CubicSpline::from_points(&vec![[x0, y0], [x1, y1], [x2, y2]], false, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
+        let spline = CubicSpline::from_points(&vec![(x0, y0), (x1, y1), (x2, y2)], false, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
 
         // Constant extrapolation
         assert_abs_diff_eq!(spline.value(x_min, Extrapolation::Constant), y0, epsilon=1e-12);

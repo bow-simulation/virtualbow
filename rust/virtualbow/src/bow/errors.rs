@@ -94,7 +94,7 @@ pub enum ModelError {
     SpiralSegmentInvalidRadius1(usize, f64),
     SpiralSegmentInvalidRadius2(usize, f64),
     SplineSegmentTooFewPoints(usize, usize),
-    SplineSegmentInvalidPoint(usize, [f64;2]),
+    SplineSegmentInvalidPoint(usize, (f64, f64)),
 
     GeometrySelfIntersectionBack(f64),
     GeometrySelfIntersectionBelly(f64),

@@ -112,7 +112,7 @@ pub struct DiscreteLimbGeometry {
     pub stress_eval: Vec<DMatrix<f64>>,      // Stress evaluation matrices for each evaluation point
 
     // TODO: Unify with rest
-    pub position: Vec<[f64;3]>,
+    pub position: Vec<SVector<f64, 3>>,
     pub width: Vec<f64>,
     pub height: Vec<f64>
 }
@@ -138,7 +138,7 @@ mod tests {
     #[test]
     fn test_error_conditions() {
         let mut input = BowInput::default();
-        input.layers = vec![Layer::new("Unnamed", "Default", vec![[0.0, 0.01], [1.0, 0.01]])];
+        input.layers = vec![Layer::new("Unnamed", "Default", vec![(0.0, 0.01), (1.0, 0.01)])];
 
         // 1. Profile curve with no self-intersection
         input.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Line(LineInput::new(1.0))]);

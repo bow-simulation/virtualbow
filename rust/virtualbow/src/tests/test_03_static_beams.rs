@@ -41,8 +41,8 @@ fn linear_straight_uniform_elongation() {
     model.settings.min_draw_resolution = 5;
     model.materials = vec![Material::new("material", "#000000", rho, E, G)];
     model.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Line(LineInput::new(l))]);
-    model.width = Width::new(vec![[0.0, w], [1.0, w]]);
-    model.layers = vec![Layer::new("layer", "material", vec![[0.0, h], [1.0, h]])];
+    model.width = Width::new(vec![(0.0, w), (1.0, w)]);
+    model.layers = vec![Layer::new("layer", "material", vec![(0.0, h), (1.0, h)])];
 
     // Compute static deflection
     let (setup, state) = Simulation::simulate_static_limb(&model, F, 0.0, 0.0).unwrap();
@@ -109,8 +109,8 @@ fn linear_straight_uniform_cantilever() {
     model.settings.min_draw_resolution = 5;
     model.materials = vec![Material::new("material", "#000000", rho, E, G)];
     model.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Line(LineInput::new(l))]);
-    model.width = Width::new(vec![[0.0, w], [1.0, w]]);
-    model.layers = vec![Layer::new("layer", "material", vec![[0.0, h], [1.0, h]])];
+    model.width = Width::new(vec![(0.0, w), (1.0, w)]);
+    model.layers = vec![Layer::new("layer", "material", vec![(0.0, h), (1.0, h)])];
 
     // Compute static deflection
     let (setup, state) = Simulation::simulate_static_limb(&model, 0.0, F, 0.0).unwrap();
@@ -177,8 +177,8 @@ fn nonlinear_straight_uniform_coilup() {
     model.settings.min_draw_resolution = 50;
     model.materials = vec![Material::new("material", "#000000", rho, E, G)];
     model.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Line(LineInput::new(l))]);
-    model.width = Width::new(vec![[0.0, w], [1.0, w]]);
-    model.layers = vec![Layer::new("layer", "material", vec![[0.0, h], [1.0, h]])];
+    model.width = Width::new(vec![(0.0, w), (1.0, w)]);
+    model.layers = vec![Layer::new("layer", "material", vec![(0.0, h), (1.0, h)])];
 
     // Required radius and bending moment
     let I = w*h.powi(3)/12.0;
@@ -252,8 +252,8 @@ fn nonlinear_straight_uniform_cantilever() {
     model.settings.min_draw_resolution = 5;
     model.materials = vec![Material::new("material", "#000000", rho, E, G)];
     model.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Line(LineInput::new(l))]);
-    model.width = Width::new(vec![[0.0, w0], [1.0, w1]]);
-    model.layers = vec![Layer::new("layer", "material", vec![[0.0, h0], [1.0, h1]])];
+    model.width = Width::new(vec![(0.0, w0), (1.0, w1)]);
+    model.layers = vec![Layer::new("layer", "material", vec![(0.0, h0), (1.0, h1)])];
 
     // Compute static deflection
     let (setup, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
@@ -337,8 +337,8 @@ fn nonlinear_straight_tapered_cantilever() {
     model.settings.min_draw_resolution = 5;
     model.materials = vec![Material::new("material", "#000000", rho, E, G)];
     model.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Line(LineInput::new(l))]);
-    model.width = Width::new(vec![[0.0, w0], [1.0, w1]]);
-    model.layers = vec![Layer::new("layer", "material", vec![[0.0, h0], [1.0, h1]])];
+    model.width = Width::new(vec![(0.0, w0), (1.0, w1)]);
+    model.layers = vec![Layer::new("layer", "material", vec![(0.0, h0), (1.0, h1)])];
 
     // Compute static deflection
     let (setup, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
@@ -423,8 +423,8 @@ fn nonlinear_curved_uniform_cantilever() {
     model.settings.min_draw_resolution = 5;
     model.materials = vec![Material::new("material", "#000000", rho, E, G)];
     model.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Arc(ArcInput::new(l, r))]);
-    model.width = Width::new(vec![[0.0, w0], [1.0, w1]]);
-    model.layers = vec![Layer::new("layer", "material", vec![[0.0, h0], [1.0, h1]])];
+    model.width = Width::new(vec![(0.0, w0), (1.0, w1)]);
+    model.layers = vec![Layer::new("layer", "material", vec![(0.0, h0), (1.0, h1)])];
 
     // Compute static deflection
     let (setup, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
@@ -509,8 +509,8 @@ fn nonlinear_curved_tapered_cantilever() {
     model.settings.min_draw_resolution = 5;
     model.materials = vec![Material::new("material", "#000000", rho, E, G)];
     model.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Arc(ArcInput::new(l, r))]);
-    model.width = Width::new(vec![[0.0, w0], [1.0, w1]]);
-    model.layers = vec![Layer::new("layer", "material", vec![[0.0, h0], [1.0, h1]])];
+    model.width = Width::new(vec![(0.0, w0), (1.0, w1)]);
+    model.layers = vec![Layer::new("layer", "material", vec![(0.0, h0), (1.0, h1)])];
 
     // Compute static deflection
     let (setup, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
@@ -596,8 +596,8 @@ fn nonlinear_straight_uniform_cantilever_offsets() {
             _ => unimplemented!()
         };
         model.profile = Profile::new(alignment, vec![SegmentInput::Line(LineInput::new(l))]);
-        model.width = Width::new(vec![[0.0, w], [1.0, w]]);
-        model.layers = vec![Layer::new("layer", "material", vec![[0.0, h], [1.0, h]])];
+        model.width = Width::new(vec![(0.0, w), (1.0, w)]);
+        model.layers = vec![Layer::new("layer", "material", vec![(0.0, h), (1.0, h)])];
 
         // Compute static deflection
         let (_, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
@@ -687,8 +687,8 @@ fn nonlinear_curved_uniform_cantilever_offsets() {
         model.materials = vec![Material::new("material", "#000000", rho, E, G)];
         model.dimensions.handle_setback = d;
         model.profile = Profile::new(alignment, vec![SegmentInput::Arc(ArcInput::new(ld, rd))]);
-        model.width = Width::new(vec![[0.0, w], [1.0, w]]);
-        model.layers = vec![Layer::new("layer", "material", vec![[0.0, h], [1.0, h]])];
+        model.width = Width::new(vec![(0.0, w), (1.0, w)]);
+        model.layers = vec![Layer::new("layer", "material", vec![(0.0, h), (1.0, h)])];
 
         // Compute static deflection
         let (_, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();

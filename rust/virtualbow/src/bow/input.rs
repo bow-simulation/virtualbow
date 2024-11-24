@@ -107,15 +107,15 @@ impl Default for BowInput {
                 Material::new("Default", "#000000", 1.0, 1.0, 1.0)
             ],
             layers: vec![
-                Layer::new("Unnamed", "Default", vec![[0.0, 0.001], [1.0, 0.001]])
+                Layer::new("Unnamed", "Default", vec![(0.0, 0.001), (1.0, 0.001)])
             ],
             profile: Profile::new(LayerAlignment::SectionBack, vec![
                 SegmentInput::Line(LineInput::new(1.0))
             ]),
             width: Width::new(vec![
-                [0.0, 0.05],
-                [0.5, 0.04],
-                [1.0, 0.01]
+                (0.0, 0.05),
+                (0.5, 0.04),
+                (1.0, 0.01)
             ]),
             string: BowString {
                 n_strands: 1,
@@ -276,13 +276,13 @@ impl Material {
 pub struct Layer {
     pub name: String,
     pub material: String,
-    pub height: Vec<[f64; 2]>,
+    pub height: Vec<(f64, f64)>,
 }
 
 impl Layer {
     const REL_LENGTH_TOL: f64 = 1e-9;    // Tolerance used for validating inputs that are relative lengths
 
-    pub fn new(name: &str, material: &str, height: Vec<[f64; 2]>) -> Self {
+    pub fn new(name: &str, material: &str, height: Vec<(f64, f64)>) -> Self {
         Self {
             name: name.to_string(),
             material: material.to_string(),
@@ -306,36 +306,36 @@ impl Layer {
             return Err(ModelError::LayerHeightControlPointsTooFew(height.len()));
         }
 
-        if let Some((a, b)) = height.iter().tuple_windows().find(|(a, b)| b[0] <= a[0]) {
-            return Err(ModelError::LayerHeightControlPointsNotSorted(a[0], b[0]));
+        if let Some((a, b)) = height.iter().tuple_windows().find(|(a, b)| b.0 <= a.0) {
+            return Err(ModelError::LayerHeightControlPointsNotSorted(a.0, b.0));
         }
 
         let first = height.first().unwrap();
         let last = height.last().unwrap();
 
-        if (first[0] < 0.0 - Width::REL_LENGTH_TOL) || (last[0] > 1.0 + Width::REL_LENGTH_TOL) {
-            return Err(ModelError::LayerHeightControlPointsInvalidRange(first[0], last[0]));
+        if (first.0 < 0.0 - Width::REL_LENGTH_TOL) || (last.0 > 1.0 + Width::REL_LENGTH_TOL) {
+            return Err(ModelError::LayerHeightControlPointsInvalidRange(first.0, last.0));
         }
 
         for (i, a) in height.iter().enumerate() {
             if i == 0 || i == height.len()-1 {
-                if !a[0].is_finite() || !a[1].is_finite() || a[0] < 0.0 || a[1] < 0.0 {
-                    return Err(ModelError::LayerHeightControlPointsInvalidBoundaryValue(a[0], a[1]));
+                if !a.0.is_finite() || !a.1.is_finite() || a.0 < 0.0 || a.1 < 0.0 {
+                    return Err(ModelError::LayerHeightControlPointsInvalidBoundaryValue(a.0, a.1));
                 }
             }
             else {
-                if !a[0].is_finite() || !a[1].is_finite() || a[0] <= 0.0 || a[1] <= 0.0 {
-                    return Err(ModelError::LayerHeightControlPointsInvalidInteriorValue(a[0], a[1]));
+                if !a.0.is_finite() || !a.1.is_finite() || a.0 <= 0.0 || a.1 <= 0.0 {
+                    return Err(ModelError::LayerHeightControlPointsInvalidInteriorValue(a.0, a.1));
                 }
             }
         }
 
-        if first[0] > 0.0 + Layer::REL_LENGTH_TOL && first[1] != 0.0 {
-            return Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(first[0], first[1]));
+        if first.0 > 0.0 + Layer::REL_LENGTH_TOL && first.1 != 0.0 {
+            return Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(first.0, first.1));
         }
 
-        if last[0] < 1.0 - Layer::REL_LENGTH_TOL && last[1] != 0.0 {
-            return Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(last[0], last[1]));
+        if last.0 < 1.0 - Layer::REL_LENGTH_TOL && last.1 != 0.0 {
+            return Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(last.0, last.1));
         }
 
         Ok(())
@@ -380,13 +380,13 @@ impl Profile {
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Width {
-    pub points: Vec<[f64; 2]>
+    pub points: Vec<(f64, f64)>
 }
 
 impl Width {
     const REL_LENGTH_TOL: f64 = 1e-9;    // Tolerance used for validating inputs that are relative lengths
 
-    pub fn new(points: Vec<[f64; 2]>) -> Self {
+    pub fn new(points: Vec<(f64, f64)>) -> Self {
         Self {
             points
         }
@@ -399,19 +399,19 @@ impl Width {
             return Err(ModelError::WidthControlPointsTooFew(points.len()));
         }
 
-        if let Some((a, b)) = points.iter().tuple_windows().find(|(a, b)| b[0] <= a[0]) {
-            return Err(ModelError::WidthControlPointsNotSorted(a[0], b[0]));
+        if let Some((a, b)) = points.iter().tuple_windows().find(|(a, b)| b.0 <= a.0) {
+            return Err(ModelError::WidthControlPointsNotSorted(a.0, b.0));
         }
 
         let first = points.first().unwrap();
         let last = points.last().unwrap();
 
-        if ((first[0] - 0.0).abs() > Width::REL_LENGTH_TOL) || ((last[0] - 1.0).abs() > Width::REL_LENGTH_TOL) {
-            return Err(ModelError::WidthControlPointsInvalidRange(first[0], last[0]));
+        if ((first.0 - 0.0).abs() > Width::REL_LENGTH_TOL) || ((last.0 - 1.0).abs() > Width::REL_LENGTH_TOL) {
+            return Err(ModelError::WidthControlPointsInvalidRange(first.0, last.0));
         }
 
-        if let Some(a) = points.iter().find(|a| !a[0].is_finite() || !a[1].is_finite() || a[1] <= 0.0) {
-            return Err(ModelError::WidthControlPointsInvalidValue(a[0], a[1]));
+        if let Some(a) = points.iter().find(|a| !a.0.is_finite() || !a.1.is_finite() || a.1 <= 0.0) {
+            return Err(ModelError::WidthControlPointsInvalidValue(a.0, a.1));
         }
 
         Ok(())

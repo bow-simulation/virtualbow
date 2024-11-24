@@ -113,7 +113,7 @@ mod tests {
             SegmentInput::Line(LineInput::new(0.2)),
             SegmentInput::Arc(ArcInput::new(0.2, -0.5)),
             SegmentInput::Spiral(SpiralInput::new(0.2, 0.25, 0.5)),
-            SegmentInput::Spline(SplineInput::new(vec![[0.0, 0.0], [0.1, 0.02], [0.15, 0.0]])),
+            SegmentInput::Spline(SplineInput::new(vec![(0.0, 0.0), (0.1, 0.02), (0.15, 0.0)])),
         ];
 
         let profile = ProfileCurve::new(CurvePoint::zero(), &input).unwrap();
