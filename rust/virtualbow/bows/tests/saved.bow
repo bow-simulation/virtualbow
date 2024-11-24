@@ -3,10 +3,11 @@
   "comment": "",
   "settings": {
     "n_limb_elements": 30,
-    "n_limb_eval_points": 1000,
+    "n_limb_eval_points": 250,
     "min_draw_resolution": 100,
     "max_draw_resolution": 100,
     "arrow_clamp_force": 0.5,
+    "string_compression_factor": 1e-6,
     "timespan_factor": 1.5,
     "timeout_factor": 10.0,
     "min_timestep": 1e-6,

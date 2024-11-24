@@ -247,7 +247,7 @@
         "n_limb_elements": 40,
         "n_string_elements": 45,
         "sampling_rate": 10000.0,
-        "time_span_factor": 1.5,
+        "time_span_factor": 5.0,
         "time_step_factor": 0.5
     },
     "string": {

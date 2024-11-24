@@ -7,8 +7,9 @@ use crate::numerics::geometry::{convex_envelope, Orientation};
 pub struct StringElement {
     // Constant data
     EA: f64,              // Linear stiffness
-    ηA: f64,            // Linear damping
+    ηA: f64,              // Linear damping
     l0: f64,              // Initial length
+    cf: f64,              // Compression factor for reduction of stiffness and damping
     offsets: Vec<f64>,    // Distances between limb nodes and contact points
 
     // State data
@@ -25,13 +26,14 @@ pub struct StringElement {
 }
 
 impl StringElement {
-    pub fn new(EA: f64, ηA: f64, l0: f64, offsets: Vec<f64>) -> Self {
+    pub fn new(EA: f64, ηA: f64, l0: f64, cf: f64, offsets: Vec<f64>) -> Self {
         let n_points = offsets.len();
 
         Self {
             EA,
             ηA,
             l0,
+            cf,
             offsets,
             points: vec![SVector::zeros(); n_points],   // Size: Number of nodes,
             angles: vec![0.0; n_points],                // Size: Number of nodes,
@@ -48,7 +50,7 @@ impl StringElement {
 
     // Creates a string element between two points without offsets, equivalent to a bar element
     pub fn bar(EA: f64, ηA: f64, l0: f64) -> Self {
-        Self::new(EA, ηA, l0, vec![0.0; 2])
+        Self::new(EA, ηA, l0, 1.0, vec![0.0; 2])
     }
 
     // Creates a bar with spring parameters, i.e. mass (total), damping and stiffness instead of cross section properties
@@ -70,6 +72,10 @@ impl StringElement {
 
     pub fn set_linear_damping(&mut self, ηA: f64) {
         self.ηA = ηA;
+    }
+
+    pub fn set_compression_factor(&mut self, cf: f64) {
+        self.cf = cf;
     }
 
     // Total normal force
@@ -122,7 +128,11 @@ impl Element for StringElement {
         self.lengths.extend(self.indices.iter().tuple_windows().map(|(&i, &j)| (self.points[j] - self.points[i]).norm()));
         self.lt = self.lengths.iter().sum();
 
-        // Step 4: Compute partial derivatives of the length as needed for Q, K and D
+        // Step 4: Reduce stiffness and damping according to alpha, if there is compression
+        let EA = if self.lt > self.l0 { self.EA } else { self.cf *self.EA };
+        let ηA = if self.lt > self.l0 { self.ηA } else { self.cf *self.ηA };
+
+        // Step 5: Compute partial derivatives of the length as needed for Q, K and D
 
         self.dldu.fill(0.0);
         self.dldu2.fill(0.0);
@@ -201,14 +211,14 @@ impl Element for StringElement {
             }
         }
 
-        // Step 5: Compute generalized forces, stiffness- and damping matrices
+        // Step 6: Compute generalized forces, stiffness- and damping matrices
         // Calculations are done in loops in order to avoid dynamic allocations from temporary DVector and DMatrix types.
         // This hasn't been benchmarked though, maybe the other way would be better.
 
         let dldt: f64 = self.dldu.iter().enumerate().map(|(i, dldu)| dldu*v.at(i)).sum();
 
-        self.Ne = self.EA/self.l0 *(self.lt - self.l0);
-        self.Nv = self.ηA /self.l0*dldt;
+        self.Ne = EA/self.l0 *(self.lt - self.l0);
+        self.Nv = ηA /self.l0*dldt;
         self.Nt = self.Ne + self.Nv;
 
         if let Some(ref mut q) = q {
@@ -221,7 +231,7 @@ impl Element for StringElement {
             for j in 0..self.dldu.len() {
                 let dldt_du_j: f64 = self.dldu2.column(j).iter().enumerate().map(|(k, dldu2)| dldu2*v.at(k)).sum();
                 for i in 0..self.dldu.len() {
-                    K.add(i, j, self.EA/self.l0*self.dldu[j]*self.dldu[i] + self.ηA/self.l0*dldt_du_j*self.dldu[i] + self.Nt*self.dldu2[(i, j)]);
+                    K.add(i, j, EA/self.l0*self.dldu[j]*self.dldu[i] + ηA/self.l0*dldt_du_j*self.dldu[i] + self.Nt*self.dldu2[(i, j)]);
                 }
             }
         }
@@ -229,7 +239,7 @@ impl Element for StringElement {
         if let Some(ref mut D) = D {
             for i in 0..self.dldu.len() {
                 for j in 0..self.dldu.len() {
-                    D.add(i, j, self.ηA /self.l0*self.dldu[i]*self.dldu[j]);
+                    D.add(i, j, ηA /self.l0*self.dldu[i]*self.dldu[j]);
                 }
             }
         }
@@ -237,10 +247,9 @@ impl Element for StringElement {
 
     fn potential_energy(&self) -> f64 {
         0.5*self.Nt*(self.lt - self.l0)
-        //self.lt
     }
 
     fn kinetic_energy(&self) -> f64 {
-        0.0
+        0.0    // This element has no mass properties, those have to be modelled over separate point masses
     }
 }

@@ -85,10 +85,11 @@ impl Default for BowInput {
             comment: "".into(),
             settings: Settings {
                 n_limb_elements: 30,
-                n_limb_eval_points: 1000,  // TODO
+                n_limb_eval_points: 250,
                 min_draw_resolution: 100,
                 max_draw_resolution: 100,
                 arrow_clamp_force: 0.5,
+                string_compression_factor: 1e-6,
                 timespan_factor: 1.5,
                 timeout_factor: 10.0,
                 min_timestep: 1e-6,
@@ -144,6 +145,7 @@ pub struct Settings {
     pub max_draw_resolution: usize,
 
     pub arrow_clamp_force: f64,
+    pub string_compression_factor: f64,
     pub timespan_factor: f64,
     pub timeout_factor: f64,
     pub min_timestep: f64,
@@ -153,7 +155,7 @@ pub struct Settings {
 
 impl Settings {
     pub fn validate(&self) -> Result<(), ModelError> {
-        let &Self { n_limb_elements, n_limb_eval_points, min_draw_resolution, max_draw_resolution, arrow_clamp_force, timespan_factor, timeout_factor, min_timestep, max_timestep, steps_per_period } = self;
+        let &Self { n_limb_elements, n_limb_eval_points, min_draw_resolution, max_draw_resolution, arrow_clamp_force, string_compression_factor, timespan_factor, timeout_factor, min_timestep, max_timestep, steps_per_period } = self;
 
         if n_limb_elements < 1 {
             return Err(ModelError::SettingsInvalidLimbElements(n_limb_elements));
@@ -169,6 +171,9 @@ impl Settings {
         }
         if !arrow_clamp_force.is_finite() || arrow_clamp_force < 0.0 {
             return Err(ModelError::SettingsInvalidArrowClampForce(arrow_clamp_force));
+        }
+        if !string_compression_factor.is_finite() || string_compression_factor <= 0.0 {
+            return Err(ModelError::SettingsInvalidStringCompressionFactor(string_compression_factor));
         }
         if !timespan_factor.is_finite() || timespan_factor < 1.0 {
             return Err(ModelError::SettingsInvalidTimeSpanFactor(timespan_factor));

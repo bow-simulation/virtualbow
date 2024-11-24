@@ -3,10 +3,11 @@
   "comment": "This is a comment!",
   "settings": {
     "n_limb_elements": 20,
-    "n_limb_eval_points": 100,
+    "n_limb_eval_points": 1000,
     "min_draw_resolution": 150,
     "max_draw_resolution": 150,
     "arrow_clamp_force": 0.0,
+    "string_compression_factor": 1e-6,
     "timespan_factor": 1.5,
     "timeout_factor": 5.0,
     "min_timestep": 1e-6,
@@ -104,6 +105,23 @@
         "type": "arc",
         "length": 0.20000000000000007,
         "radius": 1.0
+      },
+      {
+        "type": "spline",
+        "points": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.05,
+            0.01
+          ],
+          [
+            0.1,
+            0.0
+          ]
+        ]
       }
     ]
   },

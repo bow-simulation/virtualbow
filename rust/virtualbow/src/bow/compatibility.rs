@@ -143,6 +143,7 @@ fn convert_v2_to_v3(value: &mut Value) -> Result<(), ModelError> {
         "min_draw_resolution": value["settings"]["n_draw_steps"],
         "max_draw_resolution": value["settings"]["n_draw_steps"],
         "arrow_clamp_force": value["settings"]["arrow_clamp_force"],
+        "string_compression_factor": 1e-6,
         "timespan_factor": value["settings"]["time_span_factor"],
         "timeout_factor": 5.0,
         "min_timestep": 1e-6,
