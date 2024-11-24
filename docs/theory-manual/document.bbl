@@ -10,6 +10,12 @@ K.J. Bathe.
 \newblock {\em Finite Element Procedures}.
 \newblock Prentice Hall, 2006.
 
+\bibitem{bib:bvmvn2007}
+Augusto Beléndez, Carolina Villalobos, David Méndez, Tarsicio Vázquez, and
+  Cristian Neipp.
+\newblock Exact solution for the nonlinear pendulum.
+\newblock {\em Revista Brasileira de Ensino de Física}, 29, 01 2007.
+
 \bibitem{bib:bergan1985}
 Pål~G. Bergan and Egil Mollestad.
 \newblock An automatic time-stepping algorithm for dynamic problems.
