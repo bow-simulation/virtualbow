@@ -26,9 +26,10 @@ fn mass_element() {
 
 #[test]
 fn string_element() {
-    let l = 1.5;
+    let l0 = 1.5;
     let EA = 2100.0;
     let ηA = 400.0;
+    let cf = 1.0;
 
     // Two nodes
     {
@@ -37,7 +38,7 @@ fn string_element() {
         let node1 = system.create_node(&vector![0.0, 1.0, 1.5], &[true; 3]);
 
         let offsets = vec![-0.1, -0.1];
-        system.add_element(&[node0, node1], StringElement::new(EA, ηA, l, offsets));
+        system.add_element(&[node0, node1], StringElement::new(EA, ηA, l0, cf, offsets));
 
         utils::checks::check_system_invariants(&mut system);
     }
@@ -50,7 +51,7 @@ fn string_element() {
         let node2 = system.create_node(&vector![0.0, 2.0, 1.5], &[true; 3]);
 
         let offsets = vec![-0.1, -0.1, -0.1];
-        system.add_element(&[node0, node1, node2], StringElement::new(EA, ηA, l, offsets));
+        system.add_element(&[node0, node1, node2], StringElement::new(EA, ηA, l0, cf, offsets));
 
         utils::checks::check_system_invariants(&mut system);
     }
@@ -63,7 +64,7 @@ fn string_element() {
         let node2 = system.create_node(&vector![0.0, 2.0, 1.5], &[true; 3]);
     
         let offsets = vec![-0.1, -0.1, -0.1];
-        system.add_element(&[node0, node1, node2], StringElement::new(EA, ηA, l, offsets));
+        system.add_element(&[node0, node1, node2], StringElement::new(EA, ηA, l0, cf, offsets));
     
         utils::checks::check_system_invariants(&mut system);
     }
@@ -77,7 +78,7 @@ fn string_element() {
         let node3 = system.create_node(&vector![0.0, 3.0, 1.5], &[true; 3]);
         
         let offsets = vec![-0.1, -0.1, -0.1, -0.1];
-        system.add_element(&[node0, node1, node2, node3], StringElement::new(EA, ηA, l, offsets));
+        system.add_element(&[node0, node1, node2, node3], StringElement::new(EA, ηA, l0, cf, offsets));
         
         utils::checks::check_system_invariants(&mut system);
     }

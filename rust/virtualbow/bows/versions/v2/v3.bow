@@ -7,6 +7,7 @@
     "min_draw_resolution": 150,
     "max_draw_resolution": 150,
     "arrow_clamp_force": 0.0,
+    "string_compression_factor": 1e-6,
     "timespan_factor": 1.5,
     "timeout_factor": 5.0,
     "min_timestep": 1e-6,

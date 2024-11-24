@@ -1,5 +1,6 @@
 use itertools::Itertools;
 use crate::bow::input::BowInput;
+use crate::bow::output::State;
 use crate::bow::simulation::Simulation;
 use crate::tests::utils::plotter::Plotter;
 
@@ -192,22 +193,8 @@ fn perform_bow_test(file: &str) {
 
     // Perform checks on each static state
     for (i, state) in states.iter().enumerate() {
-        // Check basic dimensions
-        assert_eq!(state.limb_pos.len(), model.settings.n_limb_eval_points);
-        assert_eq!(state.limb_vel.len(), model.settings.n_limb_eval_points);
-        assert_eq!(state.limb_acc.len(), model.settings.n_limb_eval_points);
-        assert!(state.string_pos.len() >= 2);
-        assert!(state.string_vel.len() >= 2);
-        assert!(state.string_acc.len() >= 2);
-        assert_eq!(state.limb_strain.len(), model.settings.n_limb_eval_points);
-        assert_eq!(state.limb_force.len(), model.settings.n_limb_eval_points);
-        assert_eq!(state.layer_strain.len(), model.layers.len());
-        assert_eq!(state.layer_stress.len(), model.layers.len());
-
-        // Check limb starting point (positions and angle)
-        assert_abs_diff_eq!(state.limb_pos[0][0], 0.5*model.dimensions.handle_length, epsilon=1e-12);
-        assert_abs_diff_eq!(state.limb_pos[0][1], model.dimensions.handle_setback, epsilon=1e-12);
-        assert_abs_diff_eq!(state.limb_pos[0][2], model.dimensions.handle_angle, epsilon=1e-12);
+        // Check basic properties of the bow state
+        check_bow_state(&model, &state.to_owned());
 
         // Reference values for string force and grip force based on static considerations
         let string_pos_a = state.string_pos[1];
@@ -280,9 +267,54 @@ fn perform_bow_test(file: &str) {
 
     // Perform checks on each dynamic state
     for (_, state) in states.iter().enumerate() {
+        // Check basic properties of the bow state
+        check_bow_state(&model, &state.to_owned());
+
         plotter.add_point((*state.time, *state.arrow_pos), (*state.time, 0.0), "Arrow Position", "Time [s]", "Position [m]");
         plotter.add_point((*state.time, *state.arrow_vel), (*state.time, 0.0), "Arrow Velocity", "Time [s]", "Velocity [m/s]");
         plotter.add_point((*state.time, *state.arrow_acc), (*state.time, 0.0), "Arrow Acceleration", "Time [s]", "Acceleration [m/s²]");
         plotter.add_point((*state.time, *state.string_force), (0.0, 0.0), "Dynamic String Force", "Time [s]", "String force [N]");
     }
+}
+
+// Check basic properties of a static or dynamic bow state
+fn check_bow_state(model: &BowInput, state: &State) {
+    assert!(state.time >= 0.0);
+    assert!(state.draw_length <= model.dimensions.draw_length);
+
+    assert_eq!(state.limb_pos.len(), model.settings.n_limb_eval_points);
+    assert_eq!(state.limb_vel.len(), model.settings.n_limb_eval_points);
+    assert_eq!(state.limb_acc.len(), model.settings.n_limb_eval_points);
+
+    assert!(state.string_pos.len() >= 2 && state.string_pos.len() <= model.settings.n_limb_elements + 2);
+    assert!(state.string_vel.len() >= 2 && state.string_vel.len() <= model.settings.n_limb_elements + 2);
+    assert!(state.string_acc.len() >= 2 && state.string_acc.len() <= model.settings.n_limb_elements + 2);
+
+    // Check limb starting point (positions and angle)
+    assert_abs_diff_eq!(state.limb_pos[0][0], 0.5*model.dimensions.handle_length, epsilon=1e-12);
+    assert_abs_diff_eq!(state.limb_pos[0][1], model.dimensions.handle_setback, epsilon=1e-12);
+    assert_abs_diff_eq!(state.limb_pos[0][2], model.dimensions.handle_angle, epsilon=1e-12);
+
+    assert_eq!(state.limb_strain.len(), model.settings.n_limb_eval_points);
+    assert_eq!(state.limb_force.len(), model.settings.n_limb_eval_points);
+    assert_eq!(state.layer_strain.len(), model.layers.len());
+    assert_eq!(state.layer_strain[0].len(), model.settings.n_limb_eval_points);
+    assert_eq!(state.layer_stress.len(), model.layers.len());
+    assert_eq!(state.layer_stress[0].len(), model.settings.n_limb_eval_points);
+
+    assert!(state.arrow_pos >= -model.dimensions.draw_length);
+    assert!(state.arrow_vel >= 0.0);
+
+    //assert!(state.arrow_acc >= -model.settings.arrow_clamp_force/model.masses.arrow - 1e-6);    // Small tolerance for initial static state at release of the string
+    assert!(state.e_pot_limbs >= 0.0);
+    assert!(state.e_kin_limbs >= 0.0);
+    assert!(state.e_pot_string >= 0.0);
+    assert!(state.e_kin_string >= 0.0);
+    assert!(state.e_kin_arrow >= 0.0);
+
+    //println!("{}", state.string_force);
+
+    //assert!(state.draw_force >= -1e-5);  // Allow slightly negative draw force because static equilibrium at the braced state is not 100% accurate
+    //assert!(state.string_force > 0.0);
+    //assert!(state.strand_force > 0.0);
 }

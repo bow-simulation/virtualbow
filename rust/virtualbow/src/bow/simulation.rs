@@ -116,7 +116,7 @@ impl<'a> Simulation<'a> {
 
         let mut offsets = vec![0.0];                              // Offset at the string node is zero TODO: Preallocate
         offsets.extend(geometry.y_nodes.iter().map(|y| y[0]));    // Offsets between the limb nodes and the belly surface of the limb
-        let string_element = StringElement::new(EA, 0.0, 1.0, offsets);    // Damping is determined later when the length of the string is known
+        let string_element = StringElement::new(EA, 0.0, 1.0, 1.0, offsets);    // Damping is determined later when the length of the string is known, compression factor is set in dynamic analysis
         let string_element = system.add_element(&string_nodes, string_element);
 
         // Evaluate the string element so that the actual string length is computed
@@ -290,6 +290,9 @@ impl<'a> Simulation<'a> {
 
                 let settings = DynamicSolverSettings { time_stepping: step, max_time: t_max, ..Default::default() };
                 let mut states = StateVec::new();
+
+                // Modify the string's compression factor to make it a lot less stiff on compression
+                system.element_mut::<StringElement>(simulation.string_element).set_compression_factor(model.settings.string_compression_factor);
 
                 // Simulate the first part of the shot until either the arrow separates from the string
                 // or the timeout is reached for some reason
