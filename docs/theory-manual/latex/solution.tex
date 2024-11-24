@@ -843,3 +843,20 @@ Using this frequency and the prescribed damping ratio $\zeta_{0}$, the required 
 \textcolor{red}{TODO: Relationship to nonlinear analysis}
 
 \textcolor{red}{TODO:Damping should also be mentioned and explained in the modelling chapter with links to/from here}
+
+\textcolor{red}{TODO: Add missing pieces from other repository}
+
+\subsection{Damping of the Bow String}
+
+Unlike the limbs, setting the damping ratio of the string does not require a numerical modal analysis since we can carry this out analytically.
+As derived in \ref{chapter:viscoelastic-bar-vibrations}, the damping ratio of the first eigenmode of the string is
+
+\begin{equation}
+\zeta = \frac{\pi}{4L}\,\frac{\eta A}{\sqrt{\rho A \cdot EA}}
+\end{equation}
+
+which, when solved for $\eta A$ gives us the effective viscosity of the string as
+
+\begin{equation}
+\eta A = \frac{4L}{\pi}\sqrt{\rho A \cdot EA}\cdot\zeta.
+\end{equation}
