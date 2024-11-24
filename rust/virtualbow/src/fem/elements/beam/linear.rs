@@ -181,8 +181,8 @@ mod tests {
         let curve = ClothoidSegment::line(&start, &LineInput{ length });
 
         let material = Material::new("material", "#000000", 7850.0, 210e9, 80e9);
-        let width = Width::new(vec![[0.0, 0.01], [1.0, 0.01]]);
-        let layer = Layer::new("layer", "material", vec![[0.0, 0.01], [1.0, 0.01]]);
+        let width = Width::new(vec![(0.0, 0.01), (1.0, 0.01)]);
+        let layer = Layer::new("layer", "material", vec![(0.0, 0.01), (1.0, 0.01)]);
         let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], &LayerAlignment::SectionCenter).expect("Failed to construct cross section");
 
         let n_elements = 100;
@@ -211,8 +211,8 @@ mod tests {
         let curve = ClothoidSegment::arc(&start, &ArcInput{ length: 0.8, radius: 0.4 });
 
         let material = Material::new("material", "#000000", 7850.0, 210e9, 80e9);
-        let width = Width::new(vec![[0.0, 0.01], [1.0, 0.01]]);
-        let layer = Layer::new("layer", "material", vec![[0.0, 0.01], [1.0, 0.01]]);
+        let width = Width::new(vec![(0.0, 0.01), (1.0, 0.01)]);
+        let layer = Layer::new("layer", "material", vec![(0.0, 0.01), (1.0, 0.01)]);
         let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], &LayerAlignment::SectionCenter).expect("Failed to construct cross section");
 
         let n_elements = 100;
@@ -237,8 +237,8 @@ mod tests {
         let curve = ClothoidSegment::arc(&start, &ArcInput{ length: 0.8, radius: 0.4 });
 
         let material = Material::new("material", "#000000", 7850.0, 210e9, 80e9);
-        let width = Width::new(vec![[0.0, 0.01], [1.0, 0.005]]);
-        let layer = Layer::new("layer", "material", vec![[0.0, 0.01], [1.0, 0.005]]);
+        let width = Width::new(vec![(0.0, 0.01), (1.0, 0.005)]);
+        let layer = Layer::new("layer", "material", vec![(0.0, 0.01), (1.0, 0.005)]);
         let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], &LayerAlignment::SectionCenter).expect("Failed to construct cross section");
 
         let n_elements = 100;

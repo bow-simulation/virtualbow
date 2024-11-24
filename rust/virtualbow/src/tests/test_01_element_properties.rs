@@ -90,8 +90,8 @@ fn beam_element() {
     let r = 0.4;
 
     let material = Material::new("material", "#000000", 740.0, 11670e6, 8000e6);
-    let width = Width::new(vec![[0.0, 0.01], [1.0, 0.01]]);
-    let layer = Layer::new("layer", "material", vec![[0.0, 0.01], [1.0, 0.01]]);
+    let width = Width::new(vec![(0.0, 0.01), (1.0, 0.01)]);
+    let layer = Layer::new("layer", "material", vec![(0.0, 0.01), (1.0, 0.01)]);
     let curve = ClothoidSegment::arc(&CurvePoint::zero(), &ArcInput{length: l, radius: r});
     let section = LayeredCrossSection::new(l, &width, &vec![layer], &vec![material], &LayerAlignment::SectionCenter).unwrap();
     let segment = LinearBeamSegment::new(&curve, &section, 0.0, l, &[]);
