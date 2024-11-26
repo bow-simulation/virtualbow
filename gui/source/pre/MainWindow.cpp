@@ -9,7 +9,6 @@
 #include "viewmodel/ViewModel.hpp"
 #include "utils/UserSettings.hpp"
 #include "UnitDialog.hpp"
-#include "config.hpp"
 
 #include <QMenuBar>
 #include <QToolBar>

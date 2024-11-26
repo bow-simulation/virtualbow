@@ -17,6 +17,7 @@ use crate::fem::elements::string::StringElement;
 use crate::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
 use crate::numerics::newton;
 use crate::numerics::root_finding::find_root_falsi;
+use crate::utils::minmax::discrete_maximum_1d;
 
 #[derive(ValueEnum, PartialEq, Debug, Copy, Clone)]
 pub enum SimulationMode {
@@ -260,10 +261,13 @@ impl<'a> Simulation<'a> {
             let final_drawing_work = e_pot_back - e_pot_front;
             let storage_factor = (e_pot_back - e_pot_front) / (0.5*(draw_length_back - draw_length_front)*draw_force_back);
 
-            let max_string_force = states.string_force.iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();  // TODO: Write function for this
-            let max_strand_force = (max_string_force.0 / (model.string.n_strands as f64), max_string_force.1);
-            let max_grip_force = states.grip_force.iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();      // TODO: Write function for this
-            let max_draw_force = states.draw_force.iter().enumerate().map(|(a, b)| { (*b, a) }).max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap()).unwrap();      // TODO: Write function for this
+            let max_string_force = discrete_maximum_1d(&states.string_force);
+            let max_strand_force = (max_string_force.0/(model.string.n_strands as f64), max_string_force.1);
+            let max_grip_force = discrete_maximum_1d(&states.grip_force);
+            let max_draw_force = discrete_maximum_1d(&states.draw_force);
+
+            let min_layer_stresses = (0..model.layers.len()).map(|layer| find_min_layer_results(&states.layer_stress, layer)).collect();
+            let max_layer_stresses = (0..model.layers.len()).map(|layer| find_max_layer_results(&states.layer_stress, layer)).collect();
 
             // Collect static outputs
             Some(Statics {
@@ -275,8 +279,8 @@ impl<'a> Simulation<'a> {
                 max_strand_force,
                 max_grip_force,
                 max_draw_force,
-                min_layer_stresses: vec![(0.0, 0, 0); model.layers.len()],
-                max_layer_stresses: vec![(0.0, 0, 0); model.layers.len()],
+                min_layer_stresses,
+                max_layer_stresses,
             })
         };
 
@@ -374,8 +378,8 @@ impl<'a> Simulation<'a> {
                     max_strand_force: (0.0, 0),
                     max_grip_force: (0.0, 0),
                     max_draw_force: (0.0, 0),
-                    min_layer_stresses: vec![(0.0, 0, 0); model.layers.len()],
-                    max_layer_stresses: vec![(0.0, 0, 0); model.layers.len()],
+                    min_layer_stresses: vec![(0.0, [0; 3]); model.layers.len()],
+                    max_layer_stresses: vec![(0.0, [0; 3]); model.layers.len()],
                 })
             }
             else {
@@ -485,8 +489,8 @@ impl<'a> Simulation<'a> {
             element.eval_forces().for_each(|f| limb_force.push(f.into()));
         }
 
-        let mut layer_strain = vec![Vec::<(f64, f64)>::new(); self.input.layers.len()];  // TODO: Capacity
-        let mut layer_stress = vec![Vec::<(f64, f64)>::new(); self.input.layers.len()];  // TODO: Capacity
+        let mut layer_strain = vec![Vec::<[f64; 2]>::new(); self.input.layers.len()];  // TODO: Capacity
+        let mut layer_stress = vec![Vec::<[f64; 2]>::new(); self.input.layers.len()];  // TODO: Capacity
 
         for i in 0..limb_strain.len() {
             // Stresses and strains at the layer boundaries
@@ -494,13 +498,13 @@ impl<'a> Simulation<'a> {
             let stress = &self.geometry.stress_eval[i]*&limb_strain[i];
 
             // Two subsequent strain results make up the belly and back strain of a layer
-            strain.iter().cloned().tuples().enumerate().for_each(|(j, strain_tuple): (usize, (f64, f64))| {
-                layer_strain[j].push(strain_tuple);
+            strain.iter().cloned().tuples().enumerate().for_each(|(j, tuple): (usize, (f64, f64))| {
+                layer_strain[j].push([tuple.0, tuple.1]);
             });
 
             // Two subsequent stress results make up the belly and back stress of a layer
-            stress.iter().cloned().tuples().enumerate().for_each(|(j, stress_tuple): (usize, (f64, f64))| {
-                layer_stress[j].push(stress_tuple);
+            stress.iter().cloned().tuples().enumerate().for_each(|(j, tuple): (usize, (f64, f64))| {
+                layer_stress[j].push([tuple.0, tuple.1]);
             });
         }
 
@@ -564,11 +568,46 @@ impl<'a> Simulation<'a> {
     }
 }
 
-/*
-// Extrema of a function integer -> float
-fn discrete_extrema_1<F>(f: F, n: usize)
-    where F: FnMut(usize) -> f64
-{
+// Input dimensions: (state, layer, length, belly/back)
+// Output: (value, [layer, length, belly/back])
+fn find_max_layer_results(input: &Vec<Vec<Vec<[f64; 2]>>>, layer: usize) -> (f64, [usize; 3]) {
+    let n_states = input.len();
+    let n_length = input[0][0].len();
 
+    let mut result = (-f64::INFINITY, [0; 3]);
+
+    for i in 0..n_states {
+        for j in 0..n_length {
+            for k in 0..2 {
+                let value = input[i][layer][j][k];
+                if value > result.0 {
+                    result = (value, [i, j, k]);
+                }
+            }
+        }
+    }
+
+    result
 }
-*/
+
+// Input dimensions: (state, layer, length, belly/back)
+// Output: (value, [layer, length, belly/back])
+fn find_min_layer_results(input: &Vec<Vec<Vec<[f64; 2]>>>, layer: usize) -> (f64, [usize; 3]) {
+    let n_states = input.len();
+    let n_length = input[0][0].len();
+
+    let mut result = (f64::INFINITY, [0; 3]);
+
+    for i in 0..n_states {
+        for j in 0..n_length {
+            for k in 0..2 {
+                let value = input[i][layer][j][k];
+                if value < result.0 {
+                    result = (value, [i, j, k]);
+                }
+            }
+        }
+    }
+
+    result
+}

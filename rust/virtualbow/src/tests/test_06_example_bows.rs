@@ -162,13 +162,13 @@ fn perform_bow_test(file: &str) {
     // Create a plot of the stresses in braced and fully drawn state
 
     for (i, stresses) in states.layer_stress[0].iter().enumerate() {
-        for (j, (stress_belly, stress_back)) in stresses.iter().enumerate() {
+        for (j, [stress_belly, stress_back]) in stresses.iter().enumerate() {
             plotter.add_point((output.common.limb.length[j], *stress_back), (0.0, 0.0), &format!("Stress Layer {i} Back (braced)"), "Length [m]", "Normal Stress [Pa]");
             plotter.add_point((output.common.limb.length[j], *stress_belly), (0.0, 0.0), &format!("Stress Layer {i} Belly (braced)"), "Length [m]", "Normal Stress [Pa]");
         }
     }
     for (i, stresses) in states.layer_stress[states.len()-1].iter().enumerate() {
-        for (j, (stress_belly, stress_back)) in stresses.iter().enumerate() {
+        for (j, [stress_belly, stress_back]) in stresses.iter().enumerate() {
             plotter.add_point((output.common.limb.length[j], *stress_back), (0.0, 0.0), &format!("Stress Layer {i} Back (drawn)"), "Length [m]", "Normal Stress [Pa]");
             plotter.add_point((output.common.limb.length[j], *stress_belly), (0.0, 0.0), &format!("Stress Layer {i} Belly (drawn)"), "Length [m]", "Normal Stress [Pa]");
         }
