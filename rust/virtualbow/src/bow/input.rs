@@ -85,7 +85,7 @@ impl Default for BowInput {
             comment: "".into(),
             settings: Settings {
                 n_limb_elements: 30,
-                n_limb_eval_points: 250,
+                n_limb_eval_points: 100,
                 min_draw_resolution: 100,
                 max_draw_resolution: 100,
                 arrow_clamp_force: 0.5,

@@ -99,8 +99,8 @@ pub struct Statics {
     pub max_grip_force: (f64, usize),      // (value, state)
     pub max_draw_force: (f64, usize),      // (value, state)
 
-    pub min_layer_stresses: Vec<(f64, usize, usize)>,    // (value, state, node) for each layer
-    pub max_layer_stresses: Vec<(f64, usize, usize)>,    // (value, state, node) for each layer
+    pub min_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
+    pub max_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
 }
 
 #[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
@@ -122,8 +122,8 @@ pub struct Dynamics {
     pub max_grip_force: (f64, usize),      // (value, state)
     pub max_draw_force: (f64, usize),      // (value, state)
 
-    pub min_layer_stresses: Vec<(f64, usize, usize)>,    // (value, state, node) for each layer
-    pub max_layer_stresses: Vec<(f64, usize, usize)>,    // (value, state, node) for each layer
+    pub min_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
+    pub max_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
 }
 
 #[derive(StructOfArray, Serialize, Deserialize, PartialEq, Debug)]
@@ -143,8 +143,8 @@ pub struct State {
     pub limb_strain: Vec<SVector<f64, 3>>,    // epsilon, kappa, gamma
     pub limb_force: Vec<SVector<f64, 3>>,     // N, M, Q
 
-    pub layer_strain: Vec<Vec<(f64, f64)>>,    // layer, point, belly/back
-    pub layer_stress: Vec<Vec<(f64, f64)>>,    // layer, point, belly/back
+    pub layer_strain: Vec<Vec<[f64; 2]>>,    // layer, length, belly/back
+    pub layer_stress: Vec<Vec<[f64; 2]>>,    // layer, length, belly/back
 
     pub arrow_pos: f64,
     pub arrow_vel: f64,

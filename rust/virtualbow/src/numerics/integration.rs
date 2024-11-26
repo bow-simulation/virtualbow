@@ -4,7 +4,7 @@ use nalgebra::SMatrix;
 // Retrurns either the value of the integral or None if the specified tolerance was not reached.
 // Implementation based on the Wikipedia example.
 pub fn integrate_adaptive<F, const R: usize, const C: usize>(mut f: F, a: f64, b: f64, epsilon: f64, max_recursion: u32) -> Option<SMatrix<f64, R, C>>
-    where F: FnMut(f64) -> SMatrix<f64, R, C>,
+    where F: FnMut(f64) -> SMatrix<f64, R, C>
 {
     let fa = f(a);
     let fb = f(b);
