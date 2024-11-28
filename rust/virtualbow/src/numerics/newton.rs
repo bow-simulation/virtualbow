@@ -21,8 +21,11 @@ impl Default for NewtonSettings {
 }
 
 #[derive(Debug)]
-pub struct IterationInfo {
-    pub iterations: u32,    // Number of iterations that have been performed
+pub struct IterationResult {
+    pub x: DVector<f64>,     // Solution variables
+    pub λ: f64,              // Solution parameter
+    pub dxdλ: DVector<f64>,  // Derivative of the solution wrt. the parameter
+    pub iterations: u32,     // Number of iterations that have been performed
 }
 
 #[derive(PartialEq, Debug, Copy, Clone)]
@@ -48,7 +51,7 @@ impl Display for NewtonError {
     }
 }
 
-pub fn solve_newton<F>(function: &mut F, x0: DVector<f64>, settings: NewtonSettings) -> Result<IterationInfo, NewtonError>
+pub fn solve_newton<F>(function: &mut F, x0: DVector<f64>, settings: NewtonSettings) -> Result<IterationResult, NewtonError>
     where F: FnMut(&DVector<f64>, &mut DVector<f64>, &mut DMatrix<f64>)  // x -> f, dfdx
 {
     // Set velocities to zero and copy the current displacement vector
@@ -82,7 +85,12 @@ pub fn solve_newton<F>(function: &mut F, x0: DVector<f64>, settings: NewtonSetti
 
         // Evaluate absolute and relative convergence criteria
         if error < settings.epsilon_abs || error/error_ref < settings.epsilon_rel {
-            return Ok(IterationInfo { iterations: i });
+            return Ok(IterationResult {
+                x,
+                λ: 0.0,
+                dxdλ: DVector::zeros(0),
+                iterations: i
+            });
         }
 
         // Check if the minimum error has been decreased
@@ -112,7 +120,7 @@ pub fn solve_newton<F>(function: &mut F, x0: DVector<f64>, settings: NewtonSetti
 
 // Function: x, λ -> f, dfdx, dfdλ
 // Constraint: x, λ -> c, dcdx, dcdλ
-pub fn solve_newton_constrained<F, C>(function: &mut F, constraint: &mut C, x0: DVector<f64>, λ0: f64, settings: NewtonSettings) -> Result<IterationInfo, NewtonError>
+pub fn solve_newton_constrained<F, C>(function: &mut F, constraint: &mut C, x0: DVector<f64>, λ0: f64, settings: NewtonSettings) -> Result<IterationResult, NewtonError>
     where F: FnMut(&DVector<f64>, f64, &mut DVector<f64>, &mut DMatrix<f64>, &mut DVector<f64>),
           C: FnMut(&DVector<f64>, f64, &mut f64, &mut DVector<f64>, &mut f64),
 {
@@ -172,7 +180,12 @@ pub fn solve_newton_constrained<F, C>(function: &mut F, constraint: &mut C, x0: 
         let stopping_criterion_f = error_f < settings.epsilon_abs || error_f/error_ref_f < settings.epsilon_rel;
         let stopping_criterion_c = error_c < settings.epsilon_abs || error_c/error_ref_c < settings.epsilon_rel;
         if stopping_criterion_f && stopping_criterion_c {
-            return Ok(IterationInfo { iterations: i });
+            return Ok(IterationResult {
+                x,
+                λ,
+                dxdλ: beta,
+                iterations: i,
+            });
         }
 
         // Check if any of the errors has been decreased
@@ -209,6 +222,9 @@ mod tests {
 
     #[test]
     fn test_unconstrained() {
+        // Example function from Wikipedia [1], including reference solution for each iteration.
+        // https://en.wikipedia.org/wiki/Newton%27s_method#Example
+
         let mut x_num = Vec::new();
         let x_ref = vec![
             dvector![1.0, 1.0],
@@ -218,7 +234,6 @@ mod tests {
             dvector![0.567297, -0.309442]
         ];
 
-        // Example function from Wikipedia: https://en.wikipedia.org/wiki/Newton%27s_method#Example
         let mut f = |x: &DVector<f64>, f: &mut DVector<f64>, dfdx: &mut DMatrix<f64>| {
             x_num.push(x.clone());
 
@@ -232,7 +247,7 @@ mod tests {
         };
 
         let x0 = dvector![1.0, 1.0];
-        solve_newton(&mut f, x0, NewtonSettings { epsilon_rel: 1e-6, epsilon_abs: 0.0, ..Default::default() }).unwrap();
+        let result = solve_newton(&mut f, x0, NewtonSettings { epsilon_rel: 1e-6, epsilon_abs: 0.0, ..Default::default() }).unwrap();
 
         // Check of the solution converged in the same number of steps as the reference,
         // which depends on the numerical tolerances.
@@ -242,6 +257,9 @@ mod tests {
         for i in 0..x_ref.len() {
             assert_abs_diff_eq!(x_num[i], x_ref[i], epsilon=1e-6);
         }
+
+        // Check if the result contains the same same solution that the function was called last with
+        assert_eq!(result.x, *x_num.last().unwrap());
     }
 
     #[test]
@@ -265,7 +283,8 @@ mod tests {
             dfdλ[1] = -3.0;
         };
 
-        // Constraint function
+        // Constraint function 1: Constrain the first solution component to the actual solution of the original function.
+        // The resulting solution variables must be the same as before and lambda must be 1.
         let mut c1 = |x: &DVector<f64>, _λ: f64, c: &mut f64, dcdx: &mut DVector<f64>, dcdλ: &mut f64| {
             *c = x[0] - 0.567297;
             *dcdλ = 0.0;
@@ -274,7 +293,7 @@ mod tests {
             dcdx[1] = 0.0;
         };
 
-        // Constraint function
+        // Constraint function 2: Constrain lambda to be 1. Again, the reference solution of the unmodified function must appear.
         let mut c2 = |_x: &DVector<f64>, λ: f64, c: &mut f64, dcdx: &mut DVector<f64>, dcdλ: &mut f64| {
             *c = λ - 1.0;
             *dcdλ = 1.0;
@@ -286,7 +305,17 @@ mod tests {
         let x0 = dvector![1.0, 1.0];
         let λ0 = 0.9;
 
-        solve_newton_constrained(&mut f, &mut c1, x0.clone(), λ0, NewtonSettings { epsilon_rel: 1e-6, epsilon_abs: 0.0, ..Default::default() }).unwrap();
-        solve_newton_constrained(&mut f, &mut c2, x0.clone(), λ0, NewtonSettings { epsilon_rel: 1e-6, epsilon_abs: 0.0, ..Default::default() }).unwrap();
+        // Check results for constraint function 1
+        let result = solve_newton_constrained(&mut f, &mut c1, x0.clone(), λ0, NewtonSettings { epsilon_rel: 1e-6, epsilon_abs: 0.0, ..Default::default() }).unwrap();
+        assert_abs_diff_eq!(result.x, dvector![0.567297, -0.309442], epsilon=1e-6);
+        assert_abs_diff_eq!(result.λ, 1.0, epsilon=1e-5);
+
+        // Check results for constraint function 2
+        let result = solve_newton_constrained(&mut f, &mut c2, x0.clone(), λ0, NewtonSettings { epsilon_rel: 1e-6, epsilon_abs: 0.0, ..Default::default() }).unwrap();
+        assert_abs_diff_eq!(result.x, dvector![0.567297, -0.309442], epsilon=1e-6);
+        assert_abs_diff_eq!(result.λ, 1.0, epsilon=1e-5);
+
+        // Check if the result contains the same same solution that the function was called last with
+        assert_eq!(&result.x, x_num.last().unwrap());
     }
 }

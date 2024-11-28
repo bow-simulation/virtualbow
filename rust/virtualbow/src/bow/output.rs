@@ -143,8 +143,8 @@ pub struct State {
     pub limb_strain: Vec<SVector<f64, 3>>,    // epsilon, kappa, gamma
     pub limb_force: Vec<SVector<f64, 3>>,     // N, M, Q
 
-    pub layer_strain: Vec<Vec<[f64; 2]>>,    // layer, length, belly/back
-    pub layer_stress: Vec<Vec<[f64; 2]>>,    // layer, length, belly/back
+    pub layer_strain: Vec<Vec<[f64; 2]>>,     // layer, length, belly/back
+    pub layer_stress: Vec<Vec<[f64; 2]>>,     // layer, length, belly/back
 
     pub arrow_pos: f64,
     pub arrow_vel: f64,
@@ -157,6 +157,7 @@ pub struct State {
     pub e_kin_arrow: f64,
 
     pub draw_force: f64,
+    pub draw_stiffness: f64,
     pub grip_force: f64,
     pub string_force: f64,
     pub strand_force: f64,
