@@ -17,7 +17,7 @@ use crate::fem::elements::string::StringElement;
 use crate::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
 use crate::numerics::newton;
 use crate::numerics::root_finding::find_root_falsi;
-use crate::utils::minmax::discrete_maximum_1d;
+use crate::utils::minmax::{discrete_maximum_1d, discrete_maximum_nd, discrete_minimum_nd};
 
 #[derive(ValueEnum, PartialEq, Debug, Copy, Clone)]
 pub enum SimulationMode {
@@ -242,10 +242,11 @@ impl<'a> Simulation<'a> {
             let mut states = StateVec::new();
             let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());
 
-            solver.equilibrium_path_displacement_controlled(simulation.string_nodes[0].y(), -model.dimensions.draw_length, model.settings.min_draw_resolution, &mut |system, eval| {
-                let state = simulation.get_bow_state(&system, SystemEval::Static(&eval));
+            solver.equilibrium_path_displacement_controlled(simulation.string_nodes[0].y(), -model.dimensions.draw_length, model.settings.min_draw_resolution, &mut |system, eval, stiffness| {
+                let state = simulation.get_bow_state(&system, SystemEval::Static(&eval), -2.0*stiffness);  // TODO: Why the sign flip of the stiffness?
                 let progress = (state.draw_length - model.dimensions.brace_height)/(model.dimensions.draw_length - model.dimensions.brace_height);
                 states.push(state);
+
                 callback("statics", 100.0*progress)
             }).map_err(|e| ModelError::SimulationStaticSolutionFailed(e))?;
 
@@ -266,8 +267,8 @@ impl<'a> Simulation<'a> {
             let max_grip_force = discrete_maximum_1d(&states.grip_force);
             let max_draw_force = discrete_maximum_1d(&states.draw_force);
 
-            let min_layer_stresses = (0..model.layers.len()).map(|layer| find_min_layer_results(&states.layer_stress, layer)).collect();
-            let max_layer_stresses = (0..model.layers.len()).map(|layer| find_max_layer_results(&states.layer_stress, layer)).collect();
+            let min_layer_stresses = (0..model.layers.len()).map(|i_layer| find_min_layer_result(&states.layer_stress, i_layer)).collect();
+            let max_layer_stresses = (0..model.layers.len()).map(|i_layer| find_max_layer_result(&states.layer_stress, i_layer)).collect();
 
             // Collect static outputs
             Some(Statics {
@@ -309,7 +310,7 @@ impl<'a> Simulation<'a> {
                 let mut solver = DynamicSolver::new(&mut system, settings);
                 solver.solve(stop_condition, &mut |system, eval| {
                     // Evaluate current bow state
-                    let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval));
+                    let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval), 0.0);
 
                     // Only update the brace crossing time if it is estimated,
                     // no need to update once it is known
@@ -356,7 +357,7 @@ impl<'a> Simulation<'a> {
                     // Skip the first time step, which is identical to the last timestep of the previous solution phase
                     if system.get_time() > start_time {
                         // Evaluate current bow state, update progress and add state
-                        let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval));
+                        let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval), 0.0);
                         progress = state.time/end_time;
                         states.push(state);
                     }
@@ -423,7 +424,7 @@ impl<'a> Simulation<'a> {
         let mut states = StateVec::new();
 
         solver.equilibrium_path_load_controlled(model.settings.min_draw_resolution, &mut |system, eval| {
-            let state = simulation.get_bow_state(&system, SystemEval::Static(&eval));
+            let state = simulation.get_bow_state(&system, SystemEval::Static(&eval), 0.0);
             states.push(state);
             return true;
         }).map_err(|e| ModelError::SimulationStaticSolutionFailed(e))?;
@@ -432,7 +433,8 @@ impl<'a> Simulation<'a> {
     }
 
     // TODO: Let mutation, write functions for intermediate results
-    fn get_bow_state(&self, system: &System, eval: SystemEval) -> State {
+    // TODO: Find a better way to get the stiffness of the force draw curve in there
+    fn get_bow_state(&self, system: &System, eval: SystemEval, draw_stiffness: f64) -> State {
         let time = system.get_time();
         let draw_length = -system.get_displacement(self.string_nodes[0].y());
         let draw_force = match eval {
@@ -522,6 +524,7 @@ impl<'a> Simulation<'a> {
 
         let e_pot_string = 2.0*system.element_ref::<StringElement>(self.string_element).potential_energy();
         let e_kin_string = 2.0*system.element_ref::<StringElement>(self.string_element).kinetic_energy();
+        let e_kin_arrow = 0.0;
 
         State {
             time,
@@ -549,9 +552,10 @@ impl<'a> Simulation<'a> {
             e_kin_limbs,
             e_pot_string,
             e_kin_string,
-            e_kin_arrow: 0.0,
+            e_kin_arrow,
 
             draw_force,
+            draw_stiffness,
             grip_force,
             string_force,
             strand_force,
@@ -570,44 +574,18 @@ impl<'a> Simulation<'a> {
 
 // Input dimensions: (state, layer, length, belly/back)
 // Output: (value, [layer, length, belly/back])
-fn find_max_layer_results(input: &Vec<Vec<Vec<[f64; 2]>>>, layer: usize) -> (f64, [usize; 3]) {
+fn find_max_layer_result(input: &Vec<Vec<Vec<[f64; 2]>>>, i_layer: usize) -> (f64, [usize; 3]) {
     let n_states = input.len();
     let n_length = input[0][0].len();
 
-    let mut result = (-f64::INFINITY, [0; 3]);
-
-    for i in 0..n_states {
-        for j in 0..n_length {
-            for k in 0..2 {
-                let value = input[i][layer][j][k];
-                if value > result.0 {
-                    result = (value, [i, j, k]);
-                }
-            }
-        }
-    }
-
-    result
+    discrete_maximum_nd(&mut |i| input[i[0]][i_layer][i[1]][i[2]], [n_states, n_length, 2])
 }
 
 // Input dimensions: (state, layer, length, belly/back)
 // Output: (value, [layer, length, belly/back])
-fn find_min_layer_results(input: &Vec<Vec<Vec<[f64; 2]>>>, layer: usize) -> (f64, [usize; 3]) {
+fn find_min_layer_result(input: &Vec<Vec<Vec<[f64; 2]>>>, i_layer: usize) -> (f64, [usize; 3]) {
     let n_states = input.len();
     let n_length = input[0][0].len();
 
-    let mut result = (f64::INFINITY, [0; 3]);
-
-    for i in 0..n_states {
-        for j in 0..n_length {
-            for k in 0..2 {
-                let value = input[i][layer][j][k];
-                if value < result.0 {
-                    result = (value, [i, j, k]);
-                }
-            }
-        }
-    }
-
-    result
+    discrete_minimum_nd(&mut |i| input[i[0]][i_layer][i[1]][i[2]], [n_states, n_length, 2])
 }

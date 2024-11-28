@@ -263,6 +263,21 @@ $$
 
 The simulation is aborted if there was a failure and the step size can not be decreased any further (because the lower bound~$\Delta u_\mathrm{min}$ was already reached).
 
+\subsection{Derivative of the equilibrium displacements wrt the load factor}
+
+\textcolor{red}{Motivation is the calculation of the stiffness of the force-draw curve. Total differential of the function $\boldsymbol{f}$ wrt $\lambda$ yields:}
+
+\begin{align}
+\frac{\partial \boldsymbol{f}}{\partial \boldsymbol{x}}\frac{\partial \boldsymbol{x}}{\partial \lambda} + \frac{\partial \boldsymbol{f}}{\partial \lambda} = \boldsymbol{0} \\
+\frac{\partial \boldsymbol{x}}{\partial \lambda} = -\left(\frac{\partial \boldsymbol{f}}{\partial \boldsymbol{x}}\right)^{-1}\frac{\partial \boldsymbol{f}}{\partial \lambda} = \boldsymbol{\beta}
+\end{align}
+
+The stiffness of the force draw curve is therefore
+
+\begin{equation}
+K^{(k)} = \frac{\partial \lambda}{\partial u^{(k)}} = \frac{1}{\boldsymbol{\beta}^{(k)}}
+\end{equation}
+
 \newpage
 \subsection{Finding the Braced Equilibrium State}
 

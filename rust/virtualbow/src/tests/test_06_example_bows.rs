@@ -210,6 +210,7 @@ fn perform_bow_test(file: &str) {
 
         plotter.add_point((*state.draw_length, *state.string_force), (0.0, 0.0), "String Force", "Draw length [m]", "String force [N]");
         plotter.add_point((*state.draw_length, *state.draw_force), (*state.draw_length, draw_force_ref), "Draw Force", "Draw length [m]", "Draw force [N]");
+        plotter.add_point((*state.draw_length, *state.draw_stiffness), (*state.draw_length, 0.0), "Draw Stiffness", "Draw length [m]", "Draw stiffness [N/m]");  // TODO: Reference value?
         plotter.add_point((*state.draw_length, *state.grip_force), (*state.draw_length, grip_force_ref), "Grip Force", "Draw length [m]", "Grip force [N]");
 
         assert_abs_diff_eq!(*state.draw_force, draw_force_ref, epsilon=1e-3*statics.final_draw_force);
