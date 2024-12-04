@@ -40,8 +40,10 @@ pub struct Simulation<'a> {
     string_nodes: Vec<Node>,
     string_element: usize,
 
-    // Arrow mass element positioned at the string center
-    arrow_element: usize,
+    mass_element_arrow: usize,            // Arrow mass element positioned at the string center
+    mass_element_limb_tip: usize,         // Mass elememt at the end of the limb
+    mass_element_string_center: usize,    // Mass element at the center of the string
+    mass_element_string_tip: usize,       // Mass element at the end of the string
 
     // None if the arrow is still attached to the string
     // Otherwise the time, position and velocity at separation from the string
@@ -88,7 +90,7 @@ impl<'a> Simulation<'a> {
         }).collect();
 
         // Limb tip mass, required for limb damping calculation
-        system.add_element(&[*limb_nodes.last().unwrap()], MassElement::new(input.masses.limb_tip));
+        let mass_element_limb_tip = system.add_element(&[*limb_nodes.last().unwrap()], MassElement::new(input.masses.limb_tip));
 
         // If damping properties are to be initialized and the specified damping ratio for the limb is not zero,
         // perform a modal analysis of the limb without string and set the damping parameter of the beam elements according to the desired damping ratio.
@@ -108,8 +110,12 @@ impl<'a> Simulation<'a> {
         let mut string_nodes = vec![string_center];  // TODO: Preallocate
         string_nodes.extend_from_slice(&limb_nodes);
 
-        // Arrow mass element is placed at the string center
-        let arrow_element = system.add_element(&[string_nodes[0]], MassElement::new(0.5*input.masses.arrow));
+        // Arrow and string mass elements, placed at the string center and endpoint
+        // The arrow mass is halfed because of the symmetrical bow model.
+        // The value of the string masses can only be set after the length of the string has been determined (only if the string is to be initialized at all).
+        let mass_element_arrow = system.add_element(&[string_nodes[0]], MassElement::new(0.5*input.masses.arrow));
+        let mass_element_string_center = system.add_element(&[string_nodes[0]], MassElement::new(0.0));
+        let mass_element_string_tip = system.add_element(&[*limb_nodes.last().unwrap()], MassElement::new(0.0));
 
         // The string element only gets non-zero parameters if the string option is true
         let EA = if string { (input.string.n_strands as f64)*input.string.strand_stiffness } else { 0.0 };
@@ -127,26 +133,23 @@ impl<'a> Simulation<'a> {
         let l0 = element.get_current_length();
         element.set_initial_length(l0);
 
-        // Finish the simulation info object
-        let simulation = Self {
-            input,
-            geometry,
-            limb_nodes,
-            limb_elements,
-            string_nodes,
-            string_element,
-            arrow_element,
-            arrow_separation: None,
-        };
-
         // If string is to be initialized, perform bracing simulation
         if string {
             // Direction of the applied force for displacement control
-            system.add_force(simulation.string_nodes[0].y(), move |_t| { -1.0 });
+            system.add_force(string_nodes[0].y(), move |_t| { -1.0 });
+
+            // Returns the slope of the string at the centerpoint against the x direction
+            let get_string_slope = |system: &System| -> f64 {
+                let mut string_pos = system.element_ref::<StringElement>(string_element).contact_points();
+                let pos0 = string_pos.next().unwrap();    // String must always have at least two contact nodes
+                let pos1 = string_pos.next().unwrap();    // String must always have at least two contact nodes
+
+                (pos1[1] - pos0[1])/(pos1[0] - pos0[0])
+            };
 
             // Initial values for the string factor, the slope and the step size for iterating on the string factor
             let mut factor1 = 1.0;
-            let mut slope1 = simulation.get_string_slope(&system);
+            let mut slope1 = get_string_slope(&system);
             let mut delta = Self::BRACING_DELTA_START;
 
             // Abort if the initial slope is negative, which means that the supplied brace height is too
@@ -159,11 +162,11 @@ impl<'a> Simulation<'a> {
             // Returns the slope of the string as well as the return state of the static solver.
             // The root of this function is the string length that braces the bow with the desired brace height.
             let mut try_string_length = |factor: f64| {
-                system.element_mut::<StringElement>(simulation.string_element).set_initial_length(factor*l0);
+                system.element_mut::<StringElement>(string_element).set_initial_length(factor*l0);
 
                 let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());    // TODO: Don't construct new solver in each iteration
-                let result = solver.equilibrium_displacement_controlled(simulation.string_nodes[0].y(), -input.dimensions.brace_height);
-                let slope = simulation.get_string_slope(&system);
+                let result = solver.equilibrium_displacement_controlled(string_nodes[0].y(), -input.dimensions.brace_height);
+                let slope = get_string_slope(&system);
 
                 (slope, result)
             };
@@ -204,14 +207,29 @@ impl<'a> Simulation<'a> {
 
             // After the string length is known, we can calculate the viscosity that is required
             // for achieving the prescribed string damping ratio
-            let l0 = system.element_ref::<StringElement>(simulation.string_element).get_initial_length();
+            let l0 = system.element_ref::<StringElement>(string_element).get_initial_length();
             let ηA = 4.0*l0/PI*f64::sqrt(ρA*EA)*input.damping.damping_ratio_string;
-            system.element_mut::<StringElement>(simulation.string_element).set_linear_damping(ηA);
+            system.element_mut::<StringElement>(string_element).set_linear_damping(ηA);
 
-            // Base + additional masses of the string
-            system.add_element(&[simulation.string_nodes[0]], MassElement::new(0.5*input.masses.string_center + 1.0/3.0*ρA*l0));
-            system.add_element(&[*simulation.limb_nodes.last().unwrap()], MassElement::new(input.masses.string_tip + 2.0/3.0*ρA*l0));
+            // Base mass + additional masses of the string
+            system.element_mut::<MassElement>(mass_element_string_center).set_mass(0.5*input.masses.string_center + 1.0/3.0*ρA*l0);
+            system.element_mut::<MassElement>(mass_element_string_tip).set_mass(input.masses.string_tip + 2.0/3.0*ρA*l0);
         }
+
+        // Simulation info object
+        let simulation = Self {
+            input,
+            geometry,
+            limb_nodes,
+            limb_elements,
+            string_nodes,
+            string_element,
+            mass_element_arrow,
+            mass_element_string_center,
+            mass_element_string_tip,
+            mass_element_limb_tip,
+            arrow_separation: None,
+        };
 
         let common = Common {
             limb: LimbInfo {
@@ -350,7 +368,7 @@ impl<'a> Simulation<'a> {
                 let stop_condition = StopCondition::Time(end_time);
 
                 // Set the arrow mass to zero since the arrow is no longer attached to the string
-                system.element_mut::<MassElement>(simulation.arrow_element).set_mass(0.0);
+                system.element_mut::<MassElement>(simulation.mass_element_arrow).set_mass(0.0);
 
                 let mut solver = DynamicSolver::new(&mut system, settings);
                 solver.solve(stop_condition, &mut |system, eval| {
@@ -518,13 +536,13 @@ impl<'a> Simulation<'a> {
             system.element_ref::<BeamElement>(e).potential_energy()
         }).sum::<f64>();
 
-        let e_kin_limbs = 2.0*self.limb_elements.iter().map(|&e| {
-            system.element_ref::<BeamElement>(e).kinetic_energy()
-        }).sum::<f64>();
+        // The kinetic energy of a single limb is sum of the kinetic energies of the limb elements plus the energy of the limb tip mass.
+        // The total kinetic energy of the bow is twice that because of symmetry.
+        let e_kin_limbs = 2.0*(self.limb_elements.iter().map(|&e| system.element_ref::<BeamElement>(e).kinetic_energy()).sum::<f64>() + system.element_ref::<MassElement>(self.mass_element_limb_tip).kinetic_energy());
 
         let e_pot_string = 2.0*system.element_ref::<StringElement>(self.string_element).potential_energy();
-        let e_kin_string = 2.0*system.element_ref::<StringElement>(self.string_element).kinetic_energy();
-        let e_kin_arrow = 0.0;
+        let e_kin_string = 2.0*(system.element_ref::<MassElement>(self.mass_element_string_center).kinetic_energy() + system.element_ref::<MassElement>(self.mass_element_string_tip).kinetic_energy());
+        let e_kin_arrow = 0.5*self.input.masses.arrow*arrow_vel.powi(2);    // Don't use the arrow mass element here
 
         State {
             time,
