@@ -140,7 +140,7 @@ impl<'a> Simulation<'a> {
 
             // Returns the slope of the string at the centerpoint against the x direction
             let get_string_slope = |system: &System| -> f64 {
-                let mut string_pos = system.element_ref::<StringElement>(string_element).contact_points();
+                let mut string_pos = system.element_ref::<StringElement>(string_element).contact_positions();
                 let pos0 = string_pos.next().unwrap();    // String must always have at least two contact nodes
                 let pos1 = string_pos.next().unwrap();    // String must always have at least two contact nodes
 
@@ -486,27 +486,22 @@ impl<'a> Simulation<'a> {
 
         // String kinematics
 
-        let string_pos = system.element_ref::<StringElement>(self.string_element).contact_points().map(|p| p.into()).collect_vec();
-        let string_vel = vec![SVector::zeros(); string_pos.len()];  // TODO
+        let string_pos = system.element_ref::<StringElement>(self.string_element).contact_positions().map(|p| p.into()).collect_vec();
+        let string_vel = system.element_ref::<StringElement>(self.string_element).contact_velocities().map(|p| p.into()).collect_vec();
 
-        /*
-        let acc_string = self.string_node.map(|node| vec![
-            [ system.get_acceleration(limb_tip.x()).unwrap_or(0.0), system.get_acceleration(limb_tip.y()).unwrap_or(0.0) ],
-            [ system.get_acceleration(node.x()).unwrap_or(0.0), system.get_acceleration(node.y()).unwrap_or(0.0) ],
-        ]).unwrap_or_default();
-        */
+        // Evaluate positions, velocities, forces and strains at the limb's evaluation points
 
-        // Evaluate positions, forces and strains at the limb's evaluation points
-
-        let mut limb_pos    = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
+        let mut limb_pos = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
+        let mut limb_vel = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
         let mut limb_strain = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
         let mut limb_force  = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
 
         for &element in &self.limb_elements {
             let element = system.element_ref::<BeamElement>(element);
-            element.eval_positions().for_each(|u| limb_pos.push(u.into()));
-            element.eval_strains().for_each(|e| limb_strain.push(e.into()));
-            element.eval_forces().for_each(|f| limb_force.push(f.into()));
+            element.eval_positions().for_each(|u| limb_pos.push(u));
+            element.eval_velocities().for_each(|v| limb_vel.push(v));
+            element.eval_strains().for_each(|e| limb_strain.push(e));
+            element.eval_forces().for_each(|f| limb_force.push(f));
         }
 
         let mut layer_strain = vec![Vec::<[f64; 2]>::new(); self.input.layers.len()];  // TODO: Capacity
@@ -550,11 +545,9 @@ impl<'a> Simulation<'a> {
 
             limb_pos,
             limb_vel: vec![[0.0; 3].into(); self.input.settings.n_limb_eval_points],
-            limb_acc: vec![[0.0; 3].into(); self.input.settings.n_limb_eval_points],
 
             string_pos,
             string_vel,
-            string_acc: vec![SVector::zeros(); 2],
 
             limb_strain,
             limb_force,
@@ -582,7 +575,7 @@ impl<'a> Simulation<'a> {
 
     // Returns the slope of the string at the centerpoint against the x direction
     fn get_string_slope(&self, system: &System) -> f64 {
-        let mut string_pos = system.element_ref::<StringElement>(self.string_element).contact_points();
+        let mut string_pos = system.element_ref::<StringElement>(self.string_element).contact_positions();
         let pos0 = string_pos.next().unwrap();    // String must always have at least two contact nodes
         let pos1 = string_pos.next().unwrap();    // String must always have at least two contact nodes
 

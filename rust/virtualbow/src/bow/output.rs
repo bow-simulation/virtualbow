@@ -134,11 +134,9 @@ pub struct State {
 
     pub limb_pos: Vec<SVector<f64, 3>>,    // x, y, φ
     pub limb_vel: Vec<SVector<f64, 3>>,    // x, y, φ
-    pub limb_acc: Vec<SVector<f64, 3>>,    // x, y, φ
 
     pub string_pos: Vec<SVector<f64, 2>>,    // x, y
     pub string_vel: Vec<SVector<f64, 2>>,    // x, y
-    pub string_acc: Vec<SVector<f64, 2>>,    // x, y
 
     pub limb_strain: Vec<SVector<f64, 3>>,    // epsilon, kappa, gamma
     pub limb_force: Vec<SVector<f64, 3>>,     // N, M, Q
