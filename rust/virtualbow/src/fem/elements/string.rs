@@ -13,16 +13,17 @@ pub struct StringElement {
     offsets: Vec<f64>,    // Distances between limb nodes and contact points
 
     // State data
-    points: Vec<SVector<f64, 2>>,    // String center + surface points of the limb elements
-    angles: Vec<f64>,                // Angles of the points
-    indices: Vec<usize>,             // Indices of the points that are in contact
-    lengths: Vec<f64>,               // Lengths between the contact points
-    lt: f64,                          // Total length of the string
-    dldu: DVector<f64>,              // Gradient of the length wrt to the displacements
-    dldu2: DMatrix<f64>,             // Hessian of the length wrt to the displacements
-    Nt: f64,                          // Total normal force
-    Ne: f64,                         // Elastic component of the normal force
-    Nv: f64,                         // Viscous component of the normal force
+    positions: Vec<SVector<f64, 2>>,     // Positions of string center + surface points of the limb elements
+    velocities: Vec<SVector<f64, 2>>,    // Velocities of string center + surface points of the limb elements
+    angles: Vec<f64>,                    // Angles of the points
+    indices: Vec<usize>,                 // Indices of the points that are in contact
+    lengths: Vec<f64>,                   // Lengths between the contact points
+    lt: f64,                             // Total length of the string
+    dldu: DVector<f64>,                  // Gradient of the length wrt to the displacements
+    dldu2: DMatrix<f64>,                 // Hessian of the length wrt to the displacements
+    Nt: f64,                             // Total normal force
+    Ne: f64,                             // Elastic component of the normal force
+    Nv: f64,                             // Viscous component of the normal force
 }
 
 impl StringElement {
@@ -35,7 +36,8 @@ impl StringElement {
             l0,
             cf,
             offsets,
-            points: vec![SVector::zeros(); n_points],   // Size: Number of nodes,
+            positions: vec![SVector::zeros(); n_points],    // Size: Number of nodes,
+            velocities: vec![SVector::zeros(); n_points],   // Size: Number of nodes,
             angles: vec![0.0; n_points],                // Size: Number of nodes,
             indices: Vec::with_capacity(n_points),      // Size: Initially zero, maximum is number of nodes
             lengths: Vec::with_capacity(n_points - 1),  // Size: Initially zero, maximum is number of nodes - 1
@@ -93,8 +95,12 @@ impl StringElement {
         self.Nv
     }
 
-    pub fn contact_points(&self) -> impl Iterator<Item=SVector<f64, 2>> + '_ {
-        self.indices.iter().map(|&i| self.points[i])
+    pub fn contact_positions(&self) -> impl Iterator<Item=SVector<f64, 2>> + '_ {
+        self.indices.iter().map(|&i| self.positions[i])
+    }
+
+    pub fn contact_velocities(&self) -> impl Iterator<Item=SVector<f64, 2>> + '_ {
+        self.indices.iter().map(|&i| self.velocities[i])
     }
 }
 
@@ -106,26 +112,36 @@ impl Element for StringElement {
     fn set_state_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, mut q: Option<&mut VectorView>, mut K: Option<&mut MatrixView>, mut D: Option<&mut MatrixView>) {
         assert_eq!(u.len()/3, self.offsets.len(), "Invalid number of offsets");
 
-        // Step 1: Compute position of all surface points from nodal coordinates and offsets
-        for i in 0..self.points.len() {
+        // Step 1: Compute position and velocity of all surface points from nodal coordinates and offsets
+        // TODO: The velocities calculated here are only used as simulation outputs. Maybe they could be (re)used in the computations below, e.g. for the strain rate.
+        for i in 0..self.positions.len() {
             let x = u.at(3*i + 0);
             let y = u.at(3*i + 1);
             let φ = u.at(3*i + 2);
 
-            self.points[i] = vector![
+            let dxdt = v.at(3*i + 0);
+            let dydt = v.at(3*i + 1);
+            let dφdt = v.at(3*i + 2);
+
+            self.positions[i] = vector![
                 x - self.offsets[i]*f64::sin(φ),
                 y + self.offsets[i]*f64::cos(φ)
+            ];
+
+            self.velocities[i] = vector![
+                dxdt - dφdt*self.offsets[i]*f64::cos(φ),
+                dydt - dφdt*self.offsets[i]*f64::sin(φ)
             ];
 
             self.angles[i] = φ;
         }
 
         // Step 2: Determine which of the surface points are in contact with the string
-        convex_envelope(&self.points, &mut self.indices, Orientation::LeftTurn);
+        convex_envelope(&self.positions, &mut self.indices, Orientation::LeftTurn);
 
         // Step 3: Compute partial lengths and total length from contact points
         self.lengths.clear();
-        self.lengths.extend(self.indices.iter().tuple_windows().map(|(&i, &j)| (self.points[j] - self.points[i]).norm()));
+        self.lengths.extend(self.indices.iter().tuple_windows().map(|(&i, &j)| (self.positions[j] - self.positions[i]).norm()));
         self.lt = self.lengths.iter().sum();
 
         // Step 4: Reduce stiffness and damping according to alpha, if there is compression
@@ -141,13 +157,13 @@ impl Element for StringElement {
             let i = self.indices[k];
             let j = self.indices[k+1];
 
-            let xi = self.points[i][0];
-            let yi = self.points[i][1];
+            let xi = self.positions[i][0];
+            let yi = self.positions[i][1];
             let φi = self.angles[i];
             let di = self.offsets[i];
 
-            let xj = self.points[j][0];
-            let yj = self.points[j][1];
+            let xj = self.positions[j][0];
+            let yj = self.positions[j][1];
             let φj = self.angles[j];
             let dj = self.offsets[j];
 

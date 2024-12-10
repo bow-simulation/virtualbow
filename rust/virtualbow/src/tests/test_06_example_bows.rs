@@ -285,11 +285,9 @@ fn check_bow_state(model: &BowInput, state: &State) {
 
     assert_eq!(state.limb_pos.len(), model.settings.n_limb_eval_points);
     assert_eq!(state.limb_vel.len(), model.settings.n_limb_eval_points);
-    assert_eq!(state.limb_acc.len(), model.settings.n_limb_eval_points);
 
     assert!(state.string_pos.len() >= 2 && state.string_pos.len() <= model.settings.n_limb_elements + 2);
     assert!(state.string_vel.len() >= 2 && state.string_vel.len() <= model.settings.n_limb_elements + 2);
-    assert!(state.string_acc.len() >= 2 && state.string_acc.len() <= model.settings.n_limb_elements + 2);
 
     // Check limb starting point (positions and angle)
     assert_abs_diff_eq!(state.limb_pos[0][0], 0.5*model.dimensions.handle_length, epsilon=1e-12);

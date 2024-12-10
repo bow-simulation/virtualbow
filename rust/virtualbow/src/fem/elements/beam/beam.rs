@@ -154,8 +154,7 @@ impl BeamElement {
         &self.se
     }
 
-    pub fn eval_positions(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {
-        // Local transformation
+    pub fn eval_positions(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {        // Local transformation
         // TODO: Redundant computations, store when evaluating forces
         let dx = self.u[3] - self.u[0];
         let dy = self.u[4] - self.u[1];
@@ -175,6 +174,13 @@ impl BeamElement {
 
         self.se.iter().enumerate().map(move |(i, _)| {
             p0 + R*(self.pe[i] + self.u_eval[i]*self.ul)
+        })
+    }
+
+    pub fn eval_velocities(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {
+        // TODO: Implement
+        self.se.iter().enumerate().map(move |(i, _)| {
+            SVector::zeros()
         })
     }
 
