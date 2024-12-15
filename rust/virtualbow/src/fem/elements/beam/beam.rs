@@ -120,7 +120,7 @@ impl BeamElement {
         let p0 = vector![segment.p0[0], segment.p0[1], a0];
         let pe = segment.pe.iter().map(|&pe| R0.transpose()*(pe - p0)).collect();
 
-        let u_eval = segment.ue.iter().map(|E| E*T ).collect();
+        let u_eval = segment.Ep.iter().map(|E| E*T ).collect();
 
         let M = segment.M;
 
@@ -178,9 +178,40 @@ impl BeamElement {
     }
 
     pub fn eval_velocities(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {
-        // TODO: Implement
+        // TODO: Redundant computations, store when evaluating forces
+        let dx = self.u[3] - self.u[0];
+        let dy = self.u[4] - self.u[1];
+        let a0 = f64::atan2(dy, dx);
+
+        let p0 = vector![
+            self.u[0],
+            self.u[1],
+            a0
+        ];
+
+        let R = matrix![
+            f64::cos(a0), -f64::sin(a0), 0.0;
+            f64::sin(a0), f64::cos(a0), 0.0;
+            0.0, 0.0, 1.0;
+        ];
+
+        let dadu = f64::hypot(dx, dy)*vector![dx, -dx, 0.0, -dy, dx, 0.0];
+        let dadt = dadu.dot(&(self.v));
+
+        let p0_dot = vector![
+            self.v[0],
+            self.v[1],
+            dadt
+        ];
+
+        let dRda = matrix![
+            -f64::sin(a0), -f64::cos(a0), 0.0;
+            f64::cos(a0), -f64::sin(a0), 0.0;
+            0.0, 0.0, 1.0;
+        ];
+
         self.se.iter().enumerate().map(move |(i, _)| {
-            SVector::zeros()
+            p0_dot + dadt*dRda*(self.pe[i] + self.u_eval[i]*self.ul) + R*self.u_eval[i]*self.vl
         })
     }
 

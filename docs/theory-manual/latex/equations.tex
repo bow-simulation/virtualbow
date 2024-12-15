@@ -288,16 +288,16 @@ Because the internal forces are zero, the tangent stiffness and damping matrices
 \newpage
 \subsection{Castigliano's Second Theorem}
 
-This section provides a short recapitulation of Castigliano's second theorem, which we are going to use for deriving the linear part of our beam element.
-Castigliano's second theorem can be used for computing the displacements of arbitrary linear-elastic structures.
+Castigliano's second theorem can be used for computing the displacements of arbitrary linear-elastic structures under external loads.
+This section provides a short recapitulation of the theorem since we are going to use it later for deriving the linear part of our beam element.
 It is stated as follows:
 
 \textcolor{red}{TODO: Quote from Wikipedia}
-If the strain energy of a linearly elastic structure can be expressed as a function of generalised force Qi then the partial derivative of the strain energy with respect to generalised force gives the generalised displacement qi in the direction of Qi.
+If the strain energy of a linearly elastic structure can be expressed as a function of generalised force $Q_i$ then the partial derivative of the strain energy with respect to generalised force gives the generalised displacement $q_i$ in the direction of $Q_i$.
 
-To illustrate this theorem, let's consider a simple bar as shown in figure \ref{fig:castigliano-bar-1}.
-It has an initial length of $l$ and a variable longitudinal stiffness $EA(s)$ with $s \in [0,\,l]$.
-The first part of this exercise is to compute the displacement $u$ at the end of the bar where the force $F$ is applied.
+To illustrate this relationship between forces, displacements and potential energy, let's consider a simple bar as shown in figure \ref{fig:castigliano-bar-1}.
+It has an initial length of $l$ and a variable longitudinal stiffness $EA(s)$ that depends on the position $s \in [0,\,l]$ along the bar.
+The first exercise is to compute the displacement~$u$ at the end of the bar that results from the force~$F$ being applied there.
 
 \begin{figure}[h]
 \centering
@@ -320,15 +320,15 @@ According to Castigliano's theorem, the displacement $u$ in the direction of the
 u = \frac{\partial \Pi}{\partial F} = \frac{\partial}{\partial F}\left(\frac{1}{2}\int_{0}^{l}\frac{F^2}{EA}\,ds\right) = \underbrace{\left(\int_{0}^{l}\frac{1}{EA}\,ds\right)}_{K^{-1}}F.
 \end{equation}
 
-By this we have identified the inverse $K^{-1}$ of the stiffness of the bar at that point and direction.
-It is an integral over the length of the bar that takes the exact distribution of longitudinal stiffness into account.
-If we assume $EA$ as constant for a quick sanity check, we get a stiffness of $K = \frac{EA}{l}$, which is the well known result for the stiffness of a bar.
+By this we have identified the inverse $K^{-1}$ of the stiffness of the bar in this load case.
+It is an integral over the initial length of the bar that takes the exact distribution of longitudinal stiffness into account.
+If we assume $EA$ as constant for a quick sanity check, we get a stiffness of $K = EA/l$, which is the known result for the stiffness of a constant bar.
 
-It is especially worth mentioning that we arrived at this result without any kinematic considerations, i.e. we didn't have to think about the distribution of strain in the bar due to the normal force and how that relates to the displacement $u$, which makes the method very simple and elegant.
-One apparent shortcoming of the method is that it only gives us the displacement at the end of the bar, where the external force is applied, and nowhere else.
+It is especially worth mentioning that we arrived at this result without any kinematic considerations, i.e. we didn't have to think about the distribution of strain in the bar due to the normal force and how that relates to the displacement $u$, which makes Castigliano's method very simple and elegant.
+One apparent shortcoming is that this only gives us the displacement at the end of the bar, where the external force is applied, and nowhere else.
 This limitation can be worked around by introducing additional "imaginary" forces at other points of interest and setting them to zero after having calculated the associated displacements.
 
-As part two of this exercise, let's calculate the displacement $\overline{u}$ at an arbitrary point $\overline{s}$ within the bar as shown in figure \ref{fig:castigliano-bar-2} by introducing the imaginary auxiliary force $\overline{F} = 0$.
+As a second exercise, let's calculate the displacement $\overline{u}$ at an arbitrary point $\overline{s}$ within the bar as shown in figure \ref{fig:castigliano-bar-2} by introducing the imaginary auxiliary force $\overline{F} = 0$.
 
 \begin{figure}[h]
 \centering
@@ -347,35 +347,124 @@ F, & \text{if}\ \ \overline{s} \le s \le l \\
 \end{equation}
 
 Therefore the potential elastic energy becomes
-%
-\begin{align}
-\Pi &= \frac{1}{2}\int_{0}^{l}\frac{N^2}{EA}\,ds = \frac{1}{2}\left(\int_{0}^{\overline{s}}\frac{(F + \overline{F})^2}{EA}\,ds + \int_{\overline{s}}^{l}\frac{F^2}{EA}\,ds\right) \\
-\end{align}
 
-Application of Castigliano's theorem yields the displacement $\overline{u}$ depending on the forces $F$ and $\overline{F}$.
-The actual displacement is obtained by setting the auxiliary force $\overline{F}$ to zero.
-%
-\begin{align}
-\overline{u} &= \frac{\partial \Pi}{\partial \overline{F}} = \frac{\partial}{\partial \overline{F}}\left( \frac{1}{2} \int_{0}^{\overline{s}}\frac{(F + \overline{F})^2}{EA}\,ds \right) = \left(\int_{0}^{\overline{s}}\frac{1}{EA}\,ds \right)\left(F + \overline{F}\right) \\
-&= \left(\int_{0}^{\overline{s}}\frac{1}{EA}\,ds \right)F.
-\end{align}
+\begin{equation}
+\Pi = \frac{1}{2}\int_{0}^{l}\frac{N^2}{EA}\,ds = \frac{1}{2}\left(\int_{0}^{\overline{s}}\frac{(F + \overline{F})^2}{EA}\,ds + \int_{\overline{s}}^{l}\frac{F^2}{EA}\,ds\right)
+\end{equation}
 
-This way we got the complete displacement distribution within the bar.
-In the next section we are going to use Castigliano's theorem for calculating the stiffness matrix and displacements of a linear-elastic beam segment.
+Application of Castigliano's theorem yields the displacement $\overline{u}$ depending on the forces $F$ and $\overline{F}$ as
+
+\begin{equation}
+\overline{u} = \frac{\partial \Pi}{\partial \overline{F}} = \frac{\partial}{\partial \overline{F}}\left( \frac{1}{2} \int_{0}^{\overline{s}}\frac{(F + \overline{F})^2}{EA}\,ds \right) = \left(\int_{0}^{\overline{s}}\frac{1}{EA}\,ds \right)\left(F + \overline{F}\right)
+\end{equation}
+
+The actual displacement is then obtained by setting the auxiliary force $\overline{F}$ to zero, resulting in the complete displacement distribution within the bar,
+
+\begin{equation}
+\overline{u}(\overline{s}) = \left(\int_{0}^{\overline{s}}\frac{1}{EA}\,ds \right)F.
+\end{equation}
+
+In the next section we are going to use Castigliano's theorem for calculating the stiffness matrix and displacement distribution of a linear-elastic beam segment.
 
 \newpage
-\subsection{Stiffness Matrix of a Beam Segment (3)}
+\subsection{Stiffness Matrix of a Beam Segment}
+
+\textcolor{red}{$\Rightarrow$ Combination of both chapters from below}
+
+In this section we will derive the analytical stiffness matrix of an initially curved beam segment with arbitrary cross section properties that is also shear-deformable.
+The only assumption we will make is that all displacements are small, so that we can apply linear-elastic theory to the problem.
+We will do this by following the approach outlined in~\cite{bib:marotta2018}, which is based on Castigliano's theorem.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.5\textwidth]{figures/elements/castigliano-beam-cases.jpg}
-\caption{Loading cases I and II}
-\label{fig:castigliano-beam-cases}
+\includegraphics[width=0.6\textwidth]{figures/elements/beam-segment-linear}
+\caption{Arbitrary beam segment with two nodes}
+\label{fig:beam-segment-linear}
 \end{figure}
 
-\subsubsection*{Loadcases}
+Consider the beam segment shown in figure $\ref{fig:beam-segment-linear}$.
+Its undeformed shape is described by the reference curve $\boldsymbol{r}(s) = \left[x(s),\,y(s)\right]^\intercal$ and the associated orientation angle $\varphi(s)$, where the parameter $s \in [s_0,\,s_1]$ is the arc length along the curve.
+We combine the reference position and angle into a single function~$\boldsymbol{p}(s)$ and call the associated small displacements~$\Delta\boldsymbol{p}(s)$,
 
-The stiffness of the beam segment with respect to the combined nodal displacement and forces is
+\begin{equation}
+\boldsymbol{p}(s) = \begin{bmatrix}
+x(s) \\
+y(s) \\
+\varphi(s)
+\end{bmatrix},
+\quad
+\Delta\boldsymbol{p}(s) = \begin{bmatrix}
+\Delta x(s) \\
+\Delta y(s) \\
+\Delta \varphi(s)
+\end{bmatrix}.
+\end{equation}
+
+The stiffness properties of the cross sections are given by the cross sectional stiffness matrix $\boldsymbol{C}(s) \in \mathbb{R}^{3 \times 3}$ that is assumed to be known and establishes a linear constitutive relation of the form
+
+\begin{equation}
+\underbrace{
+\begin{bmatrix}
+N \\
+M \\
+Q \\
+\end{bmatrix}
+}_{\boldsymbol{f}(s)}
+=
+\underbrace{
+\begin{bmatrix}
+C_{\varepsilon\varepsilon} & C_{\varepsilon\kappa} & C_{\varepsilon\gamma} \\
+C_{\varepsilon\kappa} & C_{\kappa\kappa} & C_{\kappa\gamma} \\
+C_{\varepsilon\gamma} & C_{\kappa\gamma} & C_{\gamma\gamma} \\
+\end{bmatrix}
+}_{\boldsymbol{C}(s)}
+\underbrace{
+\begin{bmatrix}
+\varepsilon \\
+\kappa \\
+\gamma \\
+\end{bmatrix}
+}_{\boldsymbol{e}(s)} \label{eq:section-stiffness-matrix}
+\end{equation}
+
+between the cross section forces~$\boldsymbol{f}$ and the generalized strains~$\boldsymbol{e}$ at each length $s$ in the element.
+The cross section forces consist of the normal force~$N$, the bending moment~$M$ and the shear force~$Q$ as shown in figure~\ref{fig:beam-segment-linear} while the strains consist of the elongation~$\varepsilon$ and the curvature~$\kappa$ of the beam axis as well as the shear angle~$\gamma$ between the cross section and the beam axis.
+
+The potential elastic energy (strain energy) of the beam segment, which we are going to need later, can be evaluated by integrating the product $\boldsymbol{f}^\intercal\boldsymbol{e}$ of section forces and strains over the beam's length and using the stiffness relation (\ref{eq:section-stiffness-matrix}) to eliminate the unknown strains:
+
+\begin{equation}
+\Pi = \frac{1}{2}\int_{s_0}^{s_1} \boldsymbol{f}^\intercal\boldsymbol{e}\,ds = \frac{1}{2}\int_{s_0}^{s_1} \boldsymbol{f}^\intercal\boldsymbol{C}^{-1}\boldsymbol{f}\,ds. \label{eq:section-potential-energy}
+\end{equation}
+
+We assign two nodes to this segment, one on the starting point~$s = s_0$ and one on the endpoint~$s = s_1$ of the curve.
+Each node is given two translational degrees of freedom in $x$- and $y$-direction and an angular degree of freedom around the $z$-axis.
+At each node, the respective forces and moments
+
+\begin{equation}
+\boldsymbol{F}_{0} = \begin{bmatrix}
+F_{x,0} \\ F_{y,0} \\ M_{z,0}
+\end{bmatrix},
+\quad
+\boldsymbol{F}_{1} = \begin{bmatrix}
+F_{x,1} \\ F_{y,1} \\ M_{z,1}
+\end{bmatrix}
+\end{equation}
+
+are applied, to which the beam segment reacts with the (small) nodal displacements
+
+\begin{equation}
+\Delta\boldsymbol{p}_{0} = \begin{bmatrix}
+\Delta x_0 \\ \Delta y_0 \\ \Delta \varphi_0
+\end{bmatrix},
+\quad
+\Delta\boldsymbol{p}_{1} = \begin{bmatrix}
+\Delta x_1 \\ \Delta y_1 \\ \Delta \varphi_1
+\end{bmatrix}
+\end{equation}
+
+in the respective directions of the forces/moments and relative to the initial state.
+The goal is now to find the stiffness matrix of the segment, which describes the linear relationship between those forces and displacements.
+The stiffness relation of the beam segment with respect to the combined nodal forces and displacements can be formally written as
 
 \begin{equation}
 \underbrace{
@@ -393,35 +482,43 @@ The stiffness of the beam segment with respect to the combined nodal displacemen
 }_{\boldsymbol{K}}
 \underbrace{
 \begin{bmatrix}
-\boldsymbol{u}_0 \\
-\boldsymbol{u}_1 \\
+\Delta\boldsymbol{p}_0 \\
+\Delta\boldsymbol{p}_1 \\
 \end{bmatrix}
 }_{\boldsymbol{u}}
 \end{equation}
 
-with the stiffness matrix $\boldsymbol{K} \in \mathbb{R}^{6 \times 6}$ and the four submatrices $\boldsymbol{K}_{ij} \in \mathbb{R}^{3 \times 3}$.
-We can get a physical interpretation of the submatrices by constraining one of the nodes, ie. $\boldsymbol{u}_{0} = 0$ and $\boldsymbol{u}_{1} = 0$.
+with the overall stiffness matrix $\boldsymbol{K} \in \mathbb{R}^{6 \times 6}$ and four submatrices $\boldsymbol{K}_{ij} \in \mathbb{R}^{3 \times 3}$.
+The overall forces $\boldsymbol{F}$ and displacements $\boldsymbol{u}$ have been chosen as the combination of the forces and displacements at node 0 and 1.
 
-In the case $\boldsymbol{u}_{0} = 0$, which we will call case I, the resulting forces are
-
+We can get a physical interpretation of the submatrices by keeping one of the nodes, respectively, fixed as shown in figure~\ref{fig:castigliano-beam-cases}.
+In the case of node 0 being fixed ($\Delta\boldsymbol{p}_{0} = \boldsymbol{0}$), which we will call \textit{load case I}, the resulting forces are
+%
 \begin{align}
-\boldsymbol{F}_1 &= \boldsymbol{K}_{1,1}\,\boldsymbol{u}_1 \\
-\boldsymbol{F}_0 &= \boldsymbol{K}_{0,1}\,\boldsymbol{u}_1
+\boldsymbol{F}_1 &= \boldsymbol{K}_{1,1}\,\Delta\boldsymbol{p}_1 \\
+\boldsymbol{F}_0 &= \boldsymbol{K}_{0,1}\,\Delta\boldsymbol{p}_1
 \end{align}
 
-In the case $\boldsymbol{u}_{1} = 0$, which we will call case II, the resulting forces are
-
+In the case of node 1 being fixed ($\Delta\boldsymbol{p}_{1} = \boldsymbol{0}$), which we will call \textit{load case II}, the resulting forces are
+%
 \begin{align}
-\boldsymbol{F}_0 &= \boldsymbol{K}_{0,0}\,\boldsymbol{u}_0 \\
-\boldsymbol{F}_1 &= \boldsymbol{K}_{1,0}\,\boldsymbol{u}_0
+\boldsymbol{F}_0 &= \boldsymbol{K}_{0,0}\,\Delta\boldsymbol{p}_0 \\
+\boldsymbol{F}_1 &= \boldsymbol{K}_{1,0}\,\Delta\boldsymbol{p}_0
 \end{align}
 
-Put into words, the diagonal matrix blocks $\boldsymbol{K}_{0,0}$ and $\boldsymbol{K}_{1,1}$ relate the forces and displacements at a free node to each other, if the other node is restrained.
-The off-diagonal blocks $\boldsymbol{K}_{1,0}$ and $\boldsymbol{K}_{0,1}$ relate the displacements at the free node to the forces at the restrained node.
-This means that we can obtain the full stiffness matrix of the segment by analyzing those two distinct loadcases and assembling the partial results in the end.
+Put into words, the diagonal matrix blocks $\boldsymbol{K}_{0,0}$ and $\boldsymbol{K}_{1,1}$ relate the forces and displacements of a free node to each other, if the other node is restrained.
+The off-diagonal blocks $\boldsymbol{K}_{1,0}$ and $\boldsymbol{K}_{0,1}$ relate the displacements at a free node to the forces at a restrained node.
+This means that we can obtain the full stiffness matrix of the segment by analyzing those two distinct load cases and assembling the partial results in the end.
 
-The nodal forces $\boldsymbol{F}_0$ and $\boldsymbol{F}_1$ are not completely independent of each other, since they have to be in static equilibrium with each as a necessary condition for the element to be in equilibrium.
-Balancing the forces and moments around node 1 gives us the three conditions
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/elements/castigliano-beam-cases.jpg}
+\caption{Constrained beam segment in cases I and II \textcolor{red}{TODO: Replace u with p in figure}}
+\label{fig:castigliano-beam-cases}
+\end{figure}
+
+As a first step we note that the nodal forces $\boldsymbol{F}_0$ and $\boldsymbol{F}_1$ are not completely independent of each other, since they have to be in static equilibrium as a necessary condition for the element to be in equilibrium as a whole.
+Balancing the forces and moments around node~1 gives us the three conditions
 %
 \begin{align}
 x:\quad &F_{x,0} + F_{x,1} = 0 \\
@@ -429,14 +526,14 @@ y:\quad &F_{y,0} + F_{y,1} = 0 \\
 z:\quad &M_{z,0} + M_{z,1} + F_{x,0}(y_1 - y_0) - F_{y,0}(x_1 - x_0) = 0
 \end{align}
 
-This can be written as the following matrix equation between the nodal forces,
+Solving for either $\boldsymbol{F}_0$ or $\boldsymbol{F}_1$ results in the following linear relationship between the nodal forces,
 %
 \begin{align}
 \boldsymbol{F}_0 &= \boldsymbol{B}_{0,1}\cdot\boldsymbol{F}_1 \\
 \boldsymbol{F}_1 &= \boldsymbol{B}_{1,0}\cdot\boldsymbol{F}_0
 \end{align}
 
-with the matrix $\boldsymbol{B}_{i,j}$ defined as
+with the matrix $\boldsymbol{B}_{i,j} = \boldsymbol{B}_{j,i}^{-1}$ being defined as
 
 \begin{equation}
 \boldsymbol{B}_{i,j} = \begin{bmatrix}
@@ -449,17 +546,21 @@ y_j - y_i & x_i - x_j & -1
 We can use this relationship to calculate the forces at the clamped nodes in the cases I and II in order to obtain the off-diagonal stiffnesses $\boldsymbol{K}_{1,0}$ and $\boldsymbol{K}_{0,1}$ as follows,
 %
 \begin{align}
-\boldsymbol{F}_0 &= \boldsymbol{B}_{0,1}\boldsymbol{F}_1 = \underbrace{\boldsymbol{B}_{0,1}\boldsymbol{K}_{1,1}}_{\boldsymbol{K}_{0,1}}\boldsymbol{u}_1 \\
-\boldsymbol{F}_1 &= \boldsymbol{B}_{1,0}\boldsymbol{F}_0 = \underbrace{\boldsymbol{B}_{1,0}\boldsymbol{K}_{0,0}}_{\boldsymbol{K}_{1,0}}\boldsymbol{u}_0
+\boldsymbol{F}_0 &= \boldsymbol{B}_{0,1}\boldsymbol{F}_1 = \underbrace{\boldsymbol{B}_{0,1}\boldsymbol{K}_{1,1}}_{\boldsymbol{K}_{0,1}}\Delta\boldsymbol{p}_1, \\
+\boldsymbol{F}_1 &= \boldsymbol{B}_{1,0}\boldsymbol{F}_0 = \underbrace{\boldsymbol{B}_{1,0}\boldsymbol{K}_{0,0}}_{\boldsymbol{K}_{1,0}}\Delta\boldsymbol{p}_0.
 \end{align}
 
+This means that we only have to determine the diagonal blocks $\boldsymbol{K}_{0,0}$ and $\boldsymbol{K}_{1,1}$ from load cases I and II and then use the relations above in order to complete the stiffness matrix.
+
+\textcolor{red}{
 In practive we only have to calculate one of the off-diagonal blocks since the complete stiffness matrix must be symmetric and therefore $\boldsymbol{K}_{1,0} = \boldsymbol{K}_{0,0}^\intercal$.
-Since the off-diagonal stiffnesses have been shown to depend on the diagonal stiffnesses $\boldsymbol{K}_{0,0}$ and $\boldsymbol{K}_{1,1}$, the remaining task is to determine those matrices by analyzing the loadcases I and II, respectively.
+Since the off-diagonal stiffnesses have been shown to depend on the diagonal stiffnesses $\boldsymbol{K}_{0,0}$ and $\boldsymbol{K}_{1,1}$, the remaining task is to determine those diagonal blocks by analyzing the loadcases I and II, respectively.
+}
 
 \subsubsection*{Loadcase I}
 
-The beam is clamped on the left and a force is applied at node 1.
-Due to static equilibrium, the cross section forces in the beam for a force $\boldsymbol{F}_\eta$ that is applied at the length $s_\eta$ with $\eta \in [0,\,1]$ are
+The beam is clamped at node 0 and a force is applied at node 1.
+Due to static equilibrium, the distribution of cross section forces in the beam for an external force~$\boldsymbol{F}_\eta$ that is applied at the length~$s_\eta$ with~$\eta \in [0,\,1]$ are found to be
 
 \begin{equation}
 \underbrace{
@@ -479,10 +580,10 @@ y(s) - y(s_\eta) & x(s_\eta) - x(s) & 1 \\
 \begin{bmatrix}
 F_{x,\eta} \\ F_{y,\eta} \\ M_{z,\eta}
 \end{bmatrix}
-}_{\boldsymbol{F}_\eta}. \label{eq:section-static-equilibrium}
+}_{\boldsymbol{F}_\eta} \label{eq:section-static-equilibrium}
 \end{equation}
 
-Combining the nodal force $\boldsymbol{F}_1$ at $s_1$ and the variable auxiliary force $\boldsymbol{F}_\eta$ at $s_\eta$:
+Combining the nodal force $\boldsymbol{F}_1$ at $s_1$ and the auxiliary force $\boldsymbol{F}_\eta$ at $s_\eta$ (used for Castigliano's theorem and later set to zero) we get the total cross section force
 
 \begin{equation}
 \boldsymbol{f}^{\mathrm{I}}(s) = \begin{cases}
@@ -491,28 +592,24 @@ Combining the nodal force $\boldsymbol{F}_1$ at $s_1$ and the variable auxiliary
 \end{cases}
 \end{equation}
 
-The potential energy for this loadcase is therefore
+The potential energy for this loadcase according to (\ref{eq:section-potential-energy}) is therefore
 
 \begin{equation}
 \Pi^{\mathrm{I}} = \frac{1}{2}\left(\int_{s_0}^{s_\eta} \left(\boldsymbol{H}_{1}\boldsymbol{F}_1 + \boldsymbol{H}_{\eta}\boldsymbol{F}_\eta\right)^\intercal\boldsymbol{C}^{-1}\left(\boldsymbol{H}_{1}\boldsymbol{F}_1 + \boldsymbol{H}_{\eta}\boldsymbol{F}_\eta\right)\,ds + \int_{s_\eta}^{s_1} \left(\boldsymbol{H}_{1}\boldsymbol{F}_1\right)^\intercal\boldsymbol{C}^{-1}\left(\boldsymbol{H}_{1}\boldsymbol{F}_1\right)\,ds\right)
 \end{equation}
 
-and the displacement $\boldsymbol{u}_\eta$ at position $s_\eta$
+and the displacements $\Delta\boldsymbol{p}_\eta$ at position $s_\eta$ are obtained by Castigliano's theorem as
 
 \begin{align}
-\boldsymbol{u}^{\mathrm{I}}_\eta &= \frac{\partial \Pi^{\mathrm{I}}}{\partial \boldsymbol{F}_\eta}\Bigg|_{\boldsymbol{F}_\eta = 0} = \frac{\partial}{\partial \boldsymbol{F}_\eta}\left(\frac{1}{2}\int_{s_0}^{s_\eta} \left(\boldsymbol{H}_{1}\boldsymbol{F}_1 + \boldsymbol{H}_{\eta}\boldsymbol{F}_e\right)^\intercal\boldsymbol{C}^{-1}\left(\boldsymbol{H}_{1}\boldsymbol{F}_1 + \boldsymbol{H}_{\eta}\boldsymbol{F}_\eta\right)\,ds\right)\Bigg|_{\boldsymbol{F}_\eta = 0} \notag \\
-&= \underbrace{\left(\int_{s_0}^{s_\eta} \boldsymbol{H}_\eta^\intercal\boldsymbol{C}^{-1}\boldsymbol{H}_1\,ds\right)}_{\boldsymbol{K}^{-1}_{1,\eta}}\boldsymbol{F}_1
+\Delta\boldsymbol{p}^{\mathrm{I}}_\eta &= \frac{\partial \Pi^{\mathrm{I}}}{\partial \boldsymbol{F}_\eta}\Bigg|_{\boldsymbol{F}_\eta = 0} = \frac{\partial}{\partial \boldsymbol{F}_\eta}\left(\frac{1}{2}\int_{s_0}^{s_\eta} \left(\boldsymbol{H}_{1}\boldsymbol{F}_1 + \boldsymbol{H}_{\eta}\boldsymbol{F}_e\right)^\intercal\boldsymbol{C}^{-1}\left(\boldsymbol{H}_{1}\boldsymbol{F}_1 + \boldsymbol{H}_{\eta}\boldsymbol{F}_\eta\right)\,ds\right)\Bigg|_{\boldsymbol{F}_\eta = 0} \notag \\
+&= \underbrace{\left(\int_{s_0}^{s_\eta} \boldsymbol{H}_\eta^\intercal\boldsymbol{C}^{-1}\boldsymbol{H}_1\,ds\right)}_{\boldsymbol{K}^{-1}_{1,\eta}}\boldsymbol{F}_1.
 \end{align}
 
-The stiffness matrix $\boldsymbol{K}^{-1}_{1,1}$ for the right node follows for $\eta = 1$.
-
-%Displacement at node 1 ($s_e = s_1$):
-%
-%\begin{align}
-%\boldsymbol{u}^{(I)}_1 &= \underbrace{\left(\int_{s_0}^{s_e} \boldsymbol{H}_1^\intercal\boldsymbol{C}^{-1}\boldsymbol{H}_1\,ds\right)}_{\boldsymbol{K}^{-1}_{1,1}}\boldsymbol{F}_1
-%\end{align}
+The inverse stiffness matrix $\boldsymbol{K}^{-1}_{1,1}$ for the right node follows for $\eta = 1$.
 
 \subsubsection*{Loadcase II}
+
+In the second case, where the beam is clamped at node 1 and the force is applied at node 0 instead, the section forces du to an external force $\boldsymbol{F}_\eta$ turn out to be
 
 \begin{equation}
 \underbrace{
@@ -542,44 +639,55 @@ F_{x,\eta} \\ F_{y,\eta} \\ M_{z,\eta}
 \end{cases}
 \end{equation}
 
+And the sum of the nodal force and auxiliary force is
+
 \begin{equation}
 \Pi^{\mathrm{II}} = \frac{1}{2}\left(\int_{s_0}^{s_\eta} \left(\boldsymbol{H}_{0}\boldsymbol{F}_0\right)^\intercal\boldsymbol{C}^{-1}\left(\boldsymbol{H}_{0}\boldsymbol{F}_0\right)\,ds + \int_{s_\eta}^{s_1} \left(\boldsymbol{H}_{0}\boldsymbol{F}_0 + \boldsymbol{H}_{\eta}\boldsymbol{F}_\eta\right)^\intercal\boldsymbol{C}^{-1}\left(\boldsymbol{H}_{0}\boldsymbol{F}_0 + \boldsymbol{H}_{\eta}\boldsymbol{F}_\eta\right)\,ds\right)
 \end{equation}
 
+Finally, the displacements according to Castigliano's theorem are
+
 \begin{align}
-\boldsymbol{u}^{\mathrm{II}}_\eta &= \frac{\partial \Pi^{\mathrm{II}}}{\partial \boldsymbol{F}_\eta}\Bigg|_{\boldsymbol{F}_\eta = 0} = \frac{\partial}{\partial \boldsymbol{F}_\eta}\left(\frac{1}{2}\int_{s_\eta}^{s_1} \left(\boldsymbol{H}_{0}\boldsymbol{F}_0 + \boldsymbol{H}_{\eta}\boldsymbol{F}_\eta\right)^\intercal\boldsymbol{C}^{-1}\left(\boldsymbol{H}_{0}\boldsymbol{F}_0 + \boldsymbol{H}_{\eta}\boldsymbol{F}_\eta\right)\,ds\right)\Bigg|_{\boldsymbol{F}_\eta = 0} \notag \\
+\Delta\boldsymbol{p}^{\mathrm{II}}_\eta &= \frac{\partial \Pi^{\mathrm{II}}}{\partial \boldsymbol{F}_\eta}\Bigg|_{\boldsymbol{F}_\eta = 0} = \frac{\partial}{\partial \boldsymbol{F}_\eta}\left(\frac{1}{2}\int_{s_\eta}^{s_1} \left(\boldsymbol{H}_{0}\boldsymbol{F}_0 + \boldsymbol{H}_{\eta}\boldsymbol{F}_\eta\right)^\intercal\boldsymbol{C}^{-1}\left(\boldsymbol{H}_{0}\boldsymbol{F}_0 + \boldsymbol{H}_{\eta}\boldsymbol{F}_\eta\right)\,ds\right)\Bigg|_{\boldsymbol{F}_\eta = 0} \notag \\
 &= \underbrace{\left(\int_{s_\eta}^{s_1} \boldsymbol{H}_\eta^\intercal\boldsymbol{C}^{-1}\boldsymbol{H}_0\,ds\right)}_{\boldsymbol{K}^{-1}_{0,\eta}}\boldsymbol{F}_0
 \end{align}
 
-The stiffness matrix $\boldsymbol{K}^{-1}_{0,0}$ for the left node follows for $\eta = 0$.
+and the stiffness matrix $\boldsymbol{K}^{-1}_{0,0}$ for the left node follows for $\eta = 0$.
 
-%Displacement at node 1 ($s_e = s_1$):
-%
-%\begin{align}
-%\boldsymbol{u}^{(II)}_0 &= \underbrace{\left(\int_{s_e}^{s_1} \boldsymbol{H}_0^\intercal\boldsymbol{C}^{-1}\boldsymbol{H}_0\,ds\right)}_{\boldsymbol{K}^{-1}_{0,0}}\boldsymbol{F}_0
-%\end{align}
+\subsubsection*{Combined stiffness matrix}
 
-\subsubsection*{Combined Displacements}
+Combining all previous results, the four components of the stiffness matrix can be evaluated as
+
+\begin{align}
+\boldsymbol{K}^{-1}_{0,0} &= \int_{s_0}^{s_1} \boldsymbol{H}_0^\intercal\boldsymbol{C}^{-1}\boldsymbol{H}_0\,ds & \boldsymbol{K}^{-1}_{1,1} &= \int_{s_0}^{s_1} \boldsymbol{H}_1^\intercal\boldsymbol{C}^{-1}\boldsymbol{H}_1\,ds \\
+\boldsymbol{K}_{1,0} &= \boldsymbol{B}_{1,0}\boldsymbol{K}_{0,0} & \boldsymbol{K}_{0,1} &= \boldsymbol{B}_{0,1}\boldsymbol{K}_{1,1}
+\end{align}
+
+Alternatively, since the stiffness matrtix must be symmetric, the relation $\boldsymbol{K}_{0,1} = \boldsymbol{K}_{1,0}^\intercal$ can be used for calculating one of the off-diagonal stiffness blocks.
+Verifying that this is true is left as an exercise to the reader.
+
+\subsubsection*{Combined displacements}
 
 Due to linear superposition \textcolor{red}{TODO: explain}, the displacements under forces at both nodes can be added as
 
 \begin{equation}
-\boldsymbol{u}_{\eta} = \boldsymbol{K}_{0,\eta}^{-1}\,\boldsymbol{F}_0 + \boldsymbol{K}_{1,\eta}^{-1}\,\boldsymbol{F}_1.
+\Delta\boldsymbol{p}_{\eta} = \boldsymbol{K}_{0,\eta}^{-1}\,\boldsymbol{F}_0 + \boldsymbol{K}_{1,\eta}^{-1}\,\boldsymbol{F}_1.
 \end{equation}
 
 Therefore the displacement evaluation matrix is
 
 \begin{align}
-\boldsymbol{u}_{\eta} &= \boldsymbol{K}_{0,\eta}^{-1}\boldsymbol{K}_{0,0}\boldsymbol{u}_0 + \boldsymbol{K}_{1,\eta}^{-1}\boldsymbol{K}_{1,1}\boldsymbol{u}_1 \\
+\Delta\boldsymbol{p}_{\eta} &= \boldsymbol{K}_{0,\eta}^{-1}\boldsymbol{K}_{0,0}\boldsymbol{u}_0 + \boldsymbol{K}_{1,\eta}^{-1}\boldsymbol{K}_{1,1}\boldsymbol{u}_1 \\
 &=
 \underbrace{
 \left[\boldsymbol{K}_{0,\eta}^{-1}\boldsymbol{K}_{0,0} \ \vert\ \boldsymbol{K}_{1,\eta}^{-1}\boldsymbol{K}_{1,1}\right]
-}_{\boldsymbol{U}_\eta}
+}_{\boldsymbol{E}_{u,\eta}}
+\underbrace{
 \begin{bmatrix}
 \boldsymbol{u}_0 \notag \\
 \boldsymbol{u}_1
-\end{bmatrix} \notag \\
-&=\boldsymbol{U}_\eta\boldsymbol{u}
+\end{bmatrix}
+}_{\boldsymbol{u}} \notag = \boldsymbol{E}_{u,\eta}\cdot\boldsymbol{u}
 \end{align}
 
 We can simplify the computation of the matrices $\boldsymbol{K}_{0,\eta}^{-1}$ and $\boldsymbol{K}^{-1}_{1,\eta}$ by realizing that $\boldsymbol{H}_0$ and $\boldsymbol{H}_1$ are related by the static equilibrium matrix $\boldsymbol{B}_{i,j}$ \textcolor{red}{TODO: Link} as
@@ -702,145 +810,7 @@ In the implementation, the integrand can be evaluated for each sub-interval betw
 %\end{align}
 
 \newpage
-\subsection{Stiffness Matrix of a Beam Segment}
-
-In this section we will derive the analytical stiffness matrix for a curved beam segment with arbitrary cross section properties that is also shear-deformable.
-The only assumption we will make is that all displacements are small, so that we can apply linear-elastic theory to the problem.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.5\textwidth]{figures/elements/beam-segment-linear}
-\caption{Arbitrary beam segment with two nodes}
-\label{fig:beam-segment-linear}
-\end{figure}
-
-Consider the beam segment shown in figure $\ref{fig:beam-segment-linear}$.
-Its shape is described by the undeformed reference curve $\boldsymbol{r}(s) = \left[x(s),\,y(s)\right]^\intercal$ and the associated orientation angle $\varphi(s)$, where the parameter $s \in [s_0,\,s_1]$ is the arc length along the curve.
-
-The stiffness properties of the cross sections are described by the cross sectional stiffness matrix $\boldsymbol{C}(s) \in \mathbb{R}^{3 \times 3}$ that is assumed to be known and establishes a linear constitutive relation of the form
-
-\begin{equation}
-\underbrace{
-\begin{bmatrix}
-N \\
-M \\
-Q \\
-\end{bmatrix}
-}_{\boldsymbol{f}(s)}
-=
-\underbrace{
-\begin{bmatrix}
-C_{\varepsilon\varepsilon} & C_{\varepsilon\kappa} & C_{\varepsilon\gamma} \\
-C_{\varepsilon\kappa} & C_{\kappa\kappa} & C_{\kappa\gamma} \\
-C_{\varepsilon\gamma} & C_{\kappa\gamma} & C_{\gamma\gamma} \\
-\end{bmatrix}
-}_{\boldsymbol{C}(s)}
-\underbrace{
-\begin{bmatrix}
-\varepsilon \\
-\kappa \\
-\gamma \\
-\end{bmatrix}
-}_{\boldsymbol{e}(s)} \label{eq:section-stiffness-matrix}
-\end{equation}
-
-between the cross section forces~$\boldsymbol{f}$ and the generalized strains~$\boldsymbol{e}$.
-The cross section forces consist of the normal force~$N$, the bending moment~$M$ and the shear force~$Q$ as shown in figure~\ref{fig:beam-segment-linear} while the strains consist of the elongation~$\varepsilon$ and the curvature~$\kappa$ of the beam axis as well as the shear angle~$\gamma$ between the section and the beam axis.
-
-We assign two nodes to this segment, one on the starting point and one on the endpoint of the curve.
-Each node is given two translational degrees of freedom in x- and y-direction and an angular degree of freedom around the z-axis.
-At each node, the respective forces and moments
-
-\begin{equation}
-\boldsymbol{F}_{0} = \begin{bmatrix}
-F_{x0} \\ F_{y0} \\ M_{z0}
-\end{bmatrix},
-\quad
-\boldsymbol{F}_{1} = \begin{bmatrix}
-F_{x1} \\ F_{y1} \\ M_{z1}
-\end{bmatrix}
-\end{equation}
-
-are applied, to which the beam segment reacts with the (small) displacements
-
-\begin{equation}
-\boldsymbol{u}_{0} = \begin{bmatrix}
-\Delta x_0 \\ \Delta y_0 \\ \Delta \varphi_0
-\end{bmatrix},
-\quad
-\boldsymbol{u}_{1} = \begin{bmatrix}
-\Delta x_1 \\ \Delta y_1 \\ \Delta \varphi_1
-\end{bmatrix}
-\end{equation}
-
-in the respective directions of the forces/moments and relative to the initial state.
-The goal is now to find the stiffness matrix of the segment, which describes the linear relationship between those forces and displacements.
-We will do this by following the approach outlined in~\cite{bib:curved-beam-stiffness-matrix}, which is based on Castigliano's theorem, an energy-based method for calculating displacements of linear-elastic structures.
-
-We start with a simple static consideration of the nodal forces.
-In order for the segment to be in static equilibrium, the nodal forces have to fulfill the following conditions,
-%
-\begin{align}
-x:\quad &F_{x0} + F_{x1} = 0 \\
-y:\quad &F_{y0} + F_{y1} = 0 \\
-z:\quad &M_{z0} + M_{z1} + F_{x0}\Delta y - F_{y0}\Delta x = 0
-\end{align}
-
-where~$\Delta x = x_1 - x_0$ and~$\Delta y = y_1 - y_0$.
-This can be rearranged into a matrix equation that relates the forces on node 1 to those on node 0,
-
-\begin{equation}
-\underbrace{
-\begin{bmatrix}
-F_{x1} \\
-F_{y1} \\
-M_{z1} \\
-\end{bmatrix}
-}_{\boldsymbol{F}_1}
-=
-\underbrace{
-\begin{bmatrix}
--1 & 0 & 0 \\
-0 & -1 & 0 \\
--\Delta y & \Delta x & -1 \\
-\end{bmatrix}
-}_{\boldsymbol{B}}
-\underbrace{
-\begin{bmatrix}
-F_{x0} \\
-F_{y0} \\
-M_{z0} \\
-\end{bmatrix}
-}_{\boldsymbol{F}_0}, \label{eq:segment-static-equilibrium}
-\end{equation}
-
-leaving only three independent nodal forces.
-In a similar manner we can express the cross section forces $N(s)$, $M(s)$ and $Q(s)$ along the lenth of the segment in terms of the forces applied on node 1 by requiring the sections to be in static equilibrium with the applied forces.
-This results in
-
-\begin{equation}
-\underbrace{
-\begin{bmatrix}
-N \\ M \\ Q
-\end{bmatrix}
-}_{\boldsymbol{f}(s)}
-=
-\underbrace{
-\begin{bmatrix}
-\cos(\varphi(s)) & \sin(\varphi(s)) & 0 \\
-y(s) - y_1 & x_1 - x(s) & 1 \\
--\sin(\varphi(s)) & \cos(\varphi(s)) & 0 \\
-\end{bmatrix}
-}_{\boldsymbol{H}(s)}
-\underbrace{
-\begin{bmatrix}
-F_{x1} \\ F_{y1} \\ M_{z1}
-\end{bmatrix}
-}_{\boldsymbol{F}_1}. \label{eq:section-static-equilibrium}
-\end{equation}
-
-Another prerequisite is the potential elastic energy (strain energy) of the beam segment.
-It can be evaluated by integrating the product $\boldsymbol{f}^\intercal\boldsymbol{e}$ of section forces and strains over the beam's length and using the stiffness relation (\ref{eq:section-stiffness-matrix}) to eliminate the unknown strains:
+\subsection{Stiffness Matrix of a Beam Segment (?)}
 
 \begin{equation}
 \Pi = \frac{1}{2}\int_{s_0}^{s_1} \boldsymbol{f}^\intercal\boldsymbol{e}\,ds = \frac{1}{2}\int_{s_0}^{s_1} \boldsymbol{f}^\intercal\boldsymbol{C}^{-1}\boldsymbol{f}\,ds.
@@ -1078,6 +1048,777 @@ Finally, rearranging the forces $\boldsymbol{F}_1$ and $\boldsymbol{F}_3$ and th
 reveals the reduced stiffness matrix $\boldsymbol{K}_{\mathrm{red}} \in \mathbb{R}^{6 \times 6}$ as the final result.
 Some quick benchmarks have shown that this method is less efficient than the numerical integration if high precision is required (i.e. large numbers of elements).
 That's why it is used for verification only.
+
+\newpage
+\subsection{Corotational Formulation}
+
+In a corotational formulation, the overall motion of an element is decomposed into an arbitrarily large rigid body motion and a superimposed elastic deformation that is assumed to be small.
+The way we do this is outlined in figure \ref{fig:beam-element-corotational-kinematics}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/elements/beam-element-corotational-kinematics.pdf}
+\caption{Kinematics of the corotational beam element with rigid body motion (blue) and elastic deformation (red)}
+\label{fig:beam-element-corotational-kinematics}
+\end{figure}
+
+The figure shows the beam segment in an undeformed initial state $\boldsymbol{u}(0)$ (dashed line) and in an arbitrary later state $\boldsymbol{u}(t)$ (full line).
+In order to quantify the strain free rigid body motion between the two states, a moving reference frame $\overline{x}$, $\overline{y}$ is introduced.
+The origin of this reference frame is placed at the first node while the $\overline{x}$-axis passes through the second node.
+This particular choice, which is not the only one, is sometimes called a secant frame.
+The position and orientation of the reference frame, and therefore the rigid body motion of the element, is parameterized by the translation vector $\boldsymbol{r}(t)$ and the orientation angle $\alpha(t)$.
+They can be obtained from the nodal coordinates $\boldsymbol{u}(0)$ as follows,
+
+Since the element has a total of six nodal degrees of freedom, we have three more parameters left to describe the elastic deformation of the element within the moving reference frame.
+We do this by introducing the displacement $\Delta d(t)$ along the $\overline{x}$-axis as well as the two rotations $\Delta\beta_0(t)$ and $\Delta\beta_1(t)$ at the nodes.
+All of those are assumed to remain small.
+
+These six auxiliary coordinates, $r_x(t)$, $r_y(t)$, $\alpha(t)$, $\Delta d(t)$, $\Delta\beta_0(t)$ and $\Delta\beta_1(t)$, can now be used to express the nodal coordinates of the element as
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\boldsymbol{u}(t) = \begin{bmatrix}
+x_0(t) \\
+y_0(t) \\
+\varphi_0(t) \\
+x_1(t) \\
+y_1(t) \\
+\varphi_1(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+r_x(t) \\
+r_y(t) \\
+\varphi_0(0) + \alpha(t) - \alpha(0) + \Delta\beta_0(t) \\
+r_x(t) + (d + \Delta d(t))\cos(\alpha(t)) \\
+r_y(t) + (d + \Delta d(t))\sin(\alpha(t)) \\
+\varphi_1(0) + \alpha(t) - \alpha(0) + \Delta\beta_1(t)
+\end{bmatrix}
+\end{equation}
+
+Suppose that the nodal coordinates are known.
+In that case we can invert this relationship in order to determine the corresponding rigid body coordinates~$\tilde{\boldsymbol{u}}(t)$ and elastic coordinates~$\overline{\boldsymbol{u}}(t)$ as
+
+\begin{align}
+\renewcommand\arraystretch{1.5}
+\tilde{\boldsymbol{u}}(t) &=
+\begin{bmatrix}
+r_x(t) \\
+r_y(t) \\
+\alpha(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+x_0(t) \\
+y_0(t) \\
+\mathrm{arctan2}\left(\frac{y_1(t) - y_0(t)}{x_1(t) - x_0(t)}\right)
+\end{bmatrix}, \\
+\notag \\
+\renewcommand\arraystretch{1.5}
+\overline{\boldsymbol{u}}(t) &=
+\begin{bmatrix}
+\Delta d(t) \\
+\Delta \beta_0(t) \\
+\Delta \beta_1(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+\sqrt{\left(x_1(t) - x_0(t)\right)^2 + \left(y_1(t) - y_0(t)\right)^2} - d \\
+\varphi_0(t) - \varphi_0(0) + \alpha(t) - \alpha(0) \\
+\varphi_1(t) - \varphi_1(0) + \alpha(t) - \alpha(0)
+\end{bmatrix}.
+\end{align}
+
+Since the rigid body motion does by construction not cause any strain, the elastic energy of the element is entirely determined by the elastic coordinates.
+We can determine the small displacements $\Delta\boldsymbol{u}$, for which we previously derived the stiffness matrix, by "undoing" the rigid body motion and transforming the elastic coordinates $\overline{\boldsymbol{u}}(t)$ into the global reference frame, which gives us
+
+\begin{equation}
+\Delta\boldsymbol{u} = \begin{bmatrix}
+0 \\
+0 \\
+\Delta\beta_0(t) \\
+\Delta d(t)\cos(\alpha(0)) \\
+\Delta d(t)\sin(\alpha(0)) \\
+\Delta\beta_1(t)
+\end{bmatrix}
+=
+\underbrace{
+\begin{bmatrix}
+0 & 0 & 0 \\
+0 & 0 & 0 \\
+0 & 1 & 0 \\
+\cos(\alpha(0)) & 0 & 0 \\
+\sin(\alpha(0)) & 0 & 0 \\
+0 & 0 & 1 \\
+\end{bmatrix}
+}_{\boldsymbol{T}}
+\underbrace{
+\begin{bmatrix}
+\Delta d(t) \\
+\Delta \beta_0(t) \\
+\Delta \beta_1(t)
+\end{bmatrix}
+}_{\overline{\boldsymbol{u}}(t)}
+=
+\boldsymbol{T}\overline{\boldsymbol{u}}(t)
+\end{equation}
+
+The elastic energy, written in the elastic coordinates, is therefore
+
+\begin{equation}
+\Pi = \frac{1}{2}\Delta\boldsymbol{u}^\intercal\boldsymbol{K}\Delta\boldsymbol{u} = \frac{1}{2}\overline{\boldsymbol{u}}^\intercal\underbrace{\left(\boldsymbol{T}^\intercal\boldsymbol{K}\boldsymbol{T}\right)}_{\overline{K}}\overline{\boldsymbol{u}} = \frac{1}{2}\overline{\boldsymbol{u}}^\intercal\overline{\boldsymbol{K}}\overline{\boldsymbol{u}}
+\end{equation}
+
+with $\overline{\boldsymbol{K}} = \boldsymbol{T}^\intercal\boldsymbol{K}\boldsymbol{T} \in \mathbb{R}^{3 \times 3}$ being the transformed stiffness matrix with respect to the elastic coordinates.
+
+\newpage
+\subsection{Evaluation of Displacements}
+
+in \textcolor{red}{REFERENCE} we derived a continuous description of the displacements within the segment for small displacements.
+We can apply this result to the corotational element by adding the rigid body motion to the displacements
+
+\begin{align}
+\boldsymbol{p}(s) &=
+\underbrace{
+\begin{bmatrix}
+x_0(t) \\
+y_0(t) \\
+\alpha(t)
+\end{bmatrix}
+}_{\boldsymbol{p}_0(t)}
++
+\underbrace{
+\begin{bmatrix}
+\cos(\alpha(t)) & -\sin(\alpha(t)) & 0 \\
+\sin(\alpha(t)) & \cos(\alpha(t)) & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+}_{\boldsymbol{R}(\alpha(t))}
+\bigg(\overline{p}(s) + \Delta\overline{p}(s)\bigg) \notag \\
+&= \boldsymbol{p}_0(t) + \boldsymbol{R}(\alpha(t))\big(\overline{p}(s) + \boldsymbol{E}_p(s)\cdot\overline{u}(t)\big)
+\end{align}
+
+Velocity by deriving with respect to time
+
+\begin{align}
+\dot{\boldsymbol{p}}(s) &= \dot{\boldsymbol{p}}_0(t) + \dot{\boldsymbol{R}}(\alpha(t))\Big(\overline{p}(s) + \Delta\overline{p}(s, t)\Big) + \boldsymbol{R}(\alpha(t))\Delta\dot{\overline{p}}(s, t) \\
+&= \dot{\boldsymbol{p}}_0(t) + \dot{\alpha}(t)\boldsymbol{R}'(\alpha(t))\Big(\overline{p}(s) + \Delta\overline{p}(s, t)\Big) + \boldsymbol{R}(\alpha(t))\Delta\dot{\overline{p}}(s, t) \\
+\notag \\
+\boldsymbol{R}'(\alpha) &= \begin{bmatrix}
+-\sin(\alpha(t)) & -\cos(\alpha(t)) & 0 \\
+\cos(\alpha(t)) & -\sin(\alpha(t)) & 0 \\
+0 & 0 & 1
+\end{bmatrix} \\
+\notag \\
+\Delta\dot{\overline{p}}(s, t) &= \boldsymbol{E}_{p}(s)\boldsymbol{J}(\boldsymbol{u})\dot{\boldsymbol{u}}(t) \\
+\notag \\
+\dot{\alpha}(t) &= \frac{\partial\alpha}{\partial\boldsymbol{u}}^\intercal\,\dot{\boldsymbol{u}}(t) \\
+\frac{\partial\alpha}{\partial\boldsymbol{u}} &=
+\frac{1}{\Delta x^2 + \Delta y^2}
+\begin{bmatrix}
+\phantom{-}\Delta y \\
+-\Delta x \\
+0 \\
+-\Delta y \\
+\phantom{-}\Delta x \\
+0
+\end{bmatrix}
+\end{align}
+
+\newpage
+\subsection{Evaluation of Forces}
+
+Forces by balance: Never seen it anywhere else (literature) so it must be either stupid or genius.
+
+
+\newpage
+
+
+
+
+Our goal is to split this overall motion into a large rigid body motion and an elastic deformation, which can then be assumed to be small.
+In order to describe the rigid body motion we introduce the three coordinates $r_x(t)$, $r_y(t)$ and $\alpha(t)$, which are the translation and rotation angle of an imaginary frame of reference that moves along with the beam segment as shown in figure \textcolor{red}{TODO}.
+Since the original beam segment has six degrees of freedom, we have three remaining for describing the elastic deformation within the moving refernce frame.
+We chose the two angles $\Delta\beta_0(t)$, $\Delta\beta_1(t)$ and the elongation $\Delta d(t)$ along the $\overline{x}$ axis of the reference frame.
+
+First of all, the coordinates after application of an elastic deformations within the initial reference frame would be
+
+
+
+
+
+
+\newpage
+\subsection{Corotational Kinematics (most recent approach)}
+
+The six nodal coordinates $\boldsymbol{u}(t)$ of the beam segment contain informaqtion about the rigid body motion as well as the elastic deformation.
+Our goal is to split this overall motion into a large rigid body motion and an elastic deformation, which can then be assumed to be small.
+In order to describe the rigid body motion we introduce the three coordinates $r_x(t)$, $r_y(t)$ and $\alpha(t)$, which are the translation and rotation angle of an imaginary frame of reference that moves along with the beam segment as shown in figure \textcolor{red}{TODO}.
+Since the original beam segment has six degrees of freedom, we have three remaining for describing the elastic deformation within the moving refernce frame.
+We chose the two angles $\Delta\beta_0(t)$, $\Delta\beta_1(t)$ and the elongation $\Delta d(t)$ along the $\overline{x}$ axis of the reference frame.
+
+First of all, the coordinates after application of an elastic deformations within the initial reference frame would be
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\tilde{\boldsymbol{u}}(t)
+=
+\begin{bmatrix}
+x_0(t) \\
+y_0(t) \\
+\varphi_0(t) \\
+x_1(t) \\
+y_1(t) \\
+\varphi_1(t)
+\end{bmatrix}
+=
+\underbrace{
+\begin{bmatrix}
+x_0(0) \\
+y_0(0) \\
+\varphi_0(0) \\
+x_1(0) \\
+y_1(0) \\
+\varphi_1
+\end{bmatrix}
+}_{\boldsymbol{u}(0)}
++
+\underbrace{
+\begin{bmatrix}
+0 \\
+0 \\
+\Delta\beta_0(t) \\
+\Delta d(t) \cos(\alpha(0)) \\
+\Delta d(t) \sin(\alpha(0)) \\
+\Delta \beta_1(t)
+\end{bmatrix}
+}_{\Delta\boldsymbol{u}(t)}
+\end{equation}
+
+After applying the rigid body translation and rotation to this elastically deformed state, the total coordinates become
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\tilde{\boldsymbol{u}}(t)
+=
+\begin{bmatrix}
+x_0(t) \\
+y_0(t) \\
+\varphi_0(t) \\
+x_1(t) \\
+y_1(t) \\
+\varphi_1(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+r_x(t) \\
+r_y(t) \\
+\varphi_0(0) + \alpha(t) + \Delta\beta_0(t) \\
+r_x(t) + (d + \Delta d)\cos(\alpha(t)) \\
+r_y(t) + (d + \Delta d)\sin(\alpha(t)) \\
+\varphi_1(0) + \alpha(t) + \Delta\beta_1(t)
+\end{bmatrix}
+.
+\end{equation}
+
+The actual coordinates are supposed to be a combination of the elastic deformation, followed by the rigid body motion,
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\boldsymbol{u}(t) = \begin{bmatrix}
+x_0(t) \\
+y_0(t) \\
+\varphi_0(t) \\
+x_1(t) \\
+y_1(t) \\
+\varphi_1(t)
+\end{bmatrix}
+ = \begin{bmatrix}
+r_x(t) \\
+r_y(t) \\
+\varphi_0(0) + \alpha(t) \\
+r_x(t) + (d + \Delta d)\cos(\alpha(t)) \\
+r_y(t) + (d + \Delta d)\sin(\alpha(t)) \\
+\varphi_1(0) + \alpha(t)
+\end{bmatrix}.
+\end{equation}
+
+
+
+
+\newpage
+
+Using the newly introduced coordinates, the overall motion $\boldsymbol{u}(t)$ of the segment can be worked out, as well as the rigid body component $\tilde{\boldsymbol{u}}(t)$ by setting the elastic coordinates to zero,
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\boldsymbol{u}(t) = \begin{bmatrix}
+x_0(t) \\
+y_0(t) \\
+\varphi_0(t) \\
+x_1(t) \\
+y_1(t) \\
+\varphi_1(t)
+\end{bmatrix}
+ = \begin{bmatrix}
+r_x(t) \\
+r_y(t) \\
+\varphi_0(0) + \alpha(t) + \Delta\beta_0(t) \\
+x_0(t) + (d + \Delta d)\cos(\alpha(t)) \\
+y_0(t) + (d + \Delta d)\sin(\alpha(t)) \\
+\varphi_1(0) + \alpha(t) + \Delta\beta_1(t)
+\end{bmatrix},
+\quad
+\tilde{\boldsymbol{u}}(t) = \begin{bmatrix}
+r_x(t) \\
+r_y(t) \\
+\varphi_0(0) + \alpha(t) \\
+x_0(t) + d\cos(\alpha(t)) \\
+y_0(t) + d\sin(\alpha(t)) \\
+\varphi_1(0) + \alpha(t)
+\end{bmatrix}.
+\end{equation}
+
+The difference $\Delta\boldsymbol{u}(t) = \boldsymbol{u}(t) - \tilde{\boldsymbol{u}}(t)$ is the small elastic deformation that we wanted,
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\Delta\boldsymbol{u}(t) = \begin{bmatrix}
+0 \\
+0 \\
+\Delta\beta_0(t) \\
+\Delta d\cos(\alpha(t)) \\
+\Delta d\sin(\alpha(t)) \\
+\Delta\beta_1(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 & 0 & 0 \\
+0 & 0 & 0 \\
+0 & 1 & 0 \\
+\cos(\alpha(t)) & 0 & 0 \\
+\sin(\alpha(t) & 0 & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+\Delta d(t) \\
+\Delta \beta_0(t) \\
+\Delta \beta_1(t)
+\end{bmatrix}
+\end{equation}
+
+TODO: Write as multiplication with transformation matrix, then derive generalized forces
+
+\newpage
+
+Different approach: Rigid translation and rotation with relative angle and translations,
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\tilde{\boldsymbol{u}} = \begin{bmatrix}
+1 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 \\
+1-\cos(\alpha) & \sin(\alpha) & 0 & \cos(\alpha) & -\sin(\alpha) & 0 \\
+-\sin(\alpha) & 1-\cos(\alpha) & 0 & \sin(\alpha) & \cos(\alpha) & 0 \\
+0 & 0 & 0 & 0 & 0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+x_0 \\
+y_0 \\
+\varphi_0 \\
+x_1 \\
+y_1 \\
+\varphi_1
+\end{bmatrix}
++
+\begin{bmatrix}
+t_x \\
+t_y \\
+\alpha \\
+t_x \\
+t_y \\
+\alpha
+\end{bmatrix}
+\end{equation}
+
+Elastic deformations with respect to the initial reference frame
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\tilde{\boldsymbol{u}} = \begin{bmatrix}
+x_0 \\
+y_0 \\
+\varphi_0 \\
+x_1 \\
+y_1 \\
+\varphi_1
+\end{bmatrix}
++
+\begin{bmatrix}
+0 \\
+0 \\
+\Delta\beta_0 \\
+\Delta d \cos(\alpha) \\
+\Delta d \sin(\alpha) \\
+\Delta \beta_1
+\end{bmatrix}
+\end{equation}
+
+Total motion is a combination of an elastic deformation, followed by a rigid body motion:
+
+\begin{align}
+\begin{bmatrix}
+x_0(t) \\
+y_0(t) \\
+\varphi_0(t) \\
+x_1(t) \\
+y_1(t) \\
+\varphi_1(t)
+\end{bmatrix}
+&= \begin{bmatrix}
+1 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 \\
+1-\cos(\alpha) & \sin(\alpha) & 0 & \cos(\alpha) & -\sin(\alpha) & 0 \\
+-\sin(\alpha) & 1-\cos(\alpha) & 0 & \sin(\alpha) & \cos(\alpha) & 0 \\
+0 & 0 & 0 & 0 & 0 & 1
+\end{bmatrix}
+\left(
+\begin{bmatrix}
+x_0(0) \\
+y_0(0) \\
+\varphi_0(0) \\
+x_1(0) \\
+y_1(0) \\
+\varphi_1(0)
+\end{bmatrix}
++
+\begin{bmatrix}
+0 \\
+0 \\
+\Delta\beta_0 \\
+\Delta d \cos(\alpha) \\
+\Delta d \sin(\alpha) \\
+\Delta \beta_1
+\end{bmatrix}
+\right)
++
+\begin{bmatrix}
+t_x \\
+t_y \\
+\alpha \\
+t_x \\
+t_y \\
+\alpha
+\end{bmatrix} \notag \\
+&= \begin{bmatrix}
+x_0(0) + t_x(t) \\
+y_0(0) + t_y(t) \\
+\varphi_0(0) + \Delta\beta_0(t) + \alpha(t)
+\end{bmatrix}
+\end{align}
+
+\newpage
+\subsubsection*{THIS TIME REALLY (ABSOLUTE)}
+
+This time really.
+First transformation: Rotation of the segment around its left node, starting from the initial angle $\alpha(0)$ up to an absolute angle of $\alpha(t)$.
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\begin{bmatrix}
+x_0(t) \\
+y_0(t) \\
+\varphi_0(t) \\
+x_1(t) \\
+y_1(t) \\
+\varphi_1(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+x_0(0) \\
+y_0(0) \\
+\varphi_0(0) + \alpha(t) - \alpha(0) \\
+x_0(0) + \left(x_1(0) - x_0(0)\right)\cos\left(\alpha(t) - \alpha(0)\right) - \left(y_1(0) - y_0(0)\right)\sin\left(\alpha(t) - \alpha(0)\right) \\
+y_0(0) + \left(x_1(0) - x_0(0)\right)\sin\left(\alpha(t) - \alpha(0)\right) + \left(y_1(0) - y_0(0)\right)\cos\left(\alpha(t) - \alpha(0)\right) \\
+\varphi_1(0) + \alpha(t) - \alpha(0) \\
+\end{bmatrix}
+\end{equation}
+
+Second transformation: Translation of the segment by its left node, starting from an initial position of $r_x(0)$, $r_y(0)$ up to $r_x(t)$, $r_y(t)$:
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\begin{bmatrix}
+x_0(t) \\
+y_0(t) \\
+\varphi_0(t) \\
+x_1(t) \\
+y_1(t) \\
+\varphi_1(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+x_0(0) \\
+y_0(0) \\
+\varphi_0(0) \\
+x_1(0) \\
+y_1(0) \\
+\varphi_1(0)
+\end{bmatrix}
++
+\begin{bmatrix}
+r_x(t) - r_x(0) \\
+r_y(t) - r_y(0) \\
+0 \\
+r_x(t) - r_x(0) \\
+r_y(t) - r_y(0) \\
+0
+\end{bmatrix}
+\end{equation}
+
+Elastic deformations with respect to the initial reference frame
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\begin{bmatrix}
+x_0(t) \\
+y_0(t) \\
+\varphi_0(t) \\
+x_1(t) \\
+y_1(t) \\
+\varphi_1(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+x_0(0) \\
+y_0(0) \\
+\varphi_0(0) \\
+x_1(0) \\
+y_1(0) \\
+\varphi_1(0)
+\end{bmatrix}
++
+\begin{bmatrix}
+0 \\
+0 \\
+\Delta\beta_0(t) \\
+\Delta d(t) \cos(\alpha(0)) \\
+\Delta d(t) \sin(\alpha(0)) \\
+\Delta \beta_1(t)
+\end{bmatrix}
+\end{equation}
+
+\newpage
+
+Rigid body motion (rotation + translation) in matrix notation:
+% Visually verified by python script corotational.py
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\begin{bmatrix}
+x_0(t) \\
+y_0(t) \\
+\varphi_0(t) \\
+x_1(t) \\
+y_1(t) \\
+\varphi_1(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+1 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 \\
+1 - \cos(\Delta\alpha(t)) & \sin(\Delta\alpha(t)) & 0 & \cos(\Delta\alpha(t)) & -\sin(\Delta\alpha(t)) & 0 \\
+-\sin(\Delta\alpha(t)) & 1 - \cos(\Delta\alpha(t)) & 0 & \sin(\Delta\alpha(t)) & \cos(\Delta\alpha(t)) & 0 \\
+0 & 0 & 0 & 0 & 0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+x_0(0) \\
+y_0(0) \\
+\varphi_0(0) \\
+x_1(0) \\
+y_1(0) \\
+\varphi_1(0)
+\end{bmatrix}
++
+\begin{bmatrix}
+\Delta x(t) \\
+\Delta y(t) \\
+\Delta \alpha(t) \\
+\Delta x(t) \\
+\Delta y(t) \\
+\Delta \alpha(t)
+\end{bmatrix}
+\end{equation}
+
+Inverse matrix:
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\boldsymbol{A}^{-1}
+=
+\begin{bmatrix}
+1 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 \\
+1 - \cos(\Delta\alpha(t)) & -\sin(\Delta\alpha(t)) & 0 & \cos(\Delta\alpha(t)) & \sin(\Delta\alpha(t)) & 0 \\
+\sin(\Delta\alpha(t)) & 1 - \cos(\Delta\alpha(t)) & 0 & -\sin(\Delta\alpha(t)) & \cos(\Delta\alpha(t)) & 0 \\
+0 & 0 & 0 & 0 & 0 & 1
+\end{bmatrix}
+\end{equation}
+
+Small displacements when rigid motion is known:
+
+\begin{equation}
+\begin{bmatrix}
+1 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 \\
+1 - \cos(\Delta\alpha(t)) & -\sin(\Delta\alpha(t)) & 0 & \cos(\Delta\alpha(t)) & \sin(\Delta\alpha(t)) & 0 \\
+\sin(\Delta\alpha(t)) & 1 - \cos(\Delta\alpha(t)) & 0 & -\sin(\Delta\alpha(t)) & \cos(\Delta\alpha(t)) & 0 \\
+0 & 0 & 0 & 0 & 0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+x_0(t) - \Delta x(t) \\
+y_0(t) - \Delta y(t) \\
+\varphi_0(t) - \Delta \alpha(t) \\
+x_1(t) - \Delta x(t) \\
+y_1(t) - \Delta y(t) \\
+\varphi_1(t) - \Delta \alpha(t)
+\end{bmatrix}
+-
+\begin{bmatrix}
+x_0(0) \\
+y_0(0) \\
+\varphi_0(0) \\
+x_1(0) \\
+y_1(0) \\
+\varphi_1(0)
+\end{bmatrix}
+\end{equation}
+
+
+
+
+\newpage
+\subsubsection*{THIS TIME REALLY (RELATIVE)}
+
+
+This time really.
+First transformation: Rotation of the segment around its left node with relative angle $\Delta\alpha$.
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\begin{bmatrix}
+x_0(t) \\
+y_0(t) \\
+\varphi_0(t) \\
+x_1(t) \\
+y_1(t) \\
+\varphi_1(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+x_0(0) \\
+y_0(0) \\
+\varphi_0(0) + \Delta\alpha(t) \\
+x_0(0) + \left(x_1(0) - x_0(0)\right)\cos\left(\Delta\alpha(t)\right) - \left(y_1(0) - y_0(0)\right)\sin\left(\Delta\alpha(t)\right) \\
+y_0(0) + \left(x_1(0) - x_0(0)\right)\sin\left(\Delta\alpha(t)\right) + \left(y_1(0) - y_0(0)\right)\cos\left(\Delta\alpha(t)\right) \\
+\varphi_1(0) + \Delta\alpha(t) \\
+\end{bmatrix}
+\end{equation}
+
+Second transformation: Translation of the segment by its left node with $\Delta r_x(t)$, $\Delta r_y(t)$:
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\begin{bmatrix}
+x_0(t) \\
+y_0(t) \\
+\varphi_0(t) \\
+x_1(t) \\
+y_1(t) \\
+\varphi_1(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+x_0(0) \\
+y_0(0) \\
+\varphi_0(0) \\
+x_1(0) \\
+y_1(0) \\
+\varphi_1(0)
+\end{bmatrix}
++
+\begin{bmatrix}
+\Delta r_x(t) \\
+\Delta r_y(t) \\
+0 \\
+\Delta r_x(t) \\
+\Delta r_y(t) \\
+0
+\end{bmatrix}
+\end{equation}
+
+Elastic deformations with respect to the initial reference frame
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\begin{bmatrix}
+x_0(t) \\
+y_0(t) \\
+\varphi_0(t) \\
+x_1(t) \\
+y_1(t) \\
+\varphi_1(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+x_0(0) \\
+y_0(0) \\
+\varphi_0(0) \\
+x_1(0) \\
+y_1(0) \\
+\varphi_1(0)
+\end{bmatrix}
++
+\begin{bmatrix}
+0 \\
+0 \\
+\Delta\beta_0(t) \\
+\Delta d(t) \cos(\alpha(0)) \\
+\Delta d(t) \sin(\alpha(0)) \\
+\Delta \beta_1(t)
+\end{bmatrix}
+\end{equation}
+
+\newpage
+
+Combination of elastic deformation, followed by a rigid body motion:
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\begin{bmatrix}
+x_0(t) \\
+y_0(t) \\
+\varphi_0(t) \\
+x_1(t) \\
+y_1(t) \\
+\varphi_1(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+x_0(0) + \Delta r_x(t) \\
+y_0(0) + \Delta r_y(t) \\
+\varphi_0(0) + \Delta\alpha(t) + \Delta\beta_0(t) \\
+x_0(0) + \left(x_1(0) - x_0(0)\right)\cos\left(\Delta\alpha(t)\right) - \left(y_1(0) - y_0(0)\right)\sin\left(\Delta\alpha(t)\right) + \Delta r_x(t)\\
+y_0(0) + \left(x_1(0) - x_0(0)\right)\sin\left(\Delta\alpha(t)\right) + \left(y_1(0) - y_0(0)\right)\cos\left(\Delta\alpha(t)\right) + \Delta r_y(t)\\
+\varphi_1(0) + \Delta\alpha(t) + \Delta\beta_1(t) \\
+\end{bmatrix}
+\end{equation}
+
 
 \newpage
 \subsection{Local Frame of Reference}

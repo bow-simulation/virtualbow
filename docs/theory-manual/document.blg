@@ -3,48 +3,47 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: document.aux
 The style file: plain.bst
 Database file #1: references.bib
-Warning--I didn't find a database entry for "bib:curved-beam-stiffness-matrix"
 Warning--I didn't find a database entry for "bib:wiki-sandwich"
 Warning--I didn't find a database entry for "fem_script_uni_bochum"
-You've used 19 entries,
+You've used 20 entries,
             2118 wiz_defined-function locations,
-            620 strings with 6717 characters,
-and the built_in function-call counts, 5638 in all, are:
-= -- 545
-> -- 245
+            626 strings with 6925 characters,
+and the built_in function-call counts, 5947 in all, are:
+= -- 577
+> -- 258
 < -- 0
-+ -- 102
-- -- 78
-* -- 404
-:= -- 976
-add.period$ -- 59
-call.type$ -- 19
-change.case$ -- 96
++ -- 107
+- -- 82
+* -- 424
+:= -- 1030
+add.period$ -- 63
+call.type$ -- 20
+change.case$ -- 101
 chr.to.int$ -- 0
-cite$ -- 19
-duplicate$ -- 198
-empty$ -- 460
-format.name$ -- 78
-if$ -- 1166
+cite$ -- 20
+duplicate$ -- 209
+empty$ -- 484
+format.name$ -- 82
+if$ -- 1231
 int.to.chr$ -- 0
-int.to.str$ -- 19
-missing$ -- 18
-newline$ -- 100
-num.names$ -- 38
-pop$ -- 84
+int.to.str$ -- 20
+missing$ -- 19
+newline$ -- 106
+num.names$ -- 40
+pop$ -- 86
 preamble$ -- 1
-purify$ -- 77
+purify$ -- 81
 quote$ -- 0
-skip$ -- 135
+skip$ -- 143
 stack$ -- 0
-substring$ -- 349
-swap$ -- 18
+substring$ -- 369
+swap$ -- 19
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 72
+type$ -- 76
 warning$ -- 0
-while$ -- 50
-width$ -- 21
-write$ -- 211
-(There were 3 warnings)
+while$ -- 53
+width$ -- 22
+write$ -- 224
+(There were 2 warnings)
