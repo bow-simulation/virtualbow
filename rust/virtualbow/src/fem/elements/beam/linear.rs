@@ -14,7 +14,8 @@ pub struct LinearBeamSegment {
     pub p1: SVector<f64, 3>,            // Ending point (x, y, φ)
     pub pe: Vec<SVector<f64, 3>>,       // Eval points (x, y, φ)
 
-    pub ue: Vec<SMatrix<f64, 3, 6>>,
+    pub Ep: Vec<SMatrix<f64, 3, 6>>,    // Evaluation of displacements (x, y, phi)
+    pub Ef: Vec<SMatrix<f64, 3, 6>>,    // Evaluation of section forces (N, M, Q)
     pub Ci: Vec<SMatrix<f64, 3, 3>>,
 
     pub K: SMatrix<f64, 6, 6>,              // Stiffness matrix
@@ -104,8 +105,15 @@ impl LinearBeamSegment {
 
         // Evaluation matrices
 
-        let ue = se.iter().enumerate().map(|(i, _)| {
+        let Ep = se.iter().enumerate().map(|(i, _)| {
             stack![K0n_inv[i]*K00, K1n_inv[i]*K11]
+        }).collect();
+
+        let Ef = se.iter().enumerate().map(|(i, &s)| {
+            let H0 = H(s, s0);
+            let H1 = H(s, s1);
+            //stack![H1*K10 - H0*K00, H1*K11 - H0*K01]
+            stack![H1*K10, H1*K11]
         }).collect();
 
         let Ci = se.iter().map(|&s| {
@@ -149,7 +157,8 @@ impl LinearBeamSegment {
             p0,
             p1,
             pe,
-            ue,
+            Ep,
+            Ef,
             Ci,
             K,
             M,
@@ -198,7 +207,7 @@ mod tests {
 
         // Check displacement evaluation matrices
         for i in 0..=n_elements {
-            assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.ue[i], epsilon=1e-6);
+            assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.Ep[i], epsilon=1e-6);
         }
     }
 
@@ -224,7 +233,7 @@ mod tests {
 
         // Check displacement evaluation matrices
         for i in 0..=n_elements {
-            assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.ue[i], epsilon=1e-3);    // TODO: Precision?
+            assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.Ep[i], epsilon=1e-3);    // TODO: Precision?
         }
     }
 
@@ -250,7 +259,7 @@ mod tests {
 
         // Check displacement evaluation matrices
         for i in 0..=n_elements {
-            assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.ue[i], epsilon=1e-3);    // TODO: Precision?
+            assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.Ep[i], epsilon=1e-3);    // TODO: Precision?
         }
     }
 
