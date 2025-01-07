@@ -9,6 +9,15 @@ pub fn discrete_maximum_1d(values: &Vec<f64>) -> (f64, usize) {
         .expect("Failed to find maximum")
 }
 
+// Finds and returns the minimum value in a vector of floats as well as the index at which it occurs.
+pub fn discrete_minimum_1d(values: &Vec<f64>) -> (f64, usize) {
+    values.iter()
+        .enumerate()
+        .map(|(i, v)| (*v, i))
+        .min_by(|(a, _), (b, _)| a.partial_cmp(b).expect("Failed to compare floating point values"))
+        .expect("Failed to find minimum")
+}
+
 // Finds the maximum of a function of integers by comparing all possible input combinations
 pub fn discrete_maximum_nd<F, const N: usize>(f: &mut F, size: [usize; N]) -> (f64, [usize; N])
     where F: FnMut(&[usize; N]) -> f64
@@ -48,6 +57,25 @@ pub fn discrete_minimum_nd<F, const N: usize>(f: &mut F, size: [usize; N]) -> (f
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_discrete_minimum_1d() {
+        // Panic on empty input
+        let result = std::panic::catch_unwind(|| discrete_minimum_1d(&vec![]));
+        assert!(result.is_err());
+
+        // Panic on non-finite input
+        let result = std::panic::catch_unwind(|| discrete_minimum_1d(&vec![f64::NAN, f64::NAN]));
+        assert!(result.is_err());
+
+        // Minimum of vector with single element
+        let result = discrete_minimum_1d(&vec![0.0]);
+        assert_eq!(result, (0.0, 0));
+
+        // Minimum of vector with multiple elements
+        let result = discrete_minimum_1d(&vec![-1.0, 1.0, -2.0]);
+        assert_eq!(result, (-2.0, 2));
+    }
 
     #[test]
     fn test_discrete_maximum_1d() {

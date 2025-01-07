@@ -164,14 +164,16 @@ DynamicOutputWidget::DynamicOutputWidget(const OutputData& data)
     : tabs(new QTabWidget())
 {
     auto numbers = new NumberGrid();
-    numbers->addColumn();
-    numbers->addGroup("Performance");
-    numbers->addValue("Final arrow velocity", data.dynamics->final_arrow_vel, Quantities::velocity);
-    numbers->addValue("Degree of efficiency", data.dynamics->energy_efficiency, Quantities::ratio);
-    numbers->addGroup("Energy at arrow departure");
-    numbers->addValue("Kinetic energy arrow", data.dynamics->final_e_kin_arrow, Quantities::energy);
-    numbers->addValue("Kinetic energy limbs", data.dynamics->final_e_kin_limbs, Quantities::energy);
-    numbers->addValue("Kinetic energy string", data.dynamics->final_e_kin_string, Quantities::energy);
+    if(data.dynamics->arrow_departure.has_value()) {
+        numbers->addColumn();
+        numbers->addGroup("Performance");
+        numbers->addValue("Final arrow velocity", data.dynamics->arrow_departure->arrow_vel, Quantities::velocity);
+        numbers->addValue("Degree of efficiency", data.dynamics->arrow_departure->energy_efficiency, Quantities::ratio);
+        numbers->addGroup("Energy at arrow departure");
+        numbers->addValue("Kinetic energy arrow", data.dynamics->arrow_departure->e_kin_arrow, Quantities::energy);
+        numbers->addValue("Kinetic energy limbs", data.dynamics->arrow_departure->e_kin_limbs, Quantities::energy);
+        numbers->addValue("Kinetic energy string", data.dynamics->arrow_departure->e_kin_string, Quantities::energy);
+    }
 
     numbers->addColumn();
     numbers->addGroup("Minimum stress by layer");
@@ -184,8 +186,9 @@ DynamicOutputWidget::DynamicOutputWidget(const OutputData& data)
     }
 
     numbers->addColumn();
-    numbers->addGroup("Maximum absolute forces");
-    numbers->addValue("Grip force", std::get<0>(data.dynamics->max_grip_force), Quantities::force);
+    numbers->addGroup("Maximum forces");
+    numbers->addValue("Grip push force", std::get<0>(data.dynamics->max_grip_force), Quantities::force);
+    numbers->addValue("Grip pull force", std::get<0>(data.dynamics->min_grip_force), Quantities::force);
     numbers->addValue("String force (total)", std::get<0>(data.dynamics->max_string_force), Quantities::force);
     numbers->addValue("String force (strand)", std::get<0>(data.dynamics->max_strand_force),  Quantities::force);
 
@@ -216,12 +219,15 @@ DynamicOutputWidget::DynamicOutputWidget(const OutputData& data)
     tabs->addTab(plot_combo, "Other Plots");
 
     auto slider = new Slider(data.dynamics->states.time, "Time", Quantities::time);
-    //slider->addJumpAction("Arrow departure", data.dynamics.arrow_departure_index);
-    //slider->addJumpAction("Max. grip force", data.dynamics.max_grip_force_index);
-    //slider->addJumpAction("Max. string force", data.dynamics.max_string_force_index);
-    //for (size_t i = 0; i < data.dynamics.max_stress_index.size(); ++i) {
-    //    slider->addJumpAction(QString::fromStdString("Max. stress for layer: " + data.setup.limb_properties.layers[i].name), data.dynamics.max_stress_index[i].first);
-    //}
+    if(data.dynamics->arrow_departure.has_value()) {
+        slider->addJumpAction("Arrow departure", data.dynamics->arrow_departure->state_idx);
+    }
+    slider->addJumpAction("Max. grip force (push)", std::get<1>(data.dynamics->max_grip_force));
+    slider->addJumpAction("Min. grip force (pull)", std::get<1>(data.dynamics->min_grip_force));
+    slider->addJumpAction("Max. string force", std::get<1>(data.dynamics->max_string_force));
+    for (size_t i = 0; i < data.dynamics->max_layer_stresses.size(); ++i) {
+        slider->addJumpAction(QString::fromStdString("Max. stress for layer: " + data.common.layers[i].name), std::get<0>(data.dynamics->max_layer_stresses[i]));
+    }
 
     QObject::connect(slider, &Slider::indexChanged, plot_shapes, &ShapePlot::setStateIndex);
     QObject::connect(slider, &Slider::indexChanged, plot_stress, &StressPlot::setStateIndex);

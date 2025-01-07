@@ -10,14 +10,14 @@ use crate::fem::system::system::{DynamicEval, StaticEval, System};
 use crate::bow::errors::ModelError;
 use crate::bow::geometry::{DiscreteLimbGeometry, LimbGeometry};
 use crate::bow::input::BowInput;
-use crate::bow::output::{Dynamics, LayerInfo, LimbInfo, BowOutput, Common, State, StateVec, Statics};
+use crate::bow::output::{Dynamics, LayerInfo, LimbInfo, BowOutput, Common, State, StateVec, Statics, ArrowDeparture};
 use crate::fem::elements::beam::beam::BeamElement;
 use crate::fem::elements::mass::MassElement;
 use crate::fem::elements::string::StringElement;
 use crate::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
 use crate::numerics::newton;
 use crate::numerics::root_finding::find_root_falsi;
-use crate::utils::minmax::{discrete_maximum_1d, discrete_maximum_nd, discrete_minimum_nd};
+use crate::utils::minmax::{discrete_maximum_1d, discrete_maximum_nd, discrete_minimum_1d, discrete_minimum_nd};
 
 #[derive(ValueEnum, PartialEq, Debug, Copy, Clone)]
 pub enum SimulationMode {
@@ -46,8 +46,8 @@ pub struct Simulation<'a> {
     mass_element_string_tip: usize,       // Mass element at the end of the string
 
     // None if the arrow is still attached to the string
-    // Otherwise the time, position and velocity at separation from the string
-    arrow_separation: Option<(f64, f64, f64)>,
+    // Otherwise the state index, time, position and velocity at separation from the string
+    arrow_departure: Option<(usize, f64, f64, f64)>,
 }
 
 impl<'a> Simulation<'a> {
@@ -228,7 +228,7 @@ impl<'a> Simulation<'a> {
             mass_element_string_center,
             mass_element_string_tip,
             mass_element_limb_tip,
-            arrow_separation: None,
+            arrow_departure: None,
         };
 
         let common = Common {
@@ -282,34 +282,40 @@ impl<'a> Simulation<'a> {
 
             let max_string_force = discrete_maximum_1d(&states.string_force);
             let max_strand_force = (max_string_force.0/(model.string.n_strands as f64), max_string_force.1);
-            let max_grip_force = discrete_maximum_1d(&states.grip_force);
             let max_draw_force = discrete_maximum_1d(&states.draw_force);
+            let min_grip_force = discrete_minimum_1d(&states.grip_force);
+            let max_grip_force = discrete_maximum_1d(&states.grip_force);
 
             let min_layer_stresses = (0..model.layers.len()).map(|i_layer| find_min_layer_result(&states.layer_stress, i_layer)).collect();
             let max_layer_stresses = (0..model.layers.len()).map(|i_layer| find_max_layer_result(&states.layer_stress, i_layer)).collect();
 
             // Collect static outputs
-            Some(Statics {
+            Statics {
                 states,
                 final_draw_force,
                 final_drawing_work,
                 storage_factor,
                 max_string_force,
                 max_strand_force,
-                max_grip_force,
                 max_draw_force,
+                min_grip_force,
+                max_grip_force,
                 min_layer_stresses,
                 max_layer_stresses,
-            })
+            }
         };
 
         // Perform dynamic simulation, if required
         let dynamics = {
             if mode == SimulationMode::Dynamic {
                 // Estimate timeout after which to abort the simulation
-                let k_bow = statics.as_ref().unwrap().final_draw_force/(model.dimensions.draw_length - model.dimensions.brace_height);
+                let k_bow = statics.final_draw_force/(model.dimensions.draw_length - model.dimensions.brace_height);
                 let t_max = model.settings.timeout_factor*FRAC_PI_2*f64::sqrt(model.masses.arrow/k_bow);
-                let step = TimeStepping::Adaptive{ min_timestep: model.settings.min_timestep, max_timestep: model.settings.max_timestep, steps_per_period: model.settings.steps_per_period };
+                let step = TimeStepping::Adaptive{
+                    min_timestep: model.settings.min_timestep,
+                    max_timestep: model.settings.max_timestep,
+                    steps_per_period: model.settings.steps_per_period
+                };
 
                 let settings = DynamicSolverSettings { time_stepping: step, max_time: t_max, ..Default::default() };
                 let mut states = StateVec::new();
@@ -359,7 +365,7 @@ impl<'a> Simulation<'a> {
 
                 // Record arrow state at the time of separation from the string
                 let state = states.iter().last().unwrap();
-                simulation.arrow_separation = Some((*state.time, *state.arrow_pos, *state.arrow_vel));
+                simulation.arrow_departure = Some((states.len() - 1, *state.time, *state.arrow_pos, *state.arrow_vel));
 
                 // Simulate the second part of the shot after arrow separation
                 // The end time is the time until arrow separation multiplied by the time span factor
@@ -383,22 +389,42 @@ impl<'a> Simulation<'a> {
                     return callback("dynamics", 100.0*progress);
                 }).map_err(|e| ModelError::SimulationDynamicSolutionFailed(e))?;
 
+                // Compute additional dynamic output values
+
+                let arrow_departure = simulation.arrow_departure.map(|(index, _, _, _)| {
+                    ArrowDeparture {
+                        state_idx: index,
+                        arrow_pos: states.arrow_pos[index],
+                        arrow_vel: states.arrow_vel[index],
+                        e_kin_arrow: states.e_kin_arrow[index],
+                        e_pot_limbs: states.e_pot_limbs[index],
+                        e_kin_limbs: states.e_kin_limbs[index],
+                        e_pot_string: states.e_pot_string[index],
+                        e_kin_string: states.e_kin_string[index],
+                        energy_efficiency: states.e_kin_arrow[index]/statics.final_drawing_work,
+                    }
+                });
+
+                let max_string_force = discrete_maximum_1d(&states.string_force);
+                let max_strand_force = (max_string_force.0/(model.string.n_strands as f64), max_string_force.1);
+                let max_draw_force = discrete_maximum_1d(&states.draw_force);
+                let min_grip_force = discrete_minimum_1d(&states.grip_force);
+                let max_grip_force = discrete_maximum_1d(&states.grip_force);
+
+                let min_layer_stresses = (0..model.layers.len()).map(|i_layer| find_min_layer_result(&states.layer_stress, i_layer)).collect();
+                let max_layer_stresses = (0..model.layers.len()).map(|i_layer| find_max_layer_result(&states.layer_stress, i_layer)).collect();
+
+                // Collect dynamic outputs
                 Some(Dynamics {
                     states,
-                    final_arrow_pos: 0.0,
-                    final_arrow_vel: 0.0,
-                    final_e_kin_arrow: 0.0,
-                    final_e_pot_limbs: 0.0,
-                    final_e_kin_limbs: 0.0,
-                    final_e_pot_string: 0.0,
-                    final_e_kin_string: 0.0,
-                    energy_efficiency: 0.0,
-                    max_string_force: (0.0, 0),
-                    max_strand_force: (0.0, 0),
-                    max_grip_force: (0.0, 0),
-                    max_draw_force: (0.0, 0),
-                    min_layer_stresses: vec![(0.0, [0; 3]); model.layers.len()],
-                    max_layer_stresses: vec![(0.0, [0; 3]); model.layers.len()],
+                    arrow_departure,
+                    max_string_force,
+                    max_strand_force,
+                    max_draw_force,
+                    min_grip_force,
+                    max_grip_force,
+                    min_layer_stresses,
+                    max_layer_stresses,
                 })
             }
             else {
@@ -408,7 +434,7 @@ impl<'a> Simulation<'a> {
 
         Ok(BowOutput {
             common,
-            statics,
+            statics: Some(statics),
             dynamics,
         })
     }
@@ -466,7 +492,7 @@ impl<'a> Simulation<'a> {
         // The evaluation of the arrow position, velocity and acceleration depends on whether the arrow has separated from the string.
         // If the arrow is still attached, the data of the node at the string center is used.
         // If the arrow is separated, its motion is calculated from the velocity at separation.
-        let (arrow_acc, arrow_vel, arrow_pos) = if let Some((t0, s0, v0)) = self.arrow_separation {
+        let (arrow_acc, arrow_vel, arrow_pos) = if let Some((_, t0, s0, v0)) = self.arrow_departure {
             (
                 0.0,                   // Acceleration is zero since no forces act on the arrow anymore
                 v0,                    // Velocity is constant since acceleration is zero
