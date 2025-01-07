@@ -66,6 +66,7 @@ impl BowOutput {
     }
 }
 
+// TODO: Can/should this be derived instead?
 impl Default for BowOutput {
     fn default() -> Self {
         Self {
@@ -96,8 +97,9 @@ pub struct Statics {
 
     pub max_string_force: (f64, usize),    // (value, state)
     pub max_strand_force: (f64, usize),    // (value, state)
-    pub max_grip_force: (f64, usize),      // (value, state)
     pub max_draw_force: (f64, usize),      // (value, state)
+    pub min_grip_force: (f64, usize),      // (value, state)
+    pub max_grip_force: (f64, usize),      // (value, state)
 
     pub min_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
     pub max_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
@@ -107,23 +109,37 @@ pub struct Statics {
 pub struct Dynamics {
     pub states: StateVec,
 
-    pub final_arrow_pos: f64,
-    pub final_arrow_vel: f64,
-
-    pub final_e_kin_arrow: f64,
-    pub final_e_pot_limbs: f64,
-    pub final_e_kin_limbs: f64,
-    pub final_e_pot_string: f64,
-    pub final_e_kin_string: f64,
-    pub energy_efficiency: f64,
+    pub arrow_departure: Option<ArrowDeparture>,
 
     pub max_string_force: (f64, usize),    // (value, state)
     pub max_strand_force: (f64, usize),    // (value, state)
-    pub max_grip_force: (f64, usize),      // (value, state)
     pub max_draw_force: (f64, usize),      // (value, state)
+    pub min_grip_force: (f64, usize),      // (value, state)
+    pub max_grip_force: (f64, usize),      // (value, state)
 
     pub min_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
     pub max_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
+}
+
+// Data that is available only if the arrow has separated from the string during the dynamic analysis
+#[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
+pub struct ArrowDeparture {
+    // Index of the state at which the arrow separated
+    pub state_idx: usize,
+
+    // Position and velocity of the arrow at separation
+    pub arrow_pos: f64,
+    pub arrow_vel: f64,
+
+    // Energies of the components at separation
+    pub e_kin_arrow: f64,
+    pub e_pot_limbs: f64,
+    pub e_kin_limbs: f64,
+    pub e_pot_string: f64,
+    pub e_kin_string: f64,
+
+    // Degree of efficiency
+    pub energy_efficiency: f64,
 }
 
 #[derive(StructOfArray, Serialize, Deserialize, PartialEq, Debug)]

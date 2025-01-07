@@ -55,11 +55,9 @@ struct States {
 
     std::vector<std::vector<std::array<double, 3>>> limb_pos;
     std::vector<std::vector<std::array<double, 3>>> limb_vel;
-    std::vector<std::vector<std::array<double, 3>>> limb_acc;
 
     std::vector<std::vector<std::array<double, 2>>> string_pos;
     std::vector<std::vector<std::array<double, 2>>> string_vel;
-    std::vector<std::vector<std::array<double, 2>>> string_acc;
 
     std::vector<std::vector<std::array<double, 3>>> limb_strain;
     std::vector<std::vector<std::array<double, 3>>> limb_force;
@@ -89,10 +87,8 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     draw_length,
     limb_pos,
     limb_vel,
-    limb_acc,
     string_pos,
     string_vel,
-    string_acc,
     limb_strain,
     limb_force,
     layer_strain,
@@ -120,11 +116,12 @@ struct Statics {
 
     std::tuple<double, unsigned> max_string_force;
     std::tuple<double, unsigned> max_strand_force;
-    std::tuple<double, unsigned> max_grip_force;
     std::tuple<double, unsigned> max_draw_force;
+    std::tuple<double, unsigned> min_grip_force;
+    std::tuple<double, unsigned> max_grip_force;
 
-    std::vector<std::tuple<double, unsigned, unsigned>> min_layer_stresses;
-    std::vector<std::tuple<double, unsigned, unsigned>> max_layer_stresses;
+    std::vector<std::tuple<double, std::array<unsigned, 3>>> min_layer_stresses;
+    std::vector<std::tuple<double, std::array<unsigned, 3>>> max_layer_stresses;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
@@ -135,49 +132,62 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     storage_factor,
     max_string_force,
     max_strand_force,
-    max_grip_force,
     max_draw_force,
+    min_grip_force,
+    max_grip_force,
     min_layer_stresses,
     max_layer_stresses
+)
+
+struct ArrowDeparture {
+    size_t state_idx;
+    double arrow_pos;
+    double arrow_vel;
+    double e_kin_arrow;
+    double e_pot_limbs;
+    double e_kin_limbs;
+    double e_pot_string;
+    double e_kin_string;
+    double energy_efficiency;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    ArrowDeparture,
+    state_idx,
+    arrow_pos,
+    arrow_vel,
+    e_kin_arrow,
+    e_pot_limbs,
+    e_kin_limbs,
+    e_pot_string,
+    e_kin_string,
+    energy_efficiency
 )
 
 struct Dynamics {
     States states;
 
-    double final_arrow_pos;
-    double final_arrow_vel;
-
-    double final_e_kin_arrow;
-    double final_e_pot_limbs;
-    double final_e_kin_limbs;
-    double final_e_pot_string;
-    double final_e_kin_string;
-    double energy_efficiency;
+    std::optional<ArrowDeparture> arrow_departure;
 
     std::tuple<double, unsigned> max_string_force;
     std::tuple<double, unsigned> max_strand_force;
-    std::tuple<double, unsigned> max_grip_force;
     std::tuple<double, unsigned> max_draw_force;
+    std::tuple<double, unsigned> min_grip_force;
+    std::tuple<double, unsigned> max_grip_force;
 
-    std::vector<std::tuple<double, unsigned, unsigned>> min_layer_stresses;
-    std::vector<std::tuple<double, unsigned, unsigned>> max_layer_stresses;
+    std::vector<std::tuple<double, std::array<unsigned, 3>>> min_layer_stresses;
+    std::vector<std::tuple<double, std::array<unsigned, 3>>> max_layer_stresses;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     Dynamics,
     states,
-    final_arrow_pos,
-    final_arrow_vel,
-    final_e_kin_arrow,
-    final_e_pot_limbs,
-    final_e_kin_limbs,
-    final_e_pot_string,
-    final_e_kin_string,
-    energy_efficiency,
+    arrow_departure,
     max_string_force,
     max_strand_force,
-    max_grip_force,
     max_draw_force,
+    min_grip_force,
+    max_grip_force,
     min_layer_stresses,
     max_layer_stresses
 )

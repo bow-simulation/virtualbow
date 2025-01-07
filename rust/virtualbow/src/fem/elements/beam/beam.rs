@@ -183,12 +183,6 @@ impl BeamElement {
         let dy = self.u[4] - self.u[1];
         let a0 = f64::atan2(dy, dx);
 
-        let p0 = vector![
-            self.u[0],
-            self.u[1],
-            a0
-        ];
-
         let R = matrix![
             f64::cos(a0), -f64::sin(a0), 0.0;
             f64::sin(a0), f64::cos(a0), 0.0;
