@@ -18,6 +18,8 @@ jobs:
     defaults:
       run:
         shell: cmd
+    env:
+      RUSTFLAGS: -D warnings    # Make Rust compiler fail on warnings
     steps:
       - uses: actions/checkout@v4
         with:
@@ -54,6 +56,8 @@ jobs:
   build-linux:
     runs-on: ubuntu-20.04
     timeout-minutes: 30
+    env:
+      RUSTFLAGS: -D warnings    # Make Rust compiler fail on warnings
     steps:
       - uses: actions/checkout@v4
         with:
@@ -91,6 +95,8 @@ jobs:
   build-macos:
     runs-on: macos-13
     timeout-minutes: 30
+    env:
+      RUSTFLAGS: -D warnings    # Make Rust compiler fail on warnings
     steps:
       - uses: actions/checkout@v4
         with:
