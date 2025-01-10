@@ -30,6 +30,7 @@ impl Plotter {
         self.data_mut(name, x_label, y_label).add_point(point, point_ref);
     }
 
+    #[allow(dead_code)]
     pub fn add_points<I1, I2>(&mut self, points: I1, points_ref: I2, name: &str, x_label: &str, y_label: &str)
         where I1: IntoIterator<Item=(f64, f64)>, I2: IntoIterator<Item=(f64, f64)>
     {

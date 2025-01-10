@@ -2,6 +2,8 @@ use crate::fem::system::dof::Dof;
 
 use nalgebra::{DVector, DMatrix, SVector, SMatrix};
 
+// TODO: Common trait for AffineView and LinearView? Divided into read and write?
+
 // Some shorthands for more clarity
 pub type PositionView<'a> = AffineView<'a>;
 pub type VelocityView<'a> = LinearView<'a>;
@@ -24,6 +26,7 @@ impl<'a> AffineView<'a> {
     }
 
     // Number of dofs
+    #[allow(dead_code)]
     pub fn len(&self) -> usize {
         self.dofs.len()
     }
@@ -66,6 +69,7 @@ impl<'a> LinearView<'a> {
     }
 
     // Number of dofs
+    #[allow(dead_code)]
     pub fn len(&self) -> usize {
         self.dofs.len()
     }
@@ -108,6 +112,7 @@ impl<'a> VectorView<'a> {
     }
 
     // Number of dofs
+    #[allow(dead_code)]
     pub fn len(&self) -> usize {
         self.dofs.len()
     }
@@ -149,6 +154,7 @@ impl<'a> MatrixView<'a> {
     }
 
     // Number of dofs
+    #[allow(dead_code)]
     pub fn len(&self) -> usize {
         self.dofs.len()
     }

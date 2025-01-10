@@ -19,7 +19,8 @@ pub struct LinearBeamSegment {
     pub Ci: Vec<SMatrix<f64, 3, 3>>,
 
     pub K: SMatrix<f64, 6, 6>,              // Stiffness matrix
-    pub M: SVector<f64, 6>                  // Lumped mass matrix
+    pub M: SVector<f64, 6>,                 // Lumped mass matrix
+    pub m: f64                              // Total segment mass
 }
 
 impl LinearBeamSegment {
@@ -109,10 +110,8 @@ impl LinearBeamSegment {
             stack![K0n_inv[i]*K00, K1n_inv[i]*K11]
         }).collect();
 
-        let Ef = se.iter().enumerate().map(|(i, &s)| {
-            let H0 = H(s, s0);
-            let H1 = H(s, s1);
-            //stack![H1*K10 - H0*K00, H1*K11 - H0*K01]
+        let Ef = se.iter().enumerate().map(|(_, &s)| {
+            let H1 = H(s, s1);  // TODO: Use already computed values for H here?
             stack![H1*K10, H1*K11]
         }).collect();
 
@@ -136,6 +135,9 @@ impl LinearBeamSegment {
             m1,
             J1,
         ];
+
+        // Total segment mass
+        let m = m0 + m1;
 
         /*
         // Alternative: integrating both mass and rotary inertia at the nodes only
@@ -162,6 +164,7 @@ impl LinearBeamSegment {
             Ci,
             K,
             M,
+            m
         }
     }
 }

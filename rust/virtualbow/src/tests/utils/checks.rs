@@ -1,6 +1,6 @@
 use nalgebra::DVector;
 use crate::fem::system::system::System;
-use crate::numerics::differentiation::{differentiate_n_to_1, differentiate_n_to_k};
+use crate::tests::utils::numdiff::{differentiate_n_to_1, differentiate_n_to_k};
 
 const NUM_DIFF_STEPSIZE : f64 = 0.0001;
 const NUM_DIFF_MAX_ERROR: f64 = 1e-3;
@@ -44,14 +44,14 @@ pub fn check_stiffness_matrix(system: &mut System, u: &DVector<f64>, v: &DVector
 
     let K_sys = statics.get_tangent_stiffness_matrix().clone();
 
-    let (K_num, _error) = differentiate_n_to_k(&mut |u_test| {
+    let (K_num, error) = differentiate_n_to_k(&mut |u_test| {
         system.set_displacements(&u_test);
         system.eval_statics(&mut statics);
         return statics.get_internal_forces().clone();
     }, &u, NUM_DIFF_STEPSIZE);
 
     // Check error of the derivative approximation
-    // assert!(error < NUM_DIFF_MAX_ERROR);
+    assert!(error < NUM_DIFF_MAX_ERROR);
 
     // Tangent stiffness matrix must be equal to numeric derivative of the internal forces
     assert_abs_diff_eq!(&K_sys, &K_num, epsilon=K_num.amax()*EPSILON_RELATIVE + EPSILON_ABSOLUTE)
@@ -70,14 +70,14 @@ pub fn check_damping_matrix(system: &mut System, u: &DVector<f64>, v: &DVector<f
 
     let D_sys = eigen.get_tangent_damping_matrix().clone();
 
-    let (D_num, _error) = differentiate_n_to_k(&mut |v_test| {
+    let (D_num, error) = differentiate_n_to_k(&mut |v_test| {
         system.set_velocities(&v_test);
         system.eval_statics(&mut statics);
         return statics.get_internal_forces().clone();
     }, &u, NUM_DIFF_STEPSIZE);
 
     // Check error of the derivative approximation
-    // assert!(error < NUM_DIFF_MAX_ERROR);
+    assert!(error < NUM_DIFF_MAX_ERROR);
 
     // Tangent damping matrix must be symmetric
     // TODO: Not in general though (gyroscopic forces?)
@@ -114,14 +114,14 @@ pub fn check_potential_energy(system: &mut System, u: &DVector<f64>) {
 
     let q_sys = statics.get_internal_forces().clone();
 
-    let (q_num, _error) = differentiate_n_to_1(&mut |u_test| {
+    let (q_num, error) = differentiate_n_to_1(&mut |u_test| {
         system.set_displacements(&u_test);
         system.eval_statics(&mut statics);
         return system.elements().map(|element| { element.potential_energy() }).sum();
     }, &u, NUM_DIFF_STEPSIZE);
 
     // Check error of the derivative approximation
-    // assert!(error < NUM_DIFF_MAX_ERROR);
+    assert!(error < NUM_DIFF_MAX_ERROR);
 
     // Elastic forces must be equal to the numerical derivative of the potential energy
     assert_abs_diff_eq!(q_sys, q_num, epsilon=q_num.amax()*EPSILON_RELATIVE + EPSILON_ABSOLUTE);

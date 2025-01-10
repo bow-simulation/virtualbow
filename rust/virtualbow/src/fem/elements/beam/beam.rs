@@ -7,10 +7,7 @@
 // r: s -> [x, y, phi], Function describing the shape of the beam segment with arc length s in [l0, l1]
 // C: s -> [[Cee, Cek], [Cek, Ckk]], Function describing the material properties along the beam
 
-use iter_num_tools::lin_space;
-use itertools::Itertools;
 use nalgebra::{matrix, vector, SMatrix, SVector, stack};
-use crate::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
 use crate::fem::elements::beam::linear::LinearBeamSegment;
 use crate::fem::system::element::Element;
 use crate::fem::system::views::{MatrixView, PositionView, VectorView, VelocityView};
@@ -22,8 +19,6 @@ pub struct BeamElement {
     K: SMatrix<f64, 3, 3>,    // Linear stiffness matrix
     D: SMatrix<f64, 3, 3>,    // Linear stiffness matrix
 
-    s0: f64,                   // Arc length at left node
-    s1: f64,                   // Arc length at right node
     se: Vec<f64>,              // Evaluation lengths
     pe: Vec<SVector<f64, 3>>,  // Initial positions wrt. local reference frame
 
@@ -45,46 +40,6 @@ pub struct BeamElement {
 }
 
 impl BeamElement {
-    // Number of nodes and Gauss integration points
-    pub const N_NODES: usize = 4;
-    pub const N_GAUSS: usize = 3;
-
-    // Divides the given curve into a number of equally spaced elements.
-    // Returns a list of elements as well as the arc lengths, positions and angles of the nodes.
-    // TODO: Return values s_nodes, u_node might not be needed if the evaluation works properly
-    pub fn discretize<C, S>(curve: &C, section: &S, s_eval: &[f64], n_elements: usize) -> (Vec<LinearBeamSegment>, Vec<f64>, Vec<SVector<f64, 3>>)
-        where C: PlanarCurve,
-              S: CrossSection
-    {
-        // TODO: Assert that s_eval is sorted and in range of the curve
-
-        let s_nodes = lin_space(curve.s_start()..=curve.s_end(), n_elements + 1).collect_vec();
-        let u_nodes = s_nodes.iter().map(|&s| {
-            let position = curve.position(s);
-            vector![position[0], position[1], curve.angle(s)]
-        }).collect_vec();
-
-        // TODO: Better solution for numerical problems?
-        let tolerance = 1e-9;
-
-        let segments = s_nodes.iter().tuple_windows().enumerate().map(|(i, (&s0, &s1))| {
-            // TODO: More efficient implementation than filtering each time
-            let s_eval = if i == 0 {
-                s_eval.iter().copied().filter(|&s| s >= s0 - tolerance && s <= s1 ).collect_vec()    // Include left boundary with tolerance
-            }
-            else if i == n_elements - 1 {
-                s_eval.iter().copied().filter(|&s| s > s0 && s <= s1 + tolerance ).collect_vec()    // Include right boundary with tolerance
-            }
-            else {
-                s_eval.iter().copied().filter(|&s| s > s0 && s <= s1 ).collect_vec()    // Exclude left boundary
-            };
-
-            LinearBeamSegment::new(curve, section, s0, s1, &s_eval)
-        }).collect();
-
-        (segments, s_nodes, u_nodes)
-    }
-
     // Creates an element on the given curve between two arc lengths.
     // Returns the element as well as the arc lengths, positions and angles of the nodes.
     pub fn new(segment: &LinearBeamSegment) -> Self {
@@ -128,8 +83,6 @@ impl BeamElement {
             M,
             K,
             D: SMatrix::zeros(),
-            s0: segment.s0,
-            s1: segment.s1,
             se: segment.se.clone(),
             pe,
             l0,
@@ -150,6 +103,7 @@ impl BeamElement {
         self.D = alpha*self.K;
     }
 
+    #[allow(dead_code)]
     pub fn eval_lengths(&self) -> &[f64] {
         &self.se
     }
@@ -189,7 +143,7 @@ impl BeamElement {
             0.0, 0.0, 1.0;
         ];
 
-        let dadu = f64::hypot(dx, dy)*vector![dx, -dx, 0.0, -dy, dx, 0.0];
+        let dadu = vector![dy, -dx, 0.0, -dy, dx, 0.0]/(dx*dx + dy*dy);
         let dadt = dadu.dot(&(self.v));
 
         let p0_dot = vector![
@@ -201,7 +155,7 @@ impl BeamElement {
         let dRda = matrix![
             -f64::sin(a0), -f64::cos(a0), 0.0;
             f64::cos(a0), -f64::sin(a0), 0.0;
-            0.0, 0.0, 1.0;
+            0.0, 0.0, 0.0;
         ];
 
         self.se.iter().enumerate().map(move |(i, _)| {
@@ -245,10 +199,9 @@ impl Element for BeamElement {
     }
 
     fn set_state_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, mut q: Option<&mut VectorView>, mut K: Option<&mut MatrixView>, mut D: Option<&mut MatrixView>) {
-        // Update element state, including strain and curvature
-        //self.u = u.get();
-        self.v = v.get();
+        // Update element state
         self.u = u.get();
+        self.v = v.get();
 
         let dx = u.at(3) - u.at(0);
         let dy = u.at(4) - u.at(1);

@@ -69,6 +69,7 @@ impl Interval {
         }
     }
 
+    #[allow(dead_code)]
     pub fn exclusive(lower: f64, upper: f64) -> Self {
         Self {
             lower: Bound::Exclusive(lower),

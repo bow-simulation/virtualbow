@@ -51,11 +51,13 @@ impl StringElement {
     }
 
     // Creates a string element between two points without offsets, equivalent to a bar element
+    #[cfg(test)]
     pub fn bar(EA: f64, ηA: f64, l0: f64) -> Self {
         Self::new(EA, ηA, l0, 1.0, vec![0.0; 2])
     }
 
     // Creates a bar with spring parameters, i.e. mass (total), damping and stiffness instead of cross section properties
+    #[cfg(test)]
     pub fn spring(k: f64, d: f64, l0: f64) -> Self {
         Self::bar(k*l0, d*l0, l0)
     }
@@ -80,19 +82,22 @@ impl StringElement {
         self.cf = cf;
     }
 
-    // Total normal force
-    pub fn normal_force(&self) -> f64 {
-        self.Nt
-    }
-
     // Elastic component of the normal force
+    #[allow(dead_code)]
     pub fn normal_force_elastic(&self) -> f64 {
         self.Ne
     }
 
     // Viscous component of the normal force
+    #[allow(dead_code)]
     pub fn normal_force_viscous(&self) -> f64 {
         self.Nv
+    }
+
+    // Total normal force
+    #[allow(dead_code)]
+    pub fn normal_force_total(&self) -> f64 {
+        self.Nt
     }
 
     pub fn contact_positions(&self) -> impl Iterator<Item=SVector<f64, 2>> + '_ {
