@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use itertools::Itertools;
-use nalgebra::{DMatrix, DVector, matrix, SMatrix, SVector};
+use nalgebra::{DMatrix, DVector, matrix, SMatrix};
 use serde::{Deserialize, Serialize};
 use crate::bow::errors::ModelError;
 use crate::bow::input::{Layer, Material, Width};
@@ -45,20 +45,6 @@ pub struct LayeredCrossSection {
     width: CubicSpline,
     layers: Vec<LayerGeometry>,
     stacking: DMatrix<f64>
-}
-
-// Contains data for recovering the stresses of a specific layer at a specific length
-pub struct StressEval {
-    factors_btm: SVector<f64, 3>,    // Factors that relate the stress at the bottom of the layer to the strains
-    factors_top: SVector<f64, 3>,    // Factors that relate the stress at the top of the layer to the strains
-}
-
-impl StressEval {
-    // strains: epsilon, kappa, gamma
-    // output: normal stress at bottom and top of layer
-    fn eval(&self, strains: &SVector<f64, 3>) -> (f64, f64) {
-        (self.factors_btm.dot(strains), self.factors_top.dot(strains))
-    }
 }
 
 impl LayeredCrossSection {

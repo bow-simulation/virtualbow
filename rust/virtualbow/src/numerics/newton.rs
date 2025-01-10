@@ -22,7 +22,9 @@ impl Default for NewtonSettings {
 
 #[derive(Debug)]
 pub struct IterationResult {
+    #[allow(dead_code)]
     pub x: DVector<f64>,     // Solution variables
+    #[allow(dead_code)]
     pub λ: f64,              // Solution parameter
     pub dxdλ: DVector<f64>,  // Derivative of the solution wrt. the parameter
     pub iterations: u32,     // Number of iterations that have been performed

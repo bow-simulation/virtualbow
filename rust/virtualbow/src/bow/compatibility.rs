@@ -58,17 +58,6 @@ fn get_file_version(json: &Value) -> Result<u64, ModelError> {
     }
 }
 
-// Mapping from file version to the virtualbow version in which it was first introduced
-fn get_application_version<'a>(version: u64) -> Option<&'a str> {
-    match version {
-        0 => Some("0.7.0"),
-        1 => Some("0.8.0"),
-        2 => Some("0.9.0"),
-        BowInput::FILE_VERSION => Some(env!("CARGO_PKG_VERSION")),
-        BowInput::FILE_VERSION.. => unreachable!(),
-    }
-}
-
 fn convert_v2_to_v3(value: &mut Value) -> Result<(), ModelError> {
     value["version"] = json!(3);
 

@@ -149,7 +149,7 @@ fn nonlinear_bar_truss_1() {
         let N_ref = EA*(ly - l0)/l0;
         let F_ref = y*N_ref/ly;
 
-        let N_sys = system.element_ref::<StringElement>(element).normal_force();
+        let N_sys = system.element_ref::<StringElement>(element).normal_force_total();
         let F_sys = statics.get_scaled_external_force(node2.y());
 
         plotter.add_point((y, F_sys), (y, F_ref), "Applied Force", "y [m]", "F [N]");
@@ -198,8 +198,8 @@ fn nonlinear_bar_truss_2() {
         let N1_ref = EA*(l1 - f64::hypot(a, c))/f64::hypot(a, c);
         let N2_ref = EA*(l2 - f64::hypot(b, c))/f64::hypot(b, c);
 
-        let N1_sys = system.element_ref::<StringElement>(bar01).normal_force();
-        let N2_sys = system.element_ref::<StringElement>(bar12).normal_force();
+        let N1_sys = system.element_ref::<StringElement>(bar01).normal_force_total();
+        let N2_sys = system.element_ref::<StringElement>(bar12).normal_force_total();
 
         plotter.add_point((y, N1_sys), (y, N1_ref), "Normal Force 1", "y [m]", "N [N]");
         plotter.add_point((y, N2_sys), (y, N2_ref), "Normal Force 2", "y [m]", "N [N]");

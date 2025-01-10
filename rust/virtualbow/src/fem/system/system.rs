@@ -172,6 +172,10 @@ impl System {
         self.forces.push((dof, Box::new(force)));
     }
 
+    // Removes all external forces
+    pub fn clear_forces(&mut self) {
+        self.forces.clear();
+    }
 
     // Creates a planar node with three degrees of freedom, two displacements in x and y and a rotation angle.
     pub fn create_node(&mut self, u: &SVector<f64, 3>, free: &[bool; 3]) -> Node {
@@ -195,6 +199,7 @@ impl System {
         self.u.len()
     }
 
+    #[allow(dead_code)]
     pub fn elements(&self) -> impl Iterator<Item=&ElementHandle> {
         self.elements.iter().map(|(_dofs, handle)| { handle })
     }

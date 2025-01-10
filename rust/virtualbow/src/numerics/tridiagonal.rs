@@ -23,6 +23,7 @@ impl TDMatrix {
     }
 
     // Get entry at given row and column index
+    #[allow(dead_code)]
     pub fn get(&self, i: usize, j: usize) -> f64 {
         assert!(i < self.size() && j < self.size());
         match (i as i32) - (j as i32) {

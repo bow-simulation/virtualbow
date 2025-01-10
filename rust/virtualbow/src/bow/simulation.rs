@@ -60,7 +60,7 @@ impl<'a> Simulation<'a> {
     const BRACING_TARGET_ITER: usize = 5;        // Desired number of iterations for the static solver
 
     // Set up the simulation either with or without string and with or without damping, depending on simulation mode.
-    fn initialize(input: &'a BowInput, string: bool, damping: bool) -> Result<(System, Simulation, Common), ModelError> {
+    fn initialize(input: &'a BowInput, string: bool, damping: bool) -> Result<(System, Simulation<'a>, Common), ModelError> {
         // Check basic validity of the model data and propagate any errors
         input.validate()?;
 
@@ -216,6 +216,11 @@ impl<'a> Simulation<'a> {
             system.element_mut::<MassElement>(mass_element_string_tip).set_mass(input.masses.string_tip + 2.0/3.0*ρA*l0);
         }
 
+        // Compute additional common output results
+        let string_length = 2.0*l0;                                                                         // Actual string length due to symmetry
+        let string_mass = 2.0*(ρA*l0 + input.masses.string_tip) + input.masses.string_center;               // String mass including additional masses and symmetry
+        let limb_mass = geometry.segments.iter().map(|segment| segment.m).sum::<f64>() + input.masses.limb_tip;    // Mass of a single limb, including additional masses
+
         // Simulation info object
         let simulation = Self {
             input,
@@ -239,9 +244,9 @@ impl<'a> Simulation<'a> {
                 height: simulation.geometry.height.clone(),
             },
             layers,
-            string_length: 0.0,
-            string_mass: 0.0,
-            limb_mass: 0.0,
+            string_length,
+            string_mass,
+            limb_mass
         };
 
         Ok((system, simulation, common))
@@ -322,6 +327,9 @@ impl<'a> Simulation<'a> {
 
                 // Modify the string's compression factor to make it a lot less stiff on compression
                 system.element_mut::<StringElement>(simulation.string_element).set_compression_factor(model.settings.string_compression_factor);
+
+                // Remove static draw force
+                system.clear_forces();
 
                 // Simulate the first part of the shot until either the arrow separates from the string
                 // or the timeout is reached for some reason
@@ -486,7 +494,7 @@ impl<'a> Simulation<'a> {
             SystemEval::Dynamic(eval) => -2.0*eval.get_external_force(self.string_nodes[0].y())
         };
 
-        let string_force = system.element_ref::<StringElement>(self.string_element).normal_force();
+        let string_force = system.element_ref::<StringElement>(self.string_element).normal_force_total();
         let strand_force = string_force/(self.input.string.n_strands as f64);
 
         // The evaluation of the arrow position, velocity and acceleration depends on whether the arrow has separated from the string.
@@ -570,7 +578,7 @@ impl<'a> Simulation<'a> {
             draw_length,
 
             limb_pos,
-            limb_vel: vec![[0.0; 3].into(); self.input.settings.n_limb_eval_points],
+            limb_vel,
 
             string_pos,
             string_vel,
@@ -597,15 +605,6 @@ impl<'a> Simulation<'a> {
             string_force,
             strand_force,
         }
-    }
-
-    // Returns the slope of the string at the centerpoint against the x direction
-    fn get_string_slope(&self, system: &System) -> f64 {
-        let mut string_pos = system.element_ref::<StringElement>(self.string_element).contact_positions();
-        let pos0 = string_pos.next().unwrap();    // String must always have at least two contact nodes
-        let pos1 = string_pos.next().unwrap();    // String must always have at least two contact nodes
-
-        (pos1[1] - pos0[1])/(pos1[0] - pos0[0])
     }
 }
 

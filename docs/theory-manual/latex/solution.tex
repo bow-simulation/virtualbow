@@ -293,7 +293,7 @@ The other difficulty is that the length of the string is not known in advance, o
 The current bracing method tries to solve both of these problems by applying a string to the bow that is initially too long and iteratively shorten it until the desired brace height is reached.
 By controlling/limiting how much the string is shortened in each step, the solution process is more likely to converge.
 
-As shown in figure \ref{fig:bracing-method-1}, a string with initial length $l_{0}$ is applied to the unbraced configuration of the bow such that it passes through the desired brace height on the $y$ axis.
+As shown in figure \ref{fig:bracing-method-1}, a string with initial (half-)length $l_{0}$ is applied to the unbraced configuration of the bow such that it passes through the desired brace height on the $y$ axis.
 The initial length is chosen such that there is no tension yet in the string.
 
 \begin{figure}[h]
@@ -305,7 +305,7 @@ The initial length is chosen such that there is no tension yet in the string.
 
 At the point where the string intersects the $y$ axis, it initially has a positive slope of $\Delta y / \Delta x$ as measured against the $x$ direction.
 If this initial slope were negative, the bow model would have to be rejected as invalid because the specified brace height is too low for the given limb geometry.
-The actual bracing process now consists of successively shortening the string and iterating for equilibrium until the slope reaches zero, while keeping the string center pinned at the desired brace height via displacement control.
+The actual bracing process now consists of successively shortening the string (and iterating for equilibrium each time) until the slope reaches zero, while keeping the string center pinned at the desired brace height via displacement control.
 This pinning of the string ensures a favorable angle (not too shallow) between string and limb.
 
 \begin{figure}[h]
@@ -329,11 +329,11 @@ Figure \ref{fig:bracing-plot} shows that relationship for a real example, where 
 \label{fig:bracing-plot}
 \end{figure}
 
-However, if we just use one of the many standard root finding algorithms for this, it might make big steps in string length and cause the underlying static Newton-Raphson iteration to fail.
+However, if we just use one of the many standard root finding algorithms for this, it might make big steps in string length and cause the underlying static equilibrium iteration to fail.
 Instead, the method starts at $p = 1$ and treats the problem like finding an equilibrium path with the path parameter $p$.
 This parameter is controlled just as described in the previous section, taking into account maximum and minumum bounds on the step size and the performance of the static iterations.
 A dedicated root finding algorithm is only used after the first negative slope is encountered in order to hone in on a precise final result.
-Currently this is the regula falsi method, which is simple and effective when derivatives are not available and the interval in which the root lies is known.
+Currently this is the regula falsi method, which is simple and reasonably effective when derivatives are not available and the interval in which the root lies is known.
 
 \newpage
 \section{Dynamic Solution}

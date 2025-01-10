@@ -3,6 +3,7 @@ use nalgebra::SMatrix;
 // Integrates the given function using the adaptive Simpson method (https://en.wikipedia.org/wiki/Adaptive_Simpson%27s_method) with a given numerical tolerance and maximum recursion depth.
 // Retrurns either the value of the integral or None if the specified tolerance was not reached.
 // Implementation based on the Wikipedia example.
+#[allow(dead_code)]
 pub fn integrate_adaptive<F, const R: usize, const C: usize>(mut f: F, a: f64, b: f64, epsilon: f64, max_recursion: u32) -> Option<SMatrix<f64, R, C>>
     where F: FnMut(f64) -> SMatrix<f64, R, C>
 {

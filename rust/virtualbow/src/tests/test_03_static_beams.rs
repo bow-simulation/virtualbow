@@ -248,7 +248,7 @@ fn nonlinear_straight_uniform_cantilever() {
     // Beam bow
     let mut model = BowInput::default();
     model.settings.n_limb_elements = 25;
-    model.settings.n_limb_eval_points = 100;//u_ref.len();
+    model.settings.n_limb_eval_points = u_ref.len();
     model.settings.min_draw_resolution = 5;
     model.materials = vec![Material::new("material", "#000000", rho, E, G)];
     model.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Line(LineInput::new(l))]);
@@ -260,13 +260,11 @@ fn nonlinear_straight_uniform_cantilever() {
 
     let mut plotter = Plotter::new();
 
-    /*
     // Check distance of node positions to reference solution
     for i in 0..setup.limb.length.len() {
         plotter.add_point((state.limb_pos[i][0], state.limb_pos[i][1]), (u_ref[i][0], u_ref[i][1]), "01 Bending Line", "x [m]", "y [m]");
         assert_abs_diff_eq!(f64::hypot(state.limb_pos[i][0] - u_ref[i][0], state.limb_pos[i][1] - u_ref[i][1]), 0.0, epsilon=0.5e-3);
     }
-    */
 
     // For analytical normal force, shear force and bending moments
     let x_end = state.limb_pos.last().unwrap()[0];
@@ -286,13 +284,13 @@ fn nonlinear_straight_uniform_cantilever() {
         let Q_ref = Fy*f64::cos(φ) - Fx*f64::sin(φ);
 
         plotter.add_point((setup.limb.length[i], state.limb_force[i][0]), (setup.limb.length[i], N_ref), "02 Normal Force", "Length [m]", "Force [N]");
-        //assert_abs_diff_eq!(state.limb_force[i][0], N_ref, epsilon=1e-3*F_max);
+        assert_abs_diff_eq!(state.limb_force[i][0], N_ref, epsilon=1e-3*F_max);
 
         plotter.add_point((setup.limb.length[i], state.limb_force[i][1]), (setup.limb.length[i], M_ref), "03 Bending Moment", "Length [m]", "Moment [Nm]");
-        //assert_abs_diff_eq!(state.limb_force[i][1], M_ref, epsilon=1e-3*M_max);
+        assert_abs_diff_eq!(state.limb_force[i][1], M_ref, epsilon=1e-3*M_max);
 
         plotter.add_point((setup.limb.length[i], state.limb_force[i][2]), (setup.limb.length[i], Q_ref), "04 Shear Force", "Length [m]", "Force [N]");
-        //assert_abs_diff_eq!(state.limb_force[i][2], Q_ref, epsilon=1e-3*F_max);
+        assert_abs_diff_eq!(state.limb_force[i][2], Q_ref, epsilon=1e-3*F_max);
     }
 
     // Compute natural frequencies

@@ -1,6 +1,7 @@
 use nalgebra::{DMatrix, DVector};
 
 // Multi-dimensional Newton method for dynamically sized vectors
+#[allow(dead_code)]
 pub fn find_root_newton<F>(function: &F, x0: &DVector<f64>, ftol: f64, iter: usize) -> Option<DVector<f64>>
     where F: Fn(&DVector<f64>) -> (DVector<f64>, DMatrix<f64>)
 {
@@ -19,7 +20,8 @@ pub fn find_root_newton<F>(function: &F, x0: &DVector<f64>, ftol: f64, iter: usi
 }
 
 // One-dimensional secant method (https://en.wikipedia.org/wiki/Secant_method)
-// TODO: Remove if unused
+// (Currently not used)
+#[allow(dead_code)]
 pub fn find_root_secant<F>(mut f: F, mut x0: f64, mut f0: f64, mut x1: f64, mut f1: f64, ftol: f64, iter: usize) -> Option<f64>
     where F: FnMut(f64) -> f64
 {

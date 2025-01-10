@@ -1,6 +1,5 @@
 #![allow(non_snake_case)]
 #![allow(mixed_script_confusables)]
-#![allow(dead_code)]
 
 #[cfg(test)]
 #[macro_use]
