@@ -59,6 +59,7 @@ impl LimbGeometry {
 
         // Equidistant evaluation points along the length of the limb
         let s_eval = lin_space(self.profile.s_start()..=self.profile.s_end(), n_eval_points).collect_vec();
+        let y_eval = s_eval.iter().map(|&s| self.section.layer_bounds(s).0).collect_vec();
 
         let segments = s_nodes.iter().tuple_windows().enumerate().map(|(i, (&s0, &s1))| {
             // TODO: Better solution for numerical issues?
@@ -91,6 +92,7 @@ impl LimbGeometry {
             u_nodes,
             y_nodes,
             s_eval,
+            y_eval,
             strain_eval,
             stress_eval,
             position,
@@ -108,6 +110,7 @@ pub struct DiscreteLimbGeometry {
     pub y_nodes: Vec<DVector<f64>>,          // Layer bounds at nodes (y in cross section coordinates)
 
     pub s_eval: Vec<f64>,                    // Arc lengths at which the limb quantities are evaluated (positions, forces, ...)
+    pub y_eval: Vec<DVector<f64>>,           // Layer bounds at eval points (y in cross section coordinates)
     pub strain_eval: Vec<DMatrix<f64>>,      // Strain evaluation matrices for each evaluation point
     pub stress_eval: Vec<DMatrix<f64>>,      // Stress evaluation matrices for each evaluation point
 
@@ -116,8 +119,6 @@ pub struct DiscreteLimbGeometry {
     pub width: Vec<f64>,
     pub height: Vec<f64>
 }
-
-
 
 #[cfg(test)]
 mod tests {

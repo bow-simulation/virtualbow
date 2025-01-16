@@ -927,7 +927,7 @@ After having performed a static simulation of a bow, there are various things th
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.6\textwidth]{figures/verification/bow-static-forces}
-\captionof{figure}{Static equilibrium of a bow limb without recurve}
+\captionof{figure}{Static equilibrium of a bow limb without recurve \textcolor{red}{TODO: Replace $x_t$, $y_t$ with the first contact point $x_c$, $y_c$ on a recurve limb}}
 \label{fig:verification:bow-static-forces}
 \end{figure}
 
@@ -936,7 +936,7 @@ After having performed a static simulation of a bow, there are various things th
 If we balance the draw force $F_d$ and the string force $F_s$ at the center of the string, we get the following equilibrium condition in the $y$ direction,
 
 \begin{equation}
-F_d = 2F_s\,\sin(\alpha),\quad \alpha = \arctan\left(\frac{y_t - y_s}{x_t}\right).
+F_d = 2F_s\,\sin(\alpha),\quad \alpha = \arctan\left(\frac{y_c - y_s}{x_c}\right).
 \end{equation}
 
 with the string angle $\alpha$ being computed from the limb tip position (only for non-recurve bows).
@@ -948,20 +948,41 @@ Balancing the forces on the whole bow in the $y$ direction leads to $F_g = F_d$,
 
 \subsection*{Section forces}
 
-The string exerts a force on the limb tip with the two components
+The string exerts a force $F_s$ on the limb tip with the two components
 
 \begin{align}
 F_x = -F_s\,\cos(\alpha), \\
 F_y = -F_s\,\sin(\alpha).
 \end{align}
 
-As in the previous static beam tests [TODO: Reference], the cross section forces ($N$, $M$, $Q$) of the limb must be in equilibrium with this applied force.
+The forces and moments $N$, $M$, $Q$ of each cross section of the limb must be in equilibrium with this applied force.
+If $x_c$ and $y_c$ is the point where the string begins to contact the bow \textcolor{red}{TODO: add this to the drawing above}, the cross section forces can be calculated as
+
+\begin{align}
+M(s) &= F_y(x_c - x(s)) - F_x(y_c - y) \\
+N(s) &= F_x\cos(\varphi(s)) + F_y\sin(\varphi(s)) \\
+Q(s) &= F_y\cos(\varphi(s)) - F_x\sin(\varphi(s))
+\end{align}
+
+Additionally, the cross section forces must also be in balance with the stresses within the section.
+This condition is expressed as
+
+\begin{align}
+N(s) &= \phantom{-}\int_A \sigma(x,\,y)\,dA \\
+Q(s) &= \phantom{-}\int_A \tau(x,\,y)\,dA \\
+M(s) &= -\int_A y\sigma(x,\,y)\,dA
+\end{align}
+
+and can be checked in tests by numerical integration.
+
 
 \subsection*{Drawing work}
 
 The change in potential energy of limbs and string as the bow is drawn must be equal to the work performed by the draw force over the draw length, computed as the numerical integral of the force-draw curve.
 
+\subsection*{Potential energy}
 
+The draw force must be equal to the derivative of the potential energy with respect to the draw length.
 
 \newpage
 \section{Dynamics}

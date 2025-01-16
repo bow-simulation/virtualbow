@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::{BufReader, Write};
 use std::path::Path;
-use nalgebra::SVector;
+use nalgebra::{DVector, SVector};
 use serde::{Deserialize, Serialize};
 use soa_derive::StructOfArray;
 use rmpv::Value;
@@ -183,6 +183,7 @@ pub struct LimbInfo {
     pub position: Vec<SVector<f64, 3>>,    // x, y, φ
     pub width: Vec<f64>,
     pub height: Vec<f64>,
+    pub bounds: Vec<DVector<f64>>    // Layer boundaries in y position
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]

@@ -242,6 +242,7 @@ impl<'a> Simulation<'a> {
                 position: simulation.geometry.position.clone(),
                 width: simulation.geometry.width.clone(),
                 height: simulation.geometry.height.clone(),
+                bounds: simulation.geometry.y_eval.clone(),
             },
             layers,
             string_length,

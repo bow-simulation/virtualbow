@@ -491,8 +491,8 @@ These relations guarantee second order accuracy as well as unconditional stabili
 \subsection{Adaptive step size}
 
 Selecting the step size $\Delta t$ for time integration is a tradeoff between accuracy and computational effort.
-Smaller timesteps lead to a more detailed solution with less numerical error, while larger timesteps require fewer steps overall and therefore reduce the computational cost.
-Ideally we would like to choose a timestep that is as large as possible while still maintaining a prescribed degree of accuracy.
+Smaller timesteps, up to a certain limit, lead to a more detailed solution with less numerical error, while larger timesteps require fewer steps overall and therefore reduce the computational cost.
+Ideally we would like to choose a timestep that is as large as possible while still maintaining a prescribed minimum degree of accuracy.
 However, this ideal timestep will generally vary over time.
 Sections where the solution is relatively smooth and uneventful allow for larger timesteps while sections with frequent changes require smaller timesteps in order to accurately resolve all details.
 We are therefore looking for an algorithm that estimates the current accuracy of the solution and increases or decreases the timestep accordingly.
@@ -595,7 +595,7 @@ The minimum timestep $\Delta t_{\min}$ also serves as the first timestep $\Delta
 The value chosen for the first timestep has to be much lower than the expected optimal timestep to ensure that it is too small rather than too large.
 An initial timestep that is too small can be increased quickly by the adaptive method in subsequent steps while a timestep that is too large might introduce a permanent error.
 The method only ever adaptively changes the next timestep based on the estimated apparent frequency from the previous timestep.
-It does not retroactively reject timesteps that were too large, like some other methods do.
+It does not retroactively reject timesteps that were too large, like some more advanced methods do.
 
 \newpage
 \subsection{Stopping event detection and location}
@@ -621,25 +621,25 @@ This event condition can be formulated as
 e(\boldsymbol{a}) = \boldsymbol{a}[\mathrm{arrow}] + \frac{F_{\mathrm{clamp}}}{m_{\mathrm{arrow}}} = 0 \label{eq:event-function-arrow}
 \end{equation}
 
-with $e(\boldsymbol{a})$ being an event function that takes in the current state of the system (in our case only the accelerationa are needed) and returns zero when the condition for the event is fulfilled.
+with $e(\boldsymbol{a})$ being an event function that takes in the current state of the system (in our case only the accelerations are needed) and returns zero when the condition for the event is fulfilled.
 The fist task is to detect the occurrence of this event while stepping through the numerical solution process.
-We assume that an event has occurred betwen times~$t_{i}$ and~$t_{i+1}$ if there was a sign change of the event function,
+We assume that an event has occurred between times~$t_{i}$ and~$t_{i+1}$ if there was a sign change of the event function,
 
 \begin{equation}
 \sgn\left\{ e(\boldsymbol{a}_{i}) \right\} \neq \sgn\left\{ e(\boldsymbol{a}_{i+1}) \right\}.
 \end{equation}
 
-Technically speaking, any odd number of events could have occurred during that timestep.
+Technically speaking, any odd number of events could have occurred during that timestep, not only one.
 Conversely, intervals with no sign change could technically contain any even number of events that go undetected with this approach.
-None of that is pracically relevant for our bow simulation though since the timesteps are usually small enough to make multiple events very unlikely.
+None of that is practically relevant for our bow simulation though since the timesteps are usually small enough to make multiple events very unlikely.
 Events can further be narrowed down by only looking for positive or negative sign changes.
-In the case of arrow separation (\ref{eq:event-function-arrow}) for example, we are looking for a negative sign change from positive to negative.
+In the case of arrow separation (\ref{eq:event-function-arrow}) for example, we are looking for a negative sign change (from positive to negative).
 
-When an event that should stop the simulation (e.g. arrow separation) is detected between~$t_{i}$ and~$t_{i+1}$, we know that the last time step was actually too large.
+When an event that should stop the simulation is detected between~$t_{i}$ and~$t_{i+1}$, we know that the last time step was actually too large.
 If we were being sloppy, we could just stop the simulation at $t_{i+1}$, perform the arrow separation and accept the imperfection that the separation event actually occurred slightly earlier.
 This is exactly what VirtualBow did when still using an explicit solution method for the dynamic analysis.
 The much smaller timesteps compared to implicit methods made this possible without being to inaccurate.
-But by looking back at figure \ref{fig:adaptive-timestep} we can see that this approach would lead to large errors when using the Newmark method, since the timesteps are far too large.
+But by looking back at figure \ref{fig:adaptive-timestep} we can see that this approach would lead to large errors when using the Newmark method, since the timesteps can be far too large.
 
 We therefore have to go the long route and do something more accurate.
 The overshooting time point~$t_{i+1}$ is therefore discarded and we restart at~$t_{i}$, this time trying to find a new timestep such that the event occurs exactly at the end of the interval.
