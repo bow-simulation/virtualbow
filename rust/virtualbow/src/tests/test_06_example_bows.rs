@@ -1,9 +1,10 @@
 use itertools::Itertools;
-use nalgebra::SVector;
+use nalgebra::{SVector, vector};
 use num::Zero;
 use crate::bow::input::BowInput;
 use crate::bow::output::{BowOutput, Common, LayerInfo, LimbInfo, State, StateVec};
 use crate::bow::simulation::Simulation;
+use crate::numerics::integration::integrate_fixed;
 use crate::tests::utils::plotter::Plotter;
 use crate::utils::minmax::discrete_maximum_1d;
 
@@ -301,7 +302,7 @@ fn check_output(model: &BowInput) {
 // Checks the properties of the common output, i.e. the outputs that are independent of the simulation mode
 fn check_common_output(model: &BowInput, output: &BowOutput) {
     let Common { limb, layers, string_length, string_mass, limb_mass } = &output.common;
-    let LimbInfo { length, position, width, height } = &limb;
+    let LimbInfo { length, position, width, height, bounds } = &limb;
 
     // There must be as many lengths as there are limb evaluation points defined in the model
     // Lengths must be sorted in strictly ascending order and start at zero
@@ -309,14 +310,18 @@ fn check_common_output(model: &BowInput, output: &BowOutput) {
     assert!(length.iter().tuple_windows().all(|(a, b)| a < b));
     assert_eq!(length[0], 0.0);
 
-    // Number of positions, widths and heights must match number of evaluation points
+    // Number of positions, widths, heights and bounds must match number of evaluation points
     assert_eq!(position.len(), model.settings.n_limb_eval_points);
     assert_eq!(width.len(), model.settings.n_limb_eval_points);
     assert_eq!(height.len(), model.settings.n_limb_eval_points);
+    assert_eq!(bounds.len(), model.settings.n_limb_eval_points);
 
     // Width and height must be strictly positive
     assert!(width.iter().all(|&w| w > 0.0));
     assert!(height.iter().all(|&h| h > 0.0));
+
+    // Number of layer bounds must be consistent with the number of layers defined in the model
+    assert!(bounds.iter().all(|b| b.len() == model.layers.len() + 1));
 
     // Number of layers must match the number of layers defined in the model
     // Layer info doesn't contain much currently, but the layer names must not be empty
@@ -564,14 +569,16 @@ fn check_static_equilibrium(model: &BowInput, output: &BowOutput) {
     let statics = output.statics.as_ref().unwrap();
     let states = &statics.states;
 
-    // TODO: Numerical tolerances
-
     let ABS_TOL_ALPHA = 1e-6;                                                           // Tolerance for the string angle in braced state
     let ABS_TOL_FORCE = 1e-3*statics.final_draw_force;                                  // Tolerance for force comparisons
     let ABS_TOL_MOMENT = 1e-3*statics.final_draw_force*model.dimensions.draw_length;    // Tolerance for moment comparisons
     let ABS_TOL_ENERGY = 0.5e-2*states.e_pot_limbs[0];                                  // Tolerance for energy comparisons
+    let REL_TOL_STRESS = 1e-6;
 
     // Perform checks on each static state
+    // i: State
+    // j: Length along limb
+    // k: Cross section layer
     for (i, state) in states.iter().enumerate() {
         // Analytical values for the draw force and grip force according to the string force, string angle and static considerations
         let string_pos_a = state.string_pos[1];
@@ -603,29 +610,66 @@ fn check_static_equilibrium(model: &BowInput, output: &BowOutput) {
         // Check equilibrium of the limb's cross section forces with the string force.
         // For now only if the string does not contact the limb, since that is more complicated.
         // TODO: Handle the case when it does, which is more complicated because of the contact forces.
-        if state.limb_pos.len() == 2 {
-            // Limb endpoint
-            let x_end = state.limb_pos.last().unwrap()[0];
-            let y_end = state.limb_pos.last().unwrap()[1];
-
-            // Cartesian components of the string force
-            let Fx = -state.string_force*f64::cos(alpha);
-            let Fy = -state.string_force*f64::sin(alpha);
-
+        if state.string_pos.len() == 2 {
             for (j, &_s) in output.common.limb.length.iter().enumerate() {
+                // Cross section forces according to the simulation output
+                let N_out = state.limb_force[j][0];
+                let M_out = state.limb_force[j][1];
+                let Q_out = state.limb_force[j][2];
+
+                // Calculate the cross section's normal force and bending moment by integrating the normal stresses over the cross section.
+                // Compare the integrated forces to those from the simulation output to check if the stresses are consistent with the section forces.
+                // (Shear force is not calculated since the shear stress is not yet part of the output results)
+
+                let bounds = &output.common.limb.bounds[j];
+                let width = output.common.limb.width[j];
+                let mut forces = SVector::zeros();
+
+                for (k, (&ya, &yb)) in bounds.iter().tuple_windows().enumerate() {
+                    // Function of normal stress sigma and its moment sigma*y over the layer's height coordinate y
+                    let stresses = |y: f64| {
+                        let sigma_a = state.layer_stress[k][j][0];
+                        let sigma_b = state.layer_stress[k][j][1];
+                        let sigma_y = sigma_a + (y - ya)/(yb - ya)*(sigma_b - sigma_a);
+                        width*vector![sigma_y, -y*sigma_y]
+                    };
+
+                    if ya != yb {
+                        forces += integrate_fixed(stresses, ya, yb, 100);
+                    }
+                }
+
+                // Cross section forces according to integration of the stresses
+                let N_int = forces[0];
+                let M_int = forces[1];
+
+                assert_relative_eq!(N_int, N_out, max_relative=REL_TOL_STRESS);
+                assert_relative_eq!(M_int, M_out, max_relative=REL_TOL_STRESS);
+
+                // The next checks verify that the cross section forces are in balance with the external force
+                // that the string exerts on the bow limb.
+
+                // Limb endpoint
+                let x_contact = string_pos_a[0];
+                let y_contact = string_pos_a[1];
+
+                // Cartesian components of the string force
+                let Fx = -state.string_force*f64::cos(alpha);
+                let Fy = -state.string_force*f64::sin(alpha);
+
+                // Current position on the profile curve
                 let x = state.limb_pos[j][0];
                 let y = state.limb_pos[j][1];
                 let φ = state.limb_pos[j][2];
 
-                // Reference values for cross section's bending moment, normal and shear force based on equilibrium with the string force
-                let M_ref = Fy*(x_end - x) - Fx*(y_end - y);
+                // Cross section according to static equilibrium with the string force
+                let M_ref = Fy*(x_contact - x) - Fx*(y_contact - y);
                 let N_ref = Fx*f64::cos(φ) + Fy*f64::sin(φ);
                 let Q_ref = Fy*f64::cos(φ) - Fx*f64::sin(φ);
 
-                // Compare with actual values
-                assert_abs_diff_eq!(state.limb_force[j][0], N_ref, epsilon=ABS_TOL_FORCE);
-                assert_abs_diff_eq!(state.limb_force[j][1], M_ref, epsilon=ABS_TOL_MOMENT);
-                assert_abs_diff_eq!(state.limb_force[j][2], Q_ref, epsilon=ABS_TOL_FORCE);
+                assert_abs_diff_eq!(N_out, N_ref, epsilon=ABS_TOL_FORCE);
+                assert_abs_diff_eq!(M_out, M_ref, epsilon=ABS_TOL_MOMENT);
+                assert_abs_diff_eq!(Q_out, Q_ref, epsilon=ABS_TOL_FORCE);
             }
         }
     }
