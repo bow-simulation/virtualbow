@@ -492,6 +492,79 @@ The last equation for $c$ an only be solved numerically, which results in $c = 0
 % grid on;
 
 \newpage
+\subsection*{Circular string contact}
+
+In this example, an elastic string is placed around a rigid quarter circle as shown in figure \ref{fig:circular-string-contact}.
+Its left end is fixed while the free end can move in the $y$ direction.
+As the free end of the string is pushed downwards by the force $F$, the string wraps around the arc and lengthens.
+Wanted is the relationship between the force $F$ and the length $h$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.4\textwidth]{figures/verification/circular-string-contact.jpg}
+\caption{String (red) being wrapped around a circular arc (blue)}
+\label{fig:circular-string-contact}
+\end{figure}
+
+Geometrical condition: The line from the contact point~$P$ in the direction of the tangent~$T$ at that point must connect to point~$H$.
+This translates to
+
+\begin{equation}
+g(\lambda) = P + \lambda T
+=
+\begin{bmatrix}
+r\,\cos(\alpha) \\
+r\,\sin(\alpha)
+\end{bmatrix}
++
+\lambda
+\begin{bmatrix}
+\phantom{-}r\,\sin(\alpha) \\
+-r\,\cos(\alpha)
+\end{bmatrix}
+=
+\begin{bmatrix}
+r \\
+r-h
+\end{bmatrix}
+\end{equation}
+
+This are two equations from which the unknown line parameter $\lambda$ and the angle $\alpha$ of the contact point can be calculated.
+Use the first equation to express $\lambda$ in terms of $\alpha$:
+
+\begin{equation}
+r\,\cos(\alpha) + \lambda r\,\sin(\alpha) = r \quad \Rightarrow \quad \lambda = \frac{1 - \cos(\alpha)}{\sin(\alpha)} = \tan\left(\frac{\alpha}{2}\right)
+\end{equation}
+
+Inserting this into the second equation results in the relationship between $h$ and $\alpha$:
+
+\begin{align}
+r\underbrace{\left(\sin(\alpha) - \cos(\alpha)\tan\left(\frac{\alpha}{2}\right)\right)}_{\tan\left(\frac{\alpha}{2}\right)} = r - h  \quad \Rightarrow \quad h &= r\left(1 - \tan\left(\frac{\alpha}{2}\right)\right) \\
+\Rightarrow \quad \alpha &= 2\arctan\left(1 - \frac{h}{r}\right)
+\end{align}
+
+As a next step, we determine the length $l$ of the string as the sum of the circular and the linear sections:
+
+\begin{align}
+l &= \left(\frac{\pi}{2} - \alpha\right)r + \lambda r = \left(\frac{\pi}{2} - \alpha + \tan\left(\frac{\alpha}{2}\right)\right)r
+\end{align}
+
+The potential energy of the string with stiffness $k = \frac{EA}{l_0}$ and initial length $l_0$ is known as
+
+\begin{equation}
+\Pi = \frac{1}{2}k\left(l - l_{0}\right)^2
+\end{equation}
+
+Therefore the force $F$ in the direction of the displacement $h$ is
+
+\begin{align}
+F &= \frac{\partial \Pi}{\partial h} = \frac{\partial \Pi}{\partial l} \cdot \frac{\partial l}{\partial \alpha} \cdot \frac{\partial \alpha}{\partial h} \\
+&= k(l - l_{0}) \cdot \left(\frac{1}{1 + \cos(\alpha)} - 1\right) \cdot \frac{2r^2}{h^2 - 2hr + 2r^2}
+\end{align}
+
+
+
+\newpage
 \subsection*{Linear beams}
 
 The static solution of straight, geometrically linear cantilever beams with constant cross section are simple polynomial functions.
