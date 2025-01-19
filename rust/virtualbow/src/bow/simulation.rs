@@ -15,6 +15,7 @@ use crate::fem::elements::beam::beam::BeamElement;
 use crate::fem::elements::mass::MassElement;
 use crate::fem::elements::string::StringElement;
 use crate::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
+use crate::numerics::integration::cumulative_simpson;
 use crate::numerics::newton;
 use crate::numerics::root_finding::find_root_falsi;
 use crate::utils::minmax::{discrete_maximum_1d, discrete_maximum_nd, discrete_minimum_1d, discrete_minimum_nd};
@@ -279,8 +280,8 @@ impl<'a> Simulation<'a> {
             let draw_length_front = *states.draw_length.first().unwrap();
             let draw_length_back = *states.draw_length.last().unwrap();
             let draw_force_back = *states.draw_force.last().unwrap();
-            let e_pot_front = states.e_pot_limbs.first().unwrap() + states.e_pot_string.first().unwrap();
-            let e_pot_back = states.e_pot_limbs.last().unwrap() + states.e_pot_string.last().unwrap();
+            let e_pot_front = states.elastic_energy_limbs.first().unwrap() + states.elastic_energy_string.first().unwrap();
+            let e_pot_back = states.elastic_energy_limbs.last().unwrap() + states.elastic_energy_string.last().unwrap();
 
             let final_draw_force = draw_force_back;
             let final_drawing_work = e_pot_back - e_pot_front;
@@ -398,6 +399,13 @@ impl<'a> Simulation<'a> {
                     return callback("dynamics", 100.0*progress);
                 }).map_err(|e| ModelError::SimulationDynamicSolutionFailed(e))?;
 
+                // Compute dissipated damping energy by numerically integrating the damping power
+                let damping_energy_limbs = cumulative_simpson(&states.time, &states.damping_power_limbs);
+                let damping_energy_string = cumulative_simpson(&states.time, &states.damping_power_string);
+
+                states.damping_energy_limbs = damping_energy_limbs;
+                states.damping_energy_string = damping_energy_string;
+
                 // Compute additional dynamic output values
 
                 let arrow_departure = simulation.arrow_departure.map(|(index, _, _, _)| {
@@ -405,12 +413,12 @@ impl<'a> Simulation<'a> {
                         state_idx: index,
                         arrow_pos: states.arrow_pos[index],
                         arrow_vel: states.arrow_vel[index],
-                        e_kin_arrow: states.e_kin_arrow[index],
-                        e_pot_limbs: states.e_pot_limbs[index],
-                        e_kin_limbs: states.e_kin_limbs[index],
-                        e_pot_string: states.e_pot_string[index],
-                        e_kin_string: states.e_kin_string[index],
-                        energy_efficiency: states.e_kin_arrow[index]/statics.final_drawing_work,
+                        kinetic_energy_arrow: states.kinetic_energy_arrow[index],
+                        elastic_energy_limbs: states.elastic_energy_limbs[index],
+                        kinetic_energy_limbs: states.kinetic_energy_limbs[index],
+                        elastic_energy_string: states.elastic_energy_string[index],
+                        kinetic_energy_string: states.kinetic_energy_string[index],
+                        energy_efficiency: states.kinetic_energy_arrow[index]/statics.final_drawing_work,
                     }
                 });
 
@@ -562,17 +570,17 @@ impl<'a> Simulation<'a> {
         // Defined to be positive on "pressure", therefore the minus sign, and multiplied by two for symmetry.
         let grip_force = -2.0*(limb_force[0][2]*f64::cos(limb_pos[0][2]) + limb_force[0][0]*f64::sin(limb_pos[0][2]));
 
-        let e_pot_limbs = 2.0*self.limb_elements.iter().map(|&e| {
-            system.element_ref::<BeamElement>(e).potential_energy()
-        }).sum::<f64>();
+        let elastic_energy_limbs = 2.0*self.limb_elements.iter().map(|&e| { system.element_ref::<BeamElement>(e).potential_energy() }).sum::<f64>();
+        let elastic_energy_string = 2.0*system.element_ref::<StringElement>(self.string_element).potential_energy();
 
         // The kinetic energy of a single limb is sum of the kinetic energies of the limb elements plus the energy of the limb tip mass.
         // The total kinetic energy of the bow is twice that because of symmetry.
-        let e_kin_limbs = 2.0*(self.limb_elements.iter().map(|&e| system.element_ref::<BeamElement>(e).kinetic_energy()).sum::<f64>() + system.element_ref::<MassElement>(self.mass_element_limb_tip).kinetic_energy());
+        let kinetic_energy_limbs = 2.0*(self.limb_elements.iter().map(|&e| system.element_ref::<BeamElement>(e).kinetic_energy()).sum::<f64>() + system.element_ref::<MassElement>(self.mass_element_limb_tip).kinetic_energy());
+        let kinetic_energy_string = 2.0*(system.element_ref::<MassElement>(self.mass_element_string_center).kinetic_energy() + system.element_ref::<MassElement>(self.mass_element_string_tip).kinetic_energy());
+        let kinetic_energy_arrow = 0.5*self.input.masses.arrow*arrow_vel.powi(2);    // Don't use the arrow mass element here
 
-        let e_pot_string = 2.0*system.element_ref::<StringElement>(self.string_element).potential_energy();
-        let e_kin_string = 2.0*(system.element_ref::<MassElement>(self.mass_element_string_center).kinetic_energy() + system.element_ref::<MassElement>(self.mass_element_string_tip).kinetic_energy());
-        let e_kin_arrow = 0.5*self.input.masses.arrow*arrow_vel.powi(2);    // Don't use the arrow mass element here
+        let damping_power_limbs = 2.0*self.limb_elements.iter().map(|&e| system.element_ref::<BeamElement>(e).dissipative_power()).sum::<f64>();
+        let damping_power_string = 2.0*system.element_ref::<StringElement>(self.string_element).dissipative_power();
 
         State {
             time,
@@ -594,11 +602,17 @@ impl<'a> Simulation<'a> {
             arrow_vel,
             arrow_acc,
 
-            e_pot_limbs,
-            e_kin_limbs,
-            e_pot_string,
-            e_kin_string,
-            e_kin_arrow,
+            elastic_energy_limbs,
+            elastic_energy_string,
+
+            kinetic_energy_limbs,
+            kinetic_energy_string,
+            kinetic_energy_arrow,
+
+            damping_energy_limbs: 0.0,    // Integrated from the damping power in a post-processing step
+            damping_energy_string: 0.0,    // Integrated from the damping power in a post-processing step
+            damping_power_limbs,
+            damping_power_string,
 
             draw_force,
             draw_stiffness,

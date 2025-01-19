@@ -14,6 +14,9 @@ pub trait Element: Downcast {
 
     // Computes the element's kinetic energy based on the current state
     fn kinetic_energy(&self) -> f64;
+
+    // Computes the current power of the dissipative forces
+    fn dissipative_power(&self) -> f64;
 }
 
 impl_downcast!(Element);

@@ -132,11 +132,11 @@ pub struct ArrowDeparture {
     pub arrow_vel: f64,
 
     // Energies of the components at separation
-    pub e_kin_arrow: f64,
-    pub e_pot_limbs: f64,
-    pub e_kin_limbs: f64,
-    pub e_pot_string: f64,
-    pub e_kin_string: f64,
+    pub kinetic_energy_arrow: f64,
+    pub elastic_energy_limbs: f64,
+    pub kinetic_energy_limbs: f64,
+    pub elastic_energy_string: f64,
+    pub kinetic_energy_string: f64,
 
     // Degree of efficiency
     pub energy_efficiency: f64,
@@ -164,11 +164,17 @@ pub struct State {
     pub arrow_vel: f64,
     pub arrow_acc: f64,
 
-    pub e_pot_limbs: f64,
-    pub e_kin_limbs: f64,
-    pub e_pot_string: f64,
-    pub e_kin_string: f64,
-    pub e_kin_arrow: f64,
+    pub elastic_energy_limbs: f64,
+    pub elastic_energy_string: f64,
+
+    pub kinetic_energy_limbs: f64,
+    pub kinetic_energy_string: f64,
+    pub kinetic_energy_arrow: f64,
+
+    pub damping_energy_limbs: f64,
+    pub damping_energy_string: f64,
+    pub damping_power_limbs: f64,
+    pub damping_power_string: f64,
 
     pub draw_force: f64,
     pub draw_stiffness: f64,

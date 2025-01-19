@@ -1,7 +1,7 @@
 use itertools::Itertools;
 use nalgebra::{matrix, SMatrix, stack, SVector, vector};
 use crate::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
-use crate::numerics::integration::integrate_fixed;
+use crate::numerics::integration::fixed_simpson;
 
 // This module contains the necessary methods for determining the linear properties of a beam section
 
@@ -81,7 +81,7 @@ impl LinearBeamSegment {
         let mut I = vec![SMatrix::<f64, 3, 3>::zeros()];
         s_integ.iter().tuple_windows().for_each(|(&sa, &sb)| {
             let last = I.last().unwrap();
-            I.push(last + integrate_fixed(dIds, sa, sb, n_integration));
+            I.push(last + fixed_simpson(dIds, sa, sb, n_integration));
         });
 
         // Compute inverse stiffness matrices at nodes and eval points
@@ -122,8 +122,8 @@ impl LinearBeamSegment {
         // Lumped mass matrix
 
         let sm = 0.5*(s0 + s1);  // Segment midpoint
-        let m0 = integrate_fixed(|s|{ vector![ section.ρA(s) ] }, s0, sm, n_integration)[0];    // Mass of the first segment half
-        let m1 = integrate_fixed(|s|{ vector![ section.ρA(s) ] }, sm, s1, n_integration)[0];    // Mass of the second segment half
+        let m0 = fixed_simpson(|s|{ vector![ section.ρA(s) ] }, s0, sm, n_integration)[0];    // Mass of the first segment half
+        let m1 = fixed_simpson(|s|{ vector![ section.ρA(s) ] }, sm, s1, n_integration)[0];    // Mass of the second segment half
         let J0 = 0.5*(s1 - s0)*section.rhoI(s0);    // Lumped rotary inertia of the first node
         let J1 = 0.5*(s1 - s0)*section.rhoI(s1);    // Lumped rotary inertia of the second node
 

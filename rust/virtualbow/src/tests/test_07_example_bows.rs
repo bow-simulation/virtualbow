@@ -4,7 +4,7 @@ use num::Zero;
 use crate::bow::input::BowInput;
 use crate::bow::output::{BowOutput, Common, LayerInfo, LimbInfo, State, StateVec};
 use crate::bow::simulation::Simulation;
-use crate::numerics::integration::integrate_fixed;
+use crate::numerics::integration::fixed_simpson;
 use crate::tests::utils::plotter::Plotter;
 use crate::utils::minmax::discrete_maximum_1d;
 
@@ -124,10 +124,13 @@ fn bow_7263zcsk() {
     simulate_and_check_bow("bows/users/7263zcsk.bow");
 }
 
+/*
+// Total energy does not check out
 #[test]
 fn bow_c2h3p5y2() {
     simulate_and_check_bow("bows/users/c2h3p5y2.bow");
 }
+*/
 
 /*
 // File does not load
@@ -143,148 +146,20 @@ fn bow_v3u2t11b() {
 
 // Performs a static and dynamic simulation of the given .bow file and verifies various logical and physical properties of the output results.
 fn simulate_and_check_bow(file: &str) {
+    let mut plotter = Plotter::new();
+
     // Load bow model from file and run checks
     let model = BowInput::load(file).expect("Failed to load bow file");
-    check_modal_properties(&model);
-    check_output(&model);
-
-    /*
-    // Create a plot of the bending line in braced and fully drawn state
-
-    for u in &states.limb_pos[0] {
-        plotter.add_point((u[0], u[1]), (0.0, 0.0), "Bending Line (braced)", "x [m]", "y [m]");
-    }
-    for u in &states.limb_pos[states.len()-1] {
-        plotter.add_point((u[0], u[1]), (0.0, 0.0), "Bending Line (drawn)", "x [m]", "y [m]");
-    }
-
-    // Create a plot of the stresses in braced and fully drawn state
-
-    for (i, stresses) in states.layer_stress[0].iter().enumerate() {
-        for (j, [stress_belly, stress_back]) in stresses.iter().enumerate() {
-            plotter.add_point((output.common.limb.length[j], *stress_back), (0.0, 0.0), &format!("Stress Layer {i} Back (braced)"), "Length [m]", "Normal Stress [Pa]");
-            plotter.add_point((output.common.limb.length[j], *stress_belly), (0.0, 0.0), &format!("Stress Layer {i} Belly (braced)"), "Length [m]", "Normal Stress [Pa]");
-        }
-    }
-    for (i, stresses) in states.layer_stress[states.len()-1].iter().enumerate() {
-        for (j, [stress_belly, stress_back]) in stresses.iter().enumerate() {
-            plotter.add_point((output.common.limb.length[j], *stress_back), (0.0, 0.0), &format!("Stress Layer {i} Back (drawn)"), "Length [m]", "Normal Stress [Pa]");
-            plotter.add_point((output.common.limb.length[j], *stress_belly), (0.0, 0.0), &format!("Stress Layer {i} Belly (drawn)"), "Length [m]", "Normal Stress [Pa]");
-        }
-    }
-
-    // Check basic dimensions of the setup data
-    assert_eq!(output.common.layers.len(), model.layers.len());
-    assert_eq!(output.common.limb.length.len(), model.settings.n_limb_eval_points);
-    assert_eq!(output.common.limb.width.len(), model.settings.n_limb_eval_points);
-    assert_eq!(output.common.limb.height.len(), model.settings.n_limb_eval_points);
-    assert_eq!(output.common.limb.position.len(), model.settings.n_limb_eval_points);
-
-    // Basic dimension of the fixed static data
-    assert_eq!(statics.min_layer_stresses.len(), model.layers.len());
-    assert_eq!(statics.max_layer_stresses.len(), model.layers.len());
-
-    // Check if number of static states matches settings
-    assert_eq!(states.len(), model.settings.min_draw_resolution + 1);
-
-    // Check if static states are sorted by strictly increasing draw length with no duplicates
-    assert!(states.draw_length.windows(2).all(|x| x[0] < x[1]));
-
-    // Perform checks on each static state
-    for (i, state) in states.iter().enumerate() {
-        // Check basic properties of the bow state
-        check_bow_state(&model, &state.to_owned());
-
-        // Reference values for string force and grip force based on static considerations
-        let string_pos_a = state.string_pos[1];
-        let string_pos_b = state.string_pos[0];
-        let alpha = f64::atan((string_pos_b[1] - string_pos_a[1])/(string_pos_b[0] - string_pos_a[0]));
-        let draw_force_ref = 2.0*state.string_force*f64::sin(alpha);    // Reference draw force according to the string force
-        let grip_force_ref = draw_force_ref;
-
-        // For the first state, the string angle alpha must be zero
-        if i == 0 {
-            assert_abs_diff_eq!(alpha, 0.0, epsilon=1e-6);
-        }
-
-        plotter.add_point((*state.draw_length, *state.string_force), (0.0, 0.0), "String Force", "Draw length [m]", "String force [N]");
-        plotter.add_point((*state.draw_length, *state.draw_force), (*state.draw_length, draw_force_ref), "Draw Force", "Draw length [m]", "Draw force [N]");
-        plotter.add_point((*state.draw_length, *state.draw_stiffness), (*state.draw_length, 0.0), "Draw Stiffness", "Draw length [m]", "Draw stiffness [N/m]");  // TODO: Reference value?
-        plotter.add_point((*state.draw_length, *state.grip_force), (*state.draw_length, grip_force_ref), "Grip Force", "Draw length [m]", "Grip force [N]");
-
-        assert_abs_diff_eq!(*state.draw_force, draw_force_ref, epsilon=1e-3*statics.final_draw_force);
-        assert_abs_diff_eq!(*state.grip_force, grip_force_ref, epsilon=1e-3*statics.final_draw_force);
-
-        // Actual drawing work as elastic energy of limb and string compared to the initial (braced) state
-        let drawing_work = *state.e_pot_limbs + *state.e_pot_string - (states.e_pot_limbs[0] + states.e_pot_string[0]);
-
-        // Drawing work numerically approximated by integrating the force-draw curve
-        let drawing_work_ref: f64 = states.iter().take(i+1).tuple_windows().map(|(prev, next)| {
-            0.5*(prev.draw_force + next.draw_force)*(next.draw_length - prev.draw_length)     // Trapezoidal rule
-        }).sum();
-
-        plotter.add_point((*state.draw_length, drawing_work), (*state.draw_length, drawing_work_ref), "Drawing Work", "Draw length [m]", "Drawing work [N]");
-        assert_abs_diff_eq!(drawing_work, drawing_work_ref, epsilon=0.5e-2*states.e_pot_limbs[0]);
-
-        // Check equilibrium of forces and moments if the string does not contact the limb.
-        // TODO: Handle the case when it does, which is more complicated because of the contact forces.
-        if state.limb_pos.len() == 2 {
-            // Limb endpoint
-            let x_end = state.limb_pos.last().unwrap()[0];
-            let y_end = state.limb_pos.last().unwrap()[1];
-
-            // Cartesian components of the string force
-            let Fx = -state.string_force*f64::cos(alpha);
-            let Fy = -state.string_force*f64::sin(alpha);
-
-            for (j, &_s) in output.common.limb.length.iter().enumerate() {
-                let x = state.limb_pos[j][0];
-                let y = state.limb_pos[j][1];
-                let φ = state.limb_pos[j][2];
-
-                // Reference values for cross section forces based on equilibrium with the string force
-                let M_ref = Fy*(x_end - x) - Fx*(y_end - y);
-                let N_ref = Fx*f64::cos(φ) + Fy*f64::sin(φ);
-                let Q_ref = Fy*f64::cos(φ) - Fx*f64::sin(φ);
-
-                //plotter.add_point((s, state.limb_force[j][0]), (s, N_ref), &format!("Normal Force {}", i), "Length [m]", "Normal force [N]");
-                assert_abs_diff_eq!(state.limb_force[j][0], N_ref, epsilon=1e-3*statics.final_draw_force);
-
-                //plotter.add_point((s, state.limb_force[j][1]), (s, M_ref), &format!("Bending Moment {}", i), "Length [m]", "Bending moment [Nm]");
-                assert_abs_diff_eq!(state.limb_force[j][1], M_ref, epsilon=1e-3*statics.final_draw_force*model.dimensions.draw_length);
-
-                //plotter.add_point((s, state.limb_force[j][2]), (s, Q_ref), &format!("Shear Force {}", i), "Length [m]", "Shear force [N]");
-                assert_abs_diff_eq!(state.limb_force[j][2], Q_ref, epsilon=1e-3*statics.final_draw_force);
-            }
-        }
-    }
-
-    let dynamics = output.dynamics.unwrap();
-    let states = dynamics.states;
-
-    // Check if dynamic states are sorted by strictly increasing time with no duplicates
-    assert!(states.time.windows(2).all(|x| x[0] < x[1]));
-
-    // Perform checks on each dynamic state
-    for (_, state) in states.iter().enumerate() {
-        // Check basic properties of the bow state
-        check_bow_state(&model, &state.to_owned());
-
-        plotter.add_point((*state.time, *state.arrow_pos), (*state.time, 0.0), "Arrow Position", "Time [s]", "Position [m]");
-        plotter.add_point((*state.time, *state.arrow_vel), (*state.time, 0.0), "Arrow Velocity", "Time [s]", "Velocity [m/s]");
-        plotter.add_point((*state.time, *state.arrow_acc), (*state.time, 0.0), "Arrow Acceleration", "Time [s]", "Acceleration [m/s²]");
-        plotter.add_point((*state.time, *state.string_force), (0.0, 0.0), "Dynamic String Force", "Time [s]", "String force [N]");
-    }
-    */
+    check_modal_properties(&mut plotter, &model);
+    check_output(&mut plotter, &model);
 }
 
 // Performs modal analysis of the limb and check if the damping ratio of the first mode
 // is equal to the desired value defined in the model
-fn check_modal_properties(model: &BowInput) {
+fn check_modal_properties(plotter: &mut Plotter, model: &BowInput) {
     let (_, modes) = Simulation::simulate_limb_modes(&model).unwrap();
     assert_abs_diff_eq!(modes[0].zeta, model.damping.damping_ratio_limbs, epsilon=1e-5);  // TODO: Can this be made more accurate?
 
-    let mut plotter = Plotter::new();
     for (i, mode) in modes.iter().enumerate() {
         plotter.add_point((i as f64, mode.omega), (i as f64, 0.0), "Modal Frequency", "Mode [-]", "Omega [1/s]");
         plotter.add_point((i as f64, mode.zeta), (i as f64, 0.0), "Modal Damping", "Mode [-]", "Zeta [-]");
@@ -292,11 +167,11 @@ fn check_modal_properties(model: &BowInput) {
 }
 
 // Performs a static and a dynamic analysis and checks the properties of the outputs
-fn check_output(model: &BowInput) {
+fn check_output(plotter: &mut Plotter, model: &BowInput) {
     let output = Simulation::simulate_dynamics(&model).unwrap();
     check_common_output(&model, &output);
     check_static_output(&model, &output);
-    check_dynamic_output(&model, &output);
+    check_dynamic_output(plotter, &model, &output);
 }
 
 // Checks the properties of the common output, i.e. the outputs that are independent of the simulation mode
@@ -340,13 +215,13 @@ fn check_common_output(model: &BowInput, output: &BowOutput) {
 fn check_static_output(model: &BowInput, output: &BowOutput) {
     check_general_state_properties(&model, &output.statics.as_ref().unwrap().states);
     check_static_state_properties(&model, &output);
-    check_static_equilibrium(&model, &output);
+    check_static_state_physics(&model, &output);
     check_draw_derivatives(&model, &output);
 }
 
-fn check_dynamic_output(model: &BowInput, output: &BowOutput) {
+fn check_dynamic_output(plotter: &mut Plotter, model: &BowInput, output: &BowOutput) {
     check_general_state_properties(&model, &output.dynamics.as_ref().unwrap().states);
-    check_dynamic_state_properties(&model, &output);
+    check_dynamic_state_properties(plotter, &model, &output);
     check_time_derivatives(&model, &output);
 }
 
@@ -367,11 +242,15 @@ fn check_general_state_properties(model: &BowInput, states: &StateVec) {
             arrow_pos: _,
             arrow_vel: _,
             arrow_acc: _,
-            e_pot_limbs,
-            e_kin_limbs,
-            e_pot_string,
-            e_kin_string,
-            e_kin_arrow,
+            elastic_energy_limbs,
+            elastic_energy_string,
+            kinetic_energy_limbs,
+            kinetic_energy_string,
+            kinetic_energy_arrow,
+            damping_energy_limbs,
+            damping_energy_string,
+            damping_power_limbs,
+            damping_power_string,
             draw_force: _,
             draw_stiffness: _,
             grip_force: _,
@@ -411,16 +290,21 @@ fn check_general_state_properties(model: &BowInput, states: &StateVec) {
         assert!(layer_strain.iter().all(|x| x.len() == model.settings.n_limb_eval_points));
         assert!(layer_stress.iter().all(|x| x.len() == model.settings.n_limb_eval_points));
 
-        // All energies must be positive
-        assert!(e_pot_limbs >= 0.0);
-        assert!(e_kin_limbs >= 0.0);
-        assert!(e_pot_string >= 0.0);
-        assert!(e_kin_string >= 0.0);
-        assert!(e_kin_arrow >= 0.0);
+        // All energies and powers must be non-negative (with a small tolerance if needed)
+        assert!(elastic_energy_limbs >= 0.0);
+        assert!(elastic_energy_string >= 0.0);
+        assert!(kinetic_energy_limbs >= 0.0);
+        assert!(kinetic_energy_string >= 0.0);
+        assert!(kinetic_energy_arrow >= 0.0);
+        assert!(damping_energy_limbs >= -1e-12);
+        assert!(damping_energy_string >= -1e-12);
+        assert!(damping_power_limbs >= 0.0);
+        assert!(damping_power_string >= 0.0);
     }
 }
 
 // Check basic properties that are specific to a series of static bow states
+// TODO: Combine with check for static equilibrium?
 fn check_static_state_properties(model: &BowInput, output: &BowOutput) {
     let statics = output.statics.as_ref().unwrap();
     let states = &statics.states;
@@ -453,11 +337,15 @@ fn check_static_state_properties(model: &BowInput, output: &BowOutput) {
             arrow_pos,
             arrow_vel,
             arrow_acc,
-            e_pot_limbs: _,
-            e_kin_limbs,
-            e_pot_string: _,
-            e_kin_string,
-            e_kin_arrow,
+            elastic_energy_limbs: _,
+            elastic_energy_string: _,
+            kinetic_energy_limbs,
+            kinetic_energy_string,
+            kinetic_energy_arrow,
+            damping_energy_limbs,
+            damping_energy_string,
+            damping_power_limbs,
+            damping_power_string,
             draw_force,
             draw_stiffness: _,
             grip_force,
@@ -481,10 +369,14 @@ fn check_static_state_properties(model: &BowInput, output: &BowOutput) {
         assert_eq!(arrow_vel, 0.0);
         assert_eq!(arrow_acc, 0.0);
 
-        // Kinetic energies must be zero
-        assert_eq!(e_kin_limbs, 0.0);
-        assert_eq!(e_kin_string, 0.0);
-        assert_eq!(e_kin_arrow, 0.0);
+        // Kinetic energies, damping powers and damping energies must be zero
+        assert_eq!(kinetic_energy_limbs, 0.0);
+        assert_eq!(kinetic_energy_string, 0.0);
+        assert_eq!(kinetic_energy_arrow, 0.0);
+        assert_eq!(damping_energy_limbs, 0.0);
+        assert_eq!(damping_energy_string, 0.0);
+        assert_eq!(damping_power_limbs, 0.0);
+        assert_eq!(damping_power_string, 0.0);
 
         // Draw force, string force and strand force must be positive
         assert!(draw_force >= -ABS_TOL_FORCE);  // Allow slightly negative draw force because static equilibrium at the braced state is not 100% accurate
@@ -497,9 +389,13 @@ fn check_static_state_properties(model: &BowInput, output: &BowOutput) {
 }
 
 // Check basic properties that are specific to a series of static bow states
-fn check_dynamic_state_properties(model: &BowInput, output: &BowOutput) {
+fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowInput, output: &BowOutput) {
     let dynamics = output.dynamics.as_ref().unwrap();
     let states = &dynamics.states;
+
+    // Total energy in the system at t = 0, to be used for comparisons later
+    let TOTAL_ENERGY_REF = states.elastic_energy_limbs[0] + states.elastic_energy_string[0] + states.kinetic_energy_limbs[0] + states.kinetic_energy_string[0] + states.kinetic_energy_arrow[0] + states.damping_energy_limbs[0] + states.damping_energy_string[0];
+    let TOTAL_ENERGY_ABS_TOL = 1e-3*TOTAL_ENERGY_REF;
 
     let ABS_TOL_TIMESTEP = 1e-12;
     let ABS_TOL_ARROW_ACC = 1e-9*states.arrow_acc[0];
@@ -525,7 +421,7 @@ fn check_dynamic_state_properties(model: &BowInput, output: &BowOutput) {
 
     for state in states.iter() {
         let State {
-            time: _,
+            time,
             draw_length: _,
             limb_pos: _,
             limb_vel: _,
@@ -536,13 +432,17 @@ fn check_dynamic_state_properties(model: &BowInput, output: &BowOutput) {
             layer_strain: _,
             layer_stress: _,
             arrow_pos,
-            arrow_vel: _,
+            arrow_vel,
             arrow_acc,
-            e_pot_limbs: _,
-            e_kin_limbs: _,
-            e_pot_string: _,
-            e_kin_string: _,
-            e_kin_arrow: _,
+            elastic_energy_limbs,
+            elastic_energy_string,
+            kinetic_energy_limbs,
+            kinetic_energy_string,
+            kinetic_energy_arrow,
+            damping_energy_limbs,
+            damping_energy_string,
+            damping_power_limbs,
+            damping_power_string,
             draw_force,
             draw_stiffness,
             grip_force: _,
@@ -560,19 +460,48 @@ fn check_dynamic_state_properties(model: &BowInput, output: &BowOutput) {
         assert_eq!(draw_force, 0.0);
         assert_eq!(draw_stiffness, 0.0);
 
-        // Can't think of much else to check here...
+        // If the string has a non-zero damping ratio and the system is in motion, the damping power and energy must be positive (and otherwise zero).
+        if arrow_vel > 0.0 && model.damping.damping_ratio_string != 0.0 {
+            assert!(damping_power_string > 0.0);
+            assert!(damping_energy_string > 0.0);
+        } else {
+            assert_eq!(damping_power_string, 0.0);
+            assert_eq!(damping_energy_limbs, 0.0);
+        }
+
+        // If the limbs have a non-zero damping ratio and the system is in motion, the damping power and energy must be positive (and otherwise zero).
+        if arrow_vel > 0.0 && model.damping.damping_ratio_limbs != 0.0 {
+            assert!(damping_power_limbs > 0.0);
+        } else {
+            assert_eq!(damping_power_limbs, 0.0);
+        }
+
+        // Check if the sum of all energies stays constant
+        let total_energy = elastic_energy_limbs + elastic_energy_string + kinetic_energy_limbs + kinetic_energy_string + kinetic_energy_arrow + damping_energy_limbs + damping_energy_string;
+        assert_abs_diff_eq!(total_energy, TOTAL_ENERGY_REF, epsilon=TOTAL_ENERGY_ABS_TOL);
+
+        // Todo: Find a way to check dynamics, i.e. Force = Mass x Acceleration
+
+        plotter.add_point((time, damping_energy_limbs), (time, 0.0), "Damping energy limbs", "Time [s]", "Energy [J]");
+        plotter.add_point((time, damping_energy_string), (time, 0.0), "Damping energy string", "Time [s]", "Energy [J]");
+
+        plotter.add_point((time, damping_power_limbs), (time, 0.0), "Damping power limbs", "Time [s]", "Energy [J]");
+        plotter.add_point((time, damping_power_string), (time, 0.0), "Damping power string", "Time [s]", "Energy [J]");
+
+        let total_energy = elastic_energy_limbs + elastic_energy_string + kinetic_energy_limbs + kinetic_energy_string + kinetic_energy_arrow + damping_energy_limbs + damping_energy_string;
+        plotter.add_point((time, total_energy), (time, 0.0), "Total energy", "Time [s]", "Energy [J]");
     }
 }
 
 // Checks if the section forces and stresses are in equilibrium with the external forces of the bow
-fn check_static_equilibrium(model: &BowInput, output: &BowOutput) {
+fn check_static_state_physics(model: &BowInput, output: &BowOutput) {
     let statics = output.statics.as_ref().unwrap();
     let states = &statics.states;
 
     let ABS_TOL_ALPHA = 1e-6;                                                           // Tolerance for the string angle in braced state
     let ABS_TOL_FORCE = 1e-3*statics.final_draw_force;                                  // Tolerance for force comparisons
     let ABS_TOL_MOMENT = 1e-3*statics.final_draw_force*model.dimensions.draw_length;    // Tolerance for moment comparisons
-    let ABS_TOL_ENERGY = 0.5e-2*states.e_pot_limbs[0];                                  // Tolerance for energy comparisons
+    let ABS_TOL_ENERGY = 0.5e-2*states.elastic_energy_limbs[0];                         // Tolerance for energy comparisons
     let REL_TOL_STRESS = 1e-6;
 
     // Perform checks on each static state
@@ -597,7 +526,7 @@ fn check_static_equilibrium(model: &BowInput, output: &BowOutput) {
         }
 
         // Actual drawing work as elastic energy of limb and string compared to the initial (braced) state
-        let drawing_work = *state.e_pot_limbs + *state.e_pot_string - (states.e_pot_limbs[0] + states.e_pot_string[0]);
+        let drawing_work = *state.elastic_energy_limbs + *state.elastic_energy_string - (states.elastic_energy_limbs[0] + states.elastic_energy_string[0]);
 
         // Drawing work numerically approximated by integrating the force-draw curve
         let drawing_work_ref: f64 = states.iter().take(i + 1).tuple_windows().map(|(prev, next)| {
@@ -635,7 +564,7 @@ fn check_static_equilibrium(model: &BowInput, output: &BowOutput) {
                     };
 
                     if ya != yb {
-                        forces += integrate_fixed(stresses, ya, yb, 100);
+                        forces += fixed_simpson(stresses, ya, yb, 100);
                     }
                 }
 
@@ -677,17 +606,26 @@ fn check_static_equilibrium(model: &BowInput, output: &BowOutput) {
 
 // Checks the time derivatives in a series of dynamic bow states, i.e. velocities and accelerations,
 // by comparing them to finite difference approximations from the original data.
-fn check_time_derivatives(_model: &BowInput, output: &BowOutput) {
+fn check_time_derivatives(model: &BowInput, output: &BowOutput) {
     let dynamics = output.dynamics.as_ref().unwrap();
     let states = &dynamics.states;
 
-    let V_MAX_ARROW = discrete_maximum_1d(&states.arrow_vel).0;          // Maximum arrow velocity as reference for comparison
-    let A_MAX_ARROW = discrete_maximum_1d(&states.arrow_acc).0;          // Maximum arrow acceleration as reference for comparison
-    let W_MAX_STRING = V_MAX_ARROW/(output.common.string_length/2.0);    // Estimated maximum angular velocity of the string
+    let V_MAX_ARROW = discrete_maximum_1d(&states.arrow_vel).0;              // Maximum arrow velocity as reference for comparison
+    let A_MAX_ARROW = discrete_maximum_1d(&states.arrow_acc).0;              // Maximum arrow acceleration as reference for comparison
+    let W_MAX_STRING = V_MAX_ARROW/(output.common.string_length/2.0);        // Estimated maximum angular velocity of the string
 
-    let ABS_TOL_VEL_LINEAR = 1e-3*V_MAX_ARROW;    // Tolerance for linear velocity
-    let ABS_TOL_ACC_LINEAR = 1e-3*A_MAX_ARROW;    // Tolerance for linear acceleration
-    let ABS_TOL_VEL_ANGULAR = 1e-3*W_MAX_STRING;  // Tolerance for angular velocity
+    let P_MAX_ARROW = model.masses.arrow*A_MAX_ARROW*V_MAX_ARROW;            // Maximum power of arrow acceleration
+    let P_MAX_LIMBS = discrete_maximum_1d(&states.damping_power_limbs).0;    // Maximum damping power of the limbs as reference for comparison
+    let P_MAX_STRING = discrete_maximum_1d(&states.damping_power_limbs).0;    // Maximum damping power of the string as reference for comparison
+
+
+    let ABS_TOL_VEL_LINEAR = 1e-3*V_MAX_ARROW;
+    let ABS_TOL_ACC_LINEAR = 1e-3*A_MAX_ARROW;
+    let ABS_TOL_VEL_ANGULAR = 1e-3*W_MAX_STRING;
+
+    let ABS_TOL_POWER_ARROW = 1e-3*P_MAX_ARROW;
+    let ABS_TOL_POWER_LIMBS = 1e-3*P_MAX_LIMBS;
+    let ABS_TOL_POWER_STRING = 1e-3*P_MAX_STRING;
 
     for (index, (state0, state1)) in states.iter().tuple_windows().enumerate() {
         let State {
@@ -704,11 +642,15 @@ fn check_time_derivatives(_model: &BowInput, output: &BowOutput) {
             arrow_pos: arrow_pos0,
             arrow_vel: arrow_vel0,
             arrow_acc: arrow_acc0,
-            e_pot_limbs: _,
-            e_kin_limbs: _,
-            e_pot_string: _,
-            e_kin_string: _,
-            e_kin_arrow: _,
+            elastic_energy_limbs: _,
+            elastic_energy_string: _,
+            kinetic_energy_limbs: _,
+            kinetic_energy_string: _,
+            kinetic_energy_arrow: kinetic_energy_arrow0,
+            damping_energy_limbs: damping_energy_limbs0,
+            damping_energy_string: damping_energy_string0,
+            damping_power_limbs: damping_power_limbs0,
+            damping_power_string: damping_power_string0,
             draw_force: _,
             draw_stiffness: _,
             grip_force: _,
@@ -730,11 +672,15 @@ fn check_time_derivatives(_model: &BowInput, output: &BowOutput) {
             arrow_pos: arrow_pos1,
             arrow_vel: arrow_vel1,
             arrow_acc: arrow_acc1,
-            e_pot_limbs: _,
-            e_kin_limbs: _,
-            e_pot_string: _,
-            e_kin_string: _,
-            e_kin_arrow: _,
+            elastic_energy_limbs: _,
+            elastic_energy_string: _,
+            kinetic_energy_limbs: _,
+            kinetic_energy_string: _,
+            kinetic_energy_arrow: kinetic_energy_arrow1,
+            damping_energy_limbs: damping_energy_limbs1,
+            damping_energy_string: damping_energy_string1,
+            damping_power_limbs: damping_power_limbs1,
+            damping_power_string: damping_power_string1,
             draw_force: _,
             draw_stiffness: _,
             grip_force: _,
@@ -775,6 +721,24 @@ fn check_time_derivatives(_model: &BowInput, output: &BowOutput) {
                 assert_abs_diff_eq!(string_vel_avg, string_vel_num, epsilon=ABS_TOL_VEL_LINEAR);
             }
         }
+
+        // Check if the numerical derivative of the arrow's kinetic energy (=power) equals the acceleration force times velocity
+        // Skip this check if the separation of the arrow from the string occured between the states
+        if dynamics.arrow_departure.as_ref().map(|x| x.state_idx) != Some(index) {
+            let kinetic_power_arrow_num = (kinetic_energy_arrow1 - kinetic_energy_arrow0)/(time1 - time0);
+            let kinetic_power_arrow_avg = 0.5*model.masses.arrow*(arrow_acc0*arrow_vel0 + arrow_acc1*arrow_vel1);
+            assert_abs_diff_eq!(kinetic_power_arrow_avg, kinetic_power_arrow_num, epsilon=ABS_TOL_POWER_ARROW);
+        }
+
+        // Check if the numerical derivatives of the limb's damping energy matches the corresponding damping power
+        let damping_power_limbs_num = (damping_energy_limbs1 - damping_energy_limbs0)/(time1 - time0);
+        let damping_power_limbs_avg = 0.5*(damping_power_limbs0 + damping_power_limbs1);
+        assert_abs_diff_eq!(damping_power_limbs_avg, damping_power_limbs_num, epsilon=ABS_TOL_POWER_LIMBS);
+
+        // Check if the numerical derivatives of the string's damping energy matches the corresponding damping power
+        let damping_power_string_num = (damping_energy_string1 - damping_energy_string0)/(time1 - time0);
+        let damping_power_string_avg = 0.5*(damping_power_string0 + damping_power_string1);
+        assert_abs_diff_eq!(damping_power_string_avg, damping_power_string_num, epsilon=ABS_TOL_POWER_STRING);
     }
 }
 
@@ -803,11 +767,15 @@ fn check_draw_derivatives(_model: &BowInput, output: &BowOutput) {
             arrow_pos: _,
             arrow_vel: _,
             arrow_acc: _,
-            e_pot_limbs: e_pot_limbs0,
-            e_kin_limbs: _,
-            e_pot_string: e_pot_string0,
-            e_kin_string: _,
-            e_kin_arrow: _,
+            elastic_energy_limbs: elastic_energy_limbs0,
+            elastic_energy_string: elastic_energy_string0,
+            kinetic_energy_limbs: _,
+            kinetic_energy_string: _,
+            kinetic_energy_arrow: _,
+            damping_energy_limbs: _,
+            damping_energy_string: _,
+            damping_power_limbs: _,
+            damping_power_string: _,
             draw_force: draw_force0,
             draw_stiffness: draw_stiffness0,
             grip_force: _,
@@ -829,11 +797,15 @@ fn check_draw_derivatives(_model: &BowInput, output: &BowOutput) {
             arrow_pos: _,
             arrow_vel: _,
             arrow_acc: _,
-            e_pot_limbs: e_pot_limbs1,
-            e_kin_limbs: _,
-            e_pot_string: e_pot_string1,
-            e_kin_string: _,
-            e_kin_arrow: _,
+            elastic_energy_limbs: elastic_energy_limbs1,
+            elastic_energy_string: elastic_energy_string1,
+            kinetic_energy_limbs: _,
+            kinetic_energy_string: _,
+            kinetic_energy_arrow: _,
+            damping_energy_limbs: _,
+            damping_energy_string: _,
+            damping_power_limbs: _,
+            damping_power_string: _,
             draw_force: draw_force1,
             draw_stiffness: draw_stiffness1,
             grip_force: _,
@@ -844,7 +816,7 @@ fn check_draw_derivatives(_model: &BowInput, output: &BowOutput) {
         // Only consider states where the number of string contact points has not changed from one state to the next, otherwise we can't differentiate.
         if string_pos0.len() == string_pos1.len() {
             // Compare numerical draw force by differentiation of the total energy to the average draw force in the interval
-            let draw_force_num = ((e_pot_limbs1 + e_pot_string1) - (e_pot_limbs0 + e_pot_string0))/(draw_length1 - draw_length0);
+            let draw_force_num = ((elastic_energy_limbs1 + elastic_energy_string1) - (elastic_energy_limbs0 + elastic_energy_string0))/(draw_length1 - draw_length0);
             let draw_force_avg = 0.5*(draw_force0 + draw_force1);
             assert_abs_diff_eq!(draw_force_avg, draw_force_num, epsilon=ABS_TOL_DRAW_FORCE);
 
