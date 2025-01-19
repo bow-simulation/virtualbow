@@ -31,10 +31,12 @@ pub struct BeamElement {
 
     // State dependent data
 
-    u: SVector<f64, 6>,    // Total displacements
-    v: SVector<f64, 6>,    // Total velocities
-    ul: SVector<f64, 3>,   // Local displacements
-    vl: SVector<f64, 3>,   // Local velocities
+    u: SVector<f64, 6>,     // Total displacements
+    v: SVector<f64, 6>,     // Total velocities
+    ul: SVector<f64, 3>,    // Local displacements
+    vl: SVector<f64, 3>,    // Local velocities
+    fe: SVector<f64, 3>,    // Local elastic forces
+    fd: SVector<f64, 3>,    // Local damping forces
     Qe: SVector<f64, 6>,    // Total elastic forces
     Qd: SVector<f64, 6>,    // Total damping forces
 }
@@ -90,12 +92,14 @@ impl BeamElement {
             β1: segment.p1[2] - a0,
             u_eval,
             C_inv: segment.Ci.clone(),
-            u: Default::default(),
-            v: Default::default(),
-            ul: Default::default(),
-            vl: Default::default(),
-            Qe: Default::default(),
-            Qd: Default::default(),
+            u: SVector::zeros(),
+            v: SVector::zeros(),
+            ul: SVector::zeros(),
+            vl: SVector::zeros(),
+            fe: SVector::zeros(),
+            fd: SVector::zeros(),
+            Qe: SVector::zeros(),
+            Qd: SVector::zeros(),
         }
     }
 
@@ -223,12 +227,12 @@ impl Element for BeamElement {
         self.vl = J*self.v;
 
         if q.is_some() || K.is_some() {
-            let fe = self.K*self.ul;    // Local elastic forces
-            let fd = self.D*self.vl;    // Local damping forces
-            let ft = fe + fd;           // Total local forces
+            self.fe = self.K*self.ul;      // Local elastic forces
+            self.fd = self.D*self.vl;      // Local damping forces
+            let ft = self.fe + self.fd;    // Total local forces
 
-            self.Qe = J.transpose()*fe;
-            self.Qd = J.transpose()*fd;
+            self.Qe = J.transpose()*self.fe;
+            self.Qd = J.transpose()*self.fd;
 
             // Compute elastic forces if needed
             if let Some(ref mut q) = q {
@@ -272,10 +276,14 @@ impl Element for BeamElement {
     }
 
     fn potential_energy(&self) -> f64 {
-        return 0.5*self.ul.dot(&(self.K*self.ul));
+        0.5*self.ul.dot(&(self.K*self.ul))
     }
 
     fn kinetic_energy(&self) -> f64 {
-        return 0.5*self.v.dot(&(self.M.component_mul(&self.v)));
+        0.5*self.v.dot(&(self.M.component_mul(&self.v)))
+    }
+
+    fn dissipative_power(&self) -> f64 {
+        self.fd.dot(&self.vl)
     }
 }

@@ -18,7 +18,8 @@ pub struct StringElement {
     angles: Vec<f64>,                    // Angles of the points
     indices: Vec<usize>,                 // Indices of the points that are in contact
     lengths: Vec<f64>,                   // Lengths between the contact points
-    lt: f64,                             // Total length of the string
+    l: f64,                              // Current length
+    dldt: f64,                           // Velocity of the length
     dldu: DVector<f64>,                  // Gradient of the length wrt to the displacements
     dldu2: DMatrix<f64>,                 // Hessian of the length wrt to the displacements
     Nt: f64,                             // Total normal force
@@ -41,7 +42,8 @@ impl StringElement {
             angles: vec![0.0; n_points],                // Size: Number of nodes,
             indices: Vec::with_capacity(n_points),      // Size: Initially zero, maximum is number of nodes
             lengths: Vec::with_capacity(n_points - 1),  // Size: Initially zero, maximum is number of nodes - 1
-            lt: l0,
+            l: l0,
+            dldt: 0.0,
             dldu: DVector::zeros(3*n_points),                 // Size: Number of points times number of dofs per point
             dldu2: DMatrix::zeros(3*n_points, 3*n_points),    // Size: Number of points times number of dofs per point
             Nt: 0.0,
@@ -63,7 +65,7 @@ impl StringElement {
     }
 
     pub fn get_current_length(&self) -> f64 {
-        self.lt
+        self.l
     }
 
     pub fn get_initial_length(&self) -> f64 {
@@ -147,11 +149,11 @@ impl Element for StringElement {
         // Step 3: Compute partial lengths and total length from contact points
         self.lengths.clear();
         self.lengths.extend(self.indices.iter().tuple_windows().map(|(&i, &j)| (self.positions[j] - self.positions[i]).norm()));
-        self.lt = self.lengths.iter().sum();
+        self.l = self.lengths.iter().sum();
 
         // Step 4: Reduce stiffness and damping according to alpha, if there is compression
-        let EA = if self.lt > self.l0 { self.EA } else { self.cf *self.EA };
-        let ηA = if self.lt > self.l0 { self.ηA } else { self.cf *self.ηA };
+        let EA = if self.l > self.l0 { self.EA } else { self.cf *self.EA };
+        let ηA = if self.l > self.l0 { self.ηA } else { self.cf *self.ηA };
 
         // Step 5: Compute partial derivatives of the length as needed for Q, K and D
 
@@ -236,10 +238,10 @@ impl Element for StringElement {
         // Calculations are done in loops in order to avoid dynamic allocations from temporary DVector and DMatrix types.
         // This hasn't been benchmarked though, maybe the other way would be better.
 
-        let dldt: f64 = self.dldu.iter().enumerate().map(|(i, dldu)| dldu*v.at(i)).sum();
+        self.dldt = self.dldu.iter().enumerate().map(|(i, dldu)| dldu*v.at(i)).sum();
 
-        self.Ne = EA/self.l0 *(self.lt - self.l0);
-        self.Nv = ηA /self.l0*dldt;
+        self.Ne = EA/self.l0 *(self.l - self.l0);
+        self.Nv = ηA /self.l0*self.dldt;
         self.Nt = self.Ne + self.Nv;
 
         if let Some(ref mut q) = q {
@@ -267,10 +269,14 @@ impl Element for StringElement {
     }
 
     fn potential_energy(&self) -> f64 {
-        0.5*self.Nt*(self.lt - self.l0)
+        0.5*self.Ne*(self.l - self.l0)    // Potential energy is determined by the elastic component of the total force
     }
 
     fn kinetic_energy(&self) -> f64 {
         0.0    // This element has no mass properties, those have to be modelled over separate point masses
+    }
+
+    fn dissipative_power(&self) -> f64 {
+        self.Nv*self.dldt    // Damping power is determined by the viscous component of the total force
     }
 }
