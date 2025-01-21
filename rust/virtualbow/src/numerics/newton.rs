@@ -265,7 +265,7 @@ mod tests {
     }
 
     #[test]
-    fn test_constrained() {
+    fn test_constrained_1() {
         let mut x_num = Vec::new();
 
         // Example function from Wikipedia: https://en.wikipedia.org/wiki/Newton%27s_method#Example
@@ -319,5 +319,60 @@ mod tests {
 
         // Check if the result contains the same same solution that the function was called last with
         assert_eq!(&result.x, x_num.last().unwrap());
+    }
+
+    #[test]
+    fn test_constrained_2() {
+        // Use a more simple example function with an analytical solution so that the derivative dx/dλ of the solution can be verified.
+        // Inspired by example from https://www.youtube.com/watch?v=AK2APTz1ZLA
+        //
+        // System of two equations (representing the intersection of a line and a parabola):
+        //
+        // x0 - x1^2 + 8*λ = 0
+        // x0 - 2*x1 + 5*λ = 0
+        //
+        // One of the solutions is (picked the positive square root):
+        //
+        // x[1] = 1 + sqrt(3*λ + 1)
+        // x[0] = 2*x[1] - 5*λ
+        //
+        // Therefore the derivative wrt λ is:
+        //
+        // d/dλ x[1] = 3/(2*sqrt(3*λ + 1))
+        // d/dλ x[0] = 2*(d/dλ x[1]) - 5
+
+        let mut f = |x: &DVector<f64>, λ: f64, f: &mut DVector<f64>, dfdx: &mut DMatrix<f64>, dfdλ: &mut DVector<f64>| {
+            f[0] = x[0] - x[1].powi(2) + 8.0*λ;
+            f[1] = x[0] - 2.0*x[1] + 5.0*λ;
+
+            dfdx[(0, 0)] = 1.0;
+            dfdx[(0, 1)] = -2.0*x[1];
+            dfdx[(1, 0)] = 1.0;
+            dfdx[(1, 1)] = -2.0;
+
+            dfdλ[0] = 8.0;
+            dfdλ[1] = 5.0;
+        };
+
+        // The constant function just fixes the parameter at λ = 1
+        let mut c = |_x: &DVector<f64>, λ: f64, c: &mut f64, dcdx: &mut DVector<f64>, dcdλ: &mut f64| {
+            *c = λ - 1.0;
+            *dcdλ = 1.0;
+
+            dcdx[0] = 0.0;
+            dcdx[1] = 0.0;
+        };
+
+        // Reference solution for λ = 1:
+        let x_ref = dvector![1.0, 3.0];
+        let λ_ref = 1.0;
+        let dxdλ_ref = dvector![-3.5, 0.75];
+
+        // Perform solution at a starting point that converges against the solution we picked previously,
+        // compare the solution and its derivative to the parameter λ against the analytical solution for λ = 1.
+        let result = solve_newton_constrained(&mut f, &mut c, dvector![2.5, 1.5], 1.2, NewtonSettings { epsilon_rel: 1e-6, epsilon_abs: 0.0, ..Default::default() }).unwrap();
+        assert_abs_diff_eq!(result.x, x_ref, epsilon=1e-6);
+        assert_abs_diff_eq!(result.λ, λ_ref, epsilon=1e-6);
+        assert_abs_diff_eq!(result.dxdλ, dxdλ_ref, epsilon=1e-6);
     }
 }
