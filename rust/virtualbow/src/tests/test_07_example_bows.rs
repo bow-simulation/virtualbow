@@ -2,7 +2,7 @@ use itertools::Itertools;
 use nalgebra::{SVector, vector};
 use num::Zero;
 use crate::bow::input::BowInput;
-use crate::bow::output::{BowOutput, Common, LayerInfo, LimbInfo, State, StateVec};
+use crate::bow::output::{ArrowDeparture, BowOutput, Common, Dynamics, LayerInfo, LimbInfo, State, StateVec, Statics};
 use crate::bow::simulation::Simulation;
 use crate::numerics::integration::fixed_simpson;
 use crate::tests::utils::plotter::Plotter;
@@ -216,13 +216,165 @@ fn check_static_output(model: &BowInput, output: &BowOutput) {
     check_general_state_properties(&model, &output.statics.as_ref().unwrap().states);
     check_static_state_properties(&model, &output);
     check_static_state_physics(&model, &output);
-    check_draw_derivatives(&model, &output);
+    check_static_derivatives(&model, &output);
+    check_static_scalar_results(&model, &output);
 }
 
 fn check_dynamic_output(plotter: &mut Plotter, model: &BowInput, output: &BowOutput) {
     check_general_state_properties(&model, &output.dynamics.as_ref().unwrap().states);
     check_dynamic_state_properties(plotter, &model, &output);
-    check_time_derivatives(&model, &output);
+    check_dynamic_derivatives(&model, &output);
+    check_dynamic_scalar_results(&model, &output);
+}
+
+// Check some basic properties (domain, dimensions) for the scalar static outputs
+fn check_static_scalar_results(model: &BowInput, output: &BowOutput) {
+    let Statics {
+        states,
+        final_draw_force,
+        final_drawing_work,
+        storage_factor,
+        max_string_force,
+        max_strand_force,
+        max_draw_force,
+        min_grip_force,
+        max_grip_force,
+        min_layer_stresses,
+        max_layer_stresses
+    } = output.statics.as_ref().unwrap();
+
+    // Draw force, drawing work and storage factor must be positive
+    assert!(*final_draw_force > 0.0);
+    assert!(*final_drawing_work > 0.0);
+    assert!(*storage_factor > 0.0);
+
+    // The maximum string force must be positive and occur within the total number of states
+    assert!(max_string_force.0 > 0.0);
+    assert!(max_string_force.1 < states.len());
+
+    // The maximum strand force must be smaller or equal to the maximum string force, because there are 1 or more strands.
+    // It must occur within the total number of states
+    assert!(max_strand_force.0 <= max_string_force.0);
+    assert!(max_string_force.1 < states.len());
+
+    // The maximum draw force must be positive and occur within the total number of states
+    assert!(max_draw_force.0 > 0.0);
+    assert!(max_draw_force.1 < states.len());
+
+    // The minimum grip force is zero in the static case (or close to) and occurs right at the start at zero draw force.
+    assert_abs_diff_eq!(min_grip_force.0, 0.0, epsilon=1e-5*final_draw_force);
+    assert_eq!(min_grip_force.1, 0);
+
+    // The maximum grip force must be positive and occur within the total number of states
+    assert!(max_grip_force.0 > 0.0);
+    assert!(max_grip_force.1 < states.len());
+
+    // There must be as many min layer stress entries as there are layers in the model
+    // The indices must be in the correct range (state, length, belly/back)
+    assert_eq!(min_layer_stresses.len(), model.layers.len());
+    for layer_stress in min_layer_stresses {
+        assert!(layer_stress.1[0] < states.len());
+        assert!(layer_stress.1[1] < model.settings.n_limb_eval_points);
+        assert!(layer_stress.1[2] < 2);
+    }
+
+    // There must be as many max layer stress entries as there are layers in the model
+    // The indices must be in the correct range (state, length, belly/back)
+    assert_eq!(max_layer_stresses.len(), model.layers.len());
+    for layer_stress in max_layer_stresses {
+        assert!(layer_stress.1[0] < states.len());
+        assert!(layer_stress.1[1] < model.settings.n_limb_eval_points);
+        assert!(layer_stress.1[2] < 2);
+    }
+}
+
+// Check some basic properties (domain, dimensions) for the scalar dynamic outputs
+fn check_dynamic_scalar_results(model: &BowInput, output: &BowOutput) {
+    let Dynamics {
+        states,
+        arrow_departure,
+        max_string_force,
+        max_strand_force,
+        max_draw_force,
+        min_grip_force,
+        max_grip_force,
+        min_layer_stresses,
+        max_layer_stresses
+    } = output.dynamics.as_ref().unwrap();
+
+    if let Some(arrow_departure) = arrow_departure {
+        let ArrowDeparture { state_idx, arrow_pos, arrow_vel, kinetic_energy_arrow, elastic_energy_limbs, kinetic_energy_limbs, elastic_energy_string, kinetic_energy_string, energy_efficiency } = arrow_departure;
+
+        // Check if the quantities at separation are consistent with the states and the index
+        assert_eq!(*arrow_pos, states.arrow_pos[*state_idx]);
+        assert_eq!(*arrow_vel, states.arrow_vel[*state_idx]);
+        assert_eq!(*kinetic_energy_arrow, states.kinetic_energy_arrow[*state_idx]);
+        assert_eq!(*elastic_energy_limbs, states.elastic_energy_limbs[*state_idx]);
+        assert_eq!(*kinetic_energy_limbs, states.kinetic_energy_limbs[*state_idx]);
+        assert_eq!(*elastic_energy_string, states.elastic_energy_string[*state_idx]);
+        assert_eq!(*kinetic_energy_string, states.kinetic_energy_string[*state_idx]);
+
+        // Check range of the energy efficiency
+        assert!(*energy_efficiency > 0.0);
+        assert!(*energy_efficiency < 1.0);
+
+        // Up to the departure of the arrow, its position and velocity are equal to that of the string
+        for i in 0..=*state_idx {
+            assert_eq!(states.arrow_pos[i], states.string_pos[i][0][1]);
+            assert_eq!(states.arrow_vel[i], states.string_vel[i][0][1]);
+        }
+
+        // After the departure, position and velocity are no longer equal
+        // (The probability that one of those is equal by chance is very low)
+        for i in state_idx+1..states.len() {
+            assert!(states.arrow_pos[i] != states.string_pos[i][0][1]);
+            assert!(states.arrow_vel[i] != states.string_vel[i][0][1]);
+        }
+    }
+    else {
+        // If no arrow departure occurred, the arrow position and velocity must be equal to the string throughout
+        for i in 0..=states.len() {
+            assert_eq!(states.arrow_pos[i], states.string_pos[i][0][1]);
+            assert_eq!(states.arrow_vel[i], states.string_vel[i][0][1]);
+        }
+    }
+
+    // The maximum string force must be positive and occur within the total number of states
+    assert!(max_string_force.0 > 0.0);
+    assert!(max_string_force.1 < states.len());
+
+    // The maximum strand force must be smaller or equal to the maximum string force, because there are 1 or more strands.
+    // It must occur within the total number of states
+    assert!(max_strand_force.0 <= max_string_force.0);
+    assert!(max_string_force.1 < states.len());
+
+    // The draw force is zero in dynamics, so the maximum draw force must be as well
+    // It occurs at the last state, but that's just an implementation detail
+    assert_eq!(max_draw_force.0, 0.0);
+    assert_eq!(max_draw_force.1, states.len() - 1);
+
+    // The minimum and maximum grip force must occur within the total number of states
+    // They may be positive or negative (since the duration of the simulation might not include any sign changes)
+    assert!(min_grip_force.1 < states.len());
+    assert!(max_grip_force.1 < states.len());
+
+    // There must be as many min layer stress entries as there are layers in the model
+    // The indices must be in the correct range (state, length, belly/back)
+    assert_eq!(min_layer_stresses.len(), model.layers.len());
+    for layer_stress in min_layer_stresses {
+        assert!(layer_stress.1[0] < states.len());
+        assert!(layer_stress.1[1] < model.settings.n_limb_eval_points);
+        assert!(layer_stress.1[2] < 2);
+    }
+
+    // There must be as many max layer stress entries as there are layers in the model
+    // The indices must be in the correct range (state, length, belly/back)
+    assert_eq!(max_layer_stresses.len(), model.layers.len());
+    for layer_stress in max_layer_stresses {
+        assert!(layer_stress.1[0] < states.len());
+        assert!(layer_stress.1[1] < model.settings.n_limb_eval_points);
+        assert!(layer_stress.1[2] < 2);
+    }
 }
 
 // Check basic properties for a series of static or dynamic bow states
@@ -606,7 +758,7 @@ fn check_static_state_physics(model: &BowInput, output: &BowOutput) {
 
 // Checks the time derivatives in a series of dynamic bow states, i.e. velocities and accelerations,
 // by comparing them to finite difference approximations from the original data.
-fn check_time_derivatives(model: &BowInput, output: &BowOutput) {
+fn check_dynamic_derivatives(model: &BowInput, output: &BowOutput) {
     let dynamics = output.dynamics.as_ref().unwrap();
     let states = &dynamics.states;
 
@@ -744,7 +896,7 @@ fn check_time_derivatives(model: &BowInput, output: &BowOutput) {
 
 // Checks the derivatives wrt. draw length in a series of static bow states, i.e. energy, force and stiffness,
 // by comparing them to finite difference approximations from the original data.
-fn check_draw_derivatives(_model: &BowInput, output: &BowOutput) {
+fn check_static_derivatives(_model: &BowInput, output: &BowOutput) {
     let statics = output.statics.as_ref().unwrap();
     let states = &statics.states;
 
