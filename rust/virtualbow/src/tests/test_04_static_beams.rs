@@ -32,14 +32,14 @@ fn linear_straight_uniform_elongation() {
 
     let E = 210e9;
     let G = 80e9;
-    let rho = 7850.0;
+    let ρ = 7850.0;
 
     // Beam bow
     let mut model = BowInput::default();
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = 100;
     model.settings.min_draw_resolution = 5;
-    model.materials = vec![Material::new("material", "#000000", rho, E, G)];
+    model.materials = vec![Material::new("material", "#000000", ρ, E, G)];
     model.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Line(LineInput::new(l))]);
     model.width = Width::new(vec![(0.0, w), (1.0, w)]);
     model.layers = vec![Layer::new("layer", "material", vec![(0.0, h), (1.0, h)])];
