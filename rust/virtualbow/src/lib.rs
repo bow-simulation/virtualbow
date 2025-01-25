@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 #![allow(mixed_script_confusables)]
+#![allow(confusable_idents)]
 
 #[cfg(test)]
 #[macro_use]

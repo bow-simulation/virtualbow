@@ -1222,24 +1222,26 @@ It is considered as linear and its continuous displacement is described by the f
 \label{fig:verification:linear-continuous-beam}
 \end{figure}
 
-The solution for the free motion of the beam, without any external excitation, is found to be
+The analytical solution for the free motion of the beam, without any external excitation, is found to be \textcolor{red}{[source]}
 %
 \begin{align}
 w(x,\,t) &= \sum_{i=1}^{\infty} W_{i}(x)H_{i}(t), \label{eq:linear-continuous-beam-w}
 \end{align}
 
 which is an infinite sum of mode shapes~$W_{i}(x)$, multiplied with harmonic oscillations~$H_{i}(t)$, each with a different natural frequency.
-The shape functions depend on the boundary conditions of the beam and are for this example given by
+The shape functions depend only on the length $l$ and the boundary conditions of the beam and are for this example given by
 %
 \begin{align}
 W_{i}(x) &= \cos(\kappa_{i}x) - \cosh(\kappa_{i}x) - \gamma_{i} \left( \sin(\kappa_{i}x) - \sinh(\kappa_{i}x) \right) \\
 \gamma_{i} &= \frac{\cos(\kappa_{i}l) + \cosh(\kappa_{i}l)}{\sin(\kappa_{i}l) + \sinh(\kappa_{i}l)} \notag
 \end{align}
 
-with the constants $\kappa_{i}$ being approximately determined by    % https://wandinger.userweb.mwn.de/LA_Elastodynamik_2/kap_3_balken.pdf
-%
+with the constants $\kappa_{i}$ being approximately determined by    
+% Characteristic equation: 1 + cos(k*l)*cosh(k*l) = 0 (https://wandinger.userweb.mwn.de/LA_Elastodynamik_2/kap_3_balken.pdf)
+% Numerical solutions computed by Wolframalpha (https://www.wolframalpha.com/input?i=1+%2B+cos%28x%29*cosh%28x%29+%3D+0)
 \begin{align}
-\kappa_{1}l &\approx 1.8751,\ \kappa_{2}l \approx 4.6941,\ \kappa_{3}l\ \approx 7.8548,\ \kappa_{4}l \approx 10.996, \\
+\kappa_{1}l &\approx 1.87510406871196, \quad \kappa_{2}l \approx 4.69409113297417, \\
+\kappa_{3}l &\approx 7.85475743823761, \quad \kappa_{4}l \approx 10.9955407348755, \notag \\
 \kappa_{i}l &\approx (2i - 1)\frac{\pi}{2}\ \ \mathrm{for}\ \ i > 4. \notag
 \end{align}
 
@@ -1249,7 +1251,7 @@ The time-dependent functions $H_{i}(t)$ with the eigenfrequencies $\omega_{i}$ a
 H_{i}(t) = A_{i}\cos(\omega_{i}t) + B_{i}\sin(\omega_{i}t),\quad \omega_{i} = \kappa_{i}^2 \sqrt{\frac{EI}{\rho A}}.
 \end{equation}
 
-The constants can be determined from the initial conditions of the beam, i.e. the initial displacement $w(x,\,0) = w_{0}(x)$ and velocity $\dot{w}(x,\,0) = v_{0}(x)$,
+The free constants can be determined from the initial conditions of the beam, i.e. the initial displacement $w(x,\,0) = w_{0}(x)$ and velocity $\dot{w}(x,\,0) = v_{0}(x)$,
 %
 \begin{align}
 A_{i} &= \frac{1}{l}\int_{0}^{l} w_{0}(x)W_{i}(x) dx, \\
@@ -1257,3 +1259,11 @@ B_{i} &= \frac{1}{\omega_{i}l}\int_{0}^{l} v_{0}(x)W_{i}(x) dx.
 \end{align}
 
 With these equations the motion of the beam in space and time can be computed up to an arbitrary accuracy by including as many modes and natural frequencies as required.
+For testing, a circular initial deformation with radius $r$ is used in combination with zero initial velocity,
+
+\begin{align}
+w_0(x) &= r - \sqrt{r^2 - x^2}, \\
+v_0(x) &= 0.
+\end{align}
+
+The integrals above are solved numerically to a reasonable precision.

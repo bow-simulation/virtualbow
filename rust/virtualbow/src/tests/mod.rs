@@ -1,9 +1,10 @@
 mod utils;
 mod test_01_element_properties;
 mod test_02_static_trusses;
-mod test_03_static_beams;
-mod test_04_static_string;
-mod test_05_linear_oscillator;
-mod test_06_nonlinear_oscillator;
-mod test_07_example_bows;
-mod test_08_string_damping;
+mod test_04_static_beams;
+mod test_03_static_string;
+mod test_06_linear_oscillator;
+mod test_07_nonlinear_oscillator;
+mod test_05_dynamic_beams;
+mod test_08_example_bows;
+mod test_09_string_damping;

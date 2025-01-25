@@ -392,6 +392,16 @@ impl Width {
         }
     }
 
+    // Convenience function for creating a constant width distribution
+    pub fn constant(w: f64) -> Self {
+        Self::new(vec![(0.0, w), (1.0, w)])
+    }
+
+    // Convenience function for creating a linear width distribution
+    pub fn linear(w0: f64, w1: f64) -> Self {
+        Self::new(vec![(0.0, w0), (1.0, w1)])
+    }
+
     pub fn validate(&self) -> Result<(), ModelError> {
         let Self { points } = self;
 
