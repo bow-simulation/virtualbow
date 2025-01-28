@@ -39,19 +39,20 @@ pub fn bisect_right_by<T, F>(a: &[T], mut f: F) -> usize
 #[cfg(test)]
 mod tests {
     use super::*;
+    use assert2::assert;
 
     #[test]
     fn test_bisection() {
         let x = &[0.0, 1.0, 2.0, 3.0];
 
-        assert_eq!(bisect_right(x, -1.0), 0);
-        assert_eq!(bisect_right(x, 0.0), 0);
-        assert_eq!(bisect_right(x, 0.5), 0);
-        assert_eq!(bisect_right(x, 1.0), 1);
-        assert_eq!(bisect_right(x, 1.5), 1);
-        assert_eq!(bisect_right(x, 2.0), 2);
-        assert_eq!(bisect_right(x, 2.5), 2);
-        assert_eq!(bisect_right(x, 3.0), 2);
-        assert_eq!(bisect_right(x, 3.5), 2);
+        assert!(bisect_right(x, -1.0) == 0);
+        assert!(bisect_right(x, 0.0) == 0);
+        assert!(bisect_right(x, 0.5) == 0);
+        assert!(bisect_right(x, 1.0) == 1);
+        assert!(bisect_right(x, 1.5) == 1);
+        assert!(bisect_right(x, 2.0) == 2);
+        assert!(bisect_right(x, 2.5) == 2);
+        assert!(bisect_right(x, 3.0) == 2);
+        assert!(bisect_right(x, 3.5) == 2);
     }
 }

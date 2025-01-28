@@ -109,17 +109,18 @@ impl Interval {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use assert2::assert;
 
     #[test]
     fn test_bound_equality() {
-        assert_eq!(Bound::Inclusive(0.0), Bound::Inclusive(0.0));    // Equal: Same type and same value
-        assert_eq!(Bound::Exclusive(0.0), Bound::Exclusive(0.0));    // Equal: Same type and same value
+        assert!(Bound::Inclusive(0.0) == Bound::Inclusive(0.0));    // Equal: Same type and same value
+        assert!(Bound::Exclusive(0.0) == Bound::Exclusive(0.0));    // Equal: Same type and same value
 
-        assert_ne!(Bound::Inclusive(0.0), Bound::Inclusive(1.0));    // Not equal: Same type and different value
-        assert_ne!(Bound::Exclusive(0.0), Bound::Exclusive(1.0));    // Not equal: Same type and different value
+        assert!(Bound::Inclusive(0.0) != Bound::Inclusive(1.0));    // Not equal: Same type and different value
+        assert!(Bound::Exclusive(0.0) != Bound::Exclusive(1.0));    // Not equal: Same type and different value
 
-        assert_ne!(Bound::Inclusive(0.0), Bound::Exclusive(0.0));    // Not equal: Different type and same value
-        assert_ne!(Bound::Inclusive(0.0), Bound::Exclusive(1.0));    // Not equal: Different type and different value
+        assert!(Bound::Inclusive(0.0) != Bound::Exclusive(0.0));    // Not equal: Different type and same value
+        assert!(Bound::Inclusive(0.0) != Bound::Exclusive(1.0));    // Not equal: Different type and different value
     }
 
     #[test]
@@ -143,6 +144,6 @@ mod tests {
         ];
 
         let result = Interval::left_union(intervals);
-        assert_eq!(result, Interval { lower: Bound::Inclusive(0.0), upper: Bound::Inclusive(1.5) });
+        assert!(result == Interval { lower: Bound::Inclusive(0.0), upper: Bound::Inclusive(1.5) });
     }
 }

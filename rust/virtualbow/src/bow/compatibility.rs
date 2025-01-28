@@ -270,6 +270,7 @@ fn convert_v0_to_v1(value: &mut Value) -> Result<(), ModelError> {
 mod tests {
     use std::io::Error;
     use itertools::Itertools;
+    use assert2::assert;
     use crate::bow::input::BowInput;
 
     #[test]
@@ -297,7 +298,7 @@ mod tests {
 
                 // Compare loaded models for equality
                 models.iter().tuple_windows().for_each(|(a, b)| {
-                    assert_eq!(a, b, "Model data must be equal");
+                    assert!(a == b, "Model data must be equal");
                 });
 
                 // Save model file in the latest version
@@ -309,7 +310,7 @@ mod tests {
                 // Load it again and check for equality
                 println!("\t- Load {:?}", file.file_name().unwrap());
                 let loaded = BowInput::load(file).expect("Failed to load model");
-                assert_eq!(loaded, *model, "Model data must be equal");
+                assert!(loaded == *model, "Model data must be equal");
             }
         }
 

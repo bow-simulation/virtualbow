@@ -20,15 +20,16 @@ pub fn is_hex_color(string: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use assert2::assert;
     use super::*;
 
     #[test]
     fn test_is_hex_color() {
-        assert_eq!(is_hex_color(""), false);
-        assert_eq!(is_hex_color("abc"), false);
-        assert_eq!(is_hex_color("#00ab1f"), true);
-        assert_eq!(is_hex_color("#00AB1F"), false);
-        assert_eq!(is_hex_color("#00ab1z"), false);
-        assert_eq!(is_hex_color("#00ab1ff"), false);
+        assert!(is_hex_color("") == false);
+        assert!(is_hex_color("abc") == false);
+        assert!(is_hex_color("#00ab1f") == true);
+        assert!(is_hex_color("#00AB1F") == false);
+        assert!(is_hex_color("#00ab1z") == false);
+        assert!(is_hex_color("#00ab1ff") == false);
     }
 }

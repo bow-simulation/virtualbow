@@ -150,8 +150,9 @@ pub fn cumulative_simpson(x: &[f64], y: &[f64]) -> Vec<f64> {
 
 #[cfg(test)]
 mod tests {
-    use nalgebra::vector;
     use super::*;
+    use assert2::assert;
+    use nalgebra::vector;
 
     #[test]
     fn test_adaptive_simpson() {
@@ -199,13 +200,13 @@ mod tests {
         let x = [0.0];
         let y = [1.0];
         let I = cumulative_simpson(&x, &y);
-        assert_eq!(I, vec![0.0]);
+        assert!(I == vec![0.0]);
 
         // Two points as input -> result is zero for first point and trapezoidal area for second
         let x = [0.1, 0.9];
         let y = [0.2, 0.8];
         let I = cumulative_simpson(&x, &y);
-        assert_eq!(I, vec![0.0, 0.4]);
+        assert!(I == vec![0.0, 0.4]);
 
         // Example x^2 with reference results from paper
         let x_ref = [0.0, 0.1, 0.19, 0.33, 0.4, 0.55, 0.69, 0.74, 0.9];
