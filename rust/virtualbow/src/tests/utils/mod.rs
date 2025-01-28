@@ -1,3 +1,3 @@
 pub mod plotter;
-pub mod checks;
+pub mod asserts;
 pub mod numdiff;

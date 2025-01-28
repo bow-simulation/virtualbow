@@ -137,6 +137,7 @@ impl LayeredCrossSection {
         })
     }
 
+    #[allow(clippy::type_complexity)]  // TODO: Maybe improve later?
     fn validate(length: f64, width: &Width, layers: &Vec<Layer>, materials: &Vec<Material>, alignment: &LayerAlignment) -> Result<(HashMap<String, Material>, HashMap<String, usize>), ModelError> {
         // Length: Must be positive and finite
         if !length.is_finite() || length <= 0.0 {
@@ -212,8 +213,8 @@ impl LayeredCrossSection {
             };
 
             Interval {
-                lower: to_bound(&layer.height.first().unwrap()),
-                upper: to_bound(&layer.height.last().unwrap()),
+                lower: to_bound(layer.height.first().unwrap()),
+                upper: to_bound(layer.height.last().unwrap()),
             }
         }).collect();
 
@@ -322,16 +323,14 @@ impl CrossSection for LayeredCrossSection {
         let (y, _) = self.layer_bounds(s);
 
         // Normal strain is epsilon - kappa*y
-        let matrix = DMatrix::from_fn(2*self.layers.len(), 3, |i, j| {
+        DMatrix::from_fn(2*self.layers.len(), 3, |i, j| {
             let k = (i+1)/2;  // Index of the current y position
             match j {
                 0 =>   1.0,    // Factor for epsilon
                 1 => -y[k],    // Factor for kappa
                 _ =>   0.0     // Factor for gamma
             }
-        });
-
-        matrix
+        })
     }
 
     // Stress evaluation matrix. Produces stresses at back and belly of each layer.
@@ -340,7 +339,7 @@ impl CrossSection for LayeredCrossSection {
         let (y, _) = self.layer_bounds(s);
 
         // Normal stress is E*(epsilon - kappa*y)
-        let matrix = DMatrix::from_fn(2*self.layers.len(), 3, |i, j| {
+        DMatrix::from_fn(2*self.layers.len(), 3, |i, j| {
             let k = (i+1)/2;  // Index of the current y position
             let l = i/2;      // Index of the current layer
 
@@ -349,9 +348,7 @@ impl CrossSection for LayeredCrossSection {
                 1 => -y[k],    // Factor for kappa
                 _ =>   0.0     // Factor for gamma
             }
-        });
-
-        matrix
+        })
     }
 }
 
@@ -1055,14 +1052,14 @@ mod tests {
 
         // Evaluate and check section normal strains
         let strain_eval = section.strain_eval(s);
-        let result = &strain_eval*&strains;
+        let result = &strain_eval*strains;
 
         assert_relative_eq!(result[0], epsilon_u, max_relative=1e-2);
         assert_relative_eq!(result[9], epsilon_o, max_relative=1e-2);
 
         // Evaluate and check section normal stresses
         let stress_eval = section.stress_eval(s);
-        let result = &stress_eval*&strains;
+        let result = &stress_eval*strains;
 
         assert_relative_eq!(result, sigma_ref, max_relative=1e-2);
 

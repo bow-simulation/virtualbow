@@ -109,7 +109,7 @@ impl<'a> DynamicSolver<'a> {
         // Evaluate system and invoke callback before the first timestep in order to provide information at t = t0.
         // After this we only invoke the callback at the end of the timesteps.
         self.system.eval_dynamics(&mut eval);
-        if !callback(&self.system, &eval) {
+        if !callback(self.system, &eval) {
             return Ok(());
         }
 
@@ -155,12 +155,12 @@ impl<'a> DynamicSolver<'a> {
                 self.system.set_velocities(&v_next);
                 self.system.eval_dynamics(&mut eval);
 
-                r_next.copy_from(&(eval.get_mass_matrix().component_mul(&a_next) + eval.get_internal_forces() - eval.get_external_forces()));
+                r_next.copy_from(&(eval.get_mass_matrix().component_mul(a_next) + eval.get_internal_forces() - eval.get_external_forces()));
                 drda.copy_from(&(DMatrix::<f64>::from_diagonal(eval.get_mass_matrix()) + dt*gamma*eval.get_damping_matrix() + dt*dt*beta*eval.get_stiffness_matrix()));
             };
 
             solve_newton(&mut residuum, a_prev.clone(), self.settings.newton)
-                .map_err(|e| DynamicSolverError::EquilibriumError(e))?;
+                .map_err(DynamicSolverError::EquilibriumError)?;
 
             // If the termination is based on acceleration, check here for sign changes
             if let StopCondition::Acceleration(dof, value, sign) = stop {
@@ -186,7 +186,7 @@ impl<'a> DynamicSolver<'a> {
                         self.system.set_velocities(&v_next);
                         self.system.eval_dynamics(&mut eval);
 
-                        r_next.copy_from(&(eval.get_mass_matrix().component_mul(&a_next) + eval.get_internal_forces() - eval.get_external_forces()));
+                        r_next.copy_from(&(eval.get_mass_matrix().component_mul(a_next) + eval.get_internal_forces() - eval.get_external_forces()));
                         drda.copy_from(&(DMatrix::<f64>::from_diagonal(eval.get_mass_matrix()) + dt*gamma*eval.get_damping_matrix() + dt*dt*beta*eval.get_stiffness_matrix()));
                         drddt.copy_from(&(eval.get_stiffness_matrix()*(&v_prev + 2.0*dt*((0.5 - beta)*&a_prev + beta*a_next)) + eval.get_damping_matrix()*((1.0 - gamma)*&a_prev + gamma*a_next)));
                     };
@@ -202,10 +202,10 @@ impl<'a> DynamicSolver<'a> {
 
                     // Solve the constrained problem
                     solve_newton_constrained(&mut residuum, &mut constraint, a_prev.clone(), dt, self.settings.newton)
-                        .map_err(|e| DynamicSolverError::EquilibriumError(e))?;
+                        .map_err(DynamicSolverError::EquilibriumError)?;
 
                     // Invoke callback with final system state, then end the simulation
-                    if !callback(&self.system, &eval) {
+                    if !callback(self.system, &eval) {
                         return Err(DynamicSolverError::AbortedByCaller);
                     }
 
@@ -214,7 +214,7 @@ impl<'a> DynamicSolver<'a> {
             }
 
             // Invoke callback with final system state
-            if !callback(&self.system, &eval) {
+            if !callback(self.system, &eval) {
                 return Err(DynamicSolverError::AbortedByCaller);
             }
 

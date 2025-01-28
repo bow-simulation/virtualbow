@@ -51,7 +51,7 @@ impl<'a> StaticSolver<'a> {
         let x0 = self.system.get_displacements().clone();
 
         let mut f = |x: &DVector<f64>, f: &mut DVector<f64>, dfdx: &mut DMatrix<f64>| {
-            self.system.set_displacements(&x);
+            self.system.set_displacements(x);
             self.system.eval_statics(&mut self.eval);
 
             f.copy_from(&(self.eval.get_internal_forces() - self.eval.get_load_factor()*self.eval.get_unscaled_external_forces()));
@@ -59,7 +59,7 @@ impl<'a> StaticSolver<'a> {
         };
 
         solve_newton(&mut f, x0, self.settings)
-            .map_err(|e| StaticSolverError::EquilibriumError(e))
+            .map_err(StaticSolverError::EquilibriumError)
     }
 
     // points = steps + 1
@@ -100,7 +100,7 @@ impl<'a> StaticSolver<'a> {
         let λ0 = self.eval.get_load_factor();
 
         let mut f = |x: &DVector<f64>, λ: f64, f: &mut DVector<f64>, dfdx: &mut DMatrix<f64>, dfdλ: &mut DVector<f64>| {
-            self.system.set_displacements(&x);
+            self.system.set_displacements(x);
             self.eval.set_load_factor(λ);
             self.system.eval_statics(&mut self.eval);
 
@@ -118,7 +118,7 @@ impl<'a> StaticSolver<'a> {
         };
 
         solve_newton_constrained(&mut f, &mut c, x0, λ0, self.settings)
-            .map_err(|e| StaticSolverError::EquilibriumError(e))
+            .map_err(StaticSolverError::EquilibriumError)
     }
     
     // points = steps + 1

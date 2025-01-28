@@ -47,7 +47,7 @@ impl TDMatrix {
 
     // Solves a linear equation for the given right hand side in-place
     // https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
-    pub fn solve(mut self, rhs: &mut Vec<f64>) {
+    pub fn solve(mut self, rhs: &mut [f64]) {
         assert_eq!(rhs.len(), self.size());
 
         let n = self.size() - 1;
@@ -57,7 +57,7 @@ impl TDMatrix {
 
         for i in 1..n {
             let m = self.b[i] - self.a[i-1]*self.c[i-1];
-            self.c[i] = self.c[i]/m;
+            self.c[i] /= m;
             rhs[i] = (rhs[i] - self.a[i-1]*rhs[i-1])/m;
         }
 

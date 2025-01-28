@@ -270,7 +270,7 @@ mod tests {
         let x1 = 5.0;
         let y1 = 2.5;
 
-        let spline = CubicSpline::from_points(&vec![(x0, y0), (x1, y1)], false, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
+        let spline = CubicSpline::from_points(&[(x0, y0), (x1, y1)], false, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
         for x in lin_space(x0..=x1, 100) {
             let d_ref = (y1 - y0)/(x1 - x0);
             let y_ref = y0 + (x - x0)*d_ref;
@@ -394,7 +394,7 @@ mod tests {
         let x_min = 0.5;  // Out of bounds to the left
         let x_max = 5.5;  // Out of bounds to the right
 
-        let spline = CubicSpline::from_points(&vec![(x0, y0), (x1, y1), (x2, y2)], false, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
+        let spline = CubicSpline::from_points(&[(x0, y0), (x1, y1), (x2, y2)], false, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
 
         // Constant extrapolation
         assert_abs_diff_eq!(spline.value(x_min, Extrapolation::Constant), y0, epsilon=1e-12);
@@ -413,11 +413,11 @@ mod tests {
         assert_abs_diff_eq!(spline.deriv2(x_max, Extrapolation::Linear), 0.0, epsilon=1e-12);
 
         // Cubic extrapolation (reference values taken from previous run)
-        assert_abs_diff_eq!(spline.value(x_min, Extrapolation::Cubic), -0.3906250000000000, epsilon=1e-12);
-        assert_abs_diff_eq!(spline.value(x_max, Extrapolation::Cubic), 0.6244212962962961, epsilon=1e-12);
+        assert_abs_diff_eq!(spline.value(x_min, Extrapolation::Cubic), -0.390625000000000, epsilon=1e-12);
+        assert_abs_diff_eq!(spline.value(x_max, Extrapolation::Cubic), 0.624421296296296, epsilon=1e-12);
         assert_abs_diff_eq!(spline.deriv1(x_min, Extrapolation::Cubic), 1.927083333333334, epsilon=1e-12);
-        assert_abs_diff_eq!(spline.deriv1(x_max, Extrapolation::Cubic), -1.6701388888888888, epsilon=1e-12);
-        assert_abs_diff_eq!(spline.deriv2(x_min, Extrapolation::Cubic), -0.8750000000000000, epsilon=1e-12);
-        assert_abs_diff_eq!(spline.deriv2(x_max, Extrapolation::Cubic), 0.48611111111111116, epsilon=1e-12);
+        assert_abs_diff_eq!(spline.deriv1(x_max, Extrapolation::Cubic), -1.670138888888889, epsilon=1e-12);
+        assert_abs_diff_eq!(spline.deriv2(x_min, Extrapolation::Cubic), -0.875000000000000, epsilon=1e-12);
+        assert_abs_diff_eq!(spline.deriv2(x_max, Extrapolation::Cubic), 0.486111111111111, epsilon=1e-12);
     }
 }

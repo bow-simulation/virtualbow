@@ -21,7 +21,7 @@ fn mass_element() {
     let node = system.create_node(&vector![0.0, 0.0, 0.0], &[true; 3]);
     system.add_element(&[node], MassElement::new(m));
 
-    utils::checks::check_system_invariants(&mut system);
+    utils::asserts::assert_system_invariants(&mut system);
 }
 
 #[test]
@@ -40,7 +40,7 @@ fn string_element() {
         let offsets = vec![-0.1, -0.1];
         system.add_element(&[node0, node1], StringElement::new(EA, ηA, l0, cf, offsets));
 
-        utils::checks::check_system_invariants(&mut system);
+        utils::asserts::assert_system_invariants(&mut system);
     }
 
     // Three nodes, middle node has contact
@@ -53,7 +53,7 @@ fn string_element() {
         let offsets = vec![-0.1, -0.1, -0.1];
         system.add_element(&[node0, node1, node2], StringElement::new(EA, ηA, l0, cf, offsets));
 
-        utils::checks::check_system_invariants(&mut system);
+        utils::asserts::assert_system_invariants(&mut system);
     }
 
     // Three nodes, middle node has no contact
@@ -66,7 +66,7 @@ fn string_element() {
         let offsets = vec![-0.1, -0.1, -0.1];
         system.add_element(&[node0, node1, node2], StringElement::new(EA, ηA, l0, cf, offsets));
     
-        utils::checks::check_system_invariants(&mut system);
+        utils::asserts::assert_system_invariants(&mut system);
     }
 
     // Four nodes, middle nodes have contact
@@ -80,7 +80,7 @@ fn string_element() {
         let offsets = vec![-0.1, -0.1, -0.1, -0.1];
         system.add_element(&[node0, node1, node2, node3], StringElement::new(EA, ηA, l0, cf, offsets));
         
-        utils::checks::check_system_invariants(&mut system);
+        utils::asserts::assert_system_invariants(&mut system);
     }
 }
 
@@ -111,17 +111,17 @@ fn beam_element() {
 
     system.set_displacements(&(&u0 + dvector![0.5, 0.5, 0.5, 0.5, 0.5, 0.5]));
     system.set_velocities(&(&v0 + dvector![0.5, 0.5, 0.5, 0.5, 0.5, 0.5]));
-    utils::checks::check_system_invariants(&mut system);
+    utils::asserts::assert_system_invariants(&mut system);
 
     system.set_displacements(&(&u0 + dvector![0.5, 0.5, 0.5, -0.5, -0.5, -0.5]));
     system.set_velocities(&(&v0 + dvector![0.5, 0.5, 0.5, -0.5, -0.5, -0.5]));
-    utils::checks::check_system_invariants(&mut system);
+    utils::asserts::assert_system_invariants(&mut system);
 
     system.set_displacements(&(&u0 + dvector![0.5, -0.5, 0.5, -0.5, 0.5, -0.5]));
     system.set_velocities(&(&v0 + dvector![0.5, -0.5, 0.5, -0.5, 0.5, -0.5]));
-    utils::checks::check_system_invariants(&mut system);
+    utils::asserts::assert_system_invariants(&mut system);
 
     system.set_displacements(&(&u0 + dvector![-5.0, -5.0, -5.0, 5.0, 5.0, 5.0]));
     system.set_velocities(&(&v0 + dvector![5.0, 5.0, 5.0, -5.0, -5.0, -5.0]));
-    utils::checks::check_system_invariants(&mut system);
+    utils::asserts::assert_system_invariants(&mut system);
 }

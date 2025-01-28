@@ -36,11 +36,11 @@ impl BowInput {
         let mut reader = BufReader::new(file);
 
         // Parse the file as a json value and convert that json value to the current version if necessary
-        let mut value: Value = serde_json::from_reader(&mut reader).map_err(|e| ModelError::InputDeserializeJsonError(e))?;
+        let mut value: Value = serde_json::from_reader(&mut reader).map_err(ModelError::InputDeserializeJsonError)?;
         convert_to_current_format(&mut value)?;
 
         // Parse wrapper (data + version number) from converted json value. Discard version number and only return the data.
-        let wrapper: VersionedWrapper<Self> = serde_json::from_value(value).map_err(|e| ModelError::InputInterpretJsonError(e))?;
+        let wrapper: VersionedWrapper<Self> = serde_json::from_value(value).map_err(ModelError::InputInterpretJsonError)?;
         Ok(wrapper.data)
     }
 
@@ -53,7 +53,7 @@ impl BowInput {
         let wrapper = VersionedWrapperRef::new(Self::FILE_VERSION, self);
 
         // Save wrapper object to file
-        serde_json::to_writer_pretty(&mut writer, &wrapper).map_err(|e| ModelError::InputSerializeJsonError(e))?;
+        serde_json::to_writer_pretty(&mut writer, &wrapper).map_err(ModelError::InputSerializeJsonError)?;
         writer.flush().map_err(|e| ModelError::InputSaveFileError(path.as_ref().to_owned(), e))
     }
 
@@ -255,7 +255,7 @@ impl Material {
         if name.is_empty() {
             return Err(ModelError::MaterialInvalidName(name.clone()));
         }
-        if !is_hex_color(&color) {
+        if !is_hex_color(color) {
             return Err(ModelError::MaterialInvalidColor(color.clone()));
         }
         if !rho.is_finite() || *rho <= 0.0 {

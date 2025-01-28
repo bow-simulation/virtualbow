@@ -51,9 +51,9 @@ pub fn natural_frequencies(system: &mut System) -> Result<Vec<Mode>, EigenSolver
     system.eval_eigen(&mut eval);
 
     return natural_frequencies_from_matrices(
-        &eval.get_mass_matrix(),
-        &eval.get_tangent_damping_matrix(),
-        &eval.get_tangent_stiffness_matrix()
+        eval.get_mass_matrix(),
+        eval.get_tangent_damping_matrix(),
+        eval.get_tangent_stiffness_matrix()
     );
 }
 

@@ -20,8 +20,8 @@ impl<'a> AffineView<'a> {
     // Create a new view that references the given vector and dofs
     pub fn new(vector: &'a DVector<f64>, dofs: &'a [Dof]) -> Self {
         Self {
-            vector: vector,
-            dofs: dofs
+            vector,
+            dofs
         }
     }
 

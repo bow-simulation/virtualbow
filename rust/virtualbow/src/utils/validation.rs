@@ -1,5 +1,5 @@
-// Checks if the given string represents a valid hex color code (of length 7 and in lowercase)
-// https://www.geeksforgeeks.org/check-if-a-given-string-is-a-valid-hexadecimal-color-code-or-not/
+// Checks if the given string represents a valid hex color code.
+// Similar to HTML but does not accept shortened codes, length must always be 7.
 pub fn is_hex_color(string: &str) -> bool {
     if !string.starts_with('#') {
         return false;
@@ -10,7 +10,7 @@ pub fn is_hex_color(string: &str) -> bool {
     }
 
     for char in string.chars().skip(1) {
-        if !((char >= '0' && char <= '9') || (char >= 'a' && char <= 'f')) {
+        if !char.is_ascii_hexdigit() {
             return false;
         }
     }
@@ -28,7 +28,7 @@ mod tests {
         assert!(is_hex_color("") == false);
         assert!(is_hex_color("abc") == false);
         assert!(is_hex_color("#00ab1f") == true);
-        assert!(is_hex_color("#00AB1F") == false);
+        assert!(is_hex_color("#00AB1F") == true);
         assert!(is_hex_color("#00ab1z") == false);
         assert!(is_hex_color("#00ab1ff") == false);
     }

@@ -82,7 +82,7 @@ impl LimbGeometry {
         let strain_eval = s_eval.iter().map(|&s| self.section.strain_eval(s)).collect();
         let stress_eval = s_eval.iter().map(|&s| self.section.stress_eval(s)).collect();
 
-        let position = s_eval.iter().map(|&s| self.profile.point(s).into()).collect();
+        let position = s_eval.iter().map(|&s| self.profile.point(s)).collect();
         let width = s_eval.iter().map(|&s| self.section.width(s)).collect();
         let height = s_eval.iter().map(|&s| self.section.height(s)).collect();
 
@@ -138,8 +138,7 @@ mod tests {
 
     #[test]
     fn test_error_conditions() {
-        let mut input = BowInput::default();
-        input.layers = vec![Layer::new("Unnamed", "Default", vec![(0.0, 0.01), (1.0, 0.01)])];
+        let mut input = BowInput{ layers: vec![Layer::new("Unnamed", "Default", vec![(0.0, 0.01), (1.0, 0.01)])], ..Default::default() };
 
         // 1. Profile curve with no self-intersection
         input.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Line(LineInput::new(1.0))]);

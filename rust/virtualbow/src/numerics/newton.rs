@@ -229,7 +229,7 @@ mod tests {
         // https://en.wikipedia.org/wiki/Newton%27s_method#Example
 
         let mut x_num = Vec::new();
-        let x_ref = vec![
+        let x_ref = [
             dvector![1.0, 1.0],
             dvector![0.617789, -0.279818],
             dvector![0.568334, -0.312859],

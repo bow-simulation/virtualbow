@@ -8,16 +8,16 @@ const EPSILON_RELATIVE: f64 = 1e-6;
 const EPSILON_ABSOLUTE: f64 = 1e-9;
 
 // Performs a series of physical consistency checks on the system at its current state
-pub fn check_system_invariants(system: &mut System) {
+pub fn assert_system_invariants(system: &mut System) {
     // Remember original system state
     let u_backup = system.get_displacements().clone();
     let v_backup = system.get_velocities().clone();
 
-    check_mass_matrix(system);
-    check_stiffness_matrix(system, &u_backup, &v_backup);
-    check_damping_matrix(system, &u_backup, &v_backup);
-    check_kinetic_energy(system, &u_backup, &v_backup);
-    check_potential_energy(system, &u_backup);
+    assert_mass_matrix(system);
+    assert_stiffness_matrix(system, &u_backup, &v_backup);
+    assert_damping_matrix(system, &u_backup, &v_backup);
+    assert_kinetic_energy(system, &u_backup, &v_backup);
+    assert_potential_energy(system, &u_backup);
 
     // Reapply original system state
     system.set_displacements(&u_backup);
@@ -25,7 +25,7 @@ pub fn check_system_invariants(system: &mut System) {
 }
 
 // Evaluates the system's mass matrix and verifies that it is symmetric and positive definite
-pub fn check_mass_matrix(system: &mut System) {
+pub fn assert_mass_matrix(system: &mut System) {
     let mut eigen = system.create_eigen_eval();
     system.eval_eigen(&mut eigen);
 
@@ -35,20 +35,20 @@ pub fn check_mass_matrix(system: &mut System) {
 
 // Evaluates the system's tangent stiffness matrix and verifies that it is symmetric
 // and equal to the derivative of the internal forces with respect to the displacements
-pub fn check_stiffness_matrix(system: &mut System, u: &DVector<f64>, v: &DVector<f64>) {
+pub fn assert_stiffness_matrix(system: &mut System, u: &DVector<f64>, v: &DVector<f64>) {
     let mut statics = system.create_static_eval();
 
-    system.set_displacements(&u);
-    system.set_velocities(&v);
+    system.set_displacements(u);
+    system.set_velocities(v);
     system.eval_statics(&mut statics);
 
     let K_sys = statics.get_tangent_stiffness_matrix().clone();
 
     let (K_num, error) = differentiate_n_to_k(&mut |u_test| {
-        system.set_displacements(&u_test);
+        system.set_displacements(u_test);
         system.eval_statics(&mut statics);
         return statics.get_internal_forces().clone();
-    }, &u, NUM_DIFF_STEPSIZE);
+    }, u, NUM_DIFF_STEPSIZE);
 
     // Check error of the derivative approximation
     assert!(error < NUM_DIFF_MAX_ERROR);
@@ -59,22 +59,22 @@ pub fn check_stiffness_matrix(system: &mut System, u: &DVector<f64>, v: &DVector
 
 // Evaluates the system's tangent damping matrix and verifies that it is symmetric
 // and equal to the derivative of the internal forces with respect to the velocities
-pub fn check_damping_matrix(system: &mut System, u: &DVector<f64>, v: &DVector<f64>) {
+pub fn assert_damping_matrix(system: &mut System, u: &DVector<f64>, v: &DVector<f64>) {
     // TODO: Replace bothj benlow by single evaluation of implicit dynamics
     let mut eigen = system.create_eigen_eval();
     let mut statics = system.create_static_eval();
 
-    system.set_displacements(&u);
-    system.set_velocities(&v);
+    system.set_displacements(u);
+    system.set_velocities(v);
     system.eval_eigen(&mut eigen);
 
     let D_sys = eigen.get_tangent_damping_matrix().clone();
 
     let (D_num, error) = differentiate_n_to_k(&mut |v_test| {
-        system.set_velocities(&v_test);
+        system.set_velocities(v_test);
         system.eval_statics(&mut statics);
         return statics.get_internal_forces().clone();
-    }, &u, NUM_DIFF_STEPSIZE);
+    }, u, NUM_DIFF_STEPSIZE);
 
     // Check error of the derivative approximation
     assert!(error < NUM_DIFF_MAX_ERROR);
@@ -88,11 +88,11 @@ pub fn check_damping_matrix(system: &mut System, u: &DVector<f64>, v: &DVector<f
 }
 
 // Checks if the kinetic energy is consistent with the mass matrix and velocities of the system
-pub fn check_kinetic_energy(system: &mut System, u: &DVector<f64>, v: &DVector<f64>) {
+pub fn assert_kinetic_energy(system: &mut System, u: &DVector<f64>, v: &DVector<f64>) {
     let mut eigen = system.create_eigen_eval();
 
-    system.set_displacements(&u);
-    system.set_velocities(&v);
+    system.set_displacements(u);
+    system.set_velocities(v);
     system.eval_eigen(&mut eigen);
 
     let E_sys: f64 = system.elements().map(|element| { element.kinetic_energy() }).sum();
@@ -103,22 +103,22 @@ pub fn check_kinetic_energy(system: &mut System, u: &DVector<f64>, v: &DVector<f
 
 // Checks if the elastic forces are equal to the derivative of the potential energy
 // This is only true for v = 0, i.e. without nonlinear damping forces
-pub fn check_potential_energy(system: &mut System, u: &DVector<f64>) {
+pub fn assert_potential_energy(system: &mut System, u: &DVector<f64>) {
     let v = DVector::<f64>::zeros(system.n_dofs());
 
     let mut statics = system.create_static_eval();
 
-    system.set_displacements(&u);
+    system.set_displacements(u);
     system.set_velocities(&v);
     system.eval_statics(&mut statics);
 
     let q_sys = statics.get_internal_forces().clone();
 
     let (q_num, error) = differentiate_n_to_1(&mut |u_test| {
-        system.set_displacements(&u_test);
+        system.set_displacements(u_test);
         system.eval_statics(&mut statics);
         return system.elements().map(|element| { element.potential_energy() }).sum();
-    }, &u, NUM_DIFF_STEPSIZE);
+    }, u, NUM_DIFF_STEPSIZE);
 
     // Check error of the derivative approximation
     assert!(error < NUM_DIFF_MAX_ERROR);

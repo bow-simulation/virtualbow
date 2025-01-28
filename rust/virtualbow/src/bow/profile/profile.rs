@@ -35,7 +35,7 @@ pub struct ProfileCurve {
 }
 
 impl ProfileCurve {
-    pub fn new(start: CurvePoint, segment_inputs: &Vec<SegmentInput>) -> Result<ProfileCurve, ModelError> {
+    pub fn new(start: CurvePoint, segment_inputs: &[SegmentInput]) -> Result<ProfileCurve, ModelError> {
         if segment_inputs.is_empty() {
             return Err(ModelError::ProfileNoSegments);
         }

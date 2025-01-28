@@ -158,7 +158,7 @@ fn simulate_and_check_bow(file: &str) {
 // Performs modal analysis of the limb and check if the damping ratio of the first mode
 // is equal to the desired value defined in the model
 fn check_modal_properties(plotter: &mut Plotter, model: &BowInput) {
-    let (_, modes) = Simulation::simulate_limb_modes(&model).unwrap();
+    let (_, modes) = Simulation::simulate_limb_modes(model).unwrap();
     assert_abs_diff_eq!(modes[0].zeta, model.damping.damping_ratio_limbs, epsilon=1e-5);  // TODO: Can this be made more accurate?
 
     for (i, mode) in modes.iter().enumerate() {
@@ -169,10 +169,10 @@ fn check_modal_properties(plotter: &mut Plotter, model: &BowInput) {
 
 // Performs a static and a dynamic analysis and checks the properties of the outputs
 fn check_output(plotter: &mut Plotter, model: &BowInput) {
-    let output = Simulation::simulate_dynamics(&model).unwrap();
-    check_common_output(&model, &output);
-    check_static_output(&model, &output);
-    check_dynamic_output(plotter, &model, &output);
+    let output = Simulation::simulate_dynamics(model).unwrap();
+    check_common_output(model, &output);
+    check_static_output(model, &output);
+    check_dynamic_output(plotter, model, &output);
 }
 
 // Checks the properties of the common output, i.e. the outputs that are independent of the simulation mode
@@ -214,18 +214,18 @@ fn check_common_output(model: &BowInput, output: &BowOutput) {
 }
 
 fn check_static_output(model: &BowInput, output: &BowOutput) {
-    check_general_state_properties(&model, &output.statics.as_ref().unwrap().states);
-    check_static_state_properties(&model, &output);
-    check_static_state_physics(&model, &output);
-    check_static_derivatives(&model, &output);
-    check_static_scalar_results(&model, &output);
+    check_general_state_properties(model, &output.statics.as_ref().unwrap().states);
+    check_static_state_properties(model, output);
+    check_static_state_physics(model, output);
+    check_static_derivatives(model, output);
+    check_static_scalar_results(model, output);
 }
 
 fn check_dynamic_output(plotter: &mut Plotter, model: &BowInput, output: &BowOutput) {
-    check_general_state_properties(&model, &output.dynamics.as_ref().unwrap().states);
-    check_dynamic_state_properties(plotter, &model, &output);
-    check_dynamic_derivatives(&model, &output);
-    check_dynamic_scalar_results(&model, &output);
+    check_general_state_properties(model, &output.dynamics.as_ref().unwrap().states);
+    check_dynamic_state_properties(plotter, model, output);
+    check_dynamic_derivatives(model, output);
+    check_dynamic_scalar_results(model, output);
 }
 
 // Check some basic properties (domain, dimensions) for the scalar static outputs
