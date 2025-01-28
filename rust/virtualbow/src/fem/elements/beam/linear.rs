@@ -110,7 +110,7 @@ impl LinearBeamSegment {
             stack![K0n_inv[i]*K00, K1n_inv[i]*K11]
         }).collect();
 
-        let Ef = se.iter().enumerate().map(|(_, &s)| {
+        let Ef = se.iter().map(|&s| {
             let H1 = H(s, s1);  // TODO: Use already computed values for H here?
             stack![H1*K10, H1*K11]
         }).collect();
@@ -370,7 +370,7 @@ mod tests {
             ]);
 
             // The displacements inbetween are determined by the equation for U2
-            let eval = stack![-&K22_inv*&K12.transpose(), -&K22_inv*&K23];
+            let eval = stack![-&K22_inv*&K12.transpose(), -&K22_inv*K23];
 
             for i in 0..n_nodes-2 {
                 u_eval.push(eval.fixed_view::<3, 6>(3*i, 0).into());
@@ -386,7 +386,7 @@ mod tests {
             Self {
                 K: K_red,
                 s_eval: s,
-                u_eval: u_eval
+                u_eval
             }
         }
 

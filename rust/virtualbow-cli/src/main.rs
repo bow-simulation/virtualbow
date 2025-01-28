@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+
 use virtualbow::bow::simulation::{Simulation, SimulationMode};
 use virtualbow::bow::errors::ModelError;
 use virtualbow::bow::input::BowInput;

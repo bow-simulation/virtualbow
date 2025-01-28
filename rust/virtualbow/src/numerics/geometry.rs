@@ -46,7 +46,7 @@ pub fn convex_envelope(points: &[SVector<f64, 2>], indices: &mut Vec<usize>, ori
     };
 
     for i in 2..points.len() {
-        while !fits_as_next(&indices, i) {
+        while !fits_as_next(indices, i) {
             indices.pop();
         }
 

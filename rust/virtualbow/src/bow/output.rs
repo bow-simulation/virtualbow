@@ -8,7 +8,7 @@ use rmpv::Value;
 use crate::bow::errors::ModelError;
 use crate::bow::versioning::{VersionedWrapper, VersionedWrapperRef};
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
 pub struct BowOutput {
     pub common: Common,
     pub statics: Option<Statics>,
@@ -25,7 +25,7 @@ impl BowOutput {
         let file = File::open(&path).map_err(|e| ModelError::OutputLoadFileError(path.as_ref().to_owned(), e))?;
         let mut reader = BufReader::new(file);
 
-        let value: Value = rmpv::decode::value::read_value(&mut reader).map_err(|e| ModelError::OutputDecodeMsgPackError(e))?;
+        let value: Value = rmpv::decode::value::read_value(&mut reader).map_err(ModelError::OutputDecodeMsgPackError)?;
         let version = Self::get_file_version(&value)?;
 
         if version != Self::FILE_VERSION {
@@ -33,7 +33,7 @@ impl BowOutput {
         }
 
         // Parse wrapper (data + version number) from msgpack value. Discard version number and only return the data.
-        let wrapper: VersionedWrapper<Self> = rmpv::ext::from_value(value).map_err(|e| ModelError::OutputInterpretMsgPackError(e))?;
+        let wrapper: VersionedWrapper<Self> = rmpv::ext::from_value(value).map_err(ModelError::OutputInterpretMsgPackError)?;
         Ok(wrapper.data)
     }
 
@@ -45,7 +45,7 @@ impl BowOutput {
         let wrapper = VersionedWrapperRef::new(Self::FILE_VERSION, self);
 
         // Save wrapper object to file
-        let bytes = rmp_serde::to_vec_named(&wrapper).map_err(|e| ModelError::OutputEncodeMsgPackError(e))?;
+        let bytes = rmp_serde::to_vec_named(&wrapper).map_err(ModelError::OutputEncodeMsgPackError)?;
         file.write_all(&bytes).map_err(|e| ModelError::OutputSaveFileError(path.as_ref().to_owned(), e))
     }
 
@@ -62,17 +62,6 @@ impl BowOutput {
         match entry.1 {
             Value::Integer(n) => n.as_u64().ok_or(ModelError::OutputVersionInvalid(n.to_string())),
             _ => Err(ModelError::OutputVersionInvalid(entry.1.to_string()))
-        }
-    }
-}
-
-// TODO: Can/should this be derived instead?
-impl Default for BowOutput {
-    fn default() -> Self {
-        Self {
-            common: Default::default(),
-            statics: None,
-            dynamics: None,
         }
     }
 }

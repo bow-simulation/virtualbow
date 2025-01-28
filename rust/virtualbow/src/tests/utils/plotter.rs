@@ -44,7 +44,7 @@ impl Plotter {
             y_label: y_label.into()
         };
 
-        self.plots.entry(info).or_insert_with(|| PlotData::default())
+        self.plots.entry(info).or_default()
     }
 }
 
@@ -60,14 +60,12 @@ impl Drop for Plotter {
 
         // Create output directory, if it doesn't yet exist and remove any previous files
         std::fs::create_dir_all(&output_path).expect("Failed to create output directory");
-        for entry in std::fs::read_dir(&output_path).unwrap() {
-            if let Ok(entry) = entry {
-                std::fs::remove_file(entry.path()).unwrap();
-            }
+        for entry in std::fs::read_dir(&output_path).unwrap().flatten() {
+            std::fs::remove_file(entry.path()).unwrap();
         }
 
         self.plots.iter().for_each(|(info, data)| {
-            create_plot(&output_path, &info, &data);
+            create_plot(&output_path, info, data);
         });
     }
 }
@@ -136,17 +134,17 @@ fn create_plot(output_path: &str, info: &PlotInfo, data: &PlotData) {
         .draw()
         .unwrap();
 
-    ctx.draw_series(LineSeries::new(data.points.iter().copied(), &BLUE)).unwrap()
+    ctx.draw_series(LineSeries::new(data.points.iter().copied(), BLUE)).unwrap()
         .label("Actual")
-        .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &BLUE));
+        .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], BLUE));
 
-    ctx.draw_series(LineSeries::new(data.points_ref.iter().copied(), &RED)).unwrap()
+    ctx.draw_series(LineSeries::new(data.points_ref.iter().copied(), RED)).unwrap()
         .label("Reference")
-        .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &RED));
+        .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], RED));
 
     ctx.configure_series_labels()
-        .border_style(&BLACK)
-        .background_style(&WHITE)
+        .border_style(BLACK)
+        .background_style(WHITE)
         .draw()
         .unwrap();
 }

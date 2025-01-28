@@ -1,7 +1,7 @@
 use itertools::Itertools;
 
 // Finds and returns the maximum value in a vector of floats as well as the index at which it occurs.
-pub fn discrete_maximum_1d(values: &Vec<f64>) -> (f64, usize) {
+pub fn discrete_maximum_1d(values: &[f64]) -> (f64, usize) {
     values.iter()
         .enumerate()
         .map(|(i, v)| (*v, i))
@@ -10,7 +10,7 @@ pub fn discrete_maximum_1d(values: &Vec<f64>) -> (f64, usize) {
 }
 
 // Finds and returns the minimum value in a vector of floats as well as the index at which it occurs.
-pub fn discrete_minimum_1d(values: &Vec<f64>) -> (f64, usize) {
+pub fn discrete_minimum_1d(values: &[f64]) -> (f64, usize) {
     values.iter()
         .enumerate()
         .map(|(i, v)| (*v, i))
@@ -62,38 +62,38 @@ mod tests {
     #[test]
     fn test_discrete_minimum_1d() {
         // Panic on empty input
-        let result = std::panic::catch_unwind(|| discrete_minimum_1d(&vec![]));
+        let result = std::panic::catch_unwind(|| discrete_minimum_1d(&[]));
         assert!(result.is_err());
 
         // Panic on non-finite input
-        let result = std::panic::catch_unwind(|| discrete_minimum_1d(&vec![f64::NAN, f64::NAN]));
+        let result = std::panic::catch_unwind(|| discrete_minimum_1d(&[f64::NAN, f64::NAN]));
         assert!(result.is_err());
 
         // Minimum of vector with single element
-        let result = discrete_minimum_1d(&vec![0.0]);
+        let result = discrete_minimum_1d(&[0.0]);
         assert!(result == (0.0, 0));
 
         // Minimum of vector with multiple elements
-        let result = discrete_minimum_1d(&vec![-1.0, 1.0, -2.0]);
+        let result = discrete_minimum_1d(&[-1.0, 1.0, -2.0]);
         assert!(result == (-2.0, 2));
     }
 
     #[test]
     fn test_discrete_maximum_1d() {
         // Panic on empty input
-        let result = std::panic::catch_unwind(|| discrete_maximum_1d(&vec![]));
+        let result = std::panic::catch_unwind(|| discrete_maximum_1d(&[]));
         assert!(result.is_err());
 
         // Panic on non-finite input
-        let result = std::panic::catch_unwind(|| discrete_maximum_1d(&vec![f64::NAN, f64::NAN]));
+        let result = std::panic::catch_unwind(|| discrete_maximum_1d(&[f64::NAN, f64::NAN]));
         assert!(result.is_err());
 
         // Maximum of vector with single element
-        let result = discrete_maximum_1d(&vec![0.0]);
+        let result = discrete_maximum_1d(&[0.0]);
         assert!(result == (0.0, 0));
 
         // Maximum of vector with multiple elements
-        let result = discrete_maximum_1d(&vec![-1.0, 1.0, -2.0]);
+        let result = discrete_maximum_1d(&[-1.0, 1.0, -2.0]);
         assert!(result == (1.0, 1));
     }
 
@@ -102,7 +102,7 @@ mod tests {
         let result = discrete_maximum_nd(&mut |i| (i[0] as f64)*(i[1] as f64), [10, 10]);
         assert!(result == (81.0, [9, 9]));
 
-        let values = vec![vec![0.0, 0.1, 0.2], vec![0.3, 0.2, 0.1]];
+        let values = [[0.0, 0.1, 0.2], [0.3, 0.2, 0.1]];
         let mut function = |i: &[usize; 2]| values[i[0]][i[1]];
         let result = discrete_maximum_nd(&mut function, [2, 3]);
         assert!(result == (0.3, [1, 0]));
@@ -113,7 +113,7 @@ mod tests {
         let result = discrete_minimum_nd(&mut |i| (i[0] as f64)*(i[1] as f64), [10, 10]);
         assert!(result == (0.0, [0, 0]));
 
-        let values = vec![vec![-0.0, -0.1, -0.2], vec![-0.3, -0.2, -0.1]];
+        let values = [[-0.0, -0.1, -0.2], [-0.3, -0.2, -0.1]];
         let mut function = |i: &[usize; 2]| values[i[0]][i[1]];
         let result = discrete_minimum_nd(&mut function, [2, 3]);
         assert!(result == (-0.3, [1, 0]));

@@ -66,7 +66,7 @@ impl<'a> Simulation<'a> {
         input.validate()?;
 
         // Create bow geometry from input,
-        let geometry = LimbGeometry::new(&input)?;
+        let geometry = LimbGeometry::new(input)?;
 
         // Layer setup data
         let layers = input.layers.iter().map(|layer| {
@@ -78,7 +78,7 @@ impl<'a> Simulation<'a> {
         // Discretize geometry into evaluation points and elements
         let geometry = geometry.discretize(input.settings.n_limb_eval_points, input.settings.n_limb_elements);
 
-        let elements = geometry.segments.iter().map(|segment| BeamElement::new(segment));
+        let elements = geometry.segments.iter().map(BeamElement::new);
 
         let mut system = System::new();
 
@@ -96,7 +96,7 @@ impl<'a> Simulation<'a> {
         // If damping properties are to be initialized and the specified damping ratio for the limb is not zero,
         // perform a modal analysis of the limb without string and set the damping parameter of the beam elements according to the desired damping ratio.
         if damping && input.damping.damping_ratio_limbs != 0.0 {
-            let modes = natural_frequencies(&mut system).map_err(|e| ModelError::SimulationEigenSolutionFailed(e))?;
+            let modes = natural_frequencies(&mut system).map_err(ModelError::SimulationEigenSolutionFailed)?;
             let alpha = 2.0*input.damping.damping_ratio_limbs/modes[0].omega;
             for &e in &limb_elements {
                 system.element_mut::<BeamElement>(e).set_damping(alpha);
@@ -259,7 +259,7 @@ impl<'a> Simulation<'a> {
         where F: FnMut(&str, f64) -> bool
     {
         // Initialize simulation. String always, but damping only in dynamic mode (saves an einegvalue analysis).
-        let (mut system, mut simulation, common) = Self::initialize(&model, true, mode == SimulationMode::Dynamic)?;
+        let (mut system, mut simulation, common) = Self::initialize(model, true, mode == SimulationMode::Dynamic)?;
 
         let statics = {
             // "Draw" the bow by solving for a static equilibrium path of the string node from brace height to full draw
@@ -268,12 +268,12 @@ impl<'a> Simulation<'a> {
             let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());
 
             solver.equilibrium_path_displacement_controlled(simulation.string_nodes[0].y(), -model.dimensions.draw_length, model.settings.min_draw_resolution, &mut |system, eval, stiffness| {
-                let state = simulation.get_bow_state(&system, SystemEval::Static(&eval), -2.0*stiffness);  // TODO: Why the sign flip of the stiffness?
+                let state = simulation.get_bow_state(system, SystemEval::Static(eval), -2.0*stiffness);  // TODO: Why the sign flip of the stiffness?
                 let progress = (state.draw_length - model.dimensions.brace_height)/(model.dimensions.draw_length - model.dimensions.brace_height);
                 states.push(state);
 
                 callback("statics", 100.0*progress)
-            }).map_err(|e| ModelError::SimulationStaticSolutionFailed(e))?;
+            }).map_err(ModelError::SimulationStaticSolutionFailed)?;
 
             // Compute additional static output values
 
@@ -344,7 +344,7 @@ impl<'a> Simulation<'a> {
                 let mut solver = DynamicSolver::new(&mut system, settings);
                 solver.solve(stop_condition, &mut |system, eval| {
                     // Evaluate current bow state
-                    let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval), 0.0);
+                    let state = simulation.get_bow_state(system, SystemEval::Dynamic(eval), 0.0);
 
                     // Only update the brace crossing time if it is estimated,
                     // no need to update once it is known
@@ -371,7 +371,7 @@ impl<'a> Simulation<'a> {
                     states.push(state);
 
                     return callback("dynamics", 100.0*progress);
-                }).map_err(|e| ModelError::SimulationDynamicSolutionFailed(e))?;
+                }).map_err(ModelError::SimulationDynamicSolutionFailed)?;
 
                 // Record arrow state at the time of separation from the string
                 let state = states.iter().last().unwrap();
@@ -391,13 +391,13 @@ impl<'a> Simulation<'a> {
                     // Skip the first time step, which is identical to the last timestep of the previous solution phase
                     if system.get_time() > start_time {
                         // Evaluate current bow state, update progress and add state
-                        let state = simulation.get_bow_state(&system, SystemEval::Dynamic(&eval), 0.0);
+                        let state = simulation.get_bow_state(system, SystemEval::Dynamic(eval), 0.0);
                         progress = state.time/end_time;
                         states.push(state);
                     }
 
                     return callback("dynamics", 100.0*progress);
-                }).map_err(|e| ModelError::SimulationDynamicSolutionFailed(e))?;
+                }).map_err(ModelError::SimulationDynamicSolutionFailed)?;
 
                 // Compute dissipated damping energy by numerically integrating the damping power
                 let damping_energy_limbs = cumulative_simpson(&states.time, &states.damping_power_limbs);
@@ -465,15 +465,15 @@ impl<'a> Simulation<'a> {
     }
 
     pub fn simulate_limb_modes(model: &'a BowInput) -> Result<(Common, Vec<Mode>), ModelError> {
-        let (mut system, _simulaion, common) = Self::initialize(&model, false, true)?;
-        let modes = natural_frequencies(&mut system).map_err(|e| ModelError::SimulationEigenSolutionFailed(e))?;
+        let (mut system, _simulaion, common) = Self::initialize(model, false, true)?;
+        let modes = natural_frequencies(&mut system).map_err(ModelError::SimulationEigenSolutionFailed)?;
         Ok((common, modes))
     }
 
     // Simulates a static load (two forces, one moment) applied to the limb tip like a cantilever.
     // This is only used for testing the bow bow against other simulations/results.
     pub fn simulate_static_limb(model: &'a BowInput, Fx: f64, Fy: f64, Mz: f64) -> Result<(Common, State), ModelError> {
-        let (mut system, simulation, common) = Self::initialize(&model, false, false)?;
+        let (mut system, simulation, common) = Self::initialize(model, false, false)?;
 
         if let Some(node) = simulation.limb_nodes.last() {
             system.add_force(node.x(), move |_t| { Fx });
@@ -485,10 +485,10 @@ impl<'a> Simulation<'a> {
         let mut states = StateVec::new();
 
         solver.equilibrium_path_load_controlled(model.settings.min_draw_resolution, &mut |system, eval| {
-            let state = simulation.get_bow_state(&system, SystemEval::Static(&eval), 0.0);
+            let state = simulation.get_bow_state(system, SystemEval::Static(eval), 0.0);
             states.push(state);
             return true;
-        }).map_err(|e| ModelError::SimulationStaticSolutionFailed(e))?;
+        }).map_err(ModelError::SimulationStaticSolutionFailed)?;
 
         Ok((common, states.pop().unwrap()))
     }
@@ -529,8 +529,8 @@ impl<'a> Simulation<'a> {
 
         // String kinematics
 
-        let string_pos = system.element_ref::<StringElement>(self.string_element).contact_positions().map(|p| p.into()).collect_vec();
-        let string_vel = system.element_ref::<StringElement>(self.string_element).contact_velocities().map(|p| p.into()).collect_vec();
+        let string_pos = system.element_ref::<StringElement>(self.string_element).contact_positions().collect_vec();
+        let string_vel = system.element_ref::<StringElement>(self.string_element).contact_velocities().collect_vec();
 
         // Evaluate positions, velocities, forces and strains at the limb's evaluation points
 
@@ -552,8 +552,8 @@ impl<'a> Simulation<'a> {
 
         for i in 0..limb_strain.len() {
             // Stresses and strains at the layer boundaries
-            let strain = &self.geometry.strain_eval[i]*&limb_strain[i];
-            let stress = &self.geometry.stress_eval[i]*&limb_strain[i];
+            let strain = &self.geometry.strain_eval[i]*limb_strain[i];
+            let stress = &self.geometry.stress_eval[i]*limb_strain[i];
 
             // Two subsequent strain results make up the belly and back strain of a layer
             strain.iter().cloned().tuples().enumerate().for_each(|(j, tuple): (usize, (f64, f64))| {
@@ -625,7 +625,7 @@ impl<'a> Simulation<'a> {
 
 // Input dimensions: (state, layer, length, belly/back)
 // Output: (value, [layer, length, belly/back])
-fn find_max_layer_result(input: &Vec<Vec<Vec<[f64; 2]>>>, i_layer: usize) -> (f64, [usize; 3]) {
+fn find_max_layer_result(input: &[Vec<Vec<[f64; 2]>>], i_layer: usize) -> (f64, [usize; 3]) {
     let n_states = input.len();
     let n_length = input[0][0].len();
 
@@ -634,7 +634,7 @@ fn find_max_layer_result(input: &Vec<Vec<Vec<[f64; 2]>>>, i_layer: usize) -> (f6
 
 // Input dimensions: (state, layer, length, belly/back)
 // Output: (value, [layer, length, belly/back])
-fn find_min_layer_result(input: &Vec<Vec<Vec<[f64; 2]>>>, i_layer: usize) -> (f64, [usize; 3]) {
+fn find_min_layer_result(input: &[Vec<Vec<[f64; 2]>>], i_layer: usize) -> (f64, [usize; 3]) {
     let n_states = input.len();
     let n_length = input[0][0].len();
 

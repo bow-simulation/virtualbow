@@ -84,7 +84,7 @@ impl Interval {
     // Given a list of intervals, this function returns the leftmost partial interval of their union set.
     // This is the interval that they "cover" when starting from the left without creating a "hole".
     pub fn left_union(mut intervals: Vec<Interval>) -> Interval {
-        assert!(intervals.len() > 0);
+        assert!(!intervals.is_empty());
 
         // Sort intervals by their lower bounds and use leftmost interval as the starting value for the result
         intervals.sort_by(|a, b| a.lower.partial_cmp(&b.lower).expect("Failed to sort intervals"));

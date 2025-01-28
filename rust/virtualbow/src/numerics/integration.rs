@@ -92,7 +92,7 @@ pub fn cumulative_simpson(x: &[f64], y: &[f64]) -> Vec<f64> {
     assert_eq!(x.len(), y.len(), "Inputs must have the same length");
 
     // Zero input points: Return empty vector
-    if x.len() == 0 {
+    if x.is_empty() {
         return vec![];
     }
 

@@ -1,9 +1,8 @@
-use super::element::Element;
-use super::dof::Dof;
-use super::node::Node;
-use super::views::{PositionView, VelocityView, VectorView, MatrixView};
+use crate::fem::system::element::Element;
+use crate::fem::system::dof::Dof;
+use crate::fem::system::node::Node;
+use crate::fem::system::views::{PositionView, VelocityView, VectorView, MatrixView, AccelerationView, ForceView};
 use nalgebra::{DMatrix, DVector, SVector};
-use crate::fem::system::views::{AccelerationView, ForceView};
 
 // The system struct holds the elements, external forces and their mapping to the dofs that make up the fem system.
 // It also holds the current system state: time, displacements and velocities.

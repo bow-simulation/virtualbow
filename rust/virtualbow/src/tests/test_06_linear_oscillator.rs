@@ -1,3 +1,5 @@
+#![allow(clippy::needless_range_loop)]  // TODO: Allow for all tests?
+
 use std::cell::Cell;
 use crate::fem::solvers::eigen::natural_frequencies_from_matrices;
 use std::f64::consts::{PI, TAU};
@@ -32,7 +34,7 @@ fn mass_spring_damper_1() {
 
     system.add_element(&[node_a, node_b], StringElement::spring(k, d, l));
     system.add_element(&[node_b], MassElement::new(m));
-    utils::checks::check_system_invariants(&mut system);
+    utils::asserts::assert_system_invariants(&mut system);
 
     // Constants for the analytical solution
     let delta = d/(2.0*m);                                // Decay constant
@@ -178,7 +180,7 @@ fn mass_spring_damper_n() {
         system.add_force(nodes[i+1].x(), move |t| p*f64::cos(omega*t));
     }
 
-    utils::checks::check_system_invariants(&mut system);
+    utils::asserts::assert_system_invariants(&mut system);
 
     let mut plotter = Plotter::new();
     let mut solver = DynamicSolver::new(&mut system, DynamicSolverSettings { time_stepping: TimeStepping::Fixed(period/1000.0), ..Default::default() });

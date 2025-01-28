@@ -1,3 +1,5 @@
+#![allow(clippy::needless_range_loop)]  // TODO: Allow for all tests?
+
 use std::f64::consts::{FRAC_PI_4, TAU};
 use nalgebra::DVector;
 use crate::bow::sections::section::LayerAlignment;
@@ -434,7 +436,7 @@ fn nonlinear_curved_uniform_cantilever() {
     // Check distance of node positions to reference solution
     for i in 0..setup.limb.length.len() {
         plotter.add_point((state.limb_pos[i][0], state.limb_pos[i][1]), (u_ref[i][0], u_ref[i][1]), "01 Bending Line", "x [m]", "y [m]");
-        //assert_abs_diff_eq!(f64::hypot(state.limb_pos[i][0] - u_ref[i][0], state.limb_pos[i][1] - u_ref[i][1]), 0.0, epsilon=0.5e-3);
+        assert_abs_diff_eq!(f64::hypot(state.limb_pos[i][0] - u_ref[i][0], state.limb_pos[i][1] - u_ref[i][1]), 0.0, epsilon=0.5e-3);
     }
 
     // For analytical normal force, shear force and bending moments

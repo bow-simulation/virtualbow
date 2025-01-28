@@ -39,7 +39,7 @@ fn string_over_quarter_circle() {
     let offsets = vec![0.0; string_nodes.len()];
     let element = system.add_element(&string_nodes, StringElement::new(EA, 0.0, l0, 1.0, offsets));
 
-    utils::checks::check_system_invariants(&mut system);
+    utils::asserts::assert_system_invariants(&mut system);
 
     let mut plotter = Plotter::new();
     let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());

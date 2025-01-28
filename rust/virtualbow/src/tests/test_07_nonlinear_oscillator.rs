@@ -38,7 +38,7 @@ fn nonlinear_pendulum() {
     system.add_element(&[node_b], MassElement::new(m));
     system.add_force(node_b.y(), move |_t| -m*g);
 
-    utils::checks::check_system_invariants(&mut system);
+    utils::asserts::assert_system_invariants(&mut system);
 
     let mut plotter = Plotter::new();
     let mut solver = DynamicSolver::new(&mut system, DynamicSolverSettings { time_stepping: TimeStepping::Fixed(1e-3), ..Default::default() });

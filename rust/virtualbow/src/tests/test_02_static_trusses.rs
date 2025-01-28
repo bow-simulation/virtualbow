@@ -26,7 +26,7 @@ fn linear_bar_truss_1() {
     system.add_element(&[node1, node2], StringElement::bar(EA, 0.0, a));
     system.add_force(node2.x(), move |_t|{ F_ref });
 
-    utils::checks::check_system_invariants(&mut system);
+    utils::asserts::assert_system_invariants(&mut system);
 
     let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
     solver.equilibrium_load_controlled(1.0).unwrap();
@@ -64,7 +64,7 @@ fn linear_bar_truss_3() {
     system.add_force(node2.x(), move |_t|{ F_ref/SQRT_2 });
     system.add_force(node2.y(), move |_t|{ -F_ref/SQRT_2 });
 
-    utils::checks::check_system_invariants(&mut system);
+    utils::asserts::assert_system_invariants(&mut system);
 
     let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
     solver.equilibrium_load_controlled(1.0).unwrap();
@@ -117,7 +117,7 @@ fn linear_bar_truss_4() {
     system.add_force(node_02.y(), move |_t|{ -F_ref });
     system.add_force(node_04.y(), move |_t|{ -F_ref });
 
-    utils::checks::check_system_invariants(&mut system);
+    utils::asserts::assert_system_invariants(&mut system);
 
     let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
     solver.equilibrium_load_controlled(1.0).unwrap();

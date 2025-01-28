@@ -37,7 +37,7 @@ impl Element for MassElement {
     }
 
     fn kinetic_energy(&self) -> f64 {
-        0.5*&self.v.dot(&(&self.M.component_mul(&self.v)))
+        0.5*&self.v.dot(&self.M.component_mul(&self.v))
     }
 
     fn dissipative_power(&self) -> f64 {
