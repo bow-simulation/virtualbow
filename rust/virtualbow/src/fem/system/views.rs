@@ -183,6 +183,7 @@ impl<'a> MatrixView<'a> {
 mod tests {
     use nalgebra::{DVector, DMatrix, vector, dvector, matrix, dmatrix};
     use crate::fem::system::dof::Dof;
+    use assert2::assert;
     use super::*;
 
     #[test]
@@ -197,7 +198,7 @@ mod tests {
             let vector = dvector![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
             let view = PositionView::new(&vector, dofs);
 
-            assert_eq!(view.get::<4>(), vector![1.0, 3.0, 5.0, 7.0]);
+            assert!(view.get::<4>() == vector![1.0, 3.0, 5.0, 7.0]);
         }
 
 
@@ -205,7 +206,7 @@ mod tests {
             let vector = dvector![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
             let view = VelocityView::new(&vector, dofs);
 
-            assert_eq!(view.get::<4>(), vector![0.0, 3.0, 5.0, 7.0]);
+            assert!(view.get::<4>() == vector![0.0, 3.0, 5.0, 7.0]);
         }
 
         {
@@ -213,7 +214,7 @@ mod tests {
             let mut view = VectorView::new(&mut vector, dofs);
             view.add_vec(vector![1.0, 2.0, 3.0, 4.0]);
 
-            assert_eq!(vector, dvector![0.0, 0.0, 2.0, 0.0, 3.0, 0.0, 4.0, 0.0]);
+            assert!(vector == dvector![0.0, 0.0, 2.0, 0.0, 3.0, 0.0, 4.0, 0.0]);
         }
 
         {
@@ -221,7 +222,7 @@ mod tests {
             let mut view = MatrixView::new(&mut matrix, dofs);
             view.add_mat(&matrix![1.0, 2.0, 3.0, 4.0; 5.0, 6.0, 7.0, 8.0; 9.0, 10.0, 11.0, 12.0; 13.0, 14.0, 15.0, 16.0]);
 
-            assert_eq!(matrix, dmatrix![
+            assert!(matrix == dmatrix![
                 0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0.0, 0.0;
                 0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0.0, 0.0;
                 0.0, 0.0,  6.0, 0.0,  7.0, 0.0,  8.0, 0.0;

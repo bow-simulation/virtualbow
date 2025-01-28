@@ -1,5 +1,6 @@
 use itertools::Itertools;
 use nalgebra::{SVector, vector};
+use assert2::assert;
 use num::Zero;
 use crate::bow::input::BowInput;
 use crate::bow::output::{ArrowDeparture, BowOutput, Common, Dynamics, LayerInfo, LimbInfo, State, StateVec, Statics};
@@ -181,15 +182,15 @@ fn check_common_output(model: &BowInput, output: &BowOutput) {
 
     // There must be as many lengths as there are limb evaluation points defined in the model
     // Lengths must be sorted in strictly ascending order and start at zero
-    assert_eq!(length.len(), model.settings.n_limb_eval_points);
+    assert!(length.len() == model.settings.n_limb_eval_points);
     assert!(length.iter().tuple_windows().all(|(a, b)| a < b));
-    assert_eq!(length[0], 0.0);
+    assert!(length[0] == 0.0);
 
     // Number of positions, widths, heights and bounds must match number of evaluation points
-    assert_eq!(position.len(), model.settings.n_limb_eval_points);
-    assert_eq!(width.len(), model.settings.n_limb_eval_points);
-    assert_eq!(height.len(), model.settings.n_limb_eval_points);
-    assert_eq!(bounds.len(), model.settings.n_limb_eval_points);
+    assert!(position.len() == model.settings.n_limb_eval_points);
+    assert!(width.len() == model.settings.n_limb_eval_points);
+    assert!(height.len() == model.settings.n_limb_eval_points);
+    assert!(bounds.len() == model.settings.n_limb_eval_points);
 
     // Width and height must be strictly positive
     assert!(width.iter().all(|&w| w > 0.0));
@@ -200,7 +201,7 @@ fn check_common_output(model: &BowInput, output: &BowOutput) {
 
     // Number of layers must match the number of layers defined in the model
     // Layer info doesn't contain much currently, but the layer names must not be empty
-    assert_eq!(layers.len(), model.layers.len());
+    assert!(layers.len() == model.layers.len());
     for layer in layers {
         let LayerInfo { name } = layer;
         assert!(!name.is_empty());
@@ -263,7 +264,7 @@ fn check_static_scalar_results(model: &BowInput, output: &BowOutput) {
 
     // The minimum grip force is zero in the static case (or close to) and occurs right at the start at zero draw force.
     assert_abs_diff_eq!(min_grip_force.0, 0.0, epsilon=1e-5*final_draw_force);
-    assert_eq!(min_grip_force.1, 0);
+    assert!(min_grip_force.1 == 0);
 
     // The maximum grip force must be positive and occur within the total number of states
     assert!(max_grip_force.0 > 0.0);
@@ -271,7 +272,7 @@ fn check_static_scalar_results(model: &BowInput, output: &BowOutput) {
 
     // There must be as many min layer stress entries as there are layers in the model
     // The indices must be in the correct range (state, length, belly/back)
-    assert_eq!(min_layer_stresses.len(), model.layers.len());
+    assert!(min_layer_stresses.len() == model.layers.len());
     for layer_stress in min_layer_stresses {
         assert!(layer_stress.1[0] < states.len());
         assert!(layer_stress.1[1] < model.settings.n_limb_eval_points);
@@ -280,7 +281,7 @@ fn check_static_scalar_results(model: &BowInput, output: &BowOutput) {
 
     // There must be as many max layer stress entries as there are layers in the model
     // The indices must be in the correct range (state, length, belly/back)
-    assert_eq!(max_layer_stresses.len(), model.layers.len());
+    assert!(max_layer_stresses.len() == model.layers.len());
     for layer_stress in max_layer_stresses {
         assert!(layer_stress.1[0] < states.len());
         assert!(layer_stress.1[1] < model.settings.n_limb_eval_points);
@@ -306,13 +307,13 @@ fn check_dynamic_scalar_results(model: &BowInput, output: &BowOutput) {
         let ArrowDeparture { state_idx, arrow_pos, arrow_vel, kinetic_energy_arrow, elastic_energy_limbs, kinetic_energy_limbs, elastic_energy_string, kinetic_energy_string, energy_efficiency } = arrow_departure;
 
         // Check if the quantities at separation are consistent with the states and the index
-        assert_eq!(*arrow_pos, states.arrow_pos[*state_idx]);
-        assert_eq!(*arrow_vel, states.arrow_vel[*state_idx]);
-        assert_eq!(*kinetic_energy_arrow, states.kinetic_energy_arrow[*state_idx]);
-        assert_eq!(*elastic_energy_limbs, states.elastic_energy_limbs[*state_idx]);
-        assert_eq!(*kinetic_energy_limbs, states.kinetic_energy_limbs[*state_idx]);
-        assert_eq!(*elastic_energy_string, states.elastic_energy_string[*state_idx]);
-        assert_eq!(*kinetic_energy_string, states.kinetic_energy_string[*state_idx]);
+        assert!(*arrow_pos == states.arrow_pos[*state_idx]);
+        assert!(*arrow_vel == states.arrow_vel[*state_idx]);
+        assert!(*kinetic_energy_arrow == states.kinetic_energy_arrow[*state_idx]);
+        assert!(*elastic_energy_limbs == states.elastic_energy_limbs[*state_idx]);
+        assert!(*kinetic_energy_limbs == states.kinetic_energy_limbs[*state_idx]);
+        assert!(*elastic_energy_string == states.elastic_energy_string[*state_idx]);
+        assert!(*kinetic_energy_string == states.kinetic_energy_string[*state_idx]);
 
         // Check range of the energy efficiency
         assert!(*energy_efficiency > 0.0);
@@ -320,8 +321,8 @@ fn check_dynamic_scalar_results(model: &BowInput, output: &BowOutput) {
 
         // Up to the departure of the arrow, its position and velocity are equal to that of the string
         for i in 0..=*state_idx {
-            assert_eq!(states.arrow_pos[i], states.string_pos[i][0][1]);
-            assert_eq!(states.arrow_vel[i], states.string_vel[i][0][1]);
+            assert!(states.arrow_pos[i] == states.string_pos[i][0][1]);
+            assert!(states.arrow_vel[i] == states.string_vel[i][0][1]);
         }
 
         // After the departure, position and velocity are no longer equal
@@ -334,8 +335,8 @@ fn check_dynamic_scalar_results(model: &BowInput, output: &BowOutput) {
     else {
         // If no arrow departure occurred, the arrow position and velocity must be equal to the string throughout
         for i in 0..=states.len() {
-            assert_eq!(states.arrow_pos[i], states.string_pos[i][0][1]);
-            assert_eq!(states.arrow_vel[i], states.string_vel[i][0][1]);
+            assert!(states.arrow_pos[i] == states.string_pos[i][0][1]);
+            assert!(states.arrow_vel[i] == states.string_vel[i][0][1]);
         }
     }
 
@@ -350,8 +351,8 @@ fn check_dynamic_scalar_results(model: &BowInput, output: &BowOutput) {
 
     // The draw force is zero in dynamics, so the maximum draw force must be as well
     // It occurs at the last state, but that's just an implementation detail
-    assert_eq!(max_draw_force.0, 0.0);
-    assert_eq!(max_draw_force.1, states.len() - 1);
+    assert!(max_draw_force.0 == 0.0);
+    assert!(max_draw_force.1 == states.len() - 1);
 
     // The minimum and maximum grip force must occur within the total number of states
     // They may be positive or negative (since the duration of the simulation might not include any sign changes)
@@ -360,7 +361,7 @@ fn check_dynamic_scalar_results(model: &BowInput, output: &BowOutput) {
 
     // There must be as many min layer stress entries as there are layers in the model
     // The indices must be in the correct range (state, length, belly/back)
-    assert_eq!(min_layer_stresses.len(), model.layers.len());
+    assert!(min_layer_stresses.len() == model.layers.len());
     for layer_stress in min_layer_stresses {
         assert!(layer_stress.1[0] < states.len());
         assert!(layer_stress.1[1] < model.settings.n_limb_eval_points);
@@ -369,7 +370,7 @@ fn check_dynamic_scalar_results(model: &BowInput, output: &BowOutput) {
 
     // There must be as many max layer stress entries as there are layers in the model
     // The indices must be in the correct range (state, length, belly/back)
-    assert_eq!(max_layer_stresses.len(), model.layers.len());
+    assert!(max_layer_stresses.len() == model.layers.len());
     for layer_stress in max_layer_stresses {
         assert!(layer_stress.1[0] < states.len());
         assert!(layer_stress.1[1] < model.settings.n_limb_eval_points);
@@ -417,8 +418,8 @@ fn check_general_state_properties(model: &BowInput, states: &StateVec) {
         assert!(draw_length <= model.dimensions.draw_length);
 
         // Limb position and velocity must have as many entries as there are eval points
-        assert_eq!(limb_pos.len(), model.settings.n_limb_eval_points);
-        assert_eq!(limb_vel.len(), model.settings.n_limb_eval_points);
+        assert!(limb_pos.len() == model.settings.n_limb_eval_points);
+        assert!(limb_vel.len() == model.settings.n_limb_eval_points);
 
         // Limb starting point (positions and angle) must match the dimension settings
         assert_abs_diff_eq!(limb_pos[0][0], 0.5*model.dimensions.handle_length, epsilon=1e-12);
@@ -429,16 +430,16 @@ fn check_general_state_properties(model: &BowInput, states: &StateVec) {
         // The position of the first string point must be consistent with the draw length
         assert!(string_pos.len() >= 2 && string_pos.len() <= model.settings.n_limb_elements + 2);
         assert!(string_vel.len() >= 2 && string_vel.len() <= model.settings.n_limb_elements + 2);
-        assert_eq!(string_pos[0][1], -draw_length);
+        assert!(string_pos[0][1] == -draw_length);
 
         // Limb strains and forces must have as many entries as there are eval points
-        assert_eq!(limb_strain.len(), model.settings.n_limb_eval_points);
-        assert_eq!(limb_force.len(), model.settings.n_limb_eval_points);
+        assert!(limb_strain.len() == model.settings.n_limb_eval_points);
+        assert!(limb_force.len() == model.settings.n_limb_eval_points);
 
         // Layer stresses and strains must contain one vector for each layer.
         // Each of those vectors must contain as many entries as there are eval points.
-        assert_eq!(layer_strain.len(), model.layers.len());
-        assert_eq!(layer_stress.len(), model.layers.len());
+        assert!(layer_strain.len() == model.layers.len());
+        assert!(layer_stress.len() == model.layers.len());
         assert!(layer_strain.iter().all(|x| x.len() == model.settings.n_limb_eval_points));
         assert!(layer_stress.iter().all(|x| x.len() == model.settings.n_limb_eval_points));
 
@@ -466,9 +467,9 @@ fn check_static_state_properties(model: &BowInput, output: &BowOutput) {
     // First draw length must be equal to specified brace height, last draw length to specified draw length
     // The number of states must currently equal the minimum draw resolution (+1 because steps vs. points) since step size control isn't implemented yet
     // The states must be ordered by strictly increasing draw length
-    assert_eq!(*states.draw_length.first().unwrap(), model.dimensions.brace_height);
-    assert_eq!(*states.draw_length.last().unwrap(), model.dimensions.draw_length);
-    assert_eq!(states.draw_length.len(), model.settings.min_draw_resolution + 1);
+    assert!(*states.draw_length.first().unwrap() == model.dimensions.brace_height);
+    assert!(*states.draw_length.last().unwrap() == model.dimensions.draw_length);
+    assert!(states.draw_length.len() == model.settings.min_draw_resolution + 1);
     assert!(states.draw_length.iter().tuple_windows().all(|(a, b)| a < b));
 
     // Initial draw force must be zero
@@ -506,7 +507,7 @@ fn check_static_state_properties(model: &BowInput, output: &BowOutput) {
         } = state.to_owned();
 
         // Time must be zero
-        assert_eq!(time, 0.0);
+        assert!(time == 0.0);
 
         // Draw length must range from brace height to full draw
         assert!(draw_length >= model.dimensions.brace_height);
@@ -517,18 +518,18 @@ fn check_static_state_properties(model: &BowInput, output: &BowOutput) {
         assert!(string_vel.iter().all(SVector::is_zero));
 
         // Arrow position must be identical to negative draw length, velocity and acceleration must be zero
-        assert_eq!(arrow_pos, -draw_length);
-        assert_eq!(arrow_vel, 0.0);
-        assert_eq!(arrow_acc, 0.0);
+        assert!(arrow_pos == -draw_length);
+        assert!(arrow_vel == 0.0);
+        assert!(arrow_acc == 0.0);
 
         // Kinetic energies, damping powers and damping energies must be zero
-        assert_eq!(kinetic_energy_limbs, 0.0);
-        assert_eq!(kinetic_energy_string, 0.0);
-        assert_eq!(kinetic_energy_arrow, 0.0);
-        assert_eq!(damping_energy_limbs, 0.0);
-        assert_eq!(damping_energy_string, 0.0);
-        assert_eq!(damping_power_limbs, 0.0);
-        assert_eq!(damping_power_string, 0.0);
+        assert!(kinetic_energy_limbs == 0.0);
+        assert!(kinetic_energy_string == 0.0);
+        assert!(kinetic_energy_arrow == 0.0);
+        assert!(damping_energy_limbs == 0.0);
+        assert!(damping_energy_string == 0.0);
+        assert!(damping_power_limbs == 0.0);
+        assert!(damping_power_string == 0.0);
 
         // Draw force, string force and strand force must be positive
         assert!(draw_force >= -ABS_TOL_FORCE);  // Allow slightly negative draw force because static equilibrium at the braced state is not 100% accurate
@@ -555,7 +556,7 @@ fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowInput, outpu
     // Time of the first state must be zero.
     // Timesteps between states must lie between the minimum and maximum defined in the settings,
     // except for the last step before arrow separation or the end of the simulation, which are allowed to be shorter.
-    assert_eq!(states.time[0], 0.0);
+    assert!(states.time[0] == 0.0);
     for (index, (t0, t1)) in states.time.iter().tuple_windows().enumerate() {
         if index != states.time.len() - 2 && dynamics.arrow_departure.as_ref().map(|x| x.state_idx) != Some(index + 1) {
             assert!(t1 - t0 >= model.settings.min_timestep - ABS_TOL_TIMESTEP);
@@ -568,8 +569,8 @@ fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowInput, outpu
     assert!(states.string_vel[0].iter().all(SVector::is_zero));
 
     // Initial arrow position must be consistent with specified draw length, velocity must be zero
-    assert_eq!(states.arrow_pos[0], -model.dimensions.draw_length);
-    assert_eq!(states.arrow_vel[0], 0.0);
+    assert!(states.arrow_pos[0] == -model.dimensions.draw_length);
+    assert!(states.arrow_vel[0] == 0.0);
 
     for state in states.iter() {
         let State {
@@ -609,23 +610,23 @@ fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowInput, outpu
         assert!(arrow_acc >= -model.settings.arrow_clamp_force/model.masses.arrow - ABS_TOL_ARROW_ACC);
 
         // Draw force and draw stiffness must be zero
-        assert_eq!(draw_force, 0.0);
-        assert_eq!(draw_stiffness, 0.0);
+        assert!(draw_force == 0.0);
+        assert!(draw_stiffness == 0.0);
 
         // If the string has a non-zero damping ratio and the system is in motion, the damping power and energy must be positive (and otherwise zero).
         if arrow_vel > 0.0 && model.damping.damping_ratio_string != 0.0 {
             assert!(damping_power_string > 0.0);
             assert!(damping_energy_string > 0.0);
         } else {
-            assert_eq!(damping_power_string, 0.0);
-            assert_eq!(damping_energy_limbs, 0.0);
+            assert!(damping_power_string == 0.0);
+            assert!(damping_energy_limbs == 0.0);
         }
 
         // If the limbs have a non-zero damping ratio and the system is in motion, the damping power and energy must be positive (and otherwise zero).
         if arrow_vel > 0.0 && model.damping.damping_ratio_limbs != 0.0 {
             assert!(damping_power_limbs > 0.0);
         } else {
-            assert_eq!(damping_power_limbs, 0.0);
+            assert!(damping_power_limbs == 0.0);
         }
 
         // Check if the sum of all energies stays constant

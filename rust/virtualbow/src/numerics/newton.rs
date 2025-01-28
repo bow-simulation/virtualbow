@@ -221,6 +221,7 @@ pub fn solve_newton_constrained<F, C>(function: &mut F, constraint: &mut C, x0: 
 mod tests {
     use nalgebra::{DMatrix, DVector, dvector};
     use crate::numerics::newton::{NewtonSettings, solve_newton, solve_newton_constrained};
+    use assert2::assert;
 
     #[test]
     fn test_unconstrained() {
@@ -253,7 +254,7 @@ mod tests {
 
         // Check of the solution converged in the same number of steps as the reference,
         // which depends on the numerical tolerances.
-        assert_eq!(x_num.len(), x_ref.len());
+        assert!(x_num.len() == x_ref.len());
 
         // Check if the computed intermediate solutions match the reference
         for i in 0..x_ref.len() {
@@ -261,7 +262,7 @@ mod tests {
         }
 
         // Check if the result contains the same same solution that the function was called last with
-        assert_eq!(result.x, *x_num.last().unwrap());
+        assert!(result.x == *x_num.last().unwrap());
     }
 
     #[test]
@@ -318,7 +319,7 @@ mod tests {
         assert_abs_diff_eq!(result.λ, 1.0, epsilon=1e-5);
 
         // Check if the result contains the same same solution that the function was called last with
-        assert_eq!(&result.x, x_num.last().unwrap());
+        assert!(&result.x == x_num.last().unwrap());
     }
 
     #[test]

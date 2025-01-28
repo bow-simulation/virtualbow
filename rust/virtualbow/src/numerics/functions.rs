@@ -36,6 +36,7 @@ pub fn sign(x: f64) -> f64 {
 mod tests {
     use crate::numerics::functions::{normalize_angle, sign};
     use std::f64::consts::TAU;
+    use assert2::assert;
 
     #[test]
     fn test_normalize_angle() {
@@ -73,16 +74,16 @@ mod tests {
     #[test]
     fn test_signum() {
         // Positive
-        assert_eq!(sign(f64::INFINITY), 1.0);
-        assert_eq!(sign(5.0), 1.0);
+        assert!(sign(f64::INFINITY) == 1.0);
+        assert!(sign(5.0) == 1.0);
 
         // Negative
-        assert_eq!(sign(f64::NEG_INFINITY), -1.0);
-        assert_eq!(sign(-5.0), -1.0);
+        assert!(sign(f64::NEG_INFINITY) == -1.0);
+        assert!(sign(-5.0) == -1.0);
 
         // Zero
-        assert_eq!(sign(0.0), 0.0);
-        assert_eq!(sign(-0.0), 0.0);
+        assert!(sign(0.0) == 0.0);
+        assert!(sign(-0.0) == 0.0);
 
         // NaN
         assert!(sign(f64::NAN).is_nan());

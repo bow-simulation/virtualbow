@@ -56,6 +56,7 @@ pub fn discrete_minimum_nd<F, const N: usize>(f: &mut F, size: [usize; N]) -> (f
 
 #[cfg(test)]
 mod tests {
+    use assert2::assert;
     use super::*;
 
     #[test]
@@ -70,11 +71,11 @@ mod tests {
 
         // Minimum of vector with single element
         let result = discrete_minimum_1d(&vec![0.0]);
-        assert_eq!(result, (0.0, 0));
+        assert!(result == (0.0, 0));
 
         // Minimum of vector with multiple elements
         let result = discrete_minimum_1d(&vec![-1.0, 1.0, -2.0]);
-        assert_eq!(result, (-2.0, 2));
+        assert!(result == (-2.0, 2));
     }
 
     #[test]
@@ -89,32 +90,32 @@ mod tests {
 
         // Maximum of vector with single element
         let result = discrete_maximum_1d(&vec![0.0]);
-        assert_eq!(result, (0.0, 0));
+        assert!(result == (0.0, 0));
 
         // Maximum of vector with multiple elements
         let result = discrete_maximum_1d(&vec![-1.0, 1.0, -2.0]);
-        assert_eq!(result, (1.0, 1));
+        assert!(result == (1.0, 1));
     }
 
     #[test]
     fn test_discrete_maximum_nd() {
         let result = discrete_maximum_nd(&mut |i| (i[0] as f64)*(i[1] as f64), [10, 10]);
-        assert_eq!(result, (81.0, [9, 9]));
+        assert!(result == (81.0, [9, 9]));
 
         let values = vec![vec![0.0, 0.1, 0.2], vec![0.3, 0.2, 0.1]];
         let mut function = |i: &[usize; 2]| values[i[0]][i[1]];
         let result = discrete_maximum_nd(&mut function, [2, 3]);
-        assert_eq!(result, (0.3, [1, 0]));
+        assert!(result == (0.3, [1, 0]));
     }
 
     #[test]
     fn test_discrete_minimum_nd() {
         let result = discrete_minimum_nd(&mut |i| (i[0] as f64)*(i[1] as f64), [10, 10]);
-        assert_eq!(result, (0.0, [0, 0]));
+        assert!(result == (0.0, [0, 0]));
 
         let values = vec![vec![-0.0, -0.1, -0.2], vec![-0.3, -0.2, -0.1]];
         let mut function = |i: &[usize; 2]| values[i[0]][i[1]];
         let result = discrete_minimum_nd(&mut function, [2, 3]);
-        assert_eq!(result, (-0.3, [1, 0]));
+        assert!(result == (-0.3, [1, 0]));
     }
 }
