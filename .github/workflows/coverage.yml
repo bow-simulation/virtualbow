@@ -1,0 +1,28 @@
+on:
+  pull_request:
+
+jobs:
+  code-coverage:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+
+      - name: Generate code coverage for solver tests
+        run: |
+          cd rust/virtualbow
+          cargo llvm-cov --release --html
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: rust/target/llvm-cov/html
+
+      - name: Add summary as a comment to the pull request
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          path: rust/target/llvm-cov/html/index.html
