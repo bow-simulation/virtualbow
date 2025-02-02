@@ -36,6 +36,13 @@ jobs:
           cat rust/virtualbow/text/index.txt >> summary.md
           echo '```' >> summary.md
 
+      - name: Upload summary artifact
+        id: artifact-upload-step
+        uses: actions/upload-artifact@v4
+        with:
+          name: summary-file
+          path: summary.md
+
       - name: Add summary file as a pull request comment
         uses: marocchino/sticky-pull-request-comment@v2
         with:
