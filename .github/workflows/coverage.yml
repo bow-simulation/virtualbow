@@ -16,19 +16,27 @@ jobs:
       - name: Generate code coverage for solver tests
         run: |
           cd rust/virtualbow
-          cargo llvm-cov --release --html
+          rustup default nightly
+          cargo llvm-cov --release --branch  --no-report
+          cargo llvm-cov report --html --output-dir "."
+          cargo llvm-cov report --text --output-dir "."
 
       - name: Upload coverage report artifact
         id: artifact-upload-step
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: rust/target/llvm-cov/html
+          path: rust/virtualbow/html
 
-      - name: Output artifact URL
-        run:  echo 'The full erport can be downloaded [here](${{ steps.artifact-upload-step.outputs.artifact-url }}).' > summary.md
+      - name: Create report summary file
+        run: |
+          echo "# Coverage Report for [${GITHUB_SHA::7}](https://github.com/bow-simulation/virtualbow/commit/${GITHUB_SHA})" >> summary.md
+          echo "See the summary below or [download the full report](${{ steps.artifact-upload-step.outputs.artifact-url }})." >> summary.md
+          echo "```"
+          cat rust/virtualbow/text/index.txt >> summary.md
+          echo "```"
 
-      - name: Add summary as a comment to the pull request
+      - name: Add summary file as a pull request comment
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           recreate: true
