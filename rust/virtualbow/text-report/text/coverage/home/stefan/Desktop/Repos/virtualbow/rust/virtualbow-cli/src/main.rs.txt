@@ -1,0 +1,70 @@
+Coverage Report
+Created: 2025-02-02 15:40
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow-cli/src/main.rs:
+    1|       |#![forbid(unsafe_code)]
+    2|       |
+    3|       |use virtualbow::bow::simulation::{Simulation, SimulationMode};
+    4|       |use virtualbow::bow::errors::ModelError;
+    5|       |use virtualbow::bow::input::BowInput;
+    6|       |use clap::Parser;
+    7|       |use std::path::PathBuf;
+    8|       |use std::process::ExitCode;
+    9|       |
+   10|       |#[cfg(test)]
+   11|       |mod tests;
+   12|       |
+   13|       |#[derive(Parser, Debug)]
+   14|       |#[command(version, about, long_about = None, disable_version_flag = true)]
+   15|       |struct Args {
+   16|       |    /// Mode of simulation
+   17|       |    #[arg(value_name = "MODE")]
+   18|      0|    mode: SimulationMode,
+   19|       |
+   20|       |    /// Input model file (*.bow)
+   21|       |    #[arg(value_name = "INPUT")]
+   22|      0|    input: PathBuf,
+   23|       |
+   24|       |    /// Output result file (*.res)
+   25|       |    #[arg(value_name = "OUTPUT")]
+   26|      0|    output: PathBuf,
+   27|       |
+   28|       |    /// Print simulation progress
+   29|      0|    #[arg(short='p', long="progress", default_value_t = false)]
+   30|      0|    progress: bool,
+   31|       |
+   32|       |    /// Print version
+   33|       |    #[arg(short='v', long="version", action = clap::builder::ArgAction::Version)]
+   34|       |    version: (),
+   35|       |}
+   36|       |
+   37|       |impl Args {
+   38|       |    // Performs the desired simulation according to the command line arguments
+   39|       |    // and save the results to the specified output path
+   40|      0|    fn execute(&self) -> Result<(), ModelError> {
+   41|      0|        let model = BowInput::load(&self.input)?;
+   42|       |
+   43|      0|        let output = Simulation::simulate(&model, self.mode, |stage, progress| {
+   44|      0|            if self.progress {
+   45|      0|                println!("stage: {stage}, progress: {progress:.1}%");
+   46|      0|            }
+   47|      0|            true
+   48|      0|        })?;
+   49|       |
+   50|      0|        output.save(&self.output)?;
+   51|      0|        Ok(())
+   52|      0|    }
+   53|       |}
+   54|       |
+   55|      0|fn main() -> ExitCode {
+   56|      0|    // Attempt to parse command line arguments
+   57|      0|    let args = Args::parse();
+   58|       |
+   59|       |    // Attempt to perform simulation and print any errors that occur
+   60|      0|    if let Err(e) = args.execute() {
+   61|      0|        eprintln!("ERROR: {}", e);
+   62|      0|        return ExitCode::FAILURE;
+   63|      0|    }
+   64|      0|
+   65|      0|    ExitCode::SUCCESS
+   66|      0|}
+

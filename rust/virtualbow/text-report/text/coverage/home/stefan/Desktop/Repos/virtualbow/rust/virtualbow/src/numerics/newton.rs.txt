@@ -1,0 +1,383 @@
+Coverage Report
+Created: 2025-02-02 15:40
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/numerics/newton.rs:
+    1|       |use std::fmt::{Display, Formatter};
+    2|       |use nalgebra::{DMatrix, DVector};
+    3|       |
+    4|       |#[derive(Copy, Clone)]
+    5|       |pub struct NewtonSettings {
+    6|       |    pub epsilon_rel: f64,       // Relative tolerance
+    7|       |    pub epsilon_abs: f64,       // Absolute tolerance
+    8|       |    pub max_iterations: u32,    // Maximum number of iterations per load step
+    9|       |    pub max_stagnation: u32     // Maximum number of iterations that don't improve the objective
+   10|       |}
+   11|       |
+   12|       |impl Default for NewtonSettings {
+   13|      0|    fn default() -> Self {
+   14|      0|        Self {
+   15|      0|            epsilon_rel: 1e-4,
+   16|      0|            epsilon_abs: 1e-6,
+   17|      0|            max_iterations: 50,
+   18|      0|            max_stagnation: 15,
+   19|      0|        }
+   20|      0|    }
+   21|       |}
+   22|       |
+   23|       |#[derive(Debug)]
+   24|       |pub struct IterationResult {
+   25|       |    #[allow(dead_code)]
+   26|       |    pub x: DVector<f64>,     // Solution variables
+   27|       |    #[allow(dead_code)]
+   28|       |    pub λ: f64,              // Solution parameter
+   29|       |    pub dxdλ: DVector<f64>,  // Derivative of the solution wrt. the parameter
+   30|       |    pub iterations: u32,     // Number of iterations that have been performed
+   31|       |}
+   32|       |
+   33|       |#[derive(PartialEq, Debug, Copy, Clone)]
+   34|       |pub enum NewtonError {
+   35|       |    LinearSolutionFailed,     // Decomposition of the tangent stiffness matrix or solution of the linear system failed
+   36|       |    NonFiniteConstraintEval,  // The return value of the constraint function is not finite, i.e. contains NaN or Inf values
+   37|       |    NonFiniteStateIncrement,  // The displacement delta is not finite, i.e. contains NaN or Inf values
+   38|       |    MaxIterationsReached,     // Maximum number of iterations was reached without convergence
+   39|       |    MaxStagnationReached,     // Maximum number of iterations without improvement was reached
+   40|       |}
+   41|       |
+   42|       |impl Display for NewtonError {
+   43|      0|    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+   44|      0|        match self {
+   45|      0|            NewtonError::LinearSolutionFailed    => write!(f, "Decomposition/solution of the tangent stiffness matrix failed.")?,
+   46|      0|            NewtonError::NonFiniteConstraintEval => write!(f, "Encountered a non-finite constraint function return value.")?,
+   47|      0|            NewtonError::NonFiniteStateIncrement => write!(f, "Encountered a non-finite displacement increment.")?,
+   48|      0|            NewtonError::MaxIterationsReached    => write!(f, "Maximum number of iterations exceeded.")?,
+   49|      0|            NewtonError::MaxStagnationReached    => write!(f, "Maximum number of stagnating iterations exceeded.")?,
+   50|       |        }
+   51|       |
+   52|      0|        Ok(())
+   53|      0|    }
+   54|       |}
+   55|       |
+   56|      0|pub fn solve_newton<F>(function: &mut F, x0: DVector<f64>, settings: NewtonSettings) -> Result<IterationResult, NewtonError>
+   57|      0|    where F: FnMut(&DVector<f64>, &mut DVector<f64>, &mut DMatrix<f64>)  // x -> f, dfdx
+   58|      0|{
+   59|      0|    // Set velocities to zero and copy the current displacement vector
+   60|      0|    let mut x = x0;
+   61|      0|    let mut f = DVector::<f64>::zeros(x.len());
+   62|      0|    let mut dfdx = DMatrix::<f64>::zeros(x.len(), x.len());
+   63|      0|
+   64|      0|    let mut error_ref = 0.0;              // Reference error at the first evaluation
+   65|      0|    let mut error_min = f64::INFINITY;    // Minimum encountered error
+   66|      0|    let mut stagnations = 0_u32;          // Current number of iterations without improvement of the minimum error
+   67|       |
+   68|      0|    for i in 1..=settings.max_iterations {
+   69|       |        // Evaluate function and jacobian at current solution
+   70|      0|        function(&x, &mut f, &mut dfdx);
+   71|      0|
+   72|      0|        // Factorize jacobian matrix and calculate solution increment
+   73|      0|        let decomposition = dfdx.clone().lu();
+   74|      0|        let delta_x = decomposition.solve(&f).ok_or(NewtonError::LinearSolutionFailed)?;
+   75|       |
+   76|       |        // Check if the solution increment is finite
+   77|      0|        if !delta_x.iter().cloned().all(f64::is_finite) {
+   78|      0|            return Err(NewtonError::NonFiniteStateIncrement);
+   79|      0|        }
+   80|      0|
+   81|      0|        // Compute error of the residual
+   82|      0|        // If first iteration, store value as reference for relative comparison
+   83|      0|        let error = f.amax();
+   84|      0|        if i == 1 {
+   85|      0|            error_ref = error;
+   86|      0|        }
+   87|       |
+   88|       |        // Evaluate absolute and relative convergence criteria
+   89|      0|        if error < settings.epsilon_abs || error/error_ref < settings.epsilon_rel {
+   90|      0|            return Ok(IterationResult {
+   91|      0|                x,
+   92|      0|                λ: 0.0,
+   93|      0|                dxdλ: DVector::zeros(0),
+   94|      0|                iterations: i
+   95|      0|            });
+   96|      0|        }
+   97|      0|
+   98|      0|        // Check if the minimum error has been decreased
+   99|      0|        // If yes, record the new minimum and reset the stagnation counter
+  100|      0|        // If no, increase the stagnation counter and return error if the limit is reached
+  101|      0|        if error < error_min {
+  102|      0|            error_min = error;
+  103|      0|            stagnations = 0;
+  104|      0|        }
+  105|       |        else {
+  106|      0|            stagnations += 1;
+  107|      0|            if stagnations == settings.max_stagnation {
+  108|      0|                return Err(NewtonError::MaxStagnationReached);
+  109|      0|            }
+  110|       |        }
+  111|       |
+  112|       |        // Apply changes to displacements
+  113|      0|        x -= &delta_x;
+  114|       |
+  115|       |        // Remember error at first iteration as reference
+  116|       |
+  117|       |    }
+  118|       |
+  119|       |    // Maximum number of iterations exceeded
+  120|      0|    return Err(NewtonError::MaxIterationsReached);
+  121|      0|}
+  122|       |
+  123|       |// Function: x, λ -> f, dfdx, dfdλ
+  124|       |// Constraint: x, λ -> c, dcdx, dcdλ
+  125|      0|pub fn solve_newton_constrained<F, C>(function: &mut F, constraint: &mut C, x0: DVector<f64>, λ0: f64, settings: NewtonSettings) -> Result<IterationResult, NewtonError>
+  126|      0|    where F: FnMut(&DVector<f64>, f64, &mut DVector<f64>, &mut DMatrix<f64>, &mut DVector<f64>),
+  127|      0|          C: FnMut(&DVector<f64>, f64, &mut f64, &mut DVector<f64>, &mut f64),
+  128|      0|{
+  129|      0|    let mut error_ref_f = 0.0;              // Reference error of the function at the first evaluation
+  130|      0|    let mut error_min_f = f64::INFINITY;    // Minimum encountered error
+  131|      0|
+  132|      0|    let mut error_ref_c = 0.0;              // Reference error of the constraint at the first evaluation
+  133|      0|    let mut error_min_c = f64::INFINITY;    // Minimum encountered error
+  134|      0|
+  135|      0|    let mut stagnations = 0_u32;            // Counter for number of stagnant iterations
+  136|      0|
+  137|      0|    let mut x = x0;
+  138|      0|    let mut λ = λ0;
+  139|      0|    let mut f = DVector::<f64>::zeros(x.len());
+  140|      0|    let mut c = 0.0;
+  141|      0|
+  142|      0|    let mut dfdx = DMatrix::<f64>::zeros(x.len(), x.len());
+  143|      0|    let mut dfdλ = DVector::<f64>::zeros(x.len());
+  144|      0|    let mut dcdx = DVector::<f64>::zeros(x.len());
+  145|      0|    let mut dcdλ = 0.0;
+  146|       |
+  147|      0|    for i in 1..=settings.max_iterations {
+  148|       |        // Evaluate function and jacobian
+  149|      0|        function(&x, λ, &mut f, &mut dfdx, &mut dfdλ);
+  150|      0|
+  151|      0|        // Factorize jacobian and calculate auxiliary vectors alpha and beta
+  152|      0|        let decomposition = dfdx.clone().lu();
+  153|      0|        let alpha = -decomposition.solve(&f).ok_or(NewtonError::LinearSolutionFailed)?;
+  154|      0|        let beta = -decomposition.solve(&dfdλ).ok_or(NewtonError::LinearSolutionFailed)?;
+  155|       |
+  156|       |        // Evaluate constraint and calculate change in load parameter and displacement
+  157|      0|        constraint(&x, λ, &mut c, &mut dcdx, &mut dcdλ);
+  158|      0|        let delta_λ = -(c + dcdx.dot(&alpha))/(dcdλ + dcdx.dot(&beta));
+  159|      0|        let delta_x = &alpha + &beta*delta_λ;
+  160|      0|
+  161|      0|        // Check if the load factor increment is finite
+  162|      0|        // The denominator might have been zero, pointing to an ill-posed problem
+  163|      0|        if !f64::is_finite(delta_λ) {
+  164|      0|            return Err(NewtonError::NonFiniteConstraintEval);
+  165|      0|        }
+  166|      0|
+  167|      0|        // Check if the displacement increment is finite
+  168|      0|        if !delta_x.iter().cloned().all(f64::is_finite) {
+  169|      0|            return Err(NewtonError::NonFiniteStateIncrement);
+  170|      0|        }
+  171|      0|
+  172|      0|        // Compute errors of function and constraint
+  173|      0|        // If first iteration, store values as reference for relative comparison
+  174|      0|        let error_f = f.amax();
+  175|      0|        let error_c = c.abs();
+  176|      0|        if i == 1 {
+  177|      0|            error_ref_f = error_f;
+  178|      0|            error_ref_c = error_c;
+  179|      0|        }
+  180|       |
+  181|       |        // Check convergence criteria, return only if both are fulfilled
+  182|      0|        let stopping_criterion_f = error_f < settings.epsilon_abs || error_f/error_ref_f < settings.epsilon_rel;
+  183|      0|        let stopping_criterion_c = error_c < settings.epsilon_abs || error_c/error_ref_c < settings.epsilon_rel;
+  184|      0|        if stopping_criterion_f && stopping_criterion_c {
+  185|      0|            return Ok(IterationResult {
+  186|      0|                x,
+  187|      0|                λ,
+  188|      0|                dxdλ: beta,
+  189|      0|                iterations: i,
+  190|      0|            });
+  191|      0|        }
+  192|      0|
+  193|      0|        // Check if any of the errors has been decreased
+  194|      0|        // If yes, record the new minimum and reset the stagnation counter
+  195|      0|        // If no, increase the stagnation counter and return error if the limit is reached
+  196|      0|        if error_f < error_min_f {
+  197|      0|            error_min_f = error_f;
+  198|      0|            stagnations = 0;
+  199|      0|        }
+  200|      0|        else if error_c < error_min_c {
+  201|      0|            error_min_c = error_c;
+  202|      0|            stagnations = 0;
+  203|      0|        }
+  204|       |        else {
+  205|      0|            stagnations += 1;
+  206|      0|            if stagnations == settings.max_stagnation {
+  207|      0|                return Err(NewtonError::MaxStagnationReached);
+  208|      0|            }
+  209|       |        }
+  210|       |
+  211|       |        // Apply changes to load factor and displacements
+  212|      0|        x += &delta_x;
+  213|      0|        λ += delta_λ;
+  214|       |    }
+  215|       |
+  216|       |    // Maximum number of iterations exceeded
+  217|      0|    return Err(NewtonError::MaxIterationsReached);
+  218|      0|}
+  219|       |
+  220|       |#[cfg(test)]
+  221|       |mod tests {
+  222|       |    use nalgebra::{DMatrix, DVector, dvector};
+  223|       |    use crate::numerics::newton::{NewtonSettings, solve_newton, solve_newton_constrained};
+  224|       |    use assert2::assert;
+  225|       |
+  226|       |    #[test]
+  227|       |    fn test_unconstrained() {
+  228|       |        // Example function from Wikipedia [1], including reference solution for each iteration.
+  229|       |        // https://en.wikipedia.org/wiki/Newton%27s_method#Example
+  230|       |
+  231|       |        let mut x_num = Vec::new();
+  232|       |        let x_ref = [
+  233|       |            dvector![1.0, 1.0],
+  234|       |            dvector![0.617789, -0.279818],
+  235|       |            dvector![0.568334, -0.312859],
+  236|       |            dvector![0.567305, -0.309435],
+  237|       |            dvector![0.567297, -0.309442]
+  238|       |        ];
+  239|       |
+  240|       |        let mut f = |x: &DVector<f64>, f: &mut DVector<f64>, dfdx: &mut DMatrix<f64>| {
+  241|       |            x_num.push(x.clone());
+  242|       |
+  243|       |            f[0] = 5.0*x[0].powi(2) + x[0]*x[1].powi(2) + f64::sin(2.0*x[1]).powi(2) - 2.0;
+  244|       |            f[1] = f64::exp(2.0*x[0] - x[1]) + 4.0*x[1] - 3.0;
+  245|       |
+  246|       |            dfdx[(0, 0)] = 10.0*x[0] + x[1].powi(2);
+  247|       |            dfdx[(0, 1)] = 2.0*x[0]*x[1] + 4.0*f64::sin(2.0*x[1])*f64::cos(2.0*x[1]);
+  248|       |            dfdx[(1, 0)] = 2.0*f64::exp(2.0*x[0] - x[1]);
+  249|       |            dfdx[(1, 1)] = -f64::exp(2.0*x[0] - x[1]) + 4.0;
+  250|       |        };
+  251|       |
+  252|       |        let x0 = dvector![1.0, 1.0];
+  253|       |        let result = solve_newton(&mut f, x0, NewtonSettings { epsilon_rel: 1e-6, epsilon_abs: 0.0, ..Default::default() }).unwrap();
+  254|       |
+  255|       |        // Check of the solution converged in the same number of steps as the reference,
+  256|       |        // which depends on the numerical tolerances.
+  257|       |        assert!(x_num.len() == x_ref.len());
+  258|       |
+  259|       |        // Check if the computed intermediate solutions match the reference
+  260|       |        for i in 0..x_ref.len() {
+  261|       |            assert_abs_diff_eq!(x_num[i], x_ref[i], epsilon=1e-6);
+  262|       |        }
+  263|       |
+  264|       |        // Check if the result contains the same same solution that the function was called last with
+  265|       |        assert!(result.x == *x_num.last().unwrap());
+  266|       |    }
+  267|       |
+  268|       |    #[test]
+  269|       |    fn test_constrained_1() {
+  270|       |        let mut x_num = Vec::new();
+  271|       |
+  272|       |        // Example function from Wikipedia: https://en.wikipedia.org/wiki/Newton%27s_method#Example
+  273|       |        // Modified by a parameter λ that scales the constant offsets
+  274|       |        let mut f = |x: &DVector<f64>, λ: f64, f: &mut DVector<f64>, dfdx: &mut DMatrix<f64>, dfdλ: &mut DVector<f64>| {
+  275|       |            x_num.push(x.clone());
+  276|       |
+  277|       |            f[0] = 5.0*x[0].powi(2) + x[0]*x[1].powi(2) + f64::sin(2.0*x[1]).powi(2) - 2.0*λ.powi(2);
+  278|       |            f[1] = f64::exp(2.0*x[0] - x[1]) + 4.0*x[1] - 3.0*λ;
+  279|       |
+  280|       |            dfdx[(0, 0)] = 10.0*x[0] + x[1].powi(2);
+  281|       |            dfdx[(0, 1)] = 2.0*x[0]*x[1] + 4.0*f64::sin(2.0*x[1])*f64::cos(2.0*x[1]);
+  282|       |            dfdx[(1, 0)] = 2.0*f64::exp(2.0*x[0] - x[1]);
+  283|       |            dfdx[(1, 1)] = -f64::exp(2.0*x[0] - x[1]) + 4.0;
+  284|       |
+  285|       |            dfdλ[0] = -4.0*λ;
+  286|       |            dfdλ[1] = -3.0;
+  287|       |        };
+  288|       |
+  289|       |        // Constraint function 1: Constrain the first solution component to the actual solution of the original function.
+  290|       |        // The resulting solution variables must be the same as before and lambda must be 1.
+  291|       |        let mut c1 = |x: &DVector<f64>, _λ: f64, c: &mut f64, dcdx: &mut DVector<f64>, dcdλ: &mut f64| {
+  292|       |            *c = x[0] - 0.567297;
+  293|       |            *dcdλ = 0.0;
+  294|       |
+  295|       |            dcdx[0] = 1.0;
+  296|       |            dcdx[1] = 0.0;
+  297|       |        };
+  298|       |
+  299|       |        // Constraint function 2: Constrain lambda to be 1. Again, the reference solution of the unmodified function must appear.
+  300|       |        let mut c2 = |_x: &DVector<f64>, λ: f64, c: &mut f64, dcdx: &mut DVector<f64>, dcdλ: &mut f64| {
+  301|       |            *c = λ - 1.0;
+  302|       |            *dcdλ = 1.0;
+  303|       |
+  304|       |            dcdx[0] = 0.0;
+  305|       |            dcdx[1] = 0.0;
+  306|       |        };
+  307|       |
+  308|       |        let x0 = dvector![1.0, 1.0];
+  309|       |        let λ0 = 0.9;
+  310|       |
+  311|       |        // Check results for constraint function 1
+  312|       |        let result = solve_newton_constrained(&mut f, &mut c1, x0.clone(), λ0, NewtonSettings { epsilon_rel: 1e-6, epsilon_abs: 0.0, ..Default::default() }).unwrap();
+  313|       |        assert_abs_diff_eq!(result.x, dvector![0.567297, -0.309442], epsilon=1e-6);
+  314|       |        assert_abs_diff_eq!(result.λ, 1.0, epsilon=1e-5);
+  315|       |
+  316|       |        // Check results for constraint function 2
+  317|       |        let result = solve_newton_constrained(&mut f, &mut c2, x0.clone(), λ0, NewtonSettings { epsilon_rel: 1e-6, epsilon_abs: 0.0, ..Default::default() }).unwrap();
+  318|       |        assert_abs_diff_eq!(result.x, dvector![0.567297, -0.309442], epsilon=1e-6);
+  319|       |        assert_abs_diff_eq!(result.λ, 1.0, epsilon=1e-5);
+  320|       |
+  321|       |        // Check if the result contains the same same solution that the function was called last with
+  322|       |        assert!(&result.x == x_num.last().unwrap());
+  323|       |    }
+  324|       |
+  325|       |    #[test]
+  326|       |    fn test_constrained_2() {
+  327|       |        // Use a more simple example function with an analytical solution so that the derivative dx/dλ of the solution can be verified.
+  328|       |        // Inspired by example from https://www.youtube.com/watch?v=AK2APTz1ZLA
+  329|       |        //
+  330|       |        // System of two equations (representing the intersection of a line and a parabola):
+  331|       |        //
+  332|       |        // x0 - x1^2 + 8*λ = 0
+  333|       |        // x0 - 2*x1 + 5*λ = 0
+  334|       |        //
+  335|       |        // One of the solutions is (picked the positive square root):
+  336|       |        //
+  337|       |        // x[1] = 1 + sqrt(3*λ + 1)
+  338|       |        // x[0] = 2*x[1] - 5*λ
+  339|       |        //
+  340|       |        // Therefore the derivative wrt λ is:
+  341|       |        //
+  342|       |        // d/dλ x[1] = 3/(2*sqrt(3*λ + 1))
+  343|       |        // d/dλ x[0] = 2*(d/dλ x[1]) - 5
+  344|       |
+  345|       |        let mut f = |x: &DVector<f64>, λ: f64, f: &mut DVector<f64>, dfdx: &mut DMatrix<f64>, dfdλ: &mut DVector<f64>| {
+  346|       |            f[0] = x[0] - x[1].powi(2) + 8.0*λ;
+  347|       |            f[1] = x[0] - 2.0*x[1] + 5.0*λ;
+  348|       |
+  349|       |            dfdx[(0, 0)] = 1.0;
+  350|       |            dfdx[(0, 1)] = -2.0*x[1];
+  351|       |            dfdx[(1, 0)] = 1.0;
+  352|       |            dfdx[(1, 1)] = -2.0;
+  353|       |
+  354|       |            dfdλ[0] = 8.0;
+  355|       |            dfdλ[1] = 5.0;
+  356|       |        };
+  357|       |
+  358|       |        // The constant function just fixes the parameter at λ = 1
+  359|       |        let mut c = |_x: &DVector<f64>, λ: f64, c: &mut f64, dcdx: &mut DVector<f64>, dcdλ: &mut f64| {
+  360|       |            *c = λ - 1.0;
+  361|       |            *dcdλ = 1.0;
+  362|       |
+  363|       |            dcdx[0] = 0.0;
+  364|       |            dcdx[1] = 0.0;
+  365|       |        };
+  366|       |
+  367|       |        // Reference solution for λ = 1:
+  368|       |        let x_ref = dvector![1.0, 3.0];
+  369|       |        let λ_ref = 1.0;
+  370|       |        let dxdλ_ref = dvector![-3.5, 0.75];
+  371|       |
+  372|       |        // Perform solution at a starting point that converges against the solution we picked previously,
+  373|       |        // compare the solution and its derivative to the parameter λ against the analytical solution for λ = 1.
+  374|       |        let result = solve_newton_constrained(&mut f, &mut c, dvector![2.5, 1.5], 1.2, NewtonSettings { epsilon_rel: 1e-6, epsilon_abs: 0.0, ..Default::default() }).unwrap();
+  375|       |        assert_abs_diff_eq!(result.x, x_ref, epsilon=1e-6);
+  376|       |        assert_abs_diff_eq!(result.λ, λ_ref, epsilon=1e-6);
+  377|       |        assert_abs_diff_eq!(result.dxdλ, dxdλ_ref, epsilon=1e-6);
+  378|       |    }
+  379|       |}
+

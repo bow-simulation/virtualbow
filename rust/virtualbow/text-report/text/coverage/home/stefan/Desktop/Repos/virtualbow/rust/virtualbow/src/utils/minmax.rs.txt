@@ -1,0 +1,125 @@
+Coverage Report
+Created: 2025-02-02 15:40
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/utils/minmax.rs:
+    1|       |use itertools::Itertools;
+    2|       |
+    3|       |// Finds and returns the maximum value in a vector of floats as well as the index at which it occurs.
+    4|      0|pub fn discrete_maximum_1d(values: &[f64]) -> (f64, usize) {
+    5|      0|    values.iter()
+    6|      0|        .enumerate()
+    7|      0|        .map(|(i, v)| (*v, i))
+    8|      0|        .max_by(|(a, _), (b, _)| a.partial_cmp(b).expect("Failed to compare floating point values"))
+    9|      0|        .expect("Failed to find maximum")
+   10|      0|}
+   11|       |
+   12|       |// Finds and returns the minimum value in a vector of floats as well as the index at which it occurs.
+   13|      0|pub fn discrete_minimum_1d(values: &[f64]) -> (f64, usize) {
+   14|      0|    values.iter()
+   15|      0|        .enumerate()
+   16|      0|        .map(|(i, v)| (*v, i))
+   17|      0|        .min_by(|(a, _), (b, _)| a.partial_cmp(b).expect("Failed to compare floating point values"))
+   18|      0|        .expect("Failed to find minimum")
+   19|      0|}
+   20|       |
+   21|       |// Finds the maximum of a function of integers by comparing all possible input combinations
+   22|      0|pub fn discrete_maximum_nd<F, const N: usize>(f: &mut F, size: [usize; N]) -> (f64, [usize; N])
+   23|      0|    where F: FnMut(&[usize; N]) -> f64
+   24|      0|{
+   25|      0|    let meta = (0..N).map(|k| 0..size[k]);       // Meta-iterator that produces an iterator for each index dimension
+   26|      0|    let indices = meta.multi_cartesian_product();      // Cartesian product, i.e. all possible combinations of indices
+   27|      0|
+   28|      0|    let values = indices.map(|i_vector| {
+   29|      0|        let i_array = i_vector.try_into().unwrap();    // TODO: Get rid of temporary Vecs somehow?
+   30|      0|        (f(&i_array), i_array)
+   31|      0|    });
+   32|      0|
+   33|      0|    let max = values.max_by(|(a, _), (b, _)| a.partial_cmp(b).expect("Failed to compare floating point values"))
+   34|      0|                    .expect("Failed to find maximum");
+   35|      0|
+   36|      0|    return max;
+   37|      0|}
+   38|       |
+   39|       |// Finds the minimum of a function of integers by comparing all possible input combinations
+   40|      0|pub fn discrete_minimum_nd<F, const N: usize>(f: &mut F, size: [usize; N]) -> (f64, [usize; N])
+   41|      0|    where F: FnMut(&[usize; N]) -> f64
+   42|      0|{
+   43|      0|    let meta = (0..N).map(|k| 0..size[k]);       // Meta-iterator that produces an iterator for each index dimension
+   44|      0|    let indices = meta.multi_cartesian_product();      // Cartesian product, i.e. all possible combinations of indices
+   45|      0|
+   46|      0|    let values = indices.map(|i_vector| {
+   47|      0|        let i_array = i_vector.try_into().unwrap();    // TODO: Get rid of temporary Vecs somehow?
+   48|      0|        (f(&i_array), i_array)
+   49|      0|    });
+   50|      0|
+   51|      0|    let max = values.min_by(|(a, _), (b, _)| a.partial_cmp(b).expect("Failed to compare floating point values"))
+   52|      0|        .expect("Failed to find minimum");
+   53|      0|
+   54|      0|    return max;
+   55|      0|}
+   56|       |
+   57|       |#[cfg(test)]
+   58|       |mod tests {
+   59|       |    use assert2::assert;
+   60|       |    use super::*;
+   61|       |
+   62|       |    #[test]
+   63|       |    fn test_discrete_minimum_1d() {
+   64|       |        // Panic on empty input
+   65|       |        let result = std::panic::catch_unwind(|| discrete_minimum_1d(&[]));
+   66|       |        assert!(result.is_err());
+   67|       |
+   68|       |        // Panic on non-finite input
+   69|       |        let result = std::panic::catch_unwind(|| discrete_minimum_1d(&[f64::NAN, f64::NAN]));
+   70|       |        assert!(result.is_err());
+   71|       |
+   72|       |        // Minimum of vector with single element
+   73|       |        let result = discrete_minimum_1d(&[0.0]);
+   74|       |        assert!(result == (0.0, 0));
+   75|       |
+   76|       |        // Minimum of vector with multiple elements
+   77|       |        let result = discrete_minimum_1d(&[-1.0, 1.0, -2.0]);
+   78|       |        assert!(result == (-2.0, 2));
+   79|       |    }
+   80|       |
+   81|       |    #[test]
+   82|       |    fn test_discrete_maximum_1d() {
+   83|       |        // Panic on empty input
+   84|       |        let result = std::panic::catch_unwind(|| discrete_maximum_1d(&[]));
+   85|       |        assert!(result.is_err());
+   86|       |
+   87|       |        // Panic on non-finite input
+   88|       |        let result = std::panic::catch_unwind(|| discrete_maximum_1d(&[f64::NAN, f64::NAN]));
+   89|       |        assert!(result.is_err());
+   90|       |
+   91|       |        // Maximum of vector with single element
+   92|       |        let result = discrete_maximum_1d(&[0.0]);
+   93|       |        assert!(result == (0.0, 0));
+   94|       |
+   95|       |        // Maximum of vector with multiple elements
+   96|       |        let result = discrete_maximum_1d(&[-1.0, 1.0, -2.0]);
+   97|       |        assert!(result == (1.0, 1));
+   98|       |    }
+   99|       |
+  100|       |    #[test]
+  101|       |    fn test_discrete_maximum_nd() {
+  102|       |        let result = discrete_maximum_nd(&mut |i| (i[0] as f64)*(i[1] as f64), [10, 10]);
+  103|       |        assert!(result == (81.0, [9, 9]));
+  104|       |
+  105|       |        let values = [[0.0, 0.1, 0.2], [0.3, 0.2, 0.1]];
+  106|       |        let mut function = |i: &[usize; 2]| values[i[0]][i[1]];
+  107|       |        let result = discrete_maximum_nd(&mut function, [2, 3]);
+  108|       |        assert!(result == (0.3, [1, 0]));
+  109|       |    }
+  110|       |
+  111|       |    #[test]
+  112|       |    fn test_discrete_minimum_nd() {
+  113|       |        let result = discrete_minimum_nd(&mut |i| (i[0] as f64)*(i[1] as f64), [10, 10]);
+  114|       |        assert!(result == (0.0, [0, 0]));
+  115|       |
+  116|       |        let values = [[-0.0, -0.1, -0.2], [-0.3, -0.2, -0.1]];
+  117|       |        let mut function = |i: &[usize; 2]| values[i[0]][i[1]];
+  118|       |        let result = discrete_minimum_nd(&mut function, [2, 3]);
+  119|       |        assert!(result == (-0.3, [1, 0]));
+  120|       |    }
+  121|       |}
+

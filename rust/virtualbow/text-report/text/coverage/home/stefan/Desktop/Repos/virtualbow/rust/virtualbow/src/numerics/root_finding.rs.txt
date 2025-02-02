@@ -1,0 +1,155 @@
+Coverage Report
+Created: 2025-02-02 15:40
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/numerics/root_finding.rs:
+    1|       |use nalgebra::{DMatrix, DVector};
+    2|       |
+    3|       |// Multi-dimensional Newton method for dynamically sized vectors
+    4|       |#[allow(dead_code)]
+    5|      0|pub fn find_root_newton<F>(function: &F, x0: &DVector<f64>, ftol: f64, iter: usize) -> Option<DVector<f64>>
+    6|      0|    where F: Fn(&DVector<f64>) -> (DVector<f64>, DMatrix<f64>)
+    7|      0|{
+    8|      0|    let mut x = x0.clone();
+    9|      0|
+   10|      0|    for _ in 1..iter {
+   11|      0|        let (f, dfdx) = function(&x);
+   12|      0|        if f.norm() < ftol {
+   13|      0|            return Some(x);
+   14|      0|        }
+   15|      0|
+   16|      0|        x -= dfdx.lu().solve(&f).expect("Failed to perform newton iteration");
+   17|       |    }
+   18|       |
+   19|      0|    return None;
+   20|      0|}
+   21|       |
+   22|       |// One-dimensional secant method (https://en.wikipedia.org/wiki/Secant_method)
+   23|       |// (Currently not used)
+   24|       |#[allow(dead_code)]
+   25|      0|pub fn find_root_secant<F>(mut f: F, mut x0: f64, mut f0: f64, mut x1: f64, mut f1: f64, ftol: f64, iter: usize) -> Option<f64>
+   26|      0|    where F: FnMut(f64) -> f64
+   27|      0|{
+   28|      0|    for _ in 0..iter {
+   29|       |        // Check for convergence
+   30|      0|        if f1.abs() < ftol {
+   31|      0|            return Some(x1);
+   32|      0|        }
+   33|      0|
+   34|      0|        // Compute next point
+   35|      0|        let x2 = x1 - (x1 - x0)/(f1 - f0)*f1;
+   36|      0|
+   37|      0|        // Shift previous points
+   38|      0|        x0 = x1;
+   39|      0|        x1 = x2;
+   40|      0|        f0 = f1;
+   41|      0|        f1 = f(x2);
+   42|       |    }
+   43|       |
+   44|      0|    return None;
+   45|      0|}
+   46|       |
+   47|       |// Regula Falsi with Illinois modification, adapted from example on Wikipedia (https://en.wikipedia.org/wiki/Regula_falsi)
+   48|       |// In this version, the function values at the initial interval bounds are supplied by the caller
+   49|       |// in order to avoid re-computation when they're already known.
+   50|       |// TODO: Have a look at Brent's method: https://en.wikipedia.org/wiki/Brent%27s_method
+   51|      0|pub fn find_root_falsi<F>(mut f: F, mut a: f64, mut b: f64, mut fa: f64, mut fb: f64, xtol: f64, ftol: f64, iter: usize) -> Option<f64>
+   52|      0|    where F: FnMut(f64) -> f64
+   53|      0|{
+   54|      0|    let mut side = 0;
+   55|      0|
+   56|      0|    for _ in 0..iter {
+   57|       |        // Compute new candidate and evaluate function
+   58|      0|        let c = (fa*b - fb*a)/(fa - fb);
+   59|      0|        let fc = f(c);
+   60|      0|
+   61|      0|        // Check for convergence
+   62|      0|        if (b - a).abs() < xtol || fc.abs() < ftol{
+   63|      0|            return Some(c);
+   64|      0|        }
+   65|      0|
+   66|      0|        // If fc and fb have same sign, c is the new right boundary
+   67|      0|        // If fc and fa have same sign, c is new left boundary
+   68|      0|        if fc*fb > 0.0 {
+   69|      0|            b = c;
+   70|      0|            fb = fc;
+   71|      0|
+   72|      0|            if side == -1 {
+   73|      0|                fa /= 2.0;
+   74|      0|            }
+   75|       |
+   76|      0|            side = -1;
+   77|       |        }
+   78|      0|        else if fc*fa > 0.0 {
+   79|      0|            a = c;
+   80|      0|            fa = fc;
+   81|      0|
+   82|      0|            if side == 1 {
+   83|      0|                fb /= 2.0;
+   84|      0|            }
+   85|       |
+   86|      0|            side = 1;
+   87|      0|        }
+   88|       |    }
+   89|       |
+   90|      0|    None
+   91|      0|}
+   92|       |
+   93|       |#[cfg(test)]
+   94|       |mod tests {
+   95|       |    use super::*;
+   96|       |
+   97|       |    #[test]
+   98|       |    fn test_newton_method() {
+   99|       |        // Tests the newton method against an example problem with solution found on stackexchange
+  100|       |        // https://math.stackexchange.com/a/467051
+  101|       |        let function = |x: &DVector<f64>| {
+  102|       |            let f = DVector::from_row_slice(&[
+  103|       |                f64::cos(    x[0]) + f64::cos(    x[1]) + f64::cos(    x[2]) - 3.0/5.0,
+  104|       |                f64::cos(3.0*x[0]) + f64::cos(3.0*x[1]) + f64::cos(3.0*x[2]),
+  105|       |                f64::cos(5.0*x[0]) + f64::cos(5.0*x[1]) + f64::cos(5.0*x[2])
+  106|       |            ]);
+  107|       |
+  108|       |            let dfdx = DMatrix::from_row_slice(3, 3, &[
+  109|       |                -f64::sin(    x[0]),     -f64::sin(    x[1]),     -f64::sin(   x[2]),
+  110|       |                -3.0*f64::sin(3.0*x[0]), -3.0*f64::sin(3.0*x[1]), -3.0*f64::sin(3.0*x[2]),
+  111|       |                -5.0*f64::sin(5.0*x[0]), -5.0*f64::sin(5.0*x[1]), -5.0*f64::sin(5.0*x[2]),
+  112|       |            ]);
+  113|       |
+  114|       |            return (f, dfdx);
+  115|       |        };
+  116|       |
+  117|       |        let x0 = DVector::from_row_slice(&[4.0, 1.0, -0.5]);
+  118|       |        let x_num = find_root_newton(&function, &x0, 1e-8, 50).expect("Failed to find solution");
+  119|       |        let x_ref = DVector::from_row_slice(&[4.094047142323228, 1.2318378396357232, -0.5601417633888767]);
+  120|       |
+  121|       |        assert_abs_diff_eq!(x_num, x_ref, epsilon=1e-6);
+  122|       |    }
+  123|       |
+  124|       |    #[test]
+  125|       |    fn test_regula_falsi() {
+  126|       |        let f = |x| { f64::cos(x) - x.powi(3) };
+  127|       |        let a = 0.0;
+  128|       |        let b = 1.0;
+  129|       |
+  130|       |        // Reference solution from https://en.wikipedia.org/wiki/Regula_falsi
+  131|       |        let x_ref = 0.865474033101614;
+  132|       |
+  133|       |        let x_ab = find_root_falsi(&f, a, b, f(a), f(b), 0.0, 1e-15, 50).expect("Solution failed");
+  134|       |        let x_ba = find_root_falsi(&f, b, a, f(b), f(a), 0.0, 1e-15, 50).expect("Solution failed");
+  135|       |
+  136|       |        assert_abs_diff_eq!(x_ab, x_ref, epsilon=1e-15);
+  137|       |        assert_abs_diff_eq!(x_ba, x_ref, epsilon=1e-15);
+  138|       |    }
+  139|       |
+  140|       |    #[test]
+  141|       |    fn test_secant_method() {
+  142|       |        let f = |x: f64| { x.powi(3) };
+  143|       |
+  144|       |        let x0 = -1.0;
+  145|       |        let x1 = 1.0;
+  146|       |        let x_num = find_root_secant(&f, x0, f(x0), x1, f(x1), 1e-8, 50).expect("Failed to find solution");
+  147|       |        let x_ref = 0.0;
+  148|       |
+  149|       |        assert_abs_diff_eq!(x_num, x_ref, epsilon=1e-6);
+  150|       |    }
+  151|       |}
+

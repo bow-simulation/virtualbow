@@ -1,0 +1,559 @@
+Coverage Report
+Created: 2025-02-02 15:40
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/bow/input.rs:
+    1|       |use std::fs::File;
+    2|       |use std::io::{BufReader, BufWriter, Write};
+    3|       |use std::path::Path;
+    4|       |use itertools::Itertools;
+    5|       |use serde::{Deserialize, Serialize};
+    6|       |use serde_json::Value;
+    7|       |use crate::bow::compatibility::convert_to_current_format;
+    8|       |use crate::bow::sections::section::LayerAlignment;
+    9|       |use crate::bow::errors::ModelError;
+   10|       |use crate::bow::profile::input::SegmentInput;
+   11|       |use crate::bow::profile::segments::clothoid::LineInput;
+   12|       |use crate::bow::versioning::{VersionedWrapper, VersionedWrapperRef};
+   13|       |use crate::utils::validation::is_hex_color;
+   14|       |
+   15|      0|#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+   16|       |pub struct BowInput {
+   17|       |    pub comment: String,
+   18|       |    pub settings: Settings,
+   19|       |    pub dimensions: Dimensions,
+   20|       |    pub materials: Vec<Material>,
+   21|       |    pub layers: Vec<Layer>,
+   22|       |    pub profile: Profile,
+   23|       |    pub width: Width,
+   24|       |    pub string: BowString,
+   25|       |    pub masses: Masses,
+   26|       |    pub damping: Damping,
+   27|       |}
+   28|       |
+   29|       |impl BowInput {
+   30|       |    // Current version of the bow model format, increase when incompatible changes are made.
+   31|       |    pub const FILE_VERSION: u64 = 3;
+   32|       |
+   33|       |    // Loads a bow bow from a json file, including necessary conversions from older file formats for compatibility.
+   34|      0|    pub fn load<P: AsRef<Path>>(path: P) -> Result<BowInput, ModelError> {
+   35|      0|        let file = File::open(&path).map_err(|e| ModelError::InputLoadFileError(path.as_ref().to_owned(), e))?;
+   36|      0|        let mut reader = BufReader::new(file);
+   37|       |
+   38|       |        // Parse the file as a json value and convert that json value to the current version if necessary
+   39|      0|        let mut value: Value = serde_json::from_reader(&mut reader).map_err(ModelError::InputDeserializeJsonError)?;
+   40|      0|        convert_to_current_format(&mut value)?;
+   41|       |
+   42|       |        // Parse wrapper (data + version number) from converted json value. Discard version number and only return the data.
+   43|      0|        let wrapper: VersionedWrapper<Self> = serde_json::from_value(value).map_err(ModelError::InputInterpretJsonError)?;
+   44|      0|        Ok(wrapper.data)
+   45|      0|    }
+   46|       |
+   47|       |    // Saves the bow to a file in the current json format
+   48|      0|    pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<(), ModelError> {
+   49|      0|        let file = File::create(&path).map_err(|e| ModelError::InputSaveFileError(path.as_ref().to_owned(), e))?;
+   50|      0|        let mut writer = BufWriter::new(file);
+   51|      0|
+   52|      0|        // Create wrapper object that adds the current version number
+   53|      0|        let wrapper = VersionedWrapperRef::new(Self::FILE_VERSION, self);
+   54|      0|
+   55|      0|        // Save wrapper object to file
+   56|      0|        serde_json::to_writer_pretty(&mut writer, &wrapper).map_err(ModelError::InputSerializeJsonError)?;
+   57|      0|        writer.flush().map_err(|e| ModelError::InputSaveFileError(path.as_ref().to_owned(), e))
+   58|      0|    }
+   59|       |
+   60|      0|    pub fn validate(&self) -> Result<(), ModelError> {
+   61|      0|        let Self { comment: _, settings, dimensions, materials, layers, profile, width, string, masses, damping } = self;
+   62|      0|
+   63|      0|        settings.validate()?;
+   64|      0|        dimensions.validate()?;
+   65|      0|        for material in materials {
+   66|      0|            material.validate()?;
+   67|       |        }
+   68|      0|        for layer in layers {
+   69|      0|            layer.validate()?;
+   70|       |        }
+   71|      0|        profile.validate()?;
+   72|      0|        width.validate()?;
+   73|      0|        string.validate()?;
+   74|      0|        masses.validate()?;
+   75|      0|        damping.validate()?;
+   76|       |
+   77|      0|        Ok(())
+   78|      0|    }
+   79|       |}
+   80|       |
+   81|       |impl Default for BowInput {
+   82|       |    // Valid default values for a new bow bow
+   83|      0|    fn default() -> Self {
+   84|      0|        Self {
+   85|      0|            comment: "".into(),
+   86|      0|            settings: Settings {
+   87|      0|                n_limb_elements: 30,
+   88|      0|                n_limb_eval_points: 100,
+   89|      0|                min_draw_resolution: 100,
+   90|      0|                max_draw_resolution: 100,
+   91|      0|                arrow_clamp_force: 0.5,
+   92|      0|                string_compression_factor: 1e-6,
+   93|      0|                timespan_factor: 1.5,
+   94|      0|                timeout_factor: 10.0,
+   95|      0|                min_timestep: 1e-6,
+   96|      0|                max_timestep: 1e-4,
+   97|      0|                steps_per_period: 250,
+   98|      0|            },
+   99|      0|            dimensions: Dimensions {
+  100|      0|                brace_height: 0.2,
+  101|      0|                draw_length: 0.7,
+  102|      0|                handle_length: 0.0,
+  103|      0|                handle_setback: 0.0,
+  104|      0|                handle_angle: 0.0
+  105|      0|            },
+  106|      0|            materials: vec![
+  107|      0|                Material::new("Default", "#000000", 1.0, 1.0, 1.0)
+  108|      0|            ],
+  109|      0|            layers: vec![
+  110|      0|                Layer::new("Unnamed", "Default", vec![(0.0, 0.001), (1.0, 0.001)])
+  111|      0|            ],
+  112|      0|            profile: Profile::new(LayerAlignment::SectionBack, vec![
+  113|      0|                SegmentInput::Line(LineInput::new(1.0))
+  114|      0|            ]),
+  115|      0|            width: Width::new(vec![
+  116|      0|                (0.0, 0.05),
+  117|      0|                (0.5, 0.04),
+  118|      0|                (1.0, 0.01)
+  119|      0|            ]),
+  120|      0|            string: BowString {
+  121|      0|                n_strands: 1,
+  122|      0|                strand_density: 1.0,
+  123|      0|                strand_stiffness: 1.0,
+  124|      0|            },
+  125|      0|            masses: Masses {
+  126|      0|                arrow: 1.0,
+  127|      0|                limb_tip: 0.0,
+  128|      0|                string_center: 0.0,
+  129|      0|                string_tip: 0.0,
+  130|      0|            },
+  131|      0|            damping: Damping {
+  132|      0|                damping_ratio_limbs: 0.0,
+  133|      0|                damping_ratio_string: 0.0,
+  134|      0|            },
+  135|      0|        }
+  136|      0|    }
+  137|       |}
+  138|       |
+  139|      0|#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+  140|       |pub struct Settings {
+  141|       |    pub n_limb_elements: usize,
+  142|       |    pub n_limb_eval_points: usize,
+  143|       |
+  144|       |    pub min_draw_resolution: usize,
+  145|       |    pub max_draw_resolution: usize,
+  146|       |
+  147|       |    pub arrow_clamp_force: f64,
+  148|       |    pub string_compression_factor: f64,
+  149|       |    pub timespan_factor: f64,
+  150|       |    pub timeout_factor: f64,
+  151|       |    pub min_timestep: f64,
+  152|       |    pub max_timestep: f64,
+  153|       |    pub steps_per_period: usize
+  154|       |}
+  155|       |
+  156|       |impl Settings {
+  157|      0|    pub fn validate(&self) -> Result<(), ModelError> {
+  158|      0|        let &Self { n_limb_elements, n_limb_eval_points, min_draw_resolution, max_draw_resolution, arrow_clamp_force, string_compression_factor, timespan_factor, timeout_factor, min_timestep, max_timestep, steps_per_period } = self;
+  159|      0|
+  160|      0|        if n_limb_elements < 1 {
+  161|      0|            return Err(ModelError::SettingsInvalidLimbElements(n_limb_elements));
+  162|      0|        }
+  163|      0|        if n_limb_eval_points < 2 {
+  164|      0|            return Err(ModelError::SettingsInvalidLimbEvalPoints(n_limb_eval_points));
+  165|      0|        }
+  166|      0|        if min_draw_resolution < 1 {
+  167|      0|            return Err(ModelError::SettingsInvalidMinDrawResolution(min_draw_resolution));
+  168|      0|        }
+  169|      0|        if max_draw_resolution < 1 {
+  170|      0|            return Err(ModelError::SettingsInvalidMaxDrawResolution(max_draw_resolution));
+  171|      0|        }
+  172|      0|        if !arrow_clamp_force.is_finite() || arrow_clamp_force < 0.0 {
+  173|      0|            return Err(ModelError::SettingsInvalidArrowClampForce(arrow_clamp_force));
+  174|      0|        }
+  175|      0|        if !string_compression_factor.is_finite() || string_compression_factor <= 0.0 {
+  176|      0|            return Err(ModelError::SettingsInvalidStringCompressionFactor(string_compression_factor));
+  177|      0|        }
+  178|      0|        if !timespan_factor.is_finite() || timespan_factor < 1.0 {
+  179|      0|            return Err(ModelError::SettingsInvalidTimeSpanFactor(timespan_factor));
+  180|      0|        }
+  181|      0|        if !timeout_factor.is_finite() || timeout_factor < 1.0 {
+  182|      0|            return Err(ModelError::SettingsInvalidTimeOutFactor(timeout_factor));
+  183|      0|        }
+  184|      0|        if !min_timestep.is_finite() || min_timestep <= 0.0 {
+  185|      0|            return Err(ModelError::SettingsInvalidMinTimeStep(min_timestep));
+  186|      0|        }
+  187|      0|        if !max_timestep.is_finite() || max_timestep <= 0.0 {
+  188|      0|            return Err(ModelError::SettingsInvalidMaxTimeStep(max_timestep));
+  189|      0|        }
+  190|      0|        if steps_per_period < 1 {
+  191|      0|            return Err(ModelError::SettingsInvalidStepsPerPeriod(steps_per_period));
+  192|      0|        }
+  193|      0|
+  194|      0|        Ok(())
+  195|      0|    }
+  196|       |}
+  197|       |
+  198|      0|#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+  199|       |pub struct Dimensions {
+  200|       |    pub brace_height: f64,
+  201|       |    pub draw_length: f64,
+  202|       |    pub handle_length: f64,
+  203|       |    pub handle_setback: f64,
+  204|       |    pub handle_angle: f64
+  205|       |}
+  206|       |
+  207|       |impl Dimensions {
+  208|      0|    pub fn validate(&self) -> Result<(), ModelError> {
+  209|      0|        let &Self { brace_height, draw_length, handle_length, handle_setback, handle_angle} = self;
+  210|      0|
+  211|      0|        if !brace_height.is_finite() {
+  212|      0|            return Err(ModelError::DimensionsInvalidBraceHeight(brace_height));
+  213|      0|        }
+  214|      0|        if !draw_length.is_finite() || draw_length <= brace_height {
+  215|      0|            return Err(ModelError::DimensionsInvalidDrawLength(draw_length));
+  216|      0|        }
+  217|      0|        if !handle_length.is_finite() || handle_length < 0.0 {
+  218|      0|            return Err(ModelError::DimensionsInvalidHandleLength(handle_length));
+  219|      0|        }
+  220|      0|        if !handle_setback.is_finite() {
+  221|      0|            return Err(ModelError::DimensionsInvalidHandleSetback(handle_setback));
+  222|      0|        }
+  223|      0|        if !handle_angle.is_finite() {
+  224|      0|            return Err(ModelError::DimensionsInvalidHandleAngle(handle_angle));
+  225|      0|        }
+  226|      0|
+  227|      0|        Ok(())
+  228|      0|    }
+  229|       |}
+  230|       |
+  231|       |
+  232|      0|#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+  233|       |pub struct Material {
+  234|       |    pub name: String,
+  235|       |    pub color: String,
+  236|       |    pub rho: f64,
+  237|       |    pub E: f64,
+  238|       |    pub G: f64
+  239|       |}
+  240|       |
+  241|       |impl Material {
+  242|      0|    pub fn new(name: &str, color: &str, rho: f64, E: f64, G: f64) -> Self {
+  243|      0|        Self {
+  244|      0|            name: name.to_string(),
+  245|      0|            color: color.to_string(),
+  246|      0|            rho,
+  247|      0|            E,
+  248|      0|            G
+  249|      0|        }
+  250|      0|    }
+  251|       |
+  252|      0|    pub fn validate(&self) -> Result<(), ModelError> {
+  253|      0|        let Self { name, color, rho, E, G } = self;
+  254|      0|
+  255|      0|        if name.is_empty() {
+  256|      0|            return Err(ModelError::MaterialInvalidName(name.clone()));
+  257|      0|        }
+  258|      0|        if !is_hex_color(color) {
+  259|      0|            return Err(ModelError::MaterialInvalidColor(color.clone()));
+  260|      0|        }
+  261|      0|        if !rho.is_finite() || *rho <= 0.0 {
+  262|      0|            return Err(ModelError::MaterialInvalidDensity(*rho));
+  263|      0|        }
+  264|      0|        if !E.is_finite() || *E <= 0.0 {
+  265|      0|            return Err(ModelError::MaterialInvalidYoungsModulus(*E));
+  266|      0|        }
+  267|      0|        if !G.is_finite() || *G <= 0.0 {
+  268|      0|            return Err(ModelError::MaterialInvalidShearModulus(*G));
+  269|      0|        }
+  270|      0|
+  271|      0|        Ok(())
+  272|      0|    }
+  273|       |}
+  274|       |
+  275|      0|#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+  276|       |pub struct Layer {
+  277|       |    pub name: String,
+  278|       |    pub material: String,
+  279|       |    pub height: Vec<(f64, f64)>,
+  280|       |}
+  281|       |
+  282|       |impl Layer {
+  283|       |    const REL_LENGTH_TOL: f64 = 1e-9;    // Tolerance used for validating inputs that are relative lengths
+  284|       |
+  285|      0|    pub fn new(name: &str, material: &str, height: Vec<(f64, f64)>) -> Self {
+  286|      0|        Self {
+  287|      0|            name: name.to_string(),
+  288|      0|            material: material.to_string(),
+  289|      0|            height
+  290|      0|        }
+  291|      0|    }
+  292|       |
+  293|      0|    pub fn validate(&self) -> Result<(), ModelError> {
+  294|      0|        let Self { name, material: _, height } = self;
+  295|      0|
+  296|      0|        if name.is_empty() {
+  297|      0|            return Err(ModelError::LayerInvalidName(name.clone()));
+  298|      0|        }
+  299|      0|
+  300|      0|        // Material index is validated by the cross sections
+  301|      0|
+  302|      0|        // TODO: Height should be validated by the cross section in order to give an error message with the index of the layer
+  303|      0|        // Or maybe implement validation on Vec<Layer>?
+  304|      0|
+  305|      0|        if height.len() < 2 {
+  306|      0|            return Err(ModelError::LayerHeightControlPointsTooFew(height.len()));
+  307|      0|        }
+  308|       |
+  309|      0|        if let Some((a, b)) = height.iter().tuple_windows().find(|(a, b)| b.0 <= a.0) {
+  310|      0|            return Err(ModelError::LayerHeightControlPointsNotSorted(a.0, b.0));
+  311|      0|        }
+  312|      0|
+  313|      0|        let first = height.first().unwrap();
+  314|      0|        let last = height.last().unwrap();
+  315|      0|
+  316|      0|        if (first.0 < 0.0 - Width::REL_LENGTH_TOL) || (last.0 > 1.0 + Width::REL_LENGTH_TOL) {
+  317|      0|            return Err(ModelError::LayerHeightControlPointsInvalidRange(first.0, last.0));
+  318|      0|        }
+  319|       |
+  320|      0|        for (i, a) in height.iter().enumerate() {
+  321|      0|            if i == 0 || i == height.len()-1 {
+  322|      0|                if !a.0.is_finite() || !a.1.is_finite() || a.0 < 0.0 || a.1 < 0.0 {
+  323|      0|                    return Err(ModelError::LayerHeightControlPointsInvalidBoundaryValue(a.0, a.1));
+  324|      0|                }
+  325|       |            }
+  326|       |            else {
+  327|      0|                if !a.0.is_finite() || !a.1.is_finite() || a.0 <= 0.0 || a.1 <= 0.0 {
+  328|      0|                    return Err(ModelError::LayerHeightControlPointsInvalidInteriorValue(a.0, a.1));
+  329|      0|                }
+  330|       |            }
+  331|       |        }
+  332|       |
+  333|      0|        if first.0 > 0.0 + Layer::REL_LENGTH_TOL && first.1 != 0.0 {
+  334|      0|            return Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(first.0, first.1));
+  335|      0|        }
+  336|      0|
+  337|      0|        if last.0 < 1.0 - Layer::REL_LENGTH_TOL && last.1 != 0.0 {
+  338|      0|            return Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(last.0, last.1));
+  339|      0|        }
+  340|      0|
+  341|      0|        Ok(())
+  342|      0|    }
+  343|       |}
+  344|       |
+  345|      0|#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+  346|       |pub struct Profile {
+  347|       |    pub alignment: LayerAlignment,
+  348|       |    pub segments: Vec<SegmentInput>,
+  349|       |}
+  350|       |
+  351|       |impl Profile {
+  352|      0|    pub fn new(alignment: LayerAlignment, segments: Vec<SegmentInput>) -> Self {
+  353|      0|        Self {
+  354|      0|            alignment,
+  355|      0|            segments
+  356|      0|        }
+  357|      0|    }
+  358|       |
+  359|      0|    pub fn validate(&self) -> Result<(), ModelError> {
+  360|      0|        let Self {alignment, segments } = self;
+  361|      0|
+  362|      0|        match alignment {
+  363|      0|            LayerAlignment::LayerBack(name) | LayerAlignment::LayerBelly(name) | LayerAlignment::LayerCenter(name) => {
+  364|      0|                if name.is_empty() {
+  365|      0|                    return Err(ModelError::ProfileAnlignemtInvalidLayerName(name.clone()));
+  366|      0|                }
+  367|       |            }
+  368|      0|            _ => {
+  369|      0|                // Other alignment options don't need validation
+  370|      0|            }
+  371|       |        }
+  372|       |
+  373|      0|        for (index, segment) in segments.iter().enumerate() {
+  374|      0|            segment.validate(index)?;
+  375|       |        }
+  376|       |
+  377|      0|        Ok(())
+  378|      0|    }
+  379|       |}
+  380|       |
+  381|      0|#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+  382|       |pub struct Width {
+  383|       |    pub points: Vec<(f64, f64)>
+  384|       |}
+  385|       |
+  386|       |impl Width {
+  387|       |    const REL_LENGTH_TOL: f64 = 1e-9;    // Tolerance used for validating inputs that are relative lengths
+  388|       |
+  389|      0|    pub fn new(points: Vec<(f64, f64)>) -> Self {
+  390|      0|        Self {
+  391|      0|            points
+  392|      0|        }
+  393|      0|    }
+  394|       |
+  395|       |    // Convenience function for creating a constant width distribution
+  396|      0|    pub fn constant(w: f64) -> Self {
+  397|      0|        Self::new(vec![(0.0, w), (1.0, w)])
+  398|      0|    }
+  399|       |
+  400|       |    // Convenience function for creating a linear width distribution
+  401|      0|    pub fn linear(w0: f64, w1: f64) -> Self {
+  402|      0|        Self::new(vec![(0.0, w0), (1.0, w1)])
+  403|      0|    }
+  404|       |
+  405|      0|    pub fn validate(&self) -> Result<(), ModelError> {
+  406|      0|        let Self { points } = self;
+  407|      0|
+  408|      0|        if points.len() < 2 {
+  409|      0|            return Err(ModelError::WidthControlPointsTooFew(points.len()));
+  410|      0|        }
+  411|       |
+  412|      0|        if let Some((a, b)) = points.iter().tuple_windows().find(|(a, b)| b.0 <= a.0) {
+  413|      0|            return Err(ModelError::WidthControlPointsNotSorted(a.0, b.0));
+  414|      0|        }
+  415|      0|
+  416|      0|        let first = points.first().unwrap();
+  417|      0|        let last = points.last().unwrap();
+  418|      0|
+  419|      0|        if ((first.0 - 0.0).abs() > Width::REL_LENGTH_TOL) || ((last.0 - 1.0).abs() > Width::REL_LENGTH_TOL) {
+  420|      0|            return Err(ModelError::WidthControlPointsInvalidRange(first.0, last.0));
+  421|      0|        }
+  422|       |
+  423|      0|        if let Some(a) = points.iter().find(|a| !a.0.is_finite() || !a.1.is_finite() || a.1 <= 0.0) {
+  424|      0|            return Err(ModelError::WidthControlPointsInvalidValue(a.0, a.1));
+  425|      0|        }
+  426|      0|
+  427|      0|        Ok(())
+  428|      0|    }
+  429|       |}
+  430|       |
+  431|      0|#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+  432|       |pub struct BowString {
+  433|       |    pub n_strands: usize,
+  434|       |    pub strand_density: f64,
+  435|       |    pub strand_stiffness: f64
+  436|       |}
+  437|       |
+  438|       |impl BowString {
+  439|      0|    pub fn validate(&self) -> Result<(), ModelError> {
+  440|      0|        let &Self { n_strands, strand_density, strand_stiffness } = self;
+  441|      0|
+  442|      0|        if n_strands < 1 {
+  443|      0|            return Err(ModelError::StringInvalidNumberOfStrands(n_strands));
+  444|      0|        }
+  445|      0|        if !strand_density.is_finite() || strand_density <= 0.0 {
+  446|      0|            return Err(ModelError::StringInvalidStrandDensity(strand_density));
+  447|      0|        }
+  448|      0|        if !strand_stiffness.is_finite() || strand_stiffness <= 0.0 {
+  449|      0|            return Err(ModelError::StringInvalidStrandStiffness(strand_stiffness));
+  450|      0|        }
+  451|      0|
+  452|      0|        Ok(())
+  453|      0|    }
+  454|       |}
+  455|       |
+  456|      0|#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+  457|       |pub struct Masses {
+  458|       |    pub arrow: f64,
+  459|       |    pub limb_tip: f64,
+  460|       |    pub string_center: f64,
+  461|       |    pub string_tip: f64,
+  462|       |}
+  463|       |
+  464|       |impl Masses {
+  465|      0|    pub fn validate(&self) -> Result<(), ModelError> {
+  466|      0|        let &Self { arrow, limb_tip, string_center, string_tip } = self;
+  467|      0|
+  468|      0|        if !arrow.is_finite() || arrow <= 0.0 {
+  469|      0|            return Err(ModelError::MassesInvalidArrowMass(arrow));
+  470|      0|        }
+  471|      0|        if !limb_tip.is_finite() || limb_tip < 0.0 {
+  472|      0|            return Err(ModelError::MassesInvalidLimbTipMass(limb_tip));
+  473|      0|        }
+  474|      0|        if !string_center.is_finite() || string_center < 0.0 {
+  475|      0|            return Err(ModelError::MassesInvalidStringCenterMass(string_center));
+  476|      0|        }
+  477|      0|        if !string_tip.is_finite() || string_tip < 0.0 {
+  478|      0|            return Err(ModelError::MassesInvalidStringTipMass(string_tip));
+  479|      0|        }
+  480|      0|
+  481|      0|        Ok(())
+  482|      0|    }
+  483|       |}
+  484|       |
+  485|      0|#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+  486|       |pub struct Damping {
+  487|       |    pub damping_ratio_limbs: f64,
+  488|       |    pub damping_ratio_string: f64,
+  489|       |}
+  490|       |
+  491|       |impl Damping {
+  492|      0|    pub fn validate(&self) -> Result<(), ModelError> {
+  493|      0|        let &Self { damping_ratio_limbs, damping_ratio_string } = self;
+  494|      0|
+  495|      0|        if !damping_ratio_limbs.is_finite() || damping_ratio_limbs < 0.0  || damping_ratio_limbs > 1.0 {
+  496|      0|            return Err(ModelError::DampingInvalidLimbDampingRatio(damping_ratio_limbs));
+  497|      0|        }
+  498|      0|        if !damping_ratio_string.is_finite() || damping_ratio_string < 0.0 || damping_ratio_string > 1.0 {
+  499|      0|            return Err(ModelError::DampingInvalidStringDampingRatio(damping_ratio_string));
+  500|      0|        }
+  501|      0|
+  502|      0|        Ok(())
+  503|      0|    }
+  504|       |}
+  505|       |
+  506|       |#[cfg(test)]
+  507|       |mod tests {
+  508|       |    use crate::bow::input::BowInput;
+  509|       |    use crate::bow::errors::ModelError;
+  510|       |
+  511|       |    #[test]
+  512|       |    fn test_load_model() {
+  513|       |        // IO error when loading from an invalid path
+  514|       |        assert_matches!(BowInput::load("bows/tests/nonexistent.bow"), Err(ModelError::InputLoadFileError(_, _)));
+  515|       |
+  516|       |        // Deserialization error due to invalid file contents (no valid json)
+  517|       |        assert_matches!(BowInput::load("bows/tests/invalid_json_1.bow"), Err(ModelError::InputDeserializeJsonError(_)));
+  518|       |
+  519|       |        // Deserialization error due to invalid file contents (valid json but invalid structure)
+  520|       |        assert_matches!(BowInput::load("bows/tests/invalid_json_2.bow"), Err(ModelError::InputInterpretJsonError(_)));
+  521|       |
+  522|       |        // Error when loading a bow file without version entry
+  523|       |        assert_matches!(BowInput::load("bows/tests/no_version.bow"), Err(ModelError::InputVersionNotFound));
+  524|       |
+  525|       |        // Error when loading a bow files with an invalid version entry (wrong type)
+  526|       |        assert_matches!(BowInput::load("bows/tests/invalid_version_1.bow"), Err(ModelError::InputVersionInvalid(_)));
+  527|       |
+  528|       |        // Error when loading a bow files with an invalid version entry (version does not exist)
+  529|       |        assert_matches!(BowInput::load("bows/tests/invalid_version_2.bow"), Err(ModelError::InputVersionInvalid(_)));
+  530|       |
+  531|       |        // Error when loading a bow file with a version that is too old
+  532|       |        assert_matches!(BowInput::load("bows/tests/old_version.bow"), Err(ModelError::InputVersionTooOld(_)));
+  533|       |
+  534|       |        // Error when loading a bow file with a version that is too new
+  535|       |        assert_matches!(BowInput::load("bows/tests/new_version.bow"), Err(ModelError::InputVersionTooNew(_)));
+  536|       |
+  537|       |        // Error when loading a bow file that can not be converted to the current format
+  538|       |        assert_matches!(BowInput::load("bows/tests/inconvertible.bow"), Err(ModelError::InputConversionError(_, _, _)));
+  539|       |
+  540|       |        // No error when loading a valid bow model
+  541|       |        assert_matches!(BowInput::load("bows/tests/valid.bow"), Ok(_));
+  542|       |    }
+  543|       |
+  544|       |    #[test]
+  545|       |    fn test_save_model() {
+  546|       |        let model = BowInput::default();
+  547|       |
+  548|       |        // IO error from saving to an invalid path
+  549|       |        assert_matches!(model.save("bows/tests/nonexistent/valid.bow"), Err(ModelError::InputSaveFileError(_, _)));
+  550|       |
+  551|       |        // The only remaining error case is a serialization error, but that one is difficult to trigger.
+  552|       |        // Therefore we just save the model once to verify that the serialization works.
+  553|       |        assert_matches!(model.save("bows/tests/saved.bow"), Ok(_));
+  554|       |    }
+  555|       |}
+

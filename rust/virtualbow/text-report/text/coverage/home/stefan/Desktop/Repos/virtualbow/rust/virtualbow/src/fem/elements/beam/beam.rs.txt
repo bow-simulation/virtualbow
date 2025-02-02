@@ -1,0 +1,293 @@
+Coverage Report
+Created: 2025-02-02 15:40
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/fem/elements/beam/beam.rs:
+    1|       |// Calculates the analytical stiffness matrix of a curved beam with varying cross section properties
+    2|       |// by using Castigliano's theorem and numerical integration. Method inspired by [1].
+    3|       |//
+    4|       |// [1] E. Marotta, P.Salvini: Analytical Stiffness Matrix for Curved Metal Wires,
+    5|       |// Procedia Structural Integrity, Volume 8, 2018, Pages 43-55
+    6|       |//
+    7|       |// r: s -> [x, y, phi], Function describing the shape of the beam segment with arc length s in [l0, l1]
+    8|       |// C: s -> [[Cee, Cek], [Cek, Ckk]], Function describing the material properties along the beam
+    9|       |
+   10|       |use nalgebra::{matrix, vector, SMatrix, SVector, stack};
+   11|       |use crate::fem::elements::beam::linear::LinearBeamSegment;
+   12|       |use crate::fem::system::element::Element;
+   13|       |use crate::fem::system::views::{MatrixView, PositionView, VectorView, VelocityView};
+   14|       |use crate::numerics::functions::normalize_angle;
+   15|       |
+   16|       |pub struct BeamElement {
+   17|       |    // Constant data
+   18|       |    M: SVector<f64, 6>,       // Element mass matrix
+   19|       |    K: SMatrix<f64, 3, 3>,    // Linear stiffness matrix
+   20|       |    D: SMatrix<f64, 3, 3>,    // Linear stiffness matrix
+   21|       |
+   22|       |    se: Vec<f64>,              // Evaluation lengths
+   23|       |    pe: Vec<SVector<f64, 3>>,  // Initial positions wrt. local reference frame
+   24|       |
+   25|       |    l0: f64,                  // Initial length along x axis
+   26|       |    β0: f64,                  // Angular offset at left node
+   27|       |    β1: f64,                  // Angular offset at right node
+   28|       |
+   29|       |    u_eval: Vec<SMatrix<f64, 3, 3>>,    // Displacement evaluation
+   30|       |    C_inv: Vec<SMatrix<f64, 3, 3>>,     // Inverse cross section stiffness
+   31|       |
+   32|       |    // State dependent data
+   33|       |
+   34|       |    u: SVector<f64, 6>,     // Total displacements
+   35|       |    v: SVector<f64, 6>,     // Total velocities
+   36|       |    ul: SVector<f64, 3>,    // Local displacements
+   37|       |    vl: SVector<f64, 3>,    // Local velocities
+   38|       |    fe: SVector<f64, 3>,    // Local elastic forces
+   39|       |    fd: SVector<f64, 3>,    // Local damping forces
+   40|       |    Qe: SVector<f64, 6>,    // Total elastic forces
+   41|       |    Qd: SVector<f64, 6>,    // Total damping forces
+   42|       |}
+   43|       |
+   44|       |impl BeamElement {
+   45|       |    // Creates an element on the given curve between two arc lengths.
+   46|       |    // Returns the element as well as the arc lengths, positions and angles of the nodes.
+   47|      0|    pub fn new(segment: &LinearBeamSegment) -> Self {
+   48|      0|        // Transform stiffness matrix to moving reference frame
+   49|      0|
+   50|      0|        let dx = segment.p1[0] - segment.p0[0];
+   51|      0|        let dy = segment.p1[1] - segment.p0[1];
+   52|      0|
+   53|      0|        let l0 = f64::hypot(dx, dy);
+   54|      0|        let a0 = f64::atan2(dy, dx);
+   55|      0|        let R0 = matrix![
+   56|      0|            f64::cos(a0), -f64::sin(a0), 0.0;
+   57|      0|            f64::sin(a0), f64::cos(a0), 0.0;
+   58|      0|            0.0, 0.0, 1.0;
+   59|      0|        ];
+   60|      0|
+   61|      0|        let tx = dx/l0;
+   62|      0|        let ty = dy/l0;
+   63|      0|
+   64|      0|        let T = matrix![
+   65|      0|            0.0, 0.0, 0.0;
+   66|      0|            0.0, 0.0, 0.0;
+   67|      0|            0.0, 1.0, 0.0;
+   68|      0|            tx , 0.0, 0.0;
+   69|      0|            ty , 0.0, 0.0;
+   70|      0|            0.0, 0.0, 1.0;
+   71|      0|        ];
+   72|      0|
+   73|      0|        // Transform stiffness matrix
+   74|      0|        let K = T.transpose()*segment.K*T;
+   75|      0|
+   76|      0|        // Transform initial positions
+   77|      0|        let p0 = vector![segment.p0[0], segment.p0[1], a0];
+   78|      0|        let pe = segment.pe.iter().map(|&pe| R0.transpose()*(pe - p0)).collect();
+   79|      0|
+   80|      0|        let u_eval = segment.Ep.iter().map(|E| E*T ).collect();
+   81|      0|
+   82|      0|        let M = segment.M;
+   83|      0|
+   84|      0|        Self {
+   85|      0|            M,
+   86|      0|            K,
+   87|      0|            D: SMatrix::zeros(),
+   88|      0|            se: segment.se.clone(),
+   89|      0|            pe,
+   90|      0|            l0,
+   91|      0|            β0: segment.p0[2] - a0,
+   92|      0|            β1: segment.p1[2] - a0,
+   93|      0|            u_eval,
+   94|      0|            C_inv: segment.Ci.clone(),
+   95|      0|            u: SVector::zeros(),
+   96|      0|            v: SVector::zeros(),
+   97|      0|            ul: SVector::zeros(),
+   98|      0|            vl: SVector::zeros(),
+   99|      0|            fe: SVector::zeros(),
+  100|      0|            fd: SVector::zeros(),
+  101|      0|            Qe: SVector::zeros(),
+  102|      0|            Qd: SVector::zeros(),
+  103|      0|        }
+  104|      0|    }
+  105|       |
+  106|      0|    pub fn set_damping(&mut self, alpha: f64) {
+  107|      0|        self.D = alpha*self.K;
+  108|      0|    }
+  109|       |
+  110|       |    #[allow(dead_code)]
+  111|      0|    pub fn eval_lengths(&self) -> &[f64] {
+  112|      0|        &self.se
+  113|      0|    }
+  114|       |
+  115|      0|    pub fn eval_positions(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {        // Local transformation
+  116|      0|        // TODO: Redundant computations, store when evaluating forces
+  117|      0|        let dx = self.u[3] - self.u[0];
+  118|      0|        let dy = self.u[4] - self.u[1];
+  119|      0|        let a0 = f64::atan2(dy, dx);
+  120|      0|
+  121|      0|        let p0 = vector![
+  122|      0|            self.u[0],
+  123|      0|            self.u[1],
+  124|      0|            a0
+  125|      0|        ];
+  126|      0|
+  127|      0|        let R = matrix![
+  128|      0|            f64::cos(a0), -f64::sin(a0), 0.0;
+  129|      0|            f64::sin(a0), f64::cos(a0), 0.0;
+  130|      0|            0.0, 0.0, 1.0;
+  131|      0|        ];
+  132|      0|
+  133|      0|        self.se.iter().enumerate().map(move |(i, _)| {
+  134|      0|            p0 + R*(self.pe[i] + self.u_eval[i]*self.ul)
+  135|      0|        })
+  136|      0|    }
+  137|       |
+  138|      0|    pub fn eval_velocities(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {
+  139|      0|        // TODO: Redundant computations, store when evaluating forces
+  140|      0|        let dx = self.u[3] - self.u[0];
+  141|      0|        let dy = self.u[4] - self.u[1];
+  142|      0|        let a0 = f64::atan2(dy, dx);
+  143|      0|
+  144|      0|        let R = matrix![
+  145|      0|            f64::cos(a0), -f64::sin(a0), 0.0;
+  146|      0|            f64::sin(a0), f64::cos(a0), 0.0;
+  147|      0|            0.0, 0.0, 1.0;
+  148|      0|        ];
+  149|      0|
+  150|      0|        let dadu = vector![dy, -dx, 0.0, -dy, dx, 0.0]/(dx*dx + dy*dy);
+  151|      0|        let dadt = dadu.dot(&(self.v));
+  152|      0|
+  153|      0|        let p0_dot = vector![
+  154|      0|            self.v[0],
+  155|      0|            self.v[1],
+  156|      0|            dadt
+  157|      0|        ];
+  158|      0|
+  159|      0|        let dRda = matrix![
+  160|      0|            -f64::sin(a0), -f64::cos(a0), 0.0;
+  161|      0|            f64::cos(a0), -f64::sin(a0), 0.0;
+  162|      0|            0.0, 0.0, 0.0;
+  163|      0|        ];
+  164|      0|
+  165|      0|        self.se.iter().enumerate().map(move |(i, _)| {
+  166|      0|            p0_dot + dadt*dRda*(self.pe[i] + self.u_eval[i]*self.ul) + R*self.u_eval[i]*self.vl
+  167|      0|        })
+  168|      0|    }
+  169|       |
+  170|       |    // TODO: Duplicate calculation with eval_positions(), maybe combine
+  171|      0|    pub fn eval_forces(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {
+  172|      0|        let Fx = self.Qe[3];
+  173|      0|        let Fy = self.Qe[4];
+  174|      0|        let Mz = self.Qe[5];
+  175|      0|
+  176|      0|        let x1 = self.u[3];
+  177|      0|        let y1 = self.u[4];
+  178|      0|
+  179|      0|        self.eval_positions().map(move |p| {
+  180|      0|            let x = p[0];
+  181|      0|            let y = p[1];
+  182|      0|            let φ = p[2];
+  183|      0|
+  184|      0|            let N = Fx*f64::cos(φ) + Fy*f64::sin(φ);
+  185|      0|            let Q = Fy*f64::cos(φ) - Fx*f64::sin(φ);
+  186|      0|            let M = Fy*(x1 - x) - Fx*(y1 - y) + Mz;
+  187|      0|
+  188|      0|            vector![N, M, Q]
+  189|      0|        })
+  190|      0|    }
+  191|       |
+  192|       |    // TODO: Duplicate calculation with eval_forces(), maybe combine
+  193|      0|    pub fn eval_strains(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {
+  194|      0|        self.eval_forces().enumerate().map(|(i, f)| {
+  195|      0|            self.C_inv[i]*f
+  196|      0|        })
+  197|      0|    }
+  198|       |}
+  199|       |
+  200|       |impl Element for BeamElement {
+  201|      0|    fn evaluate_mass_matrix(&self, M: &mut VectorView) {
+  202|      0|        M.add_vec(self.M);
+  203|      0|    }
+  204|       |
+  205|      0|    fn set_state_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, mut q: Option<&mut VectorView>, mut K: Option<&mut MatrixView>, mut D: Option<&mut MatrixView>) {
+  206|      0|        // Update element state
+  207|      0|        self.u = u.get();
+  208|      0|        self.v = v.get();
+  209|      0|
+  210|      0|        let dx = u.at(3) - u.at(0);
+  211|      0|        let dy = u.at(4) - u.at(1);
+  212|      0|
+  213|      0|        let l = f64::hypot(dx, dy);
+  214|      0|        let a = f64::atan2(dy, dx);
+  215|      0|
+  216|      0|        let dl = l - self.l0;
+  217|      0|        let dφ0 = normalize_angle(u.at(2) - a - self.β0);
+  218|      0|        let dφ1 = normalize_angle(u.at(5) - a - self.β1);
+  219|      0|
+  220|      0|        let J = matrix![
+  221|      0|            -dx/l    , -dy/l    , 0.0, dx/l    ,  dy/l    , 0.0;
+  222|      0|            -dy/(l*l),  dx/(l*l), 1.0, dy/(l*l), -dx/(l*l), 0.0;
+  223|      0|            -dy/(l*l),  dx/(l*l), 0.0, dy/(l*l), -dx/(l*l), 1.0;
+  224|      0|        ];
+  225|      0|
+  226|      0|        self.ul = vector![dl, dφ0, dφ1];
+  227|      0|        self.vl = J*self.v;
+  228|      0|
+  229|      0|        if q.is_some() || K.is_some() {
+  230|      0|            self.fe = self.K*self.ul;      // Local elastic forces
+  231|      0|            self.fd = self.D*self.vl;      // Local damping forces
+  232|      0|            let ft = self.fe + self.fd;    // Total local forces
+  233|      0|
+  234|      0|            self.Qe = J.transpose()*self.fe;
+  235|      0|            self.Qd = J.transpose()*self.fd;
+  236|       |
+  237|       |            // Compute elastic forces if needed
+  238|      0|            if let Some(ref mut q) = q {
+  239|      0|                q.add_vec(self.Qe + self.Qd);
+  240|      0|            }
+  241|       |
+  242|       |            // Compute stiffness matrix if needed
+  243|      0|            if let Some(ref mut K) = K {
+  244|      0|                let c0 = dx*dx/l.powi(3) - 1.0/l;
+  245|      0|                let c1 = dy*dy/l.powi(3) - 1.0/l;
+  246|      0|                let c2 = dx*dy/l.powi(3);
+  247|      0|                let c3 = 2.0*dx*dx/l.powi(4) - 1.0/l.powi(2);
+  248|      0|                let c4 = 2.0*dy*dy/l.powi(4) - 1.0/l.powi(2);
+  249|      0|                let c5 = 2.0*dx*dy/l.powi(4);
+  250|      0|
+  251|      0|                let dJ0 = matrix![
+  252|      0|                    -c0, -c2, 0.0, c0,  c2, 0.0;
+  253|      0|                    -c5,  c3, 0.0, c5, -c3, 0.0;
+  254|      0|                    -c5,  c3, 0.0, c5, -c3, 0.0;
+  255|      0|                ];
+  256|      0|
+  257|      0|                let dJ1 = matrix![
+  258|      0|                    -c2, -c1, 0.0, c2,  c1, 0.0;
+  259|      0|                    -c4,  c5, 0.0, c4, -c5, 0.0;
+  260|      0|                    -c4,  c5, 0.0, c4, -c5, 0.0;
+  261|      0|                ];
+  262|      0|
+  263|      0|                let Kk = stack![dJ0.transpose()*ft, dJ1.transpose()*ft, SVector::<f64, 6>::zeros(), -dJ0.transpose()*ft, -dJ1.transpose()*ft, SVector::<f64, 6>::zeros()];
+  264|      0|                let Kd = J.transpose()*self.D*stack![dJ0*self.v, dJ1*self.v, SVector::<f64, 3>::zeros(), -dJ0*self.v, -dJ1*self.v, SVector::<f64, 3>::zeros()];
+  265|      0|
+  266|      0|                K.add_mat(&(
+  267|      0|                    Kk + Kd + J.transpose()*self.K*J
+  268|      0|                ));
+  269|      0|            }
+  270|       |
+  271|       |            // Compute damping matrix if needed
+  272|      0|            if let Some(ref mut D) = D {
+  273|      0|                D.add_mat(&(J.transpose()*self.D*J));
+  274|      0|            }
+  275|      0|        }
+  276|      0|    }
+  277|       |
+  278|      0|    fn potential_energy(&self) -> f64 {
+  279|      0|        0.5*self.ul.dot(&(self.K*self.ul))
+  280|      0|    }
+  281|       |
+  282|      0|    fn kinetic_energy(&self) -> f64 {
+  283|      0|        0.5*self.v.dot(&(self.M.component_mul(&self.v)))
+  284|      0|    }
+  285|       |
+  286|      0|    fn dissipative_power(&self) -> f64 {
+  287|      0|        self.fd.dot(&self.vl)
+  288|      0|    }
+  289|       |}
+

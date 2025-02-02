@@ -1,0 +1,223 @@
+Coverage Report
+Created: 2025-02-02 15:40
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/bow/errors.rs:
+    1|       |use std::fmt::{Display, Formatter};
+    2|       |
+    3|       |use std::path::PathBuf;
+    4|       |use crate::fem::solvers::dynamics::DynamicSolverError;
+    5|       |use crate::fem::solvers::eigen::EigenSolverError;
+    6|       |use crate::fem::solvers::statics::StaticSolverError;
+    7|       |
+    8|       |#[derive(Debug)]
+    9|       |pub enum ModelError {
+   10|       |    InputLoadFileError(PathBuf, std::io::Error),
+   11|       |    InputSaveFileError(PathBuf, std::io::Error),
+   12|       |    InputSerializeJsonError(serde_json::error::Error),
+   13|       |    InputDeserializeJsonError(serde_json::error::Error),
+   14|       |    InputInterpretJsonError(serde_json::error::Error),
+   15|       |    InputVersionNotFound,
+   16|       |    InputVersionInvalid(String),
+   17|       |    InputVersionTooOld(String),
+   18|       |    InputVersionTooNew(u64),
+   19|       |    InputConversionError(u64, u64, String),
+   20|       |
+   21|       |    OutputLoadFileError(PathBuf, std::io::Error),
+   22|       |    OutputSaveFileError(PathBuf, std::io::Error),
+   23|       |    OutputEncodeMsgPackError(rmp_serde::encode::Error),
+   24|       |    OutputDecodeMsgPackError(rmpv::decode::Error),
+   25|       |    OutputInterpretMsgPackError(rmpv::ext::Error),
+   26|       |    OutputVersionNotFound,
+   27|       |    OutputVersionInvalid(String),
+   28|       |    OutputVersionMismatch(u64),
+   29|       |
+   30|       |    SettingsInvalidLimbElements(usize),
+   31|       |    SettingsInvalidLimbEvalPoints(usize),
+   32|       |    SettingsInvalidMinDrawResolution(usize),
+   33|       |    SettingsInvalidMaxDrawResolution(usize),
+   34|       |    SettingsInvalidArrowClampForce(f64),
+   35|       |    SettingsInvalidStringCompressionFactor(f64),
+   36|       |    SettingsInvalidTimeSpanFactor(f64),
+   37|       |    SettingsInvalidTimeOutFactor(f64),
+   38|       |    SettingsInvalidMinTimeStep(f64),
+   39|       |    SettingsInvalidMaxTimeStep(f64),
+   40|       |    SettingsInvalidStepsPerPeriod(usize),
+   41|       |
+   42|       |    DimensionsInvalidBraceHeight(f64),
+   43|       |    DimensionsInvalidDrawLength(f64),
+   44|       |    DimensionsInvalidHandleLength(f64),
+   45|       |    DimensionsInvalidHandleSetback(f64),
+   46|       |    DimensionsInvalidHandleAngle(f64),
+   47|       |
+   48|       |    MaterialInvalidName(String),
+   49|       |    MaterialInvalidColor(String),
+   50|       |    MaterialInvalidDensity(f64),
+   51|       |    MaterialInvalidYoungsModulus(f64),
+   52|       |    MaterialInvalidShearModulus(f64),
+   53|       |
+   54|       |    WidthControlPointsTooFew(usize),
+   55|       |    WidthControlPointsNotSorted(f64, f64),
+   56|       |    WidthControlPointsInvalidRange(f64, f64),
+   57|       |    WidthControlPointsInvalidValue(f64, f64),
+   58|       |
+   59|       |    LayerInvalidName(String),
+   60|       |    LayerHeightControlPointsTooFew(usize),
+   61|       |    LayerHeightControlPointsNotSorted(f64, f64),
+   62|       |    LayerHeightControlPointsInvalidRange(f64, f64),
+   63|       |    LayerHeightControlPointsInvalidBoundaryValue(f64, f64),
+   64|       |    LayerHeightControlPointsInvalidInteriorValue(f64, f64),
+   65|       |    LayerHeightControlPointsDiscontinuousBoundary(f64, f64),
+   66|       |
+   67|       |    StringInvalidNumberOfStrands(usize),
+   68|       |    StringInvalidStrandDensity(f64),
+   69|       |    StringInvalidStrandStiffness(f64),
+   70|       |
+   71|       |    MassesInvalidArrowMass(f64),
+   72|       |    MassesInvalidLimbTipMass(f64),
+   73|       |    MassesInvalidStringCenterMass(f64),
+   74|       |    MassesInvalidStringTipMass(f64),
+   75|       |
+   76|       |    DampingInvalidLimbDampingRatio(f64),
+   77|       |    DampingInvalidStringDampingRatio(f64),
+   78|       |
+   79|       |    CrossSectionInvalidLength(f64),
+   80|       |    CrossSectionNoLayers,
+   81|       |    CrossSectionNoMaterials,
+   82|       |    CrossSectionDuplicateMaterialName(String),
+   83|       |    CrossSectionInvalidMaterialName(String, String),
+   84|       |    CrossSectionDuplicateLayerName(String),
+   85|       |    CrossSectionInvalidLayerName(String),
+   86|       |    CrossSectionZeroCombinedHeight(f64),
+   87|       |
+   88|       |    ProfileNoSegments,
+   89|       |    ProfileAnlignemtInvalidLayerName(String),
+   90|       |    LineSegmentInvalidLength(usize, f64),
+   91|       |    ArcSegmentInvalidLength(usize, f64),
+   92|       |    ArcSegmentInvalidRadius(usize, f64),
+   93|       |    SpiralSegmentInvalidLength(usize, f64),
+   94|       |    SpiralSegmentInvalidRadius1(usize, f64),
+   95|       |    SpiralSegmentInvalidRadius2(usize, f64),
+   96|       |    SplineSegmentTooFewPoints(usize, usize),
+   97|       |    SplineSegmentInvalidPoint(usize, (f64, f64)),
+   98|       |
+   99|       |    GeometrySelfIntersectionBack(f64),
+  100|       |    GeometrySelfIntersectionBelly(f64),
+  101|       |
+  102|       |    SimulationBraceHeightTooLow(f64),
+  103|       |    SimulationBracingNoSignChange,
+  104|       |    SimulationBracingNoConvergence,
+  105|       |    SimulationEigenSolutionFailed(EigenSolverError),
+  106|       |    SimulationStaticSolutionFailed(StaticSolverError),
+  107|       |    SimulationDynamicSolutionFailed(DynamicSolverError),
+  108|       |}
+  109|       |
+  110|       |impl Display for ModelError {
+  111|      0|    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+  112|      0|        match self {
+  113|      0|            ModelError::InputLoadFileError(path, error)     => write!(f, "Failed to open file {path:?}: {error}")?,
+  114|      0|            ModelError::InputSaveFileError(path, error)     => write!(f, "Failed to write file {path:?}: {error}")?,
+  115|      0|            ModelError::InputSerializeJsonError(error)      => write!(f, "Failed to convert bow model to json: {error}")?,
+  116|      0|            ModelError::InputDeserializeJsonError(error)    => write!(f, "Failed to parse bow model from json: {error}")?,
+  117|      0|            ModelError::InputInterpretJsonError(error)      => write!(f, "Failed to parse bow model from json: {error}")?,
+  118|      0|            ModelError::InputVersionNotFound                => write!(f, "Failed to load bow model, file version number was not found")?,
+  119|      0|            ModelError::InputVersionInvalid(version)        => write!(f, "Failed to load bow model, {version} is not a valid file version number.")?,
+  120|      0|            ModelError::InputVersionTooOld(version)         => write!(f, "Failed to load bow model, file version {version} is no longer supported.")?,
+  121|      0|            ModelError::InputVersionTooNew(version)         => write!(f, "Failed to load bow model, file version {version} is too new to be recognized. Please consider updating to a recent version of VirtualBow.")?,
+  122|      0|            ModelError::InputConversionError(a, b, message) => write!(f, "Failed to update bow model from file version {a} to {b}: {message}")?,
+  123|       |
+  124|      0|            ModelError::OutputLoadFileError(path, error)   => write!(f, "Failed to open file {path:?}: {error}")?,
+  125|      0|            ModelError::OutputSaveFileError(path, error)   => write!(f, "Failed to write file {path:?}: {error}")?,
+  126|      0|            ModelError::OutputEncodeMsgPackError(error)    => write!(f, "Failed to convert results to msgpack: {error}")?,
+  127|      0|            ModelError::OutputDecodeMsgPackError(error)    => write!(f, "Failed to parse results from msgpack: {error}")?,
+  128|      0|            ModelError::OutputInterpretMsgPackError(error) => write!(f, "Failed to parse results from msgpack: {error}")?,
+  129|      0|            ModelError::OutputVersionNotFound              => write!(f, "Failed to load results, file version number was not found")?,
+  130|      0|            ModelError::OutputVersionInvalid(version)      => write!(f, "Failed to load results, {version} is not a valid file version number.")?,
+  131|      0|            ModelError::OutputVersionMismatch(version)     => write!(f, "Failed to load results, file version {version} is not supported by this version of VirtualBow. Please regenerate the results or open them with a matching version of VirtualBow.")?,
+  132|       |
+  133|      0|            ModelError::SettingsInvalidLimbElements(value)            => write!(f, "Settings: Number of limb elements must be at least 1 but actual number is {value}.")?,
+  134|      0|            ModelError::SettingsInvalidLimbEvalPoints(value)          => write!(f, "Settings: Number of limb evaluation points must be at least 2 but actual number is {value}.")?,
+  135|      0|            ModelError::SettingsInvalidMinDrawResolution(value)       => write!(f, "Settings: Minimum draw length resolution must be at least 1 but actual number is {value}.")?,
+  136|      0|            ModelError::SettingsInvalidMaxDrawResolution(value)       => write!(f, "Settings: Maximum draw length resolution must be at least 1 but actual number is {value}.")?,
+  137|      0|            ModelError::SettingsInvalidArrowClampForce(value)         => write!(f, "Settings: Arrow clamp force must be a non-negative number but actual value is {value}.")?,
+  138|      0|            ModelError::SettingsInvalidStringCompressionFactor(value) => write!(f, "Settings: String compression factor must be a positive number but actual value is {value}.")?,
+  139|      0|            ModelError::SettingsInvalidTimeSpanFactor(value)          => write!(f, "Settings: Timespan factor must be larger or equal to one but actual value is {value}.")?,
+  140|      0|            ModelError::SettingsInvalidTimeOutFactor(value)           => write!(f, "Settings: Timeout factor must be larger or equal to one but actual value is {value}.")?,
+  141|      0|            ModelError::SettingsInvalidMinTimeStep(value)             => write!(f, "Settings: Minimum timestep must be a positive number but actual value is {value}.")?,
+  142|      0|            ModelError::SettingsInvalidMaxTimeStep(value)             => write!(f, "Settings: Maximum timestep must be a positive number but actual value is {value}.")?,
+  143|      0|            ModelError::SettingsInvalidStepsPerPeriod(value)          => write!(f, "Settings: Number of steps per period must be at least 1 but actual number is {value}.")?,
+  144|       |
+  145|      0|            ModelError::DimensionsInvalidBraceHeight(value)   => write!(f, "Dimensions: Brace height must be a finite number, actual value is {value}.")?,
+  146|      0|            ModelError::DimensionsInvalidDrawLength(value)    => write!(f, "Dimensions: Draw length must be finite and larger than the brace height but actual value is {value}.")?,
+  147|      0|            ModelError::DimensionsInvalidHandleLength(value)  => write!(f, "Dimensions: Handle length must be a non-negative number but actual value is {value}.")?,
+  148|      0|            ModelError::DimensionsInvalidHandleSetback(value) => write!(f, "Dimensions: Handle setback must be a finite number but actual value is {value}.")?,
+  149|      0|            ModelError::DimensionsInvalidHandleAngle(value)   => write!(f, "Dimensions: Handle angle must be a finite number but actual value is {value}.")?,
+  150|       |
+  151|      0|            ModelError::MaterialInvalidName(value)          => write!(f, "Material: Name must be a non-empty string but actual value is \"{value}\".")?,
+  152|      0|            ModelError::MaterialInvalidColor(value)         => write!(f, "Material: Color must be a hex color string (starting with #, followed by 6 digits of 0-9, a-f) but actual value is {value}.")?,
+  153|      0|            ModelError::MaterialInvalidDensity(value)       => write!(f, "Material: Density must be a positive number but actual value is {value}.")?,
+  154|      0|            ModelError::MaterialInvalidYoungsModulus(value) => write!(f, "Material: Young's modulus must be a positive number but actual value is {value}.")?,
+  155|      0|            ModelError::MaterialInvalidShearModulus(value)  => write!(f, "Material: Shear modulus must be a positive number but actual value is {value}.")?,
+  156|       |
+  157|      0|            ModelError::WidthControlPointsTooFew(value)      => write!(f, "Width: At least 2 control points are required but actual number is {value}.")?,
+  158|      0|            ModelError::WidthControlPointsNotSorted(a, b)    => write!(f, "Width: Control points must be sorted by length but found actual values {a}, {b}.")?,
+  159|      0|            ModelError::WidthControlPointsInvalidRange(a, b) => write!(f, "Width: Control points must cover the range [0, 1] but actual range is [{a}, {b}].")?,
+  160|      0|            ModelError::WidthControlPointsInvalidValue(a, b) => write!(f, "Width: Control points must be positive and finite but actual value found is [{a}, {b}].")?,
+  161|       |
+  162|      0|            ModelError::LayerInvalidName(value)                             => write!(f, "Layer: Name must be a non-empty string but actual value is \"{value}\".")?,
+  163|      0|            ModelError::LayerHeightControlPointsTooFew(value)               => write!(f, "Height: At least 2 control points are required but actual number is {value}.")?,
+  164|      0|            ModelError::LayerHeightControlPointsNotSorted(a, b)             => write!(f, "Height: Control points must be sorted by length but found actual values {a}, {b}.")?,
+  165|      0|            ModelError::LayerHeightControlPointsInvalidRange(a, b)          => write!(f, "Height: Control points must be in the range [0, 1] but actual range is [{a}, {b}].")?,
+  166|      0|            ModelError::LayerHeightControlPointsInvalidBoundaryValue(a, b)  => write!(f, "Height: Boundary control points must be non-negative and finite but actual value found is [{a}, {b}].")?,
+  167|      0|            ModelError::LayerHeightControlPointsInvalidInteriorValue(a, b)  => write!(f, "Height: Intermediate control points must be positive and finite but actual value found is [{a}, {b}].")?,
+  168|      0|            ModelError::LayerHeightControlPointsDiscontinuousBoundary(a, b) => write!(f, "Height: Boundary control point at relative length {a} must be zero for continuity but actual value is {b}.")?,
+  169|       |
+  170|      0|            ModelError::StringInvalidNumberOfStrands(value) => write!(f, "String: Number of strands must be at least 1 but actual number is {value}.")?,
+  171|      0|            ModelError::StringInvalidStrandStiffness(value) => write!(f, "String: Strand density must be a positive number but actual value is {value}.")?,
+  172|      0|            ModelError::StringInvalidStrandDensity(value)   => write!(f, "String: Strand stiffness must be a positive number but actual value is {value}.")?,
+  173|       |
+  174|      0|            ModelError::MassesInvalidArrowMass(value)        => write!(f, "Masses: Arrow mass must be a positive number but actual value is {value}.")?,
+  175|      0|            ModelError::MassesInvalidLimbTipMass(value)      => write!(f, "Masses: Limb tip mass must be a non-negative number but actual value is {value}.")?,
+  176|      0|            ModelError::MassesInvalidStringCenterMass(value) => write!(f, "Masses: String center mass must be a non-negative number but actual value is {value}.")?,
+  177|      0|            ModelError::MassesInvalidStringTipMass(value)    => write!(f, "Masses: Strand tip mass must be a non-negative number but actual value is {value}.")?,
+  178|       |
+  179|      0|            ModelError::DampingInvalidLimbDampingRatio(value)   => write!(f, "Damping: Limb damping ratio must be in the range [0, 1] but actual value is {value}.")?,
+  180|      0|            ModelError::DampingInvalidStringDampingRatio(value) => write!(f, "Damping: String damping ratio must be in the range [0, 1] but actual value is {value}.")?,
+  181|       |
+  182|      0|            ModelError::CrossSectionInvalidLength(value)                 => write!(f, "Cross section: Length must be positive and finite nut actual value is {value}.")?,
+  183|      0|            ModelError::CrossSectionNoLayers                             => write!(f, "Cross section: At least one layer is required.")?,
+  184|      0|            ModelError::CrossSectionNoMaterials                          => write!(f, "Cross section: At least one material is required.")?,
+  185|      0|            ModelError::CrossSectionDuplicateMaterialName(material)      => write!(f, "Cross section: Material with name \"{material}\" is defined multiple times.")?,
+  186|      0|            ModelError::CrossSectionInvalidMaterialName(layer, material) => write!(f, "Cross section: Cannot assign material \"{material}\" to layer \"{layer}\", no material with this name was found.")?,
+  187|      0|            ModelError::CrossSectionDuplicateLayerName(layer)            => write!(f, "Cross section: Layer with name \"{layer}\" is defined multiple times.")?,
+  188|      0|            ModelError::CrossSectionInvalidLayerName(layer)              => write!(f, "Cross section: Cannot align profile to layer \"{layer}\", no layer with this name was found.")?,
+  189|      0|            ModelError::CrossSectionZeroCombinedHeight(length)           => write!(f, "Cross section: Combined height of all layers must be positive, but was found to be zero at relative length {length}")?,
+  190|       |
+  191|      0|            ModelError::ProfileNoSegments                         => write!(f, "Profile curve: At least one section is required")?,
+  192|      0|            ModelError::ProfileAnlignemtInvalidLayerName(value)   => write!(f, "Profile curve: Layer name must be a non-empty string but actual value is \"{value}\".")?,
+  193|      0|            ModelError::LineSegmentInvalidLength(index, value)    => write!(f, "Profile curve: Line segment at index {index} has an invalid length, must be a positive number but actual value is {value}.")?,
+  194|      0|            ModelError::ArcSegmentInvalidLength(index, value)     => write!(f, "Profile curve: Arc segment at index {index} has an invalid length, must be a positive number but actual value is {value}.")?,
+  195|      0|            ModelError::ArcSegmentInvalidRadius(index, value)     => write!(f, "Profile curve: Arc segment at index {index} has an invalid radius, must be a finite number but actual value is {value}.")?,
+  196|      0|            ModelError::SpiralSegmentInvalidLength(index, value)  => write!(f, "Profile curve: Spiral segment at index {index} has an invalid length, must be a positive number but actual value is {value}.")?,
+  197|      0|            ModelError::SpiralSegmentInvalidRadius1(index, value) => write!(f, "Profile curve: Spiral segment at index {index} has an invalid start radius, must be a finite number but actual value is {value}.")?,
+  198|      0|            ModelError::SpiralSegmentInvalidRadius2(index, value) => write!(f, "Profile curve: Spiral segment at index {index} has an invalid end radius, must be a finite number but actual value is {value}.")?,
+  199|      0|            ModelError::SplineSegmentTooFewPoints(index, value)   => write!(f, "Profile curve: Spline segment at index {index} requires at least two control points but actual number is {value}.")?,
+  200|      0|            ModelError::SplineSegmentInvalidPoint(index, point)   => write!(f, "Profile curve: Spline segment at index {index} requires finite control points but found actual value {point:?}.")?,
+  201|       |
+  202|      0|            ModelError::GeometrySelfIntersectionBack(length) => write!(f, "Limb geometry: Self-intersection at the back of the limb at arc length {length}, curvature is too high for the thickness.")?,
+  203|      0|            ModelError::GeometrySelfIntersectionBelly(length) => write!(f, "Limb geometry: Self-intersection at the belly of the limb at arc length {length}, curvature is too high for the thickness.")?,
+  204|       |
+  205|      0|            ModelError::SimulationBraceHeightTooLow(value)     => write!(f, "Simulation: The specified brace height of {value} is too low for the given bow profile.")?,
+  206|      0|            ModelError::SimulationBracingNoSignChange          => write!(f, "Simulation: Failed to find the braced equilibrium state of the bow. No sign change of the string angle was found within the allowed number of iterations.")?,
+  207|      0|            ModelError::SimulationBracingNoConvergence         => write!(f, "Simulation: Failed to find the braced equilibrium state of the bow. Terminal root finding algorithm did not converge to the required accuracy within the allowed number of iterations.")?,
+  208|      0|            ModelError::SimulationEigenSolutionFailed(error)   => write!(f, "Simulation: Failure during eigenvalue solution: {error}")?,
+  209|      0|            ModelError::SimulationStaticSolutionFailed(error)  => write!(f, "Simulation: Failure during the static simulation: {error}")?,
+  210|      0|            ModelError::SimulationDynamicSolutionFailed(error) => write!(f, "Simulation: Failure during the dynamic simulation: {error}")?,
+  211|       |        }
+  212|       |
+  213|      0|        Ok(())
+  214|      0|    }
+  215|       |}
+  216|       |
+  217|       |impl std::error::Error for ModelError {
+  218|       |
+  219|       |}
+

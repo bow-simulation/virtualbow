@@ -1,0 +1,40 @@
+Coverage Report
+Created: 2025-02-02 15:40
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/bow/versioning.rs:
+    1|       |use serde::{Deserialize, Serialize};
+    2|       |
+    3|       |// Wrapper types that add an integer version field to structs for (de)serialization.
+    4|       |// By using the "flatten" attribute from serde, the overall structure of the data is not changed.
+    5|       |
+    6|      0|#[derive(Deserialize)]
+    7|       |pub struct VersionedWrapper<T> {
+    8|       |    pub version: u64,
+    9|       |    #[serde(flatten)]
+   10|       |    pub data: T,
+   11|       |}
+   12|       |
+   13|       |impl<T> VersionedWrapper<T> {
+   14|      0|    pub fn new(version: u64, data: T) -> Self {
+   15|      0|        Self {
+   16|      0|            version,
+   17|      0|            data
+   18|      0|        }
+   19|      0|    }
+   20|       |}
+   21|       |
+   22|       |#[derive(Serialize)]
+   23|       |pub struct VersionedWrapperRef<'a, T> {
+   24|       |    version: u64,
+   25|       |    #[serde(flatten)]
+   26|       |    data: &'a T,
+   27|       |}
+   28|       |
+   29|       |impl<'a, T> VersionedWrapperRef<'a, T> {
+   30|      0|    pub fn new(version: u64, data: &'a T) -> Self {
+   31|      0|        Self {
+   32|      0|            version,
+   33|      0|            data
+   34|      0|        }
+   35|      0|    }
+   36|       |}
+

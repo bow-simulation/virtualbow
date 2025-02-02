@@ -1,0 +1,36 @@
+Coverage Report
+Created: 2025-02-02 15:40
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/fem/system/node.rs:
+    1|       |use crate::fem::system::dof::Dof;
+    2|       |
+    3|       |#[derive(Copy, Clone, Debug)]
+    4|       |pub struct Node {
+    5|       |    dofs: [Dof; 3]
+    6|       |}
+    7|       |
+    8|       |impl Node {
+    9|      0|    pub fn dofs(&self) -> &[Dof] {
+   10|      0|        &self.dofs
+   11|      0|    }
+   12|       |}
+   13|       |
+   14|       |impl Node {
+   15|      0|    pub fn new(x: Dof, y: Dof, φ: Dof) -> Self {
+   16|      0|        Self {
+   17|      0|            dofs: [x, y, φ]
+   18|      0|        }
+   19|      0|    }
+   20|       |
+   21|      0|    pub fn x(&self) -> Dof {
+   22|      0|        self.dofs[0]
+   23|      0|    }
+   24|       |
+   25|      0|    pub fn y(&self) -> Dof {
+   26|      0|        self.dofs[1]
+   27|      0|    }
+   28|       |
+   29|      0|    pub fn φ(&self) -> Dof {
+   30|      0|        self.dofs[2]
+   31|      0|    }
+   32|       |}
+

@@ -1,0 +1,43 @@
+Filename                                            Regions    Missed Regions     Cover   Functions  Missed Functions  Executed       Lines      Missed Lines     Cover    Branches   Missed Branches     Cover
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+virtualbow-cli/src/main.rs                               27                27     0.00%           8                 8     0.00%          28                28     0.00%           0                 0         -
+virtualbow-cli/src/tests.rs                              10                10     0.00%           6                 6     0.00%          71                71     0.00%           0                 0         -
+virtualbow/src/bow/compatibility.rs                      30                30     0.00%           7                 7     0.00%         114               114     0.00%           0                 0         -
+virtualbow/src/bow/errors.rs                            173               173     0.00%           1                 1     0.00%          89                89     0.00%           0                 0         -
+virtualbow/src/bow/geometry.rs                           54                54     0.00%          14                14     0.00%          80                80     0.00%           0                 0         -
+virtualbow/src/bow/input.rs                             246               246     0.00%          45                45     0.00%         354               354     0.00%           0                 0         -
+virtualbow/src/bow/output.rs                             70                70     0.00%          26                26     0.00%          52                52     0.00%           0                 0         -
+virtualbow/src/bow/profile/input.rs                      13                13     0.00%           3                 3     0.00%          15                15     0.00%           0                 0         -
+virtualbow/src/bow/profile/profile.rs                    20                20     0.00%          10                10     0.00%          57                57     0.00%           0                 0         -
+virtualbow/src/bow/profile/segments/clothoid.rs          50                50     0.00%          22                22     0.00%         129               129     0.00%           0                 0         -
+virtualbow/src/bow/profile/segments/spline.rs            34                34     0.00%          11                11     0.00%          93                93     0.00%           0                 0         -
+virtualbow/src/bow/sections/section.rs                  108               108     0.00%          28                28     0.00%         252               252     0.00%           0                 0         -
+virtualbow/src/bow/simulation.rs                        185               185     0.00%          43                43     0.00%         525               525     0.00%           0                 0         -
+virtualbow/src/bow/versioning.rs                          4                 4     0.00%           4                 4     0.00%          14                14     0.00%           0                 0         -
+virtualbow/src/fem/elements/beam/beam.rs                 40                40     0.00%          18                18     0.00%         230               230     0.00%           0                 0         -
+virtualbow/src/fem/elements/beam/geometry.rs              2                 2     0.00%           2                 2     0.00%          12                12     0.00%           0                 0         -
+virtualbow/src/fem/elements/beam/linear.rs               27                27     0.00%          13                13     0.00%         147               147     0.00%           0                 0         -
+virtualbow/src/fem/elements/mass.rs                       7                 7     0.00%           7                 7     0.00%          27                27     0.00%           0                 0         -
+virtualbow/src/fem/elements/string.rs                    77                77     0.00%          21                21     0.00%         198               198     0.00%           0                 0         -
+virtualbow/src/fem/solvers/dynamics.rs                   80                80     0.00%           7                 7     0.00%         140               140     0.00%           0                 0         -
+virtualbow/src/fem/solvers/eigen.rs                      25                25     0.00%           8                 8     0.00%          73                73     0.00%           0                 0         -
+virtualbow/src/fem/solvers/statics.rs                    58                58     0.00%           9                 9     0.00%          96                96     0.00%           0                 0         -
+virtualbow/src/fem/system/dof.rs                          8                 8     0.00%           2                 2     0.00%           6                 6     0.00%           0                 0         -
+virtualbow/src/fem/system/node.rs                         5                 5     0.00%           5                 5     0.00%          17                17     0.00%           0                 0         -
+virtualbow/src/fem/system/system.rs                      92                92     0.00%          45                45     0.00%         236               236     0.00%           0                 0         -
+virtualbow/src/fem/system/views.rs                       49                49     0.00%          20                20     0.00%          93                93     0.00%           0                 0         -
+virtualbow/src/numerics/bisection.rs                     10                10     0.00%           3                 3     0.00%          20                20     0.00%           0                 0         -
+virtualbow/src/numerics/cubic_spline.rs                  96                96     0.00%          23                23     0.00%         178               178     0.00%           0                 0         -
+virtualbow/src/numerics/functions.rs                     12                12     0.00%           2                 2     0.00%          18                18     0.00%           0                 0         -
+virtualbow/src/numerics/geometry.rs                      19                19     0.00%           3                 3     0.00%          35                35     0.00%           0                 0         -
+virtualbow/src/numerics/integration.rs                   46                46     0.00%           7                 7     0.00%         106               106     0.00%           0                 0         -
+virtualbow/src/numerics/intervals.rs                     45                45     0.00%           8                 8     0.00%          57                57     0.00%           0                 0         -
+virtualbow/src/numerics/newton.rs                        73                73     0.00%           4                 4     0.00%         148               148     0.00%           0                 0         -
+virtualbow/src/numerics/root_finding.rs                  29                29     0.00%           3                 3     0.00%          67                67     0.00%           0                 0         -
+virtualbow/src/numerics/tridiagonal.rs                   29                29     0.00%           5                 5     0.00%          43                43     0.00%           0                 0         -
+virtualbow/src/utils/minmax.rs                           24                24     0.00%          14                14     0.00%          58                58     0.00%           0                 0         -
+virtualbow/src/utils/validation.rs                       12                12     0.00%           1                 1     0.00%          14                14     0.00%           0                 0         -
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+TOTAL                                                  1889              1889     0.00%         458               458     0.00%        3892              3892     0.00%           0                 0         -
+
+Generated by llvm-cov -- llvm version 19.1.7-rust-1.86.0-nightly
