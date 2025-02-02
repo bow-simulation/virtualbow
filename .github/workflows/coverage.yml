@@ -21,8 +21,11 @@ jobs:
           name: coverage-report
           path: rust/target/llvm-cov/html
 
+      - name: Output artifact URL
+        run:  echo '${{ steps.artifact-upload-step.outputs.artifact-url }}' > summary.md
+
       - name: Add summary as a comment to the pull request
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           recreate: true
-          path: rust/target/llvm-cov/html/index.html
+          path: summary.md
