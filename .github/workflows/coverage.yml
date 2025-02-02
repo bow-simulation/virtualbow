@@ -1,3 +1,5 @@
+name: Coverage
+
 on:
   pull_request:
 
@@ -16,13 +18,15 @@ jobs:
           cd rust/virtualbow
           cargo llvm-cov --release --html
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload coverage report artifact
+        id: artifact-upload-step
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: rust/target/llvm-cov/html
 
       - name: Output artifact URL
-        run:  echo '${{ steps.artifact-upload-step.outputs.artifact-url }}' > summary.md
+        run:  echo 'The full erport can be downloaded [here](${{ steps.artifact-upload-step.outputs.artifact-url }}).' > summary.md
 
       - name: Add summary as a comment to the pull request
         uses: marocchino/sticky-pull-request-comment@v2
