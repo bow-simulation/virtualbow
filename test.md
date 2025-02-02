@@ -1,0 +1,2 @@
+cat .gitignore
+# Qt creator *.user build # Visual Studio CMakeSettings.json .vs/ out/ # MacOS .DS_Store
