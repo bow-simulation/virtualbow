@@ -1,5 +1,5 @@
 Coverage Report
-Created: 2025-02-02 17:20
+Created: 2025-02-02 17:27
 /home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/fem/elements/mass.rs:
     1|       |use nalgebra::{SVector, vector};
     2|       |

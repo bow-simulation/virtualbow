@@ -1,5 +1,5 @@
 Coverage Report
-Created: 2025-02-02 17:20
+Created: 2025-02-02 17:27
 /home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/bow/profile/segments/spline.rs:
     1|       |// Curve segment described by two cubic splines in x and y directon
     2|       |

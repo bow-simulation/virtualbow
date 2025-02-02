@@ -30,11 +30,11 @@ jobs:
 
       - name: Create report summary file
         run: |
-          echo "# Coverage Report for [${GITHUB_SHA::7}](https://github.com/bow-simulation/virtualbow/commit/${GITHUB_SHA})" >> summary.md
-          echo "See the summary below or [download the full report](${{ steps.artifact-upload-step.outputs.artifact-url }})." >> summary.md
-          echo "```"
+          echo '# Coverage Report for [${GITHUB_SHA::7}](https://github.com/bow-simulation/virtualbow/commit/${GITHUB_SHA})' >> summary.md
+          echo 'See the summary below or [download the full report](${{ steps.artifact-upload-step.outputs.artifact-url }}).' >> summary.md
+          echo '```' >> summary.md
           cat rust/virtualbow/text/index.txt >> summary.md
-          echo "```"
+          echo '```' >> summary.md
 
       - name: Add summary file as a pull request comment
         uses: marocchino/sticky-pull-request-comment@v2

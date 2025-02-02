@@ -1,5 +1,5 @@
 Coverage Report
-Created: 2025-02-02 17:20
+Created: 2025-02-02 17:27
 /home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/fem/solvers/dynamics.rs:
     1|       |use std::fmt::{Debug, Display, Formatter};
     2|       |use nalgebra::{DMatrix, DVector};

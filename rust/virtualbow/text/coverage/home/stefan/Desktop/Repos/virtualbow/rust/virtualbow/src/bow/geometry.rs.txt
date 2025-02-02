@@ -1,5 +1,5 @@
 Coverage Report
-Created: 2025-02-02 17:20
+Created: 2025-02-02 17:27
 /home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/bow/geometry.rs:
     1|       |use iter_num_tools::lin_space;
     2|       |use itertools::Itertools;
