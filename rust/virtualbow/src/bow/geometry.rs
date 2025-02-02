@@ -121,6 +121,7 @@ pub struct DiscreteLimbGeometry {
 }
 
 #[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
     use std::fmt::{Debug, Formatter};
     use crate::bow::input::{Layer, Profile};

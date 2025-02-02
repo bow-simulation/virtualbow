@@ -13,6 +13,8 @@
 #![allow(clippy::manual_range_contains)]  // The manual version is more versatile readable to me
 #![allow(clippy::collapsible_else_if)]    // Sometimes nested ifs can be more clear
 
+#![feature(coverage_attribute)]
+
 #[cfg(test)]
 #[macro_use]
 extern crate approx;
