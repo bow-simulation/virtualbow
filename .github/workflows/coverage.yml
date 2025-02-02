@@ -30,8 +30,9 @@ jobs:
 
       - name: Create report summary file
         run: |
-          echo "# Coverage Report for [${GITHUB_SHA::7}](https://github.com/bow-simulation/virtualbow/commit/${GITHUB_SHA})" >> summary.md
-          echo "See the summary below or [download the full report](${{ steps.artifact-upload-step.outputs.artifact-url }})." >> summary.md
+          echo "# Coverage Report for ${GITHUB_SHA::7}" >> summary.md
+          echo "This is a summary of the test coverage results for the latest commit on this pull request." >> summary.md
+          echo "The full report can be downloaded [here](${{ steps.artifact-upload-step.outputs.artifact-url }})." >> summary.md
           echo '```' >> summary.md
           echo "$(<rust/virtualbow/text/index.txt)" >> summary.md
           echo '```' >> summary.md
