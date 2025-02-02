@@ -1,0 +1,331 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/fem/elements/string.rs:
+    1|       |use itertools::Itertools;
+    2|       |use nalgebra::{DMatrix, DVector, SVector, vector};
+    3|       |use crate::fem::system::element::Element;
+    4|       |use crate::fem::system::views::{MatrixView, PositionView, VectorView, VelocityView};
+    5|       |use crate::numerics::geometry::{convex_envelope, Orientation};
+    6|       |
+    7|       |pub struct StringElement {
+    8|       |    // Constant data
+    9|       |    EA: f64,              // Linear stiffness
+   10|       |    ηA: f64,              // Linear damping
+   11|       |    l0: f64,              // Initial length
+   12|       |    cf: f64,              // Compression factor for reduction of stiffness and damping
+   13|       |    offsets: Vec<f64>,    // Distances between limb nodes and contact points
+   14|       |
+   15|       |    // State data
+   16|       |    positions: Vec<SVector<f64, 2>>,     // Positions of string center + surface points of the limb elements
+   17|       |    velocities: Vec<SVector<f64, 2>>,    // Velocities of string center + surface points of the limb elements
+   18|       |    angles: Vec<f64>,                    // Angles of the points
+   19|       |    indices: Vec<usize>,                 // Indices of the points that are in contact
+   20|       |    lengths: Vec<f64>,                   // Lengths between the contact points
+   21|       |    l: f64,                              // Current length
+   22|       |    dldt: f64,                           // Velocity of the length
+   23|       |    dldu: DVector<f64>,                  // Gradient of the length wrt to the displacements
+   24|       |    dldu2: DMatrix<f64>,                 // Hessian of the length wrt to the displacements
+   25|       |    Nt: f64,                             // Total normal force
+   26|       |    Ne: f64,                             // Elastic component of the normal force
+   27|       |    Nv: f64,                             // Viscous component of the normal force
+   28|       |}
+   29|       |
+   30|       |impl StringElement {
+   31|    192|    pub fn new(EA: f64, ηA: f64, l0: f64, cf: f64, offsets: Vec<f64>) -> Self {
+   32|    192|        let n_points = offsets.len();
+   33|    192|
+   34|    192|        Self {
+   35|    192|            EA,
+   36|    192|            ηA,
+   37|    192|            l0,
+   38|    192|            cf,
+   39|    192|            offsets,
+   40|    192|            positions: vec![SVector::zeros(); n_points],    // Size: Number of nodes,
+   41|    192|            velocities: vec![SVector::zeros(); n_points],   // Size: Number of nodes,
+   42|    192|            angles: vec![0.0; n_points],                // Size: Number of nodes,
+   43|    192|            indices: Vec::with_capacity(n_points),      // Size: Initially zero, maximum is number of nodes
+   44|    192|            lengths: Vec::with_capacity(n_points - 1),  // Size: Initially zero, maximum is number of nodes - 1
+   45|    192|            l: l0,
+   46|    192|            dldt: 0.0,
+   47|    192|            dldu: DVector::zeros(3*n_points),                 // Size: Number of points times number of dofs per point
+   48|    192|            dldu2: DMatrix::zeros(3*n_points, 3*n_points),    // Size: Number of points times number of dofs per point
+   49|    192|            Nt: 0.0,
+   50|    192|            Ne: 0.0,
+   51|    192|            Nv: 0.0,
+   52|    192|        }
+   53|    192|    }
+   54|       |
+   55|       |    // Creates a string element between two points without offsets, equivalent to a bar element
+   56|       |    #[cfg(test)]
+   57|    134|    pub fn bar(EA: f64, ηA: f64, l0: f64) -> Self {
+   58|    134|        Self::new(EA, ηA, l0, 1.0, vec![0.0; 2])
+   59|    134|    }
+   60|       |
+   61|       |    // Creates a bar with spring parameters, i.e. mass (total), damping and stiffness instead of cross section properties
+   62|       |    #[cfg(test)]
+   63|      8|    pub fn spring(k: f64, d: f64, l0: f64) -> Self {
+   64|      8|        Self::bar(k*l0, d*l0, l0)
+   65|      8|    }
+   66|       |
+   67|    154|    pub fn get_current_length(&self) -> f64 {
+   68|    154|        self.l
+   69|    154|    }
+   70|       |
+   71|     15|    pub fn get_initial_length(&self) -> f64 {
+   72|     15|        self.l0
+   73|     15|    }
+   74|       |
+   75|  1.04k|    pub fn set_initial_length(&mut self, l0: f64) {
+   76|  1.04k|        self.l0 = l0;
+   77|  1.04k|    }
+   78|       |
+   79|     15|    pub fn set_linear_damping(&mut self, ηA: f64) {
+   80|     15|        self.ηA = ηA;
+   81|     15|    }
+   82|       |
+   83|     15|    pub fn set_compression_factor(&mut self, cf: f64) {
+   84|     15|        self.cf = cf;
+   85|     15|    }
+   86|       |
+   87|       |    // Elastic component of the normal force
+   88|       |    #[allow(dead_code)]
+   89|      0|    pub fn normal_force_elastic(&self) -> f64 {
+   90|      0|        self.Ne
+   91|      0|    }
+   92|       |
+   93|       |    // Viscous component of the normal force
+   94|       |    #[allow(dead_code)]
+   95|      0|    pub fn normal_force_viscous(&self) -> f64 {
+   96|      0|        self.Nv
+   97|      0|    }
+   98|       |
+   99|       |    // Total normal force
+  100|       |    #[allow(dead_code)]
+  101|  11.9k|    pub fn normal_force_total(&self) -> f64 {
+  102|  11.9k|        self.Nt
+  103|  11.9k|    }
+  104|       |
+  105|  12.6k|    pub fn contact_positions(&self) -> impl Iterator<Item=SVector<f64, 2>> + '_ {
+  106|  46.6k|        self.indices.iter().map(|&i| self.positions[i])
+  107|  12.6k|    }
+  108|       |
+  109|  11.5k|    pub fn contact_velocities(&self) -> impl Iterator<Item=SVector<f64, 2>> + '_ {
+  110|  40.0k|        self.indices.iter().map(|&i| self.velocities[i])
+  111|  11.5k|    }
+  112|       |}
+  113|       |
+  114|       |impl Element for StringElement {
+  115|    272|    fn evaluate_mass_matrix(&self, _M: &mut VectorView) {
+  116|    272|        // Element has no mass properties
+  117|    272|    }
+  118|       |
+  119|  74.6k|    fn set_state_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, mut q: Option<&mut VectorView>, mut K: Option<&mut MatrixView>, mut D: Option<&mut MatrixView>) {
+  120|  74.6k|        assert_eq!(u.len()/3, self.offsets.len(), "Invalid number of offsets");
+                                                                ^0
+  121|       |
+  122|       |        // Step 1: Compute position and velocity of all surface points from nodal coordinates and offsets
+  123|       |        // TODO: The velocities calculated here are only used as simulation outputs. Maybe they could be (re)used in the computations below, e.g. for the strain rate.
+  124|  1.31M|        for i in 0..self.positions.len() {
+                                  ^74.6k
+  125|  1.31M|            let x = u.at(3*i + 0);
+  126|  1.31M|            let y = u.at(3*i + 1);
+  127|  1.31M|            let φ = u.at(3*i + 2);
+  128|  1.31M|
+  129|  1.31M|            let dxdt = v.at(3*i + 0);
+  130|  1.31M|            let dydt = v.at(3*i + 1);
+  131|  1.31M|            let dφdt = v.at(3*i + 2);
+  132|  1.31M|
+  133|  1.31M|            self.positions[i] = vector![
+  134|  1.31M|                x - self.offsets[i]*f64::sin(φ),
+  135|  1.31M|                y + self.offsets[i]*f64::cos(φ)
+  136|  1.31M|            ];
+  137|  1.31M|
+  138|  1.31M|            self.velocities[i] = vector![
+  139|  1.31M|                dxdt - dφdt*self.offsets[i]*f64::cos(φ),
+  140|  1.31M|                dydt - dφdt*self.offsets[i]*f64::sin(φ)
+  141|  1.31M|            ];
+  142|  1.31M|
+  143|  1.31M|            self.angles[i] = φ;
+  144|  1.31M|        }
+  145|       |
+  146|       |        // Step 2: Determine which of the surface points are in contact with the string
+  147|  74.6k|        convex_envelope(&self.positions, &mut self.indices, Orientation::LeftTurn);
+  148|  74.6k|
+  149|  74.6k|        // Step 3: Compute partial lengths and total length from contact points
+  150|  74.6k|        self.lengths.clear();
+  151|   182k|        self.lengths.extend(self.indices.iter().tuple_windows().map(|(&i, &j)| (self.positions[j] - self.positions[i]).norm()));
+  152|  74.6k|        self.l = self.lengths.iter().sum();
+  153|       |
+  154|       |        // Step 4: Reduce stiffness and damping according to alpha, if there is compression
+  155|  74.6k|        let EA = if self.l > self.l0 { self.EA } else { self.cf *self.EA };
+                                                     ^41.8k           ^32.8k
+  ------------------
+  |  Branch (155:21): [True: 41.8k, False: 32.8k]
+  ------------------
+  156|  74.6k|        let ηA = if self.l > self.l0 { self.ηA } else { self.cf *self.ηA };
+                                                      ^41.8k            ^32.8k
+  ------------------
+  |  Branch (156:22): [True: 41.8k, False: 32.8k]
+  ------------------
+  157|       |
+  158|       |        // Step 5: Compute partial derivatives of the length as needed for Q, K and D
+  159|       |
+  160|  74.6k|        self.dldu.fill(0.0);
+  161|  74.6k|        self.dldu2.fill(0.0);
+  162|       |
+  163|   182k|        for k in 0..self.indices.len()-1 {
+                                  ^74.6k
+  164|   182k|            let i = self.indices[k];
+  165|   182k|            let j = self.indices[k+1];
+  166|   182k|
+  167|   182k|            let xi = self.positions[i][0];
+  168|   182k|            let yi = self.positions[i][1];
+  169|   182k|            let φi = self.angles[i];
+  170|   182k|            let di = self.offsets[i];
+  171|   182k|
+  172|   182k|            let xj = self.positions[j][0];
+  173|   182k|            let yj = self.positions[j][1];
+  174|   182k|            let φj = self.angles[j];
+  175|   182k|            let dj = self.offsets[j];
+  176|   182k|
+  177|   182k|            let lij = self.lengths[k];
+  178|   182k|
+  179|   182k|            if q.is_some() || K.is_some() {
+                                            ^671
+  ------------------
+  |  Branch (179:16): [True: 181k, False: 671]
+  |  Branch (179:31): [True: 366, False: 305]
+  ------------------
+  180|   182k|                let dl_dxi = (xi - xj)/lij;
+  181|   182k|                let dl_dyi = (yi - yj)/lij;
+  182|   182k|                let dl_dφi = -di*(dl_dxi*f64::cos(φi) + dl_dyi*f64::sin(φi));
+  183|   182k|
+  184|   182k|                let dl_dxj = -dl_dxi;
+  185|   182k|                let dl_dyj = -dl_dyi;
+  186|   182k|                let dl_dφj = -dj*(dl_dxj*f64::cos(φj) + dl_dyj*f64::sin(φj));
+  187|   182k|
+  188|   182k|                if q.is_some() || D.is_some() {
+                                                ^366
+  ------------------
+  |  Branch (188:20): [True: 181k, False: 366]
+  |  Branch (188:35): [True: 366, False: 0]
+  ------------------
+  189|   182k|                    self.dldu[3*i+0] += dl_dxi;
+  190|   182k|                    self.dldu[3*i+1] += dl_dyi;
+  191|   182k|                    self.dldu[3*i+2] += dl_dφi;
+  192|   182k|                    self.dldu[3*j+0] += dl_dxj;
+  193|   182k|                    self.dldu[3*j+1] += dl_dyj;
+  194|   182k|                    self.dldu[3*j+2] += dl_dφj;
+  195|   182k|                }
+                              ^0
+  196|       |
+  197|   182k|                if K.is_some() {
+  ------------------
+  |  Branch (197:20): [True: 182k, False: 0]
+  ------------------
+  198|   182k|                    let dl_dxi_dxi = (yj - yi).powi(2)/lij.powi(3);
+  199|   182k|                    let dl_dxi_dyi = -(xj - xi)*(yj - yi)/lij.powi(3);
+  200|   182k|                    let dl_dxi_dxj = -dl_dxi_dxi;
+  201|   182k|                    let dl_dxi_dyj = -dl_dxi_dyi;
+  202|   182k|
+  203|   182k|                    let dl_dyi_dyi = (xj - xi).powi(2)/lij.powi(3);
+  204|   182k|                    let dl_dyi_dxj = -dl_dxi_dyi;
+  205|   182k|                    let dl_dyi_dyj = -dl_dyi_dyi;
+  206|   182k|
+  207|   182k|                    let dl_dxj_dxj = dl_dxi_dxi;
+  208|   182k|                    let dl_dxj_dyj = dl_dxi_dyi;
+  209|   182k|
+  210|   182k|                    let dl_dyj_dyj = dl_dyi_dyi;
+  211|   182k|
+  212|   182k|                    let dl_dxi_dφi = -di*(dl_dxi_dxi*f64::cos(φi) + dl_dxi_dyi*f64::sin(φi));
+  213|   182k|                    let dl_dyi_dφi = -di*(dl_dyi_dyi*f64::sin(φi) + dl_dxi_dyi*f64::cos(φi));
+  214|   182k|                    let dl_dφi_dφi = -di*((dl_dxi_dφi + dl_dyi)*f64::cos(φi) + (dl_dyi_dφi - dl_dxi)*f64::sin(φi));
+  215|   182k|
+  216|   182k|                    let dl_dxj_dφj = -dj*(dl_dxj_dxj*f64::cos(φj) + dl_dxj_dyj*f64::sin(φj));
+  217|   182k|                    let dl_dyj_dφj = -dj*(dl_dxj_dyj*f64::cos(φj) + dl_dyj_dyj*f64::sin(φj));
+  218|   182k|                    let dl_dφj_dφj = -dj*((dl_dxj_dφj + dl_dyj)*f64::cos(φj) + (dl_dyj_dφj - dl_dxj)*f64::sin(φj));
+  219|   182k|
+  220|   182k|                    let dl_dxi_dφj = -dj*(dl_dxi_dxj*f64::cos(φj) + dl_dxi_dyj*f64::sin(φj));
+  221|   182k|                    let dl_dyi_dφj = -dj*(dl_dyi_dxj*f64::cos(φj) + dl_dyi_dyj*f64::sin(φj));
+  222|   182k|                    let dl_dφi_dφj = -di*(dl_dxi_dφj*f64::cos(φi) + dl_dyi_dφj*f64::sin(φi));
+  223|   182k|
+  224|   182k|                    let dl_dxj_dφi = -di*(dl_dxi_dxj*f64::cos(φi) + dl_dxi_dyj*f64::sin(φi));
+  225|   182k|                    let dl_dyj_dφi = -di*(dl_dxi_dyj*f64::cos(φi) + dl_dyi_dyj*f64::sin(φi));
+  226|   182k|
+  227|   182k|                    self.dldu2[(3*i+0, 3*i+0)] += dl_dxi_dxi; self.dldu2[(3*i+0, 3*i+1)] += dl_dxi_dyi; self.dldu2[(3*i+0, 3*i+2)] += dl_dxi_dφi; self.dldu2[(3*i+0, 3*j+0)] += dl_dxi_dxj; self.dldu2[(3*i+0, 3*j+1)] += dl_dxi_dyj; self.dldu2[(3*i+0, 3*j+2)] += dl_dxi_dφj;
+  228|   182k|                    self.dldu2[(3*i+1, 3*i+0)] += dl_dxi_dyi; self.dldu2[(3*i+1, 3*i+1)] += dl_dyi_dyi; self.dldu2[(3*i+1, 3*i+2)] += dl_dyi_dφi; self.dldu2[(3*i+1, 3*j+0)] += dl_dyi_dxj; self.dldu2[(3*i+1, 3*j+1)] += dl_dyi_dyj; self.dldu2[(3*i+1, 3*j+2)] += dl_dyi_dφj;
+  229|   182k|                    self.dldu2[(3*i+2, 3*i+0)] += dl_dxi_dφi; self.dldu2[(3*i+2, 3*i+1)] += dl_dyi_dφi; self.dldu2[(3*i+2, 3*i+2)] += dl_dφi_dφi; self.dldu2[(3*i+2, 3*j+0)] += dl_dxj_dφi; self.dldu2[(3*i+2, 3*j+1)] += dl_dyj_dφi; self.dldu2[(3*i+2, 3*j+2)] += dl_dφi_dφj;
+  230|   182k|                    self.dldu2[(3*j+0, 3*i+0)] += dl_dxi_dxj; self.dldu2[(3*j+0, 3*i+1)] += dl_dyi_dxj; self.dldu2[(3*j+0, 3*i+2)] += dl_dxj_dφi; self.dldu2[(3*j+0, 3*j+0)] += dl_dxj_dxj; self.dldu2[(3*j+0, 3*j+1)] += dl_dxj_dyj; self.dldu2[(3*j+0, 3*j+2)] += dl_dxj_dφj;
+  231|   182k|                    self.dldu2[(3*j+1, 3*i+0)] += dl_dxi_dyj; self.dldu2[(3*j+1, 3*i+1)] += dl_dyi_dyj; self.dldu2[(3*j+1, 3*i+2)] += dl_dyj_dφi; self.dldu2[(3*j+1, 3*j+0)] += dl_dxj_dyj; self.dldu2[(3*j+1, 3*j+1)] += dl_dyj_dyj; self.dldu2[(3*j+1, 3*j+2)] += dl_dyj_dφj;
+  232|   182k|                    self.dldu2[(3*j+2, 3*i+0)] += dl_dxi_dφj; self.dldu2[(3*j+2, 3*i+1)] += dl_dyi_dφj; self.dldu2[(3*j+2, 3*i+2)] += dl_dφi_dφj; self.dldu2[(3*j+2, 3*j+0)] += dl_dxj_dφj; self.dldu2[(3*j+2, 3*j+1)] += dl_dyj_dφj; self.dldu2[(3*j+2, 3*j+2)] += dl_dφj_dφj;
+  233|   182k|                }
+                              ^0
+  234|    305|            }
+  235|       |        }
+  236|       |
+  237|       |        // Step 6: Compute generalized forces, stiffness- and damping matrices
+  238|       |        // Calculations are done in loops in order to avoid dynamic allocations from temporary DVector and DMatrix types.
+  239|       |        // This hasn't been benchmarked though, maybe the other way would be better.
+  240|       |
+  241|  3.94M|        self.dldt = self.dldu.iter().enumerate().map(|(i, dldu)| dldu*v.at(i)).sum();
+                      ^74.6k
+  242|  74.6k|
+  243|  74.6k|        self.Ne = EA/self.l0 *(self.l - self.l0);
+  244|  74.6k|        self.Nv = ηA /self.l0*self.dldt;
+  245|  74.6k|        self.Nt = self.Ne + self.Nv;
+  246|       |
+  247|  74.6k|        if let Some(ref mut q) = q {
+                                  ^74.4k
+  ------------------
+  |  Branch (247:16): [True: 74.4k, False: 284]
+  ------------------
+  248|  3.93M|            for i in 0..self.dldu.len() {
+                                      ^74.4k
+  249|  3.93M|                q.add(i, self.Nt*self.dldu[i]);
+  250|  3.93M|            }
+  251|    284|        }
+  252|       |
+  253|  74.6k|        if let Some(ref mut K) = K {
+                                  ^74.6k
+  ------------------
+  |  Branch (253:16): [True: 74.6k, False: 53]
+  ------------------
+  254|  3.93M|            for j in 0..self.dldu.len() {
+                                      ^74.6k
+  255|   441M|                let dldt_du_j: f64 = self.dldu2.column(j).iter().enumerate().map(|(k, dldu2)| dldu2*v.at(k)).sum();
+                                  ^3.93M                                                                                 ^3.93M
+  256|   441M|                for i in 0..self.dldu.len() {
+                                          ^3.93M
+  257|   441M|                    K.add(i, j, EA/self.l0*self.dldu[j]*self.dldu[i] + ηA/self.l0*dldt_du_j*self.dldu[i] + self.Nt*self.dldu2[(i, j)]);
+  258|   441M|                }
+  259|       |            }
+  260|     53|        }
+  261|       |
+  262|  74.6k|        if let Some(ref mut D) = D {
+                                  ^52.4k
+  ------------------
+  |  Branch (262:16): [True: 52.4k, False: 22.2k]
+  ------------------
+  263|  2.24M|            for i in 0..self.dldu.len() {
+                                      ^52.4k
+  264|   237M|                for j in 0..self.dldu.len() {
+                                          ^2.24M
+  265|   237M|                    D.add(i, j, ηA /self.l0*self.dldu[i]*self.dldu[j]);
+  266|   237M|                }
+  267|       |            }
+  268|  22.2k|        }
+  269|  74.6k|    }
+  270|       |
+  271|  13.7k|    fn potential_energy(&self) -> f64 {
+  272|  13.7k|        0.5*self.Ne*(self.l - self.l0)    // Potential energy is determined by the elastic component of the total force
+  273|  13.7k|    }
+  274|       |
+  275|     35|    fn kinetic_energy(&self) -> f64 {
+  276|     35|        0.0    // This element has no mass properties, those have to be modelled over separate point masses
+  277|     35|    }
+  278|       |
+  279|  11.5k|    fn dissipative_power(&self) -> f64 {
+  280|  11.5k|        self.Nv*self.dldt    // Damping power is determined by the viscous component of the total force
+  281|  11.5k|    }
+  282|       |}
+

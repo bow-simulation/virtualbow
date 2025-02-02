@@ -1,0 +1,122 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/numerics/tridiagonal.rs:
+    1|       |// Tridiagonal matrix data structure and solver, ported from https://github.com/ttk592/spline
+    2|       |#[derive(Debug)]
+    3|       |pub struct TDMatrix {
+    4|       |    a: Vec<f64>,	// Lower secondary diagonal
+    5|       |    b: Vec<f64>,	// Diagonal
+    6|       |    c: Vec<f64>	    // Upper secondary diagonal
+    7|       |}
+    8|       |
+    9|       |impl TDMatrix {
+   10|       |    // Construct tridiagonal matrix of given size, initialized with zeros
+   11|    264|    pub fn zeros(n: usize) -> Self {
+   12|    264|        assert!(n > 0);
+   13|    264|        Self {
+   14|    264|            a: vec![0.0; n-1],
+   15|    264|            b: vec![0.0; n],
+   16|    264|            c: vec![0.0; n-1]
+   17|    264|        }
+   18|    264|    }
+   19|       |
+   20|       |    // Matrix dimension, i.e. number of rows and columns
+   21|  5.71k|    pub fn size(&self) -> usize {
+   22|  5.71k|        self.b.len()
+   23|  5.71k|    }
+   24|       |
+   25|       |    // Get entry at given row and column index
+   26|       |    #[allow(dead_code)]
+   27|      0|    pub fn get(&self, i: usize, j: usize) -> f64 {
+   28|      0|        assert!(i < self.size() && j < self.size());
+  ------------------
+  |  Branch (28:17): [Folded - Ignored]
+  |  Branch (28:36): [Folded - Ignored]
+  ------------------
+   29|      0|        match (i as i32) - (j as i32) {
+   30|      0|            1 => self.a[j],
+   31|      0|            0 => self.b[j],
+   32|      0|            -1 => self.c[i],
+   33|      0|            _ => 0.0
+   34|       |        }
+   35|      0|    }
+   36|       |
+   37|       |    // Set entry at given row and column index (must lie on one of the diagonals)
+   38|  2.59k|    pub fn set(&mut self, i: usize, j: usize, val: f64) {
+   39|  2.59k|        assert!(i < self.size() && j < self.size());
+  ------------------
+  |  Branch (39:17): [True: 2.59k, False: 0]
+  |  Branch (39:36): [True: 2.59k, False: 0]
+  ------------------
+   40|  2.59k|        match (i as i32) - (j as i32) {
+   41|    777|            1 => self.a[j] = val,
+   42|  1.04k|            0 => self.b[j] = val,
+   43|    773|            -1 => self.c[i] = val,
+   44|      0|            _ => panic!("This entry is zero and cannot be set")
+   45|       |        }
+   46|  2.59k|    }
+   47|       |
+   48|       |    // Solves a linear equation for the given right hand side in-place
+   49|       |    // https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
+   50|    264|    pub fn solve(mut self, rhs: &mut [f64]) {
+   51|    264|        assert_eq!(rhs.len(), self.size());
+   52|       |
+   53|    264|        let n = self.size() - 1;
+   54|    264|
+   55|    264|        self.c[0] /= self.b[0];
+   56|    264|        rhs[0] /= self.b[0];
+   57|       |
+   58|    516|        for i in 1..n {
+                                  ^264
+   59|    516|            let m = self.b[i] - self.a[i-1]*self.c[i-1];
+   60|    516|            self.c[i] /= m;
+   61|    516|            rhs[i] = (rhs[i] - self.a[i-1]*rhs[i-1])/m;
+   62|    516|        }
+   63|       |
+   64|    264|        rhs[n] = (rhs[n] - self.a[n-1]*rhs[n-1])/(self.b[n] - self.a[n-1]*self.c[n-1]);
+   65|       |
+   66|    780|        for i in (1..n+1).rev() {
+                               ^264
+   67|    780|            rhs[i-1] -= self.c[i-1]*rhs[i];
+   68|    780|        }
+   69|    264|    }
+   70|       |}
+   71|       |
+   72|       |#[cfg(test)]
+   73|       |mod tests {
+   74|       |    use super::*;
+   75|       |
+   76|       |    #[test]
+   77|      1|    fn test_tridiagonal_solve() {
+   78|      1|        // Test case: Given the matrix and the right hand side, find the vector on the left.
+   79|      1|        //
+   80|      1|        // │ 2, 1, 0, 0 │   │ 1 │   │  4 │
+   81|      1|        // │ 1, 2, 1, 0 │ * │ 2 │ = │  8 │
+   82|      1|        // │ 0, 1, 2, 1 │   │ 3 │   │ 12 │
+   83|      1|        // │ 0, 0, 1, 2 │   │ 4 │   │ 11 │
+   84|      1|
+   85|      1|        let mut matrix = TDMatrix::zeros(4);
+   86|      1|
+   87|      1|        matrix.set(0, 0, 2.0);
+   88|      1|        matrix.set(1, 1, 2.0);
+   89|      1|        matrix.set(2, 2, 2.0);
+   90|      1|        matrix.set(3, 3, 2.0);
+   91|      1|
+   92|      1|        matrix.set(0, 1, 1.0);
+   93|      1|        matrix.set(1, 2, 1.0);
+   94|      1|        matrix.set(2, 3, 1.0);
+   95|      1|
+   96|      1|        matrix.set(1, 0, 1.0);
+   97|      1|        matrix.set(2, 1, 1.0);
+   98|      1|        matrix.set(3, 2, 1.0);
+   99|      1|
+  100|      1|        let mut rhs = vec![4.0, 8.0, 12.0, 11.0];
+  101|      1|        matrix.solve(&mut rhs);
+  102|      1|
+  103|      1|        assert_abs_diff_eq!(rhs[0], 1.0, epsilon=1e-15);
+  104|      1|        assert_abs_diff_eq!(rhs[1], 2.0, epsilon=1e-15);
+  105|      1|        assert_abs_diff_eq!(rhs[2], 3.0, epsilon=1e-15);
+  106|      1|        assert_abs_diff_eq!(rhs[3], 4.0, epsilon=1e-15);
+  107|      1|    }
+  108|       |}
+

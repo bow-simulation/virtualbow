@@ -1,0 +1,253 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/fem/system/views.rs:
+    1|       |use crate::fem::system::dof::Dof;
+    2|       |
+    3|       |use nalgebra::{DVector, DMatrix, SVector, SMatrix};
+    4|       |
+    5|       |// TODO: Common trait for AffineView and LinearView? Divided into read and write?
+    6|       |
+    7|       |// Some shorthands for more clarity
+    8|       |pub type PositionView<'a> = AffineView<'a>;
+    9|       |pub type VelocityView<'a> = LinearView<'a>;
+   10|       |pub type AccelerationView<'a> = LinearView<'a>;
+   11|       |pub type ForceView<'a> = LinearView<'a>;
+   12|       |
+   13|       |// Local read-only view into a global vector as defined by a list of dofs, including offsets
+   14|       |pub struct AffineView<'a> {
+   15|       |    vector: &'a DVector<f64>,
+   16|       |    dofs: &'a [Dof]
+   17|       |}
+   18|       |
+   19|       |impl<'a> AffineView<'a> {
+   20|       |    // Create a new view that references the given vector and dofs
+   21|  2.36M|    pub fn new(vector: &'a DVector<f64>, dofs: &'a [Dof]) -> Self {
+   22|  2.36M|        Self {
+   23|  2.36M|            vector,
+   24|  2.36M|            dofs
+   25|  2.36M|        }
+   26|  2.36M|    }
+   27|       |
+   28|       |    // Number of dofs
+   29|       |    #[allow(dead_code)]
+   30|  74.6k|    pub fn len(&self) -> usize {
+   31|  74.6k|        self.dofs.len()
+   32|  74.6k|    }
+   33|       |
+   34|       |    // Get the local position associated with the dof of given index
+   35|  16.6M|    pub fn at(&self, index: usize) -> f64 {
+   36|  16.6M|        Self::transform(self.vector, self.dofs[index])
+   37|  16.6M|    }
+   38|       |
+   39|       |    // Get the local positions of all dofs as a fixed size vector
+   40|       |    // TODO: Assert against wrong dimension N?
+   41|  2.12M|    pub fn get<const N: usize>(&self) -> SVector<f64, N> {
+   42|  12.7M|        SVector::<f64, N>::from_fn(|row, _| {
+   43|  12.7M|            Self::transform(self.vector, self.dofs[row])
+   44|  12.7M|        })
+   45|  2.12M|    }
+   46|       |
+   47|       |    // Transform from vector and dof to scalar value. Static function to be used independently.
+   48|  30.4M|    pub fn transform(vector: &DVector<f64>, dof: Dof) -> f64 {
+   49|  30.4M|        match dof {
+   50|   904k|            Dof::Fixed(u) => u,
+   51|  29.5M|            Dof::Free(i) => vector[i]
+   52|       |        }
+   53|  30.4M|    }
+   54|       |}
+   55|       |
+   56|       |// Local read-only view into a global vector as defined by a list of dofs, disregarding offsets
+   57|       |pub struct LinearView<'a> {
+   58|       |    vector: &'a DVector<f64>,
+   59|       |    dofs: &'a [Dof]
+   60|       |}
+   61|       |
+   62|       |impl<'a> LinearView<'a> {
+   63|       |    // Create a new view that references the given vector and dofs
+   64|  2.36M|    pub fn new(vector: &'a DVector<f64>, dofs: &'a [Dof]) -> Self {
+   65|  2.36M|        Self {
+   66|  2.36M|            vector,
+   67|  2.36M|            dofs
+   68|  2.36M|        }
+   69|  2.36M|    }
+   70|       |
+   71|       |    // Number of dofs
+   72|       |    #[allow(dead_code)]
+   73|      0|    pub fn len(&self) -> usize {
+   74|      0|        self.dofs.len()
+   75|      0|    }
+   76|       |
+   77|       |    // Get the local position associated with the dof of given index
+   78|   448M|    pub fn at(&self, index: usize) -> f64 {
+   79|   448M|        Self::transform(self.vector, self.dofs[index])
+   80|   448M|    }
+   81|       |
+   82|       |    // Get the local positions of all dofs as a fixed size vector
+   83|       |    // TODO: Assert against wrong dimension N?
+   84|  2.28M|    pub fn get<const N: usize>(&self) -> SVector<f64, N> {
+   85|  13.2M|        SVector::<f64, N>::from_fn(|row, _| {
+   86|  13.2M|            Self::transform(self.vector, self.dofs[row])
+   87|  13.2M|        })
+   88|  2.28M|    }
+   89|       |
+   90|       |    // Transform from vector and dof to scalar value. Static function to be used independently.
+   91|   462M|    pub fn transform(vector: &DVector<f64>, dof: Dof) -> f64 {
+   92|   462M|        match dof {
+   93|  49.6M|            Dof::Fixed(_) => 0.0,
+   94|   412M|            Dof::Free(i) => vector[i]
+   95|       |        }
+   96|   462M|    }
+   97|       |}
+   98|       |
+   99|       |// Local write-only view into a global vector (used for elastic forces) as defined by a list of dofs
+  100|       |pub struct VectorView<'a> {
+  101|       |    vector: &'a mut DVector<f64>,
+  102|       |    dofs: &'a [Dof]
+  103|       |}
+  104|       |
+  105|       |impl<'a> VectorView<'a> {
+  106|       |    // Create a new view that references the given vector and dofs
+  107|  2.39M|    pub fn new(vector: &'a mut DVector<f64>, dofs: &'a [Dof]) -> Self {
+  108|  2.39M|        Self {
+  109|  2.39M|            vector,
+  110|  2.39M|            dofs
+  111|  2.39M|        }
+  112|  2.39M|    }
+  113|       |
+  114|       |    // Number of dofs
+  115|       |    #[allow(dead_code)]
+  116|      0|    pub fn len(&self) -> usize {
+  117|      0|        self.dofs.len()
+  118|      0|    }
+  119|       |
+  120|  16.7M|    pub fn add(&mut self, row: usize, value: f64) {
+  121|  16.7M|        match self.dofs[row] {
+  122|   643k|            Dof::Fixed(_) => {
+  123|   643k|                // Do nothing since the local value has no link to the global vector
+  124|   643k|            },
+  125|  16.0M|            Dof::Free(i) => {
+  126|  16.0M|                self.vector[i] += value;
+  127|  16.0M|            }
+  128|       |        }
+  129|  16.7M|    }
+  130|       |
+  131|       |    // Add the local contributions of all dofs as a fixed size vector
+  132|       |    // TODO: Assert against wrong dimension N?
+  133|       |    // TODO: Replace with implementation of operator +=?
+  134|  2.15M|    pub fn add_vec<const N: usize>(&mut self, rhs: SVector<f64, N>) {
+  135|  12.7M|        for (row, &value) in rhs.iter().enumerate() {
+                                           ^2.15M
+  136|  12.7M|            self.add(row, value);
+  137|  12.7M|        }
+  138|  2.15M|    }
+  139|       |}
+  140|       |
+  141|       |// Local write-only view into a global matrix (mass, damping, stiffness) as defined by a list of dofs
+  142|       |pub struct MatrixView<'a> {
+  143|       |    matrix: &'a mut DMatrix<f64>,
+  144|       |    dofs: &'a [Dof]
+  145|       |}
+  146|       |
+  147|       |impl<'a> MatrixView<'a> {
+  148|       |    // Create a new view that references the given vector and dofs
+  149|  4.15M|    pub fn new(matrix: &'a mut DMatrix<f64>, dofs: &'a [Dof]) -> Self {
+  150|  4.15M|        Self {
+  151|  4.15M|            matrix,
+  152|  4.15M|            dofs
+  153|  4.15M|        }
+  154|  4.15M|    }
+  155|       |
+  156|       |    // Number of dofs
+  157|       |    #[allow(dead_code)]
+  158|      0|    pub fn len(&self) -> usize {
+  159|      0|        self.dofs.len()
+  160|      0|    }
+  161|       |
+  162|   813M|    pub fn add(&mut self, row: usize, col: usize, value: f64) {
+  163|   813M|        if let Dof::Free(i) = self.dofs[row] {
+                                       ^751M
+  ------------------
+  |  Branch (163:16): [True: 751M, False: 62.0M]
+  ------------------
+  164|   751M|            if let Dof::Free(j) = self.dofs[col] {
+                                           ^722M
+  ------------------
+  |  Branch (164:20): [True: 722M, False: 28.7M]
+  ------------------
+  165|   722M|                self.matrix[(i, j)] += value;
+  166|   722M|            }
+                          ^28.7M
+  167|  62.0M|        }
+  168|   813M|    }
+  169|       |
+  170|       |    // Add the local contributions of all dofs as a fixed size matrix
+  171|       |    // TODO: Assert against wrong dimension N?
+  172|       |    // TODO: Replace with implementation of operator +=?
+  173|  3.75M|    pub fn add_mat<const N: usize>(&mut self, rhs: &SMatrix<f64, N, N>) {
+  174|  26.3M|        for row in 0..N {
+                          ^22.5M
+  175|   157M|            for col in 0..N {
+                              ^135M
+  176|   135M|                self.add(row, col, rhs[(row, col)]);
+  177|   135M|            }
+  178|       |        }
+  179|  3.75M|    }
+  180|       |}
+  181|       |
+  182|       |#[cfg(test)]
+  183|       |mod tests {
+  184|       |    use nalgebra::{DVector, DMatrix, vector, dvector, matrix, dmatrix};
+  185|       |    use crate::fem::system::dof::Dof;
+  186|       |    use assert2::assert;
+  187|       |    use super::*;
+  188|       |
+  189|       |    #[test]
+  190|      1|    fn test_views() {
+  191|      1|        let dof1 = Dof::Fixed(1.0);
+  192|      1|        let dof2 = Dof::Free(2);
+  193|      1|        let dof3 = Dof::Free(4);
+  194|      1|        let dof4 = Dof::Free(6);
+  195|      1|        let dofs = &[dof1, dof2, dof3, dof4];
+  196|      1|
+  197|      1|        {
+  198|      1|            let vector = dvector![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+  199|      1|            let view = PositionView::new(&vector, dofs);
+  200|      1|
+  201|      1|            assert!(view.get::<4>() == vector![1.0, 3.0, 5.0, 7.0]);
+  202|       |        }
+  203|       |
+  204|       |
+  205|       |        {
+  206|      1|            let vector = dvector![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+  207|      1|            let view = VelocityView::new(&vector, dofs);
+  208|      1|
+  209|      1|            assert!(view.get::<4>() == vector![0.0, 3.0, 5.0, 7.0]);
+  210|       |        }
+  211|       |
+  212|       |        {
+  213|      1|            let mut vector = DVector::<f64>::zeros(8);
+  214|      1|            let mut view = VectorView::new(&mut vector, dofs);
+  215|      1|            view.add_vec(vector![1.0, 2.0, 3.0, 4.0]);
+  216|      1|
+  217|      1|            assert!(vector == dvector![0.0, 0.0, 2.0, 0.0, 3.0, 0.0, 4.0, 0.0]);
+  218|       |        }
+  219|       |
+  220|       |        {
+  221|      1|            let mut matrix = DMatrix::<f64>::zeros(8, 8);
+  222|      1|            let mut view = MatrixView::new(&mut matrix, dofs);
+  223|      1|            view.add_mat(&matrix![1.0, 2.0, 3.0, 4.0; 5.0, 6.0, 7.0, 8.0; 9.0, 10.0, 11.0, 12.0; 13.0, 14.0, 15.0, 16.0]);
+  224|      1|
+  225|      1|            assert!(matrix == dmatrix![
+  226|      1|                0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0.0, 0.0;
+  227|      1|                0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0.0, 0.0;
+  228|      1|                0.0, 0.0,  6.0, 0.0,  7.0, 0.0,  8.0, 0.0;
+  229|      1|                0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0.0, 0.0;
+  230|      1|                0.0, 0.0, 10.0, 0.0, 11.0, 0.0, 12.0, 0.0;
+  231|      1|                0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0.0, 0.0;
+  232|      1|                0.0, 0.0, 14.0, 0.0, 15.0, 0.0, 16.0, 0.0;
+  233|      1|                0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0.0, 0.0;
+  234|      1|            ]);
+  235|       |        }
+  236|      1|    }
+  237|       |}
+

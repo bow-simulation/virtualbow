@@ -1,0 +1,25 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/fem/system/dof.rs:
+    1|       |// The Dof enum represents a single degree of freedom of the FEM system.
+    2|       |// It can either be free or fixed:
+    3|       |//  - In the free case it is defined by the index of the corresponding system state
+    4|       |//  - In the fixed case it is defined by a constant position/angle value
+    5|       |
+    6|       |#[derive(Copy, Clone, Debug, PartialEq)]
+    7|       |pub enum Dof {
+    8|       |    Free(usize),
+    9|       |    Fixed(f64),
+   10|       |}
+   11|       |
+   12|       |impl Dof {
+   13|      0|    pub fn is_fixed(&self) -> bool {
+   14|      0|        matches!(self, Dof::Fixed{..})
+   15|      0|    }
+   16|       |
+   17|     68|    pub fn is_free(&self) -> bool {
+   18|     68|        matches!(self, Dof::Free{..})
+                      ^0
+   19|     68|    }
+   20|       |}
+

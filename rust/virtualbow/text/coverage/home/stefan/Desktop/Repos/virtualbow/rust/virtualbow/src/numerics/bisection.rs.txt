@@ -1,0 +1,73 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/numerics/bisection.rs:
+    1|       |use std::cmp::Ordering;
+    2|       |use num::Float;
+    3|       |
+    4|       |// Return the index where x should be inserted into a, assuming a is sorted.
+    5|       |// The return value i is such that all e in a[..i] have e <= x, and all e in a[i..] have e > x.
+    6|       |// If a contains x, a.insert(i, x) will insert just after the rightmost occurrence of x.
+    7|       |//
+    8|       |// Inspired by the bisection crate [1], which unfortunately does not work with floats due to requiring Ord [2].
+    9|       |// [1] https://crates.io/crates/bisection
+   10|       |// [2] https://github.com/SteadBytes/bisection/pull/1
+   11|  56.3M|pub fn bisect_right<T: Float>(a: &[T], x: T) -> usize {
+   12|  56.3M|    bisect_right_by(a, |p| p.partial_cmp(&x).expect("Failed to compare floating point values"))
+                                         ^31.3M
+   13|  56.3M|}
+   14|       |
+   15|       |// Return the index where x should be inserted in a, assuming a is sorted, according to a comparator function.
+   16|       |// The comparator function should implement an order consistent with the sort order of the underlying slice,
+   17|       |// returning an order code that indicates whethers its argument is Less, Equal or Greater that the desired target.
+   18|  74.7M|pub fn bisect_right_by<T, F>(a: &[T], mut f: F) -> usize
+   19|  74.7M|    where F: FnMut(&T) -> Ordering,
+   20|  74.7M|{
+   21|  74.7M|    assert!(a.len() >= 2);
+   22|       |
+   23|  74.7M|    let mut lower = 0;
+   24|  74.7M|    let mut upper = a.len() - 1;
+   25|       |
+   26|   124M|    while upper - lower > 1 {
+  ------------------
+  |  Branch (26:11): [True: 17.9M, False: 18.4M]
+  ------------------
+  |  Branch (26:11): [True: 31.3M, False: 56.3M]
+  ------------------
+   27|  49.2M|        let middle = (lower + upper)/2;
+   28|  49.2M|        if f(&a[middle]) == Ordering::Greater {
+  ------------------
+  |  Branch (28:12): [True: 8.10M, False: 9.86M]
+  ------------------
+  |  Branch (28:12): [True: 10.4M, False: 20.8M]
+  ------------------
+   29|  18.5M|            upper = middle;
+   30|  18.5M|        }
+   31|  30.7M|        else {
+   32|  30.7M|            lower = middle;
+   33|  30.7M|        }
+   34|       |    }
+   35|       |
+   36|  74.7M|    lower
+   37|  74.7M|}
+   38|       |
+   39|       |#[cfg(test)]
+   40|       |mod tests {
+   41|       |    use super::*;
+   42|       |    use assert2::assert;
+   43|       |
+   44|       |    #[test]
+   45|      1|    fn test_bisection() {
+   46|      1|        let x = &[0.0, 1.0, 2.0, 3.0];
+   47|      1|
+   48|      1|        assert!(bisect_right(x, -1.0) == 0);
+   49|      1|        assert!(bisect_right(x, 0.0) == 0);
+   50|      1|        assert!(bisect_right(x, 0.5) == 0);
+   51|      1|        assert!(bisect_right(x, 1.0) == 1);
+   52|      1|        assert!(bisect_right(x, 1.5) == 1);
+   53|      1|        assert!(bisect_right(x, 2.0) == 2);
+   54|      1|        assert!(bisect_right(x, 2.5) == 2);
+   55|      1|        assert!(bisect_right(x, 3.0) == 2);
+   56|      1|        assert!(bisect_right(x, 3.5) == 2);
+   57|      1|    }
+   58|       |}
+

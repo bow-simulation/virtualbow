@@ -1,0 +1,260 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/bow/output.rs:
+    1|       |use std::fs::File;
+    2|       |use std::io::{BufReader, Write};
+    3|       |use std::path::Path;
+    4|       |use nalgebra::{DVector, SVector};
+    5|       |use serde::{Deserialize, Serialize};
+    6|       |use soa_derive::StructOfArray;
+    7|       |use rmpv::Value;
+    8|       |use crate::bow::errors::ModelError;
+    9|       |use crate::bow::versioning::{VersionedWrapper, VersionedWrapperRef};
+   10|       |
+   11|      4|#[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
+                                            ^0
+   12|       |pub struct BowOutput {
+   13|       |    pub common: Common,
+   14|       |    pub statics: Option<Statics>,
+   15|       |    pub dynamics: Option<Dynamics>,
+   16|       |}
+   17|       |
+   18|       |impl BowOutput {
+   19|       |    // Current version of the output format, increase when incompatible changes are made.
+   20|       |    pub const FILE_VERSION: u64 = 3;
+   21|       |
+   22|       |    // Loads output from a msgpack file, including a version check.
+   23|       |    // Since output files make no attempt at backwards compatibility, the version is simply checked for equality and rejected on mismatch.
+   24|      7|    pub fn load<P: AsRef<Path>>(path: P) -> Result<BowOutput, ModelError> {
+   25|      7|        let file = File::open(&path).map_err(|e| ModelError::OutputLoadFileError(path.as_ref().to_owned(), e))?;
+                          ^6                                   ^1                                                           ^1
+   26|      6|        let mut reader = BufReader::new(file);
+   27|       |
+   28|      6|        let value: Value = rmpv::decode::value::read_value(&mut reader).map_err(ModelError::OutputDecodeMsgPackError)?;
+                          ^5                                                                                                       ^1
+   29|      5|        let version = Self::get_file_version(&value)?;
+                          ^3                                      ^2
+   30|       |
+   31|      3|        if version != Self::FILE_VERSION {
+  ------------------
+  |  Branch (31:12): [True: 1, False: 2]
+  ------------------
+   32|      1|            return Err(ModelError::OutputVersionMismatch(version));
+   33|      2|        }
+   34|       |
+   35|       |        // Parse wrapper (data + version number) from msgpack value. Discard version number and only return the data.
+   36|      2|        let wrapper: VersionedWrapper<Self> = rmpv::ext::from_value(value).map_err(ModelError::OutputInterpretMsgPackError)?;
+                          ^1                                                                                                             ^1
+   37|      1|        Ok(wrapper.data)
+   38|      7|    }
+   39|       |
+   40|       |    // Save the output to a msgpack file
+   41|      2|    pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<(), ModelError> {
+   42|      2|        let mut file = File::create(&path).map_err(|e| ModelError::OutputSaveFileError(path.as_ref().to_owned(), e))?;
+                          ^1                                         ^1                                                           ^1
+   43|       |
+   44|       |        // Create wrapper object that adds the current version number
+   45|      1|        let wrapper = VersionedWrapperRef::new(Self::FILE_VERSION, self);
+   46|       |
+   47|       |        // Save wrapper object to file
+   48|      1|        let bytes = rmp_serde::to_vec_named(&wrapper).map_err(ModelError::OutputEncodeMsgPackError)?;
+                                                                                                                 ^0
+   49|      1|        file.write_all(&bytes).map_err(|e| ModelError::OutputSaveFileError(path.as_ref().to_owned(), e))
+                                                         ^0
+   50|      2|    }
+   51|       |
+   52|       |    // Returns the version of the result file, if it can be determined.
+   53|      5|    fn get_file_version(value: &Value) -> Result<u64, ModelError> {
+   54|      5|        let map = value.as_map().ok_or(ModelError::OutputVersionNotFound)?;
+                                                                                       ^0
+   55|      8|        let entry = map.iter().find(|&(key, _value)| {
+                          ^4      ^5
+   56|      8|            match key {
+   57|      8|                Value::String(s) => s.as_str() == Some("version"),
+   58|      0|                _ => false
+   59|       |            }
+   60|      8|        }).ok_or(ModelError::OutputVersionNotFound)?;
+                       ^5                                        ^1
+   61|       |
+   62|      4|        match entry.1 {
+   63|      3|            Value::Integer(n) => n.as_u64().ok_or(ModelError::OutputVersionInvalid(n.to_string())),
+   64|      1|            _ => Err(ModelError::OutputVersionInvalid(entry.1.to_string()))
+   65|       |        }
+   66|      5|    }
+   67|       |}
+   68|       |
+   69|      5|#[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
+                                            ^0
+   70|       |pub struct Common {
+   71|       |    pub limb: LimbInfo,
+   72|       |    pub layers: Vec<LayerInfo>,
+   73|       |
+   74|       |    pub string_length: f64,
+   75|       |    pub string_mass: f64,
+   76|       |    pub limb_mass: f64,
+   77|       |}
+   78|       |
+   79|      1|#[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
+                                            ^0
+   80|       |pub struct Statics {
+   81|       |    pub states: StateVec,
+   82|       |
+   83|       |    pub final_draw_force: f64,
+   84|       |    pub final_drawing_work: f64,
+   85|       |    pub storage_factor: f64,
+   86|       |
+   87|       |    pub max_string_force: (f64, usize),    // (value, state)
+   88|       |    pub max_strand_force: (f64, usize),    // (value, state)
+   89|       |    pub max_draw_force: (f64, usize),      // (value, state)
+   90|       |    pub min_grip_force: (f64, usize),      // (value, state)
+   91|       |    pub max_grip_force: (f64, usize),      // (value, state)
+   92|       |
+   93|       |    pub min_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
+   94|       |    pub max_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
+   95|       |}
+   96|       |
+   97|      0|#[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
+   98|       |pub struct Dynamics {
+   99|       |    pub states: StateVec,
+  100|       |
+  101|       |    pub arrow_departure: Option<ArrowDeparture>,
+  102|       |
+  103|       |    pub max_string_force: (f64, usize),    // (value, state)
+  104|       |    pub max_strand_force: (f64, usize),    // (value, state)
+  105|       |    pub max_draw_force: (f64, usize),      // (value, state)
+  106|       |    pub min_grip_force: (f64, usize),      // (value, state)
+  107|       |    pub max_grip_force: (f64, usize),      // (value, state)
+  108|       |
+  109|       |    pub min_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
+  110|       |    pub max_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
+  111|       |}
+  112|       |
+  113|       |// Data that is available only if the arrow has separated from the string during the dynamic analysis
+  114|      0|#[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
+  115|       |pub struct ArrowDeparture {
+  116|       |    // Index of the state at which the arrow separated
+  117|       |    pub state_idx: usize,
+  118|       |
+  119|       |    // Position and velocity of the arrow at separation
+  120|       |    pub arrow_pos: f64,
+  121|       |    pub arrow_vel: f64,
+  122|       |
+  123|       |    // Energies of the components at separation
+  124|       |    pub kinetic_energy_arrow: f64,
+  125|       |    pub elastic_energy_limbs: f64,
+  126|       |    pub kinetic_energy_limbs: f64,
+  127|       |    pub elastic_energy_string: f64,
+  128|       |    pub kinetic_energy_string: f64,
+  129|       |
+  130|       |    // Degree of efficiency
+  131|       |    pub energy_efficiency: f64,
+  132|       |}
+  133|       |
+  134|   275k|#[derive(StructOfArray, Serialize, Deserialize, PartialEq, Debug)]
+                                                 ^0        ^0
+  135|      0|#[soa_derive(Serialize, Deserialize, PartialEq, Debug)]
+  136|       |pub struct State {
+  137|       |    pub time: f64,
+  138|       |    pub draw_length: f64,
+  139|       |
+  140|       |    pub limb_pos: Vec<SVector<f64, 3>>,    // x, y, φ
+  141|       |    pub limb_vel: Vec<SVector<f64, 3>>,    // x, y, φ
+  142|       |
+  143|       |    pub string_pos: Vec<SVector<f64, 2>>,    // x, y
+  144|       |    pub string_vel: Vec<SVector<f64, 2>>,    // x, y
+  145|       |
+  146|       |    pub limb_strain: Vec<SVector<f64, 3>>,    // epsilon, kappa, gamma
+  147|       |    pub limb_force: Vec<SVector<f64, 3>>,     // N, M, Q
+  148|       |
+  149|       |    pub layer_strain: Vec<Vec<[f64; 2]>>,     // layer, length, belly/back
+  150|       |    pub layer_stress: Vec<Vec<[f64; 2]>>,     // layer, length, belly/back
+  151|       |
+  152|       |    pub arrow_pos: f64,
+  153|       |    pub arrow_vel: f64,
+  154|       |    pub arrow_acc: f64,
+  155|       |
+  156|       |    pub elastic_energy_limbs: f64,
+  157|       |    pub elastic_energy_string: f64,
+  158|       |
+  159|       |    pub kinetic_energy_limbs: f64,
+  160|       |    pub kinetic_energy_string: f64,
+  161|       |    pub kinetic_energy_arrow: f64,
+  162|       |
+  163|       |    pub damping_energy_limbs: f64,
+  164|       |    pub damping_energy_string: f64,
+  165|       |    pub damping_power_limbs: f64,
+  166|       |    pub damping_power_string: f64,
+  167|       |
+  168|       |    pub draw_force: f64,
+  169|       |    pub draw_stiffness: f64,
+  170|       |    pub grip_force: f64,
+  171|       |    pub string_force: f64,
+  172|       |    pub strand_force: f64,
+  173|       |}
+  174|       |
+  175|      5|#[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
+                                            ^0
+  176|       |pub struct LimbInfo {
+  177|       |    pub length: Vec<f64>,
+  178|       |    pub position: Vec<SVector<f64, 3>>,    // x, y, φ
+  179|       |    pub width: Vec<f64>,
+  180|       |    pub height: Vec<f64>,
+  181|       |    pub bounds: Vec<DVector<f64>>    // Layer boundaries in y position
+  182|       |}
+  183|       |
+  184|      0|#[derive(Serialize, Deserialize, PartialEq, Debug)]
+  185|       |pub struct LayerInfo {
+  186|       |    pub name: String
+  187|       |}
+  188|       |
+  189|       |#[cfg(test)]
+  190|       |mod tests {
+  191|       |    use crate::bow::output::BowOutput;
+  192|       |    use crate::bow::errors::ModelError;
+  193|       |
+  194|       |    #[test]
+  195|      1|    fn test_load_output() {
+  196|       |        // IO error when loading from an invalid path
+  197|      1|        assert_matches!(BowOutput::load("bows/tests/nonexistent.res"), Err(ModelError::OutputLoadFileError(_, _)));
+                      ^0
+  198|       |
+  199|       |        // Decoding error due to invalid file contents (invalid messagepack)
+  200|      1|        assert_matches!(BowOutput::load("bows/tests/invalid_msgpack_1.res"), Err(ModelError::OutputDecodeMsgPackError(_)));
+                      ^0
+  201|       |
+  202|       |        // Decoding error due to invalid file contents (valid messagepack but invalid structure)
+  203|      1|        assert_matches!(BowOutput::load("bows/tests/invalid_msgpack_2.res"), Err(ModelError::OutputInterpretMsgPackError(_)));
+                      ^0
+  204|       |
+  205|       |        // Error when loading results without version entry
+  206|      1|        assert_matches!(BowOutput::load("bows/tests/no_version.res"), Err(ModelError::OutputVersionNotFound));
+                      ^0
+  207|       |
+  208|       |        // Error when loading results with an invalid version entry (wrong type)
+  209|      1|        assert_matches!(BowOutput::load("bows/tests/invalid_version.res"), Err(ModelError::OutputVersionInvalid(_)));
+                      ^0
+  210|       |
+  211|       |        // Error when loading results with a different version
+  212|      1|        assert_matches!(BowOutput::load("bows/tests/new_version.res"), Err(ModelError::OutputVersionMismatch(_)));
+                      ^0
+  213|       |
+  214|       |        // No error when loading a valid output file
+  215|      1|        assert_matches!(BowOutput::load("bows/tests/valid.res"), Ok(_));
+                      ^0
+  216|      1|    }
+  217|       |
+  218|       |    #[test]
+  219|      1|    fn test_save_output() {
+  220|      1|        let output = BowOutput::default();
+  221|       |
+  222|       |        // IO error from saving to an invalid path
+  223|      1|        assert_matches!(output.save("bows/tests/nonexistent/output.res"), Err(ModelError::OutputSaveFileError(_, _)));
+                      ^0
+  224|       |
+  225|       |        // The only remaining error case is an encoding error, but that one is difficult to trigger.
+  226|       |        // Therefore we just save the output once verify that the serialization works.
+  227|      1|        assert_matches!(output.save("bows/tests/saved.res"), Ok(_));
+                      ^0
+  228|      1|    }
+  229|       |}
+

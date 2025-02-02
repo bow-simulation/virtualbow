@@ -1,0 +1,370 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/bow/compatibility.rs:
+    1|       |use std::collections::hash_map::{DefaultHasher, Entry};
+    2|       |use std::collections::HashMap;
+    3|       |use std::hash::{Hash, Hasher};
+    4|       |use itertools::Itertools;
+    5|       |use serde_json::{json, Value};
+    6|       |use crate::bow::errors::ModelError;
+    7|       |use crate::bow::input::BowInput;
+    8|       |
+    9|       |// Converts the json definition of a bow file to the currently required format, if necessary and possible.
+   10|       |// Each time the input format changes, the version counter must be increased and a new conversion function must be added.
+   11|       |// Increasing the version without adding a conversion leads to a compile-time error, see https://stackoverflow.com/q/77456313/10489834
+   12|     31|pub fn convert_to_current_format(value: &mut Value) -> Result<(), ModelError> {
+   13|     31|    let version = get_file_version(value)?;
+                      ^27                              ^4
+   14|       |
+   15|     27|    if version > BowInput::FILE_VERSION {
+  ------------------
+  |  Branch (15:8): [True: 1, False: 26]
+  ------------------
+   16|      1|        return Err(ModelError::InputVersionTooNew(version));
+   17|     26|    }
+   18|       |
+   19|     34|    for current in version..BowInput::FILE_VERSION {
+                                 ^26
+   20|     34|        match current {
+   21|      5|            0 => convert_v0_to_v1(value)?,
+                                                      ^0
+   22|      9|            1 => convert_v1_to_v2(value)?,
+                                                      ^0
+   23|     20|            2 => convert_v2_to_v3(value)?,
+                                                      ^1
+   24|      0|            BowInput::FILE_VERSION => (),
+   25|      0|            BowInput::FILE_VERSION.. => unreachable!(),
+   26|       |        }
+   27|       |    }
+   28|       |
+   29|     25|    Ok(())
+   30|     31|}
+   31|       |
+   32|       |// Returns the version of the bow file, if it can be determined.
+   33|       |// Since version 0.10 of VirtualBow the bow files are versioned independently from the application by a top-level integer field "version".
+   34|       |// Until version 0.9 however, that version field was instead equal to the application's version string.
+   35|       |//   => If such an older version string is found, it is mapped to a retroactively assigned integer version number.
+   36|       |//   => Version 0.7 was decided as the cutoff for support, so it is mapped to integer version 0.
+   37|     31|fn get_file_version(json: &Value) -> Result<u64, ModelError> {
+   38|       |    // Try to find the version entry, return error if none is present
+   39|     31|    let entry = json.get("version").ok_or(ModelError::InputVersionNotFound)?;
+                      ^30                                                                ^1
+   40|       |
+   41|       |    // Entry can be a number according to the current versioning scheme, a string according
+   42|       |    // to the old versioning scheme or something else and therefore invalid
+   43|     30|    match entry {
+   44|      7|        Value::Number(n) => n.as_u64().ok_or(ModelError::InputVersionInvalid(n.to_string())),
+   45|     22|        Value::String(s) => match s.as_str() {
+   46|     22|            "0.9" | "0.9.0" | "0.9.1" => Ok(2),
+                                  ^21       ^21        ^11
+   47|     11|            "0.8" | "0.8.0"           => Ok(1),
+                                  ^7                   ^4
+   48|      7|            "0.7" | "0.7.0" | "0.7.1" => Ok(0),
+                                  ^6        ^6         ^5
+   49|      2|            "0.6" | "0.6.0" | "0.6.1" => Err(ModelError::InputVersionTooOld(s.clone())),
+                                                       ^0
+   50|      2|            "0.5" | "0.5.0"           => Err(ModelError::InputVersionTooOld(s.clone())),
+                                                       ^0
+   51|      2|            "0.4" | "0.4.0"           => Err(ModelError::InputVersionTooOld(s.clone())),
+                                                       ^0
+   52|      2|            "0.3" | "0.3.0"           => Err(ModelError::InputVersionTooOld(s.clone())),
+                                                       ^0
+   53|      2|            "0.2" | "0.2.0"           => Err(ModelError::InputVersionTooOld(s.clone())),
+                                                       ^0
+   54|      2|            "0.1" | "0.1.0"           => Err(ModelError::InputVersionTooOld(s.clone())),
+                                  ^1                   ^1
+   55|      1|            _ => Err(ModelError::InputVersionInvalid(s.clone()))
+   56|       |        },
+   57|      1|        _ => Err(ModelError::InputVersionInvalid(entry.to_string()))
+   58|       |    }
+   59|     31|}
+   60|       |
+   61|     20|fn convert_v2_to_v3(value: &mut Value) -> Result<(), ModelError> {
+   62|     20|    value["version"] = json!(3);
+   63|       |
+   64|     20|    let segments = value["profile"].as_array().ok_or(ModelError::InputConversionError(2, 3, "Entry 'profile' not found or invalid".to_string()))?;
+                      ^19                                                                                                                                     ^1
+   65|     19|    value["profile"] = json!({
+   66|     19|        "alignment": "section-back",
+   67|     90|        "segments":  segments.iter().map(|segment| {
+   68|     90|            match segment["type"].as_str() {
+   69|     90|                Some("line") => {
+   70|     12|                    json!({
+   71|     12|                        "type": "line",
+   72|     12|                        "length": segment["parameters"]["length"]
+   73|     12|                    })
+   74|       |                }
+   75|     78|                Some("arc") => {
+   76|     36|                    json!({
+   77|     36|                        "type": "arc",
+   78|     36|                        "length": segment["parameters"]["length"],
+   79|     36|                        "radius": segment["parameters"]["radius"]
+   80|     36|                    })
+   81|       |                }
+   82|     42|                Some("spiral") => {
+   83|     41|                    json!({
+   84|     41|                        "type": "spiral",
+   85|     41|                        "length": segment["parameters"]["length"],
+   86|     41|                        "radius0": segment["parameters"]["r_start"],
+   87|     41|                        "radius1": segment["parameters"]["r_end"]
+   88|     41|                    })
+   89|       |                }
+   90|      1|                Some("spline") => {
+   91|      1|                    json!({
+   92|      1|                        "type": "spline",
+   93|      1|                        "points": segment["parameters"]["points"]
+   94|      1|                    })
+   95|       |                }
+   96|      0|                _ => json!({})
+   97|       |            }
+   98|     90|        }).collect_vec()
+   99|     19|    });
+  100|       |
+  101|       |    // Older versions did not have the shear modulus as a material property, therefore calculate a default
+  102|       |    // value based on the elastic modulus and a poisson ratio of 0.4
+  103|     19|    let materials = value["materials"].as_array_mut().ok_or(ModelError::InputConversionError(2, 3, "Entry 'materials' not found or invalid".to_string()))?;
+                                                                                                                                                                       ^0
+  104|     51|    materials.iter_mut().for_each(|material| {
+                  ^19
+  105|     51|        let material = material.as_object_mut().expect("Material must be an object");
+  106|     51|        let E = material["E"].as_f64().expect("Invalid elastic modulus");
+  107|     51|        let G = E/(2.0*(1.0 + 0.4));
+  108|     51|
+  109|     51|        material.insert("G".into(), json!(G));
+  110|     51|    });
+                   ^19
+  111|       |
+  112|       |    // Layers reference the materials by name instead of index in newer versions
+  113|     19|    let materials = value["materials"].as_array().ok_or(ModelError::InputConversionError(2, 3, "Entry 'materials' not found or invalid".to_string())).cloned()?;
+                                                                                                                                                                            ^0
+  114|     19|    let layers = value["layers"].as_array_mut().ok_or(ModelError::InputConversionError(2, 3, "Entry 'layers' not found or invalid".to_string()))?;
+                                                                                                                                                              ^0
+  115|       |
+  116|     71|    for layer in layers {
+                      ^52
+  117|     52|        let index = layer["material"].as_u64().expect("Material index must be an unsigned integer");
+  118|     52|        layer["material"] = json!(materials[index as usize]["name"]);
+  119|     52|    }
+  120|       |
+  121|       |    /*
+  122|       |    layers.iter_mut().for_each(|layer| {
+  123|       |        let index = layer["material"].as_u64().expect("Material index must be an unsigned integer");
+  124|       |        layer["material"] = json!(materials[index as usize]["name"]);
+  125|       |    });
+  126|       |    */
+  127|       |
+  128|       |    // New/renamed settings entries
+  129|     19|    value["settings"] = json!({
+  130|     19|        "n_limb_elements": value["settings"]["n_limb_elements"],
+  131|     19|        "n_limb_eval_points": 100,
+  132|     19|        "min_draw_resolution": value["settings"]["n_draw_steps"],
+  133|     19|        "max_draw_resolution": value["settings"]["n_draw_steps"],
+  134|     19|        "arrow_clamp_force": value["settings"]["arrow_clamp_force"],
+  135|     19|        "string_compression_factor": 1e-6,
+  136|     19|        "timespan_factor": value["settings"]["time_span_factor"],
+  137|     19|        "timeout_factor": 5.0,
+  138|     19|        "min_timestep": 1e-6,
+  139|     19|        "max_timestep": 1e-4,
+  140|     19|        "steps_per_period": 250,
+  141|     19|    });
+  142|     19|
+  143|     19|    // Move width to width/points
+  144|     19|    value["width"] = json!({
+  145|     19|        "points": value["width"]
+  146|     19|    });
+  147|     19|
+  148|     19|    Ok(())
+  149|     20|}
+  150|       |
+  151|      9|fn convert_v1_to_v2(value: &mut Value) -> Result<(), ModelError> {
+  152|      9|    value["version"] = json!(2);
+  153|       |
+  154|       |    // In previous versions, the colors were randomly generated based on the material properties (same properties -> same color)
+  155|       |    // Starting with version 0.9 the colors can be chosen by users, so we have to pick some initial color here. Instead of replicating the old
+  156|       |    // random algorithm, they are chosen out of a fixed color palette (taken from Python's Matplotlib,  https://stackoverflow.com/a/42091037)
+  157|       |    const COLOR_PALETTE: &[&str; 10] =&["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
+  158|      9|    let mut used_colors = HashMap::<u64, String>::new();
+  159|      9|    let mut next_color = 0;
+  160|      9|
+  161|     24|    let mut get_material_color = |rho: f64, E: f64| -> String {
+  162|     24|        // Check if the material (rho, E) was already assigned a color
+  163|     24|        // If not, assign it the next color in the palette (with wrap-around)
+  164|     24|        let key = {
+  165|     24|            let mut s = DefaultHasher::new();
+  166|     24|            rho.to_bits().hash(&mut s);
+  167|     24|            E.to_bits().hash(&mut s);
+  168|     24|            s.finish()
+  169|     24|        };
+  170|     24|
+  171|     24|        match used_colors.entry(key) {
+  172|      6|            Entry::Occupied(entry) => entry.into_mut().clone(),
+  173|     18|            Entry::Vacant(entry) => {
+  174|     18|                let value = entry.insert(COLOR_PALETTE[next_color % COLOR_PALETTE.len()].to_string()).clone();
+  175|     18|                next_color += 1;
+  176|     18|                return value;
+  177|       |            },
+  178|       |        }
+  179|     24|    };
+  180|       |
+  181|       |    // Create new material from each layer and make layer only refer to that material
+  182|       |    // Also name material after layer and give layers a generic name instead
+  183|      9|    let layers = value["layers"].as_array_mut().ok_or(ModelError::InputConversionError(1, 2, "Entry 'layers' not found or invalid".to_string()))?;
+                                                                                                                                                              ^0
+  184|      9|    value["materials"] = layers.iter_mut()
+  185|      9|        .enumerate()
+  186|     24|        .map(|(index, layer)| {
+  187|     24|            // Create new material entry
+  188|     24|            let material = json!({
+  189|     24|                "name": layer["name"],
+  190|     24|                "color": get_material_color(
+  191|     24|                    layer["rho"].as_f64().expect("Invalid material density"),
+  192|     24|                    layer["E"].as_f64().expect("Invalid elastic modulus")
+  193|     24|                ),
+  194|     24|                "rho": layer["rho"],
+  195|     24|                "E": layer["E"]
+  196|     24|            });
+  197|     24|
+  198|     24|            // Update layer entry
+  199|     24|            let layer = layer.as_object_mut().expect("Layer must be an object");
+  200|     24|            layer.insert("name".into(), json!(format!("Layer {}", index + 1)));
+  201|     24|            layer.insert("material".into(), json!(index));
+  202|     24|            layer.remove("rho");
+  203|     24|            layer.remove("E");
+  204|     24|
+  205|     24|            material
+  206|     24|        })
+  207|      9|        .collect();
+  208|      9|
+  209|      9|    // Convert old profile definition (points of length and curvature) to line, arc and spiral segments
+  210|      9|    let mut profile = value["profile"].as_array().expect("Invalid profile definition").clone();
+  211|     30|    profile.sort_by(|a, b| {
+  212|     30|        let a = a[0].as_f64().expect("Length must be a float");
+  213|     30|        let b = b[0].as_f64().expect("Length must be a float");
+  214|     30|        a.partial_cmp(&b).expect("Failed to compare floating point values")
+  215|     30|    });
+  216|      9|
+  217|     30|    value["profile"] = profile.iter().tuple_windows().map(|(prev, next)| {
+  218|     30|        // Converts a curvature to a radius, where a radius of zero encodes zero curvature
+  219|     39|        let curvature_to_radius = |kappa: f64| {
+  220|     39|            if kappa != 0.0 { 1.0/kappa } else { 0.0 }
+                                            ^34                ^5
+  ------------------
+  |  Branch (220:16): [True: 34, False: 5]
+  ------------------
+  221|     39|        };
+  222|       |
+  223|     30|        let length = next[0].as_f64().expect("Length must be a float") - prev[0].as_f64().expect("Length must be a float");
+  224|     30|        let kappa0 = prev[1].as_f64().expect("Curvature must be a float");
+  225|     30|        let kappa1 = next[1].as_f64().expect("Curvature must be a float");
+  226|     30|
+  227|     30|        // If both curvatures are zero, create a line segment
+  228|     30|        // If both curvatures are nonzero and equal, create an arc segment
+  229|     30|        // If both curvatures are different, create a spiral segment
+  230|     30|        if kappa0 == 0.0 && kappa1 == 0.0 {
+                                          ^9
+  ------------------
+  |  Branch (230:12): [True: 9, False: 21]
+  |  Branch (230:29): [True: 6, False: 3]
+  ------------------
+  231|      6|            json!({
+  232|      6|                "type": "line",
+  233|      6|                "parameters": {
+  234|      6|                    "length": length,
+  235|      6|                }
+  236|      6|            })
+  237|       |        }
+  238|     24|        else if kappa0 == kappa1 {
+  ------------------
+  |  Branch (238:17): [True: 9, False: 15]
+  ------------------
+  239|      9|            json!({
+  240|      9|                "type": "arc",
+  241|      9|                "parameters": {
+  242|      9|                    "length": length,
+  243|      9|                    "radius": curvature_to_radius(kappa0)
+  244|      9|                }
+  245|      9|            })
+  246|       |        }
+  247|       |        else {
+  248|     15|            json!({
+  249|     15|                "type": "spiral",
+  250|     15|                "parameters": {
+  251|     15|                    "length": length,
+  252|     15|                    "r_start": curvature_to_radius(kappa0),
+  253|     15|                    "r_end": curvature_to_radius(kappa1)
+  254|     15|                }
+  255|     15|            })
+  256|       |        }
+  257|     30|    }).collect();
+  258|      9|
+  259|      9|    Ok(())
+  260|      9|}
+  261|       |
+  262|      5|fn convert_v0_to_v1(value: &mut Value) -> Result<(), ModelError> {
+  263|      5|    value["version"] = json!(1);
+  264|      5|    value["settings"]["arrow_clamp_force"] = json!(0.0);
+  265|      5|
+  266|      5|    Ok(())
+  267|      5|}
+  268|       |
+  269|       |#[cfg(test)]
+  270|       |mod tests {
+  271|       |    use std::io::Error;
+  272|       |    use itertools::Itertools;
+  273|       |    use assert2::assert;
+  274|       |    use crate::bow::input::BowInput;
+  275|       |
+  276|       |    #[test]
+  277|      1|    fn test_model_conversion() -> Result<(), Error> {
+  278|       |        // This test loads supposedly equivalent bow files that have been saved in different format versions and checks whether they
+  279|       |        // can be loaded/saved successfully and if the resulting model data is equivalent.
+  280|       |        // See also the readme file in the referenced folder.
+  281|       |
+  282|       |        // Iterate over all version folders, each folder contains a series of bow files that should produce the same model
+  283|      3|        for entry in std::fs::read_dir("bows/versions")? {
+                                   ^1                                ^0
+  284|      3|            let path = entry?.path();
+                                          ^0
+  285|      3|            if path.is_dir() {
+  ------------------
+  |  Branch (285:16): [True: 2, False: 1]
+  ------------------
+  286|      2|                println!("Folder {:?}", path);
+  287|       |
+  288|       |                // Iterate over model files in the folder and load each of them
+  289|      2|                let models = std::fs::read_dir(&path)?
+                                                                   ^0
+  290|      6|                    .map(|entry| entry.unwrap().path())
+                                   ^2
+  291|      6|                    .filter(|path| path.is_file())
+  292|      6|                    .filter(|path| path.extension().map(|s| s == "bow").unwrap())
+  293|      6|                    .map(|file| {
+  294|      6|                        println!("\t- Load {:?}", file.file_name().unwrap());
+  295|      6|                        BowInput::load(file).expect("Failed to load model")
+  296|      6|                    })
+  297|      2|                    .collect::<Vec<BowInput>>();
+  298|      2|
+  299|      2|                // Compare loaded models for equality
+  300|      4|                models.iter().tuple_windows().for_each(|(a, b)| {
+  301|      4|                    assert!(a == b, "Model data must be equal");
+                                                  ^0
+  302|      4|                });
+  303|      2|
+  304|      2|                // Save model file in the latest version
+  305|      2|                let model = models.last().unwrap();
+  306|      2|                let file = &path.join(format!("v{}.bow", BowInput::FILE_VERSION));
+  307|      2|                println!("\t- Save {:?}", file.file_name().unwrap());
+  308|      2|                model.save(file).unwrap();
+  309|      2|
+  310|      2|                // Load it again and check for equality
+  311|      2|                println!("\t- Load {:?}", file.file_name().unwrap());
+  312|      2|                let loaded = BowInput::load(file).expect("Failed to load model");
+  313|      2|                assert!(loaded == *model, "Model data must be equal");
+                                                        ^0
+  314|      1|            }
+  315|       |        }
+  316|       |
+  317|      1|        Ok(())
+  318|      1|    }
+  319|       |}
+

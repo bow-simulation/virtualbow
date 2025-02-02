@@ -1,0 +1,268 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/bow/profile/segments/clothoid.rs:
+    1|       |use std::f64::consts::{FRAC_PI_2, TAU};
+    2|       |use fresnel::fresnl;
+    3|       |use nalgebra::{SVector, vector};
+    4|       |use serde::{Deserialize, Serialize};
+    5|       |use crate::bow::errors::ModelError;
+    6|       |use crate::bow::profile::profile::CurvePoint;
+    7|       |use crate::fem::elements::beam::geometry::PlanarCurve;
+    8|       |
+    9|       |// Curve segment whose curvature varies linearly varying over its arc length.
+   10|       |// Can represent a clothoid, circular arc or a straight line depending on the choice of parameters.
+   11|       |
+   12|       |// Line parameters
+   13|       |
+   14|     17|#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+                                            ^0
+   15|       |pub struct LineInput {
+   16|       |    pub length: f64
+   17|       |}
+   18|       |
+   19|       |impl LineInput {
+   20|     26|    pub fn new(length: f64) -> Self {
+   21|     26|        Self {
+   22|     26|            length
+   23|     26|        }
+   24|     26|    }
+   25|       |
+   26|     60|    pub fn validate(&self, index: usize) -> Result<(), ModelError> {
+   27|     60|        let &Self { length } = self;
+   28|     60|
+   29|     60|        if !length.is_finite() || length <= 0.0 {
+  ------------------
+  |  Branch (29:12): [True: 0, False: 60]
+  |  Branch (29:35): [True: 0, False: 60]
+  ------------------
+   30|      0|            return Err(ModelError::LineSegmentInvalidLength(index, length));
+   31|     60|        }
+   32|     60|
+   33|     60|        Ok(())
+   34|     60|    }
+   35|       |}
+   36|       |
+   37|       |// Arc parameters
+   38|       |
+   39|     82|#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+                                            ^0
+   40|       |pub struct ArcInput {
+   41|       |    pub length: f64,
+   42|       |    pub radius: f64
+   43|       |}
+   44|       |
+   45|       |impl ArcInput {
+   46|      8|    pub fn new(length: f64, radius: f64) -> Self {
+   47|      8|        Self {
+   48|      8|            length,
+   49|      8|            radius,
+   50|      8|        }
+   51|      8|    }
+   52|       |
+   53|    151|    pub fn validate(&self, index: usize) -> Result<(), ModelError> {
+   54|    151|        let &Self { length, radius } = self;
+   55|    151|
+   56|    151|        if !length.is_finite() || length <= 0.0 {
+  ------------------
+  |  Branch (56:12): [True: 0, False: 151]
+  |  Branch (56:35): [True: 0, False: 151]
+  ------------------
+   57|      0|            return Err(ModelError::ArcSegmentInvalidLength(index, length));
+   58|    151|        }
+   59|    151|        if !radius.is_finite() {
+  ------------------
+  |  Branch (59:12): [True: 0, False: 151]
+  ------------------
+   60|      0|            return Err(ModelError::ArcSegmentInvalidRadius(index, radius));
+   61|    151|        }
+   62|    151|
+   63|    151|        Ok(())
+   64|    151|    }
+   65|       |}
+   66|       |
+   67|       |// Spiral parameters
+   68|       |
+   69|    138|#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+                                            ^0
+   70|       |pub struct SpiralInput {
+   71|       |    pub length: f64,
+   72|       |    pub radius0: f64,
+   73|       |    pub radius1: f64
+   74|       |}
+   75|       |
+   76|       |impl SpiralInput {
+   77|      1|    pub fn new(length: f64, radius0: f64, radius1: f64) -> Self {
+   78|      1|        Self {
+   79|      1|            length,
+   80|      1|            radius0,
+   81|      1|            radius1
+   82|      1|        }
+   83|      1|    }
+   84|       |
+   85|    149|    pub fn validate(&self, index: usize) -> Result<(), ModelError> {
+   86|    149|        let &Self { length, radius0, radius1 } = self;
+   87|    149|
+   88|    149|        if !length.is_finite() || length <= 0.0 {
+  ------------------
+  |  Branch (88:12): [True: 0, False: 149]
+  |  Branch (88:35): [True: 0, False: 149]
+  ------------------
+   89|      0|            return Err(ModelError::SpiralSegmentInvalidLength(index, length));
+   90|    149|        }
+   91|    149|        if !radius0.is_finite() {
+  ------------------
+  |  Branch (91:12): [True: 0, False: 149]
+  ------------------
+   92|      0|            return Err(ModelError::SpiralSegmentInvalidRadius1(index, radius0));
+   93|    149|        }
+   94|    149|        if !radius1.is_finite() {
+  ------------------
+  |  Branch (94:12): [True: 0, False: 149]
+  ------------------
+   95|      0|            return Err(ModelError::SpiralSegmentInvalidRadius2(index, radius1));
+   96|    149|        }
+   97|    149|
+   98|    149|        Ok(())
+   99|    149|    }
+  100|       |}
+  101|       |
+  102|       |// Common segment implementation for line, arc and spiral input
+  103|       |
+  104|       |pub struct ClothoidSegment {
+  105|       |    s0: f64,
+  106|       |    s1: f64,
+  107|       |    x0: f64,
+  108|       |    y0: f64,
+  109|       |    a: f64,
+  110|       |    b: f64,
+  111|       |    c: f64
+  112|       |}
+  113|       |
+  114|       |impl ClothoidSegment {
+  115|     34|    pub fn line(start: &CurvePoint, input: &LineInput) -> ClothoidSegment {
+  116|     34|        Self::new(start, input.length, 0.0, 0.0)
+  117|     34|    }
+  118|       |
+  119|     81|    pub fn arc(start: &CurvePoint, input: &ArcInput) -> ClothoidSegment {
+  120|     81|        Self::new(start, input.length, Self::radius_to_curvature(input.radius), Self::radius_to_curvature(input.radius))
+  121|     81|    }
+  122|       |
+  123|     76|    pub fn spiral(start: &CurvePoint, input: &SpiralInput) -> ClothoidSegment {
+  124|     76|        Self::new(start, input.length, Self::radius_to_curvature(input.radius0), Self::radius_to_curvature(input.radius1))
+  125|     76|    }
+  126|       |
+  127|    191|    fn new(start: &CurvePoint, l: f64, k0: f64, k1: f64) -> ClothoidSegment {
+  128|    191|        let s0 = start.s;
+  129|    191|        let s1 = start.s + l;
+  130|    191|        let a = 0.5*(k1 - k0)/(s1 - s0);
+  131|    191|        let b = (s1*k0 - s0*k1)/(s1 - s0);
+  132|    191|        let c = start.φ - b*s0 - a*s0*s0;
+  133|    191|
+  134|    191|        ClothoidSegment {
+  135|    191|            s0, s1,
+  136|    191|            x0: start.r[0],
+  137|    191|            y0: start.r[1],
+  138|    191|            a, b, c
+  139|    191|        }
+  140|    191|    }
+  141|       |
+  142|    314|    fn radius_to_curvature(r: f64) -> f64 {
+  143|    314|        if r != 0.0 {
+  ------------------
+  |  Branch (143:12): [True: 300, False: 14]
+  ------------------
+  144|    300|            1.0/r
+  145|       |        }
+  146|       |        else {
+  147|     14|            0.0
+  148|       |        }
+  149|    314|    }
+  150|       |}
+  151|       |
+  152|       |impl PlanarCurve for ClothoidSegment {
+  153|    232|    fn s_start(&self) -> f64 {
+  154|    232|        self.s0
+  155|    232|    }
+  156|       |
+  157|    778|    fn s_end(&self) -> f64 {
+  158|    778|        self.s1
+  159|    778|    }
+  160|       |
+  161|  12.9M|    fn position(&self, s: f64) -> SVector<f64, 2> {
+  162|  12.9M|        // The curve's coordinates are (https://en.wikipedia.org/wiki/Tangential_angle)
+  163|  12.9M|        // x(s) = x0 + integrate cos(phi(t)) dt from s0 to s
+  164|  12.9M|        // y(s) = y0 + integrate sin(phi(t)) dt from s0 to s
+  165|  12.9M|        // The solution to this depends on the values of the coefficients
+  166|  12.9M|        if self.a > 0.0 {
+  ------------------
+  |  Branch (166:12): [True: 1.31M, False: 11.6M]
+  ------------------
+  167|       |            // Euler spiral with increasing curvature
+  168|       |            // x(s) = x0 + integrate cos(a*t^2 + b*t + c) dt from s0 to s
+  169|       |            // y(s) = y0 + integrate sin(a*t^2 + b*t + c) dt from s0 to s
+  170|  1.31M|            let (Ss, Cs) = fresnl((self.b + 2.0*self.a*s)/f64::sqrt(TAU*self.a));
+  171|  1.31M|            let (Sc, Cc) = fresnl((self.b + 2.0*self.a*self.s0)/f64::sqrt(TAU*self.a));
+  172|  1.31M|            vector![
+  173|  1.31M|                self.x0 + f64::sqrt(FRAC_PI_2/self.a)*(f64::cos(self.b.powi(2)/(4.0*self.a) - self.c)*(Cs - Cc) + f64::sin(self.b.powi(2)/(4.0*self.a) - self.c)*(Ss - Sc)),
+  174|  1.31M|                self.y0 + f64::sqrt(FRAC_PI_2/self.a)*(f64::sin(self.b.powi(2)/(4.0*self.a) - self.c)*(Cc - Cs) + f64::cos(self.b.powi(2)/(4.0*self.a) - self.c)*(Ss - Sc))
+  175|  1.31M|            ]
+  176|       |        }
+  177|  11.6M|        else if self.a < 0.0 {
+  ------------------
+  |  Branch (177:17): [True: 166k, False: 11.4M]
+  ------------------
+  178|       |            // Euler spiral with decreasing curvature
+  179|       |            // Solution from above, but with k0 = -k0, k1 = -k1, y = -y
+  180|   166k|            let (Ss, Cs) = fresnl((self.b + 2.0*self.a*s)/f64::sqrt(-TAU*self.a));
+  181|   166k|            let (Sc, Cc) = fresnl((self.b + 2.0*self.a*self.s0)/f64::sqrt(-TAU*self.a));
+  182|   166k|            vector![
+  183|   166k|                self.x0 - f64::sqrt(-FRAC_PI_2/self.a)*(f64::cos(self.c - self.b.powi(2)/(4.0*self.a))*(Cs - Cc) + f64::sin(self.c - self.b.powi(2)/(4.0*self.a))*(Ss - Sc)),
+  184|   166k|                self.y0 + f64::sqrt(-FRAC_PI_2/self.a)*(f64::sin(self.c - self.b.powi(2)/(4.0*self.a))*(Cc - Cs) + f64::cos(self.c - self.b.powi(2)/(4.0*self.a))*(Ss - Sc))
+  185|   166k|            ]
+  186|       |        }
+  187|  11.4M|        else if self.b != 0.0 {
+  ------------------
+  |  Branch (187:17): [True: 5.78M, False: 5.65M]
+  ------------------
+  188|       |            // Circle (constant curvature)
+  189|       |            // x(s) = x0 + integrate cos(b*t + c) dt from s0 to s
+  190|       |            // y(s) = y0 + integrate sin(b*t + c) dt from s0 to s
+  191|  5.78M|            vector![
+  192|  5.78M|                self.x0 + 1.0/self.b*(f64::sin(self.b*s + self.c) - f64::sin(self.b*self.s0 + self.c)),
+  193|  5.78M|                self.y0 + 1.0/self.b*(f64::cos(self.b*self.s0 + self.c) - f64::cos(self.b*s + self.c))
+  194|  5.78M|            ]
+  195|       |        }
+  196|       |        else {
+  197|       |            // Line (zero curvature)
+  198|       |            // x(s) = x0 + integrate cos(c) dt from s0 to s
+  199|       |            // y(s) = y0 + integrate sin(c) dt from s0 to s
+  200|  5.65M|            vector![
+  201|  5.65M|                self.x0 + f64::cos(self.c)*(s - self.s0),
+  202|  5.65M|                self.y0 + f64::sin(self.c)*(s - self.s0)
+  203|  5.65M|            ]
+  204|       |        }
+  205|  12.9M|    }
+  206|       |
+  207|  6.44M|    fn angle(&self, s: f64) -> f64 {
+  208|  6.44M|        (self.a*s + self.b)*s + self.c
+  209|  6.44M|    }
+  210|       |
+  211|       |    // Curvature varies linearly between s0 and s1:
+  212|       |    // k(s) = (k1 - k0)/(s1 - s0)*s + (s1*k0 - s0*k1)/(s1 - s0)
+  213|       |    //
+  214|       |    // Therefore, the tangent angle is (https://en.wikipedia.org/wiki/Tangential_angle)
+  215|       |    // phi(s) = phi0 + integrate k(t) dt from s0 to s
+  216|       |    //        = phi0 + (s1*k0 - s0*k1)/(s1 - s0)*(s - s0) + 1/2*(k1 - k0)/(s1 - s0)*(s^2 - s0^2)
+  217|       |    //        = a*s^2 + b*s + c
+  218|       |    //
+  219|       |    // Quadratic coefficients of the tangent angle:
+  220|       |    //
+  221|       |    // a = 0.5*(k1 - k0)/(s1 - s0);
+  222|       |    // b = (s1*k0 - s0*k1)/(s1 - s0);
+  223|       |    // c = phi0 - b*s0 - a*s0*s0;
+  224|       |
+  225|  54.0k|    fn curvature(&self, s: f64) -> f64 {
+  226|  54.0k|        2.0*self.a*s + self.b
+  227|  54.0k|    }
+  228|       |}
+

@@ -1,0 +1,138 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/numerics/geometry.rs:
+    1|       |use nalgebra::SVector;
+    2|       |
+    3|       |// Describes the orientation of a turn that three numbered points in a plane make.
+    4|       |#[derive(Debug, Copy, Clone, PartialEq)]
+    5|       |pub enum Orientation {
+    6|       |    LeftTurn,     // Left turn, i.e. counterclockwise
+    7|       |    RightTurn,    // Right turn, i.e. clockwise
+    8|       |    Collinear     // Points lie in a perfect line
+    9|       |}
+   10|       |
+   11|       |impl Orientation {
+   12|  1.16M|    fn from_points(a: &SVector<f64, 2>, b: &SVector<f64, 2>, c: &SVector<f64, 2>) -> Self {
+   13|  1.16M|        let product = (b[0] - a[0])*(c[1] - a[1]) - (b[1] - a[1])*(c[0] - a[0]);
+   14|  1.16M|
+   15|  1.16M|        if product > 0.0 {
+  ------------------
+  |  Branch (15:12): [True: 108k, False: 1.05M]
+  ------------------
+   16|   108k|            return Orientation::LeftTurn;
+   17|  1.05M|        }
+   18|  1.05M|        if product < 0.0 {
+  ------------------
+  |  Branch (18:12): [True: 1.05M, False: 6]
+  ------------------
+   19|  1.05M|            return Orientation::RightTurn;
+   20|      6|        }
+   21|      6|        return Orientation::Collinear;
+   22|  1.16M|    }
+   23|       |}
+   24|       |
+   25|       |// Traverses a curve of line segments defined by a list of input points and returns the indices of a subset of points
+   26|       |// which define a curve with strictly right handed or left handed orientation.
+   27|       |// The result always contains the start- and endpoints, therefore at least two input points are required.
+   28|       |// Implementation inspired by Graham scan for finding the convex hull of a point set, see https://en.wikipedia.org/wiki/Graham_scan
+   29|  74.6k|pub fn convex_envelope(points: &[SVector<f64, 2>], indices: &mut Vec<usize>, orientation: Orientation) {
+   30|  74.6k|    assert!(points.len() >= 2);
+   31|  74.6k|    assert!(orientation != Orientation::Collinear);
+   32|       |
+   33|  74.6k|    indices.clear();
+   34|  74.6k|    indices.push(0);
+   35|  74.6k|    indices.push(1);
+   36|  74.6k|
+   37|  2.22M|    let fits_as_next = |indices: &[usize], ic| {
+   38|  2.22M|        if indices.len() <= 1 {
+  ------------------
+  |  Branch (38:12): [True: 1.05M, False: 1.16M]
+  ------------------
+   39|  1.05M|            return true;
+   40|  1.16M|        }
+   41|  1.16M|
+   42|  1.16M|        let ia = indices[indices.len() - 2];
+   43|  1.16M|        let ib = indices[indices.len() - 1];
+   44|  1.16M|
+   45|  1.16M|        return Orientation::from_points(&points[ia], &points[ib], &points[ic]) == orientation;
+   46|  2.22M|    };
+   47|       |
+   48|  1.16M|    for i in 2..points.len() {
+                              ^74.6k
+   49|  2.22M|        while !fits_as_next(indices, i) {
+  ------------------
+  |  Branch (49:15): [True: 1.05M, False: 1.16M]
+  ------------------
+   50|  1.05M|            indices.pop();
+   51|  1.05M|        }
+   52|       |
+   53|  1.16M|        indices.push(i);
+   54|       |    }
+   55|  74.6k|}
+   56|       |
+   57|       |#[cfg(test)]
+   58|       |mod tests {
+   59|       |    use nalgebra::vector;
+   60|       |    use assert2::assert;
+   61|       |    use super::*;
+   62|       |
+   63|       |    #[test]
+   64|      1|    fn test_point_orientation() {
+   65|      1|        assert!(Orientation::from_points(&vector![0.0, 0.0], &vector![1.0, 0.0], &vector![1.0, 1.0]) == Orientation::LeftTurn);
+   66|      1|        assert!(Orientation::from_points(&vector![0.0, 0.0], &vector![0.0, 1.0], &vector![1.0, 1.0]) == Orientation::RightTurn);
+   67|      1|        assert!(Orientation::from_points(&vector![0.0, 0.0], &vector![0.5, 0.5], &vector![1.0, 1.0]) == Orientation::Collinear);
+   68|      1|    }
+   69|       |
+   70|       |    #[test]
+   71|      1|    fn test_convex_envelope() {
+   72|      1|        let mut output = Vec::new();
+   73|      1|
+   74|      1|        // Two points should always be retained, no matter if left or right turn
+   75|      1|        let input  = vec![vector![0.0, 0.0], vector![1.0, 0.0]];
+   76|      1|
+   77|      1|        convex_envelope(&input, &mut output, Orientation::LeftTurn);
+   78|      1|        assert!(output == vec![0, 1]);
+   79|       |
+   80|      1|        convex_envelope(&input, &mut output, Orientation::RightTurn);
+   81|      1|        assert!(output == vec![0, 1]);
+   82|       |
+   83|       |        // Three points that make a left turn should be retained for left target orientation
+   84|       |        // and reduced to the first and last point for right target orientation
+   85|      1|        let input  = vec![vector![0.0, 0.0], vector![1.0, 0.0], vector![1.0, 1.0]];
+   86|      1|
+   87|      1|        convex_envelope(&input, &mut output, Orientation::LeftTurn);
+   88|      1|        assert!(output == vec![0, 1, 2]);
+   89|       |
+   90|      1|        convex_envelope(&input, &mut output, Orientation::RightTurn);
+   91|      1|        assert!(output == vec![0, 2]);
+   92|       |
+   93|       |        // Three points that make a right turn should be retained for right target orientation
+   94|       |        // and reduced to the first and last point for left target orientation
+   95|      1|        let input  = vec![vector![0.0, 0.0], vector![0.0, 1.0], vector![1.0, 1.0]];
+   96|      1|
+   97|      1|        convex_envelope(&input, &mut output, Orientation::RightTurn);
+   98|      1|        assert!(output == vec![0, 1, 2]);
+   99|       |
+  100|      1|        convex_envelope(&input, &mut output, Orientation::LeftTurn);
+  101|      1|        assert!(output == vec![0, 2]);
+  102|       |
+  103|       |        // Three collinear points are reduced to the first and last for any target orientation
+  104|      1|        let input  = vec![vector![0.0, 0.0], vector![0.5, 0.5], vector![1.0, 1.0]];
+  105|      1|
+  106|      1|        convex_envelope(&input, &mut output, Orientation::LeftTurn);
+  107|      1|        assert!(output == vec![0, 2]);
+  108|       |
+  109|      1|        convex_envelope(&input, &mut output, Orientation::RightTurn);
+  110|      1|        assert!(output == vec![0, 2]);
+  111|       |
+  112|       |        // Curves with left- and right turns are reduced to a subset according to the target orientation
+  113|      1|        let input = vec![vector![0.0, 0.0], vector![0.5, -0.1], vector![1.0, 0.0], vector![1.5, 0.5], vector![2.0, 1.0], vector![2.5, 1.1], vector![3.0, 1.0]];
+  114|      1|
+  115|      1|        convex_envelope(&input, &mut output, Orientation::LeftTurn);
+  116|      1|        assert!(output == vec![0, 1, 2, 6]);
+  117|       |
+  118|      1|        convex_envelope(&input, &mut output, Orientation::RightTurn);
+  119|      1|        assert!(output == vec![0, 4, 5, 6]);
+  120|      1|    }
+  121|       |}
+

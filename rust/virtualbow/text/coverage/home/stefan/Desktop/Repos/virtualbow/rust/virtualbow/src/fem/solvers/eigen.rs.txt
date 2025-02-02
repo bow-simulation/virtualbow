@@ -1,0 +1,112 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/fem/solvers/eigen.rs:
+    1|       |use std::fmt::{Display, Formatter};
+    2|       |use nalgebra::{Complex, ComplexField, DMatrix, DVector, stack};
+    3|       |use itertools::Itertools;
+    4|       |use crate::fem::system::system::System;
+    5|       |
+    6|       |#[derive(PartialEq, Debug)]
+    7|       |pub enum EigenSolverError {
+    8|       |    SingularMassMatrix,
+    9|       |    MatrixInversionFailed,
+   10|       |    NonFiniteEigenvalues,
+   11|       |}
+   12|       |
+   13|       |impl Display for EigenSolverError {
+   14|      0|    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+   15|      0|        match self {
+   16|      0|            EigenSolverError::SingularMassMatrix    => write!(f, "The system has a singular mass matrix.")?,
+   17|      0|            EigenSolverError::MatrixInversionFailed => write!(f, "Inversion of the system matrix failed.")?,
+   18|      0|            EigenSolverError::NonFiniteEigenvalues  => write!(f, "At least one of the computed Eigenvalues is non-finite.")?,
+   19|       |        }
+   20|       |
+   21|      0|        Ok(())
+   22|      0|    }
+   23|       |}
+   24|       |
+   25|       |impl std::error::Error for EigenSolverError {
+   26|       |
+   27|       |}
+   28|       |
+   29|       |#[derive(Copy, Clone, Debug)]
+   30|       |pub struct Mode {
+   31|       |    pub omega: f64,     // Undamped natural frequency
+   32|       |    pub zeta: f64       // Modal damping ratio
+   33|       |}
+   34|       |
+   35|       |impl Mode {
+   36|       |    // Constructs mode information from a complex conjugated eigenvalue
+   37|  2.43k|    pub fn new(lambda: Complex<f64>) -> Self {
+   38|  2.43k|        let omega = lambda.abs();
+   39|  2.43k|        let zeta = -lambda.re/omega;
+   40|  2.43k|
+   41|  2.43k|        Self {
+   42|  2.43k|            omega,
+   43|  2.43k|            zeta
+   44|  2.43k|        }
+   45|  2.43k|    }
+   46|       |}
+   47|       |
+   48|       |// Finds the natural frequencies of the system
+   49|     34|pub fn natural_frequencies(system: &mut System) -> Result<Vec<Mode>, EigenSolverError> {
+   50|     34|    let mut eval = system.create_eigen_eval();
+   51|     34|    system.eval_eigen(&mut eval);
+   52|     34|
+   53|     34|    return natural_frequencies_from_matrices(
+   54|     34|        eval.get_mass_matrix(),
+   55|     34|        eval.get_tangent_damping_matrix(),
+   56|     34|        eval.get_tangent_stiffness_matrix()
+   57|     34|    );
+   58|     34|}
+   59|       |
+   60|     35|pub fn natural_frequencies_from_matrices(M: &DVector<f64>, D: &DMatrix<f64>, K: &DMatrix<f64>) -> Result<Vec<Mode>, EigenSolverError> {
+   61|     35|    /*
+   62|     35|    // Matrices A and B for transforming the quadratic eigenvalue problem into a linear one
+   63|     35|    let A = stack![
+   64|     35|        0, K;
+   65|     35|        K, D;
+   66|     35|    ];
+   67|     35|    
+   68|     35|    let B = stack![
+   69|     35|        K,  0;
+   70|     35|        0, -DMatrix::from_diagonal(M)
+   71|     35|    ];
+   72|     35|    */
+   73|     35|
+   74|     35|    // Check if the mass matrix is positive definite
+   75|     35|    if M.amax() < 0.0 {
+  ------------------
+  |  Branch (75:8): [True: 0, False: 35]
+  ------------------
+   76|      0|        return Err(EigenSolverError::SingularMassMatrix);
+   77|     35|    }
+   78|     35|    
+   79|     35|    // Compute the complex eigenvalues for A*v = lambda*B*v by inverting B and solving B^(-1)*A*v = lambda*v.
+   80|     35|    // Using a generalized eigenvalue solver would have been better, but nalgebra currently doesn't have one.
+   81|  2.68k|    let M_inv = DMatrix::from_diagonal(&M.map(|m| 1.0/m));
+   82|     35|    let A = stack![
+   83|     35|        0, DMatrix::identity(M.len(), M.len());
+   84|     35|        -&M_inv*K, -&M_inv*D;
+   85|     35|    ];
+   86|     35|
+   87|     35|    let lambda = A.complex_eigenvalues();
+   88|     35|    if !lambda.iter().cloned().all(Complex::<f64>::is_finite) {
+  ------------------
+  |  Branch (88:8): [True: 0, False: 35]
+  ------------------
+   89|      0|        return Err(EigenSolverError::NonFiniteEigenvalues);
+   90|     35|    }
+   91|     35|
+   92|     35|    // Compute modal properties for each pair of complex conjugated eigenvalues
+   93|     35|    let mut modes: Vec<Mode> = lambda.iter()
+   94|     35|        .tuple_windows()
+   95|  5.33k|        .filter(|(l1, l2)| l1.conj().eq(l2))    // TODO: Should there be a small tolerance here? Seems to work fine though...
+   96|  2.43k|        .map(|(l1, _)| Mode::new(*l1))
+   97|     35|        .collect();
+   98|     35|
+   99|     35|    // Sort results by undamped natural frequency and return
+  100|  17.1k|    modes.sort_by(|a, b| a.omega.partial_cmp(&b.omega).expect("Failed to compare frequencies"));
+  101|     35|    return Ok(modes);
+  102|     35|}
+

@@ -1,0 +1,50 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/bow/profile/input.rs:
+    1|       |use std::fmt::Debug;
+    2|       |use serde::{Deserialize, Serialize};
+    3|       |use crate::bow::errors::ModelError;
+    4|       |use crate::bow::profile::profile::CurvePoint;
+    5|       |use crate::bow::profile::segments::clothoid::{ArcInput, ClothoidSegment, LineInput, SpiralInput};
+    6|       |use crate::bow::profile::segments::spline::{SplineInput, SplineSegment};
+    7|       |use crate::fem::elements::beam::geometry::PlanarCurve;
+    8|       |
+    9|       |// Common data type for all possible segment inputs,
+   10|       |// including methods for validation and creating the corresponding segment curves
+   11|       |
+   12|    108|#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+   13|       |#[serde(tag = "type")]
+   14|       |pub enum SegmentInput {
+   15|       |    #[serde(rename = "line")]
+   16|       |    Line(LineInput),
+   17|       |
+   18|       |    #[serde(rename = "arc")]
+   19|       |    Arc(ArcInput),
+   20|       |
+   21|       |    #[serde(rename = "spiral")]
+   22|       |    Spiral(SpiralInput),
+   23|       |
+   24|       |    #[serde(rename = "spline")]
+   25|       |    Spline(SplineInput),
+   26|       |}
+   27|       |
+   28|       |impl SegmentInput {
+   29|    184|    pub fn create(&self, start: &CurvePoint) -> Box<dyn PlanarCurve> {
+   30|    184|        match self {
+   31|     31|            SegmentInput::Line(input)   => Box::new(ClothoidSegment::line(start, input)),
+   32|     77|            SegmentInput::Arc(input)    => Box::new(ClothoidSegment::arc(start, input)),
+   33|     75|            SegmentInput::Spiral(input) => Box::new(ClothoidSegment::spiral(start, input)),
+   34|      1|            SegmentInput::Spline(input) => Box::new(SplineSegment::new(start, input)),
+   35|       |        }
+   36|    184|    }
+   37|       |
+   38|    361|    pub fn validate(&self, index: usize) -> Result<(), ModelError> {
+   39|    361|        match self {
+   40|     60|            SegmentInput::Line(input)   => input.validate(index),
+   41|    151|            SegmentInput::Arc(input)    => input.validate(index),
+   42|    149|            SegmentInput::Spiral(input) => input.validate(index),
+   43|      1|            SegmentInput::Spline(input) => input.validate(index),
+   44|       |        }
+   45|    361|    }
+   46|       |}
+

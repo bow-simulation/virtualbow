@@ -1,0 +1,49 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/utils/validation.rs:
+    1|       |// Checks if the given string represents a valid hex color code.
+    2|       |// Similar to HTML but does not accept shortened codes, length must always be 7.
+    3|    257|pub fn is_hex_color(string: &str) -> bool {
+    4|    257|    if !string.starts_with('#') {
+  ------------------
+  |  Branch (4:8): [True: 2, False: 255]
+  ------------------
+    5|      2|        return false;
+    6|    255|    }
+    7|    255|
+    8|    255|    if string.len() != 7 {
+  ------------------
+  |  Branch (8:8): [True: 1, False: 254]
+  ------------------
+    9|      1|        return false;
+   10|    254|    }
+   11|       |
+   12|  1.52k|    for char in string.chars().skip(1) {
+                              ^254
+   13|  1.52k|        if !char.is_ascii_hexdigit() {
+  ------------------
+  |  Branch (13:12): [True: 1, False: 1.52k]
+  ------------------
+   14|      1|            return false;
+   15|  1.52k|        }
+   16|       |    }
+   17|       |
+   18|    253|    true
+   19|    257|}
+   20|       |
+   21|       |#[cfg(test)]
+   22|       |mod tests {
+   23|       |    use assert2::assert;
+   24|       |    use super::*;
+   25|       |
+   26|       |    #[test]
+   27|      1|    fn test_is_hex_color() {
+   28|      1|        assert!(is_hex_color("") == false);
+   29|      1|        assert!(is_hex_color("abc") == false);
+   30|      1|        assert!(is_hex_color("#00ab1f") == true);
+   31|      1|        assert!(is_hex_color("#00AB1F") == true);
+   32|      1|        assert!(is_hex_color("#00ab1z") == false);
+   33|      1|        assert!(is_hex_color("#00ab1ff") == false);
+   34|      1|    }
+   35|       |}
+

@@ -1,0 +1,431 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/fem/elements/beam/linear.rs:
+    1|       |use itertools::Itertools;
+    2|       |use nalgebra::{matrix, SMatrix, stack, SVector, vector};
+    3|       |use crate::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
+    4|       |use crate::numerics::integration::fixed_simpson;
+    5|       |
+    6|       |// This module contains the necessary methods for determining the linear properties of a beam section
+    7|       |
+    8|       |pub struct LinearBeamSegment {
+    9|       |    pub s0: f64,                        // Start length
+   10|       |    pub s1: f64,                        // End length
+   11|       |    pub se: Vec<f64>,                   // Eval lengths
+   12|       |
+   13|       |    pub p0: SVector<f64, 3>,            // Starting point (x, y, φ)
+   14|       |    pub p1: SVector<f64, 3>,            // Ending point (x, y, φ)
+   15|       |    pub pe: Vec<SVector<f64, 3>>,       // Eval points (x, y, φ)
+   16|       |
+   17|       |    pub Ep: Vec<SMatrix<f64, 3, 6>>,    // Evaluation of displacements (x, y, phi)
+   18|       |    pub Ef: Vec<SMatrix<f64, 3, 6>>,    // Evaluation of section forces (N, M, Q)
+   19|       |    pub Ci: Vec<SMatrix<f64, 3, 3>>,
+   20|       |
+   21|       |    pub K: SMatrix<f64, 6, 6>,              // Stiffness matrix
+   22|       |    pub M: SVector<f64, 6>,                 // Lumped mass matrix
+   23|       |    pub m: f64                              // Total segment mass
+   24|       |}
+   25|       |
+   26|       |impl LinearBeamSegment {
+   27|  1.52k|    pub fn new<C, S>(curve: &C, section: &S, s0: f64, s1: f64, se: &[f64]) -> Self
+   28|  1.52k|        where C: PlanarCurve,
+   29|  1.52k|              S: CrossSection
+   30|  1.52k|    {
+   31|  1.52k|        assert!(s1 > s0, "Starting length must be larger than ending length");
+                                       ^0
+   32|       |        //assert!(s_eval.iter().all(|&s| s >= s0 && s <= s1), "Evaluation points must lie within start and endpoint");  // TODO: Check with tolerance?
+   33|       |
+   34|       |        // Fixed number of integration intervals
+   35|  1.52k|        let n_integration = 1000;
+   36|  1.52k|
+   37|  1.52k|        // Segment starting point, endpoint and evaluation points
+   38|  1.52k|        let p0 = curve.point(s0);
+   39|  1.52k|        let p1 = curve.point(s1);
+   40|  4.89k|        let pe = se.iter().map(|&s| { curve.point(s) }).collect_vec();
+   41|  1.52k|
+   42|  6.43M|        let H = |s, sn| -> SMatrix<f64, 3, 3> {
+   43|  6.43M|            let r = curve.position(s);
+   44|  6.43M|            let re = curve.position(sn);
+   45|  6.43M|            let φ = curve.angle(s);
+   46|  6.43M|
+   47|  6.43M|            matrix![
+   48|  6.43M|                f64::cos(φ), f64::sin(φ), 0.0;
+   49|  6.43M|                r[1] - re[1], re[0] - r[0], 1.0;
+   50|  6.43M|                -f64::sin(φ), f64::cos(φ), 0.0;
+   51|  6.43M|            ]
+   52|  6.43M|        };
+   53|       |
+   54|  19.2k|        let B = |si, sj| -> SMatrix<f64, 3, 3> {
+                          ^1.52k
+   55|  19.2k|            let ri = curve.position(si);
+   56|  19.2k|            let rj = curve.position(sj);
+   57|  19.2k|            matrix![
+   58|  19.2k|                -1.0, 0.0, 0.0;
+   59|  19.2k|                0.0, -1.0, 0.0;
+   60|  19.2k|                rj[1] - ri[1], ri[0] - rj[0], -1.0;
+   61|  19.2k|            ]
+   62|  19.2k|        };
+   63|       |
+   64|  6.42M|        let dIds = |s| -> SMatrix<f64, 3, 3> {
+                          ^1.52k
+   65|  6.42M|            let H0 = H(s, s0);
+   66|  6.42M|            let C_inv = section.C(s).try_inverse().expect("Failed to invert section stiffness matrix");
+   67|  6.42M|            return H0.transpose()*C_inv*H0;
+   68|  6.42M|        };
+   69|       |
+   70|       |        // Evaluate integral between each point of interest (segment bounds + eval points)
+   71|       |        // - Segment start to first eval point, if present
+   72|       |        // - Between each pair of eval points, if present
+   73|       |        // - Last eval point to segment end, if present
+   74|       |
+   75|       |        // TODO: Nicer way to do this?
+   76|  1.52k|        let mut s_integ = Vec::with_capacity(2 + se.len());
+   77|  1.52k|        s_integ.push(s0);
+   78|  1.52k|        s_integ.extend_from_slice(se);
+   79|  1.52k|        s_integ.push(s1);
+   80|  1.52k|
+   81|  1.52k|        let mut I = vec![SMatrix::<f64, 3, 3>::zeros()];
+   82|  6.42k|        s_integ.iter().tuple_windows().for_each(|(&sa, &sb)| {
+   83|  6.42k|            let last = I.last().unwrap();
+   84|  6.42k|            I.push(last + fixed_simpson(dIds, sa, sb, n_integration));
+   85|  6.42k|        });
+   86|  1.52k|
+   87|  1.52k|        // Compute inverse stiffness matrices at nodes and eval points
+   88|  1.52k|
+   89|  4.89k|        let K0n_inv = se.iter().enumerate().map(|(i, &sn)| { -B(s0, sn).transpose()*(I.last().unwrap() - I[i+1]) }).collect_vec();
+   90|  1.52k|        let K00_inv = I.last().unwrap();
+   91|  1.52k|
+   92|  4.89k|        let K1n_inv = se.iter().enumerate().map(|(i, &sn)| { B(s0, sn).transpose()*I[i+1]*B(s0, s1) }).collect_vec();
+   93|  1.52k|        let K11_inv = B(s0, s1).transpose()*I.last().unwrap()*B(s0, s1);
+   94|  1.52k|
+   95|  1.52k|        // Complete stiffness matrix
+   96|  1.52k|
+   97|  1.52k|        let K00 = K00_inv.try_inverse().expect("Failed to invert partial stiffness matrix");
+   98|  1.52k|        let K11 = K11_inv.try_inverse().expect("Failed to invert partial stiffness matrix");
+   99|  1.52k|        let K10 = B(s1, s0)*K00;
+  100|  1.52k|        let K01 = K10.transpose();
+  101|  1.52k|
+  102|  1.52k|        let K = stack![
+  103|  1.52k|            K00, K01;
+  104|  1.52k|            K10, K11
+  105|  1.52k|        ];
+  106|  1.52k|
+  107|  1.52k|        // Evaluation matrices
+  108|  1.52k|
+  109|  4.89k|        let Ep = se.iter().enumerate().map(|(i, _)| {
+  110|  4.89k|            stack![K0n_inv[i]*K00, K1n_inv[i]*K11]
+  111|  4.89k|        }).collect();
+  112|  1.52k|
+  113|  4.89k|        let Ef = se.iter().map(|&s| {
+  114|  4.89k|            let H1 = H(s, s1);  // TODO: Use already computed values for H here?
+  115|  4.89k|            stack![H1*K10, H1*K11]
+  116|  4.89k|        }).collect();
+  117|  1.52k|
+  118|  4.89k|        let Ci = se.iter().map(|&s| {
+  119|  4.89k|            section.C(s).try_inverse().expect("Failed to invert section stiffness matrix")
+  120|  4.89k|        }).collect();
+  121|  1.52k|
+  122|  1.52k|        // Lumped mass matrix
+  123|  1.52k|
+  124|  1.52k|        let sm = 0.5*(s0 + s1);  // Segment midpoint
+  125|  1.53M|        let m0 = fixed_simpson(|s|{ vector![ section.ρA(s) ] }, s0, sm, n_integration)[0];    // Mass of the first segment half
+  126|  1.53M|        let m1 = fixed_simpson(|s|{ vector![ section.ρA(s) ] }, sm, s1, n_integration)[0];    // Mass of the second segment half
+  127|  1.52k|        let J0 = 0.5*(s1 - s0)*section.rhoI(s0);    // Lumped rotary inertia of the first node
+  128|  1.52k|        let J1 = 0.5*(s1 - s0)*section.rhoI(s1);    // Lumped rotary inertia of the second node
+  129|  1.52k|
+  130|  1.52k|        let M = vector![
+  131|  1.52k|            m0,
+  132|  1.52k|            m0,
+  133|  1.52k|            J0,
+  134|  1.52k|            m1,
+  135|  1.52k|            m1,
+  136|  1.52k|            J1,
+  137|  1.52k|        ];
+  138|  1.52k|
+  139|  1.52k|        // Total segment mass
+  140|  1.52k|        let m = m0 + m1;
+  141|  1.52k|
+  142|  1.52k|        /*
+  143|  1.52k|        // Alternative: integrating both mass and rotary inertia at the nodes only
+  144|  1.52k|        // TODO: Test against natural frequencies and decide
+  145|  1.52k|        let M = 0.5*(s1 - s0)*vector![
+  146|  1.52k|            section.ρA(s0),
+  147|  1.52k|            section.ρA(s0),
+  148|  1.52k|            section.rhoI(s0),
+  149|  1.52k|            section.ρA(s1),
+  150|  1.52k|            section.ρA(s1),
+  151|  1.52k|            section.rhoI(s1)
+  152|  1.52k|        ];
+  153|  1.52k|        */
+  154|  1.52k|
+  155|  1.52k|        Self {
+  156|  1.52k|            s0,
+  157|  1.52k|            s1,
+  158|  1.52k|            se: se.to_vec(),
+  159|  1.52k|            p0,
+  160|  1.52k|            p1,
+  161|  1.52k|            pe,
+  162|  1.52k|            Ep,
+  163|  1.52k|            Ef,
+  164|  1.52k|            Ci,
+  165|  1.52k|            K,
+  166|  1.52k|            M,
+  167|  1.52k|            m
+  168|  1.52k|        }
+  169|  1.52k|    }
+  170|       |}
+  171|       |
+  172|       |#[cfg(test)]
+  173|       |mod tests {
+  174|       |    use std::ops::AddAssign;
+  175|       |    use iter_num_tools::lin_space;
+  176|       |    use nalgebra::{DMatrix, matrix, SMatrix, stack, vector};
+  177|       |    use crate::bow::sections::section::{LayerAlignment, LayeredCrossSection};
+  178|       |    use crate::bow::input::{Layer, Material, Width};
+  179|       |    use crate::bow::profile::profile::CurvePoint;
+  180|       |    use crate::bow::profile::segments::clothoid::{ArcInput, ClothoidSegment, LineInput};
+  181|       |    use crate::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
+  182|       |    use crate::fem::elements::beam::linear::LinearBeamSegment;
+  183|       |
+  184|       |    #[test]
+  185|      1|    fn test_linear_stiffness_matrix_straight() {
+  186|      1|        // Computes the stiffness matrix of a straight beam segment with constant cross section
+  187|      1|        // and an arbitrary starting point and -angle and compares it to the exact solution
+  188|      1|        // as well as the fem approximation.
+  189|      1|
+  190|      1|        let length = 0.8;
+  191|      1|        let alpha = 0.1;
+  192|      1|        let start = CurvePoint::new(0.0, alpha, vector![1.5, 2.0]);
+  193|      1|        let curve = ClothoidSegment::line(&start, &LineInput{ length });
+  194|      1|
+  195|      1|        let material = Material::new("material", "#000000", 7850.0, 210e9, 80e9);
+  196|      1|        let width = Width::new(vec![(0.0, 0.01), (1.0, 0.01)]);
+  197|      1|        let layer = Layer::new("layer", "material", vec![(0.0, 0.01), (1.0, 0.01)]);
+  198|      1|        let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], &LayerAlignment::SectionCenter).expect("Failed to construct cross section");
+  199|      1|
+  200|      1|        let n_elements = 100;
+  201|      1|        let segment_fem = LinearBeamSegmentFEM::new(&curve, &section, 0.0, curve.length(), n_elements);
+  202|      1|        let segment_num = LinearBeamSegment::new(&curve, &section, 0.0, curve.length(), &segment_fem.s_eval);
+  203|      1|
+  204|      1|        let C_sec = section.C(0.0);
+  205|      1|        let K_ref = LinearBeamSegmentFEM::element_stiffness_matrix(C_sec[(0, 0)], C_sec[(1, 1)], C_sec[(2, 2)], curve.length(), alpha);
+  206|      1|
+  207|      1|        // Check stiffness matrices
+  208|      1|        assert_relative_eq!(segment_num.K, K_ref, max_relative=1e-9);
+  209|      1|        assert_relative_eq!(segment_fem.K, K_ref, max_relative=1e-6);
+  210|       |
+  211|       |        // Check displacement evaluation matrices
+  212|    101|        for i in 0..=n_elements {
+                                   ^1
+  213|    101|            assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.Ep[i], epsilon=1e-6);
+  214|       |        }
+  215|      1|    }
+  216|       |
+  217|       |    #[test]
+  218|      1|    fn test_linear_stiffness_matrix_curved() {
+  219|      1|        // Computes the stiffness matrix of a curved beam segment with constant cross section
+  220|      1|        // and an arbitrary starting point and -angle and compares it to the fem approximation.
+  221|      1|
+  222|      1|        let start = CurvePoint::new(0.0, 0.1, vector![1.5, 2.0]);
+  223|      1|        let curve = ClothoidSegment::arc(&start, &ArcInput{ length: 0.8, radius: 0.4 });
+  224|      1|
+  225|      1|        let material = Material::new("material", "#000000", 7850.0, 210e9, 80e9);
+  226|      1|        let width = Width::new(vec![(0.0, 0.01), (1.0, 0.01)]);
+  227|      1|        let layer = Layer::new("layer", "material", vec![(0.0, 0.01), (1.0, 0.01)]);
+  228|      1|        let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], &LayerAlignment::SectionCenter).expect("Failed to construct cross section");
+  229|      1|
+  230|      1|        let n_elements = 100;
+  231|      1|        let segment_fem = LinearBeamSegmentFEM::new(&curve, &section, 0.0, curve.length(), n_elements);
+  232|      1|        let segment_num = LinearBeamSegment::new(&curve, &section, 0.0, curve.length(), &segment_fem.s_eval);
+  233|      1|
+  234|      1|        // Check stiffness matrices
+  235|      1|        assert_relative_eq!(segment_fem.K, segment_num.K, max_relative=1e-3);    // TODO: Precision?
+  236|       |
+  237|       |        // Check displacement evaluation matrices
+  238|    101|        for i in 0..=n_elements {
+                                   ^1
+  239|    101|            assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.Ep[i], epsilon=1e-3);    // TODO: Precision?
+  240|       |        }
+  241|      1|    }
+  242|       |
+  243|       |    #[test]
+  244|      1|    fn test_linear_stiffness_matrix_curved_nonuniform() {
+  245|      1|        // Computes the stiffness matrix of a curved beam segment with varying cross section
+  246|      1|        // and an arbitrary starting point and -angle and compares it to the fem approximation.
+  247|      1|
+  248|      1|        let start = CurvePoint::new(0.0, 0.1, vector![1.5, 2.0]);
+  249|      1|        let curve = ClothoidSegment::arc(&start, &ArcInput{ length: 0.8, radius: 0.4 });
+  250|      1|
+  251|      1|        let material = Material::new("material", "#000000", 7850.0, 210e9, 80e9);
+  252|      1|        let width = Width::new(vec![(0.0, 0.01), (1.0, 0.005)]);
+  253|      1|        let layer = Layer::new("layer", "material", vec![(0.0, 0.01), (1.0, 0.005)]);
+  254|      1|        let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], &LayerAlignment::SectionCenter).expect("Failed to construct cross section");
+  255|      1|
+  256|      1|        let n_elements = 100;
+  257|      1|        let segment_fem = LinearBeamSegmentFEM::new(&curve, &section, 0.0, curve.length(), n_elements);
+  258|      1|        let segment_num = LinearBeamSegment::new(&curve, &section, 0.0, curve.length(), &segment_fem.s_eval);
+  259|      1|
+  260|      1|        // Check stiffness matrices
+  261|      1|        assert_relative_eq!(segment_fem.K, segment_num.K, max_relative=1e-3);    // TODO: Precision?
+  262|       |
+  263|       |        // Check displacement evaluation matrices
+  264|    101|        for i in 0..=n_elements {
+                                   ^1
+  265|    101|            assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.Ep[i], epsilon=1e-3);    // TODO: Precision?
+  266|       |        }
+  267|      1|    }
+  268|       |
+  269|       |    // Approximates the stiffness matrix of a curved, non-uniform beam segment by using a number of straight elements
+  270|       |    // and reducing the resulting stiffness matrix to the relevant displacements (first and last node)
+  271|       |
+  272|       |    pub struct LinearBeamSegmentFEM {
+  273|       |        K: SMatrix<f64, 6, 6>,
+  274|       |        s_eval: Vec<f64>,
+  275|       |        u_eval: Vec<SMatrix<f64, 3, 6>>
+  276|       |    }
+  277|       |
+  278|       |    impl LinearBeamSegmentFEM {
+  279|      3|        pub fn new<C, S>(curve: &C, section: &S, s0: f64, s1: f64, n_elements: usize) -> Self
+  280|      3|            where C: PlanarCurve,
+  281|      3|                  S: CrossSection
+  282|      3|        {
+  283|      3|            assert!(n_elements >= 2);
+  284|       |
+  285|      3|            let n_nodes = n_elements + 1;
+  286|      3|            let n_dofs = 3*n_nodes;
+  287|      3|
+  288|      3|            // Create total stiffness matrix for all nodes
+  289|      3|            let mut K_full = DMatrix::zeros(n_dofs, n_dofs);
+  290|      3|
+  291|      3|            let s: Vec<f64> = lin_space(s0..=s1, n_nodes).collect();
+  292|    300|            for i in 0..n_elements {
+                                      ^3
+  293|    300|                let r_prev = curve.position(s[i]);
+  294|    300|                let r_next = curve.position(s[i+1]);
+  295|    300|
+  296|    300|                let dx = r_next[0] - r_prev[0];
+  297|    300|                let dy = r_next[1] - r_prev[1];
+  298|    300|
+  299|    300|                // TODO: Assert that C are diagonal matrices
+  300|    300|                let C_prev = section.C(s[i]);
+  301|    300|                let C_next = section.C(s[i+1]);
+  302|    300|
+  303|    300|                K_full.view_mut((3*i, 3*i), (6, 6)).add_assign(&Self::element_stiffness_matrix(
+  304|    300|                    0.5*(C_prev[(0, 0)] + C_next[(0, 0)]),    // Average longitudinal stiffness
+  305|    300|                    0.5*(C_prev[(1, 1)] + C_next[(1, 1)]),    // Average bending stiffness
+  306|    300|                    0.5*(C_prev[(2, 2)] + C_next[(2, 2)]),    // Average shear stiffness
+  307|    300|                    f64::hypot(dx, dy),                               // Element length
+  308|    300|                    f64::atan2(dy, dx)                                // Element angle
+  309|    300|                ));
+  310|    300|            }
+  311|       |
+  312|       |            /*
+  313|       |            Reducing the total stiffness matrix to forces and displacements of the first and last node.
+  314|       |            K_total is partitioned like this:
+  315|       |
+  316|       |            | F1 |   | K11    K12    K13 |   | U1 |
+  317|       |            | 0  | = | K12^T  K22    K23 | * | U2 |
+  318|       |            | F3 |   | K13^T  K23^T  K33 |   | U3 |
+  319|       |
+  320|       |            F1, U1: Forces and displacements of the first node
+  321|       |            F3, U3: Forces and displacements of the last node
+  322|       |            U2: Equilibrium displacements of all nodes inbetween.
+  323|       |
+  324|       |            Second block equation:
+  325|       |
+  326|       |            0 = K12^T*U1 + K22*U2 + K23*U3
+  327|       |              => U2 = -K22^(-1)*(K12^T*U1 + K23*U3)
+  328|       |
+  329|       |            First and third equations:
+  330|       |
+  331|       |            F1 = K11*U1 + K12*U2 + K13*U3
+  332|       |               = K11*U1 - K12*K22^(-1)*(K12^T*U1 + K23*U3) + K13*U3
+  333|       |               = (K11 - K12*K22^(-1)*K12^T)*U1 + (K13 - K12*K22^(-1)*K23)*U3
+  334|       |
+  335|       |            F3 = K13^T*U1 + K23^T*U2 + K33*U3
+  336|       |               = K13^T*U1 - K23^T*K22^(-1)*(K12^T*U1 + K23*U3) + K33*U3
+  337|       |               = (K13^T - K23^T*K22^(-1)*K12^T)*U1 + (K33 - K23^T*K22^(-1)*K23)*U3
+  338|       |
+  339|       |            Giving the reduced stiffness matrix:
+  340|       |
+  341|       |            | F1 |   | K11 - K12*K22^(-1)*K12^T      K13 - K12*K22^(-1)*K23   |   | U1 |
+  342|       |            |    | = |                                                        | * |    |
+  343|       |            | F3 |   | K13^T - K23^T*K22^(-1)*K12^T  K33 - K23^T*K22^(-1)*K23 |   | U3 |
+  344|       |            */
+  345|       |
+  346|      3|            let K11 = K_full.view((0, 0), (3, 3));
+  347|      3|            let K22 = K_full.view((3, 3), (n_dofs-6, n_dofs-6));
+  348|      3|            let K33 = K_full.view((n_dofs - 3, n_dofs - 3), (3, 3));
+  349|      3|            let K12 = K_full.view((0, 3), (3, n_dofs - 6));
+  350|      3|            let K13 = K_full.view((0, n_dofs - 3), (3, 3));
+  351|      3|            let K23 = K_full.view((3, n_dofs - 3), (n_dofs - 6, 3));
+  352|      3|
+  353|      3|            let K22_inv = K22.try_inverse().expect("Failed to invert stiffness matrix");
+  354|      3|
+  355|      3|            // TODO: Find a way to use stack![] here with a fixed size matrix as a result.
+  356|      3|            let mut K_red = SMatrix::<f64, 6, 6>::zeros();
+  357|      3|            K_red.fixed_view_mut::<3, 3>(0, 0).copy_from(&(K11 - K12*&K22_inv*K12.transpose()));
+  358|      3|            K_red.fixed_view_mut::<3, 3>(0, 3).copy_from(&(K13 - K12*&K22_inv*K23));
+  359|      3|            K_red.fixed_view_mut::<3, 3>(3, 0).copy_from(&(K13.transpose()-K23.transpose()*&K22_inv*K12.transpose()));
+  360|      3|            K_red.fixed_view_mut::<3, 3>(3, 3).copy_from(&(K33-K23.transpose()*&K22_inv*K23));
+  361|      3|
+  362|      3|            // Evaluation matrices for displacements of eliminated nodes
+  363|      3|            let mut u_eval = Vec::new();
+  364|      3|
+  365|      3|            // The displacement at s = s0 is equal to that of the left node
+  366|      3|            u_eval.push(matrix![
+  367|      3|                1.0, 0.0, 0.0, 0.0, 0.0, 0.0;
+  368|      3|                0.0, 1.0, 0.0, 0.0, 0.0, 0.0;
+  369|      3|                0.0, 0.0, 1.0, 0.0, 0.0, 0.0;
+  370|      3|            ]);
+  371|      3|
+  372|      3|            // The displacements inbetween are determined by the equation for U2
+  373|      3|            let eval = stack![-&K22_inv*&K12.transpose(), -&K22_inv*K23];
+  374|       |
+  375|    297|            for i in 0..n_nodes-2 {
+                                      ^3
+  376|    297|                u_eval.push(eval.fixed_view::<3, 6>(3*i, 0).into());
+  377|    297|            }
+  378|       |
+  379|       |            // The displacement at s = s1 is equal to that of the right node
+  380|      3|            u_eval.push(matrix![
+  381|      3|                0.0, 0.0, 0.0, 1.0, 0.0, 0.0;
+  382|      3|                0.0, 0.0, 0.0, 0.0, 1.0, 0.0;
+  383|      3|                0.0, 0.0, 0.0, 0.0, 0.0, 1.0;
+  384|      3|            ]);
+  385|      3|
+  386|      3|            Self {
+  387|      3|                K: K_red,
+  388|      3|                s_eval: s,
+  389|      3|                u_eval
+  390|      3|            }
+  391|      3|        }
+  392|       |
+  393|       |        // Returns the analytical stiffness matrix of a straight Euler-Bernoulli beam segment
+  394|       |        // with constant cross section and a rotation angle alpha against the x-axis.
+  395|       |        // TODO: Add source for the matrices K and T below
+  396|    301|        fn element_stiffness_matrix(EA: f64, EI: f64, GA: f64, l: f64, alpha: f64) -> SMatrix<f64, 6, 6> {
+  397|    301|            let Φ = 12.0*EI/(GA*l*l);
+  398|    301|            let K = matrix![
+  399|    301|            EA/l,                          0.0,                        0.0, -EA/l,                          0.0,                        0.0;
+  400|    301|             0.0,    12.0*EI/(l*l*l*(1.0 + Φ)),     6.0*EI/(l*l*(1.0 + Φ)),   0.0,   -12.0*EI/(l*l*l*(1.0 + Φ)),     6.0*EI/(l*l*(1.0 + Φ));
+  401|    301|             0.0,       6.0*EI/(l*l*(1.0 + Φ)),   EI/l*(4.0 + Φ)/(1.0 + Φ),   0.0,      -6.0*EI/(l*l*(1.0 + Φ)),   EI/l*(2.0 - Φ)/(1.0 + Φ);
+  402|    301|           -EA/l,                          0.0,                        0.0,  EA/l,                          0.0,                        0.0;
+  403|    301|             0.0,   -12.0*EI/(l*l*l*(1.0 + Φ)),    -6.0*EI/(l*l*(1.0 + Φ)),   0.0,    12.0*EI/(l*l*l*(1.0 + Φ)),    -6.0*EI/(l*l*(1.0 + Φ));
+  404|    301|             0.0,       6.0*EI/(l*l*(1.0 + Φ)),   EI/l*(2.0 - Φ)/(1.0 + Φ),   0.0,      -6.0*EI/(l*l*(1.0 + Φ)),   EI/l*(4.0 + Φ)/(1.0 + Φ);
+  405|    301|        ];
+  406|    301|
+  407|    301|        let T = matrix![
+  408|    301|            f64::cos(alpha), f64::sin(alpha), 0.0,              0.0,             0.0, 0.0;
+  409|    301|           -f64::sin(alpha), f64::cos(alpha), 0.0,              0.0,             0.0, 0.0;
+  410|    301|                        0.0,             0.0, 1.0,              0.0,             0.0, 0.0;
+  411|    301|                        0.0,             0.0, 0.0,  f64::cos(alpha), f64::sin(alpha), 0.0;
+  412|    301|                        0.0,             0.0, 0.0, -f64::sin(alpha), f64::cos(alpha), 0.0;
+  413|    301|                        0.0,             0.0, 0.0,              0.0,             0.0, 1.0;
+  414|    301|        ];
+  415|    301|
+  416|    301|            T.transpose()*K*T
+  417|    301|        }
+  418|       |    }
+  419|       |}
+

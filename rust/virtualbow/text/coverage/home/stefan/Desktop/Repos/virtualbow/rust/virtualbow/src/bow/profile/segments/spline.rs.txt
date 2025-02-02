@@ -1,0 +1,156 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/bow/profile/segments/spline.rs:
+    1|       |// Curve segment described by two cubic splines in x and y directon
+    2|       |
+    3|       |use iter_num_tools::lin_space;
+    4|       |use nalgebra::{SVector, vector};
+    5|       |use serde::{Deserialize, Serialize};
+    6|       |use crate::bow::errors::ModelError;
+    7|       |use crate::bow::profile::profile::CurvePoint;
+    8|       |use crate::fem::elements::beam::geometry::PlanarCurve;
+    9|       |use crate::numerics::cubic_spline::BoundaryCondition::{FirstDerivative, SecondDerivative};
+   10|       |use crate::numerics::cubic_spline::{CubicSpline, Extrapolation};
+   11|       |
+   12|       |// Curve segment that is defined by a number of 2d control points interpolated by cubic splines.
+   13|       |
+   14|      4|#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+                                            ^0
+   15|       |pub struct SplineInput {
+   16|       |    pub points: Vec<(f64, f64)>
+   17|       |}
+   18|       |
+   19|       |impl SplineInput {
+   20|      1|    pub fn new(points: Vec<(f64, f64)>) -> Self {
+   21|      1|        Self {
+   22|      1|            points
+   23|      1|        }
+   24|      1|    }
+   25|       |
+   26|      1|    pub fn validate(&self, index: usize) -> Result<(), ModelError> {
+   27|      1|        let Self { points } = self;
+   28|      1|
+   29|      1|        if points.len() < 2 {
+  ------------------
+  |  Branch (29:12): [True: 0, False: 1]
+  ------------------
+   30|      0|            return Err(ModelError::SplineSegmentTooFewPoints(index, points.len()));
+   31|      1|        }
+   32|      4|        for point in points {
+                          ^3
+   33|      3|            if !point.0.is_finite() || !point.1.is_finite() {
+  ------------------
+  |  Branch (33:16): [True: 0, False: 3]
+  |  Branch (33:40): [True: 0, False: 3]
+  ------------------
+   34|      0|                return Err(ModelError::SplineSegmentInvalidPoint(index, *point));
+   35|      3|            }
+   36|       |        }
+   37|       |
+   38|      1|        Ok(())
+   39|      1|    }
+   40|       |}
+   41|       |
+   42|       |pub struct SplineSegment {
+   43|       |    spline_t: CubicSpline,    // t(s): arc length -> parameter
+   44|       |    spline_x: CubicSpline,    // x(t): parameter -> x position
+   45|       |    spline_y: CubicSpline,    // y(t): parameter -> y position
+   46|       |}
+   47|       |
+   48|       |impl SplineSegment {
+   49|      2|    pub fn new(start: &CurvePoint, input: &SplineInput) -> SplineSegment {
+   50|      2|        let mut x = Vec::<f64>::with_capacity(input.points.len() + 1);
+   51|      2|        let mut y = Vec::<f64>::with_capacity(input.points.len() + 1);
+   52|      2|
+   53|      2|        // Add point (0, 0) if missing
+   54|      2|        if !input.points.is_empty() && input.points[0] != (0.0, 0.0) {
+  ------------------
+  |  Branch (54:12): [True: 2, False: 0]
+  |  Branch (54:40): [True: 0, False: 2]
+  ------------------
+   55|      0|            x.push(start.r[0]);
+   56|      0|            y.push(start.r[1]);
+   57|      2|        }
+   58|       |
+   59|       |        // Add points from model, relative to starting point
+   60|      9|        for point in &input.points {
+                          ^7
+   61|      7|            x.push(start.r[0] + point.0);
+   62|      7|            y.push(start.r[1] + point.1);
+   63|      7|        }
+   64|       |
+   65|      2|        assert!(x.len() >= 2, "At least two points are required");
+                                            ^0
+   66|       |
+   67|      2|        let N = f64::hypot(x[1] - x[0], y[1] - y[0]);                 // Length of normal vector at start point (magic number motivated by cubic Bezier curve)
+   68|      2|        let t = lin_space(0.0..=1.0, x.len()).collect::<Vec<f64>>();    // Linearly spaced curve parameter
+   69|      2|        let spline_x = CubicSpline::from_components(&t, &x, false, FirstDerivative(N*f64::cos(start.φ)), SecondDerivative(0.0));
+   70|      2|        let spline_y = CubicSpline::from_components(&t, &y, false, FirstDerivative(N*f64::sin(start.φ)), SecondDerivative(0.0));
+   71|      2|
+   72|      2|        // Approximate arc length s over curve parameter t
+   73|      2|
+   74|      2|        let k = 50*(t.len() - 1);    // Magic number, integration points per cubic interval
+   75|      2|        let t = lin_space(0.0..=1.0, k).collect::<Vec<f64>>();
+   76|      2|
+   77|      2|        let mut s = vec![start.s; k];
+   78|      2|        let mut dtds = vec![0.0; k];
+   79|      2|
+   80|    996|        let dsdt = |t| {
+   81|    996|            return f64::hypot(spline_x.deriv1(t, Extrapolation::Cubic), spline_y.deriv1(t, Extrapolation::Cubic));
+   82|    996|        };
+   83|       |
+   84|    248|        for i in 1..k {
+                                  ^2
+   85|    248|            s[i] = s[i-1] + (t[i] - t[i-1])/6.0*(dsdt(t[i-1]) + 4.0*dsdt((t[i] + t[i-1])/2.0) + dsdt(t[i]));    // Simpson method
+   86|    248|            dtds[i] = 1.0/dsdt(t[i]);
+   87|    248|        }
+   88|       |
+   89|       |        //let spline_t = CubicSpline::from_components(&s, &t, true, SecondDerivative(0.0), SecondDerivative(0.0));
+   90|      2|        let spline_t = CubicSpline::from_components(&s, &t, true, FirstDerivative(1.0/dsdt(0.0)), FirstDerivative(1.0/dsdt(1.0)));
+   91|      2|
+   92|      2|        Self {
+   93|      2|            spline_t,
+   94|      2|            spline_x,
+   95|      2|            spline_y,
+   96|      2|        }
+   97|      2|    }
+   98|       |}
+   99|       |
+  100|       |impl PlanarCurve for SplineSegment {
+  101|      1|    fn s_start(&self) -> f64 {
+  102|      1|        self.spline_t.arg_min()
+  103|      1|    }
+  104|       |
+  105|      3|    fn s_end(&self) -> f64 {
+  106|      3|        self.spline_t.arg_max()
+  107|      3|    }
+  108|       |
+  109|    103|    fn position(&self, s: f64) -> SVector<f64, 2> {
+  110|    103|        let t = self.spline_t.value(s, Extrapolation::Cubic);
+  111|    103|        vector![
+  112|    103|            self.spline_x.value(t, Extrapolation::Cubic),
+  113|    103|            self.spline_y.value(t, Extrapolation::Cubic)
+  114|    103|        ]
+  115|    103|    }
+  116|       |
+  117|      2|    fn angle(&self, s: f64) -> f64 {
+  118|      2|        let t = self.spline_t.value(s, Extrapolation::Cubic);
+  119|      2|        f64::atan2(
+  120|      2|            self.spline_y.deriv1(t, Extrapolation::Cubic),
+  121|      2|            self.spline_x.deriv1(t, Extrapolation::Cubic)
+  122|      2|        )
+  123|      2|    }
+  124|       |
+  125|      0|    fn curvature(&self, s: f64) -> f64 {
+  126|      0|        let t = self.spline_t.value(s, Extrapolation::Cubic);
+  127|      0|
+  128|      0|        let dxdt = self.spline_x.deriv1(t, Extrapolation::Cubic);
+  129|      0|        let dydt = self.spline_y.deriv1(t, Extrapolation::Cubic);
+  130|      0|
+  131|      0|        let dxdt2 = self.spline_x.deriv2(t, Extrapolation::Cubic);
+  132|      0|        let dydt2 = self.spline_y.deriv2(t, Extrapolation::Cubic);
+  133|      0|
+  134|      0|        (dxdt*dydt2 - dxdt2*dydt)/f64::hypot(dxdt, dydt).powi(3)
+  135|      0|    }
+  136|       |}
+

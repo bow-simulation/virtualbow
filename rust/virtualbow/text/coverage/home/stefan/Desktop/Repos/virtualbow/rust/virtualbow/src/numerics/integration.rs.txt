@@ -1,0 +1,260 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/numerics/integration.rs:
+    1|       |use nalgebra::SMatrix;
+    2|       |
+    3|       |// Integrates the given function using the adaptive Simpson method (https://en.wikipedia.org/wiki/Adaptive_Simpson%27s_method) with a given numerical tolerance and maximum recursion depth.
+    4|       |// Retrurns either the value of the integral or None if the specified tolerance was not reached.
+    5|       |// Implementation based on the Wikipedia example.
+    6|       |#[allow(dead_code)]
+    7|      2|pub fn adaptive_simpson<F, const R: usize, const C: usize>(mut f: F, a: f64, b: f64, epsilon: f64, max_recursion: u32) -> Option<SMatrix<f64, R, C>>
+    8|      2|    where F: FnMut(f64) -> SMatrix<f64, R, C>
+    9|      2|{
+   10|      2|    let fa = f(a);
+   11|      2|    let fb = f(b);
+   12|      2|
+   13|      2|    let whole = simpson_quadrature(&mut f, a, b, fa, fb);
+   14|      2|    let result = simpson_quadrature_recursive(&mut f, a, b, fa, fb, whole, epsilon, max_recursion)?;
+                                                                                                                ^0
+   15|       |
+   16|      2|    return if a <= b {
+  ------------------
+  |  Branch (16:15): [True: 1, False: 1]
+  ------------------
+   17|      1|        Some(result)
+   18|       |    } else {
+   19|      1|        Some(-result)
+   20|       |    }
+   21|      2|}
+   22|       |
+   23|       |struct Triple<const R: usize, const C: usize> {
+   24|       |    m: f64,
+   25|       |    fm: SMatrix<f64, R, C>,
+   26|       |    result: SMatrix<f64, R, C>,
+   27|       |}
+   28|       |
+   29|      2|fn simpson_quadrature_recursive<F, const R: usize, const C: usize>(f: &mut F, a: f64, b: f64, fa: SMatrix<f64, R, C>, fb: SMatrix<f64, R, C>, whole: Triple<R, C>, epsilon: f64, n: u32) -> Option<SMatrix<f64, R, C>>
+   30|      2|    where F: FnMut(f64) -> SMatrix<f64, R, C>,
+   31|      2|{
+   32|      2|    if n == 0 {
+  ------------------
+  |  Branch (32:8): [True: 0, False: 2]
+  ------------------
+   33|      0|        return None;
+   34|      2|    }
+   35|      2|
+   36|      2|    let left = simpson_quadrature(f, a, whole.m, fa, whole.fm);
+   37|      2|    let right = simpson_quadrature(f, whole.m, b, whole.fm, fb);
+   38|      2|    let delta = left.result + right.result - whole.result;
+   39|      2|
+   40|      2|    if delta.amax() <= 15.0*epsilon {
+  ------------------
+  |  Branch (40:8): [True: 2, False: 0]
+  ------------------
+   41|      2|        return Some(left.result + right.result + delta/15.0);
+   42|       |    }
+   43|       |    else {
+   44|       |        return Some(
+   45|      0|            simpson_quadrature_recursive(f, a, whole.m, fa, whole.fm, left, epsilon/2.0, n-1)?
+   46|      0|                + simpson_quadrature_recursive(f, whole.m, b, whole.fm, fb, right, epsilon/2.0, n-1)?
+   47|       |        );
+   48|       |    }
+   49|      2|}
+   50|       |
+   51|      6|fn simpson_quadrature<F, const R: usize, const C: usize>(f: &mut F, a: f64, b: f64, fa: SMatrix<f64, R, C>, fb: SMatrix<f64, R, C>) -> Triple<R, C>
+   52|      6|    where F: FnMut(f64) -> SMatrix<f64, R, C>,
+   53|      6|{
+   54|      6|    let m = (a + b)/2.0;
+   55|      6|    let fm = f(m);
+   56|      6|    let result = (b - a).abs()/6.0*(fa + 4.0*fm + fb);
+   57|      6|
+   58|      6|    Triple {
+   59|      6|        m,
+   60|      6|        fm,
+   61|      6|        result
+   62|      6|    }
+   63|      6|}
+   64|       |
+   65|       |// Integrates the given function using the simpson rule and a fixed number of sample points
+   66|       |// Implementation based on http://camillecarvalho.org/math-131/lectures/lecture_11.html
+   67|       |// Has no error control but also can't fail as a result.
+   68|   502k|pub fn fixed_simpson<F, const R: usize, const C: usize>(mut f: F, a: f64, b: f64, n: usize) -> SMatrix<f64, R, C>
+   69|   502k|    where F: FnMut(f64) -> SMatrix<f64, R, C>,
+   70|   502k|{
+   71|   502k|    assert!(n % 2 == 0, "Number of integration intervals must be even");
+                                      ^0
+   72|       |
+   73|   502k|    let h = (b - a)/(n as f64);
+   74|   502k|    let mut r = f(a) + f(b);
+   75|       |
+   76|  29.3M|    for i in (1..n).step_by(2) {
+                           ^502k
+   77|  29.3M|        r += 4.0*f(a + (i as f64)*h);
+   78|  29.3M|    }
+   79|       |
+   80|  28.8M|    for i in (2..n-1).step_by(2) {
+                           ^502k
+   81|  28.8M|        r += 2.0*f(a + (i as f64)*h);
+   82|  28.8M|    }
+   83|       |
+   84|   502k|    return r*h/3.0;
+   85|   502k|}
+   86|       |
+   87|       |// Cumulatively integrates a series of data points by using a variant of the Simpson's rule as described in [1] and also used in SciPy [2], [3].
+   88|       |// [1] Cartwright, Kenneth V. Simpson’s Rule Cumulative Integration with MS Excel and Irregularly-spaced Data. Journal of Mathematical Sciences and Mathematics Education. 12 (2): 1-9
+   89|       |// [2] https://docs.scipy.org/doc/scipy-1.15.0/reference/generated/scipy.integrate.cumulative_simpson.html
+   90|       |// [3] https://github.com/scipy/scipy/blob/7372d710ef6e97a3a9f3027efcf6b5b77bb33777/scipy/integrate/_quadrature.py#L612
+   91|     35|pub fn cumulative_simpson(x: &[f64], y: &[f64]) -> Vec<f64> {
+   92|     35|    assert_eq!(x.len(), y.len(), "Inputs must have the same length");
+                                               ^0
+   93|       |
+   94|       |    // Zero input points: Return empty vector
+   95|     35|    if x.is_empty() {
+  ------------------
+  |  Branch (95:8): [True: 1, False: 34]
+  ------------------
+   96|      1|        return vec![];
+   97|     34|    }
+   98|     34|
+   99|     34|    // One input point: Integral up to that point is zero
+  100|     34|    if x.len() == 1 {
+  ------------------
+  |  Branch (100:8): [True: 1, False: 33]
+  ------------------
+  101|      1|        return vec![0.0];
+  102|     33|    }
+  103|     33|
+  104|     33|    // Two input points: Use trapezoidal rule since Simpson's rule needs at least three points
+  105|     33|    if x.len() == 2 {
+  ------------------
+  |  Branch (105:8): [True: 1, False: 32]
+  ------------------
+  106|      1|        return vec![0.0, 0.5*(x[1] - x[0])*(y[1] + y[0])];
+  107|     32|    }
+  108|     32|
+  109|     32|    // Given three points at x1, x2, x3, calculates the partial integral from x1 to point x2 according to Simpson's rule
+  110|     32|    let I12 = |(x1, y1), (x2, y2), (x3, y3)| -> f64 {
+  111|     32|        let x12: f64 = x2 - x1;
+  112|     32|        let x23: f64 = x3 - x2;
+  113|     32|        let x13: f64 = x3 - x1;
+  114|     32|
+  115|     32|        let c1 = 3.0 - x12/x13;
+  116|     32|        let c2 = 3.0 + x12.powi(2)/(x23*x13) + x12/x13;
+  117|     32|        let c3 = -x12.powi(2)/(x23*x13);
+  118|     32|
+  119|     32|        x12/6.0*(c1*y1 + c2*y2 + c3*y3)
+  120|     32|    };
+  121|       |
+  122|       |    // Given three points at x1, x2, x3, calculates the full integral from point x1 to point x3 according to Simpson's rule
+  123|  18.2k|    let I13 = |(x1, y1), (x2, y2), (x3, y3)| {
+                      ^32
+  124|  18.2k|        let x12: f64 = x2 - x1;
+  125|  18.2k|        let x23: f64 = x3 - x2;
+  126|  18.2k|        let x13: f64 = x3 - x1;
+  127|  18.2k|
+  128|  18.2k|        let c1 = 2.0 - x23/x12;
+  129|  18.2k|        let c2 = x13.powi(2)/(x23*x12);
+  130|  18.2k|        let c3 = 2.0 - x12/x23;
+  131|  18.2k|
+  132|  18.2k|        x13/6.0*(c1*y1 + c2*y2 + c3*y3)
+  133|  18.2k|    };
+  134|       |
+  135|       |    // As many output values as there are input points, initialized to zero
+  136|     32|    let mut I = vec![0.0; x.len()];
+  137|     32|
+  138|     32|    // The integral for the first point remains zero
+  139|     32|    // The integral for the second point is the partial integral from x[0] to x[1] of the three points x[0], x[1], x[2]
+  140|     32|    I[1] = I12((x[0], y[0]), (x[1], y[1]), (x[2], y[2]));
+  141|       |
+  142|       |    // The integral for each subsequent point k is equal to the integral two points before (k-2)
+  143|       |    // plus the full Simpson integral from k-2 to k.
+  144|  18.2k|    for k in 2..x.len() {
+                              ^32
+  145|  18.2k|        I[k] = I[k-2] + I13((x[k-2], y[k-2]), (x[k-1], y[k-1]), (x[k], y[k]));
+  146|  18.2k|    }
+  147|       |
+  148|     32|    return I;
+  149|     35|}
+  150|       |
+  151|       |#[cfg(test)]
+  152|       |mod tests {
+  153|       |    use super::*;
+  154|       |    use assert2::assert;
+  155|       |    use nalgebra::vector;
+  156|       |
+  157|       |    #[test]
+  158|      1|    fn test_adaptive_simpson() {
+  159|     10|        let f = |x: f64| { vector![x, x.powi(3)] };
+  160|      1|        let a = 0.0;
+  161|      1|        let b = 1.0;
+  162|      1|
+  163|      1|        let F_num = adaptive_simpson(f, a, b, 1e-8, 10).expect("Integration failed");
+  164|      1|        let F_ref = vector![0.5, 0.25];
+  165|      1|
+  166|      1|        assert_abs_diff_eq!(F_num, F_ref, epsilon=1e-8);
+  167|       |
+  168|      1|        let F_num = adaptive_simpson(f, b, a, 1e-8, 10).expect("Integration failed");
+  169|      1|        let F_ref = vector![-0.5, -0.25];
+  170|      1|
+  171|      1|        assert_abs_diff_eq!(F_num, F_ref, epsilon=1e-8);
+  172|      1|    }
+  173|       |
+  174|       |    #[test]
+  175|      1|    fn test_fixed_simpson() {
+  176|    202|        let f = |x: f64| { vector![x, x.powi(3)] };
+  177|      1|        let a = 0.0;
+  178|      1|        let b = 1.0;
+  179|      1|
+  180|      1|        let F_num = fixed_simpson(f, a, b, 100);
+  181|      1|        let F_ref = vector![0.5, 0.25];
+  182|      1|
+  183|      1|        assert_abs_diff_eq!(F_num, F_ref, epsilon=1e-8);
+  184|       |
+  185|      1|        let F_num = fixed_simpson(f, b, a, 100);
+  186|      1|        let F_ref = vector![-0.5, -0.25];
+  187|      1|
+  188|      1|        assert_abs_diff_eq!(F_num, F_ref, epsilon=1e-8);
+  189|      1|    }
+  190|       |
+  191|       |    #[test]
+  192|      1|    fn test_cumulative_simpson() {
+  193|      1|        // Empty input -> empty output
+  194|      1|        let x = [];
+  195|      1|        let y = [];
+  196|      1|        let I = cumulative_simpson(&x, &y);
+  197|      1|        assert!(I.is_empty());
+  198|       |
+  199|       |        // One point as input -> one zero as output
+  200|      1|        let x = [0.0];
+  201|      1|        let y = [1.0];
+  202|      1|        let I = cumulative_simpson(&x, &y);
+  203|      1|        assert!(I == vec![0.0]);
+  204|       |
+  205|       |        // Two points as input -> result is zero for first point and trapezoidal area for second
+  206|      1|        let x = [0.1, 0.9];
+  207|      1|        let y = [0.2, 0.8];
+  208|      1|        let I = cumulative_simpson(&x, &y);
+  209|      1|        assert!(I == vec![0.0, 0.4]);
+  210|       |
+  211|       |        // Example x^2 with reference results from paper
+  212|      1|        let x_ref = [0.0, 0.1, 0.19, 0.33, 0.4, 0.55, 0.69, 0.74, 0.9];
+  213|      1|        let y_ref = [0.0, 0.01, 0.0361, 0.1089, 0.16, 0.3025, 0.4761, 0.5476, 0.81];
+  214|      1|        let I_ref = [0.0, 0.000333, 0.002286, 0.011979, 0.021333, 0.055458, 0.109503, 0.135075, 0.243000];
+  215|      1|        let I_num = cumulative_simpson(&x_ref, &y_ref);
+  216|      9|        for i in 0..x_ref.len() {
+                                  ^1
+  217|      9|            assert_abs_diff_eq!(I_num[i], I_ref[i], epsilon=1e-6);
+  218|       |        }
+  219|       |
+  220|       |        // Example sin(x) with reference results from paper
+  221|      1|        let x_ref = [0.0, 0.1, 0.19, 0.33, 0.4, 0.55, 0.69, 0.74, 0.9];
+  222|      1|        let y_ref = [0.0, 0.099833, 0.188859, 0.324043, 0.389418, 0.522687, 0.636537, 0.674288, 0.783327];
+  223|      1|        let I_ref = [0.0, 0.00499971, 0.01799672, 0.05395332, 0.07894859, 0.14746047, 0.22876683, 0.26152327, 0.37839294];
+  224|      1|        let I_num = cumulative_simpson(&x_ref, &y_ref);
+  225|      9|        for i in 0..x_ref.len() {
+                                  ^1
+  226|      9|            assert_abs_diff_eq!(I_num[i], I_ref[i], epsilon=1e-6);
+  227|       |        }
+  228|      1|    }
+  229|       |}
+

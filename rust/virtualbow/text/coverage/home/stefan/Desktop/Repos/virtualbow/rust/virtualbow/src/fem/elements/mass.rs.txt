@@ -1,0 +1,50 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/fem/elements/mass.rs:
+    1|       |use nalgebra::{SVector, vector};
+    2|       |
+    3|       |use crate::fem::system::{element::Element, views::{MatrixView, PositionView, VelocityView, VectorView}};
+    4|       |
+    5|       |pub struct MassElement {
+    6|       |    M: SVector<f64, 3>,    // Mass matrix
+    7|       |    v: SVector<f64, 3>,    // Current velocity
+    8|       |}
+    9|       |
+   10|       |impl MassElement {
+   11|    322|    pub fn new(m: f64) -> Self {
+   12|    322|        let mut element = Self {
+   13|    322|            M: SVector::zeros(),
+   14|    322|            v: SVector::zeros()
+   15|    322|        };
+   16|    322|
+   17|    322|        element.set_mass(m);
+   18|    322|        element
+   19|    322|    }
+   20|       |
+   21|    367|    pub fn set_mass(&mut self, m: f64) {
+   22|    367|        self.M = vector![m, m, 0.0];
+   23|    367|    }
+   24|       |}
+   25|       |
+   26|       |impl Element for MassElement {
+   27|    364|    fn evaluate_mass_matrix(&self, M: &mut VectorView) {
+   28|    364|        M.add_vec(self.M);
+   29|    364|    }
+   30|       |
+   31|   166k|    fn set_state_and_evaluate(&mut self, _u: &PositionView, v: &VelocityView, _q: Option<&mut VectorView>, _K: Option<&mut MatrixView>, _D: Option<&mut MatrixView>) {
+   32|   166k|        self.v = v.get();
+   33|   166k|    }
+   34|       |
+   35|    180|    fn potential_energy(&self) -> f64 {
+   36|    180|        0.0
+   37|    180|    }
+   38|       |
+   39|  34.6k|    fn kinetic_energy(&self) -> f64 {
+   40|  34.6k|        0.5*&self.v.dot(&self.M.component_mul(&self.v))
+   41|  34.6k|    }
+   42|       |
+   43|      0|    fn dissipative_power(&self) -> f64 {
+   44|      0|        0.0
+   45|      0|    }
+   46|       |}
+

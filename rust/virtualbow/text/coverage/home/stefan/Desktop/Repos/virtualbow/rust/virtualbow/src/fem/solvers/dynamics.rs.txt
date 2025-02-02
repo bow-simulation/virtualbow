@@ -1,0 +1,489 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/fem/solvers/dynamics.rs:
+    1|       |use std::fmt::{Debug, Display, Formatter};
+    2|       |use nalgebra::{DMatrix, DVector};
+    3|       |use crate::fem::system::dof::Dof;
+    4|       |use crate::fem::system::system::{System, DynamicEval};
+    5|       |use crate::numerics::newton::{NewtonError, NewtonSettings, solve_newton, solve_newton_constrained};
+    6|       |
+    7|       |#[derive(Copy, Clone)]
+    8|       |pub struct DynamicSolverSettings {
+    9|       |    pub time_stepping: TimeStepping,    // Time step settings
+   10|       |    pub max_time: f64,                  // Maximum time after which the simulation is aborted if no regular stopping condition was met
+   11|       |    pub newton: NewtonSettings,         // Settings for Newton iteration
+   12|       |}
+   13|       |
+   14|       |impl Default for DynamicSolverSettings {
+   15|     19|    fn default() -> Self {
+   16|     19|        Self  {
+   17|     19|            time_stepping: TimeStepping::Fixed(1e-6),
+   18|     19|            max_time: f64::INFINITY,
+   19|     19|            newton: Default::default(),
+   20|     19|        }
+   21|     19|    }
+   22|       |}
+   23|       |
+   24|       |#[derive(Copy, Clone)]
+   25|       |pub enum TimeStepping {
+   26|       |    Fixed(f64),                    // Use a fixed timestep during the simulation
+   27|       |    Adaptive{
+   28|       |        min_timestep: f64,         // Minimum allowed timestep to ensure that the solver finishes in a reasonable amount of time
+   29|       |        max_timestep: f64,         // Maximum allowed timestep to ensure a certain resolution of the solution
+   30|       |        steps_per_period: usize    // Target number of timesteps per current characteristic period
+   31|       |    }
+   32|       |}
+   33|       |
+   34|       |#[derive(Copy, Clone)]
+   35|       |pub enum StopCondition {
+   36|       |    Time(f64),                    // Simulate up to a specific point in time
+   37|       |    Acceleration(Dof, f64, i32)   // Acceleration component to watch, critical value and relevant sign change
+   38|       |}
+   39|       |
+   40|       |#[derive(PartialEq, Debug, Copy, Clone)]
+   41|       |pub enum DynamicSolverError {
+   42|       |    EquilibriumError(NewtonError),    // Error during the equilibrium iterations
+   43|       |    SingularMassMatrix,               // The mass matrix is singular, i.e. cannot be inverted
+   44|       |    MaxTimeReached,                   // Maximum time has been reached without stopping event
+   45|       |    AbortedByCaller                   // Aborted by the callback function's return value
+   46|       |}
+   47|       |
+   48|       |impl Display for DynamicSolverError {
+   49|      0|    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+   50|      0|        match self {
+   51|      0|            DynamicSolverError::EquilibriumError(error) => Display::fmt(&error, f)?,
+   52|      0|            DynamicSolverError::SingularMassMatrix      => write!(f, "The system has a singular mass matrix.")?,
+   53|      0|            DynamicSolverError::MaxTimeReached          => write!(f, "Maximum time has been reached without encountering a stopping condition.")?,
+   54|      0|            DynamicSolverError::AbortedByCaller         => write!(f, "Aborted by the caller.")?,
+   55|       |        }
+   56|       |
+   57|      0|        Ok(())
+   58|      0|    }
+   59|       |}
+   60|       |
+   61|       |impl std::error::Error for DynamicSolverError {
+   62|       |
+   63|       |}
+   64|       |
+   65|       |pub struct DynamicSolver<'a> {
+   66|       |    system: &'a mut System,
+   67|       |    settings: DynamicSolverSettings
+   68|       |}
+   69|       |
+   70|       |impl<'a> DynamicSolver<'a> {
+   71|     34|    pub fn new(system: &'a mut System, settings: DynamicSolverSettings) -> Self {
+   72|     34|        Self {
+   73|     34|            system,
+   74|     34|            settings
+   75|     34|        }
+   76|     34|    }
+   77|       |
+   78|     37|    pub fn solve<F>(&mut self, stop: StopCondition, callback: &mut F) -> Result<(), DynamicSolverError>
+   79|     37|        where F: FnMut(&System, &DynamicEval) -> bool
+   80|     37|    {
+   81|     37|        // Constant average acceleration (unconditionally stable for linear systems)
+   82|     37|        let beta  = 0.25;
+   83|     37|        let gamma = 0.50;
+   84|     37|
+   85|     37|        // Dynamic system state
+   86|     37|        let mut eval = self.system.create_dynamic_eval();
+   87|     37|
+   88|     37|        // Check if the mass matrix is positive definite
+   89|     37|        if eval.get_mass_matrix().amax() < 0.0 {
+  ------------------
+  |  Branch (89:12): [True: 0, False: 15]
+  ------------------
+  |  Branch (89:12): [True: 0, False: 15]
+  ------------------
+  |  Branch (89:12): [True: 0, False: 1]
+  ------------------
+  |  Branch (89:12): [True: 0, False: 3]
+  ------------------
+  |  Branch (89:12): [True: 0, False: 1]
+  ------------------
+  |  Branch (89:12): [True: 0, False: 1]
+  ------------------
+  |  Branch (89:12): [True: 0, False: 1]
+  ------------------
+   90|      0|            return Err(DynamicSolverError::SingularMassMatrix);
+   91|     37|        }
+   92|       |
+   93|       |        // The time step is either set to a fixed value or, in the case of adaptive stepping, initially to the minimum threshold.
+   94|     37|        let mut dt = match self.settings.time_stepping {
+   95|      6|            TimeStepping::Fixed(dt) => dt,
+   96|     31|            TimeStepping::Adaptive{ min_timestep, .. } => min_timestep
+   97|       |        };
+   98|       |
+   99|       |        // Time at the start and end of a timestep
+  100|     37|        let mut t_prev = self.system.get_time();
+  101|     37|        let mut t_next = t_prev + dt;
+  102|       |
+  103|       |        // If the stopping condition is an end time, verify that it is larger than the current system time
+  104|       |        // This would be a programming error and is therefore handled by an assert.
+  105|     37|        if let StopCondition::Time(t_end) = stop {
+                                                 ^19
+  ------------------
+  |  Branch (105:16): [True: 0, False: 15]
+  ------------------
+  |  Branch (105:16): [True: 15, False: 0]
+  ------------------
+  |  Branch (105:16): [True: 1, False: 0]
+  ------------------
+  |  Branch (105:16): [True: 1, False: 2]
+  ------------------
+  |  Branch (105:16): [True: 0, False: 1]
+  ------------------
+  |  Branch (105:16): [True: 1, False: 0]
+  ------------------
+  |  Branch (105:16): [True: 1, False: 0]
+  ------------------
+  106|     19|            assert!(t_prev <= t_end, "Stopping time must not be smaller than the current system time");
+                                                   ^0
+  107|     18|        }
+  108|       |
+  109|       |        // Evaluate system and invoke callback before the first timestep in order to provide information at t = t0.
+  110|       |        // After this we only invoke the callback at the end of the timesteps.
+  111|     37|        self.system.eval_dynamics(&mut eval);
+  112|     37|        if !callback(self.system, &eval) {
+  ------------------
+  |  Branch (112:12): [True: 0, False: 15]
+  ------------------
+  |  Branch (112:12): [True: 0, False: 15]
+  ------------------
+  |  Branch (112:12): [True: 0, False: 1]
+  ------------------
+  |  Branch (112:12): [True: 0, False: 3]
+  ------------------
+  |  Branch (112:12): [True: 0, False: 1]
+  ------------------
+  |  Branch (112:12): [True: 0, False: 1]
+  ------------------
+  |  Branch (112:12): [True: 0, False: 1]
+  ------------------
+  113|      0|            return Ok(());
+  114|     37|        }
+  115|       |
+  116|       |        loop {
+  117|       |            // Handle time-based termination here if the stopping condition is a time
+  118|  40.6k|            if let StopCondition::Time(t_stop) = stop {
+                                                     ^37.2k
+  ------------------
+  |  Branch (118:20): [True: 0, False: 2.96k]
+  ------------------
+  |  Branch (118:20): [True: 6.18k, False: 0]
+  ------------------
+  |  Branch (118:20): [True: 19.8k, False: 0]
+  ------------------
+  |  Branch (118:20): [True: 230, False: 73]
+  ------------------
+  |  Branch (118:20): [True: 0, False: 395]
+  ------------------
+  |  Branch (118:20): [True: 1.00k, False: 0]
+  ------------------
+  |  Branch (118:20): [True: 10.0k, False: 0]
+  ------------------
+  119|       |                // If the end of the next time interval exceeds the stopping time,
+  120|       |                // truncate it to the stopping time and adjust the timestep accordingly
+  121|  37.2k|                if t_next > t_stop {
+  ------------------
+  |  Branch (121:20): [True: 0, False: 0]
+  ------------------
+  |  Branch (121:20): [True: 30, False: 6.15k]
+  ------------------
+  |  Branch (121:20): [True: 2, False: 19.8k]
+  ------------------
+  |  Branch (121:20): [True: 2, False: 228]
+  ------------------
+  |  Branch (121:20): [True: 0, False: 0]
+  ------------------
+  |  Branch (121:20): [True: 2, False: 999]
+  ------------------
+  |  Branch (121:20): [True: 2, False: 10.0k]
+  ------------------
+  122|     38|                    t_next = t_stop;
+  123|     38|                    dt = t_next - t_prev;
+  124|  37.2k|                }
+  125|       |                // If the start of the next time interval is equal to the stopping time (might have been truncated in the last step),
+  126|       |                // end the simulation here and don't perform that next time step.
+  127|  37.2k|                if t_prev == t_stop {
+  ------------------
+  |  Branch (127:20): [True: 0, False: 0]
+  ------------------
+  |  Branch (127:20): [True: 15, False: 6.16k]
+  ------------------
+  |  Branch (127:20): [True: 1, False: 19.8k]
+  ------------------
+  |  Branch (127:20): [True: 1, False: 229]
+  ------------------
+  |  Branch (127:20): [True: 0, False: 0]
+  ------------------
+  |  Branch (127:20): [True: 1, False: 1.00k]
+  ------------------
+  |  Branch (127:20): [True: 1, False: 10.0k]
+  ------------------
+  128|     19|                    return Ok(());
+  129|  37.2k|                }
+  130|       |            }
+  131|       |            else {
+  132|       |                // If the stopping condition is not time-based, check here for timeout
+  133|  3.42k|                if t_prev > self.settings.max_time {
+  ------------------
+  |  Branch (133:20): [True: 0, False: 2.96k]
+  ------------------
+  |  Branch (133:20): [True: 0, False: 0]
+  ------------------
+  |  Branch (133:20): [True: 0, False: 0]
+  ------------------
+  |  Branch (133:20): [True: 0, False: 73]
+  ------------------
+  |  Branch (133:20): [True: 1, False: 394]
+  ------------------
+  |  Branch (133:20): [True: 0, False: 0]
+  ------------------
+  |  Branch (133:20): [True: 0, False: 0]
+  ------------------
+  134|      1|                    return Err(DynamicSolverError::MaxTimeReached);
+  135|  3.42k|                }
+  136|       |            }
+  137|       |
+  138|       |            // Current displacements, velocities and accelerations
+  139|  40.6k|            let u_prev = self.system.get_displacements().clone();
+  140|  40.6k|            let v_prev = self.system.get_velocities().clone();
+  141|  40.6k|            let a_prev = eval.get_accelerations().clone();
+  142|  40.6k|
+  143|  40.6k|            let mut u_next = DVector::<f64>::zeros(u_prev.len());
+  144|  40.6k|            let mut v_next = DVector::<f64>::zeros(u_prev.len());
+  145|  40.6k|
+  146|  40.6k|            // Residuum function
+  147|  40.6k|            // Input: Accelerations at next time point
+  148|  40.6k|            // Output: Residuum and its jacobian at next time point
+  149|  81.7k|            let mut residuum = |a_next: &DVector<f64>, r_next: &mut DVector<f64>, drda: &mut DMatrix<f64>| {
+  150|  81.7k|                v_next.copy_from(&(&v_prev + dt*(1.0 - gamma)*&a_prev + dt*gamma*a_next));
+  151|  81.7k|                u_next.copy_from(&(&u_prev + dt*&v_prev + dt*dt*((0.5 - beta)*&a_prev + beta*a_next)));
+  152|  81.7k|
+  153|  81.7k|                self.system.set_time(t_next);
+  154|  81.7k|                self.system.set_displacements(&u_next);
+  155|  81.7k|                self.system.set_velocities(&v_next);
+  156|  81.7k|                self.system.eval_dynamics(&mut eval);
+  157|  81.7k|
+  158|  81.7k|                r_next.copy_from(&(eval.get_mass_matrix().component_mul(a_next) + eval.get_internal_forces() - eval.get_external_forces()));
+  159|  81.7k|                drda.copy_from(&(DMatrix::<f64>::from_diagonal(eval.get_mass_matrix()) + dt*gamma*eval.get_damping_matrix() + dt*dt*beta*eval.get_stiffness_matrix()));
+  160|  81.7k|            };
+  161|       |
+  162|  40.6k|            solve_newton(&mut residuum, a_prev.clone(), self.settings.newton)
+  163|  40.6k|                .map_err(DynamicSolverError::EquilibriumError)?;
+                                                                            ^0
+  164|       |
+  165|       |            // If the termination is based on acceleration, check here for sign changes
+  166|  40.6k|            if let StopCondition::Acceleration(dof, value, sign) = stop {
+                                                             ^3.42k
+  ------------------
+  |  Branch (166:20): [True: 2.96k, False: 0]
+  ------------------
+  |  Branch (166:20): [True: 0, False: 6.16k]
+  ------------------
+  |  Branch (166:20): [True: 0, False: 19.8k]
+  ------------------
+  |  Branch (166:20): [True: 73, False: 229]
+  ------------------
+  |  Branch (166:20): [True: 394, False: 0]
+  ------------------
+  |  Branch (166:20): [True: 0, False: 1.00k]
+  ------------------
+  |  Branch (166:20): [True: 0, False: 10.0k]
+  ------------------
+  167|  3.42k|                let index = match dof {
+  168|  3.42k|                    Dof::Free(i) => i,
+  169|      0|                    Dof::Fixed(_) => panic!("Can't watch acceleration of a fixed dof for sign changes")
+  170|       |                };
+  171|       |
+  172|  3.42k|                let positive = (a_prev[index] < value) && (eval.get_accelerations()[index] > value);    // Positive sign change occurred
+                                                                        ^416
+  ------------------
+  |  Branch (172:32): [True: 0, False: 2.96k]
+  ------------------
+  |  Branch (172:32): [True: 0, False: 0]
+  ------------------
+  |  Branch (172:32): [True: 0, False: 0]
+  ------------------
+  |  Branch (172:32): [True: 22, False: 51]
+  ------------------
+  |  Branch (172:32): [True: 394, False: 0]
+  ------------------
+  |  Branch (172:32): [True: 0, False: 0]
+  ------------------
+  |  Branch (172:32): [True: 0, False: 0]
+  ------------------
+  173|  3.42k|                let negative = (a_prev[index] > value) && (eval.get_accelerations()[index] < value);    // Negative sign change occurred
+                                                                        ^3.01k
+  ------------------
+  |  Branch (173:32): [True: 2.96k, False: 0]
+  ------------------
+  |  Branch (173:32): [True: 0, False: 0]
+  ------------------
+  |  Branch (173:32): [True: 0, False: 0]
+  ------------------
+  |  Branch (173:32): [True: 51, False: 22]
+  ------------------
+  |  Branch (173:32): [True: 0, False: 394]
+  ------------------
+  |  Branch (173:32): [True: 0, False: 0]
+  ------------------
+  |  Branch (173:32): [True: 0, False: 0]
+  ------------------
+  174|       |
+  175|       |                // If a sign change occurred that matches the specified option, the end of the simulation has been reached and exceeded.
+  176|       |                // To get an accurate end time, the equilibrium iteration is repeated with the timestep as a free parameter
+  177|       |                // and the additional constraint that the acceleration must reach the given value at the end of the interval.
+  178|  3.42k|                if (sign >= 0 && positive) || (sign <= 0 && negative) {
+                                               ^416          ^3.42k       ^3.01k
+  ------------------
+  |  Branch (178:21): [True: 0, False: 2.96k]
+  |  Branch (178:34): [True: 0, False: 0]
+  |  Branch (178:48): [True: 2.96k, False: 0]
+  |  Branch (178:61): [True: 15, False: 2.94k]
+  ------------------
+  |  Branch (178:21): [True: 0, False: 0]
+  |  Branch (178:34): [True: 0, False: 0]
+  |  Branch (178:48): [True: 0, False: 0]
+  |  Branch (178:61): [True: 0, False: 0]
+  ------------------
+  |  Branch (178:21): [True: 0, False: 0]
+  |  Branch (178:34): [True: 0, False: 0]
+  |  Branch (178:48): [True: 0, False: 0]
+  |  Branch (178:61): [True: 0, False: 0]
+  ------------------
+  |  Branch (178:21): [True: 22, False: 51]
+  |  Branch (178:34): [True: 1, False: 21]
+  |  Branch (178:48): [True: 51, False: 21]
+  |  Branch (178:61): [True: 1, False: 50]
+  ------------------
+  |  Branch (178:21): [True: 394, False: 0]
+  |  Branch (178:34): [True: 0, False: 394]
+  |  Branch (178:48): [True: 0, False: 394]
+  |  Branch (178:61): [True: 0, False: 0]
+  ------------------
+  |  Branch (178:21): [True: 0, False: 0]
+  |  Branch (178:34): [True: 0, False: 0]
+  |  Branch (178:48): [True: 0, False: 0]
+  |  Branch (178:61): [True: 0, False: 0]
+  ------------------
+  |  Branch (178:21): [True: 0, False: 0]
+  |  Branch (178:34): [True: 0, False: 0]
+  |  Branch (178:48): [True: 0, False: 0]
+  |  Branch (178:61): [True: 0, False: 0]
+  ------------------
+  179|       |                    // Residuum function as above, but with dt as an additional scalar parameter
+  180|     63|                    let mut residuum = |a_next: &DVector<f64>, dt: f64, r_next: &mut DVector<f64>, drda: &mut DMatrix<f64>, drddt: &mut DVector<f64>| {
+                                      ^17
+  181|     63|                        v_next.copy_from(&(&v_prev + dt*(1.0 - gamma)*&a_prev + dt*gamma*a_next));
+  182|     63|                        u_next.copy_from(&(&u_prev + dt*&v_prev + dt*dt*((0.5 - beta)*&a_prev + beta*a_next)));
+  183|     63|
+  184|     63|                        self.system.set_time(t_prev + dt);
+  185|     63|                        self.system.set_displacements(&u_next);
+  186|     63|                        self.system.set_velocities(&v_next);
+  187|     63|                        self.system.eval_dynamics(&mut eval);
+  188|     63|
+  189|     63|                        r_next.copy_from(&(eval.get_mass_matrix().component_mul(a_next) + eval.get_internal_forces() - eval.get_external_forces()));
+  190|     63|                        drda.copy_from(&(DMatrix::<f64>::from_diagonal(eval.get_mass_matrix()) + dt*gamma*eval.get_damping_matrix() + dt*dt*beta*eval.get_stiffness_matrix()));
+  191|     63|                        drddt.copy_from(&(eval.get_stiffness_matrix()*(&v_prev + 2.0*dt*((0.5 - beta)*&a_prev + beta*a_next)) + eval.get_damping_matrix()*((1.0 - gamma)*&a_prev + gamma*a_next)));
+  192|     63|                    };
+  193|       |
+  194|       |                    // Constraint for the acceleration
+  195|     63|                    let mut constraint = |a_next: &DVector<f64>, _dt: f64, c: &mut f64, dcda: &mut DVector<f64>, dcddt: &mut f64| {
+                                      ^17
+  196|     63|                        *c = a_next[index] - value;
+  197|     63|                        *dcddt = 0.0;
+  198|     63|
+  199|     63|                        dcda.fill(0.0);
+  200|     63|                        dcda[index] = 1.0;
+  201|     63|                    };
+  202|       |
+  203|       |                    // Solve the constrained problem
+  204|     17|                    solve_newton_constrained(&mut residuum, &mut constraint, a_prev.clone(), dt, self.settings.newton)
+  205|     17|                        .map_err(DynamicSolverError::EquilibriumError)?;
+                                                                                    ^0
+  206|       |
+  207|       |                    // Invoke callback with final system state, then end the simulation
+  208|     17|                    if !callback(self.system, &eval) {
+  ------------------
+  |  Branch (208:24): [True: 0, False: 15]
+  ------------------
+  |  Branch (208:24): [True: 0, False: 0]
+  ------------------
+  |  Branch (208:24): [True: 0, False: 0]
+  ------------------
+  |  Branch (208:24): [True: 0, False: 2]
+  ------------------
+  |  Branch (208:24): [True: 0, False: 0]
+  ------------------
+  |  Branch (208:24): [True: 0, False: 0]
+  ------------------
+  |  Branch (208:24): [True: 0, False: 0]
+  ------------------
+  209|      0|                        return Err(DynamicSolverError::AbortedByCaller);
+  210|     17|                    }
+  211|     17|
+  212|     17|                    return Ok(());
+  213|  3.41k|                }
+  214|  37.2k|            }
+  215|       |
+  216|       |            // Invoke callback with final system state
+  217|  40.6k|            if !callback(self.system, &eval) {
+  ------------------
+  |  Branch (217:16): [True: 0, False: 2.94k]
+  ------------------
+  |  Branch (217:16): [True: 0, False: 6.16k]
+  ------------------
+  |  Branch (217:16): [True: 0, False: 19.8k]
+  ------------------
+  |  Branch (217:16): [True: 0, False: 300]
+  ------------------
+  |  Branch (217:16): [True: 0, False: 394]
+  ------------------
+  |  Branch (217:16): [True: 0, False: 1.00k]
+  ------------------
+  |  Branch (217:16): [True: 0, False: 10.0k]
+  ------------------
+  218|      0|                return Err(DynamicSolverError::AbortedByCaller);
+  219|  40.6k|            }
+  220|       |
+  221|       |            // Determine the next timestep in case of adaptive time stepping
+  222|  40.6k|            if let TimeStepping::Adaptive { min_timestep, max_timestep, steps_per_period, .. } = self.settings.time_stepping {
+                                                          ^28.9k
+  ------------------
+  |  Branch (222:20): [True: 2.94k, False: 0]
+  ------------------
+  |  Branch (222:20): [True: 6.16k, False: 0]
+  ------------------
+  |  Branch (222:20): [True: 19.8k, False: 0]
+  ------------------
+  |  Branch (222:20): [True: 0, False: 300]
+  ------------------
+  |  Branch (222:20): [True: 0, False: 394]
+  ------------------
+  |  Branch (222:20): [True: 0, False: 1.00k]
+  ------------------
+  |  Branch (222:20): [True: 0, False: 10.0k]
+  ------------------
+  223|  28.9k|                // Displacement increment during the last time step
+  224|  28.9k|                let delta_u = &u_next - &u_prev;
+  225|  28.9k|
+  226|  28.9k|                // Current characteristic frequency
+  227|  28.9k|                let num: f64 = delta_u.dot(&(eval.get_stiffness_matrix()*&delta_u));
+  228|  28.9k|                let den: f64 = delta_u.dot(&(eval.get_mass_matrix().component_mul(&delta_u)));
+  229|  28.9k|                let omega = f64::sqrt(f64::abs(num/den));
+  230|  28.9k|
+  231|  28.9k|                let dt_suggested = std::f64::consts::TAU/(omega*(steps_per_period as f64));    // Timestep suggested by the number of steps per characteristic period
+  232|  28.9k|                let dt_suggested = f64::min(dt_suggested/dt, 2.0)*dt;                          // Limit relative increase with respect to the previous timestep
+  233|  28.9k|                dt = num::clamp(dt_suggested, min_timestep, max_timestep);                     // Limit absolute value to minimum and maximum settings
+  234|  28.9k|            }
+                          ^11.6k
+  235|       |
+  236|       |            // Shift times to the upcoming time interval
+  237|  40.6k|            t_prev = t_next;
+  238|  40.6k|            t_next += dt;
+  239|       |        }
+  240|     37|    }
+  241|       |}
+

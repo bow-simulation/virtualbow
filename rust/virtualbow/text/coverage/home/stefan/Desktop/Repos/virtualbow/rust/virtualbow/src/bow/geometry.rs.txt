@@ -1,0 +1,190 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/bow/geometry.rs:
+    1|       |use iter_num_tools::lin_space;
+    2|       |use itertools::Itertools;
+    3|       |use nalgebra::{DMatrix, DVector, SVector, vector};
+    4|       |use crate::bow::errors::ModelError;
+    5|       |use crate::bow::input::BowInput;
+    6|       |use crate::bow::profile::profile::{CurvePoint, ProfileCurve};
+    7|       |use crate::bow::sections::section::LayeredCrossSection;
+    8|       |use crate::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
+    9|       |use crate::fem::elements::beam::linear::LinearBeamSegment;
+   10|       |
+   11|       |pub struct LimbGeometry {
+   12|       |    pub profile: ProfileCurve,           // Limb profile curve
+   13|       |    pub section: LayeredCrossSection,    // Limb cross sections
+   14|       |}
+   15|       |
+   16|       |impl LimbGeometry {
+   17|     56|    pub fn new(input: &BowInput) -> Result<Self, ModelError> {
+   18|     56|        // Profile curve with starting point according to dimension settings
+   19|     56|        let start = CurvePoint::new(0.0, input.dimensions.handle_angle, vector![0.5*input.dimensions.handle_length, input.dimensions.handle_setback]);
+   20|     56|        let profile = ProfileCurve::new(start, &input.profile.segments)?;
+                                                                                     ^0
+   21|       |
+   22|       |        // Section properties according to layers, materials and alignment to the profile curve
+   23|       |        // Layers in the mode definition are from back to belly, but here we define the layers from belly to back (direction of the y axis), so the model layers are reversed
+   24|     56|        let layers = input.layers.iter().cloned().rev().collect();
+   25|     56|        let section = LayeredCrossSection::new(profile.length(), &input.width, &layers, &input.materials, &input.profile.alignment)?;
+                                                                                                                                                 ^0
+   26|       |
+   27|       |        // Check for self-intersecting geometry, which is the case when the thickness of the limb is higher than the radius of curvature
+   28|       |        // Since we can't check this analytically, we check for a fixed number of points along the length of the limb
+   29|  54.0k|        for s in lin_space(profile.s_start()..=profile.s_end(), 1000) {  // TODO: Magic number
+                                         ^56
+   30|  54.0k|            let kappa = profile.curvature(s);
+   31|  54.0k|            let (bounds, _) = section.layer_bounds(s);
+   32|  54.0k|
+   33|  54.0k|            let y_belly = bounds[0];                // At least one layer, ensured by the section
+   34|  54.0k|            let y_back = bounds[bounds.len()-1];    // At least one layer, ensured by the section
+   35|  54.0k|
+   36|  54.0k|            // Intersection at the back side happens when the curvature is positive, i.e. curved in the back direction and the y coordinate of the back is larger or equal to the radius of curvature
+   37|  54.0k|            // Intersection at the belly side happens when the curvature is negative, i.e. curved in the belly direction and the y coordinate of the belly is larger or equal to the radius of curvature
+   38|  54.0k|            if kappa > 0.0 && y_back >= 1.0/kappa {
+                                            ^25.1k
+  ------------------
+  |  Branch (38:16): [True: 25.1k, False: 28.8k]
+  |  Branch (38:31): [True: 1, False: 25.1k]
+  ------------------
+   39|      1|                return Err(ModelError::GeometrySelfIntersectionBack(s));
+   40|       |            }
+   41|  54.0k|            else if kappa < 0.0 && y_belly <= 1.0/kappa {
+                                                 ^3.68k
+  ------------------
+  |  Branch (41:21): [True: 3.68k, False: 50.3k]
+  |  Branch (41:36): [True: 1, False: 3.68k]
+  ------------------
+   42|      1|                return Err(ModelError::GeometrySelfIntersectionBelly(s));
+   43|  54.0k|            }
+   44|       |        }
+   45|       |
+   46|     54|        Ok(Self {
+   47|     54|            profile,
+   48|     54|            section
+   49|     54|        })
+   50|     56|    }
+   51|       |
+   52|       |    // Divides the given curve into a number of equally spaced elements.
+   53|       |    // Returns a list of elements as well as the arc lengths, positions and angles of the nodes.
+   54|     53|    pub fn discretize(&self, n_eval_points: usize, n_elements: usize) -> DiscreteLimbGeometry {
+   55|     53|        // Arc lengths along the profile where the element nodes are placed and their positions
+   56|     53|        let s_nodes = lin_space(self.profile.s_start()..=self.profile.s_end(), n_elements + 1).collect_vec();
+   57|  1.55k|        let u_nodes = s_nodes.iter().map(|&s| self.profile.point(s)).collect_vec();
+   58|  1.55k|        let y_nodes = s_nodes.iter().map(|&s| self.section.layer_bounds(s).0).collect_vec();
+   59|     53|
+   60|     53|        // Equidistant evaluation points along the length of the limb
+   61|     53|        let s_eval = lin_space(self.profile.s_start()..=self.profile.s_end(), n_eval_points).collect_vec();
+   62|  4.58k|        let y_eval = s_eval.iter().map(|&s| self.section.layer_bounds(s).0).collect_vec();
+   63|     53|
+   64|  1.50k|        let segments = s_nodes.iter().tuple_windows().enumerate().map(|(i, (&s0, &s1))| {
+   65|  1.50k|            // TODO: Better solution for numerical issues?
+   66|  1.50k|            let tolerance = 1e-9;
+   67|       |
+   68|       |            // TODO: More efficient implementation than filtering each time
+   69|  1.50k|            let s_eval = if i == 0 {
+  ------------------
+  |  Branch (69:29): [True: 53, False: 1.44k]
+  ------------------
+   70|  4.58k|                s_eval.iter().copied().filter(|&s| s >= s0 - tolerance && s <= s1 ).collect_vec()    // Include left boundary with tolerance
+                              ^53                                                              ^53
+  ------------------
+  |  Branch (70:52): [True: 4.58k, False: 0]
+  ------------------
+   71|       |            }
+   72|  1.44k|            else if i == n_elements - 1 {
+  ------------------
+  |  Branch (72:21): [True: 53, False: 1.39k]
+  ------------------
+   73|  4.58k|                s_eval.iter().copied().filter(|&s| s > s0 && s <= s1 + tolerance ).collect_vec()    // Include right boundary with tolerance
+                              ^53                                          ^188               ^53
+  ------------------
+  |  Branch (73:52): [True: 188, False: 4.40k]
+  ------------------
+   74|       |            }
+   75|       |            else {
+   76|   123k|                s_eval.iter().copied().filter(|&s| s > s0 && s <= s1 ).collect_vec()    // Exclude left boundary
+                              ^1.39k                                       ^63.6k ^1.39k
+  ------------------
+  |  Branch (76:52): [True: 63.6k, False: 59.4k]
+  ------------------
+   77|       |            };
+   78|       |
+   79|  1.50k|            LinearBeamSegment::new(&self.profile, &self.section, s0, s1, &s_eval)
+   80|  1.50k|        }).collect();
+   81|     53|
+   82|  4.58k|        let strain_eval = s_eval.iter().map(|&s| self.section.strain_eval(s)).collect();
+   83|  4.58k|        let stress_eval = s_eval.iter().map(|&s| self.section.stress_eval(s)).collect();
+   84|     53|
+   85|  4.58k|        let position = s_eval.iter().map(|&s| self.profile.point(s)).collect();
+   86|  4.58k|        let width = s_eval.iter().map(|&s| self.section.width(s)).collect();
+   87|  4.58k|        let height = s_eval.iter().map(|&s| self.section.height(s)).collect();
+   88|     53|
+   89|     53|        DiscreteLimbGeometry {
+   90|     53|            segments,
+   91|     53|            s_nodes,
+   92|     53|            u_nodes,
+   93|     53|            y_nodes,
+   94|     53|            s_eval,
+   95|     53|            y_eval,
+   96|     53|            strain_eval,
+   97|     53|            stress_eval,
+   98|     53|            position,
+   99|     53|            width,
+  100|     53|            height
+  101|     53|        }
+  102|     53|    }
+  103|       |}
+  104|       |
+  105|       |// TODO: Return values s_nodes, u_node might not be needed if the evaluation works properly
+  106|       |pub struct DiscreteLimbGeometry {
+  107|       |    pub segments: Vec<LinearBeamSegment>,    // Linear beam segment properties
+  108|       |    pub s_nodes: Vec<f64>,                   // Arc lengths of the element nodes
+  109|       |    pub u_nodes: Vec<SVector<f64, 3>>,       // Positions (x, y, φ) of the element nodes
+  110|       |    pub y_nodes: Vec<DVector<f64>>,          // Layer bounds at nodes (y in cross section coordinates)
+  111|       |
+  112|       |    pub s_eval: Vec<f64>,                    // Arc lengths at which the limb quantities are evaluated (positions, forces, ...)
+  113|       |    pub y_eval: Vec<DVector<f64>>,           // Layer bounds at eval points (y in cross section coordinates)
+  114|       |    pub strain_eval: Vec<DMatrix<f64>>,      // Strain evaluation matrices for each evaluation point
+  115|       |    pub stress_eval: Vec<DMatrix<f64>>,      // Stress evaluation matrices for each evaluation point
+  116|       |
+  117|       |    // TODO: Unify with rest
+  118|       |    pub position: Vec<SVector<f64, 3>>,
+  119|       |    pub width: Vec<f64>,
+  120|       |    pub height: Vec<f64>
+  121|       |}
+  122|       |
+  123|       |#[cfg(test)]
+  124|       |mod tests {
+  125|       |    use std::fmt::{Debug, Formatter};
+  126|       |    use crate::bow::input::{Layer, Profile};
+  127|       |    use crate::bow::profile::input::SegmentInput;
+  128|       |    use crate::bow::profile::segments::clothoid::{ArcInput, LineInput};
+  129|       |    use crate::bow::sections::section::LayerAlignment;
+  130|       |    use super::*;
+  131|       |
+  132|       |    // To make tests below compile
+  133|       |    impl Debug for LimbGeometry {
+  134|       |        fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+  135|       |            write!(f, "LimbGeometry")
+  136|       |        }
+  137|       |    }
+  138|       |
+  139|       |    #[test]
+  140|       |    fn test_error_conditions() {
+  141|       |        let mut input = BowInput{ layers: vec![Layer::new("Unnamed", "Default", vec![(0.0, 0.01), (1.0, 0.01)])], ..Default::default() };
+  142|       |
+  143|       |        // 1. Profile curve with no self-intersection
+  144|       |        input.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Line(LineInput::new(1.0))]);
+  145|       |        let _geometry = LimbGeometry::new(&input).unwrap();
+  146|       |
+  147|       |        // 2. Profile that produces a self-intersection at the back
+  148|       |        input.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Arc(ArcInput::new(1.0, 0.001))]);
+  149|       |        assert_matches!(LimbGeometry::new(&input), Err(ModelError::GeometrySelfIntersectionBack(0.0)));
+  150|       |
+  151|       |        // 3. Profile that produces a self-intersection at the belly
+  152|       |        input.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Arc(ArcInput::new(1.0, -0.001))]);
+  153|       |        assert_matches!(LimbGeometry::new(&input), Err(ModelError::GeometrySelfIntersectionBelly(0.0)));
+  154|       |    }
+  155|       |}
+

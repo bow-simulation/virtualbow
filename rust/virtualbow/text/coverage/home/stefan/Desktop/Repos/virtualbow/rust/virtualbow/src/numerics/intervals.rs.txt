@@ -1,0 +1,177 @@
+Coverage Report
+Created: 2025-02-02 17:20
+/home/stefan/Desktop/Repos/virtualbow/rust/virtualbow/src/numerics/intervals.rs:
+    1|       |use std::cmp::Ordering;
+    2|       |
+    3|       |// Utilities for computations with intervals with inclusive/exclusive bounds.
+    4|       |// I can't believe I've written this just for checking the validity of the layer height inputs.
+    5|       |
+    6|       |#[derive(Copy, Clone, Debug)]
+    7|       |pub enum Bound {
+    8|       |    Inclusive(f64),
+    9|       |    Exclusive(f64)
+   10|       |}
+   11|       |
+   12|       |impl Bound {
+   13|    667|    pub fn value(&self) -> f64 {
+   14|    667|        match self {
+   15|    656|            Bound::Inclusive(x) => *x,
+   16|     11|            Bound::Exclusive(x) => *x,
+   17|       |        }
+   18|    667|    }
+   19|       |}
+   20|       |
+   21|       |impl PartialEq<Self> for Bound {
+   22|       |    // Two bounds are equal if they are of the same type and have the same value
+   23|    180|    fn eq(&self, other: &Self) -> bool {
+   24|    180|        if let (Bound::Inclusive(a), Bound::Inclusive(b)) = (self, other) {
+                                               ^175
+  ------------------
+  |  Branch (24:16): [True: 175, False: 5]
+  ------------------
+   25|    175|            return a == b;
+   26|      5|        }
+   27|      5|        if let (Bound::Exclusive(a), Bound::Exclusive(b)) = (self, other) {
+                                               ^2
+  ------------------
+  |  Branch (27:16): [True: 2, False: 3]
+  ------------------
+   28|      2|            return a == b;
+   29|      3|        }
+   30|      3|        return false;
+   31|    180|    }
+   32|       |}
+   33|       |
+   34|       |impl PartialOrd<Self> for Bound {
+   35|    333|    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+   36|       |        // Compare values first, if not possible return None.
+   37|    333|        let result = self.value().partial_cmp(&other.value())?;
+                                                                           ^0
+   38|       |
+   39|       |        // If the values are not equal, return their ordering
+   40|    333|        if result != Ordering::Equal {
+  ------------------
+  |  Branch (40:12): [True: 173, False: 160]
+  ------------------
+   41|    173|            return Some(result);
+   42|    160|        }
+   43|    160|
+   44|    160|        // If the values are equal, the type of the bound decides
+   45|    160|        match self {
+   46|    159|            Bound::Inclusive(_) => match other {
+   47|    158|                Bound::Inclusive(_) => Some(Ordering::Equal),
+   48|      1|                Bound::Exclusive(_) => Some(Ordering::Less)
+   49|       |            }
+   50|      1|            Bound::Exclusive(_) => match other {
+   51|      1|                Bound::Inclusive(_) => Some(Ordering::Greater),
+   52|      0|                Bound::Exclusive(_) => Some(Ordering::Equal)
+   53|       |            }
+   54|       |        }
+   55|    333|    }
+   56|       |}
+   57|       |
+   58|       |#[derive(PartialEq, Copy, Clone, Debug)]
+   59|       |pub struct Interval {
+   60|       |    pub lower: Bound,
+   61|       |    pub upper: Bound
+   62|       |}
+   63|       |
+   64|       |impl Interval {
+   65|     86|    pub fn inclusive(lower: f64, upper: f64) -> Self {
+   66|     86|        Self {
+   67|     86|            lower: Bound::Inclusive(lower),
+   68|     86|            upper: Bound::Inclusive(upper),
+   69|     86|        }
+   70|     86|    }
+   71|       |
+   72|       |    #[allow(dead_code)]
+   73|      0|    pub fn exclusive(lower: f64, upper: f64) -> Self {
+   74|      0|        Self {
+   75|      0|            lower: Bound::Exclusive(lower),
+   76|      0|            upper: Bound::Exclusive(upper),
+   77|      0|        }
+   78|      0|    }
+   79|       |
+   80|     82|    pub fn intersects(&self, other: &Interval) -> bool {
+   81|     82|        self.lower <= other.upper && other.lower <= self.upper
+                                                   ^81
+  ------------------
+  |  Branch (81:9): [True: 81, False: 1]
+  ------------------
+   82|     82|    }
+   83|       |
+   84|       |    // Given a list of intervals, this function returns the leftmost partial interval of their union set.
+   85|       |    // This is the interval that they "cover" when starting from the left without creating a "hole".
+   86|     87|    pub fn left_union(mut intervals: Vec<Interval>) -> Interval {
+   87|     87|        assert!(!intervals.is_empty());
+   88|       |
+   89|       |        // Sort intervals by their lower bounds and use leftmost interval as the starting value for the result
+   90|     87|        intervals.sort_by(|a, b| a.lower.partial_cmp(&b.lower).expect("Failed to sort intervals"));
+                                               ^83
+   91|     87|        let mut result = intervals[0];
+   92|       |
+   93|       |        // Iterate over remaining intervals
+   94|       |        // If the new interval doesn't intersect the current result, union ends there.
+   95|       |        // Otherwise extend the current result by the upper bound of the new interval.
+   96|     87|        for next in intervals.iter().skip(1) {
+                          ^82
+   97|     82|            if !next.intersects(&result) {
+  ------------------
+  |  Branch (97:16): [True: 1, False: 81]
+  ------------------
+   98|      1|                break;
+   99|       |            }
+  100|     81|            else if next.upper > result.upper {
+  ------------------
+  |  Branch (100:21): [True: 1, False: 80]
+  ------------------
+  101|      1|                result.upper = next.upper;
+  102|     80|            }
+  103|       |        }
+  104|       |
+  105|     87|        result
+  106|     87|    }
+  107|       |}
+  108|       |
+  109|       |#[cfg(test)]
+  110|       |mod tests {
+  111|       |    use super::*;
+  112|       |    use assert2::assert;
+  113|       |
+  114|       |    #[test]
+  115|      1|    fn test_bound_equality() {
+  116|      1|        assert!(Bound::Inclusive(0.0) == Bound::Inclusive(0.0));    // Equal: Same type and same value
+  117|      1|        assert!(Bound::Exclusive(0.0) == Bound::Exclusive(0.0));    // Equal: Same type and same value
+  118|       |
+  119|      1|        assert!(Bound::Inclusive(0.0) != Bound::Inclusive(1.0));    // Not equal: Same type and different value
+  120|      1|        assert!(Bound::Exclusive(0.0) != Bound::Exclusive(1.0));    // Not equal: Same type and different value
+  121|       |
+  122|      1|        assert!(Bound::Inclusive(0.0) != Bound::Exclusive(0.0));    // Not equal: Different type and same value
+  123|      1|        assert!(Bound::Inclusive(0.0) != Bound::Exclusive(1.0));    // Not equal: Different type and different value
+  124|      1|    }
+  125|       |
+  126|       |    #[test]
+  127|      1|    fn test_bound_ordering() {
+  128|      1|        assert!(Bound::Inclusive(0.0) < Bound::Inclusive(1.0));  // Same type, different values
+  129|      1|        assert!(Bound::Inclusive(1.0) > Bound::Inclusive(0.0));  // Same type, different values
+  130|       |
+  131|      1|        assert!(Bound::Exclusive(0.0) < Bound::Exclusive(1.0));  // Same type, different values
+  132|      1|        assert!(Bound::Exclusive(1.0) > Bound::Exclusive(0.0));  // Same type, different values
+  133|       |
+  134|      1|        assert!(Bound::Inclusive(0.0) < Bound::Exclusive(0.0));  // Same value, different types
+  135|      1|        assert!(Bound::Exclusive(0.0) > Bound::Inclusive(0.0));  // Same value, different types
+  136|      1|    }
+  137|       |
+  138|       |    #[test]
+  139|      1|    fn test_interval_union() {
+  140|      1|        let intervals = vec![
+  141|      1|            Interval { lower: Bound::Inclusive(0.5), upper: Bound::Inclusive(1.5) },
+  142|      1|            Interval { lower: Bound::Inclusive(2.0), upper: Bound::Inclusive(3.0) },
+  143|      1|            Interval { lower: Bound::Inclusive(0.0), upper: Bound::Inclusive(1.0) },
+  144|      1|        ];
+  145|      1|
+  146|      1|        let result = Interval::left_union(intervals);
+  147|      1|        assert!(result == Interval { lower: Bound::Inclusive(0.0), upper: Bound::Inclusive(1.5) });
+  148|      1|    }
+  149|       |}
+
