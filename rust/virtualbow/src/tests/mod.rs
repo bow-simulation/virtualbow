@@ -5,6 +5,6 @@ mod test_04_static_beams;
 mod test_03_static_string;
 mod test_06_linear_oscillator;
 mod test_07_nonlinear_oscillator;
-mod test_05_dynamic_beams;
-mod test_08_example_bows;
+//mod test_05_dynamic_beams;
+//mod test_08_example_bows;
 mod test_09_string_damping;

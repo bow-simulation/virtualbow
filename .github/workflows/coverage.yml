@@ -18,8 +18,8 @@ jobs:
           cd rust/virtualbow
           rustup default nightly
           cargo llvm-cov --release --branch  --no-report
-          cargo llvm-cov report --html --output-dir "."
-          cargo llvm-cov report --text --output-dir "."
+          cargo llvm-cov report --release --html --output-dir "."
+          cargo llvm-cov report --release --text --output-dir "."
 
       - name: Upload coverage report artifact
         id: artifact-upload-step
