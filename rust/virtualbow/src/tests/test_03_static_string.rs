@@ -67,7 +67,7 @@ fn string_over_quarter_circle() {
         assert_abs_diff_eq!(l_num, l_ref, epsilon=1e-4*l0);
 
         // Actual node force vs analytical reference
-        let F_num = statics.get_scaled_external_force(free_node.y());
+        let F_num = statics.get_external_force(free_node.y());
         let F_ref = EA/l0*(l_ref - l0)*(1.0/(1.0 + f64::cos(alpha_ref)) - 1.0)*2.0*r*r/(h*h - 2.0*h*r + 2.0*r*r);
 
         plotter.add_point((h, l_num), (h, l_ref), "Node force", "h [m]", "F [m]");

@@ -47,16 +47,17 @@ impl Mode {
 
 // Finds the natural frequencies of the system
 pub fn natural_frequencies(system: &mut System) -> Result<Vec<Mode>, EigenSolverError> {
-    let mut eval = system.create_eigen_eval();
-    system.eval_eigen(&mut eval);
+    let mut M = DVector::zeros(system.n_dofs());
+    let mut D = DMatrix::zeros(system.n_dofs(), system.n_dofs());
+    let mut K = DMatrix::zeros(system.n_dofs(), system.n_dofs());
 
-    return natural_frequencies_from_matrices(
-        eval.get_mass_matrix(),
-        eval.get_tangent_damping_matrix(),
-        eval.get_tangent_stiffness_matrix()
-    );
+    system.compute_mass_matrix(&mut M);
+    system.compute_internal_forces(None, Some(&mut K), Some(&mut D));
+
+    return natural_frequencies_from_matrices(&M, &D, &K);
 }
 
+// TODO: Add a test for this function
 pub fn natural_frequencies_from_matrices(M: &DVector<f64>, D: &DMatrix<f64>, K: &DMatrix<f64>) -> Result<Vec<Mode>, EigenSolverError> {
     /*
     // Matrices A and B for transforming the quadratic eigenvalue problem into a linear one

@@ -226,7 +226,7 @@ impl Element for BeamElement {
         self.ul = vector![dl, dφ0, dφ1];
         self.vl = J*self.v;
 
-        if q.is_some() || K.is_some() {
+        if q.is_some() || K.is_some() || D.is_some() {
             self.fe = self.K*self.ul;      // Local elastic forces
             self.fd = self.D*self.vl;      // Local damping forces
             let ft = self.fe + self.fd;    // Total local forces

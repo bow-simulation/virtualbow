@@ -6,7 +6,7 @@ use crate::fem::solvers::eigen::{Mode, natural_frequencies};
 use crate::fem::solvers::statics::StaticSolver;
 use crate::fem::system::element::Element;
 use crate::fem::system::node::Node;
-use crate::fem::system::system::{DynamicEval, StaticEval, System};
+use crate::fem::system::system::{System, SystemEval};
 use crate::bow::errors::ModelError;
 use crate::bow::geometry::{DiscreteLimbGeometry, LimbGeometry};
 use crate::bow::input::BowInput;
@@ -24,11 +24,6 @@ use crate::utils::minmax::{discrete_maximum_1d, discrete_maximum_nd, discrete_mi
 pub enum SimulationMode {
     Static,
     Dynamic
-}
-
-pub enum SystemEval<'a> {
-    Static(&'a StaticEval),
-    Dynamic(&'a DynamicEval),
 }
 
 pub struct Simulation<'a> {
@@ -268,7 +263,7 @@ impl<'a> Simulation<'a> {
             let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());
 
             solver.equilibrium_path_displacement_controlled(simulation.string_nodes[0].y(), -model.dimensions.draw_length, model.settings.min_draw_resolution, &mut |system, eval, stiffness| {
-                let state = simulation.get_bow_state(system, SystemEval::Static(eval), -2.0*stiffness);  // TODO: Why the sign flip of the stiffness?
+                let state = simulation.get_bow_state(system, eval, -2.0*stiffness);  // TODO: Why the sign flip of the stiffness?
                 let progress = (state.draw_length - model.dimensions.brace_height)/(model.dimensions.draw_length - model.dimensions.brace_height);
                 states.push(state);
 
@@ -344,7 +339,7 @@ impl<'a> Simulation<'a> {
                 let mut solver = DynamicSolver::new(&mut system, settings);
                 solver.solve(stop_condition, &mut |system, eval| {
                     // Evaluate current bow state
-                    let state = simulation.get_bow_state(system, SystemEval::Dynamic(eval), 0.0);
+                    let state = simulation.get_bow_state(system, eval, 0.0);
 
                     // Only update the brace crossing time if it is estimated,
                     // no need to update once it is known
@@ -374,7 +369,7 @@ impl<'a> Simulation<'a> {
                 }).map_err(ModelError::SimulationDynamicSolutionFailed)?;
 
                 // Record arrow state at the time of separation from the string
-                let state = states.iter().last().unwrap();
+                let state = states.iter().next_back().unwrap();
                 simulation.arrow_departure = Some((states.len() - 1, *state.time, *state.arrow_pos, *state.arrow_vel));
 
                 // Simulate the second part of the shot after arrow separation
@@ -391,7 +386,7 @@ impl<'a> Simulation<'a> {
                     // Skip the first time step, which is identical to the last timestep of the previous solution phase
                     if system.get_time() > start_time {
                         // Evaluate current bow state, update progress and add state
-                        let state = simulation.get_bow_state(system, SystemEval::Dynamic(eval), 0.0);
+                        let state = simulation.get_bow_state(system, eval, 0.0);
                         progress = state.time/end_time;
                         states.push(state);
                     }
@@ -485,7 +480,7 @@ impl<'a> Simulation<'a> {
         let mut states = StateVec::new();
 
         solver.equilibrium_path_load_controlled(model.settings.min_draw_resolution, &mut |system, eval| {
-            let state = simulation.get_bow_state(system, SystemEval::Static(eval), 0.0);
+            let state = simulation.get_bow_state(system, eval, 0.0);
             states.push(state);
             return true;
         }).map_err(ModelError::SimulationStaticSolutionFailed)?;
@@ -495,13 +490,10 @@ impl<'a> Simulation<'a> {
 
     // TODO: Let mutation, write functions for intermediate results
     // TODO: Find a better way to get the stiffness of the force draw curve in there
-    fn get_bow_state(&self, system: &System, eval: SystemEval, draw_stiffness: f64) -> State {
+    fn get_bow_state(&self, system: &System, eval: &SystemEval, draw_stiffness: f64) -> State {
         let time = system.get_time();
         let draw_length = -system.get_displacement(self.string_nodes[0].y());
-        let draw_force = match eval {
-            SystemEval::Static(eval) => -2.0*eval.get_scaled_external_force(self.string_nodes[0].y()),
-            SystemEval::Dynamic(eval) => -2.0*eval.get_external_force(self.string_nodes[0].y())
-        };
+        let draw_force = -2.0*eval.get_external_force(self.string_nodes[0].y());
 
         let string_force = system.element_ref::<StringElement>(self.string_element).normal_force_total();
         let strand_force = string_force/(self.input.string.n_strands as f64);
@@ -518,10 +510,7 @@ impl<'a> Simulation<'a> {
         }
         else {
             (
-                match eval {
-                    SystemEval::Static(_) => 0.0,
-                    SystemEval::Dynamic(eval) => eval.get_acceleration(self.string_nodes[0].y())
-                },
+                eval.get_acceleration(self.string_nodes[0].y()),
                 system.get_velocity(self.string_nodes[0].y()),
                 system.get_displacement(self.string_nodes[0].y()),
             )
