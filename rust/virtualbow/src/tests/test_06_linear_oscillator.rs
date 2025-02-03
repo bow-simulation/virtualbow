@@ -9,7 +9,7 @@ use crate::fem::elements::mass::MassElement;
 use crate::fem::elements::string::StringElement;
 use crate::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, DynamicSolverError, StopCondition, TimeStepping};
 use crate::fem::system::node::Node;
-use crate::fem::system::system::{DynamicEval, System};
+use crate::fem::system::system::{SystemEval, System};
 use crate::tests::utils;
 use crate::tests::utils::plotter::Plotter;
 
@@ -54,7 +54,7 @@ fn mass_spring_damper_1() {
     let a_end = Cell::new(0.0);
 
     // Simulation callback that verifies the solution against analytical expressions
-    let mut callback = |system: &System, eval: &DynamicEval| {
+    let mut callback = |system: &System, eval: &SystemEval| {
         // Numerical solution
         let t_sys = system.get_time();
         let x_sys = system.get_displacement(node_b.x()) - l;

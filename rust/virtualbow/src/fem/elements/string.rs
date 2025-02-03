@@ -176,61 +176,57 @@ impl Element for StringElement {
 
             let lij = self.lengths[k];
 
-            if q.is_some() || K.is_some() {
-                let dl_dxi = (xi - xj)/lij;
-                let dl_dyi = (yi - yj)/lij;
-                let dl_dφi = -di*(dl_dxi*f64::cos(φi) + dl_dyi*f64::sin(φi));
+            let dl_dxi = (xi - xj)/lij;
+            let dl_dyi = (yi - yj)/lij;
+            let dl_dφi = -di*(dl_dxi*f64::cos(φi) + dl_dyi*f64::sin(φi));
 
-                let dl_dxj = -dl_dxi;
-                let dl_dyj = -dl_dyi;
-                let dl_dφj = -dj*(dl_dxj*f64::cos(φj) + dl_dyj*f64::sin(φj));
+            let dl_dxj = -dl_dxi;
+            let dl_dyj = -dl_dyi;
+            let dl_dφj = -dj*(dl_dxj*f64::cos(φj) + dl_dyj*f64::sin(φj));
 
-                if q.is_some() || D.is_some() {
-                    self.dldu[3*i+0] += dl_dxi;
-                    self.dldu[3*i+1] += dl_dyi;
-                    self.dldu[3*i+2] += dl_dφi;
-                    self.dldu[3*j+0] += dl_dxj;
-                    self.dldu[3*j+1] += dl_dyj;
-                    self.dldu[3*j+2] += dl_dφj;
-                }
+            self.dldu[3*i+0] += dl_dxi;
+            self.dldu[3*i+1] += dl_dyi;
+            self.dldu[3*i+2] += dl_dφi;
+            self.dldu[3*j+0] += dl_dxj;
+            self.dldu[3*j+1] += dl_dyj;
+            self.dldu[3*j+2] += dl_dφj;
 
-                if K.is_some() {
-                    let dl_dxi_dxi = (yj - yi).powi(2)/lij.powi(3);
-                    let dl_dxi_dyi = -(xj - xi)*(yj - yi)/lij.powi(3);
-                    let dl_dxi_dxj = -dl_dxi_dxi;
-                    let dl_dxi_dyj = -dl_dxi_dyi;
+            if K.is_some() {
+                let dl_dxi_dxi = (yj - yi).powi(2)/lij.powi(3);
+                let dl_dxi_dyi = -(xj - xi)*(yj - yi)/lij.powi(3);
+                let dl_dxi_dxj = -dl_dxi_dxi;
+                let dl_dxi_dyj = -dl_dxi_dyi;
 
-                    let dl_dyi_dyi = (xj - xi).powi(2)/lij.powi(3);
-                    let dl_dyi_dxj = -dl_dxi_dyi;
-                    let dl_dyi_dyj = -dl_dyi_dyi;
+                let dl_dyi_dyi = (xj - xi).powi(2)/lij.powi(3);
+                let dl_dyi_dxj = -dl_dxi_dyi;
+                let dl_dyi_dyj = -dl_dyi_dyi;
 
-                    let dl_dxj_dxj = dl_dxi_dxi;
-                    let dl_dxj_dyj = dl_dxi_dyi;
+                let dl_dxj_dxj = dl_dxi_dxi;
+                let dl_dxj_dyj = dl_dxi_dyi;
 
-                    let dl_dyj_dyj = dl_dyi_dyi;
+                let dl_dyj_dyj = dl_dyi_dyi;
 
-                    let dl_dxi_dφi = -di*(dl_dxi_dxi*f64::cos(φi) + dl_dxi_dyi*f64::sin(φi));
-                    let dl_dyi_dφi = -di*(dl_dyi_dyi*f64::sin(φi) + dl_dxi_dyi*f64::cos(φi));
-                    let dl_dφi_dφi = -di*((dl_dxi_dφi + dl_dyi)*f64::cos(φi) + (dl_dyi_dφi - dl_dxi)*f64::sin(φi));
+                let dl_dxi_dφi = -di*(dl_dxi_dxi*f64::cos(φi) + dl_dxi_dyi*f64::sin(φi));
+                let dl_dyi_dφi = -di*(dl_dyi_dyi*f64::sin(φi) + dl_dxi_dyi*f64::cos(φi));
+                let dl_dφi_dφi = -di*((dl_dxi_dφi + dl_dyi)*f64::cos(φi) + (dl_dyi_dφi - dl_dxi)*f64::sin(φi));
 
-                    let dl_dxj_dφj = -dj*(dl_dxj_dxj*f64::cos(φj) + dl_dxj_dyj*f64::sin(φj));
-                    let dl_dyj_dφj = -dj*(dl_dxj_dyj*f64::cos(φj) + dl_dyj_dyj*f64::sin(φj));
-                    let dl_dφj_dφj = -dj*((dl_dxj_dφj + dl_dyj)*f64::cos(φj) + (dl_dyj_dφj - dl_dxj)*f64::sin(φj));
+                let dl_dxj_dφj = -dj*(dl_dxj_dxj*f64::cos(φj) + dl_dxj_dyj*f64::sin(φj));
+                let dl_dyj_dφj = -dj*(dl_dxj_dyj*f64::cos(φj) + dl_dyj_dyj*f64::sin(φj));
+                let dl_dφj_dφj = -dj*((dl_dxj_dφj + dl_dyj)*f64::cos(φj) + (dl_dyj_dφj - dl_dxj)*f64::sin(φj));
 
-                    let dl_dxi_dφj = -dj*(dl_dxi_dxj*f64::cos(φj) + dl_dxi_dyj*f64::sin(φj));
-                    let dl_dyi_dφj = -dj*(dl_dyi_dxj*f64::cos(φj) + dl_dyi_dyj*f64::sin(φj));
-                    let dl_dφi_dφj = -di*(dl_dxi_dφj*f64::cos(φi) + dl_dyi_dφj*f64::sin(φi));
+                let dl_dxi_dφj = -dj*(dl_dxi_dxj*f64::cos(φj) + dl_dxi_dyj*f64::sin(φj));
+                let dl_dyi_dφj = -dj*(dl_dyi_dxj*f64::cos(φj) + dl_dyi_dyj*f64::sin(φj));
+                let dl_dφi_dφj = -di*(dl_dxi_dφj*f64::cos(φi) + dl_dyi_dφj*f64::sin(φi));
 
-                    let dl_dxj_dφi = -di*(dl_dxi_dxj*f64::cos(φi) + dl_dxi_dyj*f64::sin(φi));
-                    let dl_dyj_dφi = -di*(dl_dxi_dyj*f64::cos(φi) + dl_dyi_dyj*f64::sin(φi));
+                let dl_dxj_dφi = -di*(dl_dxi_dxj*f64::cos(φi) + dl_dxi_dyj*f64::sin(φi));
+                let dl_dyj_dφi = -di*(dl_dxi_dyj*f64::cos(φi) + dl_dyi_dyj*f64::sin(φi));
 
-                    self.dldu2[(3*i+0, 3*i+0)] += dl_dxi_dxi; self.dldu2[(3*i+0, 3*i+1)] += dl_dxi_dyi; self.dldu2[(3*i+0, 3*i+2)] += dl_dxi_dφi; self.dldu2[(3*i+0, 3*j+0)] += dl_dxi_dxj; self.dldu2[(3*i+0, 3*j+1)] += dl_dxi_dyj; self.dldu2[(3*i+0, 3*j+2)] += dl_dxi_dφj;
-                    self.dldu2[(3*i+1, 3*i+0)] += dl_dxi_dyi; self.dldu2[(3*i+1, 3*i+1)] += dl_dyi_dyi; self.dldu2[(3*i+1, 3*i+2)] += dl_dyi_dφi; self.dldu2[(3*i+1, 3*j+0)] += dl_dyi_dxj; self.dldu2[(3*i+1, 3*j+1)] += dl_dyi_dyj; self.dldu2[(3*i+1, 3*j+2)] += dl_dyi_dφj;
-                    self.dldu2[(3*i+2, 3*i+0)] += dl_dxi_dφi; self.dldu2[(3*i+2, 3*i+1)] += dl_dyi_dφi; self.dldu2[(3*i+2, 3*i+2)] += dl_dφi_dφi; self.dldu2[(3*i+2, 3*j+0)] += dl_dxj_dφi; self.dldu2[(3*i+2, 3*j+1)] += dl_dyj_dφi; self.dldu2[(3*i+2, 3*j+2)] += dl_dφi_dφj;
-                    self.dldu2[(3*j+0, 3*i+0)] += dl_dxi_dxj; self.dldu2[(3*j+0, 3*i+1)] += dl_dyi_dxj; self.dldu2[(3*j+0, 3*i+2)] += dl_dxj_dφi; self.dldu2[(3*j+0, 3*j+0)] += dl_dxj_dxj; self.dldu2[(3*j+0, 3*j+1)] += dl_dxj_dyj; self.dldu2[(3*j+0, 3*j+2)] += dl_dxj_dφj;
-                    self.dldu2[(3*j+1, 3*i+0)] += dl_dxi_dyj; self.dldu2[(3*j+1, 3*i+1)] += dl_dyi_dyj; self.dldu2[(3*j+1, 3*i+2)] += dl_dyj_dφi; self.dldu2[(3*j+1, 3*j+0)] += dl_dxj_dyj; self.dldu2[(3*j+1, 3*j+1)] += dl_dyj_dyj; self.dldu2[(3*j+1, 3*j+2)] += dl_dyj_dφj;
-                    self.dldu2[(3*j+2, 3*i+0)] += dl_dxi_dφj; self.dldu2[(3*j+2, 3*i+1)] += dl_dyi_dφj; self.dldu2[(3*j+2, 3*i+2)] += dl_dφi_dφj; self.dldu2[(3*j+2, 3*j+0)] += dl_dxj_dφj; self.dldu2[(3*j+2, 3*j+1)] += dl_dyj_dφj; self.dldu2[(3*j+2, 3*j+2)] += dl_dφj_dφj;
-                }
+                self.dldu2[(3*i+0, 3*i+0)] += dl_dxi_dxi; self.dldu2[(3*i+0, 3*i+1)] += dl_dxi_dyi; self.dldu2[(3*i+0, 3*i+2)] += dl_dxi_dφi; self.dldu2[(3*i+0, 3*j+0)] += dl_dxi_dxj; self.dldu2[(3*i+0, 3*j+1)] += dl_dxi_dyj; self.dldu2[(3*i+0, 3*j+2)] += dl_dxi_dφj;
+                self.dldu2[(3*i+1, 3*i+0)] += dl_dxi_dyi; self.dldu2[(3*i+1, 3*i+1)] += dl_dyi_dyi; self.dldu2[(3*i+1, 3*i+2)] += dl_dyi_dφi; self.dldu2[(3*i+1, 3*j+0)] += dl_dyi_dxj; self.dldu2[(3*i+1, 3*j+1)] += dl_dyi_dyj; self.dldu2[(3*i+1, 3*j+2)] += dl_dyi_dφj;
+                self.dldu2[(3*i+2, 3*i+0)] += dl_dxi_dφi; self.dldu2[(3*i+2, 3*i+1)] += dl_dyi_dφi; self.dldu2[(3*i+2, 3*i+2)] += dl_dφi_dφi; self.dldu2[(3*i+2, 3*j+0)] += dl_dxj_dφi; self.dldu2[(3*i+2, 3*j+1)] += dl_dyj_dφi; self.dldu2[(3*i+2, 3*j+2)] += dl_dφi_dφj;
+                self.dldu2[(3*j+0, 3*i+0)] += dl_dxi_dxj; self.dldu2[(3*j+0, 3*i+1)] += dl_dyi_dxj; self.dldu2[(3*j+0, 3*i+2)] += dl_dxj_dφi; self.dldu2[(3*j+0, 3*j+0)] += dl_dxj_dxj; self.dldu2[(3*j+0, 3*j+1)] += dl_dxj_dyj; self.dldu2[(3*j+0, 3*j+2)] += dl_dxj_dφj;
+                self.dldu2[(3*j+1, 3*i+0)] += dl_dxi_dyj; self.dldu2[(3*j+1, 3*i+1)] += dl_dyi_dyj; self.dldu2[(3*j+1, 3*i+2)] += dl_dyj_dφi; self.dldu2[(3*j+1, 3*j+0)] += dl_dxj_dyj; self.dldu2[(3*j+1, 3*j+1)] += dl_dyj_dyj; self.dldu2[(3*j+1, 3*j+2)] += dl_dyj_dφj;
+                self.dldu2[(3*j+2, 3*i+0)] += dl_dxi_dφj; self.dldu2[(3*j+2, 3*i+1)] += dl_dyi_dφj; self.dldu2[(3*j+2, 3*i+2)] += dl_dφi_dφj; self.dldu2[(3*j+2, 3*j+0)] += dl_dxj_dφj; self.dldu2[(3*j+2, 3*j+1)] += dl_dyj_dφj; self.dldu2[(3*j+2, 3*j+2)] += dl_dφj_dφj;
             }
         }
 

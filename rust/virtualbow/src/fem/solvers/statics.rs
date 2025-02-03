@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter};
 use nalgebra::{DMatrix, DVector};
-use crate::fem::system::system::{System, StaticEval};
+use crate::fem::system::system::{System, SystemEval};
 
 use iter_num_tools::lin_space;
 use crate::fem::system::dof::Dof;
@@ -30,54 +30,68 @@ impl std::error::Error for StaticSolverError {
 pub struct StaticSolver<'a> {
     system: &'a mut System,
     settings: NewtonSettings,
-    eval: StaticEval
+    λ: f64,              // Load scaling factor
+    p0: DVector<f64>,    // Unscaled external forces
+    pλ: DVector<f64>,    // Scaled external forces
+    q: DVector<f64>,
+    a: DVector<f64>,
+    K: DMatrix<f64>,
 }
 
 impl<'a> StaticSolver<'a> {
     pub fn new(system: &'a mut System, settings: NewtonSettings) -> Self {
-        let eval = system.create_static_eval();
+        let n = system.n_dofs();
+
+        // The unscaled external loads have to be calculated only once
+        let mut p0 = DVector::zeros(n);
+        system.compute_external_forces(&mut p0);
+
         Self {
             system,
             settings,
-            eval
+            λ: 1.0,
+            p0,
+            pλ: DVector::zeros(n),
+            q: DVector::zeros(n),
+            a: DVector::zeros(n),
+            K: DMatrix::zeros(n, n),
         }
     }
 
     // Solve for equilibrium of the system with a load constraint in the form of a given load factor
-    pub fn equilibrium_load_controlled(&mut self, λ_target: f64) -> Result<IterationResult, StaticSolverError> {
+    pub fn equilibrium_load_controlled(&mut self, λ: f64) -> Result<IterationResult, StaticSolverError> {
         self.system.set_velocities(&DVector::zeros(self.system.n_dofs()));
-        self.eval.set_load_factor(λ_target);
+        let u0 = self.system.get_displacements().clone();
 
-        let x0 = self.system.get_displacements().clone();
+        self.pλ = λ*&self.p0;
 
         let mut f = |x: &DVector<f64>, f: &mut DVector<f64>, dfdx: &mut DMatrix<f64>| {
             self.system.set_displacements(x);
-            self.system.eval_statics(&mut self.eval);
+            self.system.compute_internal_forces(Some(&mut self.q), Some(&mut self.K), None);
 
-            f.copy_from(&(self.eval.get_internal_forces() - self.eval.get_load_factor()*self.eval.get_unscaled_external_forces()));
-            dfdx.copy_from(self.eval.get_tangent_stiffness_matrix());
+            f.copy_from(&(&self.q - &self.pλ));
+            dfdx.copy_from(&self.K);
         };
 
-        solve_newton(&mut f, x0, self.settings)
-            .map_err(StaticSolverError::EquilibriumError)
+        solve_newton(&mut f, u0, self.settings).map_err(StaticSolverError::EquilibriumError)
     }
 
     // points = steps + 1
     pub fn equilibrium_path_load_controlled<F>(&mut self, steps: usize, callback: &mut F) -> Result<(), StaticSolverError>
-        where F: FnMut(&System, &StaticEval) -> bool
+        where F: FnMut(&System, &SystemEval) -> bool
     {
         // If the number of intermediate load steps is zero, perform only one solution for lambda = 1.
         // Otherwise divide the range lambda = [0, 1] into the required number of steps and solve each point.
         if steps == 0 {
             self.equilibrium_load_controlled(1.0)?;
-            if !callback(self.system, &self.eval) {
+            if !callback(self.system, &SystemEval::new(&self.pλ, &self.q, &self.a)) {
                 return Err(StaticSolverError::AbortedByCaller)
             }
         }
         else {
             for lambda in lin_space(0.0..=1.0, steps + 1) {
                 self.equilibrium_load_controlled(lambda)?;
-                if !callback(self.system, &self.eval) {
+                if !callback(self.system, &SystemEval::new(&self.pλ, &self.q, &self.a)) {
                     return Err(StaticSolverError::AbortedByCaller)
                 }
             }
@@ -97,16 +111,20 @@ impl<'a> StaticSolver<'a> {
         self.system.set_velocities(&DVector::zeros(self.system.n_dofs()));
 
         let x0 = self.system.get_displacements().clone();
-        let λ0 = self.eval.get_load_factor();
+        let λ0 = self.λ;
 
         let mut f = |x: &DVector<f64>, λ: f64, f: &mut DVector<f64>, dfdx: &mut DMatrix<f64>, dfdλ: &mut DVector<f64>| {
             self.system.set_displacements(x);
-            self.eval.set_load_factor(λ);
-            self.system.eval_statics(&mut self.eval);
+            self.system.compute_internal_forces(Some(&mut self.q), Some(&mut self.K), None);
 
-            f.copy_from(&(self.eval.get_internal_forces() - self.eval.get_load_factor()*self.eval.get_unscaled_external_forces()));
-            dfdx.copy_from(self.eval.get_tangent_stiffness_matrix());
-            dfdλ.copy_from(&(-self.eval.get_unscaled_external_forces()));
+            self.λ = λ;
+            self.pλ = self.λ*&self.p0;
+
+            f.copy_from(&(&self.q - &self.pλ));
+            dfdx.copy_from(&self.K);
+            dfdλ.copy_from(&(-&self.p0));
+
+            //println!("λ = {}", λ);
         };
 
         let mut c = |x: &DVector<f64>, _λ: f64, c: &mut f64, dcdx: &mut DVector<f64>, dcdλ: &mut f64| {
@@ -123,7 +141,7 @@ impl<'a> StaticSolver<'a> {
     
     // points = steps + 1
     pub fn equilibrium_path_displacement_controlled<F>(&mut self, dof: Dof, target: f64, steps: usize, callback: &mut F) -> Result<(), StaticSolverError>
-        where F: FnMut(&System, &StaticEval, f64) -> bool    // Last argument is the stiffness of the force-displacement relationship
+        where F: FnMut(&System, &SystemEval, f64) -> bool    // Last argument is the stiffness of the force-displacement relationship
     {
         // Extract index of the controlled displacement from the dof
         // TODO: Code duplication from functions above
@@ -137,14 +155,14 @@ impl<'a> StaticSolver<'a> {
         // TODO: Code duplication in two cases below
         if steps == 0 {
             let info = self.equilibrium_displacement_controlled(dof, target)?;
-            if !callback(self.system, &self.eval, 1.0/info.dxdλ[index]) {
+            if !callback(self.system, &SystemEval::new(&self.pλ, &self.q, &self.a), 1.0/info.dxdλ[index]) {
                 return Err(StaticSolverError::AbortedByCaller)
             }
         }
         else {
             for displacement in lin_space(self.system.get_displacement(dof)..=target, steps + 1) {
                 let info = self.equilibrium_displacement_controlled(dof, displacement)?;
-                if !callback(self.system, &self.eval, 1.0/info.dxdλ[index]) {
+                if !callback(self.system, &SystemEval::new(&self.pλ, &self.q, &self.a), 1.0/info.dxdλ[index]) {
                     return Err(StaticSolverError::AbortedByCaller)
                 }
             }

@@ -9,6 +9,7 @@ pub enum Dof {
     Fixed(f64),
 }
 
+#[allow(dead_code)]
 impl Dof {
     pub fn is_fixed(&self) -> bool {
         matches!(self, Dof::Fixed{..})
