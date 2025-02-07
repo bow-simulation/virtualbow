@@ -7,7 +7,7 @@ pub trait Element: Downcast {
 
     // Sets the local element state and optionally adds the element's contribution to the global internal forces,
     // tangent stiffness, or tangent damping matrix.
-    fn set_state_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, q: Option<&mut VectorView>, K: Option<&mut MatrixView>, D: Option<&mut MatrixView>);
+    fn update_state_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, q: Option<&mut VectorView>, K: Option<&mut MatrixView>, D: Option<&mut MatrixView>);
 
     // Computes the element's potential energy based on the current state
     fn potential_energy(&self) -> f64;

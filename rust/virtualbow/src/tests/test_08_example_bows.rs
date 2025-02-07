@@ -11,136 +11,96 @@ use crate::utils::minmax::discrete_maximum_1d;
 
 // Example bows are loaded, simulated, and the results are verified by various consistency checks.
 
-// TODO: Checks
-// - static special results
-// - dynamic special results
-
 #[test]
 fn bow_69w865k9() {
-    simulate_and_check_bow("bows/users/69w865k9.bow");
+    simulate_and_check_bow("bows/examples/69w865k9.bow");
 }
 
 #[test]
 fn bow_5g6c4m63() {
-    simulate_and_check_bow("bows/users/5g6c4m63.bow");
+    simulate_and_check_bow("bows/examples/5g6c4m63.bow");
 }
 
 #[test]
 fn bow_mt22m5gs() {
-    simulate_and_check_bow("bows/users/mt22m5gs.bow");
+    simulate_and_check_bow("bows/examples/mt22m5gs.bow");
 }
-
-/*
-// TODO: Malformed geometry for some reason (bad conversion?)
-#[test]
-fn bow_hu78d41t() {
-    perform_bow_test("bows/users/hu78d41t.bow");
-}
-*/
 
 #[test]
 fn bow_nv1x16ok() {
-    simulate_and_check_bow("bows/users/nv1x16ok.bow");
+    simulate_and_check_bow("bows/examples/nv1x16ok.bow");
 }
 
 #[test]
 fn bow_d75f0aoh() {
-    simulate_and_check_bow("bows/users/d75f0aoh.bow");
+    simulate_and_check_bow("bows/examples/d75f0aoh.bow");
 }
 
-/*
-// File does not load
-#[test]
-fn bow_j290alr2() {
-    perform_bow_test("bows/users/j290alr2.bow");
-}
-*/
-
-// Recurve
 #[test]
 fn bow_cz183o6o() {
-    simulate_and_check_bow("bows/users/cz183o6o.bow");
+    simulate_and_check_bow("bows/examples/cz183o6o.bow");
 }
 
-// Recurve
 #[test]
 fn bow_2r77c5r2() {
-    simulate_and_check_bow("bows/users/2r77c5r2.bow");
+    simulate_and_check_bow("bows/examples/2r77c5r2.bow");
+}
+
+#[test]
+fn bow_5y3n27ra() {
+    simulate_and_check_bow("bows/examples/5y3n27ra.bow");
+}
+
+#[test]
+fn bow_b282hcap() {
+    simulate_and_check_bow("bows/examples/b282hcap.bow");
+}
+
+#[test]
+fn bow_7b34ggm3() {
+    simulate_and_check_bow("bows/examples/7b34ggm3.bow");
+}
+
+#[test]
+fn bow_7j2rnu0n() {
+    simulate_and_check_bow("bows/examples/7j2rnu0n.bow");
+}
+
+#[test]
+fn bow_36d2b7az() {
+    simulate_and_check_bow("bows/examples/36d2b7az.bow");
+}
+
+#[test]
+fn bow_834ozgt0() {
+    simulate_and_check_bow("bows/examples/834ozgt0.bow");
+}
+
+#[test]
+fn bow_v074x8zj() {
+    simulate_and_check_bow("bows/examples/v074x8zj.bow");
+}
+
+#[test]
+fn bow_7263zcsk() {
+    simulate_and_check_bow("bows/examples/7263zcsk.bow");
 }
 
 /*
 // Dynamic simulation fails
 #[test]
 fn bow_w517u4bs() {
-    perform_bow_test("bows/users/w517u4bs.bow");
+    simulate_and_check_bow("bows/examples/w517u4bs.bow");
 }
 */
-
-#[test]
-fn bow_5y3n27ra() {
-    simulate_and_check_bow("bows/users/5y3n27ra.bow");
-}
-
-#[test]
-fn bow_b282hcap() {
-    simulate_and_check_bow("bows/users/b282hcap.bow");
-}
-
-#[test]
-fn bow_7b34ggm3() {
-    simulate_and_check_bow("bows/users/7b34ggm3.bow");
-}
-
-// Recurve
-#[test]
-fn bow_7j2rnu0n() {
-    simulate_and_check_bow("bows/users/7j2rnu0n.bow");
-}
-
-/*
-// File does not load
-#[test]
-fn bow_ibp08w9x() {
-    perform_bow_test("bows/users/ibp08w9x.bow");
-}
-*/
-
-#[test]
-fn bow_36d2b7az() {
-    simulate_and_check_bow("bows/users/36d2b7az.bow");
-}
-
-#[test]
-fn bow_834ozgt0() {
-    simulate_and_check_bow("bows/users/834ozgt0.bow");
-}
-
-#[test]
-fn bow_v074x8zj() {
-    simulate_and_check_bow("bows/users/v074x8zj.bow");
-}
-
-#[test]
-fn bow_7263zcsk() {
-    simulate_and_check_bow("bows/users/7263zcsk.bow");
-}
 
 /*
 // Total energy does not check out
 #[test]
 fn bow_c2h3p5y2() {
-    simulate_and_check_bow("bows/users/c2h3p5y2.bow");
+    simulate_and_check_bow("bows/examples/c2h3p5y2.bow");
 }
 */
-
-/*
-// File does not load
-#[test]
-fn bow_v3u2t11b() {
-    perform_bow_test("bows/users/v3u2t11b.bow");
-}
-*/
-
 
 // TODO: Improvements
 // - Use relative error tolerances where it makes sense (especially derivatives)

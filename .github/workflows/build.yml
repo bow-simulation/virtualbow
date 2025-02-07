@@ -26,6 +26,11 @@ jobs:
           choco install ninja
           curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.5.0/windows-mingw_64.zip && 7z x windows-mingw_64.zip
 
+      - name: Extract test files
+        run: |
+          cd virtualbow/rust/virtualbow/bows/examples
+          7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
+
       - name: Build and test solver
         run: |
           cd virtualbow/rust
@@ -64,6 +69,11 @@ jobs:
         run: |
           sudo apt install -y ninja-build qt5-default
           curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.5.0/linux-gcc_64.zip && unzip linux-gcc_64.zip
+
+      - name: Extract test files
+        run: |
+          cd virtualbow/rust/virtualbow/bows/examples
+          7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
 
       - name: Build and test solver
         run: |
@@ -106,6 +116,11 @@ jobs:
           npm install -g appdmg@0.6.0 --no-audit
           curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.5.0/macos-clang_64.zip && unzip macos-clang_64.zip
           chmod -R 755 macos-clang_64
+
+      - name: Extract test files
+        run: |
+          cd virtualbow/rust/virtualbow/bows/examples
+          7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
 
       - name: Build and test solver
         run: |
