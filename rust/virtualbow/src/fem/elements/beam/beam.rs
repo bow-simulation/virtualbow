@@ -202,7 +202,7 @@ impl Element for BeamElement {
         M.add_vec(self.M);
     }
 
-    fn set_state_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, mut q: Option<&mut VectorView>, mut K: Option<&mut MatrixView>, mut D: Option<&mut MatrixView>) {
+    fn update_state_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, mut q: Option<&mut VectorView>, mut K: Option<&mut MatrixView>, mut D: Option<&mut MatrixView>) {
         // Update element state
         self.u = u.get();
         self.v = v.get();

@@ -166,7 +166,7 @@ impl System {
         let u_view = PositionView::new(&self.u, dofs);
         let v_view = VelocityView::new(&self.v, dofs);
 
-        element.set_state_and_evaluate(&u_view, &v_view, None, None, None);
+        element.update_state_and_evaluate(&u_view, &v_view, None, None, None);
     }
 
     pub fn compute_internal_forces(&mut self, mut q: Option<&mut DVector<f64>>, mut K: Option<&mut DMatrix<f64>>, mut D: Option<&mut DMatrix<f64>>) {
@@ -185,7 +185,7 @@ impl System {
             let mut d_view = D.as_mut().map(|D|{ MatrixView::new(D, dofs) });
 
             // TODO: Maybe include a separate element.set_state(u, v) step before. Then make eval_element method obsolete.
-            element.set_state_and_evaluate(&u_view, &v_view, q_view.as_mut(), k_view.as_mut(), d_view.as_mut());
+            element.update_state_and_evaluate(&u_view, &v_view, q_view.as_mut(), k_view.as_mut(), d_view.as_mut());
         }
     }
 }

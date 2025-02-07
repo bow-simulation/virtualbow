@@ -15,6 +15,11 @@ jobs:
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
 
+      - name: Extract test files
+        run: |
+          cd rust/virtualbow/bows/examples
+          7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
+
       - name: Generate code coverage for solver tests
         run: |
           cd rust/virtualbow
