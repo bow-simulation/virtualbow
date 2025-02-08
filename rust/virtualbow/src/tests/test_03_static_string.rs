@@ -50,8 +50,6 @@ fn string_over_quarter_circle() {
 
         let points = system.element_ref::<StringElement>(element).contact_positions().collect_vec();
 
-        println!("Points: {}", points.len());
-
         // Actual contact angle vs analytical reference
         let alpha_num = f64::atan2(points[1][1], points[1][0]);
         let alpha_ref = 2.0*f64::atan(1.0 - h/r);

@@ -24,7 +24,7 @@
                 ]
             ],
             "material": 0,
-            "name": "Layer 1"
+            "name": "Back"
         },
         {
             "height": [
@@ -38,7 +38,7 @@
                 ]
             ],
             "material": 1,
-            "name": "Layer 2"
+            "name": "Core"
         },
         {
             "height": [
@@ -52,7 +52,7 @@
                 ]
             ],
             "material": 2,
-            "name": "Layer 3"
+            "name": "Belly"
         }
     ],
     "masses": {

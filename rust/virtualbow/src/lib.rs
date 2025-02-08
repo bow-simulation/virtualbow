@@ -12,6 +12,7 @@
 #![allow(clippy::module_inception)]       // Don't feel like reorganizing everything, maybe later...
 #![allow(clippy::manual_range_contains)]  // The manual version is more versatile readable to me
 #![allow(clippy::collapsible_else_if)]    // Sometimes nested ifs can be more clear
+#![allow(clippy::large_enum_variant)]     // Okay if the small variant is barely used (exceptional case)
 
 #[cfg(test)]
 #[macro_use]

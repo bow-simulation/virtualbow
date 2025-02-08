@@ -1,0 +1,87 @@
+{
+  "version": "0.10.0",
+  "comment": "",
+  "settings": {
+    "n_limb_elements": 30,
+    "n_limb_eval_points": 100,
+    "min_draw_resolution": 100,
+    "max_draw_resolution": 100,
+    "arrow_clamp_force": 0.5,
+    "string_compression_factor": 1e-6,
+    "timespan_factor": 1.5,
+    "timeout_factor": 10.0,
+    "min_timestep": 1e-6,
+    "max_timestep": 0.0001,
+    "steps_per_period": 250
+  },
+  "dimensions": {
+    "brace_height": 0.2,
+    "draw_length": 0.7,
+    "handle_angle": 0.0,
+    "handle_length": 0.0,
+    "handle_setback": 0.0
+  },
+  "materials": [
+    {
+      "name": "Default",
+      "color": "#000000",
+      "rho": 1.0,
+      "E": 1.0,
+      "G": 1.0
+    }
+  ],
+  "layers": [
+    {
+      "name": "Unnamed",
+      "material": "Default",
+      "height": [
+        [
+          0.0,
+          0.001
+        ],
+        [
+          1.0,
+          0.001
+        ]
+      ]
+    }
+  ],
+  "profile": {
+    "alignment": "section-back",
+    "segments": [
+      {
+        "type": "line",
+        "length": 1.0
+      }
+    ]
+  },
+  "width": [
+    [
+      0.0,
+      0.05
+    ],
+    [
+      0.5,
+      0.04
+    ],
+    [
+      1.0,
+      0.01
+    ]
+  ],
+  "string": {
+    "strand_stiffness": 1.0,
+    "strand_density": 1.0,
+    "n_strands": 1
+  },
+  "masses": {
+    "arrow": 1.0,
+    "limb_tip": 0.0,
+    "string_center": 0.0,
+    "string_tip": 0.0
+  },
+  "damping": {
+    "damping_ratio_limbs": 0.0,
+    "damping_ratio_string": 0.0
+  }
+}

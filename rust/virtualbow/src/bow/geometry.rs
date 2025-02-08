@@ -2,7 +2,7 @@ use iter_num_tools::lin_space;
 use itertools::Itertools;
 use nalgebra::{DMatrix, DVector, SVector, vector};
 use crate::bow::errors::ModelError;
-use crate::bow::input::BowInput;
+use crate::bow::input::BowModel;
 use crate::bow::profile::profile::{CurvePoint, ProfileCurve};
 use crate::bow::sections::section::LayeredCrossSection;
 use crate::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
@@ -14,7 +14,7 @@ pub struct LimbGeometry {
 }
 
 impl LimbGeometry {
-    pub fn new(input: &BowInput) -> Result<Self, ModelError> {
+    pub fn new(input: &BowModel) -> Result<Self, ModelError> {
         // Profile curve with starting point according to dimension settings
         let start = CurvePoint::new(0.0, input.dimensions.handle_angle, vector![0.5*input.dimensions.handle_length, input.dimensions.handle_setback]);
         let profile = ProfileCurve::new(start, &input.profile.segments)?;
@@ -123,10 +123,7 @@ pub struct DiscreteLimbGeometry {
 #[cfg(test)]
 mod tests {
     use std::fmt::{Debug, Formatter};
-    use crate::bow::input::{Layer, Profile};
-    use crate::bow::profile::input::SegmentInput;
-    use crate::bow::profile::segments::clothoid::{ArcInput, LineInput};
-    use crate::bow::sections::section::LayerAlignment;
+    use crate::bow::input::{Arc, Height, Layer, Line, Profile, ProfileAlignment, ProfileSegment};
     use super::*;
 
     // To make tests below compile
@@ -138,18 +135,18 @@ mod tests {
 
     #[test]
     fn test_error_conditions() {
-        let mut input = BowInput{ layers: vec![Layer::new("Unnamed", "Default", vec![(0.0, 0.01), (1.0, 0.01)])], ..Default::default() };
+        let mut input = BowModel { layers: vec![Layer::new("Unnamed", "Default", Height::constant(0.01))], ..Default::default() };
 
         // 1. Profile curve with no self-intersection
-        input.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Line(LineInput::new(1.0))]);
+        input.profile = Profile::new(ProfileAlignment::SectionCenter, vec![ProfileSegment::Line(Line::new(1.0))]);
         let _geometry = LimbGeometry::new(&input).unwrap();
 
         // 2. Profile that produces a self-intersection at the back
-        input.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Arc(ArcInput::new(1.0, 0.001))]);
+        input.profile = Profile::new(ProfileAlignment::SectionCenter, vec![ProfileSegment::Arc(Arc::new(1.0, 0.001))]);
         assert_matches!(LimbGeometry::new(&input), Err(ModelError::GeometrySelfIntersectionBack(0.0)));
 
         // 3. Profile that produces a self-intersection at the belly
-        input.profile = Profile::new(LayerAlignment::SectionCenter, vec![SegmentInput::Arc(ArcInput::new(1.0, -0.001))]);
+        input.profile = Profile::new(ProfileAlignment::SectionCenter, vec![ProfileSegment::Arc(Arc::new(1.0, -0.001))]);
         assert_matches!(LimbGeometry::new(&input), Err(ModelError::GeometrySelfIntersectionBelly(0.0)));
     }
 }

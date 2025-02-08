@@ -9,7 +9,7 @@ use crate::fem::system::node::Node;
 use crate::fem::system::system::{System, SystemEval};
 use crate::bow::errors::ModelError;
 use crate::bow::geometry::{DiscreteLimbGeometry, LimbGeometry};
-use crate::bow::input::BowInput;
+use crate::bow::input::BowModel;
 use crate::bow::output::{Dynamics, LayerInfo, LimbInfo, BowOutput, Common, State, StateVec, Statics, ArrowDeparture};
 use crate::fem::elements::beam::beam::BeamElement;
 use crate::fem::elements::mass::MassElement;
@@ -17,8 +17,8 @@ use crate::fem::elements::string::StringElement;
 use crate::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
 use crate::numerics::integration::cumulative_simpson;
 use crate::numerics::newton;
-use crate::numerics::root_finding::find_root_falsi;
-use crate::utils::minmax::{discrete_maximum_1d, discrete_maximum_nd, discrete_minimum_1d, discrete_minimum_nd};
+use crate::numerics::roots::find_root_falsi;
+use crate::numerics::minmax::{discrete_maximum_1d, discrete_maximum_nd, discrete_minimum_1d, discrete_minimum_nd};
 
 #[derive(ValueEnum, PartialEq, Debug, Copy, Clone)]
 pub enum SimulationMode {
@@ -27,7 +27,7 @@ pub enum SimulationMode {
 }
 
 pub struct Simulation<'a> {
-    input: &'a BowInput,
+    input: &'a BowModel,
     geometry: DiscreteLimbGeometry,
 
     limb_nodes: Vec<Node>,
@@ -56,7 +56,7 @@ impl<'a> Simulation<'a> {
     const BRACING_TARGET_ITER: usize = 5;        // Desired number of iterations for the static solver
 
     // Set up the simulation either with or without string and with or without damping, depending on simulation mode.
-    fn initialize(input: &'a BowInput, string: bool, damping: bool) -> Result<(System, Simulation<'a>, Common), ModelError> {
+    fn initialize(input: &'a BowModel, string: bool, damping: bool) -> Result<(System, Simulation<'a>, Common), ModelError> {
         // Check basic validity of the model data and propagate any errors
         input.validate()?;
 
@@ -124,7 +124,7 @@ impl<'a> Simulation<'a> {
 
         // Evaluate the string element so that the actual string length is computed
         // Then set the initial length to the current length so that the string is tension-free.
-        system.eval_element(string_element);
+        system.update_element(string_element);
         let element = system.element_mut::<StringElement>(string_element);
         let l0 = element.get_current_length();
         element.set_initial_length(l0);
@@ -250,7 +250,7 @@ impl<'a> Simulation<'a> {
     }
 
     // Callback: (phase, progress) -> continue
-    pub fn simulate<F>(model: &'a BowInput, mode: SimulationMode, mut callback: F) -> Result<BowOutput, ModelError>
+    pub fn simulate<F>(model: &'a BowModel, mode: SimulationMode, mut callback: F) -> Result<BowOutput, ModelError>
         where F: FnMut(&str, f64) -> bool
     {
         // Initialize simulation. String always, but damping only in dynamic mode (saves an einegvalue analysis).
@@ -451,15 +451,15 @@ impl<'a> Simulation<'a> {
         })
     }
 
-    pub fn simulate_statics(model: &'a BowInput) -> Result<BowOutput, ModelError> {
+    pub fn simulate_statics(model: &'a BowModel) -> Result<BowOutput, ModelError> {
         Self::simulate(model, SimulationMode::Static, |_, _| true)
     }
 
-    pub fn simulate_dynamics(model: &'a BowInput) -> Result<BowOutput, ModelError> {
+    pub fn simulate_dynamics(model: &'a BowModel) -> Result<BowOutput, ModelError> {
         Self::simulate(model, SimulationMode::Dynamic, |_, _| true)
     }
 
-    pub fn simulate_limb_modes(model: &'a BowInput) -> Result<(Common, Vec<Mode>), ModelError> {
+    pub fn simulate_limb_modes(model: &'a BowModel) -> Result<(Common, Vec<Mode>), ModelError> {
         let (mut system, _simulaion, common) = Self::initialize(model, false, true)?;
         let modes = natural_frequencies(&mut system).map_err(ModelError::SimulationEigenSolutionFailed)?;
         Ok((common, modes))
@@ -467,7 +467,7 @@ impl<'a> Simulation<'a> {
 
     // Simulates a static load (two forces, one moment) applied to the limb tip like a cantilever.
     // This is only used for testing the bow bow against other simulations/results.
-    pub fn simulate_static_limb(model: &'a BowInput, Fx: f64, Fy: f64, Mz: f64) -> Result<(Common, State), ModelError> {
+    pub fn simulate_static_limb(model: &'a BowModel, Fx: f64, Fy: f64, Mz: f64) -> Result<(Common, State), ModelError> {
         let (mut system, simulation, common) = Self::initialize(model, false, false)?;
 
         if let Some(node) = simulation.limb_nodes.last() {

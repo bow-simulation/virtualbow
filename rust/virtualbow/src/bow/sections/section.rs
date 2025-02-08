@@ -1,37 +1,11 @@
 use std::collections::HashMap;
 use itertools::Itertools;
 use nalgebra::{DMatrix, DVector, matrix, SMatrix};
-use serde::{Deserialize, Serialize};
 use crate::bow::errors::ModelError;
-use crate::bow::input::{Layer, Material, Width};
+use crate::bow::input::{Layer, Material, ProfileAlignment, Width};
 use crate::fem::elements::beam::geometry::CrossSection;
-use crate::numerics::cubic_spline::{BoundaryCondition, CubicSpline, Extrapolation};
+use crate::numerics::spline::{BoundaryCondition, CubicSpline, Extrapolation};
 use crate::numerics::intervals::{Bound, Interval};
-
-// Defines, how the layers are aligned with the profile curve
-// There are two categories:
-// - Section: The back side, belly side, or geometrical center of the combined section is aligned with the profile curve
-// - Layer: The back side, belly side, or geometrical center of the layer with the given name is aligned with the profile curve.
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
-pub enum LayerAlignment {
-    #[serde(rename = "section-back")]
-    SectionBack,
-
-    #[serde(rename = "section-belly")]
-    SectionBelly,
-
-    #[serde(rename = "section-center")]
-    SectionCenter,
-
-    #[serde(rename = "layer-back")]
-    LayerBack(String),
-
-    #[serde(rename = "layer-belly")]
-    LayerBelly(String),
-
-    #[serde(rename = "layer-center")]
-    LayerCenter(String)
-}
 
 #[derive(Debug)]
 pub struct LayerGeometry {
@@ -48,17 +22,17 @@ pub struct LayeredCrossSection {
 }
 
 impl LayeredCrossSection {
-    pub fn new(length: f64, width: &Width, layers: &Vec<Layer>, materials: &Vec<Material>, alignment: &LayerAlignment) -> Result<Self, ModelError> {
+    pub fn new(length: f64, width: &Width, layers: &Vec<Layer>, materials: &Vec<Material>, alignment: &ProfileAlignment) -> Result<Self, ModelError> {
         // Check inputs for validity and return error on failure.
         // Also builds two hashmaps (material name) -> (material) and (layer name) -> (index) in the process.
         let (material_map, layer_map) = Self::validate(length, width, layers, materials, alignment)?;
 
         // Construct width spline
-        let width = CubicSpline::from_points(&width.points, true, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
+        let width = CubicSpline::from_points(&width.0, true, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
 
         // Construct layer geometries
         let layers = layers.iter().map(|layer| {
-            let height = CubicSpline::from_points(&layer.height, true, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
+            let height = CubicSpline::from_points(&layer.height.0, true, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
             LayerGeometry {
                 height,
                 material: material_map.get(&layer.material).unwrap().clone()    // Unwrap because validity has been checked previously
@@ -90,39 +64,39 @@ impl LayeredCrossSection {
         match alignment {
             // The back of the section is located at y* = y[k-1] = h[0] + h[1] + ... + h[n-1].
             // Subtracting y* is therefore equivalent to subtracting 1 from every matrix element.
-            LayerAlignment::SectionBack => {
+            ProfileAlignment::SectionBack => {
                 stacking.add_scalar_mut(-1.0)
             },
 
             // The belly of the section is located at y* = y[0] = 0.
             // Therefore nothing has to be subtracted and the matrix is not modified
-            LayerAlignment::SectionBelly => {
+            ProfileAlignment::SectionBelly => {
                 // Do nothing
             },
 
             // The section center is located at y* = 0.5*(y[0] + y[k-1]) = 0.5*h[0] + 0.5*h[1] + ... + 0.5*h[n-1].
             // Subtracting y* is therefore equivalent to subtracting 0.5 from every matrix element.
-            LayerAlignment::SectionCenter => {
+            ProfileAlignment::SectionCenter => {
                 stacking.add_scalar_mut(-0.5)
             },
 
             // The back of layer i is located at y* = y[i+1] = h[0] + h[1] + ... + h[i]
             // Subtracting y* is equivalent to subtracting 1 from columns 0 to i+1.
-            LayerAlignment::LayerBack(name) => {
+            ProfileAlignment::LayerBack(name) => {
                 let i = *layer_map.get(name).unwrap();    // Unwrap because validity has been checked previously
                 stacking.view_mut((0, 0), (k, i+1)).add_scalar_mut(-1.0);
             }
 
             // The belly of layer i is located at y* = y[i] = h[0] + h[1] + ... + h[i-1]
             // Subtracting y* is equivalent to subtracting 1 from columns 0 to i.
-            LayerAlignment::LayerBelly(name) => {
+            ProfileAlignment::LayerBelly(name) => {
                 let i = *layer_map.get(name).unwrap();    // Unwrap because validity has been checked previously
                 stacking.view_mut((0, 0), (k, i)).add_scalar_mut(-1.0);
             }
 
             // The center of layer i is located at y* = 0.5*(y[i] + y[i+1]) = h[0] + h[1] + ... + 0.5*h[i]
             // Subtracting y* is equivalent to subtracting 1 from columns 0 to i and 0.5 from column i+1.
-            LayerAlignment::LayerCenter(name) => {
+            ProfileAlignment::LayerCenter(name) => {
                 let i = *layer_map.get(name).unwrap();    // Unwrap because validity has been checked previously
                 stacking.view_mut((0, 0), (k, i)).add_scalar_mut(-1.0);
                 stacking.view_mut((0, i), (k, 1)).add_scalar_mut(-0.5);
@@ -138,7 +112,7 @@ impl LayeredCrossSection {
     }
 
     #[allow(clippy::type_complexity)]  // TODO: Maybe improve later?
-    fn validate(length: f64, width: &Width, layers: &Vec<Layer>, materials: &Vec<Material>, alignment: &LayerAlignment) -> Result<(HashMap<String, Material>, HashMap<String, usize>), ModelError> {
+    fn validate(length: f64, width: &Width, layers: &Vec<Layer>, materials: &Vec<Material>, alignment: &ProfileAlignment) -> Result<(HashMap<String, Material>, HashMap<String, usize>), ModelError> {
         // Length: Must be positive and finite
         if !length.is_finite() || length <= 0.0 {
             return Err(ModelError::CrossSectionInvalidLength(length));
@@ -189,7 +163,7 @@ impl LayeredCrossSection {
 
         // Check validity of the alignment specification
         match alignment {
-            LayerAlignment::LayerBack(name) | LayerAlignment::LayerBelly(name) | LayerAlignment::LayerCenter(name) => {
+            ProfileAlignment::LayerBack(name) | ProfileAlignment::LayerBelly(name) | ProfileAlignment::LayerCenter(name) => {
                 if !layer_map.contains_key(name) {
                     return Err(ModelError::CrossSectionInvalidLayerName(name.clone()));
                 }
@@ -204,17 +178,17 @@ impl LayeredCrossSection {
         // we can view each layer as an interval of positive height with either inclusive (height != 0) or exclusive (height == 0) bounds.
         // The union of those intervals should cover the whole limb with exclusive bounds, i.e. the result should be [0, 1].
         let intervals = layers.iter().map(|layer| {
-            let to_bound = |point: &(f64, f64)| {
-                if point.1 == 0.0 {
-                    Bound::Exclusive(point.0)
+            let to_bound = |point: &[f64; 2]| {
+                if point[1] == 0.0 {
+                    Bound::Exclusive(point[0])
                 } else {
-                    Bound::Inclusive(point.0)
+                    Bound::Inclusive(point[0])
                 }
             };
 
             Interval {
-                lower: to_bound(layer.height.first().unwrap()),
-                upper: to_bound(layer.height.last().unwrap()),
+                lower: to_bound(layer.height.0.first().unwrap()),
+                upper: to_bound(layer.height.0.last().unwrap()),
             }
         }).collect();
 
@@ -355,49 +329,50 @@ impl CrossSection for LayeredCrossSection {
 #[cfg(test)]
 mod tests {
     use nalgebra::{dvector, vector};
+    use crate::bow::input::Height;
     use super::*;
 
     #[test]
     fn test_error_conditions() {
         let materials = vec![Material::new("material", "#000000", 7000.0, 200e9, 80.9)];
-        let width = Width::new(vec![(0.0, 0.05), (1.0, 0.05)]);
-        let layers = vec![Layer::new("layer", "material", vec![(0.0, 0.02), (1.0, 0.02)])];
+        let width = Width::constant(0.05);
+        let layers = vec![Layer::new("layer", "material", Height::constant(0.02))];
 
         // 1. Valid single layer model
-        assert!(LayeredCrossSection::new(1.5, &width, &layers, &materials, &LayerAlignment::SectionCenter).is_ok());
+        assert!(LayeredCrossSection::new(1.5, &width, &layers, &materials, &ProfileAlignment::SectionCenter).is_ok());
 
         // 2. Invalid length
-        assert_matches!(LayeredCrossSection::new(0.0, &width, &layers, &materials, &LayerAlignment::SectionCenter), Err(ModelError::CrossSectionInvalidLength(0.0)));
-        assert_matches!(LayeredCrossSection::new(-1.0, &width, &layers, &materials, &LayerAlignment::SectionCenter), Err(ModelError::CrossSectionInvalidLength(-1.0)));
-        assert_matches!(LayeredCrossSection::new(f64::INFINITY, &width, &layers, &materials, &LayerAlignment::SectionCenter), Err(ModelError::CrossSectionInvalidLength(f64::INFINITY)));
+        assert_matches!(LayeredCrossSection::new(0.0, &width, &layers, &materials, &ProfileAlignment::SectionCenter), Err(ModelError::CrossSectionInvalidLength(0.0)));
+        assert_matches!(LayeredCrossSection::new(-1.0, &width, &layers, &materials, &ProfileAlignment::SectionCenter), Err(ModelError::CrossSectionInvalidLength(-1.0)));
+        assert_matches!(LayeredCrossSection::new(f64::INFINITY, &width, &layers, &materials, &ProfileAlignment::SectionCenter), Err(ModelError::CrossSectionInvalidLength(f64::INFINITY)));
 
         // 3. Invalid width
-        assert_matches!(LayeredCrossSection::new(1.5, &Width::new(vec![]), &layers, &materials, &LayerAlignment::SectionCenter), Err(ModelError::WidthControlPointsTooFew(0)));
-        assert_matches!(LayeredCrossSection::new(1.5, &Width::new(vec![(0.0, 0.05)]), &layers, &materials, &LayerAlignment::SectionCenter), Err(ModelError::WidthControlPointsTooFew(1)));
-        assert_matches!(LayeredCrossSection::new(1.5, &Width::new(vec![(1.0, 0.05), (0.0, 0.05)]), &layers, &materials, &LayerAlignment::SectionCenter), Err(ModelError::WidthControlPointsNotSorted(1.0, 0.0)));
-        assert_matches!(LayeredCrossSection::new(1.5, &Width::new(vec![(0.1, 0.05), (1.0, 0.05)]), &layers, &materials, &LayerAlignment::SectionCenter), Err(ModelError::WidthControlPointsInvalidRange(0.1, 1.0)));
-        assert_matches!(LayeredCrossSection::new(1.5, &Width::new(vec![(0.0, 0.05), (0.9, 0.05)]), &layers, &materials, &LayerAlignment::SectionCenter), Err(ModelError::WidthControlPointsInvalidRange(0.0, 0.9)));
-        assert_matches!(LayeredCrossSection::new(1.5, &Width::new(vec![(0.0, 0.05), (1.0, 0.00)]), &layers, &materials, &LayerAlignment::SectionCenter), Err(ModelError::WidthControlPointsInvalidValue(1.0, 0.0)));
+        assert_matches!(LayeredCrossSection::new(1.5, &Width::new(vec![]), &layers, &materials, &ProfileAlignment::SectionCenter), Err(ModelError::WidthControlPointsTooFew(0)));
+        assert_matches!(LayeredCrossSection::new(1.5, &Width::new(vec![[0.0, 0.05]]), &layers, &materials, &ProfileAlignment::SectionCenter), Err(ModelError::WidthControlPointsTooFew(1)));
+        assert_matches!(LayeredCrossSection::new(1.5, &Width::new(vec![[1.0, 0.05], [0.0, 0.05]]), &layers, &materials, &ProfileAlignment::SectionCenter), Err(ModelError::WidthControlPointsNotSorted(1.0, 0.0)));
+        assert_matches!(LayeredCrossSection::new(1.5, &Width::new(vec![[0.1, 0.05], [1.0, 0.05]]), &layers, &materials, &ProfileAlignment::SectionCenter), Err(ModelError::WidthControlPointsInvalidRange(0.1, 1.0)));
+        assert_matches!(LayeredCrossSection::new(1.5, &Width::new(vec![[0.0, 0.05], [0.9, 0.05]]), &layers, &materials, &ProfileAlignment::SectionCenter), Err(ModelError::WidthControlPointsInvalidRange(0.0, 0.9)));
+        assert_matches!(LayeredCrossSection::new(1.5, &Width::new(vec![[0.0, 0.05], [1.0, 0.00]]), &layers, &materials, &ProfileAlignment::SectionCenter), Err(ModelError::WidthControlPointsInvalidValue(1.0, 0.0)));
 
         // 4. Invalid layers
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", vec![])], &materials, &LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsTooFew(0)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", vec![(0.0, 0.02)])], &materials, &LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsTooFew(1)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", vec![(1.0, 0.02), (0.0, 0.02)])], &materials, &LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsNotSorted(1.0, 0.0)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", vec![(-0.1, 0.02), (1.0, 0.02)])], &materials, &LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsInvalidRange(-0.1, 1.0)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", vec![(0.0, 0.02), (1.1, 0.02)])], &materials, &LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsInvalidRange(0.0, 1.1)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", vec![(0.0, 0.0), (0.5, 0.0), (1.0, 0.0)])], &materials, &LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsInvalidInteriorValue(0.5, 0.0)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", vec![(0.0, -0.1), (0.5, 0.02), (1.0, 0.0)])], &materials, &LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsInvalidBoundaryValue(0.0, -0.1)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", vec![(0.1, 0.02), (1.0, 0.02)])], &materials, &LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(0.1, 0.02)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", vec![(0.0, 0.02), (0.9, 0.02)])], &materials, &LayerAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(0.9, 0.02)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", Height::new(vec![]))], &materials, &ProfileAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsTooFew(0)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", Height::new(vec![[0.0, 0.02]]))], &materials, &ProfileAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsTooFew(1)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", Height::new(vec![[1.0, 0.02], [0.0, 0.02]]))], &materials, &ProfileAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsNotSorted(1.0, 0.0)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", Height::new(vec![[-0.1, 0.02], [1.0, 0.02]]))], &materials, &ProfileAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsInvalidRange(-0.1, 1.0)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", Height::new(vec![[0.0, 0.02], [1.1, 0.02]]))], &materials, &ProfileAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsInvalidRange(0.0, 1.1)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", Height::new(vec![[0.0, 0.0], [0.5, 0.0], [1.0, 0.0]]))], &materials, &ProfileAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsInvalidInteriorValue(0.5, 0.0)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", Height::new(vec![[0.0, -0.1], [0.5, 0.02], [1.0, 0.0]]))], &materials, &ProfileAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsInvalidBoundaryValue(0.0, -0.1)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", Height::new(vec![[0.1, 0.02], [1.0, 0.02]]))], &materials, &ProfileAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(0.1, 0.02)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", Height::new(vec![[0.0, 0.02], [0.9, 0.02]]))], &materials, &ProfileAlignment::SectionCenter), Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(0.9, 0.02)));
 
         // 5. Invalid cross section
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![], &materials, &LayerAlignment::SectionCenter), Err(ModelError::CrossSectionNoLayers));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &layers, &vec![], &LayerAlignment::SectionCenter), Err(ModelError::CrossSectionNoMaterials));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "nonexistent", vec![(0.0, 0.02), (1.0, 0.02)])], &materials, &LayerAlignment::SectionCenter), Err(ModelError::CrossSectionInvalidMaterialName(_, _)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &layers, &materials, &LayerAlignment::LayerBack("nonexistent".to_string())), Err(ModelError::CrossSectionInvalidLayerName(_)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &layers, &materials, &LayerAlignment::LayerBelly("nonexistent".to_string())), Err(ModelError::CrossSectionInvalidLayerName(_)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &layers, &materials, &LayerAlignment::LayerCenter("nonexistent".to_string())), Err(ModelError::CrossSectionInvalidLayerName(_)));
-        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", vec![(0.0, 0.02), (1.0, 0.0)])], &materials, &LayerAlignment::SectionCenter), Err(ModelError::CrossSectionZeroCombinedHeight(1.0)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![], &materials, &ProfileAlignment::SectionCenter), Err(ModelError::CrossSectionNoLayers));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &layers, &vec![], &ProfileAlignment::SectionCenter), Err(ModelError::CrossSectionNoMaterials));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "nonexistent", Height::new(vec![[0.0, 0.02], [1.0, 0.02]]))], &materials, &ProfileAlignment::SectionCenter), Err(ModelError::CrossSectionInvalidMaterialName(_, _)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &layers, &materials, &ProfileAlignment::LayerBack("nonexistent".to_string())), Err(ModelError::CrossSectionInvalidLayerName(_)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &layers, &materials, &ProfileAlignment::LayerBelly("nonexistent".to_string())), Err(ModelError::CrossSectionInvalidLayerName(_)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &layers, &materials, &ProfileAlignment::LayerCenter("nonexistent".to_string())), Err(ModelError::CrossSectionInvalidLayerName(_)));
+        assert_matches!(LayeredCrossSection::new(1.5, &width, &vec![Layer::new("layer", "material", Height::new(vec![[0.0, 0.02], [1.0, 0.0]]))], &materials, &ProfileAlignment::SectionCenter), Err(ModelError::CrossSectionZeroCombinedHeight(1.0)));
     }
 
     #[test]
@@ -418,11 +393,11 @@ mod tests {
         let hm = 0.5*(hs + he);
 
         let materials = vec![Material::new("material", "#000000", 1.0, 1.0, 1.0)];
-        let width = Width::new(vec![(0.0, ws), (1.0, we)]);
-        let layers = vec![Layer::new("layer", "material", vec![(0.0, hs), (1.0, he)])];
+        let width = Width::linear(ws, we);
+        let layers = vec![Layer::new("layer", "material", Height::linear(hs, he))];
 
         // Section with alignment SectionBelly
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::SectionBelly).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::SectionBelly).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -446,7 +421,7 @@ mod tests {
         assert_abs_diff_eq!(section.layer_bounds(se).1, section.layer_heights(se));
 
         // Section with alignment SectionBack
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::SectionBack).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::SectionBack).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -470,7 +445,7 @@ mod tests {
         assert_abs_diff_eq!(section.layer_bounds(se).1, section.layer_heights(se));
 
         // Section with alignment SectionCenter
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::SectionCenter).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::SectionCenter).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -494,7 +469,7 @@ mod tests {
         assert_abs_diff_eq!(section.layer_bounds(se).1, section.layer_heights(se));
 
         // Section with alignment LayerBelly (same as SectionBelly since section consists of only one layer)
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::LayerBelly("layer".into())).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::LayerBelly("layer".into())).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -518,7 +493,7 @@ mod tests {
         assert_abs_diff_eq!(section.layer_bounds(se).1, section.layer_heights(se));
 
         // Section with alignment LayerBack (same as SectionBack since section consists of only one layer)
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::LayerBack("layer".into())).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::LayerBack("layer".into())).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -542,7 +517,7 @@ mod tests {
         assert_abs_diff_eq!(section.layer_bounds(se).1, section.layer_heights(se));
 
         // Section with alignment LayerCenter (same as SectionCenter since section consists of only one layer)
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::LayerCenter("layer".into())).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::LayerCenter("layer".into())).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -596,15 +571,15 @@ mod tests {
         let hm2 = 0.5*(hs2 + he2);
 
         let materials = vec![Material::new("material", "#000000", 1.0, 1.0, 1.0)];
-        let width = Width::new(vec![(0.0, ws), (1.0, we)]);
+        let width = Width::linear(ws, we);
         let layers = vec![
-            Layer::new("layer_0", "material", vec![(0.0, hs0), (1.0, he0)]),
-            Layer::new("layer_1", "material", vec![(0.0, hs1), (1.0, he1)]),
-            Layer::new("layer_2", "material", vec![(0.0, hs2), (1.0, he2)])
+            Layer::new("layer_0", "material", Height::linear(hs0, he0)),
+            Layer::new("layer_1", "material", Height::linear(hs1, he1)),
+            Layer::new("layer_2", "material", Height::linear(hs2, he2))
         ];
 
         // Section with alignment SectionBelly
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::SectionBelly).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::SectionBelly).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -628,7 +603,7 @@ mod tests {
         assert_abs_diff_eq!(section.layer_bounds(se).1, section.layer_heights(se));
 
         // Section with alignment SectionBack
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::SectionBack).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::SectionBack).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -652,7 +627,7 @@ mod tests {
         assert_abs_diff_eq!(section.layer_bounds(se).1, section.layer_heights(se));
 
         // Section with alignment SectionCenter
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::SectionCenter).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::SectionCenter).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -676,7 +651,7 @@ mod tests {
         assert_abs_diff_eq!(section.layer_bounds(se).1, section.layer_heights(se));
 
         // Section with alignment LayerBelly for Layer 0
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::LayerBelly("layer_0".into())).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::LayerBelly("layer_0".into())).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -700,7 +675,7 @@ mod tests {
         assert_abs_diff_eq!(section.layer_bounds(se).1, section.layer_heights(se));
 
         // Section with alignment LayerBack for Layer 0
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::LayerBack("layer_0".into())).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::LayerBack("layer_0".into())).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -724,7 +699,7 @@ mod tests {
         assert_abs_diff_eq!(section.layer_bounds(se).1, section.layer_heights(se));
 
         // Section with alignment LayerCenter for Layer 0
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::LayerCenter("layer_0".into())).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::LayerCenter("layer_0".into())).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -748,7 +723,7 @@ mod tests {
         assert_abs_diff_eq!(section.layer_bounds(se).1, section.layer_heights(se));
 
         // Section with alignment LayerBelly for Layer 1
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::LayerBelly("layer_1".into())).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::LayerBelly("layer_1".into())).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -772,7 +747,7 @@ mod tests {
         assert_abs_diff_eq!(section.layer_bounds(se).1, section.layer_heights(se));
 
         // Section with alignment LayerBack for Layer 1
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::LayerBack("layer_1".into())).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::LayerBack("layer_1".into())).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -796,7 +771,7 @@ mod tests {
         assert_abs_diff_eq!(section.layer_bounds(se).1, section.layer_heights(se));
 
         // Section with alignment LayerCenter for Layer 1
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::LayerCenter("layer_1".into())).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::LayerCenter("layer_1".into())).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -820,7 +795,7 @@ mod tests {
         assert_abs_diff_eq!(section.layer_bounds(se).1, section.layer_heights(se));
 
         // Section with alignment LayerBelly for Layer 2
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::LayerBelly("layer_2".into())).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::LayerBelly("layer_2".into())).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -844,7 +819,7 @@ mod tests {
         assert_abs_diff_eq!(section.layer_bounds(se).1, section.layer_heights(se));
 
         // Section with alignment LayerBack for Layer 2
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::LayerBack("layer_2".into())).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::LayerBack("layer_2".into())).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -868,7 +843,7 @@ mod tests {
         assert_abs_diff_eq!(section.layer_bounds(se).1, section.layer_heights(se));
 
         // Section with alignment LayerCenter for Layer 2
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::LayerCenter("layer_2".into())).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::LayerCenter("layer_2".into())).unwrap();
 
         // Start
         assert_abs_diff_eq!(section.width(ss), ws);
@@ -906,12 +881,12 @@ mod tests {
         let w = 0.05;
         let h = 0.02;
 
-        let width = Width::new(vec![(0.0, w), (1.0, w)]);
+        let width = Width::constant(w);
         let materials = vec![Material::new("material", "#000000", rho, E, G)];
-        let layers = vec![Layer::new("layer", "material", vec![(0.0, h), (1.0, h)])];
+        let layers = vec![Layer::new("layer", "material", Height::constant(h))];
 
         // Reference point is section center
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::SectionCenter).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::SectionCenter).unwrap();
         let C_ref = matrix![
             E*w*h, 0.0, 0.0;
             0.0, E*w*h.powi(3)/12.0, 0.0;
@@ -924,7 +899,7 @@ mod tests {
         assert_abs_diff_eq!(section.C(s), C_ref, epsilon=1e-9);
 
         // Reference point is section back
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::SectionBack).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::SectionBack).unwrap();
         let C_ref = matrix![
             E*w*h, E*(w*h*0.5*h), 0.0;
             E*(w*h*0.5*h), E*(w*h.powi(3)/12.0 + (0.5*h).powi(2)*(w*h)), 0.0;
@@ -937,7 +912,7 @@ mod tests {
         assert_abs_diff_eq!(section.C(s), C_ref, epsilon=1e-9);
 
         // Reference point is section belly
-        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &LayerAlignment::SectionBelly).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &layers, &materials, &ProfileAlignment::SectionBelly).unwrap();
         let C_ref = matrix![
             E*w*h, -E*(w*h*0.5*h), 0.0;
             -E*(w*h*0.5*h), E*(w*h.powi(3)/12.0 + (0.5*h).powi(2)*(w*h)), 0.0;
@@ -991,12 +966,12 @@ mod tests {
         let material2 = Material::new("B", "#000000", rho2, E2, G2);
         let material3 = Material::new("C", "#000000", rho3, E3, G3);
 
-        let width = Width::new(vec![(0.0, w), (1.0, w)]);
-        let layer1 = Layer::new("1", "A", vec![(0.0, h1), (1.0, h1)]);
-        let layer2 = Layer::new("2", "B", vec![(0.0, h2), (1.0, h2)]);
-        let layer3 = Layer::new("3", "C", vec![(0.0, h3), (1.0, h3)]);
+        let width = Width::constant(w);
+        let layer1 = Layer::new("1", "A", Height::constant(h1));
+        let layer2 = Layer::new("2", "B", Height::constant(h2));
+        let layer3 = Layer::new("3", "C", Height::constant(h3));
 
-        let section = LayeredCrossSection::new(l, &width, &vec![layer1, layer2, layer3], &vec![material1, material2, material3], &LayerAlignment::SectionCenter).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &vec![layer1, layer2, layer3], &vec![material1, material2, material3], &ProfileAlignment::SectionCenter).unwrap();
         let C_ref = matrix![
             E1*A1 + E2*A2 + E3*A3, -E1*A1*y1 - E2*A2*y2 - E3*A3*y3, 0.0;
             -E1*A1*y1 - E2*A2*y2 - E3*A3*y3, E1*I1 + E2*I2 + E3*I3, 0.0;
@@ -1038,14 +1013,14 @@ mod tests {
         let material_c = Material::new("C", "#000000", rho, Ec, 0.5*Ec);
         let material_s = Material::new("S", "#000000", rho, Es, 0.5*Es);
 
-        let width = Width::new(vec![(0.0, w), (1.0, w)]);
-        let layer1 = Layer::new("1", "C", vec![(0.0, h), (1.0, h)]);
-        let layer2 = Layer::new("2", "S", vec![(0.0, h), (1.0, h)]);
-        let layer3 = Layer::new("3", "C", vec![(0.0, h), (1.0, h)]);
-        let layer4 = Layer::new("4", "S", vec![(0.0, h), (1.0, h)]);
-        let layer5 = Layer::new("5", "C", vec![(0.0, h), (1.0, h)]);
+        let width = Width::constant(w);
+        let layer1 = Layer::new("1", "C", Height::constant(h));
+        let layer2 = Layer::new("2", "S", Height::constant(h));
+        let layer3 = Layer::new("3", "C", Height::constant(h));
+        let layer4 = Layer::new("4", "S", Height::constant(h));
+        let layer5 = Layer::new("5", "C", Height::constant(h));
 
-        let section = LayeredCrossSection::new(l, &width, &vec![layer1, layer2, layer3, layer4, layer5], &vec![material_c, material_s], &LayerAlignment::SectionCenter).unwrap();
+        let section = LayeredCrossSection::new(l, &width, &vec![layer1, layer2, layer3, layer4, layer5], &vec![material_c, material_s], &ProfileAlignment::SectionCenter).unwrap();
 
         // Determine generalized strains from normal force and torque by inverting/solving the stiffness relation
         let strains = section.C(s).qr().solve(&vector![N, M, 0.0]).unwrap();

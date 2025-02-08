@@ -1,43 +1,12 @@
-// Curve segment described by two cubic splines in x and y directon
-
 use iter_num_tools::lin_space;
 use nalgebra::{SVector, vector};
-use serde::{Deserialize, Serialize};
-use crate::bow::errors::ModelError;
+use crate::bow::input::Spline;
 use crate::bow::profile::profile::CurvePoint;
 use crate::fem::elements::beam::geometry::PlanarCurve;
-use crate::numerics::cubic_spline::BoundaryCondition::{FirstDerivative, SecondDerivative};
-use crate::numerics::cubic_spline::{CubicSpline, Extrapolation};
+use crate::numerics::spline::BoundaryCondition::{FirstDerivative, SecondDerivative};
+use crate::numerics::spline::{CubicSpline, Extrapolation};
 
 // Curve segment that is defined by a number of 2d control points interpolated by cubic splines.
-
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
-pub struct SplineInput {
-    pub points: Vec<(f64, f64)>
-}
-
-impl SplineInput {
-    pub fn new(points: Vec<(f64, f64)>) -> Self {
-        Self {
-            points
-        }
-    }
-
-    pub fn validate(&self, index: usize) -> Result<(), ModelError> {
-        let Self { points } = self;
-
-        if points.len() < 2 {
-            return Err(ModelError::SplineSegmentTooFewPoints(index, points.len()));
-        }
-        for point in points {
-            if !point.0.is_finite() || !point.1.is_finite() {
-                return Err(ModelError::SplineSegmentInvalidPoint(index, *point));
-            }
-        }
-
-        Ok(())
-    }
-}
 
 pub struct SplineSegment {
     spline_t: CubicSpline,    // t(s): arc length -> parameter
@@ -46,20 +15,20 @@ pub struct SplineSegment {
 }
 
 impl SplineSegment {
-    pub fn new(start: &CurvePoint, input: &SplineInput) -> SplineSegment {
+    pub fn new(start: &CurvePoint, input: &Spline) -> SplineSegment {
         let mut x = Vec::<f64>::with_capacity(input.points.len() + 1);
         let mut y = Vec::<f64>::with_capacity(input.points.len() + 1);
 
         // Add point (0, 0) if missing
-        if !input.points.is_empty() && input.points[0] != (0.0, 0.0) {
+        if !input.points.is_empty() && input.points[0] != [0.0, 0.0] {
             x.push(start.r[0]);
             y.push(start.r[1]);
         }
 
         // Add points from model, relative to starting point
         for point in &input.points {
-            x.push(start.r[0] + point.0);
-            y.push(start.r[1] + point.1);
+            x.push(start.r[0] + point[0]);
+            y.push(start.r[1] + point[1]);
         }
 
         assert!(x.len() >= 2, "At least two points are required");

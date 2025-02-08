@@ -1,1 +1,0 @@
-„§version¥setup¤limb‡¦layers¦length¨position¥width¦height§density©stiffness§staticsªyes please¨dynamicsÃ

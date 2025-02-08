@@ -2,7 +2,7 @@
 
 use virtualbow::bow::simulation::{Simulation, SimulationMode};
 use virtualbow::bow::errors::ModelError;
-use virtualbow::bow::input::BowInput;
+use virtualbow::bow::input::BowModel;
 use clap::Parser;
 use std::path::PathBuf;
 use std::process::ExitCode;
@@ -38,7 +38,7 @@ impl Args {
     // Performs the desired simulation according to the command line arguments
     // and save the results to the specified output path
     fn execute(&self) -> Result<(), ModelError> {
-        let model = BowInput::load(&self.input)?;
+        let model = BowModel::load(&self.input)?;
 
         let output = Simulation::simulate(&model, self.mode, |stage, progress| {
             if self.progress {

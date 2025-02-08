@@ -1,105 +1,12 @@
 use std::f64::consts::{FRAC_PI_2, TAU};
 use fresnel::fresnl;
 use nalgebra::{SVector, vector};
-use serde::{Deserialize, Serialize};
-use crate::bow::errors::ModelError;
+use crate::bow::input::{Arc, Line, Spiral};
 use crate::bow::profile::profile::CurvePoint;
 use crate::fem::elements::beam::geometry::PlanarCurve;
 
 // Curve segment whose curvature varies linearly varying over its arc length.
 // Can represent a clothoid, circular arc or a straight line depending on the choice of parameters.
-
-// Line parameters
-
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
-pub struct LineInput {
-    pub length: f64
-}
-
-impl LineInput {
-    pub fn new(length: f64) -> Self {
-        Self {
-            length
-        }
-    }
-
-    pub fn validate(&self, index: usize) -> Result<(), ModelError> {
-        let &Self { length } = self;
-
-        if !length.is_finite() || length <= 0.0 {
-            return Err(ModelError::LineSegmentInvalidLength(index, length));
-        }
-
-        Ok(())
-    }
-}
-
-// Arc parameters
-
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
-pub struct ArcInput {
-    pub length: f64,
-    pub radius: f64
-}
-
-impl ArcInput {
-    pub fn new(length: f64, radius: f64) -> Self {
-        Self {
-            length,
-            radius,
-        }
-    }
-
-    pub fn validate(&self, index: usize) -> Result<(), ModelError> {
-        let &Self { length, radius } = self;
-
-        if !length.is_finite() || length <= 0.0 {
-            return Err(ModelError::ArcSegmentInvalidLength(index, length));
-        }
-        if !radius.is_finite() {
-            return Err(ModelError::ArcSegmentInvalidRadius(index, radius));
-        }
-
-        Ok(())
-    }
-}
-
-// Spiral parameters
-
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
-pub struct SpiralInput {
-    pub length: f64,
-    pub radius0: f64,
-    pub radius1: f64
-}
-
-impl SpiralInput {
-    pub fn new(length: f64, radius0: f64, radius1: f64) -> Self {
-        Self {
-            length,
-            radius0,
-            radius1
-        }
-    }
-
-    pub fn validate(&self, index: usize) -> Result<(), ModelError> {
-        let &Self { length, radius0, radius1 } = self;
-
-        if !length.is_finite() || length <= 0.0 {
-            return Err(ModelError::SpiralSegmentInvalidLength(index, length));
-        }
-        if !radius0.is_finite() {
-            return Err(ModelError::SpiralSegmentInvalidRadius1(index, radius0));
-        }
-        if !radius1.is_finite() {
-            return Err(ModelError::SpiralSegmentInvalidRadius2(index, radius1));
-        }
-
-        Ok(())
-    }
-}
-
-// Common segment implementation for line, arc and spiral input
 
 pub struct ClothoidSegment {
     s0: f64,
@@ -112,15 +19,15 @@ pub struct ClothoidSegment {
 }
 
 impl ClothoidSegment {
-    pub fn line(start: &CurvePoint, input: &LineInput) -> ClothoidSegment {
+    pub fn line(start: &CurvePoint, input: &Line) -> ClothoidSegment {
         Self::new(start, input.length, 0.0, 0.0)
     }
 
-    pub fn arc(start: &CurvePoint, input: &ArcInput) -> ClothoidSegment {
+    pub fn arc(start: &CurvePoint, input: &Arc) -> ClothoidSegment {
         Self::new(start, input.length, Self::radius_to_curvature(input.radius), Self::radius_to_curvature(input.radius))
     }
 
-    pub fn spiral(start: &CurvePoint, input: &SpiralInput) -> ClothoidSegment {
+    pub fn spiral(start: &CurvePoint, input: &Spiral) -> ClothoidSegment {
         Self::new(start, input.length, Self::radius_to_curvature(input.radius0), Self::radius_to_curvature(input.radius1))
     }
 

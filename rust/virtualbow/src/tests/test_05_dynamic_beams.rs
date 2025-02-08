@@ -2,10 +2,10 @@ use std::f64::consts::{FRAC_PI_2, TAU};
 use iter_num_tools::lin_space;
 use itertools::Itertools;
 use nalgebra::{SVector, vector};
-use crate::bow::input::{Layer, Material, Width};
+use crate::bow::input::{Height, Layer, Line, Material, ProfileAlignment, Width};
 use crate::bow::profile::profile::CurvePoint;
-use crate::bow::profile::segments::clothoid::{ClothoidSegment, LineInput};
-use crate::bow::sections::section::{LayerAlignment, LayeredCrossSection};
+use crate::bow::profile::segments::clothoid::ClothoidSegment;
+use crate::bow::sections::section::LayeredCrossSection;
 use crate::fem::elements::beam::beam::BeamElement;
 use crate::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
 use crate::fem::elements::beam::linear::LinearBeamSegment;
@@ -46,16 +46,16 @@ fn test_linear_beam_dynamics() {
     // Initial deflection: Cubic polynomial (static solution)
     //let w0 = |x: f64| 0.01*x.powi(3)*(3.0*l - x);
     //let φ0 = |x: f64| 0.01*x.powi(2)*(9.0*l - 4.0*x);
-    //let v0 = |_: f64| 0.0;
+    //let v1 = |_: f64| 0.0;
 
     let x_nodes = lin_space(0.0..=l, N_ELEMENTS+1).collect_vec();
     let start = CurvePoint::zero();
-    let curve = ClothoidSegment::line(&start, &LineInput::new(l));
+    let curve = ClothoidSegment::line(&start, &Line::new(l));
 
     let material = Material::new("material", "#000000", ρ, E, G);
     let width = Width::constant(w);
-    let layer = Layer::new("layer", "material", vec![(0.0, h), (1.0, h)]);    // Height should have same convenience functions as width (constant, linear)
-    let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], &LayerAlignment::SectionCenter).unwrap();
+    let layer = Layer::new("layer", "material", Height::constant(h));
+    let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], &ProfileAlignment::SectionCenter).unwrap();
 
     let mut system = System::new();
     let mut nodes = Vec::new();

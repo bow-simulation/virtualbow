@@ -1,9 +1,10 @@
 pub mod bisection;
-pub mod root_finding;
+pub mod roots;
 pub mod integration;
-pub mod cubic_spline;
+pub mod spline;
 pub mod tridiagonal;
 pub mod functions;
 pub mod intervals;
 pub mod geometry;
 pub mod newton;
+pub mod minmax;
