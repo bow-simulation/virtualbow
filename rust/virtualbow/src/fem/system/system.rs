@@ -161,7 +161,7 @@ impl System {
     // Evaluates the element with the current system state
     // Only necessary in special occasions, usually the solvers do this anyway.
     // TODO: Do this when elements are added to the system
-    pub fn eval_element(&mut self, index: usize) {
+    pub fn update_element(&mut self, index: usize) {
         let (dofs, element) = &mut self.elements[index];
         let u_view = PositionView::new(&self.u, dofs);
         let v_view = VelocityView::new(&self.v, dofs);

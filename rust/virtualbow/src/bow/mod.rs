@@ -5,5 +5,3 @@ pub mod sections;
 pub mod profile;
 pub mod errors;
 pub mod geometry;
-pub mod compatibility;
-pub mod versioning;

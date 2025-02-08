@@ -11,21 +11,15 @@ pub enum ModelError {
     InputSaveFileError(PathBuf, std::io::Error),
     InputSerializeJsonError(serde_json::error::Error),
     InputDeserializeJsonError(serde_json::error::Error),
-    InputInterpretJsonError(serde_json::error::Error),
-    InputVersionNotFound,
-    InputVersionInvalid(String),
-    InputVersionTooOld(String),
-    InputVersionTooNew(u64),
-    InputConversionError(u64, u64, String),
+    InputVersionUnsupported,  // TODO: Create issue for getting out the actual version information
+    InputVersionUnrecognized,  // TODO: Create issue for getting out the actual version information
 
     OutputLoadFileError(PathBuf, std::io::Error),
     OutputSaveFileError(PathBuf, std::io::Error),
     OutputEncodeMsgPackError(rmp_serde::encode::Error),
-    OutputDecodeMsgPackError(rmpv::decode::Error),
-    OutputInterpretMsgPackError(rmpv::ext::Error),
-    OutputVersionNotFound,
-    OutputVersionInvalid(String),
-    OutputVersionMismatch(u64),
+    OutputDecodeMsgPackError(rmp_serde::decode::Error),
+    OutputVersionUnsupported,  // TODO: Create issue for getting out the actual version information
+    OutputVersionUnrecognized,  // TODO: Create issue for getting out the actual version information
 
     SettingsInvalidLimbElements(usize),
     SettingsInvalidLimbEvalPoints(usize),
@@ -94,7 +88,7 @@ pub enum ModelError {
     SpiralSegmentInvalidRadius1(usize, f64),
     SpiralSegmentInvalidRadius2(usize, f64),
     SplineSegmentTooFewPoints(usize, usize),
-    SplineSegmentInvalidPoint(usize, (f64, f64)),
+    SplineSegmentInvalidPoint(usize, [f64; 2]),
 
     GeometrySelfIntersectionBack(f64),
     GeometrySelfIntersectionBelly(f64),
@@ -110,25 +104,19 @@ pub enum ModelError {
 impl Display for ModelError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            ModelError::InputLoadFileError(path, error)     => write!(f, "Failed to open file {path:?}: {error}")?,
-            ModelError::InputSaveFileError(path, error)     => write!(f, "Failed to write file {path:?}: {error}")?,
-            ModelError::InputSerializeJsonError(error)      => write!(f, "Failed to convert bow model to json: {error}")?,
-            ModelError::InputDeserializeJsonError(error)    => write!(f, "Failed to parse bow model from json: {error}")?,
-            ModelError::InputInterpretJsonError(error)      => write!(f, "Failed to parse bow model from json: {error}")?,
-            ModelError::InputVersionNotFound                => write!(f, "Failed to load bow model, file version number was not found")?,
-            ModelError::InputVersionInvalid(version)        => write!(f, "Failed to load bow model, {version} is not a valid file version number.")?,
-            ModelError::InputVersionTooOld(version)         => write!(f, "Failed to load bow model, file version {version} is no longer supported.")?,
-            ModelError::InputVersionTooNew(version)         => write!(f, "Failed to load bow model, file version {version} is too new to be recognized. Please consider updating to a recent version of VirtualBow.")?,
-            ModelError::InputConversionError(a, b, message) => write!(f, "Failed to update bow model from file version {a} to {b}: {message}")?,
+            ModelError::InputLoadFileError(path, error)  => write!(f, "Failed to open file {path:?}: {error}")?,
+            ModelError::InputSaveFileError(path, error)  => write!(f, "Failed to write file {path:?}: {error}")?,
+            ModelError::InputSerializeJsonError(error)   => write!(f, "Failed to convert bow model to json: {error}")?,
+            ModelError::InputDeserializeJsonError(error) => write!(f, "Failed to parse bow model from json: {error}")?,
+            ModelError::InputVersionUnsupported          => write!(f, "Failed to load bow model: Files below version 0.7 are no longer supported.")?,
+            ModelError::InputVersionUnrecognized         => write!(f, "Failed to load bow model: File version is not recognized. The file might have been created with a newer version of VirtualBow, in which case updating might solve the issue.")?,
 
             ModelError::OutputLoadFileError(path, error)   => write!(f, "Failed to open file {path:?}: {error}")?,
             ModelError::OutputSaveFileError(path, error)   => write!(f, "Failed to write file {path:?}: {error}")?,
             ModelError::OutputEncodeMsgPackError(error)    => write!(f, "Failed to convert results to msgpack: {error}")?,
             ModelError::OutputDecodeMsgPackError(error)    => write!(f, "Failed to parse results from msgpack: {error}")?,
-            ModelError::OutputInterpretMsgPackError(error) => write!(f, "Failed to parse results from msgpack: {error}")?,
-            ModelError::OutputVersionNotFound              => write!(f, "Failed to load results, file version number was not found")?,
-            ModelError::OutputVersionInvalid(version)      => write!(f, "Failed to load results, {version} is not a valid file version number.")?,
-            ModelError::OutputVersionMismatch(version)     => write!(f, "Failed to load results, file version {version} is not supported by this version of VirtualBow. Please regenerate the results or open them with a matching version of VirtualBow.")?,
+            ModelError::OutputVersionUnsupported           => write!(f, "Failed to load results, file version is not supported. VirtualBow result files can only be opened with the same version of VirtualBow that created them. Please recreate the results or open them with a matching version of VirtualBow.")?,
+            ModelError::OutputVersionUnrecognized          => write!(f, "Failed to load results, file version is not recognized. VirtualBow result files can only be opened with the same version of VirtualBow that created them. Please recreate the results or open them with a matching version of VirtualBow.")?,
 
             ModelError::SettingsInvalidLimbElements(value)            => write!(f, "Settings: Number of limb elements must be at least 1 but actual number is {value}.")?,
             ModelError::SettingsInvalidLimbEvalPoints(value)          => write!(f, "Settings: Number of limb evaluation points must be at least 2 but actual number is {value}.")?,

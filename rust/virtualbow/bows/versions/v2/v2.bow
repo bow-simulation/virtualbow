@@ -13,6 +13,7 @@
     },
     "layers": [
         {
+            "E": 15000000000.0,
             "height": [
                 [
                     0.0,
@@ -23,10 +24,11 @@
                     0.002
                 ]
             ],
-            "material": 0,
-            "name": "Layer 1"
+            "name": "Back",
+            "rho": 600.0
         },
         {
+            "E": 5000000000.0,
             "height": [
                 [
                     0.0,
@@ -37,10 +39,11 @@
                     0.005
                 ]
             ],
-            "material": 1,
-            "name": "Layer 2"
+            "name": "Core",
+            "rho": 400.0
         },
         {
+            "E": 15000000000.0,
             "height": [
                 [
                     0.0,
@@ -51,8 +54,8 @@
                     0.002
                 ]
             ],
-            "material": 2,
-            "name": "Layer 3"
+            "name": "Belly",
+            "rho": 600.0
         }
     ],
     "masses": {
@@ -61,70 +64,26 @@
         "string_center": 0.005,
         "string_tip": 0.004
     },
-    "materials": [
-        {
-            "E": 15000000000.0,
-            "color": "#1f77b4",
-            "name": "Back",
-            "rho": 600.0
-        },
-        {
-            "E": 5000000000.0,
-            "color": "#ff7f0e",
-            "name": "Core",
-            "rho": 400.0
-        },
-        {
-            "E": 15000000000.0,
-            "color": "#1f77b4",
-            "name": "Belly",
-            "rho": 600.0
-        }
-    ],
     "profile": [
-        {
-            "parameters": {
-                "length": 0.3
-            },
-            "type": "line"
-        },
-        {
-            "parameters": {
-                "length": 0.3,
-                "r_end": 1.0,
-                "r_start": 0.0
-            },
-            "type": "spiral"
-        },
-        {
-            "parameters": {
-                "length": 0.20000000000000007,
-                "radius": 1.0
-            },
-            "type": "arc"
-        },
-        {
-            "parameters": {
-                "points": [
-                    [
-                        0.0,
-                        0.0
-                    ],
-                    [
-                        0.05,
-                        0.01
-                    ],
-                    [
-                        0.1,
-                        0.0
-                    ]
-                ]
-            },
-            "type": "spline"
-        }
+        [
+            0.0,
+            0.0
+        ],
+        [
+            0.3,
+            0.0
+        ],
+        [
+            0.6,
+            1.0
+        ],
+        [
+            0.8,
+            1.0
+        ]
     ],
     "settings": {
-        "arrow_clamp_force": 0.0,
+        "arrow_clamp_force": 0.5,
         "n_draw_steps": 150,
         "n_limb_elements": 20,
         "n_string_elements": 25,
@@ -137,7 +96,7 @@
         "strand_density": 0.0005,
         "strand_stiffness": 3500.0
     },
-    "version": "0.9.1",
+    "version": "0.8",
     "width": [
         [
             0.0,

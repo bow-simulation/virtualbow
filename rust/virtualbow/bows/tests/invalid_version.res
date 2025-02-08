@@ -1,1 +1,0 @@
-Ñßversion£abc•setupÅ§limbá¶layersê¶lengthê®positionê•widthê¶heightêßdensityê©stiffnessêßstatics¿®dynamics¿

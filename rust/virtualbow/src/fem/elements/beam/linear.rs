@@ -174,10 +174,10 @@ mod tests {
     use std::ops::AddAssign;
     use iter_num_tools::lin_space;
     use nalgebra::{DMatrix, matrix, SMatrix, stack, vector};
-    use crate::bow::sections::section::{LayerAlignment, LayeredCrossSection};
-    use crate::bow::input::{Layer, Material, Width};
+    use crate::bow::sections::section::LayeredCrossSection;
+    use crate::bow::input::{Arc, Height, Layer, Line, Material, ProfileAlignment, Width};
     use crate::bow::profile::profile::CurvePoint;
-    use crate::bow::profile::segments::clothoid::{ArcInput, ClothoidSegment, LineInput};
+    use crate::bow::profile::segments::clothoid::ClothoidSegment;
     use crate::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
     use crate::fem::elements::beam::linear::LinearBeamSegment;
 
@@ -190,12 +190,12 @@ mod tests {
         let length = 0.8;
         let alpha = 0.1;
         let start = CurvePoint::new(0.0, alpha, vector![1.5, 2.0]);
-        let curve = ClothoidSegment::line(&start, &LineInput{ length });
+        let curve = ClothoidSegment::line(&start, &Line{ length });
 
         let material = Material::new("material", "#000000", 7850.0, 210e9, 80e9);
-        let width = Width::new(vec![(0.0, 0.01), (1.0, 0.01)]);
-        let layer = Layer::new("layer", "material", vec![(0.0, 0.01), (1.0, 0.01)]);
-        let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], &LayerAlignment::SectionCenter).expect("Failed to construct cross section");
+        let width = Width::new(vec![[0.0, 0.01], [1.0, 0.01]]);
+        let layer = Layer::new("layer", "material", Height::constant(0.01));
+        let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], &ProfileAlignment::SectionCenter).expect("Failed to construct cross section");
 
         let n_elements = 100;
         let segment_fem = LinearBeamSegmentFEM::new(&curve, &section, 0.0, curve.length(), n_elements);
@@ -220,12 +220,12 @@ mod tests {
         // and an arbitrary starting point and -angle and compares it to the fem approximation.
 
         let start = CurvePoint::new(0.0, 0.1, vector![1.5, 2.0]);
-        let curve = ClothoidSegment::arc(&start, &ArcInput{ length: 0.8, radius: 0.4 });
+        let curve = ClothoidSegment::arc(&start, &Arc{ length: 0.8, radius: 0.4 });
 
         let material = Material::new("material", "#000000", 7850.0, 210e9, 80e9);
-        let width = Width::new(vec![(0.0, 0.01), (1.0, 0.01)]);
-        let layer = Layer::new("layer", "material", vec![(0.0, 0.01), (1.0, 0.01)]);
-        let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], &LayerAlignment::SectionCenter).expect("Failed to construct cross section");
+        let width = Width::new(vec![[0.0, 0.01], [1.0, 0.01]]);
+        let layer = Layer::new("layer", "material", Height::constant(0.01));
+        let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], &ProfileAlignment::SectionCenter).expect("Failed to construct cross section");
 
         let n_elements = 100;
         let segment_fem = LinearBeamSegmentFEM::new(&curve, &section, 0.0, curve.length(), n_elements);
@@ -246,12 +246,12 @@ mod tests {
         // and an arbitrary starting point and -angle and compares it to the fem approximation.
 
         let start = CurvePoint::new(0.0, 0.1, vector![1.5, 2.0]);
-        let curve = ClothoidSegment::arc(&start, &ArcInput{ length: 0.8, radius: 0.4 });
+        let curve = ClothoidSegment::arc(&start, &Arc{ length: 0.8, radius: 0.4 });
 
         let material = Material::new("material", "#000000", 7850.0, 210e9, 80e9);
-        let width = Width::new(vec![(0.0, 0.01), (1.0, 0.005)]);
-        let layer = Layer::new("layer", "material", vec![(0.0, 0.01), (1.0, 0.005)]);
-        let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], &LayerAlignment::SectionCenter).expect("Failed to construct cross section");
+        let width = Width::new(vec![[0.0, 0.01], [1.0, 0.005]]);
+        let layer = Layer::new("layer", "material", Height::linear(0.01, 0.005));
+        let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], &ProfileAlignment::SectionCenter).expect("Failed to construct cross section");
 
         let n_elements = 100;
         let segment_fem = LinearBeamSegmentFEM::new(&curve, &section, 0.0, curve.length(), n_elements);

@@ -123,8 +123,6 @@ impl<'a> StaticSolver<'a> {
             f.copy_from(&(&self.q - &self.pλ));
             dfdx.copy_from(&self.K);
             dfdλ.copy_from(&(-&self.p0));
-
-            //println!("λ = {}", λ);
         };
 
         let mut c = |x: &DVector<f64>, _λ: f64, c: &mut f64, dcdx: &mut DVector<f64>, dcdλ: &mut f64| {

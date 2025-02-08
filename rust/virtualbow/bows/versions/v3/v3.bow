@@ -24,7 +24,7 @@
                 ]
             ],
             "material": 0,
-            "name": "Back"
+            "name": "Layer 1"
         },
         {
             "height": [
@@ -38,7 +38,7 @@
                 ]
             ],
             "material": 1,
-            "name": "Core"
+            "name": "Layer 2"
         },
         {
             "height": [
@@ -51,8 +51,8 @@
                     0.002
                 ]
             ],
-            "material": 2,
-            "name": "Belly"
+            "material": 0,
+            "name": "Layer 3"
         }
     ],
     "masses": {
@@ -65,20 +65,14 @@
         {
             "E": 15000000000.0,
             "color": "#1f77b4",
-            "name": "Back",
+            "name": "Glass",
             "rho": 600.0
         },
         {
             "E": 5000000000.0,
             "color": "#ff7f0e",
-            "name": "Core",
+            "name": "Wood",
             "rho": 400.0
-        },
-        {
-            "E": 15000000000.0,
-            "color": "#1f77b4",
-            "name": "Belly",
-            "rho": 600.0
         }
     ],
     "profile": [
@@ -102,6 +96,25 @@
                 "radius": 1.0
             },
             "type": "arc"
+        },
+        {
+            "parameters": {
+                "points": [
+                    [
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.05,
+                        0.01
+                    ],
+                    [
+                        0.1,
+                        0.0
+                    ]
+                ]
+            },
+            "type": "spline"
         }
     ],
     "settings": {
