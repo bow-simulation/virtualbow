@@ -8,10 +8,10 @@ use std::fs::File;
 use std::path::Path;
 use itertools::Itertools;
 use crate::bow::errors::ModelError;
-use crate::utils::validation::is_hex_color;
-
-pub use v4::*;
+use crate::utils::validation::{FloatValidation, IntegerValidation, StringValidation};
 use versions::BowModelVersions;
+
+pub use v4::*;  // Export latest version to the outside and implement below
 
 impl BowModel {
     pub fn load<P: AsRef<Path>>(path: P) -> Result<BowModel, ModelError> {
@@ -111,39 +111,19 @@ impl Settings {
     pub fn validate(&self) -> Result<(), ModelError> {
         let &Self { n_limb_elements, n_limb_eval_points, min_draw_resolution, max_draw_resolution, arrow_clamp_force, string_compression_factor, timespan_factor, timeout_factor, min_timestep, max_timestep, steps_per_period } = self;
 
-        if n_limb_elements < 1 {
-            return Err(ModelError::SettingsInvalidLimbElements(n_limb_elements));
-        }
-        if n_limb_eval_points < 2 {
-            return Err(ModelError::SettingsInvalidLimbEvalPoints(n_limb_eval_points));
-        }
-        if min_draw_resolution < 1 {
-            return Err(ModelError::SettingsInvalidMinDrawResolution(min_draw_resolution));
-        }
-        if max_draw_resolution < 1 {
-            return Err(ModelError::SettingsInvalidMaxDrawResolution(max_draw_resolution));
-        }
-        if !arrow_clamp_force.is_finite() || arrow_clamp_force < 0.0 {
-            return Err(ModelError::SettingsInvalidArrowClampForce(arrow_clamp_force));
-        }
-        if !string_compression_factor.is_finite() || string_compression_factor <= 0.0 {
-            return Err(ModelError::SettingsInvalidStringCompressionFactor(string_compression_factor));
-        }
-        if !timespan_factor.is_finite() || timespan_factor < 1.0 {
-            return Err(ModelError::SettingsInvalidTimeSpanFactor(timespan_factor));
-        }
-        if !timeout_factor.is_finite() || timeout_factor < 1.0 {
-            return Err(ModelError::SettingsInvalidTimeOutFactor(timeout_factor));
-        }
-        if !min_timestep.is_finite() || min_timestep <= 0.0 {
-            return Err(ModelError::SettingsInvalidMinTimeStep(min_timestep));
-        }
-        if !max_timestep.is_finite() || max_timestep <= 0.0 {
-            return Err(ModelError::SettingsInvalidMaxTimeStep(max_timestep));
-        }
-        if steps_per_period < 1 {
-            return Err(ModelError::SettingsInvalidStepsPerPeriod(steps_per_period));
-        }
+        n_limb_elements.validate_positive().map_err(ModelError::SettingsInvalidLimbElements)?;
+        n_limb_eval_points.validate_at_least(2).map_err(ModelError::SettingsInvalidLimbEvalPoints)?;
+        min_draw_resolution.validate_positive().map_err(ModelError::SettingsInvalidMinDrawResolution)?;
+        max_draw_resolution.validate_positive().map_err(ModelError::SettingsInvalidMaxDrawResolution)?;
+
+        arrow_clamp_force.validate_nonneg().map_err(ModelError::SettingsInvalidArrowClampForce)?;
+        string_compression_factor.validate_positive().map_err(ModelError::SettingsInvalidStringCompressionFactor)?;
+        timespan_factor.validate_at_least(1.0).map_err(ModelError::SettingsInvalidTimeSpanFactor)?;
+        timeout_factor.validate_at_least(1.0).map_err(ModelError::SettingsInvalidTimeOutFactor)?;
+
+        min_timestep.validate_positive().map_err(ModelError::SettingsInvalidMinTimeStep)?;
+        max_timestep.validate_positive().map_err(ModelError::SettingsInvalidMaxTimeStep)?;
+        steps_per_period.validate_positive().map_err(ModelError::SettingsInvalidStepsPerPeriod)?;
 
         Ok(())
     }
@@ -153,21 +133,12 @@ impl Dimensions {
     pub fn validate(&self) -> Result<(), ModelError> {
         let &Self { brace_height, draw_length, handle_length, handle_setback, handle_angle} = self;
 
-        if !brace_height.is_finite() {
-            return Err(ModelError::DimensionsInvalidBraceHeight(brace_height));
-        }
-        if !draw_length.is_finite() || draw_length <= brace_height {
-            return Err(ModelError::DimensionsInvalidDrawLength(draw_length));
-        }
-        if !handle_length.is_finite() || handle_length < 0.0 {
-            return Err(ModelError::DimensionsInvalidHandleLength(handle_length));
-        }
-        if !handle_setback.is_finite() {
-            return Err(ModelError::DimensionsInvalidHandleSetback(handle_setback));
-        }
-        if !handle_angle.is_finite() {
-            return Err(ModelError::DimensionsInvalidHandleAngle(handle_angle));
-        }
+        brace_height.validate_positive().map_err(ModelError::DimensionsInvalidBraceHeight)?;
+        draw_length.validate_larger_than(brace_height).map_err(ModelError::DimensionsInvalidDrawLength)?;
+
+        handle_length.validate_nonneg().map_err(ModelError::DimensionsInvalidHandleLength)?;
+        handle_setback.validate_finite().map_err(ModelError::DimensionsInvalidHandleSetback)?;
+        handle_angle.validate_finite().map_err(ModelError::DimensionsInvalidHandleAngle)?;
 
         Ok(())
     }
@@ -187,29 +158,18 @@ impl Material {
     pub fn validate(&self) -> Result<(), ModelError> {
         let Self { name, color, rho, E, G } = self;
 
-        if name.is_empty() {
-            return Err(ModelError::MaterialInvalidName(name.clone()));
-        }
-        if !is_hex_color(color) {
-            return Err(ModelError::MaterialInvalidColor(color.clone()));
-        }
-        if !rho.is_finite() || *rho <= 0.0 {
-            return Err(ModelError::MaterialInvalidDensity(*rho));
-        }
-        if !E.is_finite() || *E <= 0.0 {
-            return Err(ModelError::MaterialInvalidYoungsModulus(*E));
-        }
-        if !G.is_finite() || *G <= 0.0 {
-            return Err(ModelError::MaterialInvalidShearModulus(*G));
-        }
+        name.validate_name().map_err(ModelError::MaterialInvalidName)?;
+        color.validate_hex_color().map_err(ModelError::MaterialInvalidColor)?;
+
+        rho.validate_positive().map_err(ModelError::MaterialInvalidDensity)?;
+        E.validate_positive().map_err(ModelError::MaterialInvalidDensity)?;
+        G.validate_positive().map_err(ModelError::MaterialInvalidDensity)?;
 
         Ok(())
     }
 }
 
 impl Layer {
-    const REL_LENGTH_TOL: f64 = 1e-9;    // Tolerance used for validating inputs that are relative lengths
-
     pub fn new(name: &str, material: &str, height: Height) -> Self {
         Self {
             name: name.to_string(),
@@ -219,54 +179,11 @@ impl Layer {
     }
 
     pub fn validate(&self) -> Result<(), ModelError> {
-        let Self { name, material: _, height } = self;
+        let Self { name, material, height } = self;
 
-        let height = &height.0;
-
-        if name.is_empty() {
-            return Err(ModelError::LayerInvalidName(name.clone()));
-        }
-
-        // Material index is validated by the cross sections
-
-        // TODO: Height should be validated by the cross section in order to give an error message with the index of the layer
-        // Or maybe implement validation on Vec<Layer>?
-
-        if height.len() < 2 {
-            return Err(ModelError::LayerHeightControlPointsTooFew(height.len()));
-        }
-
-        if let Some((a, b)) = height.iter().tuple_windows().find(|(a, b)| b[0] <= a[0]) {
-            return Err(ModelError::LayerHeightControlPointsNotSorted(a[0], b[0]));
-        }
-
-        let first = height.first().unwrap();
-        let last = height.last().unwrap();
-
-        if (first[0] < 0.0 - Width::REL_LENGTH_TOL) || (last[0] > 1.0 + Width::REL_LENGTH_TOL) {
-            return Err(ModelError::LayerHeightControlPointsInvalidRange(first[0], last[0]));
-        }
-
-        for (i, a) in height.iter().enumerate() {
-            if i == 0 || i == height.len()-1 {
-                if !a[0].is_finite() || !a[1].is_finite() || a[0] < 0.0 || a[1] < 0.0 {
-                    return Err(ModelError::LayerHeightControlPointsInvalidBoundaryValue(a[0], a[1]));
-                }
-            }
-            else {
-                if !a[0].is_finite() || !a[1].is_finite() || a[0] <= 0.0 || a[1] <= 0.0 {
-                    return Err(ModelError::LayerHeightControlPointsInvalidInteriorValue(a[0], a[1]));
-                }
-            }
-        }
-
-        if first[0] > 0.0 + Layer::REL_LENGTH_TOL && first[1] != 0.0 {
-            return Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(first[0], first[1]));
-        }
-
-        if last[0] < 1.0 - Layer::REL_LENGTH_TOL && last[1] != 0.0 {
-            return Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(last[0], last[1]));
-        }
+        name.validate_name().map_err(ModelError::LayerInvalidName)?;
+        material.validate_name().map_err(ModelError::LayerInvalidName)?;
+        height.validate()?;
 
         Ok(())
     }
@@ -285,9 +202,7 @@ impl Profile {
 
         match alignment {
             ProfileAlignment::LayerBack(name) | ProfileAlignment::LayerBelly(name) | ProfileAlignment::LayerCenter(name) => {
-                if name.is_empty() {
-                    return Err(ModelError::ProfileAnlignemtInvalidLayerName(name.clone()));
-                }
+                name.validate_name().map_err(ModelError::ProfileAnlignemtInvalidLayerName)?;
             }
             _ => {
                 // Other alignment options don't need validation
@@ -303,8 +218,6 @@ impl Profile {
 }
 
 impl Width {
-    const REL_LENGTH_TOL: f64 = 1e-9;    // Tolerance used for validating inputs that are relative lengths
-
     pub fn new(points: Vec<[f64; 2]>) -> Self {
         Self(points)
     }
@@ -328,10 +241,10 @@ impl Width {
     pub fn validate(&self) -> Result<(), ModelError> {
         let Self( points ) = self;
 
-        if points.len() < 2 {
-            return Err(ModelError::WidthControlPointsTooFew(points.len()));
-        }
+        // At least two control points are required
+        points.len().validate_at_least(2).map_err(ModelError::WidthControlPointsTooFew)?;
 
+        // The control points must be sorted by strictly increasing position
         if let Some((a, b)) = points.iter().tuple_windows().find(|(a, b)| b[0] <= a[0]) {
             return Err(ModelError::WidthControlPointsNotSorted(a[0], b[0]));
         }
@@ -339,10 +252,11 @@ impl Width {
         let first = points.first().unwrap();
         let last = points.last().unwrap();
 
-        if ((first[0] - 0.0).abs() > Width::REL_LENGTH_TOL) || ((last[0] - 1.0).abs() > Width::REL_LENGTH_TOL) {
-            return Err(ModelError::WidthControlPointsInvalidRange(first[0], last[0]));
-        }
+        // The control points must cover the range 0 to 1 exactly
+        first[0].validate_equals(0.0).map_err(|_| ModelError::WidthControlPointsInvalidRange(first[0], last[0]))?;
+        last[0].validate_equals(1.0).map_err(|_| ModelError::WidthControlPointsInvalidRange(first[0], last[0]))?;
 
+        // The widths contained in the control points must be strictly positive
         if let Some(a) = points.iter().find(|a| !a[0].is_finite() || !a[1].is_finite() || a[1] <= 0.0) {
             return Err(ModelError::WidthControlPointsInvalidValue(a[0], a[1]));
         }
@@ -352,8 +266,6 @@ impl Width {
 }
 
 impl Height {
-    const REL_LENGTH_TOL: f64 = 1e-9;    // Tolerance used for validating inputs that are relative lengths
-
     pub fn new(points: Vec<[f64; 2]>) -> Self {
         Self(points)
     }
@@ -374,28 +286,41 @@ impl Height {
         ])
     }
 
-    // TODO: Use validation function within layer validation?
-    // TODO: This was copied from width, does it apply to height as well? Is it even used?
     pub fn validate(&self) -> Result<(), ModelError> {
         let Self( points ) = self;
 
-        if points.len() < 2 {
-            return Err(ModelError::WidthControlPointsTooFew(points.len()));
-        }
+        // At least two control points are required
+        points.len().validate_at_least(2).map_err(ModelError::LayerHeightControlPointsTooFew)?;
 
+        // Control points must be sorted by strictly increasing position
         if let Some((a, b)) = points.iter().tuple_windows().find(|(a, b)| b[0] <= a[0]) {
-            return Err(ModelError::WidthControlPointsNotSorted(a[0], b[0]));
+            return Err(ModelError::LayerHeightControlPointsNotSorted(a[0], b[0]));
         }
 
         let first = points.first().unwrap();
         let last = points.last().unwrap();
 
-        if ((first[0] - 0.0).abs() > Height::REL_LENGTH_TOL) || ((last[0] - 1.0).abs() > Height::REL_LENGTH_TOL) {
-            return Err(ModelError::WidthControlPointsInvalidRange(first[0], last[0]));
+        // First control point must lie within the range 0 to 1 and its height must be positive or zero
+        first[0].validate_range_inclusive(0.0, 1.0).map_err(|_| ModelError::LayerHeightControlPointsInvalidRange(first[0], last[0]))?;
+        first[1].validate_nonneg().map_err(|_| ModelError::LayerHeightControlPointsInvalidBoundaryValue(first[0], first[1]))?;
+
+        // Last control point must lie within the range 0 to 1 and its height must be positive or zero
+        last[0].validate_range_inclusive(0.0, 1.0).map_err(|_| ModelError::LayerHeightControlPointsInvalidRange(first[0], last[0]))?;
+        last[1].validate_nonneg().map_err(|_| ModelError::LayerHeightControlPointsInvalidBoundaryValue(last[0], last[1]))?;
+
+        // Other non-boundary points must have s positive height
+        for point in points.iter().skip(1).take(points.len() - 2) {
+            point[1].validate_positive().map_err(|_| ModelError::LayerHeightControlPointsInvalidInteriorValue(point[0], point[1]))?;
         }
 
-        if let Some(a) = points.iter().find(|a| !a[0].is_finite() || !a[1].is_finite() || a[1] <= 0.0) {
-            return Err(ModelError::WidthControlPointsInvalidValue(a[0], a[1]));
+        // If the first control point is not at position zero, it must have a height of zero for continuity reasons
+        if first[0] > 0.0 && first[1] != 0.0 {
+            return Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(first[0], first[1]));
+        }
+
+        // If the last control point is not at position 1, it must have a height of zero for continuity reasons
+        if last[0] < 1.0 && last[1] != 0.0 {
+            return Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(last[0], last[1]));
         }
 
         Ok(())
@@ -405,16 +330,9 @@ impl Height {
 impl BowString {
     pub fn validate(&self) -> Result<(), ModelError> {
         let &Self { n_strands, strand_density, strand_stiffness } = self;
-
-        if n_strands < 1 {
-            return Err(ModelError::StringInvalidNumberOfStrands(n_strands));
-        }
-        if !strand_density.is_finite() || strand_density <= 0.0 {
-            return Err(ModelError::StringInvalidStrandDensity(strand_density));
-        }
-        if !strand_stiffness.is_finite() || strand_stiffness <= 0.0 {
-            return Err(ModelError::StringInvalidStrandStiffness(strand_stiffness));
-        }
+        n_strands.validate_positive().map_err(ModelError::StringInvalidNumberOfStrands)?;
+        strand_density.validate_positive().map_err(ModelError::StringInvalidStrandDensity)?;
+        strand_stiffness.validate_positive().map_err(ModelError::StringInvalidStrandStiffness)?;
 
         Ok(())
     }
@@ -423,19 +341,10 @@ impl BowString {
 impl Masses {
     pub fn validate(&self) -> Result<(), ModelError> {
         let &Self { arrow, limb_tip, string_center, string_tip } = self;
-
-        if !arrow.is_finite() || arrow <= 0.0 {
-            return Err(ModelError::MassesInvalidArrowMass(arrow));
-        }
-        if !limb_tip.is_finite() || limb_tip < 0.0 {
-            return Err(ModelError::MassesInvalidLimbTipMass(limb_tip));
-        }
-        if !string_center.is_finite() || string_center < 0.0 {
-            return Err(ModelError::MassesInvalidStringCenterMass(string_center));
-        }
-        if !string_tip.is_finite() || string_tip < 0.0 {
-            return Err(ModelError::MassesInvalidStringTipMass(string_tip));
-        }
+        arrow.validate_positive().map_err(ModelError::MassesInvalidArrowMass)?;
+        limb_tip.validate_nonneg().map_err(ModelError::MassesInvalidLimbTipMass)?;
+        string_center.validate_nonneg().map_err(ModelError::MassesInvalidStringCenterMass)?;
+        string_tip.validate_nonneg().map_err(ModelError::MassesInvalidStringTipMass)?;
 
         Ok(())
     }
@@ -444,13 +353,8 @@ impl Masses {
 impl Damping {
     pub fn validate(&self) -> Result<(), ModelError> {
         let &Self { damping_ratio_limbs, damping_ratio_string } = self;
-
-        if !damping_ratio_limbs.is_finite() || damping_ratio_limbs < 0.0  || damping_ratio_limbs > 1.0 {
-            return Err(ModelError::DampingInvalidLimbDampingRatio(damping_ratio_limbs));
-        }
-        if !damping_ratio_string.is_finite() || damping_ratio_string < 0.0 || damping_ratio_string > 1.0 {
-            return Err(ModelError::DampingInvalidStringDampingRatio(damping_ratio_string));
-        }
+        damping_ratio_limbs.validate_range_inclusive(0.0, 1.0).map_err(ModelError::DampingInvalidLimbDampingRatio)?;
+        damping_ratio_string.validate_range_inclusive(0.0, 1.0).map_err(ModelError::DampingInvalidStringDampingRatio)?;
 
         Ok(())
     }
@@ -476,10 +380,7 @@ impl Line {
 
     pub fn validate(&self, index: usize) -> Result<(), ModelError> {
         let &Self { length } = self;
-
-        if !length.is_finite() || length <= 0.0 {
-            return Err(ModelError::LineSegmentInvalidLength(index, length));
-        }
+        length.validate_positive().map_err(|_| ModelError::LineSegmentInvalidLength(index, length))?;
 
         Ok(())
     }
@@ -495,13 +396,8 @@ impl Arc {
 
     pub fn validate(&self, index: usize) -> Result<(), ModelError> {
         let &Self { length, radius } = self;
-
-        if !length.is_finite() || length <= 0.0 {
-            return Err(ModelError::ArcSegmentInvalidLength(index, length));
-        }
-        if !radius.is_finite() {
-            return Err(ModelError::ArcSegmentInvalidRadius(index, radius));
-        }
+        length.validate_positive().map_err(|_| ModelError::ArcSegmentInvalidLength(index, length))?;
+        radius.validate_finite().map_err(|_| ModelError::ArcSegmentInvalidRadius(index, length))?;
 
         Ok(())
     }
@@ -518,16 +414,9 @@ impl Spiral {
 
     pub fn validate(&self, index: usize) -> Result<(), ModelError> {
         let &Self { length, radius0, radius1 } = self;
-
-        if !length.is_finite() || length <= 0.0 {
-            return Err(ModelError::SpiralSegmentInvalidLength(index, length));
-        }
-        if !radius0.is_finite() {
-            return Err(ModelError::SpiralSegmentInvalidRadius1(index, radius0));
-        }
-        if !radius1.is_finite() {
-            return Err(ModelError::SpiralSegmentInvalidRadius2(index, radius1));
-        }
+        length.validate_positive().map_err(|_| ModelError::SpiralSegmentInvalidLength(index, length))?;
+        radius0.validate_finite().map_err(|_| ModelError::SpiralSegmentInvalidRadius0(index, length))?;
+        radius1.validate_finite().map_err(|_| ModelError::SpiralSegmentInvalidRadius1(index, length))?;
 
         Ok(())
     }
@@ -543,13 +432,11 @@ impl Spline {
     pub fn validate(&self, index: usize) -> Result<(), ModelError> {
         let Self { points } = self;
 
-        if points.len() < 2 {
-            return Err(ModelError::SplineSegmentTooFewPoints(index, points.len()));
-        }
+        points.len().validate_at_least(2).map_err(|_| ModelError::SplineSegmentTooFewPoints(index, points.len()))?;
+
         for point in points {
-            if !point[0].is_finite() || !point[1].is_finite() {
-                return Err(ModelError::SplineSegmentInvalidPoint(index, *point));
-            }
+            point[0].validate_finite().map_err(|_| ModelError::SplineSegmentInvalidPoint(index, *point))?;
+            point[1].validate_finite().map_err(|_| ModelError::SplineSegmentInvalidPoint(index, *point))?;
         }
 
         Ok(())

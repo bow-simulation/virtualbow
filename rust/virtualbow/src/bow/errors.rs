@@ -51,6 +51,7 @@ pub enum ModelError {
     WidthControlPointsInvalidValue(f64, f64),
 
     LayerInvalidName(String),
+    LayerInvalidMaterialName(String),
     LayerHeightControlPointsTooFew(usize),
     LayerHeightControlPointsNotSorted(f64, f64),
     LayerHeightControlPointsInvalidRange(f64, f64),
@@ -85,8 +86,8 @@ pub enum ModelError {
     ArcSegmentInvalidLength(usize, f64),
     ArcSegmentInvalidRadius(usize, f64),
     SpiralSegmentInvalidLength(usize, f64),
+    SpiralSegmentInvalidRadius0(usize, f64),
     SpiralSegmentInvalidRadius1(usize, f64),
-    SpiralSegmentInvalidRadius2(usize, f64),
     SplineSegmentTooFewPoints(usize, usize),
     SplineSegmentInvalidPoint(usize, [f64; 2]),
 
@@ -148,6 +149,7 @@ impl Display for ModelError {
             ModelError::WidthControlPointsInvalidValue(a, b) => write!(f, "Width: Control points must be positive and finite but actual value found is [{a}, {b}].")?,
 
             ModelError::LayerInvalidName(value)                             => write!(f, "Layer: Name must be a non-empty string but actual value is \"{value}\".")?,
+            ModelError::LayerInvalidMaterialName(value)                     => write!(f, "Layer: Material name must be a non-empty string but actual value is \"{value}\".")?,
             ModelError::LayerHeightControlPointsTooFew(value)               => write!(f, "Height: At least 2 control points are required but actual number is {value}.")?,
             ModelError::LayerHeightControlPointsNotSorted(a, b)             => write!(f, "Height: Control points must be sorted by length but found actual values {a}, {b}.")?,
             ModelError::LayerHeightControlPointsInvalidRange(a, b)          => write!(f, "Height: Control points must be in the range [0, 1] but actual range is [{a}, {b}].")?,
@@ -182,8 +184,8 @@ impl Display for ModelError {
             ModelError::ArcSegmentInvalidLength(index, value)     => write!(f, "Profile curve: Arc segment at index {index} has an invalid length, must be a positive number but actual value is {value}.")?,
             ModelError::ArcSegmentInvalidRadius(index, value)     => write!(f, "Profile curve: Arc segment at index {index} has an invalid radius, must be a finite number but actual value is {value}.")?,
             ModelError::SpiralSegmentInvalidLength(index, value)  => write!(f, "Profile curve: Spiral segment at index {index} has an invalid length, must be a positive number but actual value is {value}.")?,
-            ModelError::SpiralSegmentInvalidRadius1(index, value) => write!(f, "Profile curve: Spiral segment at index {index} has an invalid start radius, must be a finite number but actual value is {value}.")?,
-            ModelError::SpiralSegmentInvalidRadius2(index, value) => write!(f, "Profile curve: Spiral segment at index {index} has an invalid end radius, must be a finite number but actual value is {value}.")?,
+            ModelError::SpiralSegmentInvalidRadius0(index, value) => write!(f, "Profile curve: Spiral segment at index {index} has an invalid start radius, must be a finite number but actual value is {value}.")?,
+            ModelError::SpiralSegmentInvalidRadius1(index, value) => write!(f, "Profile curve: Spiral segment at index {index} has an invalid end radius, must be a finite number but actual value is {value}.")?,
             ModelError::SplineSegmentTooFewPoints(index, value)   => write!(f, "Profile curve: Spline segment at index {index} requires at least two control points but actual number is {value}.")?,
             ModelError::SplineSegmentInvalidPoint(index, point)   => write!(f, "Profile curve: Spline segment at index {index} requires finite control points but found actual value {point:?}.")?,
 
