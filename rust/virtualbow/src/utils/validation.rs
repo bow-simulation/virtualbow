@@ -157,6 +157,7 @@ impl IntegerValidation for usize {
 
 #[cfg(test)]
 mod tests {
+    use assert_matches::assert_matches;
     use super::{FloatValidation, IntegerValidation, StringValidation};
 
     #[test]

@@ -1,0 +1,188 @@
+use nalgebra::{DMatrix, matrix, SMatrix, SVector, vector};
+
+// This module contains common traits for describing a beam's geometry
+
+// Planar curve, parameterized over arc length s
+pub trait PlanarCurve {
+    // Arc length at the start of the curve
+    fn s_start(&self) -> f64;
+
+    // Arc length at the end of the curve
+    fn s_end(&self) -> f64;
+
+    // Position vector [x(s), y(s)]
+    fn position(&self, s: f64) -> SVector<f64, 2>;
+
+    // Angle between curve tangent and the x axis
+    fn angle(&self, s: f64) -> f64;
+
+    // Curvature, first derivative of the tangent angle
+    fn curvature(&self, s: f64) -> f64;
+
+    // Arc length of the curve from start to end
+    fn length(&self) -> f64 {
+        self.s_end() - self.s_start()
+    }
+
+    // Position and angle [x(s), y(s), φ(s)]
+    fn point(&self, s: f64) -> SVector<f64, 3> {
+        let r = self.position(s);
+        let φ = self.angle(s);
+        vector![
+            r[0],
+            r[1],
+            φ
+        ]
+    }
+}
+
+// Cross section properties, parameterized over arc length s
+pub trait CrossSection {
+    // Linear density, i.e. mass per unit length
+    fn ρA(&self, s: f64) -> f64;
+
+    // Rotary inertia per unit length
+    fn ρI(&self, s: f64) -> f64;
+
+    // Full cross section stiffness matrix that describes the relation
+    // (epsilon, kappa, gamma) -> (normal force, bending moment, shear force)
+    fn C(&self, s: f64) -> SMatrix<f64, 3, 3>;
+
+    // Total width
+    fn width(&self, s: f64) -> f64;
+
+    // Total height of all layers
+    fn height(&self, s: f64) -> f64;
+
+    // Returns a strain evaluation matrix for the cross section at arc length s.
+    // When multiplied with the strain vector [epsilon, kappa, gamma], this matrix produces the strains of the cross section at implementation-specific points of interest.
+    fn strain_eval(&self, s: f64) -> DMatrix<f64>;
+
+    // Returns a stress evaluation matrix for the cross section at arc length s.
+    // When multiplied with the strain vector [epsilon, kappa, gamma], this matrix produces the stresses of the cross section at implementation-specific points of interest.
+    fn stress_eval(&self, s: f64) -> DMatrix<f64>;
+}
+
+// Implementation of a linearly varying rectangular cross section for use in tests
+pub struct RectangularSection {
+    pub w0: f64,
+    pub h0: f64,
+    pub w1: f64,
+    pub h1: f64,
+    pub l: f64,
+    pub ρ: f64,
+    pub E: f64,
+    pub G: f64,
+}
+
+impl CrossSection for RectangularSection {
+    fn ρA(&self, s: f64) -> f64 {
+        let w = self.width(s);
+        let h = self.height(s);
+        self.ρ*w*h
+    }
+
+    fn ρI(&self, s: f64) -> f64 {
+        let w = self.width(s);
+        let h = self.height(s);
+        self.ρ*w*h.powi(3)/12.0
+    }
+
+    fn C(&self, s: f64) -> SMatrix<f64, 3, 3> {
+        let w = self.width(s);
+        let h = self.height(s);
+
+        let EA = self.E*w*h;
+        let GA = self.G*w*h;
+        let EI = self.E*w*h.powi(3)/12.0;
+
+        matrix![
+            EA, 0.0, 0.0;
+            0.0, EI, 0.0;
+            0.0, 0.0, GA;
+        ]
+    }
+
+    fn width(&self, s: f64) -> f64 {
+        self.w0 + s/self.l*(self.w1 - self.w0)
+    }
+
+    fn height(&self, s: f64) -> f64 {
+        self.h0 + s/self.l*(self.h1 - self.h0)
+    }
+
+    fn strain_eval(&self, _s: f64) -> DMatrix<f64> {
+        unimplemented!();
+    }
+
+    fn stress_eval(&self, _s: f64) -> DMatrix<f64> {
+        unimplemented!();
+    }
+}
+
+// Implementation of a straight line curve for use in tests
+pub struct LineCurve {
+    pub x: f64,
+    pub y: f64,
+    pub φ: f64,
+    pub l: f64,
+}
+
+impl PlanarCurve for LineCurve {
+    fn s_start(&self) -> f64 {
+        0.0
+    }
+
+    fn s_end(&self) -> f64 {
+        self.l
+    }
+
+    fn position(&self, s: f64) -> SVector<f64, 2> {
+        vector![
+            self.x + s*f64::cos(self.φ),
+            self.y + s*f64::sin(self.φ),
+        ]
+    }
+
+    fn angle(&self, _s: f64) -> f64 {
+        self.φ
+    }
+
+    fn curvature(&self, _s: f64) -> f64 {
+        0.0
+    }
+}
+
+// Implementation of a circular arc curve for use in tests
+pub struct ArcCurve {
+    pub x: f64,
+    pub y: f64,
+    pub φ: f64,
+    pub l: f64,
+    pub r: f64,
+}
+
+impl PlanarCurve for ArcCurve {
+    fn s_start(&self) -> f64 {
+        0.0
+    }
+
+    fn s_end(&self) -> f64 {
+        self.l
+    }
+
+    fn position(&self, s: f64) -> SVector<f64, 2> {
+        vector![
+                self.x + self.r*(f64::sin(s/self.r + self.φ) - f64::sin(self.φ)),
+                self.y + self.r*(f64::cos(self.φ) - f64::cos(s/self.r + self.φ))
+            ]
+    }
+
+    fn angle(&self, s: f64) -> f64 {
+        self.φ + s/self.r
+    }
+
+    fn curvature(&self, _s: f64) -> f64 {
+        1.0/self.r
+    }
+}

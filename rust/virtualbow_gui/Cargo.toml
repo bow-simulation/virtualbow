@@ -1,0 +1,14 @@
+[package]
+name = "virtualbow-gui"
+description = "Graphical user interface for VirtualBow (placeholder)"
+
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+homepage.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+virtualbow = { version = "0.10.0", path = "../virtualbow" }

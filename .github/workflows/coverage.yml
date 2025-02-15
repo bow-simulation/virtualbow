@@ -17,7 +17,7 @@ jobs:
 
       - name: Extract test files
         run: |
-          cd rust/virtualbow/bows/examples
+          cd rust/virtualbow/data/examples
           7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
 
       - name: Generate code coverage for solver tests
@@ -38,7 +38,7 @@ jobs:
       - name: Create report summary file
         run: |
           echo "# Coverage Report for ${GITHUB_SHA::7}" >> summary.md
-          echo "This is a summary of the test coverage results for the latest commit on this pull request." >> summary.md
+          echo "This is an automatic summary of the test coverage results for the latest commit on this pull request." >> summary.md
           echo "The full report can be downloaded [here](${{ steps.artifact-upload-step.outputs.artifact-url }})." >> summary.md
           echo '```' >> summary.md
           echo "$(<rust/virtualbow/text/index.txt)" >> summary.md
