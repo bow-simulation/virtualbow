@@ -28,7 +28,7 @@ jobs:
 
       - name: Extract test files
         run: |
-          cd virtualbow/rust/virtualbow/data/examples
+          cd virtualbow/rust/virtualbow/data
           7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
 
       - name: Build and test solver
@@ -72,7 +72,7 @@ jobs:
 
       - name: Extract test files
         run: |
-          cd virtualbow/rust/virtualbow/data/examples
+          cd virtualbow/rust/virtualbow/data
           7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
 
       - name: Build and test solver
@@ -119,7 +119,7 @@ jobs:
 
       - name: Extract test files
         run: |
-          cd virtualbow/rust/virtualbow/data/examples
+          cd virtualbow/rust/virtualbow/data
           7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
 
       - name: Build and test solver

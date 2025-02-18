@@ -17,7 +17,7 @@ jobs:
 
       - name: Extract test files
         run: |
-          cd rust/virtualbow/data/examples
+          cd rust/virtualbow/data
           7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
 
       - name: Generate code coverage for solver tests

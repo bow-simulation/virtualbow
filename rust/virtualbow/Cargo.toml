@@ -26,5 +26,6 @@ clap.workspace = true  # TODO: Find a way around this dependency?
 approx.workspace = true
 assert2.workspace = true
 assert_matches.workspace = true
+test_each_file.workspace = true
 plotters.workspace = true
 num.workspace = true

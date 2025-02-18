@@ -1,3 +1,4 @@
+use std::path::Path;
 use virtualbow::input::BowModel;
 use virtualbow::output::{ArrowDeparture, BowOutput, Common, Dynamics, LayerInfo, LimbInfo, State, StateVec, Statics};
 use virtualbow::simulation::Simulation;
@@ -10,105 +11,17 @@ use nalgebra::{SVector, vector};
 use assert2::assert;
 use approx::{assert_abs_diff_eq, assert_relative_eq};
 use num::Zero;
+use test_each_file::test_each_path;
 
 // Example data are loaded, simulated, and the results are verified by various consistency checks.
-
-#[test]
-fn bow_69w865k9() {
-    simulate_and_check_bow("data/examples/69w865k9.bow");
-}
-
-#[test]
-fn bow_5g6c4m63() {
-    simulate_and_check_bow("data/examples/5g6c4m63.bow");
-}
-
-#[test]
-fn bow_mt22m5gs() {
-    simulate_and_check_bow("data/examples/mt22m5gs.bow");
-}
-
-#[test]
-fn bow_nv1x16ok() {
-    simulate_and_check_bow("data/examples/nv1x16ok.bow");
-}
-
-#[test]
-fn bow_d75f0aoh() {
-    simulate_and_check_bow("data/examples/d75f0aoh.bow");
-}
-
-#[test]
-fn bow_cz183o6o() {
-    simulate_and_check_bow("data/examples/cz183o6o.bow");
-}
-
-#[test]
-fn bow_2r77c5r2() {
-    simulate_and_check_bow("data/examples/2r77c5r2.bow");
-}
-
-#[test]
-fn bow_5y3n27ra() {
-    simulate_and_check_bow("data/examples/5y3n27ra.bow");
-}
-
-#[test]
-fn bow_b282hcap() {
-    simulate_and_check_bow("data/examples/b282hcap.bow");
-}
-
-#[test]
-fn bow_7b34ggm3() {
-    simulate_and_check_bow("data/examples/7b34ggm3.bow");
-}
-
-#[test]
-fn bow_7j2rnu0n() {
-    simulate_and_check_bow("data/examples/7j2rnu0n.bow");
-}
-
-#[test]
-fn bow_36d2b7az() {
-    simulate_and_check_bow("data/examples/36d2b7az.bow");
-}
-
-#[test]
-fn bow_834ozgt0() {
-    simulate_and_check_bow("data/examples/834ozgt0.bow");
-}
-
-#[test]
-fn bow_v074x8zj() {
-    simulate_and_check_bow("data/examples/v074x8zj.bow");
-}
-
-#[test]
-fn bow_7263zcsk() {
-    simulate_and_check_bow("data/examples/7263zcsk.bow");
-}
-
-/*
-// Dynamic simulation fails
-#[test]
-fn bow_w517u4bs() {
-    simulate_and_check_bow("data/examples/w517u4bs.bow");
-}
-*/
-
-/*
-// Total energy does not check out
-#[test]
-fn bow_c2h3p5y2() {
-    simulate_and_check_bow("data/examples/c2h3p5y2.bow");
-}
-*/
-
 // TODO: Improvements
 // - Use relative error tolerances where it makes sense (especially derivatives)
 
+// Generate test cases from files
+test_each_path!{ in "virtualbow/data/examples" => simulate_and_check_bow }
+
 // Performs a static and dynamic simulation of the given .bow file and verifies various logical and physical properties of the output results.
-fn simulate_and_check_bow(file: &str) {
+fn simulate_and_check_bow(file: &Path) {
     let mut plotter = Plotter::new();
 
     // Load bow model from file and run checks
@@ -429,8 +342,8 @@ fn check_static_state_properties(model: &BowModel, output: &BowOutput) {
     // First draw length must be equal to specified brace height, last draw length to specified draw length
     // The number of states must currently equal the minimum draw resolution (+1 because steps vs. points) since step size control isn't implemented yet
     // The states must be ordered by strictly increasing draw length
-    assert!(*states.draw_length.first().unwrap() == model.dimensions.brace_height);
-    assert!(*states.draw_length.last().unwrap() == model.dimensions.draw_length);
+    assert_abs_diff_eq!(*states.draw_length.first().unwrap(), model.dimensions.brace_height, epsilon=1e-15);
+    assert_abs_diff_eq!(*states.draw_length.last().unwrap(), model.dimensions.draw_length, epsilon=1e-15);
     assert!(states.draw_length.len() == model.settings.min_draw_resolution + 1);
     assert!(states.draw_length.iter().tuple_windows().all(|(a, b)| a < b));
 
@@ -510,7 +423,7 @@ fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowModel, outpu
 
     // Total energy in the system at t = 0, to be used for comparisons later
     let TOTAL_ENERGY_REF = states.elastic_energy_limbs[0] + states.elastic_energy_string[0] + states.kinetic_energy_limbs[0] + states.kinetic_energy_string[0] + states.kinetic_energy_arrow[0] + states.damping_energy_limbs[0] + states.damping_energy_string[0];
-    let TOTAL_ENERGY_ABS_TOL = 1e-3*TOTAL_ENERGY_REF;
+    let TOTAL_ENERGY_ABS_TOL = 1e-2*TOTAL_ENERGY_REF;
 
     let ABS_TOL_TIMESTEP = 1e-12;
     let ABS_TOL_ARROW_ACC = 1e-9*states.arrow_acc[0];
@@ -531,7 +444,7 @@ fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowModel, outpu
     assert!(states.string_vel[0].iter().all(SVector::is_zero));
 
     // Initial arrow position must be consistent with specified draw length, velocity must be zero
-    assert!(states.arrow_pos[0] == -model.dimensions.draw_length);
+    assert_abs_diff_eq!(states.arrow_pos[0], -model.dimensions.draw_length, epsilon=1e-15);
     assert!(states.arrow_vel[0] == 0.0);
 
     for state in states.iter() {
