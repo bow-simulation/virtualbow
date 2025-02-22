@@ -47,7 +47,7 @@
     }
   ],
   "profile": {
-    "alignment": "section-back",
+    "alignment": "section_back",
     "segments": [
       {
         "type": "line",

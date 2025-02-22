@@ -47,11 +47,9 @@ impl BowModel {
 
         Ok(())
     }
-}
 
-impl Default for BowModel {
-    // Valid default values for a new bow bow
-    fn default() -> Self {
+    // Create a simple but valid example bow
+    pub fn example() -> Self {
         Self {
             comment: "".into(),
             settings: Settings {
@@ -407,13 +405,13 @@ impl Spiral {
     pub fn new(length: f64, radius0: f64, radius1: f64) -> Self {
         Self {
             length,
-            radius0,
-            radius1
+            radius_start: radius0,
+            radius_end: radius1
         }
     }
 
     pub fn validate(&self, index: usize) -> Result<(), ModelError> {
-        let &Self { length, radius0, radius1 } = self;
+        let &Self { length, radius_start: radius0, radius_end: radius1 } = self;
         length.validate_positive().map_err(|_| ModelError::SpiralSegmentInvalidLength(index, length))?;
         radius0.validate_finite().map_err(|_| ModelError::SpiralSegmentInvalidRadius0(index, length))?;
         radius1.validate_finite().map_err(|_| ModelError::SpiralSegmentInvalidRadius1(index, length))?;
@@ -538,7 +536,7 @@ mod tests {
 
     #[test]
     fn test_save_model() {
-        let model = BowModel::default();
+        let model = BowModel::example();
 
         // IO error from saving to an invalid path
         assert_matches!(model.save("data/input/nonexistent/valid.bow"), Err(ModelError::InputSaveFileError(_, _)));
@@ -577,7 +575,7 @@ mod tests {
         serde_json::to_writer_pretty(&mut file, &data).unwrap();
 
         // File that contains valid bow model data the correct version
-        let model = BowModel::default();
+        let model = BowModel::example();
         model.save("data/input/valid_model.bow").unwrap();
     }
 

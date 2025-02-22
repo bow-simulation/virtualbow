@@ -136,11 +136,11 @@ mod tests {
 
     #[test]
     fn test_error_conditions() {
-        let mut input = BowModel { layers: vec![Layer::new("Unnamed", "Default", Height::constant(0.01))], ..Default::default() };
+        let mut input = BowModel { layers: vec![Layer::new("Unnamed", "Default", Height::constant(0.01))], ..BowModel::example() };
 
         // 1. Profile curve with no self-intersection
         input.profile = Profile::new(ProfileAlignment::SectionCenter, vec![ProfileSegment::Line(Line::new(1.0))]);
-        let _geometry = LimbGeometry::new(&input).unwrap();
+        assert_matches!(LimbGeometry::new(&input), Ok(_));
 
         // 2. Profile that produces a self-intersection at the back
         input.profile = Profile::new(ProfileAlignment::SectionCenter, vec![ProfileSegment::Arc(Arc::new(1.0, 0.001))]);

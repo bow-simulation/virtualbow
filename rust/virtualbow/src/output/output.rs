@@ -15,6 +15,7 @@ pub struct Common {
     pub layers: Vec<LayerInfo>,
 
     pub string_length: f64,
+    pub string_stiffness: f64,
     pub string_mass: f64,
     pub limb_mass: f64,
 }
@@ -111,6 +112,9 @@ pub struct State {
     pub draw_force: f64,
     pub draw_stiffness: f64,
     pub grip_force: f64,
+    pub string_length: f64,
+    pub string_tip_angle: f64,
+    pub string_center_angle: f64,
     pub string_force: f64,
     pub strand_force: f64,
 }

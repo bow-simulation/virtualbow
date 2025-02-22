@@ -33,7 +33,7 @@ fn linear_straight_uniform_elongation() {
     let ρ = 7850.0;
 
     // Beam bow
-    let mut model = BowModel::default();
+    let mut model = BowModel::example();
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = 100;
     model.settings.min_draw_resolution = 5;
@@ -101,7 +101,7 @@ fn linear_straight_uniform_cantilever() {
     let rho = 7850.0;
 
     // Beam bow
-    let mut model = BowModel::default();
+    let mut model = BowModel::example();
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = 100;
     model.settings.min_draw_resolution = 5;
@@ -169,7 +169,7 @@ fn nonlinear_straight_uniform_coilup() {
     let rho = 7850.0;
 
     // Beam bow
-    let mut model = BowModel::default();
+    let mut model = BowModel::example();
     model.settings.n_limb_elements = 50;
     model.settings.n_limb_eval_points = 100;
     model.settings.min_draw_resolution = 50;
@@ -244,7 +244,7 @@ fn nonlinear_straight_uniform_cantilever() {
     let Fy = 200.0;
 
     // Beam bow
-    let mut model = BowModel::default();
+    let mut model = BowModel::example();
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = u_ref.len();
     model.settings.min_draw_resolution = 5;
@@ -329,7 +329,7 @@ fn nonlinear_straight_tapered_cantilever() {
     let Fy = 100.0;
 
     // Beam bow
-    let mut model = BowModel::default();
+    let mut model = BowModel::example();
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = u_ref.len();
     model.settings.min_draw_resolution = 5;
@@ -415,7 +415,7 @@ fn nonlinear_curved_uniform_cantilever() {
     let Fy = 200.0;
 
     // Beam bow
-    let mut model = BowModel::default();
+    let mut model = BowModel::example();
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = u_ref.len();
     model.settings.min_draw_resolution = 5;
@@ -501,7 +501,7 @@ fn nonlinear_curved_tapered_cantilever() {
     let Fy = 100.0;
 
     // Beam bow
-    let mut model = BowModel::default();
+    let mut model = BowModel::example();
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = u_ref.len();
     model.settings.min_draw_resolution = 5;
@@ -582,7 +582,7 @@ fn nonlinear_straight_uniform_cantilever_offsets() {
 
     let solve_for_alignment = |alignment: ProfileAlignment| {
         // Beam bow
-        let mut model = BowModel::default();
+        let mut model = BowModel::example();
         model.settings.n_limb_elements = 25;
         model.settings.n_limb_eval_points = 100;
         model.settings.min_draw_resolution = 5;
@@ -678,7 +678,7 @@ fn nonlinear_curved_uniform_cantilever_offsets() {
         let ld = rd/r*l;
 
         // Beam bow
-        let mut model = BowModel::default();
+        let mut model = BowModel::example();
         model.settings.n_limb_elements = 20;
         model.settings.n_limb_eval_points = 100;
         model.settings.min_draw_resolution = 5;

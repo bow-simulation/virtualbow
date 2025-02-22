@@ -46,18 +46,11 @@ pub struct Layer {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "kebab-case")]
 pub enum ProfileSegment {
-    #[serde(rename = "line")]
     Line{ parameters: Line },
-
-    #[serde(rename = "arc")]
     Arc{ parameters: Arc },
-
-    #[serde(rename = "spiral")]
     Spiral{ parameters: Spiral },
-
-    #[serde(rename = "spline")]
     Spline{ parameters: Spline },
 }
 

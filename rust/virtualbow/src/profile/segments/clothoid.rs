@@ -28,7 +28,7 @@ impl ClothoidSegment {
     }
 
     pub fn spiral(start: &CurvePoint, input: &Spiral) -> ClothoidSegment {
-        Self::new(start, input.length, Self::radius_to_curvature(input.radius0), Self::radius_to_curvature(input.radius1))
+        Self::new(start, input.length, Self::radius_to_curvature(input.radius_start), Self::radius_to_curvature(input.radius_end))
     }
 
     fn new(start: &CurvePoint, l: f64, k0: f64, k1: f64) -> ClothoidSegment {

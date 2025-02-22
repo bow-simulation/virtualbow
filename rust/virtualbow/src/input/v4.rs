@@ -12,7 +12,7 @@ pub use v1::BowString;
 pub use v1::Masses;
 pub use v1::Damping;
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
 pub struct BowModel {
     pub comment: String,
     pub settings: Settings,
@@ -68,40 +68,23 @@ pub struct Profile {
 // - Section: The back side, belly side, or geometrical center of the combined section is aligned with the profile curve
 // - Layer: The back side, belly side, or geometrical center of the layer with the given name is aligned with the profile curve.
 #[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
 pub enum ProfileAlignment {
-    #[serde(rename = "section-back")]
     #[default]
     SectionBack,
-
-    #[serde(rename = "section-belly")]
     SectionBelly,
-
-    #[serde(rename = "section-center")]
     SectionCenter,
-
-    #[serde(rename = "layer-back")]
     LayerBack(String),
-
-    #[serde(rename = "layer-belly")]
     LayerBelly(String),
-
-    #[serde(rename = "layer-center")]
     LayerCenter(String)
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum ProfileSegment {
-    #[serde(rename = "line")]
     Line(Line),
-
-    #[serde(rename = "arc")]
     Arc(Arc),
-
-    #[serde(rename = "spiral")]
     Spiral(Spiral),
-
-    #[serde(rename = "spline")]
     Spline(Spline),
 }
 
@@ -119,8 +102,8 @@ pub struct Arc {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Spiral {
     pub length: f64,
-    pub radius0: f64,  // TODO: Last chance to rename?
-    pub radius1: f64,  // TODO: Last chance to rename?
+    pub radius_start: f64,
+    pub radius_end: f64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -162,7 +145,7 @@ impl From<v3::BowModel> for BowModel {
             match segment {
                 v3::ProfileSegment::Line{ parameters } => ProfileSegment::Line(Line{ length: parameters.length }),
                 v3::ProfileSegment::Arc{ parameters } => ProfileSegment::Arc(Arc{ length: parameters.length, radius: parameters.radius }),
-                v3::ProfileSegment::Spiral{ parameters } => ProfileSegment::Spiral(Spiral{ length: parameters.length, radius0: parameters.r_start, radius1: parameters.r_end }),
+                v3::ProfileSegment::Spiral{ parameters } => ProfileSegment::Spiral(Spiral{ length: parameters.length, radius_start: parameters.r_start, radius_end: parameters.r_end }),
                 v3::ProfileSegment::Spline{ parameters } => ProfileSegment::Spline(Spline{ points: parameters.points.clone() })
             }
         }).collect_vec();

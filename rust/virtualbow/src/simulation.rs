@@ -213,8 +213,9 @@ impl<'a> Simulation<'a> {
         }
 
         // Compute additional common output results
-        let string_length = 2.0*l0;                                                                         // Actual string length due to symmetry
-        let string_mass = 2.0*(ρA*l0 + input.masses.string_tip) + input.masses.string_center;               // String mass including additional masses and symmetry
+        let string_length = 2.0*l0;                                                                                // Actual string length due to symmetry
+        let string_stiffness = EA/string_length;                                                                   // Stiffness of the complete string from tip to tip
+        let string_mass = 2.0*(ρA*l0 + input.masses.string_tip) + input.masses.string_center;                      // String mass including additional masses and symmetry
         let limb_mass = geometry.segments.iter().map(|segment| segment.m).sum::<f64>() + input.masses.limb_tip;    // Mass of a single limb, including additional masses
 
         // Simulation info object
@@ -242,6 +243,7 @@ impl<'a> Simulation<'a> {
             },
             layers,
             string_length,
+            string_stiffness,
             string_mass,
             limb_mass
         };
@@ -495,9 +497,6 @@ impl<'a> Simulation<'a> {
         let draw_length = -system.get_displacement(self.string_nodes[0].y());
         let draw_force = -2.0*eval.get_external_force(self.string_nodes[0].y());
 
-        let string_force = system.element_ref::<StringElement>(self.string_element).normal_force_total();
-        let strand_force = string_force/(self.input.string.n_strands as f64);
-
         // The evaluation of the arrow position, velocity and acceleration depends on whether the arrow has separated from the string.
         // If the arrow is still attached, the data of the node at the string center is used.
         // If the arrow is separated, its motion is calculated from the velocity at separation.
@@ -571,6 +570,19 @@ impl<'a> Simulation<'a> {
         let damping_power_limbs = 2.0*self.limb_elements.iter().map(|&e| system.element_ref::<BeamElement>(e).dissipative_power()).sum::<f64>();
         let damping_power_string = 2.0*system.element_ref::<StringElement>(self.string_element).dissipative_power();
 
+        // Other string quantities (length, force, angles)
+
+        let string_length = system.element_ref::<StringElement>(self.string_element).get_current_length();
+        let string_force = system.element_ref::<StringElement>(self.string_element).normal_force_total();
+        let strand_force = string_force/(self.input.string.n_strands as f64);
+
+        let dir_limb_tip: SVector<f64, 2> = (limb_pos[limb_pos.len() - 1] - limb_pos[limb_pos.len() - 2]).fixed_rows::<2>(0).into();
+        let dir_string_tip: SVector<f64, 2> = string_pos[string_pos.len() - 1] - string_pos[string_pos.len() - 2];
+        let string_tip_angle = dir_limb_tip.angle(&dir_string_tip);
+
+        let dir_string_center = string_pos[1] - string_pos[0];
+        let string_center_angle = 2.0*f64::atan2(dir_string_center[0], dir_string_center[1]);
+
         State {
             time,
             draw_length,
@@ -606,6 +618,9 @@ impl<'a> Simulation<'a> {
             draw_force,
             draw_stiffness,
             grip_force,
+            string_length,
+            string_tip_angle,
+            string_center_angle,
             string_force,
             strand_force,
         }

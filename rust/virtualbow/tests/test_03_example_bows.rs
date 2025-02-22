@@ -1,3 +1,4 @@
+use std::f64::consts::FRAC_PI_2;
 use std::path::Path;
 use virtualbow::input::BowModel;
 use virtualbow::output::{ArrowDeparture, BowOutput, Common, Dynamics, LayerInfo, LimbInfo, State, StateVec, Statics};
@@ -52,7 +53,7 @@ fn check_output(plotter: &mut Plotter, model: &BowModel) {
 
 // Checks the properties of the common output, i.e. the outputs that are independent of the simulation mode
 fn check_common_output(model: &BowModel, output: &BowOutput) {
-    let Common { limb, layers, string_length, string_mass, limb_mass } = &output.common;
+    let Common { limb, layers, string_length, string_stiffness, string_mass, limb_mass } = &output.common;
     let LimbInfo { length, position, width, height, bounds } = &limb;
 
     // There must be as many lengths as there are limb evaluation points defined in the model
@@ -82,8 +83,9 @@ fn check_common_output(model: &BowModel, output: &BowOutput) {
         assert!(!name.is_empty());
     }
 
-    // String length, string mass and limb mass must be positive
+    // String length, stiffness, mass and limb mass must be positive
     assert!(*string_length > 0.0);
+    assert!(*string_stiffness > 0.0);
     assert!(*string_mass > 0.0);
     assert!(*limb_mass > 0.0);
 }
@@ -282,6 +284,9 @@ fn check_general_state_properties(model: &BowModel, states: &StateVec) {
             draw_force: _,
             draw_stiffness: _,
             grip_force: _,
+            string_length: _,
+            string_tip_angle: _,
+            string_center_angle: _,
             string_force: _,
             strand_force: _
         } = state.to_owned();
@@ -376,6 +381,9 @@ fn check_static_state_properties(model: &BowModel, output: &BowOutput) {
             damping_power_string,
             draw_force,
             draw_stiffness: _,
+            string_length: _,
+            string_tip_angle: _,
+            string_center_angle: _,
             grip_force,
             string_force,
             strand_force
@@ -474,6 +482,9 @@ fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowModel, outpu
             draw_force,
             draw_stiffness,
             grip_force: _,
+            string_length: _,
+            string_tip_angle: _,
+            string_center_angle: _,
             string_force: _,
             strand_force: _
         } = state.to_owned();
@@ -522,6 +533,7 @@ fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowModel, outpu
 }
 
 // Checks if the section forces and stresses are in equilibrium with the external forces of the bow
+// TODO: Document/update this test in the theory manual, especially the definition of the string angle
 fn check_static_state_physics(model: &BowModel, output: &BowOutput) {
     let statics = output.statics.as_ref().unwrap();
     let states = &statics.states;
@@ -538,19 +550,17 @@ fn check_static_state_physics(model: &BowModel, output: &BowOutput) {
     // k: Cross section layer
     for (i, state) in states.iter().enumerate() {
         // Analytical values for the draw force and grip force according to the string force, string angle and static considerations
-        let string_pos_a = state.string_pos[1];
-        let string_pos_b = state.string_pos[0];
-        let alpha = f64::atan((string_pos_b[1] - string_pos_a[1])/(string_pos_b[0] - string_pos_a[0]));
-        let draw_force_ref = 2.0*state.string_force*f64::sin(alpha);    // Reference draw force according to the string force
+        let alpha = 0.5*state.string_center_angle;  // f64::atan((string_pos_b[1] - string_pos_a[1])/(string_pos_b[0] - string_pos_a[0]));
+        let draw_force_ref = 2.0*state.string_force*f64::cos(alpha);   // Reference draw force according to the string force
         let grip_force_ref = draw_force_ref;                            // Grip force is equal to string force in the static case
 
         // Compare analytical string and grip forces to reference values
         assert_abs_diff_eq!(*state.draw_force, draw_force_ref, epsilon=ABS_TOL_FORCE);
         assert_abs_diff_eq!(*state.grip_force, grip_force_ref, epsilon=ABS_TOL_FORCE);
 
-        // For the first state, the string angle alpha must be zero
+        // For the first state, the string angle alpha must be 90°
         if i == 0 {
-            assert_abs_diff_eq!(alpha, 0.0, epsilon=ABS_TOL_ALPHA);
+            assert_abs_diff_eq!(alpha, FRAC_PI_2, epsilon=ABS_TOL_ALPHA);
         }
 
         // Actual drawing work as elastic energy of limb and string compared to the initial (braced) state
@@ -607,12 +617,12 @@ fn check_static_state_physics(model: &BowModel, output: &BowOutput) {
                 // that the string exerts on the bow limb.
 
                 // Limb endpoint
-                let x_contact = string_pos_a[0];
-                let y_contact = string_pos_a[1];
+                let x_contact = state.string_pos[1][0];
+                let y_contact = state.string_pos[1][1];
 
                 // Cartesian components of the string force
-                let Fx = -state.string_force*f64::cos(alpha);
-                let Fy = -state.string_force*f64::sin(alpha);
+                let Fx = -state.string_force*f64::sin(alpha);
+                let Fy = -state.string_force*f64::cos(alpha);
 
                 // Current position on the profile curve
                 let x = state.limb_pos[j][0];
@@ -682,6 +692,9 @@ fn check_dynamic_derivatives(model: &BowModel, output: &BowOutput) {
             draw_force: _,
             draw_stiffness: _,
             grip_force: _,
+            string_length: _,
+            string_tip_angle: _,
+            string_center_angle: _,
             string_force: _,
             strand_force: _
         } = state0.to_owned();
@@ -712,6 +725,9 @@ fn check_dynamic_derivatives(model: &BowModel, output: &BowOutput) {
             draw_force: _,
             draw_stiffness: _,
             grip_force: _,
+            string_length: _,
+            string_tip_angle: _,
+            string_center_angle: _,
             string_force: _,
             strand_force: _
         } = state1.to_owned();
@@ -807,6 +823,9 @@ fn check_static_derivatives(_model: &BowModel, output: &BowOutput) {
             draw_force: draw_force0,
             draw_stiffness: draw_stiffness0,
             grip_force: _,
+            string_length: _,
+            string_tip_angle: _,
+            string_center_angle: _,
             string_force: _,
             strand_force: _
         } = state0.to_owned();
@@ -837,6 +856,9 @@ fn check_static_derivatives(_model: &BowModel, output: &BowOutput) {
             draw_force: draw_force1,
             draw_stiffness: draw_stiffness1,
             grip_force: _,
+            string_length: _,
+            string_tip_angle: _,
+            string_center_angle: _,
             string_force: _,
             strand_force: _
         } = state1.to_owned();

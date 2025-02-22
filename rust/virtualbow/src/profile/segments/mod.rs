@@ -32,7 +32,7 @@ mod tests {
     #[test]
     fn test_spiral_segment() {
         let start = CurvePoint::new(1.5, 0.2, vector![2.5, 5.4]);
-        let input = Spiral{ length: 0.9, radius0: 2.0, radius1: -2.0 };
+        let input = Spiral{ length: 0.9, radius_start: 2.0, radius_end: -2.0 };
 
         let segment = ClothoidSegment::spiral(&start, &input);
         test_segment(&start, &segment, 1e-12);
