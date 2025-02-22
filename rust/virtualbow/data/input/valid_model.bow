@@ -17,9 +17,10 @@
   "dimensions": {
     "brace_height": 0.2,
     "draw_length": 0.7,
+    "handle_ref": "profile",
     "handle_angle": 0.0,
     "handle_length": 0.0,
-    "handle_setback": 0.0
+    "handle_offset": 0.0
   },
   "materials": [
     {

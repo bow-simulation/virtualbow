@@ -29,7 +29,7 @@ impl LinearBeamSegment {
               S: CrossSection
     {
         assert!(s1 > s0, "Starting length must be larger than ending length");
-        //assert!(s_eval.iter().all(|&s| s >= s0 && s <= s1), "Evaluation points must lie within start and endpoint");  // TODO: Check with tolerance?
+        //assert!(s_eval.iter().all(|&s| s >= s0 && s <= s1), "Evaluation points must lie within start- and endpoint");  // TODO: Check with tolerance?
 
         // Fixed number of integration intervals
         let n_integration = 1000;
@@ -41,12 +41,12 @@ impl LinearBeamSegment {
 
         let H = |s, sn| -> SMatrix<f64, 3, 3> {
             let r = curve.position(s);
-            let re = curve.position(sn);
+            let rn = curve.position(sn);
             let φ = curve.angle(s);
 
             matrix![
                 f64::cos(φ), f64::sin(φ), 0.0;
-                r[1] - re[1], re[0] - r[0], 1.0;
+                r[1] - rn[1], rn[0] - r[0], 1.0;
                 -f64::sin(φ), f64::cos(φ), 0.0;
             ]
         };
@@ -63,7 +63,7 @@ impl LinearBeamSegment {
 
         let dIds = |s| -> SMatrix<f64, 3, 3> {
             let H0 = H(s, s0);
-            let C_inv = section.C(s).try_inverse().expect("Failed to invert section stiffness matrix");
+            let C_inv = section.C(curve.normalize(s)).try_inverse().expect("Failed to invert section stiffness matrix");
             return H0.transpose()*C_inv*H0;
         };
 
@@ -116,16 +116,16 @@ impl LinearBeamSegment {
         }).collect();
 
         let Ci = se.iter().map(|&s| {
-            section.C(s).try_inverse().expect("Failed to invert section stiffness matrix")
+            section.C(curve.normalize(s)).try_inverse().expect("Failed to invert section stiffness matrix")
         }).collect();
 
         // Lumped mass matrix
 
         let sm = 0.5*(s0 + s1);  // Segment midpoint
-        let m0 = fixed_simpson(|s|{ vector![ section.ρA(s) ] }, s0, sm, n_integration)[0];    // Mass of the first segment half
-        let m1 = fixed_simpson(|s|{ vector![ section.ρA(s) ] }, sm, s1, n_integration)[0];    // Mass of the second segment half
-        let J0 = 0.5*(s1 - s0)*section.ρI(s0);    // Lumped rotary inertia of the first node
-        let J1 = 0.5*(s1 - s0)*section.ρI(s1);    // Lumped rotary inertia of the second node
+        let m0 = fixed_simpson(|s|{ vector![ section.ρA(curve.normalize(s)) ] }, s0, sm, n_integration)[0];    // Mass of the first segment half
+        let m1 = fixed_simpson(|s|{ vector![ section.ρA(curve.normalize(s)) ] }, sm, s1, n_integration)[0];    // Mass of the second segment half
+        let J0 = 0.5*(s1 - s0)*section.ρI(curve.normalize(s0));    // Lumped rotary inertia of the first node
+        let J1 = 0.5*(s1 - s0)*section.ρI(curve.normalize(s1));    // Lumped rotary inertia of the second node
 
         let M = vector![
             m0,
@@ -187,7 +187,7 @@ mod tests {
         let angle = 0.1;
         let length = 0.8;
         let curve = LineCurve { x: 1.5, y: 2.0, φ: angle, l: length };
-        let section = RectangularSection { w0: 0.01, h0: 0.01, w1: 0.01, h1: 0.01, l: length, ρ: 7850.0, E: 210e9, G: 80e9 };
+        let section = RectangularSection { w0: 0.01, h0: 0.01, w1: 0.01, h1: 0.01, ρ: 7850.0, E: 210e9, G: 80e9 };
 
         let n_elements = 100;
         let segment_fem = LinearBeamSegmentFEM::new(&curve, &section, 0.0, curve.length(), n_elements);
@@ -204,6 +204,9 @@ mod tests {
         for i in 0..=n_elements {
             assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.Ep[i], epsilon=1e-6);
         }
+
+        // Check total segment mass
+        assert_abs_diff_eq!(segment_num.m, section.ρ*section.w0*section.h0*length, epsilon=1e-12);
     }
 
     #[test]
@@ -213,7 +216,7 @@ mod tests {
 
         let length = 0.8;
         let curve = ArcCurve { x: 1.5, y: 2.0, φ: 0.1, l: length, r: 0.4 };
-        let section = RectangularSection { w0: 0.01, h0: 0.01, w1: 0.01, h1: 0.01, l: length, ρ: 7850.0, E: 210e9, G: 80e9 };
+        let section = RectangularSection { w0: 0.01, h0: 0.01, w1: 0.01, h1: 0.01, ρ: 7850.0, E: 210e9, G: 80e9 };
 
         let n_elements = 100;
         let segment_fem = LinearBeamSegmentFEM::new(&curve, &section, 0.0, curve.length(), n_elements);
@@ -226,6 +229,9 @@ mod tests {
         for i in 0..=n_elements {
             assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.Ep[i], epsilon=1e-3);    // TODO: Precision?
         }
+
+        // Check total segment mass
+        assert_abs_diff_eq!(segment_num.m, section.ρ*section.w0*section.h0*length, epsilon=1e-12);
     }
 
     #[test]
@@ -235,7 +241,7 @@ mod tests {
 
         let length = 0.8;
         let curve = ArcCurve { x: 1.5, y: 2.0, φ: 0.1, l: length, r: 0.4 };
-        let section = RectangularSection { w0: 0.01, h0: 0.01, w1: 0.005, h1: 0.005, l: length, ρ: 7850.0, E: 210e9, G: 80e9 };
+        let section = RectangularSection { w0: 0.01, h0: 0.01, w1: 0.005, h1: 0.005, ρ: 7850.0, E: 210e9, G: 80e9 };
 
         let n_elements = 100;
         let segment_fem = LinearBeamSegmentFEM::new(&curve, &section, 0.0, curve.length(), n_elements);
@@ -248,6 +254,12 @@ mod tests {
         for i in 0..=n_elements {
             assert_abs_diff_eq!(segment_fem.u_eval[i], segment_num.Ep[i], epsilon=1e-3);    // TODO: Precision?
         }
+
+        // Check total segment mass
+        // Analytical volume from truncated pyramid: https://de.wikipedia.org/wiki/Pyramidenstumpf
+        let A0 = section.w0*section.h0;
+        let A1 = section.w1*section.h1;
+        assert_abs_diff_eq!(segment_num.m, section.ρ*length/3.0*(A0 + f64::sqrt(A0*A1) + A1), epsilon=1e-12);
     }
 
     // Approximates the stiffness matrix of a curved, non-uniform beam segment by using a number of straight elements
@@ -281,8 +293,8 @@ mod tests {
                 let dy = r_next[1] - r_prev[1];
 
                 // TODO: Assert that C are diagonal matrices
-                let C_prev = section.C(s[i]);
-                let C_next = section.C(s[i+1]);
+                let C_prev = section.C((s[i] - s0)/(s1 - s0));
+                let C_next = section.C((s[i+1] - s0)/(s1 - s0));
 
                 K_full.view_mut((3*i, 3*i), (6, 6)).add_assign(&Self::element_stiffness_matrix(
                     0.5*(C_prev[(0, 0)] + C_next[(0, 0)]),    // Average longitudinal stiffness

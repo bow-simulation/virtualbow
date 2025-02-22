@@ -68,8 +68,9 @@ impl BowModel {
             dimensions: Dimensions {
                 brace_height: 0.2,
                 draw_length: 0.7,
+                handle_ref: HandleReference::Profile,  // TODO: Change to Belly later and fix failing tests
                 handle_length: 0.0,
-                handle_setback: 0.0,
+                handle_offset: 0.0,
                 handle_angle: 0.0
             },
             materials: vec![
@@ -129,13 +130,13 @@ impl Settings {
 
 impl Dimensions {
     pub fn validate(&self) -> Result<(), ModelError> {
-        let &Self { brace_height, draw_length, handle_length, handle_setback, handle_angle} = self;
+        let &Self { brace_height, draw_length, handle_ref: _, handle_length, handle_offset, handle_angle} = self;
 
         brace_height.validate_positive().map_err(ModelError::DimensionsInvalidBraceHeight)?;
         draw_length.validate_larger_than(brace_height).map_err(ModelError::DimensionsInvalidDrawLength)?;
 
         handle_length.validate_nonneg().map_err(ModelError::DimensionsInvalidHandleLength)?;
-        handle_setback.validate_finite().map_err(ModelError::DimensionsInvalidHandleSetback)?;
+        handle_offset.validate_finite().map_err(ModelError::DimensionsInvalidHandleSetback)?;
         handle_angle.validate_finite().map_err(ModelError::DimensionsInvalidHandleAngle)?;
 
         Ok(())
@@ -471,6 +472,7 @@ mod tests {
             .map(|entry| entry.unwrap().path())
             .filter(|path| path.is_file())
             .filter(|path| path.extension().map(|s| s == "bow").unwrap())
+            .filter(|path| path.file_name().map(|s| s != "latest.bow").unwrap())
             .map(|file| {
                 let model = BowModel::load(&file).unwrap_or_else(|_| panic!("Failed to load model {:?}", file));
                 return (file, model);

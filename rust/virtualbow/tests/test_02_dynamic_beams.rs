@@ -8,7 +8,7 @@ use virtualbow::profile::profile::CurvePoint;
 use virtualbow::profile::segments::clothoid::ClothoidSegment;
 use virtualbow::sections::section::LayeredCrossSection;
 use virtualbow_num::fem::elements::beam::beam::BeamElement;
-use virtualbow_num::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
+use virtualbow_num::fem::elements::beam::geometry::CrossSection;
 use virtualbow_num::fem::elements::beam::linear::LinearBeamSegment;
 use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
 use virtualbow_num::fem::system::system::System;
@@ -56,7 +56,7 @@ fn test_linear_beam_dynamics() {
     let material = Material::new("material", "#000000", ρ, E, G);
     let width = Width::constant(w);
     let layer = Layer::new("layer", "material", Height::constant(h));
-    let section = LayeredCrossSection::new(curve.length(), &width, &vec![layer], &vec![material], &ProfileAlignment::SectionCenter).unwrap();
+    let section = LayeredCrossSection::new(&width, &vec![layer], &vec![material], &ProfileAlignment::SectionCenter).unwrap();
 
     let mut system = System::new();
     let mut nodes = Vec::new();

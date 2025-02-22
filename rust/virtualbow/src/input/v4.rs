@@ -5,7 +5,6 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use crate::input::{v1, v3};
 
-pub use v1::Dimensions;
 pub use v1::Width;
 pub use v1::Height;
 pub use v1::BowString;
@@ -39,6 +38,26 @@ pub struct Settings {
     pub min_timestep: f64,
     pub max_timestep: f64,
     pub steps_per_period: usize
+}
+
+// Point at the limb root from which the handle's pivot point is measured
+#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum HandleReference {
+    Back,
+    Belly,
+    #[default]
+    Profile,
+}
+
+#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+pub struct Dimensions {
+    pub brace_height: f64,
+    pub draw_length: f64,
+    pub handle_ref: HandleReference,
+    pub handle_angle: f64,
+    pub handle_length: f64,
+    pub handle_offset: f64,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
@@ -127,6 +146,15 @@ impl From<v3::BowModel> for BowModel {
             steps_per_period: 250,
         };
 
+        let dimensions = Dimensions {
+            brace_height: model.dimensions.brace_height,
+            draw_length: model.dimensions.draw_length,
+            handle_ref: HandleReference::Profile,    // Field was newly introduced. Previously the handle was defined with respect to the limb's profile curve.
+            handle_angle: model.dimensions.handle_angle,
+            handle_length: model.dimensions.handle_length,
+            handle_offset: model.dimensions.handle_setback,
+        };
+
         let materials = model.materials.iter().map(|material| Material {
             name: material.name.clone(),
             color: material.color.clone(),
@@ -151,14 +179,14 @@ impl From<v3::BowModel> for BowModel {
         }).collect_vec();
 
         let profile = Profile {
-            alignment: ProfileAlignment::SectionBack,  // Field was newly introduced, previously the profile curve was always aligned with the cross section's back
+            alignment: ProfileAlignment::SectionBack,  // Field was newly introduced. Previously the profile curve was always aligned with the cross section's back.
             segments,
         };
 
         Self {
             comment: model.comment,
             settings,
-            dimensions: model.dimensions,
+            dimensions,
             materials,
             layers,
             profile,

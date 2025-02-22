@@ -303,7 +303,7 @@ fn check_general_state_properties(model: &BowModel, states: &StateVec) {
 
         // Limb starting point (positions and angle) must match the dimension settings
         assert_abs_diff_eq!(limb_pos[0][0], 0.5*model.dimensions.handle_length, epsilon=1e-12);
-        assert_abs_diff_eq!(limb_pos[0][1], model.dimensions.handle_setback, epsilon=1e-12);
+        assert_abs_diff_eq!(limb_pos[0][1], model.dimensions.handle_offset, epsilon=1e-12);
         assert_abs_diff_eq!(limb_pos[0][2], model.dimensions.handle_angle, epsilon=1e-12);
 
         // String position and velocity must have at least 2 entries and up to the maximum number of contact points defined by the number of limb elements

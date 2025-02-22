@@ -87,7 +87,7 @@ fn beam_element() {
     let r = 0.4;
 
     let curve = ArcCurve { x: 0.0, y: 0.0, φ: 0.0, l, r, };
-    let section = RectangularSection { w0: 0.01, h0: 0.01, w1: 0.005, h1: 0.005, l, ρ: 740.0, E: 11670e6, G: 8000e6 };
+    let section = RectangularSection { w0: 0.01, h0: 0.01, w1: 0.005, h1: 0.005, ρ: 740.0, E: 11670e6, G: 8000e6 };
     let segment = LinearBeamSegment::new(&curve, &section, 0.0, l, &[]);
 
     let mut element = BeamElement::new(&segment);

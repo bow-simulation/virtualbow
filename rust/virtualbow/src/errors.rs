@@ -71,7 +71,6 @@ pub enum ModelError {
     DampingInvalidLimbDampingRatio(f64),
     DampingInvalidStringDampingRatio(f64),
 
-    CrossSectionInvalidLength(f64),
     CrossSectionNoLayers,
     CrossSectionNoMaterials,
     CrossSectionDuplicateMaterialName(String),
@@ -169,7 +168,6 @@ impl Display for ModelError {
             ModelError::DampingInvalidLimbDampingRatio(value)   => write!(f, "Damping: Limb damping ratio must be in the range [0, 1] but actual value is {value}.")?,
             ModelError::DampingInvalidStringDampingRatio(value) => write!(f, "Damping: String damping ratio must be in the range [0, 1] but actual value is {value}.")?,
 
-            ModelError::CrossSectionInvalidLength(value)                 => write!(f, "Cross section: Length must be positive and finite nut actual value is {value}.")?,
             ModelError::CrossSectionNoLayers                             => write!(f, "Cross section: At least one layer is required.")?,
             ModelError::CrossSectionNoMaterials                          => write!(f, "Cross section: At least one material is required.")?,
             ModelError::CrossSectionDuplicateMaterialName(material)      => write!(f, "Cross section: Material with name \"{material}\" is defined multiple times.")?,

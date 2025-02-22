@@ -587,7 +587,7 @@ fn nonlinear_straight_uniform_cantilever_offsets() {
         model.settings.n_limb_eval_points = 100;
         model.settings.min_draw_resolution = 5;
         model.materials = vec![Material::new("material", "#000000", rho, E, G)];
-        model.dimensions.handle_setback = match alignment {
+        model.dimensions.handle_offset = match alignment {
             ProfileAlignment::SectionBelly => -h/2.0,
             ProfileAlignment::SectionCenter => 0.0,
             ProfileAlignment::SectionBack => h/2.0,
@@ -683,7 +683,7 @@ fn nonlinear_curved_uniform_cantilever_offsets() {
         model.settings.n_limb_eval_points = 100;
         model.settings.min_draw_resolution = 5;
         model.materials = vec![Material::new("material", "#000000", rho, E, G)];
-        model.dimensions.handle_setback = d;
+        model.dimensions.handle_offset = d;
         model.profile = Profile::new(alignment, vec![ProfileSegment::Arc(Arc::new(ld, rd))]);
         model.width = Width::constant(w);
         model.layers = vec![Layer::new("layer", "material", Height::constant(h))];

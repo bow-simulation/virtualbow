@@ -2,7 +2,7 @@ use iter_num_tools::lin_space;
 use itertools::Itertools;
 use nalgebra::{DMatrix, DVector, SVector, vector};
 use crate::errors::ModelError;
-use crate::input::BowModel;
+use crate::input::{BowModel, HandleReference};
 use crate::profile::profile::{CurvePoint, ProfileCurve};
 use crate::sections::section::LayeredCrossSection;
 use virtualbow_num::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
@@ -14,24 +14,79 @@ pub struct LimbGeometry {
 }
 
 impl LimbGeometry {
-    pub fn new(input: &BowModel) -> Result<Self, ModelError> {
-        // Profile curve with starting point according to dimension settings
-        let start = CurvePoint::new(0.0, input.dimensions.handle_angle, vector![0.5*input.dimensions.handle_length, input.dimensions.handle_setback]);
-        let profile = ProfileCurve::new(start, &input.profile.segments)?;
+    /*
+        pub fn new(input: &BowModel) -> Result<Self, ModelError> {
+        // Section properties according to layers, materials and alignment to the profile curve
+        // Layers in the model definition are from back to belly, but here we define the layers from belly to back (direction of the y axis), so the model layers are reversed
+        let layers = input.layers.iter().cloned().rev().collect();
+        let section = LayeredCrossSection::new(&input.width, &layers, &input.materials, &input.profile.alignment)?;
 
+        // Profile curve with starting point according to the dimension settings, especially the handle reference point.
+        // First the eccentricity, i.e. the distance of the reference point from the profile curve at the root of the limb is calculated.
+        // Then the starting point according to handle dimensions, eccentricity and limb root angle follows.
+        let eccentricity = match input.dimensions.handle_ref {
+            HandleReference::Back => section.section_bounds(0.0).0,
+            HandleReference::Belly => section.section_bounds(0.0).1,
+            HandleReference::Profile => 0.0,
+        };
+        let start_point = CurvePoint::new(0.0, input.dimensions.handle_angle, vector![
+            0.5*input.dimensions.handle_length - eccentricity*f64::sin(input.dimensions.handle_angle),
+            input.dimensions.handle_offset + eccentricity*f64::cos(input.dimensions.handle_angle)
+        ]);
+        let profile = ProfileCurve::new(start_point, &input.profile.segments)?;
+
+        // Check for self-intersection of the geometry, which is the case when the thickness of the limb is higher than the radius of curvature
+        // Since we can't check this analytically, we check for a fixed number of points along the length of the limb
+        for s in lin_space(profile.s_start()..=profile.s_end(), 1000) {  // TODO: Magic number
+            let kappa = profile.curvature(s);
+            let (bounds, _) = section.layer_bounds((s - profile.s_start())/profile.length());
+
+            let y_belly = bounds[0];                // At least one layer, ensured by the section
+            let y_back = bounds[bounds.len()-1];    // At least one layer, ensured by the section
+
+            // Intersection at the back side happens when the curvature is positive, i.e. curved in the back direction and the y coordinate of the back is larger or equal to the radius of curvature
+            // Intersection at the belly side happens when the curvature is negative, i.e. curved in the belly direction and the y coordinate of the belly is larger or equal to the radius of curvature
+            if kappa > 0.0 && y_back >= 1.0/kappa {
+                return Err(ModelError::GeometrySelfIntersectionBack(s));
+            }
+            else if kappa < 0.0 && y_belly <= 1.0/kappa {
+                return Err(ModelError::GeometrySelfIntersectionBelly(s));
+            }
+        }
+
+        Ok(Self {
+            profile,
+            section
+        })
+    }
+    */
+
+
+    pub fn new(input: &BowModel) -> Result<Self, ModelError> {
         // Section properties according to layers, materials and alignment to the profile curve
         // Layers in the mode definition are from back to belly, but here we define the layers from belly to back (direction of the y axis), so the model layers are reversed
         let layers = input.layers.iter().cloned().rev().collect();
-        let section = LayeredCrossSection::new(profile.length(), &input.width, &layers, &input.materials, &input.profile.alignment)?;
+        let section = LayeredCrossSection::new(&input.width, &layers, &input.materials, &input.profile.alignment)?;
+
+        // Profile curve with starting point according to the dimension settings.
+        // First the eccentricity, i.e. the distance of the reference point from the profile curve at the root of the limb is calculated.
+        // Then the starting point according to handle dimensions, eccentricity and limb root angle follows.
+        let eccentricity = match input.dimensions.handle_ref {
+            HandleReference::Back => section.section_bounds(0.0).1,
+            HandleReference::Belly => section.section_bounds(0.0).0,
+            HandleReference::Profile => 0.0,
+        };
+        let start = CurvePoint::new(0.0, input.dimensions.handle_angle, vector![
+            0.5*input.dimensions.handle_length - eccentricity*f64::sin(input.dimensions.handle_angle),
+            input.dimensions.handle_offset + eccentricity*f64::cos(input.dimensions.handle_angle)
+        ]);
+        let profile = ProfileCurve::new(start, &input.profile.segments)?;
 
         // Check for self-intersecting geometry, which is the case when the thickness of the limb is higher than the radius of curvature
         // Since we can't check this analytically, we check for a fixed number of points along the length of the limb
         for s in lin_space(profile.s_start()..=profile.s_end(), 1000) {  // TODO: Magic number
             let kappa = profile.curvature(s);
-            let (bounds, _) = section.layer_bounds(s);
-
-            let y_belly = bounds[0];                // At least one layer, ensured by the section
-            let y_back = bounds[bounds.len()-1];    // At least one layer, ensured by the section
+            let (y_belly, y_back) = section.section_bounds(profile.normalize(s));
 
             // Intersection at the back side happens when the curvature is positive, i.e. curved in the back direction and the y coordinate of the back is larger or equal to the radius of curvature
             // Intersection at the belly side happens when the curvature is negative, i.e. curved in the belly direction and the y coordinate of the belly is larger or equal to the radius of curvature
@@ -52,14 +107,16 @@ impl LimbGeometry {
     // Divides the given curve into a number of equally spaced elements.
     // Returns a list of elements as well as the arc lengths, positions and angles of the nodes.
     pub fn discretize(&self, n_eval_points: usize, n_elements: usize) -> DiscreteLimbGeometry {
-        // Arc lengths along the profile where the element nodes are placed and their positions
+        // Arc lengths and normalized positions along the profile where the element nodes are placed
         let s_nodes = lin_space(self.profile.s_start()..=self.profile.s_end(), n_elements + 1).collect_vec();
+        let p_nodes = s_nodes.iter().map(|&s| self.profile.normalize(s)).collect_vec();
         let u_nodes = s_nodes.iter().map(|&s| self.profile.point(s)).collect_vec();
-        let y_nodes = s_nodes.iter().map(|&s| self.section.layer_bounds(s).0).collect_vec();
+        let y_nodes = p_nodes.iter().map(|&p| self.section.layer_bounds(p).0).collect_vec();
 
         // Equidistant evaluation points along the length of the limb
         let s_eval = lin_space(self.profile.s_start()..=self.profile.s_end(), n_eval_points).collect_vec();
-        let y_eval = s_eval.iter().map(|&s| self.section.layer_bounds(s).0).collect_vec();
+        let p_eval = s_eval.iter().map(|&s| self.profile.normalize(s)).collect_vec();
+        let y_eval = p_eval.iter().map(|&p| self.section.layer_bounds(p).0).collect_vec();
 
         let segments = s_nodes.iter().tuple_windows().enumerate().map(|(i, (&s0, &s1))| {
             // TODO: Better solution for numerical issues?
@@ -79,12 +136,12 @@ impl LimbGeometry {
             LinearBeamSegment::new(&self.profile, &self.section, s0, s1, &s_eval)
         }).collect();
 
-        let strain_eval = s_eval.iter().map(|&s| self.section.strain_eval(s)).collect();
-        let stress_eval = s_eval.iter().map(|&s| self.section.stress_eval(s)).collect();
+        let strain_eval = p_eval.iter().map(|&p| self.section.strain_eval(p)).collect();
+        let stress_eval = p_eval.iter().map(|&p| self.section.stress_eval(p)).collect();
 
         let position = s_eval.iter().map(|&s| self.profile.point(s)).collect();
-        let width = s_eval.iter().map(|&s| self.section.width(s)).collect();
-        let height = s_eval.iter().map(|&s| self.section.height(s)).collect();
+        let width = p_eval.iter().map(|&p| self.section.width(p)).collect();
+        let height = p_eval.iter().map(|&p| self.section.height(p)).collect();
 
         DiscreteLimbGeometry {
             segments,
