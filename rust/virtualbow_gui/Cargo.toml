@@ -1,5 +1,5 @@
 [package]
-name = "virtualbow-gui"
+name = "virtualbow_gui"
 description = "Graphical user interface for VirtualBow (placeholder)"
 
 version.workspace = true

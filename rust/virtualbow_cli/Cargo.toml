@@ -1,5 +1,5 @@
 [package]
-name = "virtualbow-cli"
+name = "virtualbow_cli"
 description = "Command line interface for VirtualBow"
 
 version.workspace = true

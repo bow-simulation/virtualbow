@@ -1,5 +1,5 @@
 [package]
-name = "virtualbow-num"
+name = "virtualbow_num"
 description = "Library of numerical methods for VirtualBow, intended for internal use"
 
 version.workspace = true
@@ -11,12 +11,12 @@ homepage.workspace = true
 workspace = true
 
 [dependencies]
+plotters = { workspace = true, optional = true }
 nalgebra.workspace = true
 downcast-rs.workspace = true
 itertools.workspace = true
 num.workspace = true
 iter_num_tools.workspace = true
-plotters.workspace = true
 approx.workspace = true
 
 [dev-dependencies]

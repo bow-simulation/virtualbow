@@ -7,11 +7,14 @@ edition.workspace = true
 authors.workspace = true
 homepage.workspace = true
 
+[features]
+plotters = ["virtualbow_num/plotters"]
+
 [lints]
 workspace = true
 
 [dependencies]
-virtualbow-num = { version = "0.10.0", path = "../virtualbow_num" }
+virtualbow_num = { version = "0.10.0", path = "../virtualbow_num" }
 fresnel.workspace = true
 nalgebra.workspace = true
 itertools.workspace = true

@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+/*
 use plotters::backend::BitMapBackend;
 use plotters::chart::ChartBuilder;
 use plotters::drawing::IntoDrawingArea;
@@ -8,6 +9,7 @@ use plotters::style::WHITE;
 use plotters::style::BLACK;
 use plotters::style::BLUE;
 use plotters::style::RED;
+*/
 use itertools::chain;
 
 // Utility for creating simple comparison plots for tests without having to aggregate the data manually.
@@ -30,7 +32,6 @@ impl Plotter {
         self.data_mut(name, x_label, y_label).add_point(point, point_ref);
     }
 
-    #[allow(dead_code)]
     pub fn add_points<I1, I2>(&mut self, points: I1, points_ref: I2, name: &str, x_label: &str, y_label: &str)
         where I1: IntoIterator<Item=(f64, f64)>, I2: IntoIterator<Item=(f64, f64)>
     {
@@ -49,6 +50,7 @@ impl Plotter {
 }
 
 impl Drop for Plotter {
+    #[cfg(feature = "plotters")]
     fn drop(&mut self) {
         // Determine output path from thread name, which corresponds to the test being run
         // https://users.rust-lang.org/t/reliably-getting-name-of-currently-running-test-with-rust-test-threads-1/65138
@@ -68,6 +70,11 @@ impl Drop for Plotter {
             create_plot(&output_path, info, data);
         });
     }
+
+    #[cfg(not(feature = "plotters"))]
+    fn drop(&mut self) {
+        // Do nothing if the plotters dependency is not enabled
+    }
 }
 
 #[derive(Hash, Eq, PartialEq)]
@@ -83,6 +90,7 @@ struct PlotData {
     points_ref: Vec<(f64, f64)>,
 }
 
+#[allow(dead_code)]
 impl PlotData {
     fn add_point(&mut self, point: (f64, f64), point_ref: (f64, f64)) {
         self.points.push(point);
@@ -113,9 +121,20 @@ impl PlotData {
     }
 }
 
-// Actually creates the plot file from the given info and data
+// Actually creates the plot file from the given info and data (only if the optional "plotters" dependency is enabled)
 // The output directory is determined from the name of the current thread, which is named after the test method
+#[cfg(feature = "plotters")]
 fn create_plot(output_path: &str, info: &PlotInfo, data: &PlotData) {
+    use plotters::backend::BitMapBackend;
+    use plotters::chart::ChartBuilder;
+    use plotters::drawing::IntoDrawingArea;
+    use plotters::element::PathElement;
+    use plotters::series::LineSeries;
+    use plotters::style::WHITE;
+    use plotters::style::BLACK;
+    use plotters::style::BLUE;
+    use plotters::style::RED;
+
     let file_path = format!("{}/{}.png", output_path, info.name.to_lowercase().replace(" ", "_"));
     let root_area = BitMapBackend::new(&file_path, (1200, 800)).into_drawing_area();
     root_area.fill(&WHITE).unwrap();

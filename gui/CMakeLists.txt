@@ -293,8 +293,8 @@ add_custom_target(virtualbow-cli)
 add_custom_command(
     TARGET virtualbow-cli
     COMMAND cargo build --release --manifest-path=${CMAKE_CURRENT_SOURCE_DIR}/../rust/Cargo.toml
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../rust/target/release/virtualbow-cli ${CMAKE_BINARY_DIR}/application/ ||
-            ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../rust/target/release/virtualbow-cli.exe ${CMAKE_BINARY_DIR}/application/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../rust/target/release/virtualbow_cli ${CMAKE_BINARY_DIR}/application/virtualbow-cli ||
+            ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../rust/target/release/virtualbow_cli.exe ${CMAKE_BINARY_DIR}/application/virtualbow-cli.exe
 )
 
 # Platform specifics
