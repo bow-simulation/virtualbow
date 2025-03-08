@@ -35,7 +35,7 @@ mod tests {
     use std::fs::File;
     use std::io::Write;
     use serde::Serialize;
-    use crate::output::BowOutput;
+    use crate::output::{BowOutput, Statics, Dynamics, StateVec, State};
     use crate::errors::ModelError;
     use assert_matches::assert_matches;
 
@@ -116,8 +116,26 @@ mod tests {
         file.write_all(&bytes).unwrap();
 
         // File that contains valid result data in the correct version
-        let output = BowOutput::default();
+        let output = generate_example_output();
         output.save("data/output/valid_results.res").unwrap();
+    }
+
+    fn generate_example_output() -> BowOutput {
+        let mut states = StateVec::new();
+        states.push(State::default());
+        states.push(State::default());
+        states.push(State::default());
+
+        let statics = Statics{ states, ..Default::default()};
+
+        let mut states = StateVec::new();
+        states.push(State::default());
+        states.push(State::default());
+        states.push(State::default());
+
+        let dynamics = Dynamics{ states, ..Default::default()};
+
+        BowOutput{ statics: Some(statics), dynamics: Some(dynamics), ..Default::default()}
     }
 
     #[derive(Serialize)]

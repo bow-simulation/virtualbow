@@ -1,16 +1,19 @@
 #pragma once
 #include "solver/model/profile/ProfileInput.hpp"
-#include "config.hpp"
 #include <vector>
 
 struct Settings {
-    int n_limb_elements = 20;
-    int n_string_elements = 25;
-    int n_draw_steps = 150;
+    unsigned n_limb_elements = 30;
+    unsigned n_limb_eval_points = 100;
+    unsigned min_draw_resolution = 100;
+    unsigned max_draw_resolution = 100;
     double arrow_clamp_force = 0.5;
-    double time_span_factor = 1.5;
-    double time_step_factor = 0.2;
-    double sampling_rate = 1e4;
+    double string_compression_factor = 1e-6;
+    double timespan_factor = 1.5;
+    double timeout_factor = 10.0;
+    double min_timestep = 1e-6;
+    double max_timestep = 1e-4;
+    unsigned steps_per_period = 250;
 };
 
 struct Material {
@@ -20,17 +23,24 @@ struct Material {
     double E = 12e9;
 };
 
+enum class HandleOrigin {
+    Back,
+    Belly,
+    Profile
+};
+
 struct Dimensions {
     double brace_height = 0.2;
     double draw_length = 0.7;
+    HandleOrigin handle_origin = HandleOrigin::Belly;
     double handle_length = 0.0;
-    double handle_setback = 0.0;
+    double handle_offset = 0.0;
     double handle_angle = 0.0;
 };
 
 struct Layer {
     std::string name = "New layer";
-    int material = 0;
+    std::string material = "Unnamed";
     std::vector<Vector<2>> height{{0.0, 0.015}, {1.0, 0.01}};
 };
 
@@ -53,7 +63,6 @@ struct String {
 };
 
 struct InputData {
-    std::string version = Config::APPLICATION_VERSION;
     std::string comment;
     Settings settings;
 
@@ -61,8 +70,13 @@ struct InputData {
 
     Dimensions dimensions;
 
-    ProfileInput profile = {LineInput {{ LineConstraint::LENGTH, 0.8 }}};
+    ProfileInput profile = {
+        .alignment = SectionBack{},
+        .segments = {LineInput {{ LineConstraint::LENGTH, 0.8 }}}
+    };
+
     std::vector<Vector<2>> width = {{0.0, 0.04}, {1.0, 0.01}};
+
     std::vector<Layer> layers = { Layer() };
 
     String string;
@@ -73,5 +87,4 @@ struct InputData {
     InputData(const std::string& path);
 
     void save(const std::string& path) const;
-    std::string validate() const;
 };

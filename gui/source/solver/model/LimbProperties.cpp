@@ -51,7 +51,8 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
             layers[j].length(i) = s[i];
 
             // Todo: Add method to ContinuousLimb to calculate those
-            auto& material = input.materials.at(input.layers[j].material);
+            throw std::invalid_argument("Fix material index/name");
+            auto& material = input.materials.at(0 /*input.layers[j].material*/);
 
             layers[j].He_back(i, i) =  material.E;
             layers[j].He_belly(i, i) = material.E;
@@ -68,7 +69,8 @@ LimbProperties::LimbProperties(const InputData& input, unsigned n)
 
     // More layer properties
     for(size_t i = 0; i < input.layers.size(); ++i) {
-        auto& material = input.materials.at(input.layers[i].material);
+        throw std::invalid_argument("Fix material index/name");
+        auto& material = input.materials.at(0 /*input.layers[i].material*/);
 
         layers[i].name = input.layers[i].name;
         layers[i].color = material.color;

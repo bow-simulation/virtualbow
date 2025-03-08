@@ -2,7 +2,7 @@ use iter_num_tools::lin_space;
 use itertools::Itertools;
 use nalgebra::{DMatrix, DVector, SVector, vector};
 use crate::errors::ModelError;
-use crate::input::{BowModel, HandleReference};
+use crate::input::{BowModel, HandleOrigin};
 use crate::profile::profile::{CurvePoint, ProfileCurve};
 use crate::sections::section::LayeredCrossSection;
 use virtualbow_num::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
@@ -14,54 +14,6 @@ pub struct LimbGeometry {
 }
 
 impl LimbGeometry {
-    /*
-        pub fn new(input: &BowModel) -> Result<Self, ModelError> {
-        // Section properties according to layers, materials and alignment to the profile curve
-        // Layers in the model definition are from back to belly, but here we define the layers from belly to back (direction of the y axis), so the model layers are reversed
-        let layers = input.layers.iter().cloned().rev().collect();
-        let section = LayeredCrossSection::new(&input.width, &layers, &input.materials, &input.profile.alignment)?;
-
-        // Profile curve with starting point according to the dimension settings, especially the handle reference point.
-        // First the eccentricity, i.e. the distance of the reference point from the profile curve at the root of the limb is calculated.
-        // Then the starting point according to handle dimensions, eccentricity and limb root angle follows.
-        let eccentricity = match input.dimensions.handle_ref {
-            HandleReference::Back => section.section_bounds(0.0).0,
-            HandleReference::Belly => section.section_bounds(0.0).1,
-            HandleReference::Profile => 0.0,
-        };
-        let start_point = CurvePoint::new(0.0, input.dimensions.handle_angle, vector![
-            0.5*input.dimensions.handle_length - eccentricity*f64::sin(input.dimensions.handle_angle),
-            input.dimensions.handle_offset + eccentricity*f64::cos(input.dimensions.handle_angle)
-        ]);
-        let profile = ProfileCurve::new(start_point, &input.profile.segments)?;
-
-        // Check for self-intersection of the geometry, which is the case when the thickness of the limb is higher than the radius of curvature
-        // Since we can't check this analytically, we check for a fixed number of points along the length of the limb
-        for s in lin_space(profile.s_start()..=profile.s_end(), 1000) {  // TODO: Magic number
-            let kappa = profile.curvature(s);
-            let (bounds, _) = section.layer_bounds((s - profile.s_start())/profile.length());
-
-            let y_belly = bounds[0];                // At least one layer, ensured by the section
-            let y_back = bounds[bounds.len()-1];    // At least one layer, ensured by the section
-
-            // Intersection at the back side happens when the curvature is positive, i.e. curved in the back direction and the y coordinate of the back is larger or equal to the radius of curvature
-            // Intersection at the belly side happens when the curvature is negative, i.e. curved in the belly direction and the y coordinate of the belly is larger or equal to the radius of curvature
-            if kappa > 0.0 && y_back >= 1.0/kappa {
-                return Err(ModelError::GeometrySelfIntersectionBack(s));
-            }
-            else if kappa < 0.0 && y_belly <= 1.0/kappa {
-                return Err(ModelError::GeometrySelfIntersectionBelly(s));
-            }
-        }
-
-        Ok(Self {
-            profile,
-            section
-        })
-    }
-    */
-
-
     pub fn new(input: &BowModel) -> Result<Self, ModelError> {
         // Section properties according to layers, materials and alignment to the profile curve
         // Layers in the mode definition are from back to belly, but here we define the layers from belly to back (direction of the y axis), so the model layers are reversed
@@ -71,10 +23,10 @@ impl LimbGeometry {
         // Profile curve with starting point according to the dimension settings.
         // First the eccentricity, i.e. the distance of the reference point from the profile curve at the root of the limb is calculated.
         // Then the starting point according to handle dimensions, eccentricity and limb root angle follows.
-        let eccentricity = match input.dimensions.handle_ref {
-            HandleReference::Back => section.section_bounds(0.0).1,
-            HandleReference::Belly => section.section_bounds(0.0).0,
-            HandleReference::Profile => 0.0,
+        let eccentricity = match input.dimensions.handle_origin {
+            HandleOrigin::Back => section.section_bounds(0.0).1,
+            HandleOrigin::Belly => section.section_bounds(0.0).0,
+            HandleOrigin::Profile => 0.0,
         };
         let start = CurvePoint::new(0.0, input.dimensions.handle_angle, vector![
             0.5*input.dimensions.handle_length - eccentricity*f64::sin(input.dimensions.handle_angle),

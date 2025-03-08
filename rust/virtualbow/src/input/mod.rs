@@ -68,7 +68,7 @@ impl BowModel {
             dimensions: Dimensions {
                 brace_height: 0.2,
                 draw_length: 0.7,
-                handle_ref: HandleReference::Profile,  // TODO: Change to Belly later and fix failing tests
+                handle_origin: HandleOrigin::Profile,  // TODO: Change to Belly later and fix failing tests
                 handle_length: 0.0,
                 handle_offset: 0.0,
                 handle_angle: 0.0
@@ -130,7 +130,7 @@ impl Settings {
 
 impl Dimensions {
     pub fn validate(&self) -> Result<(), ModelError> {
-        let &Self { brace_height, draw_length, handle_ref: _, handle_length, handle_offset, handle_angle} = self;
+        let &Self { brace_height, draw_length, handle_origin: _, handle_length, handle_offset, handle_angle} = self;
 
         brace_height.validate_positive().map_err(ModelError::DimensionsInvalidBraceHeight)?;
         draw_length.validate_larger_than(brace_height).map_err(ModelError::DimensionsInvalidDrawLength)?;

@@ -20,6 +20,7 @@ set(APPLICATION_DESCRIPTION_LONG "Software tool for designing and simulating bow
 
 find_package(Qt5 5.9.5 REQUIRED COMPONENTS Widgets PrintSupport)
 find_package(Boost 1.79.0 REQUIRED)
+find_package(Catch2 2.13.9 REQUIRED)
 find_package(Eigen3 3.4.0 REQUIRED)
 find_package(nlohmann_json 3.10.5 REQUIRED)
 find_package(Threads REQUIRED)                # System thread library (https://stackoverflow.com/a/39547577)
@@ -46,7 +47,7 @@ add_library(
     source/solver/model/ContinuousLimb.cpp
     source/solver/model/LimbProperties.cpp
     source/solver/model/input/InputData.cpp
-    source/solver/model/input/Conversion.cpp
+
     source/solver/model/output/OutputData.cpp
     source/solver/model/profile/ProfileCurve.cpp
     source/solver/model/profile/ProfileSegment.cpp
@@ -273,6 +274,19 @@ target_link_libraries(
     virtualbow-lib
     Qt5::Widgets
     Qt5::PrintSupport
+)
+
+# Target: Test executable
+
+add_executable(
+    virtualbow-test
+    source/tests/Main.cpp
+)
+
+target_link_libraries(
+    virtualbow-test
+    virtualbow-lib
+    Catch2::Catch2
 )
 
 # Change output directories

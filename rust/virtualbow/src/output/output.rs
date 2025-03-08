@@ -75,8 +75,8 @@ pub struct ArrowDeparture {
     pub energy_efficiency: f64,
 }
 
-#[derive(StructOfArray, Serialize, Deserialize, PartialEq, Debug, Clone)]
-#[soa_derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[derive(StructOfArray, Serialize, Deserialize, Default, PartialEq, Debug, Clone)]
+#[soa_derive(Serialize, Deserialize, Default, PartialEq, Debug, Clone)]
 pub struct State {
     pub time: f64,
     pub draw_length: f64,

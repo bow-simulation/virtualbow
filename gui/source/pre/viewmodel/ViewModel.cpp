@@ -140,6 +140,8 @@ void ViewModel::insertMaterial(size_t i, const Material& material, void* source)
 
         // Increment references to all materials >= that index
         bool modified = false;
+        throw std::invalid_argument("Fix material index/name");
+        /*
         for(size_t j = 0; j < data.layers.size(); ++j) {
             if(data.layers[j].material >= i) {
                 data.layers[j].material += 1;
@@ -147,6 +149,7 @@ void ViewModel::insertMaterial(size_t i, const Material& material, void* source)
                 modified = true;
             }
         }
+        */
 
         if(modified) {
             emit layersModified(source);
@@ -163,6 +166,8 @@ void ViewModel::removeMaterial(size_t i, void* source) {
 
         // Remove references to the material
         bool modified = false;
+        throw std::invalid_argument("Fix material index/name");
+        /*
         for(size_t j = 0; j < data.layers.size(); ++j) {
             if(data.layers[j].material == i) {
                 data.layers[j].material = 0;
@@ -170,6 +175,7 @@ void ViewModel::removeMaterial(size_t i, void* source) {
                 modified = true;
             }
         }
+        */
 
         if(modified) {
             emit layersModified(source);
@@ -186,6 +192,8 @@ void ViewModel::swapMaterials(size_t i, size_t j, void* source) {
 
         // Swap references to the materials
         bool modified = false;
+        throw std::invalid_argument("Fix material index/name");
+        /*
         for(size_t k = 0; k < data.layers.size(); ++k) {
             if(data.layers[k].material == i) {
                 data.layers[k].material = j;
@@ -198,6 +206,7 @@ void ViewModel::swapMaterials(size_t i, size_t j, void* source) {
                 modified = true;
             }
         }
+        */
 
         if(modified) {
             emit layersModified(source);
@@ -246,35 +255,43 @@ const ProfileInput& ViewModel::getProfile() const {
 }
 
 void ViewModel::modifySegment(size_t i, const SegmentInput& segment, void* source) {
+    /*
     if(i < data.profile.size()) {
         data.profile[i] = segment;
         emit segmentModified(i, source);
         emit profileModified(source);
     }
+    */
 }
 
 void ViewModel::insertSegment(size_t i, const SegmentInput& segment, void* source) {
+    /*
     if(i <= data.profile.size()) {
         data.profile.insert(data.profile.begin() + i, segment);
         emit segmentInserted(i, source);
         emit profileModified(source);
     }
+    */
 }
 
 void ViewModel::removeSegment(size_t i, void* source) {
+    /*
     if(i < data.profile.size()) {
         data.profile.erase(data.profile.begin() + i);
         emit segmentRemoved(i, source);
         emit profileModified(source);
     }
+    */
 }
 
 void ViewModel::swapSegments(size_t i, size_t j, void* source) {
+    /*
     if(i != j && i < data.profile.size() && j < data.profile.size()) {
         std::swap(data.profile[i], data.profile[j]);
         emit segmentsSwapped(i, j, source);
         emit profileModified(source);
     }
+    */
 }
 
 const std::vector<Vector<2>>& ViewModel::getWidth() const {

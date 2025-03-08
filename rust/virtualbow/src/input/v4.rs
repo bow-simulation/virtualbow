@@ -43,7 +43,7 @@ pub struct Settings {
 // Point at the limb root from which the handle's pivot point is measured
 #[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
 #[serde(rename_all = "snake_case")]
-pub enum HandleReference {
+pub enum HandleOrigin {
     Back,
     Belly,
     #[default]
@@ -54,7 +54,7 @@ pub enum HandleReference {
 pub struct Dimensions {
     pub brace_height: f64,
     pub draw_length: f64,
-    pub handle_ref: HandleReference,
+    pub handle_origin: HandleOrigin,
     pub handle_angle: f64,
     pub handle_length: f64,
     pub handle_offset: f64,
@@ -82,12 +82,12 @@ pub struct Profile {
     pub segments: Vec<ProfileSegment>,
 }
 
-// Defines, how the cross sections are aligned with the profile curve
+// Defines how the cross sections are aligned with the profile curve
 // There are two categories:
-// - Section: The back side, belly side, or geometrical center of the combined section is aligned with the profile curve
-// - Layer: The back side, belly side, or geometrical center of the layer with the given name is aligned with the profile curve.
+// - Section: The profile curve is aligned with the back side, belly side, or geometrical center of the combined section
+// - Layer: The profile curve is aligned with the back side, belly side, or geometrical center of a specific layer
 #[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
+#[serde(tag = "type", content = "layer", rename_all = "snake_case")]
 pub enum ProfileAlignment {
     #[default]
     SectionBack,
@@ -99,7 +99,7 @@ pub enum ProfileAlignment {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[serde(tag = "type", content = "parameters", rename_all = "snake_case")]
 pub enum ProfileSegment {
     Line(Line),
     Arc(Arc),
@@ -149,7 +149,7 @@ impl From<v3::BowModel> for BowModel {
         let dimensions = Dimensions {
             brace_height: model.dimensions.brace_height,
             draw_length: model.dimensions.draw_length,
-            handle_ref: HandleReference::Profile,    // Field was newly introduced. Previously the handle was defined with respect to the limb's profile curve.
+            handle_origin: HandleOrigin::Back,    // Field was newly introduced. Previously the handle was defined with respect to the back of the limb.
             handle_angle: model.dimensions.handle_angle,
             handle_length: model.dimensions.handle_length,
             handle_offset: model.dimensions.handle_setback,

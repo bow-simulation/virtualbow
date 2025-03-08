@@ -95,9 +95,10 @@ LayerTreeItem::LayerTreeItem(ViewModel* model)
 }
 
 Layer LayerTreeItem::getLayer() const {
+    throw std::invalid_argument("Fix material index/name");
     return {
         .name = this->text(0).toStdString(),
-        .material = combo->currentIndex(),
+        .material = 0, /*combo->currentIndex(),*/
         .height = table->getData()
     };
 }
@@ -108,7 +109,8 @@ void LayerTreeItem::setLayer(const Layer& layer) {
 
     this->setText(0, QString::fromStdString(layer.name));
     table->setData(layer.height);
-    combo->setCurrentIndex(layer.material);
+    throw std::invalid_argument("Fix material index/name");
+    //combo->setCurrentIndex(layer.material);
 
     updatePlot();    // TODO: Couple plot with model instead
 }

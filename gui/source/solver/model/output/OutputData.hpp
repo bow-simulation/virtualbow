@@ -42,12 +42,13 @@ struct Common {
     LimbInfo limb;
     std::vector<LayerInfo> layers;
 
-    double limb_mass;
-    double string_mass;
     double string_length;
+    double string_stiffness;
+    double string_mass;
+    double limb_mass;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Common, limb, layers, limb_mass, string_mass, string_length)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Common, limb, layers, string_length, string_stiffness, string_mass, limb_mass)
 
 struct States {
     std::vector<double> time;
@@ -69,14 +70,24 @@ struct States {
     std::vector<double> arrow_vel;
     std::vector<double> arrow_acc;
 
-    std::vector<double> e_pot_limbs;
-    std::vector<double> e_kin_limbs;
-    std::vector<double> e_pot_string;
-    std::vector<double> e_kin_string;
-    std::vector<double> e_kin_arrow;
+    std::vector<double> elastic_energy_limbs;
+    std::vector<double> elastic_energy_string;
+
+    std::vector<double> kinetic_energy_limbs;
+    std::vector<double> kinetic_energy_string;
+    std::vector<double> kinetic_energy_arrow;
+
+    std::vector<double> damping_energy_limbs;
+    std::vector<double> damping_energy_string;
+    std::vector<double> damping_power_limbs;
+    std::vector<double> damping_power_string;
 
     std::vector<double> draw_force;
+    std::vector<double> draw_stiffness;
     std::vector<double> grip_force;
+    std::vector<double> string_length;
+    std::vector<double> string_tip_angle;
+    std::vector<double> string_center_angle;
     std::vector<double> string_force;
     std::vector<double> strand_force;
 };
@@ -96,13 +107,21 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     arrow_pos,
     arrow_vel,
     arrow_acc,
-    e_pot_limbs,
-    e_kin_limbs,
-    e_pot_string,
-    e_kin_string,
-    e_kin_arrow,
+    elastic_energy_limbs,
+    elastic_energy_string,
+    kinetic_energy_limbs,
+    kinetic_energy_string,
+    kinetic_energy_arrow,
+    damping_energy_limbs,
+    damping_energy_string,
+    damping_power_limbs,
+    damping_power_string,
     draw_force,
+    draw_stiffness,
     grip_force,
+    string_length,
+    string_tip_angle,
+    string_center_angle,
     string_force,
     strand_force
 )
@@ -193,7 +212,6 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
 )
 
 struct OutputData {
-    unsigned version;
     Common common;
     std::optional<Statics> statics;
     std::optional<Dynamics> dynamics;
@@ -204,4 +222,4 @@ struct OutputData {
     void save(const std::string& path) const;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(OutputData, version, common, statics, dynamics)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(OutputData, common, statics, dynamics)

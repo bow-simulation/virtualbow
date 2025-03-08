@@ -127,35 +127,35 @@ void EnergyPlot::updatePlot() {
         std::vector<double> e_string(parameter.size());
 
         for(size_t i = 0; i < parameter.size(); ++i) {
-            e_limbs[i] = states.e_pot_limbs[i] + states.e_kin_limbs[i];
+            e_limbs[i] = states.elastic_energy_limbs[i] + states.kinetic_energy_limbs[i];
         }
         for(size_t i = 0; i < parameter.size(); ++i) {
-            e_string[i] = states.e_pot_string[i] + states.e_kin_string[i];
+            e_string[i] = states.elastic_energy_string[i] + states.kinetic_energy_string[i];
         }
         plot_energy(e_limbs, "Limbs (Total)", QColor(0, 0, 255));
         plot_energy(e_string, "String (Total)", QColor(128, 0, 128));
-        plot_energy(states.e_kin_arrow, "Arrow (Total)", QColor(255, 0, 0));
+        plot_energy(states.kinetic_energy_arrow, "Arrow (Total)", QColor(255, 0, 0));
     }
     else if(cb_type->isChecked()) {
         std::vector<double> e_pot(parameter.size());
         std::vector<double> e_kin(parameter.size());
 
         for(size_t i = 0; i < parameter.size(); ++i) {
-            e_pot[i] = states.e_pot_limbs[i] + states.e_pot_string[i];
+            e_pot[i] = states.elastic_energy_limbs[i] + states.elastic_energy_string[i];
         }
         for(size_t i = 0; i < parameter.size(); ++i) {
-            e_kin[i] = states.e_kin_limbs[i] + states.e_kin_string[i] + states.e_kin_arrow[i];
+            e_kin[i] = states.kinetic_energy_limbs[i] + states.kinetic_energy_string[i] + states.kinetic_energy_arrow[i];
         }
 
         plot_energy(e_pot, "Potential", QColor(0, 0, 255));
         plot_energy(e_kin, "Kinetic", QColor(255, 0, 0));
     }
     else {
-        plot_energy(states.e_pot_limbs, "Limbs (Pot)", QColor(0, 0, 255));
-        plot_energy(states.e_kin_limbs, "Limbs (Kin)", QColor(40, 40, 255));
-        plot_energy(states.e_pot_string, "String (Pot)", QColor(128, 0, 128));
-        plot_energy(states.e_kin_string, "String (Kin)", QColor(128, 40, 128));
-        plot_energy(states.e_kin_arrow, "Arrow (Kin)", QColor(255, 0, 0));
+        plot_energy(states.elastic_energy_limbs, "Limbs (Pot)", QColor(0, 0, 255));
+        plot_energy(states.kinetic_energy_limbs, "Limbs (Kin)", QColor(40, 40, 255));
+        plot_energy(states.elastic_energy_string, "String (Pot)", QColor(128, 0, 128));
+        plot_energy(states.kinetic_energy_string, "String (Kin)", QColor(128, 40, 128));
+        plot_energy(states.kinetic_energy_arrow, "Arrow (Kin)", QColor(255, 0, 0));
     }
 
     // Update plot

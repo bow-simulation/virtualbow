@@ -7,15 +7,17 @@ ProfileCurve::ProfileCurve()
 
 }
 
-ProfileCurve::ProfileCurve(const std::vector<SegmentInput>& inputs)
+ProfileCurve::ProfileCurve(const ProfileInput& input)
     : ProfileCurve()
 {
-    if(inputs.empty()) {
+    throw std::invalid_argument("TODO: Take profile alignment into account");
+
+    if(input.segments.empty()) {
         throw std::runtime_error("At least one profile segment is required");
     }
 
-    for(auto& input: inputs) {
-        add_segment(input);
+    for(auto& segment: input.segments) {
+        add_segment(segment);
     }
 }
 

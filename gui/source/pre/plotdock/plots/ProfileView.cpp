@@ -39,7 +39,7 @@ ProfileView::ProfileView(const Quantity& quantity)
     QObject::connect(&quantity, &Quantity::unitChanged, this, &ProfileView::updatePlot);
 }
 
-void ProfileView::setData(const std::vector<SegmentInput>& data) {
+void ProfileView::setData(const ProfileInput& data) {
     input = data;
     updatePlot();
 }
@@ -59,7 +59,7 @@ void ProfileView::updatePlot() {
     // Construct profile curve segment by segment, stop on first error
     ProfileCurve profile;
     try {
-        for(auto& segment: input) {
+        for(auto& segment: input.segments) {
             profile.add_segment(segment);
         }
     }

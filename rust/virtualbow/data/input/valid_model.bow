@@ -17,7 +17,7 @@
   "dimensions": {
     "brace_height": 0.2,
     "draw_length": 0.7,
-    "handle_ref": "profile",
+    "handle_origin": "profile",
     "handle_angle": 0.0,
     "handle_length": 0.0,
     "handle_offset": 0.0
@@ -48,11 +48,15 @@
     }
   ],
   "profile": {
-    "alignment": "section_back",
+    "alignment": {
+      "type": "section_back"
+    },
     "segments": [
       {
         "type": "line",
-        "length": 1.0
+        "parameters": {
+          "length": 1.0
+        }
       }
     ]
   },

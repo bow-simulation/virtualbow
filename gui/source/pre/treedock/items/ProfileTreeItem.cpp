@@ -25,17 +25,21 @@ ProfileTreeItem::ProfileTreeItem(ViewModel* model)
     });
 
     QObject::connect(model, &ViewModel::segmentModified, [=](int i, void* source) {
+        /*
         if(source != this) {
             auto item = dynamic_cast<SegmentTreeItem*>(this->child(i));
             item->setSegment(model->getProfile()[i]);
         }
+        */
     });
 
     QObject::connect(model, &ViewModel::segmentInserted, [=](int i, void* source) {
+        /*
         if(source != this) {
             auto item = new SegmentTreeItem(model, model->getProfile()[i]);
             this->insertChild(i, item);
         }
+        */
     });
 
     QObject::connect(model, &ViewModel::segmentRemoved, [=](int i, void* source) {
@@ -54,11 +58,13 @@ ProfileTreeItem::ProfileTreeItem(ViewModel* model)
 }
 
 void ProfileTreeItem::initFromModel() {
+    /*
     this->removeChildren();
     for(auto& segment: model->getProfile()) {
         auto item = new SegmentTreeItem(model, segment);
         this->addChild(item);
     }
+    */
 }
 
 /*

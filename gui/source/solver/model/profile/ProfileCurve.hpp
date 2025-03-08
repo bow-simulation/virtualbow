@@ -17,7 +17,7 @@
 class ProfileCurve {
 public:
     ProfileCurve();
-    ProfileCurve(const std::vector<SegmentInput>& inputs);
+    ProfileCurve(const ProfileInput& input);
 
     void add_segment(const SegmentInput& input);
     const std::vector<std::unique_ptr<ProfileSegment>>& get_segments() const;

@@ -17,4 +17,7 @@ namespace Config
     static const char* APPLICATION_COPYRIGHT = "@APPLICATION_COPYRIGHT@";
     static const char* APPLICATION_LICENSE = "@APPLICATION_LICENSE@";
     static const char* APPLICATION_DESCRIPTION = "@APPLICATION_DESCRIPTION_SHORT@";
+
+    static const char* CMAKE_SOURCE_DIR = "${CMAKE_SOURCE_DIR}";
+    static const char* CMAKE_BINARY_DIR = "${CMAKE_BINARY_DIR}";
 }

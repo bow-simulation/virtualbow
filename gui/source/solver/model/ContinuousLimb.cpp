@@ -45,11 +45,14 @@ double ContinuousLayer::get_E() const
 ContinuousLimb::ContinuousLimb(const InputData& input)
     : profile(input.profile),
       width(input.width, true),
-      translation{0.5*input.dimensions.handle_length, input.dimensions.handle_setback},
+      translation{0.5*input.dimensions.handle_length, input.dimensions.handle_offset},
       rotation(input.dimensions.handle_angle)
 {
+    throw std::invalid_argument("TODO: Take handle origin into account!");
+
     for(const Layer& layer: input.layers) {
-        int material_index = layer.material;
+        int material_index = 0; // layer.material;
+        throw std::invalid_argument("Fix material index");
         if(material_index < 0 || material_index >= input.materials.size()) {
             throw std::invalid_argument("Material index out of bounds");
         }

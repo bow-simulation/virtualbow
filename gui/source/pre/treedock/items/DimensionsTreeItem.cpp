@@ -31,6 +31,7 @@ DimensionsTreeItem::DimensionsTreeItem(ViewModel* model)
 }
 
 void DimensionsTreeItem::updateModel(void* source) {
+    /*
     model->setDimensions({
         .brace_height = brace_height->getValue(),
         .draw_length = draw_length->getValue(),
@@ -38,9 +39,11 @@ void DimensionsTreeItem::updateModel(void* source) {
         .handle_setback = handle_setback->getValue(),
         .handle_angle = handle_angle->getValue()
     }, source);
+    */
 }
 
 void DimensionsTreeItem::updateView(void* source) {
+    /*
     if(source != this) {
         QSignalBlocker blocker(property_tree);
         brace_height->setValue(model->getDimensions().brace_height);
@@ -49,4 +52,5 @@ void DimensionsTreeItem::updateView(void* source) {
         handle_setback->setValue(model->getDimensions().handle_setback);
         handle_angle->setValue(model->getDimensions().handle_angle);
     }
+    */
 }

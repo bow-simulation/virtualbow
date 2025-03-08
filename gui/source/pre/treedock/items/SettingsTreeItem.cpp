@@ -36,6 +36,7 @@ SettingsTreeItem::SettingsTreeItem(ViewModel* model)
 
 void SettingsTreeItem::updateModel(void* source) {
     model->setSettings({
+        /*
         .n_limb_elements = n_limb_elements->getValue(),
         .n_string_elements = n_string_elements->getValue(),
         .n_draw_steps = n_draw_steps->getValue(),
@@ -43,12 +44,14 @@ void SettingsTreeItem::updateModel(void* source) {
         .time_span_factor = time_span_factor->getValue(),
         .time_step_factor = time_step_factor->getValue(),
         .sampling_rate = sampling_rate->getValue()
+        */
     }, source);
 }
 
 void SettingsTreeItem::updateView(void* source) {
     if(source != this) {
         QSignalBlocker blocker(property_tree);
+        /*
         n_limb_elements->setValue(model->getSettings().n_limb_elements);
         n_string_elements->setValue(model->getSettings().n_string_elements);
         n_draw_steps->setValue(model->getSettings().n_draw_steps);
@@ -56,5 +59,6 @@ void SettingsTreeItem::updateView(void* source) {
         time_span_factor->setValue(model->getSettings().time_span_factor);
         time_step_factor->setValue(model->getSettings().time_step_factor);
         sampling_rate->setValue(model->getSettings().sampling_rate);
+        */
     }
 }
