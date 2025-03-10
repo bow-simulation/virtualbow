@@ -36,6 +36,9 @@ configure_file(source/config.hpp.in ${CMAKE_BINARY_DIR}/config.hpp)
 include_directories(source ${PROJECT_BINARY_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 
+include_directories("../rust/virtualbow_ffi")
+link_directories("../rust/target/release")
+
 # Compiler flags
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-math-errno")    # Don't make standard math functions set error flags
@@ -286,6 +289,7 @@ add_executable(
 target_link_libraries(
     virtualbow-test
     virtualbow-lib
+    virtualbow_ffi
     Catch2::Catch2
 )
 

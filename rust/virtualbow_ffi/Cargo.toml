@@ -1,0 +1,20 @@
+[package]
+name = "virtualbow_ffi"
+description = "C interface for the VirtualBow solver"
+
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+homepage.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+virtualbow = { version = "0.10.0", path = "../virtualbow" }
+
+[build-dependencies]
+cbindgen.workspace = true

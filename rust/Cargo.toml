@@ -5,6 +5,7 @@ members = [
     "virtualbow",
     "virtualbow_num",
     "virtualbow_cli",
+    "virtualbow_ffi",
     "virtualbow_gui",
 ]
 
@@ -15,7 +16,6 @@ authors = ["Stefan Pfeifer <s-pfeifer@gmx.net>"]
 homepage = "https://www.virtualbow.org"
 
 [workspace.lints.rust]
-unsafe_code = "forbid"
 non_snake_case = "allow"            # Style
 mixed_script_confusables = "allow"  # Style
 confusable_idents = "allow"         # Style
@@ -55,3 +55,4 @@ assert_cmd = "2.0.14"
 spec_math = "0.1.5"
 assert2 = "0.3.15"
 test_each_file = "0.3.4"
+cbindgen = "0.28.0"

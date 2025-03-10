@@ -1,9 +1,11 @@
 #define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
 
 #include "solver/model/input/InputData.hpp"
 #include "solver/model/output/OutputData.hpp"
 #include "config.hpp"
+
+#include <catch2/catch.hpp>
+#include <virtualbow.hpp>
 
 // Location of the solver's test data directory
 const std::string TEST_DATA_DIR = std::string(Config::CMAKE_SOURCE_DIR) + "/../rust/virtualbow/data";
@@ -16,4 +18,8 @@ TEST_CASE("load-model-file") {
 // Tests if a result file from the solver's test data can be loaded successfully
 TEST_CASE("load-result-file") {
     REQUIRE_NOTHROW(OutputData(TEST_DATA_DIR + "/output/valid_results.res"));
+}
+
+TEST_CASE("rust-ffi-call") {
+    REQUIRE(add(1, 1) == 2);
 }
