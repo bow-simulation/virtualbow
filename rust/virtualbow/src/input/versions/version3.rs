@@ -1,20 +1,20 @@
 // Bow file version 3
-// Used in VirtualBow input 0.9.*
+// Used in VirtualBow versions 0.9.*
 
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::hash::{DefaultHasher, Hash, Hasher};
 use itertools::Itertools;
 use serde::{Serialize, Deserialize};
-use crate::input::{v1, v2};
+use super::{version1, version2};
 
-pub use v1::Dimensions;
-pub use v1::Width;
-pub use v1::Height;
-pub use v1::BowString;
-pub use v1::Masses;
-pub use v1::Damping;
-pub use v2::Settings;
+pub use version1::Dimensions;
+pub use version1::Width;
+pub use version1::Height;
+pub use version1::BowString;
+pub use version1::Masses;
+pub use version1::Damping;
+pub use version2::Settings;
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
 pub struct BowModel {
@@ -77,8 +77,8 @@ pub struct Spline {
     pub points: Vec<[f64; 2]>
 }
 
-impl From<v2::BowModel> for BowModel {
-    fn from(model: v2::BowModel) -> BowModel {
+impl From<version2::BowModel> for BowModel {
+    fn from(model: version2::BowModel) -> BowModel {
         // In previous input, the colors were randomly generated based on the material properties (same properties -> same color)
         // Starting with version 0.9 the colors can be chosen by users, so we have to pick some initial color here. Instead of replicating the old
         // random algorithm, they are chosen out of a fixed color palette (taken from Python's Matplotlib,  https://stackoverflow.com/a/42091037)

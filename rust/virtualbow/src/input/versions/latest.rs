@@ -3,13 +3,13 @@
 
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use crate::input::{v1, v3};
+use super::{version1, version3};
 
-pub use v1::Width;
-pub use v1::Height;
-pub use v1::BowString;
-pub use v1::Masses;
-pub use v1::Damping;
+pub use version1::Width;
+pub use version1::Height;
+pub use version1::BowString;
+pub use version1::Masses;
+pub use version1::Damping;
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
 pub struct BowModel {
@@ -130,8 +130,8 @@ pub struct Spline {
     pub points: Vec<[f64; 2]>
 }
 
-impl From<v3::BowModel> for BowModel {
-    fn from(model: v3::BowModel) -> BowModel {
+impl From<version3::BowModel> for BowModel {
+    fn from(model: version3::BowModel) -> BowModel {
         let settings = Settings {
             n_limb_elements: model.settings.n_limb_elements,
             n_limb_eval_points: 100,
@@ -171,10 +171,10 @@ impl From<v3::BowModel> for BowModel {
 
         let segments = model.profile.iter().map(|segment|{
             match segment {
-                v3::ProfileSegment::Line{ parameters } => ProfileSegment::Line(Line{ length: parameters.length }),
-                v3::ProfileSegment::Arc{ parameters } => ProfileSegment::Arc(Arc{ length: parameters.length, radius: parameters.radius }),
-                v3::ProfileSegment::Spiral{ parameters } => ProfileSegment::Spiral(Spiral{ length: parameters.length, radius_start: parameters.r_start, radius_end: parameters.r_end }),
-                v3::ProfileSegment::Spline{ parameters } => ProfileSegment::Spline(Spline{ points: parameters.points.clone() })
+                version3::ProfileSegment::Line{ parameters } => ProfileSegment::Line(Line{ length: parameters.length }),
+                version3::ProfileSegment::Arc{ parameters } => ProfileSegment::Arc(Arc{ length: parameters.length, radius: parameters.radius }),
+                version3::ProfileSegment::Spiral{ parameters } => ProfileSegment::Spiral(Spiral{ length: parameters.length, radius_start: parameters.r_start, radius_end: parameters.r_end }),
+                version3::ProfileSegment::Spline{ parameters } => ProfileSegment::Spline(Spline{ points: parameters.points.clone() })
             }
         }).collect_vec();
 

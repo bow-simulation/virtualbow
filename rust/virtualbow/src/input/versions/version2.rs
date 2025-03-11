@@ -1,16 +1,16 @@
 // Bow file version 2
-// Used in VirtualBow input 0.8.*
+// Used in VirtualBow versions 0.8.*
 
 use serde::{Serialize, Deserialize};
-use crate::input::v1;
+use super::version1;
 
-pub use v1::Dimensions;
-pub use v1::Layer;
-pub use v1::Profile;
-pub use v1::Width;
-pub use v1::BowString;
-pub use v1::Masses;
-pub use v1::Damping;
+pub use version1::Dimensions;
+pub use version1::Layer;
+pub use version1::Profile;
+pub use version1::Width;
+pub use version1::BowString;
+pub use version1::Masses;
+pub use version1::Damping;
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
 pub struct BowModel {
@@ -36,8 +36,8 @@ pub struct Settings {
     pub time_step_factor: f64
 }
 
-impl From<v1::BowModel> for BowModel {
-    fn from(model: v1::BowModel) -> BowModel {
+impl From<version1::BowModel> for BowModel {
+    fn from(model: version1::BowModel) -> BowModel {
         Self {
             comment: model.comment,
             settings: Settings {

@@ -8,8 +8,15 @@
 #include <ostream>
 #include <new>
 
+struct Buffer {
+    uint8_t *data;
+    uintptr_t size;
+};
+
 extern "C" {
 
-int32_t add(int32_t a, int32_t b);
+Buffer load_model(const int8_t *path, bool convert, const int8_t *error);
+
+void free_buffer(Buffer buffer);
 
 }  // extern "C"
