@@ -28,15 +28,27 @@ struct LayerInfo {
     std::string name;
 };
 
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    LayerInfo,
+    name
+)
+
 struct LimbInfo {
     std::vector<double> length;
     std::vector<std::array<double, 3>> position;
     std::vector<double> width;
     std::vector<double> height;
+    std::vector<std::vector<double>> bounds;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerInfo, name)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LimbInfo, length, position, width, height)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    LimbInfo,
+    length,
+    position,
+    width,
+    height,
+    bounds
+)
 
 struct Common {
     LimbInfo limb;
@@ -48,7 +60,15 @@ struct Common {
     double limb_mass;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Common, limb, layers, string_length, string_stiffness, string_mass, limb_mass)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    Common,
+    limb,
+    layers,
+    string_length,
+    string_stiffness,
+    string_mass,
+    limb_mass
+)
 
 struct States {
     std::vector<double> time;
@@ -211,15 +231,15 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     max_layer_stresses
 )
 
-struct OutputData {
+struct BowResult {
     Common common;
     std::optional<Statics> statics;
     std::optional<Dynamics> dynamics;
-
-    OutputData() = default;    // Todo: Make this one obsolete
-
-    OutputData(const std::string& path);
-    void save(const std::string& path) const;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(OutputData, common, statics, dynamics)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    BowResult,
+    common,
+    statics,
+    dynamics
+)

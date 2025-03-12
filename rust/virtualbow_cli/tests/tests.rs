@@ -1,4 +1,4 @@
-use virtualbow::output::BowOutput;
+use virtualbow::output::BowResult;
 use assert_cmd::assert::OutputAssertExt;
 use assert_cmd::cargo::CommandCargoExt;
 use predicates::prelude::predicate;
@@ -51,7 +51,7 @@ fn command_static() {
         .stderr(predicate::str::is_empty())
         .stdout(predicate::str::is_empty());
 
-    let output = BowOutput::load("../../docs/examples/bows/big-paddle-ash.res").unwrap();
+    let output = BowResult::load("../../docs/examples/bows/big-paddle-ash.res").unwrap();
     assert!(output.statics.is_some());
     assert!(output.dynamics.is_none());
 }
@@ -70,7 +70,7 @@ fn command_dynamic() {
         .stderr(predicate::str::is_empty())
         .stdout(predicate::str::contains("progress"));
 
-    let output = BowOutput::load("../../docs/examples/bows/big-paddle-ash.res").unwrap();
+    let output = BowResult::load("../../docs/examples/bows/big-paddle-ash.res").unwrap();
     assert!(output.statics.is_some());
     assert!(output.dynamics.is_some());
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include "SegmentEditor.hpp"
-#include "solver/model/profile/ProfileInput.hpp"
+#include "solver/input.hpp"
 #include "pre/widgets/DoubleSpinBox.hpp"
 #include <QComboBox>
 #include <QStackedWidget>

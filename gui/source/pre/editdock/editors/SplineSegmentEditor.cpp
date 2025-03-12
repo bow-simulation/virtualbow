@@ -14,15 +14,19 @@ SplineSegmentEditor::SplineSegmentEditor()
     QObject::connect(table, &TableEditor::modified, this, &SplineSegmentEditor::modified);
 }
 
-SegmentInput SplineSegmentEditor::getData() const {
-    return table->getData();
+ProfileSegment SplineSegmentEditor::getData() const {
+    throw std::invalid_argument("Removed code");
+    //return table->getData();
 }
 
-void SplineSegmentEditor::setData(const SegmentInput& data) {
-    if(auto value = std::get_if<SplineInput>(&data)) {
+void SplineSegmentEditor::setData(const ProfileSegment& data) {
+    throw std::invalid_argument("Removed code");
+    /*
+    if(auto value = std::get_if<SpLine>(&data)) {
         table->setData(*value);
     }
     else {
         throw std::invalid_argument("Wrong segment type");
     }
+    */
 }

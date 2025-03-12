@@ -95,8 +95,8 @@ void TableModel::fetchMore(const QModelIndex& parent) {
 }
 
 
-std::vector<Vector<2>> TableModel::getData() const {
-    std::vector<Vector<2>> data;
+std::vector<std::array<double, 2>> TableModel::getData() const {
+    std::vector<std::array<double, 2>> data;
     data.reserve(2*entries.size());    // Upper bound on number of valid data points
 
     // Since the indices are stored in a QMap, they are sorted after row and column
@@ -123,7 +123,7 @@ std::vector<Vector<2>> TableModel::getData() const {
     return data;
 }
 
-void TableModel::setData(const std::vector<Vector<2>>& data) {
+void TableModel::setData(const std::vector<std::array<double, 2>>& data) {
     // Inser new rows at the end if needed
     if(data.size() > loadedRows) {
         beginInsertRows(QModelIndex(), loadedRows, data.size() - 1);

@@ -1,6 +1,5 @@
 #include "ProfileView.hpp"
-#include "solver/model/profile/ProfileCurve.hpp"
-#include "solver/numerics/Linspace.hpp"
+#include "solver/input.hpp"
 
 // Magic numbers
 const size_t N_SEGMENT_POINTS   = 100;
@@ -39,7 +38,7 @@ ProfileView::ProfileView(const Quantity& quantity)
     QObject::connect(&quantity, &Quantity::unitChanged, this, &ProfileView::updatePlot);
 }
 
-void ProfileView::setData(const ProfileInput& data) {
+void ProfileView::setData(const Profile& data) {
     input = data;
     updatePlot();
 }
@@ -51,6 +50,8 @@ void ProfileView::setSelection(const QList<int>& indices) {
 }
 
 void ProfileView::updatePlot() {
+    throw std::invalid_argument("Removed code");
+    /*
     this->xAxis->setLabel("X " + quantity.getUnit().getLabel());
     this->yAxis->setLabel("Y " + quantity.getUnit().getLabel());
 
@@ -149,6 +150,7 @@ void ProfileView::updatePlot() {
 
     this->rescaleAxes();
     this->replot();
+    */
 }
 
 void ProfileView::updateSelection() {

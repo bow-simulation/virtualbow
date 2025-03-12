@@ -1,13 +1,12 @@
 #include "LimbMesh.hpp"
 #include "LayerColors.hpp"
-#include "solver/model/LimbProperties.hpp"
-#include "solver/numerics/CubicSpline.hpp"
-#include "solver/numerics/Linspace.hpp"
 
-LimbMesh::LimbMesh(const InputData& input)
+LimbMesh::LimbMesh(const BowModel& input)
     : faces_right(GL_QUADS),
       faces_left(GL_QUADS)
 {
+    throw std::invalid_argument("Removed code");
+    /*
     try {
         ContinuousLimb limb(input);
 
@@ -101,8 +100,10 @@ LimbMesh::LimbMesh(const InputData& input)
     catch(std::exception&) {
 
     }
+    */
 }
 
+/*
 std::vector<double> LimbMesh::getEvalLengths(const ContinuousLimb& limb, unsigned n) {
     // Create a sorted vector of all start- and endpoints of the layers.
     // These points must be included in the evaluation lengths.
@@ -126,6 +127,7 @@ std::vector<double> LimbMesh::getEvalLengths(const ContinuousLimb& limb, unsigne
 
     return lengths;
 }
+*/
 
 void LimbMesh::addQuad(QVector3D p0, QVector3D p1, QVector3D p2, QVector3D p3, const QColor& color) {
     QVector3D q0{-p0.x(), p0.y(), p0.z()};

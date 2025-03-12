@@ -48,7 +48,8 @@ bool ViewModel::isModified() const {
 }
 
 void ViewModel::loadDefaults() {
-    data = InputData();
+    throw std::invalid_argument("Removed code");
+    //data = BowModel();
     emit reloaded(this);
 
     setFilePath(QString());
@@ -56,7 +57,8 @@ void ViewModel::loadDefaults() {
 }
 
 void ViewModel::loadFile(const QString& path) {
-    data = InputData(path.toLocal8Bit().toStdString());    // toLocal8Bit() for Windows, since toStdString() would convert to UTF8
+    throw std::invalid_argument("Removed code");
+    //data = InputData(path.toLocal8Bit().toStdString());    // toLocal8Bit() for Windows, since toStdString() would convert to UTF8
     emit reloaded(this);
 
     setFilePath(path);
@@ -64,7 +66,8 @@ void ViewModel::loadFile(const QString& path) {
 }
 
 void ViewModel::saveFile(const QString& path) {
-    data.save(path.toLocal8Bit().toStdString());    // toLocal8Bit() for Windows, since toStdString() would convert to UTF8
+    throw std::invalid_argument("Removed code");
+    //data.save(path.toLocal8Bit().toStdString());    // toLocal8Bit() for Windows, since toStdString() would convert to UTF8
 
     setFilePath(path);
     setModified(false);
@@ -84,11 +87,11 @@ void ViewModel::setModified(bool value) {
     }
 }
 
-const InputData& ViewModel::getData() const {
+const BowModel& ViewModel::getData() const {
     return data;
 }
 
-InputData& ViewModel::getData() {
+BowModel& ViewModel::getData() {
     return data;
 }
 
@@ -250,11 +253,12 @@ void ViewModel::swapLayers(size_t i, size_t j, void* source) {
     }
 }
 
-const ProfileInput& ViewModel::getProfile() const {
+const Profile& ViewModel::getProfile() const {
     return data.profile;
 }
 
-void ViewModel::modifySegment(size_t i, const SegmentInput& segment, void* source) {
+void ViewModel::modifySegment(size_t i, const ProfileSegment& segment, void* source) {
+    throw std::invalid_argument("Removed code");
     /*
     if(i < data.profile.size()) {
         data.profile[i] = segment;
@@ -264,7 +268,8 @@ void ViewModel::modifySegment(size_t i, const SegmentInput& segment, void* sourc
     */
 }
 
-void ViewModel::insertSegment(size_t i, const SegmentInput& segment, void* source) {
+void ViewModel::insertSegment(size_t i, const ProfileSegment& segment, void* source) {
+    throw std::invalid_argument("Removed code");
     /*
     if(i <= data.profile.size()) {
         data.profile.insert(data.profile.begin() + i, segment);
@@ -275,6 +280,7 @@ void ViewModel::insertSegment(size_t i, const SegmentInput& segment, void* sourc
 }
 
 void ViewModel::removeSegment(size_t i, void* source) {
+    throw std::invalid_argument("Removed code");
     /*
     if(i < data.profile.size()) {
         data.profile.erase(data.profile.begin() + i);
@@ -285,6 +291,7 @@ void ViewModel::removeSegment(size_t i, void* source) {
 }
 
 void ViewModel::swapSegments(size_t i, size_t j, void* source) {
+    throw std::invalid_argument("Removed code");
     /*
     if(i != j && i < data.profile.size() && j < data.profile.size()) {
         std::swap(data.profile[i], data.profile[j]);
@@ -294,11 +301,11 @@ void ViewModel::swapSegments(size_t i, size_t j, void* source) {
     */
 }
 
-const std::vector<Vector<2>>& ViewModel::getWidth() const {
+const Width& ViewModel::getWidth() const {
     return data.width;
 }
 
-void ViewModel::setWidth(const std::vector<Vector<2>>& value, void* source) {
+void ViewModel::setWidth(const Width& value, void* source) {
     data.width = value;
     emit widthModified(source);
 }

@@ -47,23 +47,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-math-errno")    # Don't make standa
 
 add_library(
     virtualbow-lib STATIC
-    source/solver/model/ContinuousLimb.cpp
-    source/solver/model/LimbProperties.cpp
-    source/solver/model/input/InputData.cpp
-
-    source/solver/model/output/OutputData.cpp
-    source/solver/model/profile/ProfileCurve.cpp
-    source/solver/model/profile/ProfileSegment.cpp
-    source/solver/model/profile/ProfileInput.cpp
-    source/solver/model/profile/segments/ClothoidSegment.cpp
-    source/solver/model/profile/segments/SplineSegment.cpp
-    source/solver/numerics/CubicSpline.cpp
-    source/solver/numerics/Fresnel.cpp
-    source/solver/numerics/Sorting.cpp
+    source/solver/interface.cpp
+    source/solver/input.cpp
 )
 
 target_link_libraries(
     virtualbow-lib
+    virtualbow_ffi
     ${Boost_LIBRARIES}
     Eigen3::Eigen
     nlohmann_json::nlohmann_json
@@ -283,13 +273,12 @@ target_link_libraries(
 
 add_executable(
     virtualbow-test
-    source/tests/Main.cpp
+    source/tests/main.cpp
 )
 
 target_link_libraries(
     virtualbow-test
     virtualbow-lib
-    virtualbow_ffi
     Catch2::Catch2
 )
 

@@ -7,15 +7,19 @@ SpiralSegmentEditor::SpiralSegmentEditor()
 
 }
 
-SegmentInput SpiralSegmentEditor::getData() const {
-    return getProperties<SpiralConstraint>();
+ProfileSegment SpiralSegmentEditor::getData() const {
+    throw std::invalid_argument("Removed code");
+    //return getProperties<SpiralConstraint>();
 }
 
-void SpiralSegmentEditor::setData(const SegmentInput& data) {
-    if(auto value = std::get_if<SpiralInput>(&data)) {
+void SpiralSegmentEditor::setData(const ProfileSegment& data) {
+    throw std::invalid_argument("Removed code");
+    /*
+    if(auto value = std::get_if<Spiral>(&data)) {
         setProperties<SpiralConstraint>(*value);
     }
     else {
         throw std::invalid_argument("Wrong segment type");
     }
+    */
 }

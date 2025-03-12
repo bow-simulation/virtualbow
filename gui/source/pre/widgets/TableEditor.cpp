@@ -17,11 +17,11 @@ TableEditor::TableEditor(const QString& x_label, const QString& y_label,
     });
 }
 
-std::vector<Vector<2>> TableEditor::getData() const {
+std::vector<std::array<double, 2>> TableEditor::getData() const {
     return model.getData();
 }
 
-void TableEditor::setData(const std::vector<Vector<2>>& data) {
+void TableEditor::setData(const std::vector<std::array<double, 2>>& data) {
     model.setData(data);
 }
 

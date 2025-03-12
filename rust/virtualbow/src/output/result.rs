@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use soa_derive::StructOfArray;
 
 #[derive(Serialize, Deserialize, Default, PartialEq, Debug, Clone)]
-pub struct BowOutput {
+pub struct BowResult {
     pub common: Common,
     pub statics: Option<Statics>,
     pub dynamics: Option<Dynamics>,

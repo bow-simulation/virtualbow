@@ -8,15 +8,28 @@
 #include <ostream>
 #include <new>
 
-struct Buffer {
+namespace ffi {
+
+struct Response {
+    char *error;
     uint8_t *data;
     uintptr_t size;
 };
 
 extern "C" {
 
-Buffer load_model(const int8_t *path, bool convert, const int8_t *error);
+Response new_model();
 
-void free_buffer(Buffer buffer);
+Response load_model(const char *path, bool convert);
+
+Response save_model(const uint8_t *data, uintptr_t size, const char *path);
+
+Response load_result(const char *path);
+
+Response save_result(const uint8_t *data, uintptr_t size, const char *path);
+
+void free_response(Response response);
 
 }  // extern "C"
+
+}  // namespace ffi

@@ -15,6 +15,7 @@ crate-type = ["staticlib"]
 
 [dependencies]
 virtualbow = { version = "0.10.0", path = "../virtualbow" }
+rmp-serde.workspace = true
 
 [build-dependencies]
 cbindgen.workspace = true

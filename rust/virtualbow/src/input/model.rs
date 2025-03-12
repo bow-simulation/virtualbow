@@ -13,7 +13,7 @@ impl BowModel {
     }
 
     pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<(), ModelError> {
-        BowModelVersion::save(path, &self)
+        BowModelVersion::save(path, self)
     }
 
     pub fn validate(&self) -> Result<(), ModelError> {
@@ -92,6 +92,24 @@ impl BowModel {
                 damping_ratio_string: 0.0,
             },
         }
+    }
+}
+
+impl TryInto<Vec<u8>> for BowModel {
+    type Error = ModelError;
+
+    // Conversion into MsgPack byte array
+    fn try_into(self) -> Result<Vec<u8>, Self::Error> {
+        rmp_serde::to_vec_named(&self).map_err(ModelError::InputEncodeMsgPackError)  // TODO: Bett error type?
+    }
+}
+
+impl TryFrom<&[u8]> for BowModel {
+    type Error = ModelError;
+
+    // Conversion from MsgPack byte array
+    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
+        rmp_serde::from_slice(value).map_err(ModelError::InputDecodeMsgPackError)
     }
 }
 

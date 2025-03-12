@@ -10,7 +10,7 @@ use virtualbow_num::fem::system::system::{System, SystemEval};
 use crate::errors::ModelError;
 use crate::geometry::{DiscreteLimbGeometry, LimbGeometry};
 use crate::input::BowModel;
-use crate::output::{Dynamics, LayerInfo, LimbInfo, BowOutput, Common, State, StateVec, Statics, ArrowDeparture};
+use crate::output::{Dynamics, LayerInfo, LimbInfo, BowResult, Common, State, StateVec, Statics, ArrowDeparture};
 use virtualbow_num::fem::elements::beam::beam::BeamElement;
 use virtualbow_num::fem::elements::mass::MassElement;
 use virtualbow_num::fem::elements::string::StringElement;
@@ -252,7 +252,7 @@ impl<'a> Simulation<'a> {
     }
 
     // Callback: (phase, progress) -> continue
-    pub fn simulate<F>(model: &'a BowModel, mode: SimulationMode, mut callback: F) -> Result<BowOutput, ModelError>
+    pub fn simulate<F>(model: &'a BowModel, mode: SimulationMode, mut callback: F) -> Result<BowResult, ModelError>
         where F: FnMut(&str, f64) -> bool
     {
         // Initialize simulation. String always, but damping only in dynamic mode (saves an einegvalue analysis).
@@ -446,18 +446,18 @@ impl<'a> Simulation<'a> {
             }
         };
 
-        Ok(BowOutput {
+        Ok(BowResult {
             common,
             statics: Some(statics),
             dynamics,
         })
     }
 
-    pub fn simulate_statics(model: &'a BowModel) -> Result<BowOutput, ModelError> {
+    pub fn simulate_statics(model: &'a BowModel) -> Result<BowResult, ModelError> {
         Self::simulate(model, SimulationMode::Static, |_, _| true)
     }
 
-    pub fn simulate_dynamics(model: &'a BowModel) -> Result<BowOutput, ModelError> {
+    pub fn simulate_dynamics(model: &'a BowModel) -> Result<BowResult, ModelError> {
         Self::simulate(model, SimulationMode::Dynamic, |_, _| true)
     }
 

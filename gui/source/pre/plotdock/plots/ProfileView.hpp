@@ -1,14 +1,13 @@
 #pragma once
 #include "pre/widgets/PlotWidget.hpp"
 #include "pre/viewmodel/units/Quantity.hpp"
-#include "solver/model/profile/ProfileInput.hpp"
-#include "solver/numerics/EigenTypes.hpp"
+#include "solver/input.hpp"
 
 class ProfileView: public PlotWidget
 {
 public:
     ProfileView(const Quantity& xy_quantity);
-    void setData(const ProfileInput& data);
+    void setData(const Profile& data);
     void setSelection(const QList<int>& indices);
 
 private:
@@ -17,7 +16,7 @@ private:
     QAction* action_show_curvature;
     QAction* action_show_nodes;
 
-    ProfileInput input;
+    Profile input;
     QList<int> selection;
 
     QList<QCPCurve*> segment_curves;

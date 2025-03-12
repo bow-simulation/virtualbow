@@ -6,6 +6,6 @@ class SpiralSegmentEditor: public PropertyValueEditor
 public:
     SpiralSegmentEditor();
 
-    SegmentInput getData() const override;
-    void setData(const SegmentInput& data) override;
+    ProfileSegment getData() const override;
+    void setData(const ProfileSegment& data) override;
 };

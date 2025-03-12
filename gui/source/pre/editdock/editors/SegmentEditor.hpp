@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/model/profile/ProfileInput.hpp"
+#include "solver/input.hpp"
 #include "pre/widgets/DoubleSpinBox.hpp"
 #include <QWidget>
 #include <QComboBox>
@@ -11,8 +11,8 @@ class SegmentEditor: public QWidget {
     Q_OBJECT
 
 public:
-    virtual SegmentInput getData() const = 0;
-    virtual void setData(const SegmentInput& data) = 0;
+    virtual ProfileSegment getData() const = 0;
+    virtual void setData(const ProfileSegment& data) = 0;
 
 signals:
     void modified();

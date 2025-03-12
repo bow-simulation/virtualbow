@@ -4,7 +4,7 @@
 #include "LayerColors.hpp"
 #include "OpenGLUtils.hpp"
 #include "pre/viewmodel/ViewModel.hpp"
-#include "solver/model/input/InputData.hpp"
+#include "solver/input.hpp"
 #include "config.hpp"
 
 #include <QOpenGLShaderProgram>

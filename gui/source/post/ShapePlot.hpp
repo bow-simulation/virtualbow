@@ -1,7 +1,7 @@
 #pragma once
 #include "pre/widgets/PlotWidget.hpp"
 #include "pre/viewmodel/units/Quantity.hpp"
-#include "solver/model/output/OutputData.hpp"
+#include "solver/output.hpp"
 
 class ShapePlot: public PlotWidget {
 public:

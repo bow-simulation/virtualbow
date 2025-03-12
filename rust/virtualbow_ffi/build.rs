@@ -8,6 +8,7 @@ fn main() {
       .with_language(cbindgen::Language::Cxx)
       .with_include_version(true)
       .with_pragma_once(true)
+      .with_namespace("ffi")
       .with_tab_width(4)
       .generate()
       .expect("Unable to generate bindings")

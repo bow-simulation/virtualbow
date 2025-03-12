@@ -24,14 +24,6 @@ double Unit::toBase(double value) const {
     return value*factor;
 }
 
-VectorXd Unit::fromBase(const VectorXd& value) const {
-    return value/factor;
-}
-
-VectorXd Unit::toBase(const VectorXd& value) const {
-    return value*factor;
-}
-
 std::vector<double> Unit::fromBase(const std::vector<double>& value) const {
     std::vector<double> result(value.size());
     for(size_t i = 0; i < value.size(); ++i) {

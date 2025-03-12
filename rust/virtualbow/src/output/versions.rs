@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use crate::errors::ModelError;
-use super::BowOutput;
+use super::BowResult;
 
 // TODO: Use env!("CARGO_PKG_VERSION") for the latest bow model variant instead of hard-coding the
 // version as soon as https://github.com/serde-rs/serde/issues/2485 gets solved.
@@ -11,7 +11,7 @@ use super::BowOutput;
 #[allow(clippy::large_enum_variant)]
 pub enum BowOutputVersions {
     #[serde(rename = "0.10.0")]
-    Latest(BowOutput),
+    Latest(BowResult),
 
     #[serde(alias = "0.9.1", alias = "0.9", alias = "0.8", alias = "0.7.1", alias = "0.7", alias = "0.6.1", alias = "0.6", alias = "0.5", alias = "0.4", alias = "0.3", alias = "0.2", alias="0.1")]
     Unsupported,
@@ -21,7 +21,7 @@ pub enum BowOutputVersions {
 }
 
 impl BowOutputVersions {
-    pub fn get_latest(self) -> Result<BowOutput, ModelError> {
+    pub fn get_latest(self) -> Result<BowResult, ModelError> {
         match self {
             BowOutputVersions::Latest(output) => Ok(output),
             BowOutputVersions::Unsupported => Err(ModelError::OutputVersionUnsupported),

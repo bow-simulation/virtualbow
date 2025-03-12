@@ -7,15 +7,19 @@ ArcSegmentEditor::ArcSegmentEditor()
 
 }
 
-SegmentInput ArcSegmentEditor::getData() const {
-    return getProperties<ArcConstraint>();
+ProfileSegment ArcSegmentEditor::getData() const {
+    throw std::invalid_argument("Removed code");
+    //return getProperties<ArcConstraint>();
 }
 
-void ArcSegmentEditor::setData(const SegmentInput& data) {
-    if(auto value = std::get_if<ArcInput>(&data)) {
+void ArcSegmentEditor::setData(const ProfileSegment& data) {
+    throw std::invalid_argument("Removed code");
+    /*
+    if(auto value = std::get_if<Arc>(&data)) {
         setProperties<ArcConstraint>(*value);
     }
     else {
         throw std::invalid_argument("Wrong segment type");
     }
+    */
 }

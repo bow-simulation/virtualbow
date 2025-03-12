@@ -69,7 +69,7 @@ void ProfileTreeItem::initFromModel() {
 
 /*
 void ProfileTreeItem::updateModel(void* source) {
-    ProfileInput profile;
+    Profile profile;
     for(int i = 0; i < this->childCount(); ++i) {
         auto item = dynamic_cast<SegmentTreeItem*>(this->child(i));
         if(item != nullptr) {
@@ -100,7 +100,7 @@ void ProfileTreeItem::updateView(void* source) {
 }
 */
 
-SegmentTreeItem::SegmentTreeItem(ViewModel* model, const SegmentInput& segment)
+SegmentTreeItem::SegmentTreeItem(ViewModel* model, const ProfileSegment& segment)
     : TreeItem(model, segmentName(segment), segmentIcon(segment), TreeItemType::SEGMENT)
 {
     SegmentEditor* editor = segmentEditor(segment);
@@ -114,59 +114,59 @@ SegmentTreeItem::SegmentTreeItem(ViewModel* model, const SegmentInput& segment)
 
 }
 
-SegmentInput SegmentTreeItem::getSegment() const {
+ProfileSegment SegmentTreeItem::getSegment() const {
     return static_cast<SegmentEditor*>(editor)->getData();
 }
 
-void SegmentTreeItem::setSegment(const SegmentInput& segment) {
+void SegmentTreeItem::setSegment(const ProfileSegment& segment) {
     static_cast<SegmentEditor*>(editor)->setData(segment);
 }
 
-QString SegmentTreeItem::segmentName(const SegmentInput& input) const {
-    if(auto value = std::get_if<LineInput>(&input)) {
+QString SegmentTreeItem::segmentName(const ProfileSegment& input) const {
+    if(auto value = std::get_if<Line>(&input)) {
         return "Line";
     }
-    if(auto value = std::get_if<ArcInput>(&input)) {
+    if(auto value = std::get_if<Arc>(&input)) {
         return "Arc";
     }
-    if(auto value = std::get_if<SpiralInput>(&input)) {
+    if(auto value = std::get_if<Spiral>(&input)) {
         return "Spiral";
     }
-    if(auto value = std::get_if<SplineInput>(&input)) {
+    if(auto value = std::get_if<Spline>(&input)) {
         return "Spline";
     }
 
     throw std::runtime_error("Unknown segment type");
 }
 
-QIcon SegmentTreeItem::segmentIcon(const SegmentInput& input) const {
-    if(auto value = std::get_if<LineInput>(&input)) {
+QIcon SegmentTreeItem::segmentIcon(const ProfileSegment& input) const {
+    if(auto value = std::get_if<Line>(&input)) {
         return QIcon(":/icons/segment-line.svg");
     }
-    if(auto value = std::get_if<ArcInput>(&input)) {
+    if(auto value = std::get_if<Arc>(&input)) {
         return QIcon(":/icons/segment-arc.svg");
     }
-    if(auto value = std::get_if<SpiralInput>(&input)) {
+    if(auto value = std::get_if<Spiral>(&input)) {
         return QIcon(":/icons/segment-spiral.svg");
     }
-    if(auto value = std::get_if<SplineInput>(&input)) {
+    if(auto value = std::get_if<Spline>(&input)) {
         return QIcon(":/icons/segment-spline.svg");
     }
 
     throw std::runtime_error("Unknown segment type");
 }
 
-SegmentEditor* SegmentTreeItem::segmentEditor(const SegmentInput& input) const {
-    if(auto value = std::get_if<LineInput>(&input)) {
+SegmentEditor* SegmentTreeItem::segmentEditor(const ProfileSegment& input) const {
+    if(auto value = std::get_if<Line>(&input)) {
         return new LineSegmentEditor();
     }
-    if(auto value = std::get_if<ArcInput>(&input)) {
+    if(auto value = std::get_if<Arc>(&input)) {
         return new ArcSegmentEditor();
     }
-    if(auto value = std::get_if<SpiralInput>(&input)) {
+    if(auto value = std::get_if<Spiral>(&input)) {
         return new SpiralSegmentEditor();
     }
-    if(auto value = std::get_if<SplineInput>(&input)) {
+    if(auto value = std::get_if<Spline>(&input)) {
         return new SplineSegmentEditor();
     }
 

@@ -1,19 +1,19 @@
-#include "ProfileInput.hpp"
+#include "input.hpp"
 
-void to_json(nlohmann::json& obj, const SegmentInput& input) {
-    if(auto value = std::get_if<LineInput>(&input)) {
+void to_json(nlohmann::json& obj, const ProfileSegment& input) {
+    if(auto value = std::get_if<Line>(&input)) {
         obj["type"] = "line";
         obj["parameters"] = *value;
     }
-    else if(auto value = std::get_if<ArcInput>(&input)) {
+    else if(auto value = std::get_if<Arc>(&input)) {
         obj["type"] = "arc";
         obj["parameters"] = *value;
     }
-    else if(auto value = std::get_if<SpiralInput>(&input)) {
+    else if(auto value = std::get_if<Spiral>(&input)) {
         obj["type"] = "spiral";
         obj["parameters"] = *value;
     }
-    else if(auto value = std::get_if<SplineInput>(&input)) {
+    else if(auto value = std::get_if<Spline>(&input)) {
         obj["type"] = "spline";
         obj["parameters"]["points"] = *value;
     }
@@ -22,18 +22,18 @@ void to_json(nlohmann::json& obj, const SegmentInput& input) {
     }
 }
 
-void from_json(const nlohmann::json& obj, SegmentInput& input) {
+void from_json(const nlohmann::json& obj, ProfileSegment& input) {
     if(obj.at("type") == "line") {
-        input = obj.at("parameters").get<LineInput>();
+        input = obj.at("parameters").get<Line>();
     }
     else if(obj.at("type") == "arc") {
-        input = obj.at("parameters").get<ArcInput>();
+        input = obj.at("parameters").get<Arc>();
     }
     else if(obj.at("type") == "spiral") {
-        input = obj.at("parameters").get<SpiralInput>();
+        input = obj.at("parameters").get<Spiral>();
     }
     else if(obj.at("type") == "spline") {
-        input = obj.at("parameters").at("points").get<SplineInput>();
+        input = obj.at("parameters").at("points").get<Spline>();
     }
     else {
         throw std::runtime_error("Unknown segment type");

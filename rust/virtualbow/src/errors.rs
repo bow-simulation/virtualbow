@@ -13,6 +13,8 @@ pub enum ModelError {
     InputDeserializeJsonError(serde_json::error::Error),
     InputVersionUnsupported,  // TODO: Create issue for getting out the actual version information
     InputVersionUnrecognized,  // TODO: Create issue for getting out the actual version information
+    InputEncodeMsgPackError(rmp_serde::encode::Error),
+    InputDecodeMsgPackError(rmp_serde::decode::Error),
 
     OutputLoadFileError(PathBuf, std::io::Error),
     OutputSaveFileError(PathBuf, std::io::Error),
@@ -110,11 +112,13 @@ impl Display for ModelError {
             ModelError::InputDeserializeJsonError(error) => write!(f, "Failed to parse bow model from json: {error}")?,
             ModelError::InputVersionUnsupported          => write!(f, "Failed to load bow model: Files below version 0.7 are no longer supported.")?,
             ModelError::InputVersionUnrecognized         => write!(f, "Failed to load bow model: File version is not recognized. The file might have been created with a newer version of VirtualBow, in which case updating might solve the issue.")?,
+            ModelError::InputEncodeMsgPackError(error)   => write!(f, "Failed to encode bow model as msgpack: {error}")?,
+            ModelError::InputDecodeMsgPackError(error)   => write!(f, "Failed to decode bow model from msgpack: {error}")?,
 
             ModelError::OutputLoadFileError(path, error)   => write!(f, "Failed to open file {path:?}: {error}")?,
             ModelError::OutputSaveFileError(path, error)   => write!(f, "Failed to write file {path:?}: {error}")?,
-            ModelError::OutputEncodeMsgPackError(error)    => write!(f, "Failed to convert results to msgpack: {error}")?,
-            ModelError::OutputDecodeMsgPackError(error)    => write!(f, "Failed to parse results from msgpack: {error}")?,
+            ModelError::OutputEncodeMsgPackError(error)    => write!(f, "Failed to encode bow results to msgpack: {error}")?,
+            ModelError::OutputDecodeMsgPackError(error)    => write!(f, "Failed to decode bow results from msgpack: {error}")?,
             ModelError::OutputVersionUnsupported           => write!(f, "Failed to load results, file version is not supported. VirtualBow result files can only be opened with the same version of VirtualBow that created them. Please recreate the results or open them with a matching version of VirtualBow.")?,
             ModelError::OutputVersionUnrecognized          => write!(f, "Failed to load results, file version is not recognized. VirtualBow result files can only be opened with the same version of VirtualBow that created them. Please recreate the results or open them with a matching version of VirtualBow.")?,
 

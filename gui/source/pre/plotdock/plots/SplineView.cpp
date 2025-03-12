@@ -1,5 +1,4 @@
 #include "SplineView.hpp"
-#include "solver/numerics/Linspace.hpp"
 
 SplineView::SplineView(const QString& x_label, const QString& y_label, const Quantity& x_quantity, const Quantity& y_quantity)
     : x_label(x_label), y_label(y_label), x_quantity(x_quantity), y_quantity(y_quantity)
@@ -38,7 +37,7 @@ SplineView::SplineView(const QString& x_label, const QString& y_label, const Qua
     QObject::connect(&y_quantity, &Quantity::unitChanged, this, &SplineView::updatePlot);
 }
 
-void SplineView::setData(const std::vector<Vector<2>>& data) {
+void SplineView::setData(const std::vector<std::array<double, 2>>& data) {
     input = data;
     updatePlot();
 }
@@ -49,6 +48,8 @@ void SplineView::setSelection(const QVector<int>& indices) {
 }
 
 void SplineView::updatePlot() {
+    throw std::invalid_argument("Removed code");
+    /*
     this->xAxis->setLabel(x_label + " " + x_quantity.getUnit().getLabel());
     this->yAxis->setLabel(y_label + " " + y_quantity.getUnit().getLabel());
 
@@ -75,20 +76,21 @@ void SplineView::updatePlot() {
     for(int i = 0; i < input.size(); ++i) {
         if(selection.contains(i)) {
             this->graph(2)->addData(
-                x_quantity.getUnit().fromBase(input[i](0)),
-                y_quantity.getUnit().fromBase(input[i](1))
+                x_quantity.getUnit().fromBase(input[i][0]),
+                y_quantity.getUnit().fromBase(input[i][1])
             );
         }
         else {
             this->graph(1)->addData(
-                x_quantity.getUnit().fromBase(input[i](0)),
-                y_quantity.getUnit().fromBase(input[i](1))
+                x_quantity.getUnit().fromBase(input[i][0]),
+                y_quantity.getUnit().fromBase(input[i][1])
             );
         }
     }
 
     this->rescaleAxes(false, true);
     this->replot();
+    */
 }
 
 void SplineView::setNodesVisible(bool visible) {

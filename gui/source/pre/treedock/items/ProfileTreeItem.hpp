@@ -1,6 +1,6 @@
 #pragma once
 #include "pre/treedock/TreeItem.hpp"
-#include "solver/model/input/InputData.hpp"
+#include "solver/input.hpp"
 
 class ViewModel;
 class IntegerPropertyItem;
@@ -15,12 +15,12 @@ public:
 
 class SegmentTreeItem: public TreeItem {
 public:
-    SegmentTreeItem(ViewModel* model, const SegmentInput& segment);
-    SegmentInput getSegment() const;
-    void setSegment(const SegmentInput& segment);
+    SegmentTreeItem(ViewModel* model, const ProfileSegment& segment);
+    ProfileSegment getSegment() const;
+    void setSegment(const ProfileSegment& segment);
 
 private:
-    QString segmentName(const SegmentInput& input) const;
-    QIcon segmentIcon(const SegmentInput& input) const;
-    SegmentEditor* segmentEditor(const SegmentInput& input) const;
+    QString segmentName(const ProfileSegment& input) const;
+    QIcon segmentIcon(const ProfileSegment& input) const;
+    SegmentEditor* segmentEditor(const ProfileSegment& input) const;
 };

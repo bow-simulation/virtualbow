@@ -1,6 +1,6 @@
 #pragma once
 #include <QObject>
-#include "solver/model/input/InputData.hpp"
+#include "solver/input.hpp"
 
 class ViewModel: public QObject
 {
@@ -17,8 +17,8 @@ public:
     void loadFile(const QString& path);
     void saveFile(const QString& path);
 
-    const InputData& getData() const;
-    InputData& getData();
+    const BowModel& getData() const;
+    BowModel& getData();
 
     QString getComments() const;
     void setComments(const QString& value, void* source);
@@ -41,14 +41,14 @@ public:
     void removeLayer(size_t i, void* source);
     void swapLayers(size_t i, size_t j, void* source);
 
-    const ProfileInput& getProfile() const;
-    void modifySegment(size_t i, const SegmentInput& segment, void* source);
-    void insertSegment(size_t i, const SegmentInput& segment, void* source);
+    const Profile& getProfile() const;
+    void modifySegment(size_t i, const ProfileSegment& segment, void* source);
+    void insertSegment(size_t i, const ProfileSegment& segment, void* source);
     void removeSegment(size_t i, void* source);
     void swapSegments(size_t i, size_t j, void* source);
 
-    const std::vector<Vector<2>>& getWidth() const;
-    void setWidth(const std::vector<Vector<2>>& value, void* source);
+    const Width& getWidth() const;
+    void setWidth(const Width& value, void* source);
 
     const String& getString() const;
     void setString(const String& value, void* source);
@@ -94,7 +94,7 @@ signals:
     void dampingModified(void* source);
 
 private:
-    InputData data;
+    BowModel data;
     QString file_path;
     bool is_modified;
 

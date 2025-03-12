@@ -1,7 +1,7 @@
 use std::f64::consts::FRAC_PI_2;
 use std::path::Path;
 use virtualbow::input::BowModel;
-use virtualbow::output::{ArrowDeparture, BowOutput, Common, Dynamics, LayerInfo, LimbInfo, State, StateVec, Statics};
+use virtualbow::output::{ArrowDeparture, BowResult, Common, Dynamics, LayerInfo, LimbInfo, State, StateVec, Statics};
 use virtualbow::simulation::Simulation;
 use virtualbow_num::utils::integration::fixed_simpson;
 use virtualbow_num::utils::minmax::discrete_maximum_1d;
@@ -52,7 +52,7 @@ fn check_output(plotter: &mut Plotter, model: &BowModel) {
 }
 
 // Checks the properties of the common output, i.e. the outputs that are independent of the simulation mode
-fn check_common_output(model: &BowModel, output: &BowOutput) {
+fn check_common_output(model: &BowModel, output: &BowResult) {
     let Common { limb, layers, string_length, string_stiffness, string_mass, limb_mass } = &output.common;
     let LimbInfo { length, position, width, height, bounds } = &limb;
 
@@ -90,7 +90,7 @@ fn check_common_output(model: &BowModel, output: &BowOutput) {
     assert!(*limb_mass > 0.0);
 }
 
-fn check_static_output(model: &BowModel, output: &BowOutput) {
+fn check_static_output(model: &BowModel, output: &BowResult) {
     check_general_state_properties(model, &output.statics.as_ref().unwrap().states);
     check_static_state_properties(model, output);
     check_static_state_physics(model, output);
@@ -98,7 +98,7 @@ fn check_static_output(model: &BowModel, output: &BowOutput) {
     check_static_scalar_results(model, output);
 }
 
-fn check_dynamic_output(plotter: &mut Plotter, model: &BowModel, output: &BowOutput) {
+fn check_dynamic_output(plotter: &mut Plotter, model: &BowModel, output: &BowResult) {
     check_general_state_properties(model, &output.dynamics.as_ref().unwrap().states);
     check_dynamic_state_properties(plotter, model, output);
     check_dynamic_derivatives(model, output);
@@ -106,7 +106,7 @@ fn check_dynamic_output(plotter: &mut Plotter, model: &BowModel, output: &BowOut
 }
 
 // Check some basic properties (domain, dimensions) for the scalar static outputs
-fn check_static_scalar_results(model: &BowModel, output: &BowOutput) {
+fn check_static_scalar_results(model: &BowModel, output: &BowResult) {
     let Statics {
         states,
         final_draw_force,
@@ -167,7 +167,7 @@ fn check_static_scalar_results(model: &BowModel, output: &BowOutput) {
 }
 
 // Check some basic properties (domain, dimensions) for the scalar dynamic outputs
-fn check_dynamic_scalar_results(model: &BowModel, output: &BowOutput) {
+fn check_dynamic_scalar_results(model: &BowModel, output: &BowResult) {
     let Dynamics {
         states,
         arrow_departure,
@@ -338,7 +338,7 @@ fn check_general_state_properties(model: &BowModel, states: &StateVec) {
 
 // Check basic properties that are specific to a series of static bow states
 // TODO: Combine with check for static equilibrium?
-fn check_static_state_properties(model: &BowModel, output: &BowOutput) {
+fn check_static_state_properties(model: &BowModel, output: &BowResult) {
     let statics = output.statics.as_ref().unwrap();
     let states = &statics.states;
 
@@ -425,7 +425,7 @@ fn check_static_state_properties(model: &BowModel, output: &BowOutput) {
 }
 
 // Check basic properties that are specific to a series of static bow states
-fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowModel, output: &BowOutput) {
+fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowModel, output: &BowResult) {
     let dynamics = output.dynamics.as_ref().unwrap();
     let states = &dynamics.states;
 
@@ -534,7 +534,7 @@ fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowModel, outpu
 
 // Checks if the section forces and stresses are in equilibrium with the external forces of the bow
 // TODO: Document/update this test in the theory manual, especially the definition of the string angle
-fn check_static_state_physics(model: &BowModel, output: &BowOutput) {
+fn check_static_state_physics(model: &BowModel, output: &BowResult) {
     let statics = output.statics.as_ref().unwrap();
     let states = &statics.states;
 
@@ -644,7 +644,7 @@ fn check_static_state_physics(model: &BowModel, output: &BowOutput) {
 
 // Checks the time derivatives in a series of dynamic bow states, i.e. velocities and accelerations,
 // by comparing them to finite difference approximations from the original data.
-fn check_dynamic_derivatives(model: &BowModel, output: &BowOutput) {
+fn check_dynamic_derivatives(model: &BowModel, output: &BowResult) {
     let dynamics = output.dynamics.as_ref().unwrap();
     let states = &dynamics.states;
 
@@ -788,7 +788,7 @@ fn check_dynamic_derivatives(model: &BowModel, output: &BowOutput) {
 
 // Checks the derivatives wrt. draw length in a series of static bow states, i.e. energy, force and stiffness,
 // by comparing them to finite difference approximations from the original data.
-fn check_static_derivatives(_model: &BowModel, output: &BowOutput) {
+fn check_static_derivatives(_model: &BowModel, output: &BowResult) {
     let statics = output.statics.as_ref().unwrap();
     let states = &statics.states;
 

@@ -32,6 +32,7 @@ manual_range_contains = "allow"  # Style (manual version can be more readable)
 collapsible_else_if = "allow"    # Style (can be more clear sometimes)
 new_without_default = "allow"
 len_without_is_empty = "allow"
+missing_safety_doc = "allow"     # Enable this later
 
 [workspace.dependencies]
 nalgebra = { version = "0.33.0", features = ["serde-serialize", "rand"] }

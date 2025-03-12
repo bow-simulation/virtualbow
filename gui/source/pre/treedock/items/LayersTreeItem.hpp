@@ -1,6 +1,6 @@
 #pragma once
 #include "pre/treedock/TreeItem.hpp"
-#include "solver/model/input/InputData.hpp"
+#include "solver/input.hpp"
 
 class ViewModel;
 class TableEditor;

@@ -1,6 +1,5 @@
 #pragma once
 #include <QAbstractTableModel>
-#include "solver/numerics/EigenTypes.hpp"
 #include "pre/viewmodel/units/Quantity.hpp"
 
 class TableModel: public QAbstractTableModel {
@@ -24,8 +23,8 @@ public:
 
     // Additional methods
 
-    std::vector<Vector<2>> getData() const;
-    void setData(const std::vector<Vector<2>>& data);
+    std::vector<std::array<double, 2>> getData() const;
+    void setData(const std::vector<std::array<double, 2>>& data);
 
 signals:
     void modified();
