@@ -239,7 +239,7 @@ impl<'a> Simulation<'a> {
                 position: simulation.geometry.position.clone(),
                 width: simulation.geometry.width.clone(),
                 height: simulation.geometry.height.clone(),
-                bounds: simulation.geometry.y_eval.clone(),
+                bounds: simulation.geometry.y_eval.iter().map(|y| y.data.clone().into()).collect(),  // TODO: Uglyyy
             },
             layers,
             string_length,
@@ -253,7 +253,7 @@ impl<'a> Simulation<'a> {
 
     // Callback: (phase, progress) -> continue
     pub fn simulate<F>(model: &'a BowModel, mode: SimulationMode, mut callback: F) -> Result<BowResult, ModelError>
-        where F: FnMut(&str, f64) -> bool
+        where F: FnMut(SimulationMode, f64) -> bool
     {
         // Initialize simulation. String always, but damping only in dynamic mode (saves an einegvalue analysis).
         let (mut system, mut simulation, common) = Self::initialize(model, true, mode == SimulationMode::Dynamic)?;
@@ -269,7 +269,7 @@ impl<'a> Simulation<'a> {
                 let progress = (state.draw_length - model.dimensions.brace_height)/(model.dimensions.draw_length - model.dimensions.brace_height);
                 states.push(state);
 
-                callback("statics", 100.0*progress)
+                callback(SimulationMode::Static, 100.0*progress)
             }).map_err(ModelError::SimulationStaticSolutionFailed)?;
 
             // Compute additional static output values
@@ -367,7 +367,7 @@ impl<'a> Simulation<'a> {
                     // Add bow state to the results
                     states.push(state);
 
-                    return callback("dynamics", 100.0*progress);
+                    return callback(SimulationMode::Dynamic, 100.0*progress);
                 }).map_err(ModelError::SimulationDynamicSolutionFailed)?;
 
                 // Record arrow state at the time of separation from the string
@@ -393,7 +393,7 @@ impl<'a> Simulation<'a> {
                         states.push(state);
                     }
 
-                    return callback("dynamics", 100.0*progress);
+                    return callback(SimulationMode::Dynamic, 100.0*progress);
                 }).map_err(ModelError::SimulationDynamicSolutionFailed)?;
 
                 // Compute dissipated damping energy by numerically integrating the damping power

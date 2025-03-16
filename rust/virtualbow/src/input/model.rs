@@ -41,19 +41,7 @@ impl BowModel {
     pub fn example() -> Self {
         Self {
             comment: "".into(),
-            settings: Settings {
-                n_limb_elements: 30,
-                n_limb_eval_points: 100,
-                min_draw_resolution: 100,
-                max_draw_resolution: 100,
-                arrow_clamp_force: 0.5,
-                string_compression_factor: 1e-6,
-                timespan_factor: 1.5,
-                timeout_factor: 10.0,
-                min_timestep: 1e-6,
-                max_timestep: 1e-4,
-                steps_per_period: 250,
-            },
+            settings: Settings::default(),
             dimensions: Dimensions {
                 brace_height: 0.2,
                 draw_length: 0.7,
@@ -63,33 +51,29 @@ impl BowModel {
                 handle_angle: 0.0
             },
             materials: vec![
-                Material::new("Default", "#000000", 1.0, 1.0, 1.0)
+                Material::new("Unnamed", "#ff9966", 675.0, 12e9, 6e9)
             ],
             layers: vec![
-                Layer::new("Unnamed", "Default", Height::constant(0.001))
+                Layer::new("Default", "Unnamed", Height::linear(0.015, 0.01))
             ],
             profile: Profile::new(ProfileAlignment::SectionBack, vec![
                 ProfileSegment::Line(Line::new(1.0))
             ]),
-            width: Width::new(vec![
-                [0.0, 0.05],
-                [0.5, 0.04],
-                [1.0, 0.01]
-            ]),
+            width: Width::linear(0.04, 0.01),
             string: BowString {
-                n_strands: 1,
-                strand_density: 1.0,
-                strand_stiffness: 1.0,
+                n_strands: 12,
+                strand_density: 0.0005,
+                strand_stiffness: 3500.0,
             },
             masses: Masses {
-                arrow: 1.0,
+                arrow: 0.025,
                 limb_tip: 0.0,
                 string_center: 0.0,
                 string_tip: 0.0,
             },
             damping: Damping {
-                damping_ratio_limbs: 0.0,
-                damping_ratio_string: 0.0,
+                damping_ratio_limbs: 0.05,
+                damping_ratio_string: 0.05,
             },
         }
     }

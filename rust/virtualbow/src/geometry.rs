@@ -133,7 +133,7 @@ pub struct DiscreteLimbGeometry {
 mod tests {
     use assert_matches::assert_matches;
     use std::fmt::{Debug, Formatter};
-    use crate::input::{Arc, Height, Layer, Line, Profile, ProfileAlignment, ProfileSegment};
+    use crate::input::{Arc, Height, Layer, Material, Line, Profile, ProfileAlignment, ProfileSegment};
     use super::*;
 
     // To make tests below compile
@@ -145,7 +145,11 @@ mod tests {
 
     #[test]
     fn test_error_conditions() {
-        let mut input = BowModel { layers: vec![Layer::new("Unnamed", "Default", Height::constant(0.01))], ..BowModel::example() };
+        let mut input = BowModel {
+            layers: vec![Layer::new("Default", "Unnamed", Height::constant(0.01))],
+            materials: vec![Material::new("Unnamed", "#000000", 600.0, 12e9, 6e9)],
+            ..BowModel::example()
+        };
 
         // 1. Profile curve with no self-intersection
         input.profile = Profile::new(ProfileAlignment::SectionCenter, vec![ProfileSegment::Line(Line::new(1.0))]);

@@ -1,6 +1,6 @@
 #pragma once
 #include "TreeItem.hpp"
-#include "solver/input.hpp"    // TODO: Forward declare?
+#include "solver/Input.hpp"    // TODO: Forward declare?
 #include <QDockWidget>
 #include <QTreeWidgetItem>
 

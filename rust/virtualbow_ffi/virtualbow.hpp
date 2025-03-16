@@ -10,6 +10,11 @@
 
 namespace ffi {
 
+enum class Mode {
+    Static,
+    Dynamic,
+};
+
 struct Response {
     char *error;
     uint8_t *data;
@@ -27,6 +32,8 @@ Response save_model(const uint8_t *data, uintptr_t size, const char *path);
 Response load_result(const char *path);
 
 Response save_result(const uint8_t *data, uintptr_t size, const char *path);
+
+Response simulate_model(const uint8_t *data, uintptr_t size, Mode mode, bool (*callback)(Mode, double));
 
 void free_response(Response response);
 

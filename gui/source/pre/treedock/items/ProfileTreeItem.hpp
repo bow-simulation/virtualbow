@@ -1,6 +1,6 @@
 #pragma once
 #include "pre/treedock/TreeItem.hpp"
-#include "solver/input.hpp"
+#include "solver/Input.hpp"
 
 class ViewModel;
 class IntegerPropertyItem;

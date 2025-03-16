@@ -19,9 +19,7 @@ set(APPLICATION_DESCRIPTION_LONG "Software tool for designing and simulating bow
 # External libraries
 
 find_package(Qt5 5.9.5 REQUIRED COMPONENTS Widgets PrintSupport)
-find_package(Boost 1.79.0 REQUIRED)
 find_package(Catch2 2.13.9 REQUIRED)
-find_package(Eigen3 3.4.0 REQUIRED)
 find_package(nlohmann_json 3.10.5 REQUIRED)
 find_package(Threads REQUIRED)                # System thread library (https://stackoverflow.com/a/39547577)
 find_package(OpenGL REQUIRED)
@@ -34,7 +32,6 @@ set(CMAKE_AUTORCC ON)
 
 configure_file(source/config.hpp.in ${CMAKE_BINARY_DIR}/config.hpp)
 include_directories(source ${PROJECT_BINARY_DIR})
-include_directories(${Boost_INCLUDE_DIRS})
 
 include_directories("../rust/virtualbow_ffi")
 link_directories("../rust/target/release")
@@ -47,15 +44,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-math-errno")    # Don't make standa
 
 add_library(
     virtualbow-lib STATIC
-    source/solver/interface.cpp
-    source/solver/input.cpp
+    source/solver/API.cpp
+    source/solver/Input.cpp
 )
 
 target_link_libraries(
     virtualbow-lib
     virtualbow_ffi
-    ${Boost_LIBRARIES}
-    Eigen3::Eigen
     nlohmann_json::nlohmann_json
 )
 

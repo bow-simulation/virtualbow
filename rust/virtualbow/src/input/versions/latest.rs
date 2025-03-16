@@ -25,7 +25,7 @@ pub struct BowModel {
     pub damping: Damping,
 }
 
-#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Settings {
     pub n_limb_elements: usize,
     pub n_limb_eval_points: usize,
@@ -38,6 +38,24 @@ pub struct Settings {
     pub min_timestep: f64,
     pub max_timestep: f64,
     pub steps_per_period: usize
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self {
+            n_limb_elements: 30,
+            n_limb_eval_points: 100,
+            min_draw_resolution: 100,
+            max_draw_resolution: 100,
+            arrow_clamp_force: 0.5,
+            string_compression_factor: 1e-6,
+            timespan_factor: 1.5,
+            timeout_factor: 10.0,
+            min_timestep: 1e-6,
+            max_timestep: 1e-4,
+            steps_per_period: 250,
+        }
+    }
 }
 
 // Point at the limb root from which the handle's pivot point is measured

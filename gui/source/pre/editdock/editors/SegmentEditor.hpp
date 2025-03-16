@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/input.hpp"
+#include "solver/Input.hpp"
 #include "pre/widgets/DoubleSpinBox.hpp"
 #include <QWidget>
 #include <QComboBox>

@@ -34,6 +34,7 @@ fn linear_straight_uniform_elongation() {
 
     // Beam bow
     let mut model = BowModel::example();
+    model.damping = Default::default();    // Disable damping
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = 100;
     model.settings.min_draw_resolution = 5;
@@ -102,6 +103,7 @@ fn linear_straight_uniform_cantilever() {
 
     // Beam bow
     let mut model = BowModel::example();
+    model.damping = Default::default();    // Disable damping
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = 100;
     model.settings.min_draw_resolution = 5;
@@ -170,6 +172,7 @@ fn nonlinear_straight_uniform_coilup() {
 
     // Beam bow
     let mut model = BowModel::example();
+    model.damping = Default::default();    // Disable damping
     model.settings.n_limb_elements = 50;
     model.settings.n_limb_eval_points = 100;
     model.settings.min_draw_resolution = 50;
@@ -245,6 +248,7 @@ fn nonlinear_straight_uniform_cantilever() {
 
     // Beam bow
     let mut model = BowModel::example();
+    model.damping = Default::default();    // Disable damping
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = u_ref.len();
     model.settings.min_draw_resolution = 5;
@@ -330,6 +334,7 @@ fn nonlinear_straight_tapered_cantilever() {
 
     // Beam bow
     let mut model = BowModel::example();
+    model.damping = Default::default();    // Disable damping
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = u_ref.len();
     model.settings.min_draw_resolution = 5;
@@ -416,6 +421,7 @@ fn nonlinear_curved_uniform_cantilever() {
 
     // Beam bow
     let mut model = BowModel::example();
+    model.damping = Default::default();    // Disable damping
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = u_ref.len();
     model.settings.min_draw_resolution = 5;
@@ -502,6 +508,7 @@ fn nonlinear_curved_tapered_cantilever() {
 
     // Beam bow
     let mut model = BowModel::example();
+    model.damping = Default::default();    // Disable damping
     model.settings.n_limb_elements = 25;
     model.settings.n_limb_eval_points = u_ref.len();
     model.settings.min_draw_resolution = 5;
@@ -583,6 +590,7 @@ fn nonlinear_straight_uniform_cantilever_offsets() {
     let solve_for_alignment = |alignment: ProfileAlignment| {
         // Beam bow
         let mut model = BowModel::example();
+        model.damping = Default::default();    // Disable damping
         model.settings.n_limb_elements = 25;
         model.settings.n_limb_eval_points = 100;
         model.settings.min_draw_resolution = 5;
@@ -679,6 +687,7 @@ fn nonlinear_curved_uniform_cantilever_offsets() {
 
         // Beam bow
         let mut model = BowModel::example();
+        model.damping = Default::default();    // Disable damping
         model.settings.n_limb_elements = 20;
         model.settings.n_limb_eval_points = 100;
         model.settings.min_draw_resolution = 5;

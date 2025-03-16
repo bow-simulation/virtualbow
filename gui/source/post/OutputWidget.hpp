@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/output.hpp"
+#include "solver/Output.hpp"
 #include <QWidget>
 
 class QPushButton;

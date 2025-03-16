@@ -24,25 +24,25 @@
   },
   "materials": [
     {
-      "name": "Default",
-      "color": "#000000",
-      "rho": 1.0,
-      "E": 1.0,
-      "G": 1.0
+      "name": "Unnamed",
+      "color": "#ff9966",
+      "rho": 675.0,
+      "E": 12000000000.0,
+      "G": 6000000000.0
     }
   ],
   "layers": [
     {
-      "name": "Unnamed",
-      "material": "Default",
+      "name": "Default",
+      "material": "Unnamed",
       "height": [
         [
           0.0,
-          0.001
+          0.015
         ],
         [
           1.0,
-          0.001
+          0.01
         ]
       ]
     }
@@ -63,10 +63,6 @@
   "width": [
     [
       0.0,
-      0.05
-    ],
-    [
-      0.5,
       0.04
     ],
     [
@@ -75,18 +71,18 @@
     ]
   ],
   "string": {
-    "strand_stiffness": 1.0,
-    "strand_density": 1.0,
-    "n_strands": 1
+    "strand_stiffness": 3500.0,
+    "strand_density": 0.0005,
+    "n_strands": 12
   },
   "masses": {
-    "arrow": 1.0,
+    "arrow": 0.025,
     "limb_tip": 0.0,
     "string_center": 0.0,
     "string_tip": 0.0
   },
   "damping": {
-    "damping_ratio_limbs": 0.0,
-    "damping_ratio_string": 0.0
+    "damping_ratio_limbs": 0.05,
+    "damping_ratio_string": 0.05
   }
 }

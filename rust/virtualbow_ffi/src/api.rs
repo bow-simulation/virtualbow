@@ -3,6 +3,7 @@ use virtualbow::errors::ModelError;
 use virtualbow::input::BowModel;
 use virtualbow::input::BowModelVersion;
 use virtualbow::output::BowResult;
+use virtualbow::simulation::{SimulationMode, Simulation};
 
 // Safe API to be wrapped and exposed by the unsafe FFI
 
@@ -44,4 +45,14 @@ pub fn save_result<P>(data: &[u8], path: P) -> Result<(), String>
 {
     let result = BowResult::try_from(data).map_err(|e| e.to_string())?;
     result.save(path).map_err(|e| e.to_string())
+}
+
+pub fn simulate_model<F>(data: &[u8], mode: SimulationMode, callback: F) -> Result<Vec<u8>, String>
+    where F: Fn(SimulationMode, f64) -> bool
+{
+    let model = BowModel::try_from(data).map_err(|e| e.to_string())?;
+    let result = Simulation::simulate(&model, mode, callback).map_err(|e| e.to_string())?;
+    let data = result.try_into().map_err(|e: ModelError| e.to_string())?;
+
+    Ok(data)
 }

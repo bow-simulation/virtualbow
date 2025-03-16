@@ -1,4 +1,4 @@
-#include "solver/output.hpp"
+#include "solver/Output.hpp"
 #include "pre/viewmodel/units/UnitSystem.hpp"
 #include "OutputWidget.hpp"
 #include "NumberGrid.hpp"
@@ -170,9 +170,9 @@ DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
         numbers->addValue("Final arrow velocity", data.dynamics->arrow_departure->arrow_vel, Quantities::velocity);
         numbers->addValue("Degree of efficiency", data.dynamics->arrow_departure->energy_efficiency, Quantities::ratio);
         numbers->addGroup("Energy at arrow departure");
-        numbers->addValue("Kinetic energy arrow", data.dynamics->arrow_departure->e_kin_arrow, Quantities::energy);
-        numbers->addValue("Kinetic energy limbs", data.dynamics->arrow_departure->e_kin_limbs, Quantities::energy);
-        numbers->addValue("Kinetic energy string", data.dynamics->arrow_departure->e_kin_string, Quantities::energy);
+        numbers->addValue("Kinetic energy arrow", data.dynamics->arrow_departure->kinetic_energy_arrow, Quantities::energy);
+        numbers->addValue("Kinetic energy limbs", data.dynamics->arrow_departure->kinetic_energy_limbs, Quantities::energy);
+        numbers->addValue("Kinetic energy string", data.dynamics->arrow_departure->kinetic_energy_string, Quantities::energy);
     }
 
     numbers->addColumn();

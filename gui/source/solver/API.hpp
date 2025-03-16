@@ -1,6 +1,7 @@
 #pragma once
-#include "solver/input.hpp"
-#include "solver/output.hpp"
+#include "solver/Input.hpp"
+#include "solver/Output.hpp"
+#include <virtualbow.hpp>
 
 // C++ wrappers around solver's C interface
 
@@ -18,6 +19,8 @@ public:
     }
 };
 
+using Mode = ffi::Mode;
+
 BowModel new_model();
 
 BowModel load_model(const std::string& path, bool convert);
@@ -27,3 +30,5 @@ void save_model(const BowModel& model, const std::string& path);
 BowResult load_result(const std::string& path);
 
 void save_result(const BowResult& result, const std::string& path);
+
+BowResult simulate_model(const BowModel& model, Mode mode, bool (*callback)(Mode, double));

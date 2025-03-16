@@ -1,4 +1,4 @@
-use nalgebra::{DVector, SVector};
+use nalgebra::{SVector};
 use serde::{Deserialize, Serialize};
 use soa_derive::StructOfArray;
 
@@ -125,7 +125,7 @@ pub struct LimbInfo {
     pub position: Vec<SVector<f64, 3>>,    // x, y, φ
     pub width: Vec<f64>,
     pub height: Vec<f64>,
-    pub bounds: Vec<DVector<f64>>    // Layer boundaries in y position
+    pub bounds: Vec<Vec<f64>>    // Layer boundaries in y position
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]

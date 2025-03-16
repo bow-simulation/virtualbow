@@ -1,5 +1,5 @@
 #include "ProfileView.hpp"
-#include "solver/input.hpp"
+#include "solver/Input.hpp"
 
 // Magic numbers
 const size_t N_SEGMENT_POINTS   = 100;

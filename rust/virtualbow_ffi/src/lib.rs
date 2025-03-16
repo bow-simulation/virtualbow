@@ -1,6 +1,8 @@
 use std::ffi::{c_char, CStr, CString};
 use std::ptr;
 
+use virtualbow::simulation::SimulationMode;
+
 mod api;
 
 // TODO
@@ -114,6 +116,43 @@ pub unsafe extern "C" fn save_result(data: *const u8, size: usize, path: *const 
 
     match api::save_result(data, path) {
         Ok(()) => Response::empty(),
+        Err(msg) => Response::error(msg),
+    }
+}
+
+#[repr(C)]
+pub enum Mode {
+    Static,
+    Dynamic
+}
+
+impl From<SimulationMode> for Mode {
+    fn from(value: SimulationMode) -> Self {
+        match value {
+            SimulationMode::Static => Mode::Static,
+            SimulationMode::Dynamic => Mode::Dynamic,
+        }
+    }
+}
+
+impl From<Mode> for SimulationMode {
+    fn from(value: Mode) -> Self {
+        match value {
+            Mode::Static => SimulationMode::Static,
+            Mode::Dynamic => SimulationMode::Dynamic,
+        }
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn simulate_model(data: *const u8, size: usize, mode: Mode, callback: unsafe extern "C" fn(Mode, f64) -> bool) -> Response {
+    let data = std::slice::from_raw_parts(data, size);
+    let result = api::simulate_model(data, mode.into(), |mode, progress| {
+        callback(mode.into(), progress)
+    });
+
+    match result {
+        Ok(res) => Response::data(res),
         Err(msg) => Response::error(msg),
     }
 }

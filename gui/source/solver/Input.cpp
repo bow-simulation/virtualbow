@@ -1,4 +1,4 @@
-#include "input.hpp"
+#include "Input.hpp"
 
 void to_json(nlohmann::json& obj, const ProfileSegment& input) {
     if(auto value = std::get_if<Line>(&input)) {

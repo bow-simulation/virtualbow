@@ -1,5 +1,4 @@
-#include "interface.hpp"
-#include <virtualbow.hpp>
+#include "API.hpp"
 #include <nlohmann/json.hpp>
 
 #include <iostream>
@@ -54,4 +53,10 @@ void save_result(const BowResult& result, const std::string& path) {
     std::vector<uint8_t> data = json::to_msgpack(result);
     Response response = ffi::save_result(data.data(), data.size(), path.c_str());
     check_response(response);
+}
+
+BowResult simulate_model(const BowModel& model, Mode mode, bool (*callback)(Mode, double)) {
+    std::vector<uint8_t> data = json::to_msgpack(model);
+    Response response = ffi::simulate_model(data.data(), data.size(), mode, callback);
+    return parse_response<BowResult>(response);
 }

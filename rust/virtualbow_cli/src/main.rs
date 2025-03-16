@@ -35,9 +35,12 @@ impl Args {
     fn execute(&self) -> Result<(), ModelError> {
         let model = BowModel::load(&self.input)?;
 
-        let output = Simulation::simulate(&model, self.mode, |stage, progress| {
+        let output = Simulation::simulate(&model, self.mode, |mode, progress| {
             if self.progress {
-                println!("stage: {stage}, progress: {progress:.1}%");
+                match mode {
+                    SimulationMode::Static => println!("stage: statics, progress: {progress:.1}%"),
+                    SimulationMode::Dynamic => println!("stage: dynamics, progress: {progress:.1}%"),
+                }
             }
             true
         })?;

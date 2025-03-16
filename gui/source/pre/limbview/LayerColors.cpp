@@ -1,5 +1,5 @@
 #include "LayerColors.hpp"
-#include "solver/input.hpp"
+#include "solver/Input.hpp"
 
 #include <QPainterPath>
 #include <QPainter>

@@ -1,9 +1,9 @@
 #define CATCH_CONFIG_MAIN
 
-#include "solver/interface.hpp"
+#include "solver/API.hpp"
 #include "config.hpp"
-
 #include <catch2/catch.hpp>
+#include <iostream>
 
 // Location of the solver's test data directory
 const std::string TEST_DATA_DIR = std::string(Config::CMAKE_SOURCE_DIR) + "/../rust/virtualbow/data";
@@ -28,4 +28,12 @@ TEST_CASE("save-result-file") {
     BowResult result;
     REQUIRE_NOTHROW(save_result(result, TEST_DATA_DIR + "/temp/result.res"));
     REQUIRE_THROWS(save_result(result, TEST_DATA_DIR + "/temp/nonexistent/result.res"));
+}
+
+TEST_CASE("simulate-model") {
+    BowModel model = new_model();
+    simulate_model(model, Mode::Static, [](Mode mode, double progress) {
+        INFO("Mode: " << (int) mode << ", Progress: " << progress << "%\n");
+        return true;
+    });
 }

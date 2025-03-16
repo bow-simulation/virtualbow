@@ -83,8 +83,8 @@ struct States {
     std::vector<std::vector<std::array<double, 3>>> limb_strain;
     std::vector<std::vector<std::array<double, 3>>> limb_force;
 
-    std::vector<std::vector<std::vector<std::tuple<double, double>>>> layer_strain;
-    std::vector<std::vector<std::vector<std::tuple<double, double>>>> layer_stress;
+    std::vector<std::vector<std::vector<std::array<double, 2>>>> layer_strain;
+    std::vector<std::vector<std::vector<std::array<double, 2>>>> layer_stress;
 
     std::vector<double> arrow_pos;
     std::vector<double> arrow_vel;
@@ -182,11 +182,11 @@ struct ArrowDeparture {
     size_t state_idx;
     double arrow_pos;
     double arrow_vel;
-    double e_kin_arrow;
-    double e_pot_limbs;
-    double e_kin_limbs;
-    double e_pot_string;
-    double e_kin_string;
+    double kinetic_energy_arrow;
+    double elastic_energy_limbs;
+    double kinetic_energy_limbs;
+    double elastic_energy_string;
+    double kinetic_energy_string;
     double energy_efficiency;
 };
 
@@ -195,11 +195,11 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     state_idx,
     arrow_pos,
     arrow_vel,
-    e_kin_arrow,
-    e_pot_limbs,
-    e_kin_limbs,
-    e_pot_string,
-    e_kin_string,
+    kinetic_energy_arrow,
+    elastic_energy_limbs,
+    kinetic_energy_limbs,
+    elastic_energy_string,
+    kinetic_energy_string,
     energy_efficiency
 )
 

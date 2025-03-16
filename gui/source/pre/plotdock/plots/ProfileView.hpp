@@ -1,7 +1,7 @@
 #pragma once
 #include "pre/widgets/PlotWidget.hpp"
 #include "pre/viewmodel/units/Quantity.hpp"
-#include "solver/input.hpp"
+#include "solver/Input.hpp"
 
 class ProfileView: public PlotWidget
 {
