@@ -32,7 +32,7 @@ TEST_CASE("save-result-file") {
 
 TEST_CASE("simulate-model") {
     BowModel model = new_model();
-    simulate_model(model, Mode::Static, [](Mode mode, double progress) {
+    BowResult result = simulate_model(model, Mode::Dynamic, [](Mode mode, double progress) {
         INFO("Mode: " << (int) mode << ", Progress: " << progress << "%\n");
         return true;
     });

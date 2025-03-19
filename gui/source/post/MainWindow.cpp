@@ -4,6 +4,7 @@
 #include "pre/RecentFilesMenu.hpp"
 #include "pre/UnitDialog.hpp"
 #include "pre/utils/UserSettings.hpp"
+#include "solver/API.hpp"
 
 #include <QMenuBar>
 #include <QMessageBox>
@@ -81,10 +82,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 }
 
 void MainWindow::loadFile(const QString& path) {
-    throw std::invalid_argument("Removed code");
-    /*
     try {
-        data = OutputData(path.toLocal8Bit().toStdString());    // toLocal8Bit() for Windows, since toStdString() would convert to UTF8
+        data = load_result(path.toStdString());
         this->setCentralWidget(new OutputWidget(data));
         this->setWindowFilePath(path);
         action_save_as->setEnabled(true);
@@ -93,21 +92,17 @@ void MainWindow::loadFile(const QString& path) {
     catch(const std::exception& e) {
         QMessageBox::critical(this, "Error", "Failed to open " + path + ":\n" + e.what());
     }
-    */
 }
 
 void MainWindow::saveFile(const QString &path) {
-    throw std::invalid_argument("Removed code");
-    /*
     try {
         auto widget = dynamic_cast<OutputWidget*>(this->centralWidget());
-        widget->getData().save(path.toLocal8Bit().toStdString());    // toLocal8Bit() for Windows, since toStdString() would convert to UTF8
+        save_result(widget->getData(), path.toStdString());
         this->setWindowFilePath(path);
     }
     catch(const std::exception& e) {
         QMessageBox::critical(this, "Error", "Failed to save " + path + ":\n" + e.what());
     }
-    */
 }
 
 void MainWindow::open() {
