@@ -124,38 +124,53 @@ void EnergyPlot::updatePlot() {
     // Use plot_energy to plot the energies depending on the grouping option
     if(cb_part->isChecked()) {
         std::vector<double> e_limbs(parameter.size());
-        std::vector<double> e_string(parameter.size());
-
         for(size_t i = 0; i < parameter.size(); ++i) {
             e_limbs[i] = states.elastic_energy_limbs[i] + states.kinetic_energy_limbs[i];
         }
+
+        std::vector<double> e_string(parameter.size());
         for(size_t i = 0; i < parameter.size(); ++i) {
             e_string[i] = states.elastic_energy_string[i] + states.kinetic_energy_string[i];
         }
-        plot_energy(e_limbs, "Limbs (Total)", QColor(0, 0, 255));
-        plot_energy(e_string, "String (Total)", QColor(128, 0, 128));
-        plot_energy(states.kinetic_energy_arrow, "Arrow (Total)", QColor(255, 0, 0));
+
+        std::vector<double> e_damp(parameter.size());
+        for(size_t i = 0; i < parameter.size(); ++i) {
+            e_damp[i] = states.damping_energy_limbs[i] + states.damping_energy_string[i];
+        }
+
+        plot_energy(e_limbs, "Limbs (total)", QColor(0, 0, 255));
+        plot_energy(e_string, "String (total)", QColor(128, 0, 128));
+        plot_energy(states.kinetic_energy_arrow, "Arrow (total)", QColor(255, 0, 0));
+        plot_energy(e_damp, "Damping", QColor(128, 128, 128));
     }
     else if(cb_type->isChecked()) {
         std::vector<double> e_pot(parameter.size());
-        std::vector<double> e_kin(parameter.size());
-
         for(size_t i = 0; i < parameter.size(); ++i) {
             e_pot[i] = states.elastic_energy_limbs[i] + states.elastic_energy_string[i];
         }
+
+        std::vector<double> e_kin(parameter.size());
         for(size_t i = 0; i < parameter.size(); ++i) {
             e_kin[i] = states.kinetic_energy_limbs[i] + states.kinetic_energy_string[i] + states.kinetic_energy_arrow[i];
         }
 
+        std::vector<double> e_damp(parameter.size());
+        for(size_t i = 0; i < parameter.size(); ++i) {
+            e_damp[i] = states.damping_energy_limbs[i] + states.damping_energy_string[i];
+        }
+
         plot_energy(e_pot, "Potential", QColor(0, 0, 255));
         plot_energy(e_kin, "Kinetic", QColor(255, 0, 0));
+        plot_energy(e_damp, "Damping", QColor(128, 128, 128));
     }
     else {
-        plot_energy(states.elastic_energy_limbs, "Limbs (Pot)", QColor(0, 0, 255));
-        plot_energy(states.kinetic_energy_limbs, "Limbs (Kin)", QColor(40, 40, 255));
-        plot_energy(states.elastic_energy_string, "String (Pot)", QColor(128, 0, 128));
-        plot_energy(states.kinetic_energy_string, "String (Kin)", QColor(128, 40, 128));
-        plot_energy(states.kinetic_energy_arrow, "Arrow (Kin)", QColor(255, 0, 0));
+        plot_energy(states.elastic_energy_limbs, "Limbs (pot)", QColor(0, 0, 255));
+        plot_energy(states.kinetic_energy_limbs, "Limbs (kin)", QColor(40, 40, 255));
+        plot_energy(states.elastic_energy_string, "String (pot)", QColor(128, 0, 128));
+        plot_energy(states.kinetic_energy_string, "String (kin)", QColor(128, 40, 128));
+        plot_energy(states.kinetic_energy_arrow, "Arrow (kin)", QColor(255, 0, 0));
+        plot_energy(states.damping_energy_limbs, "Limbs (damp)", QColor(128, 128, 128));
+        plot_energy(states.damping_energy_string, "String (damp)", QColor(179, 179, 179));
     }
 
     // Update plot
