@@ -18,8 +18,7 @@ Slider::Slider(const std::vector<double>& values, const QString& text, const Qua
       menu(new QMenu()),
       values(values),
       text(text),
-      quantity(quantity),
-      index(0)
+      quantity(quantity)
 {
     const int height = 30; // Magic number
 
@@ -62,13 +61,56 @@ Slider::Slider(const std::vector<double>& values, const QString& text, const Qua
     hbox->addSpacing(10);
     hbox->addWidget(slider, 1);
 
+    double time_scaling = (values.back() - values.front())/PLAYBACK_PERIOD_MS;    // Change in value per playback time
+    double min_timestep = 1000.0/double(PLAYBACK_MAX_FPS);                        // Minimum bound on the playback timestep in ms as defined by the FPS
+    double min_valuestep = min_timestep*time_scaling;                             // Minimum change in value per playback step
+
+    qInfo() << min_valuestep;
+
+    std::vector<int> timer_delays(values.size());    // Next playback delay for each index of the value array
+    std::vector<int> timer_steps(values.size());     // Next playback step size for each index of the value array
+
+    for(size_t i = 0; i < values.size(); ++i) {
+        // At current index i, search forward by index j
+        for(size_t j = i; j < values.size(); ++j) {
+            double value_step = values[j] - values[i];
+            if(value_step >= min_valuestep) {
+                timer_delays[i] = value_step/time_scaling;
+                timer_steps[i] = j - i;
+                break;
+            }
+        }
+    }
+
+    qInfo() << "==================================================";
+    for(size_t i = 0; i < values.size(); ++i) {
+        qInfo() << values[i] << timer_delays[i] << timer_steps[i];
+    }
+
+
+
+
+
     // Timer interval and number of steps done by the timer each tick
-    int delta_i = std::ceil(1000*double(values.size() - 1)/(playback_time*playback_max_fps));
-    int delta_t = playback_time*delta_i/(values.size() - 1);
+    //int delta_i = std::ceil(1000*double(values.size() - 1)/(PLAYBACK_PERIOD*PLAYBACK_MAX_FPS));
+
+    //int delta_i = 1;
+    //int delta_t = PLAYBACK_PERIOD_MS*delta_i/(values.size() - 1);
+
+    // Set slider range according to the index range of the value array
     slider->setRange(0, values.size()-1);
 
     auto timer = new QTimer(this);
-    timer->setInterval(delta_t);
+
+    QObject::connect(slider, &QSlider::valueChanged, [=, &values](int index) {
+        // Update text and edit labels
+        updateLabels();
+
+        // Update timer interval and stepsize
+        timer->setInterval(timer_delays[index]);
+
+        emit indexChanged(index);
+    });
 
     auto start_playback = [=] {
         timer->start();
@@ -81,20 +123,26 @@ Slider::Slider(const std::vector<double>& values, const QString& text, const Qua
     };
 
     // Timer: Advance slider by delta_i if possible, else skip the last bit and stop playback.
-    QObject::connect(timer, &QTimer::timeout, [=] {
-        int next = slider->value() + delta_i;
+    QObject::connect(timer, &QTimer::timeout, [=, &values] {
+        // Called at the end of a step => advance slider by timestep at current index, if possible (step != 0)
+        int step = timer_steps[slider->value()];
+        if(step == 0) {
+            stop_playback();
+        }
+        else {
+            slider->setValue(slider->value() + step);
+        }
+
+
+        /*
+        int next = slider->value() + timer_steps[slider->value()];
         if(next < slider->maximum()) {
             slider->setValue(next);
         } else {
             slider->setValue(slider->maximum());
             stop_playback();
         }
-    });
-
-    QObject::connect(slider, &QSlider::valueChanged, [&](int index) {
-        this->index = index;
-        updateLabels();
-        emit indexChanged(index);
+        */
     });
 
     QObject::connect(menu, &QMenu::triggered, [=](QAction *action) {
@@ -137,7 +185,10 @@ Slider::Slider(const std::vector<double>& values, const QString& text, const Qua
     });
 
     QObject::connect(&quantity, &Quantity::unitChanged, this, &Slider::updateLabels);
-    updateLabels();
+
+    // Emit valueChanged once to initialize everything
+    // (slider->setValue(0) does not work because the slider is already at zero)
+    emit slider->valueChanged(slider->value());
 }
 
 void Slider::addJumpAction(const QString& name, int index) {
@@ -147,7 +198,7 @@ void Slider::addJumpAction(const QString& name, int index) {
 }
 
 void Slider::updateLabels() {
-    double unitValue = quantity.getUnit().fromBase(values[index]);
+    double unitValue = quantity.getUnit().fromBase(values[slider->value()]);
     edit->setText(QLocale().toString(unitValue));
     label->setText(text + " " + quantity.getUnit().getLabel());
 }

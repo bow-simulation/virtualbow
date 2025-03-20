@@ -18,8 +18,8 @@ signals:
     void indexChanged(int index);
 
 private:
-    static const int playback_max_fps = 45;
-    static const int playback_time = 5000;
+    static const int PLAYBACK_MAX_FPS = 30;        // Maximum number of frames per second (skip simulation states if below)
+    static const int PLAYBACK_PERIOD_MS = 5000;    // Time period of a single playback from start to end (controls time scaling)
 
     QLineEdit* edit;
     QLabel* label;
@@ -29,7 +29,6 @@ private:
     const std::vector<double>& values;
     QString text;
     const Quantity& quantity;
-    int index;
 
     void updateLabels();
 };
