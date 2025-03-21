@@ -24,7 +24,7 @@ Slider::Slider(const std::vector<double>& values, const QString& text, const Qua
 
     edit = new QLineEdit();
     edit->setFixedHeight(height);
-    edit->setValidator(new QDoubleValidator(values.front(), values.back(), 10));
+    edit->setValidator(new QDoubleValidator());//values.front(), values.back(), 10));
 
     auto button_jump_to = new QToolButton();
     button_jump_to->setIcon(QIcon(":/icons/media-jump-to.svg"));
@@ -65,49 +65,40 @@ Slider::Slider(const std::vector<double>& values, const QString& text, const Qua
     double min_timestep = 1000.0/double(PLAYBACK_MAX_FPS);                        // Minimum bound on the playback timestep in ms as defined by the FPS
     double min_valuestep = min_timestep*time_scaling;                             // Minimum change in value per playback step
 
-    qInfo() << min_valuestep;
+    std::vector<int> playback_delays(values.size());     // Next playback delay for each index of the value array
+    std::vector<int> playback_indices(values.size());    // Next playback index for each index of the value array
 
-    std::vector<int> timer_delays(values.size());    // Next playback delay for each index of the value array
-    std::vector<int> timer_steps(values.size());     // Next playback step size for each index of the value array
-
+    // Determine time delays and next indices for each index of the value array
     for(size_t i = 0; i < values.size(); ++i) {
-        // At current index i, search forward by index j
+        // At current index i, search forward by index j until the change in value is sufficient
+        // as determined previously by the minimum value step
         for(size_t j = i; j < values.size(); ++j) {
             double value_step = values[j] - values[i];
             if(value_step >= min_valuestep) {
-                timer_delays[i] = value_step/time_scaling;
-                timer_steps[i] = j - i;
+                playback_delays[i] = value_step/time_scaling;
+                playback_indices[i] = j;
                 break;
             }
         }
+
+        // If no index was assigned, skip to the end instead
+        if(playback_indices[i] == 0) {
+            playback_indices[i] = values.size() - 1;
+        }
     }
-
-    qInfo() << "==================================================";
-    for(size_t i = 0; i < values.size(); ++i) {
-        qInfo() << values[i] << timer_delays[i] << timer_steps[i];
-    }
-
-
-
-
-
-    // Timer interval and number of steps done by the timer each tick
-    //int delta_i = std::ceil(1000*double(values.size() - 1)/(PLAYBACK_PERIOD*PLAYBACK_MAX_FPS));
-
-    //int delta_i = 1;
-    //int delta_t = PLAYBACK_PERIOD_MS*delta_i/(values.size() - 1);
 
     // Set slider range according to the index range of the value array
     slider->setRange(0, values.size()-1);
 
+    // Timer for controlling the playback
     auto timer = new QTimer(this);
 
     QObject::connect(slider, &QSlider::valueChanged, [=, &values](int index) {
         // Update text and edit labels
         updateLabels();
 
-        // Update timer interval and stepsize
-        timer->setInterval(timer_delays[index]);
+        // Update timer interval
+        timer->setInterval(playback_delays[index]);
 
         emit indexChanged(index);
     });
@@ -122,27 +113,15 @@ Slider::Slider(const std::vector<double>& values, const QString& text, const Qua
         button_play_pause->setIcon(QIcon(":/icons/media-playback-start.svg"));
     };
 
-    // Timer: Advance slider by delta_i if possible, else skip the last bit and stop playback.
-    QObject::connect(timer, &QTimer::timeout, [=, &values] {
-        // Called at the end of a step => advance slider by timestep at current index, if possible (step != 0)
-        int step = timer_steps[slider->value()];
-        if(step == 0) {
+    QObject::connect(timer, &QTimer::timeout, [=] {
+        // Called at the end of a step => advance slider to the next index
+        int next_index = playback_indices[slider->value()];
+        slider->setValue(next_index);
+
+        // Stop playback if the end is reached
+        if(slider->value() == slider->maximum()) {
             stop_playback();
         }
-        else {
-            slider->setValue(slider->value() + step);
-        }
-
-
-        /*
-        int next = slider->value() + timer_steps[slider->value()];
-        if(next < slider->maximum()) {
-            slider->setValue(next);
-        } else {
-            slider->setValue(slider->maximum());
-            stop_playback();
-        }
-        */
     });
 
     QObject::connect(menu, &QMenu::triggered, [=](QAction *action) {
@@ -151,22 +130,41 @@ Slider::Slider(const std::vector<double>& values, const QString& text, const Qua
     });
 
     QObject::connect(edit, &QLineEdit::editingFinished, [=, &values] {
-        // Todo: This assumes linearly spaced values
-        double target = QLocale().toDouble(edit->text());
-        double p = (target - values.front())/(values.back() - values.front());
-        int index = double(slider->minimum())*(1.0 - p) + double(slider->maximum())*p;
+        // Stop playback in case it is running
+        stop_playback();
 
-        if(index >= slider->minimum() && index <= slider->maximum()) {
-            stop_playback();
-            slider->setValue(index);
-            emit indexChanged(index);
+        // Read target value from the edit and convert to base unit
+        double unitTarget = QLocale().toDouble(edit->text());
+        double target = this->quantity.getUnit().toBase(unitTarget);
+
+        // Out of bounds: Reset label texts and do nothing
+        // Otherwise perform a linear search to find the corresponding index to jump to (picks lower bound)
+        if(target < values.front()) {
+            slider->setValue(slider->minimum());
         }
+        else if(target > values.back()) {
+            slider->setValue(slider->maximum());
+        }
+        else {
+            for(size_t i = 0; i < values.size(); ++i) {
+                if(values[i] <= target && values[i + 1] >= target) {
+                    slider->setValue(i);
+                    break;
+                }
+            }
+        }
+
+        // This has to be called even though already connected to the value change of the slider
+        // The reason is that the slider value might not have changed (i.e. set to the same value as before)
+        // but we still want to overwrite the user input in the edit with the actual number.
+        updateLabels();
     });
 
     QObject::connect(button_play_pause, &QPushButton::clicked, [=] {
         if(timer->isActive()) {
             stop_playback();
-        } else {
+        }
+        else {
             if(slider->value() == slider->maximum()) {
                 slider->setValue(slider->minimum());
             }
