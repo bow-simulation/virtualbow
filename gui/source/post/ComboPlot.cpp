@@ -5,7 +5,7 @@ ComboPlot::ComboPlot()
       combo_y(new QComboBox()),
       plot(new PlotWidget()),
       curve(new QCPCurve(plot->xAxis, plot->yAxis))
-{
+{    
     curve->setName("Line");
     curve->setPen({Qt::blue, 2.0});
 
@@ -69,10 +69,13 @@ void ComboPlot::updatePlot() {
     plot->xAxis->setLabel(combo_x->currentText() + " " + unit_x.getLabel());
     plot->yAxis->setLabel(combo_y->currentText() + " " + unit_y.getLabel());
 
+    throw std::invalid_argument("Removed code");
+    /*
     curve->setData(
         unit_x.fromBase(*data[index_x]),
         unit_y.fromBase(*data[index_y])
     );
+    */
 
     plot->rescaleAxes();
     plot->replot();

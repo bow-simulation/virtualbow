@@ -50,7 +50,7 @@ void ProfileView::setSelection(const QList<int>& indices) {
 }
 
 void ProfileView::updatePlot() {
-    throw std::invalid_argument("Removed code");
+    //throw std::invalid_argument("Removed code");
     /*
     this->xAxis->setLabel("X " + quantity.getUnit().getLabel());
     this->yAxis->setLabel("Y " + quantity.getUnit().getLabel());

@@ -137,7 +137,7 @@ TreeDock::TreeDock(ViewModel* model)
 
     auto hbox = new QHBoxLayout();
     hbox->setAlignment(Qt::AlignTop);
-    hbox->setMargin(2);
+    hbox->setContentsMargins(2, 2, 2, 2);
     hbox->setSpacing(2);
     hbox->addStretch();
     hbox->addWidget(button_add);
@@ -252,7 +252,7 @@ QMenu* TreeDock::createLayerMenu() {
 }
 
 QMenu* TreeDock::createSegmentMenu() {
-    throw std::invalid_argument("Removed code");
+    //throw std::invalid_argument("Removed code");
     /*
     auto add_segment_at_item = [=](const ProfileSegment& segment) {
         auto item = static_cast<TreeItem*>(tree->currentItem());

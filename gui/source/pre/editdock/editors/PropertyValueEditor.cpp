@@ -55,7 +55,7 @@ PropertyValueEditor::PropertyValueEditor(int rows, const QList<QString>& names, 
     }
 
     auto vbox = new QVBoxLayout();
-    vbox->setMargin(0);
+    vbox->setContentsMargins(0, 0, 0, 0);
     vbox->addWidget(table);
 
     this->setLayout(vbox);

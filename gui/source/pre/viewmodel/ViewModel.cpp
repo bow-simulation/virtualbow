@@ -1,4 +1,5 @@
 #include "ViewModel.hpp"
+#include "solver/API.hpp"
 
 const char* DEFAULT_NAME = "Unnamed";
 
@@ -48,8 +49,7 @@ bool ViewModel::isModified() const {
 }
 
 void ViewModel::loadDefaults() {
-    throw std::invalid_argument("Removed code");
-    //data = BowModel();
+    data = new_model();
     emit reloaded(this);
 
     setFilePath(QString());

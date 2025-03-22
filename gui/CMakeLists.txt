@@ -18,13 +18,13 @@ set(APPLICATION_DESCRIPTION_LONG "Software tool for designing and simulating bow
 
 # External libraries
 
-find_package(Qt5 5.9.5 REQUIRED COMPONENTS Widgets PrintSupport)
-find_package(Catch2 2.13.9 REQUIRED)
-find_package(nlohmann_json 3.10.5 REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets PrintSupport)
+find_package(Catch2 REQUIRED)
+find_package(nlohmann_json REQUIRED)
 find_package(Threads REQUIRED)                # System thread library (https://stackoverflow.com/a/39547577)
 find_package(OpenGL REQUIRED)
 
-get_target_property(QMAKE_EXECUTABLE Qt5::qmake IMPORTED_LOCATION)
+get_target_property(QMAKE_EXECUTABLE Qt6::qmake IMPORTED_LOCATION)
 get_filename_component(QT_BINARY_DIR "${QMAKE_EXECUTABLE}" DIRECTORY)
 
 set(CMAKE_AUTOMOC ON)
@@ -180,6 +180,8 @@ add_executable(
     source/pre/widgets/propertytree/items/StringPropertyItem.cpp
     source/pre/widgets/propertytree/items/StringPropertyItem.hpp
     source/pre/widgets/qcustomplot/qcustomplot.cpp
+    source/pre/viewmodels/MainVM.cpp
+    source/pre/viewmodels/MainVM.hpp
 )
 
 target_compile_definitions(virtualbow-gui PRIVATE JSON_HAS_CPP_17)
@@ -189,8 +191,9 @@ target_link_libraries(
     virtualbow-lib
     Threads::Threads
     ${OPENGL_gl_LIBRARY}
-    Qt5::Widgets
-    Qt5::PrintSupport
+    Qt6::Widgets
+    Qt6::OpenGLWidgets
+    Qt6::PrintSupport
 )
 
 # Target: Post executable
@@ -260,8 +263,8 @@ target_compile_definitions(virtualbow-post PRIVATE JSON_HAS_CPP_17)
 target_link_libraries(
     virtualbow-post
     virtualbow-lib
-    Qt5::Widgets
-    Qt5::PrintSupport
+    Qt6::Widgets
+    Qt6::PrintSupport
 )
 
 # Target: Test executable

@@ -14,7 +14,7 @@ MaterialEntry::MaterialEntry()
 
     auto hbox = new QHBoxLayout();
     hbox->setAlignment(Qt::AlignTop);
-    hbox->setMargin(0);
+    hbox->setContentsMargins(0, 0, 0, 0);
     hbox->addWidget(symbol, 0);
     hbox->addSpacing(10);
     hbox->addWidget(label, 1);

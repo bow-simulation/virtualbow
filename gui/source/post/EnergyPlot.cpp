@@ -86,10 +86,13 @@ void EnergyPlot::updatePlot() {
             auto graph_lower = plot->graph();
             auto graph_upper = plot->addGraph();
 
+            throw std::invalid_argument("Removed code");
+            /*
             graph_upper->setData(
                 quantity_x.getUnit().fromBase(parameter),
                 quantity_y.getUnit().fromBase(e_upper)
             );
+            */
             graph_upper->setName(name);
             graph_upper->setBrush(color);
             graph_upper->setPen({QBrush(color), 2.0});
@@ -109,10 +112,13 @@ void EnergyPlot::updatePlot() {
             }
 
             auto graph = plot->addGraph();
+            throw std::invalid_argument("Removed code");
+            /*
             graph->setData(
                 quantity_x.getUnit().fromBase(parameter),
                 quantity_x.getUnit().fromBase(energy)
             );
+            */
             graph->setName(name);
             graph->setPen({QBrush(color), 2.0});
         };

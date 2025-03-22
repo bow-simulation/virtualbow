@@ -2,7 +2,7 @@
 #include <QMainWindow>
 
 class RecentFilesMenu;
-class ViewModel;
+class MainVM;
 
 class QLabel;
 
@@ -14,8 +14,10 @@ public:
     bool saveToFile(const QString& path);
 
 private:
-    ViewModel* view_model;
-    RecentFilesMenu* menu_open_recent;
+    static QString DEFAULT_NAME;
+
+    MainVM* viewModel;
+    RecentFilesMenu* menuOpenRecent;
 
     void closeEvent(QCloseEvent *event) override;
 
@@ -30,4 +32,5 @@ private:
     bool optionalSaveModifications();
     QString showOpenFileDialog();
     QString showSaveFileDialog();
+    QString displayPath();
 };

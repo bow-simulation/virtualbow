@@ -5,7 +5,7 @@ LimbMesh::LimbMesh(const BowModel& input)
     : faces_right(GL_QUADS),
       faces_left(GL_QUADS)
 {
-    throw std::invalid_argument("Removed code");
+    //throw std::invalid_argument("Removed code");
     /*
     try {
         ContinuousLimb limb(input);

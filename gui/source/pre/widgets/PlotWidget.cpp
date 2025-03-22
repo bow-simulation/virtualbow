@@ -143,6 +143,8 @@ QSize PlotWidget::sizeHint() const {
 }
 
 void PlotWidget::resizeEvent(QResizeEvent * event) {
+    /*
+    throw std::invalid_argument("Removed code");
     QCustomPlot::resizeEvent(event);
 
     // Reflow legend
@@ -174,6 +176,7 @@ void PlotWidget::resizeEvent(QResizeEvent * event) {
     if(aspect_policy != NONE) {
         this->replot();
     }
+    */
 }
 
 void PlotWidget::onExport() {
@@ -256,7 +259,7 @@ void PlotWidget::saveCsv(const QString& path) {
     QFile file(path);
     if(file.open(QIODevice::WriteOnly) && !headers.empty()) {
         QTextStream stream(&file);
-        stream << headers.join(",") << endl;
+        stream << headers.join(",") << Qt::endl;
 
         // Number of rows is the maximum size of any of the columns
         auto it = std::max_element(columns.begin(), columns.end(), [](auto& a, auto& b){ return a.size() < b.size(); });
@@ -267,7 +270,7 @@ void PlotWidget::saveCsv(const QString& path) {
             for(auto& column: columns) {
                 entries.push_back(i < column.size() ? QString::number(column[i]) : "");
             }
-            stream << entries.join(",") << endl;
+            stream << entries.join(",") << Qt::endl;
         }
     }
 }

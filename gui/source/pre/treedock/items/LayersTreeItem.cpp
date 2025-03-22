@@ -109,7 +109,7 @@ void LayerTreeItem::setLayer(const Layer& layer) {
 
     this->setText(0, QString::fromStdString(layer.name));
     table->setData(layer.height);
-    throw std::invalid_argument("Fix material index/name");
+    //throw std::invalid_argument("Fix material index/name");
     //combo->setCurrentIndex(layer.material);
 
     updatePlot();    // TODO: Couple plot with model instead

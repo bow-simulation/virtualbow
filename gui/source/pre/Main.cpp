@@ -37,3 +37,43 @@ int main(int argc, char* argv[]) {
 
     return application.exec();
 }
+
+/*
+#include "viewmodels/MainVM.hpp"
+#include <iostream>
+
+#include <QApplication>
+#include <QMainWindow>
+#include <QPushButton>
+#include <QBindable>
+#include <qmetaobject.h>
+
+void bind(QObject* target, const char* targetProperty, const QObject* source, const char* sourceProperty) {
+    const QMetaObject* metaTarget = target->metaObject();
+    const QMetaObject* metaSource = source->metaObject();
+
+    QMetaProperty metaPropTarget = metaTarget->property(metaTarget->indexOfProperty(targetProperty));
+    QMetaProperty metaPropSource = metaSource->property(metaSource->indexOfProperty(sourceProperty));
+
+}
+
+int main(int argc, char* argv[]) {
+    MainVM viewModel;
+
+    QApplication application(argc, argv);
+    QMainWindow window;
+
+    QPushButton* button = new QPushButton("Modify");
+    window.setCentralWidget(button);
+
+    //QObject::connect(button, &QPushButton::clicked, &viewModel, &MainVM::modify);
+
+    //window.setWindowFilePath(viewModel.currentFile());
+    //QObject::connect(&viewModel, &MainVM::currentFileChanged, &window, &QMainWindow::setWindowFilePath);
+
+    bind(&window, "windowFilePath", &viewModel, "currentFile");
+
+    window.show();
+    return application.exec();
+}
+*/

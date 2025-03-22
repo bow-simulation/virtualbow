@@ -49,7 +49,7 @@ UnitDialog::UnitDialog(QWidget* parent)
     : QDialog(parent)
 {
     auto grid = new QGridLayout();
-    grid->setMargin(15);
+    grid->setContentsMargins(15, 15, 15, 15);
 
     grid->addWidget(new UnitEditor(Quantities::length), 0, 0);
     grid->addWidget(new UnitEditor(Quantities::curvature), 1, 0);

@@ -3,7 +3,6 @@
 #include "solver/API.hpp"
 #include "config.hpp"
 #include <catch2/catch.hpp>
-#include <iostream>
 
 // Location of the solver's test data directory
 const std::string TEST_DATA_DIR = std::string(Config::CMAKE_SOURCE_DIR) + "/../rust/virtualbow/data";

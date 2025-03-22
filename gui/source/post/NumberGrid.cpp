@@ -13,7 +13,7 @@ NumberGrid::NumberGrid()
       currentGrid(nullptr)
 {
     columnLayout->setSpacing(20);
-    columnLayout->setMargin(20);
+    columnLayout->setContentsMargins(20, 20, 20, 20);
     columnLayout->addStretch();
     this->setLayout(columnLayout);
 }

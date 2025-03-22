@@ -6,7 +6,7 @@
 #include "editdock/EditDock.hpp"
 #include "plotdock/PlotDock.hpp"
 #include "limbview/LimbView.hpp"
-#include "viewmodel/ViewModel.hpp"
+#include "viewmodels/MainVM.hpp"
 #include "utils/UserSettings.hpp"
 #include "UnitDialog.hpp"
 
@@ -17,78 +17,80 @@
 #include <QFileDialog>
 #include <QApplication>
 
+QString MainWindow::DEFAULT_NAME = "Unnamed";
+
 MainWindow::MainWindow()
-    : view_model(new ViewModel()),
-      menu_open_recent(new RecentFilesMenu(this))
+    : viewModel(new MainVM()),
+      menuOpenRecent(new RecentFilesMenu(this))
 {
     // Actions
-    auto action_new = new QAction(QIcon(":/icons/document-new.svg"), "&New", this);
-    QObject::connect(action_new, &QAction::triggered, this, &MainWindow::newFile);
-    action_new->setShortcuts(QKeySequence::New);
-    action_new->setMenuRole(QAction::NoRole);
+    auto actionNew = new QAction(QIcon(":/icons/document-new.svg"), "&New", this);
+    QObject::connect(actionNew, &QAction::triggered, this, &MainWindow::newFile);
+    actionNew->setShortcuts(QKeySequence::New);
+    actionNew->setMenuRole(QAction::NoRole);
 
-    auto action_open = new QAction(QIcon(":/icons/document-open.svg"), "&Open...", this);
-    QObject::connect(action_open, &QAction::triggered, this, &MainWindow::open);
-    action_open->setShortcuts(QKeySequence::Open);
-    action_open->setMenuRole(QAction::NoRole);
+    auto actionOpen = new QAction(QIcon(":/icons/document-open.svg"), "&Open...", this);
+    QObject::connect(actionOpen, &QAction::triggered, this, &MainWindow::open);
+    actionOpen->setShortcuts(QKeySequence::Open);
+    actionOpen->setMenuRole(QAction::NoRole);
 
-    auto action_save = new QAction(QIcon(":/icons/document-save.svg"), "&Save", this);
-    QObject::connect(action_save, &QAction::triggered, this, &MainWindow::save);
-    action_save->setShortcuts(QKeySequence::Save);
-    action_save->setMenuRole(QAction::NoRole);
+    auto actionSave = new QAction(QIcon(":/icons/document-save.svg"), "&Save", this);
+    QObject::connect(actionSave, &QAction::triggered, this, &MainWindow::save);
+    actionSave->setShortcuts(QKeySequence::Save);
+    actionSave->setMenuRole(QAction::NoRole);
 
-    auto action_save_as = new QAction(QIcon(":/icons/document-save-as.svg"), "Save &As...", this);
-    QObject::connect(action_save_as, &QAction::triggered, this, &MainWindow::saveAs);
-    action_save_as->setShortcuts(QKeySequence::SaveAs);
-    action_save_as->setMenuRole(QAction::NoRole);
+    auto actionSaveAs = new QAction(QIcon(":/icons/document-save-as.svg"), "Save &As...", this);
+    QObject::connect(actionSaveAs, &QAction::triggered, this, &MainWindow::saveAs);
+    actionSaveAs->setShortcuts(QKeySequence::SaveAs);
+    actionSaveAs->setMenuRole(QAction::NoRole);
 
-    auto action_quit = new QAction("&Quit", this);
-    QObject::connect(action_quit, &QAction::triggered, this, &QWidget::close);
-    action_quit->setShortcuts(QKeySequence::Quit);
-    action_quit->setMenuRole(QAction::QuitRole);
+    auto actionQuit = new QAction("&Quit", this);
+    QObject::connect(actionQuit, &QAction::triggered, this, &QWidget::close);
+    actionQuit->setShortcuts(QKeySequence::Quit);
+    actionQuit->setMenuRole(QAction::QuitRole);
 
-    auto action_run_statics = new QAction(QIcon(":/icons/run-statics"), "&Statics...", this);
-    QObject::connect(action_run_statics, &QAction::triggered, [&]{ runSimulation(false); });
-    action_run_statics->setShortcut(Qt::Key_F5);
-    action_run_statics->setMenuRole(QAction::NoRole);
-    action_run_statics->setIconVisibleInMenu(true);
+    auto actionRunStatics = new QAction(QIcon(":/icons/run-statics"), "&Statics...", this);
+    QObject::connect(actionRunStatics, &QAction::triggered, [&]{ runSimulation(false); });
+    actionRunStatics->setShortcut(Qt::Key_F5);
+    actionRunStatics->setMenuRole(QAction::NoRole);
+    actionRunStatics->setIconVisibleInMenu(true);
 
-    auto action_run_dynamics = new QAction(QIcon(":/icons/run-dynamics"), "&Dynamics...", this);
-    QObject::connect(action_run_dynamics, &QAction::triggered, [&]{ runSimulation(true); });
-    action_run_dynamics->setShortcut(Qt::Key_F6);
-    action_run_dynamics->setMenuRole(QAction::NoRole);
-    action_run_dynamics->setIconVisibleInMenu(true);
+    auto actionRunDynamics = new QAction(QIcon(":/icons/run-dynamics"), "&Dynamics...", this);
+    QObject::connect(actionRunDynamics, &QAction::triggered, [&]{ runSimulation(true); });
+    actionRunDynamics->setShortcut(Qt::Key_F6);
+    actionRunDynamics->setMenuRole(QAction::NoRole);
+    actionRunDynamics->setIconVisibleInMenu(true);
 
-    auto action_set_units = new QAction("&Units...", this);
-    QObject::connect(action_set_units, &QAction::triggered, this, [&]{
+    auto actionEditUnits = new QAction("&Units...", this);
+    QObject::connect(actionEditUnits, &QAction::triggered, this, [&]{
         UnitDialog dialog(this);
         dialog.exec();
     });
-    action_set_units->setMenuRole(QAction::NoRole);
+    actionEditUnits->setMenuRole(QAction::NoRole);
 
     // File menu
-    auto menu_file = this->menuBar()->addMenu("&File");
-    menu_file->addAction(action_new);
-    menu_file->addAction(action_open);
-    menu_file->addMenu(menu_open_recent);
-    menu_file->addSeparator();
-    menu_file->addAction(action_save);
-    menu_file->addAction(action_save_as);
-    menu_file->addSeparator();
-    menu_file->addAction(action_quit);
+    auto menuFile = this->menuBar()->addMenu("&File");
+    menuFile->addAction(actionNew);
+    menuFile->addAction(actionOpen);
+    menuFile->addMenu(menuOpenRecent);
+    menuFile->addSeparator();
+    menuFile->addAction(actionSave);
+    menuFile->addAction(actionSaveAs);
+    menuFile->addSeparator();
+    menuFile->addAction(actionQuit);
 
     // Recent files menu
-    QObject::connect(menu_open_recent, &RecentFilesMenu::openRecent, this, &MainWindow::openRecent);
-    QObject::connect(menu_file, &QMenu::aboutToShow, [&]{ menu_open_recent->updateActions(); });
+    QObject::connect(menuOpenRecent, &RecentFilesMenu::openRecent, this, &MainWindow::openRecent);
+    QObject::connect(menuFile, &QMenu::aboutToShow, [&]{ menuOpenRecent->updateActions(); });
 
     // Simulation menu
-    auto menu_simulation = this->menuBar()->addMenu("&Simulate");
-    menu_simulation->addAction(action_run_statics);
-    menu_simulation->addAction(action_run_dynamics);
+    auto menuSimulation = this->menuBar()->addMenu("&Simulate");
+    menuSimulation->addAction(actionRunStatics);
+    menuSimulation->addAction(actionRunDynamics);
 
     // Options menu
-    auto menu_preferences = this->menuBar()->addMenu("&Options");
-    menu_preferences->addAction(action_set_units);
+    auto menuPreferences = this->menuBar()->addMenu("&Options");
+    menuPreferences->addAction(actionEditUnits);
 
     // Toolbar
     this->setContextMenuPolicy(Qt::NoContextMenu);    // Disables context menu for hiding the toolbar
@@ -96,13 +98,13 @@ MainWindow::MainWindow()
     toolbar->setObjectName("MainToolBar");            // Necessary for saving the window state
     toolbar->setAutoFillBackground(true);
     toolbar->setMovable(false);
-    toolbar->addAction(action_new);
-    toolbar->addAction(action_open);
-    toolbar->addAction(action_save);
-    toolbar->addAction(action_save_as);
+    toolbar->addAction(actionNew);
+    toolbar->addAction(actionOpen);
+    toolbar->addAction(actionSave);
+    toolbar->addAction(actionSaveAs);
     toolbar->addSeparator();
-    toolbar->addAction(action_run_statics);
-    toolbar->addAction(action_run_dynamics);
+    toolbar->addAction(actionRunStatics);
+    toolbar->addAction(actionRunDynamics);
 
     // Help menu
     this->menuBar()->addMenu(new HelpMenu(this));
@@ -113,8 +115,9 @@ MainWindow::MainWindow()
     this->setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-    auto limb_view = new LimbView(view_model);
-    auto tree_dock = new TreeDock(view_model);
+    /*
+    auto limb_view = new LimbView(viewModel);
+    auto tree_dock = new TreeDock(viewModel);
     auto edit_dock = new EditDock();
     auto plot_dock = new PlotDock();
 
@@ -125,14 +128,17 @@ MainWindow::MainWindow()
     this->addDockWidget(Qt::LeftDockWidgetArea, tree_dock);
     this->addDockWidget(Qt::LeftDockWidgetArea, edit_dock);
     this->addDockWidget(Qt::BottomDockWidgetArea, plot_dock);
+    */
 
     // Connect window file path to view model
-    this->setWindowFilePath(view_model->displayPath());
-    QObject::connect(view_model, &ViewModel::displayPathChanged, this, &MainWindow::setWindowFilePath);
+    this->setWindowFilePath(displayPath());
+    QObject::connect(viewModel, &MainVM::currentFileChanged, this, [&](){
+        setWindowFilePath(displayPath());
+    });
 
     // Connect modification indicator to view model
-    this->setWindowModified(view_model->isModified());
-    QObject::connect(view_model, &ViewModel::modificationChanged, this, &MainWindow::setWindowModified);
+    this->setWindowModified(viewModel->hasUnsavedWork());
+    QObject::connect(viewModel, &MainVM::unsavedWorkChanged, this, &MainWindow::setWindowModified);
 
     // Main window
     this->setWindowIcon(QIcon(":/icons/logo.svg"));
@@ -154,8 +160,8 @@ MainWindow::MainWindow()
 // Returns true on success and false on failure
 bool MainWindow::loadFromFile(const QString& path) {
     try {
-        view_model->loadFile(path);         // Load data from path
-        menu_open_recent->addPath(path);    // Add path to the menu of recently opened files
+        viewModel->loadFile(path);         // Load data from path
+        menuOpenRecent->addPath(path);    // Add path to the menu of recently opened files
         return true;
     }
     catch(const std::exception& e) {
@@ -168,8 +174,8 @@ bool MainWindow::loadFromFile(const QString& path) {
 // Returns true on success and false on failure
 bool MainWindow::saveToFile(const QString& path) {
     try {
-        view_model->saveFile(path);    // Save data to path
-        menu_open_recent->addPath(path);    // Add path to the menu of recently used files
+        viewModel->saveFile(path);    // Save data to path
+        menuOpenRecent->addPath(path);    // Add path to the menu of recently used files
         return true;
     }
     catch(const std::exception& e) {
@@ -198,7 +204,7 @@ void MainWindow::newFile() {
     if(!optionalSaveModifications()) {
         return;
     }
-    view_model->loadDefaults();
+    viewModel->newFile();
 }
 
 void MainWindow::open() {
@@ -228,7 +234,7 @@ void MainWindow::openRecent(const QString& path) {
 
 bool MainWindow::save() {
     // Retrieve the current file path from the view model
-    QString path = view_model->filePath();
+    QString path = viewModel->currentFile();
 
     // If the path is empty, the data isn't associated with a file yet.
     // Let the user pick a location for the file in that case.
@@ -310,11 +316,22 @@ QString MainWindow::showSaveFileDialog() {
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setNameFilter("Model Files (*.bow)");
     dialog.setDefaultSuffix("bow");
-    dialog.selectFile(view_model->displayPath());
+    dialog.selectFile(displayPath());
 
     if(dialog.exec() == QDialog::Accepted) {
         return dialog.selectedFiles().first();
     }
 
     return QString();
+}
+
+// Filename to display at the top of the window, which is either the actual name of the current file
+// or the default name if no file is loaded
+QString MainWindow::displayPath() {
+    if(viewModel->currentFile().isEmpty()) {
+        return DEFAULT_NAME;
+    }
+    else {
+        return viewModel->currentFile();
+    }
 }

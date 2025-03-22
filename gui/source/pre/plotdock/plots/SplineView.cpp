@@ -48,7 +48,7 @@ void SplineView::setSelection(const QVector<int>& indices) {
 }
 
 void SplineView::updatePlot() {
-    throw std::invalid_argument("Removed code");
+    //throw std::invalid_argument("Removed code");
     /*
     this->xAxis->setLabel(x_label + " " + x_quantity.getUnit().getLabel());
     this->yAxis->setLabel(y_label + " " + y_quantity.getUnit().getLabel());

@@ -67,7 +67,7 @@ void TableView::copySelection() {
 // https://www.walletfox.com/course/qtableviewcopypaste.php
 void TableView::pasteToSelection() {
     QString text = QApplication::clipboard()->text();
-    QStringList rowContents = text.split("\n", QString::SkipEmptyParts);
+    QStringList rowContents = text.split("\n", Qt::SkipEmptyParts);
 
     QModelIndex initIndex = selectedIndexes().at(0);
     int i0 = initIndex.row();

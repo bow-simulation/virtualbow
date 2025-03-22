@@ -8,7 +8,7 @@ SplineSegmentEditor::SplineSegmentEditor()
 {
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
-    vbox->setMargin(0);
+    vbox->setContentsMargins(0, 0, 0, 0);
     vbox->addWidget(table);
 
     QObject::connect(table, &TableEditor::modified, this, &SplineSegmentEditor::modified);

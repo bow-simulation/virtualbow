@@ -146,7 +146,7 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
 
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
-    vbox->setMargin(0);
+    vbox->setContentsMargins(0, 0, 0, 0);
     vbox->addWidget(tabs);
     vbox->addWidget(slider);
 
@@ -237,7 +237,7 @@ DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
 
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
-    vbox->setMargin(0);
+    vbox->setContentsMargins(0, 0, 0, 0);
     vbox->addWidget(tabs);
     vbox->addWidget(slider);
 
