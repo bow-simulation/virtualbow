@@ -7,102 +7,40 @@
 // Manages loading/saving/exporting files and the associated logic like keeping track of unsaved changes.
 // Also provides access to the various other sub-viewmodels.
 
+class ModelTreeVM;
+
 class MainVM: public QObject {
     Q_OBJECT
-    Q_PROPERTY(QString currentFile READ currentFile NOTIFY currentFileChanged)
-    Q_PROPERTY(bool unsavedWork READ hasUnsavedWork NOTIFY unsavedWorkChanged)
+    //Q_PROPERTY(QString currentFile READ currentFile NOTIFY currentFileChanged)
+    //Q_PROPERTY(bool unsavedWork READ hasUnsavedWork NOTIFY unsavedWorkChanged)
 
 public:
-    MainVM():
-        filePath(""),
-        unsaved(false)
-    {
+    MainVM();
 
-    }
+    // Submodels
+
+    ModelTreeVM* getModelTreeVM();
 
     // File actions
 
-    void newFile() {
-        this->filePath = "";
-        this->unsaved = false;
-
-        emit currentFileChanged(filePath);
-        emit unsavedWorkChanged(unsaved);
-    }
-
-    void loadFile(const QString& filePath) {
-        this->filePath = filePath;
-        this->unsaved = false;
-
-        emit currentFileChanged(filePath);
-        emit unsavedWorkChanged(unsaved);
-    }
-
-    void saveFile(const QString& filePath) {
-        this->filePath = filePath;
-        this->unsaved = false;
-
-        emit currentFileChanged(filePath);
-        emit unsavedWorkChanged(unsaved);
-    }
+    void newFile();                            // Creates a new default model that isn't connected to a file yet
+    void loadFile(const QString& path);    // Loads a bow model from a file path
+    void saveFile(const QString& path);    // Saves the bow model to a file path
 
     // Current state
 
-    const QString& currentFile() const {
-        return filePath;
-    }
-
-    bool hasUnsavedWork() const {
-        return unsaved;
-    }
+    const QString& currentFile() const;    // Currently loaded file path or empty, if no file is currently loaded
+    bool hasUnsavedWork() const;           // Whether model content has been modified without saving
 
 signals:
     void currentFileChanged(const QString&);
     void unsavedWorkChanged(bool);
 
 private:
-    QString filePath;    // Path of the currently loaded file (or empty if no file is loaded)
+    // Top level state
+    QString path;        // Path of the currently loaded file (or empty if no file is loaded)
     bool unsaved;        // Whether there are any unsaved modifications to the bow model
+
+    // Sub Viewmodels
+    ModelTreeVM* modelTreeVM;
 };
-
-/*
-class MainVM: public QObject {
-public:
-    MainVM():
-        file("Initial"),
-        unsaved(false)
-    {
-
-    }
-
-    QString currentFile() const {
-        return file;
-    }
-
-    QProperty<QString>& currentFileProperty() {
-        return file;
-    }
-
-    bool hasUnsavedWork() const {
-        return unsaved;
-    }
-
-    QProperty<bool>& unsavedWorkProperty() {
-        return unsaved;
-    }
-
-    void modify() {
-        unsaved.setValue(!unsaved.value());
-        if(unsaved){
-            file = "Unsaved";
-        }
-        else {
-            file = "Saved";
-        }
-    }
-
-private:
-    QProperty<QString> file;
-    QProperty<bool> unsaved;
-};
-*/

@@ -1,6 +1,6 @@
 #pragma once
-#include "solver/Input.hpp"
-#include "solver/Output.hpp"
+#include "solver/BowModel.hpp"
+#include "solver/BowResult.hpp"
 #include <virtualbow.hpp>
 
 // C++ wrappers around solver's C interface

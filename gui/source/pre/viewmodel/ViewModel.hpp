@@ -1,6 +1,6 @@
 #pragma once
 #include <QObject>
-#include "solver/Input.hpp"
+#include "solver/BowModel.hpp"
 
 class ViewModel: public QObject
 {

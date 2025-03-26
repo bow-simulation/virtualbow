@@ -1,5 +1,5 @@
 #include "LayerColors.hpp"
-#include "solver/Input.hpp"
+#include "solver/BowModel.hpp"
 
 #include <QPainterPath>
 #include <QPainter>

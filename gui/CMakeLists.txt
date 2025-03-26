@@ -8,11 +8,11 @@ include(CheckCXXCompilerFlag)
 # Parameters
 
 set(APPLICATION_NAME "VirtualBow")
-set(APPLICATION_VERSION "0.9.1")
+set(APPLICATION_VERSION "0.10.0")
 set(APPLICATION_WEBSITE "https://www.virtualbow.org")
 set(APPLICATION_MAINTAINER "Stefan Pfeifer")
-set(APPLICATION_COPYRIGHT "Copyright (C) 2016-2022 Stefan Pfeifer")
-set(APPLICATION_LICENSE "GNU General Public License v3.0")
+set(APPLICATION_COPYRIGHT "Copyright (C) 2016-2025 Stefan Pfeifer")
+set(APPLICATION_LICENSE "PolyForm Noncommercial License 1.0.0")
 set(APPLICATION_DESCRIPTION_SHORT "Bow design tool")
 set(APPLICATION_DESCRIPTION_LONG "Software tool for designing and simulating bows")
 
@@ -45,7 +45,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-math-errno")    # Don't make standa
 add_library(
     virtualbow-lib STATIC
     source/solver/API.cpp
-    source/solver/Input.cpp
+    source/solver/BowModel.cpp
 )
 
 target_link_libraries(
@@ -182,6 +182,8 @@ add_executable(
     source/pre/widgets/qcustomplot/qcustomplot.cpp
     source/pre/viewmodels/MainVM.cpp
     source/pre/viewmodels/MainVM.hpp
+    source/pre/viewmodels/ModelTreeVM.hpp
+    source/pre/viewmodels/ModelTreeVM.cpp
 )
 
 target_compile_definitions(virtualbow-gui PRIVATE JSON_HAS_CPP_17)

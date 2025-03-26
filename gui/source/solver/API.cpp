@@ -1,8 +1,6 @@
 #include "API.hpp"
 #include <nlohmann/json.hpp>
 
-#include <iostream>
-
 using namespace nlohmann;
 using ffi::Response;
 

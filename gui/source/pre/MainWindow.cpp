@@ -115,20 +115,18 @@ MainWindow::MainWindow()
     this->setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-    /*
-    auto limb_view = new LimbView(viewModel);
-    auto tree_dock = new TreeDock(viewModel);
-    auto edit_dock = new EditDock();
-    auto plot_dock = new PlotDock();
+    auto limbView = new LimbView();
+    auto treeDock = new TreeDock(viewModel->getModelTreeVM());
+    auto editDock = new EditDock();
+    auto plotDock = new PlotDock();
 
-    QObject::connect(tree_dock, &TreeDock::currentEditorChanged, edit_dock, &EditDock::showEditor);
-    QObject::connect(tree_dock, &TreeDock::currentPlotChanged, plot_dock, &PlotDock::showPlot);
+    QObject::connect(treeDock, &TreeDock::currentEditorChanged, editDock, &EditDock::showEditor);
+    QObject::connect(treeDock, &TreeDock::currentPlotChanged, plotDock, &PlotDock::showPlot);
 
-    this->setCentralWidget(limb_view);
-    this->addDockWidget(Qt::LeftDockWidgetArea, tree_dock);
-    this->addDockWidget(Qt::LeftDockWidgetArea, edit_dock);
-    this->addDockWidget(Qt::BottomDockWidgetArea, plot_dock);
-    */
+    this->setCentralWidget(limbView);
+    this->addDockWidget(Qt::LeftDockWidgetArea, treeDock);
+    this->addDockWidget(Qt::LeftDockWidgetArea, editDock);
+    this->addDockWidget(Qt::BottomDockWidgetArea, plotDock);
 
     // Connect window file path to view model
     this->setWindowFilePath(displayPath());

@@ -35,7 +35,7 @@ private:
     const float ROT_SPEED = 0.15f;
 
 public:
-    LimbView(ViewModel* model);
+    LimbView();
     void updateView();
 
     void viewProfile();

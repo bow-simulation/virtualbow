@@ -1,4 +1,6 @@
 #include "TreeDock.hpp"
+#include "../viewmodels/ModelTreeVM.hpp"
+/*
 #include "pre/viewmodel/ViewModel.hpp"
 #include "items/CommentTreeItem.hpp"
 #include "items/SettingsTreeItem.hpp"
@@ -10,6 +12,7 @@
 #include "items/WidthTreeItem.hpp"
 #include "items/LayersTreeItem.hpp"
 #include "items/ProfileTreeItem.hpp"
+*/
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QToolButton>
@@ -19,15 +22,16 @@
 #include <QMenu>
 #include <QLabel>
 #include <QScrollBar>
+#include <QStringListModel>
 
 #include <QDebug>
 
-TreeDock::TreeDock(ViewModel* model)
-    : model(model),
-      tree(new QTreeWidget()),
-      menu_add_material(createMaterialMenu()),
-      menu_add_layer(createLayerMenu()),
-      menu_add_segment(createSegmentMenu())
+TreeDock::TreeDock(ModelTreeVM* viewModel)
+    : model(nullptr),
+      tree(new QTreeView())//,
+      //menu_add_material(createMaterialMenu()),
+      //menu_add_layer(createLayerMenu()),
+      //menu_add_segment(createSegmentMenu())
 {
     this->setObjectName("PlotView");    // Required to save state of main window
     this->setFeatures(QDockWidget::NoDockWidgetFeatures);
@@ -40,100 +44,18 @@ TreeDock::TreeDock(ViewModel* model)
 
     button_remove = new QToolButton();
     button_remove->setIcon(QIcon(":/icons/list-remove.svg"));
-    QObject::connect(button_remove, &QToolButton::clicked, this, [=] {
-        auto selected = static_cast<TreeItem*>(tree->currentItem());
-        auto parent = static_cast<TreeItem*>(selected->parent());
-
-        // Remove selected item from parent or last item, if the parent was selected
-        int index = (parent != nullptr) ? parent->indexOfChild(selected) : selected->childCount() - 1;
-
-        switch(selected->type()) {
-            case MATERIAL:
-                model->removeMaterial(index, this);
-                break;
-
-            case LAYER:
-                model->removeLayer(index, this);
-                break;
-
-            case SEGMENT:
-                model->removeSegment(index, this);
-                break;
-        }
-    });
 
     button_up = new QToolButton();
     button_up->setIcon(QIcon(":/icons/list-move-up.svg"));
-    QObject::connect(button_up, &QToolButton::clicked, this, [=] {
-        auto selected = static_cast<TreeItem*>(tree->currentItem());
-        auto parent = static_cast<TreeItem*>(selected->parent());
-
-        if(parent != nullptr) {
-            int index = parent->indexOfChild(selected);
-
-            switch(selected->type()) {
-                case MATERIAL:
-                    model->swapMaterials(index, index - 1, this);
-                    break;
-
-                case LAYER:
-                    model->swapLayers(index, index - 1, this);
-                    break;
-
-                case SEGMENT:
-                    model->swapSegments(index, index - 1, this);
-                    break;
-            }
-        }
-    });
 
     button_down = new QToolButton();
     button_down->setIcon(QIcon(":/icons/list-move-down.svg"));
-    QObject::connect(button_down, &QToolButton::clicked, this, [=] {
-        auto selected = static_cast<TreeItem*>(tree->currentItem());
-        auto parent = static_cast<TreeItem*>(selected->parent());
-
-        if(parent != nullptr) {
-            int index = parent->indexOfChild(selected);
-
-            switch(selected->type()) {
-                case MATERIAL:
-                    model->swapMaterials(index, index + 1, this);
-                    break;
-
-                case LAYER:
-                    model->swapLayers(index, index + 1, this);
-                    break;
-
-                case SEGMENT:
-                    model->swapSegments(index, index + 1, this);
-                    break;
-            }
-        }
-    });
 
     // Key delete action removes selected items, but does nothing if none are selected.
     auto action_remove = new QAction(tree);
     action_remove->setShortcut(QKeySequence::Delete);
     action_remove->setShortcutContext(Qt::WidgetShortcut);
     tree->addAction(action_remove);
-    QObject::connect(action_remove, &QAction::triggered, this, [=] {
-        auto selected = static_cast<TreeItem*>(tree->currentItem());
-        auto parent = static_cast<TreeItem*>(selected->parent());
-
-        if(parent != nullptr && parent->childCount() > 1) {
-            int index = parent->indexOfChild(selected);
-            switch(selected->type()) {
-                case MATERIAL:
-                    model->removeMaterial(index, this);
-                    break;
-
-                case LAYER:
-                    model->removeLayer(index, this);
-                    break;
-            }
-        }
-    });
 
     auto hbox = new QHBoxLayout();
     hbox->setAlignment(Qt::AlignTop);
@@ -145,10 +67,19 @@ TreeDock::TreeDock(ViewModel* model)
     hbox->addWidget(button_up);
     hbox->addWidget(button_down);
 
+    /*
+    QStringListModel *model = new QStringListModel();
+    QStringList list;
+    list << "a" << "b" << "c";
+    model->setStringList(list);
+    */
+
     tree->setLayout(hbox);
     tree->setHeaderHidden(true);
     tree->setSelectionMode(QAbstractItemView::SingleSelection);
+    tree->setModel(viewModel);
 
+    /*
     //createTopLevelItems();
     //createSegmentMenu();
 
@@ -183,9 +114,11 @@ TreeDock::TreeDock(ViewModel* model)
 
     createTopLevelItems();
     updateButtons();
+    */
 }
 
 void TreeDock::createTopLevelItems() {
+    /*
     item_comments = new CommentTreeItem(model);
     tree->addTopLevelItem(item_comments);
 
@@ -215,9 +148,11 @@ void TreeDock::createTopLevelItems() {
 
     item_damping = new DampingTreeItem(model);
     tree->addTopLevelItem(item_damping);
+    */
 }
 
 QMenu* TreeDock::createMaterialMenu() {
+    /*
     auto menu = new QMenu();
     menu->addAction(QIcon(":/icons/model-material.svg"), "New Material", this, [=]{
         auto item = static_cast<TreeItem*>(tree->currentItem());
@@ -232,9 +167,11 @@ QMenu* TreeDock::createMaterialMenu() {
     });
 
     return menu;
+    */
 }
 
 QMenu* TreeDock::createLayerMenu() {
+    /*
     auto menu = new QMenu();
     menu->addAction(QIcon(":/icons/model-layer.svg"), "New Layer", this, [=]{
         auto item = static_cast<TreeItem*>(tree->currentItem());
@@ -249,6 +186,7 @@ QMenu* TreeDock::createLayerMenu() {
     });
 
     return menu;
+    */
 }
 
 QMenu* TreeDock::createSegmentMenu() {
@@ -276,6 +214,7 @@ QMenu* TreeDock::createSegmentMenu() {
 }
 
 void TreeDock::updateButtons() {
+    /*
     QTreeWidgetItem* selection = tree->currentItem();
 
     if((selection != nullptr) && (selection->type() == TreeItemType::MATERIALS || selection->type() == TreeItemType::MATERIAL)) {
@@ -306,4 +245,5 @@ void TreeDock::updateButtons() {
     button_remove->setEnabled(remove_enabled);
     button_up->setEnabled(reorder_enabled);
     button_down->setEnabled(reorder_enabled);
+    */
 }

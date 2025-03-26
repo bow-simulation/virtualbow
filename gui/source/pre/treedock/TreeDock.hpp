@@ -1,11 +1,11 @@
 #pragma once
 #include "TreeItem.hpp"
-#include "solver/Input.hpp"    // TODO: Forward declare?
 #include <QDockWidget>
 #include <QTreeWidgetItem>
 
+class ModelTreeVM;
 class ViewModel;
-class QTreeWidget;
+class QTreeView;
 class QTreeWidgetItem;
 class QToolButton;
 class QMenu;
@@ -27,7 +27,7 @@ class TreeDock: public QDockWidget
     Q_OBJECT
 
 public:
-    TreeDock(ViewModel* model);
+    TreeDock(ModelTreeVM* viewModel);
 
 signals:
     void currentEditorChanged(QWidget* editor);
@@ -35,7 +35,7 @@ signals:
 
 private:
     ViewModel* model;
-    QTreeWidget* tree;
+    QTreeView* tree;
 
     QToolButton* button_add;
     QToolButton* button_remove;

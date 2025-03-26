@@ -1,5 +1,5 @@
 #pragma once
-#include "solver/Input.hpp"
+#include "solver/BowModel.hpp"
 #include <qopengl.h>
 #include <QVector3D>
 #include <QColor>

@@ -4,7 +4,7 @@
 #include "LayerColors.hpp"
 #include "OpenGLUtils.hpp"
 #include "pre/viewmodel/ViewModel.hpp"
-#include "solver/Input.hpp"
+#include "solver/BowModel.hpp"
 #include "config.hpp"
 
 #include <QOpenGLShaderProgram>
@@ -17,12 +17,13 @@
 #include <QLabel>
 #include <QDate>
 
-LimbView::LimbView(ViewModel* model)
-    : model(model),
+LimbView::LimbView()
+    : model(nullptr),
       legend(new MaterialLegend()),
       background_shader(nullptr),
       model_shader(nullptr)
 {
+    /*
     // Anti aliasing
     QSurfaceFormat format = QSurfaceFormat::defaultFormat();
     format.setSamples(8);
@@ -117,6 +118,7 @@ LimbView::LimbView(ViewModel* model)
     QObject::connect(model, &ViewModel::layersModified, this, &LimbView::updateView);
     QObject::connect(model, &ViewModel::profileModified, this, &LimbView::updateView);
     QObject::connect(model, &ViewModel::widthModified, this, &LimbView::updateView);
+    */
 }
 
 void LimbView::updateView() {
@@ -237,6 +239,7 @@ void LimbView::initializeGL() {
 }
 
 void LimbView::paintGL() {
+    /*
     Bounds bounds = limb_right->getBounds();
     if(symmetry) {
         bounds.extend(limb_left->getBounds());
@@ -278,6 +281,7 @@ void LimbView::paintGL() {
     if(symmetry) {
         limb_left->draw(model_shader);
     }
+    */
 }
 
 void LimbView::mousePressEvent(QMouseEvent *event) {

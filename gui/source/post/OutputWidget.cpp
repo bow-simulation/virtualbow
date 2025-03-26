@@ -1,4 +1,4 @@
-#include "solver/Output.hpp"
+#include "solver/BowResult.hpp"
 #include "pre/viewmodel/units/UnitSystem.hpp"
 #include "OutputWidget.hpp"
 #include "NumberGrid.hpp"
