@@ -1,6 +1,7 @@
 #pragma once
 #include <QTreeWidgetItem>
 
+/*
 enum TreeItemType
 {
     COMMENTS = QTreeWidgetItem::UserType,  // Required by Qt
@@ -17,13 +18,14 @@ enum TreeItemType
     MASSES,
     DAMPING
 };
+*/
 
 class ViewModel;
 
 class TreeItem: public QTreeWidgetItem
 {
 public:
-    TreeItem(ViewModel* model, const QString& name, const QIcon& icon, TreeItemType type);
+    TreeItem(ViewModel* model, const QString& name, const QIcon& icon, int type);
 
     QWidget* getEditor();
     QWidget* getPlot();

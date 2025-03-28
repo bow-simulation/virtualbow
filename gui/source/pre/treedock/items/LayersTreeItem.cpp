@@ -5,7 +5,7 @@
 #include "pre/viewmodel/units/UnitSystem.hpp"
 
 LayersTreeItem::LayersTreeItem(ViewModel* model)
-    : TreeItem(model, "Layers", QIcon(":/icons/model-layers.svg"), TreeItemType::LAYERS)
+    : TreeItem(model, "Layers", QIcon(":/icons/model-layers.svg"), 0)
 {
     QObject::connect(model, &ViewModel::reloaded, [=] {
         initFromModel();
@@ -51,7 +51,7 @@ void LayersTreeItem::initFromModel() {
 }
 
 LayerTreeItem::LayerTreeItem(ViewModel* model)
-    : TreeItem(model, "", QIcon(":/icons/model-layer.svg"), TreeItemType::LAYER)
+    : TreeItem(model, "", QIcon(":/icons/model-layer.svg"), 0)
 {
     combo = new QComboBox();
     table = new TableEditor("Length", "Height", Quantities::ratio, Quantities::length, DoubleRange::nonNegative(1e-4), DoubleRange::nonNegative(1e-4));

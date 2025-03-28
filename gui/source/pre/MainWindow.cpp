@@ -23,7 +23,8 @@ MainWindow::MainWindow()
     : viewModel(new MainVM()),
       menuOpenRecent(new RecentFilesMenu(this))
 {
-    // Actions
+    // Actions for manin menus and toolbar
+
     auto actionNew = new QAction(QIcon(":/icons/document-new.svg"), "&New", this);
     QObject::connect(actionNew, &QAction::triggered, this, &MainWindow::newFile);
     actionNew->setShortcuts(QKeySequence::New);
@@ -67,6 +68,20 @@ MainWindow::MainWindow()
         dialog.exec();
     });
     actionEditUnits->setMenuRole(QAction::NoRole);
+
+    // Some actions are only available if a bow model is present
+
+    actionSave->setEnabled(viewModel->hasBowModel());
+    QObject::connect(viewModel, &MainVM::hasBowModelChanged, actionSave, &QAction::setEnabled);
+
+    actionSaveAs->setEnabled(viewModel->hasBowModel());
+    QObject::connect(viewModel, &MainVM::hasBowModelChanged, actionSaveAs, &QAction::setEnabled);
+
+    actionRunStatics->setEnabled(viewModel->hasBowModel());
+    QObject::connect(viewModel, &MainVM::hasBowModelChanged, actionRunStatics, &QAction::setEnabled);
+
+    actionRunDynamics->setEnabled(viewModel->hasBowModel());
+    QObject::connect(viewModel, &MainVM::hasBowModelChanged, actionRunDynamics, &QAction::setEnabled);
 
     // File menu
     auto menuFile = this->menuBar()->addMenu("&File");
@@ -116,7 +131,7 @@ MainWindow::MainWindow()
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
     auto limbView = new LimbView();
-    auto treeDock = new TreeDock(viewModel->getModelTreeVM());
+    auto treeDock = new TreeDock(viewModel->getModelTreeVM(), viewModel->getModelTreeSelectionVM());
     auto editDock = new EditDock();
     auto plotDock = new PlotDock();
 
@@ -136,7 +151,7 @@ MainWindow::MainWindow()
 
     // Connect modification indicator to view model
     this->setWindowModified(viewModel->hasUnsavedWork());
-    QObject::connect(viewModel, &MainVM::unsavedWorkChanged, this, &MainWindow::setWindowModified);
+    QObject::connect(viewModel, &MainVM::hasUnsavedWorkChanged, this, &MainWindow::setWindowModified);
 
     // Main window
     this->setWindowIcon(QIcon(":/icons/logo.svg"));
@@ -149,9 +164,6 @@ MainWindow::MainWindow()
 
     // Load unit settings
     Quantities::loadFromSettings(settings);    // TODO: Move to ViewModel
-
-    // Load defaults
-    newFile();
 }
 
 // Attempts to load the given file

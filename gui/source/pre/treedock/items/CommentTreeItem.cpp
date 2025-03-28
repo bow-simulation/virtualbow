@@ -3,7 +3,7 @@
 #include <QPlainTextEdit>
 
 CommentTreeItem::CommentTreeItem(ViewModel* model)
-    : TreeItem(model, "Comments", QIcon(":/icons/model-comments.svg"), TreeItemType::COMMENTS)
+    : TreeItem(model, "Comments", QIcon(":/icons/model-comments.svg"), 0)
 {
     auto text_edit = new QPlainTextEdit();
     text_edit->setWordWrapMode(QTextOption::NoWrap);

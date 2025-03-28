@@ -4,7 +4,7 @@
 #include "pre/widgets/propertytree/items/DoublePropertyItem.hpp"
 
 DampingTreeItem::DampingTreeItem(ViewModel* model)
-    : TreeItem(model, "Damping", QIcon(":/icons/model-damping.svg"), TreeItemType::DAMPING)
+    : TreeItem(model, "Damping", QIcon(":/icons/model-damping.svg"), 0)
 {
     damping_ratio_limbs = new DoublePropertyItem("Limbs", Quantities::ratio, DoubleRange::inclusive(0.0, 1.0, 1e-2));
     damping_ratio_string = new DoublePropertyItem("String", Quantities::ratio, DoubleRange::inclusive(0.0, 1.0, 1e-2));

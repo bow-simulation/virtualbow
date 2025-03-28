@@ -5,7 +5,7 @@
 #include "pre/viewmodel/units/UnitSystem.hpp"
 
 WidthTreeItem::WidthTreeItem(ViewModel* model)
-    : TreeItem(model, "Width", QIcon(":/icons/model-width.svg"), TreeItemType::WIDTH)
+    : TreeItem(model, "Width", QIcon(":/icons/model-width.svg"), 0)
 {
     auto table = new TableEditor("Length", "Width", Quantities::ratio, Quantities::length,  DoubleRange::nonNegative(1e-4), DoubleRange::positive(1e-4));
     auto plot  = new SplineView("Length", "Width", Quantities::ratio, Quantities::length);

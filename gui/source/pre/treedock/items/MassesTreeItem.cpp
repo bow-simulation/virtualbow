@@ -4,7 +4,7 @@
 #include "pre/widgets/propertytree/items/DoublePropertyItem.hpp"
 
 MassesTreeItem::MassesTreeItem(ViewModel* model)
-    : TreeItem(model, "Masses", QIcon(":/icons/model-masses.svg"), TreeItemType::MASSES)
+    : TreeItem(model, "Masses", QIcon(":/icons/model-masses.svg"), 0)
 {
     arrow = new DoublePropertyItem("Arrow", Quantities::mass, DoubleRange::positive(1e-3));
     string_center = new DoublePropertyItem("String center", Quantities::mass, DoubleRange::nonNegative(1e-3));

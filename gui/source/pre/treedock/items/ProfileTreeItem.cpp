@@ -12,7 +12,7 @@
 #include "pre/plotdock/plots/ProfileView.hpp"
 
 ProfileTreeItem::ProfileTreeItem(ViewModel* model)
-    : TreeItem(model, "Profile", QIcon(":/icons/model-profile.svg"), TreeItemType::PROFILE)
+    : TreeItem(model, "Profile", QIcon(":/icons/model-profile.svg"), 0)
 {
     auto plot = new ProfileView(Quantities::length);
     setPlot(plot);
@@ -101,7 +101,7 @@ void ProfileTreeItem::updateView(void* source) {
 */
 
 SegmentTreeItem::SegmentTreeItem(ViewModel* model, const ProfileSegment& segment)
-    : TreeItem(model, segmentName(segment), segmentIcon(segment), TreeItemType::SEGMENT)
+    : TreeItem(model, segmentName(segment), segmentIcon(segment), 0)
 {
     SegmentEditor* editor = segmentEditor(segment);
     setEditor(editor);

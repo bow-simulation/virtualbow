@@ -6,7 +6,7 @@
 #include "pre/widgets/propertytree/items/IntegerPropertyItem.hpp"
 
 SettingsTreeItem::SettingsTreeItem(ViewModel* model)
-    : TreeItem(model, "Settings", QIcon(":/icons/model-settings.svg"), TreeItemType::SETTINGS)
+    : TreeItem(model, "Settings", QIcon(":/icons/model-settings.svg"), 0)
 {
     auto group1 = new GroupPropertyItem("General");
     auto group2 = new GroupPropertyItem("Statics");

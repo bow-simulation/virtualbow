@@ -1,5 +1,61 @@
 #include "BowModel.hpp"
 
+bool BowModel::isValidMaterialName(const std::string& name) const {
+    if(name.empty()) {
+        return false;
+    }
+
+    for(auto material: materials) {
+        if(material.name == name) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+std::string BowModel::generateMaterialName() const {
+    size_t index = 1;
+    std::string name = "";
+
+    while(true) {
+        name = "Material " + std::to_string(index);
+        if(isValidMaterialName(name)) {
+            return name;
+        }
+
+        index += 1;
+    }
+}
+
+bool BowModel::isValidLayerName(const std::string& name) const {
+    if(name.empty()) {
+        return false;
+    }
+
+    for(auto layer: layers) {
+        if(layer.name == name) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+std::string BowModel::generateLayerName() const {
+    size_t index = 1;
+    std::string name = "";
+
+    while(true) {
+        name = "Layer " + std::to_string(index);
+        if(isValidLayerName(name)) {
+            return name;
+        }
+
+        index += 1;
+    }
+}
+
 void to_json(nlohmann::json& obj, const ProfileSegment& input) {
     if(auto value = std::get_if<Line>(&input)) {
         obj["type"] = "line";

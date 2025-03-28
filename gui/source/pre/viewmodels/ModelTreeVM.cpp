@@ -1,111 +1,607 @@
 #include "ModelTreeVM.hpp"
 #include <QIcon>
+#include <algorithm>
 
-// Row indices of the top-level items in the model tree
-enum TopLevelRow {
-    COMMENTS = 0,
-    SETTINGS = 1,
-    DIMENSIONS = 2,
-    MATERIALS = 3,
-    LAYERS = 4,
-    PROFILE = 5,
-    WIDTH = 6,
-    STRING = 7,
-    MASSES = 8,
-    DAMPING = 9,
+ModelTreeVM::ModelTreeVM(QObject *parent)
+    : QAbstractItemModel(parent),
+      bow(nullptr)
+{
+    // Emit modified signal if the model structure or data has been changed
+    QObject::connect(this, &QAbstractItemModel::modelReset, this, &ModelTreeVM::modified);
+    QObject::connect(this, &QAbstractItemModel::dataChanged, this, &ModelTreeVM::modified);
+    QObject::connect(this, &QAbstractItemModel::rowsInserted, this, &ModelTreeVM::modified);
+    QObject::connect(this, &QAbstractItemModel::rowsRemoved, this, &ModelTreeVM::modified);
+    QObject::connect(this, &QAbstractItemModel::rowsMoved, this, &ModelTreeVM::modified);
+}
 
-    FIRST = COMMENTS,
-    LAST  = DAMPING
-};
+void ModelTreeVM::setBowModel(BowModel* bow) {
+    beginResetModel();
+    this->bow = bow;
+    endResetModel();
+}
 
-QString topLevelItemName(int row) {
-    switch(row) {
-        case TopLevelRow::COMMENTS: return "Comments";
-        case TopLevelRow::SETTINGS: return "Settings";
-        case TopLevelRow::DIMENSIONS: return "Dimensions";
-        case TopLevelRow::MATERIALS: return "Materials";
-        case TopLevelRow::LAYERS: return "Layers";
-        case TopLevelRow::PROFILE: return "Profile";
-        case TopLevelRow::WIDTH: return "Width";
-        case TopLevelRow::STRING: return "String";
-        case TopLevelRow::MASSES: return "Masses";
-        case TopLevelRow::DAMPING: return "Damping";
-        default: throw std::invalid_argument("Unknown enum variant");
+bool ModelTreeVM::canInsertMaterial(const QModelIndexList& indexes) {
+    if(indexes.size() == 1) {
+        if(indexes[0].internalId() == ItemType::MATERIAL) {
+            return true;    // Single material selected
+        }
+
+        if(indexes[0].internalId() == ItemType::TOPLEVEL && indexes[0].row() == TopLevelItem::MATERIALS) {
+            return true;    // Material category selected
+        }
+    }
+
+    return false;
+}
+
+void ModelTreeVM::insertMaterial(int row) {
+    if(row < 0 || row > bow->materials.size()) {
+        throw std::invalid_argument("Invalid material index for insertion");
+    }
+
+    Material material {
+        .name = bow->generateMaterialName()
+    };
+
+    QModelIndex parent = createIndex(TopLevelItem::MATERIALS, 0, ItemType::TOPLEVEL);
+    beginInsertRows(parent, row, row);
+
+    auto position = bow->materials.begin() + row;
+    bow->materials.insert(position, material);
+
+    endInsertRows();
+}
+
+void ModelTreeVM::appendMaterial() {
+    insertMaterial(bow->materials.size());
+}
+
+bool ModelTreeVM::canInsertLayer(const QModelIndexList& indexes) {
+    if(indexes.size() == 1) {
+        if(indexes[0].internalId() == ItemType::LAYER) {
+            return true;    // Single layer selected
+        }
+
+        if(indexes[0].internalId() == ItemType::TOPLEVEL && indexes[0].row() == TopLevelItem::LAYERS) {
+            return true;    // Layer category selected
+        }
+    }
+
+    return false;
+}
+
+void ModelTreeVM::insertLayer(int row) {
+    if(row < 0 || row > bow->layers.size()) {
+        throw std::invalid_argument("Invalid layer index for insertion");
+    }
+
+    Layer layer {
+        .name = bow->generateLayerName()
+    };
+
+    QModelIndex parent = createIndex(TopLevelItem::LAYERS, 0, ItemType::TOPLEVEL);
+    beginInsertRows(parent, row, row);
+
+    auto position = bow->layers.begin() + row;
+    bow->layers.insert(position, layer);
+
+    endInsertRows();
+}
+
+void ModelTreeVM::appendLayer() {
+    insertLayer(bow->layers.size());
+}
+
+bool ModelTreeVM::canInsertSegment(const QModelIndexList& indexes) {
+    if(indexes.size() == 1) {
+        if(indexes[0].internalId() == ItemType::SEGMENT) {
+            return true;    // Single segment selected
+        }
+
+        if(indexes[0].internalId() == ItemType::TOPLEVEL && indexes[0].row() == TopLevelItem::PROFILE) {
+            return true;    // Profile category selected
+        }
+    }
+
+    return false;
+}
+
+void ModelTreeVM::insertSegment(int row, SegmentType type) {
+    if(row < 0 || row > bow->profile.segments.size()) {
+        throw std::invalid_argument("Invalid segment index for insertion");
+    }
+
+    QModelIndex parent = createIndex(TopLevelItem::PROFILE, 0, ItemType::TOPLEVEL);
+    beginInsertRows(parent, row, row);
+
+    auto position = bow->profile.segments.begin() + row;
+    bow->profile.segments.insert(position, createDefaultSegment(type));
+
+    endInsertRows();
+}
+
+void ModelTreeVM::appendSegment(SegmentType type) {
+    insertSegment(bow->profile.segments.size(), type);
+}
+
+// Indexes as a whole can be removed if none of them refers to a top-level item
+bool ModelTreeVM::canRemoveIndexes(QModelIndexList& indexes) {
+    for(QModelIndex index: indexes) {
+        if(index.internalId() == ItemType::TOPLEVEL) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void ModelTreeVM::removeIndexes(QModelIndexList indexes) {
+    // Sort in reverse order by row  because thw ones further down need to be deleted first
+    std::sort(indexes.begin(), indexes.end(), std::greater<QModelIndex>());
+
+    for(QModelIndex index: indexes) {
+        switch(index.internalId()) {
+        case ItemType::MATERIAL:
+            removeMaterial(index.row());
+            break;
+        case ItemType::LAYER:
+            removeLayer(index.row());
+            break;
+        case ItemType::SEGMENT:
+            removeSegment(index.row());
+            break;
+        }
     }
 }
 
-QString topLevelToolTip(int row) {
-    switch(row) {
-        case TopLevelRow::COMMENTS: return "Information about this bow model";
-        case TopLevelRow::SETTINGS: return "Settings that control how the bow is simulated";
-        case TopLevelRow::DIMENSIONS: return "General dimensions like brace height, draw length and handle geometry";
-        case TopLevelRow::MATERIALS: return "List of materials used in the bow's limbs";
-        case TopLevelRow::LAYERS: return "List of layers that make up the bow's limbs";
-        case TopLevelRow::PROFILE: return "List of curve segments that define the initial profile of the bow";
-        case TopLevelRow::WIDTH: return "Width variation of the bow limbs";
-        case TopLevelRow::STRING: return "Properties of the bowstring";
-        case TopLevelRow::MASSES: return "Mass of the arrow and other components";
-        case TopLevelRow::DAMPING: return "Damping properties of limbs and string";
-        default: throw std::invalid_argument("Unknown enum variant");
+void ModelTreeVM::removeMaterial(int row) {
+    if(row < 0 || row >= bow->materials.size()) {
+        throw std::invalid_argument("Invalid material index for removal");
+    }
+
+    QModelIndex parent = createIndex(TopLevelItem::MATERIALS, 0, ItemType::TOPLEVEL);
+    beginRemoveRows(parent, row, row);
+
+    // Remove material
+    // Layers that refer to the material will become invalid
+    auto position = bow->materials.begin() + row;
+    bow->materials.erase(position);
+
+    endRemoveRows();
+}
+
+void ModelTreeVM::removeLayer(int row) {
+    if(row < 0 || row >= bow->layers.size()) {
+        throw std::invalid_argument("Invalid layer index for removal");
+    }
+
+    QModelIndex parent = createIndex(TopLevelItem::LAYERS, 0, ItemType::TOPLEVEL);
+    beginRemoveRows(parent, row, row);
+
+    // Remove layer
+    // Bow will become invalid when the last layer is removed
+    auto position = bow->layers.begin() + row;
+    bow->layers.erase(position);
+
+    endRemoveRows();
+}
+
+void ModelTreeVM::removeSegment(int row) {
+    if(row < 0 || row >= bow->profile.segments.size()) {
+        throw std::invalid_argument("Invalid segment index for removal");
+    }
+
+    QModelIndex parent = createIndex(TopLevelItem::PROFILE, 0, ItemType::TOPLEVEL);
+    beginRemoveRows(parent, row, row);
+
+    // Remove segment
+    // Bow will become invalis when the last segment is removed
+    auto position = bow->profile.segments.begin() + row;
+    bow->profile.segments.erase(position);
+
+    endRemoveRows();
+}
+
+// Indexes can be moved up if one or more sub-level items of the same category are selected and the first row is unselected
+bool ModelTreeVM::canMoveIndexesUp(const QModelIndexList& indexes) {
+    // Can't move empty selection or one that starts with a top-level item
+    if(indexes.isEmpty() || indexes.front().internalId() == ItemType::TOPLEVEL) {
+        return false;
+    }
+
+    // First item is not top-level => check if other items are of the same sub-level type
+    for(int i = 1; i < indexes.size(); ++i) {
+        if(indexes[i].internalId() != indexes[0].internalId()) {
+            return false;
+        }
+    }
+
+    // Verify that the first row is not contained in the indexes
+    for(QModelIndex index: indexes) {
+        if(index.row() == 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Indexes can be moved down if one or more sub-level items of the same category are selected and the last row is unselected
+bool ModelTreeVM::canMoveIndexesDown(const QModelIndexList& indexes) {
+    // Can't move empty selection or one that starts with a top-level item
+    if(indexes.isEmpty() || indexes.front().internalId() == ItemType::TOPLEVEL) {
+        return false;
+    }
+
+    // First item is not top-level => check if other items are of the same sub-level type
+    for(int i = 1; i < indexes.size(); ++i) {
+        if(indexes[i].internalId() != indexes[0].internalId()) {
+            return false;
+        }
+    }
+
+    // Last row index of the parent node
+    QModelIndex parent = indexes.first().parent();
+    int lastIndex = rowCount(parent) - 1;
+
+    // Verify that the last row is not contained in the indexes
+    for(QModelIndex index: indexes) {
+        if(index.row() == lastIndex) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void ModelTreeVM::moveIndexesUp(QModelIndexList indexes) {
+    // Sort the indexes by row because the order of swapping makes a difference
+    std::sort(indexes.begin(), indexes.end());
+
+    // Swap the item at each index with the one before it
+    for(QModelIndex index: indexes) {
+        switch(index.internalId()) {
+        case ItemType::MATERIAL:
+            swapMaterials(index.row(), index.row() - 1);
+            break;
+        case ItemType::LAYER:
+            swapLayers(index.row(), index.row() - 1);
+            break;
+        case ItemType::SEGMENT:
+            swapSegments(index.row(), index.row() - 1);
+            break;
+        }
     }
 }
 
-QIcon topLevelItemIcon(int row) {
-    switch(row) {
-        case TopLevelRow::COMMENTS: return QIcon(":/icons/model-comments.svg");
-        case TopLevelRow::SETTINGS: return QIcon(":/icons/model-settings.svg");
-        case TopLevelRow::DIMENSIONS: return QIcon(":/icons/model-dimensions.svg");
-        case TopLevelRow::MATERIALS: return QIcon(":/icons/model-materials.svg");
-        case TopLevelRow::LAYERS: return QIcon(":/icons/model-layers.svg");
-        case TopLevelRow::PROFILE: return QIcon(":/icons/model-profile.svg");
-        case TopLevelRow::WIDTH: return QIcon(":/icons/model-width.svg");
-        case TopLevelRow::STRING: return QIcon(":/icons/model-string.svg");
-        case TopLevelRow::MASSES: return QIcon(":/icons/model-masses.svg");
-        case TopLevelRow::DAMPING: return QIcon(":/icons/model-damping.svg");
-        default: throw std::invalid_argument("Unknown enum variant");
+void ModelTreeVM::moveIndexesDown(QModelIndexList indexes) {
+    // Sort in reverse order by row  because the order of swapping makes a difference
+    std::sort(indexes.begin(), indexes.end(), std::greater<QModelIndex>());
+
+    // Swap the item at each index with the one after it
+    for(QModelIndex index: indexes) {
+        switch(index.internalId()) {
+        case ItemType::MATERIAL:
+            swapMaterials(index.row(), index.row() + 1);
+            break;
+        case ItemType::LAYER:
+            swapLayers(index.row(), index.row() + 1);
+            break;
+        case ItemType::SEGMENT:
+            swapSegments(index.row(), index.row() + 1);
+            break;
+        }
     }
 }
 
-ModelTreeVM::ModelTreeVM(QObject *parent): QAbstractItemModel(parent) {
+void ModelTreeVM::swapMaterials(int i, int j) {
+    if(i == j || i < 0 || j < 0 ||  i >= bow->materials.size() || j >= bow->materials.size()) {
+        throw std::invalid_argument("Invalid material indices for swapping");
+    }
 
+    QModelIndex parent = createIndex(TopLevelItem::MATERIALS, 0, ItemType::TOPLEVEL);
+    beginMoveRows(parent, i, i, parent, j);
+    beginMoveRows(parent, j, j, parent, i);
+
+    // Swap the two materials
+    // Layers that refer to the materials stay valid since they refer to them by name
+    std::swap(bow->materials[i], bow->materials[j]);
+
+    endMoveRows();
+}
+
+void ModelTreeVM::swapLayers(int i, int j) {
+    if(i == j || i < 0 || j < 0 || i >= bow->layers.size() || j >= bow->layers.size()) {
+        throw std::invalid_argument("Invalid layer indices for swapping");
+    }
+
+    QModelIndex parent = createIndex(TopLevelItem::LAYERS, 0, ItemType::TOPLEVEL);
+    beginMoveRows(parent, i, i, parent, j);
+    beginMoveRows(parent, j, j, parent, i);
+
+    // Swap the two layers
+    std::swap(bow->layers[i], bow->layers[j]);
+
+    endMoveRows();
+}
+
+void ModelTreeVM::swapSegments(int i, int j) {
+    if(i == j || i < 0 || j < 0 || i >= bow->profile.segments.size() || j >= bow->profile.segments.size()) {
+        throw std::invalid_argument("Invalid segment indices for swapping");
+    }
+
+    QModelIndex parent = createIndex(TopLevelItem::PROFILE, 0, ItemType::TOPLEVEL);
+    beginMoveRows(parent, i, i, parent, j);
+    beginMoveRows(parent, j, j, parent, i);
+
+    // Swap the two segments
+    std::swap(bow->profile.segments[i], bow->profile.segments[j]);
+
+    endMoveRows();
 }
 
 QModelIndex ModelTreeVM::index(int row, int column, const QModelIndex &parent) const {
-    if (parent.isValid() || row < TopLevelRow::FIRST || row > TopLevelRow::LAST || column != 0) {
+    // We only are about the first and only column
+    if(column != 0) {
         return QModelIndex();
     }
 
-    return createIndex(row, column);
-}
+    // If the parent is invalid we are at the top level. Return a model index of type "top level" if the row and column is also in a valid range.
+    if(!parent.isValid()) {
+        return createIndex(row, column, ItemType::TOPLEVEL);
+    }
 
-QModelIndex ModelTreeVM::parent(const QModelIndex &index) const {
-    Q_UNUSED(index);
+    // If the parent is valid, we are at a leaf node if the parent row is associated with a top level item that can have children.
+    if(parent.isValid()) {
+        switch(parent.row()) {
+            case TopLevelItem::MATERIALS: return createIndex(row, column, ItemType::MATERIAL);
+            case TopLevelItem::LAYERS: return createIndex(row, column, ItemType::LAYER);
+            case TopLevelItem::PROFILE: return createIndex(row, column, ItemType::SEGMENT);
+        }
+    }
+
     return QModelIndex();
 }
 
+QModelIndex ModelTreeVM::parent(const QModelIndex &index) const {
+    // Invalid index is the root item and has no parent
+    if(!index.isValid()) {
+        return QModelIndex();
+    }
+
+    // Top-level nodes have invalid root node as parent
+    if(index.internalId() == ItemType::TOPLEVEL) {
+        return QModelIndex();
+    }
+
+    // Other nodes have their associated top-level node as parent
+    switch(index.internalId()) {
+        case ItemType::MATERIAL: return createIndex(TopLevelItem::MATERIALS, 0, ItemType::TOPLEVEL);
+        case ItemType::LAYER: return createIndex(TopLevelItem::LAYERS, 0, ItemType::TOPLEVEL);
+        case ItemType::SEGMENT: return createIndex(TopLevelItem::PROFILE, 0, ItemType::TOPLEVEL);
+    }
+
+    return QModelIndex();  // Should not happen
+}
+
 int ModelTreeVM::rowCount(const QModelIndex &parent) const {
-    if (parent.isValid()) {
+    // No rows if no bow model is assigned
+    if(bow == nullptr) {
         return 0;
     }
 
-    return TopLevelRow::LAST + 1;
+    // If the parent is invalid, we are at root which has as many rows as there are top-level items
+    if(!parent.isValid()) {
+        return TopLevelItem::COUNT;
+    }
+
+    // Otherwise check if the parent is a top-level item and determine the number of child nodes accordingly
+    if(parent.internalId() == ItemType::TOPLEVEL) {
+        switch(parent.row()) {
+            case TopLevelItem::MATERIALS: return bow->materials.size();
+            case TopLevelItem::LAYERS: return bow->layers.size();
+            case TopLevelItem::PROFILE: return bow->profile.segments.size();
+        }
+    }
+
+    return 0;    // Everything else has no children
 }
 
 int ModelTreeVM::columnCount(const QModelIndex &parent) const {
-    Q_UNUSED(parent);
     return 1;
 }
 
+
+Qt::ItemFlags ModelTreeVM::flags(const QModelIndex &index) const {
+    // Get default flags of the parent implementation
+    Qt::ItemFlags flags = QAbstractItemModel::flags(index);
+
+    // In case of materials and layers, add the editable flag
+    if(index.internalId() == ItemType::MATERIAL || index.internalId() == ItemType::LAYER) {
+        flags |= Qt::ItemIsEditable;
+    }
+
+    return flags;
+}
+
 QVariant ModelTreeVM::data(const QModelIndex &index, int role) const {
-    if (!index.isValid() || index.row() > TopLevelRow::LAST) {
+    // No data if no bow model is assigned
+    if(bow == nullptr) {
         return QVariant();
     }
 
-    switch(role) {
-        case Qt::DisplayRole: return topLevelItemName(index.row());
-        case Qt::ToolTipRole: return topLevelToolTip(index.row());
-        case Qt::DecorationRole: return topLevelItemIcon(index.row());
+    // If the parent is invalid, we are at the top level
+    if(!index.parent().isValid()) {
+        switch(role) {
+            case Qt::DisplayRole: return topLevelItemName(index.row());
+            case Qt::ToolTipRole: return topLevelToolTip(index.row());
+            case Qt::DecorationRole: return topLevelItemIcon(index.row());
+            default: return QVariant();
+        }
+    }
 
-        default: return QVariant();
+    if(index.parent().row() == TopLevelItem::MATERIALS) {
+        switch(role) {
+            case Qt::DisplayRole: case Qt::EditRole: return QString::fromStdString(bow->materials[index.row()].name);
+            case Qt::ToolTipRole: return "User-defined material \"" + QString::fromStdString(bow->materials[index.row()].name) + "\"";
+            case Qt::DecorationRole: return QIcon(":/icons/model-material.svg");
+            default: return QVariant();
+        }
+    }
+
+    if(index.parent().row() == TopLevelItem::LAYERS) {
+        switch(role) {
+            case Qt::DisplayRole: case Qt::EditRole: return QString::fromStdString(bow->layers[index.row()].name);
+            case Qt::ToolTipRole: return "User-defined layer \"" + QString::fromStdString(bow->materials[index.row()].name) + "\"";
+            case Qt::DecorationRole: return QIcon(":/icons/model-layer.svg");
+            default: return QVariant();
+        }
+    }
+
+    if(index.parent().row() == TopLevelItem::PROFILE) {
+        switch(role) {
+            case Qt::DisplayRole: return QString::number(index.row()) + ": " + segmentName(index.row());
+            case Qt::ToolTipRole: return segmentTooltip(index.row());
+            case Qt::DecorationRole: return segmentIcon(index.row());
+            default: return QVariant();
+        }
+    }
+
+    return QVariant();
+}
+
+bool ModelTreeVM::setData(const QModelIndex &index, const QVariant &value, int role) {
+    if(role != Qt::EditRole) {
+        return false;
+    }
+
+    // Set material name
+    if(index.internalId() == ItemType::MATERIAL) {
+        std::string name = value.toString().toStdString();
+        if(!bow->isValidMaterialName(name)) {
+            return false;
+        }
+
+        bow->materials[index.row()].name = name;
+        emit dataChanged(index, index);
+        return true;
+    }
+
+    // Set layer name
+    if(index.internalId() == ItemType::LAYER) {
+        std::string name = value.toString().toStdString();
+        if(!bow->isValidLayerName(name)) {
+            return false;
+        }
+
+        bow->layers[index.row()].name = name;
+        emit dataChanged(index, index);
+        return true;
+    }
+
+    return false;
+}
+
+QString ModelTreeVM::topLevelItemName(int row) const {
+    switch(row) {
+        case TopLevelItem::COMMENTS: return "Comments";
+        case TopLevelItem::SETTINGS: return "Settings";
+        case TopLevelItem::DIMENSIONS: return "Dimensions";
+        case TopLevelItem::MATERIALS: return "Materials";
+        case TopLevelItem::LAYERS: return "Layers";
+        case TopLevelItem::PROFILE: return "Profile";
+        case TopLevelItem::WIDTH: return "Width";
+        case TopLevelItem::STRING: return "String";
+        case TopLevelItem::MASSES: return "Masses";
+        case TopLevelItem::DAMPING: return "Damping";
+        default: throw std::invalid_argument("Unknown enum variant");
     }
 }
+
+QString ModelTreeVM::topLevelToolTip(int row) const {
+    switch(row) {
+        case TopLevelItem::COMMENTS: return "Comments about this bow";
+        case TopLevelItem::SETTINGS: return "Settings for the simulation";
+        case TopLevelItem::DIMENSIONS: return "Brace height, draw length and handle geometry";
+        case TopLevelItem::MATERIALS: return "Materials that can be assigned to the layers";
+        case TopLevelItem::LAYERS: return "Layers that make up the bow limbs";
+        case TopLevelItem::PROFILE: return "Initial profile shape of the bow";
+        case TopLevelItem::WIDTH: return "Width variation of the limbs";
+        case TopLevelItem::STRING: return "Properties of the bowstring";
+        case TopLevelItem::MASSES: return "Masses of the arrow and other components";
+        case TopLevelItem::DAMPING: return "Damping properties of limbs and string";
+        default: throw std::invalid_argument("Unknown enum variant");
+    }
+}
+
+QIcon ModelTreeVM::topLevelItemIcon(int row) const {
+    switch(row) {
+        case TopLevelItem::COMMENTS: return QIcon(":/icons/model-comments.svg");
+        case TopLevelItem::SETTINGS: return QIcon(":/icons/model-settings.svg");
+        case TopLevelItem::DIMENSIONS: return QIcon(":/icons/model-dimensions.svg");
+        case TopLevelItem::MATERIALS: return QIcon(":/icons/model-materials.svg");
+        case TopLevelItem::LAYERS: return QIcon(":/icons/model-layers.svg");
+        case TopLevelItem::PROFILE: return QIcon(":/icons/model-profile.svg");
+        case TopLevelItem::WIDTH: return QIcon(":/icons/model-width.svg");
+        case TopLevelItem::STRING: return QIcon(":/icons/model-string.svg");
+        case TopLevelItem::MASSES: return QIcon(":/icons/model-masses.svg");
+        case TopLevelItem::DAMPING: return QIcon(":/icons/model-damping.svg");
+        default: throw std::invalid_argument("Unknown enum variant");
+    }
+}
+
+QString ModelTreeVM::segmentName(int row) const {
+    ProfileSegment segment = bow->profile.segments[row];
+
+    if(std::holds_alternative<Line>(segment))
+        return "Line";
+
+    if(std::holds_alternative<Arc>(segment))
+        return "Arc";
+
+    if(std::holds_alternative<Spiral>(segment))
+        return "Spiral";
+
+    if(std::holds_alternative<Spline>(segment))
+        return "Spline";
+
+    throw std::invalid_argument("Unknown segment type");
+}
+
+QString ModelTreeVM::segmentTooltip(int row) const {
+    ProfileSegment segment = bow->profile.segments[row];
+
+    if(std::holds_alternative<Line>(segment))
+        return "Line segment defined by a single length";
+
+    if(std::holds_alternative<Arc>(segment))
+        return "Arc segment defined by length and radius";
+
+    if(std::holds_alternative<Spiral>(segment))
+        return "Spiral segment defined by length, start-radius and end-radius";
+
+    if(std::holds_alternative<Spline>(segment))
+        return "Spline segment defined by a series of control points";
+
+    throw std::invalid_argument("Unknown segment type");
+}
+
+QIcon ModelTreeVM::segmentIcon(int row) const {
+    ProfileSegment segment = bow->profile.segments[row];
+
+    if(std::holds_alternative<Line>(segment))
+        return QIcon(":/icons/segment-line.svg");
+
+    if(std::holds_alternative<Arc>(segment))
+        return QIcon(":/icons/segment-arc.svg");
+
+    if(std::holds_alternative<Spiral>(segment))
+        return QIcon(":/icons/segment-spiral.svg");
+
+    if(std::holds_alternative<Spline>(segment))
+        return QIcon(":/icons/segment-spline.svg");
+
+    throw std::invalid_argument("Unknown segment type");
+}
+
+

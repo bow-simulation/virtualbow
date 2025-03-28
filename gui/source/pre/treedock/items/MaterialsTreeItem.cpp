@@ -6,7 +6,7 @@
 #include "pre/widgets/propertytree/items/DoublePropertyItem.hpp"
 
 MaterialsTreeItem::MaterialsTreeItem(ViewModel* model)
-    : TreeItem(model, "Materials", QIcon(":/icons/model-materials.svg"), TreeItemType::MATERIALS)
+    : TreeItem(model, "Materials", QIcon(":/icons/model-materials.svg"), 0)
 {
     QObject::connect(model, &ViewModel::reloaded, [=] {
         initFromModel();
@@ -52,7 +52,7 @@ void MaterialsTreeItem::initFromModel() {
 }
 
 MaterialTreeItem::MaterialTreeItem(ViewModel* model)
-    : TreeItem(model, "", QIcon(":/icons/model-material.svg"), TreeItemType::MATERIAL)
+    : TreeItem(model, "", QIcon(":/icons/model-material.svg"), 0)
 {
     color = new ColorPropertyItem("Color");
     rho = new DoublePropertyItem("Rho", Quantities::density, DoubleRange::positive(1.0));

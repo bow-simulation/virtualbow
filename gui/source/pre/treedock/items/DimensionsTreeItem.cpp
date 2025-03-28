@@ -6,7 +6,7 @@
 #include <cmath>
 
 DimensionsTreeItem::DimensionsTreeItem(ViewModel* model)
-    : TreeItem(model, "Dimensions", QIcon(":/icons/model-dimensions.svg"), TreeItemType::DIMENSIONS)
+    : TreeItem(model, "Dimensions", QIcon(":/icons/model-dimensions.svg"), 0)
 {
     auto group1 = new GroupPropertyItem("Draw");
     auto group2 = new GroupPropertyItem("Handle");

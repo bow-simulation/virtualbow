@@ -287,7 +287,7 @@ impl CrossSection for LayeredCrossSection {
 
         // Normal strain is epsilon - kappa*y
         DMatrix::from_fn(2*self.layers.len(), 3, |i, j| {
-            let k = (i+1)/2;  // Index of the current y position
+            let k = i.div_ceil(2);  // Index of the current y position
             match j {
                 0 =>   1.0,    // Factor for epsilon
                 1 => -y[k],    // Factor for kappa
@@ -303,7 +303,7 @@ impl CrossSection for LayeredCrossSection {
 
         // Normal stress is E*(epsilon - kappa*y)
         DMatrix::from_fn(2*self.layers.len(), 3, |i, j| {
-            let k = (i+1)/2;  // Index of the current y position
+            let k = i.div_ceil(2);  // Index of the current y position
             let l = i/2;      // Index of the current layer
 
             self.layers[l].material.E * match j {

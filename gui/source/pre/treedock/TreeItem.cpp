@@ -1,7 +1,7 @@
 #include "TreeItem.hpp"
 #include "pre/viewmodel/ViewModel.hpp"
 
-TreeItem::TreeItem(ViewModel* model, const QString& name, const QIcon& icon, TreeItemType type)
+TreeItem::TreeItem(ViewModel* model, const QString& name, const QIcon& icon, int type)
     : QTreeWidgetItem({name}, type),
       model(model),
       editor(nullptr),

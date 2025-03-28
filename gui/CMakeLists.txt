@@ -18,7 +18,7 @@ set(APPLICATION_DESCRIPTION_LONG "Software tool for designing and simulating bow
 
 # External libraries
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets PrintSupport)
+find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets PrintSupport Test)
 find_package(Catch2 REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(Threads REQUIRED)                # System thread library (https://stackoverflow.com/a/39547577)
@@ -46,6 +46,7 @@ add_library(
     virtualbow-lib STATIC
     source/solver/API.cpp
     source/solver/BowModel.cpp
+    source/solver/Defaults.cpp
 )
 
 target_link_libraries(
@@ -196,6 +197,7 @@ target_link_libraries(
     Qt6::Widgets
     Qt6::OpenGLWidgets
     Qt6::PrintSupport
+    Qt6::Test
 )
 
 # Target: Post executable

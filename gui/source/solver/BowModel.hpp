@@ -219,6 +219,12 @@ struct BowModel {
     String string;
     Masses masses;
     Damping damping;
+
+    bool isValidMaterialName(const std::string& name) const;
+    std::string generateMaterialName() const;
+
+    bool isValidLayerName(const std::string& name) const;
+    std::string generateLayerName() const;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(

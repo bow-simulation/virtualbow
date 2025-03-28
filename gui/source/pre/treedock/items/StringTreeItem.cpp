@@ -5,7 +5,7 @@
 #include "pre/widgets/propertytree/items/IntegerPropertyItem.hpp"
 
 StringTreeItem::StringTreeItem(ViewModel* model)
-    : TreeItem(model, "String", QIcon(":/icons/model-string.svg"), TreeItemType::STRING)
+    : TreeItem(model, "String", QIcon(":/icons/model-string.svg"), 0)
 {
     strand_stiffness = new DoublePropertyItem("Strand stiffness", Quantities::linear_stiffness, DoubleRange::positive(1.0));
     strand_density = new DoublePropertyItem("Strand density", Quantities::linear_density, DoubleRange::positive(1e-4));

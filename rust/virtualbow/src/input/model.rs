@@ -51,13 +51,13 @@ impl BowModel {
                 handle_angle: 0.0
             },
             materials: vec![
-                Material::new("Unnamed", "#ff9966", 675.0, 12e9, 6e9)
+                Material::new("Material 1", "#ff9966", 675.0, 12e9, 6e9)
             ],
             layers: vec![
-                Layer::new("Default", "Unnamed", Height::linear(0.015, 0.01))
+                Layer::new("Layer 1", "Material 1", Height::linear(0.015, 0.01))
             ],
             profile: Profile::new(ProfileAlignment::SectionBack, vec![
-                ProfileSegment::Line(Line::new(1.0))
+                ProfileSegment::Line(Line::new(0.8))
             ]),
             width: Width::linear(0.04, 0.01),
             string: BowString {
