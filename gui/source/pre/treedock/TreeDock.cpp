@@ -38,38 +38,40 @@ TreeDock::TreeDock(ModelTreeVM* viewModel, QItemSelectionModel* selectionModel)
     this->setWindowTitle("Model");
     this->setWidget(tree);
 
-    buttonAdd = new QToolButton();
-    buttonAdd->setIcon(QIcon(":/icons/list-add.svg"));
-    buttonAdd->setPopupMode(QToolButton::InstantPopup);
+    // Actions that can be triggered by the tool buttons, shortcuts or context menus
 
-    buttonRemove = new QToolButton();
-    buttonRemove->setIcon(QIcon(":/icons/list-remove.svg"));
-    QObject::connect(buttonRemove, &QToolButton::clicked, this, [=] {
+    actionRemove = new QAction(QIcon(":/icons/list-remove.svg"), "Delete", tree);
+    actionRemove->setShortcut(QKeySequence::Delete);
+    actionRemove->setShortcutContext(Qt::WidgetShortcut);
+    QObject::connect(actionRemove, &QAction::triggered, this, [=] {
         QModelIndexList selection = selectionModel->selectedIndexes();
         viewModel->removeIndexes(selection);
     });
 
-    buttonUp = new QToolButton();
-    buttonUp->setIcon(QIcon(":/icons/list-move-up.svg"));
-    QObject::connect(buttonUp, &QToolButton::clicked, this, [=] {
+    actionMoveUp = new QAction(QIcon(":/icons/list-move-up.svg"), "Up", tree);
+    QObject::connect(actionMoveUp, &QAction::triggered, this, [=] {
         QModelIndexList selection = selectionModel->selectedIndexes();
         viewModel->moveIndexesUp(selection);
     });
 
-    buttonDown = new QToolButton();
-    buttonDown->setIcon(QIcon(":/icons/list-move-down.svg"));
-    QObject::connect(buttonDown, &QToolButton::clicked, this, [=] {
+    actionMoveDown = new QAction(QIcon(":/icons/list-move-down.svg"), "Down", tree);
+    QObject::connect(actionMoveDown, &QAction::triggered, this, [=] {
         QModelIndexList selection = selectionModel->selectedIndexes();
         viewModel->moveIndexesDown(selection);
     });
 
-    /*
-    // Key delete action removes selected items, but does nothing if none are selected.
-    auto action_remove = new QAction(tree);
-    action_remove->setShortcut(QKeySequence::Delete);
-    action_remove->setShortcutContext(Qt::WidgetShortcut);
-    tree->addAction(action_remove);
-    */
+    buttonAdd = new QToolButton();
+    buttonAdd->setIcon(QIcon(":/icons/list-add.svg"));
+    buttonAdd->setPopupMode(QToolButton::InstantPopup);
+
+    auto buttonRemove = new QToolButton();
+    buttonRemove->setDefaultAction(actionRemove);
+
+    auto buttonUp = new QToolButton();
+    buttonUp->setDefaultAction(actionMoveUp);
+
+    auto buttonDown = new QToolButton();
+    buttonDown->setDefaultAction(actionMoveDown);
 
     auto hbox = new QHBoxLayout();
     hbox->setAlignment(Qt::AlignTop);
@@ -84,14 +86,15 @@ TreeDock::TreeDock(ModelTreeVM* viewModel, QItemSelectionModel* selectionModel)
     tree->setModel(viewModel);
     tree->setSelectionModel(selectionModel);
     tree->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    tree->setContextMenuPolicy(Qt::ActionsContextMenu);
     tree->setLayout(hbox);
     tree->setHeaderHidden(true);
 
     // Update the button states if either the model data/layout or the item selection changed
-    QObject::connect(viewModel, &ModelTreeVM::modified, this, &TreeDock::updateButtons);
-    QObject::connect(selectionModel, &QItemSelectionModel::selectionChanged, this, &TreeDock::updateButtons);
+    QObject::connect(viewModel, &ModelTreeVM::modified, this, &TreeDock::updateActions);
+    QObject::connect(selectionModel, &QItemSelectionModel::selectionChanged, this, &TreeDock::updateActions);
 
-    updateButtons();
+    updateActions();
 }
 
 QMenu* TreeDock::createMaterialMenu() {
@@ -145,18 +148,28 @@ QMenu* TreeDock::createSegmentMenu() {
 
 // Sets the enabled/disabled state of the buttons as well as the drop down menu of the add button according to
 // what can be done with the selected tree items
-void TreeDock::updateButtons() {
+void TreeDock::updateActions() {
     QModelIndexList selection = tree->selectionModel()->selectedIndexes();
 
+    // Remove all existing actions from the tree view
+    for(auto action: tree->actions()) {
+        tree->removeAction(action);
+    }
+
+    // If adding something is possible, the add button gets assigned the respective menu with the selection of things to add
+    // and the tree view gets assigned the same menu actions in order to show them in its context menu in a flattened way.
     if(viewModel->canInsertMaterial(selection)) {
+        tree->addActions(menuAddMaterial->actions());
         buttonAdd->setMenu(menuAddMaterial);
         buttonAdd->setEnabled(true);
     }
     else if(viewModel->canInsertLayer(selection)) {
+        tree->addActions(menuAddLayer->actions());
         buttonAdd->setMenu(menuAddLayer);
         buttonAdd->setEnabled(true);
     }
     else if(viewModel->canInsertSegment(selection)) {
+        tree->addActions(menuAddSegment->actions());
         buttonAdd->setMenu(menuAddSegment);
         buttonAdd->setEnabled(true);
     }
@@ -165,7 +178,22 @@ void TreeDock::updateButtons() {
         buttonAdd->setEnabled(false);
     }
 
-    buttonRemove->setEnabled(viewModel->canRemoveIndexes(selection));
-    buttonUp->setEnabled(viewModel->canMoveIndexesUp(selection));
-    buttonDown->setEnabled(viewModel->canMoveIndexesDown(selection));
+    // Other actions just get enabled/disbled based on the selection, which also affects all associated buttons and menu items
+    actionRemove->setEnabled(viewModel->canRemoveIndexes(selection));
+    actionMoveUp->setEnabled(viewModel->canMoveIndexesUp(selection));
+    actionMoveDown->setEnabled(viewModel->canMoveIndexesDown(selection));
+
+    // Add back standard actions of the tree view
+
+    auto sep1 = new QAction(tree);
+    sep1->setSeparator(true);
+
+    auto sep2 = new QAction(tree);
+    sep2->setSeparator(true);
+
+    tree->addAction(sep1);
+    tree->addAction(actionMoveUp);
+    tree->addAction(actionMoveDown);
+    tree->addAction(sep2);
+    tree->addAction(actionRemove);
 }

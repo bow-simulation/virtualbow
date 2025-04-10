@@ -5,6 +5,7 @@
 class ModelTreeVM;
 class QTreeView;
 class QToolButton;
+class QAction;
 class QMenu;
 
 class TreeDock: public QDockWidget
@@ -23,9 +24,9 @@ private:
     QTreeView* tree;
 
     QToolButton* buttonAdd;
-    QToolButton* buttonRemove;
-    QToolButton* buttonUp;
-    QToolButton* buttonDown;
+    QAction* actionRemove;
+    QAction* actionMoveUp;
+    QAction* actionMoveDown;
 
     QMenu* menuAddMaterial;
     QMenu* menuAddLayer;
@@ -35,5 +36,5 @@ private:
     QMenu* createLayerMenu();
     QMenu* createSegmentMenu();
 
-    void updateButtons();
+    void updateActions();
 };
