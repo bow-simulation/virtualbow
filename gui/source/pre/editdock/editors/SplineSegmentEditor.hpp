@@ -1,6 +1,6 @@
 #pragma once
 #include "SegmentEditor.hpp"
-
+/*
 class TableEditor;
 
 class SplineSegmentEditor: public SegmentEditor
@@ -14,3 +14,4 @@ public:
 private:
     TableEditor* table;
 };
+*/

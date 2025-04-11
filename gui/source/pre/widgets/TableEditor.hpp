@@ -2,7 +2,7 @@
 #include "pre/utils/DoubleRange.hpp"
 #include "TableView.hpp"
 #include "TableModel.hpp"
-
+/*
 class TableEditor: public TableView {
     Q_OBJECT
 
@@ -22,3 +22,4 @@ private:
     TableModel model;
     QVector<int> getSelectedIndices();
 };
+*/

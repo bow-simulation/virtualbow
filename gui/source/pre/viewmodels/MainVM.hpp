@@ -10,12 +10,24 @@
 // Also provides access to the various other sub-viewmodels.
 
 class ModelTreeVM;
+class CommentsVM;
+class SettingsVM;
+class DimensionsVM;
+class MaterialVM;
+class LayerVM;
+class StringVM;
+class MassesVM;
+class DampingVM;
+class LineVM;
+class ArcVM;
+class SpiralVM;
+class SplineVM;
+class TableModel;
 class QItemSelectionModel;
+class QAbstractItemModel;
 
 class MainVM: public QObject {
     Q_OBJECT
-    //Q_PROPERTY(QString currentFile READ currentFile NOTIFY currentFileChanged)
-    //Q_PROPERTY(bool unsavedWork READ hasUnsavedWork NOTIFY unsavedWorkChanged)
 
 public:
     MainVM();
@@ -24,6 +36,22 @@ public:
 
     ModelTreeVM* getModelTreeVM();
     QItemSelectionModel* getModelTreeSelectionVM();
+
+    CommentsVM* getCommentsVM();
+    SettingsVM* getSettingsVM();
+    DimensionsVM* getDimensionsVM();
+    MaterialVM* getMaterialVM(int index);
+    LayerVM* getLayerVM(int index);
+    TableModel* getLayerHeightVM(int index);
+    TableModel* getWidthVM();
+    StringVM* getStringVM();
+    MassesVM* getMassesVM();
+    DampingVM* getDampingVM();
+
+    LineVM* getLineVM(int index);        // Returns line viewmodel for given segment index or nullptr if the segment is of another type
+    ArcVM* getArcVM(int index);          // Returns arc viewmodel for given segment index or nullptr if the segment is of another type
+    SpiralVM* getSpiralVM(int index);    // Returns spiral viewmodel for given segment index or nullptr if the segment is of another type
+    TableModel* getSplineVM(int index);  // Returns spline viewmodel for given segment index or nullptr if the segment is of another type
 
     // File actions
 
@@ -42,11 +70,13 @@ signals:
     void hasBowModelChanged(bool);
     void hasUnsavedWorkChanged(bool);
 
+    void contentModified();
+
 private:
     // Top level state
     std::optional<BowModel> bow;    // Bow data, which might or might not be present
     QString path;                   // Path of the currently loaded file (or empty if no file is loaded)
-    bool unsaved;                   // Whether there are any unsaved modifications to the bow model
+    bool unsaved;                  // Whether there are any unsaved modifications to the bow model
 
 
     // Sub Viewmodels

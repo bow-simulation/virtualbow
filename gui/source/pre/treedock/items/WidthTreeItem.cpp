@@ -3,7 +3,7 @@
 #include "pre/widgets/TableEditor.hpp"
 #include "pre/plotdock/plots/SplineView.hpp"
 #include "pre/viewmodel/units/UnitSystem.hpp"
-
+/*
 WidthTreeItem::WidthTreeItem(ViewModel* model)
     : TreeItem(model, "Width", QIcon(":/icons/model-width.svg"), 0)
 {
@@ -39,3 +39,4 @@ void WidthTreeItem::updateView(void* source) {
     auto spline_view = static_cast<SplineView*>(plot);
     spline_view->setData(model->getWidth());
 }
+*/

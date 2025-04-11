@@ -30,6 +30,8 @@ private:
     void runSimulation(bool dynamic);
 
     bool optionalSaveModifications();
+    void submitChanges();
+
     QString showOpenFileDialog();
     QString showSaveFileDialog();
     QString displayPath();

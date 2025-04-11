@@ -166,9 +166,11 @@ SegmentEditor* SegmentTreeItem::segmentEditor(const ProfileSegment& input) const
     if(auto value = std::get_if<Spiral>(&input)) {
         return new SpiralSegmentEditor();
     }
+    /*
     if(auto value = std::get_if<Spline>(&input)) {
         return new SplineSegmentEditor();
     }
+    */
 
     throw std::runtime_error("Unknown segment type");
 }

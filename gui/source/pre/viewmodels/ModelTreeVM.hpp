@@ -1,4 +1,5 @@
 #pragma once
+#include "pre/viewmodels/MainVM.hpp"
 #include "solver/BowModel.hpp"
 #include "solver/Defaults.hpp"
 #include <QAbstractItemModel>
@@ -33,7 +34,7 @@ class ModelTreeVM: public QAbstractItemModel {
     Q_OBJECT
 
 public:
-    ModelTreeVM(QObject *parent = nullptr);
+    ModelTreeVM(MainVM* parent);
     void setBowModel(BowModel* bow);
 
     bool canInsertMaterial(const QModelIndexList& indexes);
@@ -82,7 +83,7 @@ public:
 
 signals:
     // Emitted when the tree structure of the bow model has been modified (including names)
-    void modified();
+    void contentModified();
 
 private:
     BowModel* bow;

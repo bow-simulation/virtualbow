@@ -1,11 +1,12 @@
 #pragma once
 #include <QDockWidget>
 
-class QStackedWidget;
+class QItemSelectionModel;
+class MainVM;
 
 class EditDock: public QDockWidget {
 public:
-    EditDock();
+    EditDock(MainVM* viewModel);
     void showEditor(QWidget* editor);
 
 private:

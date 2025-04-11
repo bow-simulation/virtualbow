@@ -3,7 +3,7 @@
 #include "pre/widgets/TableEditor.hpp"
 #include "pre/plotdock/plots/SplineView.hpp"
 #include "pre/viewmodel/units/UnitSystem.hpp"
-
+/*
 LayersTreeItem::LayersTreeItem(ViewModel* model)
     : TreeItem(model, "Layers", QIcon(":/icons/model-layers.svg"), 0)
 {
@@ -98,7 +98,7 @@ Layer LayerTreeItem::getLayer() const {
     throw std::invalid_argument("Fix material index/name");
     return {
         .name = this->text(0).toStdString(),
-        .material = 0, /*combo->currentIndex(),*/
+        .material = 0, /*combo->currentIndex(),
         .height = table->getData()
     };
 }
@@ -141,3 +141,4 @@ void LayerTreeItem::updateCombo() {
 void LayerTreeItem::updatePlot() {
     static_cast<SplineView*>(plot)->setData(model->getLayers()[this->row()].height);
 }
+*/

@@ -1,15 +1,16 @@
 #include "TableModel.hpp"
-#include <algorithm>
+#include "pre/viewmodels/MainVM.hpp"
+#include "pre/viewmodel/units/Quantity.hpp"
 #include <cmath>
 
 const int INITIAL_ROWS = 25;    // Initial number of rows in the table
 const int DELTA_ROWS = 5;       // Number of rows to add when the end is reached
 
-TableModel::TableModel(const QString& x_label, const QString& y_label, const Quantity& x_quantity, const Quantity& y_quantity, QObject *parent)
-    : QAbstractTableModel(parent),
-      columnLabels({x_label, y_label}),
-      columnUnits({&x_quantity, &y_quantity}),
-      loadedRows(INITIAL_ROWS)
+TableModel::TableModel(MainVM* parent, Points& points, const QString& xLabel, const QString& yLabel, const Quantity& xQuantity, const Quantity& yQuantity):
+    columnLabels({xLabel, yLabel}),
+    columnUnits({&xQuantity, &yQuantity}),
+    loadedRows(INITIAL_ROWS),
+    points(points)
 {
     // Update table on units changes
     for(int i = 0; i < columnUnits.size(); ++i) {
@@ -18,6 +19,13 @@ TableModel::TableModel(const QString& x_label, const QString& y_label, const Qua
             emit dataChanged(index(0, i), index(rowCount() - 1, i));  // TODO: Only those that actually changed?
         });
     }
+
+    QObject::connect(this, &TableModel::modified, parent, &MainVM::contentModified);
+
+    setPoints(points);
+    QObject::connect(this, &TableModel::modified, this, [=]{
+        this->points = getPoints();
+    });
 }
 
 int TableModel::rowCount(const QModelIndex& parent) const {
@@ -94,9 +102,8 @@ void TableModel::fetchMore(const QModelIndex& parent) {
     endInsertRows();
 }
 
-
-std::vector<std::array<double, 2>> TableModel::getData() const {
-    std::vector<std::array<double, 2>> data;
+Points TableModel::getPoints() const {
+    Points data;
     data.reserve(2*entries.size());    // Upper bound on number of valid data points
 
     // Since the indices are stored in a QMap, they are sorted after row and column
@@ -123,7 +130,7 @@ std::vector<std::array<double, 2>> TableModel::getData() const {
     return data;
 }
 
-void TableModel::setData(const std::vector<std::array<double, 2>>& data) {
+void TableModel::setPoints(const Points& data) {
     // Inser new rows at the end if needed
     if(data.size() > loadedRows) {
         beginInsertRows(QModelIndex(), loadedRows, data.size() - 1);

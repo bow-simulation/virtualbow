@@ -1,17 +1,17 @@
 #include "ModelTreeVM.hpp"
+#include <QModelIndex>
 #include <QIcon>
 #include <algorithm>
 
-ModelTreeVM::ModelTreeVM(QObject *parent)
+ModelTreeVM::ModelTreeVM(MainVM* parent)
     : QAbstractItemModel(parent),
       bow(nullptr)
 {
     // Emit modified signal if the model structure or data has been changed
-    QObject::connect(this, &QAbstractItemModel::modelReset, this, &ModelTreeVM::modified);
-    QObject::connect(this, &QAbstractItemModel::dataChanged, this, &ModelTreeVM::modified);
-    QObject::connect(this, &QAbstractItemModel::rowsInserted, this, &ModelTreeVM::modified);
-    QObject::connect(this, &QAbstractItemModel::rowsRemoved, this, &ModelTreeVM::modified);
-    QObject::connect(this, &QAbstractItemModel::rowsMoved, this, &ModelTreeVM::modified);
+    QObject::connect(this, &QAbstractItemModel::dataChanged, parent, &MainVM::contentModified);
+    QObject::connect(this, &QAbstractItemModel::rowsInserted, parent, &MainVM::contentModified);
+    QObject::connect(this, &QAbstractItemModel::rowsRemoved, parent, &MainVM::contentModified);
+    QObject::connect(this, &QAbstractItemModel::rowsMoved, parent, &MainVM::contentModified);
 }
 
 void ModelTreeVM::setBowModel(BowModel* bow) {
@@ -136,8 +136,10 @@ bool ModelTreeVM::canRemoveIndexes(QModelIndexList& indexes) {
 }
 
 void ModelTreeVM::removeIndexes(QModelIndexList indexes) {
-    // Sort in reverse order by row  because thw ones further down need to be deleted first
-    std::sort(indexes.begin(), indexes.end(), std::greater<QModelIndex>());
+    // Sort in reverse order by row  because the ones further down need to be deleted first
+    std::sort(indexes.begin(), indexes.end(), [](const auto& lhs, const auto& rhs){
+        return lhs.row() > rhs.row();
+    });
 
     for(QModelIndex index: indexes) {
         switch(index.internalId()) {
@@ -256,7 +258,9 @@ bool ModelTreeVM::canMoveIndexesDown(const QModelIndexList& indexes) {
 
 void ModelTreeVM::moveIndexesUp(QModelIndexList indexes) {
     // Sort the indexes by row because the order of swapping makes a difference
-    std::sort(indexes.begin(), indexes.end());
+    std::sort(indexes.begin(), indexes.end(), [](const auto& lhs, const auto& rhs){
+        return lhs.row() < rhs.row();
+    });
 
     // Swap the item at each index with the one before it
     for(QModelIndex index: indexes) {
@@ -276,7 +280,9 @@ void ModelTreeVM::moveIndexesUp(QModelIndexList indexes) {
 
 void ModelTreeVM::moveIndexesDown(QModelIndexList indexes) {
     // Sort in reverse order by row  because the order of swapping makes a difference
-    std::sort(indexes.begin(), indexes.end(), std::greater<QModelIndex>());
+    std::sort(indexes.begin(), indexes.end(), [](const auto& lhs, const auto& rhs){
+        return lhs.row() > rhs.row();
+    });
 
     // Swap the item at each index with the one after it
     for(QModelIndex index: indexes) {
@@ -553,17 +559,18 @@ QIcon ModelTreeVM::topLevelItemIcon(int row) const {
 QString ModelTreeVM::segmentName(int row) const {
     ProfileSegment segment = bow->profile.segments[row];
 
-    if(std::holds_alternative<Line>(segment))
+    if(std::holds_alternative<Line>(segment)) {
         return "Line";
-
-    if(std::holds_alternative<Arc>(segment))
+    }
+    if(std::holds_alternative<Arc>(segment)) {
         return "Arc";
-
-    if(std::holds_alternative<Spiral>(segment))
+    }
+    if(std::holds_alternative<Spiral>(segment)) {
         return "Spiral";
-
-    if(std::holds_alternative<Spline>(segment))
+    }
+    if(std::holds_alternative<Spline>(segment)) {
         return "Spline";
+    }
 
     throw std::invalid_argument("Unknown segment type");
 }
@@ -571,17 +578,19 @@ QString ModelTreeVM::segmentName(int row) const {
 QString ModelTreeVM::segmentTooltip(int row) const {
     ProfileSegment segment = bow->profile.segments[row];
 
-    if(std::holds_alternative<Line>(segment))
+    if(std::holds_alternative<Line>(segment)) {
         return "Line segment defined by a single length";
-
-    if(std::holds_alternative<Arc>(segment))
+    }
+    if(std::holds_alternative<Arc>(segment)) {
         return "Arc segment defined by length and radius";
-
-    if(std::holds_alternative<Spiral>(segment))
+    }
+    if(std::holds_alternative<Spiral>(segment)) {
         return "Spiral segment defined by length, start-radius and end-radius";
+    }
 
-    if(std::holds_alternative<Spline>(segment))
+    if(std::holds_alternative<Spline>(segment)) {
         return "Spline segment defined by a series of control points";
+    }
 
     throw std::invalid_argument("Unknown segment type");
 }
@@ -589,17 +598,18 @@ QString ModelTreeVM::segmentTooltip(int row) const {
 QIcon ModelTreeVM::segmentIcon(int row) const {
     ProfileSegment segment = bow->profile.segments[row];
 
-    if(std::holds_alternative<Line>(segment))
+    if(std::holds_alternative<Line>(segment)) {
         return QIcon(":/icons/segment-line.svg");
-
-    if(std::holds_alternative<Arc>(segment))
+    }
+    if(std::holds_alternative<Arc>(segment)) {
         return QIcon(":/icons/segment-arc.svg");
-
-    if(std::holds_alternative<Spiral>(segment))
+    }
+    if(std::holds_alternative<Spiral>(segment)) {
         return QIcon(":/icons/segment-spiral.svg");
-
-    if(std::holds_alternative<Spline>(segment))
+    }
+    if(std::holds_alternative<Spline>(segment)) {
         return QIcon(":/icons/segment-spline.svg");
+    }
 
     throw std::invalid_argument("Unknown segment type");
 }

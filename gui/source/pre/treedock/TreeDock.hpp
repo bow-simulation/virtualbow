@@ -8,16 +8,9 @@ class QToolButton;
 class QAction;
 class QMenu;
 
-class TreeDock: public QDockWidget
-{
-    Q_OBJECT
-
+class TreeDock: public QDockWidget {
 public:
     TreeDock(ModelTreeVM* viewModel, QItemSelectionModel* selectionModel);
-
-signals:
-    void currentEditorChanged(QWidget* editor);
-    void currentPlotChanged(QWidget* plot);
 
 private:
     ModelTreeVM* viewModel;

@@ -4,22 +4,24 @@
 #include <array>
 #include <variant>
 
-using Width = std::vector<std::array<double, 2>>;
+using Points = std::vector<std::array<double, 2>>;
 
-using Height = std::vector<std::array<double, 2>>;
+using Width = Points;
+
+using Height = Points;
 
 struct Settings {
-    unsigned n_limb_elements;
-    unsigned n_limb_eval_points;
-    unsigned min_draw_resolution;
-    unsigned max_draw_resolution;
+    int n_limb_elements;
+    int n_limb_eval_points;
+    int min_draw_resolution;
+    int max_draw_resolution;
     double arrow_clamp_force;
     double string_compression_factor;
     double timespan_factor;
     double timeout_factor;
     double min_timestep;
     double max_timestep;
-    unsigned steps_per_period;
+    int steps_per_period;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(

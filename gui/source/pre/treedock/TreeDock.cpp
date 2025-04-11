@@ -91,7 +91,7 @@ TreeDock::TreeDock(ModelTreeVM* viewModel, QItemSelectionModel* selectionModel)
     tree->setHeaderHidden(true);
 
     // Update the button states if either the model data/layout or the item selection changed
-    QObject::connect(viewModel, &ModelTreeVM::modified, this, &TreeDock::updateActions);
+    QObject::connect(viewModel, &ModelTreeVM::contentModified, this, &TreeDock::updateActions);
     QObject::connect(selectionModel, &QItemSelectionModel::selectionChanged, this, &TreeDock::updateActions);
 
     updateActions();

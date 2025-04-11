@@ -1,7 +1,7 @@
 #pragma once
 #include "pre/treedock/TreeItem.hpp"
 #include "solver/BowModel.hpp"
-
+/*
 class ViewModel;
 
 class WidthTreeItem: public TreeItem {
@@ -10,3 +10,4 @@ public:
     void updateModel(void* source);
     void updateView(void *source);
 };
+*/

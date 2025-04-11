@@ -1,7 +1,7 @@
 #pragma once
 #include "pre/treedock/TreeItem.hpp"
 #include "solver/BowModel.hpp"
-
+/*
 class ViewModel;
 class TableEditor;
 class QComboBox;
@@ -29,3 +29,4 @@ private:
     TableEditor* table;
     QComboBox* combo;
 };
+*/

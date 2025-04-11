@@ -73,6 +73,7 @@ add_executable(
     source/pre/SimulationDialog.hpp
     source/pre/UnitDialog.cpp
     source/pre/UnitDialog.hpp
+    source/pre/extern/qcustomplot/qcustomplot.cpp
     source/pre/limbview/LayerColors.cpp
     source/pre/limbview/LayerColors.hpp
     source/pre/limbview/MaterialLegend.cpp
@@ -164,6 +165,8 @@ add_executable(
     source/pre/widgets/TableModel.hpp
     source/pre/widgets/TableView.cpp
     source/pre/widgets/TableView.hpp
+    source/pre/widgets/PropertyList.cpp
+    source/pre/widgets/PropertyList.hpp
     source/pre/widgets/propertytree/PropertyTreeWidget.cpp
     source/pre/widgets/propertytree/PropertyTreeWidget.hpp
     source/pre/widgets/propertytree/PropertyTreeItem.cpp
@@ -180,11 +183,76 @@ add_executable(
     source/pre/widgets/propertytree/items/IntegerPropertyItem.hpp
     source/pre/widgets/propertytree/items/StringPropertyItem.cpp
     source/pre/widgets/propertytree/items/StringPropertyItem.hpp
-    source/pre/widgets/qcustomplot/qcustomplot.cpp
     source/pre/viewmodels/MainVM.cpp
     source/pre/viewmodels/MainVM.hpp
     source/pre/viewmodels/ModelTreeVM.hpp
     source/pre/viewmodels/ModelTreeVM.cpp
+    source/pre/viewmodels/PropertiesVM.hpp
+    source/pre/viewmodels/PropertiesVM.cpp
+    source/pre/viewmodels/CommentsVM.hpp
+    source/pre/viewmodels/CommentsVM.cpp
+    source/pre/viewmodels/SettingsVM.hpp
+    source/pre/viewmodels/SettingsVM.cpp
+    source/pre/viewmodels/DimensionsVM.hpp
+    source/pre/viewmodels/DimensionsVM.cpp
+    source/pre/viewmodels/MaterialVM.hpp
+    source/pre/viewmodels/MaterialVM.cpp
+    source/pre/viewmodels/LayersVM.hpp
+    source/pre/viewmodels/LayersVM.cpp
+    source/pre/viewmodels/LayerVM.hpp
+    source/pre/viewmodels/LayerVM.cpp
+    source/pre/viewmodels/StringVM.hpp
+    source/pre/viewmodels/StringVM.cpp
+    source/pre/viewmodels/MassesVM.hpp
+    source/pre/viewmodels/MassesVM.cpp
+    source/pre/viewmodels/DampingVM.hpp
+    source/pre/viewmodels/DampingVM.cpp
+    source/pre/viewmodels/LineVM.hpp
+    source/pre/viewmodels/LineVM.cpp
+    source/pre/viewmodels/ArcVM.hpp
+    source/pre/viewmodels/ArcVM.cpp
+    source/pre/viewmodels/SpiralVM.hpp
+    source/pre/viewmodels/SpiralVM.cpp
+    source/pre/views/primitive/DoubleView.hpp
+    source/pre/views/primitive/DoubleView.cpp
+    source/pre/views/primitive/ColorView.hpp
+    source/pre/views/primitive/ColorView.cpp
+    source/pre/views/primitive/EnumSelectionView.hpp
+    source/pre/views/primitive/EnumSelectionView.cpp
+    source/pre/views/primitive/StringSelectionView.hpp
+    source/pre/views/primitive/StringSelectionView.cpp
+    source/pre/views/primitive/IntegerView.hpp
+    source/pre/views/primitive/IntegerView.cpp
+    source/pre/views/primitive/TextView.hpp
+    source/pre/views/primitive/TextView.cpp
+    source/pre/views/primitive/TableView.hpp
+    source/pre/views/primitive/TableView.cpp
+    source/pre/views/CommentsView.hpp
+    source/pre/views/CommentsView.cpp
+    source/pre/views/SettingsView.hpp
+    source/pre/views/SettingsView.cpp
+    source/pre/views/DimensionsView.hpp
+    source/pre/views/DimensionsView.cpp
+    source/pre/views/MaterialView.hpp
+    source/pre/views/MaterialView.cpp
+    source/pre/views/LayerView.hpp
+    source/pre/views/LayerView.cpp
+    source/pre/views/WidthView.hpp
+    source/pre/views/WidthView.cpp
+    source/pre/views/LineView.hpp
+    source/pre/views/LineView.cpp
+    source/pre/views/ArcView.hpp
+    source/pre/views/ArcView.cpp
+    source/pre/views/SpiralView.hpp
+    source/pre/views/SpiralView.cpp
+    source/pre/views/SplineView.hpp
+    source/pre/views/SplineView.cpp
+    source/pre/views/StringView.hpp
+    source/pre/views/StringView.cpp
+    source/pre/views/MassesView.hpp
+    source/pre/views/MassesView.cpp
+    source/pre/views/DampingView.hpp
+    source/pre/views/DampingView.cpp
 )
 
 target_compile_definitions(virtualbow-gui PRIVATE JSON_HAS_CPP_17)
@@ -214,6 +282,7 @@ add_executable(
     source/pre/RecentFilesMenu.hpp
     source/pre/UnitDialog.cpp
     source/pre/UnitDialog.hpp
+    source/pre/extern/qcustomplot/qcustomplot.cpp
     source/pre/utils/UserSettings.cpp
     source/pre/utils/UserSettings.hpp
     source/pre/limbview/LayerColors.cpp
@@ -241,7 +310,6 @@ add_executable(
     source/pre/widgets/PlotOverlayDialog.hpp
     source/pre/widgets/PlotWidget.cpp
     source/pre/widgets/PlotWidget.hpp
-    source/pre/widgets/qcustomplot/qcustomplot.cpp
     source/post/ComboPlot.cpp
     source/post/ComboPlot.hpp
     source/post/CurvaturePlot.cpp

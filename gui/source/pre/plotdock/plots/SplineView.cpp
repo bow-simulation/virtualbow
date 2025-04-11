@@ -1,6 +1,6 @@
 #include "SplineView.hpp"
 
-SplineView::SplineView(const QString& x_label, const QString& y_label, const Quantity& x_quantity, const Quantity& y_quantity)
+SplineView2::SplineView2(const QString& x_label, const QString& y_label, const Quantity& x_quantity, const Quantity& y_quantity)
     : x_label(x_label), y_label(y_label), x_quantity(x_quantity), y_quantity(y_quantity)
 {
     // Line
@@ -33,21 +33,21 @@ SplineView::SplineView(const QString& x_label, const QString& y_label, const Qua
     this->contextMenu()->insertSeparator(before);
 
     // Update on unit changes
-    QObject::connect(&x_quantity, &Quantity::unitChanged, this, &SplineView::updatePlot);
-    QObject::connect(&y_quantity, &Quantity::unitChanged, this, &SplineView::updatePlot);
+    QObject::connect(&x_quantity, &Quantity::unitChanged, this, &SplineView2::updatePlot);
+    QObject::connect(&y_quantity, &Quantity::unitChanged, this, &SplineView2::updatePlot);
 }
 
-void SplineView::setData(const std::vector<std::array<double, 2>>& data) {
+void SplineView2::setData(const std::vector<std::array<double, 2>>& data) {
     input = data;
     updatePlot();
 }
 
-void SplineView::setSelection(const QVector<int>& indices) {
+void SplineView2::setSelection(const QVector<int>& indices) {
     selection = indices;
     updatePlot();
 }
 
-void SplineView::updatePlot() {
+void SplineView2::updatePlot() {
     //throw std::invalid_argument("Removed code");
     /*
     this->xAxis->setLabel(x_label + " " + x_quantity.getUnit().getLabel());
@@ -93,7 +93,7 @@ void SplineView::updatePlot() {
     */
 }
 
-void SplineView::setNodesVisible(bool visible) {
+void SplineView2::setNodesVisible(bool visible) {
     this->graph(1)->setVisible(visible);
     this->graph(2)->setVisible(visible);
 }

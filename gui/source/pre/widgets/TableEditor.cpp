@@ -1,7 +1,7 @@
 #include "TableEditor.hpp"
 #include "TableDelegate.hpp"
 #include <algorithm>
-
+/*
 TableEditor::TableEditor(const QString& x_label, const QString& y_label,
                          const Quantity& x_quantity, const Quantity& y_quantity,
                          const DoubleRange& x_range, const DoubleRange& y_range)
@@ -42,3 +42,4 @@ QVector<int> TableEditor::getSelectedIndices() {
 
     return selection;
 }
+*/

@@ -1,12 +1,15 @@
 #pragma once
+#include "solver/BowModel.hpp"
 #include <QAbstractTableModel>
-#include "pre/viewmodel/units/Quantity.hpp"
+
+class MainVM;
+class Quantity;
 
 class TableModel: public QAbstractTableModel {
     Q_OBJECT
 
 public:
-    TableModel(const QString& x_label, const QString& y_label, const Quantity& x_quantity, const Quantity& y_quantity, QObject *parent = nullptr);
+    TableModel(MainVM* parent, Points& points, const QString& xLabel, const QString& yLabel, const Quantity& xQuantity, const Quantity& yQuantity);
 
     // Implementation of QAbstractItemModel
 
@@ -23,8 +26,8 @@ public:
 
     // Additional methods
 
-    std::vector<std::array<double, 2>> getData() const;
-    void setData(const std::vector<std::array<double, 2>>& data);
+    Points getPoints() const;
+    void setPoints(const Points& data);
 
 signals:
     void modified();
@@ -33,5 +36,6 @@ private:
     QList<QString> columnLabels;
     QList<const Quantity*> columnUnits;
     QMap<QModelIndex, double> entries;
+    Points& points;
     int loadedRows;
 };

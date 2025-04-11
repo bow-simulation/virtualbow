@@ -34,7 +34,7 @@ public:
             QApplication::sendEvent(this, &event);
         });
 
-	dialog->setOption(QColorDialog::DontUseNativeDialog);
+        dialog->setOption(QColorDialog::DontUseNativeDialog);
         dialog->setWindowModality(Qt::ApplicationModal);
         dialog->setWindowTitle("Color");
         dialog->show();

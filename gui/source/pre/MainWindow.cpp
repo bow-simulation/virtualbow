@@ -132,11 +132,8 @@ MainWindow::MainWindow()
 
     auto limbView = new LimbView();
     auto treeDock = new TreeDock(viewModel->getModelTreeVM(), viewModel->getModelTreeSelectionVM());
-    auto editDock = new EditDock();
+    auto editDock = new EditDock(viewModel);
     auto plotDock = new PlotDock();
-
-    QObject::connect(treeDock, &TreeDock::currentEditorChanged, editDock, &EditDock::showEditor);
-    QObject::connect(treeDock, &TreeDock::currentPlotChanged, plotDock, &PlotDock::showPlot);
 
     this->setCentralWidget(limbView);
     this->addDockWidget(Qt::LeftDockWidgetArea, treeDock);
@@ -290,10 +287,15 @@ void MainWindow::runSimulation(bool dynamic) {
 // If there are modifications to the current document, ask the user whether to save, discard or cancel.
 // Returns true when successfully saved or discarded, false when canceled.
 bool MainWindow::optionalSaveModifications() {
+    // Make sure all editing is finished
+    submitChanges();
+
+    // Return true if no unsaved changes were made
     if(!this->isWindowModified()) {
-        return true;    // No modifications to save
+        return true;
     }
 
+    // Otherwise ask user whether to save changes
     auto pick = QMessageBox::warning(this, "Save Changes?", "Do you want to save the changes to " + this->windowFilePath() + "?",
                     QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 
@@ -302,6 +304,14 @@ bool MainWindow::optionalSaveModifications() {
         case QMessageBox::Discard: return true;
         case QMessageBox::Cancel: return false;
         default: return false;  // Can't happen
+    }
+}
+
+// If a widget has keyboard focus, clear it to submit any pending changes
+void MainWindow::submitChanges() {
+    QWidget* widget = QApplication::focusWidget();
+    if(widget != nullptr) {
+        widget->clearFocus();
     }
 }
 
