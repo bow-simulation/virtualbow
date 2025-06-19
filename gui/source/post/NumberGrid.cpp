@@ -1,5 +1,5 @@
 #include "NumberGrid.hpp"
-#include "pre/viewmodel/units/Quantity.hpp"
+#include "pre/models/units/Quantity.hpp"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGridLayout>

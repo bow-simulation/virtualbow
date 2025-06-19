@@ -1,6 +1,6 @@
 #pragma once
 #include <QDoubleSpinBox>
-#include "pre/extern/calculate/include/calculate.hpp"
+#include "extern/calculate/include/calculate.hpp"
 
 class Quantity;
 class DoubleRange;

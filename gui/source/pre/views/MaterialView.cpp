@@ -2,10 +2,10 @@
 #include "primitive/ColorView.hpp"
 #include "primitive/DoubleView.hpp"
 #include "pre/utils/DoubleRange.hpp"
-#include "pre/viewmodels/MaterialVM.hpp"
-#include "pre/viewmodel/units/UnitSystem.hpp"
+#include "pre/models/MaterialModel.hpp"
+#include "pre/models/units/UnitSystem.hpp"
 
-MaterialView::MaterialView(MaterialVM* model) {
+MaterialView::MaterialView(MaterialModel* model) {
     addProperty(
         "Color",
         "Color of the material, only used for visualization",
@@ -21,13 +21,13 @@ MaterialView::MaterialView(MaterialVM* model) {
     addProperty(
         "Young's modulus",
         "Young's modulus of the material",
-        new DoubleView(model, model->YOUNGS_MODULUS, Quantities::elastic_modulus, DoubleRange::positive(1.0))
+        new DoubleView(model, model->YOUNGS_MODULUS, Quantities::elastic_modulus, DoubleRange::positive(1e8))
     );
 
     addProperty(
         "Shear modulus",
         "Shear modulus of the material",
-        new DoubleView(model, model->SHEAR_MODULUS, Quantities::elastic_modulus, DoubleRange::positive(1.0))
+        new DoubleView(model, model->SHEAR_MODULUS, Quantities::elastic_modulus, DoubleRange::positive(1e8))
     );
 
     addStretch();

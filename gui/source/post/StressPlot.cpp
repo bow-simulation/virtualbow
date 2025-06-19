@@ -1,5 +1,5 @@
 #include "StressPlot.hpp"
-#include "pre/viewmodel/units/UnitSystem.hpp"
+#include "pre/models/units/UnitSystem.hpp"
 
 // Colors from Python's Matplotlib (https://stackoverflow.com/a/42091037)
 const QList<QColor> COLOR_PALETTE = {

@@ -60,6 +60,7 @@ target_link_libraries(
 add_executable(
     virtualbow-gui
     resources/resources.qrc
+    source/extern/qcustomplot/qcustomplot.cpp
     source/pre/Main.cpp
     source/pre/HelpMenu.cpp
     source/pre/HelpMenu.hpp
@@ -73,146 +74,75 @@ add_executable(
     source/pre/SimulationDialog.hpp
     source/pre/UnitDialog.cpp
     source/pre/UnitDialog.hpp
-    source/pre/extern/qcustomplot/qcustomplot.cpp
-    source/pre/limbview/LayerColors.cpp
-    source/pre/limbview/LayerColors.hpp
-    source/pre/limbview/MaterialLegend.cpp
-    source/pre/limbview/MaterialLegend.hpp
-    source/pre/limbview/LimbMesh.cpp
-    source/pre/limbview/LimbMesh.hpp
-    source/pre/limbview/LimbView.cpp
-    source/pre/limbview/LimbView.hpp
-    source/pre/limbview/OpenGLUtils.cpp
-    source/pre/limbview/OpenGLUtils.hpp
-    source/pre/viewmodel/ViewModel.cpp
-    source/pre/viewmodel/ViewModel.hpp
-    source/pre/viewmodel/units/Unit.cpp
-    source/pre/viewmodel/units/Unit.hpp
-    source/pre/viewmodel/units/Quantity.cpp
-    source/pre/viewmodel/units/Quantity.hpp
-    source/pre/viewmodel/units/UnitSystem.cpp
-    source/pre/viewmodel/units/UnitSystem.hpp
-    source/pre/treedock/TreeDock.cpp
-    source/pre/treedock/TreeDock.hpp
-    source/pre/treedock/TreeItem.cpp
-    source/pre/treedock/TreeItem.hpp
-    source/pre/treedock/items/CommentTreeItem.cpp
-    source/pre/treedock/items/CommentTreeItem.hpp
-    source/pre/treedock/items/SettingsTreeItem.cpp
-    source/pre/treedock/items/SettingsTreeItem.hpp
-    source/pre/treedock/items/DimensionsTreeItem.cpp
-    source/pre/treedock/items/DimensionsTreeItem.hpp
-    source/pre/treedock/items/MaterialsTreeItem.cpp
-    source/pre/treedock/items/MaterialsTreeItem.hpp
-    source/pre/treedock/items/StringTreeItem.cpp
-    source/pre/treedock/items/StringTreeItem.hpp
-    source/pre/treedock/items/MassesTreeItem.cpp
-    source/pre/treedock/items/MassesTreeItem.hpp
-    source/pre/treedock/items/DampingTreeItem.cpp
-    source/pre/treedock/items/DampingTreeItem.hpp
-    source/pre/treedock/items/WidthTreeItem.cpp
-    source/pre/treedock/items/WidthTreeItem.hpp
-    source/pre/treedock/items/LayersTreeItem.cpp
-    source/pre/treedock/items/LayersTreeItem.hpp
-    source/pre/treedock/items/ProfileTreeItem.cpp
-    source/pre/treedock/items/ProfileTreeItem.hpp
-    source/pre/editdock/EditDock.cpp
-    source/pre/editdock/EditDock.hpp
-    source/pre/editdock/editors/SegmentEditor.hpp
-    source/pre/editdock/editors/LineSegmentEditor.cpp
-    source/pre/editdock/editors/LineSegmentEditor.hpp
-    source/pre/editdock/editors/ArcSegmentEditor.cpp
-    source/pre/editdock/editors/ArcSegmentEditor.hpp
-    source/pre/editdock/editors/SpiralSegmentEditor.cpp
-    source/pre/editdock/editors/SpiralSegmentEditor.hpp
-    source/pre/editdock/editors/SplineSegmentEditor.cpp
-    source/pre/editdock/editors/SplineSegmentEditor.hpp
-    source/pre/editdock/editors/PropertyValueEditor.cpp
-    source/pre/editdock/editors/PropertyValueEditor.hpp
-    source/pre/plotdock/PlotDock.cpp
-    source/pre/plotdock/PlotDock.hpp
-    source/pre/plotdock/plots/ProfileView.cpp
-    source/pre/plotdock/plots/ProfileView.hpp
-    source/pre/plotdock/plots/SplineView.cpp
-    source/pre/plotdock/plots/SplineView.hpp
     source/pre/utils/DoubleRange.cpp
     source/pre/utils/DoubleRange.hpp
     source/pre/utils/IntegerRange.cpp
     source/pre/utils/IntegerRange.hpp
     source/pre/utils/UserSettings.cpp
     source/pre/utils/UserSettings.hpp
-    source/pre/utils/ScrollArea.hpp
+    source/pre/widgets/ScrollArea.hpp
     source/pre/widgets/DialogBase.cpp
     source/pre/widgets/DialogBase.hpp
     source/pre/widgets/DoubleSpinBox.cpp
     source/pre/widgets/DoubleSpinBox.hpp
     source/pre/widgets/IntegerSpinBox.cpp
     source/pre/widgets/IntegerSpinBox.hpp
-    source/pre/widgets/EditableTabBar.cpp
-    source/pre/widgets/EditableTabBar.hpp
     source/pre/widgets/PersistentDialog.cpp
     source/pre/widgets/PersistentDialog.hpp
     source/pre/widgets/PlotOverlayDialog.cpp
     source/pre/widgets/PlotOverlayDialog.hpp
     source/pre/widgets/PlotWidget.cpp
     source/pre/widgets/PlotWidget.hpp
-    source/pre/widgets/TableDelegate.cpp
-    source/pre/widgets/TableDelegate.hpp
-    source/pre/widgets/TableEditor.hpp
-    source/pre/widgets/TableEditor.cpp
-    source/pre/widgets/TableEditor.hpp
-    source/pre/widgets/TableModel.cpp
-    source/pre/widgets/TableModel.hpp
-    source/pre/widgets/TableView.cpp
-    source/pre/widgets/TableView.hpp
     source/pre/widgets/PropertyList.cpp
     source/pre/widgets/PropertyList.hpp
-    source/pre/widgets/propertytree/PropertyTreeWidget.cpp
-    source/pre/widgets/propertytree/PropertyTreeWidget.hpp
-    source/pre/widgets/propertytree/PropertyTreeItem.cpp
-    source/pre/widgets/propertytree/PropertyTreeItem.hpp
-    source/pre/widgets/propertytree/PropertyDelegate.cpp
-    source/pre/widgets/propertytree/PropertyDelegate.hpp
-    source/pre/widgets/propertytree/items/ColorPropertyItem.cpp
-    source/pre/widgets/propertytree/items/ColorPropertyItem.hpp
-    source/pre/widgets/propertytree/items/DoublePropertyItem.cpp
-    source/pre/widgets/propertytree/items/DoublePropertyItem.hpp
-    source/pre/widgets/propertytree/items/GroupPropertyItem.cpp
-    source/pre/widgets/propertytree/items/GroupPropertyItem.hpp
-    source/pre/widgets/propertytree/items/IntegerPropertyItem.cpp
-    source/pre/widgets/propertytree/items/IntegerPropertyItem.hpp
-    source/pre/widgets/propertytree/items/StringPropertyItem.cpp
-    source/pre/widgets/propertytree/items/StringPropertyItem.hpp
-    source/pre/viewmodels/MainVM.cpp
-    source/pre/viewmodels/MainVM.hpp
-    source/pre/viewmodels/ModelTreeVM.hpp
-    source/pre/viewmodels/ModelTreeVM.cpp
-    source/pre/viewmodels/PropertiesVM.hpp
-    source/pre/viewmodels/PropertiesVM.cpp
-    source/pre/viewmodels/CommentsVM.hpp
-    source/pre/viewmodels/CommentsVM.cpp
-    source/pre/viewmodels/SettingsVM.hpp
-    source/pre/viewmodels/SettingsVM.cpp
-    source/pre/viewmodels/DimensionsVM.hpp
-    source/pre/viewmodels/DimensionsVM.cpp
-    source/pre/viewmodels/MaterialVM.hpp
-    source/pre/viewmodels/MaterialVM.cpp
-    source/pre/viewmodels/LayersVM.hpp
-    source/pre/viewmodels/LayersVM.cpp
-    source/pre/viewmodels/LayerVM.hpp
-    source/pre/viewmodels/LayerVM.cpp
-    source/pre/viewmodels/StringVM.hpp
-    source/pre/viewmodels/StringVM.cpp
-    source/pre/viewmodels/MassesVM.hpp
-    source/pre/viewmodels/MassesVM.cpp
-    source/pre/viewmodels/DampingVM.hpp
-    source/pre/viewmodels/DampingVM.cpp
-    source/pre/viewmodels/LineVM.hpp
-    source/pre/viewmodels/LineVM.cpp
-    source/pre/viewmodels/ArcVM.hpp
-    source/pre/viewmodels/ArcVM.cpp
-    source/pre/viewmodels/SpiralVM.hpp
-    source/pre/viewmodels/SpiralVM.cpp
+    source/pre/models/MainModel.cpp
+    source/pre/models/MainModel.hpp
+    source/pre/models/MainTreeModel.hpp
+    source/pre/models/MainTreeModel.cpp
+    source/pre/models/PropertyListModel.hpp
+    source/pre/models/PropertyListModel.cpp
+    source/pre/models/CommentsModel.hpp
+    source/pre/models/CommentsModel.cpp
+    source/pre/models/SettingsModel.hpp
+    source/pre/models/SettingsModel.cpp
+    source/pre/models/DimensionsModel.hpp
+    source/pre/models/DimensionsModel.cpp
+    source/pre/models/MaterialModel.hpp
+    source/pre/models/MaterialModel.cpp
+    source/pre/models/LayersModel.hpp
+    source/pre/models/LayersModel.cpp
+    source/pre/models/LayerModel.hpp
+    source/pre/models/LayerModel.cpp
+    source/pre/models/StringModel.hpp
+    source/pre/models/StringModel.cpp
+    source/pre/models/MassesModel.hpp
+    source/pre/models/MassesModel.cpp
+    source/pre/models/DampingModel.hpp
+    source/pre/models/DampingModel.cpp
+    source/pre/models/LineModel.hpp
+    source/pre/models/LineModel.cpp
+    source/pre/models/ArcModel.hpp
+    source/pre/models/ArcModel.cpp
+    source/pre/models/SpiralModel.hpp
+    source/pre/models/SpiralModel.cpp
+    source/pre/models/TableModel.cpp
+    source/pre/models/TableModel.hpp
+    source/pre/models/units/Unit.cpp
+    source/pre/models/units/Unit.hpp
+    source/pre/models/units/Quantity.cpp
+    source/pre/models/units/Quantity.hpp
+    source/pre/models/units/UnitSystem.cpp
+    source/pre/models/units/UnitSystem.hpp
+    source/pre/views/docks/TreeDock.cpp
+    source/pre/views/docks/TreeDock.hpp
+    source/pre/views/docks/EditDock.cpp
+    source/pre/views/docks/EditDock.hpp
+    source/pre/views/docks/PlotDock.cpp
+    source/pre/views/docks/PlotDock.hpp
+    source/pre/views/limb2d/ProfileView.cpp
+    source/pre/views/limb2d/ProfileView.hpp
+    source/pre/views/limb2d/SplineView.cpp
+    source/pre/views/limb2d/SplineView.hpp
     source/pre/views/primitive/DoubleView.hpp
     source/pre/views/primitive/DoubleView.cpp
     source/pre/views/primitive/ColorView.hpp
@@ -253,6 +183,16 @@ add_executable(
     source/pre/views/MassesView.cpp
     source/pre/views/DampingView.hpp
     source/pre/views/DampingView.cpp
+    source/pre/views/limb3d/LayerColors.cpp
+    source/pre/views/limb3d/LayerColors.hpp
+    source/pre/views/limb3d/MaterialLegend.cpp
+    source/pre/views/limb3d/MaterialLegend.hpp
+    source/pre/views/limb3d/LimbMesh.cpp
+    source/pre/views/limb3d/LimbMesh.hpp
+    source/pre/views/limb3d/LimbView.cpp
+    source/pre/views/limb3d/LimbView.hpp
+    source/pre/views/limb3d/OpenGLUtils.cpp
+    source/pre/views/limb3d/OpenGLUtils.hpp
 )
 
 target_compile_definitions(virtualbow-gui PRIVATE JSON_HAS_CPP_17)
@@ -273,6 +213,7 @@ target_link_libraries(
 add_executable(
     virtualbow-post
     resources/resources.qrc
+    source/extern/qcustomplot/qcustomplot.cpp
     source/post/Main.cpp
     source/pre/HelpMenu.cpp
     source/pre/HelpMenu.hpp
@@ -282,24 +223,23 @@ add_executable(
     source/pre/RecentFilesMenu.hpp
     source/pre/UnitDialog.cpp
     source/pre/UnitDialog.hpp
-    source/pre/extern/qcustomplot/qcustomplot.cpp
     source/pre/utils/UserSettings.cpp
     source/pre/utils/UserSettings.hpp
-    source/pre/limbview/LayerColors.cpp
-    source/pre/limbview/LayerColors.hpp
-    source/pre/viewmodel/units/Unit.cpp
-    source/pre/viewmodel/units/Unit.hpp
-    source/pre/viewmodel/units/Quantity.cpp
-    source/pre/viewmodel/units/Quantity.hpp
-    source/pre/viewmodel/units/UnitSystem.cpp
-    source/pre/viewmodel/units/UnitSystem.hpp
+    source/pre/views/limb3d/LayerColors.cpp
+    source/pre/views/limb3d/LayerColors.hpp
+    source/pre/models/units/Unit.cpp
+    source/pre/models/units/Unit.hpp
+    source/pre/models/units/Quantity.cpp
+    source/pre/models/units/Quantity.hpp
+    source/pre/models/units/UnitSystem.cpp
+    source/pre/models/units/UnitSystem.hpp
     source/pre/utils/DoubleRange.cpp
     source/pre/utils/DoubleRange.hpp
     source/pre/utils/IntegerRange.cpp
     source/pre/utils/IntegerRange.hpp
     source/pre/utils/UserSettings.cpp
     source/pre/utils/UserSettings.hpp
-    source/pre/utils/ScrollArea.hpp
+    source/pre/widgets/ScrollArea.hpp
     source/pre/widgets/DialogBase.cpp
     source/pre/widgets/DialogBase.hpp
     source/pre/widgets/DoubleSpinBox.cpp

@@ -1,5 +1,5 @@
 #include "solver/BowResult.hpp"
-#include "pre/viewmodel/units/UnitSystem.hpp"
+#include "pre/models/units/UnitSystem.hpp"
 #include "OutputWidget.hpp"
 #include "NumberGrid.hpp"
 #include "ShapePlot.hpp"
@@ -9,7 +9,7 @@
 #include "ComboPlot.hpp"
 #include "Slider.hpp"
 #include "pre/utils/UserSettings.hpp"
-#include "pre/utils/ScrollArea.hpp"
+#include "pre/widgets/ScrollArea.hpp"
 
 OutputWidget::OutputWidget(const BowResult& data)
     : data(data),

@@ -1,10 +1,10 @@
 #pragma once
 #include "pre/widgets/PropertyList.hpp"
 
-class MassesVM;
+class MassesModel;
 
 class MassesView: public PropertyList
 {
 public:
-    MassesView(MassesVM* model);
+    MassesView(MassesModel* model);
 };

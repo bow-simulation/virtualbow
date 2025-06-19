@@ -1,10 +1,10 @@
 #pragma once
 #include <QWidget>
 
-class CommentsVM;
+class CommentsModel;
 
 class CommentsView: public QWidget
 {
 public:
-    CommentsView(CommentsVM* model);
+    CommentsView(CommentsModel* model);
 };

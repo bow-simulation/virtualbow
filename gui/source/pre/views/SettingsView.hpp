@@ -1,10 +1,10 @@
 #pragma once
 #include "pre/widgets/PropertyList.hpp"
 
-class SettingsVM;
+class SettingsModel;
 
 class SettingsView: public PropertyList
 {
 public:
-    SettingsView(SettingsVM* model);
+    SettingsView(SettingsModel* model);
 };

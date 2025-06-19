@@ -2,11 +2,11 @@
 #include "SimulationDialog.hpp"
 #include "RecentFilesMenu.hpp"
 #include "HelpMenu.hpp"
-#include "treedock/TreeDock.hpp"
-#include "editdock/EditDock.hpp"
-#include "plotdock/PlotDock.hpp"
-#include "limbview/LimbView.hpp"
-#include "viewmodels/MainVM.hpp"
+#include "views/docks/TreeDock.hpp"
+#include "views/docks/EditDock.hpp"
+#include "views/docks/PlotDock.hpp"
+#include "views/limb3d/LimbView.hpp"
+#include "models/MainModel.hpp"
 #include "utils/UserSettings.hpp"
 #include "UnitDialog.hpp"
 
@@ -20,7 +20,7 @@
 QString MainWindow::DEFAULT_NAME = "Unnamed";
 
 MainWindow::MainWindow()
-    : viewModel(new MainVM()),
+    : viewModel(new MainModel()),
       menuOpenRecent(new RecentFilesMenu(this))
 {
     // Actions for manin menus and toolbar
@@ -72,16 +72,16 @@ MainWindow::MainWindow()
     // Some actions are only available if a bow model is present
 
     actionSave->setEnabled(viewModel->hasBowModel());
-    QObject::connect(viewModel, &MainVM::hasBowModelChanged, actionSave, &QAction::setEnabled);
+    QObject::connect(viewModel, &MainModel::hasBowModelChanged, actionSave, &QAction::setEnabled);
 
     actionSaveAs->setEnabled(viewModel->hasBowModel());
-    QObject::connect(viewModel, &MainVM::hasBowModelChanged, actionSaveAs, &QAction::setEnabled);
+    QObject::connect(viewModel, &MainModel::hasBowModelChanged, actionSaveAs, &QAction::setEnabled);
 
     actionRunStatics->setEnabled(viewModel->hasBowModel());
-    QObject::connect(viewModel, &MainVM::hasBowModelChanged, actionRunStatics, &QAction::setEnabled);
+    QObject::connect(viewModel, &MainModel::hasBowModelChanged, actionRunStatics, &QAction::setEnabled);
 
     actionRunDynamics->setEnabled(viewModel->hasBowModel());
-    QObject::connect(viewModel, &MainVM::hasBowModelChanged, actionRunDynamics, &QAction::setEnabled);
+    QObject::connect(viewModel, &MainModel::hasBowModelChanged, actionRunDynamics, &QAction::setEnabled);
 
     // File menu
     auto menuFile = this->menuBar()->addMenu("&File");
@@ -131,7 +131,7 @@ MainWindow::MainWindow()
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
     auto limbView = new LimbView();
-    auto treeDock = new TreeDock(viewModel->getModelTreeVM(), viewModel->getModelTreeSelectionVM());
+    auto treeDock = new TreeDock(viewModel->getMainTreeModel(), viewModel->getModelTreeSelectionModel());
     auto editDock = new EditDock(viewModel);
     auto plotDock = new PlotDock();
 
@@ -142,13 +142,13 @@ MainWindow::MainWindow()
 
     // Connect window file path to view model
     this->setWindowFilePath(displayPath());
-    QObject::connect(viewModel, &MainVM::currentFileChanged, this, [&](){
+    QObject::connect(viewModel, &MainModel::currentFileChanged, this, [&](){
         setWindowFilePath(displayPath());
     });
 
     // Connect modification indicator to view model
     this->setWindowModified(viewModel->hasUnsavedWork());
-    QObject::connect(viewModel, &MainVM::hasUnsavedWorkChanged, this, &MainWindow::setWindowModified);
+    QObject::connect(viewModel, &MainModel::hasUnsavedWorkChanged, this, &MainWindow::setWindowModified);
 
     // Main window
     this->setWindowIcon(QIcon(":/icons/logo.svg"));

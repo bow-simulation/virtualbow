@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
 }
 
 /*
-#include "viewmodels/MainVM.hpp"
+#include "models/MainModel.hpp"
 #include <iostream>
 
 #include <QApplication>
@@ -58,7 +58,7 @@ void bind(QObject* target, const char* targetProperty, const QObject* source, co
 }
 
 int main(int argc, char* argv[]) {
-    MainVM viewModel;
+    MainModel viewModel;
 
     QApplication application(argc, argv);
     QMainWindow window;
@@ -66,10 +66,10 @@ int main(int argc, char* argv[]) {
     QPushButton* button = new QPushButton("Modify");
     window.setCentralWidget(button);
 
-    //QObject::connect(button, &QPushButton::clicked, &viewModel, &MainVM::modify);
+    //QObject::connect(button, &QPushButton::clicked, &viewModel, &MainModel::modify);
 
     //window.setWindowFilePath(viewModel.currentFile());
-    //QObject::connect(&viewModel, &MainVM::currentFileChanged, &window, &QMainWindow::setWindowFilePath);
+    //QObject::connect(&viewModel, &MainModel::currentFileChanged, &window, &QMainWindow::setWindowFilePath);
 
     bind(&window, "windowFilePath", &viewModel, "currentFile");
 

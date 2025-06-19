@@ -1,5 +1,5 @@
 #include "CurvaturePlot.hpp"
-#include "pre/viewmodel/units/UnitSystem.hpp"
+#include "pre/models/units/UnitSystem.hpp"
 
 CurvaturePlot::CurvaturePlot(const Common& common, const States& states)
     : common(common),

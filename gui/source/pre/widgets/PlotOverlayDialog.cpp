@@ -1,7 +1,7 @@
 #include "PlotOverlayDialog.hpp"
 #include "pre/widgets/PlotWidget.hpp"
 #include "pre/widgets/DoubleSpinBox.hpp"
-#include "pre/viewmodel/units/UnitSystem.hpp"
+#include "pre/models/units/UnitSystem.hpp"
 #include "pre/utils/DoubleRange.hpp"
 #include <cmath>
 

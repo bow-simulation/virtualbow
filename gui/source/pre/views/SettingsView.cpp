@@ -3,10 +3,10 @@
 #include "primitive/DoubleView.hpp"
 #include "pre/utils/IntegerRange.hpp"
 #include "pre/utils/DoubleRange.hpp"
-#include "pre/viewmodel/units/UnitSystem.hpp"
-#include "pre/viewmodels/SettingsVM.hpp"
+#include "pre/models/units/UnitSystem.hpp"
+#include "pre/models/SettingsModel.hpp"
 
-SettingsView::SettingsView(SettingsVM* model) {
+SettingsView::SettingsView(SettingsModel* model) {
     addHeading("General");
 
     addProperty(
@@ -48,7 +48,7 @@ SettingsView::SettingsView(SettingsVM* model) {
     addProperty(
         "Arrow clamp force",
         "Force that the arrow has to overcome before separating from the string",
-        new DoubleView(model, model->ARROW_CLAMP_FORCE, Quantities::force, DoubleRange::nonNegative(1e-2))
+        new DoubleView(model, model->ARROW_CLAMP_FORCE, Quantities::force, DoubleRange::nonNegative(0.1))
     );
 
     addProperty(
@@ -66,7 +66,7 @@ SettingsView::SettingsView(SettingsVM* model) {
     addProperty(
         "Timeout factor",
         "Factor for controlling the timeout of the dynamic simulation.\nThe simulation is aborted when arrow separation didn't happen until the simulation time exceeds the timeout factor multiplied by a characteristic time of the bow.",
-        new DoubleView(model, model->TIMEOUT_FACTOR, Quantities::ratio, DoubleRange::positive(1e-2))
+        new DoubleView(model, model->TIMEOUT_FACTOR, Quantities::ratio, DoubleRange::positive(0.1))
     );
 
     addProperty(

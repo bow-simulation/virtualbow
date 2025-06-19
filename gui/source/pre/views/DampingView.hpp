@@ -1,10 +1,10 @@
 #pragma once
 #include "pre/widgets/PropertyList.hpp"
 
-class DampingVM;
+class DampingModel;
 
 class DampingView: public PropertyList
 {
 public:
-    DampingView(DampingVM* model);
+    DampingView(DampingModel* model);
 };

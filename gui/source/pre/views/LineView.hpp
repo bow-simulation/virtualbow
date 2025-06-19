@@ -1,10 +1,10 @@
 #pragma once
 #include "pre/widgets/PropertyList.hpp"
 
-class LineVM;
+class LineModel;
 
 class LineView: public PropertyList
 {
 public:
-    LineView(LineVM* model);
+    LineView(LineModel* model);
 };

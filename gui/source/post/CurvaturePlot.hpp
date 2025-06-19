@@ -1,6 +1,6 @@
 #pragma once
 #include "pre/widgets/PlotWidget.hpp"
-#include "pre/viewmodel/units/Quantity.hpp"
+#include "pre/models/units/Quantity.hpp"
 #include "solver/BowResult.hpp"
 
 class CurvaturePlot: public PlotWidget {

@@ -2,10 +2,10 @@
 #include "primitive/DoubleView.hpp"
 #include "primitive/EnumSelectionView.hpp"
 #include "pre/utils/DoubleRange.hpp"
-#include "pre/viewmodels/DimensionsVM.hpp"
-#include "pre/viewmodel/units/UnitSystem.hpp"
+#include "pre/models/DimensionsModel.hpp"
+#include "pre/models/units/UnitSystem.hpp"
 
-DimensionsView::DimensionsView(DimensionsVM* model) {
+DimensionsView::DimensionsView(DimensionsModel* model) {
     addHeading("Draw");
 
     addProperty(
@@ -43,7 +43,7 @@ DimensionsView::DimensionsView(DimensionsVM* model) {
     addProperty(
         "Angle",
         "Angle at which the limbs are attached to the handle",
-        new DoubleView(model, model->HANDLE_ANGLE, Quantities::angle, DoubleRange::unrestricted(1e-3))
+        new DoubleView(model, model->HANDLE_ANGLE, Quantities::angle, DoubleRange::unrestricted(0.25*M_PI/180))
     );
 
     addStretch();

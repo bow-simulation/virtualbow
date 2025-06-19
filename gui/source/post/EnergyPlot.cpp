@@ -1,5 +1,5 @@
 #include "EnergyPlot.hpp"
-#include "pre/viewmodel/units/UnitSystem.hpp"
+#include "pre/models/units/UnitSystem.hpp"
 #include <algorithm>
 #include <functional>
 

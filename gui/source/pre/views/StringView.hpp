@@ -1,10 +1,10 @@
 #pragma once
 #include "pre/widgets/PropertyList.hpp"
 
-class StringVM;
+class StringModel;
 
 class StringView: public PropertyList
 {
 public:
-    StringView(StringVM* model);
+    StringView(StringModel* model);
 };

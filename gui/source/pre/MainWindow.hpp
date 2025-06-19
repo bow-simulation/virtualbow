@@ -2,7 +2,7 @@
 #include <QMainWindow>
 
 class RecentFilesMenu;
-class MainVM;
+class MainModel;
 
 class QLabel;
 
@@ -16,7 +16,7 @@ public:
 private:
     static QString DEFAULT_NAME;
 
-    MainVM* viewModel;
+    MainModel* viewModel;
     RecentFilesMenu* menuOpenRecent;
 
     void closeEvent(QCloseEvent *event) override;

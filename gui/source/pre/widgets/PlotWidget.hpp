@@ -1,6 +1,6 @@
 #pragma once
 #include "PlotOverlayDialog.hpp"
-#include "pre/extern/qcustomplot/qcustomplot.h"
+#include "extern/qcustomplot/qcustomplot.h"
 #include <optional>
 
 class PlotWidget: public QCustomPlot {

@@ -1,10 +1,10 @@
 #pragma once
 #include "pre/widgets/PropertyList.hpp"
 
-class DimensionsVM;
+class DimensionsModel;
 
 class DimensionsView: public PropertyList
 {
 public:
-    DimensionsView(DimensionsVM* model);
+    DimensionsView(DimensionsModel* model);
 };

@@ -1,6 +1,6 @@
 #pragma once
 #include <QSpinBox>
-#include "pre/extern/calculate/include/calculate.hpp"
+#include "extern/calculate/include/calculate.hpp"
 
 class QAbstractItemModel;
 class QWheelEvent;

@@ -1,18 +1,17 @@
 #include "SplineView.hpp"
-#include "pre/widgets/TableDelegate.hpp"
 #include "primitive/TableView.hpp"
-#include "pre/widgets/TableModel.hpp"
+#include "pre/models/TableModel.hpp"
 #include "pre/utils/DoubleRange.hpp"
-#include "pre/viewmodel/units/UnitSystem.hpp"
+#include "pre/models/units/UnitSystem.hpp"
 
 SplineView::SplineView(TableModel* model) {
-    auto tableView = new TableView2();
+    auto tableView = new TableView();
     tableView->setModel(model);
-    tableView->setItemDelegateForColumn(0, new TableDelegate(Quantities::length, DoubleRange::unrestricted(0.1e-3)));
-    tableView->setItemDelegateForColumn(1, new TableDelegate(Quantities::length, DoubleRange::unrestricted(0.1e-3)));
+    tableView->setItemDelegateForColumn(0, new TableDelegate(Quantities::length, DoubleRange::unrestricted(1e-3)));
+    tableView->setItemDelegateForColumn(1, new TableDelegate(Quantities::length, DoubleRange::unrestricted(1e-3)));
 
     addWidget(
-        "TODO: Some tooltip",
+        "Control points of the spline curve",
         tableView
     );
 }

@@ -1,10 +1,10 @@
 #pragma once
 #include "pre/widgets/PropertyList.hpp"
 
-class SpiralVM;
+class SpiralModel;
 
 class SpiralView: public PropertyList
 {
 public:
-    SpiralView(SpiralVM* model);
+    SpiralView(SpiralModel* model);
 };
