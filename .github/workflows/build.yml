@@ -8,6 +8,44 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
+ build-windows:
+   runs-on: windows-2022
+   timeout-minutes: 30
+   defaults:
+     run:
+       shell: cmd
+   env:
+     RUSTFLAGS: -D warnings    # Make Rust compiler fail on warnings
+   steps:
+     - uses: actions/checkout@v4
+       with:
+         path: virtualbow
+
+     - name: Setup Conan
+       uses: conan-io/setup-conan@v1
+
+     - name: Extract test files
+       run: |
+         cd virtualbow/rust/virtualbow/data
+         7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
+
+     - name: Build and test solver
+       run: |
+         cd virtualbow/rust
+         cargo clippy --all-targets
+         cargo build --release
+         cargo test --release
+
+     - name: Build and test application
+       run: |
+         cd virtualbow/gui
+         conan install . --output-folder=build --build=missing -s compiler.cppstd=20
+         cd build
+         cmake .. -G "Visual Studio 17 2022" Ninja -DCMAKE_BUILD_TYPE=Release
+         cmake --build . -j4
+         cmake --build . --target iss-installer -j4
+         virtualbow-test.exe
+
 #  build-windows:
 #    runs-on: windows-2022
 #    timeout-minutes: 30
@@ -56,51 +94,51 @@ jobs:
 #          name: windows-packages
 #          path: build/packages
 
-  build-linux:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    env:
-      RUSTFLAGS: -D warnings    # Make Rust compiler fail on warnings
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          path: virtualbow
+  # build-linux:
+    # runs-on: ubuntu-24.04
+    # timeout-minutes: 30
+    # env:
+      # RUSTFLAGS: -D warnings    # Make Rust compiler fail on warnings
+    # steps:
+      # - uses: actions/checkout@v4
+        # with:
+          # path: virtualbow
       
-      - name: Get dependencies
-        run: |
-          sudo apt install -y ninja-build qt6-base-dev pkg-config libfreetype6-dev libfontconfig1-dev
-          curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.5.0/linux-gcc_64.zip && unzip linux-gcc_64.zip
+      # - name: Get dependencies
+        # run: |
+          # sudo apt install -y ninja-build qt6-base-dev pkg-config libfreetype6-dev libfontconfig1-dev
+          # curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.5.0/linux-gcc_64.zip && unzip linux-gcc_64.zip
 
-      - name: Extract test files
-        run: |
-          cd virtualbow/rust/virtualbow/data
-          7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
+      # - name: Extract test files
+        # run: |
+          # cd virtualbow/rust/virtualbow/data
+          # 7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
 
-      - name: Build and test solver
-        run: |
-          cd virtualbow/rust
-          cargo clippy --all-targets
-          cargo build --release
-          cargo test --release
+      # - name: Build and test solver
+        # run: |
+          # cd virtualbow/rust
+          # cargo clippy --all-targets
+          # cargo build --release
+          # cargo test --release
 
-      - name: Build and test application
-        run: |
-          mkdir build && cd build
-          cmake ../virtualbow/gui -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../linux-gcc_64/paths.cmake
-          cmake --build . -j4
-          cmake --build . --target deb-package -j4
-          cmake --build . --target rpm-package -j4
-          ./virtualbow-test
+      # - name: Build and test application
+        # run: |
+          # mkdir build && cd build
+          # cmake ../virtualbow/gui -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../linux-gcc_64/paths.cmake
+          # cmake --build . -j4
+          # cmake --build . --target deb-package -j4
+          # cmake --build . --target rpm-package -j4
+          # ./virtualbow-test
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: linux-application
-          path: build/application
+      # - uses: actions/upload-artifact@v4
+        # with:
+          # name: linux-application
+          # path: build/application
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: linux-packages
-          path: build/packages
+      # - uses: actions/upload-artifact@v4
+        # with:
+          # name: linux-packages
+          # path: build/packages
 
 #  build-macos:
 #    runs-on: macos-13

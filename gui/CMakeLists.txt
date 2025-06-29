@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.30)
 project(virtualbow)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(CheckCXXCompilerFlag)
@@ -36,11 +36,7 @@ include_directories(source ${PROJECT_BINARY_DIR})
 include_directories("../rust/virtualbow_ffi")
 link_directories("../rust/target/release")
 
-# Compiler flags
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-math-errno")    # Don't make standard math functions set error flags
-
-# Target: Solver library
+# Target: Solver interface library
 
 add_library(
     virtualbow-lib STATIC
