@@ -5,7 +5,7 @@
 #include <QWheelEvent>
 #include <cmath>
 
-calculate::Parser DoubleView::parser = calculate::Parser{};
+//calculate::Parser DoubleView::parser = calculate::Parser{};
 
 DoubleView::DoubleView(QAbstractItemModel* model, QPersistentModelIndex index, const Quantity& quantity, const DoubleRange& range):
     show_unit(true),
@@ -56,7 +56,7 @@ double DoubleView::valueFromText(const QString& text) const {
     QString input = text;
     input.remove(suffix());
 
-    auto expression = DoubleView::parser.parse(input.toStdString());
+    auto expression = parser.parse(input.toStdString());
     double value = expression();
 
     return quantity.getUnit().toBase(value);
@@ -67,7 +67,7 @@ QValidator::State DoubleView::validate(QString& text, int& pos) const {
     input.remove(suffix());
 
     try {
-        DoubleView::parser.parse(input.toStdString());
+        parser.parse(input.toStdString());
         return QValidator::Acceptable;
     }
     catch(calculate::BaseError&) {

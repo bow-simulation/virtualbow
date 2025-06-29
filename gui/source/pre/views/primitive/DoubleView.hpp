@@ -4,7 +4,7 @@
 
 /*
 class QAbstractItemModel;
-class DoubleRange;
+struct DoubleRange;
 
 class DoubleView: public QSpinBox {
     Q_OBJECT
@@ -21,7 +21,7 @@ private:
 */
 
 class QAbstractItemModel;
-class DoubleRange;
+struct DoubleRange;
 class Quantity;
 
 class DoubleView: public QDoubleSpinBox {
@@ -40,7 +40,7 @@ protected:
 private:
     bool show_unit;
     const Quantity& quantity;
-    static calculate::Parser parser;
+    calculate::Parser parser;
 
     QString textFromValue(double value) const override;
     double valueFromText(const QString& text) const override;

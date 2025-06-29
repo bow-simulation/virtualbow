@@ -2,7 +2,7 @@
 #include <QSpinBox>
 #include "extern/calculate/include/calculate.hpp"
 
-class IntegerRange;
+struct IntegerRange;
 
 class IntegerSpinBox: public QSpinBox {
     Q_OBJECT
@@ -14,7 +14,7 @@ signals:
     void modified();
 
 private:
-    static calculate::Parser parser;
+    calculate::Parser parser;
 
     int valueFromText(const QString& text) const override;
     QValidator::State validate(QString &text, int &pos) const override;

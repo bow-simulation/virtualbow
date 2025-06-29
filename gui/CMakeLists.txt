@@ -1,9 +1,7 @@
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.13)
 project(virtualbow)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-include(CheckCXXCompilerFlag)
 
 # Parameters
 
@@ -36,10 +34,6 @@ include_directories(source ${PROJECT_BINARY_DIR})
 include_directories("../rust/virtualbow_ffi")
 link_directories("../rust/target/release")
 
-# Compiler flags
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-math-errno")    # Don't make standard math functions set error flags
-
 # Target: Solver library
 
 add_library(
@@ -49,11 +43,8 @@ add_library(
     source/solver/Defaults.cpp
 )
 
-target_link_libraries(
-    virtualbow-lib
-    virtualbow_ffi
-    nlohmann_json::nlohmann_json
-)
+target_link_libraries(virtualbow-lib virtualbow_ffi nlohmann_json::nlohmann_json)
+target_link_libraries(virtualbow-lib $<$<PLATFORM_ID:Windows>:ws2_32.lib;Userenv.lib;ntdll.lib;>)  # Add missing Windows libraries
 
 # Target: Gui executable
 
@@ -197,9 +188,7 @@ add_executable(
 
 target_compile_definitions(virtualbow-gui PRIVATE JSON_HAS_CPP_17)
 
-target_link_libraries(
-    virtualbow-gui
-    virtualbow-lib
+target_link_libraries(virtualbow-gui virtualbow-lib
     Threads::Threads
     ${OPENGL_gl_LIBRARY}
     Qt6::Widgets
@@ -314,7 +303,7 @@ add_custom_command(
             ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../rust/target/release/virtualbow_cli.exe ${CMAKE_BINARY_DIR}/application/virtualbow-cli.exe
 )
 
-# Platform specifics
+# Platform-specific build targets
 
 if(WIN32)
     add_subdirectory(platforms/windows)

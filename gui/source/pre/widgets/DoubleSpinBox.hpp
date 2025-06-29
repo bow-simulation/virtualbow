@@ -3,7 +3,7 @@
 #include "extern/calculate/include/calculate.hpp"
 
 class Quantity;
-class DoubleRange;
+struct DoubleRange;
 
 class DoubleSpinBox: public QDoubleSpinBox {
     Q_OBJECT
@@ -18,7 +18,7 @@ signals:
 private:
     bool show_unit;
     const Quantity& quantity;
-    static calculate::Parser parser;
+    calculate::Parser parser;
 
     QString textFromValue(double value) const override;
     double valueFromText(const QString& text) const override;

@@ -4,7 +4,7 @@
 #include <QWheelEvent>
 #include <cmath>
 
-calculate::Parser IntegerView::parser = calculate::Parser{};
+//calculate::Parser IntegerView::parser = calculate::Parser{};
 
 IntegerView::IntegerView(QAbstractItemModel* model, QPersistentModelIndex index, const IntegerRange& range) {
     setMinimum(range.min);

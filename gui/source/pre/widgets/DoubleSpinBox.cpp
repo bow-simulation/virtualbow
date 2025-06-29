@@ -4,8 +4,6 @@
 #include <limits>
 #include <cmath>
 
-calculate::Parser DoubleSpinBox::parser = calculate::Parser{};
-
 DoubleSpinBox::DoubleSpinBox(const Quantity& quantity, const DoubleRange& range, QWidget* parent)
     : QDoubleSpinBox(parent),
       show_unit(true),
@@ -39,7 +37,7 @@ double DoubleSpinBox::valueFromText(const QString& text) const {
     QString input = text;
     input.remove(suffix());
 
-    auto expression = DoubleSpinBox::parser.parse(input.toStdString());
+    auto expression = parser.parse(input.toStdString());
     double value = expression();
 
     return quantity.getUnit().toBase(value);
@@ -50,7 +48,7 @@ QValidator::State DoubleSpinBox::validate(QString& text, int& pos) const {
     input.remove(suffix());
 
     try {
-        DoubleSpinBox::parser.parse(input.toStdString());
+        parser.parse(input.toStdString());
         return QValidator::Acceptable;
     }
     catch(calculate::BaseError&) {
