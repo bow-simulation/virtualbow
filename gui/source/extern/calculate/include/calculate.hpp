@@ -66,7 +66,7 @@ public:
                 prod *= i;
             return prod;
         };
-        /*
+
         constants.insert({
             {"pi", 3.14159265358979323846},
             {"e", 2.71828182845904523536},
@@ -128,7 +128,7 @@ public:
             {"lgamma", static_cast<F1>(std::lgamma)},
             {"fact", fact}
         });
-        */
+
         operators.insert({
             {"+", {add<Type>, Precedence::low, Associativity::FULL}},
             {"-", {sub<Type>, Precedence::low, Associativity::LEFT}},

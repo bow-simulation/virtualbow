@@ -46,7 +46,7 @@ PlotOverlayDialog::PlotOverlayDialog(PlotWidget* plot)
     });
 
     cb_aspect_ratio = new QCheckBox("Keep aspect ratio");
-    QObject::connect(cb_aspect_ratio, &QCheckBox::stateChanged, [&](int state){
+    QObject::connect(cb_aspect_ratio, &QCheckBox::stateChanged, [&](int state) {    // Don't update to checkStateChanged yet because of Linux
         if(state == Qt::Checked) {
             updateAspectRatioY();
             updateItem();
@@ -54,13 +54,13 @@ PlotOverlayDialog::PlotOverlayDialog(PlotWidget* plot)
     });
 
     spinner_offset_x = new DoubleSpinBox(Quantities::none, DoubleRange::unrestricted(1.0));
-    QObject::connect(spinner_offset_x, &DoubleSpinBox::modified, this, &PlotOverlayDialog::updateItem);
+    QObject::connect(spinner_offset_x, &DoubleSpinBox::valueChanged, this, &PlotOverlayDialog::updateItem);
 
     spinner_offset_y = new DoubleSpinBox(Quantities::none, DoubleRange::unrestricted(1.0));
-    QObject::connect(spinner_offset_y, &DoubleSpinBox::modified, this, &PlotOverlayDialog::updateItem);
+    QObject::connect(spinner_offset_y, &DoubleSpinBox::valueChanged, this, &PlotOverlayDialog::updateItem);
 
     spinner_angle = new DoubleSpinBox(Quantities::angle, DoubleRange::inclusive(-M_PI, M_PI, STEP_SIZE_ROTATION));
-    QObject::connect(spinner_angle, &DoubleSpinBox::modified, this, &PlotOverlayDialog::updateItem);
+    QObject::connect(spinner_angle, &DoubleSpinBox::valueChanged, this, &PlotOverlayDialog::updateItem);
 
     auto edit_image = new QLineEdit();
     edit_image->setPlaceholderText("No file selected");

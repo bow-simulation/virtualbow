@@ -1,7 +1,7 @@
 #include "DoubleSpinBox.hpp"
 #include "pre/utils/DoubleRange.hpp"
+#include "pre/utils/Expressions.hpp"
 #include "pre/models/units/UnitSystem.hpp"
-#include <limits>
 #include <cmath>
 
 DoubleSpinBox::DoubleSpinBox(const Quantity& quantity, const DoubleRange& range, QWidget* parent)
@@ -14,7 +14,9 @@ DoubleSpinBox::DoubleSpinBox(const Quantity& quantity, const DoubleRange& range,
     setMaximum(range.max);
     setSingleStep(range.step);
 
-    QObject::connect(this, &DoubleSpinBox::editingFinished, this, &DoubleSpinBox::modified);
+    // Prevent catching focus when scrolling, https://stackoverflow.com/a/19382766
+    setFocusPolicy(Qt::StrongFocus);
+
     QObject::connect(&quantity, &Quantity::unitChanged, this, &DoubleSpinBox::updateUnit);
     updateUnit();
 }
@@ -37,7 +39,7 @@ double DoubleSpinBox::valueFromText(const QString& text) const {
     QString input = text;
     input.remove(suffix());
 
-    auto expression = parser.parse(input.toStdString());
+    auto expression = parseExpression(input);
     double value = expression();
 
     return quantity.getUnit().toBase(value);
@@ -47,18 +49,11 @@ QValidator::State DoubleSpinBox::validate(QString& text, int& pos) const {
     QString input = text;
     input.remove(suffix());
 
-    try {
-        parser.parse(input.toStdString());
-        return QValidator::Acceptable;
-    }
-    catch(calculate::BaseError&) {
+    if(!checkExpression(input)) {
         return QValidator::Intermediate;
     }
-}
 
-void DoubleSpinBox::stepBy(int steps) {
-    QDoubleSpinBox::stepBy(steps);
-    emit modified();
+    return QValidator::Acceptable;
 }
 
 void DoubleSpinBox::updateUnit() {

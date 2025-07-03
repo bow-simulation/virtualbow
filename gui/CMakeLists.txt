@@ -65,6 +65,8 @@ add_executable(
     source/pre/SimulationDialog.hpp
     source/pre/UnitDialog.cpp
     source/pre/UnitDialog.hpp
+    source/pre/utils/Expressions.cpp
+    source/pre/utils/Expressions.hpp
     source/pre/utils/DoubleRange.cpp
     source/pre/utils/DoubleRange.hpp
     source/pre/utils/IntegerRange.cpp
@@ -222,6 +224,8 @@ add_executable(
     source/pre/models/units/Quantity.hpp
     source/pre/models/units/UnitSystem.cpp
     source/pre/models/units/UnitSystem.hpp
+    source/pre/utils/Expressions.cpp
+    source/pre/utils/Expressions.hpp
     source/pre/utils/DoubleRange.cpp
     source/pre/utils/DoubleRange.hpp
     source/pre/utils/IntegerRange.cpp

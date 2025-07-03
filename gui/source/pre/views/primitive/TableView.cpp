@@ -21,7 +21,7 @@ QWidget* TableDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem
     editor->showUnit(false);
     editor->setFrame(false);
 
-    QObject::connect(editor, &DoubleSpinBox::modified, this, [=] {
+    QObject::connect(editor, &DoubleSpinBox::valueChanged, this, [=] {
         // const_cast<TableDelegate*>(this)->commitData(editor);    // Hack
     });
 
