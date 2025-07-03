@@ -17,8 +17,7 @@ int IntegerSpinBox::valueFromText(const QString& text) const {
     QString input = text;
     input.remove(suffix());
 
-    auto expression = parseExpression(input);
-    return expression();
+    return evalExpression(input);
 }
 
 QValidator::State IntegerSpinBox::validate(QString& text, int& pos) const {

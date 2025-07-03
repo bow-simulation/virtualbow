@@ -39,9 +39,7 @@ double DoubleSpinBox::valueFromText(const QString& text) const {
     QString input = text;
     input.remove(suffix());
 
-    auto expression = parseExpression(input);
-    double value = expression();
-
+    double value = evalExpression(input);
     return quantity.getUnit().toBase(value);
 }
 

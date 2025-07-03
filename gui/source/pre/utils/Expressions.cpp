@@ -1,14 +1,16 @@
 #include "Expressions.hpp"
+#include "extern/calculate/include/calculate.hpp"
 
 calculate::Parser parser = calculate::Parser{};
 
-Expression parseExpression(const QString& input) {
-    return parser.parse(input.toStdString());
+double evalExpression(const QString& input) {
+    auto expression = parser.parse(input.toStdString());
+    return expression();
 }
 
 bool checkExpression(const QString& input) {
     try {
-        parseExpression(input);
+        evalExpression(input);
         return true;
     }
     catch(calculate::BaseError&) {

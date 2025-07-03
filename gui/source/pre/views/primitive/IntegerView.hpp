@@ -1,6 +1,5 @@
 #pragma once
 #include "pre/widgets/IntegerSpinBox.hpp"
-#include "extern/calculate/include/calculate.hpp"
 
 class QAbstractItemModel;
 
