@@ -452,7 +452,7 @@ mod tests {
         for entry in std::fs::read_dir("data/versions").unwrap() {
             let path = entry.unwrap().path();
             if path.is_dir() {
-                println!("{:?}", path);
+                println!("{path:?}");
                 check_version_folder(path);
             }
         }
@@ -466,7 +466,7 @@ mod tests {
             .filter(|path| path.extension().map(|s| s == "bow").unwrap())
             .filter(|path| path.file_name().map(|s| s != "latest.bow").unwrap())
             .map(|file| {
-                let model = BowModel::load(&file).unwrap_or_else(|_| panic!("Failed to load model {:?}", file));
+                let model = BowModel::load(&file).unwrap_or_else(|_| panic!("Failed to load model {file:?}"));
                 return (file, model);
             })
             .collect()
@@ -486,16 +486,16 @@ mod tests {
         // Save model data in the latest version
         let (_, model) = &models[0];
         let file = path.as_ref().join("latest.bow");
-        model.save(&file).unwrap_or_else(|_| panic!("Failed to save model {:?}", file));
+        model.save(&file).unwrap_or_else(|_| panic!("Failed to save model {file:?}"));
 
         // Load it again and check for equality
-        let loaded = BowModel::load(&file).unwrap_or_else(|_| panic!("Failed to load model {:?}", file));
+        let loaded = BowModel::load(&file).unwrap_or_else(|_| panic!("Failed to load model {file:?}"));
         assert!(loaded == *model, "Model data of {:?} must be equal to its source", file);
 
         // Load it once more as a Json Value and check if the version entry matches the Cargo package version
-        let mut reader = File::open(&file).unwrap_or_else(|_| panic!("Failed to load file {:?}", file));
-        let value: Value = serde_json::from_reader(&mut reader).unwrap_or_else(|_| panic!("Failed to parse file {:?}", file));
-        let version = value.get("version").unwrap_or_else(|| panic!("Model {:?} has no version entry", file));
+        let mut reader = File::open(&file).unwrap_or_else(|_| panic!("Failed to load file {file:?}"));
+        let value: Value = serde_json::from_reader(&mut reader).unwrap_or_else(|_| panic!("Failed to parse file {file:?}"));
+        let version = value.get("version").unwrap_or_else(|| panic!("Model {file:?} has no version entry"));
         assert!(version == &json!(env!("CARGO_PKG_VERSION")), "Version of model {:?} does not match the Cargo package version", file);
     }
 

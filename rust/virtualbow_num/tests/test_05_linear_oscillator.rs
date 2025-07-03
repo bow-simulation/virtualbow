@@ -193,9 +193,9 @@ fn mass_spring_damper_n() {
         let (u_ref, v_ref, a_ref) = ref_solver.evaluate(system.get_time());
 
         for i in 0..n {
-            plotter.add_point((system.get_time(), u_sys[i]), (system.get_time(), u_ref[i]), &format!("position_{:02}", i), "Time [s]", "Position [m]");
-            plotter.add_point((system.get_time(), v_sys[i]), (system.get_time(), v_ref[i]), &format!("velocity_{:02}", i), "Time [s]", "Velocity [m/s]");
-            plotter.add_point((system.get_time(), a_sys[i]), (system.get_time(), a_ref[i]), &format!("acceleration_{:02}", i), "Time [s]", "Acceleration [m/s]");
+            plotter.add_point((system.get_time(), u_sys[i]), (system.get_time(), u_ref[i]), &format!("position_{i:02}"), "Time [s]", "Position [m]");
+            plotter.add_point((system.get_time(), v_sys[i]), (system.get_time(), v_ref[i]), &format!("velocity_{i:02}"), "Time [s]", "Velocity [m/s]");
+            plotter.add_point((system.get_time(), a_sys[i]), (system.get_time(), a_ref[i]), &format!("acceleration_{i:02}"), "Time [s]", "Acceleration [m/s]");
         }
 
         assert_abs_diff_eq!(u_sys, u_ref, epsilon=1e-3*u_max);

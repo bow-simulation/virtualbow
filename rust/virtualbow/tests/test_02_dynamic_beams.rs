@@ -93,8 +93,8 @@ fn test_linear_beam_dynamics() {
             let w_ref = beam.w(x, t);
             let φ_ref = beam.φ(x, t);
 
-            plotter.add_point((t, w_num), (t, w_ref), &format!("Deflection at x={:.3}", x), "Time [s]", "Position [m]");
-            plotter.add_point((t, φ_num), (t, φ_ref), &format!("Angle at x={:.3}", x), "Time [s]", "Angle [m]");
+            plotter.add_point((t, w_num), (t, w_ref), &format!("Deflection at x={x:.3}"), "Time [s]", "Position [m]");
+            plotter.add_point((t, φ_num), (t, φ_ref), &format!("Angle at x={x:.3}"), "Time [s]", "Angle [m]");
 
             assert_abs_diff_eq!(w_num, w_ref, epsilon=1e-2*w0(l));
             assert_abs_diff_eq!(φ_num, φ_num, epsilon=1e-2*φ0(l));

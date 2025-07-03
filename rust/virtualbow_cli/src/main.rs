@@ -56,7 +56,7 @@ fn main() -> ExitCode {
 
     // Attempt to perform simulation and print any errors that occur
     if let Err(e) = args.execute() {
-        eprintln!("ERROR: {}", e);
+        eprintln!("ERROR: {e}");
         return ExitCode::FAILURE;
     }
 
