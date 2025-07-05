@@ -17,22 +17,15 @@ impl BowModel {
     }
 
     pub fn validate(&self) -> Result<(), ModelError> {
-        let Self { comment: _, settings, dimensions, materials, layers, profile, width, string, masses, damping } = self;
+        let Self { comment: _, settings, dimensions, section, profile, string, masses, damping } = self;
 
         settings.validate()?;
         dimensions.validate()?;
         profile.validate()?;
-        width.validate()?;
+        section.validate()?;
         string.validate()?;
         masses.validate()?;
         damping.validate()?;
-
-        for material in materials {
-            material.validate()?;
-        }
-        for layer in layers {
-            layer.validate()?;
-        }
 
         Ok(())
     }
@@ -45,21 +38,20 @@ impl BowModel {
             dimensions: Dimensions {
                 brace_height: 0.2,
                 draw_length: 0.7,
-                handle_origin: HandleOrigin::Profile,  // TODO: Change to Belly later and fix failing tests
+                handle_reference: HandleReference::Belly,
                 handle_length: 0.0,
                 handle_offset: 0.0,
                 handle_angle: 0.0
             },
-            materials: vec![
-                Material::new("Material 1", "#ff9966", 675.0, 12e9, 6e9)
-            ],
-            layers: vec![
-                Layer::new("Layer 1", "Material 1", Height::linear(0.015, 0.01))
-            ],
-            profile: Profile::new(ProfileAlignment::SectionBack, vec![
+            section: Section {
+                alignment: LayerAlignment::SectionBack,
+                width: Width::linear(0.04, 0.01),
+                materials: vec![Material::new("Material 1", "#ff9966", 675.0, 12e9, 6e9)],
+                layers: vec![Layer::new("Layer 1", "Material 1", Height::linear(0.015, 0.01))],
+            } ,
+            profile: Profile::new(vec![
                 ProfileSegment::Line(Line::new(0.8))
             ]),
-            width: Width::linear(0.04, 0.01),
             string: BowString {
                 n_strands: 12,
                 strand_density: 0.0005,
@@ -99,7 +91,7 @@ impl TryFrom<&[u8]> for BowModel {
 
 impl Settings {
     pub fn validate(&self) -> Result<(), ModelError> {
-        let &Self { n_limb_elements, n_limb_eval_points, min_draw_resolution, max_draw_resolution, arrow_clamp_force, string_compression_factor, timespan_factor, timeout_factor, min_timestep, max_timestep, steps_per_period } = self;
+        let &Self { num_limb_elements: n_limb_elements, num_limb_eval_points: n_limb_eval_points, min_draw_resolution, max_draw_resolution, arrow_clamp_force, string_compression_factor, timespan_factor, timeout_factor, min_timestep, max_timestep, steps_per_period } = self;
 
         n_limb_elements.validate_positive().map_err(ModelError::SettingsInvalidLimbElements)?;
         n_limb_eval_points.validate_at_least(2).map_err(ModelError::SettingsInvalidLimbEvalPoints)?;
@@ -121,7 +113,7 @@ impl Settings {
 
 impl Dimensions {
     pub fn validate(&self) -> Result<(), ModelError> {
-        let &Self { brace_height, draw_length, handle_origin: _, handle_length, handle_offset, handle_angle} = self;
+        let &Self { brace_height, draw_length, handle_reference: _, handle_length, handle_offset, handle_angle} = self;
 
         brace_height.validate_positive().map_err(ModelError::DimensionsInvalidBraceHeight)?;
         draw_length.validate_larger_than(brace_height).map_err(ModelError::DimensionsInvalidDrawLength)?;
@@ -139,14 +131,14 @@ impl Material {
         Self {
             name: name.to_string(),
             color: color.to_string(),
-            rho,
-            E,
-            G
+            density: rho,
+            youngs_modulus: E,
+            shear_modulus: G
         }
     }
 
     pub fn validate(&self) -> Result<(), ModelError> {
-        let Self { name, color, rho, E, G } = self;
+        let Self { name, color, density: rho, youngs_modulus: E, shear_modulus: G } = self;
 
         name.validate_name().map_err(ModelError::MaterialInvalidName)?;
         color.validate_hex_color().map_err(ModelError::MaterialInvalidColor)?;
@@ -180,18 +172,38 @@ impl Layer {
 }
 
 impl Profile {
-    pub fn new(alignment: ProfileAlignment, segments: Vec<ProfileSegment>) -> Self {
+    pub fn new(segments: Vec<ProfileSegment>) -> Self {
         Self {
-            alignment,
             segments
         }
     }
 
     pub fn validate(&self) -> Result<(), ModelError> {
-        let Self { alignment, segments } = self;
+        let Self { segments } = self;
+
+        for (index, segment) in segments.iter().enumerate() {
+            segment.validate(index)?;
+        }
+
+        Ok(())
+    }
+}
+
+impl Section {
+    pub fn new(alignment: LayerAlignment, width: Width, materials: Vec<Material>, layers: Vec<Layer>) -> Self {
+        Self {
+            alignment,
+            width,
+            materials,
+            layers
+        }
+    }
+
+    pub fn validate(&self) -> Result<(), ModelError> {
+        let Self { alignment, materials, layers, width } = self;
 
         match alignment {
-            ProfileAlignment::LayerBack(name) | ProfileAlignment::LayerBelly(name) | ProfileAlignment::LayerCenter(name) => {
+            LayerAlignment::LayerBack(name) | LayerAlignment::LayerBelly(name) | LayerAlignment::LayerCenter(name) => {
                 name.validate_name().map_err(ModelError::ProfileAnlignemtInvalidLayerName)?;
             }
             _ => {
@@ -199,8 +211,14 @@ impl Profile {
             }
         }
 
-        for (index, segment) in segments.iter().enumerate() {
-            segment.validate(index)?;
+        width.validate()?;
+
+        for material in materials {
+            material.validate()?;
+        }
+
+        for layer in layers {
+            layer.validate()?;
         }
 
         Ok(())

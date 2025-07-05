@@ -1,6 +1,6 @@
 #include "TableView.hpp"
 #include "pre/models/units/Quantity.hpp"
-//#include "pre/widgets/DoubleSpinBox.hpp"
+#include "pre/widgets/DoubleSpinBox.hpp"
 #include <QHeaderView>
 #include <QAction>
 #include <QApplication>
@@ -16,7 +16,6 @@ TableDelegate::TableDelegate(const Quantity& quantity, const DoubleRange& range,
 }
 
 QWidget* TableDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
-    /*
     auto editor = new DoubleSpinBox(quantity, range, parent);
     editor->showUnit(false);
     editor->setFrame(false);
@@ -26,32 +25,25 @@ QWidget* TableDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem
     });
 
     return editor;
-    */
-
-    return nullptr;
 }
 
 void TableDelegate::setEditorData(QWidget* editor, const QModelIndex &index) const {
-    /*
     double value = index.model()->data(index, Qt::EditRole).toDouble();
 
     auto spinner = static_cast<DoubleSpinBox*>(editor);
     spinner->setValue(value);
-    */
 }
 
 void TableDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
-    /*
     auto spinner = static_cast<DoubleSpinBox*>(editor);
     spinner->interpretText();    // From Qt tutorial
     double value = spinner->value();
 
     model->setData(index, value, Qt::EditRole);
-    */
 }
 
 void TableDelegate::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const {
-    //editor->setGeometry(option.rect);
+    editor->setGeometry(option.rect);
 }
 
 TableView::TableView() {

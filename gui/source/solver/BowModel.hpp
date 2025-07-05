@@ -11,8 +11,8 @@ using Width = Points;
 using Height = Points;
 
 struct Settings {
-    int n_limb_elements;
-    int n_limb_eval_points;
+    int num_limb_elements;
+    int num_limb_eval_points;
     int min_draw_resolution;
     int max_draw_resolution;
     double arrow_clamp_force;
@@ -26,8 +26,8 @@ struct Settings {
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     Settings,
-    n_limb_elements,
-    n_limb_eval_points,
+    num_limb_elements,
+    num_limb_eval_points,
     min_draw_resolution,
     max_draw_resolution,
     arrow_clamp_force,
@@ -39,41 +39,24 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     steps_per_period
 )
 
-struct Material {
-    std::string name;
-    std::string color;
-    double rho;
-    double E;
-    double G;
-};
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    Material,
-    name,
-    color,
-    rho,
-    E,
-    G
-)
-
-enum class HandleOrigin {
+enum class HandleReference {
     Back,
     Belly,
     Profile
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM(
-    HandleOrigin, {
-        {HandleOrigin::Back, "back"},
-        {HandleOrigin::Belly, "belly"},
-        {HandleOrigin::Profile, "profile"}
+    HandleReference, {
+        {HandleReference::Back, "back"},
+        {HandleReference::Belly, "belly"},
+        {HandleReference::Profile, "profile"}
     }
 )
 
 struct Dimensions {
     double brace_height;
     double draw_length;
-    HandleOrigin handle_origin;
+    HandleReference handle_reference;
     double handle_length;
     double handle_offset;
     double handle_angle;
@@ -83,23 +66,10 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     Dimensions,
     brace_height,
     draw_length,
-    handle_origin,
+    handle_reference,
     handle_length,
     handle_offset,
     handle_angle
-)
-
-struct Layer {
-    std::string name;
-    std::string material;
-    Height height;
-};
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    Layer,
-    name,
-    material,
-    height
 )
 
 struct Masses {
@@ -140,17 +110,6 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     strand_density,
     n_strands
 )
-
-struct SectionBack {};
-struct SectionBelly {};
-struct SectionCenter {};
-struct LayerBack { std::string layer; };
-struct LayerBelly { std::string layer; };
-struct LayerCenter { std::string layer; };
-using ProfileAlignment = std::variant<SectionBack, SectionBelly, SectionCenter, LayerBack, LayerBelly, LayerCenter>;
-
-void to_json(nlohmann::json& obj, const ProfileAlignment& input);
-void from_json(const nlohmann::json& obj, ProfileAlignment& input);
 
 struct Line {
     double length;
@@ -200,24 +159,76 @@ void to_json(nlohmann::json& obj, const ProfileSegment& input);
 void from_json(const nlohmann::json& obj, ProfileSegment& input);
 
 struct Profile {
-    ProfileAlignment alignment;
     std::vector<ProfileSegment> segments;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     Profile,
-    alignment,
     segments
+)
+
+struct SectionBack {};
+struct SectionBelly {};
+struct SectionCenter {};
+struct LayerBack { std::string layer; };
+struct LayerBelly { std::string layer; };
+struct LayerCenter { std::string layer; };
+using LayerAlignment = std::variant<SectionBack, SectionBelly, SectionCenter, LayerBack, LayerBelly, LayerCenter>;
+
+void to_json(nlohmann::json& obj, const LayerAlignment& input);
+void from_json(const nlohmann::json& obj, LayerAlignment& input);
+
+struct Material {
+    std::string name;
+    std::string color;
+    double density;
+    double youngs_modulus;
+    double shear_modulus;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    Material,
+    name,
+    color,
+    density,
+    youngs_modulus,
+    shear_modulus
+)
+
+struct Layer {
+    std::string name;
+    std::string material;
+    Height height;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    Layer,
+    name,
+    material,
+    height
+)
+
+struct Section {
+    LayerAlignment alignment;
+    Width width;
+    std::vector<Material> materials;
+    std::vector<Layer> layers;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    Section,
+    alignment,
+    width,
+    materials,
+    layers
 )
 
 struct BowModel {
     std::string comment;
     Settings settings;
-    std::vector<Material> materials;
     Dimensions dimensions;
     Profile profile;
-    Width width;
-    std::vector<Layer> layers;
+    Section section;
     String string;
     Masses masses;
     Damping damping;
@@ -233,11 +244,9 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     BowModel,
     comment,
     settings,
-    materials,
     dimensions,
     profile,
-    width,
-    layers,
+    section,
     string,
     masses,
     damping

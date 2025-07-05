@@ -3,6 +3,7 @@
 #include "solver/API.hpp"
 #include "config.hpp"
 #include <catch2/catch.hpp>
+#include <filesystem>
 
 // Location of the solver's test data directory
 const std::string TEST_DATA_DIR = std::string(Config::CMAKE_SOURCE_DIR) + "/../rust/virtualbow/data";
@@ -10,6 +11,12 @@ const std::string TEST_DATA_DIR = std::string(Config::CMAKE_SOURCE_DIR) + "/../r
 TEST_CASE("load-model-file") {
     REQUIRE_NOTHROW(load_model(TEST_DATA_DIR + "/input/valid_model.bow", false));
     REQUIRE_THROWS(load_model(TEST_DATA_DIR + "/input/nonexistent.bow", false));
+
+    for(const auto& entry: std::filesystem::recursive_directory_iterator(TEST_DATA_DIR + "/versions")) {
+        if(entry.path().extension() == ".bow") {
+            REQUIRE_NOTHROW(load_model(entry.path().string(), false));
+        }
+    }
 }
 
 TEST_CASE("save-model-file") {

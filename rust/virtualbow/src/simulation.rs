@@ -64,14 +64,14 @@ impl<'a> Simulation<'a> {
         let geometry = LimbGeometry::new(input)?;
 
         // Layer setup data
-        let layers = input.layers.iter().map(|layer| {
+        let layers = input.section.layers.iter().map(|layer| {
             LayerInfo {
                 name: layer.name.clone()
             }
         }).collect_vec();
 
         // Discretize geometry into evaluation points and elements
-        let geometry = geometry.discretize(input.settings.n_limb_eval_points, input.settings.n_limb_elements);
+        let geometry = geometry.discretize(input.settings.num_limb_eval_points, input.settings.num_limb_elements);
 
         let elements = geometry.segments.iter().map(BeamElement::new);
 
@@ -290,8 +290,8 @@ impl<'a> Simulation<'a> {
             let min_grip_force = discrete_minimum_1d(&states.grip_force);
             let max_grip_force = discrete_maximum_1d(&states.grip_force);
 
-            let min_layer_stresses = (0..model.layers.len()).map(|i_layer| find_min_layer_result(&states.layer_stress, i_layer)).collect();
-            let max_layer_stresses = (0..model.layers.len()).map(|i_layer| find_max_layer_result(&states.layer_stress, i_layer)).collect();
+            let min_layer_stresses = (0..model.section.layers.len()).map(|i_layer| find_min_layer_result(&states.layer_stress, i_layer)).collect();
+            let max_layer_stresses = (0..model.section.layers.len()).map(|i_layer| find_max_layer_result(&states.layer_stress, i_layer)).collect();
 
             // Collect static outputs
             Statics {
@@ -425,8 +425,8 @@ impl<'a> Simulation<'a> {
                 let min_grip_force = discrete_minimum_1d(&states.grip_force);
                 let max_grip_force = discrete_maximum_1d(&states.grip_force);
 
-                let min_layer_stresses = (0..model.layers.len()).map(|i_layer| find_min_layer_result(&states.layer_stress, i_layer)).collect();
-                let max_layer_stresses = (0..model.layers.len()).map(|i_layer| find_max_layer_result(&states.layer_stress, i_layer)).collect();
+                let min_layer_stresses = (0..model.section.layers.len()).map(|i_layer| find_min_layer_result(&states.layer_stress, i_layer)).collect();
+                let max_layer_stresses = (0..model.section.layers.len()).map(|i_layer| find_max_layer_result(&states.layer_stress, i_layer)).collect();
 
                 // Collect dynamic outputs
                 Some(Dynamics {
@@ -535,8 +535,8 @@ impl<'a> Simulation<'a> {
             element.eval_forces().for_each(|f| limb_force.push(f));
         }
 
-        let mut layer_strain = vec![Vec::<[f64; 2]>::new(); self.input.layers.len()];  // TODO: Capacity
-        let mut layer_stress = vec![Vec::<[f64; 2]>::new(); self.input.layers.len()];  // TODO: Capacity
+        let mut layer_strain = vec![Vec::<[f64; 2]>::new(); self.input.section.layers.len()];  // TODO: Capacity
+        let mut layer_stress = vec![Vec::<[f64; 2]>::new(); self.input.section.layers.len()];  // TODO: Capacity
 
         for i in 0..limb_strain.len() {
             // Stresses and strains at the layer boundaries

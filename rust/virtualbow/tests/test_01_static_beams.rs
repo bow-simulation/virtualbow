@@ -1,6 +1,6 @@
 use std::f64::consts::{FRAC_PI_4, TAU};
 use nalgebra::DVector;
-use virtualbow::input::{Arc, BowModel, Height, Layer, Line, Material, Profile, ProfileAlignment, ProfileSegment, Width};
+use virtualbow::input::{Arc, BowModel, Height, Layer, Line, Material, Profile, LayerAlignment, ProfileSegment, Width, Section, HandleReference};
 use virtualbow::simulation::Simulation;
 use virtualbow_num::utils::functions::normalize_angle;
 use virtualbow_num::utils::plotter::Plotter;
@@ -35,13 +35,12 @@ fn linear_straight_uniform_elongation() {
     // Beam bow
     let mut model = BowModel::example();
     model.damping = Default::default();    // Disable damping
-    model.settings.n_limb_elements = 25;
-    model.settings.n_limb_eval_points = 100;
+    model.settings.num_limb_elements = 25;
+    model.settings.num_limb_eval_points = 100;
     model.settings.min_draw_resolution = 5;
-    model.materials = vec![Material::new("material", "#000000", ρ, E, G)];
-    model.profile = Profile::new(ProfileAlignment::SectionCenter, vec![ProfileSegment::Line(Line::new(l))]);
-    model.width = Width::constant(w);
-    model.layers = vec![Layer::new("layer", "material", Height::constant(h))];
+    model.dimensions.handle_reference = HandleReference::Profile;
+    model.profile = Profile::new(vec![ProfileSegment::Line(Line::new(l))]);
+    model.section = Section::new(LayerAlignment::SectionCenter, Width::constant(w), vec![Material::new("material", "#000000", ρ, E, G)], vec![Layer::new("layer", "material", Height::constant(h))]);
 
     // Compute static deflection
     let (setup, state) = Simulation::simulate_static_limb(&model, F, 0.0, 0.0).unwrap();
@@ -104,13 +103,12 @@ fn linear_straight_uniform_cantilever() {
     // Beam bow
     let mut model = BowModel::example();
     model.damping = Default::default();    // Disable damping
-    model.settings.n_limb_elements = 25;
-    model.settings.n_limb_eval_points = 100;
+    model.settings.num_limb_elements = 25;
+    model.settings.num_limb_eval_points = 100;
     model.settings.min_draw_resolution = 5;
-    model.materials = vec![Material::new("material", "#000000", rho, E, G)];
-    model.profile = Profile::new(ProfileAlignment::SectionCenter, vec![ProfileSegment::Line(Line::new(l))]);
-    model.width = Width::constant(w);
-    model.layers = vec![Layer::new("layer", "material", Height::constant(h))];
+    model.dimensions.handle_reference = HandleReference::Profile;
+    model.profile = Profile::new(vec![ProfileSegment::Line(Line::new(l))]);
+    model.section = Section::new(LayerAlignment::SectionCenter, Width::constant(w), vec![Material::new("material", "#000000", rho, E, G)], vec![Layer::new("layer", "material", Height::constant(h))]);
 
     // Compute static deflection
     let (setup, state) = Simulation::simulate_static_limb(&model, 0.0, F, 0.0).unwrap();
@@ -173,13 +171,12 @@ fn nonlinear_straight_uniform_coilup() {
     // Beam bow
     let mut model = BowModel::example();
     model.damping = Default::default();    // Disable damping
-    model.settings.n_limb_elements = 50;
-    model.settings.n_limb_eval_points = 100;
+    model.settings.num_limb_elements = 50;
+    model.settings.num_limb_eval_points = 100;
     model.settings.min_draw_resolution = 50;
-    model.materials = vec![Material::new("material", "#000000", rho, E, G)];
-    model.profile = Profile::new(ProfileAlignment::SectionCenter, vec![ProfileSegment::Line(Line::new(l))]);
-    model.width = Width::constant(w);
-    model.layers = vec![Layer::new("layer", "material", Height::constant(h))];
+    model.dimensions.handle_reference = HandleReference::Profile;
+    model.profile = Profile::new(vec![ProfileSegment::Line(Line::new(l))]);
+    model.section = Section::new(LayerAlignment::SectionCenter, Width::constant(w), vec![Material::new("material", "#000000", rho, E, G)], vec![Layer::new("layer", "material", Height::constant(h))]);
 
     // Required radius and bending moment
     let I = w*h.powi(3)/12.0;
@@ -249,13 +246,12 @@ fn nonlinear_straight_uniform_cantilever() {
     // Beam bow
     let mut model = BowModel::example();
     model.damping = Default::default();    // Disable damping
-    model.settings.n_limb_elements = 25;
-    model.settings.n_limb_eval_points = u_ref.len();
+    model.settings.num_limb_elements = 25;
+    model.settings.num_limb_eval_points = u_ref.len();
     model.settings.min_draw_resolution = 5;
-    model.materials = vec![Material::new("material", "#000000", rho, E, G)];
-    model.profile = Profile::new(ProfileAlignment::SectionCenter, vec![ProfileSegment::Line(Line::new(l))]);
-    model.width = Width::linear(w0, w1);
-    model.layers = vec![Layer::new("layer", "material", Height::linear(h0, h1))];
+    model.dimensions.handle_reference = HandleReference::Profile;
+    model.profile = Profile::new(vec![ProfileSegment::Line(Line::new(l))]);
+    model.section = Section::new(LayerAlignment::SectionCenter, Width::linear(w0, w1), vec![Material::new("material", "#000000", rho, E, G)], vec![Layer::new("layer", "material", Height::linear(h0, h1))]);
 
     // Compute static deflection
     let (setup, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
@@ -335,13 +331,12 @@ fn nonlinear_straight_tapered_cantilever() {
     // Beam bow
     let mut model = BowModel::example();
     model.damping = Default::default();    // Disable damping
-    model.settings.n_limb_elements = 25;
-    model.settings.n_limb_eval_points = u_ref.len();
+    model.settings.num_limb_elements = 25;
+    model.settings.num_limb_eval_points = u_ref.len();
     model.settings.min_draw_resolution = 5;
-    model.materials = vec![Material::new("material", "#000000", rho, E, G)];
-    model.profile = Profile::new(ProfileAlignment::SectionCenter, vec![ProfileSegment::Line(Line::new(l))]);
-    model.width = Width::linear(w0, w1);
-    model.layers = vec![Layer::new("layer", "material", Height::linear(h0, h1))];
+    model.dimensions.handle_reference = HandleReference::Profile;
+    model.profile = Profile::new(vec![ProfileSegment::Line(Line::new(l))]);
+    model.section = Section::new(LayerAlignment::SectionCenter, Width::linear(w0, w1), vec![Material::new("material", "#000000", rho, E, G)], vec![Layer::new("layer", "material", Height::linear(h0, h1))]);
 
     // Compute static deflection
     let (setup, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
@@ -422,13 +417,12 @@ fn nonlinear_curved_uniform_cantilever() {
     // Beam bow
     let mut model = BowModel::example();
     model.damping = Default::default();    // Disable damping
-    model.settings.n_limb_elements = 25;
-    model.settings.n_limb_eval_points = u_ref.len();
+    model.settings.num_limb_elements = 25;
+    model.settings.num_limb_eval_points = u_ref.len();
     model.settings.min_draw_resolution = 5;
-    model.materials = vec![Material::new("material", "#000000", rho, E, G)];
-    model.profile = Profile::new(ProfileAlignment::SectionCenter, vec![ProfileSegment::Arc(Arc::new(l, r))]);
-    model.width = Width::linear(w0, w1);
-    model.layers = vec![Layer::new("layer", "material", Height::linear(h0, h1))];
+    model.dimensions.handle_reference = HandleReference::Profile;
+    model.profile = Profile::new(vec![ProfileSegment::Arc(Arc::new(l, r))]);
+    model.section = Section::new(LayerAlignment::SectionCenter, Width::linear(w0, w1), vec![Material::new("material", "#000000", rho, E, G)], vec![Layer::new("layer", "material", Height::linear(h0, h1))]);
 
     // Compute static deflection
     let (setup, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
@@ -509,13 +503,12 @@ fn nonlinear_curved_tapered_cantilever() {
     // Beam bow
     let mut model = BowModel::example();
     model.damping = Default::default();    // Disable damping
-    model.settings.n_limb_elements = 25;
-    model.settings.n_limb_eval_points = u_ref.len();
+    model.settings.num_limb_elements = 25;
+    model.settings.num_limb_eval_points = u_ref.len();
     model.settings.min_draw_resolution = 5;
-    model.materials = vec![Material::new("material", "#000000", rho, E, G)];
-    model.profile = Profile::new(ProfileAlignment::SectionCenter, vec![ProfileSegment::Arc(Arc::new(l, r))]);
-    model.width = Width::linear(w0, w1);
-    model.layers = vec![Layer::new("layer", "material", Height::linear(h0, h1))];
+    model.dimensions.handle_reference = HandleReference::Profile;
+    model.profile = Profile::new(vec![ProfileSegment::Arc(Arc::new(l, r))]);
+    model.section = Section::new(LayerAlignment::SectionCenter, Width::linear(w0, w1), vec![Material::new("material", "#000000", rho, E, G)], vec![Layer::new("layer", "material", Height::linear(h0, h1))]);
 
     // Compute static deflection
     let (setup, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
@@ -587,23 +580,22 @@ fn nonlinear_straight_uniform_cantilever_offsets() {
     let Fx = -100.0;
     let Fy = 100.0;
 
-    let solve_for_alignment = |alignment: ProfileAlignment| {
+    let solve_for_alignment = |alignment: LayerAlignment| {
         // Beam bow
         let mut model = BowModel::example();
         model.damping = Default::default();    // Disable damping
-        model.settings.n_limb_elements = 25;
-        model.settings.n_limb_eval_points = 100;
+        model.settings.num_limb_elements = 25;
+        model.settings.num_limb_eval_points = 100;
         model.settings.min_draw_resolution = 5;
-        model.materials = vec![Material::new("material", "#000000", rho, E, G)];
+        model.dimensions.handle_reference = HandleReference::Profile;
         model.dimensions.handle_offset = match alignment {
-            ProfileAlignment::SectionBelly => -h/2.0,
-            ProfileAlignment::SectionCenter => 0.0,
-            ProfileAlignment::SectionBack => h/2.0,
+            LayerAlignment::SectionBelly => -h/2.0,
+            LayerAlignment::SectionCenter => 0.0,
+            LayerAlignment::SectionBack => h/2.0,
             _ => unimplemented!()
         };
-        model.profile = Profile::new(alignment, vec![ProfileSegment::Line(Line::new(l))]);
-        model.width = Width::constant(w);
-        model.layers = vec![Layer::new("layer", "material", Height::constant(h))];
+        model.profile = Profile::new(vec![ProfileSegment::Line(Line::new(l))]);
+        model.section = Section::new(alignment, Width::constant(w), vec![Material::new("material", "#000000", rho, E, G)], vec![Layer::new("layer", "material", Height::constant(h))]);
 
         // Compute static deflection
         let (_, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
@@ -618,9 +610,9 @@ fn nonlinear_straight_uniform_cantilever_offsets() {
         (state.limb_pos, f)
     };
 
-    let (pos0, f0) = solve_for_alignment(ProfileAlignment::SectionCenter);
-    let (pos1, f1) = solve_for_alignment(ProfileAlignment::SectionBelly);
-    let (pos2, f2) = solve_for_alignment(ProfileAlignment::SectionBack);
+    let (pos0, f0) = solve_for_alignment(LayerAlignment::SectionCenter);
+    let (pos1, f1) = solve_for_alignment(LayerAlignment::SectionBelly);
+    let (pos2, f2) = solve_for_alignment(LayerAlignment::SectionBack);
 
     let mut plotter = Plotter::new();
 
@@ -672,12 +664,12 @@ fn nonlinear_curved_uniform_cantilever_offsets() {
     let Fx = -100.0;
     let Fy = 100.0;
 
-    let solve_for_alignment = |alignment: ProfileAlignment| {
+    let solve_for_alignment = |alignment: LayerAlignment| {
         // Offset
         let d = match alignment {
-            ProfileAlignment::SectionBelly => -h/2.0,
-            ProfileAlignment::SectionCenter => 0.0,
-            ProfileAlignment::SectionBack => h/2.0,
+            LayerAlignment::SectionBelly => -h/2.0,
+            LayerAlignment::SectionCenter => 0.0,
+            LayerAlignment::SectionBack => h/2.0,
             _ => unimplemented!()
         };
 
@@ -688,14 +680,13 @@ fn nonlinear_curved_uniform_cantilever_offsets() {
         // Beam bow
         let mut model = BowModel::example();
         model.damping = Default::default();    // Disable damping
-        model.settings.n_limb_elements = 20;
-        model.settings.n_limb_eval_points = 100;
+        model.settings.num_limb_elements = 20;
+        model.settings.num_limb_eval_points = 100;
         model.settings.min_draw_resolution = 5;
-        model.materials = vec![Material::new("material", "#000000", rho, E, G)];
+        model.dimensions.handle_reference = HandleReference::Profile;
         model.dimensions.handle_offset = d;
-        model.profile = Profile::new(alignment, vec![ProfileSegment::Arc(Arc::new(ld, rd))]);
-        model.width = Width::constant(w);
-        model.layers = vec![Layer::new("layer", "material", Height::constant(h))];
+        model.profile = Profile::new(vec![ProfileSegment::Arc(Arc::new(ld, rd))]);
+        model.section = Section::new(alignment, Width::constant(w), vec![Material::new("material", "#000000", rho, E, G)], vec![Layer::new("layer", "material", Height::constant(h))]);
 
         // Compute static deflection
         let (_, state) = Simulation::simulate_static_limb(&model, Fx, Fy, 0.0).unwrap();
@@ -710,9 +701,9 @@ fn nonlinear_curved_uniform_cantilever_offsets() {
         (state.limb_pos, f)
     };
 
-    let (pos0, f0) = solve_for_alignment(ProfileAlignment::SectionCenter);
-    let (pos1, f1) = solve_for_alignment(ProfileAlignment::SectionBelly);
-    let (pos2, f2) = solve_for_alignment(ProfileAlignment::SectionBack);
+    let (pos0, f0) = solve_for_alignment(LayerAlignment::SectionCenter);
+    let (pos1, f1) = solve_for_alignment(LayerAlignment::SectionBelly);
+    let (pos2, f2) = solve_for_alignment(LayerAlignment::SectionBack);
 
     let mut plotter = Plotter::new();
 

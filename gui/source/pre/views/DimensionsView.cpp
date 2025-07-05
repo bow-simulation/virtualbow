@@ -10,13 +10,13 @@ DimensionsView::DimensionsView(DimensionsModel* model) {
 
     addProperty(
         "Brace height",
-        "Brace height of the bow, i.e. distance between string and the handle origin in the braced state",
+        "Brace height of the bow, i.e. distance between string and the handle's pivot point in the braced state",
         new DoubleView(model, model->BRACE_HEIGHT, Quantities::length, DoubleRange::positive(1e-3))
     );
 
     addProperty(
         "Draw length",
-        "Draw length of the bow, i.e. distance between string and the handle origin in the fully drawn state",
+        "Draw length of the bow, i.e. distance between string and the handle's pivot point in the fully drawn state",
         new DoubleView(model, model->DRAW_LENGTH, Quantities::length, DoubleRange::positive(1e-3))
     );
 
@@ -24,8 +24,8 @@ DimensionsView::DimensionsView(DimensionsModel* model) {
 
     addProperty(
         "Reference",
-        "Reference point at the limb base from which the handle dimensions are measured",
-        new EnumSelectionView(model, model->HANDLE_ORIGIN, {"Back", "Belly", "Profile"}, QList<HandleOrigin>{HandleOrigin::Back, HandleOrigin::Belly, HandleOrigin::Profile})
+        "Reference point at the limb base from which the handle dimensions as well as the brace height and draw length are measured",
+        new EnumSelectionView(model, model->HANDLE_REFERENCE, {"Back", "Belly", "Profile"}, QList<HandleReference>{HandleReference::Back, HandleReference::Belly, HandleReference::Profile})
     );
 
     addProperty(

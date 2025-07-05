@@ -3,8 +3,8 @@
 SettingsModel::SettingsModel(MainModel *parent, Settings& settings):
     PropertyListModel(parent)
 {
-    N_LIMB_ELEMENTS = addInteger(settings.n_limb_elements);
-    N_EVAL_POINTS = addInteger(settings.n_limb_eval_points);
+    N_LIMB_ELEMENTS = addInteger(settings.num_limb_elements);
+    N_EVAL_POINTS = addInteger(settings.num_limb_eval_points);
     MIN_DRAW_RESOLUTION = addInteger(settings.min_draw_resolution);
     MAX_DRAW_RESOLUTION = addInteger(settings.max_draw_resolution);
     ARROW_CLAMP_FORCE = addDouble(settings.arrow_clamp_force);

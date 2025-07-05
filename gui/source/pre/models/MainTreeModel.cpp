@@ -35,7 +35,7 @@ bool MainTreeModel::canInsertMaterial(const QModelIndexList& indexes) {
 }
 
 void MainTreeModel::insertMaterial(int row) {
-    if(row < 0 || row > bow->materials.size()) {
+    if(row < 0 || row > bow->section.materials.size()) {
         throw std::invalid_argument("Invalid material index for insertion");
     }
 
@@ -46,14 +46,14 @@ void MainTreeModel::insertMaterial(int row) {
     QModelIndex parent = createIndex(TopLevelItem::MATERIALS, 0, ItemType::TOPLEVEL);
     beginInsertRows(parent, row, row);
 
-    auto position = bow->materials.begin() + row;
-    bow->materials.insert(position, material);
+    auto position = bow->section.materials.begin() + row;
+    bow->section.materials.insert(position, material);
 
     endInsertRows();
 }
 
 void MainTreeModel::appendMaterial() {
-    insertMaterial(bow->materials.size());
+    insertMaterial(bow->section.materials.size());
 }
 
 bool MainTreeModel::canInsertLayer(const QModelIndexList& indexes) {
@@ -71,7 +71,7 @@ bool MainTreeModel::canInsertLayer(const QModelIndexList& indexes) {
 }
 
 void MainTreeModel::insertLayer(int row) {
-    if(row < 0 || row > bow->layers.size()) {
+    if(row < 0 || row > bow->section.layers.size()) {
         throw std::invalid_argument("Invalid layer index for insertion");
     }
 
@@ -82,14 +82,14 @@ void MainTreeModel::insertLayer(int row) {
     QModelIndex parent = createIndex(TopLevelItem::LAYERS, 0, ItemType::TOPLEVEL);
     beginInsertRows(parent, row, row);
 
-    auto position = bow->layers.begin() + row;
-    bow->layers.insert(position, layer);
+    auto position = bow->section.layers.begin() + row;
+    bow->section.layers.insert(position, layer);
 
     endInsertRows();
 }
 
 void MainTreeModel::appendLayer() {
-    insertLayer(bow->layers.size());
+    insertLayer(bow->section.layers.size());
 }
 
 bool MainTreeModel::canInsertSegment(const QModelIndexList& indexes) {
@@ -157,7 +157,7 @@ void MainTreeModel::removeIndexes(QModelIndexList indexes) {
 }
 
 void MainTreeModel::removeMaterial(int row) {
-    if(row < 0 || row >= bow->materials.size()) {
+    if(row < 0 || row >= bow->section.materials.size()) {
         throw std::invalid_argument("Invalid material index for removal");
     }
 
@@ -166,14 +166,14 @@ void MainTreeModel::removeMaterial(int row) {
 
     // Remove material
     // Layers that refer to the material will become invalid
-    auto position = bow->materials.begin() + row;
-    bow->materials.erase(position);
+    auto position = bow->section.materials.begin() + row;
+    bow->section.materials.erase(position);
 
     endRemoveRows();
 }
 
 void MainTreeModel::removeLayer(int row) {
-    if(row < 0 || row >= bow->layers.size()) {
+    if(row < 0 || row >= bow->section.layers.size()) {
         throw std::invalid_argument("Invalid layer index for removal");
     }
 
@@ -182,8 +182,8 @@ void MainTreeModel::removeLayer(int row) {
 
     // Remove layer
     // Bow will become invalid when the last layer is removed
-    auto position = bow->layers.begin() + row;
-    bow->layers.erase(position);
+    auto position = bow->section.layers.begin() + row;
+    bow->section.layers.erase(position);
 
     endRemoveRows();
 }
@@ -301,7 +301,7 @@ void MainTreeModel::moveIndexesDown(QModelIndexList indexes) {
 }
 
 void MainTreeModel::swapMaterials(int i, int j) {
-    if(i == j || i < 0 || j < 0 ||  i >= bow->materials.size() || j >= bow->materials.size()) {
+    if(i == j || i < 0 || j < 0 ||  i >= bow->section.materials.size() || j >= bow->section.materials.size()) {
         throw std::invalid_argument("Invalid material indices for swapping");
     }
 
@@ -311,13 +311,13 @@ void MainTreeModel::swapMaterials(int i, int j) {
 
     // Swap the two materials
     // Layers that refer to the materials stay valid since they refer to them by name
-    std::swap(bow->materials[i], bow->materials[j]);
+    std::swap(bow->section.materials[i], bow->section.materials[j]);
 
     endMoveRows();
 }
 
 void MainTreeModel::swapLayers(int i, int j) {
-    if(i == j || i < 0 || j < 0 || i >= bow->layers.size() || j >= bow->layers.size()) {
+    if(i == j || i < 0 || j < 0 || i >= bow->section.layers.size() || j >= bow->section.layers.size()) {
         throw std::invalid_argument("Invalid layer indices for swapping");
     }
 
@@ -326,7 +326,7 @@ void MainTreeModel::swapLayers(int i, int j) {
     beginMoveRows(parent, j, j, parent, i);
 
     // Swap the two layers
-    std::swap(bow->layers[i], bow->layers[j]);
+    std::swap(bow->section.layers[i], bow->section.layers[j]);
 
     endMoveRows();
 }
@@ -404,8 +404,8 @@ int MainTreeModel::rowCount(const QModelIndex &parent) const {
     // Otherwise check if the parent is a top-level item and determine the number of child nodes accordingly
     if(parent.internalId() == ItemType::TOPLEVEL) {
         switch(parent.row()) {
-            case TopLevelItem::MATERIALS: return bow->materials.size();
-            case TopLevelItem::LAYERS: return bow->layers.size();
+            case TopLevelItem::MATERIALS: return bow->section.materials.size();
+            case TopLevelItem::LAYERS: return bow->section.layers.size();
             case TopLevelItem::PROFILE: return bow->profile.segments.size();
         }
     }
@@ -448,8 +448,8 @@ QVariant MainTreeModel::data(const QModelIndex &index, int role) const {
 
     if(index.parent().row() == TopLevelItem::MATERIALS) {
         switch(role) {
-            case Qt::DisplayRole: case Qt::EditRole: return QString::fromStdString(bow->materials[index.row()].name);
-            case Qt::ToolTipRole: return "User-defined material \"" + QString::fromStdString(bow->materials[index.row()].name) + "\"";
+            case Qt::DisplayRole: case Qt::EditRole: return QString::fromStdString(bow->section.materials[index.row()].name);
+            case Qt::ToolTipRole: return "User-defined material \"" + QString::fromStdString(bow->section.materials[index.row()].name) + "\"";
             case Qt::DecorationRole: return QIcon(":/icons/model-material.svg");
             default: return QVariant();
         }
@@ -457,8 +457,8 @@ QVariant MainTreeModel::data(const QModelIndex &index, int role) const {
 
     if(index.parent().row() == TopLevelItem::LAYERS) {
         switch(role) {
-            case Qt::DisplayRole: case Qt::EditRole: return QString::fromStdString(bow->layers[index.row()].name);
-            case Qt::ToolTipRole: return "User-defined layer \"" + QString::fromStdString(bow->materials[index.row()].name) + "\"";
+            case Qt::DisplayRole: case Qt::EditRole: return QString::fromStdString(bow->section.layers[index.row()].name);
+            case Qt::ToolTipRole: return "User-defined layer \"" + QString::fromStdString(bow->section.materials[index.row()].name) + "\"";
             case Qt::DecorationRole: return QIcon(":/icons/model-layer.svg");
             default: return QVariant();
         }
@@ -488,7 +488,7 @@ bool MainTreeModel::setData(const QModelIndex &index, const QVariant &value, int
             return false;
         }
 
-        bow->materials[index.row()].name = name;
+        bow->section.materials[index.row()].name = name;
         emit dataChanged(index, index);
         return true;
     }
@@ -500,7 +500,7 @@ bool MainTreeModel::setData(const QModelIndex &index, const QVariant &value, int
             return false;
         }
 
-        bow->layers[index.row()].name = name;
+        bow->section.layers[index.row()].name = name;
         emit dataChanged(index, index);
         return true;
     }

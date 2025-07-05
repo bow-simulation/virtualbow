@@ -2,8 +2,8 @@
   "version": "0.10.0",
   "comment": "",
   "settings": {
-    "n_limb_elements": 30,
-    "n_limb_eval_points": 100,
+    "num_limb_elements": 30,
+    "num_limb_eval_points": 100,
     "min_draw_resolution": 100,
     "max_draw_resolution": 100,
     "arrow_clamp_force": 0.5,
@@ -17,59 +17,61 @@
   "dimensions": {
     "brace_height": 0.2,
     "draw_length": 0.7,
-    "handle_origin": "profile",
+    "handle_reference": "belly",
     "handle_angle": 0.0,
     "handle_length": 0.0,
     "handle_offset": 0.0
   },
-  "materials": [
-    {
-      "name": "Unnamed",
-      "color": "#ff9966",
-      "rho": 675.0,
-      "E": 12000000000.0,
-      "G": 6000000000.0
-    }
-  ],
-  "layers": [
-    {
-      "name": "Default",
-      "material": "Unnamed",
-      "height": [
-        [
-          0.0,
-          0.015
-        ],
-        [
-          1.0,
-          0.01
-        ]
-      ]
-    }
-  ],
   "profile": {
-    "alignment": {
-      "type": "section_back"
-    },
     "segments": [
       {
         "type": "line",
         "parameters": {
-          "length": 1.0
+          "length": 0.8
         }
       }
     ]
   },
-  "width": [
-    [
-      0.0,
-      0.04
+  "section": {
+    "alignment": {
+      "type": "section_back"
+    },
+    "width": [
+      [
+        0.0,
+        0.04
+      ],
+      [
+        1.0,
+        0.01
+      ]
     ],
-    [
-      1.0,
-      0.01
+    "materials": [
+      {
+        "name": "Material 1",
+        "color": "#ff9966",
+        "density": 675.0,
+        "youngs_modulus": 12000000000.0,
+        "shear_modulus": 6000000000.0
+      }
+    ],
+    "layers": [
+      {
+        "name": "Layer 1",
+        "material": "Material 1",
+        "height": [
+          [
+            0.0,
+            0.015
+          ],
+          [
+            1.0,
+            0.01
+          ]
+        ]
+      }
     ]
-  ],
+  },
   "string": {
     "strand_stiffness": 3500.0,
     "strand_density": 0.0005,

@@ -58,26 +58,26 @@ fn check_common_output(model: &BowModel, output: &BowResult) {
 
     // There must be as many lengths as there are limb evaluation points defined in the model
     // Lengths must be sorted in strictly ascending order and start at zero
-    assert!(length.len() == model.settings.n_limb_eval_points);
+    assert!(length.len() == model.settings.num_limb_eval_points);
     assert!(length.iter().tuple_windows().all(|(a, b)| a < b));
     assert!(length[0] == 0.0);
 
     // Number of positions, widths, heights and bounds must match number of evaluation points
-    assert!(position.len() == model.settings.n_limb_eval_points);
-    assert!(width.len() == model.settings.n_limb_eval_points);
-    assert!(height.len() == model.settings.n_limb_eval_points);
-    assert!(bounds.len() == model.settings.n_limb_eval_points);
+    assert!(position.len() == model.settings.num_limb_eval_points);
+    assert!(width.len() == model.settings.num_limb_eval_points);
+    assert!(height.len() == model.settings.num_limb_eval_points);
+    assert!(bounds.len() == model.settings.num_limb_eval_points);
 
     // Width and height must be strictly positive
     assert!(width.iter().all(|&w| w > 0.0));
     assert!(height.iter().all(|&h| h > 0.0));
 
     // Number of layer bounds must be consistent with the number of layers defined in the model
-    assert!(bounds.iter().all(|b| b.len() == model.layers.len() + 1));
+    assert!(bounds.iter().all(|b| b.len() == model.section.layers.len() + 1));
 
     // Number of layers must match the number of layers defined in the model
     // Layer info doesn't contain much currently, but the layer names must not be empty
-    assert!(layers.len() == model.layers.len());
+    assert!(layers.len() == model.section.layers.len());
     for layer in layers {
         let LayerInfo { name } = layer;
         assert!(!name.is_empty());
@@ -149,19 +149,19 @@ fn check_static_scalar_results(model: &BowModel, output: &BowResult) {
 
     // There must be as many min layer stress entries as there are layers in the model
     // The indices must be in the correct range (state, length, belly/back)
-    assert!(min_layer_stresses.len() == model.layers.len());
+    assert!(min_layer_stresses.len() == model.section.layers.len());
     for layer_stress in min_layer_stresses {
         assert!(layer_stress.1[0] < states.len());
-        assert!(layer_stress.1[1] < model.settings.n_limb_eval_points);
+        assert!(layer_stress.1[1] < model.settings.num_limb_eval_points);
         assert!(layer_stress.1[2] < 2);
     }
 
     // There must be as many max layer stress entries as there are layers in the model
     // The indices must be in the correct range (state, length, belly/back)
-    assert!(max_layer_stresses.len() == model.layers.len());
+    assert!(max_layer_stresses.len() == model.section.layers.len());
     for layer_stress in max_layer_stresses {
         assert!(layer_stress.1[0] < states.len());
-        assert!(layer_stress.1[1] < model.settings.n_limb_eval_points);
+        assert!(layer_stress.1[1] < model.settings.num_limb_eval_points);
         assert!(layer_stress.1[2] < 2);
     }
 }
@@ -238,19 +238,19 @@ fn check_dynamic_scalar_results(model: &BowModel, output: &BowResult) {
 
     // There must be as many min layer stress entries as there are layers in the model
     // The indices must be in the correct range (state, length, belly/back)
-    assert!(min_layer_stresses.len() == model.layers.len());
+    assert!(min_layer_stresses.len() == model.section.layers.len());
     for layer_stress in min_layer_stresses {
         assert!(layer_stress.1[0] < states.len());
-        assert!(layer_stress.1[1] < model.settings.n_limb_eval_points);
+        assert!(layer_stress.1[1] < model.settings.num_limb_eval_points);
         assert!(layer_stress.1[2] < 2);
     }
 
     // There must be as many max layer stress entries as there are layers in the model
     // The indices must be in the correct range (state, length, belly/back)
-    assert!(max_layer_stresses.len() == model.layers.len());
+    assert!(max_layer_stresses.len() == model.section.layers.len());
     for layer_stress in max_layer_stresses {
         assert!(layer_stress.1[0] < states.len());
-        assert!(layer_stress.1[1] < model.settings.n_limb_eval_points);
+        assert!(layer_stress.1[1] < model.settings.num_limb_eval_points);
         assert!(layer_stress.1[2] < 2);
     }
 }
@@ -298,8 +298,8 @@ fn check_general_state_properties(model: &BowModel, states: &StateVec) {
         assert!(draw_length <= model.dimensions.draw_length);
 
         // Limb position and velocity must have as many entries as there are eval points
-        assert!(limb_pos.len() == model.settings.n_limb_eval_points);
-        assert!(limb_vel.len() == model.settings.n_limb_eval_points);
+        assert!(limb_pos.len() == model.settings.num_limb_eval_points);
+        assert!(limb_vel.len() == model.settings.num_limb_eval_points);
 
         // Limb starting point (positions and angle) must match the dimension settings
         assert_abs_diff_eq!(limb_pos[0][0], 0.5*model.dimensions.handle_length, epsilon=1e-12);
@@ -308,20 +308,20 @@ fn check_general_state_properties(model: &BowModel, states: &StateVec) {
 
         // String position and velocity must have at least 2 entries and up to the maximum number of contact points defined by the number of limb elements
         // The position of the first string point must be consistent with the draw length
-        assert!(string_pos.len() >= 2 && string_pos.len() <= model.settings.n_limb_elements + 2);
-        assert!(string_vel.len() >= 2 && string_vel.len() <= model.settings.n_limb_elements + 2);
+        assert!(string_pos.len() >= 2 && string_pos.len() <= model.settings.num_limb_elements + 2);
+        assert!(string_vel.len() >= 2 && string_vel.len() <= model.settings.num_limb_elements + 2);
         assert!(string_pos[0][1] == -draw_length);
 
         // Limb strains and forces must have as many entries as there are eval points
-        assert!(limb_strain.len() == model.settings.n_limb_eval_points);
-        assert!(limb_force.len() == model.settings.n_limb_eval_points);
+        assert!(limb_strain.len() == model.settings.num_limb_eval_points);
+        assert!(limb_force.len() == model.settings.num_limb_eval_points);
 
         // Layer stresses and strains must contain one vector for each layer.
         // Each of those vectors must contain as many entries as there are eval points.
-        assert!(layer_strain.len() == model.layers.len());
-        assert!(layer_stress.len() == model.layers.len());
-        assert!(layer_strain.iter().all(|x| x.len() == model.settings.n_limb_eval_points));
-        assert!(layer_stress.iter().all(|x| x.len() == model.settings.n_limb_eval_points));
+        assert!(layer_strain.len() == model.section.layers.len());
+        assert!(layer_stress.len() == model.section.layers.len());
+        assert!(layer_strain.iter().all(|x| x.len() == model.settings.num_limb_eval_points));
+        assert!(layer_stress.iter().all(|x| x.len() == model.settings.num_limb_eval_points));
 
         // All energies and powers must be non-negative (with a small tolerance if needed)
         assert!(elastic_energy_limbs >= 0.0);

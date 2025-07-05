@@ -70,24 +70,24 @@ DimensionsModel* MainModel::getDimensionsModel() {
 }
 
 MaterialModel* MainModel::getMaterialModel(int index) {
-    if(bow.has_value() && index >= 0 && index < bow->materials.size()) {
-        return new MaterialModel(this, bow->materials[index]);
+    if(bow.has_value() && index >= 0 && index < bow->section.materials.size()) {
+        return new MaterialModel(this, bow->section.materials[index]);
     }
 
     return nullptr;
 }
 
 LayerModel* MainModel::getLayerModel(int index) {
-    if(bow.has_value() && index >= 0 && index < bow->layers.size()) {
-        return new LayerModel(this, bow->layers[index], bow->materials);
+    if(bow.has_value() && index >= 0 && index < bow->section.layers.size()) {
+        return new LayerModel(this, bow->section.layers[index], bow->section.materials);
     }
 
     return nullptr;
 }
 
 TableModel* MainModel::getLayerHeightModel(int index) {
-    if(bow.has_value() && index >= 0 && index < bow->layers.size()) {
-        return new TableModel(this, bow->layers[index].height, "Position", "Height", Quantities::ratio, Quantities::length);
+    if(bow.has_value() && index >= 0 && index < bow->section.layers.size()) {
+        return new TableModel(this, bow->section.layers[index].height, "Position", "Height", Quantities::ratio, Quantities::length);
     }
 
     return nullptr;
@@ -95,7 +95,7 @@ TableModel* MainModel::getLayerHeightModel(int index) {
 
 TableModel* MainModel::getWidthModel() {
     if(bow.has_value()) {
-        return new TableModel(this, bow->width, "Position", "Width", Quantities::ratio, Quantities::length);
+        return new TableModel(this, bow->section.width, "Position", "Width", Quantities::ratio, Quantities::length);
     }
 
     return nullptr;

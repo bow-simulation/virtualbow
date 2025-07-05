@@ -5,7 +5,7 @@ MaterialModel::MaterialModel(MainModel *parent, Material& material):
 {
     NAME = addString(material.name);
     COLOR = addColor(material.color);
-    DENSITY = addDouble(material.rho);
-    YOUNGS_MODULUS = addDouble(material.E);
-    SHEAR_MODULUS = addDouble(material.G);
+    DENSITY = addDouble(material.density);
+    YOUNGS_MODULUS = addDouble(material.youngs_modulus);
+    SHEAR_MODULUS = addDouble(material.shear_modulus);
 }

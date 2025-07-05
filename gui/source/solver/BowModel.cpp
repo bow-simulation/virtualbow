@@ -5,7 +5,7 @@ bool BowModel::isValidMaterialName(const std::string& name) const {
         return false;
     }
 
-    for(auto material: materials) {
+    for(auto material: section.materials) {
         if(material.name == name) {
             return false;
         }
@@ -33,7 +33,7 @@ bool BowModel::isValidLayerName(const std::string& name) const {
         return false;
     }
 
-    for(auto layer: layers) {
+    for(auto layer: section.layers) {
         if(layer.name == name) {
             return false;
         }
@@ -71,7 +71,7 @@ void to_json(nlohmann::json& obj, const ProfileSegment& input) {
     }
     else if(auto value = std::get_if<Spline>(&input)) {
         obj["type"] = "spline";
-        obj["parameters"]["points"] = *value;
+        obj["parameters"] = *value;
     }
     else {
         throw std::runtime_error("Unknown segment type");
@@ -89,14 +89,14 @@ void from_json(const nlohmann::json& obj, ProfileSegment& input) {
         input = obj.at("parameters").get<Spiral>();
     }
     else if(obj.at("type") == "spline") {
-        input = obj.at("parameters").at("points").get<Spline>();
+        input = obj.at("parameters").get<Spline>();
     }
     else {
         throw std::runtime_error("Unknown segment type");
     }
 }
 
-void to_json(nlohmann::json& obj, const ProfileAlignment& input) {
+void to_json(nlohmann::json& obj, const LayerAlignment& input) {
     if(auto value = std::get_if<SectionBack>(&input)) {
         obj["type"] = "section_back";
     }
@@ -123,7 +123,7 @@ void to_json(nlohmann::json& obj, const ProfileAlignment& input) {
     }
 }
 
-void from_json(const nlohmann::json& obj, ProfileAlignment& input) {
+void from_json(const nlohmann::json& obj, LayerAlignment& input) {
     if(obj.at("type") == "section_back") {
         input = SectionBack{};
     }

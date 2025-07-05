@@ -3,7 +3,7 @@ use approx::assert_abs_diff_eq;
 use iter_num_tools::lin_space;
 use itertools::Itertools;
 use nalgebra::{SVector, vector};
-use virtualbow::input::{Height, Layer, Line, Material, ProfileAlignment, Width};
+use virtualbow::input::{Height, Layer, Line, Material, LayerAlignment, Width, Section};
 use virtualbow::profile::profile::CurvePoint;
 use virtualbow::profile::segments::clothoid::ClothoidSegment;
 use virtualbow::sections::section::LayeredCrossSection;
@@ -56,7 +56,8 @@ fn test_linear_beam_dynamics() {
     let material = Material::new("material", "#000000", ρ, E, G);
     let width = Width::constant(w);
     let layer = Layer::new("layer", "material", Height::constant(h));
-    let section = LayeredCrossSection::new(&width, &vec![layer], &vec![material], &ProfileAlignment::SectionCenter).unwrap();
+    let section = Section::new(LayerAlignment::SectionCenter, width, vec![material], vec![layer]);
+    let section = LayeredCrossSection::new(&section).unwrap();
 
     let mut system = System::new();
     let mut nodes = Vec::new();

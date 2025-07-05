@@ -2,7 +2,7 @@ use iter_num_tools::lin_space;
 use itertools::Itertools;
 use nalgebra::{DMatrix, DVector, SVector, vector};
 use crate::errors::ModelError;
-use crate::input::{BowModel, HandleOrigin};
+use crate::input::{BowModel, HandleReference};
 use crate::profile::profile::{CurvePoint, ProfileCurve};
 use crate::sections::section::LayeredCrossSection;
 use virtualbow_num::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
@@ -16,17 +16,15 @@ pub struct LimbGeometry {
 impl LimbGeometry {
     pub fn new(input: &BowModel) -> Result<Self, ModelError> {
         // Section properties according to layers, materials and alignment to the profile curve
-        // Layers in the mode definition are from back to belly, but here we define the layers from belly to back (direction of the y axis), so the model layers are reversed
-        let layers = input.layers.iter().cloned().rev().collect();
-        let section = LayeredCrossSection::new(&input.width, &layers, &input.materials, &input.profile.alignment)?;
+        let section = LayeredCrossSection::new(&input.section)?;
 
         // Profile curve with starting point according to the dimension settings.
         // First the eccentricity, i.e. the distance of the reference point from the profile curve at the root of the limb is calculated.
         // Then the starting point according to handle dimensions, eccentricity and limb root angle follows.
-        let eccentricity = match input.dimensions.handle_origin {
-            HandleOrigin::Back => section.section_bounds(0.0).1,
-            HandleOrigin::Belly => section.section_bounds(0.0).0,
-            HandleOrigin::Profile => 0.0,
+        let eccentricity = match input.dimensions.handle_reference {
+            HandleReference::Back => section.section_bounds(0.0).1,
+            HandleReference::Belly => section.section_bounds(0.0).0,
+            HandleReference::Profile => 0.0,
         };
         let start = CurvePoint::new(0.0, input.dimensions.handle_angle, vector![
             0.5*input.dimensions.handle_length - eccentricity*f64::sin(input.dimensions.handle_angle),
@@ -133,7 +131,7 @@ pub struct DiscreteLimbGeometry {
 mod tests {
     use assert_matches::assert_matches;
     use std::fmt::{Debug, Formatter};
-    use crate::input::{Arc, Height, Layer, Material, Line, Profile, ProfileAlignment, ProfileSegment};
+    use crate::input::{Arc, Height, Layer, Material, Line, Profile, ProfileSegment, Section, LayerAlignment, Width};
     use super::*;
 
     // To make tests below compile
@@ -146,21 +144,25 @@ mod tests {
     #[test]
     fn test_error_conditions() {
         let mut input = BowModel {
-            layers: vec![Layer::new("Default", "Unnamed", Height::constant(0.01))],
-            materials: vec![Material::new("Unnamed", "#000000", 600.0, 12e9, 6e9)],
+            section: Section {
+                alignment: LayerAlignment::SectionCenter,
+                width: Width::linear(0.04, 0.01),
+                materials: vec![Material::new("Unnamed", "#000000", 600.0, 12e9, 6e9)],
+                layers: vec![Layer::new("Default", "Unnamed", Height::constant(0.01))]
+            },
             ..BowModel::example()
         };
 
         // 1. Profile curve with no self-intersection
-        input.profile = Profile::new(ProfileAlignment::SectionCenter, vec![ProfileSegment::Line(Line::new(1.0))]);
+        input.profile = Profile::new(vec![ProfileSegment::Line(Line::new(1.0))]);
         assert_matches!(LimbGeometry::new(&input), Ok(_));
 
         // 2. Profile that produces a self-intersection at the back
-        input.profile = Profile::new(ProfileAlignment::SectionCenter, vec![ProfileSegment::Arc(Arc::new(1.0, 0.001))]);
+        input.profile = Profile::new(vec![ProfileSegment::Arc(Arc::new(1.0, 0.001))]);
         assert_matches!(LimbGeometry::new(&input), Err(ModelError::GeometrySelfIntersectionBack(0.0)));
 
         // 3. Profile that produces a self-intersection at the belly
-        input.profile = Profile::new(ProfileAlignment::SectionCenter, vec![ProfileSegment::Arc(Arc::new(1.0, -0.001))]);
+        input.profile = Profile::new(vec![ProfileSegment::Arc(Arc::new(1.0, -0.001))]);
         assert_matches!(LimbGeometry::new(&input), Err(ModelError::GeometrySelfIntersectionBelly(0.0)));
     }
 }

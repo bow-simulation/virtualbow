@@ -16,10 +16,8 @@ pub struct BowModel {
     pub comment: String,
     pub settings: Settings,
     pub dimensions: Dimensions,
-    pub materials: Vec<Material>,
-    pub layers: Vec<Layer>,
     pub profile: Profile,
-    pub width: Width,
+    pub section: Section,
     pub string: BowString,
     pub masses: Masses,
     pub damping: Damping,
@@ -27,8 +25,8 @@ pub struct BowModel {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Settings {
-    pub n_limb_elements: usize,
-    pub n_limb_eval_points: usize,
+    pub num_limb_elements: usize,
+    pub num_limb_eval_points: usize,
     pub min_draw_resolution: usize,
     pub max_draw_resolution: usize,
     pub arrow_clamp_force: f64,
@@ -43,8 +41,8 @@ pub struct Settings {
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            n_limb_elements: 30,
-            n_limb_eval_points: 100,
+            num_limb_elements: 30,
+            num_limb_eval_points: 100,
             min_draw_resolution: 100,
             max_draw_resolution: 100,
             arrow_clamp_force: 0.5,
@@ -58,33 +56,41 @@ impl Default for Settings {
     }
 }
 
-// Point at the limb root from which the handle's pivot point is measured
-#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
-pub enum HandleOrigin {
-    Back,
-    Belly,
-    #[default]
-    Profile,
-}
-
 #[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
 pub struct Dimensions {
     pub brace_height: f64,
     pub draw_length: f64,
-    pub handle_origin: HandleOrigin,
+    pub handle_reference: HandleReference,
     pub handle_angle: f64,
     pub handle_length: f64,
     pub handle_offset: f64,
+}
+
+// Point at the limb root from which the handle's pivot point is measured
+#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum HandleReference {
+    Back,
+    #[default]
+    Belly,
+    Profile,
+}
+
+#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+pub struct Section {
+    pub alignment: LayerAlignment,
+    pub width: Width,
+    pub materials: Vec<Material>,
+    pub layers: Vec<Layer>,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
 pub struct Material {
     pub name: String,
     pub color: String,
-    pub rho: f64,
-    pub E: f64,
-    pub G: f64
+    pub density: f64,
+    pub youngs_modulus: f64,
+    pub shear_modulus: f64
 }
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
@@ -96,8 +102,7 @@ pub struct Layer {
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
 pub struct Profile {
-    pub alignment: ProfileAlignment,
-    pub segments: Vec<ProfileSegment>,
+    pub segments: Vec<ProfileSegment>
 }
 
 // Defines how the cross sections are aligned with the profile curve
@@ -106,7 +111,7 @@ pub struct Profile {
 // - Layer: The profile curve is aligned with the back side, belly side, or geometrical center of a specific layer
 #[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
 #[serde(tag = "type", content = "layer", rename_all = "snake_case")]
-pub enum ProfileAlignment {
+pub enum LayerAlignment {
     #[default]
     SectionBack,
     SectionBelly,
@@ -151,8 +156,8 @@ pub struct Spline {
 impl From<version3::BowModel> for BowModel {
     fn from(model: version3::BowModel) -> BowModel {
         let settings = Settings {
-            n_limb_elements: model.settings.n_limb_elements,
-            n_limb_eval_points: 100,
+            num_limb_elements: model.settings.n_limb_elements,
+            num_limb_eval_points: 100,
             min_draw_resolution: model.settings.n_draw_steps,
             max_draw_resolution: model.settings.n_draw_steps,
             arrow_clamp_force: model.settings.arrow_clamp_force,
@@ -167,7 +172,7 @@ impl From<version3::BowModel> for BowModel {
         let dimensions = Dimensions {
             brace_height: model.dimensions.brace_height,
             draw_length: model.dimensions.draw_length,
-            handle_origin: HandleOrigin::Back,    // Field was newly introduced. Previously the handle was defined with respect to the back of the limb.
+            handle_reference: HandleReference::Back,    // Field was newly introduced. Previously the handle was defined with respect to the back of the limb.
             handle_angle: model.dimensions.handle_angle,
             handle_length: model.dimensions.handle_length,
             handle_offset: model.dimensions.handle_setback,
@@ -176,16 +181,23 @@ impl From<version3::BowModel> for BowModel {
         let materials = model.materials.iter().map(|material| Material {
             name: material.name.clone(),
             color: material.color.clone(),
-            rho: material.rho,
-            E: material.E,
-            G: material.E/(2.0*(1.0 + 0.4)),  // Shear modulus was newly added. Estimate for poisson ratio v = 0.4.
+            density: material.rho,
+            youngs_modulus: material.E,
+            shear_modulus: material.E/(2.0*(1.0 + 0.4)),  // Shear modulus was newly added. Estimate for poisson ratio v = 0.4.
         }).collect_vec();
 
         let layers = model.layers.iter().map(|layer| Layer {
             name: layer.name.clone(),
             material: materials[layer.material].name.clone(),
             height: layer.height.clone(),
-        }).collect_vec();
+        }).rev().collect_vec();    // Layers were previously defined from back to belly, but are now from belly to back (direction of the y axis), so the old layers have to be reversed
+
+        let section = Section {
+            alignment: LayerAlignment::SectionBack,  // Field was newly introduced. Previously the profile curve was always aligned with the cross section's back.
+            width: model.width,
+            materials,
+            layers,
+        };
 
         let segments = model.profile.iter().map(|segment|{
             match segment {
@@ -197,7 +209,6 @@ impl From<version3::BowModel> for BowModel {
         }).collect_vec();
 
         let profile = Profile {
-            alignment: ProfileAlignment::SectionBack,  // Field was newly introduced. Previously the profile curve was always aligned with the cross section's back.
             segments,
         };
 
@@ -205,10 +216,8 @@ impl From<version3::BowModel> for BowModel {
             comment: model.comment,
             settings,
             dimensions,
-            materials,
-            layers,
             profile,
-            width: model.width,
+            section,
             string: model.string,
             masses: model.masses,
             damping: model.damping,
