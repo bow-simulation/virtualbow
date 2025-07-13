@@ -29,11 +29,11 @@ StressPlot::StressPlot(const Common& common, const States& states)
         QColor color = COLOR_PALETTE[iLayer % COLOR_PALETTE.size()];    // Wrap around when all colors have been used
 
         this->addGraph();
-        this->graph(2*iLayer)->setName(name + " (back)");
+        this->graph(2*iLayer)->setName(name + "\n(back)");
         this->graph(2*iLayer)->setPen({QBrush(color), 2.0, Qt::SolidLine});
 
         this->addGraph();
-        this->graph(2*iLayer+1)->setName(name + " (belly)");
+        this->graph(2*iLayer+1)->setName(name + "\n(belly)");
         this->graph(2*iLayer+1)->setPen({QBrush(color), 2.0, Qt::DashLine});
     }
 

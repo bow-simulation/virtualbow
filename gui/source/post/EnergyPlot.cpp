@@ -8,13 +8,19 @@ EnergyPlot::EnergyPlot(const States& states, const std::vector<double>& paramete
       parameter(parameter),
       quantity_x(quantity_x),
       quantity_y(quantity_y),
-      label_x(label_x),
-      plot(new PlotWidget()),
-      cb_stacked(new QCheckBox("Stacked")),
-      cb_part(new QCheckBox("Group by component")),
-      cb_type(new QCheckBox("Group by type"))
+      label_x(label_x)
 {
+    plot = new PlotWidget();
     plot->setupTopLegend();
+
+    cb_stacked = new QCheckBox("Stacked");
+    cb_stacked->setToolTip("If selected, the energies are plotted as areas stacked on top of each other.\nOtherwise each energy is drawn as an individual line.");
+
+    cb_part = new QCheckBox("Group by component");
+    cb_part->setToolTip("Group energies by the component they belong to (limbs, string, arrow)");
+
+    cb_type = new QCheckBox("Group by energy");
+    cb_type->setToolTip("Group enegies by the type they belong to (potential, kinetic, damping)");
 
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);
@@ -86,13 +92,10 @@ void EnergyPlot::updatePlot() {
             auto graph_lower = plot->graph();
             auto graph_upper = plot->addGraph();
 
-            throw std::invalid_argument("Removed code");
-            /*
             graph_upper->setData(
                 quantity_x.getUnit().fromBase(parameter),
                 quantity_y.getUnit().fromBase(e_upper)
             );
-            */
             graph_upper->setName(name);
             graph_upper->setBrush(color);
             graph_upper->setPen({QBrush(color), 2.0});
@@ -112,13 +115,10 @@ void EnergyPlot::updatePlot() {
             }
 
             auto graph = plot->addGraph();
-            throw std::invalid_argument("Removed code");
-            /*
             graph->setData(
                 quantity_x.getUnit().fromBase(parameter),
                 quantity_x.getUnit().fromBase(energy)
             );
-            */
             graph->setName(name);
             graph->setPen({QBrush(color), 2.0});
         };
@@ -144,9 +144,9 @@ void EnergyPlot::updatePlot() {
             e_damp[i] = states.damping_energy_limbs[i] + states.damping_energy_string[i];
         }
 
-        plot_energy(e_limbs, "Limbs (total)", QColor(0, 0, 255));
-        plot_energy(e_string, "String (total)", QColor(128, 0, 128));
-        plot_energy(states.kinetic_energy_arrow, "Arrow (total)", QColor(255, 0, 0));
+        plot_energy(e_limbs, "Limbs\n(pot + kin)", QColor(0, 0, 255));
+        plot_energy(e_string, "String\n(pot + kin)", QColor(128, 0, 128));
+        plot_energy(states.kinetic_energy_arrow, "Arrow\n(pot + kin)", QColor(255, 0, 0));
         plot_energy(e_damp, "Damping", QColor(128, 128, 128));
     }
     else if(cb_type->isChecked()) {
@@ -170,13 +170,13 @@ void EnergyPlot::updatePlot() {
         plot_energy(e_damp, "Damping", QColor(128, 128, 128));
     }
     else {
-        plot_energy(states.elastic_energy_limbs, "Limbs (pot)", QColor(0, 0, 255));
-        plot_energy(states.kinetic_energy_limbs, "Limbs (kin)", QColor(40, 40, 255));
-        plot_energy(states.elastic_energy_string, "String (pot)", QColor(128, 0, 128));
-        plot_energy(states.kinetic_energy_string, "String (kin)", QColor(128, 40, 128));
-        plot_energy(states.kinetic_energy_arrow, "Arrow (kin)", QColor(255, 0, 0));
-        plot_energy(states.damping_energy_limbs, "Limbs (damp)", QColor(128, 128, 128));
-        plot_energy(states.damping_energy_string, "String (damp)", QColor(179, 179, 179));
+        plot_energy(states.elastic_energy_limbs, "Limbs\n(potential)", QColor(0, 0, 255));
+        plot_energy(states.kinetic_energy_limbs, "Limbs\n(kinetic)", QColor(40, 40, 255));
+        plot_energy(states.elastic_energy_string, "String\n(potential)", QColor(128, 0, 128));
+        plot_energy(states.kinetic_energy_string, "String\n(kinetic)", QColor(128, 40, 128));
+        plot_energy(states.kinetic_energy_arrow, "Arrow\n(kinetic)", QColor(255, 0, 0));
+        plot_energy(states.damping_energy_limbs, "Limbs\n(damping)", QColor(128, 128, 128));
+        plot_energy(states.damping_energy_string, "String\n(damping)", QColor(179, 179, 179));
     }
 
     // Update plot

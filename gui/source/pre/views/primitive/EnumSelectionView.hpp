@@ -16,12 +16,14 @@ public:
             addItem(texts[i], static_cast<int>(values[i]));
         }
 
-        // Select item whose user data matches the current value in the model and keep model up to date on changes
-        QObject::connect(this, &QComboBox::currentIndexChanged, this, [=](int i){ model->setData(index, itemData(i)); });
+        // Select item whose user data matches the current value in the model
         for(int i = 0; i < texts.size(); ++i) {
             if(itemData(i) == model->data(index, Qt::DisplayRole)) {
                 setCurrentIndex(i);
             }
         }
+
+        // Keep model up to date on changes
+        QObject::connect(this, &QComboBox::currentIndexChanged, this, [=](int i){ model->setData(index, itemData(i)); });
     }
 };

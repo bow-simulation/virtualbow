@@ -3,6 +3,8 @@
 #include <QVBoxLayout>
 #include <QLabel>
 
+const int EDITOR_WIDTH = 120;
+
 PropertyList::PropertyList(QWidget* parent):
     QWidget(parent)
 {
@@ -10,11 +12,6 @@ PropertyList::PropertyList(QWidget* parent):
     grid->setHorizontalSpacing(10);
     grid->setColumnStretch(0, 1);
     grid->setColumnStretch(1, 0);
-    //grid->setColumnStretch(2, 1);
-
-    //auto vbox = new QVBoxLayout();
-    //vbox->addLayout(grid);
-    //vbox->addStretch();
 
     setLayout(grid);
 }
@@ -28,15 +25,16 @@ void PropertyList::addHeading(const QString& title) {
     grid->addWidget(label, rowCount, 0);
 }
 
-void PropertyList::addProperty(const QString& name, const QString& tooltip, QWidget* widget) {
+void PropertyList::addProperty(const QString& name, const QString& tooltip, QWidget* editor) {
     auto label = new QLabel(name);
     label->setToolTip(tooltip);
-    label->setMinimumWidth(80);     // Smaller than the usual value
-    widget->setMinimumWidth(80);    // Smaller than the usual value
+
+    editor->setMinimumWidth(EDITOR_WIDTH);
+    editor->setMaximumWidth(EDITOR_WIDTH);
 
     int rowCount = grid->rowCount();
     grid->addWidget(label, rowCount, 0);
-    grid->addWidget(widget, rowCount, 1);
+    grid->addWidget(editor, rowCount, 1);
 }
 
 void PropertyList::addWidget(const QString& tooltip, QWidget* widget) {
@@ -44,7 +42,6 @@ void PropertyList::addWidget(const QString& tooltip, QWidget* widget) {
 
     int rowCount = grid->rowCount();
     grid->addWidget(widget, rowCount, 0, 1, 2);
-    //grid->setRowStretch(rowCount, 1);
 }
 
 void PropertyList::addStretch() {

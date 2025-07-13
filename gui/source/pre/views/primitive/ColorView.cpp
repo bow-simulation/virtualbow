@@ -4,6 +4,7 @@
 #include <QPalette>
 
 ColorView::ColorView(QAbstractItemModel* model, QPersistentModelIndex index) {
+    // Set value from model and keep model up to date on changes
     setColor(model->data(index).value<QColor>());
     QObject::connect(this, &QPushButton::clicked, this, [=]{
         auto dialog(new QColorDialog(this));

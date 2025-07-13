@@ -1,5 +1,6 @@
 #pragma once
-#include <QtCore>
+#include <QVector>
+#include <QString>
 
 enum UnitType {
     SI,
@@ -15,8 +16,8 @@ public:
     double fromBase(double value) const;
     double toBase(double value) const;
 
-    std::vector<double> fromBase(const std::vector<double>& value) const;
-    std::vector<double> toBase(const std::vector<double>& value) const;
+    QVector<double> fromBase(const std::vector<double>& value) const;
+    QVector<double> toBase(const std::vector<double>& value) const;
 
     UnitType getType() const;
     QString getName() const;

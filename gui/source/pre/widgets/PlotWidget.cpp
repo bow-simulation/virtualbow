@@ -143,12 +143,10 @@ QSize PlotWidget::sizeHint() const {
 }
 
 void PlotWidget::resizeEvent(QResizeEvent * event) {
-    /*
-    throw std::invalid_argument("Removed code");
     QCustomPlot::resizeEvent(event);
 
     // Reflow legend
-
+    /*
     int legend_width = this->legend->rect().width();
     int items_width = 0;
 
@@ -159,7 +157,7 @@ void PlotWidget::resizeEvent(QResizeEvent * event) {
             break;
         }
 
-        items_width += item->minimumSizeHint().width()
+        items_width += item->minimumOuterSizeHint().width()
                 + this->legend->margins().left()
                 + this->legend->margins().right();
 
@@ -170,13 +168,13 @@ void PlotWidget::resizeEvent(QResizeEvent * event) {
 
     this->legend->setWrap(item_index);
     this->legend->setFillOrder(QCPLayoutGrid::foColumnsFirst, true);
+    */
 
     // Axis scaling
 
     if(aspect_policy != NONE) {
         this->replot();
     }
-    */
 }
 
 void PlotWidget::onExport() {

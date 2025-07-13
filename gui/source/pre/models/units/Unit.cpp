@@ -24,16 +24,16 @@ double Unit::toBase(double value) const {
     return value*factor;
 }
 
-std::vector<double> Unit::fromBase(const std::vector<double>& value) const {
-    std::vector<double> result(value.size());
+QVector<double> Unit::fromBase(const std::vector<double>& value) const {
+    QVector<double> result(value.size());
     for(size_t i = 0; i < value.size(); ++i) {
         result[i] = fromBase(value[i]);
     }
     return result;
 }
 
-std::vector<double> Unit::toBase(const std::vector<double>& value) const {
-    std::vector<double> result(value.size());
+QVector<double> Unit::toBase(const std::vector<double>& value) const {
+    QVector<double> result(value.size());
     for(size_t i = 0; i < value.size(); ++i) {
         result[i] = toBase(value[i]);
     }
