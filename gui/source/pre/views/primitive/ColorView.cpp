@@ -3,7 +3,9 @@
 #include <QColorDialog>
 #include <QPalette>
 
-ColorView::ColorView(QAbstractItemModel* model, QPersistentModelIndex index) {
+ColorView::ColorView(QAbstractItemModel* model, QPersistentModelIndex index, const QString& tooltip) {
+    setToolTip(tooltip);
+
     // Set value from model and keep model up to date on changes
     setColor(model->data(index).value<QColor>());
     QObject::connect(this, &QPushButton::clicked, this, [=]{

@@ -1,78 +1,78 @@
 #include "UnitSystem.hpp"
 
-const Unit Units::Meter = Unit("m", SI, 1.0);
-const Unit Units::Centimeter = Unit("cm", SI, 1e-2);
-const Unit Units::Millimeter = Unit("mm", SI, 1e-3);
-const Unit Units::Foot = Unit("ft", US, 0.3048);
-const Unit Units::Inch = Unit("in", US, 0.0254);
+const Unit Units::Meter = Unit("m", "Meter", SI, 1.0);
+const Unit Units::Centimeter = Unit("cm", "Centimeter", SI, 1e-2);
+const Unit Units::Millimeter = Unit("mm", "Millimeter", SI, 1e-3);
+const Unit Units::Foot = Unit("ft", "Foot", US, 0.3048);
+const Unit Units::Inch = Unit("in", "Inch", US, 0.0254);
 
-const Unit Units::Radian = Unit("rad", SI, 1.0);
-const Unit Units::Degree = Unit("deg", SI, M_PI/180.0);
+const Unit Units::Radian = Unit("rad", "Radian", SI, 1.0);
+const Unit Units::Degree = Unit("deg", "Degree", SI, M_PI/180.0);
 
-const Unit Units::Kilogram = Unit("kg", SI, 1.0);
-const Unit Units::Gram = Unit("g", SI, 1e-3);
-const Unit Units::PoundMass = Unit("lb", US, 0.453592);
-const Unit Units::Ounce = Unit("oz", US, 0.0283495);
-const Unit Units::Grain = Unit("gr", US, 0.00006479891);
+const Unit Units::Kilogram = Unit("kg", "Kilogram", SI, 1.0);
+const Unit Units::Gram = Unit("g", "Gram", SI, 1e-3);
+const Unit Units::PoundMass = Unit("lb", "Pound", US, 0.453592);
+const Unit Units::Ounce = Unit("oz", "Ounce", US, 0.0283495);
+const Unit Units::Grain = Unit("gr", "Grain", US, 0.00006479891);
 
-const Unit Units::Newton = Unit("N", SI, 1.0);
-const Unit Units::Newton_Per_Percent = Unit("N/%", SI, 1e2);
-const Unit Units::PoundForce = Unit("lb", US, 4.4482216153);
-const Unit Units::PoundForce_Per_Percent = Unit("lb/%", US, 0.453592e2);
+const Unit Units::Newton = Unit("N", "Newton", SI, 1.0);
+const Unit Units::Newton_Per_Percent = Unit("N/%", "Newton per percent", SI, 1e2);
+const Unit Units::PoundForce = Unit("lbf", "Pound-force", US, 4.4482216153);
+const Unit Units::PoundForce_Per_Percent = Unit("lbf/%", "Pound-force per percent", US, 0.453592e2);
 
-const Unit Units::Second = Unit("s", SI, 1.0);
-const Unit Units::Millisecond = Unit("ms", SI, 1e-3);
+const Unit Units::Second = Unit("s", "Second", SI, 1.0);
+const Unit Units::Millisecond = Unit("ms", "Millisecond", SI, 1e-3);
 
-const Unit Units::Hertz = Unit("Hz", SI, 1.0);
-const Unit Units::Kilohertz = Unit("kHz", SI, 1e3);
-const Unit Units::Megahertz = Unit("MHz", SI, 1e6);
+const Unit Units::Hertz = Unit("Hz", "Hertz", SI, 1.0);
+const Unit Units::Kilohertz = Unit("kHz", "Kilohertz", SI, 1e3);
+const Unit Units::Megahertz = Unit("MHz", "Megahertz", SI, 1e6);
 
-const Unit Units::Joule = Unit("J", SI, 1.0);
-const Unit Units::Foot_Pound = Unit("ft*lb", US, 1.35582);
+const Unit Units::Joule = Unit("J", "Joule", SI, 1.0);
+const Unit Units::Foot_Pound = Unit("ft*lbf", "Foot-pound", US, 1.35582);
 
-const Unit Units::Meter_Per_Second = Unit("m/s", SI, 1.0);
-const Unit Units::Centimeter_Per_Second = Unit("cm/s", SI, 1e-2);
-const Unit Units::Millimeter_Per_Second = Unit("mm/s", SI, 1e-3);
-const Unit Units::Foot_Per_Second = Unit("ft/s", US, 0.3048);
-const Unit Units::Inch_Per_Second = Unit("in/s", US, 0.0254);
+const Unit Units::Meter_Per_Second = Unit("m/s", "Meter per second", SI, 1.0);
+const Unit Units::Centimeter_Per_Second = Unit("cm/s", "Centimeter per second", SI, 1e-2);
+const Unit Units::Millimeter_Per_Second = Unit("mm/s", "Millimeter per second", SI, 1e-3);
+const Unit Units::Foot_Per_Second = Unit("ft/s", "Foot per second", US, 0.3048);
+const Unit Units::Inch_Per_Second = Unit("in/s", "Inch per second", US, 0.0254);
 
-const Unit Units::Meter_Per_Second2 = Unit("m/s²", SI, 1.0);
-const Unit Units::Centimeter_Per_Second2 = Unit("cm/s²", SI, 1e-2);
-const Unit Units::Millimeter_Per_Second2 = Unit("mm/s²", SI, 1e-3);
-const Unit Units::Foot_Per_Second2 = Unit("ft/s²", US, 0.3048);
-const Unit Units::Inch_Per_Second2 = Unit("in/s²", US, 0.0254);
+const Unit Units::Meter_Per_Second2 = Unit("m/s²", "Meter per second squared", SI, 1.0);
+const Unit Units::Centimeter_Per_Second2 = Unit("cm/s²", "Centimeter per second squared", SI, 1e-2);
+const Unit Units::Millimeter_Per_Second2 = Unit("mm/s²", "Millimeter per second squared", SI, 1e-3);
+const Unit Units::Foot_Per_Second2 = Unit("ft/s²", "Foot per second squared", US, 0.3048);
+const Unit Units::Inch_Per_Second2 = Unit("in/s²", "Inch per second squared", US, 0.0254);
 
-const Unit Units::Gigapascal = Unit("GPa", SI, 1e9);
-const Unit Units::Megapascal = Unit("MPa", SI, 1e6);
-const Unit Units::Kilopascal = Unit("kPa", SI, 1e3);
-const Unit Units::Pascal = Unit("Pa", SI, 1e0);
-const Unit Units::Newton_Per_Millimeter2 = Unit("N/mm²", SI, 1e6);
-const Unit Units::MegaPsi = Unit("Mpsi", US, 6894.76e6);
-const Unit Units::KiloPsi = Unit("Kpsi", US, 6894.76e3);
-const Unit Units::Psi = Unit("psi", US, 6894.76);
+const Unit Units::Gigapascal = Unit("GPa", "Gigapascal", SI, 1e9);
+const Unit Units::Megapascal = Unit("MPa", "Megapascal", SI, 1e6);
+const Unit Units::Kilopascal = Unit("kPa", "Kilopascal", SI, 1e3);
+const Unit Units::Pascal = Unit("Pa", "Pascal", SI, 1e0);
+const Unit Units::Newton_Per_Millimeter2 = Unit("N/mm²", "Newton per square millimeter", SI, 1e6);
+const Unit Units::MegaPsi = Unit("Mpsi", "Megapound per square inch", US, 6894.76e6);
+const Unit Units::KiloPsi = Unit("Kpsi", "Kilopound per square inch", US, 6894.76e3);
+const Unit Units::Psi = Unit("psi", "Pound per square inch", US, 6894.76);
 
-const Unit Units::Kilogramm_Per_Meter3 = Unit("kg/m³", SI, 1.0);
-const Unit Units::Gram_Per_Centimeter3 = Unit("g/cm³", SI, 1e3);
-const Unit Units::Pound_Per_Foot3 = Unit("lb/ft³", US, 16.0185);
+const Unit Units::Kilogramm_Per_Meter3 = Unit("kg/m³", "Kilogram per cubic meter", SI, 1.0);
+const Unit Units::Gram_Per_Centimeter3 = Unit("g/cm³", "Gram per cubic centimeter", SI, 1e3);
+const Unit Units::Pound_Per_Foot3 = Unit("lb/ft³", "Pound per cubic foot", US, 16.0185);
 
-const Unit Units::Kilogramm_Per_Meter = Unit("kg/m", SI, 1.0);
-const Unit Units::Gram_Per_Meter = Unit("g/m", SI, 1e-3);
-const Unit Units::Gram_Per_Centimeter = Unit("g/cm", SI, 1e-1);
-const Unit Units::Pound_Per_Foot = Unit("lb/ft", US, 1.48816);
-const Unit Units::Pound_Per_Inch = Unit("lb/in", US, 0.0115212);
-const Unit Units::Ounce_Per_Foot = Unit("oz/ft", US, 0.0930102);
-const Unit Units::Ounce_Per_Inch = Unit("oz/in", US, 1.11612);
-const Unit Units::Grain_Per_Foot = Unit("gr/ft", US, 0.000212595);
-const Unit Units::Grain_Per_Inch = Unit("gr/in", US, 0.00255113819);
+const Unit Units::Kilogramm_Per_Meter = Unit("kg/m", "Kilogram per meter", SI, 1.0);
+const Unit Units::Gram_Per_Meter = Unit("g/m", "Gram per meter", SI, 1e-3);
+const Unit Units::Gram_Per_Centimeter = Unit("g/cm", "Gram per centimeter", SI, 1e-1);
+const Unit Units::Pound_Per_Foot = Unit("lb/ft", "Pound per foot", US, 1.48816);
+const Unit Units::Pound_Per_Inch = Unit("lb/in", "Pound per inch", US, 0.0115212);
+const Unit Units::Ounce_Per_Foot = Unit("oz/ft", "Ounce per foot", US, 0.0930102);
+const Unit Units::Ounce_Per_Inch = Unit("oz/in", "Ounce per inch", US, 1.11612);
+const Unit Units::Grain_Per_Foot = Unit("gr/ft", "Grain per foot", US, 0.000212595);
+const Unit Units::Grain_Per_Inch = Unit("gr/in", "Grain per inch", US, 0.00255113819);
 
-const Unit Units::One_Per_Meter = Unit("1/m", SI, 1.0);
-const Unit Units::One_Per_Centimeter = Unit("1/cm", SI, 1e2);
-const Unit Units::One_Per_Millimeter = Unit("1/mm", SI, 1e3);
-const Unit Units::One_Per_Foot = Unit("1/ft", US, 3.28084);
-const Unit Units::One_Per_Inch = Unit("1/in", US, 39.370079);
+const Unit Units::One_Per_Meter = Unit("1/m", "One per meter", SI, 1.0);
+const Unit Units::One_Per_Centimeter = Unit("1/cm", "One per centimeter", SI, 1e2);
+const Unit Units::One_Per_Millimeter = Unit("1/mm", "One per millimeter", SI, 1e3);
+const Unit Units::One_Per_Foot = Unit("1/ft", "One per foot", US, 3.28084);
+const Unit Units::One_Per_Inch = Unit("1/in", "One per inch", US, 39.370079);
 
-const Unit Units::No_Unit = Unit("-", SI, 1.0);
-const Unit Units::Percent = Unit("%", SI, 1e-2);
+const Unit Units::No_Unit = Unit("-", "No unit", SI, 1.0);
+const Unit Units::Percent = Unit("%", "Percent", SI, 1e-2);
 
 Quantity Quantities::length = Quantity("Length", {
     Units::Meter,

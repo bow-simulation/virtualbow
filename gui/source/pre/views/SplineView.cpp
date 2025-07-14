@@ -6,12 +6,10 @@
 
 SplineView::SplineView(TableModel* model) {
     auto tableView = new TableView();
+    tableView->setToolTip("Control points of the spline curve");
     tableView->setModel(model);
     tableView->setItemDelegateForColumn(0, new TableDelegate(Quantities::length, DoubleRange::unrestricted(1e-3)));
     tableView->setItemDelegateForColumn(1, new TableDelegate(Quantities::length, DoubleRange::unrestricted(1e-3)));
 
-    addWidget(
-        "Control points of the spline curve",
-        tableView
-    );
+    addWidget(tableView);
 }

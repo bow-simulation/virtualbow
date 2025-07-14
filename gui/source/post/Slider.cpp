@@ -198,5 +198,5 @@ void Slider::addJumpAction(const QString& name, int index) {
 void Slider::updateLabels() {
     double unitValue = quantity.getUnit().fromBase(values[slider->value()]);
     edit->setText(QLocale().toString(unitValue));
-    label->setText(text + " " + quantity.getUnit().getLabel());
+    label->setText(text + " " + quantity.getUnit().getSuffix());
 }

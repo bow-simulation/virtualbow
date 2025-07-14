@@ -73,8 +73,8 @@ void StressPlot::updateStresses() {
 }
 
 void StressPlot::updateAxes() {
-    this->xAxis->setLabel("Arc length " + quantity_length.getUnit().getLabel());
-    this->yAxis->setLabel("Stress " + quantity_stress.getUnit().getLabel());
+    this->xAxis->setLabel("Arc length " + quantity_length.getUnit().getSuffix());
+    this->yAxis->setLabel("Stress " + quantity_stress.getUnit().getSuffix());
 
     QCPRange x_range(
         quantity_length.getUnit().fromBase(common.limb.length.front()),

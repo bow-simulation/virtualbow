@@ -7,14 +7,12 @@
 ArcView::ArcView(ArcModel* model) {
     addProperty(
         "Length",
-        "Length of the arc segment",
-        new DoubleView(model, model->LENGTH, Quantities::length, DoubleRange::positive(1e-3))
+        new DoubleView(model, model->LENGTH, Quantities::length, DoubleRange::positive(1e-3), "Length of the arc segment")
     );
 
     addProperty(
         "Radius",
-        "Radius of the arc segment",
-        new DoubleView(model, model->LENGTH, Quantities::length, DoubleRange::unrestricted(1e-3))
+        new DoubleView(model, model->LENGTH, Quantities::length, DoubleRange::unrestricted(1e-3), "Radius of the arc segment")
     );
 
     addStretch();

@@ -66,8 +66,8 @@ void ComboPlot::updatePlot() {
     Unit unit_x = quantities[index_x]->getUnit();
     Unit unit_y = quantities[index_y]->getUnit();
 
-    plot->xAxis->setLabel(combo_x->currentText() + " " + unit_x.getLabel());
-    plot->yAxis->setLabel(combo_y->currentText() + " " + unit_y.getLabel());
+    plot->xAxis->setLabel(combo_x->currentText() + " " + unit_x.getSuffix());
+    plot->yAxis->setLabel(combo_y->currentText() + " " + unit_y.getSuffix());
 
     curve->setData(
         unit_x.fromBase(*data[index_x]),

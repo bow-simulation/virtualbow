@@ -1,23 +1,29 @@
 #pragma once
 #include <QComboBox>
 
+template<typename EnumType>
+struct EnumItem {
+    EnumType value;
+    QString name;
+    QString tooltip;
+};
+
 class EnumSelectionView: public QComboBox {
     Q_OBJECT
 
 public:
     template<typename EnumType>
-    EnumSelectionView(QAbstractItemModel* model, QPersistentModelIndex index, const QStringList& texts, const QList<EnumType>& values) {
-        if(texts.size() != values.size()) {
-            throw std::invalid_argument("Number of label texts and enum values must be equal");
-        }
+    EnumSelectionView(QAbstractItemModel* model, QPersistentModelIndex index, const QList<EnumItem<EnumType>>& items, const QString& tooltip) {
+        setToolTip(tooltip);
 
         // Add items to combo box using the texts and values (user data) above.
-        for(int i = 0; i < texts.size(); ++i) {
-            addItem(texts[i], static_cast<int>(values[i]));
+        for(auto& item: items) {
+            addItem(item.name, static_cast<int>(item.value));
+            setItemData(count() - 1, item.tooltip, Qt::ToolTipRole);
         }
 
         // Select item whose user data matches the current value in the model
-        for(int i = 0; i < texts.size(); ++i) {
+        for(int i = 0; i < items.size(); ++i) {
             if(itemData(i) == model->data(index, Qt::DisplayRole)) {
                 setCurrentIndex(i);
             }

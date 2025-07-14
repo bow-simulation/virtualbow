@@ -7,8 +7,7 @@
 LineView::LineView(LineModel* model) {
     addProperty(
         "Length",
-        "Length of the line segment",
-        new DoubleView(model, model->LENGTH, Quantities::length, DoubleRange::positive(1e-3))
+        new DoubleView(model, model->LENGTH, Quantities::length, DoubleRange::positive(1e-3), "Length of the line segment")
     );
 
     addStretch();

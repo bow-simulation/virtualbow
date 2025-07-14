@@ -58,7 +58,7 @@ void DoubleSpinBox::updateUnit() {
     // Show the selected unit as suffix, if it is not "no unit"
     // Setting the suffix also triggers a new evaluation of textFromValue
     if(show_unit && quantity.getUnit() != Units::No_Unit) {
-        setSuffix(" " + quantity.getUnit().getName());
+        setSuffix(" " + quantity.getUnit().getLabel());
     }
     else {
         setSuffix("");

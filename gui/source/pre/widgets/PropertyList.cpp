@@ -25,21 +25,16 @@ void PropertyList::addHeading(const QString& title) {
     grid->addWidget(label, rowCount, 0);
 }
 
-void PropertyList::addProperty(const QString& name, const QString& tooltip, QWidget* editor) {
+void PropertyList::addProperty(const QString& name, QWidget* editor) {
     auto label = new QLabel(name);
-    label->setToolTip(tooltip);
-
-    editor->setMinimumWidth(EDITOR_WIDTH);
-    editor->setMaximumWidth(EDITOR_WIDTH);
+    editor->setFixedWidth(EDITOR_WIDTH);
 
     int rowCount = grid->rowCount();
     grid->addWidget(label, rowCount, 0);
     grid->addWidget(editor, rowCount, 1);
 }
 
-void PropertyList::addWidget(const QString& tooltip, QWidget* widget) {
-    widget->setToolTip(tooltip);
-
+void PropertyList::addWidget(QWidget* widget) {
     int rowCount = grid->rowCount();
     grid->addWidget(widget, rowCount, 0, 1, 2);
 }

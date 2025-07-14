@@ -98,8 +98,8 @@ void ShapePlot::updateCurrentState() {
 }
 
 void ShapePlot::updateAxes() {
-    this->xAxis->setLabel("X " + quantity.getUnit().getLabel());
-    this->yAxis->setLabel("Y " + quantity.getUnit().getLabel());
+    this->xAxis->setLabel("X " + quantity.getUnit().getSuffix());
+    this->yAxis->setLabel("Y " + quantity.getUnit().getSuffix());
 
     QCPRange x_range;
     QCPRange y_range;

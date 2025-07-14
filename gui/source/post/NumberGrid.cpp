@@ -64,7 +64,7 @@ void NumberGrid::addValue(const QString& name, double value, const Quantity& qua
     currentGrid->addWidget(edit, i, 1);
 
     auto update = [&, name, value, label, edit] {
-        label->setText(name + " " + quantity.getUnit().getLabel());
+        label->setText(name + " " + quantity.getUnit().getSuffix());
         edit->setText(QLocale().toString(quantity.getUnit().fromBase(value)));
     };
 

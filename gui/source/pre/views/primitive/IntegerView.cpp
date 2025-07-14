@@ -4,11 +4,11 @@
 #include <QWheelEvent>
 #include <cmath>
 
-//calculate::Parser IntegerView::parser = calculate::Parser{};
-
-IntegerView::IntegerView(QAbstractItemModel* model, QPersistentModelIndex index, const IntegerRange& range):
+IntegerView::IntegerView(QAbstractItemModel* model, QPersistentModelIndex index, const IntegerRange& range, const QString& tooltip):
     IntegerSpinBox(range)
 {
+    setToolTip(tooltip);
+
     // Set value from model and keep model up to date on changes
     setValue(model->data(index, Qt::DisplayRole).toInt());
     QObject::connect(this, &QSpinBox::valueChanged, this, [=](int value){ model->setData(index, value); });

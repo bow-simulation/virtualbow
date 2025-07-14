@@ -65,8 +65,8 @@ void EnergyPlot::setStateIndex(int index) {
 }
 
 void EnergyPlot::updatePlot() {
-    plot->xAxis->setLabel(label_x + " " + quantity_x.getUnit().getLabel());
-    plot->yAxis->setLabel("Energy " + quantity_y.getUnit().getLabel());
+    plot->xAxis->setLabel(label_x + " " + quantity_x.getUnit().getSuffix());
+    plot->yAxis->setLabel("Energy " + quantity_y.getUnit().getSuffix());
 
     // Function plot_energy adds a single energy to the plot
     std::function<void(const std::vector<double>& energy, const QString& name, const QColor& color)> plot_energy;

@@ -5,5 +5,5 @@ class QAbstractItemModel;
 
 class IntegerView: public IntegerSpinBox {
 public:
-    IntegerView(QAbstractItemModel* model, QPersistentModelIndex index, const IntegerRange& range);
+    IntegerView(QAbstractItemModel* model, QPersistentModelIndex index, const IntegerRange& range, const QString& tooltip);
 };

@@ -9,7 +9,7 @@ enum UnitType {
 
 class Unit {
 public:
-    Unit(const QString& name, UnitType type, double factor);
+    Unit(const QString& label, const QString& text, UnitType type, double factor);
     bool operator==(const Unit& other) const;
     bool operator!=(const Unit& other) const;
 
@@ -20,11 +20,13 @@ public:
     QVector<double> toBase(const std::vector<double>& value) const;
 
     UnitType getType() const;
-    QString getName() const;
     QString getLabel() const;
+    QString getText() const;
+    QString getSuffix() const;
 
 private:
-    QString name;
+    QString label;
+    QString text;
     UnitType type;
     double factor;
 };

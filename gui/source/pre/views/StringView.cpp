@@ -9,20 +9,17 @@
 StringView::StringView(StringModel* model) {
     addProperty(
         "Strand stiffness",
-        "Linear stiffness of a single strand of the string material",
-        new DoubleView(model, model->STRAND_STIFFNESS, Quantities::linear_stiffness, DoubleRange::positive(1.0))
+        new DoubleView(model, model->STRAND_STIFFNESS, Quantities::linear_stiffness, DoubleRange::positive(1.0), "Linear stiffness of a single strand of the string material")
     );
 
     addProperty(
         "Strand density",
-        "Linear density of a single strand of the string material",
-        new DoubleView(model, model->STRAND_DENSITY, Quantities::linear_density, DoubleRange::positive(1e-4))
+        new DoubleView(model, model->STRAND_DENSITY, Quantities::linear_density, DoubleRange::positive(1e-4), "Linear density of a single strand of the string material")
     );
 
     addProperty(
         "Num. Strands",
-        "Total number of strands in the string",
-        new IntegerView(model, model->N_STRANDS, IntegerRange::positive())
+        new IntegerView(model, model->N_STRANDS, IntegerRange::positive(), "Total number of strands in the string")
     );
 
     addStretch();
