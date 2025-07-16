@@ -33,6 +33,8 @@ Response load_result(const char *path);
 
 Response save_result(const uint8_t *data, uintptr_t size, const char *path);
 
+Response compute_geometry(const uint8_t *data, uintptr_t size);
+
 Response simulate_model(const uint8_t *data, uintptr_t size, Mode mode, bool (*callback)(Mode, double));
 
 void free_response(Response response);

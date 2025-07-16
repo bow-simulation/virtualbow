@@ -77,7 +77,7 @@ impl<'a> Simulation<'a> {
 
         let mut system = System::new();
 
-        let limb_nodes: Vec<Node> = geometry.u_nodes.iter().enumerate().map(|(i, u)| {
+        let limb_nodes: Vec<Node> = geometry.p_nodes.iter().enumerate().map(|(i, u)| {
             system.create_node(u, &[i != 0; 3])    // First node is fixed, all others
         }).collect();
 
@@ -236,9 +236,9 @@ impl<'a> Simulation<'a> {
         let common = Common {
             limb: LimbInfo {
                 length: simulation.geometry.s_eval.clone(),
-                position: simulation.geometry.position.clone(),
-                width: simulation.geometry.width.clone(),
-                height: simulation.geometry.height.clone(),
+                position: simulation.geometry.p_eval.clone(),
+                width: simulation.geometry.w_eval.clone(),
+                height: simulation.geometry.h_eval.clone(),
                 bounds: simulation.geometry.y_eval.iter().map(|y| y.data.clone().into()).collect(),  // TODO: Uglyyy
             },
             layers,

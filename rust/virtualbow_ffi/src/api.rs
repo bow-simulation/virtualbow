@@ -1,5 +1,6 @@
 use std::path::Path;
 use virtualbow::errors::ModelError;
+use virtualbow::geometry::LimbGeometry;
 use virtualbow::input::BowModel;
 use virtualbow::input::BowModelVersion;
 use virtualbow::output::BowResult;
@@ -45,6 +46,15 @@ pub fn save_result<P>(data: &[u8], path: P) -> Result<(), String>
 {
     let result = BowResult::try_from(data).map_err(|e| e.to_string())?;
     result.save(path).map_err(|e| e.to_string())
+}
+
+pub fn compute_geometry(data: &[u8]) -> Result<Vec<u8>, String> {
+    let model = BowModel::try_from(data).map_err(|e| e.to_string())?;
+    let geometry = LimbGeometry::new(&model).map_err(|e| e.to_string())?;
+    let discretized = geometry.discretize(model.settings.num_limb_eval_points, model.settings.num_limb_elements);
+    let data = discretized.try_into().map_err(|e: ModelError| e.to_string())?;
+
+    Ok(data)
 }
 
 pub fn simulate_model<F>(data: &[u8], mode: SimulationMode, callback: F) -> Result<Vec<u8>, String>

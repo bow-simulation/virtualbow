@@ -36,6 +36,11 @@ TEST_CASE("save-result-file") {
     REQUIRE_THROWS(save_result(result, TEST_DATA_DIR + "/temp/nonexistent/result.res"));
 }
 
+TEST_CASE("compute-geometry") {
+    BowModel model = new_model();
+    DiscreteLimbGeometry geometry = compute_geometry(model);
+}
+
 TEST_CASE("simulate-model") {
     BowModel model = new_model();
     BowResult result = simulate_model(model, Mode::Dynamic, [](Mode mode, double progress) {

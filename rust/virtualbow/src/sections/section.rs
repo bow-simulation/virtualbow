@@ -195,39 +195,40 @@ impl LayeredCrossSection {
         &self.layers
     }
 
-    // Computes the layer boundaries at arc length s. Also returns the heights as a byproduct.
-    pub fn layer_bounds(&self, p: f64) -> (DVector<f64>, DVector<f64>) {
-        let h = self.layer_heights(p);
+    // Computes the layer boundaries at normalized length n in [0, 1].
+    // Also returns the layer heights as a byproduct.
+    pub fn layer_bounds(&self, n: f64) -> (DVector<f64>, DVector<f64>) {
+        let h = self.layer_heights(n);
         (&self.stacking*&h, h)
     }
 
-    // Computes the section boundaries (belly, back) at arc length s.
+    // Computes the section boundaries (belly, back) at normalized length n.
     // Equivalent to first and last layer bound.
-    pub fn section_bounds(&self, p: f64) -> (f64, f64) {
-        let (y, _) = self.layer_bounds(p);
+    pub fn section_bounds(&self, n: f64) -> (f64, f64) {
+        let (y, _) = self.layer_bounds(n);
         (y[0], y[y.len() - 1])
     }
 
-    // Evaluates the heights of the individual layers at arc length s and returns them as a vector
-    pub fn layer_heights(&self, p: f64) -> DVector<f64> {
+    // Evaluates the heights of the individual layers at normalized length n and returns them as a vector
+    pub fn layer_heights(&self, n: f64) -> DVector<f64> {
         DVector::<f64>::from_fn(self.layers.len(), |i, _| {
-            self.layers[i].height.value(p, Extrapolation::Constant)
+            self.layers[i].height.value(n, Extrapolation::Constant)
         })
     }
 }
 
 impl CrossSection for LayeredCrossSection {
-    fn ρA(&self, p: f64) -> f64 {
-        let w = self.width.value(p, Extrapolation::Constant);
+    fn ρA(&self, n: f64) -> f64 {
+        let w = self.width.value(n, Extrapolation::Constant);
         self.layers.iter().map(|layer| {
-            let h = layer.height.value(p, Extrapolation::Constant);
+            let h = layer.height.value(n, Extrapolation::Constant);
             layer.material.density*w*h
         }).sum()
     }
 
-    fn ρI(&self, p: f64) -> f64 {
-        let w = self.width(p);
-        let (y, h) = self.layer_bounds(p);
+    fn ρI(&self, n: f64) -> f64 {
+        let w = self.width(n);
+        let (y, h) = self.layer_bounds(n);
 
         self.layers.iter().enumerate().map(|(i, layer)| {
             let A = w*h[i];
@@ -237,12 +238,12 @@ impl CrossSection for LayeredCrossSection {
         }).sum()
     }
 
-    fn C(&self, p: f64) -> SMatrix<f64, 3, 3> {
-        let w = self.width(p);
-        let (y, h) = self.layer_bounds(p);
+    fn C(&self, n: f64) -> SMatrix<f64, 3, 3> {
+        let w = self.width(n);
+        let (y, h) = self.layer_bounds(n);
 
         let Cee = self.layers.iter().map(|layer| {
-            let h = layer.height.value(p, Extrapolation::Constant);
+            let h = layer.height.value(n, Extrapolation::Constant);
             layer.material.youngs_modulus*w*h
         }).sum();
 
@@ -260,7 +261,7 @@ impl CrossSection for LayeredCrossSection {
         }).sum();
 
         let Cγγ = self.layers.iter().map(|layer| {
-            let h = layer.height.value(p, Extrapolation::Constant);
+            let h = layer.height.value(n, Extrapolation::Constant);
             layer.material.shear_modulus*w*h
         }).sum();
 
@@ -271,19 +272,19 @@ impl CrossSection for LayeredCrossSection {
         ]
     }
 
-    fn width(&self, p: f64) -> f64 {
-        self.width.value(p, Extrapolation::Constant)
+    fn width(&self, n: f64) -> f64 {
+        self.width.value(n, Extrapolation::Constant)
     }
 
     // Total height as the sum of all layers
-    fn height(&self, p: f64) -> f64 {
-        self.layers.iter().map(|layer| layer.height.value(p, Extrapolation::Constant)).sum()
+    fn height(&self, n: f64) -> f64 {
+        self.layers.iter().map(|layer| layer.height.value(n, Extrapolation::Constant)).sum()
     }
 
     // Strain evaluation matrix. Produces normal strains at back and belly of each layer.
-    fn strain_eval(&self, p: f64) -> DMatrix<f64> {
+    fn strain_eval(&self, n: f64) -> DMatrix<f64> {
         // Layer bounds are the points of interest
-        let (y, _) = self.layer_bounds(p);
+        let (y, _) = self.layer_bounds(n);
 
         // Normal strain is epsilon - kappa*y
         DMatrix::from_fn(2*self.layers.len(), 3, |i, j| {
@@ -297,9 +298,9 @@ impl CrossSection for LayeredCrossSection {
     }
 
     // Stress evaluation matrix. Produces stresses at back and belly of each layer.
-    fn stress_eval(&self, p: f64) -> DMatrix<f64> {
+    fn stress_eval(&self, n: f64) -> DMatrix<f64> {
         // Layer bounds are the points of interest
-        let (y, _) = self.layer_bounds(p);
+        let (y, _) = self.layer_bounds(n);
 
         // Normal stress is E*(epsilon - kappa*y)
         DMatrix::from_fn(2*self.layers.len(), 3, |i, j| {

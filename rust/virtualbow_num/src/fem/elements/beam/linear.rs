@@ -1,10 +1,12 @@
 use itertools::Itertools;
 use nalgebra::{matrix, SMatrix, stack, SVector, vector};
+use serde::{Deserialize, Serialize};
 use crate::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
 use crate::utils::integration::fixed_simpson;
 
 // This module contains the necessary methods for determining the linear properties of a beam section
 
+#[derive(Serialize, Deserialize, Default, PartialEq, Debug, Clone)]
 pub struct LinearBeamSegment {
     pub s0: f64,                        // Start length
     pub s1: f64,                        // End length

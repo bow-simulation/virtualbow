@@ -1,6 +1,7 @@
 use iter_num_tools::lin_space;
 use itertools::Itertools;
 use nalgebra::{DMatrix, DVector, SVector, vector};
+use serde::{Deserialize, Serialize};
 use crate::errors::ModelError;
 use crate::input::{BowModel, HandleReference};
 use crate::profile::profile::{CurvePoint, ProfileCurve};
@@ -11,6 +12,26 @@ use virtualbow_num::fem::elements::beam::linear::LinearBeamSegment;
 pub struct LimbGeometry {
     pub profile: ProfileCurve,           // Limb profile curve
     pub section: LayeredCrossSection,    // Limb cross sections
+}
+
+// TODO: Return values s_nodes, u_node might not be needed if the evaluation works properly
+#[derive(Serialize, Deserialize, Default, PartialEq, Debug, Clone)]
+pub struct DiscreteLimbGeometry {
+    pub segments: Vec<LinearBeamSegment>,    // Linear beam segment properties
+    pub n_nodes: Vec<f64>,                   // Relative lengths of the element nodes
+    pub s_nodes: Vec<f64>,                   // Arc lengths of the element nodes
+    pub p_nodes: Vec<SVector<f64, 3>>,       // Positions (x, y, φ) of the element nodes
+    pub y_nodes: Vec<DVector<f64>>,          // Layer bounds at nodes (y in cross section coordinates)
+
+    pub n_eval: Vec<f64>,                    // Relative lengths at which the limb quantities are evaluated
+    pub s_eval: Vec<f64>,                    // Arc lengths at which the limb quantities are evaluated
+    pub p_eval: Vec<SVector<f64, 3>>,        // Positions (x, y, φ) of the evaluation points
+    pub y_eval: Vec<DVector<f64>>,           // Layer bounds at eval points (y in cross section coordinates)
+    pub w_eval: Vec<f64>,                    // Widths at eval points
+    pub h_eval: Vec<f64>,                    // Total heights at eval points
+
+    pub strain_eval: Vec<DMatrix<f64>>,      // Strain evaluation matrices for each evaluation point
+    pub stress_eval: Vec<DMatrix<f64>>,      // Stress evaluation matrices for each evaluation point
 }
 
 impl LimbGeometry {
@@ -59,14 +80,14 @@ impl LimbGeometry {
     pub fn discretize(&self, n_eval_points: usize, n_elements: usize) -> DiscreteLimbGeometry {
         // Arc lengths and normalized positions along the profile where the element nodes are placed
         let s_nodes = lin_space(self.profile.s_start()..=self.profile.s_end(), n_elements + 1).collect_vec();
-        let p_nodes = s_nodes.iter().map(|&s| self.profile.normalize(s)).collect_vec();
-        let u_nodes = s_nodes.iter().map(|&s| self.profile.point(s)).collect_vec();
-        let y_nodes = p_nodes.iter().map(|&p| self.section.layer_bounds(p).0).collect_vec();
+        let n_nodes = s_nodes.iter().map(|&s| self.profile.normalize(s)).collect_vec();
+        let p_nodes = s_nodes.iter().map(|&s| self.profile.point(s)).collect_vec();
+        let y_nodes = n_nodes.iter().map(|&n| self.section.layer_bounds(n).0).collect_vec();
 
         // Equidistant evaluation points along the length of the limb
         let s_eval = lin_space(self.profile.s_start()..=self.profile.s_end(), n_eval_points).collect_vec();
-        let p_eval = s_eval.iter().map(|&s| self.profile.normalize(s)).collect_vec();
-        let y_eval = p_eval.iter().map(|&p| self.section.layer_bounds(p).0).collect_vec();
+        let n_eval = s_eval.iter().map(|&s| self.profile.normalize(s)).collect_vec();
+        let y_eval = n_eval.iter().map(|&n| self.section.layer_bounds(n).0).collect_vec();
 
         let segments = s_nodes.iter().tuple_windows().enumerate().map(|(i, (&s0, &s1))| {
             // TODO: Better solution for numerical issues?
@@ -86,45 +107,47 @@ impl LimbGeometry {
             LinearBeamSegment::new(&self.profile, &self.section, s0, s1, &s_eval)
         }).collect();
 
-        let strain_eval = p_eval.iter().map(|&p| self.section.strain_eval(p)).collect();
-        let stress_eval = p_eval.iter().map(|&p| self.section.stress_eval(p)).collect();
+        let p_eval = s_eval.iter().map(|&s| self.profile.point(s)).collect();
+        let w_eval = n_eval.iter().map(|&n| self.section.width(n)).collect();
+        let h_eval = n_eval.iter().map(|&n| self.section.height(n)).collect();
 
-        let position = s_eval.iter().map(|&s| self.profile.point(s)).collect();
-        let width = p_eval.iter().map(|&p| self.section.width(p)).collect();
-        let height = p_eval.iter().map(|&p| self.section.height(p)).collect();
+        let strain_eval = n_eval.iter().map(|&n| self.section.strain_eval(n)).collect();
+        let stress_eval = n_eval.iter().map(|&n| self.section.stress_eval(n)).collect();
 
         DiscreteLimbGeometry {
             segments,
+            n_nodes,
             s_nodes,
-            u_nodes,
+            p_nodes,
             y_nodes,
+            n_eval,
             s_eval,
             y_eval,
             strain_eval,
             stress_eval,
-            position,
-            width,
-            height
+            p_eval,
+            w_eval,
+            h_eval
         }
     }
 }
 
-// TODO: Return values s_nodes, u_node might not be needed if the evaluation works properly
-pub struct DiscreteLimbGeometry {
-    pub segments: Vec<LinearBeamSegment>,    // Linear beam segment properties
-    pub s_nodes: Vec<f64>,                   // Arc lengths of the element nodes
-    pub u_nodes: Vec<SVector<f64, 3>>,       // Positions (x, y, φ) of the element nodes
-    pub y_nodes: Vec<DVector<f64>>,          // Layer bounds at nodes (y in cross section coordinates)
+impl TryInto<Vec<u8>> for DiscreteLimbGeometry {
+    type Error = ModelError;
 
-    pub s_eval: Vec<f64>,                    // Arc lengths at which the limb quantities are evaluated (positions, forces, ...)
-    pub y_eval: Vec<DVector<f64>>,           // Layer bounds at eval points (y in cross section coordinates)
-    pub strain_eval: Vec<DMatrix<f64>>,      // Strain evaluation matrices for each evaluation point
-    pub stress_eval: Vec<DMatrix<f64>>,      // Stress evaluation matrices for each evaluation point
+    // Conversion into MsgPack byte array
+    fn try_into(self) -> Result<Vec<u8>, Self::Error> {
+        rmp_serde::to_vec_named(&self).map_err(ModelError::OutputEncodeMsgPackError)  // TODO: Bett error type?
+    }
+}
 
-    // TODO: Unify with rest
-    pub position: Vec<SVector<f64, 3>>,
-    pub width: Vec<f64>,
-    pub height: Vec<f64>
+impl TryFrom<&[u8]> for DiscreteLimbGeometry {
+    type Error = ModelError;
+
+    // Conversion from MsgPack byte array
+    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
+        rmp_serde::from_slice(value).map_err(ModelError::OutputDecodeMsgPackError)
+    }
 }
 
 #[cfg(test)]

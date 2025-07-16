@@ -24,6 +24,19 @@ struct nlohmann::adl_serializer<std::optional<T>> {
     }
 };
 
+struct DiscreteLimbGeometry {
+    std::vector<double> n_eval;
+    std::vector<double> w_eval;
+    std::vector<double> h_eval;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    DiscreteLimbGeometry,
+    n_eval,
+    w_eval,
+    h_eval
+)
+
 struct LayerInfo {
     std::string name;
 };
