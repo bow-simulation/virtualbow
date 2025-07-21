@@ -1,7 +1,6 @@
 #include "LayersModel.hpp"
+#include "solver/BowModel.hpp"
 
-LayersModel::LayersModel(MainModel *parent, Profile& layers):
-    PropertyListModel(parent)
-{
+LayersModel::LayersModel(Profile& layers) {
     //ALIGNMENT = addEnum(layers.alignment);
 }

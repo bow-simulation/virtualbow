@@ -2,6 +2,7 @@
 #include <QDockWidget>
 #include <QTreeWidgetItem>
 
+class MainModel;
 class MainTreeModel;
 class QTreeView;
 class QToolButton;
@@ -10,7 +11,7 @@ class QMenu;
 
 class TreeDock: public QDockWidget {
 public:
-    TreeDock(MainTreeModel* viewModel, QItemSelectionModel* selectionModel);
+    TreeDock(MainModel* mainModel);
 
 private:
     MainTreeModel* viewModel;

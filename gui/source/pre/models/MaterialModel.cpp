@@ -1,8 +1,7 @@
 #include "MaterialModel.hpp"
+#include "solver/BowModel.hpp"
 
-MaterialModel::MaterialModel(MainModel *parent, Material& material):
-    PropertyListModel(parent)
-{
+MaterialModel::MaterialModel(Material& material) {
     NAME = addString(material.name);
     COLOR = addColor(material.color);
     DENSITY = addDouble(material.density);

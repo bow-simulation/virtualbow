@@ -1,7 +1,5 @@
 #include "CommentsModel.hpp"
 
-CommentsModel::CommentsModel(MainModel *parent, std::string& comment):
-    PropertyListModel(parent)
-{
+CommentsModel::CommentsModel(std::string& comment) {
     COMMENT = addString(comment);
 }

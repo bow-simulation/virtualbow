@@ -1,6 +1,8 @@
 #pragma once
 #include "pre/models/PropertyListModel.hpp"
 
+struct Dimensions;
+
 class DimensionsModel: public PropertyListModel {
 public:
     QPersistentModelIndex BRACE_HEIGHT;
@@ -10,5 +12,5 @@ public:
     QPersistentModelIndex HANDLE_OFFSET;
     QPersistentModelIndex HANDLE_ANGLE;
 
-    DimensionsModel(MainModel *parent, Dimensions& dimensions);
+    DimensionsModel(Dimensions& dimensions);
 };

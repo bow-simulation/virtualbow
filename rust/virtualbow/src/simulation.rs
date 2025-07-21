@@ -10,7 +10,7 @@ use virtualbow_num::fem::system::system::{System, SystemEval};
 use crate::errors::ModelError;
 use crate::geometry::{DiscreteLimbGeometry, LimbGeometry};
 use crate::input::BowModel;
-use crate::output::{Dynamics, LayerInfo, LimbInfo, BowResult, Common, State, StateVec, Statics, ArrowDeparture};
+use crate::output::{Dynamics, LayerInfo, BowResult, Common, State, StateVec, Statics, ArrowDeparture};
 use virtualbow_num::fem::elements::beam::beam::BeamElement;
 use virtualbow_num::fem::elements::mass::MassElement;
 use virtualbow_num::fem::elements::string::StringElement;
@@ -234,13 +234,7 @@ impl<'a> Simulation<'a> {
         };
 
         let common = Common {
-            limb: LimbInfo {
-                length: simulation.geometry.s_eval.clone(),
-                position: simulation.geometry.p_eval.clone(),
-                width: simulation.geometry.w_eval.clone(),
-                height: simulation.geometry.h_eval.clone(),
-                bounds: simulation.geometry.y_eval.iter().map(|y| y.data.clone().into()).collect(),  // TODO: Uglyyy
-            },
+            limb: simulation.geometry.to_limb_info(),
             layers,
             string_length,
             string_stiffness,

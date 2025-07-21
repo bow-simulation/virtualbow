@@ -31,6 +31,6 @@ BowResult load_result(const std::string& path);
 
 void save_result(const BowResult& result, const std::string& path);
 
-DiscreteLimbGeometry compute_geometry(const BowModel& model);
+LimbInfo compute_geometry(const BowModel& model);
 
 BowResult simulate_model(const BowModel& model, Mode mode, bool (*callback)(Mode, double));

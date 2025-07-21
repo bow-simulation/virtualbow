@@ -1,7 +1,6 @@
 #include "LineModel.hpp"
+#include "solver/BowModel.hpp"
 
-LineModel::LineModel(MainModel *parent, Line& line):
-    PropertyListModel(parent)
-{
+LineModel::LineModel(Line& line) {
     LENGTH = addDouble(line.length);
 }

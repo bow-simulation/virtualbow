@@ -1,6 +1,8 @@
 #pragma once
 #include "pre/models/PropertyListModel.hpp"
 
+struct Masses;
+
 class MassesModel: public PropertyListModel {
 public:
     QPersistentModelIndex ARROW;
@@ -8,5 +10,5 @@ public:
     QPersistentModelIndex STRING_TIP;
     QPersistentModelIndex LIMB_TIP;
 
-    MassesModel(MainModel *parent, Masses& masses);
+    MassesModel(Masses& masses);
 };

@@ -1,9 +1,9 @@
 #pragma once
-#include <QPlainTextEdit>
+#include "pre/widgets/CustomTextEdit.hpp"
 
 class QAbstractItemModel;
 
-class TextView: public QPlainTextEdit
+class TextView: public CustomTextEdit
 {
 public:
     TextView(QAbstractItemModel* model, QPersistentModelIndex index);

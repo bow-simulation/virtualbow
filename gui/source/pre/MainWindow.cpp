@@ -71,16 +71,16 @@ MainWindow::MainWindow()
 
     // Some actions are only available if a bow model is present
 
-    actionSave->setEnabled(viewModel->hasBowModel());
+    actionSave->setEnabled(viewModel->hasBow());
     QObject::connect(viewModel, &MainModel::hasBowModelChanged, actionSave, &QAction::setEnabled);
 
-    actionSaveAs->setEnabled(viewModel->hasBowModel());
+    actionSaveAs->setEnabled(viewModel->hasBow());
     QObject::connect(viewModel, &MainModel::hasBowModelChanged, actionSaveAs, &QAction::setEnabled);
 
-    actionRunStatics->setEnabled(viewModel->hasBowModel());
+    actionRunStatics->setEnabled(viewModel->hasBow());
     QObject::connect(viewModel, &MainModel::hasBowModelChanged, actionRunStatics, &QAction::setEnabled);
 
-    actionRunDynamics->setEnabled(viewModel->hasBowModel());
+    actionRunDynamics->setEnabled(viewModel->hasBow());
     QObject::connect(viewModel, &MainModel::hasBowModelChanged, actionRunDynamics, &QAction::setEnabled);
 
     // File menu
@@ -131,9 +131,9 @@ MainWindow::MainWindow()
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
     auto limbView = new LimbView();
-    auto treeDock = new TreeDock(viewModel->getMainTreeModel(), viewModel->getModelTreeSelectionModel());
+    auto treeDock = new TreeDock(viewModel);
     auto editDock = new EditDock(viewModel);
-    auto plotDock = new PlotDock();
+    auto plotDock = new PlotDock(viewModel);
 
     this->setCentralWidget(limbView);
     this->addDockWidget(Qt::LeftDockWidgetArea, treeDock);

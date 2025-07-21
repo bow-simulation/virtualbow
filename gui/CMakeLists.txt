@@ -73,6 +73,8 @@ add_executable(
     source/pre/utils/IntegerRange.hpp
     source/pre/utils/UserSettings.cpp
     source/pre/utils/UserSettings.hpp
+    source/pre/widgets/CustomTextEdit.cpp
+    source/pre/widgets/CustomTextEdit.hpp
     source/pre/widgets/ScrollArea.hpp
     source/pre/widgets/DialogBase.cpp
     source/pre/widgets/DialogBase.hpp
@@ -88,6 +90,8 @@ add_executable(
     source/pre/widgets/PlotWidget.hpp
     source/pre/widgets/PropertyList.cpp
     source/pre/widgets/PropertyList.hpp
+    source/pre/models/base/ModelBase.cpp
+    source/pre/models/base/ModelBase.hpp
     source/pre/models/MainModel.cpp
     source/pre/models/MainModel.hpp
     source/pre/models/MainTreeModel.hpp
@@ -134,8 +138,10 @@ add_executable(
     source/pre/views/docks/PlotDock.hpp
     source/pre/views/limb2d/ProfileView.cpp
     source/pre/views/limb2d/ProfileView.hpp
-    source/pre/views/limb2d/SplineView.cpp
-    source/pre/views/limb2d/SplineView.hpp
+    source/pre/views/limb2d/WidthPlotView.cpp
+    source/pre/views/limb2d/WidthPlotView.hpp
+    source/pre/views/limb2d/HeightPlotView.cpp
+    source/pre/views/limb2d/HeightPlotView.hpp
     source/pre/views/primitive/DoubleView.hpp
     source/pre/views/primitive/DoubleView.cpp
     source/pre/views/primitive/ColorView.hpp

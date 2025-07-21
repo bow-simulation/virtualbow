@@ -4,6 +4,7 @@
 #include "pre/utils/DoubleRange.hpp"
 #include "pre/models/DimensionsModel.hpp"
 #include "pre/models/units/UnitSystem.hpp"
+#include "solver/BowModel.hpp"
 
 DimensionsView::DimensionsView(DimensionsModel* model) {
     addHeading("Draw");

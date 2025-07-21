@@ -13,8 +13,10 @@
 
 #include <QDebug>
 
-TreeDock::TreeDock(MainTreeModel* viewModel, QItemSelectionModel* selectionModel)
-    : viewModel(viewModel),
+//viewModel->getMainTreeModel(), viewModel->getModelTreeSelectionModel()
+
+TreeDock::TreeDock(MainModel* mainModel)
+    : viewModel(mainModel->getMainTreeModel()),
       tree(new QTreeView()),
       menuAddMaterial(createMaterialMenu()),
       menuAddLayer(createLayerMenu()),
@@ -24,6 +26,8 @@ TreeDock::TreeDock(MainTreeModel* viewModel, QItemSelectionModel* selectionModel
     this->setFeatures(QDockWidget::NoDockWidgetFeatures);
     this->setWindowTitle("Model");
     this->setWidget(tree);
+
+    auto selectionModel = mainModel->getModelTreeSelectionModel();
 
     // Actions that can be triggered by the tool buttons, shortcuts or context menus
 

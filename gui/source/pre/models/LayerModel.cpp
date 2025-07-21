@@ -1,8 +1,7 @@
 #include "LayerModel.hpp"
+#include "solver/BowModel.hpp"
 
-LayerModel::LayerModel(MainModel *parent, Layer& layer, const std::vector<Material>& materials):
-    PropertyListModel(parent)
-{
+LayerModel::LayerModel(Layer& layer, const std::vector<Material>& materials) {
     NAME = addString(layer.name);
     MATERIAL = addString(layer.material);
 

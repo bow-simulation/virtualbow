@@ -3,8 +3,6 @@
 #include <QColor>
 #include <QAbstractListModel>
 
-#include "pre/models/MainModel.hpp"
-
 class AbstractProperty: public QObject {
 public:
     virtual QVariant data(int role) const = 0;
@@ -174,8 +172,6 @@ private:
 
 class PropertyListModel: public QAbstractListModel {
 public:
-    PropertyListModel(MainModel *parent);
-
     QPersistentModelIndex addString(std::string& value);
 
     QPersistentModelIndex addColor(std::string& value);

@@ -1,5 +1,6 @@
 #pragma once
 #include "solver/BowModel.hpp"
+#include "solver/BowResult.hpp"
 #include <QObject>
 #include <QProperty>
 #include <QTimer>
@@ -32,6 +33,19 @@ class MainModel: public QObject {
 public:
     MainModel();
 
+    // Current state
+
+    const QString& currentFile() const;    // Currently loaded file path or empty, if no file is currently loaded
+    bool hasUnsavedWork() const;           // Whether model content has been modified without saving
+    bool hasBow() const;              // Whether bow model data is currently present (does not have to be backed by a file)
+    const BowModel& getBow() const;
+
+    bool hasGeometry() const;
+    const LimbInfo& getGeometry() const;
+
+    bool hasError() const;
+    const QString& getError() const;
+
     // Submodels
 
     MainTreeModel* getMainTreeModel();
@@ -59,27 +73,27 @@ public:
     void loadFile(const QString& path);    // Loads a bow model from a file path
     void saveFile(const QString& path);    // Saves the bow model to a file path
 
-    // Current state
-
-    const QString& currentFile() const;    // Currently loaded file path or empty, if no file is currently loaded
-    bool hasBowModel() const;              // Whether bow model data is currently present (does not have to be backed by a file)
-    bool hasUnsavedWork() const;           // Whether model content has been modified without saving
-
 signals:
-    void currentFileChanged(const QString&);
-    void hasBowModelChanged(bool);
-    void hasUnsavedWorkChanged(bool);
+    void currentFileChanged(const QString&);    // Emitted when the loaded file has changed
+    void hasBowModelChanged(bool);              // Emitted when the property hasBowModel() has changed
+    void hasUnsavedWorkChanged(bool);           // Emitted when the property hasUnsavedWork() has changed
 
-    void contentModified();
+    void contentModified();                     // Emitted when any content of the model has been modified
+    void geometryChanged();                     // Emitted when the model geometry has been recomputed due to modifications
 
 private:
     // Top level state
-    std::optional<BowModel> bow;    // Bow data, which might or might not be present
-    QString path;                   // Path of the currently loaded file (or empty if no file is loaded)
-    bool unsaved;                  // Whether there are any unsaved modifications to the bow model
+    QString path;                                    // Path of the currently loaded file (or empty if no file is loaded)
+    bool unsaved;                                    // Whether there are any unsaved modifications to the bow model
 
+    std::optional<BowModel> bow;                     // Bow data, which might not be present
+    std::optional<LimbInfo> geometry;    // Geometry of the bow, which might not be present
+    std::optional<QString> error;                    // Possible error string from computing the geometry
 
     // Sub Viewmodels
     MainTreeModel* mainTreeModel;
     QItemSelectionModel* modelTreeSelectionModel;
+
+    void connectSubModel(QAbstractItemModel* model);
+    void updateBowGeometry();
 };

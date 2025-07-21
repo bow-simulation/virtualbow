@@ -38,7 +38,7 @@ TEST_CASE("save-result-file") {
 
 TEST_CASE("compute-geometry") {
     BowModel model = new_model();
-    DiscreteLimbGeometry geometry = compute_geometry(model);
+    LimbInfo geometry = compute_geometry(model);
 }
 
 TEST_CASE("simulate-model") {

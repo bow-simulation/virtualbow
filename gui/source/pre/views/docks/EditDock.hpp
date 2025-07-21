@@ -1,7 +1,6 @@
 #pragma once
 #include <QDockWidget>
 
-class QItemSelectionModel;
 class MainModel;
 
 class EditDock: public QDockWidget {

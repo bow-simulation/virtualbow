@@ -1,9 +1,11 @@
 #pragma once
 #include "pre/models/PropertyListModel.hpp"
 
+struct Line;
+
 class LineModel: public PropertyListModel {
 public:
     QPersistentModelIndex LENGTH;
 
-    LineModel(MainModel *parent, Line& line);
+    LineModel(Line& line);
 };

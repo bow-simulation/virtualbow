@@ -1,8 +1,7 @@
 #include "DimensionsModel.hpp"
+#include "solver/BowModel.hpp"
 
-DimensionsModel::DimensionsModel(MainModel *parent, Dimensions& dimensions):
-    PropertyListModel(parent)
-{
+DimensionsModel::DimensionsModel(Dimensions& dimensions) {
     BRACE_HEIGHT = addDouble(dimensions.brace_height);
     DRAW_LENGTH = addDouble(dimensions.draw_length);
     HANDLE_REFERENCE = addEnum(dimensions.handle_reference);

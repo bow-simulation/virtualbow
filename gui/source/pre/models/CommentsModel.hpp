@@ -5,5 +5,5 @@ class CommentsModel: public PropertyListModel {
 public:
     QPersistentModelIndex COMMENT;
 
-    CommentsModel(MainModel *parent, std::string& comment);
+    CommentsModel(std::string& comment);
 };

@@ -7,8 +7,8 @@
 #include <QClipboard>
 #include <QMenu>
 
-TableDelegate::TableDelegate(const Quantity& quantity, const DoubleRange& range, QObject* parent)
-    : QStyledItemDelegate(parent),
+TableDelegate::TableDelegate(const Quantity& quantity, const DoubleRange& range, QObject* parent):
+    QStyledItemDelegate(parent),
     quantity(quantity),
     range(range)
 {
@@ -20,8 +20,10 @@ QWidget* TableDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem
     editor->showUnit(false);
     editor->setFrame(false);
 
+    // Workaround to update the model on every change to the editor value, not only once when finished
     QObject::connect(editor, &DoubleSpinBox::valueChanged, this, [=] {
-        // const_cast<TableDelegate*>(this)->commitData(editor);    // Hack
+        QAbstractItemModel* model = const_cast<QAbstractItemModel*>(index.model());
+        model->setData(index, editor->value(), Qt::EditRole);
     });
 
     return editor;

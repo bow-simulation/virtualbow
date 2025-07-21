@@ -16,25 +16,86 @@
 #include "solver/API.hpp"
 #include <QItemSelectionModel>
 #include <QAbstractItemModelTester>
+#include <QTimer>
+
+// Delay time before recomputing the bow's geometry after changes to the model were made
+// This avoids frequent recomputations when many changes happen quickly (e.g. when scrolling in a spinbox)
+const int GEOMETRY_UPDATE_DELAY_MS = 100;
 
 MainModel::MainModel():
     bow(std::nullopt),
     path(""),
     unsaved(false),
-    mainTreeModel(new MainTreeModel(this)),
+    mainTreeModel(new MainTreeModel()),
     modelTreeSelectionModel(new QItemSelectionModel(mainTreeModel))
 {
-    // TODO: Move this to a dedicated test
-    // new QAbstractItemModelTester(mainTreeModel, QAbstractItemModelTester::FailureReportingMode::Warning, this);
+    connectSubModel(mainTreeModel);
 
-    //connectSubModel(mainTreeModel);
-
+    // Track changes to unsaved work by reacting to content modifications
     QObject::connect(this, &MainModel::contentModified, this, [&]{
         if(!unsaved) {
             unsaved = true;
             emit hasUnsavedWorkChanged(true);
         }
     });
+
+    // Timer for recomputation of the bow geometry
+    auto timer = new QTimer(this);
+    timer->setSingleShot(true);
+    timer->setInterval(GEOMETRY_UPDATE_DELAY_MS);
+
+    // When the content is modified, start the timer if not already running.
+    // Ignore the additional modification events if already running.
+    QObject::connect(this, &MainModel::contentModified, this, [timer]{
+        if(!timer->isActive()) {
+            timer->start();
+        }
+    });
+
+    // When the timer is completed, recompute the bow geometry and emit change signal when done
+    QObject::connect(timer, &QTimer::timeout, this, &MainModel::updateBowGeometry);
+
+    // TODO: Remove
+    QObject::connect(this, &MainModel::geometryChanged, this, [&]{
+        qInfo() << "Geometry changed!";
+    });
+
+    // TODO: Remove
+    QObject::connect(this, &MainModel::contentModified, this, [&]{
+        qInfo() << "Content modified!";
+    });
+}
+
+const QString& MainModel::currentFile() const {
+    return path;
+}
+
+bool MainModel::hasUnsavedWork() const {
+    return unsaved;
+}
+
+bool MainModel::hasBow() const {
+    return bow.has_value();
+}
+
+const BowModel& MainModel::getBow() const {
+    return *bow;
+}
+
+bool MainModel::hasGeometry() const {
+    return geometry.has_value();
+}
+
+const LimbInfo& MainModel::getGeometry() const {
+    return *geometry;
+}
+
+bool MainModel::hasError() const {
+    return error.has_value();
+}
+
+const QString& MainModel::getError() const {
+    return *error;
 }
 
 MainTreeModel* MainModel::getMainTreeModel() {
@@ -47,7 +108,9 @@ QItemSelectionModel* MainModel::getModelTreeSelectionModel() {
 
 CommentsModel* MainModel::getCommentsModel() {
     if(bow.has_value()) {
-        return new CommentsModel(this, bow->comment);
+        auto model = new CommentsModel(bow->comment);
+        connectSubModel(model);
+        return model;
     }
 
     return nullptr;
@@ -55,7 +118,9 @@ CommentsModel* MainModel::getCommentsModel() {
 
 SettingsModel* MainModel::getSettingsModel() {
     if(bow.has_value()) {
-        return new SettingsModel(this, bow->settings);
+        auto model = new SettingsModel(bow->settings);
+        connectSubModel(model);
+        return model;
     }
 
     return nullptr;
@@ -63,7 +128,9 @@ SettingsModel* MainModel::getSettingsModel() {
 
 DimensionsModel* MainModel::getDimensionsModel() {
     if(bow.has_value()) {
-        return new DimensionsModel(this, bow->dimensions);
+        auto model = new DimensionsModel(bow->dimensions);
+        connectSubModel(model);
+        return model;
     }
 
     return nullptr;
@@ -71,7 +138,9 @@ DimensionsModel* MainModel::getDimensionsModel() {
 
 MaterialModel* MainModel::getMaterialModel(int index) {
     if(bow.has_value() && index >= 0 && index < bow->section.materials.size()) {
-        return new MaterialModel(this, bow->section.materials[index]);
+        auto model = new MaterialModel(bow->section.materials[index]);
+        connectSubModel(model);
+        return model;
     }
 
     return nullptr;
@@ -79,7 +148,9 @@ MaterialModel* MainModel::getMaterialModel(int index) {
 
 LayerModel* MainModel::getLayerModel(int index) {
     if(bow.has_value() && index >= 0 && index < bow->section.layers.size()) {
-        return new LayerModel(this, bow->section.layers[index], bow->section.materials);
+        auto model = new LayerModel(bow->section.layers[index], bow->section.materials);
+        connectSubModel(model);
+        return model;
     }
 
     return nullptr;
@@ -87,7 +158,9 @@ LayerModel* MainModel::getLayerModel(int index) {
 
 TableModel* MainModel::getLayerHeightModel(int index) {
     if(bow.has_value() && index >= 0 && index < bow->section.layers.size()) {
-        return new TableModel(this, bow->section.layers[index].height, "Position", "Height", Quantities::ratio, Quantities::length);
+        auto model = new TableModel(bow->section.layers[index].height, "Position", "Height", Quantities::ratio, Quantities::length);
+        connectSubModel(model);
+        return model;
     }
 
     return nullptr;
@@ -95,7 +168,9 @@ TableModel* MainModel::getLayerHeightModel(int index) {
 
 TableModel* MainModel::getWidthModel() {
     if(bow.has_value()) {
-        return new TableModel(this, bow->section.width, "Position", "Width", Quantities::ratio, Quantities::length);
+        auto model = new TableModel(bow->section.width, "Position", "Width", Quantities::ratio, Quantities::length);
+        connectSubModel(model);
+        return model;
     }
 
     return nullptr;
@@ -103,7 +178,9 @@ TableModel* MainModel::getWidthModel() {
 
 StringModel* MainModel::getStringModel() {
     if(bow.has_value()) {
-        return new StringModel(this, bow->string);
+        auto model = new StringModel(bow->string);
+        connectSubModel(model);
+        return model;
     }
 
     return nullptr;
@@ -111,7 +188,9 @@ StringModel* MainModel::getStringModel() {
 
 MassesModel* MainModel::getMassesModel() {
     if(bow.has_value()) {
-        return new MassesModel(this, bow->masses);
+        auto model = new MassesModel(bow->masses);
+        connectSubModel(model);
+        return model;
     }
 
     return nullptr;
@@ -119,7 +198,9 @@ MassesModel* MainModel::getMassesModel() {
 
 DampingModel* MainModel::getDampingModel() {
     if(bow.has_value()) {
-        return new DampingModel(this, bow->damping);
+        auto model = new DampingModel(bow->damping);
+        connectSubModel(model);
+        return model;
     }
 
     return nullptr;
@@ -127,7 +208,9 @@ DampingModel* MainModel::getDampingModel() {
 
 LineModel* MainModel::getLineModel(int index) {
     if(bow.has_value() && index >= 0 && index < bow->profile.segments.size() && std::holds_alternative<Line>(bow->profile.segments[index])) {
-        return new LineModel(this, std::get<Line>(bow->profile.segments[index]));
+        auto model = new LineModel(std::get<Line>(bow->profile.segments[index]));
+        connectSubModel(model);
+        return model;
     }
 
     return nullptr;
@@ -135,7 +218,9 @@ LineModel* MainModel::getLineModel(int index) {
 
 ArcModel* MainModel::getArcModel(int index) {
     if(bow.has_value() && index >= 0 && index < bow->profile.segments.size() && std::holds_alternative<Arc>(bow->profile.segments[index])) {
-        return new ArcModel(this, std::get<Arc>(bow->profile.segments[index]));
+        auto model = new ArcModel(std::get<Arc>(bow->profile.segments[index]));
+        connectSubModel(model);
+        return model;
     }
 
     return nullptr;
@@ -143,7 +228,9 @@ ArcModel* MainModel::getArcModel(int index) {
 
 SpiralModel* MainModel::getSpiralModel(int index) {
     if(bow.has_value() && index >= 0 && index < bow->profile.segments.size() && std::holds_alternative<Spiral>(bow->profile.segments[index])) {
-        return new SpiralModel(this, std::get<Spiral>(bow->profile.segments[index]));
+        auto model = new SpiralModel(std::get<Spiral>(bow->profile.segments[index]));
+        connectSubModel(model);
+        return model;
     }
 
     return nullptr;
@@ -151,7 +238,9 @@ SpiralModel* MainModel::getSpiralModel(int index) {
 
 TableModel* MainModel::getSplineModel(int index) {
     if(bow.has_value() && index >= 0 && index < bow->profile.segments.size() && std::holds_alternative<Spline>(bow->profile.segments[index])) {
-        return new TableModel(this, std::get<Spline>(bow->profile.segments[index]).points, "X", "Y", Quantities::length, Quantities::length);
+        auto model = new TableModel(std::get<Spline>(bow->profile.segments[index]).points, "X", "Y", Quantities::length, Quantities::length);
+        connectSubModel(model);
+        return model;
     }
 
     return nullptr;
@@ -168,6 +257,8 @@ void MainModel::newFile() {
     emit currentFileChanged(path);
     emit hasBowModelChanged(true);
     emit hasUnsavedWorkChanged(unsaved);
+
+    updateBowGeometry();
 }
 
 void MainModel::loadFile(const QString& path) {
@@ -181,6 +272,8 @@ void MainModel::loadFile(const QString& path) {
     emit currentFileChanged(path);
     emit hasBowModelChanged(true);    // Might not have actually changed, but doesn't really matter
     emit hasUnsavedWorkChanged(unsaved);
+
+    updateBowGeometry();
 }
 
 void MainModel::saveFile(const QString& path) {
@@ -195,14 +288,30 @@ void MainModel::saveFile(const QString& path) {
     }
 }
 
-const QString& MainModel::currentFile() const {
-    return path;
+void MainModel::connectSubModel(QAbstractItemModel* model) {
+    // Emit modified signal if the model structure or data has been changed
+    QObject::connect(model, &QAbstractItemModel::dataChanged, this, &MainModel::contentModified);
+    QObject::connect(model, &QAbstractItemModel::rowsInserted, this, &MainModel::contentModified);
+    QObject::connect(model, &QAbstractItemModel::rowsRemoved, this, &MainModel::contentModified);
+    QObject::connect(model, &QAbstractItemModel::rowsMoved, this, &MainModel::contentModified);
 }
 
-bool MainModel::hasBowModel() const {
-    return bow.has_value();
-}
+void MainModel::updateBowGeometry() {
+    if(bow.has_value()) {
+        try {
+            geometry = compute_geometry(*bow);
+            error = std::nullopt;
+        }
+        catch(std::exception& e) {
+            qInfo() << "Error: " << e.what();    // TODO: Remove
+            geometry = std::nullopt;
+            error = QString(e.what());
+        }
+    }
+    else {
+        geometry = std::nullopt;
+        error = std::nullopt;
+    }
 
-bool MainModel::hasUnsavedWork() const {
-    return unsaved;
+    emit geometryChanged();
 }

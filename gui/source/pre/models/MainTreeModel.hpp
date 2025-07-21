@@ -34,7 +34,7 @@ class MainTreeModel: public QAbstractItemModel {
     Q_OBJECT
 
 public:
-    MainTreeModel(MainModel* parent);
+    MainTreeModel();
     void setBowModel(BowModel* bow);
 
     bool canInsertMaterial(const QModelIndexList& indexes);

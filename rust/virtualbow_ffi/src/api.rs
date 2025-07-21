@@ -6,7 +6,7 @@ use virtualbow::input::BowModelVersion;
 use virtualbow::output::BowResult;
 use virtualbow::simulation::{SimulationMode, Simulation};
 
-// Safe API to be wrapped and exposed by the unsafe FFI
+// Safe Rust API to be wrapped and exposed by the unsafe FFI
 
 pub fn new_model() -> Result<Vec<u8>, String> {
     let model = BowModel::example();
@@ -52,7 +52,8 @@ pub fn compute_geometry(data: &[u8]) -> Result<Vec<u8>, String> {
     let model = BowModel::try_from(data).map_err(|e| e.to_string())?;
     let geometry = LimbGeometry::new(&model).map_err(|e| e.to_string())?;
     let discretized = geometry.discretize(model.settings.num_limb_eval_points, model.settings.num_limb_elements);
-    let data = discretized.try_into().map_err(|e: ModelError| e.to_string())?;
+    let limb_info = discretized.to_limb_info();    // TODO: Get rid of this intermediate step
+    let data = limb_info.try_into().map_err(|e: ModelError| e.to_string())?;
 
     Ok(data)
 }

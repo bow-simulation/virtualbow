@@ -6,7 +6,7 @@
 const int INITIAL_ROWS = 25;    // Initial number of rows in the table
 const int DELTA_ROWS = 5;       // Number of rows to add when the end is reached
 
-TableModel::TableModel(MainModel* parent, Points& points, const QString& xLabel, const QString& yLabel, const Quantity& xQuantity, const Quantity& yQuantity):
+TableModel::TableModel(Points& points, const QString& xLabel, const QString& yLabel, const Quantity& xQuantity, const Quantity& yQuantity):
     columnLabels({xLabel, yLabel}),
     columnUnits({&xQuantity, &yQuantity}),
     loadedRows(INITIAL_ROWS),
@@ -19,8 +19,6 @@ TableModel::TableModel(MainModel* parent, Points& points, const QString& xLabel,
             emit dataChanged(index(0, i), index(rowCount() - 1, i));  // TODO: Only those that actually changed?
         });
     }
-
-    QObject::connect(this, &TableModel::modified, parent, &MainModel::contentModified);
 
     setPoints(points);
     QObject::connect(this, &TableModel::modified, this, [=]{

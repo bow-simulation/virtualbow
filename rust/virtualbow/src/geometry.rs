@@ -8,6 +8,7 @@ use crate::profile::profile::{CurvePoint, ProfileCurve};
 use crate::sections::section::LayeredCrossSection;
 use virtualbow_num::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
 use virtualbow_num::fem::elements::beam::linear::LinearBeamSegment;
+use crate::output::LimbInfo;
 
 pub struct LimbGeometry {
     pub profile: ProfileCurve,           // Limb profile curve
@@ -22,13 +23,14 @@ pub struct DiscreteLimbGeometry {
     pub s_nodes: Vec<f64>,                   // Arc lengths of the element nodes
     pub p_nodes: Vec<SVector<f64, 3>>,       // Positions (x, y, φ) of the element nodes
     pub y_nodes: Vec<DVector<f64>>,          // Layer bounds at nodes (y in cross section coordinates)
+    pub h_nodes: Vec<DVector<f64>>,          // Layer heights at nodes
 
     pub n_eval: Vec<f64>,                    // Relative lengths at which the limb quantities are evaluated
     pub s_eval: Vec<f64>,                    // Arc lengths at which the limb quantities are evaluated
     pub p_eval: Vec<SVector<f64, 3>>,        // Positions (x, y, φ) of the evaluation points
     pub y_eval: Vec<DVector<f64>>,           // Layer bounds at eval points (y in cross section coordinates)
+    pub h_eval: Vec<DVector<f64>>,           // Layer heights at eval points
     pub w_eval: Vec<f64>,                    // Widths at eval points
-    pub h_eval: Vec<f64>,                    // Total heights at eval points
 
     pub strain_eval: Vec<DMatrix<f64>>,      // Strain evaluation matrices for each evaluation point
     pub stress_eval: Vec<DMatrix<f64>>,      // Stress evaluation matrices for each evaluation point
@@ -83,11 +85,13 @@ impl LimbGeometry {
         let n_nodes = s_nodes.iter().map(|&s| self.profile.normalize(s)).collect_vec();
         let p_nodes = s_nodes.iter().map(|&s| self.profile.point(s)).collect_vec();
         let y_nodes = n_nodes.iter().map(|&n| self.section.layer_bounds(n).0).collect_vec();
+        let h_nodes = n_nodes.iter().map(|&n| self.section.layer_bounds(n).1).collect_vec();    // TODO: Collect in one step
 
         // Equidistant evaluation points along the length of the limb
         let s_eval = lin_space(self.profile.s_start()..=self.profile.s_end(), n_eval_points).collect_vec();
         let n_eval = s_eval.iter().map(|&s| self.profile.normalize(s)).collect_vec();
         let y_eval = n_eval.iter().map(|&n| self.section.layer_bounds(n).0).collect_vec();
+        let h_eval = n_eval.iter().map(|&n| self.section.layer_bounds(n).1).collect_vec();    // TODO: Collect in one step
 
         let segments = s_nodes.iter().tuple_windows().enumerate().map(|(i, (&s0, &s1))| {
             // TODO: Better solution for numerical issues?
@@ -109,7 +113,6 @@ impl LimbGeometry {
 
         let p_eval = s_eval.iter().map(|&s| self.profile.point(s)).collect();
         let w_eval = n_eval.iter().map(|&n| self.section.width(n)).collect();
-        let h_eval = n_eval.iter().map(|&n| self.section.height(n)).collect();
 
         let strain_eval = n_eval.iter().map(|&n| self.section.strain_eval(n)).collect();
         let stress_eval = n_eval.iter().map(|&n| self.section.stress_eval(n)).collect();
@@ -120,6 +123,7 @@ impl LimbGeometry {
             s_nodes,
             p_nodes,
             y_nodes,
+            h_nodes,
             n_eval,
             s_eval,
             y_eval,
@@ -132,7 +136,21 @@ impl LimbGeometry {
     }
 }
 
-impl TryInto<Vec<u8>> for DiscreteLimbGeometry {
+impl DiscreteLimbGeometry {
+    pub fn to_limb_info(&self) -> LimbInfo {
+        LimbInfo {
+            length: self.s_eval.clone(),
+            position: self.p_eval.clone(),
+            width: self.w_eval.clone(),
+            height: self.h_eval.iter().map(|h| h.sum()).collect(),
+            bounds: self.y_eval.iter().map(|y| y.data.clone().into()).collect(),
+            ratio: self.n_eval.clone(),
+            heights: self.h_eval.iter().map(|h| h.data.clone().into()).collect(),
+        }
+    }
+}
+
+impl TryInto<Vec<u8>> for LimbInfo {
     type Error = ModelError;
 
     // Conversion into MsgPack byte array
@@ -141,7 +159,7 @@ impl TryInto<Vec<u8>> for DiscreteLimbGeometry {
     }
 }
 
-impl TryFrom<&[u8]> for DiscreteLimbGeometry {
+impl TryFrom<&[u8]> for LimbInfo {
     type Error = ModelError;
 
     // Conversion from MsgPack byte array

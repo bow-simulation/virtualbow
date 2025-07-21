@@ -2,14 +2,13 @@
 #include "solver/BowModel.hpp"
 #include <QAbstractTableModel>
 
-class MainModel;
 class Quantity;
 
 class TableModel: public QAbstractTableModel {
     Q_OBJECT
 
 public:
-    TableModel(MainModel* parent, Points& points, const QString& xLabel, const QString& yLabel, const Quantity& xQuantity, const Quantity& yQuantity);
+    TableModel(Points& points, const QString& xLabel, const QString& yLabel, const Quantity& xQuantity, const Quantity& yQuantity);
 
     // Implementation of QAbstractItemModel
 

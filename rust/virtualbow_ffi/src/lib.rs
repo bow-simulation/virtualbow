@@ -123,7 +123,7 @@ pub unsafe extern "C" fn save_result(data: *const u8, size: usize, path: *const 
 #[no_mangle]
 pub unsafe extern "C" fn compute_geometry(data: *const u8, size: usize) -> Response {
     let data = std::slice::from_raw_parts(data, size);
-    let result = api::compute_geometry(&data);
+    let result = api::compute_geometry(data);
 
     match result {
         Ok(res) => Response::data(res),

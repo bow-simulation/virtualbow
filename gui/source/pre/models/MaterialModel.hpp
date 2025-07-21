@@ -1,6 +1,8 @@
 #pragma once
 #include "pre/models/PropertyListModel.hpp"
 
+struct Material;
+
 class MaterialModel: public PropertyListModel {
 public:
     QPersistentModelIndex NAME;
@@ -9,5 +11,5 @@ public:
     QPersistentModelIndex YOUNGS_MODULUS;
     QPersistentModelIndex SHEAR_MODULUS;
 
-    MaterialModel(MainModel *parent, Material& material);
+    MaterialModel(Material& material);
 };

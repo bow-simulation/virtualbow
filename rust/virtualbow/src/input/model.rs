@@ -164,7 +164,7 @@ impl Layer {
         let Self { name, material, height } = self;
 
         name.validate_name().map_err(ModelError::LayerInvalidName)?;
-        material.validate_name().map_err(ModelError::LayerInvalidName)?;
+        material.validate_name().map_err(ModelError::LayerInvalidMaterialName)?;
         height.validate()?;
 
         Ok(())

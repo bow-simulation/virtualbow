@@ -24,19 +24,6 @@ struct nlohmann::adl_serializer<std::optional<T>> {
     }
 };
 
-struct DiscreteLimbGeometry {
-    std::vector<double> n_eval;
-    std::vector<double> w_eval;
-    std::vector<double> h_eval;
-};
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    DiscreteLimbGeometry,
-    n_eval,
-    w_eval,
-    h_eval
-)
-
 struct LayerInfo {
     std::string name;
 };
@@ -52,6 +39,9 @@ struct LimbInfo {
     std::vector<double> width;
     std::vector<double> height;
     std::vector<std::vector<double>> bounds;
+
+    std::vector<double> ratio;
+    std::vector<std::vector<double>> heights;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
@@ -60,7 +50,9 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     position,
     width,
     height,
-    bounds
+    bounds,
+    ratio,
+    heights
 )
 
 struct Common {

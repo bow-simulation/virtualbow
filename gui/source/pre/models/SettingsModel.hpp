@@ -1,6 +1,8 @@
 #pragma once
 #include "pre/models/PropertyListModel.hpp"
 
+struct Settings;
+
 class SettingsModel: public PropertyListModel {
 public:
     QPersistentModelIndex N_LIMB_ELEMENTS;
@@ -15,5 +17,5 @@ public:
     QPersistentModelIndex MAX_TIMESTEP;
     QPersistentModelIndex STEPS_PER_PERIOD;
 
-    SettingsModel(MainModel *parent, Settings& settings);
+    SettingsModel(Settings& settings);
 };

@@ -3,15 +3,10 @@
 #include <QIcon>
 #include <algorithm>
 
-MainTreeModel::MainTreeModel(MainModel* parent)
-    : QAbstractItemModel(parent),
-      bow(nullptr)
+MainTreeModel::MainTreeModel():
+    bow(nullptr)
 {
-    // Emit modified signal if the model structure or data has been changed
-    QObject::connect(this, &QAbstractItemModel::dataChanged, parent, &MainModel::contentModified);
-    QObject::connect(this, &QAbstractItemModel::rowsInserted, parent, &MainModel::contentModified);
-    QObject::connect(this, &QAbstractItemModel::rowsRemoved, parent, &MainModel::contentModified);
-    QObject::connect(this, &QAbstractItemModel::rowsMoved, parent, &MainModel::contentModified);
+
 }
 
 void MainTreeModel::setBowModel(BowModel* bow) {
@@ -76,7 +71,9 @@ void MainTreeModel::insertLayer(int row) {
     }
 
     Layer layer {
-        .name = bow->generateLayerName()
+        .name = bow->generateLayerName(),
+        .material = bow->section.materials.empty() ? "" : bow->section.materials[0].name,
+        .height = {{0.0, 0.015}, {1.0, 0.01}}
     };
 
     QModelIndex parent = createIndex(TopLevelItem::LAYERS, 0, ItemType::TOPLEVEL);
@@ -458,7 +455,7 @@ QVariant MainTreeModel::data(const QModelIndex &index, int role) const {
     if(index.parent().row() == TopLevelItem::LAYERS) {
         switch(role) {
             case Qt::DisplayRole: case Qt::EditRole: return QString::fromStdString(bow->section.layers[index.row()].name);
-            case Qt::ToolTipRole: return "User-defined layer \"" + QString::fromStdString(bow->section.materials[index.row()].name) + "\"";
+            case Qt::ToolTipRole: return "User-defined layer \"" + QString::fromStdString(bow->section.layers[index.row()].name) + "\"";
             case Qt::DecorationRole: return QIcon(":/icons/model-layer.svg");
             default: return QVariant();
         }

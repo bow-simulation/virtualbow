@@ -1,11 +1,5 @@
 #include "PropertyListModel.hpp"
 
-PropertyListModel::PropertyListModel(MainModel *parent):
-    QAbstractListModel(parent)
-{
-    QObject::connect(this, &QAbstractItemModel::dataChanged, parent, &MainModel::contentModified);
-}
-
 QPersistentModelIndex PropertyListModel::addProperty(AbstractProperty* property) {
     properties.append(property);
     return createIndex(properties.size() - 1, 0);

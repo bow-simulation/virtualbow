@@ -1,8 +1,7 @@
 #include "ArcModel.hpp"
+#include "solver/BowModel.hpp"
 
-ArcModel::ArcModel(MainModel *parent, Arc& arc):
-    PropertyListModel(parent)
-{
+ArcModel::ArcModel(Arc& arc) {
     LENGTH = addDouble(arc.length);
     RADIUS = addDouble(arc.radius);
 }

@@ -53,10 +53,10 @@ void save_result(const BowResult& result, const std::string& path) {
     check_response(response);
 }
 
-DiscreteLimbGeometry compute_geometry(const BowModel& model) {
+LimbInfo compute_geometry(const BowModel& model) {
     std::vector<uint8_t> data = json::to_msgpack(model);
     Response response = ffi::compute_geometry(data.data(), data.size());
-    return parse_response<DiscreteLimbGeometry>(response);
+    return parse_response<LimbInfo>(response);
 }
 
 BowResult simulate_model(const BowModel& model, Mode mode, bool (*callback)(Mode, double)) {
