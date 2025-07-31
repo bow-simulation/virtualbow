@@ -90,7 +90,7 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
     numbers->addGroup("Properties");
     numbers->addValue("Limb mass", data.common.limb_mass, Quantities::mass);
     numbers->addValue("String mass", data.common.string_mass, Quantities::mass);
-    numbers->addValue("String length", data.common.string_length, Quantities::length);
+    numbers->addValue("String length", data.common.string_length, Quantities::mass);
 
     numbers->addColumn();
     numbers->addGroup("Minimum stress by layer");
