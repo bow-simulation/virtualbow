@@ -6,15 +6,11 @@
 #include <QPixmap>
 
 QColor getLayerColor(const Layer& layer, const std::vector<Material>& materials) {
-    throw std::invalid_argument("Fix material index/name");
-    /*
-    if(layer.material < 0 || layer.material >= materials.size()) {
-        return QColor();
+    for(auto& material: materials) {
+        if(material.name == layer.material) {
+            return QColor(QString::fromStdString(material.color));
+        }
     }
-
-    auto& material = materials[layer.material];
-    return QColor(QString::fromStdString(material.color));
-    */
 
     return QColor();
 }

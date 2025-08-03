@@ -1,4 +1,4 @@
-use std::ffi::{c_char, CStr, CString};
+use std::ffi::{c_char, c_void, CStr, CString};
 use std::ptr;
 
 use virtualbow::simulation::SimulationMode;
@@ -156,10 +156,10 @@ impl From<Mode> for SimulationMode {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn simulate_model(data: *const u8, size: usize, mode: Mode, callback: unsafe extern "C" fn(Mode, f64) -> bool) -> Response {
+pub unsafe extern "C" fn simulate_model(data: *const u8, size: usize, mode: Mode, callback: unsafe extern "C" fn(Mode, f64, *mut c_void) -> bool, userdata: *mut c_void) -> Response {
     let data = std::slice::from_raw_parts(data, size);
     let result = api::simulate_model(data, mode.into(), |mode, progress| {
-        callback(mode.into(), progress)
+        callback(mode.into(), progress, userdata)
     });
 
     match result {

@@ -1,4 +1,5 @@
 #pragma once
+#include "solver/API.hpp"
 #include <QMainWindow>
 
 class RecentFilesMenu;
@@ -16,7 +17,7 @@ public:
 private:
     static QString DEFAULT_NAME;
 
-    MainModel* viewModel;
+    MainModel* mainModel;
     RecentFilesMenu* menuOpenRecent;
 
     void closeEvent(QCloseEvent *event) override;
@@ -27,7 +28,7 @@ private:
     bool save();
     bool saveAs();
 
-    void runSimulation(bool dynamic);
+    void runSimulation(Mode mode);
 
     bool optionalSaveModifications();
     void submitChanges();

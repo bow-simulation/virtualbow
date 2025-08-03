@@ -3,7 +3,7 @@
 #include "MaterialLegend.hpp"
 #include "LayerColors.hpp"
 #include "OpenGLUtils.hpp"
-//#include "pre/models/ViewModel.hpp"
+#include "pre/models/MainModel.hpp"
 #include "solver/BowModel.hpp"
 #include "config.hpp"
 
@@ -17,13 +17,12 @@
 #include <QLabel>
 #include <QDate>
 
-LimbView::LimbView()
-    : model(nullptr),
-      legend(new MaterialLegend()),
-      background_shader(nullptr),
-      model_shader(nullptr)
+LimbView::LimbView(MainModel* model):
+    model(model),
+    legend(new MaterialLegend()),
+    background_shader(nullptr),
+    model_shader(nullptr)
 {
-    /*
     // Anti aliasing
     QSurfaceFormat format = QSurfaceFormat::defaultFormat();
     format.setSamples(8);
@@ -72,8 +71,17 @@ LimbView::LimbView()
     bt_view_symmetric->setStyleSheet(BUTTON_STYLE);
     bt_view_symmetric->setCheckable(true);
 
-    auto label = new QLabel(QString("<font color=\"white\" size=\"8\">Virtual<strong>Bow</strong></font><br><font color=\"white\" size=\"4\">Version ") + Config::APPLICATION_VERSION + "</font>");
+    auto label = new QLabel("<font color=\"white\" size=\"8\">Virtual<strong>Bow</strong></font><br>"
+                            "<font color=\"white\" size=\"3\">Non-Commercial | v" + QString(Config::APPLICATION_VERSION) + "</font>");
     label->setAlignment(Qt::AlignRight);
+
+    /*
+    auto label = new QLabel("<font color=\"white\" size=\"8\">Virtual<strong>Bow</strong></font><br>"
+                            "<font color=\"white\" size=\"4\">Version " + QString(Config::APPLICATION_VERSION) + "</font>"
+                            "<hr style=\"background-color:white\">"
+                            "<font color=\"white\" size=\"3\">Non-Commercial License</font>");
+    label->setAlignment(Qt::AlignRight);
+    */
 
     auto buttonBox = new QHBoxLayout();
     buttonBox->setSpacing(12);
@@ -112,25 +120,27 @@ LimbView::LimbView()
     viewSymmetric(false);
     view3D();
 
-    // Update on changes to the model
-    QObject::connect(model, &ViewModel::dimensionsModified, this, &LimbView::updateView);
-    QObject::connect(model, &ViewModel::materialsModified, this, &LimbView::updateView);
-    QObject::connect(model, &ViewModel::layersModified, this, &LimbView::updateView);
-    QObject::connect(model, &ViewModel::profileModified, this, &LimbView::updateView);
-    QObject::connect(model, &ViewModel::widthModified, this, &LimbView::updateView);
-    */
+    // Update on changes to the geometry and once initially
+    QObject::connect(model, &MainModel::geometryChanged, this, &LimbView::updateView);
+    updateView();
 }
 
 void LimbView::updateView() {
-    /*
-    legend->setData(model->getMaterials());
+    if(model->hasError()) {
+        // TODO: Show error text
+    }
 
-    LimbMesh mesh(model->getData());
-    limb_right = std::make_unique<Model>(mesh.faces_right);
-    limb_left = std::make_unique<Model>(mesh.faces_left);
+    if(model->hasBow()) {
+        legend->setData(model->getBow().section.materials);
+
+        if(model->hasGeometry()) {
+            LimbMesh mesh(model->getBow(), model->getGeometry());    // TODO: Would be good if the geometry cold be rendered from only the geometry information
+            limb_right = std::make_unique<Model>(mesh.faces_right);
+            limb_left = std::make_unique<Model>(mesh.faces_left);
+        }
+    }
 
     update();
-    */
 }
 
 void LimbView::viewProfile() {
@@ -241,49 +251,45 @@ void LimbView::initializeGL() {
 }
 
 void LimbView::paintGL() {
-    /*
-    Bounds bounds = limb_right->getBounds();
-    if(symmetry) {
-        bounds.extend(limb_left->getBounds());
-    }
-
-    QMatrix4x4 m_model;
-    m_model.setToIdentity();
-    m_model.rotate(rot_x, 1.0f, 0.0f, 0.0f);
-    m_model.rotate(rot_y, 0.0f, 1.0f, 0.0f);
-    m_model.scale(1.0f/bounds.diagonal());
-    m_model.translate(-bounds.center());
-
-    QMatrix4x4 m_view;
-    m_view.setToIdentity();
-    m_view.lookAt(CAMERA_POSITION, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0});
-
-    float aspect_ratio = float(this->height())/this->width();
-    QMatrix4x4 m_projection;
-    m_projection.setToIdentity();
-    m_projection.ortho(
-                (-0.5f*zoom + shift_x),
-                ( 0.5f*zoom + shift_x),
-                (-0.5f*zoom + shift_y)*aspect_ratio,
-                ( 0.5f*zoom + shift_y)*aspect_ratio,
-                  0.01f,
-                  100.0f
-    );
-
-    model_shader->bind();
-    model_shader->setUniformValue("modelMatrix", m_model);
-    model_shader->setUniformValue("normalMatrix", m_model.normalMatrix());
-    model_shader->setUniformValue("viewMatrix", m_view);
-    model_shader->setUniformValue("projectionMatrix", m_projection);
-    model_shader->release();
-
+    // Draw background
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     background->draw(background_shader);
-    limb_right->draw(model_shader);
-    if(symmetry) {
-        limb_left->draw(model_shader);
+
+    // Draw limbs, if available
+    if(limb_left != nullptr && limb_right != nullptr) {
+        Bounds bounds = limb_right->getBounds();
+        if(symmetry) {
+            bounds.extend(limb_left->getBounds());
+        }
+
+        QMatrix4x4 m_model;
+        m_model.setToIdentity();
+        m_model.rotate(rot_x, 1.0f, 0.0f, 0.0f);
+        m_model.rotate(rot_y, 0.0f, 1.0f, 0.0f);
+        m_model.scale(1.0f/bounds.diagonal());
+        m_model.translate(-bounds.center());
+
+        QMatrix4x4 m_view;
+        m_view.setToIdentity();
+        m_view.lookAt(CAMERA_POSITION, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0});
+
+        float aspect_ratio = float(this->height())/this->width();
+        QMatrix4x4 m_projection;
+        m_projection.setToIdentity();
+        m_projection.ortho(-0.5f*zoom + shift_x, 0.5f*zoom + shift_x, (-0.5f*zoom + shift_y)*aspect_ratio, ( 0.5f*zoom + shift_y)*aspect_ratio, 0.01f, 100.0f);
+
+        model_shader->bind();
+        model_shader->setUniformValue("modelMatrix", m_model);
+        model_shader->setUniformValue("normalMatrix", m_model.normalMatrix());
+        model_shader->setUniformValue("viewMatrix", m_view);
+        model_shader->setUniformValue("projectionMatrix", m_projection);
+        model_shader->release();
+
+        limb_right->draw(model_shader);
+        if(symmetry) {
+            limb_left->draw(model_shader);
+        }
     }
-    */
 }
 
 void LimbView::mousePressEvent(QMouseEvent *event) {

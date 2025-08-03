@@ -42,7 +42,7 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             num_limb_elements: 30,
-            num_limb_eval_points: 100,
+            num_limb_eval_points: 250,
             min_draw_resolution: 100,
             max_draw_resolution: 100,
             arrow_clamp_force: 0.5,

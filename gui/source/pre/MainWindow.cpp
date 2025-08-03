@@ -9,7 +9,6 @@
 #include "models/MainModel.hpp"
 #include "utils/UserSettings.hpp"
 #include "UnitDialog.hpp"
-
 #include <QMenuBar>
 #include <QToolBar>
 #include <QCloseEvent>
@@ -20,7 +19,7 @@
 QString MainWindow::DEFAULT_NAME = "Unnamed";
 
 MainWindow::MainWindow()
-    : viewModel(new MainModel()),
+    : mainModel(new MainModel()),
       menuOpenRecent(new RecentFilesMenu(this))
 {
     // Actions for manin menus and toolbar
@@ -51,13 +50,13 @@ MainWindow::MainWindow()
     actionQuit->setMenuRole(QAction::QuitRole);
 
     auto actionRunStatics = new QAction(QIcon(":/icons/run-statics"), "&Statics...", this);
-    QObject::connect(actionRunStatics, &QAction::triggered, [&]{ runSimulation(false); });
+    QObject::connect(actionRunStatics, &QAction::triggered, [&]{ runSimulation(Mode::Static); });
     actionRunStatics->setShortcut(Qt::Key_F5);
     actionRunStatics->setMenuRole(QAction::NoRole);
     actionRunStatics->setIconVisibleInMenu(true);
 
     auto actionRunDynamics = new QAction(QIcon(":/icons/run-dynamics"), "&Dynamics...", this);
-    QObject::connect(actionRunDynamics, &QAction::triggered, [&]{ runSimulation(true); });
+    QObject::connect(actionRunDynamics, &QAction::triggered, [&]{ runSimulation(Mode::Dynamic); });
     actionRunDynamics->setShortcut(Qt::Key_F6);
     actionRunDynamics->setMenuRole(QAction::NoRole);
     actionRunDynamics->setIconVisibleInMenu(true);
@@ -71,17 +70,17 @@ MainWindow::MainWindow()
 
     // Some actions are only available if a bow model is present
 
-    actionSave->setEnabled(viewModel->hasBow());
-    QObject::connect(viewModel, &MainModel::hasBowModelChanged, actionSave, &QAction::setEnabled);
+    actionSave->setEnabled(mainModel->hasBow());
+    QObject::connect(mainModel, &MainModel::hasBowModelChanged, actionSave, &QAction::setEnabled);
 
-    actionSaveAs->setEnabled(viewModel->hasBow());
-    QObject::connect(viewModel, &MainModel::hasBowModelChanged, actionSaveAs, &QAction::setEnabled);
+    actionSaveAs->setEnabled(mainModel->hasBow());
+    QObject::connect(mainModel, &MainModel::hasBowModelChanged, actionSaveAs, &QAction::setEnabled);
 
-    actionRunStatics->setEnabled(viewModel->hasBow());
-    QObject::connect(viewModel, &MainModel::hasBowModelChanged, actionRunStatics, &QAction::setEnabled);
+    actionRunStatics->setEnabled(mainModel->hasBow());
+    QObject::connect(mainModel, &MainModel::hasBowModelChanged, actionRunStatics, &QAction::setEnabled);
 
-    actionRunDynamics->setEnabled(viewModel->hasBow());
-    QObject::connect(viewModel, &MainModel::hasBowModelChanged, actionRunDynamics, &QAction::setEnabled);
+    actionRunDynamics->setEnabled(mainModel->hasBow());
+    QObject::connect(mainModel, &MainModel::hasBowModelChanged, actionRunDynamics, &QAction::setEnabled);
 
     // File menu
     auto menuFile = this->menuBar()->addMenu("&File");
@@ -130,10 +129,10 @@ MainWindow::MainWindow()
     this->setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-    auto limbView = new LimbView();
-    auto treeDock = new TreeDock(viewModel);
-    auto editDock = new EditDock(viewModel);
-    auto plotDock = new PlotDock(viewModel);
+    auto limbView = new LimbView(mainModel);
+    auto treeDock = new TreeDock(mainModel);
+    auto editDock = new EditDock(mainModel);
+    auto plotDock = new PlotDock(mainModel);
 
     this->setCentralWidget(limbView);
     this->addDockWidget(Qt::LeftDockWidgetArea, treeDock);
@@ -142,13 +141,13 @@ MainWindow::MainWindow()
 
     // Connect window file path to view model
     this->setWindowFilePath(displayPath());
-    QObject::connect(viewModel, &MainModel::currentFileChanged, this, [&](){
+    QObject::connect(mainModel, &MainModel::currentFileChanged, this, [&](){
         setWindowFilePath(displayPath());
     });
 
     // Connect modification indicator to view model
-    this->setWindowModified(viewModel->hasUnsavedWork());
-    QObject::connect(viewModel, &MainModel::hasUnsavedWorkChanged, this, &MainWindow::setWindowModified);
+    this->setWindowModified(mainModel->hasUnsavedWork());
+    QObject::connect(mainModel, &MainModel::hasUnsavedWorkChanged, this, &MainWindow::setWindowModified);
 
     // Main window
     this->setWindowIcon(QIcon(":/icons/logo.svg"));
@@ -160,14 +159,14 @@ MainWindow::MainWindow()
     restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
 
     // Load unit settings
-    Quantities::loadFromSettings(settings);    // TODO: Move to ViewModel
+    Quantities::loadFromSettings(settings);    // TODO: Move to mainModel
 }
 
 // Attempts to load the given file
 // Returns true on success and false on failure
 bool MainWindow::loadFromFile(const QString& path) {
     try {
-        viewModel->loadFile(path);         // Load data from path
+        mainModel->loadFile(path);         // Load data from path
         menuOpenRecent->addPath(path);    // Add path to the menu of recently opened files
         return true;
     }
@@ -181,7 +180,7 @@ bool MainWindow::loadFromFile(const QString& path) {
 // Returns true on success and false on failure
 bool MainWindow::saveToFile(const QString& path) {
     try {
-        viewModel->saveFile(path);    // Save data to path
+        mainModel->saveFile(path);    // Save data to path
         menuOpenRecent->addPath(path);    // Add path to the menu of recently used files
         return true;
     }
@@ -211,7 +210,7 @@ void MainWindow::newFile() {
     if(!optionalSaveModifications()) {
         return;
     }
-    viewModel->newFile();
+    mainModel->newFile();
 }
 
 void MainWindow::open() {
@@ -241,7 +240,7 @@ void MainWindow::openRecent(const QString& path) {
 
 bool MainWindow::save() {
     // Retrieve the current file path from the view model
-    QString path = viewModel->currentFile();
+    QString path = mainModel->currentFile();
 
     // If the path is empty, the data isn't associated with a file yet.
     // Let the user pick a location for the file in that case.
@@ -264,21 +263,20 @@ bool MainWindow::saveAs() {
     return false;
 }
 
-void MainWindow::runSimulation(bool dynamic) {
+void MainWindow::runSimulation(Mode mode) {
     if(!save()) {
         return;
     }
 
     // Generate output filename
     QFileInfo info(this->windowFilePath());
-    QString output_file = info.absolutePath() + QDir::separator() + info.completeBaseName() + ".res";
+    QString resultFile = info.absolutePath() + QDir::separator() + info.completeBaseName() + ".res";
 
     // Run Simulation, launch Post on results if successful
-    SimulationDialog dialog(this, this->windowFilePath(), output_file, dynamic);
+    SimulationDialog dialog(this, this->windowFilePath(), resultFile, mode);
     if(dialog.exec() == QDialog::Accepted) {
         QProcess::startDetached(
-            QDir(QCoreApplication::applicationDirPath()).filePath("virtualbow-post"),
-            { output_file },
+            QDir(QCoreApplication::applicationDirPath()).filePath("virtualbow-post"), {resultFile},
             QCoreApplication::applicationDirPath()
         );
     }
@@ -348,10 +346,10 @@ QString MainWindow::showSaveFileDialog() {
 // Filename to display at the top of the window, which is either the actual name of the current file
 // or the default name if no file is loaded
 QString MainWindow::displayPath() {
-    if(viewModel->currentFile().isEmpty()) {
+    if(mainModel->currentFile().isEmpty()) {
         return DEFAULT_NAME;
     }
     else {
-        return viewModel->currentFile();
+        return mainModel->currentFile();
     }
 }

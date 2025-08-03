@@ -9,6 +9,7 @@ class InputData;
 class MaterialLegend;
 class QOpenGLShaderProgram;
 class Model;
+class MainModel;
 
 class LimbView: public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
@@ -35,7 +36,7 @@ private:
     const float ROT_SPEED = 0.15f;
 
 public:
-    LimbView();
+    LimbView(MainModel* model);
     void updateView();
 
     void viewProfile();
@@ -51,7 +52,7 @@ private:
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent* event) override;
 
-    ViewModel* model;
+    MainModel* model;
     MaterialLegend* legend;
 
     QPoint mouse_pos;

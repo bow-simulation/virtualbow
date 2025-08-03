@@ -11,7 +11,6 @@ class SolverException: public std::exception {
 public:
     SolverException(std::string message)
         : message(message) {
-
     }
 
     const char* what() const noexcept override {
@@ -33,4 +32,4 @@ void save_result(const BowResult& result, const std::string& path);
 
 LimbInfo compute_geometry(const BowModel& model);
 
-BowResult simulate_model(const BowModel& model, Mode mode, bool (*callback)(Mode, double));
+BowResult simulate_model(const BowModel& model, Mode mode, std::function<bool(Mode, double)> callback);

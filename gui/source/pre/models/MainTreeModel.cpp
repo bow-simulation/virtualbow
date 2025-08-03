@@ -35,7 +35,11 @@ void MainTreeModel::insertMaterial(int row) {
     }
 
     Material material {
-        .name = bow->generateMaterialName()
+        .name = bow->generateMaterialName(),
+        .color = "#ff9966",
+        .density = 675.0,
+        .youngs_modulus = 12e9,
+        .shear_modulus = 6e9
     };
 
     QModelIndex parent = createIndex(TopLevelItem::MATERIALS, 0, ItemType::TOPLEVEL);

@@ -59,8 +59,11 @@ LimbInfo compute_geometry(const BowModel& model) {
     return parse_response<LimbInfo>(response);
 }
 
-BowResult simulate_model(const BowModel& model, Mode mode, bool (*callback)(Mode, double)) {
+BowResult simulate_model(const BowModel& model, Mode mode, std::function<bool(Mode, double)> callback) {
     std::vector<uint8_t> data = json::to_msgpack(model);
-    Response response = ffi::simulate_model(data.data(), data.size(), mode, callback);
+    Response response = ffi::simulate_model(data.data(), data.size(), mode, [](Mode mode, double progress, void* userdata) {
+        auto callback = static_cast<std::function<bool(Mode, double)>*>(userdata);    // Pass in lambda, including captured environment, as userdata
+        return (*callback)(mode, progress);
+    }, &callback);
     return parse_response<BowResult>(response);
 }
