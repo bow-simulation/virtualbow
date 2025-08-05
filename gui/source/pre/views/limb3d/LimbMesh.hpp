@@ -16,5 +16,5 @@ public:
     LimbMesh(const BowModel& bow, const LimbInfo& geometry);
 
 private:
-    void addQuad(QVector3D p0, QVector3D p1, QVector3D p2, QVector3D p3, const QColor& color);
+    void addQuad(const QVector3D& p0, const QVector3D& p1, const QVector3D& p2, const QVector3D& p3, const QColor& color);
 };

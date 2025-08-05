@@ -1,12 +1,11 @@
 #include "LimbView.hpp"
 #include "LimbMesh.hpp"
 #include "MaterialLegend.hpp"
-#include "LayerColors.hpp"
+#include "ErrorLabel.hpp"
 #include "OpenGLUtils.hpp"
 #include "pre/models/MainModel.hpp"
 #include "solver/BowModel.hpp"
 #include "config.hpp"
-
 #include <QOpenGLShaderProgram>
 #include <QMouseEvent>
 #include <QCoreApplication>
@@ -19,7 +18,7 @@
 
 LimbView::LimbView(MainModel* model):
     model(model),
-    legend(new MaterialLegend()),
+    materialLegend(new MaterialLegend()),
     background_shader(nullptr),
     model_shader(nullptr)
 {
@@ -34,6 +33,8 @@ LimbView::LimbView(MainModel* model):
                                  "QToolButton:checked { background-color: rgba(150, 150, 150, 200); }";
 
     const QString BUTTON_FRAME_STYLE = "background-color: rgba(38, 38, 38, 100); border-radius: 8px";
+
+    //const QString ERROR_LABEL_STYLE = "font-weight: bold; background-color: rgb(252, 186, 3); padding: 10px; border-radius: 8px; border-style: solid; border-color: rgb(230, 0, 0); border-width: 3px";
 
     auto bt_view_3d = new QToolButton();
     QObject::connect(bt_view_3d, &QPushButton::clicked, this, &LimbView::view3D);
@@ -71,18 +72,6 @@ LimbView::LimbView(MainModel* model):
     bt_view_symmetric->setStyleSheet(BUTTON_STYLE);
     bt_view_symmetric->setCheckable(true);
 
-    auto label = new QLabel("<font color=\"white\" size=\"8\">Virtual<strong>Bow</strong></font><br>"
-                            "<font color=\"white\" size=\"3\">Non-Commercial | v" + QString(Config::APPLICATION_VERSION) + "</font>");
-    label->setAlignment(Qt::AlignRight);
-
-    /*
-    auto label = new QLabel("<font color=\"white\" size=\"8\">Virtual<strong>Bow</strong></font><br>"
-                            "<font color=\"white\" size=\"4\">Version " + QString(Config::APPLICATION_VERSION) + "</font>"
-                            "<hr style=\"background-color:white\">"
-                            "<font color=\"white\" size=\"3\">Non-Commercial License</font>");
-    label->setAlignment(Qt::AlignRight);
-    */
-
     auto buttonBox = new QHBoxLayout();
     buttonBox->setSpacing(12);
     buttonBox->setContentsMargins(12, 8, 12, 8);
@@ -96,25 +85,21 @@ LimbView::LimbView(MainModel* model):
     buttonFrame->setLayout(buttonBox);
     buttonFrame->setStyleSheet(BUTTON_FRAME_STYLE);
 
-    auto row1 = new QHBoxLayout();
-    row1->setAlignment(Qt::AlignTop);
-    row1->addWidget(legend);
-    row1->addStretch();
-    row1->addWidget(label);
+    errorLabel = new ErrorLabel();
 
-    auto row2 = new QHBoxLayout();
-    row2->setAlignment(Qt::AlignBottom);
-    row2->setSpacing(15);
-    row2->addStretch();
-    row2->addWidget(buttonFrame);
-    row2->addStretch();
+    auto infoLabel = new QLabel("<font color=\"white\" size=\"8\">Virtual<strong>Bow</strong></font><br>"
+                                "<font color=\"white\" size=\"3\">Non-Commercial | v" + QString(Config::APPLICATION_VERSION) + "</font>");
+    infoLabel->setAlignment(Qt::AlignRight);
+
+    auto hbox = new QHBoxLayout();
+    hbox->addWidget(materialLegend, 1, Qt::AlignTop);
+    hbox->addWidget(errorLabel, 0, Qt::AlignCenter);
+    hbox->addWidget(infoLabel, 1, Qt::AlignTop);
 
     auto vbox = new QVBoxLayout();
-    this->setLayout(vbox);
-    vbox->setContentsMargins(25, 25, 25, 25);
-    vbox->addLayout(row1);
-    vbox->addStretch();
-    vbox->addLayout(row2);
+    vbox->addLayout(hbox, 1);
+    vbox->addWidget(buttonFrame, 0, Qt::AlignCenter);
+    setLayout(vbox);
 
     // Initialize view parameters
     viewSymmetric(false);
@@ -127,16 +112,25 @@ LimbView::LimbView(MainModel* model):
 
 void LimbView::updateView() {
     if(model->hasError()) {
-        // TODO: Show error text
+        errorLabel->setText(model->getError());
+        errorLabel->setVisible(true);
+    }
+    else {
+        errorLabel->setText("");
+        errorLabel->setVisible(false);
     }
 
     if(model->hasBow()) {
-        legend->setData(model->getBow().section.materials);
+        materialLegend->setData(model->getBow().section.materials);
 
         if(model->hasGeometry()) {
-            LimbMesh mesh(model->getBow(), model->getGeometry());    // TODO: Would be good if the geometry cold be rendered from only the geometry information
+            LimbMesh mesh(model->getBow(), model->getGeometry());    // TODO: Would be nice if the geometry cold be rendered from only the geometry information
             limb_right = std::make_unique<Model>(mesh.faces_right);
             limb_left = std::make_unique<Model>(mesh.faces_left);
+        }
+        else {
+            limb_right = nullptr;
+            limb_left = nullptr;
         }
     }
 

@@ -36,7 +36,7 @@ void MainTreeModel::insertMaterial(int row) {
 
     Material material {
         .name = bow->generateMaterialName(),
-        .color = "#ff9966",
+        .color = "#d0b391",
         .density = 675.0,
         .youngs_modulus = 12e9,
         .shear_modulus = 6e9

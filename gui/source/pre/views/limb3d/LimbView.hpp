@@ -8,6 +8,7 @@ class ViewModel;
 class InputData;
 class MaterialLegend;
 class QOpenGLShaderProgram;
+class QLabel;
 class Model;
 class MainModel;
 
@@ -53,7 +54,8 @@ private:
     void wheelEvent(QWheelEvent* event) override;
 
     MainModel* model;
-    MaterialLegend* legend;
+    MaterialLegend* materialLegend;
+    QLabel* errorLabel;
 
     QPoint mouse_pos;
     float shift_x;

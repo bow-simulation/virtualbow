@@ -83,9 +83,7 @@ SimulationDialog::SimulationDialog(QWidget* parent, const QString& modelFile, co
                 return !promise.isCanceled();    // Continue the simulation as long as the future has not been canceled
             });
 
-            qInfo() << "Simulation finished";
             save_result(result, resultFile.toStdString());
-            qInfo() << "Saving finished";
         }
         catch(const SolverException& e) {
             if(!promise.isCanceled()) {

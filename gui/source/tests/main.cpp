@@ -7,8 +7,8 @@
 namespace fs = std::filesystem;
 
 TEST_CASE("test-solver-api") {
-    fs::path model_file = fs::temp_directory_path() /= "model.bow";      // Temporary model file path
-    fs::path result_file = fs::temp_directory_path() /= "result.res";    // Temporary result file path
+    std::string model_file = (fs::temp_directory_path() /= "model.bow").string();      // Temporary model file path
+    std::string result_file = (fs::temp_directory_path() /= "result.res").string();    // Temporary result file path
 
     // Create new default bow model
     BowModel model = new_model();

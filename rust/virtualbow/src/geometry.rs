@@ -50,8 +50,8 @@ impl LimbGeometry {
             HandleReference::Profile => 0.0,
         };
         let start = CurvePoint::new(0.0, input.dimensions.handle_angle, vector![
-            0.5*input.dimensions.handle_length - eccentricity*f64::sin(input.dimensions.handle_angle),
-            input.dimensions.handle_offset + eccentricity*f64::cos(input.dimensions.handle_angle)
+            0.5*input.dimensions.handle_length + eccentricity*f64::sin(input.dimensions.handle_angle),
+            input.dimensions.handle_offset - eccentricity*f64::cos(input.dimensions.handle_angle)
         ]);
         let profile = ProfileCurve::new(start, &input.profile.segments)?;
 

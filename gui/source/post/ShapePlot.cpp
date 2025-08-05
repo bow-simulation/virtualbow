@@ -138,12 +138,12 @@ void ShapePlot::plotLimbOutline(QCPCurve* left, QCPCurve* right, const std::vect
 
     // Iterate forward and draw back
     for(int i = 0; i < position.size(); ++i) {
-        double xi = position[i][0];
-        double yi = position[i][1];
+        double xi = position[i][0] - common.limb.bounds[i].back()*sin(position[i][2]);
+        double yi = position[i][1] + common.limb.bounds[i].back()*cos(position[i][2]);
 
         left->addData(
             quantity.getUnit().fromBase(-xi),
-            quantity.getUnit().fromBase( yi)
+            quantity.getUnit().fromBase(yi)
         );
         right->addData(
             quantity.getUnit().fromBase(xi),
@@ -153,12 +153,12 @@ void ShapePlot::plotLimbOutline(QCPCurve* left, QCPCurve* right, const std::vect
 
     // Iterate backward and plot belly
     for(int i = position.size() - 1; i >= 0; --i) {
-        double xi = position[i][0] + common.limb.height[i]*sin(position[i][2]);
-        double yi = position[i][1] - common.limb.height[i]*cos(position[i][2]);
+        double xi = position[i][0] - common.limb.bounds[i].front()*sin(position[i][2]);
+        double yi = position[i][1] + common.limb.bounds[i].front()*cos(position[i][2]);
 
         left->addData(
             quantity.getUnit().fromBase(-xi),
-            quantity.getUnit().fromBase( yi)
+            quantity.getUnit().fromBase(yi)
         );
         right->addData(
             quantity.getUnit().fromBase(xi),

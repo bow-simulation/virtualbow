@@ -46,7 +46,7 @@ impl BowModel {
             section: Section {
                 alignment: LayerAlignment::SectionBack,
                 width: Width::linear(0.04, 0.01),
-                materials: vec![Material::new("Material 1", "#ff9966", 675.0, 12e9, 6e9)],
+                materials: vec![Material::new("Material 1", "#d0b391", 675.0, 12e9, 6e9)],
                 layers: vec![Layer::new("Layer 1", "Material 1", Height::linear(0.015, 0.01))],
             } ,
             profile: Profile::new(vec![

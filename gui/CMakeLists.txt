@@ -182,6 +182,8 @@ add_executable(
     source/pre/views/MassesView.cpp
     source/pre/views/DampingView.hpp
     source/pre/views/DampingView.cpp
+    source/pre/views/limb3d/ErrorLabel.cpp
+    source/pre/views/limb3d/ErrorLabel.hpp
     source/pre/views/limb3d/LayerColors.cpp
     source/pre/views/limb3d/LayerColors.hpp
     source/pre/views/limb3d/MaterialLegend.cpp
