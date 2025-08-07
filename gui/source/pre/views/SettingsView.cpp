@@ -55,12 +55,12 @@ SettingsView::SettingsView(SettingsModel* model) {
 
     addProperty(
         "Min. timestep",
-        new DoubleView(model, model->MIN_TIMESTEP, Quantities::ratio, DoubleRange::positive(1e-6), "Lower bound for the time step of the dynamic simulation")
+        new DoubleView(model, model->MIN_TIMESTEP, Quantities::time, DoubleRange::positive(1e-6), "Lower bound for the time step of the dynamic simulation")
     );
 
     addProperty(
         "Max. timestep",
-        new DoubleView(model, model->MAX_TIMESTEP, Quantities::ratio, DoubleRange::positive(1e-4), "Upper bound for the time step of the dynamic simulation")
+        new DoubleView(model, model->MAX_TIMESTEP, Quantities::time, DoubleRange::positive(1e-4), "Upper bound for the time step of the dynamic simulation")
     );
 
     addProperty(

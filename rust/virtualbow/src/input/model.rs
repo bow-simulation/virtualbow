@@ -144,8 +144,8 @@ impl Material {
         color.validate_hex_color().map_err(ModelError::MaterialInvalidColor)?;
 
         rho.validate_positive().map_err(ModelError::MaterialInvalidDensity)?;
-        E.validate_positive().map_err(ModelError::MaterialInvalidDensity)?;
-        G.validate_positive().map_err(ModelError::MaterialInvalidDensity)?;
+        E.validate_positive().map_err(ModelError::MaterialInvalidYoungsModulus)?;
+        G.validate_positive().map_err(ModelError::MaterialInvalidShearModulus)?;
 
         Ok(())
     }
