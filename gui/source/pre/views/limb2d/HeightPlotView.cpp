@@ -45,6 +45,11 @@ HeightPlotView::HeightPlotView(MainModel* model, QPersistentModelIndex index):
 }
 
 void HeightPlotView::updatePlot() {
+    // Do nothing if the view is no longer associated with a valid model index
+    if(!index.isValid()) {
+        return;
+    }
+
     xAxis->setLabel("Length " + Quantities::ratio.getUnit().getSuffix());
     yAxis->setLabel("Height " + Quantities::length.getUnit().getSuffix());
 
@@ -53,7 +58,6 @@ void HeightPlotView::updatePlot() {
     graphSelected->data()->clear();
 
     int iLayer = index.row();    // Layer index comes from row of the model index
-    qInfo() << "Layer index: " << iLayer;
 
     if(model->hasGeometry()) {
         for(size_t i = 0; i < model->getGeometry().ratio.size(); ++i) {

@@ -74,6 +74,7 @@ jobs:
       
       - name: Get dependencies
         run: |
+          sudo apt update
           sudo apt install -y ninja-build qt6-base-dev pkg-config libfreetype6-dev libfontconfig1-dev
           curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.6.0/linux-gcc_64.zip && unzip linux-gcc_64.zip
 
