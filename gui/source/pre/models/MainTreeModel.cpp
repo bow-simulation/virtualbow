@@ -488,12 +488,22 @@ bool MainTreeModel::setData(const QModelIndex &index, const QVariant &value, int
 
     // Set material name
     if(index.internalId() == ItemType::MATERIAL) {
-        std::string name = value.toString().toStdString();
-        if(!bow->isValidMaterialName(name)) {
+        std::string newName = value.toString().toStdString();
+        if(!bow->isValidMaterialName(newName)) {
             return false;
         }
 
-        bow->section.materials[index.row()].name = name;
+        // Rename material
+        std::string oldName = bow->section.materials[index.row()].name;
+        bow->section.materials[index.row()].name = newName;
+
+        // Change name in layers that use the material
+        for(auto& layer: bow->section.layers) {
+            if(layer.material == oldName) {
+                layer.material = newName;
+            }
+        }
+
         emit dataChanged(index, index);
         return true;
     }
