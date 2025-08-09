@@ -1,9 +1,0 @@
-# Latex
-build
-_minted-document
-*.toc
-*.gz
-*.pdf
-*.out
-*.log
-*.aux

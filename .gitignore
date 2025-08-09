@@ -1,13 +1,14 @@
 # Qt creator
 *.user
+build
+
+# VS Code
+.vscode
 
 # Visual Studio
 CMakeSettings.json
 .vs/
 out/
-
-# VirtualBow
-*.res 
 
 # MacOS
 .DS_Store

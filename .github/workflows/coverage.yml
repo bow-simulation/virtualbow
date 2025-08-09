@@ -1,0 +1,54 @@
+name: Coverage
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  code-coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libfontconfig1-dev
+
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+
+      - name: Extract test files
+        run: |
+          cd rust/virtualbow/data
+          7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
+
+      - name: Generate code coverage for solver tests
+        run: |
+          cd rust/virtualbow
+          rustup default nightly
+          cargo llvm-cov --release --branch  --no-report
+          cargo llvm-cov report --release --html --output-dir "."
+          cargo llvm-cov report --release --text --output-dir "."
+
+      - name: Upload coverage report artifact
+        id: artifact-upload-step
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: rust/virtualbow/html
+
+      - name: Create report summary file
+        run: |
+          echo "# Coverage Report for ${GITHUB_SHA::7}" >> summary.md
+          echo "This is an automatic summary of the test coverage results for the latest commit on this pull request." >> summary.md
+          echo "The full report can be downloaded [here](${{ steps.artifact-upload-step.outputs.artifact-url }})." >> summary.md
+          echo '```' >> summary.md
+          echo "$(<rust/virtualbow/text/index.txt)" >> summary.md
+          echo '```' >> summary.md
+
+      - name: Add summary as a pull request comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          path: summary.md

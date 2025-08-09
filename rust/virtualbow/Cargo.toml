@@ -1,0 +1,34 @@
+[package]
+name = "virtualbow"
+description = "VirtualBow solver library"
+
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+homepage.workspace = true
+
+[features]
+plotters = ["virtualbow_num/plotters"]
+
+[lints]
+workspace = true
+
+[dependencies]
+virtualbow_num = { version = "0.10.0", path = "../virtualbow_num" }
+fresnel.workspace = true
+nalgebra.workspace = true
+itertools.workspace = true
+iter_num_tools.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+rmp-serde.workspace = true
+soa_derive.workspace = true
+clap.workspace = true  # TODO: Find a way around this dependency?
+
+[dev-dependencies]
+approx.workspace = true
+assert2.workspace = true
+assert_matches.workspace = true
+test_each_file.workspace = true
+plotters.workspace = true
+num.workspace = true

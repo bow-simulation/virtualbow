@@ -1,4 +1,4 @@
-name: CI
+name: Build+Test
 
 on:
   push:
@@ -6,10 +6,6 @@ on:
       - '**'
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
-  
-  pull_request:
-    branches:
-      - develop
 
 jobs:
   build-windows:
@@ -18,37 +14,59 @@ jobs:
     defaults:
       run:
         shell: cmd
+    env:
+      RUSTFLAGS: -D warnings    # Make Rust compiler fail on warnings
     steps:
       - uses: actions/checkout@v4
         with:
-          path: virtualbow  
+          path: virtualbow
+      
+      - uses: TheMrMilchmann/setup-msvc-dev@v3    # Setup MSVC build environment
+        with:
+          arch: x64
       
       - name: Get dependencies
         run: |
           choco install ninja
-          curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.5.0/windows-mingw_64.zip && 7z x windows-mingw_64.zip
+          curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.6.0/windows-msvc_64.zip && 7z x windows-msvc_64.zip
 
-      - name: Build and test
+      - name: Extract test files
+        run: |
+          cd virtualbow/rust/virtualbow/data
+          7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
+ 
+      - name: Build and test solver
+        run: |
+          cd virtualbow/rust
+          cargo clippy --all-targets
+          cargo build --release
+          cargo test --release
+ 
+      - name: Build and test application
         run: |
           mkdir build && cd build
-          cmake ../virtualbow -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../windows-mingw_64/paths.cmake
+          cmake ../virtualbow/gui -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../windows-msvc_64/paths.cmake
           cmake --build . -j4
           cmake --build . --target iss-installer -j4
-          virtualbow-test
-        
+          virtualbow-test.exe
+ 
       - uses: actions/upload-artifact@v4
         with:
           name: windows-application
           path: build/application
-
+          if-no-files-found: error
+ 
       - uses: actions/upload-artifact@v4
         with:
           name: windows-packages
           path: build/packages
+          if-no-files-found: error
 
   build-linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
+    env:
+      RUSTFLAGS: -D warnings    # Make Rust compiler fail on warnings
     steps:
       - uses: actions/checkout@v4
         with:
@@ -56,13 +74,26 @@ jobs:
       
       - name: Get dependencies
         run: |
-          sudo apt install -y ninja-build qt5-default
-          curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.5.0/linux-gcc_64.zip && unzip linux-gcc_64.zip
+          sudo apt update
+          sudo apt install -y ninja-build qt6-base-dev pkg-config libfreetype6-dev libfontconfig1-dev
+          curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.6.0/linux-gcc_64.zip && unzip linux-gcc_64.zip
 
-      - name: Build and test
+      - name: Extract test files
+        run: |
+          cd virtualbow/rust/virtualbow/data
+          7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
+
+      - name: Build and test solver
+        run: |
+          cd virtualbow/rust
+          cargo clippy --all-targets
+          cargo build --release
+          cargo test --release
+
+      - name: Build and test application
         run: |
           mkdir build && cd build
-          cmake ../virtualbow -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../linux-gcc_64/paths.cmake
+          cmake ../virtualbow/gui -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../linux-gcc_64/paths.cmake
           cmake --build . -j4
           cmake --build . --target deb-package -j4
           cmake --build . --target rpm-package -j4
@@ -72,15 +103,19 @@ jobs:
         with:
           name: linux-application
           path: build/application
+          if-no-files-found: error
 
       - uses: actions/upload-artifact@v4
         with:
           name: linux-packages
           path: build/packages
+          if-no-files-found: error
 
   build-macos:
-    runs-on: macos-12
+    runs-on: macos-13
     timeout-minutes: 30
+    env:
+      RUSTFLAGS: -D warnings    # Make Rust compiler fail on warnings
     steps:
       - uses: actions/checkout@v4
         with:
@@ -88,35 +123,45 @@ jobs:
       
       - name: Get dependencies
         run: |
-          brew install ninja
           npm install -g appdmg@0.6.0 --no-audit
-          curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.5.0/macos-clang_64.zip && unzip macos-clang_64.zip
+          curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.6.0/macos-clang_64.zip && unzip macos-clang_64.zip
           chmod -R 755 macos-clang_64
+  
+      - name: Extract test files
+        run: |
+          cd virtualbow/rust/virtualbow/data
+          7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
 
-      - name: Build and test
+      - name: Build and test solver
+        run: |
+          cd virtualbow/rust
+          cargo clippy --all-targets
+          cargo build --release
+          cargo test --release
+
+      - name: Build and test application
         run: |
           mkdir build && cd build
-          cmake ../virtualbow -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../macos-clang_64/paths.cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13
+          cmake ../virtualbow/gui -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../macos-clang_64/paths.cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15
           cmake --build . -j4
           cmake --build . --target dmg-installer -j4
           ./virtualbow-test
-      
-      - name: Display file structure
-        run: ls -R
-      
+
       - uses: actions/upload-artifact@v4
         with:
           name: macos-application
           path: build/application
+          if-no-files-found: error
 
       - uses: actions/upload-artifact@v4
         with:
           name: macos-packages
           path: build/packages
+          if-no-files-found: error
 
   develop-release:
     if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: [build-windows, build-linux, build-macos]
     steps:
       - uses: actions/download-artifact@v4
@@ -144,10 +189,10 @@ jobs:
           prerelease: true
           title: Development Build
           files: virtualbow*
-          
+
   tagged-release:
     if: startsWith(github.ref, 'refs/tags')
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: [build-windows, build-linux, build-macos]
     steps:
       - uses: actions/download-artifact@v4

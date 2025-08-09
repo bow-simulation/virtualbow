@@ -1,0 +1,59 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "virtualbow",
+    "virtualbow_num",
+    "virtualbow_cli",
+    "virtualbow_ffi",
+    "virtualbow_gui",
+]
+
+[workspace.package]
+version = "0.10.0"
+edition = "2021"
+authors = ["Stefan Pfeifer <s-pfeifer@gmx.net>"]
+homepage = "https://www.virtualbow.org"
+
+[workspace.lints.rust]
+non_snake_case = "allow"            # Style
+mixed_script_confusables = "allow"  # Style
+confusable_idents = "allow"         # Style
+
+[workspace.lints.clippy]
+type_complexity = "allow"        # Style
+too_many_arguments = "allow"     # Style
+needless_range_loop = "allow"    # Sometimes needed
+needless_return = "allow"        # Style
+toplevel_ref_arg = "allow"       # Triggers on nalgebra stack! macros, reenable when fixed
+identity_op = "allow"            # Style (i.e. use of + 0 for clarity)
+module_inception = "allow"       # Style (maybe reenable later)
+manual_range_contains = "allow"  # Style (manual version can be more readable)
+collapsible_else_if = "allow"    # Style (can be more clear sometimes)
+new_without_default = "allow"
+len_without_is_empty = "allow"
+missing_safety_doc = "allow"     # Enable this later
+
+[workspace.dependencies]
+nalgebra = { version = "0.33.0", features = ["serde-serialize", "rand"] }
+serde = { version = "1.0.203", features = ["derive"] }
+serde_json = { version = "1.0.117", features = ["float_roundtrip"] }
+rmp-serde = "1.3.0"                                     # TODO: Remove one of them?
+rmpv = { version = "1.3.0", features = ["with-serde"]}  # TODO: Remove one of them?
+iter_num_tools = "0.7.1"
+itertools = "0.13.0"
+downcast-rs = "1.2.1"
+unzip3 = "1.0.0"
+rayon = "1.10.0"
+fresnel = "0.1.0"
+soa_derive = "0.13.0"
+num = "0.4.3"
+clap = { version = "4.5.7", features = ["derive"]}
+approx = "0.5.1"
+plotters = "0.3.6"
+assert_matches = "1.5"
+assert_cmd = "2.0.14"
+spec_math = "0.1.5"
+assert2 = "0.3.15"
+test_each_file = "0.3.4"
+cbindgen = "0.28.0"
