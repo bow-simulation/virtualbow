@@ -30,10 +30,12 @@ QWidget* TableDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem
 }
 
 void TableDelegate::setEditorData(QWidget* editor, const QModelIndex &index) const {
-    double value = index.model()->data(index, Qt::EditRole).toDouble();
-
-    auto spinner = static_cast<DoubleSpinBox*>(editor);
-    spinner->setValue(value);
+    // Only write data into the editor if it’s not actively being edited
+    if(!editor->hasFocus()) {
+        double value = index.model()->data(index, Qt::EditRole).toDouble();
+        auto spinner = static_cast<DoubleSpinBox*>(editor);
+        spinner->setValue(value);
+    }
 }
 
 void TableDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {

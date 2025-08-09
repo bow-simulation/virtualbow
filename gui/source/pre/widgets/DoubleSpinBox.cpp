@@ -63,8 +63,10 @@ QValidator::State DoubleSpinBox::validate(QString& text, int& pos) const {
     input.remove(suffix());
 
     try {
-        double value = evalExpression(input);
-        if(range.contains(value)) {
+        double unitValue = evalExpression(input);
+        double baseValue = quantity.getUnit().toBase(unitValue);
+
+        if(range.contains(baseValue)) {
             return QValidator::Acceptable;
         }
         else {
@@ -78,9 +80,9 @@ QValidator::State DoubleSpinBox::validate(QString& text, int& pos) const {
 
 // Overwriting this ensures that the range validation also applies to steps made by "spinning"
 void DoubleSpinBox::stepBy(int steps) {
-    double newVal = value() + singleStep() * steps;
-    if(range.contains(newVal)) {
-        setValue(newVal);
+    double newValue = value() + singleStep() * steps;
+    if(range.contains(newValue)) {
+        setValue(newValue);
     }
 }
 
