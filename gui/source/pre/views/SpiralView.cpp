@@ -12,12 +12,12 @@ SpiralView::SpiralView(SpiralModel* model) {
 
     addProperty(
         "Radius (start)",
-        new DoubleView(model, model->RADIUS_START, Quantities::length, DoubleRange::unrestricted(1e-3), "Start radius of the spiral segment")
+        new DoubleView(model, model->RADIUS_START, Quantities::length, DoubleRange::unrestricted(1e-3), "Start radius of the spiral segment (or zero for no radius)")
     );
 
     addProperty(
         "Radius (end)",
-        new DoubleView(model, model->RADIUS_END, Quantities::length, DoubleRange::unrestricted(1e-3), "End radius of the spiral segment")
+        new DoubleView(model, model->RADIUS_END, Quantities::length, DoubleRange::unrestricted(1e-3), "End radius of the spiral segment (or zero for no radius)")
     );
 
     addStretch();

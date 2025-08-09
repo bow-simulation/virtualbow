@@ -1,15 +1,33 @@
-#include "ProfileView.hpp"
-#include "solver/BowModel.hpp"
+#include "ProfilePlotView.hpp"
+#include "pre/models/MainModel.hpp"
+#include "pre/models/units/UnitSystem.hpp"
 
 // Magic numbers
 const size_t N_SEGMENT_POINTS   = 100;
 const size_t N_CURVATURE_POINTS = 200;
 const double CURVATURE_SCALING  = 0.05;
 
-ProfileView::ProfileView(const Quantity& quantity)
-    : quantity(quantity)
+ProfilePlotView::ProfilePlotView(MainModel* model):
+    model(model)
 {
     this->setAspectPolicy(PlotWidget::SCALE_Y);
+
+    // Line
+    curveLine = new QCPCurve(this->xAxis, this->yAxis);
+    curveLine->setName("Line");
+    curveLine->setPen({Qt::blue, 2});
+
+    // Control points
+    curvePoints = new QCPCurve(this->xAxis, this->yAxis);
+    curvePoints->setName("Points");
+    curvePoints->setScatterStyle({QCPScatterStyle::ssSquare, Qt::blue, 8});
+    curvePoints->setLineStyle(QCPCurve::lsNone);
+
+    // Selected points
+    curveSelected = new QCPCurve(this->xAxis, this->yAxis);
+    curveSelected->setName("Selected");
+    curveSelected->setScatterStyle({QCPScatterStyle::ssSquare, Qt::red, Qt::red, 8});
+    curveSelected->setLineStyle(QCPCurve::lsNone);
 
     // Menu actions
 
@@ -35,28 +53,57 @@ ProfileView::ProfileView(const Quantity& quantity)
     this->contextMenu()->insertSeparator(before);
 
     // Update on unit changes
-    QObject::connect(&quantity, &Quantity::unitChanged, this, &ProfileView::updatePlot);
+    //QObject::connect(&quantity, &Quantity::unitChanged, this, &ProfilePlotView::updatePlot);
+
+    // Update on unit and geometry changes
+    QObject::connect(&Quantities::length, &Quantity::unitChanged, this, &ProfilePlotView::updatePlot);
+    QObject::connect(model, &MainModel::geometryChanged, this, &ProfilePlotView::updatePlot);
+
+    // Initial update
+    updatePlot();
 }
 
-void ProfileView::setData(const Profile& data) {
+/*
+void ProfilePlotView::setData(const Profile& data) {
     input = data;
     updatePlot();
 }
 
-void ProfileView::setSelection(const QList<int>& indices) {
+void ProfilePlotView::setSelection(const QList<int>& indices) {
     selection = indices;
     updateSelection();
     this->replot();
 }
+*/
 
-void ProfileView::updatePlot() {
-    //throw std::invalid_argument("Removed code");
+void ProfilePlotView::updatePlot() {
+    this->xAxis->setLabel("X " + Quantities::length.getUnit().getSuffix());
+    this->yAxis->setLabel("Y " + Quantities::length.getUnit().getSuffix());
+
+    curveLine->data()->clear();
+    curvePoints->data()->clear();
+    curveSelected->data()->clear();
+
+    if(model->hasGeometry()) {
+        for(auto& point: model->getGeometry().position_eval) {
+            curveLine->addData(
+                Quantities::length.getUnit().fromBase(point[0]),
+                Quantities::length.getUnit().fromBase(point[1])
+            );
+        }
+
+        for(auto& point: model->getGeometry().position_control) {
+            curvePoints->addData(
+                Quantities::length.getUnit().fromBase(point[0]),
+                Quantities::length.getUnit().fromBase(point[1])
+            );
+        }
+    }
+
+    this->rescaleAxes();
+    this->replot();
+
     /*
-    this->xAxis->setLabel("X " + quantity.getUnit().getLabel());
-    this->yAxis->setLabel("Y " + quantity.getUnit().getLabel());
-
-    this->clearPlottables();
-
     // Construct profile curve segment by segment, stop on first error
     ProfileCurve profile;
     try {
@@ -147,13 +194,11 @@ void ProfileView::updatePlot() {
 
     updateSelection();
     updateVisibility();
-
-    this->rescaleAxes();
-    this->replot();
     */
 }
 
-void ProfileView::updateSelection() {
+void ProfilePlotView::updateSelection() {
+    /*
     for(int i = 0; i < segment_curves.size(); ++i) {
         if(selection.contains(i)) {
             segment_curves[i]->setPen({Qt::red, 2});
@@ -177,9 +222,11 @@ void ProfileView::updateSelection() {
             segment_nodes[i]->setScatterSkip(0);
         }
     }
+    */
 }
 
-void ProfileView::updateVisibility() {
+void ProfilePlotView::updateVisibility() {
+    /*
     for(auto line: curvature_lines) {
         line->setVisible(action_show_curvature->isChecked());
     }
@@ -187,4 +234,5 @@ void ProfileView::updateVisibility() {
     for(auto segment_node: segment_nodes) {
         segment_node->setVisible(action_show_nodes->isChecked());
     }
+    */
 }

@@ -25,6 +25,8 @@ pub struct DiscreteLimbGeometry {
     pub y_nodes: Vec<DVector<f64>>,          // Layer bounds at nodes (y in cross section coordinates)
     pub h_nodes: Vec<DVector<f64>>,          // Layer heights at nodes
 
+    pub p_control: Vec<SVector<f64, 3>>,     // Positions (x, y, φ) of the control points
+
     pub n_eval: Vec<f64>,                    // Relative lengths at which the limb quantities are evaluated
     pub s_eval: Vec<f64>,                    // Arc lengths at which the limb quantities are evaluated
     pub p_eval: Vec<SVector<f64, 3>>,        // Positions (x, y, φ) of the evaluation points
@@ -87,6 +89,9 @@ impl LimbGeometry {
         let y_nodes = n_nodes.iter().map(|&n| self.section.layer_bounds(n).0).collect_vec();
         let h_nodes = n_nodes.iter().map(|&n| self.section.layer_bounds(n).1).collect_vec();    // TODO: Collect in one step
 
+        // Control points of the profile curve
+        let p_control = self.profile.get_nodes().iter().map(|node| vector![node.r[0], node.r[1], node.φ]).collect();    // TODO: Make those conversions unnecessary by using a single format for curve points
+
         // Equidistant evaluation points along the length of the limb
         let s_eval = lin_space(self.profile.s_start()..=self.profile.s_end(), n_eval_points).collect_vec();
         let n_eval = s_eval.iter().map(|&s| self.profile.normalize(s)).collect_vec();
@@ -124,6 +129,7 @@ impl LimbGeometry {
             p_nodes,
             y_nodes,
             h_nodes,
+            p_control,
             n_eval,
             s_eval,
             y_eval,
@@ -140,7 +146,8 @@ impl DiscreteLimbGeometry {
     pub fn to_limb_info(&self) -> LimbInfo {
         LimbInfo {
             length: self.s_eval.clone(),
-            position: self.p_eval.clone(),
+            position_eval: self.p_eval.clone(),
+            position_control: self.p_control.clone(),
             width: self.w_eval.clone(),
             height: self.h_eval.iter().map(|h| h.sum()).collect(),
             bounds: self.y_eval.iter().map(|y| y.data.clone().into()).collect(),

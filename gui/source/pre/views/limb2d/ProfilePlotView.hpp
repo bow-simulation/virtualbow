@@ -1,27 +1,26 @@
 #pragma once
 #include "pre/widgets/PlotWidget.hpp"
-#include "pre/models/units/Quantity.hpp"
-#include "solver/BowModel.hpp"
 
-class ProfileView: public PlotWidget
+class MainModel;
+
+class ProfilePlotView: public PlotWidget
 {
 public:
-    ProfileView(const Quantity& xy_quantity);
+    ProfilePlotView(MainModel* model);
+    /*
     void setData(const Profile& data);
     void setSelection(const QList<int>& indices);
+    */
 
 private:
-    const Quantity& quantity;
+    MainModel* model;
 
     QAction* action_show_curvature;
     QAction* action_show_nodes;
 
-    Profile input;
-    QList<int> selection;
-
-    QList<QCPCurve*> segment_curves;
-    QList<QCPCurve*> segment_nodes;    // TODO: Use some item type for this?
-    QList<QCPCurve*> curvature_lines;
+    QCPCurve* curveLine;
+    QCPCurve* curvePoints;
+    QCPCurve* curveSelected;
 
     void updatePlot();
     void updateSelection();

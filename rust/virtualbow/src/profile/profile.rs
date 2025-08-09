@@ -64,7 +64,11 @@ impl ProfileCurve {
         })
     }
 
-    pub fn create_curve(segment: &ProfileSegment, start: &CurvePoint) -> Box<dyn PlanarCurve> {
+    pub fn get_nodes(&self) -> &[CurvePoint] {
+        &self.nodes
+    }
+    
+    fn create_curve(segment: &ProfileSegment, start: &CurvePoint) -> Box<dyn PlanarCurve> {
         match segment {
             ProfileSegment::Line(input)   => Box::new(ClothoidSegment::line(start, input)),
             ProfileSegment::Arc(input)    => Box::new(ClothoidSegment::arc(start, input)),

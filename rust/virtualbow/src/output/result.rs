@@ -123,7 +123,6 @@ pub struct State {
 pub struct LimbInfo {
     // Geometry information needed by the result viewer
     pub length: Vec<f64>,
-    pub position: Vec<SVector<f64, 3>>,    // x, y, φ
     pub width: Vec<f64>,
     pub height: Vec<f64>,
     pub bounds: Vec<Vec<f64>>,    // Layer boundaries in y position
@@ -131,6 +130,9 @@ pub struct LimbInfo {
     // Geometry information needed by the model editor
     pub ratio: Vec<f64>,
     pub heights: Vec<Vec<f64>>,
+
+    pub position_eval: Vec<SVector<f64, 3>>,       // Eval points of the profile curve (x, y, φ)
+    pub position_control: Vec<SVector<f64, 3>>,    // Control points of the profile curve (x, y, φ)
 
     // TODO: Unify the information
 }

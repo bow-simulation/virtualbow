@@ -87,7 +87,7 @@ void ShapePlot::updateBackgroundStates() {
 
     if(intermediate_states >= 0) {
         // Unbraced state
-        plotLimbOutline(limb_left[intermediate_states], limb_right[intermediate_states], common.limb.position);
+        plotLimbOutline(limb_left[intermediate_states], limb_right[intermediate_states], common.limb.position_eval);
     }
 }
 
@@ -120,7 +120,7 @@ void ShapePlot::updateAxes() {
         }
     };
 
-    expand3(common.limb.position);
+    expand3(common.limb.position_eval);
     for(size_t i = 0; i < states.time.size(); ++i) {
         // Add 0.5*height as an estimated upper bound
         //expand(states.x_pos_limb[i] + 0.5*limb.height, states.y_pos_limb[i] + 0.5*limb.height);

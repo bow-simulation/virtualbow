@@ -35,7 +35,8 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
 
 struct LimbInfo {
     std::vector<double> length;
-    std::vector<std::array<double, 3>> position;
+    std::vector<std::array<double, 3>> position_eval;
+    std::vector<std::array<double, 3>> position_control;
     std::vector<double> width;
     std::vector<double> height;
     std::vector<std::vector<double>> bounds;
@@ -47,7 +48,8 @@ struct LimbInfo {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     LimbInfo,
     length,
-    position,
+    position_eval,
+    position_control,
     width,
     height,
     bounds,

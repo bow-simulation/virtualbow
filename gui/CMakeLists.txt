@@ -136,12 +136,6 @@ add_executable(
     source/pre/views/docks/EditDock.hpp
     source/pre/views/docks/PlotDock.cpp
     source/pre/views/docks/PlotDock.hpp
-    source/pre/views/limb2d/ProfileView.cpp
-    source/pre/views/limb2d/ProfileView.hpp
-    source/pre/views/limb2d/WidthPlotView.cpp
-    source/pre/views/limb2d/WidthPlotView.hpp
-    source/pre/views/limb2d/HeightPlotView.cpp
-    source/pre/views/limb2d/HeightPlotView.hpp
     source/pre/views/primitive/DoubleView.hpp
     source/pre/views/primitive/DoubleView.cpp
     source/pre/views/primitive/ColorView.hpp
@@ -182,6 +176,12 @@ add_executable(
     source/pre/views/MassesView.cpp
     source/pre/views/DampingView.hpp
     source/pre/views/DampingView.cpp
+    source/pre/views/limb2d/ProfilePlotView.cpp
+    source/pre/views/limb2d/ProfilePlotView.hpp
+    source/pre/views/limb2d/WidthPlotView.cpp
+    source/pre/views/limb2d/WidthPlotView.hpp
+    source/pre/views/limb2d/HeightPlotView.cpp
+    source/pre/views/limb2d/HeightPlotView.hpp
     source/pre/views/limb3d/ErrorLabel.cpp
     source/pre/views/limb3d/ErrorLabel.hpp
     source/pre/views/limb3d/LayerColors.cpp

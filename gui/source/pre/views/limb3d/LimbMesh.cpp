@@ -26,8 +26,8 @@ LimbMesh::LimbMesh(const BowModel& bow, const LimbInfo& geometry)
 
     // Iterate over segments, i.e. pairs of a previous and a next cross section
     for(size_t iSegment = 0; iSegment < nSegments; ++iSegment) {
-        std::array<double, 3> profile_prev = geometry.position[iSegment];
-        std::array<double, 3> profile_next = geometry.position[iSegment + 1];
+        std::array<double, 3> profile_prev = geometry.position_eval[iSegment];
+        std::array<double, 3> profile_next = geometry.position_eval[iSegment + 1];
 
         QVector3D center_prev  ( profile_prev[0], profile_prev[1], 0.0 );
         QVector3D normal_w_prev( 0.0, 0.0, 1.0 );

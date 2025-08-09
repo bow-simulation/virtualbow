@@ -3,6 +3,7 @@
 #include "pre/models/MainTreeModel.hpp"
 #include "pre/views/limb2d/WidthPlotView.hpp"
 #include "pre/views/limb2d/HeightPlotView.hpp"
+#include "pre/views/limb2d/ProfilePlotView.hpp"
 #include <QItemSelectionModel>
 #include <QLabel>
 
@@ -18,7 +19,7 @@ public:
     }
 };
 
-PlotDock::PlotDock(MainModel* viewModel) {
+PlotDock::PlotDock(MainModel* model) {
     placeholder = new PlaceholderLabel();
 
     this->setWindowTitle("Graph");
@@ -26,24 +27,24 @@ PlotDock::PlotDock(MainModel* viewModel) {
     this->setFeatures(QDockWidget::NoDockWidgetFeatures);
     this->setWidget(placeholder);
 
-    auto selectionModel = viewModel->getModelTreeSelectionModel();
+    auto selectionModel = model->getModelTreeSelectionModel();
     QObject::connect(selectionModel, &QItemSelectionModel::selectionChanged, this, [=] {
         QModelIndexList selection = selectionModel->selectedIndexes();
         if(selection.size() == 1) {
             QPersistentModelIndex index(selection.first());
 
             if(index.internalId() == ItemType::LAYER) {
-                showPlot(index, [=]{ return new HeightPlotView(viewModel, index); });
-                return;
-            }
-
-            if(index.internalId() == ItemType::SEGMENT) {
-                showPlot(index, [=]{ return new QLabel("Profile"); });
+                showPlot(index, [=]{ return new HeightPlotView(model, index); });
                 return;
             }
 
             if(index.internalId() == ItemType::TOPLEVEL && index.row() == TopLevelItem::WIDTH) {
-                showPlot(index, [=]{ return new WidthPlotView(viewModel); });
+                showPlot(index, [=]{ return new WidthPlotView(model); });
+                return;
+            }
+
+            if((index.internalId() == ItemType::TOPLEVEL && index.row() == TopLevelItem::PROFILE) || index.internalId() == ItemType::SEGMENT) {
+                showPlot(index, [=]{ return new ProfilePlotView(model); });
                 return;
             }
         }
