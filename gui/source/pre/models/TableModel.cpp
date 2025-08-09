@@ -111,7 +111,7 @@ Points TableModel::getPoints() const {
     auto it_row_end = entries.cbegin();
 
     while(it_row_begin != entries.cend()) {
-        while(it_row_end.key().row() == it_row_begin.key().row()) {
+        while(it_row_end.key().row() == it_row_begin.key().row() && it_row_end != entries.cend()) {
             ++it_row_end;
         }
 

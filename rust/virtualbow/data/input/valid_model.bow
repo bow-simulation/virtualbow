@@ -49,7 +49,7 @@
     "materials": [
       {
         "name": "Material 1",
-        "color": "#ff9966",
+        "color": "#d0b391",
         "density": 675.0,
         "youngs_modulus": 12000000000.0,
         "shear_modulus": 6000000000.0
