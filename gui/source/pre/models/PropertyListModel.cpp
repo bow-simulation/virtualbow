@@ -1,5 +1,10 @@
 #include "PropertyListModel.hpp"
 
+PropertyListModel::PropertyListModel() {
+    // Emit modified signal if the model data has changed
+    QObject::connect(this, &QAbstractItemModel::dataChanged, this, &PropertyListModel::contentModified);
+}
+
 QPersistentModelIndex PropertyListModel::addProperty(AbstractProperty* property) {
     properties.append(property);
     return createIndex(properties.size() - 1, 0);

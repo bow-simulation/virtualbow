@@ -171,13 +171,14 @@ private:
 };
 
 class PropertyListModel: public QAbstractListModel {
+    Q_OBJECT
+
 public:
+    PropertyListModel();
+
     QPersistentModelIndex addString(std::string& value);
-
     QPersistentModelIndex addColor(std::string& value);
-
     QPersistentModelIndex addInteger(int& value);
-
     QPersistentModelIndex addDouble(double& value);
 
     template<typename EnumType>
@@ -188,12 +189,12 @@ public:
     // Implementation of abstract methods
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
-
     Qt::ItemFlags flags(const QModelIndex &index) const;
-
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+
+signals:
+    void contentModified();
 
 private:
     QList<AbstractProperty*> properties;

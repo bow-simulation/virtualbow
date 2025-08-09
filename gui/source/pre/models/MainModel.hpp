@@ -94,6 +94,12 @@ private:
     MainTreeModel* mainTreeModel;
     QItemSelectionModel* modelTreeSelectionModel;
 
-    void connectSubModel(QAbstractItemModel* model);
+    // (Re)Computes the bow's geometry and emots geometryChanged signal when finished
     void updateBowGeometry();
+
+    // Connects a submodel to the main model. Requires the submodel to define a "contentModified" signal.
+    template<typename SubModel>
+    void connectSubModel(SubModel* subModel) {
+        QObject::connect(subModel, &SubModel::contentModified, this, &MainModel::contentModified);
+    }
 };

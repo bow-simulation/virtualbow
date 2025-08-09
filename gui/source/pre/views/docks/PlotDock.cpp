@@ -73,7 +73,6 @@ void PlotDock::showPlot(QPersistentModelIndex index, const std::function<QWidget
 
     // Check if a plot for the model index exists, create a new one if not
     if(!plots.contains(index)) {
-        qInfo() << "Create, Size = " << plots.size();
         plots.insert(index, create());
     }
 

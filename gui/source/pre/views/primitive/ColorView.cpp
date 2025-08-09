@@ -6,25 +6,42 @@
 ColorView::ColorView(QAbstractItemModel* model, QPersistentModelIndex index, const QString& tooltip) {
     setToolTip(tooltip);
 
-    // Set value from model and keep model up to date on changes
-    setColor(model->data(index).value<QColor>());
-    QObject::connect(this, &QPushButton::clicked, this, [=]{
+    // Set initial color value from model
+    QColor initial = model->data(index).value<QColor>();
+    setColor(initial);
+
+    // Open solor dialog on click
+    QObject::connect(this, &QPushButton::clicked, this, [=, this]{
         auto dialog(new QColorDialog(this));
         dialog->setOption(QColorDialog::DontUseNativeDialog);
         dialog->setWindowModality(Qt::ApplicationModal);
         dialog->setWindowTitle("Color");
         dialog->setCurrentColor(model->data(index).value<QColor>());
-        dialog->exec();
 
-        model->setData(index, dialog->currentColor());
-        setColor(dialog->currentColor());
+        // Update model and button on color changes
+        QObject::connect(dialog, &QColorDialog::currentColorChanged, this, [=, this] {
+            model->setData(index, dialog->currentColor());
+            setColor(initial);
+        });
+
+        // When the dialog is closed, either keep the selected color or reset to initial color
+        if(dialog->exec() == QDialog::Accepted) {
+            setColor(dialog->currentColor());
+        } else {
+            model->setData(index, initial);
+        }
     });
 }
 
 void ColorView::setColor(const QColor& color) {
-    // Set background color of the button to the given color and the text color depending on brightness
+    // Set button text to show color code
+    setText(color.name());
+
+    // Set background color of the button to the given color
     QPalette pal = palette();
     pal.setColor(QPalette::Button, color);
+
+    // Set the text color depending on brightness of the background
     if(color.lightness() < 200) {
         pal.setColor(QPalette::ButtonText, Qt::white);
     }
@@ -33,7 +50,4 @@ void ColorView::setColor(const QColor& color) {
     }
 
     setPalette(pal);
-
-    // Set button text to show color code
-    setText(color.name());
 }

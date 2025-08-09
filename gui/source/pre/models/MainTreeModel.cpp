@@ -6,7 +6,11 @@
 MainTreeModel::MainTreeModel():
     bow(nullptr)
 {
-
+    // Emit modification signals on changes to data and tree structure
+    QObject::connect(this, &QAbstractItemModel::dataChanged, this, &MainTreeModel::contentModified);
+    QObject::connect(this, &QAbstractItemModel::rowsInserted, this, &MainTreeModel::contentModified);
+    QObject::connect(this, &QAbstractItemModel::rowsRemoved, this, &MainTreeModel::contentModified);
+    QObject::connect(this, &QAbstractItemModel::rowsMoved, this, &MainTreeModel::contentModified);
 }
 
 void MainTreeModel::setBowModel(BowModel* bow) {
@@ -77,7 +81,7 @@ void MainTreeModel::insertLayer(int row) {
     Layer layer {
         .name = bow->generateLayerName(),
         .material = bow->section.materials.empty() ? "" : bow->section.materials[0].name,
-        .height = {{0.0, 0.015}, {1.0, 0.01}}
+        .height = {{0.0, 0.01}, {1.0, 0.01}}
     };
 
     QModelIndex parent = createIndex(TopLevelItem::LAYERS, 0, ItemType::TOPLEVEL);

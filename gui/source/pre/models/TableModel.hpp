@@ -23,13 +23,8 @@ public:
     bool canFetchMore(const QModelIndex& parent) const override;
     void fetchMore(const QModelIndex& parent) override;
 
-    // Additional methods
-
-    Points getPoints() const;
-    void setPoints(const Points& data);
-
 signals:
-    void modified();
+    void contentModified();
 
 private:
     QList<QString> columnLabels;
@@ -37,4 +32,7 @@ private:
     QMap<QModelIndex, double> entries;
     Points& points;
     int loadedRows;
+
+    Points getPoints() const;
+    void setPoints(const Points& data);
 };

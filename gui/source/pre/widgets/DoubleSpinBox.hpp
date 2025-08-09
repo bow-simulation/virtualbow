@@ -6,12 +6,14 @@ class Quantity;
 struct DoubleRange;
 
 class DoubleSpinBox: public QDoubleSpinBox {
+    Q_OBJECT
+
 public:
     DoubleSpinBox(const Quantity& quantity, const DoubleRange& range, QWidget* parent = nullptr);
     void showUnit(bool value);
 
 signals:
-    void modified();
+    void contentModified();
 
 private:
     DoubleRange range;

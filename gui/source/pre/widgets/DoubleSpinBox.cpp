@@ -2,6 +2,7 @@
 #include "pre/utils/DoubleRange.hpp"
 #include "pre/utils/Expressions.hpp"
 #include "pre/models/units/UnitSystem.hpp"
+#include <QLineEdit>
 #include <cmath>
 
 DoubleSpinBox::DoubleSpinBox(const Quantity& quantity, const DoubleRange& range, QWidget* parent):
@@ -18,6 +19,7 @@ DoubleSpinBox::DoubleSpinBox(const Quantity& quantity, const DoubleRange& range,
     // Prevent catching focus when scrolling, https://stackoverflow.com/a/19382766
     setFocusPolicy(Qt::StrongFocus);
 
+    QObject::connect(lineEdit(), &QLineEdit::textEdited, this, &DoubleSpinBox::contentModified);    // Signal modification by user when the text was edited
     QObject::connect(&quantity, &Quantity::unitChanged, this, &DoubleSpinBox::updateUnit);
     updateUnit();
 }
@@ -83,6 +85,7 @@ void DoubleSpinBox::stepBy(int steps) {
     double newValue = value() + singleStep() * steps;
     if(range.contains(newValue)) {
         setValue(newValue);
+        emit contentModified();    // Signal modification by user
     }
 }
 

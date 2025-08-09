@@ -87,8 +87,8 @@ LimbView::LimbView(MainModel* model):
 
     errorLabel = new ErrorLabel();
 
-    auto infoLabel = new QLabel("<font color=\"white\" size=\"8\">Virtual<strong>Bow</strong></font><br>"
-                                "<font color=\"white\" size=\"3\">Non-Commercial | v" + QString(Config::APPLICATION_VERSION) + "</font>");
+    auto infoLabel = new QLabel("<font color=\"white\" size=\"7\">Virtual<strong>Bow</strong></font><br>"
+                                "<font color=\"white\" size=\"3\">Noncommercial | v" + QString(Config::APPLICATION_VERSION) + "</font>");
     infoLabel->setAlignment(Qt::AlignRight);
 
     auto hbox = new QHBoxLayout();
@@ -97,6 +97,7 @@ LimbView::LimbView(MainModel* model):
     hbox->addWidget(infoLabel, 1, Qt::AlignTop);
 
     auto vbox = new QVBoxLayout();
+    hbox->setContentsMargins(10, 5, 10, 5);
     vbox->addLayout(hbox, 1);
     vbox->addWidget(buttonFrame, 0, Qt::AlignCenter);
     setLayout(vbox);

@@ -10,7 +10,7 @@ MaterialEntry::MaterialEntry()
     symbol->setFixedWidth(18);
     symbol->setFixedHeight(18);
     symbol->setScaledContents(true);
-    label->setStyleSheet("color: white; font: 16px;");
+    label->setStyleSheet("color: white; font: 14px;");
 
     auto hbox = new QHBoxLayout();
     hbox->setAlignment(Qt::AlignTop);

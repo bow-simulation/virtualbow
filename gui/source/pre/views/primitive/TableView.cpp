@@ -21,7 +21,7 @@ QWidget* TableDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem
     editor->setFrame(false);
 
     // Workaround to update the model on every change to the editor value, not only once when finished
-    QObject::connect(editor, &DoubleSpinBox::valueChanged, this, [=] {
+    QObject::connect(editor, &DoubleSpinBox::contentModified, this, [=] {
         QAbstractItemModel* model = const_cast<QAbstractItemModel*>(index.model());
         model->setData(index, editor->value(), Qt::EditRole);
     });

@@ -54,16 +54,6 @@ MainModel::MainModel():
 
     // When the timer is completed, recompute the bow geometry and emit change signal when done
     QObject::connect(timer, &QTimer::timeout, this, &MainModel::updateBowGeometry);
-
-    // TODO: Remove
-    QObject::connect(this, &MainModel::geometryChanged, this, [&]{
-        qInfo() << "Geometry changed!";
-    });
-
-    // TODO: Remove
-    QObject::connect(this, &MainModel::contentModified, this, [&]{
-        qInfo() << "Content modified!";
-    });
 }
 
 const QString& MainModel::currentFile() const {
@@ -286,14 +276,6 @@ void MainModel::saveFile(const QString& path) {
         emit currentFileChanged(path);
         emit hasUnsavedWorkChanged(unsaved);
     }
-}
-
-void MainModel::connectSubModel(QAbstractItemModel* model) {
-    // Emit modified signal if the model structure or data has been changed
-    QObject::connect(model, &QAbstractItemModel::dataChanged, this, &MainModel::contentModified);
-    QObject::connect(model, &QAbstractItemModel::rowsInserted, this, &MainModel::contentModified);
-    QObject::connect(model, &QAbstractItemModel::rowsRemoved, this, &MainModel::contentModified);
-    QObject::connect(model, &QAbstractItemModel::rowsMoved, this, &MainModel::contentModified);
 }
 
 void MainModel::updateBowGeometry() {

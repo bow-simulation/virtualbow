@@ -21,7 +21,7 @@ TableModel::TableModel(Points& points, const QString& xLabel, const QString& yLa
     }
 
     setPoints(points);
-    QObject::connect(this, &TableModel::modified, this, [=]{
+    QObject::connect(this, &TableModel::contentModified, this, [=]{
         this->points = getPoints();
     });
 }
@@ -76,7 +76,7 @@ bool TableModel::setData(const QModelIndex& index, const QVariant& value, int ro
         }
 
         emit dataChanged(index, index);
-        emit modified();
+        emit contentModified();
         return true;
     }
 
