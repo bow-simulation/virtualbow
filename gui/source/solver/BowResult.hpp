@@ -168,6 +168,8 @@ struct Statics {
 
     std::vector<std::tuple<double, std::array<unsigned, 3>>> min_layer_stresses;
     std::vector<std::tuple<double, std::array<unsigned, 3>>> max_layer_stresses;
+    std::vector<std::tuple<double, std::array<unsigned, 3>>> min_layer_strains;
+    std::vector<std::tuple<double, std::array<unsigned, 3>>> max_layer_strains;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
@@ -182,7 +184,9 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     min_grip_force,
     max_grip_force,
     min_layer_stresses,
-    max_layer_stresses
+    max_layer_stresses,
+    min_layer_strains,
+    max_layer_strains
 )
 
 struct ArrowDeparture {
@@ -223,6 +227,8 @@ struct Dynamics {
 
     std::vector<std::tuple<double, std::array<unsigned, 3>>> min_layer_stresses;
     std::vector<std::tuple<double, std::array<unsigned, 3>>> max_layer_stresses;
+    std::vector<std::tuple<double, std::array<unsigned, 3>>> min_layer_strains;
+    std::vector<std::tuple<double, std::array<unsigned, 3>>> max_layer_strains;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
@@ -235,7 +241,9 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     min_grip_force,
     max_grip_force,
     min_layer_stresses,
-    max_layer_stresses
+    max_layer_stresses,
+    min_layer_strains,
+    max_layer_strains
 )
 
 struct BowResult {

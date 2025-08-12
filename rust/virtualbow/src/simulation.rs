@@ -286,6 +286,8 @@ impl<'a> Simulation<'a> {
 
             let min_layer_stresses = (0..model.section.layers.len()).map(|i_layer| find_min_layer_result(&states.layer_stress, i_layer)).collect();
             let max_layer_stresses = (0..model.section.layers.len()).map(|i_layer| find_max_layer_result(&states.layer_stress, i_layer)).collect();
+            let min_layer_strains = (0..model.section.layers.len()).map(|i_layer| find_min_layer_result(&states.layer_strain, i_layer)).collect();
+            let max_layer_strains = (0..model.section.layers.len()).map(|i_layer| find_max_layer_result(&states.layer_strain, i_layer)).collect();
 
             // Collect static outputs
             Statics {
@@ -300,6 +302,8 @@ impl<'a> Simulation<'a> {
                 max_grip_force,
                 min_layer_stresses,
                 max_layer_stresses,
+                min_layer_strains,
+                max_layer_strains,
             }
         };
 
@@ -421,6 +425,8 @@ impl<'a> Simulation<'a> {
 
                 let min_layer_stresses = (0..model.section.layers.len()).map(|i_layer| find_min_layer_result(&states.layer_stress, i_layer)).collect();
                 let max_layer_stresses = (0..model.section.layers.len()).map(|i_layer| find_max_layer_result(&states.layer_stress, i_layer)).collect();
+                let min_layer_strains = (0..model.section.layers.len()).map(|i_layer| find_min_layer_result(&states.layer_strain, i_layer)).collect();
+                let max_layer_strains = (0..model.section.layers.len()).map(|i_layer| find_max_layer_result(&states.layer_strain, i_layer)).collect();
 
                 // Collect dynamic outputs
                 Some(Dynamics {
@@ -433,6 +439,8 @@ impl<'a> Simulation<'a> {
                     max_grip_force,
                     min_layer_stresses,
                     max_layer_stresses,
+                    min_layer_strains,
+                    max_layer_strains
                 })
             }
             else {

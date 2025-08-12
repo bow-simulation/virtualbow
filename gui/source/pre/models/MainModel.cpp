@@ -284,8 +284,7 @@ void MainModel::updateBowGeometry() {
             geometry = compute_geometry(*bow);
             error = std::nullopt;
         }
-        catch(std::exception& e) {
-            qInfo() << "Error: " << e.what();    // TODO: Remove
+        catch(const std::exception& e) {
             geometry = std::nullopt;
             error = QString(e.what());
         }

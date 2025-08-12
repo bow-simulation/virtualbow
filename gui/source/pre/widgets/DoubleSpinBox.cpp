@@ -54,7 +54,7 @@ double DoubleSpinBox::valueFromText(const QString& text) const {
     input.remove(suffix());
 
     // Convert value given in the selected unit to SI base
-    double unitValue = evalExpression(input);
+    double unitValue = *evalExpression(input);
     return quantity.getUnit().toBase(unitValue);
 }
 
@@ -64,18 +64,16 @@ QValidator::State DoubleSpinBox::validate(QString& text, int& pos) const {
     QString input = text;
     input.remove(suffix());
 
-    try {
-        double unitValue = evalExpression(input);
-        double baseValue = quantity.getUnit().toBase(unitValue);
-
-        if(range.contains(baseValue)) {
-            return QValidator::Acceptable;
-        }
-        else {
-            return QValidator::Intermediate;
-        }
+    std::optional<double> unitValue = evalExpression(input);
+    if(!unitValue.has_value()) {
+        return QValidator::Intermediate;
     }
-    catch(const std::runtime_error&) {
+
+    double baseValue = quantity.getUnit().toBase(*unitValue);
+    if(range.contains(baseValue)) {
+        return QValidator::Acceptable;
+    }
+    else {
         return QValidator::Intermediate;
     }
 }

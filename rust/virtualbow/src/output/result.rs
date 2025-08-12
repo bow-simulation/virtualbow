@@ -36,6 +36,8 @@ pub struct Statics {
 
     pub min_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
     pub max_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
+    pub min_layer_strains: Vec<(f64, [usize; 3])>,     // (value, [state, length, belly/back]) for each layer
+    pub max_layer_strains: Vec<(f64, [usize; 3])>,     // (value, [state, length, belly/back]) for each layer
 }
 
 #[derive(Serialize, Deserialize, Default, PartialEq, Debug, Clone)]
@@ -52,6 +54,8 @@ pub struct Dynamics {
 
     pub min_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
     pub max_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
+    pub min_layer_strains: Vec<(f64, [usize; 3])>,     // (value, [state, length, belly/back]) for each layer
+    pub max_layer_strains: Vec<(f64, [usize; 3])>,     // (value, [state, length, belly/back]) for each layer
 }
 
 // Data that is available only if the arrow has separated from the string during the dynamic analysis

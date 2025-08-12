@@ -118,7 +118,9 @@ fn check_static_scalar_results(model: &BowModel, output: &BowResult) {
         min_grip_force,
         max_grip_force,
         min_layer_stresses,
-        max_layer_stresses
+        max_layer_stresses,
+        min_layer_strains,
+        max_layer_strains
     } = output.statics.as_ref().unwrap();
 
     // Draw force, drawing work and storage factor must be positive
@@ -164,6 +166,22 @@ fn check_static_scalar_results(model: &BowModel, output: &BowResult) {
         assert!(layer_stress.1[1] < model.settings.num_limb_eval_points);
         assert!(layer_stress.1[2] < 2);
     }
+
+    // Same for min strains
+    assert!(min_layer_strains.len() == model.section.layers.len());
+    for layer_strain in min_layer_strains {
+        assert!(layer_strain.1[0] < states.len());
+        assert!(layer_strain.1[1] < model.settings.num_limb_eval_points);
+        assert!(layer_strain.1[2] < 2);
+    }
+
+    // Same for max strains
+    assert!(max_layer_strains.len() == model.section.layers.len());
+    for layer_strain in max_layer_strains {
+        assert!(layer_strain.1[0] < states.len());
+        assert!(layer_strain.1[1] < model.settings.num_limb_eval_points);
+        assert!(layer_strain.1[2] < 2);
+    }
 }
 
 // Check some basic properties (domain, dimensions) for the scalar dynamic outputs
@@ -177,7 +195,9 @@ fn check_dynamic_scalar_results(model: &BowModel, output: &BowResult) {
         min_grip_force,
         max_grip_force,
         min_layer_stresses,
-        max_layer_stresses
+        max_layer_stresses,
+        min_layer_strains,
+        max_layer_strains
     } = output.dynamics.as_ref().unwrap();
 
     if let Some(arrow_departure) = arrow_departure {
@@ -252,6 +272,22 @@ fn check_dynamic_scalar_results(model: &BowModel, output: &BowResult) {
         assert!(layer_stress.1[0] < states.len());
         assert!(layer_stress.1[1] < model.settings.num_limb_eval_points);
         assert!(layer_stress.1[2] < 2);
+    }
+
+    // Same for min strains
+    assert!(min_layer_strains.len() == model.section.layers.len());
+    for layer_strain in min_layer_strains {
+        assert!(layer_strain.1[0] < states.len());
+        assert!(layer_strain.1[1] < model.settings.num_limb_eval_points);
+        assert!(layer_strain.1[2] < 2);
+    }
+
+    // Same for max strains
+    assert!(max_layer_strains.len() == model.section.layers.len());
+    for layer_strain in max_layer_strains {
+        assert!(layer_strain.1[0] < states.len());
+        assert!(layer_strain.1[1] < model.settings.num_limb_eval_points);
+        assert!(layer_strain.1[2] < 2);
     }
 }
 

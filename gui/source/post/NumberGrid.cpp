@@ -45,7 +45,7 @@ void NumberGrid::addGroup(const QString& name) {
     currentColumn->insertWidget(i, group);
 }
 
-void NumberGrid::addValue(const QString& name, double value, const Quantity& quantity) {
+void NumberGrid::addHeaders(const QStringList& headers) {
     if(currentColumn == nullptr) {
         addColumn();
     }
@@ -54,20 +54,47 @@ void NumberGrid::addValue(const QString& name, double value, const Quantity& qua
         addGroup("Default");
     }
 
+    int row = currentGrid->rowCount();
+
+    for(int col = 0; col < headers.size(); ++col) {
+        auto label = new QLabel(headers[col]);
+        currentGrid->addWidget(label, row, col + 1, Qt::AlignCenter);
+    }
+}
+
+void NumberGrid::addValues(const QString& name, const Quantity& quantity, const QList<double>& values) {
+    if(currentColumn == nullptr) {
+        addColumn();
+    }
+
+    if(currentGrid == nullptr) {
+        addGroup("Default");
+    }
+
+    int row = currentGrid->rowCount();
+
     auto label = new QLabel();
-    auto edit = new QLineEdit();
-    edit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    edit->setReadOnly(true);
+    currentGrid->addWidget(label, row, 0, Qt::AlignRight);
 
-    int i = currentGrid->rowCount();
-    currentGrid->addWidget(label, i, 0, Qt::AlignRight);
-    currentGrid->addWidget(edit, i, 1);
+    for(int col = 0; col < values.size(); ++col) {
+        auto edit = new QLineEdit();
+        edit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        edit->setAlignment(Qt::AlignCenter);
+        edit->setReadOnly(true);
 
-    auto update = [&, name, value, label, edit] {
-        label->setText(name + " " + quantity.getUnit().getSuffix());
-        edit->setText(QLocale().toString(quantity.getUnit().fromBase(value)));
-    };
+        currentGrid->addWidget(edit, row, col + 1);
 
-    QObject::connect(&quantity, &Quantity::unitChanged, this, update);
-    update();
+        double value = values[col];
+        auto update = [&, name, value, label, edit] {
+            label->setText(name + " " + quantity.getUnit().getSuffix());
+            edit->setText(QString::number(quantity.getUnit().fromBase(value)));
+        };
+
+        QObject::connect(&quantity, &Quantity::unitChanged, this, update);
+        update();
+    }
+}
+
+void NumberGrid::addValue(const QString& name, const Quantity& quantity, double value) {
+    addValues(name, quantity, {value});
 }
