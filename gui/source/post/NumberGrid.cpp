@@ -62,7 +62,7 @@ void NumberGrid::addHeaders(const QStringList& headers) {
     }
 }
 
-void NumberGrid::addValues(const QString& name, const Quantity& quantity, const QList<double>& values) {
+void NumberGrid::addValues(const QString& name, const QList<double>& values, const QList<const Quantity*> quantities) {
     if(currentColumn == nullptr) {
         addColumn();
     }
@@ -72,9 +72,8 @@ void NumberGrid::addValues(const QString& name, const Quantity& quantity, const 
     }
 
     int row = currentGrid->rowCount();
-
-    auto label = new QLabel();
-    currentGrid->addWidget(label, row, 0, Qt::AlignRight);
+    auto label = new QLabel(name);
+    currentGrid->addWidget(label, row, 0);
 
     for(int col = 0; col < values.size(); ++col) {
         auto edit = new QLineEdit();
@@ -85,16 +84,17 @@ void NumberGrid::addValues(const QString& name, const Quantity& quantity, const 
         currentGrid->addWidget(edit, row, col + 1);
 
         double value = values[col];
-        auto update = [&, name, value, label, edit] {
-            label->setText(name + " " + quantity.getUnit().getSuffix());
-            edit->setText(QString::number(quantity.getUnit().fromBase(value)));
+        const Quantity* quantity = quantities[col];
+
+        auto update = [&, name, value, quantity, label, edit] {
+            edit->setText(QString::number(quantity->getUnit().fromBase(value)) + " " + quantity->getUnit().getLabel());
         };
 
-        QObject::connect(&quantity, &Quantity::unitChanged, this, update);
+        QObject::connect(quantity, &Quantity::unitChanged, this, update);
         update();
     }
 }
 
-void NumberGrid::addValue(const QString& name, const Quantity& quantity, double value) {
-    addValues(name, quantity, {value});
+void NumberGrid::addValue(const QString& name, double value, const Quantity& quantity) {
+    addValues(name, {value}, {&quantity});
 }

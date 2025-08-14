@@ -201,7 +201,7 @@ fn check_dynamic_scalar_results(model: &BowModel, output: &BowResult) {
     } = output.dynamics.as_ref().unwrap();
 
     if let Some(arrow_departure) = arrow_departure {
-        let ArrowDeparture { state_idx, arrow_pos, arrow_vel, kinetic_energy_arrow, elastic_energy_limbs, kinetic_energy_limbs, elastic_energy_string, kinetic_energy_string, energy_efficiency } = arrow_departure;
+        let ArrowDeparture { state_idx, arrow_pos, arrow_vel, kinetic_energy_arrow, elastic_energy_limbs, kinetic_energy_limbs, damping_energy_limbs, elastic_energy_string, kinetic_energy_string, damping_energy_string, energy_efficiency } = arrow_departure;
 
         // Check if the quantities at separation are consistent with the states and the index
         assert!(*arrow_pos == states.arrow_pos[*state_idx]);
@@ -209,8 +209,10 @@ fn check_dynamic_scalar_results(model: &BowModel, output: &BowResult) {
         assert!(*kinetic_energy_arrow == states.kinetic_energy_arrow[*state_idx]);
         assert!(*elastic_energy_limbs == states.elastic_energy_limbs[*state_idx]);
         assert!(*kinetic_energy_limbs == states.kinetic_energy_limbs[*state_idx]);
+        assert!(*damping_energy_limbs == states.damping_energy_limbs[*state_idx]);
         assert!(*elastic_energy_string == states.elastic_energy_string[*state_idx]);
         assert!(*kinetic_energy_string == states.kinetic_energy_string[*state_idx]);
+        assert!(*damping_energy_string == states.damping_energy_string[*state_idx]);
 
         // Check range of the energy efficiency
         assert!(*energy_efficiency > 0.0);

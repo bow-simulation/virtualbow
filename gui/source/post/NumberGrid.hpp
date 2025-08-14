@@ -13,8 +13,8 @@ public:
     void addColumn();
     void addGroup(const QString& name);
     void addHeaders(const QStringList& headers);
-    void addValues(const QString& name, const Quantity& quantity, const QList<double>& values);
-    void addValue(const QString& name, const Quantity& quantity, double value);
+    void addValues(const QString& name, const QList<double>& values, const QList<const Quantity*> quantities);
+    void addValue(const QString& name, double value, const Quantity& quantity);
 
 private:
     QHBoxLayout* columnLayout;

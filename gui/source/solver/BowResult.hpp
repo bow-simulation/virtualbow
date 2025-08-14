@@ -196,8 +196,10 @@ struct ArrowDeparture {
     double kinetic_energy_arrow;
     double elastic_energy_limbs;
     double kinetic_energy_limbs;
+    double damping_energy_limbs;
     double elastic_energy_string;
     double kinetic_energy_string;
+    double damping_energy_string;
     double energy_efficiency;
 };
 
@@ -209,8 +211,10 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     kinetic_energy_arrow,
     elastic_energy_limbs,
     kinetic_energy_limbs,
+    damping_energy_limbs,
     elastic_energy_string,
     kinetic_energy_string,
+    damping_energy_string,
     energy_efficiency
 )
 

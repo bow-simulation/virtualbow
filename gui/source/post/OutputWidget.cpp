@@ -84,13 +84,13 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
     auto numbers = new NumberGrid();
     numbers->addColumn();
     numbers->addGroup("Performance");
-    numbers->addValue("Final draw force", Quantities::force, data.statics->final_draw_force);
-    numbers->addValue("Drawing work", Quantities::energy, data.statics->final_drawing_work);
-    numbers->addValue("Energy storage factor", Quantities::ratio, data.statics->storage_factor);
+    numbers->addValue("Final draw force", data.statics->final_draw_force, Quantities::force);
+    numbers->addValue("Drawing work", data.statics->final_drawing_work, Quantities::energy);
+    numbers->addValue("Energy storage factor", data.statics->storage_factor, Quantities::ratio);
     numbers->addGroup("Properties");
-    numbers->addValue("Limb mass", Quantities::mass, data.common.limb_mass);
-    numbers->addValue("String mass", Quantities::mass, data.common.string_mass);
-    numbers->addValue("String length", Quantities::length, data.common.string_length);
+    numbers->addValue("Limb mass", data.common.limb_mass, Quantities::mass);
+    numbers->addValue("String mass", data.common.string_mass, Quantities::mass);
+    numbers->addValue("String length", data.common.string_length, Quantities::length);
 
     numbers->addColumn();
     numbers->addGroup("Maximum stresses");
@@ -100,7 +100,7 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
         double max = std::get<0>(data.statics->max_layer_stresses.at(i));
         double tension = (max > 0.0) ? max : 0.0;         // There is only tension if the maximum stress is positive
         double compression = (min < 0.0) ? -min : 0.0;    // There is only compression if the minimum stress is negative
-        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), Quantities::stress, {tension, compression});
+        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::stress, &Quantities::stress});
     }
 
     numbers->addGroup("Maximum strains");
@@ -110,15 +110,15 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
         double max = std::get<0>(data.statics->max_layer_strains.at(i));
         double tension = (max > 0.0) ? max : 0.0;         // There is only tension if the maximum stress is positive
         double compression = (min < 0.0) ? -min : 0.0;    // There is only compression if the minimum stress is negative
-        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), Quantities::strain, {tension, compression});
+        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::strain, &Quantities::strain});
     }
 
     numbers->addColumn();
     numbers->addGroup("Maximum absolute forces");
-    numbers->addValue("Draw force", Quantities::force, std::get<0>(data.statics->max_draw_force));
-    numbers->addValue("Grip force", Quantities::force, std::get<0>(data.statics->max_grip_force));
-    numbers->addValue("String force (total)", Quantities::force, std::get<0>(data.statics->max_string_force));
-    numbers->addValue("String force (strand)",  Quantities::force, std::get<0>(data.statics->max_strand_force));
+    numbers->addValue("Draw force", std::get<0>(data.statics->max_draw_force), Quantities::force);
+    numbers->addValue("Grip force", std::get<0>(data.statics->max_grip_force), Quantities::force);
+    numbers->addValue("String force (total)", std::get<0>(data.statics->max_string_force), Quantities::force);
+    numbers->addValue("String force (strand)", std::get<0>(data.statics->max_strand_force),  Quantities::force);
 
     auto plot_shapes = new ShapePlot(data.common, data.statics->states, 4);
     auto plot_stress = new StressPlot(data.common, data.statics->states);
@@ -176,14 +176,25 @@ DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
 {
     auto numbers = new NumberGrid();
     if(data.dynamics->arrow_departure.has_value()) {
+        auto& departure = *data.dynamics->arrow_departure;
+
         numbers->addColumn();
         numbers->addGroup("Performance");
-        numbers->addValue("Final arrow velocity", Quantities::velocity, data.dynamics->arrow_departure->arrow_vel);
-        numbers->addValue("Degree of efficiency", Quantities::ratio, data.dynamics->arrow_departure->energy_efficiency);
-        numbers->addGroup("Energy at arrow departure");
-        numbers->addValue("Kinetic energy arrow", Quantities::energy, data.dynamics->arrow_departure->kinetic_energy_arrow);
-        numbers->addValue("Kinetic energy limbs", Quantities::energy, data.dynamics->arrow_departure->kinetic_energy_limbs);
-        numbers->addValue("Kinetic energy string", Quantities::energy, data.dynamics->arrow_departure->kinetic_energy_string);
+        numbers->addValue("Final arrow velocity", departure.arrow_vel, Quantities::velocity);
+        numbers->addValue("Degree of efficiency", departure.energy_efficiency, Quantities::ratio);
+
+        double total_energy = departure.kinetic_energy_arrow + departure.kinetic_energy_limbs + departure.elastic_energy_limbs + departure.damping_energy_limbs
+                              + departure.kinetic_energy_string + departure.elastic_energy_string + departure.damping_energy_string;
+
+        numbers->addGroup("Energies at arrow departure");
+        numbers->addHeaders({"Absolute", "Relative"});
+        numbers->addValues("Arrow (kinetic)", {departure.kinetic_energy_arrow, departure.kinetic_energy_arrow/total_energy}, {&Quantities::energy, &Quantities::ratio});
+        numbers->addValues("Limbs (kinetic)", {departure.kinetic_energy_limbs, departure.kinetic_energy_limbs/total_energy}, {&Quantities::energy, &Quantities::ratio});
+        numbers->addValues("Limbs (elastic)", {departure.elastic_energy_limbs, departure.elastic_energy_limbs/total_energy}, {&Quantities::energy, &Quantities::ratio});
+        numbers->addValues("Limbs (damping)", {departure.damping_energy_limbs, departure.damping_energy_limbs/total_energy}, {&Quantities::energy, &Quantities::ratio});
+        numbers->addValues("String (kinetic)", {departure.kinetic_energy_string, departure.kinetic_energy_string/total_energy}, {&Quantities::energy, &Quantities::ratio});
+        numbers->addValues("String (elastic)", {departure.elastic_energy_string, departure.elastic_energy_string/total_energy}, {&Quantities::energy, &Quantities::ratio});
+        numbers->addValues("String (damping)", {departure.damping_energy_string, departure.damping_energy_string/total_energy}, {&Quantities::energy, &Quantities::ratio});
     }
 
     numbers->addColumn();
@@ -194,7 +205,7 @@ DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
         double max_stress = std::get<0>(data.dynamics->max_layer_stresses.at(i));
         double tension = (max_stress > 0.0) ? max_stress : 0.0;         // There is only tension if the maximum stress is positive
         double compression = (min_stress < 0.0) ? -min_stress : 0.0;    // There is only compression if the minimum stress is negative
-        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), Quantities::stress, {tension, compression});
+        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::stress, &Quantities::stress});
     }
 
     numbers->addGroup("Maximum strains");
@@ -204,15 +215,15 @@ DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
         double max = std::get<0>(data.dynamics->max_layer_strains.at(i));
         double tension = (max > 0.0) ? max : 0.0;         // There is only tension if the maximum stress is positive
         double compression = (min < 0.0) ? -min : 0.0;    // There is only compression if the minimum stress is negative
-        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), Quantities::strain, {tension, compression});
+        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::strain, &Quantities::strain});
     }
 
     numbers->addColumn();
     numbers->addGroup("Maximum forces");
-    numbers->addValue("Grip push force", Quantities::force, std::get<0>(data.dynamics->max_grip_force));
-    numbers->addValue("Grip pull force", Quantities::force, std::get<0>(data.dynamics->min_grip_force));
-    numbers->addValue("String force (total)", Quantities::force, std::get<0>(data.dynamics->max_string_force));
-    numbers->addValue("String force (strand)",  Quantities::force, std::get<0>(data.dynamics->max_strand_force));
+    numbers->addValue("Grip push force", std::get<0>(data.dynamics->max_grip_force), Quantities::force);
+    numbers->addValue("Grip pull force", std::get<0>(data.dynamics->min_grip_force), Quantities::force);
+    numbers->addValue("String force (total)", std::get<0>(data.dynamics->max_string_force), Quantities::force);
+    numbers->addValue("String force (strand)", std::get<0>(data.dynamics->max_strand_force), Quantities::force);
 
     auto plot_shapes = new ShapePlot(data.common, data.dynamics->states, 0);
     auto plot_stress = new StressPlot(data.common, data.dynamics->states);

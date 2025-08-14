@@ -72,8 +72,10 @@ pub struct ArrowDeparture {
     pub kinetic_energy_arrow: f64,
     pub elastic_energy_limbs: f64,
     pub kinetic_energy_limbs: f64,
+    pub damping_energy_limbs: f64,
     pub elastic_energy_string: f64,
     pub kinetic_energy_string: f64,
+    pub damping_energy_string: f64,
 
     // Degree of efficiency
     pub energy_efficiency: f64,

@@ -122,12 +122,12 @@ impl<'a> Simulation<'a> {
         let string_element = StringElement::new(EA, 0.0, 1.0, 1.0, offsets);    // Damping is determined later when the length of the string is known, compression factor is set in dynamic analysis
         let string_element = system.add_element(&string_nodes, string_element);
 
-        // Evaluate the string element so that the actual string length is computed
-        // Then set the initial length to the current length so that the string is tension-free.
+        // Evaluate the string element once so that the actual string length is computed (but no forces are applied)
+        // We call this the unstressed length of the string and assign that to the element so that the string is tension-free initially.
         system.update_element(string_element);
         let element = system.element_mut::<StringElement>(string_element);
-        let l0 = element.get_current_length();
-        element.set_initial_length(l0);
+        let unstressed_length = element.get_current_length();
+        element.set_initial_length(unstressed_length);
 
         // If string is to be initialized, perform bracing simulation
         if string {
@@ -143,7 +143,7 @@ impl<'a> Simulation<'a> {
                 (pos1[1] - pos0[1])/(pos1[0] - pos0[0])
             };
 
-            // Initial values for the string factor, the slope and the step size for iterating on the string factor
+            // Initial values for the string length factor, the string's slope and the step size for iterating on the string factor
             let mut factor1 = 1.0;
             let mut slope1 = get_string_slope(&system);
             let mut delta = Self::BRACING_DELTA_START;
@@ -158,7 +158,7 @@ impl<'a> Simulation<'a> {
             // Returns the slope of the string as well as the return state of the static solver.
             // The root of this function is the string length that braces the bow with the desired brace height.
             let mut try_string_length = |factor: f64| {
-                system.element_mut::<StringElement>(string_element).set_initial_length(factor*l0);
+                system.element_mut::<StringElement>(string_element).set_initial_length(factor*unstressed_length);
 
                 let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());    // TODO: Don't construct new solver in each iteration
                 let result = solver.equilibrium_displacement_controlled(string_nodes[0].y(), -input.dimensions.brace_height);
@@ -200,17 +200,16 @@ impl<'a> Simulation<'a> {
                     return Err(ModelError::SimulationBracingNoSignChange)
                 }
             }
-
-            // After the string length is known, we can calculate the viscosity that is required
-            // for achieving the prescribed string damping ratio
-            let l0 = system.element_ref::<StringElement>(string_element).get_initial_length();
-            let ηA = 4.0*l0/PI*f64::sqrt(ρA*EA)*input.damping.damping_ratio_string;
-            system.element_mut::<StringElement>(string_element).set_linear_damping(ηA);
-
-            // Base mass + additional masses of the string
-            system.element_mut::<MassElement>(mass_element_string_center).set_mass(0.5*input.masses.string_center + 1.0/3.0*ρA*l0);
-            system.element_mut::<MassElement>(mass_element_string_tip).set_mass(input.masses.string_tip + 2.0/3.0*ρA*l0);
         }
+
+        // After the initial string length is known, we can calculate the viscosity that is required for achieving the prescribed damping ratio
+        let l0 = system.element_ref::<StringElement>(string_element).get_initial_length();
+        let ηA = 4.0*l0/PI*f64::sqrt(ρA*EA)*input.damping.damping_ratio_string;
+        system.element_mut::<StringElement>(string_element).set_linear_damping(ηA);
+
+        // Set additional masses to base mass + partial masses of the string
+        system.element_mut::<MassElement>(mass_element_string_center).set_mass(0.5*input.masses.string_center + 1.0/3.0*ρA*l0);
+        system.element_mut::<MassElement>(mass_element_string_tip).set_mass(input.masses.string_tip + 2.0/3.0*ρA*l0);
 
         // Compute additional common output results
         let string_length = 2.0*l0;                                                                                // Actual string length due to symmetry
@@ -411,8 +410,10 @@ impl<'a> Simulation<'a> {
                         kinetic_energy_arrow: states.kinetic_energy_arrow[index],
                         elastic_energy_limbs: states.elastic_energy_limbs[index],
                         kinetic_energy_limbs: states.kinetic_energy_limbs[index],
+                        damping_energy_limbs: states.damping_energy_limbs[index],
                         elastic_energy_string: states.elastic_energy_string[index],
                         kinetic_energy_string: states.kinetic_energy_string[index],
+                        damping_energy_string: states.damping_energy_string[index],
                         energy_efficiency: states.kinetic_energy_arrow[index]/statics.final_drawing_work,
                     }
                 });
