@@ -54,23 +54,23 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
 )
 
 struct Dimensions {
-    double brace_height;
-    double draw_length;
     HandleReference handle_reference;
     double handle_length;
     double handle_offset;
     double handle_angle;
+    double brace_height;
+    double draw_length;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     Dimensions,
-    brace_height,
-    draw_length,
     handle_reference,
     handle_length,
     handle_offset,
-    handle_angle
-)
+    handle_angle,
+    brace_height,
+    draw_length
+ )
 
 struct Masses {
     double arrow;

@@ -36,12 +36,12 @@ impl BowModel {
             comment: "".into(),
             settings: Settings::default(),
             dimensions: Dimensions {
-                brace_height: 0.2,
-                draw_length: 0.7,
                 handle_reference: HandleReference::Belly,
                 handle_length: 0.0,
                 handle_offset: 0.0,
-                handle_angle: 0.0
+                handle_angle: 0.0,
+                brace_height: 0.2,
+                draw_length: 0.7
             },
             section: Section {
                 alignment: LayerAlignment::SectionBack,

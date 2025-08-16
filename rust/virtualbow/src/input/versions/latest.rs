@@ -58,12 +58,12 @@ impl Default for Settings {
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
 pub struct Dimensions {
-    pub brace_height: f64,
-    pub draw_length: f64,
     pub handle_reference: HandleReference,
     pub handle_angle: f64,
     pub handle_length: f64,
     pub handle_offset: f64,
+    pub brace_height: f64,
+    pub draw_length: f64,
 }
 
 // Point at the limb root from which the handle's pivot point is measured
