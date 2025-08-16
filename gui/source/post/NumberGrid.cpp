@@ -62,7 +62,7 @@ void NumberGrid::addHeaders(const QStringList& headers) {
     }
 }
 
-void NumberGrid::addValues(const QString& name, const QList<double>& values, const QList<const Quantity*> quantities) {
+void NumberGrid::addValues(const QString& name, const QList<double>& values, const QList<const Quantity*> quantities, int decimals) {
     if(currentColumn == nullptr) {
         addColumn();
     }
@@ -86,8 +86,9 @@ void NumberGrid::addValues(const QString& name, const QList<double>& values, con
         double value = values[col];
         const Quantity* quantity = quantities[col];
 
-        auto update = [&, name, value, quantity, label, edit] {
-            edit->setText(QString::number(quantity->getUnit().fromBase(value)) + " " + quantity->getUnit().getLabel());
+        auto update = [=] {
+            QString text = QString::number(quantity->getUnit().fromBase(value), 'f', decimals) + quantity->getUnit().getSuffix();
+            edit->setText(text);
         };
 
         QObject::connect(quantity, &Quantity::unitChanged, this, update);
@@ -95,6 +96,6 @@ void NumberGrid::addValues(const QString& name, const QList<double>& values, con
     }
 }
 
-void NumberGrid::addValue(const QString& name, double value, const Quantity& quantity) {
-    addValues(name, {value}, {&quantity});
+void NumberGrid::addValue(const QString& name, double value, const Quantity& quantity, int decimals) {
+    addValues(name, {value}, {&quantity}, decimals);
 }

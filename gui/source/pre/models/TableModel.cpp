@@ -37,7 +37,7 @@ int TableModel::columnCount(const QModelIndex& parent) const {
 QVariant TableModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
         QString name = columnLabels[section];
-        QString unit = columnUnits[section]->getUnit().getSuffix();
+        QString unit = columnUnits[section]->getUnit().getLabel();
         QString separator = (!name.isEmpty() && !unit.isEmpty()) ? " " : QString();
 
         return name + separator + unit;

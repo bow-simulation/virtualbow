@@ -1,8 +1,8 @@
 #include "Unit.hpp"
 
-Unit::Unit(const QString& name, const QString& text, UnitType type, double factor):
-    label(name),
-    text(text),
+Unit::Unit(const QString& shortName, const QString& fullName, UnitType type, double factor):
+    shortName(shortName),
+    fullName(fullName),
     type(type),
     factor(factor)
 {
@@ -10,7 +10,7 @@ Unit::Unit(const QString& name, const QString& text, UnitType type, double facto
 }
 
 bool Unit::operator==(const Unit& other) const {
-    return (label == other.label) && (type == other.type) && (factor == other.factor);
+    return (shortName == other.shortName) && (type == other.type) && (factor == other.factor);
 }
 
 bool Unit::operator!=(const Unit& other) const {
@@ -45,14 +45,18 @@ UnitType Unit::getType() const {
     return type;
 }
 
-QString Unit::getLabel() const {
-    return label;
-}
-
-QString Unit::getText() const {
-    return text;
-}
-
 QString Unit::getSuffix() const {
-    return label.isEmpty() ? QString() : "[ " + label + " ]";
+    return shortName.isEmpty() ? "" : " " + shortName;
+}
+
+QString Unit::getSymbol() const {
+    return shortName.isEmpty() ? "-" : shortName;
+}
+
+QString Unit::getName() const {
+    return fullName;
+}
+
+QString Unit::getLabel() const {
+    return "[ " + getSymbol() + " ]";
 }

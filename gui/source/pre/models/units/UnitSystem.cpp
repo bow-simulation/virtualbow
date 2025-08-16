@@ -71,7 +71,7 @@ const Unit Units::One_Per_Millimeter = Unit("1/mm", "One per millimeter", SI, 1e
 const Unit Units::One_Per_Foot = Unit("1/ft", "One per foot", US, 3.28084);
 const Unit Units::One_Per_Inch = Unit("1/in", "One per inch", US, 39.370079);
 
-const Unit Units::No_Unit = Unit("-", "No unit", SI, 1.0);
+const Unit Units::No_Unit = Unit("", "No unit", SI, 1.0);
 const Unit Units::Percent = Unit("%", "Percent", SI, 1e-2);
 
 Quantity Quantities::length = Quantity("Length", {

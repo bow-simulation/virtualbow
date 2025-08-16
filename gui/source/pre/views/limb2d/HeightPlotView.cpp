@@ -50,8 +50,8 @@ void HeightPlotView::updatePlot() {
         return;
     }
 
-    xAxis->setLabel("Length " + Quantities::ratio.getUnit().getSuffix());
-    yAxis->setLabel("Height " + Quantities::length.getUnit().getSuffix());
+    xAxis->setLabel("Length " + Quantities::ratio.getUnit().getLabel());
+    yAxis->setLabel("Height " + Quantities::length.getUnit().getLabel());
 
     graphLine->data()->clear();
     graphPoints->data()->clear();

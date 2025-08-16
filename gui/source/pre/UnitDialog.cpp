@@ -12,8 +12,8 @@ UnitEditor::UnitEditor(Quantity& quantity) {
 
     auto combo = new QComboBox();
     for(int i = 0; i < quantity.getUnits().size(); ++i) {
-        QString label = quantity.getUnits()[i].getLabel();
-        QString text = quantity.getUnits()[i].getText();
+        QString label = quantity.getUnits()[i].getSymbol();
+        QString text = quantity.getUnits()[i].getName();
 
         // Add unit label and tooltip text to the combobox
         // Also add index to unit list as user data (index provided by the combobox is useless because it also counts separators)
@@ -25,7 +25,7 @@ UnitEditor::UnitEditor(Quantity& quantity) {
             combo->insertSeparator(i);
         }
     }
-    combo->setCurrentText(quantity.getUnit().getLabel());
+    combo->setCurrentText(quantity.getUnit().getSymbol());
     combo->setFixedWidth(80);    // Magic number
 
     // Update unit when combobox changed
@@ -37,7 +37,7 @@ UnitEditor::UnitEditor(Quantity& quantity) {
 
     // Update combobox when unit changed
     QObject::connect(&quantity, &Quantity::unitChanged, this, [&, combo](){
-        QString name = quantity.getUnit().getLabel();
+        QString name = quantity.getUnit().getSymbol();
         if(name != combo->currentText()) {
             combo->setCurrentText(name);
         }

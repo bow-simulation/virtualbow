@@ -40,8 +40,8 @@ void CurvaturePlot::updateCurvature() {
 }
 
 void CurvaturePlot::updateAxes() {
-    this->xAxis->setLabel("Arc length " + quantity_length.getUnit().getSuffix());
-    this->yAxis->setLabel("Curvature " + quantity_curvature.getUnit().getSuffix());
+    this->xAxis->setLabel("Arc length " + quantity_length.getUnit().getLabel());
+    this->yAxis->setLabel("Curvature " + quantity_curvature.getUnit().getLabel());
 
     QCPRange x_range(
         quantity_length.getUnit().fromBase(common.limb.length.front()),

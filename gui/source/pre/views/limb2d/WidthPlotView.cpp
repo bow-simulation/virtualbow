@@ -44,8 +44,8 @@ WidthPlotView::WidthPlotView(MainModel* model):
 }
 
 void WidthPlotView::updatePlot() {
-    xAxis->setLabel("Length " + Quantities::ratio.getUnit().getSuffix());
-    yAxis->setLabel("Width " + Quantities::length.getUnit().getSuffix());
+    xAxis->setLabel("Length " + Quantities::ratio.getUnit().getLabel());
+    yAxis->setLabel("Width " + Quantities::length.getUnit().getLabel());
 
     graphLine->data()->clear();
     graphPoints->data()->clear();

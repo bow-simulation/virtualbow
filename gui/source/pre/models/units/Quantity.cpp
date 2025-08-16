@@ -17,7 +17,7 @@ void Quantity::loadFromSettings(const QSettings& settings) {
     QVariant nameSetting = settings.value(getSettingsKey());
     if(nameSetting.isValid()) {
         for(int index = 0; index < units.size(); ++index) {
-            if(units[index].getLabel() == nameSetting.toString()) {
+            if(units[index].getSymbol() == nameSetting.toString()) {
                 setSelectedIndex(index);
             }
         }
@@ -25,7 +25,7 @@ void Quantity::loadFromSettings(const QSettings& settings) {
 }
 
 void Quantity::saveToSettings(QSettings& settings) const {
-    settings.setValue(getSettingsKey(), getUnit().getLabel());
+    settings.setValue(getSettingsKey(), getUnit().getSymbol());
 }
 
 QString Quantity::getSettingsKey() const {

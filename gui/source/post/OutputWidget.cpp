@@ -110,7 +110,7 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
         double max = std::get<0>(data.statics->max_layer_strains.at(i));
         double tension = (max > 0.0) ? max : 0.0;         // There is only tension if the maximum stress is positive
         double compression = (min < 0.0) ? -min : 0.0;    // There is only compression if the minimum stress is negative
-        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::strain, &Quantities::strain});
+        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::strain, &Quantities::strain}, 4);
     }
 
     numbers->addColumn();
@@ -215,7 +215,7 @@ DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
         double max = std::get<0>(data.dynamics->max_layer_strains.at(i));
         double tension = (max > 0.0) ? max : 0.0;         // There is only tension if the maximum stress is positive
         double compression = (min < 0.0) ? -min : 0.0;    // There is only compression if the minimum stress is negative
-        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::strain, &Quantities::strain});
+        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::strain, &Quantities::strain}, 4);
     }
 
     numbers->addColumn();

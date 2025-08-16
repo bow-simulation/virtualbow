@@ -77,8 +77,8 @@ void ProfilePlotView::setSelection(const QList<int>& indices) {
 */
 
 void ProfilePlotView::updatePlot() {
-    this->xAxis->setLabel("X " + Quantities::length.getUnit().getSuffix());
-    this->yAxis->setLabel("Y " + Quantities::length.getUnit().getSuffix());
+    this->xAxis->setLabel("X " + Quantities::length.getUnit().getLabel());
+    this->yAxis->setLabel("Y " + Quantities::length.getUnit().getLabel());
 
     curveLine->data()->clear();
     curvePoints->data()->clear();
