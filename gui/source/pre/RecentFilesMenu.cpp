@@ -1,17 +1,16 @@
 #include "RecentFilesMenu.hpp"
 #include "pre/utils/UserSettings.hpp"
-
 #include <QFileInfo>
+
+ const int N_RETAINED_PATHS = 8;    // Number of retained paths
 
 RecentFilesMenu::RecentFilesMenu(QWidget* parent)
     : QMenu("Open &Recent", parent)
 {
-    const int N = 8;    // Number of retained paths
-
     // Create fixed number of actions for opening recent files
-    for(int i = 0; i < N; ++i) {
+    for(int i = 0; i < N_RETAINED_PATHS; ++i) {
         auto action_open = new QAction(this);
-        QObject::connect(action_open, &QAction::triggered, this, [=]{
+        QObject::connect(action_open, &QAction::triggered, this, [=, this] {
             emit openRecent(action_open->data().toString());
         });
         recentFileActions.append(action_open);
@@ -20,12 +19,12 @@ RecentFilesMenu::RecentFilesMenu(QWidget* parent)
 
     // Create action for clearing the recent file list
     auto action_clear = new QAction("&Clear List", this);
-    QObject::connect(action_clear, &QAction::triggered, this, [&]{
+    QObject::connect(action_clear, &QAction::triggered, this, [&] {
         clearPaths();
         updateActions();
     });
-    this->addSeparator();
-    this->addAction(action_clear);
+    addSeparator();
+    addAction(action_clear);
 
     // Read initial paths from settings
     UserSettings settings;

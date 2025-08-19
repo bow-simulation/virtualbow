@@ -16,14 +16,33 @@ MaterialView::MaterialView(MaterialModel* model) {
         new DoubleView(model, model->DENSITY, Quantities::density, DoubleRange::positive(1.0), "Density of the material (mass per unit volume)")
     );
 
+    addHeading("Stiffness");
+
     addProperty(
         "Young's modulus",
-        new DoubleView(model, model->YOUNGS_MODULUS, Quantities::elastic_modulus, DoubleRange::positive(1e8), "Young's modulus of the material")
+        new DoubleView(model, model->YOUNGS_MODULUS, Quantities::elastic_modulus, DoubleRange::positive(0.1e9), "Young's modulus of the material")
     );
 
     addProperty(
         "Shear modulus",
-        new DoubleView(model, model->SHEAR_MODULUS, Quantities::elastic_modulus, DoubleRange::positive(1e8), "Shear modulus of the material")
+        new DoubleView(model, model->SHEAR_MODULUS, Quantities::elastic_modulus, DoubleRange::positive(0.1e9), "Shear modulus of the material")
+    );
+
+    addHeading("Strength");
+
+    addProperty(
+        "Tensile strength",
+        new DoubleView(model, model->TENSILE_STRENGTH, Quantities::stress, DoubleRange::nonNegative(0.1e6), "Tensile strength of the material")
+    );
+
+    addProperty(
+        "Compressive strength",
+        new DoubleView(model, model->COMPRESSIVE_STRENGTH, Quantities::stress, DoubleRange::nonNegative(0.1e6), "Compressive strength of the material")
+    );
+
+    addProperty(
+        "Safety margin",
+        new DoubleView(model, model->SAFETY_MARGIN, Quantities::ratio, DoubleRange::nonNegative(1e-2), "Safety margin for tensile and compressive strength")
     );
 
     addStretch();

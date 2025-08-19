@@ -46,6 +46,9 @@ pub enum ModelError {
     MaterialInvalidDensity(f64),
     MaterialInvalidYoungsModulus(f64),
     MaterialInvalidShearModulus(f64),
+    MaterialInvalidTensileStrength(f64),
+    MaterialInvalidCompressiveStrength(f64),
+    MaterialInvalidSafetyMargin(f64),
 
     WidthControlPointsTooFew(usize),
     WidthControlPointsNotSorted(f64, f64),
@@ -145,6 +148,9 @@ impl Display for ModelError {
             ModelError::MaterialInvalidDensity(value)       => write!(f, "Material: Density must be a positive number but actual value is {value}.")?,
             ModelError::MaterialInvalidYoungsModulus(value) => write!(f, "Material: Young's modulus must be a positive number but actual value is {value}.")?,
             ModelError::MaterialInvalidShearModulus(value)  => write!(f, "Material: Shear modulus must be a positive number but actual value is {value}.")?,
+            ModelError::MaterialInvalidTensileStrength(value)      => write!(f, "Material: Tensile strength must be a positive number but actual value is {value}.")?,
+            ModelError::MaterialInvalidCompressiveStrength(value)  => write!(f, "Material: Compressive strength must be a positive number but actual value is {value}.")?,
+            ModelError::MaterialInvalidSafetyMargin(value)         => write!(f, "Material: Safety margin must be in the range [0, 1] but actual value is {value}.")?,
 
             ModelError::WidthControlPointsTooFew(value)      => write!(f, "Width: At least 2 control points are required but actual number is {value}.")?,
             ModelError::WidthControlPointsNotSorted(a, b)    => write!(f, "Width: Control points must be sorted by length but found actual values {a}, {b}.")?,

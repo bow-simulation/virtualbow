@@ -26,11 +26,21 @@ struct nlohmann::adl_serializer<std::optional<T>> {
 
 struct LayerInfo {
     std::string name;
+    std::string color;
+    std::pair<double, double> maximum_stresses;
+    std::pair<double, double> allowed_stresses;
+    std::pair<double, double> maximum_strains;
+    std::pair<double, double> allowed_strains;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     LayerInfo,
-    name
+    name,
+    color,
+    maximum_stresses,
+    allowed_stresses,
+    maximum_strains,
+    allowed_strains
 )
 
 struct LimbInfo {
@@ -55,6 +65,38 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     bounds,
     ratio,
     heights
+)
+
+struct MaxForces {
+    std::tuple<double, size_t> max_string_force;
+    std::tuple<double, size_t> max_strand_force;
+    std::tuple<double, size_t> max_draw_force;
+    std::tuple<double, size_t> min_grip_force;
+    std::tuple<double, size_t> max_grip_force;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    MaxForces,
+    max_string_force,
+    max_strand_force,
+    max_draw_force,
+    min_grip_force,
+    max_grip_force
+)
+
+struct MaxStresses {
+    std::vector<std::tuple<double, std::array<size_t, 3>>> max_layer_stress_tension;
+    std::vector<std::tuple<double, std::array<size_t, 3>>> max_layer_stress_compression;
+    std::vector<std::tuple<double, std::array<size_t, 3>>> max_layer_strain_tension;
+    std::vector<std::tuple<double, std::array<size_t, 3>>> max_layer_strain_compression;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    MaxStresses,
+    max_layer_stress_tension,
+    max_layer_stress_compression,
+    max_layer_strain_tension,
+    max_layer_strain_compression
 )
 
 struct Common {
@@ -160,16 +202,8 @@ struct Statics {
     double final_drawing_work;
     double storage_factor;
 
-    std::tuple<double, unsigned> max_string_force;
-    std::tuple<double, unsigned> max_strand_force;
-    std::tuple<double, unsigned> max_draw_force;
-    std::tuple<double, unsigned> min_grip_force;
-    std::tuple<double, unsigned> max_grip_force;
-
-    std::vector<std::tuple<double, std::array<unsigned, 3>>> min_layer_stresses;
-    std::vector<std::tuple<double, std::array<unsigned, 3>>> max_layer_stresses;
-    std::vector<std::tuple<double, std::array<unsigned, 3>>> min_layer_strains;
-    std::vector<std::tuple<double, std::array<unsigned, 3>>> max_layer_strains;
+    MaxForces max_forces;
+    MaxStresses max_stresses;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
@@ -178,15 +212,8 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     final_draw_force,
     final_drawing_work,
     storage_factor,
-    max_string_force,
-    max_strand_force,
-    max_draw_force,
-    min_grip_force,
-    max_grip_force,
-    min_layer_stresses,
-    max_layer_stresses,
-    min_layer_strains,
-    max_layer_strains
+    max_forces,
+    max_stresses
 )
 
 struct ArrowDeparture {
@@ -222,32 +249,16 @@ struct Dynamics {
     States states;
 
     std::optional<ArrowDeparture> arrow_departure;
-
-    std::tuple<double, unsigned> max_string_force;
-    std::tuple<double, unsigned> max_strand_force;
-    std::tuple<double, unsigned> max_draw_force;
-    std::tuple<double, unsigned> min_grip_force;
-    std::tuple<double, unsigned> max_grip_force;
-
-    std::vector<std::tuple<double, std::array<unsigned, 3>>> min_layer_stresses;
-    std::vector<std::tuple<double, std::array<unsigned, 3>>> max_layer_stresses;
-    std::vector<std::tuple<double, std::array<unsigned, 3>>> min_layer_strains;
-    std::vector<std::tuple<double, std::array<unsigned, 3>>> max_layer_strains;
+    MaxForces max_forces;
+    MaxStresses max_stresses;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     Dynamics,
     states,
     arrow_departure,
-    max_string_force,
-    max_strand_force,
-    max_draw_force,
-    min_grip_force,
-    max_grip_force,
-    min_layer_stresses,
-    max_layer_stresses,
-    min_layer_strains,
-    max_layer_strains
+    max_forces,
+    max_stresses
 )
 
 struct BowResult {

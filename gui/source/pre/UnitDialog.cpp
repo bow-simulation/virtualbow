@@ -101,6 +101,8 @@ UnitDialog::UnitDialog(QWidget* parent)
             reject();
             Quantities::loadFromSettings(settings);
             break;
+        default:
+            throw std::logic_error("Invalid button type");
         }
     });
 

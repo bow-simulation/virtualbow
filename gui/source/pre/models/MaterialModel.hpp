@@ -10,6 +10,9 @@ public:
     QPersistentModelIndex DENSITY;
     QPersistentModelIndex YOUNGS_MODULUS;
     QPersistentModelIndex SHEAR_MODULUS;
+    QPersistentModelIndex TENSILE_STRENGTH;
+    QPersistentModelIndex COMPRESSIVE_STRENGTH;
+    QPersistentModelIndex SAFETY_MARGIN;
 
     MaterialModel(Material& material);
 };

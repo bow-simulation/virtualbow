@@ -25,7 +25,7 @@ EditDock::EditDock(MainModel* viewModel)
     setWindowTitle("Properties");
 
     auto selectionModel = viewModel->getModelTreeSelectionModel();
-    QObject::connect(selectionModel, &QItemSelectionModel::selectionChanged, this, [=]{
+    QObject::connect(selectionModel, &QItemSelectionModel::selectionChanged, this, [=, this]{
         QModelIndexList selection = selectionModel->selectedIndexes();
 
         if(selection.size() == 1 && selection.first().internalId() == ItemType::TOPLEVEL && selection.first().row() == TopLevelItem::COMMENTS) {

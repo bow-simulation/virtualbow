@@ -30,6 +30,8 @@ public:
         }
 
         // Keep model up to date on changes
-        QObject::connect(this, &QComboBox::currentIndexChanged, this, [=](int i){ model->setData(index, itemData(i)); });
+        QObject::connect(this, &QComboBox::currentIndexChanged, this, [=, this](int i){
+            model->setData(index, itemData(i));
+        });
     }
 };

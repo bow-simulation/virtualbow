@@ -10,7 +10,7 @@ use virtualbow_num::fem::system::system::{System, SystemEval};
 use crate::errors::ModelError;
 use crate::geometry::{DiscreteLimbGeometry, LimbGeometry};
 use crate::input::BowModel;
-use crate::output::{Dynamics, LayerInfo, BowResult, Common, State, StateVec, Statics, ArrowDeparture};
+use crate::output::{ArrowDeparture, BowResult, Common, Dynamics, LayerInfo, MaxForces, MaxStresses, State, StateVec, Statics};
 use virtualbow_num::fem::elements::beam::beam::BeamElement;
 use virtualbow_num::fem::elements::mass::MassElement;
 use virtualbow_num::fem::elements::string::StringElement;
@@ -18,7 +18,7 @@ use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSetting
 use virtualbow_num::utils::integration::cumulative_simpson;
 use virtualbow_num::utils::newton;
 use virtualbow_num::utils::roots::find_root_falsi;
-use virtualbow_num::utils::minmax::{discrete_maximum_1d, discrete_maximum_nd, discrete_minimum_1d, discrete_minimum_nd};
+use virtualbow_num::utils::minmax::{discrete_maximum_nd, discrete_minimum_nd};
 
 #[derive(ValueEnum, PartialEq, Debug, Copy, Clone)]
 pub enum SimulationMode {
@@ -65,8 +65,14 @@ impl<'a> Simulation<'a> {
 
         // Layer setup data
         let layers = input.section.layers.iter().map(|layer| {
+            let material = input.section.materials.iter().find(|mat| mat.name == layer.material).unwrap();    // Unwrap okay because of previous validation
             LayerInfo {
-                name: layer.name.clone()
+                name: layer.name.clone(),
+                color: material.color.clone(),
+                maximum_stresses: material.maximum_stresses(),
+                allowed_stresses: material.allowed_stresses(),
+                maximum_strains: material.maximum_strains(),
+                allowed_strains: material.allowed_strains(),
             }
         }).collect_vec();
 
@@ -277,16 +283,8 @@ impl<'a> Simulation<'a> {
             let final_drawing_work = e_pot_back - e_pot_front;
             let storage_factor = (e_pot_back - e_pot_front) / (0.5*(draw_length_back - draw_length_front)*draw_force_back);
 
-            let max_string_force = discrete_maximum_1d(&states.string_force);
-            let max_strand_force = (max_string_force.0/(model.string.n_strands as f64), max_string_force.1);
-            let max_draw_force = discrete_maximum_1d(&states.draw_force);
-            let min_grip_force = discrete_minimum_1d(&states.grip_force);
-            let max_grip_force = discrete_maximum_1d(&states.grip_force);
-
-            let min_layer_stresses = (0..model.section.layers.len()).map(|i_layer| find_min_layer_result(&states.layer_stress, i_layer)).collect();
-            let max_layer_stresses = (0..model.section.layers.len()).map(|i_layer| find_max_layer_result(&states.layer_stress, i_layer)).collect();
-            let min_layer_strains = (0..model.section.layers.len()).map(|i_layer| find_min_layer_result(&states.layer_strain, i_layer)).collect();
-            let max_layer_strains = (0..model.section.layers.len()).map(|i_layer| find_max_layer_result(&states.layer_strain, i_layer)).collect();
+            let max_forces = MaxForces::from_states(&states);
+            let max_stresses = MaxStresses::from_states(&states);
 
             // Collect static outputs
             Statics {
@@ -294,15 +292,8 @@ impl<'a> Simulation<'a> {
                 final_draw_force,
                 final_drawing_work,
                 storage_factor,
-                max_string_force,
-                max_strand_force,
-                max_draw_force,
-                min_grip_force,
-                max_grip_force,
-                min_layer_stresses,
-                max_layer_stresses,
-                min_layer_strains,
-                max_layer_strains,
+                max_forces,
+                max_stresses
             }
         };
 
@@ -418,30 +409,15 @@ impl<'a> Simulation<'a> {
                     }
                 });
 
-                let max_string_force = discrete_maximum_1d(&states.string_force);
-                let max_strand_force = (max_string_force.0/(model.string.n_strands as f64), max_string_force.1);
-                let max_draw_force = discrete_maximum_1d(&states.draw_force);
-                let min_grip_force = discrete_minimum_1d(&states.grip_force);
-                let max_grip_force = discrete_maximum_1d(&states.grip_force);
-
-                let min_layer_stresses = (0..model.section.layers.len()).map(|i_layer| find_min_layer_result(&states.layer_stress, i_layer)).collect();
-                let max_layer_stresses = (0..model.section.layers.len()).map(|i_layer| find_max_layer_result(&states.layer_stress, i_layer)).collect();
-                let min_layer_strains = (0..model.section.layers.len()).map(|i_layer| find_min_layer_result(&states.layer_strain, i_layer)).collect();
-                let max_layer_strains = (0..model.section.layers.len()).map(|i_layer| find_max_layer_result(&states.layer_strain, i_layer)).collect();
+                let max_forces = MaxForces::from_states(&states);
+                let max_stresses = MaxStresses::from_states(&states);
 
                 // Collect dynamic outputs
                 Some(Dynamics {
                     states,
                     arrow_departure,
-                    max_string_force,
-                    max_strand_force,
-                    max_draw_force,
-                    min_grip_force,
-                    max_grip_force,
-                    min_layer_stresses,
-                    max_layer_stresses,
-                    min_layer_strains,
-                    max_layer_strains
+                    max_forces,
+                    max_stresses,
                 })
             }
             else {
@@ -632,7 +608,7 @@ impl<'a> Simulation<'a> {
 
 // Input dimensions: (state, layer, length, belly/back)
 // Output: (value, [layer, length, belly/back])
-fn find_max_layer_result(input: &[Vec<Vec<[f64; 2]>>], i_layer: usize) -> (f64, [usize; 3]) {
+pub fn find_max_layer_result(input: &[Vec<Vec<[f64; 2]>>], i_layer: usize) -> (f64, [usize; 3]) {
     let n_states = input.len();
     let n_length = input[0][0].len();
 
@@ -641,7 +617,7 @@ fn find_max_layer_result(input: &[Vec<Vec<[f64; 2]>>], i_layer: usize) -> (f64, 
 
 // Input dimensions: (state, layer, length, belly/back)
 // Output: (value, [layer, length, belly/back])
-fn find_min_layer_result(input: &[Vec<Vec<[f64; 2]>>], i_layer: usize) -> (f64, [usize; 3]) {
+pub fn find_min_layer_result(input: &[Vec<Vec<[f64; 2]>>], i_layer: usize) -> (f64, [usize; 3]) {
     let n_states = input.len();
     let n_length = input[0][0].len();
 

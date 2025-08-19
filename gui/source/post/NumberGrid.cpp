@@ -62,7 +62,7 @@ void NumberGrid::addHeaders(const QStringList& headers) {
     }
 }
 
-void NumberGrid::addValues(const QString& name, const QList<double>& values, const QList<const Quantity*> quantities, int decimals) {
+void NumberGrid::addValues(const QString& name, const QList<double>& values, const QList<const Quantity*> quantities, const QList<double>& allowed, const QList<double>& maximum, int decimals) {
     if(currentColumn == nullptr) {
         addColumn();
     }
@@ -86,9 +86,40 @@ void NumberGrid::addValues(const QString& name, const QList<double>& values, con
         double value = values[col];
         const Quantity* quantity = quantities[col];
 
+        if(col < allowed.size() && col < maximum.size()) {
+            QPalette palette;
+            if(value <= allowed[col]) {
+                palette.setColor(QPalette::Base, Qt::green);
+            }
+            else if(value <= maximum[col]) {
+                palette.setColor(QPalette::Base, Qt::yellow);
+            }
+            else {
+                palette.setColor(QPalette::Base, Qt::red);
+            }
+
+            edit->setPalette(palette);
+        }
+
         auto update = [=] {
             QString text = QString::number(quantity->getUnit().fromBase(value), 'f', decimals) + quantity->getUnit().getSuffix();
             edit->setText(text);
+
+            // TODO: Capture of QLists by value...
+            if(col < allowed.size() && col < maximum.size()) {
+                QString allowedVal = QString::number(quantity->getUnit().fromBase(allowed[col]), 'f', decimals) + quantity->getUnit().getSuffix();
+                QString maximumVal = QString::number(quantity->getUnit().fromBase(maximum[col]), 'f', decimals) + quantity->getUnit().getSuffix();
+
+                if(value <= allowed[col]) {
+                    edit->setToolTip("Value is within the allowed threshold (" + allowedVal + ")");
+                }
+                else if(value <= maximum[col]) {
+                    edit->setToolTip("Value exceeds the allowed threshold (" + allowedVal + ")");
+                }
+                else {
+                    edit->setToolTip("Value exceeds the maximum threshold (" + maximumVal + ")");
+                }
+            }
         };
 
         QObject::connect(quantity, &Quantity::unitChanged, this, update);
@@ -97,5 +128,5 @@ void NumberGrid::addValues(const QString& name, const QList<double>& values, con
 }
 
 void NumberGrid::addValue(const QString& name, double value, const Quantity& quantity, int decimals) {
-    addValues(name, {value}, {&quantity}, decimals);
+    addValues(name, {value}, {&quantity}, {}, {}, decimals);
 }

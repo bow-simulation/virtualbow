@@ -34,19 +34,19 @@ TreeDock::TreeDock(MainModel* mainModel)
     actionRemove = new QAction(QIcon(":/icons/list-remove.svg"), "Delete", tree);
     actionRemove->setShortcut(QKeySequence::Delete);
     actionRemove->setShortcutContext(Qt::WidgetShortcut);
-    QObject::connect(actionRemove, &QAction::triggered, this, [=] {
+    QObject::connect(actionRemove, &QAction::triggered, this, [=, this] {
         QModelIndexList selection = selectionModel->selectedIndexes();
         viewModel->removeIndexes(selection);
     });
 
     actionMoveUp = new QAction(QIcon(":/icons/list-move-up.svg"), "Up", tree);
-    QObject::connect(actionMoveUp, &QAction::triggered, this, [=] {
+    QObject::connect(actionMoveUp, &QAction::triggered, this, [=, this] {
         QModelIndexList selection = selectionModel->selectedIndexes();
         viewModel->moveIndexesUp(selection);
     });
 
     actionMoveDown = new QAction(QIcon(":/icons/list-move-down.svg"), "Down", tree);
-    QObject::connect(actionMoveDown, &QAction::triggered, this, [=] {
+    QObject::connect(actionMoveDown, &QAction::triggered, this, [=, this] {
         QModelIndexList selection = selectionModel->selectedIndexes();
         viewModel->moveIndexesDown(selection);
     });
@@ -90,7 +90,7 @@ TreeDock::TreeDock(MainModel* mainModel)
 
 QMenu* TreeDock::createMaterialMenu() {
     auto menu = new QMenu();
-    menu->addAction(QIcon(":/icons/model-material.svg"), "New Material", this, [=]{
+    menu->addAction(QIcon(":/icons/model-material.svg"), "New Material", this, [=, this]{
         QModelIndex index = tree->selectionModel()->currentIndex();
         if(index.internalId() == ItemType::TOPLEVEL) {
             viewModel->appendMaterial();    // If the top level item is selected, add the new material at the end
@@ -105,7 +105,7 @@ QMenu* TreeDock::createMaterialMenu() {
 
 QMenu* TreeDock::createLayerMenu() {
     auto menu = new QMenu();
-    menu->addAction(QIcon(":/icons/model-layer.svg"), "New Layer", this, [=]{
+    menu->addAction(QIcon(":/icons/model-layer.svg"), "New Layer", this, [=, this]{
         QModelIndex index = tree->selectionModel()->currentIndex();
         if(index.internalId() == ItemType::TOPLEVEL) {
             viewModel->appendLayer();    // If the top level item is selected, add the new layer at the end
@@ -119,7 +119,7 @@ QMenu* TreeDock::createLayerMenu() {
 }
 
 QMenu* TreeDock::createSegmentMenu() {
-    auto add_segment_of_type = [=](SegmentType type) {
+    auto add_segment_of_type = [=, this](SegmentType type) {
         QModelIndex index = tree->selectionModel()->currentIndex();
         if(index.internalId() == ItemType::TOPLEVEL) {
             viewModel->appendSegment(type);    // If the top level item is selected, add the new segment at the end

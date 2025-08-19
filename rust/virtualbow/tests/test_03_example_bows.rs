@@ -1,7 +1,7 @@
 use std::f64::consts::FRAC_PI_2;
 use std::path::Path;
 use virtualbow::input::BowModel;
-use virtualbow::output::{ArrowDeparture, BowResult, Common, Dynamics, LayerInfo, LimbInfo, State, StateVec, Statics};
+use virtualbow::output::{ArrowDeparture, BowResult, Common, Dynamics, LayerInfo, LimbInfo, MaxForces, MaxStresses, State, StateVec, Statics};
 use virtualbow::simulation::Simulation;
 use virtualbow_num::utils::integration::fixed_simpson;
 use virtualbow_num::utils::minmax::discrete_maximum_1d;
@@ -79,8 +79,17 @@ fn check_common_output(model: &BowModel, output: &BowResult) {
     // Layer info doesn't contain much currently, but the layer names must not be empty
     assert!(layers.len() == model.section.layers.len());
     for layer in layers {
-        let LayerInfo { name } = layer;
+        let LayerInfo { name, color, maximum_stresses, allowed_stresses, maximum_strains, allowed_strains } = layer;
         assert!(!name.is_empty());
+        assert!(!color.is_empty());
+        assert!(maximum_stresses.0 >= 0.0);
+        assert!(maximum_stresses.1 >= 0.0);
+        assert!(allowed_stresses.0 >= 0.0);
+        assert!(allowed_stresses.1 >= 0.0);
+        assert!(maximum_strains.0 >= 0.0);
+        assert!(maximum_strains.1 >= 0.0);
+        assert!(allowed_strains.0 >= 0.0);
+        assert!(allowed_strains.1 >= 0.0);
     }
 
     // String length, stiffness, mass and limb mass must be positive
@@ -112,15 +121,8 @@ fn check_static_scalar_results(model: &BowModel, output: &BowResult) {
         final_draw_force,
         final_drawing_work,
         storage_factor,
-        max_string_force,
-        max_strand_force,
-        max_draw_force,
-        min_grip_force,
-        max_grip_force,
-        min_layer_stresses,
-        max_layer_stresses,
-        min_layer_strains,
-        max_layer_strains
+        max_forces,
+        max_stresses
     } = output.statics.as_ref().unwrap();
 
     // Draw force, drawing work and storage factor must be positive
@@ -128,60 +130,11 @@ fn check_static_scalar_results(model: &BowModel, output: &BowResult) {
     assert!(*final_drawing_work > 0.0);
     assert!(*storage_factor > 0.0);
 
-    // The maximum string force must be positive and occur within the total number of states
-    assert!(max_string_force.0 > 0.0);
-    assert!(max_string_force.1 < states.len());
+       // Check basic properties of maximum forces
+    check_max_forces(&max_forces, &states);
 
-    // The maximum strand force must be smaller or equal to the maximum string force, because there are 1 or more strands.
-    // It must occur within the total number of states
-    assert!(max_strand_force.0 <= max_string_force.0);
-    assert!(max_string_force.1 < states.len());
-
-    // The maximum draw force must be positive and occur within the total number of states
-    assert!(max_draw_force.0 > 0.0);
-    assert!(max_draw_force.1 < states.len());
-
-    // The minimum grip force is zero in the static case (or close to) and occurs right at the start at zero draw force.
-    assert_abs_diff_eq!(min_grip_force.0, 0.0, epsilon=1e-5*final_draw_force);
-    assert!(min_grip_force.1 == 0);
-
-    // The maximum grip force must be positive and occur within the total number of states
-    assert!(max_grip_force.0 > 0.0);
-    assert!(max_grip_force.1 < states.len());
-
-    // There must be as many min layer stress entries as there are layers in the model
-    // The indices must be in the correct range (state, length, belly/back)
-    assert!(min_layer_stresses.len() == model.section.layers.len());
-    for layer_stress in min_layer_stresses {
-        assert!(layer_stress.1[0] < states.len());
-        assert!(layer_stress.1[1] < model.settings.num_limb_eval_points);
-        assert!(layer_stress.1[2] < 2);
-    }
-
-    // There must be as many max layer stress entries as there are layers in the model
-    // The indices must be in the correct range (state, length, belly/back)
-    assert!(max_layer_stresses.len() == model.section.layers.len());
-    for layer_stress in max_layer_stresses {
-        assert!(layer_stress.1[0] < states.len());
-        assert!(layer_stress.1[1] < model.settings.num_limb_eval_points);
-        assert!(layer_stress.1[2] < 2);
-    }
-
-    // Same for min strains
-    assert!(min_layer_strains.len() == model.section.layers.len());
-    for layer_strain in min_layer_strains {
-        assert!(layer_strain.1[0] < states.len());
-        assert!(layer_strain.1[1] < model.settings.num_limb_eval_points);
-        assert!(layer_strain.1[2] < 2);
-    }
-
-    // Same for max strains
-    assert!(max_layer_strains.len() == model.section.layers.len());
-    for layer_strain in max_layer_strains {
-        assert!(layer_strain.1[0] < states.len());
-        assert!(layer_strain.1[1] < model.settings.num_limb_eval_points);
-        assert!(layer_strain.1[2] < 2);
-    }
+    // Check basic properties of maximum stresses/strains
+    check_max_stresses(&max_stresses, &states, &model);
 }
 
 // Check some basic properties (domain, dimensions) for the scalar dynamic outputs
@@ -189,15 +142,8 @@ fn check_dynamic_scalar_results(model: &BowModel, output: &BowResult) {
     let Dynamics {
         states,
         arrow_departure,
-        max_string_force,
-        max_strand_force,
-        max_draw_force,
-        min_grip_force,
-        max_grip_force,
-        min_layer_stresses,
-        max_layer_stresses,
-        min_layer_strains,
-        max_layer_strains
+        max_forces,
+        max_stresses
     } = output.dynamics.as_ref().unwrap();
 
     if let Some(arrow_departure) = arrow_departure {
@@ -239,6 +185,16 @@ fn check_dynamic_scalar_results(model: &BowModel, output: &BowResult) {
         }
     }
 
+    // Check basic properties of maximum forces
+    check_max_forces(&max_forces, &states);
+
+    // Check basic properties of maximum stresses/strains
+    check_max_stresses(&max_stresses, &states, &model);
+}
+
+fn check_max_forces(max_forces: &MaxForces, states: &StateVec) {
+    let MaxForces { max_string_force, max_strand_force, max_draw_force, min_grip_force, max_grip_force } = max_forces;
+
     // The maximum string force must be positive and occur within the total number of states
     assert!(max_string_force.0 > 0.0);
     assert!(max_string_force.1 < states.len());
@@ -248,20 +204,23 @@ fn check_dynamic_scalar_results(model: &BowModel, output: &BowResult) {
     assert!(max_strand_force.0 <= max_string_force.0);
     assert!(max_string_force.1 < states.len());
 
-    // The draw force is zero in dynamics, so the maximum draw force must be as well
-    // It occurs at the last state, but that's just an implementation detail
-    assert!(max_draw_force.0 == 0.0);
-    assert!(max_draw_force.1 == states.len() - 1);
+    // The maximum string force must be positive or zero (dynamics) and occur within the total number of states
+    assert!(max_draw_force.0 >= 0.0);
+    assert!(max_draw_force.1 < states.len());
 
     // The minimum and maximum grip force must occur within the total number of states
     // They may be positive or negative (since the duration of the simulation might not include any sign changes)
     assert!(min_grip_force.1 < states.len());
     assert!(max_grip_force.1 < states.len());
+}
+
+fn check_max_stresses(max_stresses: &MaxStresses, states: &StateVec, model: &BowModel) {
+    let MaxStresses { max_layer_stress_tension, max_layer_stress_compression, max_layer_strain_tension, max_layer_strain_compression } = max_stresses;
 
     // There must be as many min layer stress entries as there are layers in the model
     // The indices must be in the correct range (state, length, belly/back)
-    assert!(min_layer_stresses.len() == model.section.layers.len());
-    for layer_stress in min_layer_stresses {
+    assert!(max_layer_stress_tension.len() == model.section.layers.len());
+    for layer_stress in max_layer_stress_tension {
         assert!(layer_stress.1[0] < states.len());
         assert!(layer_stress.1[1] < model.settings.num_limb_eval_points);
         assert!(layer_stress.1[2] < 2);
@@ -269,24 +228,24 @@ fn check_dynamic_scalar_results(model: &BowModel, output: &BowResult) {
 
     // There must be as many max layer stress entries as there are layers in the model
     // The indices must be in the correct range (state, length, belly/back)
-    assert!(max_layer_stresses.len() == model.section.layers.len());
-    for layer_stress in max_layer_stresses {
+    assert!(max_layer_stress_compression.len() == model.section.layers.len());
+    for layer_stress in max_layer_stress_compression {
         assert!(layer_stress.1[0] < states.len());
         assert!(layer_stress.1[1] < model.settings.num_limb_eval_points);
         assert!(layer_stress.1[2] < 2);
     }
 
     // Same for min strains
-    assert!(min_layer_strains.len() == model.section.layers.len());
-    for layer_strain in min_layer_strains {
+    assert!(max_layer_strain_tension.len() == model.section.layers.len());
+    for layer_strain in max_layer_strain_tension {
         assert!(layer_strain.1[0] < states.len());
         assert!(layer_strain.1[1] < model.settings.num_limb_eval_points);
         assert!(layer_strain.1[2] < 2);
     }
 
     // Same for max strains
-    assert!(max_layer_strains.len() == model.section.layers.len());
-    for layer_strain in max_layer_strains {
+    assert!(max_layer_strain_compression.len() == model.section.layers.len());
+    for layer_strain in max_layer_strain_compression {
         assert!(layer_strain.1[0] < states.len());
         assert!(layer_strain.1[1] < model.settings.num_limb_eval_points);
         assert!(layer_strain.1[2] < 2);

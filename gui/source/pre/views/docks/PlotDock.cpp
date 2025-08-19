@@ -28,7 +28,7 @@ PlotDock::PlotDock(MainModel* model) {
     this->setWidget(placeholder);
 
     auto selectionModel = model->getModelTreeSelectionModel();
-    QObject::connect(selectionModel, &QItemSelectionModel::selectionChanged, this, [=] {
+    QObject::connect(selectionModel, &QItemSelectionModel::selectionChanged, this, [=, this] {
         QModelIndexList selection = selectionModel->selectedIndexes();
         if(selection.size() == 1) {
             QPersistentModelIndex index(selection.first());

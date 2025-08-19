@@ -1,6 +1,9 @@
 use nalgebra::{SVector};
 use serde::{Deserialize, Serialize};
 use soa_derive::StructOfArray;
+use virtualbow_num::utils::minmax::{discrete_maximum_1d, discrete_minimum_1d};
+
+use crate::simulation::{find_max_layer_result, find_min_layer_result};
 
 #[derive(Serialize, Deserialize, Default, PartialEq, Debug, Clone)]
 pub struct BowResult {
@@ -28,16 +31,8 @@ pub struct Statics {
     pub final_drawing_work: f64,
     pub storage_factor: f64,
 
-    pub max_string_force: (f64, usize),    // (value, state)
-    pub max_strand_force: (f64, usize),    // (value, state)
-    pub max_draw_force: (f64, usize),      // (value, state)
-    pub min_grip_force: (f64, usize),      // (value, state)
-    pub max_grip_force: (f64, usize),      // (value, state)
-
-    pub min_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
-    pub max_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
-    pub min_layer_strains: Vec<(f64, [usize; 3])>,     // (value, [state, length, belly/back]) for each layer
-    pub max_layer_strains: Vec<(f64, [usize; 3])>,     // (value, [state, length, belly/back]) for each layer
+    pub max_forces: MaxForces,
+    pub max_stresses: MaxStresses,
 }
 
 #[derive(Serialize, Deserialize, Default, PartialEq, Debug, Clone)]
@@ -45,17 +40,8 @@ pub struct Dynamics {
     pub states: StateVec,
 
     pub arrow_departure: Option<ArrowDeparture>,
-
-    pub max_string_force: (f64, usize),    // (value, state)
-    pub max_strand_force: (f64, usize),    // (value, state)
-    pub max_draw_force: (f64, usize),      // (value, state)
-    pub min_grip_force: (f64, usize),      // (value, state)
-    pub max_grip_force: (f64, usize),      // (value, state)
-
-    pub min_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
-    pub max_layer_stresses: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
-    pub min_layer_strains: Vec<(f64, [usize; 3])>,     // (value, [state, length, belly/back]) for each layer
-    pub max_layer_strains: Vec<(f64, [usize; 3])>,     // (value, [state, length, belly/back]) for each layer
+    pub max_forces: MaxForces,
+    pub max_stresses: MaxStresses,
 }
 
 // Data that is available only if the arrow has separated from the string during the dynamic analysis
@@ -69,16 +55,70 @@ pub struct ArrowDeparture {
     pub arrow_vel: f64,
 
     // Energies of the components at separation
-    pub kinetic_energy_arrow: f64,
     pub elastic_energy_limbs: f64,
-    pub kinetic_energy_limbs: f64,
-    pub damping_energy_limbs: f64,
     pub elastic_energy_string: f64,
+    pub kinetic_energy_limbs: f64,
     pub kinetic_energy_string: f64,
+    pub kinetic_energy_arrow: f64,
+    pub damping_energy_limbs: f64,
     pub damping_energy_string: f64,
 
     // Degree of efficiency
     pub energy_efficiency: f64,
+}
+
+#[derive(Serialize, Deserialize, Default, PartialEq, Debug, Clone)]
+pub struct MaxForces {
+    pub max_string_force: (f64, usize),    // (value, state)
+    pub max_strand_force: (f64, usize),    // (value, state)
+    pub max_draw_force: (f64, usize),      // (value, state)
+    pub min_grip_force: (f64, usize),      // (value, state)
+    pub max_grip_force: (f64, usize),      // (value, state)
+}
+
+impl MaxForces {
+    pub fn from_states(states: &StateVec) -> Self {
+        Self {
+            max_string_force: discrete_maximum_1d(&states.string_force),
+            max_strand_force: discrete_maximum_1d(&states.strand_force),
+            max_draw_force: discrete_maximum_1d(&states.draw_force),
+            min_grip_force: discrete_minimum_1d(&states.grip_force),
+            max_grip_force: discrete_maximum_1d(&states.grip_force),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Default, PartialEq, Debug, Clone)]
+pub struct MaxStresses {
+    pub max_layer_stress_tension: Vec<(f64, [usize; 3])>,        // (value, [state, length, belly/back]) for each layer
+    pub max_layer_stress_compression: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
+    pub max_layer_strain_tension: Vec<(f64, [usize; 3])>,        // (value, [state, length, belly/back]) for each layer
+    pub max_layer_strain_compression: Vec<(f64, [usize; 3])>,    // (value, [state, length, belly/back]) for each layer
+}
+
+impl MaxStresses {
+    pub fn from_states(states: &StateVec) -> Self {
+        // Only the maximum stress value can be the maximum tension, but only if positive.
+        // Negative maximum stress means there is no tension -> 0
+        let max_to_tension = |(value, location)| {
+            (f64::max(value, 0.0), location)
+        };
+
+        // Only the minimum stress value can be the maximum compression, but only if negative.
+        // Positive minimum stress means there is no compression -> 0
+        let min_to_compression = |(value, location)| {
+            (-f64::min(value, 0.0), location)
+        };
+
+        // Find minimum and maximum stresses and strains and map to tension and compression using the functions defined above.
+        let num_layers = states.layer_stress[0].len();
+        Self {
+            max_layer_stress_tension: (0..num_layers).map(|i_layer| find_max_layer_result(&states.layer_stress, i_layer)).map(&max_to_tension).collect(),
+            max_layer_stress_compression: (0..num_layers).map(|i_layer| find_min_layer_result(&states.layer_stress, i_layer)).map(&min_to_compression).collect(),
+            max_layer_strain_tension: (0..num_layers).map(|i_layer| find_max_layer_result(&states.layer_strain, i_layer)).map(&max_to_tension).collect(),
+            max_layer_strain_compression: (0..num_layers).map(|i_layer| find_min_layer_result(&states.layer_strain, i_layer)).map(&min_to_compression).collect(),
+        }
+    }
 }
 
 #[derive(StructOfArray, Serialize, Deserialize, Default, PartialEq, Debug, Clone)]
@@ -145,5 +185,11 @@ pub struct LimbInfo {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct LayerInfo {
-    pub name: String
+    pub name: String,
+    pub color: String,
+
+    pub maximum_stresses: (f64, f64),
+    pub allowed_stresses: (f64, f64),
+    pub maximum_strains: (f64, f64),
+    pub allowed_strains: (f64, f64),
 }

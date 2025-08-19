@@ -21,7 +21,7 @@ TableModel::TableModel(Points& points, const QString& xLabel, const QString& yLa
     }
 
     setPoints(points);
-    QObject::connect(this, &TableModel::contentModified, this, [=]{
+    QObject::connect(this, &TableModel::contentModified, this, [=, this]{
         this->points = getPoints();
     });
 }

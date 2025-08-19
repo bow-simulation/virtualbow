@@ -184,6 +184,9 @@ struct Material {
     double density;
     double youngs_modulus;
     double shear_modulus;
+    double tensile_strength;
+    double compressive_strength;
+    double safety_margin;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
@@ -192,7 +195,10 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     color,
     density,
     youngs_modulus,
-    shear_modulus
+    shear_modulus,
+    tensile_strength,
+    compressive_strength,
+    safety_margin
 )
 
 struct Layer {

@@ -90,7 +90,10 @@ pub struct Material {
     pub color: String,
     pub density: f64,
     pub youngs_modulus: f64,
-    pub shear_modulus: f64
+    pub shear_modulus: f64,
+    pub tensile_strength: f64,
+    pub compressive_strength: f64,
+    pub safety_margin: f64
 }
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
@@ -184,6 +187,9 @@ impl From<version3::BowModel> for BowModel {
             density: material.rho,
             youngs_modulus: material.E,
             shear_modulus: material.E/(2.0*(1.0 + 0.4)),  // Shear modulus was newly added. Estimate for poisson ratio v = 0.4.
+            tensile_strength: 0.0,        // Field was newly introduced, value unknown.
+            compressive_strength: 0.0,    // Field was newly introduced, value unknown.
+            safety_margin: 0.0            // Field was newly introduced, value unknown.
         }).collect_vec();
 
         let layers = model.layers.iter().map(|layer| Layer {

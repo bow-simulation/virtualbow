@@ -46,8 +46,21 @@ impl BowModel {
             section: Section {
                 alignment: LayerAlignment::SectionBack,
                 width: Width::linear(0.04, 0.01),
-                materials: vec![Material::new("Material 1", "#d0b391", 675.0, 12e9, 6e9)],
-                layers: vec![Layer::new("Layer 1", "Material 1", Height::linear(0.015, 0.01))],
+                materials: vec![Material {
+                     name: "White Ash".into(),
+                     color: "#d0b391".into(),
+                     density: 675.0,
+                     youngs_modulus: 12e9,
+                     shear_modulus: 6e9,
+                     tensile_strength: 103.5e6,
+                     compressive_strength: 51.1e6,
+                     safety_margin: 0.25,
+                }],
+                layers: vec![Layer {
+                    name: "Layer 1".into(),
+                    material: "White Ash".into(),
+                    height: Height::linear(0.015, 0.01)
+                }],
             } ,
             profile: Profile::new(vec![
                 ProfileSegment::Line(Line::new(0.8))
@@ -133,19 +146,49 @@ impl Material {
             color: color.to_string(),
             density: rho,
             youngs_modulus: E,
-            shear_modulus: G
+            shear_modulus: G,
+            tensile_strength: 0.0,
+            compressive_strength: 0.0,
+            safety_margin: 0.0
         }
     }
 
+    // Maximum stresses (tension, compression) at which the material fails
+    pub fn maximum_stresses(&self) -> (f64, f64) {
+        (self.tensile_strength, self.compressive_strength)
+    }
+
+    // Allowed stresses (tension, compression) according to the safety margin
+    pub fn allowed_stresses(&self) -> (f64, f64) {
+        let (tension, compression) = self.maximum_stresses();
+        (tension*(1.0 - self.safety_margin), compression*(1.0 - self.safety_margin))
+    }
+
+    // Maximum strains (tension, compression) at which the material fails
+    pub fn maximum_strains(&self) -> (f64, f64) {
+        let (tension, compression) = self.maximum_stresses();
+        (tension/self.youngs_modulus, compression/self.youngs_modulus)
+    }
+
+    // Allowed strains (tension, compression) according to the safety margin
+    pub fn allowed_strains(&self) -> (f64, f64) {
+        let (tension, compression) = self.allowed_stresses();
+        (tension/self.youngs_modulus, compression/self.youngs_modulus)
+    }
+
     pub fn validate(&self) -> Result<(), ModelError> {
-        let Self { name, color, density: rho, youngs_modulus: E, shear_modulus: G } = self;
+        let Self { name, color, density, youngs_modulus, shear_modulus, tensile_strength, compressive_strength, safety_margin } = self;
 
         name.validate_name().map_err(ModelError::MaterialInvalidName)?;
         color.validate_hex_color().map_err(ModelError::MaterialInvalidColor)?;
 
-        rho.validate_positive().map_err(ModelError::MaterialInvalidDensity)?;
-        E.validate_positive().map_err(ModelError::MaterialInvalidYoungsModulus)?;
-        G.validate_positive().map_err(ModelError::MaterialInvalidShearModulus)?;
+        density.validate_positive().map_err(ModelError::MaterialInvalidDensity)?;
+        youngs_modulus.validate_positive().map_err(ModelError::MaterialInvalidYoungsModulus)?;
+        shear_modulus.validate_positive().map_err(ModelError::MaterialInvalidShearModulus)?;
+
+        tensile_strength.validate_nonneg().map_err(ModelError::MaterialInvalidTensileStrength)?;    // Allow values of zero for "unknown"
+        compressive_strength.validate_nonneg().map_err(ModelError::MaterialInvalidCompressiveStrength)?;    // Allow values of zero for "unknown"
+        safety_margin.validate_range_inclusive(0.0, 1.0).map_err(ModelError::MaterialInvalidSafetyMargin)?;
 
         Ok(())
     }

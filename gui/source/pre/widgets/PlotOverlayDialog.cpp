@@ -263,10 +263,10 @@ void PlotOverlayDialog::updateItem() {
     QTransform rotation = QTransform().rotate(-180.8/M_PI*angle);
     QTransform transform = rotation*translation;
 
-    QPointF p0 = transform*QPointF( 0.5*x_extent,  0.5*y_extent);
-    QPointF p1 = transform*QPointF( 0.5*x_extent, -0.5*y_extent);
-    QPointF p2 = transform*QPointF(-0.5*x_extent,  0.5*y_extent);
-    QPointF p3 = transform*QPointF(-0.5*x_extent, -0.5*y_extent);
+    QPointF p0 = transform.map(QPointF( 0.5*x_extent,  0.5*y_extent));
+    QPointF p1 = transform.map(QPointF( 0.5*x_extent, -0.5*y_extent));
+    QPointF p2 = transform.map(QPointF(-0.5*x_extent,  0.5*y_extent));
+    QPointF p3 = transform.map(QPointF(-0.5*x_extent, -0.5*y_extent));
 
     double x_min = std::min({p0.x(), p1.x(), p2.x(), p3.x()});
     double x_max = std::max({p0.x(), p1.x(), p2.x(), p3.x()});
