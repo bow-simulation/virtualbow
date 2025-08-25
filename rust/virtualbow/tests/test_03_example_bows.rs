@@ -131,10 +131,10 @@ fn check_static_scalar_results(model: &BowModel, output: &BowResult) {
     assert!(*storage_factor > 0.0);
 
        // Check basic properties of maximum forces
-    check_max_forces(&max_forces, &states);
+    check_max_forces(max_forces, states);
 
     // Check basic properties of maximum stresses/strains
-    check_max_stresses(&max_stresses, &states, &model);
+    check_max_stresses(max_stresses, states, model);
 }
 
 // Check some basic properties (domain, dimensions) for the scalar dynamic outputs
@@ -186,10 +186,10 @@ fn check_dynamic_scalar_results(model: &BowModel, output: &BowResult) {
     }
 
     // Check basic properties of maximum forces
-    check_max_forces(&max_forces, &states);
+    check_max_forces(max_forces, states);
 
     // Check basic properties of maximum stresses/strains
-    check_max_stresses(&max_stresses, &states, &model);
+    check_max_stresses(max_stresses, states, model);
 }
 
 fn check_max_forces(max_forces: &MaxForces, states: &StateVec) {

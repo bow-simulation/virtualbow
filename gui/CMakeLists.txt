@@ -247,6 +247,8 @@ add_executable(
     source/pre/widgets/DoubleSpinBox.hpp
     source/pre/widgets/IntegerSpinBox.cpp
     source/pre/widgets/IntegerSpinBox.hpp
+    source/pre/widgets/DoubleOutput.cpp
+    source/pre/widgets/DoubleOutput.hpp
     source/pre/widgets/PlotOverlayDialog.cpp
     source/pre/widgets/PlotOverlayDialog.hpp
     source/pre/widgets/PlotWidget.cpp

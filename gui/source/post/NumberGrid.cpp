@@ -1,4 +1,5 @@
 #include "NumberGrid.hpp"
+#include "pre/widgets/DoubleOutput.hpp"
 #include "pre/models/units/Quantity.hpp"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -76,54 +77,13 @@ void NumberGrid::addValues(const QString& name, const QList<double>& values, con
     currentGrid->addWidget(label, row, 0);
 
     for(int col = 0; col < values.size(); ++col) {
-        auto edit = new QLineEdit();
-        edit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        edit->setAlignment(Qt::AlignCenter);
-        edit->setReadOnly(true);
-
-        currentGrid->addWidget(edit, row, col + 1);
-
-        double value = values[col];
-        const Quantity* quantity = quantities[col];
+        auto output = new DoubleOutput(values[col], *quantities[col], decimals);
+        currentGrid->addWidget(output, row, col + 1);
 
         if(col < allowed.size() && col < maximum.size()) {
-            QPalette palette;
-            if(value <= allowed[col]) {
-                palette.setColor(QPalette::Base, Qt::green);
-            }
-            else if(value <= maximum[col]) {
-                palette.setColor(QPalette::Base, Qt::yellow);
-            }
-            else {
-                palette.setColor(QPalette::Base, Qt::red);
-            }
-
-            edit->setPalette(palette);
+            output->setAllowedLimit(allowed[col]);
+            output->setMaximumLimit(maximum[col]);
         }
-
-        auto update = [=] {
-            QString text = QString::number(quantity->getUnit().fromBase(value), 'f', decimals) + quantity->getUnit().getSuffix();
-            edit->setText(text);
-
-            // TODO: Capture of QLists by value...
-            if(col < allowed.size() && col < maximum.size()) {
-                QString allowedVal = QString::number(quantity->getUnit().fromBase(allowed[col]), 'f', decimals) + quantity->getUnit().getSuffix();
-                QString maximumVal = QString::number(quantity->getUnit().fromBase(maximum[col]), 'f', decimals) + quantity->getUnit().getSuffix();
-
-                if(value <= allowed[col]) {
-                    edit->setToolTip("Value is within the allowed threshold (" + allowedVal + ")");
-                }
-                else if(value <= maximum[col]) {
-                    edit->setToolTip("Value exceeds the allowed threshold (" + allowedVal + ")");
-                }
-                else {
-                    edit->setToolTip("Value exceeds the maximum threshold (" + maximumVal + ")");
-                }
-            }
-        };
-
-        QObject::connect(quantity, &Quantity::unitChanged, this, update);
-        update();
     }
 }
 

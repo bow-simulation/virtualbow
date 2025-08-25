@@ -110,13 +110,15 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
     numbers->addGroup("Maximum strains");
     numbers->addHeaders({"Tension", "Compression"});
     for(size_t i = 0; i < data.common.layers.size(); ++i) {
-        /*
-        double min = std::get<0>(data.statics->min_layer_strains.at(i));
-        double max = std::get<0>(data.statics->max_layer_strains.at(i));
-        double tension = (max > 0.0) ? max : 0.0;         // There is only tension if the maximum stress is positive
-        double compression = (min < 0.0) ? -min : 0.0;    // There is only compression if the minimum stress is negative
-        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::strain, &Quantities::strain}, {}, {}, 4);
-        */
+        double tension = std::get<0>(data.statics->max_stresses.max_layer_strain_tension.at(i));
+        double compression = std::get<0>(data.statics->max_stresses.max_layer_strain_compression.at(i));
+
+        double allowed_tension = data.common.layers.at(i).allowed_strains.first;
+        double allowed_compression = data.common.layers.at(i).allowed_strains.second;
+        double maximum_tension = data.common.layers.at(i).maximum_strains.first;
+        double maximum_compression = data.common.layers.at(i).maximum_strains.second;
+
+        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::strain, &Quantities::strain}, {allowed_tension, allowed_compression}, {maximum_tension, maximum_compression}, 4);
     }
 
     numbers->addColumn();
@@ -208,32 +210,29 @@ DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
     numbers->addGroup("Maximum stresses");
     numbers->addHeaders({"Tension", "Compression"});
     for(size_t i = 0; i < data.common.layers.size(); ++i) {
-        /*
-        double min_stress = std::get<0>(data.dynamics->min_layer_stresses.at(i));
-        double max_stress = std::get<0>(data.dynamics->max_layer_stresses.at(i));
-        double tension = (max_stress > 0.0) ? max_stress : 0.0;         // There is only tension if the maximum stress is positive
-        double compression = (min_stress < 0.0) ? -min_stress : 0.0;    // There is only compression if the minimum stress is negative
+        double tension = std::get<0>(data.dynamics->max_stresses.max_layer_stress_tension.at(i));
+        double compression = std::get<0>(data.dynamics->max_stresses.max_layer_stress_compression.at(i));
 
-        double allowed_tension = data.common.layers.at(i).allowed_tension;
-        double maximum_tension = data.common.layers.at(i).maximum_tension;
+        double allowed_tension = data.common.layers.at(i).allowed_stresses.first;
+        double allowed_compression = data.common.layers.at(i).allowed_stresses.second;
+        double maximum_tension = data.common.layers.at(i).maximum_stresses.first;
+        double maximum_compression = data.common.layers.at(i).maximum_stresses.second;
 
-        double allowed_compression = data.common.layers.at(i).allowed_compression;
-        double maximum_compression = data.common.layers.at(i).maximum_compression;
-
-        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::stress, &Quantities::stress});
-        */
+        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::stress, &Quantities::stress}, {allowed_tension, allowed_compression}, {maximum_tension, maximum_compression});
     }
 
     numbers->addGroup("Maximum strains");
     numbers->addHeaders({"Tension", "Compression"});
     for(size_t i = 0; i < data.common.layers.size(); ++i) {
-        /*
-        double min = std::get<0>(data.dynamics->min_layer_strains.at(i));
-        double max = std::get<0>(data.dynamics->max_layer_strains.at(i));
-        double tension = (max > 0.0) ? max : 0.0;         // There is only tension if the maximum stress is positive
-        double compression = (min < 0.0) ? -min : 0.0;    // There is only compression if the minimum stress is negative
-        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::strain, &Quantities::strain}, {}, {}, 4);
-        */
+        double tension = std::get<0>(data.dynamics->max_stresses.max_layer_strain_tension.at(i));
+        double compression = std::get<0>(data.dynamics->max_stresses.max_layer_strain_compression.at(i));
+
+        double allowed_tension = data.common.layers.at(i).allowed_strains.first;
+        double allowed_compression = data.common.layers.at(i).allowed_strains.second;
+        double maximum_tension = data.common.layers.at(i).maximum_strains.first;
+        double maximum_compression = data.common.layers.at(i).maximum_strains.second;
+
+        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::strain, &Quantities::strain}, {allowed_tension, allowed_compression}, {maximum_tension, maximum_compression}, 4);
     }
 
     numbers->addColumn();
