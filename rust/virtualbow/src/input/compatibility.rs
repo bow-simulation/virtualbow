@@ -49,7 +49,7 @@ impl BowModelVersion {
         Ok(())
     }
 
-    pub fn is_latest(self) -> bool {
+    pub fn is_latest(&self) -> bool {
         matches!(self, Self::Latest(_))
     }
 
