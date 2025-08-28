@@ -48,20 +48,20 @@
     ],
     "materials": [
       {
-        "name": "White Ash",
+        "name": "Material 1",
         "color": "#d0b391",
         "density": 675.0,
         "youngs_modulus": 12000000000.0,
         "shear_modulus": 6000000000.0,
-        "tensile_strength": 103500000.0,
-        "compressive_strength": 51100000.0,
+        "tensile_strength": 100000000.0,
+        "compressive_strength": 100000000.0,
         "safety_margin": 0.25
       }
     ],
     "layers": [
       {
         "name": "Layer 1",
-        "material": "White Ash",
+        "material": "Material 1",
         "height": [
           [
             0.0,

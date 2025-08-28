@@ -197,7 +197,7 @@ impl From<version3::BowModel> for BowModel {
             material: materials[layer.material].name.clone(),
             height: layer.height.clone(),
         }).rev().collect_vec();    // Layers were previously defined from back to belly, but are now from belly to back (direction of the y axis), so the old layers have to be reversed
-
+        
         let section = Section {
             alignment: LayerAlignment::SectionBack,  // Field was newly introduced. Previously the profile curve was always aligned with the cross section's back.
             width: model.width,

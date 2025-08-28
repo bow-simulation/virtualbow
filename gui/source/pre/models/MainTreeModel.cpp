@@ -452,18 +452,20 @@ QVariant MainTreeModel::data(const QModelIndex &index, int role) const {
     }
 
     if(index.parent().row() == TopLevelItem::MATERIALS) {
+        auto& material = bow->section.materials[index.row()];
         switch(role) {
-            case Qt::DisplayRole: case Qt::EditRole: return QString::fromStdString(bow->section.materials[index.row()].name);
-            case Qt::ToolTipRole: return "User-defined material \"" + QString::fromStdString(bow->section.materials[index.row()].name) + "\"";
+            case Qt::DisplayRole: case Qt::EditRole: return QString::fromStdString(material.name);
+            case Qt::ToolTipRole: return "User-defined material \"" + QString::fromStdString(material.name) + "\"";
             case Qt::DecorationRole: return QIcon(":/icons/model-material.svg");
             default: return QVariant();
         }
     }
 
     if(index.parent().row() == TopLevelItem::LAYERS) {
+        auto& layer = bow->section.layers[index.row()];
         switch(role) {
-            case Qt::DisplayRole: case Qt::EditRole: return QString::fromStdString(bow->section.layers[index.row()].name);
-            case Qt::ToolTipRole: return "User-defined layer \"" + QString::fromStdString(bow->section.layers[index.row()].name) + "\"";
+            case Qt::DisplayRole: case Qt::EditRole: return QString::fromStdString(layer.name);
+            case Qt::ToolTipRole: return "User-defined layer \"" + QString::fromStdString(layer.name) + "\"";
             case Qt::DecorationRole: return QIcon(":/icons/model-layer.svg");
             default: return QVariant();
         }

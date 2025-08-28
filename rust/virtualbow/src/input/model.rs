@@ -47,18 +47,18 @@ impl BowModel {
                 alignment: LayerAlignment::SectionBack,
                 width: Width::linear(0.04, 0.01),
                 materials: vec![Material {
-                     name: "White Ash".into(),
+                     name: "Material 1".into(),
                      color: "#d0b391".into(),
                      density: 675.0,
                      youngs_modulus: 12e9,
                      shear_modulus: 6e9,
-                     tensile_strength: 103.5e6,
-                     compressive_strength: 51.1e6,
+                     tensile_strength: 100e6,
+                     compressive_strength: 100e6,
                      safety_margin: 0.25,
                 }],
                 layers: vec![Layer {
                     name: "Layer 1".into(),
-                    material: "White Ash".into(),
+                    material: "Material 1".into(),
                     height: Height::linear(0.015, 0.01)
                 }],
             } ,
@@ -180,15 +180,15 @@ impl Material {
         let Self { name, color, density, youngs_modulus, shear_modulus, tensile_strength, compressive_strength, safety_margin } = self;
 
         name.validate_name().map_err(ModelError::MaterialInvalidName)?;
-        color.validate_hex_color().map_err(ModelError::MaterialInvalidColor)?;
+        color.validate_hex_color().map_err(|value| ModelError::MaterialInvalidColor(name.into(), value))?;
 
-        density.validate_positive().map_err(ModelError::MaterialInvalidDensity)?;
-        youngs_modulus.validate_positive().map_err(ModelError::MaterialInvalidYoungsModulus)?;
-        shear_modulus.validate_positive().map_err(ModelError::MaterialInvalidShearModulus)?;
+        density.validate_positive().map_err(|value| ModelError::MaterialInvalidDensity(name.into(), value))?;
+        youngs_modulus.validate_positive().map_err(|value| ModelError::MaterialInvalidYoungsModulus(name.into(), value))?;
+        shear_modulus.validate_positive().map_err(|value| ModelError::MaterialInvalidShearModulus(name.into(), value))?;
 
-        tensile_strength.validate_nonneg().map_err(ModelError::MaterialInvalidTensileStrength)?;    // Allow values of zero for "unknown"
-        compressive_strength.validate_nonneg().map_err(ModelError::MaterialInvalidCompressiveStrength)?;    // Allow values of zero for "unknown"
-        safety_margin.validate_range_inclusive(0.0, 1.0).map_err(ModelError::MaterialInvalidSafetyMargin)?;
+        tensile_strength.validate_nonneg().map_err(|value| ModelError::MaterialInvalidTensileStrength(name.into(), value))?;    // Allows values of zero for "unknown"
+        compressive_strength.validate_nonneg().map_err(|value| ModelError::MaterialInvalidCompressiveStrength(name.into(), value))?;    // Allows values of zero for "unknown"
+        safety_margin.validate_range_inclusive(0.0, 1.0).map_err(|value| ModelError::MaterialInvalidSafetyMargin(name.into(), value))?;
 
         Ok(())
     }
@@ -207,8 +207,8 @@ impl Layer {
         let Self { name, material, height } = self;
 
         name.validate_name().map_err(ModelError::LayerInvalidName)?;
-        material.validate_name().map_err(ModelError::LayerInvalidMaterialName)?;
-        height.validate()?;
+        material.validate_name().map_err(|value| ModelError::LayerInvalidMaterial(name.into(), value))?;
+        height.validate(name)?;
 
         Ok(())
     }
@@ -337,41 +337,41 @@ impl Height {
         ])
     }
 
-    pub fn validate(&self) -> Result<(), ModelError> {
+    pub fn validate(&self, name: &str) -> Result<(), ModelError> {
         let Self( points ) = self;
 
         // At least two control points are required
-        points.len().validate_at_least(2).map_err(ModelError::LayerHeightControlPointsTooFew)?;
+        points.len().validate_at_least(2).map_err(|len| ModelError::LayerHeightControlPointsTooFew(name.into(), len))?;
 
         // Control points must be sorted by strictly increasing position
         if let Some((a, b)) = points.iter().tuple_windows().find(|(a, b)| b[0] <= a[0]) {
-            return Err(ModelError::LayerHeightControlPointsNotSorted(a[0], b[0]));
+            return Err(ModelError::LayerHeightControlPointsNotSorted(name.into(), a[0], b[0]));
         }
 
         let first = points.first().unwrap();
         let last = points.last().unwrap();
 
         // First control point must lie within the range 0 to 1 and its height must be positive or zero
-        first[0].validate_range_inclusive(0.0, 1.0).map_err(|_| ModelError::LayerHeightControlPointsInvalidRange(first[0], last[0]))?;
-        first[1].validate_nonneg().map_err(|_| ModelError::LayerHeightControlPointsInvalidBoundaryValue(first[0], first[1]))?;
+        first[0].validate_range_inclusive(0.0, 1.0).map_err(|_| ModelError::LayerHeightControlPointsInvalidRange(name.into(), first[0], last[0]))?;
+        first[1].validate_nonneg().map_err(|_| ModelError::LayerHeightControlPointsInvalidBoundaryValue(name.into(), first[0], first[1]))?;
 
         // Last control point must lie within the range 0 to 1 and its height must be positive or zero
-        last[0].validate_range_inclusive(0.0, 1.0).map_err(|_| ModelError::LayerHeightControlPointsInvalidRange(first[0], last[0]))?;
-        last[1].validate_nonneg().map_err(|_| ModelError::LayerHeightControlPointsInvalidBoundaryValue(last[0], last[1]))?;
+        last[0].validate_range_inclusive(0.0, 1.0).map_err(|_| ModelError::LayerHeightControlPointsInvalidRange(name.into(), first[0], last[0]))?;
+        last[1].validate_nonneg().map_err(|_| ModelError::LayerHeightControlPointsInvalidBoundaryValue(name.into(), last[0], last[1]))?;
 
         // Other non-boundary points must have s positive height
         for point in points.iter().skip(1).take(points.len() - 2) {
-            point[1].validate_positive().map_err(|_| ModelError::LayerHeightControlPointsInvalidInteriorValue(point[0], point[1]))?;
+            point[1].validate_positive().map_err(|_| ModelError::LayerHeightControlPointsInvalidInteriorValue(name.into(), point[0], point[1]))?;
         }
 
         // If the first control point is not at position zero, it must have a height of zero for continuity reasons
         if first[0] > 0.0 && first[1] != 0.0 {
-            return Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(first[0], first[1]));
+            return Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(name.into(), first[0], first[1]));
         }
 
         // If the last control point is not at position 1, it must have a height of zero for continuity reasons
         if last[0] < 1.0 && last[1] != 0.0 {
-            return Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(last[0], last[1]));
+            return Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(name.into(), last[0], last[1]));
         }
 
         Ok(())
