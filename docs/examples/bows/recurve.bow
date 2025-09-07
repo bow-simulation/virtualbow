@@ -1,140 +1,175 @@
 {
-    "comment": "",
-    "damping": {
-        "damping_ratio_limbs": 0.0,
-        "damping_ratio_string": 0.0
-    },
-    "dimensions": {
-        "brace_height": 0.2,
-        "draw_length": 0.7,
-        "handle_angle": 0.0,
-        "handle_length": 0.0,
-        "handle_setback": 0.0
-    },
-    "layers": [
-        {
-            "E": 14200000000.0,
-            "height": [
-                [
-                    0.0,
-                    0.035
-                ],
-                [
-                    0.05,
-                    0.03
-                ],
-                [
-                    0.07,
-                    0.025
-                ],
-                [
-                    0.1,
-                    0.017
-                ],
-                [
-                    0.15,
-                    0.014
-                ],
-                [
-                    0.2,
-                    0.0125
-                ],
-                [
-                    0.25,
-                    0.012
-                ],
-                [
-                    0.7,
-                    0.009
-                ],
-                [
-                    0.8,
-                    0.012
-                ],
-                [
-                    1.0,
-                    0.012
-                ]
-            ],
-            "name": "hazel",
-            "rho": 550.0
+  "version": "0.10.0",
+  "comment": "",
+  "settings": {
+    "num_limb_elements": 40,
+    "num_limb_eval_points": 100,
+    "min_draw_resolution": 150,
+    "max_draw_resolution": 150,
+    "arrow_clamp_force": 0.0,
+    "string_compression_factor": 1e-6,
+    "timespan_factor": 2.0,
+    "timeout_factor": 5.0,
+    "min_timestep": 1e-6,
+    "max_timestep": 0.0001,
+    "steps_per_period": 250
+  },
+  "dimensions": {
+    "handle_reference": "back",
+    "handle_angle": 0.0,
+    "handle_length": 0.0,
+    "handle_offset": 0.0,
+    "brace_height": 0.2,
+    "draw_length": 0.7
+  },
+  "profile": {
+    "segments": [
+      {
+        "type": "line",
+        "parameters": {
+          "length": 0.6534
         }
-    ],
-    "masses": {
-        "arrow": 0.04,
-        "limb_tip": 0.005,
-        "string_center": 0.005,
-        "string_tip": 0.005
-    },
-    "profile": [
-        [
-            0.0,
-            0.0
-        ],
-        [
-            0.6534,
-            0.0
-        ],
-        [
-            0.6605000000000001,
-            3.0
-        ],
-        [
-            0.7095,
-            3.0
-        ],
-        [
-            0.7115,
-            6.0
-        ],
-        [
-            0.8600000000000001,
-            6.0
-        ]
-    ],
-    "settings": {
-        "arrow_clamp_force": 0.0,
-        "n_draw_steps": 150,
-        "n_limb_elements": 40,
-        "n_string_elements": 45,
-        "sampling_rate": 10000.0,
-        "time_span_factor": 2.0,
-        "time_step_factor": 0.5
-    },
-    "string": {
-        "n_strands": 14,
-        "strand_density": 0.0005,
-        "strand_stiffness": 3500.0
-    },
-    "version": "0.8",
-    "width": [
-        [
-            0.0,
-            0.015
-        ],
-        [
-            0.05,
-            0.015
-        ],
-        [
-            0.07,
-            0.038
-        ],
-        [
-            0.08,
-            0.04
-        ],
-        [
-            0.5,
-            0.04
-        ],
-        [
-            0.9,
-            0.023
-        ],
-        [
-            1.0,
-            0.015
-        ]
+      },
+      {
+        "type": "spiral",
+        "parameters": {
+          "length": 0.007100000000000106,
+          "radius_start": 0.0,
+          "radius_end": 0.3333333333333333
+        }
+      },
+      {
+        "type": "arc",
+        "parameters": {
+          "length": 0.04899999999999993,
+          "radius": 0.3333333333333333
+        }
+      },
+      {
+        "type": "spiral",
+        "parameters": {
+          "length": 0.0020000000000000018,
+          "radius_start": 0.3333333333333333,
+          "radius_end": 0.16666666666666666
+        }
+      },
+      {
+        "type": "arc",
+        "parameters": {
+          "length": 0.14850000000000008,
+          "radius": 0.16666666666666666
+        }
+      }
     ]
+  },
+  "section": {
+    "alignment": {
+      "type": "section_back"
+    },
+    "width": [
+      [
+        0.0,
+        0.015
+      ],
+      [
+        0.05,
+        0.015
+      ],
+      [
+        0.07,
+        0.038
+      ],
+      [
+        0.08,
+        0.04
+      ],
+      [
+        0.5,
+        0.04
+      ],
+      [
+        0.9,
+        0.023
+      ],
+      [
+        1.0,
+        0.015
+      ]
+    ],
+    "materials": [
+      {
+        "name": "hazel",
+        "color": "#1f77b4",
+        "density": 550.0,
+        "youngs_modulus": 14200000000.0,
+        "shear_modulus": 5071428571.428572,
+        "tensile_strength": 0.0,
+        "compressive_strength": 0.0,
+        "safety_margin": 0.0
+      }
+    ],
+    "layers": [
+      {
+        "name": "hazel",
+        "material": "hazel",
+        "height": [
+          [
+            0.0,
+            0.035
+          ],
+          [
+            0.05,
+            0.03
+          ],
+          [
+            0.07,
+            0.025
+          ],
+          [
+            0.1,
+            0.017
+          ],
+          [
+            0.15,
+            0.014
+          ],
+          [
+            0.2,
+            0.0125
+          ],
+          [
+            0.25,
+            0.012
+          ],
+          [
+            0.7,
+            0.009
+          ],
+          [
+            0.8,
+            0.012
+          ],
+          [
+            1.0,
+            0.012
+          ]
+        ]
+      }
+    ]
+  },
+  "string": {
+    "strand_stiffness": 3500.0,
+    "strand_density": 0.0005,
+    "n_strands": 14
+  },
+  "masses": {
+    "arrow": 0.04,
+    "limb_tip": 0.005,
+    "string_center": 0.005,
+    "string_tip": 0.005
+  },
+  "damping": {
+    "damping_ratio_limbs": 0.0,
+    "damping_ratio_string": 0.0
+  }
 }

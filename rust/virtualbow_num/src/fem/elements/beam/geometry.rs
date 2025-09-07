@@ -1,14 +1,14 @@
-use nalgebra::{DMatrix, matrix, SMatrix, SVector, vector};
+use nalgebra::{SMatrix, SVector, matrix, vector};
 
 // This module contains common traits for describing a beam's geometry
 
 // Planar curve, parameterized over arc length s
 pub trait PlanarCurve {
     // Arc length at the start of the curve
-    fn s_start(&self) -> f64;
+    fn length_start(&self) -> f64;
 
     // Arc length at the end of the curve
-    fn s_end(&self) -> f64;
+    fn length_end(&self) -> f64;
 
     // Position vector [x(s), y(s)]
     fn position(&self, s: f64) -> SVector<f64, 2>;
@@ -21,15 +21,16 @@ pub trait PlanarCurve {
 
     // Arc length of the curve from start to end
     fn length(&self) -> f64 {
-        self.s_end() - self.s_start()
+        self.length_end() - self.length_start()
     }
 
     // Converts the given arc length to a normalized position from 0 to 1
     fn normalize(&self, s: f64) -> f64 {
-        (s - self.s_start())/self.length()
+        (s - self.length_start())/self.length()
     }
 
     // Position and angle [x(s), y(s), φ(s)]
+    // TODO: Better name for this?
     fn point(&self, s: f64) -> SVector<f64, 3> {
         let r = self.position(s);
         let φ = self.angle(s);
@@ -43,29 +44,26 @@ pub trait PlanarCurve {
 
 // Cross section properties, parameterized over the normalized position p from 0 to 1
 pub trait CrossSection {
-    // Linear density, i.e. mass per unit length
-    fn ρA(&self, p: f64) -> f64;
-
-    // Rotary inertia per unit length
-    fn ρI(&self, p: f64) -> f64;
-
     // Full cross section stiffness matrix that describes the relation
     // (epsilon, kappa, gamma) -> (normal force, bending moment, shear force)
-    fn C(&self, p: f64) -> SMatrix<f64, 3, 3>;
+    fn stiffness(&self, n: f64) -> SMatrix<f64, 3, 3>;
+
+    // Full cross section mass matrix
+    fn mass(&self, n: f64) -> SMatrix<f64, 3, 3>;
 
     // Total width
-    fn width(&self, p: f64) -> f64;
+    fn width(&self, n: f64) -> f64;
 
-    // Total height of all layers
-    fn height(&self, p: f64) -> f64;
+    // Total height
+    fn height(&self, n: f64) -> f64;
 
-    // Returns a strain evaluation matrix for the cross section at arc length s.
-    // When multiplied with the strain vector [epsilon, kappa, gamma], this matrix produces the strains of the cross section at implementation-specific points of interest.
-    fn strain_eval(&self, p: f64) -> DMatrix<f64>;
+    // Returns the strain recovery matrices for the cross section at relative position n and for implementation-specific points of interest.
+    // When multiplied with the strain vector [epsilon, gamma, kappa], each matrix matrix produces the normal strain at that point.
+    fn strain_recovery(&self, n: f64) -> Vec<SVector<f64, 3>>;
 
-    // Returns a stress evaluation matrix for the cross section at arc length s.
-    // When multiplied with the strain vector [epsilon, kappa, gamma], this matrix produces the stresses of the cross section at implementation-specific points of interest.
-    fn stress_eval(&self, p: f64) -> DMatrix<f64>;
+    // Returns the stress recovery matrices for the cross section at relative position n and for implementation-specific points of interest.
+    // When multiplied with the strain vector [epsilon, gamma, kappa], each matrix matrix produces the normal stress at that point.
+    fn stress_recovery(&self, n: f64) -> Vec<SVector<f64, 3>>;
 }
 
 // Implementation of a linearly varying rectangular cross section for use in tests
@@ -80,21 +78,9 @@ pub struct RectangularSection {
 }
 
 impl CrossSection for RectangularSection {
-    fn ρA(&self, p: f64) -> f64 {
-        let w = self.width(p);
-        let h = self.height(p);
-        self.ρ*w*h
-    }
-
-    fn ρI(&self, p: f64) -> f64 {
-        let w = self.width(p);
-        let h = self.height(p);
-        self.ρ*w*h.powi(3)/12.0
-    }
-
-    fn C(&self, p: f64) -> SMatrix<f64, 3, 3> {
-        let w = self.width(p);
-        let h = self.height(p);
+    fn stiffness(&self, n: f64) -> SMatrix<f64, 3, 3> {
+        let w = self.width(n);
+        let h = self.height(n);
 
         let EA = self.E*w*h;
         let GA = self.G*w*h;
@@ -102,8 +88,22 @@ impl CrossSection for RectangularSection {
 
         matrix![
             EA, 0.0, 0.0;
-            0.0, EI, 0.0;
-            0.0, 0.0, GA;
+            0.0, GA, 0.0;
+            0.0, 0.0, EI;
+        ]
+    }
+
+    fn mass(&self, n: f64) -> SMatrix<f64, 3, 3> {
+        let w = self.width(n);
+        let h = self.height(n);
+
+        let ρA = self.ρ*w*h;
+        let ρI = self.ρ*w*h.powi(3)/12.0;
+
+        matrix![
+            ρA, 0.0, 0.0;
+            0.0, ρA, 0.0;
+            0.0, 0.0, ρI;
         ]
     }
 
@@ -115,11 +115,11 @@ impl CrossSection for RectangularSection {
         self.h0 + p*(self.h1 - self.h0)
     }
 
-    fn strain_eval(&self, _p: f64) -> DMatrix<f64> {
+    fn strain_recovery(&self, _p: f64) -> Vec<SVector<f64, 3>> {
         todo!();
     }
 
-    fn stress_eval(&self, _p: f64) -> DMatrix<f64> {
+    fn stress_recovery(&self, _p: f64) -> Vec<SVector<f64, 3>> {
         todo!();
     }
 }
@@ -133,11 +133,11 @@ pub struct LineCurve {
 }
 
 impl PlanarCurve for LineCurve {
-    fn s_start(&self) -> f64 {
+    fn length_start(&self) -> f64 {
         0.0
     }
 
-    fn s_end(&self) -> f64 {
+    fn length_end(&self) -> f64 {
         self.l
     }
 
@@ -167,11 +167,11 @@ pub struct ArcCurve {
 }
 
 impl PlanarCurve for ArcCurve {
-    fn s_start(&self) -> f64 {
+    fn length_start(&self) -> f64 {
         0.0
     }
 
-    fn s_end(&self) -> f64 {
+    fn length_end(&self) -> f64 {
         self.l
     }
 

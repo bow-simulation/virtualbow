@@ -578,8 +578,8 @@ fn check_static_state_physics(model: &BowModel, output: &BowResult) {
             for (j, &_s) in output.common.limb.length.iter().enumerate() {
                 // Cross section forces according to the simulation output
                 let N_out = state.limb_force[j][0];
-                let M_out = state.limb_force[j][1];
-                let Q_out = state.limb_force[j][2];
+                let Q_out = state.limb_force[j][1];
+                let M_out = state.limb_force[j][2];
 
                 // Calculate the cross section's normal force and bending moment by integrating the normal stresses over the cross section.
                 // Compare the integrated forces to those from the simulation output to check if the stresses are consistent with the section forces.

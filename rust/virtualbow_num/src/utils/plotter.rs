@@ -1,15 +1,4 @@
 use std::collections::HashMap;
-/*
-use plotters::backend::BitMapBackend;
-use plotters::chart::ChartBuilder;
-use plotters::drawing::IntoDrawingArea;
-use plotters::element::PathElement;
-use plotters::series::LineSeries;
-use plotters::style::WHITE;
-use plotters::style::BLACK;
-use plotters::style::BLUE;
-use plotters::style::RED;
-*/
 use itertools::chain;
 
 // Utility for creating simple comparison plots for tests without having to aggregate the data manually.

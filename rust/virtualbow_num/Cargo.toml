@@ -24,3 +24,4 @@ serde.workspace = true
 assert_matches.workspace = true
 assert2.workspace = true
 spec_math.workspace = true
+serde_json.workspace = true

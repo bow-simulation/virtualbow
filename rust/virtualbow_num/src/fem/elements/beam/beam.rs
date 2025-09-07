@@ -16,8 +16,8 @@ use crate::utils::functions::normalize_angle;
 pub struct BeamElement {
     // Constant data
     M: SVector<f64, 6>,       // Element mass matrix
-    K: SMatrix<f64, 3, 3>,    // Linear stiffness matrix
-    D: SMatrix<f64, 3, 3>,    // Linear stiffness matrix
+    K: SMatrix<f64, 3, 3>,    // Local stiffness matrix
+    D: SMatrix<f64, 3, 3>,    // Local damping matrix
 
     se: Vec<f64>,              // Evaluation lengths
     pe: Vec<SVector<f64, 3>>,  // Initial positions wrt. local reference frame
@@ -185,7 +185,7 @@ impl BeamElement {
             let Q = Fy*f64::cos(φ) - Fx*f64::sin(φ);
             let M = Fy*(x1 - x) - Fx*(y1 - y) + Mz;
 
-            vector![N, M, Q]
+            vector![N, Q, M]
         })
     }
 

@@ -76,7 +76,7 @@ fn test_linear_beam_dynamics() {
         system.add_element(&[nodes[i0], nodes[i1]], element);
     }
 
-    let beam = ContinuousBeam::<N_MODES>::new(section.ρA(0.0), section.C(0.0)[(1, 1)], l, w0, v0);
+    let beam = ContinuousBeam::<N_MODES>::new(section.mass(0.0)[(0, 0)], section.stiffness(0.0)[(2, 2)], l, w0, v0);
     let period = TAU/beam.ω[0];  // Period of the first natural frequency
     let t_end = 0.25*period;
 

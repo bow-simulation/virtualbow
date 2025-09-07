@@ -134,7 +134,7 @@ pub struct State {
     pub string_vel: Vec<SVector<f64, 2>>,    // x, y
 
     pub limb_strain: Vec<SVector<f64, 3>>,    // epsilon, kappa, gamma
-    pub limb_force: Vec<SVector<f64, 3>>,     // N, M, Q
+    pub limb_force: Vec<SVector<f64, 3>>,     // N, Q, M
 
     pub layer_strain: Vec<Vec<[f64; 2]>>,     // layer, length, belly/back
     pub layer_stress: Vec<Vec<[f64; 2]>>,     // layer, length, belly/back

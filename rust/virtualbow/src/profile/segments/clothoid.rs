@@ -60,11 +60,11 @@ impl ClothoidSegment {
 }
 
 impl PlanarCurve for ClothoidSegment {
-    fn s_start(&self) -> f64 {
+    fn length_start(&self) -> f64 {
         self.s0
     }
 
-    fn s_end(&self) -> f64 {
+    fn length_end(&self) -> f64 {
         self.s1
     }
 

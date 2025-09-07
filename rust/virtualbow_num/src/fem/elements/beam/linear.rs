@@ -17,7 +17,7 @@ pub struct LinearBeamSegment {
     pub pe: Vec<SVector<f64, 3>>,       // Eval points (x, y, φ)
 
     pub Ep: Vec<SMatrix<f64, 3, 6>>,    // Evaluation of displacements (x, y, phi)
-    pub Ef: Vec<SMatrix<f64, 3, 6>>,    // Evaluation of section forces (N, M, Q)
+    pub Ef: Vec<SMatrix<f64, 3, 6>>,    // Evaluation of section forces (N, Q, M)
     pub Ci: Vec<SMatrix<f64, 3, 3>>,
 
     pub K: SMatrix<f64, 6, 6>,              // Stiffness matrix
@@ -30,7 +30,7 @@ impl LinearBeamSegment {
         where C: PlanarCurve,
               S: CrossSection
     {
-        assert!(s1 > s0, "Starting length must be larger than ending length");
+        assert!(s0 < s1, "Starting length must be smaller than ending length");
         //assert!(s_eval.iter().all(|&s| s >= s0 && s <= s1), "Evaluation points must lie within start- and endpoint");  // TODO: Check with tolerance?
 
         // Fixed number of integration intervals
@@ -48,8 +48,8 @@ impl LinearBeamSegment {
 
             matrix![
                 f64::cos(φ), f64::sin(φ), 0.0;
-                r[1] - rn[1], rn[0] - r[0], 1.0;
                 -f64::sin(φ), f64::cos(φ), 0.0;
+                r[1] - rn[1], rn[0] - r[0], 1.0;
             ]
         };
 
@@ -65,7 +65,7 @@ impl LinearBeamSegment {
 
         let dIds = |s| -> SMatrix<f64, 3, 3> {
             let H0 = H(s, s0);
-            let C_inv = section.C(curve.normalize(s)).try_inverse().expect("Failed to invert section stiffness matrix");
+            let C_inv = section.stiffness(curve.normalize(s)).try_inverse().expect("Failed to invert section stiffness matrix");
             return H0.transpose()*C_inv*H0;
         };
 
@@ -118,16 +118,16 @@ impl LinearBeamSegment {
         }).collect();
 
         let Ci = se.iter().map(|&s| {
-            section.C(curve.normalize(s)).try_inverse().expect("Failed to invert section stiffness matrix")
+            section.stiffness(curve.normalize(s)).try_inverse().expect("Failed to invert section stiffness matrix")
         }).collect();
 
         // Lumped mass matrix
 
         let sm = 0.5*(s0 + s1);  // Segment midpoint
-        let m0 = fixed_simpson(|s|{ vector![ section.ρA(curve.normalize(s)) ] }, s0, sm, n_integration)[0];    // Mass of the first segment half
-        let m1 = fixed_simpson(|s|{ vector![ section.ρA(curve.normalize(s)) ] }, sm, s1, n_integration)[0];    // Mass of the second segment half
-        let J0 = 0.5*(s1 - s0)*section.ρI(curve.normalize(s0));    // Lumped rotary inertia of the first node
-        let J1 = 0.5*(s1 - s0)*section.ρI(curve.normalize(s1));    // Lumped rotary inertia of the second node
+        let m0 = fixed_simpson(|s|{ vector![ section.mass(curve.normalize(s))[(0, 0)] ] }, s0, sm, n_integration)[0];    // Mass of the first segment half
+        let m1 = fixed_simpson(|s|{ vector![ section.mass(curve.normalize(s))[(0, 0)] ] }, sm, s1, n_integration)[0];    // Mass of the second segment half
+        let J0 = 0.5*(s1 - s0)*section.mass(curve.normalize(s0))[(2, 2)];    // Lumped rotary inertia of the first node
+        let J1 = 0.5*(s1 - s0)*section.mass(curve.normalize(s1))[(2, 2)];    // Lumped rotary inertia of the second node
 
         let M = vector![
             m0,
@@ -195,7 +195,7 @@ mod tests {
         let segment_fem = LinearBeamSegmentFEM::new(&curve, &section, 0.0, curve.length(), n_elements);
         let segment_num = LinearBeamSegment::new(&curve, &section, 0.0, curve.length(), &segment_fem.s_eval);
 
-        let C_sec = section.C(0.0);
+        let C_sec = section.stiffness(0.0);
         let K_ref = LinearBeamSegmentFEM::element_stiffness_matrix(C_sec[(0, 0)], C_sec[(1, 1)], C_sec[(2, 2)], curve.length(), angle);
 
         // Check stiffness matrices
@@ -295,8 +295,8 @@ mod tests {
                 let dy = r_next[1] - r_prev[1];
 
                 // TODO: Assert that C are diagonal matrices
-                let C_prev = section.C((s[i] - s0)/(s1 - s0));
-                let C_next = section.C((s[i+1] - s0)/(s1 - s0));
+                let C_prev = section.stiffness((s[i] - s0)/(s1 - s0));
+                let C_next = section.stiffness((s[i+1] - s0)/(s1 - s0));
 
                 K_full.view_mut((3*i, 3*i), (6, 6)).add_assign(&Self::element_stiffness_matrix(
                     0.5*(C_prev[(0, 0)] + C_next[(0, 0)]),    // Average longitudinal stiffness
@@ -388,28 +388,28 @@ mod tests {
             }
         }
 
-        // Returns the analytical stiffness matrix of a straight Euler-Bernoulli beam segment
+        // Returns the analytical stiffness matrix of a straight Timoshenko beam segment
         // with constant cross section and a rotation angle alpha against the x-axis.
-        // TODO: Add source for the matrices K and T below
-        fn element_stiffness_matrix(EA: f64, EI: f64, GA: f64, l: f64, alpha: f64) -> SMatrix<f64, 6, 6> {
+        // TODO: Add a source for the matrices K and T below
+        fn element_stiffness_matrix(EA: f64, GA: f64, EI: f64, l: f64, alpha: f64) -> SMatrix<f64, 6, 6> {
             let Φ = 12.0*EI/(GA*l*l);
             let K = matrix![
-            EA/l,                          0.0,                        0.0, -EA/l,                          0.0,                        0.0;
-             0.0,    12.0*EI/(l*l*l*(1.0 + Φ)),     6.0*EI/(l*l*(1.0 + Φ)),   0.0,   -12.0*EI/(l*l*l*(1.0 + Φ)),     6.0*EI/(l*l*(1.0 + Φ));
-             0.0,       6.0*EI/(l*l*(1.0 + Φ)),   EI/l*(4.0 + Φ)/(1.0 + Φ),   0.0,      -6.0*EI/(l*l*(1.0 + Φ)),   EI/l*(2.0 - Φ)/(1.0 + Φ);
-           -EA/l,                          0.0,                        0.0,  EA/l,                          0.0,                        0.0;
-             0.0,   -12.0*EI/(l*l*l*(1.0 + Φ)),    -6.0*EI/(l*l*(1.0 + Φ)),   0.0,    12.0*EI/(l*l*l*(1.0 + Φ)),    -6.0*EI/(l*l*(1.0 + Φ));
-             0.0,       6.0*EI/(l*l*(1.0 + Φ)),   EI/l*(2.0 - Φ)/(1.0 + Φ),   0.0,      -6.0*EI/(l*l*(1.0 + Φ)),   EI/l*(4.0 + Φ)/(1.0 + Φ);
-        ];
+                EA/l,                          0.0,                        0.0, -EA/l,                          0.0,                        0.0;
+                 0.0,    12.0*EI/(l*l*l*(1.0 + Φ)),     6.0*EI/(l*l*(1.0 + Φ)),   0.0,   -12.0*EI/(l*l*l*(1.0 + Φ)),     6.0*EI/(l*l*(1.0 + Φ));
+                 0.0,       6.0*EI/(l*l*(1.0 + Φ)),   EI/l*(4.0 + Φ)/(1.0 + Φ),   0.0,      -6.0*EI/(l*l*(1.0 + Φ)),   EI/l*(2.0 - Φ)/(1.0 + Φ);
+               -EA/l,                          0.0,                        0.0,  EA/l,                          0.0,                        0.0;
+                 0.0,   -12.0*EI/(l*l*l*(1.0 + Φ)),    -6.0*EI/(l*l*(1.0 + Φ)),   0.0,    12.0*EI/(l*l*l*(1.0 + Φ)),    -6.0*EI/(l*l*(1.0 + Φ));
+                 0.0,       6.0*EI/(l*l*(1.0 + Φ)),   EI/l*(2.0 - Φ)/(1.0 + Φ),   0.0,      -6.0*EI/(l*l*(1.0 + Φ)),   EI/l*(4.0 + Φ)/(1.0 + Φ);
+            ];
 
-        let T = matrix![
-            f64::cos(alpha), f64::sin(alpha), 0.0,              0.0,             0.0, 0.0;
-           -f64::sin(alpha), f64::cos(alpha), 0.0,              0.0,             0.0, 0.0;
-                        0.0,             0.0, 1.0,              0.0,             0.0, 0.0;
-                        0.0,             0.0, 0.0,  f64::cos(alpha), f64::sin(alpha), 0.0;
-                        0.0,             0.0, 0.0, -f64::sin(alpha), f64::cos(alpha), 0.0;
-                        0.0,             0.0, 0.0,              0.0,             0.0, 1.0;
-        ];
+            let T = matrix![
+                f64::cos(alpha), f64::sin(alpha), 0.0,              0.0,             0.0, 0.0;
+               -f64::sin(alpha), f64::cos(alpha), 0.0,              0.0,             0.0, 0.0;
+                            0.0,             0.0, 1.0,              0.0,             0.0, 0.0;
+                            0.0,             0.0, 0.0,  f64::cos(alpha), f64::sin(alpha), 0.0;
+                            0.0,             0.0, 0.0, -f64::sin(alpha), f64::cos(alpha), 0.0;
+                            0.0,             0.0, 0.0,              0.0,             0.0, 1.0;
+            ];
 
             T.transpose()*K*T
         }

@@ -126,8 +126,8 @@ fn linear_straight_uniform_cantilever() {
         let y_num = state.limb_pos[i][1];
         let φ_num = state.limb_pos[i][2];
         let N_num = state.limb_force[i][0];
-        let M_num = state.limb_force[i][1];
-        let Q_num = state.limb_force[i][2];
+        let Q_num = state.limb_force[i][1];
+        let M_num = state.limb_force[i][2];
 
         // Analytical reference solution (https://en.wikipedia.org/wiki/Timoshenko%E2%80%93Ehrenfest_beam_theory)
         let x_ref = setup.limb.length[i];
@@ -194,8 +194,8 @@ fn nonlinear_straight_uniform_coilup() {
         let y_num = state.limb_pos[i][1];
         let φ_num = normalize_angle(state.limb_pos[i][2]);  // TODO: Normalize internally?
         let N_num = state.limb_force[i][0];
-        let M_num = state.limb_force[i][1];
-        let Q_num = state.limb_force[i][2];
+        let Q_num = state.limb_force[i][1];
+        let M_num = state.limb_force[i][2];
 
         // Analytical reference solution
         let φ_ref = normalize_angle(s_num/R);
@@ -208,15 +208,15 @@ fn nonlinear_straight_uniform_coilup() {
         plotter.add_point((x_num, y_num), (x_ref, y_ref), "01 Bending Line", "Length [m]", "y [m]");
         plotter.add_point((s_num, φ_num), (s_num, φ_ref), "02 Section Angle", "Length [m]", "φ [rad]");
         plotter.add_point((s_num, N_num), (x_num, N_ref), "03 Normal Force", "x [m]", "Force [N]");
-        plotter.add_point((s_num, M_num), (x_num, M_ref), "04 Bending Moment", "x [m]", "Moment [Nm]");
-        plotter.add_point((s_num, Q_num), (x_num, Q_ref), "05 Shear Force", "x [m]", "Force [N]");
+        plotter.add_point((s_num, Q_num), (x_num, Q_ref), "04 Shear Force", "x [m]", "Force [N]");
+        plotter.add_point((s_num, M_num), (x_num, M_ref), "05 Bending Moment", "x [m]", "Moment [Nm]");
 
         assert_abs_diff_eq!(x_num, x_ref, epsilon=1e-3);
         assert_abs_diff_eq!(y_num, y_ref, epsilon=1e-3);
         assert_abs_diff_eq!(φ_num, φ_ref, epsilon=1e-3);
         assert_abs_diff_eq!(N_num, N_ref, epsilon=1e-6);
-        assert_abs_diff_eq!(M_num, M_ref, epsilon=1e-6);
         assert_abs_diff_eq!(Q_num, Q_ref, epsilon=1e-6);
+        assert_abs_diff_eq!(M_num, M_ref, epsilon=1e-6);
     }
 }
 
@@ -277,18 +277,18 @@ fn nonlinear_straight_uniform_cantilever() {
         let y = state.limb_pos[i][1];
         let φ = state.limb_pos[i][2];
 
-        let M_ref = Fy*(x_end - x) - Fx*(y_end - y);
         let N_ref = Fx*f64::cos(φ) + Fy*f64::sin(φ);
         let Q_ref = Fy*f64::cos(φ) - Fx*f64::sin(φ);
+        let M_ref = Fy*(x_end - x) - Fx*(y_end - y);
 
         plotter.add_point((setup.limb.length[i], state.limb_force[i][0]), (setup.limb.length[i], N_ref), "02 Normal Force", "Length [m]", "Force [N]");
         assert_abs_diff_eq!(state.limb_force[i][0], N_ref, epsilon=1e-3*F_max);
 
-        plotter.add_point((setup.limb.length[i], state.limb_force[i][1]), (setup.limb.length[i], M_ref), "03 Bending Moment", "Length [m]", "Moment [Nm]");
-        assert_abs_diff_eq!(state.limb_force[i][1], M_ref, epsilon=1e-3*M_max);
+        plotter.add_point((setup.limb.length[i], state.limb_force[i][1]), (setup.limb.length[i], Q_ref), "03 Shear Force", "Length [m]", "Force [N]");
+        assert_abs_diff_eq!(state.limb_force[i][1], Q_ref, epsilon=1e-3*F_max);
 
-        plotter.add_point((setup.limb.length[i], state.limb_force[i][2]), (setup.limb.length[i], Q_ref), "04 Shear Force", "Length [m]", "Force [N]");
-        assert_abs_diff_eq!(state.limb_force[i][2], Q_ref, epsilon=1e-3*F_max);
+        plotter.add_point((setup.limb.length[i], state.limb_force[i][2]), (setup.limb.length[i], M_ref), "04 Bending Moment", "Length [m]", "Moment [Nm]");
+        assert_abs_diff_eq!(state.limb_force[i][2], M_ref, epsilon=1e-3*M_max);
     }
 
     // Compute natural frequencies
@@ -362,18 +362,18 @@ fn nonlinear_straight_tapered_cantilever() {
         let y = state.limb_pos[i][1];
         let φ = state.limb_pos[i][2];
 
-        let M_ref = Fy*(x_end - x) - Fx*(y_end - y);
         let N_ref = Fx*f64::cos(φ) + Fy*f64::sin(φ);
         let Q_ref = Fy*f64::cos(φ) - Fx*f64::sin(φ);
+        let M_ref = Fy*(x_end - x) - Fx*(y_end - y);
 
         plotter.add_point((setup.limb.length[i], state.limb_force[i][0]), (setup.limb.length[i], N_ref), "02 Normal Force", "Length [m]", "Force [N]");
         assert_abs_diff_eq!(state.limb_force[i][0], N_ref, epsilon=1e-3*F_max);
 
-        plotter.add_point((setup.limb.length[i], state.limb_force[i][1]), (setup.limb.length[i], M_ref), "03 Bending Moment", "Length [m]", "Moment [Nm]");
-        assert_abs_diff_eq!(state.limb_force[i][1], M_ref, epsilon=1e-3*M_max);
+        plotter.add_point((setup.limb.length[i], state.limb_force[i][1]), (setup.limb.length[i], Q_ref), "03 Shear Force", "Length [m]", "Force [N]");
+        assert_abs_diff_eq!(state.limb_force[i][1], Q_ref, epsilon=1e-3*F_max);
 
-        plotter.add_point((setup.limb.length[i], state.limb_force[i][2]), (setup.limb.length[i], Q_ref), "04 Shear Force", "Length [m]", "Force [N]");
-        assert_abs_diff_eq!(state.limb_force[i][2], Q_ref, epsilon=1e-3*F_max);
+        plotter.add_point((setup.limb.length[i], state.limb_force[i][2]), (setup.limb.length[i], M_ref), "04 Bending Moment", "Length [m]", "Moment [Nm]");
+        assert_abs_diff_eq!(state.limb_force[i][2], M_ref, epsilon=1e-3*M_max);
     }
 
     // Compute natural frequencies
@@ -448,18 +448,18 @@ fn nonlinear_curved_uniform_cantilever() {
         let y = state.limb_pos[i][1];
         let φ = state.limb_pos[i][2];
 
-        let M_ref = Fy*(x_end - x) - Fx*(y_end - y);
         let N_ref = Fx*f64::cos(φ) + Fy*f64::sin(φ);
         let Q_ref = Fy*f64::cos(φ) - Fx*f64::sin(φ);
+        let M_ref = Fy*(x_end - x) - Fx*(y_end - y);
 
         plotter.add_point((setup.limb.length[i], state.limb_force[i][0]), (setup.limb.length[i], N_ref), "02 Normal Force", "Length [m]", "Force [N]");
         assert_abs_diff_eq!(state.limb_force[i][0], N_ref, epsilon=1e-3*F_max);
 
-        plotter.add_point((setup.limb.length[i], state.limb_force[i][1]), (setup.limb.length[i], M_ref), "03 Bending Moment", "Length [m]", "Moment [Nm]");
-        assert_abs_diff_eq!(state.limb_force[i][1], M_ref, epsilon=1e-3*M_max);
+        plotter.add_point((setup.limb.length[i], state.limb_force[i][1]), (setup.limb.length[i], Q_ref), "03 Shear Force", "Length [m]", "Force [N]");
+        assert_abs_diff_eq!(state.limb_force[i][1], Q_ref, epsilon=1e-3*F_max);
 
-        plotter.add_point((setup.limb.length[i], state.limb_force[i][2]), (setup.limb.length[i], Q_ref), "04 Shear Force", "Length [m]", "Force [N]");
-        assert_abs_diff_eq!(state.limb_force[i][2], Q_ref, epsilon=1e-3*F_max);
+        plotter.add_point((setup.limb.length[i], state.limb_force[i][2]), (setup.limb.length[i], M_ref), "04 Bending Moment", "Length [m]", "Moment [Nm]");
+        assert_abs_diff_eq!(state.limb_force[i][2], M_ref, epsilon=1e-3*M_max);
     }
 
     // Compute natural frequencies
@@ -534,18 +534,18 @@ fn nonlinear_curved_tapered_cantilever() {
         let y = state.limb_pos[i][1];
         let φ = state.limb_pos[i][2];
 
-        let M_ref = Fy*(x_end - x) - Fx*(y_end - y);
         let N_ref = Fx*f64::cos(φ) + Fy*f64::sin(φ);
         let Q_ref = Fy*f64::cos(φ) - Fx*f64::sin(φ);
+        let M_ref = Fy*(x_end - x) - Fx*(y_end - y);
 
         plotter.add_point((setup.limb.length[i], state.limb_force[i][0]), (setup.limb.length[i], N_ref), "02 Normal Force", "Length [m]", "Force [N]");
         assert_abs_diff_eq!(state.limb_force[i][0], N_ref, epsilon=1e-3*F_max);
 
-        plotter.add_point((setup.limb.length[i], state.limb_force[i][1]), (setup.limb.length[i], M_ref), "03 Bending Moment", "Length [m]", "Moment [Nm]");
-        assert_abs_diff_eq!(state.limb_force[i][1], M_ref, epsilon=1e-3*M_max);
+        plotter.add_point((setup.limb.length[i], state.limb_force[i][1]), (setup.limb.length[i], Q_ref), "03 Shear Force", "Length [m]", "Force [N]");
+        assert_abs_diff_eq!(state.limb_force[i][1], Q_ref, epsilon=1e-3*F_max);
 
-        plotter.add_point((setup.limb.length[i], state.limb_force[i][2]), (setup.limb.length[i], Q_ref), "04 Shear Force", "Length [m]", "Force [N]");
-        assert_abs_diff_eq!(state.limb_force[i][2], Q_ref, epsilon=1e-3*F_max);
+        plotter.add_point((setup.limb.length[i], state.limb_force[i][2]), (setup.limb.length[i], M_ref), "04 Bending Moment", "Length [m]", "Moment [Nm]");
+        assert_abs_diff_eq!(state.limb_force[i][2], M_ref, epsilon=1e-3*M_max);
     }
 
     // Compute natural frequencies

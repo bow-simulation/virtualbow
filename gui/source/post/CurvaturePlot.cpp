@@ -34,7 +34,7 @@ void CurvaturePlot::updateCurvature() {
     for(size_t i = 0; i < common.limb.length.size(); ++i) {
         this->graph(0)->addData(
             quantity_length.getUnit().fromBase(common.limb.length[i]),
-            quantity_curvature.getUnit().fromBase(states.limb_strain[index][i][1])
+            quantity_curvature.getUnit().fromBase(states.limb_strain[index][i][2])
         );
     }
 }
@@ -55,7 +55,7 @@ void CurvaturePlot::updateAxes() {
 
     for(size_t i = 0; i < states.limb_strain.size(); ++i) {
         for(size_t j = 1; j < states.limb_strain[i].size(); j++) {
-            y_range.expand(quantity_curvature.getUnit().fromBase(states.limb_strain[i][j][1]));
+            y_range.expand(quantity_curvature.getUnit().fromBase(states.limb_strain[i][j][2]));
         }
     }
 

@@ -10,7 +10,7 @@ use approx::assert_abs_diff_eq;
 use virtualbow_num::utils::syschecks::assert_system_invariants;
 
 #[test]
-fn nonlinear_pendulum() {
+fn nonlinear_oscillator() {
     // In this example, a simple pendulum is simulated and the results are compared with an analytic solution according to [1].
     // This tests how the dynamic solver deals with a simple nonlinear system where the equilibrium iterations at each time step actually have to do something.
     // The pendulum bar is modelled as a spring, so the systems are not exactly equivalent.

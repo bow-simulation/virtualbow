@@ -514,28 +514,24 @@ impl<'a> Simulation<'a> {
             element.eval_forces().for_each(|f| limb_force.push(f));
         }
 
-        let mut layer_strain = vec![Vec::<[f64; 2]>::new(); self.input.section.layers.len()];  // TODO: Capacity
-        let mut layer_stress = vec![Vec::<[f64; 2]>::new(); self.input.section.layers.len()];  // TODO: Capacity
+        // Evaluate stresses and strains at the layer boundaries
+
+        let mut layer_strain: Vec<Vec<[f64; 2]>> = vec![Vec::<[f64; 2]>::with_capacity(limb_strain.len()); self.input.section.layers.len()];
+        let mut layer_stress: Vec<Vec<[f64; 2]>> = vec![Vec::<[f64; 2]>::with_capacity(limb_strain.len()); self.input.section.layers.len()];
 
         for i in 0..limb_strain.len() {
-            // Stresses and strains at the layer boundaries
-            let strain = &self.geometry.strain_eval[i]*limb_strain[i];
-            let stress = &self.geometry.stress_eval[i]*limb_strain[i];
-
-            // Two subsequent strain results make up the belly and back strain of a layer
-            strain.iter().cloned().tuples().enumerate().for_each(|(j, tuple): (usize, (f64, f64))| {
-                layer_strain[j].push([tuple.0, tuple.1]);
+            self.geometry.strain_eval[i].iter().tuples().enumerate().for_each(|(j, (eval0, eval1))| {
+                layer_strain[j].push([eval0.dot(&limb_strain[i]), eval1.dot(&limb_strain[i])]);
             });
 
-            // Two subsequent stress results make up the belly and back stress of a layer
-            stress.iter().cloned().tuples().enumerate().for_each(|(j, tuple): (usize, (f64, f64))| {
-                layer_stress[j].push([tuple.0, tuple.1]);
+            self.geometry.stress_eval[i].iter().tuples().enumerate().for_each(|(j, (eval0, eval1))| {
+                layer_stress[j].push([eval0.dot(&limb_strain[i]), eval1.dot(&limb_strain[i])]);
             });
         }
 
-        // The grip force is the y component of the forces at the start of the limb.
+        // The grip force is the y component of the total force (normal + shear) at the start of the limb.
         // Defined to be positive on "pressure", therefore the minus sign, and multiplied by two for symmetry.
-        let grip_force = -2.0*(limb_force[0][2]*f64::cos(limb_pos[0][2]) + limb_force[0][0]*f64::sin(limb_pos[0][2]));
+        let grip_force = -2.0*(limb_force[0][0]*f64::sin(limb_pos[0][2]) + limb_force[0][1]*f64::cos(limb_pos[0][2]));
 
         let elastic_energy_limbs = 2.0*self.limb_elements.iter().map(|&e| { system.element_ref::<BeamElement>(e).potential_energy() }).sum::<f64>();
         let elastic_energy_string = 2.0*system.element_ref::<StringElement>(self.string_element).potential_energy();
