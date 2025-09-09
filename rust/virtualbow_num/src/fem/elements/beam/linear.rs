@@ -1,3 +1,4 @@
+use iter_num_tools::lin_space;
 use itertools::Itertools;
 use nalgebra::{matrix, SMatrix, stack, SVector, vector};
 use serde::{Deserialize, Serialize};
@@ -18,7 +19,7 @@ pub struct LinearBeamSegment {
 
     pub Ep: Vec<SMatrix<f64, 3, 6>>,    // Evaluation of displacements (x, y, phi)
     pub Ef: Vec<SMatrix<f64, 3, 6>>,    // Evaluation of section forces (N, Q, M)
-    pub Ci: Vec<SMatrix<f64, 3, 3>>,
+    pub Ci: Vec<SMatrix<f64, 3, 3>>,    // Inverse cross section stiffness (compliance)
 
     pub K: SMatrix<f64, 6, 6>,              // Stiffness matrix
     pub M: SVector<f64, 6>,                 // Lumped mass matrix
@@ -26,6 +27,26 @@ pub struct LinearBeamSegment {
 }
 
 impl LinearBeamSegment {
+    // Discretizes a continuous geometry into a given number of linear beam segments
+    // Returns segments, points, lengths
+    // TODO: Specify (number of) eval points?
+    pub fn discretize<C, S>(curve: &C, section: &S, n_elements: usize) -> (Vec<Self>, Vec<SVector<f64, 3>>, Vec<f64>)
+    where C: PlanarCurve,
+          S: CrossSection
+    {
+        assert!(n_elements >= 1, "At least one element required");
+
+        let lengths = lin_space(curve.length_start()..=curve.length_end(), n_elements + 1).collect_vec();
+        let segments = lengths.iter().tuple_windows().map(|(&s0, &s1)| LinearBeamSegment::new(curve, section, s0, s1, &[])).collect_vec();
+
+        // TODO: This is kind of ugly...
+        let mut points = Vec::new();
+        points.push(segments[0].p0);
+        segments.iter().for_each(|s| points.push(s.p1));
+
+        (segments, points, lengths)
+    }
+
     pub fn new<C, S>(curve: &C, section: &S, s0: f64, s1: f64, se: &[f64]) -> Self
         where C: PlanarCurve,
               S: CrossSection

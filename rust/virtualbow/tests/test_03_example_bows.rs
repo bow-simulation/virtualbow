@@ -5,7 +5,7 @@ use virtualbow::output::{ArrowDeparture, BowResult, Common, Dynamics, LayerInfo,
 use virtualbow::simulation::Simulation;
 use virtualbow_num::utils::integration::fixed_simpson;
 use virtualbow_num::utils::minmax::discrete_maximum_1d;
-use virtualbow_num::utils::plotter::Plotter;
+use virtualbow_num::testutils::plotter::Plotter;
 
 use itertools::Itertools;
 use nalgebra::{SVector, vector};

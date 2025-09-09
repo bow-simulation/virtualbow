@@ -4,8 +4,8 @@ use virtualbow_num::fem::elements::string::StringElement;
 use virtualbow_num::fem::solvers::statics::StaticSolver;
 use virtualbow_num::fem::system::system::System;
 use virtualbow_num::utils::newton::NewtonSettings;
-use virtualbow_num::utils::syschecks::assert_system_invariants;
-use virtualbow_num::utils::plotter::Plotter;
+use virtualbow_num::testutils::syschecks::assert_system_invariants;
+use virtualbow_num::testutils::plotter::Plotter;
 use approx::{assert_abs_diff_eq, assert_relative_eq};
 
 // These tests solve various linear and nonlinear static bar trusses

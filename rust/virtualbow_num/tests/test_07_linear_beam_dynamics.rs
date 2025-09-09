@@ -1,20 +1,15 @@
 use std::f64::consts::{FRAC_PI_2, TAU};
 use approx::assert_abs_diff_eq;
-use iter_num_tools::lin_space;
-use itertools::Itertools;
 use nalgebra::{SVector, vector};
-use virtualbow::input::{Height, Layer, Line, Material, LayerAlignment, Width, Section};
-use virtualbow::profile::profile::CurvePoint;
-use virtualbow::profile::segments::clothoid::ClothoidSegment;
-use virtualbow::sections::section::LayeredCrossSection;
 use virtualbow_num::fem::elements::beam::beam::BeamElement;
 use virtualbow_num::fem::elements::beam::geometry::CrossSection;
 use virtualbow_num::fem::elements::beam::linear::LinearBeamSegment;
 use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
 use virtualbow_num::fem::system::system::System;
+use virtualbow_num::testutils::curves::Line;
 use virtualbow_num::utils::integration::fixed_simpson;
-use virtualbow_num::utils::plotter::Plotter;
-
+use virtualbow_num::testutils::plotter::Plotter;
+use virtualbow_num::testutils::sections::Section;
 // This tests compares the analytical solution for the linear vibration of a straight cantilever beam with the numerical FEM solution.
 // Unfortunately the analytical solution has its limitations too since numerical accuracy starts to become a problem at ~10 modes.
 // This number of modes is equivalent to 20 degrees of freedom for the analytical model. The FEM model has (and needs) more degrees of freedom,
@@ -32,9 +27,9 @@ fn test_linear_beam_dynamics() {
     let h = 0.01;
     let r = 15.0*l;
 
+    let ρ = 500.0;
     let E = 20e9;
     let G = 100e9;
-    let ρ = 500.0;
 
     const N_ELEMENTS: usize = 25;
     const N_MODES: usize = 10;
@@ -49,18 +44,14 @@ fn test_linear_beam_dynamics() {
     //let φ0 = |x: f64| 0.01*x.powi(2)*(9.0*l - 4.0*x);
     //let v1 = |_: f64| 0.0;
 
-    let x_nodes = lin_space(0.0..=l, N_ELEMENTS+1).collect_vec();
-    let start = CurvePoint::zero();
-    let curve = ClothoidSegment::line(&start, &Line::new(l));
-
-    let material = Material::new("material", "#000000", ρ, E, G);
-    let width = Width::constant(w);
-    let layer = Layer::new("layer", "material", Height::constant(h));
-    let section = Section::new(LayerAlignment::SectionCenter, width, vec![material], vec![layer]);
-    let section = LayeredCrossSection::new(&section).unwrap();
+    let curve = Line::new(l);
+    let section = Section::constant(ρ, E, G, w, h, 0.0);
 
     let mut system = System::new();
     let mut nodes = Vec::new();
+
+    // Create linear beam segments and elements
+    let (segments, _points, x_nodes) = LinearBeamSegment::discretize(&curve, &section, N_ELEMENTS);
 
     // Create nodes with initial positions
     for &x in &x_nodes {
@@ -70,11 +61,9 @@ fn test_linear_beam_dynamics() {
     }
 
     // Create beam elements
-    for ((i0, &x0), (i1, &x1)) in x_nodes.iter().enumerate().tuple_windows() {
-        let segment = LinearBeamSegment::new(&curve, &section, x0, x1, &[]);
-        let element = BeamElement::new(&segment);
-        system.add_element(&[nodes[i0], nodes[i1]], element);
-    }
+    segments.iter().enumerate().for_each(|(i, segment)| {
+        system.add_element(&[nodes[i], nodes[i+1]], BeamElement::new(segment));
+    });
 
     let beam = ContinuousBeam::<N_MODES>::new(section.mass(0.0)[(0, 0)], section.stiffness(0.0)[(2, 2)], l, w0, v0);
     let period = TAU/beam.ω[0];  // Period of the first natural frequency
@@ -85,8 +74,8 @@ fn test_linear_beam_dynamics() {
     let mut solver = DynamicSolver::new(&mut system, DynamicSolverSettings { time_stepping: TimeStepping::Adaptive { min_timestep: 1e-6, max_timestep: 1e-3, steps_per_period: 500 }, ..Default::default() });
     solver.solve(StopCondition::Time(t_end), &mut |system, _eval| {
         for i in 0..nodes.len() {
-            let x = x_nodes[i];
             let t = system.get_time();
+            let x = x_nodes[i];
 
             let w_num = system.get_displacement(nodes[i].y());
             let φ_num = system.get_displacement(nodes[i].φ());
@@ -126,7 +115,7 @@ struct ContinuousBeam<const N: usize> {
 
 impl<const N: usize> ContinuousBeam<N> {
     fn new<Fw, Fv>(ρA: f64, EI: f64, l: f64, w0: Fw, v0: Fv) -> Self
-        where Fw: Fn(f64) -> f64, Fv: Fn(f64) -> f64
+    where Fw: Fn(f64) -> f64, Fv: Fn(f64) -> f64
     {
         let kappa = |i| {
             1.0/l * match i {

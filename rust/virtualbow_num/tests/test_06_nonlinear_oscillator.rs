@@ -5,9 +5,9 @@ use virtualbow_num::fem::elements::mass::MassElement;
 use virtualbow_num::fem::elements::string::StringElement;
 use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
 use virtualbow_num::fem::system::system::System;
-use virtualbow_num::utils::plotter::Plotter;
+use virtualbow_num::testutils::plotter::Plotter;
+use virtualbow_num::testutils::syschecks::assert_system_invariants;
 use approx::assert_abs_diff_eq;
-use virtualbow_num::utils::syschecks::assert_system_invariants;
 
 #[test]
 fn nonlinear_oscillator() {

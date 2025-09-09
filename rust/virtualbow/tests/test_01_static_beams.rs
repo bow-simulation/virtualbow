@@ -3,7 +3,7 @@ use nalgebra::DVector;
 use virtualbow::input::{Arc, BowModel, Height, Layer, Line, Material, Profile, LayerAlignment, ProfileSegment, Width, Section, HandleReference};
 use virtualbow::simulation::Simulation;
 use virtualbow_num::utils::functions::normalize_angle;
-use virtualbow_num::utils::plotter::Plotter;
+use virtualbow_num::testutils::plotter::Plotter;
 use approx::{assert_abs_diff_eq, assert_relative_eq};
 
 // Various bending problems with increasing complexity are solved and the results compared to analytical or numerical reference solutions.

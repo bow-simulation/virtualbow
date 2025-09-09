@@ -6,7 +6,7 @@ use virtualbow_num::fem::elements::string::StringElement;
 use virtualbow_num::fem::solvers::eigen::natural_frequencies;
 use virtualbow_num::fem::system::node::Node;
 use virtualbow_num::fem::system::system::System;
-use virtualbow_num::utils::plotter::Plotter;
+use virtualbow_num::testutils::plotter::Plotter;
 use approx::assert_relative_eq;
 
 #[test]

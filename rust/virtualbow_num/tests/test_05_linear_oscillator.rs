@@ -8,10 +8,10 @@ use virtualbow_num::fem::elements::string::StringElement;
 use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, DynamicSolverError, StopCondition, TimeStepping};
 use virtualbow_num::fem::system::node::Node;
 use virtualbow_num::fem::system::system::{SystemEval, System};
-use virtualbow_num::utils::plotter::Plotter;
+use virtualbow_num::testutils::plotter::Plotter;
+use virtualbow_num::testutils::syschecks::assert_system_invariants;
 use approx::assert_abs_diff_eq;
 use assert_matches::assert_matches;
-use virtualbow_num::utils::syschecks::assert_system_invariants;
 
 // These tests verify that the dynamics of linear mass-spring-damper systems is solved correctly.
 
@@ -34,7 +34,7 @@ fn mass_spring_damper_1() {
 
     system.add_element(&[node_a, node_b], StringElement::spring(k, d, l));
     system.add_element(&[node_b], MassElement::new(m));
-    virtualbow_num::utils::syschecks::assert_system_invariants(&mut system);
+    assert_system_invariants(&mut system);
 
     // Constants for the analytical solution
     let delta = d/(2.0*m);                                // Decay constant
