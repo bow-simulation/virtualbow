@@ -1,12 +1,3 @@
-// Calculates the analytical stiffness matrix of a curved beam with varying cross section properties
-// by using Castigliano's theorem and numerical integration. Method inspired by [1].
-//
-// [1] E. Marotta, P.Salvini: Analytical Stiffness Matrix for Curved Metal Wires,
-// Procedia Structural Integrity, Volume 8, 2018, Pages 43-55
-//
-// r: s -> [x, y, phi], Function describing the shape of the beam segment with arc length s in [l0, l1]
-// C: s -> [[Cee, Cek], [Cek, Ckk]], Function describing the material properties along the beam
-
 use nalgebra::{matrix, vector, SMatrix, SVector, stack};
 use crate::fem::elements::beam::linear::LinearBeamSegment;
 use crate::fem::system::element::Element;
@@ -39,6 +30,13 @@ pub struct BeamElement {
     fd: SVector<f64, 3>,    // Local damping forces
     Qe: SVector<f64, 6>,    // Total elastic forces
     Qd: SVector<f64, 6>,    // Total damping forces
+}
+
+pub struct EvalResult {
+    pub position: SVector<f64, 3>,    // Cross section position and orientation [x, y, φ]
+    pub velocity: SVector<f64, 3>,    // Velocity of the cross section position [vx, vy, vφ]
+    pub forces: SVector<f64, 3>,      // Cross section forces [N, Q, M]
+    pub strains: SVector<f64, 3>      // Cross section strains [ε, γ, κ]
 }
 
 impl BeamElement {
@@ -112,6 +110,70 @@ impl BeamElement {
         &self.se
     }
 
+    pub fn eval_properties(&self) -> impl Iterator<Item=EvalResult> + '_ {
+        let dx = self.u[3] - self.u[0];
+        let dy = self.u[4] - self.u[1];
+        let a0 = f64::atan2(dy, dx);
+
+        let p0 = vector![
+            self.u[0],
+            self.u[1],
+            a0
+        ];
+
+        let R = matrix![
+            f64::cos(a0), -f64::sin(a0), 0.0;
+            f64::sin(a0), f64::cos(a0), 0.0;
+            0.0, 0.0, 1.0;
+        ];
+
+        let dadu = vector![dy, -dx, 0.0, -dy, dx, 0.0]/(dx*dx + dy*dy);
+        let dadt = dadu.dot(&(self.v));
+
+        let p0_dot = vector![
+            self.v[0],
+            self.v[1],
+            dadt
+        ];
+
+        let dRda = matrix![
+            -f64::sin(a0), -f64::cos(a0), 0.0;
+            f64::cos(a0), -f64::sin(a0), 0.0;
+            0.0, 0.0, 0.0;
+        ];
+
+        let Fx = self.Qe[3];
+        let Fy = self.Qe[4];
+        let Mz = self.Qe[5];
+
+        let x1 = self.u[3];
+        let y1 = self.u[4];
+
+        self.se.iter().enumerate().map(move |(i, _)| {
+            let position = p0 + R*(self.pe[i] + self.u_eval[i]*self.ul);
+            let velocity = p0_dot + dadt*dRda*(self.pe[i] + self.u_eval[i]*self.ul) + R*self.u_eval[i]*self.vl;
+
+            let x = position[0];
+            let y = position[1];
+            let φ = position[2];
+
+            let N = Fx*f64::cos(φ) + Fy*f64::sin(φ);
+            let Q = Fy*f64::cos(φ) - Fx*f64::sin(φ);
+            let M = Fy*(x1 - x) - Fx*(y1 - y) + Mz;
+
+            let forces = vector![N, Q, M];
+            let strains = self.C_inv[i]*forces;
+
+            EvalResult {
+                position,
+                velocity,
+                forces,
+                strains,
+            }
+        })
+    }
+
+    // TODO: Remove in favor of eval_results
     pub fn eval_positions(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {        // Local transformation
         // TODO: Redundant computations, store when evaluating forces
         let dx = self.u[3] - self.u[0];
@@ -135,6 +197,7 @@ impl BeamElement {
         })
     }
 
+    // TODO: Remove in favor of eval_results
     pub fn eval_velocities(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {
         // TODO: Redundant computations, store when evaluating forces
         let dx = self.u[3] - self.u[0];
@@ -167,7 +230,7 @@ impl BeamElement {
         })
     }
 
-    // TODO: Duplicate calculation with eval_positions(), maybe combine
+    // TODO: Remove in favor of eval_results
     pub fn eval_forces(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {
         let Fx = self.Qe[3];
         let Fy = self.Qe[4];
@@ -189,7 +252,7 @@ impl BeamElement {
         })
     }
 
-    // TODO: Duplicate calculation with eval_forces(), maybe combine
+    // TODO: Remove in favor of eval_results
     pub fn eval_strains(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {
         self.eval_forces().enumerate().map(|(i, f)| {
             self.C_inv[i]*f

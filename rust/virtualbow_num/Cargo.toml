@@ -19,9 +19,11 @@ num.workspace = true
 iter_num_tools.workspace = true
 approx.workspace = true
 serde.workspace = true
+indexmap.workspace = true
 
 [dev-dependencies]
 assert_matches.workspace = true
 assert2.workspace = true
+test_each_file.workspace = true
 spec_math.workspace = true
 serde_json.workspace = true

@@ -45,13 +45,13 @@ fn test_linear_beam_dynamics() {
     //let v1 = |_: f64| 0.0;
 
     let curve = Line::new(l);
-    let section = Section::constant(ρ, E, G, w, h, 0.0);
+    let section = Section::new(ρ, E, G, &[w], &[h], &[0.0]);
 
     let mut system = System::new();
     let mut nodes = Vec::new();
 
     // Create linear beam segments and elements
-    let (segments, _points, x_nodes) = LinearBeamSegment::discretize(&curve, &section, N_ELEMENTS);
+    let (segments, _points, x_nodes) = LinearBeamSegment::discretize(&curve, &section, N_ELEMENTS, 2);
 
     // Create nodes with initial positions
     for &x in &x_nodes {
