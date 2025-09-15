@@ -28,7 +28,7 @@ jobs:
       - name: Get dependencies
         run: |
           choco install ninja
-          curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.6.0/windows-msvc_64.zip && 7z x windows-msvc_64.zip
+          curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.7.0/windows-msvc_64.zip && 7z x windows-msvc_64.zip
 
       - name: Extract test files
         run: |
@@ -76,7 +76,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y ninja-build qt6-base-dev pkg-config libfreetype6-dev libfontconfig1-dev
-          curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.6.0/linux-gcc_64.zip && unzip linux-gcc_64.zip
+          curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.7.0/linux-gcc_64.zip && unzip linux-gcc_64.zip
 
       - name: Extract test files
         run: |
@@ -112,7 +112,7 @@ jobs:
           if-no-files-found: error
 
   build-macos:
-    runs-on: macos-13
+    runs-on: macos-14
     timeout-minutes: 30
     env:
       RUSTFLAGS: -D warnings    # Make Rust compiler fail on warnings
@@ -124,7 +124,7 @@ jobs:
       - name: Get dependencies
         run: |
           npm install -g appdmg@0.6.0 --no-audit
-          curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.6.0/macos-clang_64.zip && unzip macos-clang_64.zip
+          curl -LO https://github.com/bow-simulation/virtualbow-dependencies/releases/download/v1.7.0/macos-clang_64.zip && unzip macos-clang_64.zip
           chmod -R 755 macos-clang_64
   
       - name: Extract test files
