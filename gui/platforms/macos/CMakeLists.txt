@@ -20,7 +20,7 @@ add_custom_command(
         -executable=${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS/virtualbow-gui
         -executable=${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS/virtualbow-cli
         -executable=${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS/virtualbow-post
-    COMMAND codesign --force --deep --sign - ${CMAKE_BINARY_DIR}/application/VirtualBow.app
+        -codesign=""
 )
 
 
