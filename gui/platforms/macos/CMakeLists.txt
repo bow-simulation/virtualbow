@@ -16,12 +16,13 @@ file(COPY ${CMAKE_SOURCE_DIR}/resources/docs/user-manual DESTINATION ${CMAKE_BIN
 add_custom_target(copy-dependencies DEPENDS virtualbow-gui virtualbow-cli virtualbow-post)
 add_custom_command(
     TARGET copy-dependencies
-    COMMAND ${QT_BINARY_DIR}/macdeployqt
-        ${CMAKE_BINARY_DIR}/application/VirtualBow.app
+    COMMAND ${QT_BINARY_DIR}/macdeployqt ${CMAKE_BINARY_DIR}/application/VirtualBow.app
         -executable=${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS/virtualbow-gui
         -executable=${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS/virtualbow-cli
         -executable=${CMAKE_BINARY_DIR}/application/VirtualBow.app/Contents/MacOS/virtualbow-post
+    COMMAND codesign --force --deep --sign - ${CMAKE_BINARY_DIR}/application/VirtualBow.app
 )
+
 
 # Target: Dmg Installer
 configure_file(installer.json ${CMAKE_BINARY_DIR}/installer.json)
