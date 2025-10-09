@@ -9,7 +9,7 @@ use virtualbow_num::utils::newton::NewtonSettings;
 use virtualbow_num::testutils::plotter::Plotter;
 use virtualbow_num::testutils::syschecks::assert_system_invariants;
 use approx::{assert_abs_diff_eq, assert_relative_eq};
-
+use virtualbow_num::fem::system::dof::DofType;
 // Tests the string element as part of a static system
 
 #[test]
@@ -25,11 +25,11 @@ fn string_over_quarter_circle() {
 
     // Create fixed nodes in a circular arc from {x=r, y=0} to {x=0, y=r}
     let fixed_nodes = lin_space(0.0..=FRAC_PI_2, n).map(|alpha| {
-        system.create_node(&vector![r*f64::cos(alpha), r*f64::sin(alpha), 0.0], &[false; 3])
+        system.create_node(&vector![r*f64::cos(alpha), r*f64::sin(alpha), 0.0], &[DofType::Locked; 3])
     }).collect_vec();
 
     // Create end node for the string that is free in y direction
-    let free_node = system.create_node(&vector![r, r, 0.0], &[false, true, false]);
+    let free_node = system.create_node(&vector![r, r, 0.0], &[DofType::Locked, DofType::Active, DofType::Locked]);
     system.add_force(free_node.y(), |_t| { 1.0 });
 
     // String nodes are the free node, followed by the fixed ones
@@ -46,7 +46,7 @@ fn string_over_quarter_circle() {
     let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
 
     let result = solver.equilibrium_path_displacement_controlled(free_node.y(), 0.0, 100, &mut |system, statics, _| {
-        let y = system.get_displacement(free_node.y());
+        let y = system.get_position(free_node.y());
         let h = r - y;
 
         let points = system.element_ref::<StringElement>(element).contact_positions().collect_vec();

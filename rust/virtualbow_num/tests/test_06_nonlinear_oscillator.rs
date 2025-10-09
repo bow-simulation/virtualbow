@@ -8,6 +8,7 @@ use virtualbow_num::fem::system::system::System;
 use virtualbow_num::testutils::plotter::Plotter;
 use virtualbow_num::testutils::syschecks::assert_system_invariants;
 use approx::assert_abs_diff_eq;
+use virtualbow_num::fem::system::dof::DofType;
 
 #[test]
 fn nonlinear_oscillator() {
@@ -32,8 +33,8 @@ fn nonlinear_oscillator() {
     let c = f64::sin(φ0 /2.0);
 
     let mut system = System::new();
-    let node_a = system.create_node(&vector![0.0, 0.0, 0.0], &[false, false, false]);
-    let node_b = system.create_node(&vector![x0, y0, 0.0], &[true, true, false]);
+    let node_a = system.create_node(&vector![0.0, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node_b = system.create_node(&vector![x0, y0, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
 
     system.add_element(&[node_a, node_b], StringElement::spring(k, d, l));
     system.add_element(&[node_b], MassElement::new(m));
@@ -62,11 +63,11 @@ fn nonlinear_oscillator() {
         let y_ddot_ref = l*φ_ddot_ref*f64::sin(φ_ref) + l*φ_dot_ref*φ_dot_ref*f64::cos(φ_ref);
 
         // Numerical solution
-        let x_num = system.get_displacement(node_b.x());
+        let x_num = system.get_position(node_b.x());
         let x_dot_num = system.get_velocity(node_b.x());
         let x_ddot_num = eval.get_acceleration(node_b.x());
 
-        let y_num = system.get_displacement(node_b.y());
+        let y_num = system.get_position(node_b.y());
         let y_dot_num = system.get_velocity(node_b.y());
         let y_ddot_num = eval.get_acceleration(node_b.y());
 

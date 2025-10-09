@@ -12,7 +12,7 @@ use virtualbow_num::testutils::plotter::Plotter;
 use virtualbow_num::testutils::syschecks::assert_system_invariants;
 use approx::assert_abs_diff_eq;
 use assert_matches::assert_matches;
-
+use virtualbow_num::fem::system::dof::DofType;
 // These tests verify that the dynamics of linear mass-spring-damper systems is solved correctly.
 
 #[test]
@@ -29,8 +29,8 @@ fn mass_spring_damper_1() {
     let x0 = 0.1;   // Initial displacement
 
     let mut system = System::new();
-    let node_a = system.create_node(&vector![0.0, 0.0, 0.0], &[false, false, false]);
-    let node_b = system.create_node(&vector![l + x0, 0.0, 0.0], &[true, false, false]);
+    let node_a = system.create_node(&vector![0.0, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node_b = system.create_node(&vector![l + x0, 0.0, 0.0], &[DofType::Active, DofType::Locked, DofType::Locked]);
 
     system.add_element(&[node_a, node_b], StringElement::spring(k, d, l));
     system.add_element(&[node_b], MassElement::new(m));
@@ -57,7 +57,7 @@ fn mass_spring_damper_1() {
     let mut callback = |system: &System, eval: &SystemEval| {
         // Numerical solution
         let t_sys = system.get_time();
-        let x_sys = system.get_displacement(node_b.x()) - l;
+        let x_sys = system.get_position(node_b.x()) - l;
         let v_sys = system.get_velocity(node_b.x());
         let a_sys = eval.get_acceleration(node_b.x());
 
@@ -155,12 +155,11 @@ fn mass_spring_damper_n() {
 
     let lengths: Vec<f64> = lin_space(0.0..=L, n+2).collect();
     for (i, s) in lengths.iter().enumerate() {
-        let (position, free) = if (*s != 0.0) && (*s != L) {
-            (*s + u0[i-1], [true, false, false])
+        if (*s != 0.0) && (*s != L) {
+            nodes.push(system.create_node(&vector![*s + u0[i-1], 0.0, 0.0], &[DofType::Active, DofType::Locked, DofType::Locked]));
         } else {
-            (*s, [false, false, false])
+            nodes.push(system.create_node(&vector![*s, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]));
         };
-        nodes.push(system.create_node(&vector![position, 0.0, 0.0], &free));
     }
 
     // Add bar elements between nodes
@@ -187,7 +186,7 @@ fn mass_spring_damper_n() {
 
     solver.solve(StopCondition::Time(period), &mut |system, eval| {
         // Evaluate fem system and reference solution
-        let u_sys = DVector::<f64>::from_fn(system.n_dofs(), |i, _| { system.get_displacement(nodes[i+1].x()) - lengths[i+1] });
+        let u_sys = DVector::<f64>::from_fn(system.n_dofs(), |i, _| { system.get_position(nodes[i+1].x()) - lengths[i+1] });
         let v_sys = DVector::<f64>::from_fn(system.n_dofs(), |i, _| { system.get_velocity(nodes[i+1].x()) });
         let a_sys = DVector::<f64>::from_fn(system.n_dofs(), |i, _| { eval.get_acceleration(nodes[i+1].x()) });
         let (u_ref, v_ref, a_ref) = ref_solver.evaluate(system.get_time());

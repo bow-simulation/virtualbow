@@ -27,7 +27,7 @@ pub struct BeamElement {
     β1: f64,                  // Angular offset at right node
 
     u_eval: Vec<SMatrix<f64, 3, 3>>,    // Displacement evaluation
-    C_inv: Vec<SMatrix<f64, 3, 3>>,     // Inverse cross section stiffness
+    C_inv: Vec<SMatrix<f64, 3, 3>>,     // Inverse cross-section stiffness
 
     // State dependent data
 
@@ -202,7 +202,7 @@ impl Element for BeamElement {
         M.add_vec(self.M);
     }
 
-    fn update_state_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, mut q: Option<&mut VectorView>, mut K: Option<&mut MatrixView>, mut D: Option<&mut MatrixView>) {
+    fn update_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, mut q: Option<&mut VectorView>, mut K: Option<&mut MatrixView>, mut D: Option<&mut MatrixView>) {
         // Update element state
         self.u = u.get();
         self.v = v.get();

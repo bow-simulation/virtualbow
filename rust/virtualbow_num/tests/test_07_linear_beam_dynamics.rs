@@ -5,6 +5,7 @@ use virtualbow_num::fem::elements::beam::beam::BeamElement;
 use virtualbow_num::fem::elements::beam::geometry::CrossSection;
 use virtualbow_num::fem::elements::beam::linear::LinearBeamSegment;
 use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
+use virtualbow_num::fem::system::dof::DofType;
 use virtualbow_num::fem::system::system::System;
 use virtualbow_num::testutils::curves::Line;
 use virtualbow_num::utils::integration::fixed_simpson;
@@ -55,8 +56,8 @@ fn test_linear_beam_dynamics() {
 
     // Create nodes with initial positions
     for &x in &x_nodes {
-        let free = x != 0.0;
-        let node = system.create_node(&vector![x, w0(x), φ0(x)], &[free; 3]);
+        let kind = DofType::active_if(x != 0.0);
+        let node = system.create_node(&vector![x, w0(x), φ0(x)], &[kind; 3]);
         nodes.push(node);
     }
 
@@ -77,8 +78,8 @@ fn test_linear_beam_dynamics() {
             let t = system.get_time();
             let x = x_nodes[i];
 
-            let w_num = system.get_displacement(nodes[i].y());
-            let φ_num = system.get_displacement(nodes[i].φ());
+            let w_num = system.get_position(nodes[i].y());
+            let φ_num = system.get_position(nodes[i].φ());
 
             let w_ref = beam.w(x, t);
             let φ_ref = beam.φ(x, t);
@@ -94,9 +95,9 @@ fn test_linear_beam_dynamics() {
     }).unwrap();
 
     for node in &nodes {
-        let x = system.get_displacement(node.x());
-        let y = system.get_displacement(node.y());
-        let φ = system.get_displacement(node.φ());
+        let x = system.get_position(node.x());
+        let y = system.get_position(node.y());
+        let φ = system.get_position(node.φ());
 
         plotter.add_point((x, y), (x, beam.w(x, system.get_time())), "Final Deflection", "x [m]", "y [m]");
         plotter.add_point((x, φ), (x, beam.φ(x, system.get_time())), "Final Angle", "x [m]", "φ [rad]");
