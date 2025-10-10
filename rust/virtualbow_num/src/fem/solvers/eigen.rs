@@ -1,11 +1,11 @@
 use std::fmt::{Display, Formatter};
-use nalgebra::{Complex, ComplexField, DMatrix, DVector, stack};
+use nalgebra::{Complex, ComplexField, DMatrix, DVector, stack, OVector};
 use itertools::Itertools;
 use crate::fem::system::system::System;
 
 #[derive(PartialEq, Debug)]
 pub enum EigenSolverError {
-    SingularMassMatrix,
+    NonPositiveMassMatrix,
     MatrixInversionFailed,
     NonFiniteEigenvalues,
 }
@@ -13,7 +13,7 @@ pub enum EigenSolverError {
 impl Display for EigenSolverError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            EigenSolverError::SingularMassMatrix    => write!(f, "The system has a singular mass matrix.")?,
+            EigenSolverError::NonPositiveMassMatrix => write!(f, "The system has a non-positive mass matrix.")?,
             EigenSolverError::MatrixInversionFailed => write!(f, "Inversion of the system matrix failed.")?,
             EigenSolverError::NonFiniteEigenvalues  => write!(f, "At least one of the computed Eigenvalues is non-finite.")?,
         }
@@ -74,7 +74,7 @@ pub fn natural_frequencies_from_matrices(M: &DVector<f64>, D: &DMatrix<f64>, K: 
 
     // Check if the mass matrix is positive definite
     if M.amax() < 0.0 {
-        return Err(EigenSolverError::SingularMassMatrix);
+        return Err(EigenSolverError::NonPositiveMassMatrix);
     }
     
     // Compute the complex eigenvalues for A*v = lambda*B*v by inverting B and solving B^(-1)*A*v = lambda*v.
@@ -86,6 +86,11 @@ pub fn natural_frequencies_from_matrices(M: &DVector<f64>, D: &DMatrix<f64>, K: 
     ];
 
     let lambda = A.complex_eigenvalues();
+    natural_frequencies_from_eigenvalues(lambda.as_slice())
+}
+
+// TODO: Add a test for this function
+pub fn natural_frequencies_from_eigenvalues(lambda: &[Complex<f64>]) -> Result<Vec<Mode>, EigenSolverError> {
     if !lambda.iter().cloned().all(Complex::<f64>::is_finite) {
         return Err(EigenSolverError::NonFiniteEigenvalues);
     }
@@ -99,5 +104,5 @@ pub fn natural_frequencies_from_matrices(M: &DVector<f64>, D: &DMatrix<f64>, K: 
 
     // Sort results by undamped natural frequency and return
     modes.sort_by(|a, b| a.omega.partial_cmp(&b.omega).expect("Failed to compare frequencies"));
-    return Ok(modes);
+    Ok(modes)
 }

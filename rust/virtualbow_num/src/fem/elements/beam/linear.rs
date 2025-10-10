@@ -30,21 +30,25 @@ impl LinearBeamSegment {
     // Discretizes a continuous geometry into a given number of linear beam segments
     // Returns segments, points, lengths
     // TODO: Specify (number of) eval points?
-    pub fn discretize<C, S>(curve: &C, section: &S, n_elements: usize) -> (Vec<Self>, Vec<SVector<f64, 3>>, Vec<f64>)
+    pub fn discretize<C, S>(curve: &C, section: &S, n_elements: usize, n_eval_per_element: usize) -> (Vec<Self>, Vec<SVector<f64, 3>>, Vec<f64>)
     where C: PlanarCurve,
           S: CrossSection
     {
         assert!(n_elements >= 1, "At least one element required");
 
-        let lengths = lin_space(curve.length_start()..=curve.length_end(), n_elements + 1).collect_vec();
-        let segments = lengths.iter().tuple_windows().map(|(&s0, &s1)| LinearBeamSegment::new(curve, section, s0, s1, &[])).collect_vec();
+        let s_node = lin_space(curve.length_start()..=curve.length_end(), n_elements + 1).collect_vec();                            // Lengths at which the element nodes are placed
+
+        let segments = s_node.iter().tuple_windows().map(|(&s0, &s1)| {
+            let s_eval = lin_space(s0..=s1, n_eval_per_element).collect_vec();            // Lengths at which the elements are evaluated
+            LinearBeamSegment::new(curve, section, s0, s1, &s_eval)
+        }).collect_vec();
 
         // TODO: This is kind of ugly...
         let mut points = Vec::new();
         points.push(segments[0].p0);
         segments.iter().for_each(|s| points.push(s.p1));
 
-        (segments, points, lengths)
+        (segments, points, s_node)
     }
 
     pub fn new<C, S>(curve: &C, section: &S, s0: f64, s1: f64, se: &[f64]) -> Self

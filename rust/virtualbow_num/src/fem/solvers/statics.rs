@@ -78,20 +78,20 @@ impl<'a> StaticSolver<'a> {
 
     // points = steps + 1
     pub fn equilibrium_path_load_controlled<F>(&mut self, steps: usize, callback: &mut F) -> Result<(), StaticSolverError>
-        where F: FnMut(&System, &SystemEval) -> bool
+        where F: FnMut(&System, &SystemEval, usize) -> bool
     {
         // If the number of intermediate load steps is zero, perform only one solution for lambda = 1.
         // Otherwise divide the range lambda = [0, 1] into the required number of steps and solve each point.
         if steps == 0 {
             self.equilibrium_load_controlled(1.0)?;
-            if !callback(self.system, &SystemEval::new(&self.pλ, &self.q, &self.a)) {
+            if !callback(self.system, &SystemEval::new(&self.pλ, &self.q, &self.a), 0) {
                 return Err(StaticSolverError::AbortedByCaller)
             }
         }
         else {
-            for lambda in lin_space(0.0..=1.0, steps + 1) {
+            for (i, lambda) in lin_space(0.0..=1.0, steps + 1).enumerate() {
                 self.equilibrium_load_controlled(lambda)?;
-                if !callback(self.system, &SystemEval::new(&self.pλ, &self.q, &self.a)) {
+                if !callback(self.system, &SystemEval::new(&self.pλ, &self.q, &self.a), i) {
                     return Err(StaticSolverError::AbortedByCaller)
                 }
             }

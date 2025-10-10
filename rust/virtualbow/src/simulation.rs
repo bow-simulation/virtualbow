@@ -461,7 +461,7 @@ impl<'a> Simulation<'a> {
         let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());
         let mut states = StateVec::new();
 
-        solver.equilibrium_path_load_controlled(model.settings.min_draw_resolution, &mut |system, eval| {
+        solver.equilibrium_path_load_controlled(model.settings.min_draw_resolution, &mut |system, eval, _i| {
             let state = simulation.get_bow_state(system, eval, 0.0);
             states.push(state);
             return true;
