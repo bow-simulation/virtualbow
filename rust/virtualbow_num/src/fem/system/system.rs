@@ -71,7 +71,7 @@ impl System {
     }
 
     // Removes all external forces
-    pub fn clear_forces(&mut self) {
+    pub fn reset_forces(&mut self) {
         self.forces.clear();
     }
 
@@ -167,8 +167,9 @@ impl System {
         VelocityView::transform(&self.v, dof)
     }
 
-    // Restores the initial state of the system (u = 0, v = 0)
+    // Restores the initial state of the system (t = 0, u = 0, v = 0)
     pub fn reset_state(&mut self) {
+        self.t = 0.0;
         self.u.fill(0.0);
         self.v.fill(0.0);
     }

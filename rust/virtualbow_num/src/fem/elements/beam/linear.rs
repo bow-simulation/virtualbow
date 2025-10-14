@@ -19,7 +19,7 @@ pub struct LinearBeamSegment {
 
     pub Ep: Vec<SMatrix<f64, 3, 6>>,    // Evaluation of displacements (x, y, phi)
     pub Ef: Vec<SMatrix<f64, 3, 6>>,    // Evaluation of section forces (N, Q, M)
-    pub Ci: Vec<SMatrix<f64, 3, 3>>,    // Inverse cross section stiffness (compliance)
+    pub Ci: Vec<SMatrix<f64, 3, 3>>,    // Inverse cross-section stiffness (compliance)
 
     pub K: SMatrix<f64, 6, 6>,              // Stiffness matrix
     pub M: SVector<f64, 6>,                 // Lumped mass matrix
@@ -170,12 +170,12 @@ impl LinearBeamSegment {
         // Alternative: integrating both mass and rotary inertia at the nodes only
         // TODO: Test against natural frequencies and decide
         let M = 0.5*(s1 - s0)*vector![
-            section.ρA(s0),
-            section.ρA(s0),
-            section.rhoI(s0),
-            section.ρA(s1),
-            section.ρA(s1),
-            section.rhoI(s1)
+            section.mass(s0)[(0, 0)],
+            section.mass(s0)[(0, 0)],
+            section.mass(s0)[(2, 2)],
+            section.mass(s1)[(0, 0)],
+            section.mass(s1)[(0, 0)],
+            section.mass(s1)[(2, 2)]
         ];
         */
 

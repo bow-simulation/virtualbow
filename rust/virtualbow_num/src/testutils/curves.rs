@@ -74,7 +74,7 @@ impl PlanarCurve for Arc {
         s/self.r
     }
 
-    fn curvature(&self, s: f64) -> f64 {
+    fn curvature(&self, _s: f64) -> f64 {
         1.0/self.r
     }
 }
@@ -117,7 +117,7 @@ impl PlanarCurve for Wave {
 
     fn position(&self, s: f64) -> SVector<f64, 2> {
         let (i, c, α) = self.center(s);
-        return vector![
+        vector![
             c - self.r*f64::cos(α),
             ((-1_i64).pow(i as u32) as f64)*self.r*f64::sin(α)
         ]
@@ -125,11 +125,11 @@ impl PlanarCurve for Wave {
 
     fn angle(&self, s: f64) -> f64 {
         let (i, _, α) = self.center(s);
-        return ((-1_i64).pow(i as u32) as f64)*(FRAC_PI_2 - α);
+        ((-1_i64).pow(i as u32) as f64)*(FRAC_PI_2 - α)
     }
 
-    fn curvature(&self, s: f64) -> f64 {
-        todo!()
+    fn curvature(&self, _s: f64) -> f64 {
+        unimplemented!()
     }
 }
 

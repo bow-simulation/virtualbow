@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter};
-use nalgebra::{Complex, ComplexField, DMatrix, DVector, stack, OVector};
+use nalgebra::{Complex, ComplexField, DMatrix, DVector, stack};
 use itertools::Itertools;
 use crate::fem::system::system::System;
 
@@ -54,7 +54,7 @@ pub fn natural_frequencies(system: &mut System) -> Result<Vec<Mode>, EigenSolver
     system.compute_mass_matrix(&mut M);
     system.compute_internal_forces(None, Some(&mut K), Some(&mut D));
 
-    return natural_frequencies_from_matrices(&M, &D, &K);
+    natural_frequencies_from_matrices(&M, &D, &K)
 }
 
 // TODO: Add a test for this function

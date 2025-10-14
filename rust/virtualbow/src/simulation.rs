@@ -317,7 +317,7 @@ impl<'a> Simulation<'a> {
                 system.element_mut::<StringElement>(simulation.string_element).set_compression_factor(model.settings.string_compression_factor);
 
                 // Remove static draw force
-                system.clear_forces();
+                system.reset_forces();
 
                 // Simulate the first part of the shot until either the arrow separates from the string
                 // or the timeout is reached for some reason
@@ -461,7 +461,7 @@ impl<'a> Simulation<'a> {
         let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());
         let mut states = StateVec::new();
 
-        solver.equilibrium_path_load_controlled(model.settings.min_draw_resolution, &mut |system, eval, _i| {
+        solver.equilibrium_path_load_controlled(model.settings.min_draw_resolution, &mut |system, eval| {
             let state = simulation.get_bow_state(system, eval, 0.0);
             states.push(state);
             return true;

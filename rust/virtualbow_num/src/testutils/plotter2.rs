@@ -5,6 +5,8 @@ use indexmap::IndexMap;
 // the plot images are written to the target directory, named after the currently running test.
 // Inspired by https://github.com/fabianboesiger/debug-plotter
 
+// TODO: Replace plotter module with plotter2
+
 pub struct Plotter {
     plots: IndexMap<String, PlotData>    // IndexMap preserves order of insertion
 }
@@ -68,12 +70,14 @@ impl Drop for Plotter {
     }
 }
 
+#[allow(dead_code)]
 struct PlotData {
     series: IndexMap<String, SeriesData>,    // IndexMap preserves order of insertion
     xlabel: String,
     ylabel: String,
 }
 
+#[allow(dead_code)]
 struct SeriesData {
     points: Vec<(f64, f64)>,
     color: usize
@@ -134,7 +138,7 @@ fn create_plot(output_path: &str, title: &str, data: &PlotData) {
     use plotters::chart::ChartBuilder;
     use plotters::drawing::IntoDrawingArea;
     use plotters::series::LineSeries;
-    use plotters::element::{PathElement, Cross};
+    use plotters::element::PathElement;
     use plotters::style::{BLACK, WHITE, BLUE, RED};
 
     let file_path = format!("{}/{}.png", output_path, title.to_lowercase().replace(" ", "_"));
@@ -168,12 +172,6 @@ fn create_plot(output_path: &str, title: &str, data: &PlotData) {
         ctx.draw_series(LineSeries::new(series.points.iter().copied(), color)).unwrap()
             .label(name)
             .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], color));
-
-        /*
-        ctx.draw_series(series.points.iter().map(|&(x, y)| {
-            Cross::new((x, y), 5, color)
-        })).unwrap();
-        */
     }
 
     ctx.configure_series_labels()

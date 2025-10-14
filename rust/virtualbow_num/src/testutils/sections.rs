@@ -76,8 +76,11 @@ impl CrossSection for Section {
         let h = self.height(n);
         let y = self.offset(n);
 
-        let ρA = self.ρ*w*h;
-        let ρI = self.ρ*w*h.powi(3)/12.0;
+        let A = w*h;
+        let I = w*h.powi(3)/12.0 + A*y.powi(2);
+
+        let ρA = self.ρ*A;
+        let ρI = self.ρ*I;
 
         matrix![
             ρA, 0.0, -ρA*y;

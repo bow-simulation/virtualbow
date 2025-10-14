@@ -1,12 +1,23 @@
 include("simulate.jl")
 
-using JSON3
+using MsgPack
 
-N = 1000    # Number of elements
+MsgPack.msgpack_type(::Type{Output}) = MsgPack.StructType()
+MsgPack.msgpack_type(::Type{OutputState}) = MsgPack.StructType()
+MsgPack.msgpack_type(::Type{Settings}) = MsgPack.StructType()
 
-Fx = -60    # Force in x direction
-Fy = 80    # Force in y direction
-Mz = 10     # Torque around z axis
+Fx = -60       # Force in x direction
+Fy = 80        # Force in y direction
+Mz = 10        # Torque around z axis
+omega = 200    # Frequency of dynamic Load
+
+settings = Settings(
+    n_elements = 1000,      # Number of elements
+    n_eigen = 12,           # Number of eigenvalues (2 eigenvalues = 1 frequency)
+    n_static = 10,          # Number of static states being simulated, including zero and full load
+    n_dynamic = 250,        # Number of dynamic states being simulated, including zero and final time
+    n_dynamic_out = 10      # Number of dynamic states written to output
+)
 
 # Constructs one of several possible curves by name
 function create_curve(name)
@@ -76,10 +87,20 @@ for curve_name in ["curve1", "curve2", "curve3"]
     L, curve = create_curve(curve_name)
 
     for section_name in ["section1", "section2", "section3", "section4", "section5", "section6", "section7"]
-        compliance, mass = create_section(section_name)
-        assembly = create_assembly(L, N, curve, compliance, mass)
-        output = simulate_assembly(assembly, Fx, Fy, Mz)
+        filename = curve_name * "_" * section_name * ".msgpack"
+        filepath = path * "/" * filename
+        println(filename, "...")
 
-        write(path * "/" * curve_name * "_" * section_name * ".json", JSON3.write(output))
+        if isfile(filepath)
+            continue
+        end
+
+        compliance, mass = create_section(section_name)        
+        assembly = create_assembly(L, settings.n_elements, curve, compliance, mass)
+        output = simulate_assembly(assembly, Fx, Fy, Mz, omega, settings)
+
+        open(filepath, "w") do io
+            pack(io, output)
+        end
     end
 end
