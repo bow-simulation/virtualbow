@@ -253,7 +253,7 @@ impl<'a> Simulation<'a> {
 
     // Callback: (phase, progress) -> continue
     pub fn simulate<F>(model: &'a BowModel, mode: SimulationMode, mut callback: F) -> Result<BowResult, ModelError>
-        where F: FnMut(SimulationMode, f64) -> bool
+    where F: FnMut(SimulationMode, f64) -> bool
     {
         // Initialize simulation. String always, but damping only in dynamic mode (saves an einegvalue analysis).
         let (mut system, mut simulation, common) = Self::initialize(model, true, mode == SimulationMode::Dynamic)?;

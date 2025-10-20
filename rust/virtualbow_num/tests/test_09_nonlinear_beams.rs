@@ -122,16 +122,13 @@ fn simulate_and_test_beam(path: &Path) {
         max_stagnation: 100,
     };
 
-    let mut system = System::new();
-
     // Create linear beam segments and elements
     let (segments, points, _lengths) = LinearBeamSegment::discretize(&curve, &section, n_elements, n_eval_per_element);
 
     // Create nodes and elements
+    let mut system = System::new();
     let nodes: Vec<Node> = points.iter().enumerate().map(|(i, point)| system.create_node(point, &[DofType::active_if(i != 0); 3])).collect();
-    let elements: Vec<usize> = segments.iter().enumerate().map(|(i, segment)| {
-        system.add_element(&[nodes[i], nodes[i+1]], BeamElement::new(segment))
-    }).collect();
+    let elements: Vec<usize> = segments.iter().enumerate().map(|(i, segment)| system.add_element(&[nodes[i], nodes[i+1]], BeamElement::new(segment))).collect();
 
     // Add tip forces
     system.add_force(nodes[n_elements].x(), move |_t| { Fx });

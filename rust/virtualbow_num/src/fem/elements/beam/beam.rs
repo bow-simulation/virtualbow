@@ -33,6 +33,7 @@ pub struct BeamElement {
 }
 
 pub struct EvalResult {
+    pub length: f64,                  // Length at which the element was evaluated
     pub position: SVector<f64, 3>,    // Cross section position and orientation [x, y, φ]
     pub velocity: SVector<f64, 3>,    // Velocity of the cross section position [vx, vy, vφ]
     pub forces: SVector<f64, 3>,      // Cross section forces [N, Q, M]
@@ -150,6 +151,7 @@ impl BeamElement {
         let y1 = self.u[4];
 
         self.se.iter().enumerate().map(move |(i, _)| {
+            let length = self.se[i];
             let position = p0 + R*(self.pe[i] + self.u_eval[i]*self.ul);
             let velocity = p0_dot + dadt*dRda*(self.pe[i] + self.u_eval[i]*self.ul) + R*self.u_eval[i]*self.vl;
 
@@ -165,6 +167,7 @@ impl BeamElement {
             let strains = self.C_inv[i]*forces;
 
             EvalResult {
+                length,
                 position,
                 velocity,
                 forces,
