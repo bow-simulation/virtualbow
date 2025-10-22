@@ -11,7 +11,7 @@ Release: 1
 License: GPL
 SOURCE0 : %{name}-%{version}.tar.gz
 URL: @APPLICATION_WEBSITE@
-Requires: qt5-qtbase
+Requires: qt6-qtbase
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
@@ -36,9 +36,7 @@ rm -rf %{buildroot}
 %defattr(755,root,root)
 /usr/bin/virtualbow-gui
 /usr/bin/virtualbow-cli
-/usr/bin/virtualbow-post
 %defattr(644,root,root)
 /usr/share/applications/virtualbow-gui.desktop
-/usr/share/applications/virtualbow-post.desktop
 /usr/share/icons/hicolor/scalable/apps/virtualbow.svg
 /usr/share/virtualbow/user-manual

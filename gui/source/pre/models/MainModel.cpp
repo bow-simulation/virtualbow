@@ -60,6 +60,10 @@ const QString& MainModel::currentFile() const {
     return path;
 }
 
+bool MainModel::hasCurrentFile() const {
+    return !path.isEmpty();
+}
+
 bool MainModel::hasUnsavedWork() const {
     return unsaved;
 }

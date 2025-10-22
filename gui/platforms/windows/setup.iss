@@ -25,9 +25,7 @@ Source: ${CMAKE_BINARY_DIR}\application\*; DestDir: {app}; Flags: ignoreversion 
 
 [Icons]
 Name: {group}\VirtualBow; Filename: {app}\virtualbow-gui.exe
-Name: {group}\VirtualBow Post; Filename: {app}\virtualbow-post.exe
 Name: {commondesktop}\VirtualBow; Filename: {app}\virtualbow-gui.exe; Tasks: DesktopIcons
-Name: {commondesktop}\VirtualBow Post; Filename: {app}\virtualbow-post.exe; Tasks: DesktopIcons
 
 [Tasks]
 Name: DesktopIcons; Description: "Create desktop shortcuts";
@@ -39,11 +37,6 @@ Root: HKCR; Subkey: .bow; ValueType: string; ValueName: ""; ValueData: VirtualBo
 Root: HKCR; Subkey: VirtualBowModelFile; ValueType: string; ValueName: ""; ValueData: VirtualBow Model; Flags: uninsdeletekey; Tasks: FileAssociation
 Root: HKCR; Subkey: VirtualBowModelFile\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\virtualbow-gui.exe,-2"; Tasks: FileAssociation
 Root: HKCR; Subkey: VirtualBowModelFile\shell\open\command; ValueType: string; ValueName: ""; ValueData: "{app}\virtualbow-gui.exe %1"; Tasks: FileAssociation 
-
-Root: HKCR; Subkey: .res; ValueType: string; ValueName: ""; ValueData: VirtualBowResultFile; Flags: uninsdeletevalue; Tasks: FileAssociation 
-Root: HKCR; Subkey: VirtualBowResultFile; ValueType: string; ValueName: ""; ValueData: VirtualBow Result; Flags: uninsdeletekey; Tasks: FileAssociation
-Root: HKCR; Subkey: VirtualBowResultFile\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\virtualbow-post.exe,-2"; Tasks: FileAssociation
-Root: HKCR; Subkey: VirtualBowResultFile\shell\open\command; ValueType: string; ValueName: ""; ValueData: "{app}\virtualbow-post.exe %1"; Tasks: FileAssociation
 
 Root: HKCU; Subkey: Environment; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Tasks: AddToPath; Check: NotInPath(ExpandConstant('{app}'))
 

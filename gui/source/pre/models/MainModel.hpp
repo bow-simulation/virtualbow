@@ -36,6 +36,7 @@ public:
     // Current state
 
     const QString& currentFile() const;    // Currently loaded file path or empty, if no file is currently loaded
+    bool hasCurrentFile() const;           // Whether the bow model is associated with a file
     bool hasUnsavedWork() const;           // Whether model content has been modified without saving
     bool hasBow() const;              // Whether bow model data is currently present (does not have to be backed by a file)
     const BowModel& getBow() const;
