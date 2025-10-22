@@ -1,3 +1,4 @@
+use iter_num_tools::lin_space;
 use itertools::Itertools;
 use nalgebra::{matrix, SMatrix, stack, SVector, vector};
 use serde::{Deserialize, Serialize};
@@ -18,7 +19,7 @@ pub struct LinearBeamSegment {
 
     pub Ep: Vec<SMatrix<f64, 3, 6>>,    // Evaluation of displacements (x, y, phi)
     pub Ef: Vec<SMatrix<f64, 3, 6>>,    // Evaluation of section forces (N, Q, M)
-    pub Ci: Vec<SMatrix<f64, 3, 3>>,
+    pub Ci: Vec<SMatrix<f64, 3, 3>>,    // Inverse cross-section stiffness (compliance)
 
     pub K: SMatrix<f64, 6, 6>,              // Stiffness matrix
     pub M: SVector<f64, 6>,                 // Lumped mass matrix
@@ -26,6 +27,30 @@ pub struct LinearBeamSegment {
 }
 
 impl LinearBeamSegment {
+    // Discretizes a continuous geometry into a given number of linear beam segments
+    // Returns segments, points, lengths
+    // TODO: Specify (number of) eval points?
+    pub fn discretize<C, S>(curve: &C, section: &S, n_elements: usize, n_eval_per_element: usize) -> (Vec<Self>, Vec<SVector<f64, 3>>, Vec<f64>)
+    where C: PlanarCurve,
+          S: CrossSection
+    {
+        assert!(n_elements >= 1, "At least one element required");
+
+        let s_node = lin_space(curve.length_start()..=curve.length_end(), n_elements + 1).collect_vec();                            // Lengths at which the element nodes are placed
+
+        let segments = s_node.iter().tuple_windows().map(|(&s0, &s1)| {
+            let s_eval = lin_space(s0..=s1, n_eval_per_element).collect_vec();            // Lengths at which the elements are evaluated
+            LinearBeamSegment::new(curve, section, s0, s1, &s_eval)
+        }).collect_vec();
+
+        // TODO: This is kind of ugly...
+        let mut points = Vec::new();
+        points.push(segments[0].p0);
+        segments.iter().for_each(|s| points.push(s.p1));
+
+        (segments, points, s_node)
+    }
+
     pub fn new<C, S>(curve: &C, section: &S, s0: f64, s1: f64, se: &[f64]) -> Self
         where C: PlanarCurve,
               S: CrossSection
@@ -145,12 +170,12 @@ impl LinearBeamSegment {
         // Alternative: integrating both mass and rotary inertia at the nodes only
         // TODO: Test against natural frequencies and decide
         let M = 0.5*(s1 - s0)*vector![
-            section.ρA(s0),
-            section.ρA(s0),
-            section.rhoI(s0),
-            section.ρA(s1),
-            section.ρA(s1),
-            section.rhoI(s1)
+            section.mass(s0)[(0, 0)],
+            section.mass(s0)[(0, 0)],
+            section.mass(s0)[(2, 2)],
+            section.mass(s1)[(0, 0)],
+            section.mass(s1)[(0, 0)],
+            section.mass(s1)[(2, 2)]
         ];
         */
 

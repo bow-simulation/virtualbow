@@ -4,9 +4,9 @@ use virtualbow_num::fem::system::system::System;
 use virtualbow_num::fem::elements::beam::beam::BeamElement;
 use virtualbow_num::fem::elements::beam::linear::LinearBeamSegment;
 use virtualbow_num::fem::elements::string::StringElement;
-use virtualbow_num::utils::syschecks::assert_system_invariants;
+use virtualbow_num::testutils::syschecks::assert_system_invariants;
 use virtualbow_num::fem::elements::beam::geometry::{ArcCurve, RectangularSection};
-
+use virtualbow_num::fem::system::dof::DofType;
 // These tests perform basic consistency checks on the various elements
 // See the testutils::checks::check_system_invariants function for the details
 
@@ -15,7 +15,7 @@ fn mass_element() {
     let m = 1.5;
 
     let mut system = System::new();
-    let node = system.create_node(&vector![0.0, 0.0, 0.0], &[true; 3]);
+    let node = system.create_node(&vector![0.0, 0.0, 0.0], &[DofType::Active; 3]);
     system.add_element(&[node], MassElement::new(m));
 
     assert_system_invariants(&mut system);
@@ -31,8 +31,8 @@ fn string_element() {
     // Two nodes
     {
         let mut system = System::new();
-        let node0 = system.create_node(&vector![0.0, 0.0, 1.5], &[true; 3]);
-        let node1 = system.create_node(&vector![0.0, 1.0, 1.5], &[true; 3]);
+        let node0 = system.create_node(&vector![0.0, 0.0, 1.5], &[DofType::Active; 3]);
+        let node1 = system.create_node(&vector![0.0, 1.0, 1.5], &[DofType::Active; 3]);
 
         let offsets = vec![-0.1, -0.1];
         system.add_element(&[node0, node1], StringElement::new(EA, ηA, l0, cf, offsets));
@@ -43,9 +43,9 @@ fn string_element() {
     // Three nodes, middle node has contact
     {
         let mut system = System::new();
-        let node0 = system.create_node(&vector![0.0, 0.0, 1.5], &[true; 3]);
-        let node1 = system.create_node(&vector![0.1, 1.0, 1.5], &[true; 3]);
-        let node2 = system.create_node(&vector![0.0, 2.0, 1.5], &[true; 3]);
+        let node0 = system.create_node(&vector![0.0, 0.0, 1.5], &[DofType::Active; 3]);
+        let node1 = system.create_node(&vector![0.1, 1.0, 1.5], &[DofType::Active; 3]);
+        let node2 = system.create_node(&vector![0.0, 2.0, 1.5], &[DofType::Active; 3]);
 
         let offsets = vec![-0.1, -0.1, -0.1];
         system.add_element(&[node0, node1, node2], StringElement::new(EA, ηA, l0, cf, offsets));
@@ -56,9 +56,9 @@ fn string_element() {
     // Three nodes, middle node has no contact
     {
         let mut system = System::new();
-        let node0 = system.create_node(&vector![0.0, 0.0, 1.5], &[true; 3]);
-        let node1 = system.create_node(&vector![-0.1, 1.0, 1.5], &[true; 3]);
-        let node2 = system.create_node(&vector![0.0, 2.0, 1.5], &[true; 3]);
+        let node0 = system.create_node(&vector![0.0, 0.0, 1.5], &[DofType::Active; 3]);
+        let node1 = system.create_node(&vector![-0.1, 1.0, 1.5], &[DofType::Active; 3]);
+        let node2 = system.create_node(&vector![0.0, 2.0, 1.5], &[DofType::Active; 3]);
     
         let offsets = vec![-0.1, -0.1, -0.1];
         system.add_element(&[node0, node1, node2], StringElement::new(EA, ηA, l0, cf, offsets));
@@ -69,10 +69,10 @@ fn string_element() {
     // Four nodes, middle nodes have contact
     {
         let mut system = System::new();
-        let node0 = system.create_node(&vector![0.0, 0.0, 1.5], &[true; 3]);
-        let node1 = system.create_node(&vector![0.1, 1.0, 1.5], &[true; 3]);
-        let node2 = system.create_node(&vector![0.1, 2.0, 1.5], &[true; 3]);
-        let node3 = system.create_node(&vector![0.0, 3.0, 1.5], &[true; 3]);
+        let node0 = system.create_node(&vector![0.0, 0.0, 1.5], &[DofType::Active; 3]);
+        let node1 = system.create_node(&vector![0.1, 1.0, 1.5], &[DofType::Active; 3]);
+        let node2 = system.create_node(&vector![0.1, 2.0, 1.5], &[DofType::Active; 3]);
+        let node3 = system.create_node(&vector![0.0, 3.0, 1.5], &[DofType::Active; 3]);
         
         let offsets = vec![-0.1, -0.1, -0.1, -0.1];
         system.add_element(&[node0, node1, node2, node3], StringElement::new(EA, ηA, l0, cf, offsets));
@@ -94,8 +94,8 @@ fn beam_element() {
     element.set_damping(0.1);
 
     let mut system = System::new();
-    let node0 = system.create_node(&segment.p0, &[true; 3]);
-    let node1 = system.create_node(&segment.p1, &[true; 3]);
+    let node0 = system.create_node(&segment.p0, &[DofType::Active; 3]);
+    let node1 = system.create_node(&segment.p1, &[DofType::Active; 3]);
     system.add_element(&[node0, node1], element);
 
     let u0 = system.get_displacements().clone();

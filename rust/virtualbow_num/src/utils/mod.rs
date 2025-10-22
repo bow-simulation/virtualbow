@@ -8,6 +8,3 @@ pub mod intervals;
 pub mod geometry;
 pub mod newton;
 pub mod minmax;
-pub mod plotter;
-pub mod syschecks;
-pub mod numdiff;

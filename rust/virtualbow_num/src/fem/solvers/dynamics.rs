@@ -178,13 +178,10 @@ impl<'a> DynamicSolver<'a> {
 
             // If the termination is based on acceleration, check here for sign changes
             if let StopCondition::Acceleration(dof, value, sign) = stop {
-                let index = match dof {
-                    Dof::Free(i) => i,
-                    Dof::Fixed(_) => panic!("Can't watch acceleration of a fixed dof for sign changes")
-                };
+                assert!(dof.is_active(), "Can't watch acceleration of a locked dof for sign changes");
 
-                let positive = (a_prev[index] < value) && (a_eval[index] > value);    // Positive sign change occurred
-                let negative = (a_prev[index] > value) && (a_eval[index] < value);    // Negative sign change occurred
+                let positive = (a_prev[dof.index] < value) && (a_eval[dof.index] > value);    // Positive sign change occurred
+                let negative = (a_prev[dof.index] > value) && (a_eval[dof.index] < value);    // Negative sign change occurred
 
                 // If a sign change occurred that matches the specified option, the end of the simulation has been reached and exceeded.
                 // To get an accurate end time, the equilibrium iteration is repeated with the timestep as a free parameter
@@ -210,11 +207,11 @@ impl<'a> DynamicSolver<'a> {
 
                     // Constraint for the acceleration
                     let mut constraint = |a_next: &DVector<f64>, _dt: f64, c: &mut f64, dcda: &mut DVector<f64>, dcddt: &mut f64| {
-                        *c = a_next[index] - value;
+                        *c = a_next[dof.index] - value;
                         *dcddt = 0.0;
 
                         dcda.fill(0.0);
-                        dcda[index] = 1.0;
+                        dcda[dof.index] = 1.0;
                     };
 
                     // Solve the constrained problem
@@ -360,7 +357,7 @@ impl<'a> DynamicSolver<'a> {
             if let StopCondition::Acceleration(dof, value, sign) = stop {
                 let index = match dof {
                     Dof::Free(i) => i,
-                    Dof::Fixed(_) => panic!("Can't watch acceleration of a fixed dof for sign changes")
+                    Dof::Fixed(_) => panic!("Can't watch acceleration of a locked dof for sign changes")
                 };
 
                 let positive = (a_prev[index] < value) && (a_next[index] > value);    // Positive sign change occurred

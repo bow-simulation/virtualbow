@@ -1,7 +1,7 @@
 use crate::fem::system::element::Element;
-use crate::fem::system::dof::Dof;
+use crate::fem::system::dof::{Dof, DofType};
 use crate::fem::system::node::Node;
-use crate::fem::system::views::{PositionView, VelocityView, VectorView, MatrixView, AccelerationView, ForceView};
+use crate::fem::system::views::{PositionView, VelocityView, VectorView, MatrixView, AccelerationView, ForceView, DisplacementView};
 use nalgebra::{DMatrix, DVector, SVector};
 
 // The system struct holds the elements, external forces and their mapping to the dofs that make up the fem system.
@@ -25,10 +25,14 @@ pub struct System {
     elements: Vec<(Vec<Dof>, ElementHandle)>,    // List of elements with the dofs that connect them to the system
     forces: Vec<(Dof, ExternalForce)>,           // Externally applied forces, given as functions of time for each dof
 
-    // System state
-    t: f64,             // Current time
-    u: DVector<f64>,    // Displacements
-    v: DVector<f64>,    // Velocities
+    // Initial conditions
+    xl: DVector<f64>,    // Initial positions of the locked dofs
+    xa: DVector<f64>,    // Initial positions of the active dofs
+
+    // Current state
+    t: f64,             // Time
+    u: DVector<f64>,    // Displacements (active dofs)
+    v: DVector<f64>,    // Velocities (active dofs)
 }
 
 impl System {
@@ -37,6 +41,8 @@ impl System {
         Self {
             elements: Vec::new(),
             forces: Vec::new(),
+            xl: DVector::zeros(0),
+            xa: DVector::zeros(0),
             t: 0.0,
             u: DVector::zeros(0),
             v: DVector::zeros(0),
@@ -53,37 +59,56 @@ impl System {
         }
 
         self.elements.push((dofs, Box::new(element)));
-        return self.elements.len() - 1;
+        self.elements.len() - 1
     }
 
     // Adds an external force, which can be time-dependent, to the system.
-    // It is specified as a function of time and the dof on which it acts (must not be a fixed dof).
+    // It is specified as a function of time and the dof on which it acts (must not be a locked dof).
     // The actual force vector at a certain time is later calculated by summing all added forces for each dof.
     pub fn add_force<T: Fn(f64) -> f64 + 'static>(&mut self, dof: Dof, force: T) {
-        assert!(dof.is_free(), "Cannot apply external force to fixed dof");
+        assert!(dof.is_active(), "Cannot apply external force to a locked dof");
         self.forces.push((dof, Box::new(force)));
     }
 
     // Removes all external forces
-    pub fn clear_forces(&mut self) {
+    pub fn reset_forces(&mut self) {
         self.forces.clear();
     }
 
-    // Creates a planar node with three degrees of freedom, two displacements in x and y and a rotation angle.
-    pub fn create_node(&mut self, u: &SVector<f64, 3>, free: &[bool; 3]) -> Node {
-        let dof_x = if free[0] { self.create_free_dof(u[0], 0.0) } else { Dof::Fixed(u[0]) };
-        let dof_y = if free[1] { self.create_free_dof(u[1], 0.0) } else { Dof::Fixed(u[1]) };
-        let dof_φ = if free[2] { self.create_free_dof(u[2], 0.0) } else { Dof::Fixed(u[2]) };
+    // Creates a planar node with three degrees of freedom, two positions in x and y and a rotation angle
+    pub fn create_node(&mut self, pos: &SVector<f64, 3>, kinds: &[DofType; 3]) -> Node {
+        let dof_x = self.create_dof(pos[0], kinds[0]);
+        let dof_y = self.create_dof(pos[1], kinds[1]);
+        let dof_φ = self.create_dof(pos[2], kinds[2]);
 
         Node::new(dof_x, dof_y, dof_φ)
     }
 
-    // Creates a single unconstrained dof with initial position and velocity. Mainly used internally.
-    pub fn create_free_dof(&mut self, u: f64, v: f64) -> Dof {
-        self.u = self.u.push(u);
-        self.v = self.v.push(v);
+    // Creates a single dof with initial position and velocity
+    fn create_dof(&mut self, pos: f64, kind: DofType) -> Dof {
+        // Add the position to the respective vector of initial positions
+        let index = match kind {
+            DofType::Locked => {
+                // Add position to initial positions of locked dofs
+                self.xl = self.xl.push(pos);
+                self.xl.len() - 1
+            }
+            DofType::Active => {
+                // Initialize the corresponding displacement and velocity with zero
+                self.u = self.u.push(0.0);
+                self.v = self.v.push(0.0);
 
-        Dof::Free(self.n_dofs() - 1)
+                // Add position to initial positions of active dofs
+                self.xa = self.xa.push(pos);
+                self.xa.len() - 1
+            }
+        };
+
+        // Return dof with matching type and index
+        Dof {
+            kind,
+            index
+        }
     }
 
     // Returns the number of degrees of freedom of the system.
@@ -118,24 +143,35 @@ impl System {
         &self.u
     }
 
-    pub fn get_displacement(&self, dof: Dof) -> f64 {
-        PositionView::transform(&self.u, dof)
-    }
-
-    pub fn set_displacements(&mut self, value: &DVector<f64>) {
-        self.u.copy_from(value);
+    pub fn set_displacements(&mut self, u: &DVector<f64>) {
+        self.u.copy_from(u);
     }
 
     pub fn get_velocities(&self) -> &DVector<f64> {
         &self.v
     }
 
+    pub fn set_velocities(&mut self, v: &DVector<f64>) {
+        self.v.copy_from(v);
+    }
+
+    pub fn get_displacement(&self, dof: Dof) -> f64 {
+        DisplacementView::transform(&self.u, dof)
+    }
+
+    pub fn get_position(&self, dof: Dof) -> f64 {
+        PositionView::transform(&self.xl, &self.xa, &self.u, dof)
+    }
+
     pub fn get_velocity(&self, dof: Dof) -> f64 {
         VelocityView::transform(&self.v, dof)
     }
 
-    pub fn set_velocities(&mut self, value: &DVector<f64>) {
-        self.v.copy_from(value);
+    // Restores the initial state of the system (t = 0, u = 0, v = 0)
+    pub fn reset_state(&mut self) {
+        self.t = 0.0;
+        self.u.fill(0.0);
+        self.v.fill(0.0);
     }
 
     pub fn compute_mass_matrix(&self, output: &mut DVector<f64>) {
@@ -160,13 +196,13 @@ impl System {
 
     // Evaluates the element with the current system state
     // Only necessary in special occasions, usually the solvers do this anyway.
-    // TODO: Do this when elements are added to the system
+    // TODO: Do this when elements are added to the system?
     pub fn update_element(&mut self, index: usize) {
         let (dofs, element) = &mut self.elements[index];
-        let u_view = PositionView::new(&self.u, dofs);
+        let u_view = PositionView::new(&self.xl, &self.xa, &self.u, dofs);
         let v_view = VelocityView::new(&self.v, dofs);
 
-        element.update_state_and_evaluate(&u_view, &v_view, None, None, None);
+        element.update_and_evaluate(&u_view, &v_view, None, None, None);
     }
 
     pub fn compute_internal_forces(&mut self, mut q: Option<&mut DVector<f64>>, mut K: Option<&mut DMatrix<f64>>, mut D: Option<&mut DMatrix<f64>>) {
@@ -177,7 +213,7 @@ impl System {
 
         // Iterate over elements, set their state and add their contributions to the results
         for (dofs, element) in &mut self.elements {
-            let u_view = PositionView::new(&self.u, dofs);
+            let u_view = PositionView::new(&self.xl, &self.xa, &self.u, dofs);
             let v_view = VelocityView::new(&self.v, dofs);
 
             let mut q_view = q.as_mut().map(|q|{ VectorView::new(q, dofs) });
@@ -185,7 +221,7 @@ impl System {
             let mut d_view = D.as_mut().map(|D|{ MatrixView::new(D, dofs) });
 
             // TODO: Maybe include a separate element.set_state(u, v) step before. Then make eval_element method obsolete.
-            element.update_state_and_evaluate(&u_view, &v_view, q_view.as_mut(), k_view.as_mut(), d_view.as_mut());
+            element.update_and_evaluate(&u_view, &v_view, q_view.as_mut(), k_view.as_mut(), d_view.as_mut());
         }
     }
 }

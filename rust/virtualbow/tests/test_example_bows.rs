@@ -5,7 +5,7 @@ use virtualbow::output::{ArrowDeparture, BowResult, Common, Dynamics, LayerInfo,
 use virtualbow::simulation::Simulation;
 use virtualbow_num::utils::integration::fixed_simpson;
 use virtualbow_num::utils::minmax::discrete_maximum_1d;
-use virtualbow_num::utils::plotter::Plotter;
+use virtualbow_num::testutils::plotter::Plotter;
 
 use itertools::Itertools;
 use nalgebra::{SVector, vector};
@@ -14,7 +14,7 @@ use approx::{assert_abs_diff_eq, assert_relative_eq};
 use num::Zero;
 use test_each_file::test_each_path;
 
-// Example data are loaded, simulated, and the results are verified by various consistency checks.
+// Example bows are loaded, simulated, and the results are verified by various consistency checks.
 // TODO: Improvements
 // - Use relative error tolerances where it makes sense (especially derivatives)
 
