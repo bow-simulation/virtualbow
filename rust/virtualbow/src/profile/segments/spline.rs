@@ -67,11 +67,11 @@ impl SplineSegment {
 }
 
 impl PlanarCurve for SplineSegment {
-    fn s_start(&self) -> f64 {
+    fn length_start(&self) -> f64 {
         self.spline_t.arg_min()
     }
 
-    fn s_end(&self) -> f64 {
+    fn length_end(&self) -> f64 {
         self.spline_t.arg_max()
     }
 

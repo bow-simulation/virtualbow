@@ -4,10 +4,10 @@ use virtualbow_num::fem::elements::string::StringElement;
 use virtualbow_num::fem::solvers::statics::StaticSolver;
 use virtualbow_num::fem::system::system::System;
 use virtualbow_num::utils::newton::NewtonSettings;
-use virtualbow_num::utils::syschecks::assert_system_invariants;
-use virtualbow_num::utils::plotter::Plotter;
+use virtualbow_num::testutils::syschecks::assert_system_invariants;
+use virtualbow_num::testutils::plotter::Plotter;
 use approx::{assert_abs_diff_eq, assert_relative_eq};
-
+use virtualbow_num::fem::system::dof::DofType;
 // These tests solve various linear and nonlinear static bar trusses
 // and compare the results with analytical reference solutions.
 // See the theoretical documentation for the examples and their solutions.
@@ -21,8 +21,8 @@ fn linear_bar_truss_1() {
     let F_ref = EA/a*(x_ref - a);    // Reference force
 
     let mut system = System::new();
-    let node1 = system.create_node(&vector![0.0, 0.0, 0.0], &[false, false, false]);
-    let node2 = system.create_node(&vector![a, 0.0, 0.0], &[true, false, false]);
+    let node1 = system.create_node(&vector![0.0, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node2 = system.create_node(&vector![a, 0.0, 0.0], &[DofType::Active, DofType::Locked, DofType::Locked]);
 
     system.add_element(&[node1, node2], StringElement::bar(EA, 0.0, a));
     system.add_force(node2.x(), move |_t|{ F_ref });
@@ -32,7 +32,7 @@ fn linear_bar_truss_1() {
     let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
     solver.equilibrium_load_controlled(1.0).unwrap();
 
-    let x_sys = system.get_displacement(node2.x());
+    let x_sys = system.get_position(node2.x());
     assert_relative_eq!(x_sys, x_ref, max_relative=1e-6);
 }
 
@@ -52,10 +52,10 @@ fn linear_bar_truss_3() {
 
     let mut system = System::new();
 
-    let node1 = system.create_node(&vector![0.0, 0.0, 0.0], &[false, false, false]);
-    let node2 = system.create_node(&vector![a, 0.0, 0.0], &[true, true, false]);
-    let node3 = system.create_node(&vector![a, a, 0.0], &[true, true, false]);
-    let node4 = system.create_node(&vector![0.0, 2.0*a, 0.0], &[false, false, false]);
+    let node1 = system.create_node(&vector![0.0, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node2 = system.create_node(&vector![a, 0.0, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
+    let node3 = system.create_node(&vector![a, a, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
+    let node4 = system.create_node(&vector![0.0, 2.0*a, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
 
     system.add_element(&[node1, node2], StringElement::bar(EA, 0.0, a));
     system.add_element(&[node2, node3], StringElement::bar(EA, 0.0, a));
@@ -70,8 +70,8 @@ fn linear_bar_truss_3() {
     let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
     solver.equilibrium_load_controlled(1.0).unwrap();
 
-    assert_relative_eq!(system.get_displacement(node3.x()), x_ref, max_relative=1e-3);
-    assert_relative_eq!(system.get_displacement(node3.y()), y_ref, max_relative=1e-3);
+    assert_relative_eq!(system.get_position(node3.x()), x_ref, max_relative=1e-3);
+    assert_relative_eq!(system.get_position(node3.y()), y_ref, max_relative=1e-3);
 }
 
 #[test]
@@ -83,16 +83,16 @@ fn linear_bar_truss_4() {
     let s_ref = (4.0 + 2.0*SQRT_2)*F_ref*a/EA;
 
     let mut system = System::new();
-    let node_01 = system.create_node(&vector![0.0, 0.0, 0.0], &[false, false, false]);
-    let node_02 = system.create_node(&vector![a, 0.0, 0.0], &[true, true, false]);
-    let node_03 = system.create_node(&vector![2.0*a, 0.0, 0.0], &[true, true, false]);
-    let node_04 = system.create_node(&vector![3.0*a, 0.0, 0.0], &[true, true, false]);
-    let node_05 = system.create_node(&vector![4.0*a, 0.0, 0.0], &[true, false, false]);
-    let node_06 = system.create_node(&vector![0.0, a, 0.0], &[true, true, false]);
-    let node_07 = system.create_node(&vector![a, a, 0.0], &[true, true, false]);
-    let node_08 = system.create_node(&vector![2.0*a, a, 0.0], &[true, true, false]);
-    let node_09 = system.create_node(&vector![3.0*a, a, 0.0], &[true, true, false]);
-    let node_10 = system.create_node(&vector![4.0*a, a, 0.0], &[true, true, false]);
+    let node_01 = system.create_node(&vector![0.0, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node_02 = system.create_node(&vector![a, 0.0, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
+    let node_03 = system.create_node(&vector![2.0*a, 0.0, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
+    let node_04 = system.create_node(&vector![3.0*a, 0.0, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
+    let node_05 = system.create_node(&vector![4.0*a, 0.0, 0.0], &[DofType::Active, DofType::Locked, DofType::Locked]);
+    let node_06 = system.create_node(&vector![0.0, a, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
+    let node_07 = system.create_node(&vector![a, a, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
+    let node_08 = system.create_node(&vector![2.0*a, a, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
+    let node_09 = system.create_node(&vector![3.0*a, a, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
+    let node_10 = system.create_node(&vector![4.0*a, a, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
 
     system.add_element(&[node_01, node_02], StringElement::bar(EA, 0.0, a));
     system.add_element(&[node_02, node_03], StringElement::bar(EA, 0.0, a));
@@ -123,8 +123,8 @@ fn linear_bar_truss_4() {
     let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
     solver.equilibrium_load_controlled(1.0).unwrap();
 
-    assert_relative_eq!(system.get_displacement(node_03.x()), 2.0*a, max_relative=1e-3);
-    assert_relative_eq!(system.get_displacement(node_03.y()), -s_ref, max_relative=1e-3);
+    assert_relative_eq!(system.get_position(node_03.x()), 2.0*a, max_relative=1e-3);
+    assert_relative_eq!(system.get_position(node_03.y()), -s_ref, max_relative=1e-3);
 }
 
 #[test]
@@ -134,8 +134,8 @@ fn nonlinear_bar_truss_1() {
     let EA = 21000.0;
 
     let mut system = System::new();
-    let node1 = system.create_node(&vector![0.0, 0.0, 0.0], &[false, false, false]);
-    let node2 = system.create_node(&vector![a, b, 0.0], &[false, true, false]);
+    let node1 = system.create_node(&vector![0.0, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node2 = system.create_node(&vector![a, b, 0.0], &[DofType::Locked, DofType::Active, DofType::Locked]);
     let element = system.add_element(&[node1, node2], StringElement::bar(EA, 0.0, f64::hypot(a, b)));
     system.add_force(node2.y(), |_t| { -1.0 });
 
@@ -143,7 +143,7 @@ fn nonlinear_bar_truss_1() {
     let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
 
     let result = solver.equilibrium_path_displacement_controlled(node2.y(), -b, 100, &mut |system, statics, _| {
-        let y = system.get_displacement(node2.y());
+        let y = system.get_position(node2.y());
         let ly = f64::hypot(a, y);
         let l0 = f64::hypot(a, b);
 
@@ -173,9 +173,9 @@ fn nonlinear_bar_truss_2() {
     let EA = 21000.0;
 
     let mut system = System::new();
-    let node0 = system.create_node(&vector![0.0, 0.0, 0.0], &[false, false, false]);
-    let node1 = system.create_node(&vector![a, c, 0.0], &[true, true, false]);
-    let node2 = system.create_node(&vector![a + b, 0.0, 0.0], &[false, false, false]);
+    let node0 = system.create_node(&vector![0.0, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node1 = system.create_node(&vector![a, c, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
+    let node2 = system.create_node(&vector![a + b, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
 
     let bar01 = system.add_element(&[node0, node1], StringElement::bar(EA, 0.0, f64::hypot(a, c)));
     let bar12 = system.add_element(&[node1, node2], StringElement::bar(EA, 0.0, f64::hypot(b, c)));
@@ -186,8 +186,8 @@ fn nonlinear_bar_truss_2() {
     let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
 
     let result = solver.equilibrium_path_displacement_controlled(node1.y(), -c, 100, &mut |system, statics, _| {
-        let x = system.get_displacement(node1.x());
-        let y = system.get_displacement(node1.y());
+        let x = system.get_position(node1.x());
+        let y = system.get_position(node1.y());
         let F = statics.get_external_force(node1.y());
 
         let alpha = f64::atan(y/x);

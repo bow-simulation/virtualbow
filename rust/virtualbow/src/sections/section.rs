@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use itertools::Itertools;
-use nalgebra::{DMatrix, DVector, matrix, SMatrix};
+use nalgebra::{DMatrix, DVector, matrix, SMatrix, SVector, vector};
 use crate::errors::ModelError;
 use crate::input::{Material, LayerAlignment, Section};
 use virtualbow_num::fem::elements::beam::geometry::CrossSection;
@@ -218,27 +218,7 @@ impl LayeredCrossSection {
 }
 
 impl CrossSection for LayeredCrossSection {
-    fn ρA(&self, n: f64) -> f64 {
-        let w = self.width.value(n, Extrapolation::Constant);
-        self.layers.iter().map(|layer| {
-            let h = layer.height.value(n, Extrapolation::Constant);
-            layer.material.density*w*h
-        }).sum()
-    }
-
-    fn ρI(&self, n: f64) -> f64 {
-        let w = self.width(n);
-        let (y, h) = self.layer_bounds(n);
-
-        self.layers.iter().enumerate().map(|(i, layer)| {
-            let A = w*h[i];
-            let d = (y[i] + y[i+1])/2.0;
-            let I = A*(h[i].powi(2)/12.0 + d.powi(2));
-            layer.material.density*I
-        }).sum()
-    }
-
-    fn C(&self, n: f64) -> SMatrix<f64, 3, 3> {
+    fn stiffness(&self, n: f64) -> SMatrix<f64, 3, 3> {
         let w = self.width(n);
         let (y, h) = self.layer_bounds(n);
 
@@ -266,9 +246,34 @@ impl CrossSection for LayeredCrossSection {
         }).sum();
 
         matrix![
-            Cee, Cek, 0.0;
-            Cek, Ckk, 0.0;
-            0.0, 0.0, Cγγ
+            Cee, 0.0, Cek;
+            0.0, Cγγ, 0.0;
+            Cek, 0.0, Ckk;
+        ]
+    }
+
+    fn mass(&self, n: f64) -> SMatrix<f64, 3, 3> {
+        let w = self.width(n);
+        let (y, h) = self.layer_bounds(n);
+
+        let ρA = self.layers.iter().map(|layer| {
+            let h = layer.height.value(n, Extrapolation::Constant);
+            layer.material.density*w*h
+        }).sum();
+
+        let ρI = self.layers.iter().enumerate().map(|(i, layer)| {
+            let A = w*h[i];
+            let d = (y[i] + y[i+1])/2.0;
+            let I = A*(h[i].powi(2)/12.0 + d.powi(2));
+            layer.material.density*I
+        }).sum();
+
+        // TODO: Even though the beam element ignores them, there should generally be off-diagonal elements that couple translation and rotation
+        // Maybe implement and document them for completeness
+        matrix![
+            ρA, 0.0, 0.0;
+            0.0, ρA, 0.0;
+            0.0, 0.0, ρI;
         ]
     }
 
@@ -281,38 +286,32 @@ impl CrossSection for LayeredCrossSection {
         self.layers.iter().map(|layer| layer.height.value(n, Extrapolation::Constant)).sum()
     }
 
-    // Strain evaluation matrix. Produces normal strains at back and belly of each layer.
-    fn strain_eval(&self, n: f64) -> DMatrix<f64> {
+    // Strain evaluation matrices, two for each layer (bottom, top)
+    fn strain_recovery(&self, n: f64) -> Vec<SVector<f64, 3>> {
         // Layer bounds are the points of interest
         let (y, _) = self.layer_bounds(n);
 
-        // Normal strain is epsilon - kappa*y
-        DMatrix::from_fn(2*self.layers.len(), 3, |i, j| {
-            let k = i.div_ceil(2);  // Index of the current y position
-            match j {
-                0 =>   1.0,    // Factor for epsilon
-                1 => -y[k],    // Factor for kappa
-                _ =>   0.0     // Factor for gamma
-            }
-        })
+        let mut results = Vec::with_capacity(2*self.layers.len());
+        for i in 0..self.layers.len() {
+            results.push(vector![1.0, 0.0, -y[i]]);
+            results.push(vector![1.0, 0.0, -y[i+1]]);
+        }
+
+        results
     }
 
-    // Stress evaluation matrix. Produces stresses at back and belly of each layer.
-    fn stress_eval(&self, n: f64) -> DMatrix<f64> {
+    // Strain evaluation matrices, two for each layer (bottom, top)
+    fn stress_recovery(&self, n: f64) -> Vec<SVector<f64, 3>> {
         // Layer bounds are the points of interest
         let (y, _) = self.layer_bounds(n);
 
-        // Normal stress is E*(epsilon - kappa*y)
-        DMatrix::from_fn(2*self.layers.len(), 3, |i, j| {
-            let k = i.div_ceil(2);  // Index of the current y position
-            let l = i/2;      // Index of the current layer
+        let mut results = Vec::with_capacity(2*self.layers.len());
+        for i in 0..self.layers.len() {
+            results.push(self.layers[i].material.youngs_modulus*vector![1.0, 0.0, -y[i]]);
+            results.push(self.layers[i].material.youngs_modulus*vector![1.0, 0.0, -y[i+1]]);
+        }
 
-            self.layers[l].material.youngs_modulus * match j {
-                0 =>   1.0,    // Factor for epsilon
-                1 => -y[k],    // Factor for kappa
-                _ =>   0.0     // Factor for gamma
-            }
-        })
+        results
     }
 }
 
@@ -884,42 +883,48 @@ mod tests {
         let section = LayeredCrossSection::new(&section).unwrap();
         let C_ref = matrix![
             E*w*h, 0.0, 0.0;
-            0.0, E*w*h.powi(3)/12.0, 0.0;
-            0.0, 0.0, w*h*G
+            0.0, w*h*G, 0.0;
+            0.0, 0.0, E*w*h.powi(3)/12.0;
         ];
 
         assert_abs_diff_eq!(section.width(0.5), w, epsilon=1e-9);
         assert_abs_diff_eq!(section.height(0.5), h, epsilon=1e-9);
-        assert_abs_diff_eq!(section.ρA(0.5), rho*w*h, epsilon=1e-9);
-        assert_abs_diff_eq!(section.C(0.5), C_ref, epsilon=1e-9);
+        assert_abs_diff_eq!(section.mass(0.5)[(0, 0)], rho*w*h, epsilon=1e-9);
+        assert_abs_diff_eq!(section.mass(0.5)[(1, 1)], rho*w*h, epsilon=1e-9);
+        assert_abs_diff_eq!(section.mass(0.5)[(2, 2)], rho*w*h.powi(3)/12.0, epsilon=1e-9);
+        assert_abs_diff_eq!(section.stiffness(0.5), C_ref, epsilon=1e-9);
 
         // Reference point is section back
         let section = Section::new(LayerAlignment::SectionBack, width.clone(), materials.clone(), layers.clone());
         let section = LayeredCrossSection::new(&section).unwrap();
         let C_ref = matrix![
-            E*w*h, E*(w*h*0.5*h), 0.0;
-            E*(w*h*0.5*h), E*(w*h.powi(3)/12.0 + (0.5*h).powi(2)*(w*h)), 0.0;
-            0.0, 0.0, w*h*G
+            E*w*h, 0.0, E*(w*h*0.5*h);
+            0.0, w*h*G, 0.0;
+            E*(w*h*0.5*h), 0.0, E*(w*h.powi(3)/12.0 + (0.5*h).powi(2)*(w*h));
         ];
 
         assert_abs_diff_eq!(section.width(0.5), w, epsilon=1e-9);
         assert_abs_diff_eq!(section.height(0.5), h, epsilon=1e-9);
-        assert_abs_diff_eq!(section.ρA(0.5), rho*w*h, epsilon=1e-9);
-        assert_abs_diff_eq!(section.C(0.5), C_ref, epsilon=1e-9);
+        assert_abs_diff_eq!(section.mass(0.5)[(0, 0)], rho*w*h, epsilon=1e-9);
+        assert_abs_diff_eq!(section.mass(0.5)[(1, 1)], rho*w*h, epsilon=1e-9);
+        assert_abs_diff_eq!(section.mass(0.5)[(2, 2)], rho*(w*h.powi(3)/12.0 + (0.5*h).powi(2)*(w*h)), epsilon=1e-9);    // TODO: There should be coupling mass entries too
+        assert_abs_diff_eq!(section.stiffness(0.5), C_ref, epsilon=1e-9);
 
         // Reference point is section belly
         let section = Section::new(LayerAlignment::SectionBelly, width.clone(), materials.clone(), layers.clone());
         let section = LayeredCrossSection::new(&section).unwrap();
         let C_ref = matrix![
-            E*w*h, -E*(w*h*0.5*h), 0.0;
-            -E*(w*h*0.5*h), E*(w*h.powi(3)/12.0 + (0.5*h).powi(2)*(w*h)), 0.0;
-            0.0, 0.0, w*h*G
+            E*w*h, 0.0, -E*(w*h*0.5*h);
+            0.0, w*h*G, 0.0;
+            -E*(w*h*0.5*h), 0.0, E*(w*h.powi(3)/12.0 + (0.5*h).powi(2)*(w*h))
         ];
 
         assert_abs_diff_eq!(section.width(0.5), w, epsilon=1e-9);
         assert_abs_diff_eq!(section.height(0.5), h, epsilon=1e-9);
-        assert_abs_diff_eq!(section.ρA(0.5), rho*w*h, epsilon=1e-9);
-        assert_abs_diff_eq!(section.C(0.5), C_ref, epsilon=1e-9);
+        assert_abs_diff_eq!(section.mass(0.5)[(0, 0)], rho*w*h, epsilon=1e-9);
+        assert_abs_diff_eq!(section.mass(0.5)[(1, 1)], rho*w*h, epsilon=1e-9);
+        assert_abs_diff_eq!(section.mass(0.5)[(2, 2)], rho*(w*h.powi(3)/12.0 + (0.5*h).powi(2)*(w*h)), epsilon=1e-9);    // TODO: There should be coupling mass entries too
+        assert_abs_diff_eq!(section.stiffness(0.5), C_ref, epsilon=1e-9);
    }
 
     #[test]
@@ -967,16 +972,19 @@ mod tests {
 
         let section = Section::new(LayerAlignment::SectionCenter, width.clone(), vec![material1, material2, material3], vec![layer1, layer2, layer3]);
         let section = LayeredCrossSection::new(&section).unwrap();
+
         let C_ref = matrix![
-            E1*A1 + E2*A2 + E3*A3, -E1*A1*y1 - E2*A2*y2 - E3*A3*y3, 0.0;
-            -E1*A1*y1 - E2*A2*y2 - E3*A3*y3, E1*I1 + E2*I2 + E3*I3, 0.0;
-            0.0, 0.0, G1*A1 + G2*A2 + G3*A3
+            E1*A1 + E2*A2 + E3*A3, 0.0, -E1*A1*y1 - E2*A2*y2 - E3*A3*y3;
+            0.0, G1*A1 + G2*A2 + G3*A3, 0.0;
+            -E1*A1*y1 - E2*A2*y2 - E3*A3*y3, 0.0, E1*I1 + E2*I2 + E3*I3;
         ];
 
         assert_abs_diff_eq!(section.width(0.5), w, epsilon=1e-12);
         assert_abs_diff_eq!(section.height(0.5), h1 + h2 + h3, epsilon=1e-12);
-        assert_abs_diff_eq!(section.ρA(0.5), rho1*A1 + rho2*A2 + rho3*A3, epsilon=1e-12);
-        assert_abs_diff_eq!(section.C(0.5), C_ref, epsilon=1e-9);
+        assert_abs_diff_eq!(section.mass(0.5)[(0, 0)], rho1*A1 + rho2*A2 + rho3*A3, epsilon=1e-9);
+        assert_abs_diff_eq!(section.mass(0.5)[(1, 1)], rho1*A1 + rho2*A2 + rho3*A3, epsilon=1e-9);
+        assert_abs_diff_eq!(section.mass(0.5)[(2, 2)], rho1*I1 + rho2*I2 + rho3*I3, epsilon=1e-9);    // TODO: Should be coupling mass entries too?
+        assert_abs_diff_eq!(section.stiffness(0.5), C_ref, epsilon=1e-9);
     }
 
     #[test]
@@ -1017,20 +1025,19 @@ mod tests {
         let section = LayeredCrossSection::new(&section).unwrap();
 
         // Determine generalized strains from normal force and torque by inverting/solving the stiffness relation
-        let strains = section.C(0.5).qr().solve(&vector![N, M, 0.0]).unwrap();
+        let strains = section.stiffness(0.5).qr().solve(&vector![N, 0.0, M]).unwrap();
 
         // Evaluate and check section normal strains
-        let strain_eval = section.strain_eval(0.5);
-        let result = &strain_eval*strains;
+        let recovery = section.strain_recovery(0.5);
+        let results = recovery.iter().map(|r| r.dot(&strains)).collect_vec();
 
-        assert_relative_eq!(result[0], epsilon_u, max_relative=1e-2);
-        assert_relative_eq!(result[9], epsilon_o, max_relative=1e-2);
+        assert_relative_eq!(results[0], epsilon_u, max_relative=1e-2);
+        assert_relative_eq!(results[9], epsilon_o, max_relative=1e-2);
 
         // Evaluate and check section normal stresses
-        let stress_eval = section.stress_eval(0.5);
-        let result = &stress_eval*strains;
+        let recovery = section.stress_recovery(0.5);
+        let results = DVector::<f64>::from_iterator(recovery.len(), recovery.iter().map(|r| r.dot(&strains)));
 
-        assert_relative_eq!(result, sigma_ref, max_relative=1e-2);
-
+        assert_relative_eq!(results, sigma_ref, max_relative=1e-2);
     }
 }

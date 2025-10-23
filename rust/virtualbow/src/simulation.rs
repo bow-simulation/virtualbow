@@ -15,6 +15,7 @@ use virtualbow_num::fem::elements::beam::beam::BeamElement;
 use virtualbow_num::fem::elements::mass::MassElement;
 use virtualbow_num::fem::elements::string::StringElement;
 use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
+use virtualbow_num::fem::system::dof::DofType;
 use virtualbow_num::utils::integration::cumulative_simpson;
 use virtualbow_num::utils::newton;
 use virtualbow_num::utils::roots::find_root_falsi;
@@ -84,7 +85,7 @@ impl<'a> Simulation<'a> {
         let mut system = System::new();
 
         let limb_nodes: Vec<Node> = geometry.p_nodes.iter().enumerate().map(|(i, u)| {
-            system.create_node(u, &[i != 0; 3])    // First node is fixed, all others
+            system.create_node(u, &[DofType::active_if(i != 0); 3])    // First node is fixed, all others
         }).collect();
 
         let limb_elements: Vec<usize> = elements.into_iter().enumerate().map(|(i, element)| {
@@ -108,7 +109,7 @@ impl<'a> Simulation<'a> {
 
         // String center node that is fixed in the case of no string.
         // The rest of the string nodes come from the limb.
-        let string_center = system.create_node(&vector![0.0, -input.dimensions.brace_height, 0.0], &[false, string, false]);
+        let string_center = system.create_node(&vector![0.0, -input.dimensions.brace_height, 0.0], &[DofType::Locked, DofType::active_if(string), DofType::Locked]);
         let mut string_nodes = vec![string_center];  // TODO: Preallocate
         string_nodes.extend_from_slice(&limb_nodes);
 
@@ -166,8 +167,8 @@ impl<'a> Simulation<'a> {
             let mut try_string_length = |factor: f64| {
                 system.element_mut::<StringElement>(string_element).set_initial_length(factor*unstressed_length);
 
-                let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());    // TODO: Don't construct new solver in each iteration
-                let result = solver.equilibrium_displacement_controlled(string_nodes[0].y(), -input.dimensions.brace_height);
+                let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());   // TODO: Don't construct new solver in each iteration
+                let result = solver.equilibrium_displacement_controlled(string_nodes[0].y(), 0.0);    // String node is already placed at brace height, therefore target displacement is zero
                 let slope = get_string_slope(&system);
 
                 (slope, result)
@@ -252,7 +253,7 @@ impl<'a> Simulation<'a> {
 
     // Callback: (phase, progress) -> continue
     pub fn simulate<F>(model: &'a BowModel, mode: SimulationMode, mut callback: F) -> Result<BowResult, ModelError>
-        where F: FnMut(SimulationMode, f64) -> bool
+    where F: FnMut(SimulationMode, f64) -> bool
     {
         // Initialize simulation. String always, but damping only in dynamic mode (saves an einegvalue analysis).
         let (mut system, mut simulation, common) = Self::initialize(model, true, mode == SimulationMode::Dynamic)?;
@@ -263,7 +264,7 @@ impl<'a> Simulation<'a> {
             let mut states = StateVec::new();
             let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());
 
-            solver.equilibrium_path_displacement_controlled(simulation.string_nodes[0].y(), -model.dimensions.draw_length, model.settings.min_draw_resolution, &mut |system, eval, stiffness| {
+            solver.equilibrium_path_displacement_controlled(simulation.string_nodes[0].y(), -(model.dimensions.draw_length - model.dimensions.brace_height), model.settings.min_draw_resolution, &mut |system, eval, stiffness| {
                 let state = simulation.get_bow_state(system, eval, -2.0*stiffness);  // TODO: Why the sign flip of the stiffness?
                 let progress = (state.draw_length - model.dimensions.brace_height)/(model.dimensions.draw_length - model.dimensions.brace_height);
                 states.push(state);
@@ -316,7 +317,7 @@ impl<'a> Simulation<'a> {
                 system.element_mut::<StringElement>(simulation.string_element).set_compression_factor(model.settings.string_compression_factor);
 
                 // Remove static draw force
-                system.clear_forces();
+                system.reset_forces();
 
                 // Simulate the first part of the shot until either the arrow separates from the string
                 // or the timeout is reached for some reason
@@ -473,7 +474,7 @@ impl<'a> Simulation<'a> {
     // TODO: Find a better way to get the stiffness of the force draw curve in there
     fn get_bow_state(&self, system: &System, eval: &SystemEval, draw_stiffness: f64) -> State {
         let time = system.get_time();
-        let draw_length = -system.get_displacement(self.string_nodes[0].y());
+        let draw_length = -system.get_position(self.string_nodes[0].y());
         let draw_force = -2.0*eval.get_external_force(self.string_nodes[0].y());
 
         // The evaluation of the arrow position, velocity and acceleration depends on whether the arrow has separated from the string.
@@ -490,7 +491,7 @@ impl<'a> Simulation<'a> {
             (
                 eval.get_acceleration(self.string_nodes[0].y()),
                 system.get_velocity(self.string_nodes[0].y()),
-                system.get_displacement(self.string_nodes[0].y()),
+                system.get_position(self.string_nodes[0].y()),
             )
         };
 
@@ -514,28 +515,24 @@ impl<'a> Simulation<'a> {
             element.eval_forces().for_each(|f| limb_force.push(f));
         }
 
-        let mut layer_strain = vec![Vec::<[f64; 2]>::new(); self.input.section.layers.len()];  // TODO: Capacity
-        let mut layer_stress = vec![Vec::<[f64; 2]>::new(); self.input.section.layers.len()];  // TODO: Capacity
+        // Evaluate stresses and strains at the layer boundaries
+
+        let mut layer_strain: Vec<Vec<[f64; 2]>> = vec![Vec::<[f64; 2]>::with_capacity(limb_strain.len()); self.input.section.layers.len()];
+        let mut layer_stress: Vec<Vec<[f64; 2]>> = vec![Vec::<[f64; 2]>::with_capacity(limb_strain.len()); self.input.section.layers.len()];
 
         for i in 0..limb_strain.len() {
-            // Stresses and strains at the layer boundaries
-            let strain = &self.geometry.strain_eval[i]*limb_strain[i];
-            let stress = &self.geometry.stress_eval[i]*limb_strain[i];
-
-            // Two subsequent strain results make up the belly and back strain of a layer
-            strain.iter().cloned().tuples().enumerate().for_each(|(j, tuple): (usize, (f64, f64))| {
-                layer_strain[j].push([tuple.0, tuple.1]);
+            self.geometry.strain_eval[i].iter().tuples().enumerate().for_each(|(j, (eval0, eval1))| {
+                layer_strain[j].push([eval0.dot(&limb_strain[i]), eval1.dot(&limb_strain[i])]);
             });
 
-            // Two subsequent stress results make up the belly and back stress of a layer
-            stress.iter().cloned().tuples().enumerate().for_each(|(j, tuple): (usize, (f64, f64))| {
-                layer_stress[j].push([tuple.0, tuple.1]);
+            self.geometry.stress_eval[i].iter().tuples().enumerate().for_each(|(j, (eval0, eval1))| {
+                layer_stress[j].push([eval0.dot(&limb_strain[i]), eval1.dot(&limb_strain[i])]);
             });
         }
 
-        // The grip force is the y component of the forces at the start of the limb.
+        // The grip force is the y component of the total force (normal + shear) at the start of the limb.
         // Defined to be positive on "pressure", therefore the minus sign, and multiplied by two for symmetry.
-        let grip_force = -2.0*(limb_force[0][2]*f64::cos(limb_pos[0][2]) + limb_force[0][0]*f64::sin(limb_pos[0][2]));
+        let grip_force = -2.0*(limb_force[0][0]*f64::sin(limb_pos[0][2]) + limb_force[0][1]*f64::cos(limb_pos[0][2]));
 
         let elastic_energy_limbs = 2.0*self.limb_elements.iter().map(|&e| { system.element_ref::<BeamElement>(e).potential_energy() }).sum::<f64>();
         let elastic_energy_string = 2.0*system.element_ref::<StringElement>(self.string_element).potential_energy();

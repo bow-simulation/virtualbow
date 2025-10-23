@@ -28,7 +28,7 @@ impl Element for MassElement {
         M.add_vec(self.M);
     }
 
-    fn update_state_and_evaluate(&mut self, _u: &PositionView, v: &VelocityView, _q: Option<&mut VectorView>, _K: Option<&mut MatrixView>, _D: Option<&mut MatrixView>) {
+    fn update_and_evaluate(&mut self, _u: &PositionView, v: &VelocityView, _q: Option<&mut VectorView>, _K: Option<&mut MatrixView>, _D: Option<&mut MatrixView>) {
         self.v = v.get();
     }
 

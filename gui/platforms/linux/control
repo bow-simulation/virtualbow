@@ -5,4 +5,4 @@ Maintainer: @APPLICATION_MAINTAINER@
 Homepage: @APPLICATION_WEBSITE@
 Description: @APPLICATION_DESCRIPTION_SHORT@
  @APPLICATION_DESCRIPTION_LONG@
-Depends: qtbase5-dev
+Depends: qt6-base-dev

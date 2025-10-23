@@ -8,7 +8,7 @@ authors.workspace = true
 homepage.workspace = true
 
 [features]
-plotters = ["virtualbow_num/plotters"]
+plotters = ["virtualbow_num/plotters"]    # Debug plots for the tests
 
 [lints]
 workspace = true

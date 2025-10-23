@@ -5,12 +5,13 @@ use virtualbow_num::fem::elements::mass::MassElement;
 use virtualbow_num::fem::elements::string::StringElement;
 use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
 use virtualbow_num::fem::system::system::System;
-use virtualbow_num::utils::plotter::Plotter;
+use virtualbow_num::testutils::plotter::Plotter;
+use virtualbow_num::testutils::syschecks::assert_system_invariants;
 use approx::assert_abs_diff_eq;
-use virtualbow_num::utils::syschecks::assert_system_invariants;
+use virtualbow_num::fem::system::dof::DofType;
 
 #[test]
-fn nonlinear_pendulum() {
+fn nonlinear_oscillator() {
     // In this example, a simple pendulum is simulated and the results are compared with an analytic solution according to [1].
     // This tests how the dynamic solver deals with a simple nonlinear system where the equilibrium iterations at each time step actually have to do something.
     // The pendulum bar is modelled as a spring, so the systems are not exactly equivalent.
@@ -32,8 +33,8 @@ fn nonlinear_pendulum() {
     let c = f64::sin(φ0 /2.0);
 
     let mut system = System::new();
-    let node_a = system.create_node(&vector![0.0, 0.0, 0.0], &[false, false, false]);
-    let node_b = system.create_node(&vector![x0, y0, 0.0], &[true, true, false]);
+    let node_a = system.create_node(&vector![0.0, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node_b = system.create_node(&vector![x0, y0, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
 
     system.add_element(&[node_a, node_b], StringElement::spring(k, d, l));
     system.add_element(&[node_b], MassElement::new(m));
@@ -62,11 +63,11 @@ fn nonlinear_pendulum() {
         let y_ddot_ref = l*φ_ddot_ref*f64::sin(φ_ref) + l*φ_dot_ref*φ_dot_ref*f64::cos(φ_ref);
 
         // Numerical solution
-        let x_num = system.get_displacement(node_b.x());
+        let x_num = system.get_position(node_b.x());
         let x_dot_num = system.get_velocity(node_b.x());
         let x_ddot_num = eval.get_acceleration(node_b.x());
 
-        let y_num = system.get_displacement(node_b.y());
+        let y_num = system.get_position(node_b.y());
         let y_dot_num = system.get_velocity(node_b.y());
         let y_ddot_num = eval.get_acceleration(node_b.y());
 

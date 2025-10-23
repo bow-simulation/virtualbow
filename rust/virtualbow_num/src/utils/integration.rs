@@ -68,7 +68,7 @@ fn simpson_quadrature<F, const R: usize, const C: usize>(f: &mut F, a: f64, b: f
 pub fn fixed_simpson<F, const R: usize, const C: usize>(mut f: F, a: f64, b: f64, n: usize) -> SMatrix<f64, R, C>
     where F: FnMut(f64) -> SMatrix<f64, R, C>,
 {
-    assert!(n % 2 == 0, "Number of integration intervals must be even");
+    assert!(n.is_multiple_of(2), "Number of integration intervals must be even");
 
     let h = (b - a)/(n as f64);
     let mut r = f(a) + f(b);

@@ -1,6 +1,6 @@
 use iter_num_tools::lin_space;
 use itertools::Itertools;
-use nalgebra::{DMatrix, DVector, SVector, vector};
+use nalgebra::{DVector, SVector, vector};
 use serde::{Deserialize, Serialize};
 use crate::errors::ModelError;
 use crate::input::{BowModel, HandleReference};
@@ -34,8 +34,8 @@ pub struct DiscreteLimbGeometry {
     pub h_eval: Vec<DVector<f64>>,           // Layer heights at eval points
     pub w_eval: Vec<f64>,                    // Widths at eval points
 
-    pub strain_eval: Vec<DMatrix<f64>>,      // Strain evaluation matrices for each evaluation point
-    pub stress_eval: Vec<DMatrix<f64>>,      // Stress evaluation matrices for each evaluation point
+    pub strain_eval: Vec<Vec<SVector<f64, 3>>>,      // Strain evaluation matrices for each evaluation point
+    pub stress_eval: Vec<Vec<SVector<f64, 3>>>,      // Stress evaluation matrices for each evaluation point
 }
 
 impl LimbGeometry {
@@ -59,7 +59,7 @@ impl LimbGeometry {
 
         // Check for self-intersecting geometry, which is the case when the thickness of the limb is higher than the radius of curvature
         // Since we can't check this analytically, we check for a fixed number of points along the length of the limb
-        for s in lin_space(profile.s_start()..=profile.s_end(), 1000) {  // TODO: Magic number
+        for s in lin_space(profile.length_start()..=profile.length_end(), 1000) {  // TODO: Magic number
             let kappa = profile.curvature(s);
             let (y_belly, y_back) = section.section_bounds(profile.normalize(s));
 
@@ -83,7 +83,7 @@ impl LimbGeometry {
     // Returns a list of elements as well as the arc lengths, positions and angles of the nodes.
     pub fn discretize(&self, n_eval_points: usize, n_elements: usize) -> DiscreteLimbGeometry {
         // Arc lengths and normalized positions along the profile where the element nodes are placed
-        let s_nodes = lin_space(self.profile.s_start()..=self.profile.s_end(), n_elements + 1).collect_vec();
+        let s_nodes = lin_space(self.profile.length_start()..=self.profile.length_end(), n_elements + 1).collect_vec();
         let n_nodes = s_nodes.iter().map(|&s| self.profile.normalize(s)).collect_vec();
         let p_nodes = s_nodes.iter().map(|&s| self.profile.point(s)).collect_vec();
         let y_nodes = n_nodes.iter().map(|&n| self.section.layer_bounds(n).0).collect_vec();
@@ -93,7 +93,7 @@ impl LimbGeometry {
         let p_control = self.profile.get_nodes().iter().map(|node| vector![node.r[0], node.r[1], node.φ]).collect();    // TODO: Make those conversions unnecessary by using a single format for curve points
 
         // Equidistant evaluation points along the length of the limb
-        let s_eval = lin_space(self.profile.s_start()..=self.profile.s_end(), n_eval_points).collect_vec();
+        let s_eval = lin_space(self.profile.length_start()..=self.profile.length_end(), n_eval_points).collect_vec();
         let n_eval = s_eval.iter().map(|&s| self.profile.normalize(s)).collect_vec();
         let y_eval = n_eval.iter().map(|&n| self.section.layer_bounds(n).0).collect_vec();
         let h_eval = n_eval.iter().map(|&n| self.section.layer_bounds(n).1).collect_vec();    // TODO: Collect in one step
@@ -119,8 +119,8 @@ impl LimbGeometry {
         let p_eval = s_eval.iter().map(|&s| self.profile.point(s)).collect();
         let w_eval = n_eval.iter().map(|&n| self.section.width(n)).collect();
 
-        let strain_eval = n_eval.iter().map(|&n| self.section.strain_eval(n)).collect();
-        let stress_eval = n_eval.iter().map(|&n| self.section.stress_eval(n)).collect();
+        let strain_eval = n_eval.iter().map(|&n| self.section.strain_recovery(n)).collect();
+        let stress_eval = n_eval.iter().map(|&n| self.section.stress_recovery(n)).collect();
 
         DiscreteLimbGeometry {
             segments,

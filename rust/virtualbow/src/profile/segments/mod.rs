@@ -49,7 +49,7 @@ mod tests {
 
     fn test_segment<S: PlanarCurve>(start: &CurvePoint, segment: &S, tol: f64) {
         // Check if the segment has the correct startpoint properties
-        assert_abs_diff_eq!(segment.s_start(), start.s, epsilon=tol);
+        assert_abs_diff_eq!(segment.length_start(), start.s, epsilon=tol);
         assert_abs_diff_eq!(segment.angle(start.s), start.φ, epsilon=tol);
         assert_abs_diff_eq!(segment.position(start.s), start.r, epsilon=tol);
 

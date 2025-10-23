@@ -10,7 +10,7 @@
 #include <QDir>
 #include <cmath>
 
-SimulationDialog::SimulationDialog(QWidget* parent, const QString& modelFile, const QString& resultFile, Mode mode)
+SimulationDialog::SimulationDialog(QWidget* parent, const BowModel& model, BowResult& result, Mode mode)
     : DialogBase(parent)
 {
     auto vbox = new QVBoxLayout();
@@ -69,8 +69,7 @@ SimulationDialog::SimulationDialog(QWidget* parent, const QString& modelFile, co
     // Communicate static and dynamic progress by custom signals since QPromise only handles one progress value
     QFuture<QString> future = QtConcurrent::run([&, mode](QPromise<QString>& promise) {
         try {
-            BowModel model = load_model(modelFile.toStdString(), false);
-            BowResult result = simulate_model(model, mode, [&](Mode stage, double progress) {
+            result = simulate_model(model, mode, [&](Mode stage, double progress) {
                 switch(stage) {
                 case Mode::Static:
                     emit staticProgressChanged(progress);
@@ -82,8 +81,6 @@ SimulationDialog::SimulationDialog(QWidget* parent, const QString& modelFile, co
 
                 return !promise.isCanceled();    // Continue the simulation as long as the future has not been canceled
             });
-
-            save_result(result, resultFile.toStdString());
         }
         catch(const SolverException& e) {
             if(!promise.isCanceled()) {

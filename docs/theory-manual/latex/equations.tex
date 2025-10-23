@@ -406,29 +406,29 @@ The stiffness properties of the cross sections are given by the cross sectional 
 \underbrace{
 \begin{bmatrix}
 N \\
-M \\
 Q \\
+M \\
 \end{bmatrix}
 }_{\boldsymbol{f}(s)}
 =
 \underbrace{
 \begin{bmatrix}
-C_{\varepsilon\varepsilon} & C_{\varepsilon\kappa} & C_{\varepsilon\gamma} \\
-C_{\varepsilon\kappa} & C_{\kappa\kappa} & C_{\kappa\gamma} \\
-C_{\varepsilon\gamma} & C_{\kappa\gamma} & C_{\gamma\gamma} \\
+C_{\varepsilon\varepsilon} & C_{\varepsilon\gamma} & C_{\varepsilon\kappa} \\
+C_{\varepsilon\gamma} & C_{\gamma\gamma} & C_{\gamma\kappa} \\
+C_{\varepsilon\kappa} & C_{\gamma\kappa} & C_{\kappa\kappa} \\
 \end{bmatrix}
 }_{\boldsymbol{C}(s)}
 \underbrace{
 \begin{bmatrix}
 \varepsilon \\
-\kappa \\
 \gamma \\
+\kappa \\
 \end{bmatrix}
 }_{\boldsymbol{e}(s)} \label{eq:section-stiffness-matrix}
 \end{equation}
 
 between the cross section forces~$\boldsymbol{f}$ and the generalized strains~$\boldsymbol{e}$ at each length $s$ in the element.
-The cross section forces consist of the normal force~$N$, the bending moment~$M$ and the shear force~$Q$ as shown in figure~\ref{fig:beam-segment-linear} while the strains consist of the elongation~$\varepsilon$ and the curvature~$\kappa$ of the beam axis as well as the shear angle~$\gamma$ between the cross section and the beam axis.
+The cross section forces consist of the normal force~$N$, the shear force~$Q$ and the bending moment~$M$ as shown in figure~\ref{fig:beam-segment-linear} while the strains consist of the elongation~$\varepsilon$ of the beam axis, the shear angle~$\gamma$ between the cross section and the beam axis and the curvature~$\kappa$ of the beam axis.
 
 The potential elastic energy (strain energy) of the beam segment, which we are going to need later, can be evaluated by integrating the product $\boldsymbol{f}^\intercal\boldsymbol{e}$ of section forces and strains over the beam's length and using the stiffness relation (\ref{eq:section-stiffness-matrix}) to eliminate the unknown strains:
 
@@ -565,15 +565,15 @@ Due to static equilibrium, the distribution of cross section forces in the beam 
 \begin{equation}
 \underbrace{
 \begin{bmatrix}
-N \\ M \\ Q
+N \\ Q \\ M
 \end{bmatrix}
 }_{\boldsymbol{f}^{\mathrm{I}}_{\eta}(s)}
 =
 \underbrace{
 \begin{bmatrix}
 \cos(\varphi(s)) & \sin(\varphi(s)) & 0 \\
-y(s) - y(s_\eta) & x(s_\eta) - x(s) & 1 \\
 -\sin(\varphi(s)) & \cos(\varphi(s)) & 0 \\
+y(s) - y(s_\eta) & x(s_\eta) - x(s) & 1
 \end{bmatrix}
 }_{\boldsymbol{H}_{\eta}(s)}
 \underbrace{
@@ -614,15 +614,15 @@ In the second case, where the beam is clamped at node 1 and the force is applied
 \begin{equation}
 \underbrace{
 \begin{bmatrix}
-N \\ M \\ Q
+N \\ Q \\ M
 \end{bmatrix}
 }_{\boldsymbol{f}^{\mathrm{II}}_{\eta}(s)}
 =
 \underbrace{
 \begin{bmatrix}
 -\cos(\varphi(s)) & -\sin(\varphi(s)) & 0 \\
-y(s_\eta) - y(s) & x(s) - x(s_\eta) & -1 \\
 \sin(\varphi(s)) & -\cos(\varphi(s)) & 0 \\
+y(s_\eta) - y(s) & x(s) - x(s_\eta) & -1
 \end{bmatrix}
 }_{-\boldsymbol{H}_{\eta}(s)}
 \underbrace{

@@ -52,32 +52,136 @@ add_executable(
     virtualbow-gui
     resources/resources.qrc
     source/extern/qcustomplot/qcustomplot.cpp
-    source/pre/Main.cpp
+    source/pre/MainWindow.cpp
+    source/pre/MainWindow.hpp
     source/pre/HelpMenu.cpp
     source/pre/HelpMenu.hpp
     source/pre/KeyEventFilter.cpp
     source/pre/KeyEventFilter.hpp
-    source/pre/MainWindow.cpp
-    source/pre/MainWindow.hpp
+    source/pre/models/ArcModel.cpp
+    source/pre/models/ArcModel.hpp
+    source/pre/models/base/ModelBase.cpp
+    source/pre/models/base/ModelBase.hpp
+    source/pre/models/CommentsModel.cpp
+    source/pre/models/CommentsModel.hpp
+    source/pre/models/DampingModel.cpp
+    source/pre/models/DampingModel.hpp
+    source/pre/models/DimensionsModel.cpp
+    source/pre/models/DimensionsModel.hpp
+    source/pre/models/LayerModel.cpp
+    source/pre/models/LayerModel.hpp
+    source/pre/models/LayersModel.cpp
+    source/pre/models/LayersModel.hpp
+    source/pre/models/LineModel.cpp
+    source/pre/models/LineModel.hpp
+    source/pre/models/MainModel.cpp
+    source/pre/models/MainModel.hpp
+    source/pre/models/MainTreeModel.cpp
+    source/pre/models/MainTreeModel.hpp
+    source/pre/models/MassesModel.cpp
+    source/pre/models/MassesModel.hpp
+    source/pre/models/MaterialModel.cpp
+    source/pre/models/MaterialModel.hpp
+    source/pre/models/PropertyListModel.cpp
+    source/pre/models/PropertyListModel.hpp
+    source/pre/models/SettingsModel.cpp
+    source/pre/models/SettingsModel.hpp
+    source/pre/models/SpiralModel.cpp
+    source/pre/models/SpiralModel.hpp
+    source/pre/models/StringModel.cpp
+    source/pre/models/StringModel.hpp
+    source/pre/models/TableModel.cpp
+    source/pre/models/TableModel.hpp
+    source/pre/models/units/Quantity.cpp
+    source/pre/models/units/Quantity.hpp
+    source/pre/models/units/Unit.cpp
+    source/pre/models/units/Unit.hpp
+    source/pre/models/units/UnitSystem.cpp
+    source/pre/models/units/UnitSystem.hpp
     source/pre/RecentFilesMenu.cpp
     source/pre/RecentFilesMenu.hpp
     source/pre/SimulationDialog.cpp
     source/pre/SimulationDialog.hpp
     source/pre/UnitDialog.cpp
     source/pre/UnitDialog.hpp
-    source/pre/utils/Expressions.cpp
-    source/pre/utils/Expressions.hpp
     source/pre/utils/DoubleRange.cpp
     source/pre/utils/DoubleRange.hpp
+    source/pre/utils/Expressions.cpp
+    source/pre/utils/Expressions.hpp
     source/pre/utils/IntegerRange.cpp
     source/pre/utils/IntegerRange.hpp
     source/pre/utils/UserSettings.cpp
     source/pre/utils/UserSettings.hpp
+    source/pre/views/ArcView.cpp
+    source/pre/views/ArcView.hpp
+    source/pre/views/CommentsView.cpp
+    source/pre/views/CommentsView.hpp
+    source/pre/views/DampingView.cpp
+    source/pre/views/DampingView.hpp
+    source/pre/views/DimensionsView.cpp
+    source/pre/views/DimensionsView.hpp
+    source/pre/views/docks/EditDock.cpp
+    source/pre/views/docks/EditDock.hpp
+    source/pre/views/docks/PlotDock.cpp
+    source/pre/views/docks/PlotDock.hpp
+    source/pre/views/docks/TreeDock.cpp
+    source/pre/views/docks/TreeDock.hpp
+    source/pre/views/LayerView.cpp
+    source/pre/views/LayerView.hpp
+    source/pre/views/limb2d/HeightPlotView.cpp
+    source/pre/views/limb2d/HeightPlotView.hpp
+    source/pre/views/limb2d/ProfilePlotView.cpp
+    source/pre/views/limb2d/ProfilePlotView.hpp
+    source/pre/views/limb2d/WidthPlotView.cpp
+    source/pre/views/limb2d/WidthPlotView.hpp
+    source/pre/views/limb3d/ErrorLabel.cpp
+    source/pre/views/limb3d/ErrorLabel.hpp
+    source/pre/views/limb3d/LayerColors.cpp
+    source/pre/views/limb3d/LayerColors.hpp
+    source/pre/views/limb3d/LimbMesh.cpp
+    source/pre/views/limb3d/LimbMesh.hpp
+    source/pre/views/limb3d/LimbView.cpp
+    source/pre/views/limb3d/LimbView.hpp
+    source/pre/views/limb3d/MaterialLegend.cpp
+    source/pre/views/limb3d/MaterialLegend.hpp
+    source/pre/views/limb3d/OpenGLUtils.cpp
+    source/pre/views/limb3d/OpenGLUtils.hpp
+    source/pre/views/LineView.cpp
+    source/pre/views/LineView.hpp
+    source/pre/views/MassesView.cpp
+    source/pre/views/MassesView.hpp
+    source/pre/views/MaterialView.cpp
+    source/pre/views/MaterialView.hpp
+    source/pre/views/primitive/ColorView.cpp
+    source/pre/views/primitive/ColorView.hpp
+    source/pre/views/primitive/DoubleView.cpp
+    source/pre/views/primitive/DoubleView.hpp
+    source/pre/views/primitive/EnumSelectionView.cpp
+    source/pre/views/primitive/EnumSelectionView.hpp
+    source/pre/views/primitive/IntegerView.cpp
+    source/pre/views/primitive/IntegerView.hpp
+    source/pre/views/primitive/StringSelectionView.cpp
+    source/pre/views/primitive/StringSelectionView.hpp
+    source/pre/views/primitive/TableView.cpp
+    source/pre/views/primitive/TableView.hpp
+    source/pre/views/primitive/TextView.cpp
+    source/pre/views/primitive/TextView.hpp
+    source/pre/views/SettingsView.cpp
+    source/pre/views/SettingsView.hpp
+    source/pre/views/SpiralView.cpp
+    source/pre/views/SpiralView.hpp
+    source/pre/views/SplineView.cpp
+    source/pre/views/SplineView.hpp
+    source/pre/views/StringView.cpp
+    source/pre/views/StringView.hpp
+    source/pre/views/WidthView.cpp
+    source/pre/views/WidthView.hpp
     source/pre/widgets/CustomTextEdit.cpp
     source/pre/widgets/CustomTextEdit.hpp
-    source/pre/widgets/ScrollArea.hpp
     source/pre/widgets/DialogBase.cpp
     source/pre/widgets/DialogBase.hpp
+    source/pre/widgets/DoubleOutput.cpp
+    source/pre/widgets/DoubleOutput.hpp
     source/pre/widgets/DoubleSpinBox.cpp
     source/pre/widgets/DoubleSpinBox.hpp
     source/pre/widgets/IntegerSpinBox.cpp
@@ -90,110 +194,26 @@ add_executable(
     source/pre/widgets/PlotWidget.hpp
     source/pre/widgets/PropertyList.cpp
     source/pre/widgets/PropertyList.hpp
-    source/pre/models/base/ModelBase.cpp
-    source/pre/models/base/ModelBase.hpp
-    source/pre/models/MainModel.cpp
-    source/pre/models/MainModel.hpp
-    source/pre/models/MainTreeModel.hpp
-    source/pre/models/MainTreeModel.cpp
-    source/pre/models/PropertyListModel.hpp
-    source/pre/models/PropertyListModel.cpp
-    source/pre/models/CommentsModel.hpp
-    source/pre/models/CommentsModel.cpp
-    source/pre/models/SettingsModel.hpp
-    source/pre/models/SettingsModel.cpp
-    source/pre/models/DimensionsModel.hpp
-    source/pre/models/DimensionsModel.cpp
-    source/pre/models/MaterialModel.hpp
-    source/pre/models/MaterialModel.cpp
-    source/pre/models/LayersModel.hpp
-    source/pre/models/LayersModel.cpp
-    source/pre/models/LayerModel.hpp
-    source/pre/models/LayerModel.cpp
-    source/pre/models/StringModel.hpp
-    source/pre/models/StringModel.cpp
-    source/pre/models/MassesModel.hpp
-    source/pre/models/MassesModel.cpp
-    source/pre/models/DampingModel.hpp
-    source/pre/models/DampingModel.cpp
-    source/pre/models/LineModel.hpp
-    source/pre/models/LineModel.cpp
-    source/pre/models/ArcModel.hpp
-    source/pre/models/ArcModel.cpp
-    source/pre/models/SpiralModel.hpp
-    source/pre/models/SpiralModel.cpp
-    source/pre/models/TableModel.cpp
-    source/pre/models/TableModel.hpp
-    source/pre/models/units/Unit.cpp
-    source/pre/models/units/Unit.hpp
-    source/pre/models/units/Quantity.cpp
-    source/pre/models/units/Quantity.hpp
-    source/pre/models/units/UnitSystem.cpp
-    source/pre/models/units/UnitSystem.hpp
-    source/pre/views/docks/TreeDock.cpp
-    source/pre/views/docks/TreeDock.hpp
-    source/pre/views/docks/EditDock.cpp
-    source/pre/views/docks/EditDock.hpp
-    source/pre/views/docks/PlotDock.cpp
-    source/pre/views/docks/PlotDock.hpp
-    source/pre/views/primitive/DoubleView.hpp
-    source/pre/views/primitive/DoubleView.cpp
-    source/pre/views/primitive/ColorView.hpp
-    source/pre/views/primitive/ColorView.cpp
-    source/pre/views/primitive/EnumSelectionView.hpp
-    source/pre/views/primitive/EnumSelectionView.cpp
-    source/pre/views/primitive/StringSelectionView.hpp
-    source/pre/views/primitive/StringSelectionView.cpp
-    source/pre/views/primitive/IntegerView.hpp
-    source/pre/views/primitive/IntegerView.cpp
-    source/pre/views/primitive/TextView.hpp
-    source/pre/views/primitive/TextView.cpp
-    source/pre/views/primitive/TableView.hpp
-    source/pre/views/primitive/TableView.cpp
-    source/pre/views/CommentsView.hpp
-    source/pre/views/CommentsView.cpp
-    source/pre/views/SettingsView.hpp
-    source/pre/views/SettingsView.cpp
-    source/pre/views/DimensionsView.hpp
-    source/pre/views/DimensionsView.cpp
-    source/pre/views/MaterialView.hpp
-    source/pre/views/MaterialView.cpp
-    source/pre/views/LayerView.hpp
-    source/pre/views/LayerView.cpp
-    source/pre/views/WidthView.hpp
-    source/pre/views/WidthView.cpp
-    source/pre/views/LineView.hpp
-    source/pre/views/LineView.cpp
-    source/pre/views/ArcView.hpp
-    source/pre/views/ArcView.cpp
-    source/pre/views/SpiralView.hpp
-    source/pre/views/SpiralView.cpp
-    source/pre/views/SplineView.hpp
-    source/pre/views/SplineView.cpp
-    source/pre/views/StringView.hpp
-    source/pre/views/StringView.cpp
-    source/pre/views/MassesView.hpp
-    source/pre/views/MassesView.cpp
-    source/pre/views/DampingView.hpp
-    source/pre/views/DampingView.cpp
-    source/pre/views/limb2d/ProfilePlotView.cpp
-    source/pre/views/limb2d/ProfilePlotView.hpp
-    source/pre/views/limb2d/WidthPlotView.cpp
-    source/pre/views/limb2d/WidthPlotView.hpp
-    source/pre/views/limb2d/HeightPlotView.cpp
-    source/pre/views/limb2d/HeightPlotView.hpp
-    source/pre/views/limb3d/ErrorLabel.cpp
-    source/pre/views/limb3d/ErrorLabel.hpp
-    source/pre/views/limb3d/LayerColors.cpp
-    source/pre/views/limb3d/LayerColors.hpp
-    source/pre/views/limb3d/MaterialLegend.cpp
-    source/pre/views/limb3d/MaterialLegend.hpp
-    source/pre/views/limb3d/LimbMesh.cpp
-    source/pre/views/limb3d/LimbMesh.hpp
-    source/pre/views/limb3d/LimbView.cpp
-    source/pre/views/limb3d/LimbView.hpp
-    source/pre/views/limb3d/OpenGLUtils.cpp
-    source/pre/views/limb3d/OpenGLUtils.hpp
+    source/pre/widgets/ScrollArea.hpp
+    source/post/ResultWindow.cpp
+    source/post/ResultWindow.hpp
+    source/post/ComboPlot.cpp
+    source/post/ComboPlot.hpp
+    source/post/CurvaturePlot.cpp
+    source/post/CurvaturePlot.hpp
+    source/post/EnergyPlot.cpp
+    source/post/EnergyPlot.hpp
+    source/post/NumberGrid.cpp
+    source/post/NumberGrid.hpp
+    source/post/OutputWidget.cpp
+    source/post/OutputWidget.hpp
+    source/post/ShapePlot.cpp
+    source/post/ShapePlot.hpp
+    source/post/Slider.cpp
+    source/post/Slider.hpp
+    source/post/StressPlot.cpp
+    source/post/StressPlot.hpp
+    source/pre/Main.cpp
 )
 
 target_compile_definitions(virtualbow-gui PRIVATE JSON_HAS_CPP_17)
@@ -205,81 +225,6 @@ target_link_libraries(virtualbow-gui virtualbow-lib
     Qt6::OpenGLWidgets
     Qt6::PrintSupport
     Qt6::Test
-)
-
-# Target: Post executable
-
-add_executable(
-    virtualbow-post
-    resources/resources.qrc
-    source/extern/qcustomplot/qcustomplot.cpp
-    source/post/Main.cpp
-    source/pre/HelpMenu.cpp
-    source/pre/HelpMenu.hpp
-    source/pre/KeyEventFilter.cpp
-    source/pre/KeyEventFilter.hpp
-    source/pre/RecentFilesMenu.cpp
-    source/pre/RecentFilesMenu.hpp
-    source/pre/UnitDialog.cpp
-    source/pre/UnitDialog.hpp
-    source/pre/utils/UserSettings.cpp
-    source/pre/utils/UserSettings.hpp
-    source/pre/views/limb3d/LayerColors.cpp
-    source/pre/views/limb3d/LayerColors.hpp
-    source/pre/models/units/Unit.cpp
-    source/pre/models/units/Unit.hpp
-    source/pre/models/units/Quantity.cpp
-    source/pre/models/units/Quantity.hpp
-    source/pre/models/units/UnitSystem.cpp
-    source/pre/models/units/UnitSystem.hpp
-    source/pre/utils/Expressions.cpp
-    source/pre/utils/Expressions.hpp
-    source/pre/utils/DoubleRange.cpp
-    source/pre/utils/DoubleRange.hpp
-    source/pre/utils/IntegerRange.cpp
-    source/pre/utils/IntegerRange.hpp
-    source/pre/utils/UserSettings.cpp
-    source/pre/utils/UserSettings.hpp
-    source/pre/widgets/ScrollArea.hpp
-    source/pre/widgets/DialogBase.cpp
-    source/pre/widgets/DialogBase.hpp
-    source/pre/widgets/DoubleSpinBox.cpp
-    source/pre/widgets/DoubleSpinBox.hpp
-    source/pre/widgets/IntegerSpinBox.cpp
-    source/pre/widgets/IntegerSpinBox.hpp
-    source/pre/widgets/DoubleOutput.cpp
-    source/pre/widgets/DoubleOutput.hpp
-    source/pre/widgets/PlotOverlayDialog.cpp
-    source/pre/widgets/PlotOverlayDialog.hpp
-    source/pre/widgets/PlotWidget.cpp
-    source/pre/widgets/PlotWidget.hpp
-    source/post/ComboPlot.cpp
-    source/post/ComboPlot.hpp
-    source/post/CurvaturePlot.cpp
-    source/post/CurvaturePlot.hpp
-    source/post/EnergyPlot.cpp
-    source/post/EnergyPlot.hpp
-    source/post/MainWindow.cpp
-    source/post/MainWindow.hpp
-    source/post/NumberGrid.cpp
-    source/post/NumberGrid.hpp
-    source/post/OutputWidget.cpp
-    source/post/OutputWidget.hpp
-    source/post/ShapePlot.cpp
-    source/post/ShapePlot.hpp
-    source/post/Slider.cpp
-    source/post/Slider.hpp
-    source/post/StressPlot.cpp
-    source/post/StressPlot.hpp
-)
-
-target_compile_definitions(virtualbow-post PRIVATE JSON_HAS_CPP_17)
-
-target_link_libraries(
-    virtualbow-post
-    virtualbow-lib
-    Qt6::Widgets
-    Qt6::PrintSupport
 )
 
 # Target: Test executable
@@ -299,7 +244,6 @@ target_link_libraries(
 
 set_target_properties(
     virtualbow-gui
-    virtualbow-post
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/application
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/application

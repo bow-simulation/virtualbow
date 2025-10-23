@@ -6,7 +6,7 @@ class SimulationDialog: public DialogBase {
     Q_OBJECT
 
 public:
-    SimulationDialog(QWidget* parent, const QString& modelFile, const QString& resultFile, Mode mode);
+    SimulationDialog(QWidget* parent, const BowModel& model, BowResult& result, Mode mode);
 
 signals:
     void staticProgressChanged(int);

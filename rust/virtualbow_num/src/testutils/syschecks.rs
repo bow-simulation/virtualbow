@@ -1,6 +1,6 @@
 use nalgebra::{DMatrix, DVector};
 use crate::fem::system::system::System;
-use crate::utils::numdiff::{differentiate_n_to_1, differentiate_n_to_k};
+use crate::testutils::numdiff::{differentiate_n_to_1, differentiate_n_to_k};
 use approx::{assert_abs_diff_eq, assert_relative_eq};
 
 const NUM_DIFF_STEPSIZE : f64 = 0.0001;

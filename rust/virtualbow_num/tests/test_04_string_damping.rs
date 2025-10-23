@@ -6,8 +6,9 @@ use virtualbow_num::fem::elements::string::StringElement;
 use virtualbow_num::fem::solvers::eigen::natural_frequencies;
 use virtualbow_num::fem::system::node::Node;
 use virtualbow_num::fem::system::system::System;
-use virtualbow_num::utils::plotter::Plotter;
+use virtualbow_num::testutils::plotter::Plotter;
 use approx::assert_relative_eq;
+use virtualbow_num::fem::system::dof::DofType;
 
 #[test]
 fn verify_analytic_damping_ratio() {
@@ -28,7 +29,7 @@ fn verify_analytic_damping_ratio() {
 
     let lengths: Vec<f64> = lin_space(0.0..=L, n+2).collect();
     for (i, &s) in lengths.iter().enumerate() {
-        nodes.push(system.create_node(&vector![s, 0.0, 0.0], &[i != 0, false, false]));
+        nodes.push(system.create_node(&vector![s, 0.0, 0.0], &[DofType::active_if(i != 0), DofType::Locked, DofType::Locked]));
     }
 
     // Add bar elements between nodes

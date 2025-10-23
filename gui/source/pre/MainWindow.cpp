@@ -2,6 +2,7 @@
 #include "SimulationDialog.hpp"
 #include "RecentFilesMenu.hpp"
 #include "HelpMenu.hpp"
+#include "post/ResultWindow.hpp"
 #include "views/docks/TreeDock.hpp"
 #include "views/docks/EditDock.hpp"
 #include "views/docks/PlotDock.hpp"
@@ -264,21 +265,18 @@ bool MainWindow::saveAs() {
 }
 
 void MainWindow::runSimulation(Mode mode) {
-    if(!save()) {
+    // Return if there is nothing to simulate
+    if(!mainModel->hasBow()) {
         return;
     }
 
-    // Generate output filename
-    QFileInfo info(this->windowFilePath());
-    QString resultFile = info.absolutePath() + QDir::separator() + info.completeBaseName() + ".res";
-
     // Run Simulation, launch Post on results if successful
-    SimulationDialog dialog(this, this->windowFilePath(), resultFile, mode);
+    BowResult result;
+    SimulationDialog dialog(this, mainModel->getBow(), result, mode);
     if(dialog.exec() == QDialog::Accepted) {
-        QProcess::startDetached(
-            QDir(QCoreApplication::applicationDirPath()).filePath("virtualbow-post"), {resultFile},
-            QCoreApplication::applicationDirPath()
-        );
+        auto window = new ResultWindow();
+        window->load(result);
+        window->show();
     }
 }
 

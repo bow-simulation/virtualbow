@@ -114,7 +114,7 @@ impl Element for StringElement {
         // Element has no mass properties
     }
 
-    fn update_state_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, mut q: Option<&mut VectorView>, mut K: Option<&mut MatrixView>, mut D: Option<&mut MatrixView>) {
+    fn update_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, mut q: Option<&mut VectorView>, mut K: Option<&mut MatrixView>, mut D: Option<&mut MatrixView>) {
         assert_eq!(u.len()/3, self.offsets.len(), "Invalid number of offsets");
 
         // Step 1: Compute position and velocity of all surface points from nodal coordinates and offsets
