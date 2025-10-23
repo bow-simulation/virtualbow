@@ -130,11 +130,11 @@ impl CubicSpline {
     }
 
     pub fn arg_min(&self) -> f64 {
-        *self.x.first().unwrap()  // Ensured by construction
+        *self.x.first().unwrap()  // Unwrap ensured by construction
     }
 
     pub fn arg_max(&self) -> f64 {
-        *self.x.last().unwrap()  // Ensured by construction
+        *self.x.last().unwrap()  // Unwrap ensured by construction
     }
 
     // Returns the interpolated value for the given argument and extrapolates on out of bounds access

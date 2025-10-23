@@ -87,7 +87,7 @@ impl Interval {
         assert!(!intervals.is_empty());
 
         // Sort intervals by their lower bounds and use leftmost interval as the starting value for the result
-        intervals.sort_by(|a, b| a.lower.partial_cmp(&b.lower).expect("Failed to sort intervals"));
+        intervals.sort_by(|a, b| a.lower.partial_cmp(&b.lower).expect("Failed to compare floating point values"));
         let mut result = intervals[0];
 
         // Iterate over remaining intervals

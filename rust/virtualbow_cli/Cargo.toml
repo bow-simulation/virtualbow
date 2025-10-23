@@ -6,15 +6,16 @@ version.workspace = true
 edition.workspace = true
 authors.workspace = true
 homepage.workspace = true
+license.workspace = true
 
 [lints]
 workspace = true
 
 [dependencies]
 virtualbow = { version = "0.10.0", path = "../virtualbow" }
-clap = { version = "4.5.7", features = ["derive"]}
+clap = { version = "4.5.50", features = ["derive"]}
 
 [dev-dependencies]
 assert_matches = "1.5"
-assert_cmd = "2.0.14"
-predicates = "3.1.0"
+assert_cmd = "2.0.17"
+predicates = "3.1.3"

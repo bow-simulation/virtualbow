@@ -1,6 +1,6 @@
 #pragma once
 
-/* Generated with cbindgen:0.28.0 */
+/* Generated with cbindgen:0.29.2 */
 
 #include <cstdarg>
 #include <cstdint>

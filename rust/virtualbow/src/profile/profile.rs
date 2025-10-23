@@ -52,7 +52,7 @@ impl ProfileCurve {
         // Add each segment's endpoint to the nodes as the starting point for the next segment.
         for (index, input) in segment_inputs.iter().enumerate() {
             input.validate(index)?;
-            let segment = Self::create_curve(input, nodes.last().unwrap());
+            let segment = Self::create_curve(input, nodes.last().unwrap());    // Unwrap is okay because of previous validation
             let endpoint = CurvePoint::new(segment.length_end(), segment.angle(segment.length_end()), segment.position(segment.length_end()));
             nodes.push(endpoint);
             segments.push(segment);
@@ -84,11 +84,11 @@ impl ProfileCurve {
 
 impl PlanarCurve for ProfileCurve {
     fn length_start(&self) -> f64 {
-        self.segments.first().unwrap().length_start()    // Ensured by construction
+        self.segments.first().unwrap().length_start()    // Unwrap is ensured by construction
     }
 
     fn length_end(&self) -> f64 {
-        self.segments.last().unwrap().length_end()    // Ensured by construction
+        self.segments.last().unwrap().length_end()    // Unwrap is ensured by construction
     }
 
     fn position(&self, s: f64) -> SVector<f64, 2> {

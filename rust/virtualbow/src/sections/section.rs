@@ -34,7 +34,7 @@ impl LayeredCrossSection {
             let height = CubicSpline::from_points(&layer.height.0, true, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
             LayerGeometry {
                 height,
-                material: material_map.get(&layer.material).unwrap().clone()    // Unwrap because validity has been checked previously
+                material: material_map.get(&layer.material).unwrap().clone()    // Unwrap okay because validity has been checked previously
             }
         }).collect_vec();
 
@@ -81,21 +81,21 @@ impl LayeredCrossSection {
             // The back of layer i is located at y* = y[i+1] = h[0] + h[1] + ... + h[i]
             // Subtracting y* is equivalent to subtracting 1 from columns 0 to i+1.
             LayerAlignment::LayerBack(name) => {
-                let i = *layer_map.get(name).unwrap();    // Unwrap because validity has been checked previously
+                let i = *layer_map.get(name).unwrap();    // Unwrap okay because validity has been checked previously
                 stacking.view_mut((0, 0), (k, i+1)).add_scalar_mut(-1.0);
             }
 
             // The belly of layer i is located at y* = y[i] = h[0] + h[1] + ... + h[i-1]
             // Subtracting y* is equivalent to subtracting 1 from columns 0 to i.
             LayerAlignment::LayerBelly(name) => {
-                let i = *layer_map.get(name).unwrap();    // Unwrap because validity has been checked previously
+                let i = *layer_map.get(name).unwrap();    // Unwrap okay because validity has been checked previously
                 stacking.view_mut((0, 0), (k, i)).add_scalar_mut(-1.0);
             }
 
             // The center of layer i is located at y* = 0.5*(y[i] + y[i+1]) = h[0] + h[1] + ... + 0.5*h[i]
             // Subtracting y* is equivalent to subtracting 1 from columns 0 to i and 0.5 from column i+1.
             LayerAlignment::LayerCenter(name) => {
-                let i = *layer_map.get(name).unwrap();    // Unwrap because validity has been checked previously
+                let i = *layer_map.get(name).unwrap();    // Unwrap okay because validity has been checked previously
                 stacking.view_mut((0, 0), (k, i)).add_scalar_mut(-1.0);
                 stacking.view_mut((0, i), (k, 1)).add_scalar_mut(-0.5);
             }
@@ -178,8 +178,8 @@ impl LayeredCrossSection {
             };
 
             Interval {
-                lower: to_bound(layer.height.0.first().unwrap()),
-                upper: to_bound(layer.height.0.last().unwrap()),
+                lower: to_bound(layer.height.0.first().unwrap()),    // Unwrap okay because number of layer heights has been validated
+                upper: to_bound(layer.height.0.last().unwrap()),    // Unwrap okay because number of layer heights has been validated
             }
         }).collect();
 

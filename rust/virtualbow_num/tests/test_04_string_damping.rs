@@ -41,7 +41,7 @@ fn verify_analytic_damping_ratio() {
     // Add mass elements at nodes
     for i in 0..nodes.len() {
         let m = ρA*L/(nodes.len() as f64);
-        system.add_element(&[nodes[i]], MassElement::new(m));
+        system.add_element(&[nodes[i]], MassElement::point(m));
     }
 
     // Compute eigen-modes of the system and compare with analytical solution

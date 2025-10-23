@@ -16,7 +16,7 @@ pub fn find_root_newton<F>(function: &F, x0: &DVector<f64>, ftol: f64, iter: usi
         x -= dfdx.lu().solve(&f).expect("Failed to perform newton iteration");
     }
 
-    return None;
+    None
 }
 
 // One-dimensional secant method (https://en.wikipedia.org/wiki/Secant_method)

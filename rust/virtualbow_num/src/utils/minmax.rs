@@ -30,10 +30,8 @@ pub fn discrete_maximum_nd<F, const N: usize>(f: &mut F, size: [usize; N]) -> (f
         (f(&i_array), i_array)
     });
 
-    let max = values.max_by(|(a, _), (b, _)| a.partial_cmp(b).expect("Failed to compare floating point values"))
-                    .expect("Failed to find maximum");
-
-    return max;
+    values.max_by(|(a, _), (b, _)| a.partial_cmp(b).expect("Failed to compare floating point values"))
+          .expect("Failed to find maximum")
 }
 
 // Finds the minimum of a function of integers by comparing all possible input combinations
@@ -48,10 +46,8 @@ pub fn discrete_minimum_nd<F, const N: usize>(f: &mut F, size: [usize; N]) -> (f
         (f(&i_array), i_array)
     });
 
-    let max = values.min_by(|(a, _), (b, _)| a.partial_cmp(b).expect("Failed to compare floating point values"))
-        .expect("Failed to find minimum");
-
-    return max;
+    values.min_by(|(a, _), (b, _)| a.partial_cmp(b).expect("Failed to compare floating point values"))
+          .expect("Failed to find minimum")
 }
 
 #[cfg(test)]

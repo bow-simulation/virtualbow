@@ -103,6 +103,6 @@ pub fn natural_frequencies_from_eigenvalues(lambda: &[Complex<f64>]) -> Result<V
         .collect();
 
     // Sort results by undamped natural frequency and return
-    modes.sort_by(|a, b| a.omega.partial_cmp(&b.omega).expect("Failed to compare frequencies"));
+    modes.sort_by(|a, b| a.omega.partial_cmp(&b.omega).expect("Failed to compare floating point values"));
     Ok(modes)
 }

@@ -13,10 +13,11 @@ use virtualbow_num::fem::system::dof::DofType;
 #[test]
 fn mass_element() {
     let m = 1.5;
+    let J = 0.5;
 
     let mut system = System::new();
     let node = system.create_node(&vector![0.0, 0.0, 0.0], &[DofType::Active; 3]);
-    system.add_element(&[node], MassElement::new(m));
+    system.add_element(&[node], MassElement::new(m, J));
 
     assert_system_invariants(&mut system);
 }

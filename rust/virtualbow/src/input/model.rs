@@ -300,8 +300,8 @@ impl Width {
             return Err(ModelError::WidthControlPointsNotSorted(a[0], b[0]));
         }
 
-        let first = points.first().unwrap();
-        let last = points.last().unwrap();
+        let first = points.first().unwrap();    // Unwrap okay because of previous validation
+        let last = points.last().unwrap();      // Unwrap okay because of previous validation
 
         // The control points must cover the range 0 to 1 exactly
         first[0].validate_equals(0.0).map_err(|_| ModelError::WidthControlPointsInvalidRange(first[0], last[0]))?;
@@ -348,8 +348,8 @@ impl Height {
             return Err(ModelError::LayerHeightControlPointsNotSorted(name.into(), a[0], b[0]));
         }
 
-        let first = points.first().unwrap();
-        let last = points.last().unwrap();
+        let first = points.first().unwrap();    // Unwrap okay because of previous validation
+        let last = points.last().unwrap();      // Unwrap okay because of previous validation
 
         // First control point must lie within the range 0 to 1 and its height must be positive or zero
         first[0].validate_range_inclusive(0.0, 1.0).map_err(|_| ModelError::LayerHeightControlPointsInvalidRange(name.into(), first[0], last[0]))?;

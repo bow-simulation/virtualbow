@@ -6,6 +6,7 @@ version.workspace = true
 edition.workspace = true
 authors.workspace = true
 homepage.workspace = true
+license.workspace = true
 
 [features]
 plotters = ["virtualbow_num/plotters"]    # Debug plots for the tests

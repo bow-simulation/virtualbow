@@ -37,7 +37,7 @@ fn nonlinear_oscillator() {
     let node_b = system.create_node(&vector![x0, y0, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
 
     system.add_element(&[node_a, node_b], StringElement::spring(k, d, l));
-    system.add_element(&[node_b], MassElement::new(m));
+    system.add_element(&[node_b], MassElement::point(m));
     system.add_force(node_b.y(), move |_t| -m*g);
 
     assert_system_invariants(&mut system);

@@ -103,10 +103,10 @@ impl BeamElement {
     }
 
     pub fn set_damping(&mut self, alpha: f64) {
+        assert!(alpha >= 0.0, "Damping coefficient must not be negative");
         self.D = alpha*self.K;
     }
 
-    #[allow(dead_code)]
     pub fn eval_lengths(&self) -> &[f64] {
         &self.se
     }
@@ -173,92 +173,6 @@ impl BeamElement {
                 forces,
                 strains,
             }
-        })
-    }
-
-    // TODO: Remove in favor of eval_results
-    pub fn eval_positions(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {        // Local transformation
-        // TODO: Redundant computations, store when evaluating forces
-        let dx = self.u[3] - self.u[0];
-        let dy = self.u[4] - self.u[1];
-        let a0 = f64::atan2(dy, dx);
-
-        let p0 = vector![
-            self.u[0],
-            self.u[1],
-            a0
-        ];
-
-        let R = matrix![
-            f64::cos(a0), -f64::sin(a0), 0.0;
-            f64::sin(a0), f64::cos(a0), 0.0;
-            0.0, 0.0, 1.0;
-        ];
-
-        self.se.iter().enumerate().map(move |(i, _)| {
-            p0 + R*(self.pe[i] + self.u_eval[i]*self.ul)
-        })
-    }
-
-    // TODO: Remove in favor of eval_results
-    pub fn eval_velocities(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {
-        // TODO: Redundant computations, store when evaluating forces
-        let dx = self.u[3] - self.u[0];
-        let dy = self.u[4] - self.u[1];
-        let a0 = f64::atan2(dy, dx);
-
-        let R = matrix![
-            f64::cos(a0), -f64::sin(a0), 0.0;
-            f64::sin(a0), f64::cos(a0), 0.0;
-            0.0, 0.0, 1.0;
-        ];
-
-        let dadu = vector![dy, -dx, 0.0, -dy, dx, 0.0]/(dx*dx + dy*dy);
-        let dadt = dadu.dot(&(self.v));
-
-        let p0_dot = vector![
-            self.v[0],
-            self.v[1],
-            dadt
-        ];
-
-        let dRda = matrix![
-            -f64::sin(a0), -f64::cos(a0), 0.0;
-            f64::cos(a0), -f64::sin(a0), 0.0;
-            0.0, 0.0, 0.0;
-        ];
-
-        self.se.iter().enumerate().map(move |(i, _)| {
-            p0_dot + dadt*dRda*(self.pe[i] + self.u_eval[i]*self.ul) + R*self.u_eval[i]*self.vl
-        })
-    }
-
-    // TODO: Remove in favor of eval_results
-    pub fn eval_forces(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {
-        let Fx = self.Qe[3];
-        let Fy = self.Qe[4];
-        let Mz = self.Qe[5];
-
-        let x1 = self.u[3];
-        let y1 = self.u[4];
-
-        self.eval_positions().map(move |p| {
-            let x = p[0];
-            let y = p[1];
-            let φ = p[2];
-
-            let N = Fx*f64::cos(φ) + Fy*f64::sin(φ);
-            let Q = Fy*f64::cos(φ) - Fx*f64::sin(φ);
-            let M = Fy*(x1 - x) - Fx*(y1 - y) + Mz;
-
-            vector![N, Q, M]
-        })
-    }
-
-    // TODO: Remove in favor of eval_results
-    pub fn eval_strains(&self) -> impl Iterator<Item=SVector<f64, 3>> + '_ {
-        self.eval_forces().enumerate().map(|(i, f)| {
-            self.C_inv[i]*f
         })
     }
 }

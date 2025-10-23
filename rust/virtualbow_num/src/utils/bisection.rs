@@ -9,7 +9,7 @@ use num::Float;
 // [1] https://crates.io/crates/bisection
 // [2] https://github.com/SteadBytes/bisection/pull/1
 pub fn bisect_right<T: Float>(a: &[T], x: T) -> usize {
-    bisect_right_by(a, |p| p.partial_cmp(&x).expect("Failed to compare floating point values"))
+    bisect_right_by(a, |p| p.partial_cmp(&x).expect("Failed to compare floating point values"))    // TODO: Put comparison into some utility function?
 }
 
 // Return the index where x should be inserted in a, assuming a is sorted, according to a comparator function.

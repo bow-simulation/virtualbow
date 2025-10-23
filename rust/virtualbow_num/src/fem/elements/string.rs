@@ -29,7 +29,13 @@ pub struct StringElement {
 
 impl StringElement {
     pub fn new(EA: f64, ηA: f64, l0: f64, cf: f64, offsets: Vec<f64>) -> Self {
+        assert!(EA >= 0.0, "Linear stiffness must not be negative");
+        assert!(ηA >= 0.0, "Linear damping must not be negative");
+        assert!(l0 > 0.0, "Initial length must be positive");
+        assert!(cf > 0.0, "Compression factor must be positive");
+
         let n_points = offsets.len();
+        assert!(n_points >= 2, "At least two points are required");
 
         Self {
             EA,
@@ -71,31 +77,36 @@ impl StringElement {
     }
 
     pub fn set_initial_length(&mut self, l0: f64) {
+        assert!(l0 > 0.0, "Initial length must be positive");
         self.l0 = l0;
     }
 
+    pub fn set_linear_stiffness(&mut self, EA: f64) {
+        assert!(EA >= 0.0, "Linear stiffness must not be negative");
+        self.EA = EA;
+    }
+
     pub fn set_linear_damping(&mut self, ηA: f64) {
+        assert!(ηA >= 0.0, "Linear damping must not be negative");
         self.ηA = ηA;
     }
 
     pub fn set_compression_factor(&mut self, cf: f64) {
+        assert!(cf > 0.0, "Compression factor must be positive");
         self.cf = cf;
     }
 
     // Elastic component of the normal force
-    #[allow(dead_code)]
     pub fn normal_force_elastic(&self) -> f64 {
         self.Ne
     }
 
     // Viscous component of the normal force
-    #[allow(dead_code)]
     pub fn normal_force_viscous(&self) -> f64 {
         self.Nv
     }
 
     // Total normal force
-    #[allow(dead_code)]
     pub fn normal_force_total(&self) -> f64 {
         self.Nt
     }
@@ -267,7 +278,7 @@ impl Element for StringElement {
     }
 
     fn kinetic_energy(&self) -> f64 {
-        0.0    // This element has no mass properties, those have to be modelled over separate point masses
+        0.0    // This element has no mass properties, those have to be modelled by separate point masses
     }
 
     fn dissipative_power(&self) -> f64 {

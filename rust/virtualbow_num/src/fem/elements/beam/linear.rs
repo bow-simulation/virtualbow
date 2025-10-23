@@ -107,17 +107,17 @@ impl LinearBeamSegment {
 
         let mut I = vec![SMatrix::<f64, 3, 3>::zeros()];
         s_integ.iter().tuple_windows().for_each(|(&sa, &sb)| {
-            let last = I.last().unwrap();
+            let last = I.last().unwrap();    // Unwrap okay because there is at least one element
             I.push(last + fixed_simpson(dIds, sa, sb, n_integration));
         });
 
         // Compute inverse stiffness matrices at nodes and eval points
 
-        let K0n_inv = se.iter().enumerate().map(|(i, &sn)| { -B(s0, sn).transpose()*(I.last().unwrap() - I[i+1]) }).collect_vec();
-        let K00_inv = I.last().unwrap();
+        let K0n_inv = se.iter().enumerate().map(|(i, &sn)| { -B(s0, sn).transpose()*(I.last().unwrap() - I[i+1]) }).collect_vec();    // Unwrap okay because there is at least one element
+        let K00_inv = I.last().unwrap();    // Unwrap okay because there is at least one element
 
         let K1n_inv = se.iter().enumerate().map(|(i, &sn)| { B(s0, sn).transpose()*I[i+1]*B(s0, s1) }).collect_vec();
-        let K11_inv = B(s0, s1).transpose()*I.last().unwrap()*B(s0, s1);
+        let K11_inv = B(s0, s1).transpose()*I.last().unwrap()*B(s0, s1);    // Unwrap okay because there is at least one element
 
         // Complete stiffness matrix
 

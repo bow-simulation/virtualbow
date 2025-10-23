@@ -66,7 +66,7 @@ impl<'a> Simulation<'a> {
 
         // Layer setup data
         let layers = input.section.layers.iter().map(|layer| {
-            let material = input.section.materials.iter().find(|mat| mat.name == layer.material).unwrap();    // Unwrap okay because of previous validation
+            let material = input.section.materials.iter().find(|mat| mat.name == layer.material).unwrap();    // Unwrap is okay because of previous validation
             LayerInfo {
                 name: layer.name.clone(),
                 color: material.color.clone(),
@@ -93,7 +93,7 @@ impl<'a> Simulation<'a> {
         }).collect();
 
         // Limb tip mass, required for limb damping calculation
-        let mass_element_limb_tip = system.add_element(&[*limb_nodes.last().unwrap()], MassElement::new(input.masses.limb_tip));
+        let mass_element_limb_tip = system.add_element(&[*limb_nodes.last().unwrap()], MassElement::point(input.masses.limb_tip));    // Unwrap is okay because of previous validation
 
         // If damping properties are to be initialized and the specified damping ratio for the limb is not zero,
         // perform a modal analysis of the limb without string and set the damping parameter of the beam elements according to the desired damping ratio.
@@ -116,9 +116,9 @@ impl<'a> Simulation<'a> {
         // Arrow and string mass elements, placed at the string center and endpoint
         // The arrow mass is halfed because of the symmetrical bow model.
         // The value of the string masses can only be set after the length of the string has been determined (only if the string is to be initialized at all).
-        let mass_element_arrow = system.add_element(&[string_nodes[0]], MassElement::new(0.5*input.masses.arrow));
-        let mass_element_string_center = system.add_element(&[string_nodes[0]], MassElement::new(0.0));
-        let mass_element_string_tip = system.add_element(&[*limb_nodes.last().unwrap()], MassElement::new(0.0));
+        let mass_element_arrow = system.add_element(&[string_nodes[0]], MassElement::point(0.5*input.masses.arrow));
+        let mass_element_string_center = system.add_element(&[string_nodes[0]], MassElement::point(0.0));
+        let mass_element_string_tip = system.add_element(&[*limb_nodes.last().unwrap()], MassElement::point(0.0));    // Unwrap is okay because of previous validation
 
         // The string element only gets non-zero parameters if the string option is true
         let EA = if string { (input.string.n_strands as f64)*input.string.strand_stiffness } else { 0.0 };
@@ -144,8 +144,8 @@ impl<'a> Simulation<'a> {
             // Returns the slope of the string at the centerpoint against the x direction
             let get_string_slope = |system: &System| -> f64 {
                 let mut string_pos = system.element_ref::<StringElement>(string_element).contact_positions();
-                let pos0 = string_pos.next().unwrap();    // String must always have at least two contact nodes
-                let pos1 = string_pos.next().unwrap();    // String must always have at least two contact nodes
+                let pos0 = string_pos.next().unwrap();    // Unwrap is okay because string must always have at least two contact nodes
+                let pos1 = string_pos.next().unwrap();    // Unwrap is okay
 
                 (pos1[1] - pos0[1])/(pos1[0] - pos0[0])
             };
@@ -274,11 +274,11 @@ impl<'a> Simulation<'a> {
 
             // Compute additional static output values
 
-            let draw_length_front = *states.draw_length.first().unwrap();
-            let draw_length_back = *states.draw_length.last().unwrap();
-            let draw_force_back = *states.draw_force.last().unwrap();
-            let e_pot_front = states.elastic_energy_limbs.first().unwrap() + states.elastic_energy_string.first().unwrap();
-            let e_pot_back = states.elastic_energy_limbs.last().unwrap() + states.elastic_energy_string.last().unwrap();
+            let draw_length_front = *states.draw_length.first().unwrap();    // Unwrap is okay because number of steps was validated, so there is a first and last
+            let draw_length_back = *states.draw_length.last().unwrap();      // Unwrap is okay
+            let draw_force_back = *states.draw_force.last().unwrap();        // Unwrap is okay
+            let e_pot_front = states.elastic_energy_limbs.first().unwrap() + states.elastic_energy_string.first().unwrap();    // Unwrap is okay
+            let e_pot_back = states.elastic_energy_limbs.last().unwrap() + states.elastic_energy_string.last().unwrap();       // Unwrap is okay
 
             let final_draw_force = draw_force_back;
             let final_drawing_work = e_pot_back - e_pot_front;
@@ -360,7 +360,8 @@ impl<'a> Simulation<'a> {
                 }).map_err(ModelError::SimulationDynamicSolutionFailed)?;
 
                 // Record arrow state at the time of separation from the string
-                let state = states.iter().next_back().unwrap();
+                // Also remove last state in the process because the first step of the continued simulation will be identical
+                let state = states.iter().next_back().unwrap();    // Unwrap is okay because there is at least one state
                 simulation.arrow_departure = Some((states.len() - 1, *state.time, *state.arrow_pos, *state.arrow_vel));
 
                 // Simulate the second part of the shot after arrow separation
@@ -467,7 +468,7 @@ impl<'a> Simulation<'a> {
             return true;
         }).map_err(ModelError::SimulationStaticSolutionFailed)?;
 
-        Ok((common, states.pop().unwrap()))
+        Ok((common, states.pop().unwrap()))    // Unwrap is okay because there is at least one state
     }
 
     // TODO: Let mutation, write functions for intermediate results
@@ -509,17 +510,18 @@ impl<'a> Simulation<'a> {
 
         for &element in &self.limb_elements {
             let element = system.element_ref::<BeamElement>(element);
-            element.eval_positions().for_each(|u| limb_pos.push(u));
-            element.eval_velocities().for_each(|v| limb_vel.push(v));
-            element.eval_strains().for_each(|e| limb_strain.push(e));
-            element.eval_forces().for_each(|f| limb_force.push(f));
+            element.eval_properties().for_each(|eval| {
+                limb_pos.push(eval.position);
+                limb_vel.push(eval.velocity);
+                limb_strain.push(eval.strains);
+                limb_force.push(eval.forces);
+            });
         }
 
         // Evaluate stresses and strains at the layer boundaries
 
         let mut layer_strain: Vec<Vec<[f64; 2]>> = vec![Vec::<[f64; 2]>::with_capacity(limb_strain.len()); self.input.section.layers.len()];
         let mut layer_stress: Vec<Vec<[f64; 2]>> = vec![Vec::<[f64; 2]>::with_capacity(limb_strain.len()); self.input.section.layers.len()];
-
         for i in 0..limb_strain.len() {
             self.geometry.strain_eval[i].iter().tuples().enumerate().for_each(|(j, (eval0, eval1))| {
                 layer_strain[j].push([eval0.dot(&limb_strain[i]), eval1.dot(&limb_strain[i])]);

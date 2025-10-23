@@ -33,7 +33,7 @@ fn mass_spring_damper_1() {
     let node_b = system.create_node(&vector![l + x0, 0.0, 0.0], &[DofType::Active, DofType::Locked, DofType::Locked]);
 
     system.add_element(&[node_a, node_b], StringElement::spring(k, d, l));
-    system.add_element(&[node_b], MassElement::new(m));
+    system.add_element(&[node_b], MassElement::point(m));
     assert_system_invariants(&mut system);
 
     // Constants for the analytical solution
@@ -170,7 +170,7 @@ fn mass_spring_damper_n() {
 
     // Add mass elements at nodes
     for i in 1..nodes.len()-1 {
-        system.add_element(&[nodes[i]], MassElement::new(m));
+        system.add_element(&[nodes[i]], MassElement::point(m));
     }
 
     // Add external forces
