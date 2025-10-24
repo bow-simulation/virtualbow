@@ -16,47 +16,45 @@ pub fn new_model() -> Result<Vec<u8>, String> {
     Ok(data)
 }
 
-pub fn load_model<P>(path: P, convert: bool) -> Result<Vec<u8>, String>
+pub fn load_model<P>(path: P, converted: &mut bool) -> Result<Vec<u8>, String>
     where P: AsRef<Path>
 {
-    // Load model from file, keep track of whether the file contained the latest bow format
+    // Load model from file, keep track of whether the file is to be converted from an older version of the format
     let version = BowModelVersion::load(&path).map_err(|e| e.to_string())?;
-    let latest = version.is_latest();
+    *converted = !version.is_latest();
+
+    // Convert to latest format version
     let model = version.get_latest().map_err(|e| e.to_string())?;
-
-    // If the convert option is active and the file contains an older format, the source file is to be converted
-    // to the latest version while keeping a backup file with .bak extension of the original file content.
-    if convert && !latest {
-        // Only continue if the file is not read-only.
-        // Otherwise we can't convert it, which is okay because the user can't unknowingly overwrite it and end up with no backup anyway.
-        let meta = fs::metadata(&path).map_err(|e| e.to_string())?;
-        if !meta.permissions().readonly() {
-            // Create a path for the backup file by renaming *.bow -> *.bow.bak
-            let mut backup = path.as_ref().to_path_buf();
-            backup.set_extension("bow.bak");
-
-            // If necessary, add a number at the end of the backup path until it is unique
-            let mut i = 2;
-            while backup.exists() {
-                backup.set_extension(format!("bow.bak{}", i));
-                i += 1;
-            }
-
-            // Rename the file and save the converted model under the original path
-            fs::rename(&path, &backup).map_err(|e| e.to_string())?;
-            model.save(&path).map_err(|e| e.to_string())?;
-        }
-    }
 
     // Convert model to msgpack and return data
     let data = model.try_into().map_err(|e: ModelError| e.to_string())?;
     Ok(data)
 }
 
-pub fn save_model<P>(data: &[u8], path: P) -> Result<(), String>
+pub fn save_model<P>(data: &[u8], path: P, backup: bool) -> Result<(), String>
     where P: AsRef<Path>
 {
+    // Convert bytes to model object
     let model = BowModel::try_from(data).map_err(|e| e.to_string())?;
+
+    // If requested, create a backup of the current file (if it exists)
+    if backup {
+        // Create a path for the backup file by renaming *.bow -> *.bow.bak
+        let mut backup = path.as_ref().to_path_buf();
+        backup.set_extension("bow.bak");
+
+        // If necessary, add a number at the end of the backup path until it is unique
+        let mut i = 2;
+        while backup.exists() {
+            backup.set_extension(format!("bow.bak{}", i));
+            i += 1;
+        }
+
+        // Move the old model file to the backup path
+        fs::rename(&path, &backup).map_err(|e| e.to_string())?;
+    }
+
+    // Save new model file
     model.save(path).map_err(|e| e.to_string())
 }
 

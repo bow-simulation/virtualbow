@@ -17,10 +17,11 @@ TEST_CASE("test-solver-api") {
     LimbInfo geometry = compute_geometry(model);
 
     // Save model to file
-    save_model(model, model_file);
+    save_model(model, model_file, false);
 
     // Load model from file
-    model = load_model(model_file, false);
+    bool converted;
+    model = load_model(model_file, converted);
 
     // Run a full simulation
     BowResult result = simulate_model(model, Mode::Dynamic, [](Mode mode, double progress) {

@@ -167,7 +167,7 @@ MainWindow::MainWindow()
 // Returns true on success and false on failure
 bool MainWindow::loadFromFile(const QString& path) {
     try {
-        mainModel->loadFile(path);         // Load data from path
+        mainModel->loadFile(path);        // Load data from path
         menuOpenRecent->addPath(path);    // Add path to the menu of recently opened files
         return true;
     }
@@ -181,7 +181,7 @@ bool MainWindow::loadFromFile(const QString& path) {
 // Returns true on success and false on failure
 bool MainWindow::saveToFile(const QString& path) {
     try {
-        mainModel->saveFile(path);    // Save data to path
+        mainModel->saveFile(path);        // Save data to path
         menuOpenRecent->addPath(path);    // Add path to the menu of recently used files
         return true;
     }

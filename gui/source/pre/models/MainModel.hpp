@@ -85,6 +85,7 @@ signals:
 private:
     // Top level state
     QString path;                                    // Path of the currently loaded file (or empty if no file is loaded)
+    bool converted;                                  // Whether the loaded file had to be converted to the current model format
     bool unsaved;                                    // Whether there are any unsaved modifications to the bow model
 
     std::optional<BowModel> bow;                     // Bow data, which might not be present

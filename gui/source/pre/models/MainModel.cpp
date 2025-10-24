@@ -25,6 +25,7 @@ const int GEOMETRY_UPDATE_DELAY_MS = 100;
 MainModel::MainModel():
     bow(std::nullopt),
     path(""),
+    converted(false),
     unsaved(false),
     mainTreeModel(new MainTreeModel()),
     modelTreeSelectionModel(new QItemSelectionModel(mainTreeModel))
@@ -246,6 +247,7 @@ void MainModel::newFile() {
     this->modelTreeSelectionModel->clearSelection();    // Needs to be done before resetting the model in order to get a selection changed signal
     this->mainTreeModel->setBowModel(&bow.value());
     this->path = "";
+    this->converted = false;
     this->unsaved = false;
 
     emit currentFileChanged(path);
@@ -257,7 +259,7 @@ void MainModel::newFile() {
 
 void MainModel::loadFile(const QString& path) {
     // Load bow data from file, which becomes the current path.
-    this->bow = load_model(path.toStdString(), true);
+    this->bow = load_model(path.toStdString(), this->converted);
     this->path = path;
     this->unsaved = false;
     this->modelTreeSelectionModel->clearSelection();    // Needs to be done before resetting the model in order to get a selection changed signal
@@ -273,8 +275,9 @@ void MainModel::loadFile(const QString& path) {
 void MainModel::saveFile(const QString& path) {
     // If bow data is available, save it to the file, which becomes the current path.
     if(bow.has_value()) {
-        save_model(bow.value(), path.toStdString());
+        save_model(bow.value(), path.toStdString(), this->converted);    // If the model data was converted from an older format, create a backup file when saving
         this->path = path;
+        this->converted = false;
         this->unsaved = false;
 
         emit currentFileChanged(path);

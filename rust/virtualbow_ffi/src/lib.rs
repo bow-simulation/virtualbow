@@ -9,7 +9,6 @@ mod api;
 // - Generated size field should be size_t (setting?)
 // - Wrap into namespace? virtualbow::? vb::? ffi::?
 
-
 #[repr(C)]
 pub struct Response {
     error: *mut c_char,
@@ -75,23 +74,23 @@ pub unsafe extern "C" fn new_model() -> Response {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn load_model(path: *const c_char, convert: bool) -> Response {    
+pub unsafe extern "C" fn load_model(path: *const c_char, converted: &mut bool) -> Response {
     let path = CStr::from_ptr(path);
     let path = path.to_str().expect("Failed to convert path to UTF-8");  // TODO: Encapsulate
 
-    match api::load_model(path, convert) {
+    match api::load_model(path, converted) {
         Ok(vec) => Response::data(vec),
         Err(msg) => Response::error(msg),
     }
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn save_model(data: *const u8, size: usize, path: *const c_char) -> Response {    
+pub unsafe extern "C" fn save_model(data: *const u8, size: usize, path: *const c_char, backup: bool) -> Response {
     let path = CStr::from_ptr(path);
     let path = path.to_str().expect("Failed to convert path to UTF-8");  // TODO: Encapsulate
     let data = std::slice::from_raw_parts(data, size);
 
-    match api::save_model(data, path) {
+    match api::save_model(data, path, backup) {
         Ok(()) => Response::empty(),
         Err(msg) => Response::error(msg),
     }

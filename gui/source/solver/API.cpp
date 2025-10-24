@@ -31,14 +31,14 @@ BowModel new_model() {
     return parse_response<BowModel>(response);
 }
 
-BowModel load_model(const std::string& path, bool convert) {
-    Response response = ffi::load_model(path.c_str(), convert);
+BowModel load_model(const std::string& path, bool& converted) {
+    Response response = ffi::load_model(path.c_str(), &converted);
     return parse_response<BowModel>(response);
 }
 
-void save_model(const BowModel& model, const std::string& path) {
+void save_model(const BowModel& model, const std::string& path, bool backup) {
     std::vector<uint8_t> data = json::to_msgpack(model);
-    Response response = ffi::save_model(data.data(), data.size(), path.c_str());
+    Response response = ffi::save_model(data.data(), data.size(), path.c_str(), backup);
     check_response(response);
 }
 

@@ -22,9 +22,9 @@ using Mode = ffi::Mode;
 
 BowModel new_model();
 
-BowModel load_model(const std::string& path, bool convert);
+BowModel load_model(const std::string& path, bool& converted);
 
-void save_model(const BowModel& model, const std::string& path);
+void save_model(const BowModel& model, const std::string& path, bool backup);
 
 BowResult load_result(const std::string& path);
 
