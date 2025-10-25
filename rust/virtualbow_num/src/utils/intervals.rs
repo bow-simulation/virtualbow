@@ -16,23 +16,10 @@ impl Bound {
             Bound::Exclusive(x) => *x,
         }
     }
-}
 
-impl PartialEq<Self> for Bound {
-    // Two bounds are equal if they are of the same type and have the same value
-    fn eq(&self, other: &Self) -> bool {
-        if let (Bound::Inclusive(a), Bound::Inclusive(b)) = (self, other) {
-            return a == b;
-        }
-        if let (Bound::Exclusive(a), Bound::Exclusive(b)) = (self, other) {
-            return a == b;
-        }
-        return false;
-    }
-}
-
-impl PartialOrd<Self> for Bound {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+    // Comparison for lower interval bounds
+    // Inclusive < Exclusive if values are the same
+    pub fn compare_lower(&self, other: &Self) -> Option<Ordering> {
         // Compare values first, if not possible return None.
         let result = self.value().partial_cmp(&other.value())?;
 
@@ -52,6 +39,45 @@ impl PartialOrd<Self> for Bound {
                 Bound::Exclusive(_) => Some(Ordering::Equal)
             }
         }
+    }
+
+    // Comparison for upper interval bounds
+    // Exclusive < Inclusive if values are the same
+    pub fn compare_upper(&self, other: &Self) -> Option<Ordering> {
+        // Compare values first, if not possible return None.
+        let result = self.value().partial_cmp(&other.value())?;
+
+        // If the values are not equal, return their ordering
+        if result != Ordering::Equal {
+            return Some(result);
+        }
+
+        // If the values are equal, the type of the bound decides
+        match self {
+            Bound::Inclusive(_) => match other {
+                Bound::Inclusive(_) => Some(Ordering::Equal),
+                Bound::Exclusive(_) => Some(Ordering::Greater)
+            }
+            Bound::Exclusive(_) => match other {
+                Bound::Inclusive(_) => Some(Ordering::Less),
+                Bound::Exclusive(_) => Some(Ordering::Equal)
+            }
+        }
+    }
+}
+
+impl PartialEq<Self> for Bound {
+    // Two bounds are equal if they are of the same type and have the same value
+    fn eq(&self, other: &Self) -> bool {
+        if let (Bound::Inclusive(a), Bound::Inclusive(b)) = (self, other) {
+            return a == b;
+        }
+
+        if let (Bound::Exclusive(a), Bound::Exclusive(b)) = (self, other) {
+            return a == b;
+        }
+
+        false
     }
 }
 
@@ -78,7 +104,8 @@ impl Interval {
     }
 
     pub fn intersects(&self, other: &Interval) -> bool {
-        self.lower <= other.upper && other.lower <= self.upper
+        // Bounds must intersect "properly" by value, inclusive/exclusive bounds are not taken into account
+        self.lower.value() <= other.upper.value() && other.lower.value() <= self.upper.value()
     }
 
     // Given a list of intervals, this function returns the leftmost partial interval of their union set.
@@ -87,7 +114,7 @@ impl Interval {
         assert!(!intervals.is_empty());
 
         // Sort intervals by their lower bounds and use leftmost interval as the starting value for the result
-        intervals.sort_by(|a, b| a.lower.partial_cmp(&b.lower).expect("Failed to compare floating point values"));
+        intervals.sort_by(|a, b| a.lower.compare_lower(&b.lower).expect("Failed to compare floating point values"));
         let mut result = intervals[0];
 
         // Iterate over remaining intervals
@@ -97,7 +124,7 @@ impl Interval {
             if !next.intersects(&result) {
                 break;
             }
-            else if next.upper > result.upper {
+            else if next.upper.compare_upper(&result.upper) == Some(Ordering::Greater) {
                 result.upper = next.upper;
             }
         }
@@ -124,19 +151,31 @@ mod tests {
     }
 
     #[test]
-    fn test_bound_ordering() {
-        assert!(Bound::Inclusive(0.0) < Bound::Inclusive(1.0));  // Same type, different values
-        assert!(Bound::Inclusive(1.0) > Bound::Inclusive(0.0));  // Same type, different values
+    fn test_bound_ordering_lower() {
+        assert!(Bound::Inclusive(0.0).compare_lower(&Bound::Inclusive(1.0)) == Some(Ordering::Less));     // Same type, different values
+        assert!(Bound::Inclusive(1.0).compare_lower(&Bound::Inclusive(0.0)) == Some(Ordering::Greater));  // Same type, different values
 
-        assert!(Bound::Exclusive(0.0) < Bound::Exclusive(1.0));  // Same type, different values
-        assert!(Bound::Exclusive(1.0) > Bound::Exclusive(0.0));  // Same type, different values
+        assert!(Bound::Exclusive(0.0).compare_lower(&Bound::Exclusive(1.0)) == Some(Ordering::Less));     // Same type, different values
+        assert!(Bound::Exclusive(1.0).compare_lower(&Bound::Exclusive(0.0)) == Some(Ordering::Greater));  // Same type, different values
 
-        assert!(Bound::Inclusive(0.0) < Bound::Exclusive(0.0));  // Same value, different types
-        assert!(Bound::Exclusive(0.0) > Bound::Inclusive(0.0));  // Same value, different types
+        assert!(Bound::Inclusive(0.0).compare_lower(&Bound::Exclusive(0.0)) == Some(Ordering::Less));     // Same value, different types
+        assert!(Bound::Exclusive(0.0).compare_lower(&Bound::Inclusive(0.0)) == Some(Ordering::Greater));  // Same value, different types
     }
 
     #[test]
-    fn test_interval_union() {
+    fn test_bound_ordering_upper() {
+        assert!(Bound::Inclusive(0.0).compare_upper(&Bound::Inclusive(1.0)) == Some(Ordering::Less));     // Same type, different values
+        assert!(Bound::Inclusive(1.0).compare_upper(&Bound::Inclusive(0.0)) == Some(Ordering::Greater));  // Same type, different values
+
+        assert!(Bound::Exclusive(0.0).compare_upper(&Bound::Exclusive(1.0)) == Some(Ordering::Less));     // Same type, different values
+        assert!(Bound::Exclusive(1.0).compare_upper(&Bound::Exclusive(0.0)) == Some(Ordering::Greater));  // Same type, different values
+
+        assert!(Bound::Inclusive(0.0).compare_upper(&Bound::Exclusive(0.0)) == Some(Ordering::Greater));     // Same value, different types
+        assert!(Bound::Exclusive(0.0).compare_upper(&Bound::Inclusive(0.0)) == Some(Ordering::Less));  // Same value, different types
+    }
+
+    #[test]
+    fn test_interval_union_1() {
         let intervals = vec![
             Interval { lower: Bound::Inclusive(0.5), upper: Bound::Inclusive(1.5) },
             Interval { lower: Bound::Inclusive(2.0), upper: Bound::Inclusive(3.0) },
@@ -145,5 +184,19 @@ mod tests {
 
         let result = Interval::left_union(intervals);
         assert!(result == Interval { lower: Bound::Inclusive(0.0), upper: Bound::Inclusive(1.5) });
+    }
+
+    #[test]
+    fn test_interval_union_2() {
+        let intervals = vec![
+            Interval { lower: Bound::Inclusive(0.0), upper: Bound::Exclusive(0.25) },
+            Interval { lower: Bound::Inclusive(0.0), upper: Bound::Exclusive(1.0) },
+            Interval { lower: Bound::Inclusive(0.0), upper: Bound::Inclusive(1.0) },
+            Interval { lower: Bound::Inclusive(0.0), upper: Bound::Exclusive(0.3) },
+            Interval { lower: Bound::Inclusive(0.0), upper: Bound::Inclusive(1.0) },
+        ];
+
+        let result = Interval::left_union(intervals);
+        assert!(result == Interval { lower: Bound::Inclusive(0.0), upper: Bound::Inclusive(1.0) });
     }
 }
