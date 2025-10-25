@@ -189,7 +189,6 @@ void PlotWidget::onExport() {
     dialog.selectFile("Export");
 
     // Todo: Is there a better way to connect default suffix to the selected name filter?
-    // Todo: Handle the case of the save[...] methods returning false
     QObject::connect(&dialog, &QFileDialog::filterSelected, [&](const QString &filter) {
         if(filter == PDF_FILE) {
             dialog.setDefaultSuffix(".pdf");
@@ -213,23 +212,28 @@ void PlotWidget::onExport() {
         QString path = dialog.selectedFiles().first();
 
         const double scale = 2.0;    // Magic number
+        bool success = false;
 
         if(filter == PDF_FILE) {
-            savePdf(path);
+            success = savePdf(path);
         }
         else if(filter == PNG_FILE) {
-            savePng(path, 0, 0, scale);
+            success = savePng(path, 0, 0, scale);
         }
         else if(filter == BMP_FILE) {
-            saveBmp(path, 0, 0, scale);
+            success = saveBmp(path, 0, 0, scale);
         }
         else if(filter == CSV_FILE) {
-            saveCsv(path);
+            success = saveCsv(path);
+        }
+
+        if(!success) {
+            QMessageBox::critical(this, "Error", "Failed to export plot to " + path);
         }
     }
 }
 
-void PlotWidget::saveCsv(const QString& path) {
+bool PlotWidget::saveCsv(const QString& path) {
     QList<QString> headers;
     QList<QList<double>> columns;
 
@@ -270,5 +274,9 @@ void PlotWidget::saveCsv(const QString& path) {
             }
             stream << entries.join(",") << Qt::endl;
         }
+
+        return true;
     }
+
+    return false;
 }

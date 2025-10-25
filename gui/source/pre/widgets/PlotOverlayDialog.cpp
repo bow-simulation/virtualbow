@@ -228,6 +228,10 @@ void PlotOverlayDialog::updateImage(const QString& file) {
     }
     else {
         QPixmap input(file);
+        if(input.isNull()) {
+            QMessageBox::critical(this, "Error", "Failed to load image from " + file);
+        }
+
         pixmap = QPixmap(input.size());
         pixmap.fill(Qt::transparent);
 
