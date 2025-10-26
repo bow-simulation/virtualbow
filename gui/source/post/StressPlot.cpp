@@ -60,13 +60,16 @@ void StressPlot::updateStresses() {
         this->graph(2*iLayer+1)->data()->clear();
 
         for(size_t iLength = 0; iLength < common.limb.length.size(); ++iLength) {
+            // Back
             this->graph(2*iLayer)->addData(
                 quantity_length.getUnit().fromBase(common.limb.length[iLength]),
-                quantity_stress.getUnit().fromBase(std::get<0>(states.layer_stress[index][iLayer][iLength]))
+                quantity_stress.getUnit().fromBase(std::get<1>(states.layer_stress[index][iLayer][iLength]))
             );
+
+            // Belly
             this->graph(2*iLayer+1)->addData(
                 quantity_length.getUnit().fromBase(common.limb.length[iLength]),
-                quantity_stress.getUnit().fromBase(std::get<1>(states.layer_stress[index][iLayer][iLength]))
+                quantity_stress.getUnit().fromBase(std::get<0>(states.layer_stress[index][iLayer][iLength]))
             );
         }
     }
