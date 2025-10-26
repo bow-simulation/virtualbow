@@ -80,7 +80,8 @@ void NumberGrid::addValues(const QString& name, const QList<double>& values, con
         auto output = new DoubleOutput(values[col], *quantities[col], decimals);
         currentGrid->addWidget(output, row, col + 1);
 
-        if(col < allowed.size() && col < maximum.size()) {
+        // Set warning limits if nonzero ones are given
+        if(col < allowed.size() && col < maximum.size() && allowed[col] != 0.0 && maximum[col] != 0.0) {
             output->setAllowedLimit(allowed[col]);
             output->setMaximumLimit(maximum[col]);
         }

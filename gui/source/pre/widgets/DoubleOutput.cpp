@@ -19,12 +19,12 @@ DoubleOutput::DoubleOutput(double value, const Quantity& quantity, int decimals)
     updateAll();
 }
 
-void DoubleOutput::setAllowedLimit(double value) {
+void DoubleOutput::setAllowedLimit(std::optional<double> value) {
     allowedLimit = value;
     updateLimits();
 }
 
-void DoubleOutput::setMaximumLimit(double value) {
+void DoubleOutput::setMaximumLimit(std::optional<double> value) {
     maximumLimit = value;
     updateLimits();
 }

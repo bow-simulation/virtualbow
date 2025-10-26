@@ -6,8 +6,8 @@ class DoubleOutput: public QLineEdit {
 public:
     DoubleOutput(double value, const Quantity& quantity, int decimals = 2);
 
-    void setAllowedLimit(double value);
-    void setMaximumLimit(double value);
+    void setAllowedLimit(std::optional<double> value);
+    void setMaximumLimit(std::optional<double> value);
 
 private:
     const Quantity& quantity;
