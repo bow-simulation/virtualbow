@@ -32,9 +32,7 @@ LimbView::LimbView(MainModel* model):
                                  "QToolButton:pressed { background-color: rgba(150, 150, 150, 200); }"
                                  "QToolButton:checked { background-color: rgba(150, 150, 150, 200); }";
 
-    const QString BUTTON_FRAME_STYLE = "background-color: rgba(38, 38, 38, 100); border-radius: 8px";
-
-    //const QString ERROR_LABEL_STYLE = "font-weight: bold; background-color: rgb(252, 186, 3); padding: 10px; border-radius: 8px; border-style: solid; border-color: rgb(230, 0, 0); border-width: 3px";
+    const QString BUTTON_FRAME_STYLE = "QFrame { background-color: rgba(38, 38, 38, 100); border-radius: 8px }";
 
     auto bt_view_3d = new QToolButton();
     QObject::connect(bt_view_3d, &QPushButton::clicked, this, &LimbView::view3D);
