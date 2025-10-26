@@ -76,6 +76,8 @@ pub fn save_result<P>(data: &[u8], path: P) -> Result<(), String>
 
 pub fn compute_geometry(data: &[u8]) -> Result<Vec<u8>, String> {
     let model = BowModel::try_from(data).map_err(|e| e.to_string())?;
+    model.validate().map_err(|e| e.to_string())?;
+
     let geometry = LimbGeometry::new(&model).map_err(|e| e.to_string())?;
     let discretized = geometry.discretize(model.settings.num_limb_eval_points, model.settings.num_limb_elements);
     let limb_info = discretized.to_limb_info();    // TODO: Get rid of this intermediate step

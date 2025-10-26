@@ -7,6 +7,9 @@ struct IntegerRange {
     static IntegerRange inclusive(int min, int max);
     static IntegerRange exclusive(int min, int max);
 
+    static IntegerRange greaterOrEqual(int value);
+    static IntegerRange smallerOrEqual(int value);
+
     static IntegerRange unrestricted();
     static IntegerRange positive();
     static IntegerRange negative();

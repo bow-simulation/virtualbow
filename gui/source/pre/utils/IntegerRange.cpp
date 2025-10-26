@@ -15,6 +15,20 @@ IntegerRange IntegerRange::exclusive(int min, int max) {
     };
 }
 
+IntegerRange IntegerRange::greaterOrEqual(int value) {
+    return {
+        .min = value,
+        .max = std::numeric_limits<int>::max()
+    };
+}
+
+IntegerRange IntegerRange::smallerOrEqual(int value) {
+    return {
+        .min = std::numeric_limits<int>::lowest(),
+        .max = value
+    };
+}
+
 IntegerRange IntegerRange::unrestricted() {
     return {
         .min = std::numeric_limits<int>::lowest(),

@@ -35,3 +35,13 @@ TEST_CASE("test-solver-api") {
     // Load result from file
     result = load_result(result_file);
 }
+
+TEST_CASE("test-solver-errors") {
+    // Create new default bow model and add invalid setting
+    BowModel model = new_model();
+    model.settings.num_limb_eval_points = 1;
+
+    // Verify that computations fail with an exception
+    REQUIRE_THROWS(compute_geometry(model));
+    REQUIRE_THROWS(simulate_model(model, Mode::Dynamic, [](Mode mode, double progress) { return true; }));
+}

@@ -16,7 +16,7 @@ SettingsView::SettingsView(SettingsModel* model) {
 
     addProperty(
         "Limb eval points",
-        new IntegerView(model, model->N_EVAL_POINTS, IntegerRange::positive(), "Number of points along the limb where results are evaluated")
+        new IntegerView(model, model->N_EVAL_POINTS, IntegerRange::greaterOrEqual(2), "Number of points along the limb where results are evaluated")
     );
 
     addHeading("Statics");
