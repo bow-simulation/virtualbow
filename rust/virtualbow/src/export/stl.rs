@@ -1,43 +1,10 @@
+/*
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::Path;
 use itertools::Itertools;
 use nalgebra::vector;
 use crate::export::{LayerExportInfo, Point};
-
-/*
-class STL:
-    def __init__(self):
-        self.solids = {}
-
-    def add_solid(self, name, triangles):
-        self.solids[name] = triangles
-
-    def save(self, path):
-        with open(path, 'w') as file:
-            for (name, triangles) in self.solids.items():
-                # Begin solid
-                file.write(f"solid {name}\n")
-                for (p1, p2, p3) in triangles:
-                    # Calculate facet normal
-                    n = np.cross(p2 - p1, p3 - p1)
-                    norm = np.linalg.norm(n)
-
-                    if norm > 1e-9:    # Exclude triangles with zero area
-                        n = n/norm
-
-                        # Write facet
-                        file.write(f"  facet normal {n[0]} {n[1]} {n[2]}\n")
-                        file.write("    outer loop\n")
-                        file.write(f"      vertex {p1[0]} {p1[1]} {p1[2]}\n")
-                        file.write(f"      vertex {p2[0]} {p2[1]} {p2[2]}\n")
-                        file.write(f"      vertex {p3[0]} {p3[1]} {p3[2]}\n")
-                        file.write("    endloop\n")
-                        file.write("  endfacet\n")
-
-                # End solid
-                file.write("endsolid\n")
-*/
 
 struct StlSolid {
     name: String,
@@ -125,7 +92,7 @@ fn layer_to_stl(layer: &LayerExportInfo, path: &str) {
 
     data.save(path).unwrap();
 }
-/*
+
 #[cfg(test)]
 mod tests {
     use crate::export::{LayerExportInfo, LimbExportInfo};

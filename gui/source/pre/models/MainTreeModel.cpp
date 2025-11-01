@@ -88,7 +88,7 @@ void MainTreeModel::insertLayer(int row) {
     QModelIndex parent = createIndex(TopLevelItem::LAYERS, 0, ItemType::TOPLEVEL);
     beginInsertRows(parent, row, row);
 
-    auto position = bow->section.layers.begin() + row;
+    auto position = std::next(bow->section.layers.begin(), row);
     bow->section.layers.insert(position, layer);
 
     endInsertRows();
@@ -120,7 +120,7 @@ void MainTreeModel::insertSegment(int row, SegmentType type) {
     QModelIndex parent = createIndex(TopLevelItem::PROFILE, 0, ItemType::TOPLEVEL);
     beginInsertRows(parent, row, row);
 
-    auto position = bow->profile.segments.begin() + row;
+    auto position = std::next(bow->profile.segments.begin(), row);
     bow->profile.segments.insert(position, createDefaultSegment(type));
 
     endInsertRows();
@@ -188,7 +188,7 @@ void MainTreeModel::removeLayer(int row) {
 
     // Remove layer
     // Bow will become invalid when the last layer is removed
-    auto position = bow->section.layers.begin() + row;
+    auto position = std::next(bow->section.layers.begin(), row);
     bow->section.layers.erase(position);
 
     endRemoveRows();
@@ -204,7 +204,7 @@ void MainTreeModel::removeSegment(int row) {
 
     // Remove segment
     // Bow will become invalis when the last segment is removed
-    auto position = bow->profile.segments.begin() + row;
+    auto position = std::next(bow->profile.segments.begin(), row);
     bow->profile.segments.erase(position);
 
     endRemoveRows();
@@ -348,7 +348,7 @@ void MainTreeModel::swapLayers(int i, int j) {
     beginMoveRows(parent, j, j, parent, i);
 
     // Swap the two layers
-    std::swap(bow->section.layers[i], bow->section.layers[j]);
+    swapListNodes(bow->section.layers, i, j);
 
     endMoveRows();
 }
@@ -363,7 +363,7 @@ void MainTreeModel::swapSegments(int i, int j) {
     beginMoveRows(parent, j, j, parent, i);
 
     // Swap the two segments
-    std::swap(bow->profile.segments[i], bow->profile.segments[j]);
+    swapListNodes(bow->profile.segments, i, j);
 
     endMoveRows();
 }
@@ -479,7 +479,7 @@ QVariant MainTreeModel::data(const QModelIndex &index, int role) const {
     }
 
     if(index.parent().row() == TopLevelItem::LAYERS) {
-        auto& layer = bow->section.layers[index.row()];
+        auto& layer = *std::next(bow->section.layers.begin(), index.row());
         switch(role) {
             case Qt::DisplayRole: case Qt::EditRole: return QString::fromStdString(layer.name);
             case Qt::ToolTipRole: return "User-defined layer \"" + QString::fromStdString(layer.name) + "\"";
@@ -535,7 +535,7 @@ bool MainTreeModel::setData(const QModelIndex &index, const QVariant &value, int
             return false;
         }
 
-        bow->section.layers[index.row()].name = name;
+        std::next(bow->section.layers.begin(), index.row())->name = name;
         emit dataChanged(index, index);
         return true;
     }
@@ -592,7 +592,7 @@ QIcon MainTreeModel::topLevelItemIcon(int row) const {
 }
 
 QString MainTreeModel::segmentName(int row) const {
-    ProfileSegment segment = bow->profile.segments[row];
+    ProfileSegment& segment = *std::next(bow->profile.segments.begin(), row);
 
     if(std::holds_alternative<Line>(segment)) {
         return "Line";
@@ -611,7 +611,7 @@ QString MainTreeModel::segmentName(int row) const {
 }
 
 QString MainTreeModel::segmentTooltip(int row) const {
-    ProfileSegment segment = bow->profile.segments[row];
+    ProfileSegment& segment = *std::next(bow->profile.segments.begin(), row);
 
     if(std::holds_alternative<Line>(segment)) {
         return "Line segment defined by a single length";
@@ -631,7 +631,7 @@ QString MainTreeModel::segmentTooltip(int row) const {
 }
 
 QIcon MainTreeModel::segmentIcon(int row) const {
-    ProfileSegment segment = bow->profile.segments[row];
+    ProfileSegment& segment = *std::next(bow->profile.segments.begin(), row);
 
     if(std::holds_alternative<Line>(segment)) {
         return QIcon(":/icons/segment-line.svg");

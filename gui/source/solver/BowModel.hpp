@@ -160,7 +160,7 @@ void to_json(nlohmann::json& obj, const ProfileSegment& input);
 void from_json(const nlohmann::json& obj, ProfileSegment& input);
 
 struct Profile {
-    std::vector<ProfileSegment> segments;
+    std::list<ProfileSegment> segments;    // List to keep references valid when swapping around elements
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
@@ -219,7 +219,7 @@ struct Section {
     LayerAlignment alignment;
     Width width;
     std::list<Material> materials;    // List to keep references valid when swapping around elements
-    std::vector<Layer> layers;
+    std::list<Layer> layers;    // List to keep references valid when swapping around elements
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(

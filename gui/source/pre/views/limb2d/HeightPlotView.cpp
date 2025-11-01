@@ -69,7 +69,8 @@ void HeightPlotView::updatePlot() {
     }
 
     if(model->hasBow()) {
-        for(auto& point: model->getBow().section.layers[iLayer].height) {
+        const Layer& layer = *std::next(model->getBow().section.layers.begin(), iLayer);
+        for(auto& point: layer.height) {
             graphPoints->addData(
                 Quantities::ratio.getUnit().fromBase(point[0]),
                 Quantities::length.getUnit().fromBase(point[1])

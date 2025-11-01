@@ -143,7 +143,7 @@ MaterialModel* MainModel::getMaterialModel(int index) {
 
 LayerModel* MainModel::getLayerModel(int index) {
     if(bow.has_value() && index >= 0 && index < bow->section.layers.size()) {
-        auto model = new LayerModel(bow->section.layers[index], bow->section.materials);
+        auto model = new LayerModel(*std::next(bow->section.layers.begin(), index), bow->section.materials);
         connectSubModel(model);
         return model;
     }
@@ -153,7 +153,7 @@ LayerModel* MainModel::getLayerModel(int index) {
 
 TableModel* MainModel::getLayerHeightModel(int index) {
     if(bow.has_value() && index >= 0 && index < bow->section.layers.size()) {
-        auto model = new TableModel(bow->section.layers[index].height, "Position", "Height", Quantities::ratio, Quantities::length);
+        auto model = new TableModel(std::next(bow->section.layers.begin(), index)->height, "Position", "Height", Quantities::ratio, Quantities::length);
         connectSubModel(model);
         return model;
     }
@@ -202,8 +202,10 @@ DampingModel* MainModel::getDampingModel() {
 }
 
 LineModel* MainModel::getLineModel(int index) {
-    if(bow.has_value() && index >= 0 && index < bow->profile.segments.size() && std::holds_alternative<Line>(bow->profile.segments[index])) {
-        auto model = new LineModel(std::get<Line>(bow->profile.segments[index]));
+    ProfileSegment& segment = *std::next(bow->profile.segments.begin(), index);
+
+    if(bow.has_value() && index >= 0 && index < bow->profile.segments.size() && std::holds_alternative<Line>(segment)) {
+        auto model = new LineModel(std::get<Line>(segment));
         connectSubModel(model);
         return model;
     }
@@ -212,8 +214,10 @@ LineModel* MainModel::getLineModel(int index) {
 }
 
 ArcModel* MainModel::getArcModel(int index) {
-    if(bow.has_value() && index >= 0 && index < bow->profile.segments.size() && std::holds_alternative<Arc>(bow->profile.segments[index])) {
-        auto model = new ArcModel(std::get<Arc>(bow->profile.segments[index]));
+    ProfileSegment& segment = *std::next(bow->profile.segments.begin(), index);
+
+    if(bow.has_value() && index >= 0 && index < bow->profile.segments.size() && std::holds_alternative<Arc>(segment)) {
+        auto model = new ArcModel(std::get<Arc>(segment));
         connectSubModel(model);
         return model;
     }
@@ -222,8 +226,10 @@ ArcModel* MainModel::getArcModel(int index) {
 }
 
 SpiralModel* MainModel::getSpiralModel(int index) {
-    if(bow.has_value() && index >= 0 && index < bow->profile.segments.size() && std::holds_alternative<Spiral>(bow->profile.segments[index])) {
-        auto model = new SpiralModel(std::get<Spiral>(bow->profile.segments[index]));
+    ProfileSegment& segment = *std::next(bow->profile.segments.begin(), index);
+
+    if(bow.has_value() && index >= 0 && index < bow->profile.segments.size() && std::holds_alternative<Spiral>(segment)) {
+        auto model = new SpiralModel(std::get<Spiral>(segment));
         connectSubModel(model);
         return model;
     }
@@ -232,8 +238,10 @@ SpiralModel* MainModel::getSpiralModel(int index) {
 }
 
 TableModel* MainModel::getSplineModel(int index) {
-    if(bow.has_value() && index >= 0 && index < bow->profile.segments.size() && std::holds_alternative<Spline>(bow->profile.segments[index])) {
-        auto model = new TableModel(std::get<Spline>(bow->profile.segments[index]).points, "X", "Y", Quantities::length, Quantities::length);
+    ProfileSegment& segment = *std::next(bow->profile.segments.begin(), index);
+
+    if(bow.has_value() && index >= 0 && index < bow->profile.segments.size() && std::holds_alternative<Spline>(segment)) {
+        auto model = new TableModel(std::get<Spline>(segment).points, "X", "Y", Quantities::length, Quantities::length);
         connectSubModel(model);
         return model;
     }

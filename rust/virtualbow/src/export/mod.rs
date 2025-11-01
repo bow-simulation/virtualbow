@@ -1,6 +1,6 @@
 pub mod step;
 pub mod stl;
-
+/*
 use iter_num_tools::lin_space;
 use itertools::Itertools;
 use nalgebra::{vector, SVector};
@@ -62,3 +62,4 @@ impl LimbExportInfo {
         }
     }
 }
+*/

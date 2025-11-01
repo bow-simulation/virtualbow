@@ -21,7 +21,7 @@ LimbMesh::LimbMesh(const BowModel& bow, const LimbInfo& geometry)
 
     std::vector<QColor> colors(nLayers);
     for(size_t i = 0; i < nLayers; ++i) {
-        colors[i] = getLayerColor(bow.section.layers[i], bow.section.materials);
+        colors[i] = getLayerColor(*std::next(bow.section.layers.begin(), i), bow.section.materials);
     }
 
     // Iterate over segments, i.e. pairs of a previous and a next cross section
