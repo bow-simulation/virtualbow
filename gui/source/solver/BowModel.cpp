@@ -78,18 +78,18 @@ void to_json(nlohmann::json& obj, const ProfileSegment& input) {
     }
 }
 
-void from_json(const nlohmann::json& obj, ProfileSegment& input) {
+void from_json(const nlohmann::json& obj, ProfileSegment& output) {
     if(obj.at("type") == "line") {
-        input = obj.at("parameters").get<Line>();
+        output = obj.at("parameters").get<Line>();
     }
     else if(obj.at("type") == "arc") {
-        input = obj.at("parameters").get<Arc>();
+        output = obj.at("parameters").get<Arc>();
     }
     else if(obj.at("type") == "spiral") {
-        input = obj.at("parameters").get<Spiral>();
+        output = obj.at("parameters").get<Spiral>();
     }
     else if(obj.at("type") == "spline") {
-        input = obj.at("parameters").get<Spline>();
+        output = obj.at("parameters").get<Spline>();
     }
     else {
         throw std::runtime_error("Unknown segment type");
@@ -123,28 +123,28 @@ void to_json(nlohmann::json& obj, const LayerAlignment& input) {
     }
 }
 
-void from_json(const nlohmann::json& obj, LayerAlignment& input) {
+void from_json(const nlohmann::json& obj, LayerAlignment& output) {
     if(obj.at("type") == "section_back") {
-        input = SectionBack{};
+        output = SectionBack{};
     }
     else if(obj.at("type") == "section_belly") {
-        input = SectionBelly{};
+        output = SectionBelly{};
     }
     else if(obj.at("type") == "section_center") {
-        input = SectionCenter{};
+        output = SectionCenter{};
     }
     else if(obj.at("type") == "layer_back") {
-        input = LayerBack {
+        output = LayerBack {
             .layer = obj.at("layer")
         };
     }
     else if(obj.at("type") == "layer_belly") {
-        input = LayerBelly {
+        output = LayerBelly {
             .layer = obj.at("layer")
         };
     }
     else if(obj.at("type") == "layer_center") {
-        input = LayerCenter {
+        output = LayerCenter {
             .layer = obj.at("layer")
         };
     }

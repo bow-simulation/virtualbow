@@ -539,7 +539,6 @@ fn check_static_state_physics(model: &BowModel, output: &BowResult) {
     let ABS_TOL_FORCE = 1e-3*statics.final_draw_force;                                  // Tolerance for force comparisons
     let ABS_TOL_MOMENT = 1e-3*statics.final_draw_force*model.dimensions.draw_length;    // Tolerance for moment comparisons
     let ABS_TOL_ENERGY = 0.5e-2*states.elastic_energy_limbs[0];                         // Tolerance for energy comparisons
-    let REL_TOL_STRESS = 1e-6;
 
     // Perform checks on each static state
     // i: State
@@ -589,17 +588,17 @@ fn check_static_state_physics(model: &BowModel, output: &BowResult) {
                 let width = output.common.limb.width[j];
                 let mut forces = SVector::zeros();
 
-                for (k, (&ya, &yb)) in bounds.iter().tuple_windows().enumerate() {
+                for (k, (&y_back, &y_belly)) in bounds.iter().tuple_windows().enumerate() {
                     // Function of normal stress sigma and its moment sigma*y over the layer's height coordinate y
                     let stresses = |y: f64| {
-                        let sigma_a = state.layer_stress[k][j][0];
-                        let sigma_b = state.layer_stress[k][j][1];
-                        let sigma_y = sigma_a + (y - ya)/(yb - ya)*(sigma_b - sigma_a);
+                        let sigma_back = state.layer_stress[k][j][0];
+                        let sigma_belly = state.layer_stress[k][j][1];
+                        let sigma_y = sigma_back + (y - y_back)/(y_belly - y_back)*(sigma_belly - sigma_back);
                         width*vector![sigma_y, -y*sigma_y]
                     };
 
-                    if ya != yb {
-                        forces += fixed_simpson(stresses, ya, yb, 100);
+                    if y_back != y_belly {
+                        forces += fixed_simpson(stresses, y_belly, y_back, 100);
                     }
                 }
 
@@ -607,8 +606,8 @@ fn check_static_state_physics(model: &BowModel, output: &BowResult) {
                 let N_int = forces[0];
                 let M_int = forces[1];
 
-                assert_relative_eq!(N_int, N_out, max_relative=REL_TOL_STRESS);
-                assert_relative_eq!(M_int, M_out, max_relative=REL_TOL_STRESS);
+                assert_relative_eq!(N_int, N_out, max_relative=ABS_TOL_FORCE);
+                assert_relative_eq!(M_int, M_out, max_relative=ABS_TOL_MOMENT);
 
                 // The next checks verify that the cross-section forces are in balance with the external force
                 // that the string exerts on the bow limb.

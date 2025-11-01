@@ -124,8 +124,8 @@ impl<'a> Simulation<'a> {
         let EA = if string { (input.string.n_strands as f64)*input.string.strand_stiffness } else { 0.0 };
         let ρA = if string { (input.string.n_strands as f64)*input.string.strand_density } else { 0.0 };
 
-        let mut offsets = vec![0.0];                              // Offset at the string node is zero TODO: Preallocate
-        offsets.extend(geometry.y_nodes.iter().map(|y| y[0]));    // Offsets between the limb nodes and the belly surface of the limb
+        let mut offsets = vec![0.0];                                            // Offset at the string node is zero TODO: Preallocate
+        offsets.extend(geometry.y_nodes.iter().map(|y| y[y.len() - 1]));        // Offsets between the limb nodes and the belly surface of the limb
         let string_element = StringElement::new(EA, 0.0, 1.0, 1.0, offsets);    // Damping is determined later when the length of the string is known, compression factor is set in dynamic analysis
         let string_element = system.add_element(&string_nodes, string_element);
 
@@ -522,13 +522,14 @@ impl<'a> Simulation<'a> {
 
         let mut layer_strain: Vec<Vec<[f64; 2]>> = vec![Vec::<[f64; 2]>::with_capacity(limb_strain.len()); self.input.section.layers.len()];
         let mut layer_stress: Vec<Vec<[f64; 2]>> = vec![Vec::<[f64; 2]>::with_capacity(limb_strain.len()); self.input.section.layers.len()];
+
         for i in 0..limb_strain.len() {
-            self.geometry.strain_eval[i].iter().tuples().enumerate().for_each(|(j, (eval0, eval1))| {
-                layer_strain[j].push([eval0.dot(&limb_strain[i]), eval1.dot(&limb_strain[i])]);
+            self.geometry.strain_eval[i].iter().tuples().enumerate().for_each(|(j, (eval_back, eval_belly))| {
+                layer_strain[j].push([eval_back.dot(&limb_strain[i]), eval_belly.dot(&limb_strain[i])]);
             });
 
-            self.geometry.stress_eval[i].iter().tuples().enumerate().for_each(|(j, (eval0, eval1))| {
-                layer_stress[j].push([eval0.dot(&limb_strain[i]), eval1.dot(&limb_strain[i])]);
+            self.geometry.stress_eval[i].iter().tuples().enumerate().for_each(|(j, (eval_back, eval_belly))| {
+                layer_stress[j].push([eval_back.dot(&limb_strain[i]), eval_belly.dot(&limb_strain[i])]);
             });
         }
 

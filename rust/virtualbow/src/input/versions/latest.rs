@@ -160,16 +160,11 @@ impl From<version3::BowModel> for BowModel {
     fn from(model: version3::BowModel) -> BowModel {
         let settings = Settings {
             num_limb_elements: model.settings.n_limb_elements,
-            num_limb_eval_points: 100,
             min_draw_resolution: model.settings.n_draw_steps,
             max_draw_resolution: model.settings.n_draw_steps,
             arrow_clamp_force: model.settings.arrow_clamp_force,
-            string_compression_factor: 1e-6,
             timespan_factor: model.settings.time_span_factor,
-            timeout_factor: 5.0,
-            min_timestep: 1e-6,
-            max_timestep: 1e-4,
-            steps_per_period: 250,
+            .. Default::default()
         };
 
         let dimensions = Dimensions {
@@ -181,22 +176,29 @@ impl From<version3::BowModel> for BowModel {
             handle_offset: model.dimensions.handle_setback,
         };
 
-        let materials = model.materials.iter().map(|material| Material {
-            name: material.name.clone(),
-            color: material.color.clone(),
-            density: material.rho,
-            youngs_modulus: material.E,
-            shear_modulus: material.E/(2.0*(1.0 + 0.4)),  // Shear modulus was newly added. Estimate for poisson ratio v = 0.4.
-            tensile_strength: 0.0,        // Field was newly introduced, value unknown.
-            compressive_strength: 0.0,    // Field was newly introduced, value unknown.
-            safety_margin: 0.0            // Field was newly introduced, value unknown.
+        let materials = model.materials.iter().map(|material| {
+            let mut shear_modulus = material.E/(2.0*(1.0 + 0.4));    // Shear modulus was newly added. Estimate for poisson ratio v = 0.4
+            let factor = 0.1*material.E;
+            shear_modulus = (shear_modulus/factor).round()*factor;   // Round to precision based on E
+            shear_modulus = f64::max(shear_modulus, factor);         // Minimum if rounded to zero
+
+            Material {
+                name: material.name.clone(),
+                color: material.color.clone(),
+                density: material.rho,
+                youngs_modulus: material.E,
+                shear_modulus,
+                tensile_strength: 0.0,        // Field was newly introduced, value unknown.
+                compressive_strength: 0.0,    // Field was newly introduced, value unknown.
+                safety_margin: 0.0            // Field was newly introduced, value unknown.
+            }
         }).collect_vec();
 
         let layers = model.layers.iter().map(|layer| Layer {
             name: layer.name.clone(),
             material: materials[layer.material].name.clone(),
             height: layer.height.clone(),
-        }).rev().collect_vec();    // Layers were previously defined from back to belly, but are now from belly to back (direction of the y axis), so the old layers have to be reversed
+        }).collect_vec();
         
         let section = Section {
             alignment: LayerAlignment::SectionBack,  // Field was newly introduced. Previously the profile curve was always aligned with the cross section's back.

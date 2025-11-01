@@ -60,17 +60,24 @@ void StressPlot::updateStresses() {
         this->graph(2*iLayer+1)->data()->clear();
 
         for(size_t iLength = 0; iLength < common.limb.length.size(); ++iLength) {
-            // Back
-            this->graph(2*iLayer)->addData(
-                quantity_length.getUnit().fromBase(common.limb.length[iLength]),
-                quantity_stress.getUnit().fromBase(std::get<1>(states.layer_stress[index][iLayer][iLength]))
-            );
+            double stress_back = std::get<0>(states.layer_stress[index][iLayer][iLength]);
+            double stress_belly = std::get<1>(states.layer_stress[index][iLayer][iLength]);
 
-            // Belly
-            this->graph(2*iLayer+1)->addData(
-                quantity_length.getUnit().fromBase(common.limb.length[iLength]),
-                quantity_stress.getUnit().fromBase(std::get<0>(states.layer_stress[index][iLayer][iLength]))
-            );
+            // Only plot stresses != 0. TODO: Find a solution to plot stresses over the domain of the layers instead.
+            if(stress_back != 0.0) {
+                this->graph(2*iLayer)->addData(
+                    quantity_length.getUnit().fromBase(common.limb.length[iLength]),
+                    quantity_stress.getUnit().fromBase(stress_back)
+                );
+            }
+
+            // Only plot stresses != 0. TODO: Find a solution to plot stresses over the domain of the layers instead.
+            if(stress_belly != 0.0) {
+                this->graph(2*iLayer+1)->addData(
+                    quantity_length.getUnit().fromBase(common.limb.length[iLength]),
+                    quantity_stress.getUnit().fromBase(stress_belly)
+                );
+            }
         }
     }
 }

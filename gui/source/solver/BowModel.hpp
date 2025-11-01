@@ -157,7 +157,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
 using ProfileSegment = std::variant<Line, Arc, Spiral, Spline>;
 
 void to_json(nlohmann::json& obj, const ProfileSegment& input);
-void from_json(const nlohmann::json& obj, ProfileSegment& input);
+void from_json(const nlohmann::json& obj, ProfileSegment& output);
 
 struct Profile {
     std::list<ProfileSegment> segments;    // List to keep references valid when swapping around elements
@@ -177,7 +177,7 @@ struct LayerCenter { std::string layer; };
 using LayerAlignment = std::variant<SectionBack, SectionBelly, SectionCenter, LayerBack, LayerBelly, LayerCenter>;
 
 void to_json(nlohmann::json& obj, const LayerAlignment& input);
-void from_json(const nlohmann::json& obj, LayerAlignment& input);
+void from_json(const nlohmann::json& obj, LayerAlignment& output);
 
 struct Material {
     std::string name;

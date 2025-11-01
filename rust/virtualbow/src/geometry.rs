@@ -22,15 +22,15 @@ pub struct DiscreteLimbGeometry {
     pub n_nodes: Vec<f64>,                   // Relative lengths of the element nodes
     pub s_nodes: Vec<f64>,                   // Arc lengths of the element nodes
     pub p_nodes: Vec<SVector<f64, 3>>,       // Positions (x, y, φ) of the element nodes
-    pub y_nodes: Vec<DVector<f64>>,          // Layer bounds at nodes (y in cross section coordinates)
-    pub h_nodes: Vec<DVector<f64>>,          // Layer heights at nodes
+    pub y_nodes: Vec<DVector<f64>>,          // Layer bounds (back to belly) at nodes (y in cross-section coordinates)
+    pub h_nodes: Vec<DVector<f64>>,          // Layer heights (back to belly) at nodes
 
     pub p_control: Vec<SVector<f64, 3>>,     // Positions (x, y, φ) of the control points
 
     pub n_eval: Vec<f64>,                    // Relative lengths at which the limb quantities are evaluated
     pub s_eval: Vec<f64>,                    // Arc lengths at which the limb quantities are evaluated
     pub p_eval: Vec<SVector<f64, 3>>,        // Positions (x, y, φ) of the evaluation points
-    pub y_eval: Vec<DVector<f64>>,           // Layer bounds at eval points (y in cross section coordinates)
+    pub y_eval: Vec<DVector<f64>>,           // Layer bounds at eval points (y in cross-section coordinates)
     pub h_eval: Vec<DVector<f64>>,           // Layer heights at eval points
     pub w_eval: Vec<f64>,                    // Widths at eval points
 
@@ -47,8 +47,8 @@ impl LimbGeometry {
         // First the eccentricity, i.e. the distance of the reference point from the profile curve at the root of the limb is calculated.
         // Then the starting point according to handle dimensions, eccentricity and limb root angle follows.
         let eccentricity = match input.dimensions.handle_reference {
-            HandleReference::Back => section.section_bounds(0.0).1,
-            HandleReference::Belly => section.section_bounds(0.0).0,
+            HandleReference::Back => section.section_bounds(0.0).0,
+            HandleReference::Belly => section.section_bounds(0.0).1,
             HandleReference::Profile => 0.0,
         };
         let start = CurvePoint::new(0.0, input.dimensions.handle_angle, vector![
@@ -61,7 +61,7 @@ impl LimbGeometry {
         // Since we can't check this analytically, we check for a fixed number of points along the length of the limb
         for s in lin_space(profile.length_start()..=profile.length_end(), 1000) {  // TODO: Magic number
             let kappa = profile.curvature(s);
-            let (y_belly, y_back) = section.section_bounds(profile.normalize(s));
+            let (y_back, y_belly) = section.section_bounds(profile.normalize(s));
 
             // Intersection at the back side happens when the curvature is positive, i.e. curved in the back direction and the y coordinate of the back is larger or equal to the radius of curvature
             // Intersection at the belly side happens when the curvature is negative, i.e. curved in the belly direction and the y coordinate of the belly is larger or equal to the radius of curvature

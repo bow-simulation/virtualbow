@@ -51,6 +51,46 @@ LimbMesh::LimbMesh(const BowModel& bow, const LimbInfo& geometry)
         }
 
         // Sides
+        for(size_t iLayer = 0; iLayer < nLayers; ++iLayer) {
+            // Only layers with height != 0
+            if(y_prev[iLayer] != y_prev[iLayer+1] || y_next[iLayer] != y_next[iLayer+1]) {
+                // Left
+                addQuad(points_l_prev[iLayer], points_l_next[iLayer], points_l_next[iLayer+1], points_l_prev[iLayer+1], colors[iLayer]);
+
+                // Right
+                addQuad(points_r_prev[iLayer], points_r_prev[iLayer+1], points_r_next[iLayer+1], points_r_next[iLayer], colors[iLayer]);
+
+                // Start
+                if(iSegment == 0) {
+                    addQuad(points_r_prev[iLayer], points_l_prev[iLayer], points_l_prev[iLayer+1], points_r_prev[iLayer+1], colors[iLayer]);
+                }
+                // End
+                if(iSegment == nSegments - 1) {
+                    addQuad(points_r_next[iLayer], points_r_next[iLayer+1], points_l_next[iLayer+1], points_l_next[iLayer], colors[iLayer]);
+                }
+            }
+        }
+
+        // Back
+        for(size_t iLayer = 0; iLayer < nLayers; ++iLayer) {
+            // Find first layer with height != 0
+            if(y_prev[iLayer] != y_prev[iLayer+1] || y_next[iLayer] != y_next[iLayer+1]) {
+                addQuad(points_l_prev[iLayer], points_r_prev[iLayer], points_r_next[iLayer], points_l_next[iLayer], colors[iLayer]);
+                break;
+            }
+        }
+
+        // Belly
+        for(size_t iLayer = nLayers; iLayer > 0; --iLayer) {
+            // Find first layer with height != 0
+            if(y_prev[iLayer] != y_prev[iLayer-1] || y_next[iLayer] != y_next[iLayer-1]) {
+                addQuad(points_l_prev[iLayer], points_l_next[iLayer], points_r_next[iLayer], points_r_prev[iLayer], colors[iLayer-1]);
+                break;
+            }
+        }
+
+        /*
+        // Sides
         for(size_t jLayer = 0; jLayer < nLayers; ++jLayer) {
             // Only layers with height != 0
             if(y_prev[jLayer] != y_prev[jLayer + 1] || y_next[jLayer] != y_next[jLayer + 1]) {
@@ -89,6 +129,7 @@ LimbMesh::LimbMesh(const BowModel& bow, const LimbInfo& geometry)
                 break;
             }
         }
+        */
     }
 }
 
