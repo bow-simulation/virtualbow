@@ -1,7 +1,7 @@
 #include "LayerModel.hpp"
 #include "solver/BowModel.hpp"
 
-LayerModel::LayerModel(Layer& layer, const std::vector<Material>& materials) {
+LayerModel::LayerModel(Layer& layer, const std::list<Material>& materials) {
     NAME = addString(layer.name);
     MATERIAL = addString(layer.material);
 

@@ -1,4 +1,5 @@
 #include "MainTreeModel.hpp"
+#include "pre/utils/ListUtils.hpp"
 #include <QModelIndex>
 #include <QIcon>
 #include <algorithm>
@@ -49,7 +50,7 @@ void MainTreeModel::insertMaterial(int row) {
     QModelIndex parent = createIndex(TopLevelItem::MATERIALS, 0, ItemType::TOPLEVEL);
     beginInsertRows(parent, row, row);
 
-    auto position = bow->section.materials.begin() + row;
+    auto position = std::next(bow->section.materials.begin(), row);
     bow->section.materials.insert(position, material);
 
     endInsertRows();
@@ -80,7 +81,7 @@ void MainTreeModel::insertLayer(int row) {
 
     Layer layer {
         .name = bow->generateLayerName(),
-        .material = bow->section.materials.empty() ? "" : bow->section.materials[0].name,
+        .material = bow->section.materials.empty() ? "" : bow->section.materials.front().name,
         .height = {{0.0, 0.01}, {1.0, 0.01}}
     };
 
@@ -171,7 +172,7 @@ void MainTreeModel::removeMaterial(int row) {
 
     // Remove material
     // Layers that refer to the material will become invalid
-    auto position = bow->section.materials.begin() + row;
+    auto position = std::next(bow->section.materials.begin(), row);
     bow->section.materials.erase(position);
 
     endRemoveRows();
@@ -310,13 +311,29 @@ void MainTreeModel::swapMaterials(int i, int j) {
         throw std::invalid_argument("Invalid material indices for swapping");
     }
 
+    // Indices must be in ascending order
+    if(i > j) {
+        std::swap(i, j);
+    }
+
     QModelIndex parent = createIndex(TopLevelItem::MATERIALS, 0, ItemType::TOPLEVEL);
     beginMoveRows(parent, i, i, parent, j);
     beginMoveRows(parent, j, j, parent, i);
 
     // Swap the two materials
     // Layers that refer to the materials stay valid since they refer to them by name
-    std::swap(bow->section.materials[i], bow->section.materials[j]);
+    swapListNodes(bow->section.materials, i, j);
+
+    /*
+    auto it1 = std::next(bow->section.materials.begin(), i);
+    auto it2 = std::next(bow->section.materials.begin(), j);
+    //std::swap(*it1, *it2);
+
+
+    auto after2 = std::next(it2);
+    bow->section.materials.splice(it1, bow->section.materials, it2);    // Move it2 before it1
+    bow->section.materials.splice(after2, bow->section.materials, it1);    // Move it1 (now after it2) to afterIt2
+    */
 
     endMoveRows();
 }
@@ -452,7 +469,7 @@ QVariant MainTreeModel::data(const QModelIndex &index, int role) const {
     }
 
     if(index.parent().row() == TopLevelItem::MATERIALS) {
-        auto& material = bow->section.materials[index.row()];
+        auto& material = *std::next(bow->section.materials.begin(), index.row());
         switch(role) {
             case Qt::DisplayRole: case Qt::EditRole: return QString::fromStdString(material.name);
             case Qt::ToolTipRole: return "User-defined material \"" + QString::fromStdString(material.name) + "\"";
@@ -496,10 +513,11 @@ bool MainTreeModel::setData(const QModelIndex &index, const QVariant &value, int
         }
 
         // Rename material
-        std::string oldName = bow->section.materials[index.row()].name;
-        bow->section.materials[index.row()].name = newName;
+        Material& material = *std::next(bow->section.materials.begin(), index.row());
+        std::string oldName = material.name;
+        material.name = newName;
 
-        // Change name in layers that use the material
+        // Change the name also in layers that use the material
         for(auto& layer: bow->section.layers) {
             if(layer.material == oldName) {
                 layer.material = newName;

@@ -33,7 +33,7 @@ MaterialLegend::MaterialLegend()
     this->setLayout(vbox);
 }
 
-void MaterialLegend::setData(const std::vector<Material>& materials) {
+void MaterialLegend::setData(const std::list<Material>& materials) {
     while(vbox->count() < materials.size()) {
         vbox->addWidget(new MaterialEntry());
     }
@@ -46,7 +46,7 @@ void MaterialLegend::setData(const std::vector<Material>& materials) {
 
     for(int i = 0; i < vbox->count(); ++i) {
         MaterialEntry* entry = dynamic_cast<MaterialEntry*>(vbox->itemAt(i)->widget());
-        entry->setData(materials[i]);
+        entry->setData(*std::next(materials.begin(), i));    // TODO: More efficient iteration?
     }
 
     vbox->update();

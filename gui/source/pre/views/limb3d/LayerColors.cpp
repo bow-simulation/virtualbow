@@ -5,7 +5,7 @@
 #include <QPainter>
 #include <QPixmap>
 
-QColor getLayerColor(const Layer& layer, const std::vector<Material>& materials) {
+QColor getLayerColor(const Layer& layer, const std::list<Material>& materials) {
     for(auto& material: materials) {
         if(material.name == layer.material) {
             return QColor(QString::fromStdString(material.color));
@@ -15,7 +15,7 @@ QColor getLayerColor(const Layer& layer, const std::vector<Material>& materials)
     return QColor();
 }
 
-QPixmap getLayerPixmap(const Layer& layer, const std::vector<Material>& materials, int size) {
+QPixmap getLayerPixmap(const Layer& layer, const std::list<Material>& materials, int size) {
     QColor color = getLayerColor(layer, materials);
     return getColorPixmap(color, size);
 }

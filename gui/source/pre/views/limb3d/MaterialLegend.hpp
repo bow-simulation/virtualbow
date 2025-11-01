@@ -20,7 +20,7 @@ class MaterialLegend: public QWidget
 {
 public:
     MaterialLegend();
-    void setData(const std::vector<Material>& materials);
+    void setData(const std::list<Material>& materials);
 
 private:
     QVBoxLayout* vbox;

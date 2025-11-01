@@ -9,8 +9,9 @@ use virtualbow_num::utils::intervals::{Bound, Interval};
 
 #[derive(Debug)]
 pub struct LayerGeometry {
-    pub height: CubicSpline,
+    pub name: String,
     pub material: Material,
+    pub height: CubicSpline,
 }
 
 #[derive(Debug)]
@@ -33,6 +34,7 @@ impl LayeredCrossSection {
         let layers = section.layers.iter().map(|layer| {
             let height = CubicSpline::from_points(&layer.height.0, true, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
             LayerGeometry {
+                name: layer.name.clone(),
                 height,
                 material: material_map.get(&layer.material).unwrap().clone()    // Unwrap okay because validity has been checked previously
             }

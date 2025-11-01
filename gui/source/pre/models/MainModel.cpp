@@ -133,7 +133,7 @@ DimensionsModel* MainModel::getDimensionsModel() {
 
 MaterialModel* MainModel::getMaterialModel(int index) {
     if(bow.has_value() && index >= 0 && index < bow->section.materials.size()) {
-        auto model = new MaterialModel(bow->section.materials[index]);
+        auto model = new MaterialModel(*std::next(bow->section.materials.begin(), index));
         connectSubModel(model);
         return model;
     }

@@ -2,6 +2,7 @@
 #include <nlohmann/json.hpp>
 #include <vector>
 #include <array>
+#include <list>
 #include <variant>
 
 using Points = std::vector<std::array<double, 2>>;
@@ -217,7 +218,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
 struct Section {
     LayerAlignment alignment;
     Width width;
-    std::vector<Material> materials;
+    std::list<Material> materials;    // List to keep references valid when swapping around elements
     std::vector<Layer> layers;
 };
 

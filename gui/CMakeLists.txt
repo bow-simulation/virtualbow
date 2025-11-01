@@ -214,6 +214,7 @@ add_executable(
     source/post/StressPlot.cpp
     source/post/StressPlot.hpp
     source/pre/Main.cpp
+    source/pre/utils/ListUtils.hpp
 )
 
 target_compile_definitions(virtualbow-gui PRIVATE JSON_HAS_CPP_17)

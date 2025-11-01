@@ -14,7 +14,7 @@ use approx::{assert_abs_diff_eq, assert_relative_eq};
 use num::Zero;
 use test_each_file::test_each_path;
 
-// Example bows are loaded, simulated, and the results are verified by various consistency checks.
+// Example bows are loaded, simulated, and the results are verified by various consistency checks
 // TODO: Improvements
 // - Use relative error tolerances where it makes sense (especially derivatives)
 
@@ -603,14 +603,14 @@ fn check_static_state_physics(model: &BowModel, output: &BowResult) {
                     }
                 }
 
-                // Cross section forces according to integration of the stresses
+                // Cross-section forces according to integration of the stresses
                 let N_int = forces[0];
                 let M_int = forces[1];
 
                 assert_relative_eq!(N_int, N_out, max_relative=REL_TOL_STRESS);
                 assert_relative_eq!(M_int, M_out, max_relative=REL_TOL_STRESS);
 
-                // The next checks verify that the cross section forces are in balance with the external force
+                // The next checks verify that the cross-section forces are in balance with the external force
                 // that the string exerts on the bow limb.
 
                 // Limb endpoint
@@ -626,7 +626,7 @@ fn check_static_state_physics(model: &BowModel, output: &BowResult) {
                 let y = state.limb_pos[j][1];
                 let φ = state.limb_pos[j][2];
 
-                // Cross section according to static equilibrium with the string force
+                // Cross-section according to static equilibrium with the string force
                 let M_ref = Fy*(x_contact - x) - Fx*(y_contact - y);
                 let N_ref = Fx*f64::cos(φ) + Fy*f64::sin(φ);
                 let Q_ref = Fy*f64::cos(φ) - Fx*f64::sin(φ);

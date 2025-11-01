@@ -9,7 +9,7 @@ public:
     QPersistentModelIndex NAME;
     QPersistentModelIndex MATERIAL;
 
-    LayerModel(Layer& layer, const std::vector<Material>& materials);
+    LayerModel(Layer& layer, const std::list<Material>& materials);
     const QStringList& materialOptions() const;
 
 private:
