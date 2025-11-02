@@ -6,8 +6,7 @@ class RecentFilesMenu;
 
 class ResultWindow: public QMainWindow {
 public:
-    ResultWindow();
-    void load(const BowResult& data);
+    ResultWindow(const QString& filePath, const BowResult& data);
 
 private:
     BowResult data;

@@ -274,8 +274,7 @@ void MainWindow::runSimulation(Mode mode) {
     BowResult result;
     SimulationDialog dialog(this, mainModel->getBow(), result, mode);
     if(dialog.exec() == QDialog::Accepted) {
-        auto window = new ResultWindow();
-        window->load(result);
+        auto window = new ResultWindow(this->windowFilePath(), result);
         window->show();
     }
 }
@@ -344,10 +343,13 @@ QString MainWindow::showSaveFileDialog() {
 // Filename to display at the top of the window, which is either the actual name of the current file
 // or the default name if no file is loaded
 QString MainWindow::displayPath() {
-    if(mainModel->currentFile().isEmpty()) {
-        return DEFAULT_NAME;
-    }
-    else {
+    if(!mainModel->currentFile().isEmpty()) {
         return mainModel->currentFile();
     }
+
+    if(mainModel->hasBow()) {
+        return DEFAULT_NAME;
+    }
+
+    return "";
 }
