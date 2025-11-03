@@ -192,20 +192,21 @@ DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
         numbers->addColumn();
         numbers->addGroup("Performance");
         numbers->addValue("Final arrow velocity", departure.arrow_vel, Quantities::velocity);
+        numbers->addValue("Final arrow energy", departure.kinetic_energy_arrow, Quantities::energy);
         numbers->addValue("Degree of efficiency", departure.energy_efficiency, Quantities::ratio);
 
-        double total_energy = departure.kinetic_energy_arrow + departure.kinetic_energy_limbs + departure.elastic_energy_limbs + departure.damping_energy_limbs
-                              + departure.kinetic_energy_string + departure.elastic_energy_string + departure.damping_energy_string;
+        double drawing_work = data.statics->final_drawing_work;
+        double initial_energy_limbs = data.statics->states.elastic_energy_limbs[0];    // TODO: Make this a dedicated result?
+        double initial_energy_string = data.statics->states.elastic_energy_string[0];    // TODO: Make this a dedicated result?
 
-        numbers->addGroup("Energies at arrow departure");
-        numbers->addHeaders({"Absolute", "Relative"});
-        numbers->addValues("Arrow (kinetic)", {departure.kinetic_energy_arrow, departure.kinetic_energy_arrow/total_energy}, {&Quantities::energy, &Quantities::ratio});
-        numbers->addValues("Limbs (kinetic)", {departure.kinetic_energy_limbs, departure.kinetic_energy_limbs/total_energy}, {&Quantities::energy, &Quantities::ratio});
-        numbers->addValues("Limbs (elastic)", {departure.elastic_energy_limbs, departure.elastic_energy_limbs/total_energy}, {&Quantities::energy, &Quantities::ratio});
-        numbers->addValues("Limbs (damping)", {departure.damping_energy_limbs, departure.damping_energy_limbs/total_energy}, {&Quantities::energy, &Quantities::ratio});
-        numbers->addValues("String (kinetic)", {departure.kinetic_energy_string, departure.kinetic_energy_string/total_energy}, {&Quantities::energy, &Quantities::ratio});
-        numbers->addValues("String (elastic)", {departure.elastic_energy_string, departure.elastic_energy_string/total_energy}, {&Quantities::energy, &Quantities::ratio});
-        numbers->addValues("String (damping)", {departure.damping_energy_string, departure.damping_energy_string/total_energy}, {&Quantities::energy, &Quantities::ratio});
+        numbers->addGroup("Efficiency losses");
+        numbers->addHeaders({"Energy", "Efficiency"});
+        numbers->addValues("Limbs (kinetic)", {departure.kinetic_energy_limbs, departure.kinetic_energy_limbs/drawing_work}, {&Quantities::energy, &Quantities::ratio});
+        numbers->addValues("Limbs (elastic)", {departure.elastic_energy_limbs - initial_energy_limbs, (departure.elastic_energy_limbs - initial_energy_limbs)/drawing_work}, {&Quantities::energy, &Quantities::ratio});
+        numbers->addValues("Limbs (damping)", {departure.damping_energy_limbs, departure.damping_energy_limbs/drawing_work}, {&Quantities::energy, &Quantities::ratio});
+        numbers->addValues("String (kinetic)", {departure.kinetic_energy_string, departure.kinetic_energy_string/drawing_work}, {&Quantities::energy, &Quantities::ratio});
+        numbers->addValues("String (elastic)", {departure.elastic_energy_string - initial_energy_string, (departure.elastic_energy_string - initial_energy_string)/drawing_work}, {&Quantities::energy, &Quantities::ratio});
+        numbers->addValues("String (damping)", {departure.damping_energy_string, departure.damping_energy_string/drawing_work}, {&Quantities::energy, &Quantities::ratio});
     }
 
     numbers->addColumn();
