@@ -61,22 +61,25 @@ UnitDialog::UnitDialog(QWidget* parent)
     grid->addWidget(new UnitEditor(Quantities::curvature), 1, 0);
     grid->addWidget(new UnitEditor(Quantities::angle), 2, 0);
     grid->addWidget(new UnitEditor(Quantities::mass), 3, 0);
-    grid->addWidget(new UnitEditor(Quantities::force), 4, 0);
-    grid->addWidget(new UnitEditor(Quantities::energy), 5, 0);
+    grid->addWidget(new UnitEditor(Quantities::density), 4, 0);
+    grid->addWidget(new UnitEditor(Quantities::force), 5, 0);
+    grid->addWidget(new UnitEditor(Quantities::stiffness), 6, 0);
 
     grid->addWidget(new UnitEditor(Quantities::time), 0, 1);
     grid->addWidget(new UnitEditor(Quantities::frequency), 1, 1);
     grid->addWidget(new UnitEditor(Quantities::elastic_modulus), 2, 1);
-    grid->addWidget(new UnitEditor(Quantities::density), 3, 1);
-    grid->addWidget(new UnitEditor(Quantities::linear_density), 4, 1);
-    grid->addWidget(new UnitEditor(Quantities::linear_stiffness), 5, 1);
+    grid->addWidget(new UnitEditor(Quantities::mass_per_force), 3, 1);
+    grid->addWidget(new UnitEditor(Quantities::mass_per_energy), 4, 1);
+    grid->addWidget(new UnitEditor(Quantities::linear_density), 5, 1);
+    grid->addWidget(new UnitEditor(Quantities::linear_stiffness), 6, 1);
 
     grid->addWidget(new UnitEditor(Quantities::position), 0, 2);
     grid->addWidget(new UnitEditor(Quantities::velocity), 1, 2);
     grid->addWidget(new UnitEditor(Quantities::acceleration), 2, 2);
-    grid->addWidget(new UnitEditor(Quantities::stress), 3, 2);
-    grid->addWidget(new UnitEditor(Quantities::strain), 4, 2);
-    grid->addWidget(new UnitEditor(Quantities::ratio), 5, 2);
+    grid->addWidget(new UnitEditor(Quantities::energy), 3, 2);
+    grid->addWidget(new UnitEditor(Quantities::stress), 4, 2);
+    grid->addWidget(new UnitEditor(Quantities::strain), 5, 2);
+    grid->addWidget(new UnitEditor(Quantities::ratio), 6, 2);
 
     auto group = new QGroupBox();
     group->setLayout(grid);

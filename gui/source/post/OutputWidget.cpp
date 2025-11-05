@@ -135,6 +135,7 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
     auto plot_combo = new ComboPlot();
     plot_combo->addData("Draw length", data.statics->states.draw_length, Quantities::length);
     plot_combo->addData("Draw force", data.statics->states.draw_force, Quantities::force);
+    plot_combo->addData("Draw stiffness", data.statics->states.draw_stiffness, Quantities::stiffness);
     plot_combo->addData("String force (total)", data.statics->states.string_force, Quantities::force);
     plot_combo->addData("String force (strand)", data.statics->states.strand_force, Quantities::force);
     plot_combo->addData("String tip angle", data.statics->states.string_tip_angle, Quantities::angle);

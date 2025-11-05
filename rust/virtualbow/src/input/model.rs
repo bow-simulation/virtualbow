@@ -52,9 +52,9 @@ impl BowModel {
                      density: 675.0,
                      youngs_modulus: 12e9,
                      shear_modulus: 6e9,
-                     tensile_strength: 100e6,
-                     compressive_strength: 100e6,
-                     safety_margin: 0.25,
+                     tensile_strength: 0.0,
+                     compressive_strength: 0.0,
+                     safety_margin: 0.0,
                 }],
                 layers: vec![Layer {
                     name: "Layer 1".into(),

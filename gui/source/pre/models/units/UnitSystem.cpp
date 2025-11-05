@@ -15,10 +15,27 @@ const Unit Units::PoundMass = Unit("lb", "Pound", US, 0.453592);
 const Unit Units::Ounce = Unit("oz", "Ounce", US, 0.0283495);
 const Unit Units::Grain = Unit("gr", "Grain", US, 0.00006479891);
 
+const Unit Units::Kilogram_Per_Newton = Unit("kg/N", "Kilogram per Newton", SI, 1.0);
+const Unit Units::Gram_Per_Newton = Unit("g/N", "Gram per Newton", SI, 1e-3);
+const Unit Units::Pound_Per_PoundForce = Unit("lb/lbf", "Pound per pound-force", US, 0.453592/4.44822);
+const Unit Units::Ounce_Per_PoundForce = Unit("oz/lbf", "Ounce per pound-force", US, 0.0283495/4.44822);
+const Unit Units::Grain_Per_PoundForce = Unit("gr/lbf", "Grain per pound-force", US, 0.00006479891/4.44822);
+
+const Unit Units::Kilogram_Per_Joule = Unit("kg/J", "Kilogram per Joule", SI, 1.0);
+const Unit Units::Gram_Per_Joule = Unit("g/J", "Gram per Joule", SI, 1e-3);
+const Unit Units::Pound_Per_FootPound = Unit("lb/ft*lbf", "Pound per foot-pound", US, 0.453592/1.35582);
+const Unit Units::Ounce_Per_FootPound = Unit("oz/ft*lbf", "Ounce per pound-force", US, 0.0283495/1.35582);
+const Unit Units::Grain_Per_FootPound = Unit("gr/ft*lbf", "Grain per pound-force", US, 0.00006479891/1.35582);
+
 const Unit Units::Newton = Unit("N", "Newton", SI, 1.0);
 const Unit Units::Newton_Per_Percent = Unit("N/%", "Newton per percent", SI, 1e2);
 const Unit Units::PoundForce = Unit("lbf", "Pound-force", US, 4.4482216153);
 const Unit Units::PoundForce_Per_Percent = Unit("lbf/%", "Pound-force per percent", US, 0.453592e2);
+
+const Unit Units::Newton_Per_Meter = Unit("N/m", "Newton per meter", SI, 1.0);
+const Unit Units::Newton_Per_Centimeter = Unit("N/cm", "Newton per centimeter", SI, 1e2);
+const Unit Units::Newton_Per_Millimeter = Unit("N/mm", "Newton per millimeter", SI, 1e3);
+const Unit Units::PoundForce_Per_Inch = Unit("lbf/in", "Pound-force per inch", US, 4.4482216153/0.0254);
 
 const Unit Units::Second = Unit("s", "Second", SI, 1.0);
 const Unit Units::Millisecond = Unit("ms", "Millisecond", SI, 1e-3);
@@ -95,10 +112,33 @@ Quantity Quantities::mass = Quantity("Mass", {
     Units::Grain
 }, 1, 4);
 
+Quantity Quantities::mass_per_force = Quantity("Mass per Force", {
+    Units::Kilogram_Per_Newton,
+    Units::Gram_Per_Newton,
+    Units::Pound_Per_PoundForce,
+    Units::Ounce_Per_PoundForce,
+    Units::Grain_Per_PoundForce,
+}, 1, 4);
+
+Quantity Quantities::mass_per_energy = Quantity("Mass per Energy", {
+    Units::Kilogram_Per_Joule,
+    Units::Gram_Per_Joule,
+    Units::Pound_Per_FootPound,
+    Units::Ounce_Per_FootPound,
+    Units::Grain_Per_FootPound,
+}, 1, 4);
+
 Quantity Quantities::force = Quantity("Force", {
     Units::Newton,
     Units::PoundForce
 }, 0, 1);
+
+Quantity Quantities::stiffness = Quantity("Stiffness", {
+    Units::Newton_Per_Meter,
+    Units::Newton_Per_Centimeter,
+    Units::Newton_Per_Millimeter,
+    Units::PoundForce_Per_Inch,
+}, 2, 3);
 
 Quantity Quantities::time = Quantity("Time", {
     Units::Second,
@@ -213,7 +253,10 @@ QVector<Quantity*> Quantities::quantities = {
     &length,
     &angle,
     &mass,
+    &mass_per_force,
+    &mass_per_energy,
     &force,
+    &stiffness,
     &time,
     &energy,
     &position,

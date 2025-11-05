@@ -18,10 +18,27 @@ public:
     static const Unit Ounce;
     static const Unit Grain;
 
+    static const Unit Kilogram_Per_Newton;
+    static const Unit Gram_Per_Newton;
+    static const Unit Pound_Per_PoundForce;
+    static const Unit Ounce_Per_PoundForce;
+    static const Unit Grain_Per_PoundForce;
+
+    static const Unit Kilogram_Per_Joule;
+    static const Unit Gram_Per_Joule;
+    static const Unit Pound_Per_FootPound;
+    static const Unit Ounce_Per_FootPound;
+    static const Unit Grain_Per_FootPound;
+
     static const Unit Newton;
     static const Unit Newton_Per_Percent;
     static const Unit PoundForce;
     static const Unit PoundForce_Per_Percent;
+
+    static const Unit Newton_Per_Meter;
+    static const Unit Newton_Per_Centimeter;
+    static const Unit Newton_Per_Millimeter;
+    static const Unit PoundForce_Per_Inch;
 
     static const Unit Second;
     static const Unit Millisecond;
@@ -83,7 +100,10 @@ public:
     static Quantity length;
     static Quantity angle;
     static Quantity mass;
+    static Quantity mass_per_force;
+    static Quantity mass_per_energy;
     static Quantity force;
+    static Quantity stiffness;
     static Quantity time;
     static Quantity energy;
     static Quantity position;
