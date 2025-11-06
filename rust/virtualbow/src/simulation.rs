@@ -9,7 +9,7 @@ use virtualbow_num::fem::system::node::Node;
 use virtualbow_num::fem::system::system::{System, SystemEval};
 use crate::errors::ModelError;
 use crate::geometry::{DiscreteLimbGeometry, LimbGeometry};
-use crate::input::BowModel;
+use crate::input::{ArrowMass, BowModel};
 use crate::output::{ArrowDeparture, BowResult, Common, Dynamics, LayerInfo, MaxForces, MaxStresses, State, StateVec, Statics};
 use virtualbow_num::fem::elements::beam::beam::BeamElement;
 use virtualbow_num::fem::elements::mass::MassElement;
@@ -41,6 +41,9 @@ pub struct Simulation<'a> {
     mass_element_limb_tip: usize,         // Mass elememt at the end of the limb
     mass_element_string_center: usize,    // Mass element at the center of the string
     mass_element_string_tip: usize,       // Mass element at the end of the string
+
+    // Arrow mass that is being computed after the static simulation
+    arrow_mass: f64,
 
     // None if the arrow is still attached to the string
     // Otherwise the state index, time, position and velocity at separation from the string
@@ -114,9 +117,9 @@ impl<'a> Simulation<'a> {
         string_nodes.extend_from_slice(&limb_nodes);
 
         // Arrow and string mass elements, placed at the string center and endpoint
-        // The arrow mass is halfed because of the symmetrical bow model.
+        // The value of the arrow mass element is only set after the static simulation, in case it is given relative to draw force or energy.
         // The value of the string masses can only be set after the length of the string has been determined (only if the string is to be initialized at all).
-        let mass_element_arrow = system.add_element(&[string_nodes[0]], MassElement::point(0.5*input.masses.arrow));
+        let mass_element_arrow = system.add_element(&[string_nodes[0]], MassElement::point(0.0));
         let mass_element_string_center = system.add_element(&[string_nodes[0]], MassElement::point(0.0));
         let mass_element_string_tip = system.add_element(&[*limb_nodes.last().unwrap()], MassElement::point(0.0));    // Unwrap is okay because of previous validation
 
@@ -236,6 +239,7 @@ impl<'a> Simulation<'a> {
             mass_element_string_center,
             mass_element_string_tip,
             mass_element_limb_tip,
+            arrow_mass: 0.0,
             arrow_departure: None,
         };
 
@@ -301,9 +305,19 @@ impl<'a> Simulation<'a> {
         // Perform dynamic simulation, if required
         let dynamics = {
             if mode == SimulationMode::Dynamic {
+                // Compute the (full) arrow mass according to the selected mode and the static results
+                simulation.arrow_mass = match model.masses.arrow {
+                    ArrowMass::Mass(mass) => mass,
+                    ArrowMass::MassPerForce(mass) => mass*statics.final_draw_force,
+                    ArrowMass::MassPerEnergy(mass) => mass*statics.final_drawing_work,
+                };
+
+                // The applied arrow mass is halved because of the symmetrical bow model
+                system.element_mut::<MassElement>(simulation.mass_element_arrow).set_mass(0.5*simulation.arrow_mass);
+
                 // Estimate timeout after which to abort the simulation
                 let k_bow = statics.final_draw_force/(model.dimensions.draw_length - model.dimensions.brace_height);
-                let t_max = model.settings.timeout_factor*FRAC_PI_2*f64::sqrt(model.masses.arrow/k_bow);
+                let t_max = model.settings.timeout_factor*FRAC_PI_2*f64::sqrt(simulation.arrow_mass/k_bow);
                 let step = TimeStepping::Adaptive{
                     min_timestep: model.settings.min_timestep,
                     max_timestep: model.settings.max_timestep,
@@ -321,7 +335,7 @@ impl<'a> Simulation<'a> {
 
                 // Simulate the first part of the shot until either the arrow separates from the string
                 // or the timeout is reached for some reason
-                let stop_condition = StopCondition::Acceleration(simulation.string_nodes[0].y(), -model.settings.arrow_clamp_force/model.masses.arrow, -1);    // Condition for arrow separation
+                let stop_condition = StopCondition::Acceleration(simulation.string_nodes[0].y(), -model.settings.arrow_clamp_force/simulation.arrow_mass, -1);    // Condition for arrow separation
 
                 let mut brace_crossing_time = f64::INFINITY;    // Time when the arrow crosses brace height, initially unknown
                 let mut estimated = true;                       // Whether the time is estimated or already known
@@ -417,6 +431,7 @@ impl<'a> Simulation<'a> {
                 // Collect dynamic outputs
                 Some(Dynamics {
                     states,
+                    arrow_mass: simulation.arrow_mass,
                     arrow_departure,
                     max_forces,
                     max_stresses,
@@ -544,7 +559,7 @@ impl<'a> Simulation<'a> {
         // The total kinetic energy of the bow is twice that because of symmetry.
         let kinetic_energy_limbs = 2.0*(self.limb_elements.iter().map(|&e| system.element_ref::<BeamElement>(e).kinetic_energy()).sum::<f64>() + system.element_ref::<MassElement>(self.mass_element_limb_tip).kinetic_energy());
         let kinetic_energy_string = 2.0*(system.element_ref::<MassElement>(self.mass_element_string_center).kinetic_energy() + system.element_ref::<MassElement>(self.mass_element_string_tip).kinetic_energy());
-        let kinetic_energy_arrow = 0.5*self.input.masses.arrow*arrow_vel.powi(2);    // Don't use the arrow mass element here
+        let kinetic_energy_arrow = 0.5*self.arrow_mass*arrow_vel.powi(2);    // Don't use kinetic energy of arrow element since it is invalid after separation
 
         let damping_power_limbs = 2.0*self.limb_elements.iter().map(|&e| system.element_ref::<BeamElement>(e).dissipative_power()).sum::<f64>();
         let damping_power_string = 2.0*system.element_ref::<StringElement>(self.string_element).dissipative_power();

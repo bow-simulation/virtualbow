@@ -152,3 +152,42 @@ void from_json(const nlohmann::json& obj, LayerAlignment& output) {
         throw std::runtime_error("Unknown alignment type");
     }
 }
+
+void to_json(nlohmann::json& obj, const ArrowMass& input) {
+    if(auto value = std::get_if<Mass>(&input)) {
+        obj["type"] = "mass";
+        obj["value"] = value->value;
+    }
+    else if(auto value = std::get_if<MassPerForce>(&input)) {
+        obj["type"] = "mass_per_force";
+        obj["value"] = value->value;
+    }
+    else if(auto value = std::get_if<MassPerEnergy>(&input)) {
+        obj["type"] = "mass_per_energy";
+        obj["value"] = value->value;
+    }
+    else {
+        throw std::runtime_error("Unknown alignment type");
+    }
+}
+
+void from_json(const nlohmann::json& obj, ArrowMass& output) {
+    if(obj.at("type") == "mass") {
+        output = Mass {
+            .value = obj.at("value")
+        };
+    }
+    else if(obj.at("type") == "mass_per_force") {
+        output = MassPerForce {
+            .value = obj.at("value")
+        };
+    }
+    else if(obj.at("type") == "mass_per_energy") {
+        output = MassPerEnergy {
+            .value = obj.at("value")
+        };
+    }
+    else {
+        throw std::runtime_error("Unknown alignment type");
+    }
+}

@@ -141,10 +141,14 @@ fn check_static_scalar_results(model: &BowModel, output: &BowResult) {
 fn check_dynamic_scalar_results(model: &BowModel, output: &BowResult) {
     let Dynamics {
         states,
+        arrow_mass,
         arrow_departure,
         max_forces,
         max_stresses
     } = output.dynamics.as_ref().unwrap();
+
+    // Computed arrow mass must be positive
+    assert!(*arrow_mass > 0.0);
 
     if let Some(arrow_departure) = arrow_departure {
         let ArrowDeparture { state_idx, arrow_pos, arrow_vel, kinetic_energy_arrow, elastic_energy_limbs, kinetic_energy_limbs, damping_energy_limbs, elastic_energy_string, kinetic_energy_string, damping_energy_string, energy_efficiency } = arrow_departure;
@@ -490,7 +494,7 @@ fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowModel, outpu
         assert!(arrow_pos >= -model.dimensions.draw_length);
 
         // Arrow acceleration must be larger than critical acceleration due to clamp force
-        assert!(arrow_acc >= -model.settings.arrow_clamp_force/model.masses.arrow - ABS_TOL_ARROW_ACC);
+        assert!(arrow_acc >= -model.settings.arrow_clamp_force/output.dynamics.as_ref().unwrap().arrow_mass - ABS_TOL_ARROW_ACC);
 
         // Draw force and draw stiffness must be zero
         assert!(draw_force == 0.0);
@@ -640,7 +644,7 @@ fn check_static_state_physics(model: &BowModel, output: &BowResult) {
 
 // Checks the time derivatives in a series of dynamic bow states, i.e. velocities and accelerations,
 // by comparing them to finite difference approximations from the original data.
-fn check_dynamic_derivatives(model: &BowModel, output: &BowResult) {
+fn check_dynamic_derivatives(_model: &BowModel, output: &BowResult) {
     let dynamics = output.dynamics.as_ref().unwrap();
     let states = &dynamics.states;
 
@@ -648,7 +652,7 @@ fn check_dynamic_derivatives(model: &BowModel, output: &BowResult) {
     let A_MAX_ARROW = discrete_maximum_1d(&states.arrow_acc).0;              // Maximum arrow acceleration as reference for comparison
     let W_MAX_STRING = V_MAX_ARROW/(output.common.string_length/2.0);        // Estimated maximum angular velocity of the string
 
-    let P_MAX_ARROW = model.masses.arrow*A_MAX_ARROW*V_MAX_ARROW;            // Maximum power of arrow acceleration
+    let P_MAX_ARROW = output.dynamics.as_ref().unwrap().arrow_mass*A_MAX_ARROW*V_MAX_ARROW;            // Maximum power of arrow acceleration
     let P_MAX_LIMBS = discrete_maximum_1d(&states.damping_power_limbs).0;    // Maximum damping power of the limbs as reference for comparison
     let P_MAX_STRING = discrete_maximum_1d(&states.damping_power_limbs).0;    // Maximum damping power of the string as reference for comparison
 
@@ -766,7 +770,7 @@ fn check_dynamic_derivatives(model: &BowModel, output: &BowResult) {
         // Skip this check if the separation of the arrow from the string occured between the states
         if dynamics.arrow_departure.as_ref().map(|x| x.state_idx) != Some(index) {
             let kinetic_power_arrow_num = (kinetic_energy_arrow1 - kinetic_energy_arrow0)/(time1 - time0);
-            let kinetic_power_arrow_avg = 0.5*model.masses.arrow*(arrow_acc0*arrow_vel0 + arrow_acc1*arrow_vel1);
+            let kinetic_power_arrow_avg = 0.5*dynamics.arrow_mass*(arrow_acc0*arrow_vel0 + arrow_acc1*arrow_vel1);
             assert_abs_diff_eq!(kinetic_power_arrow_avg, kinetic_power_arrow_num, epsilon=ABS_TOL_POWER_ARROW);
         }
 

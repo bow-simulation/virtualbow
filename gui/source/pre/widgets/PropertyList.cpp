@@ -3,7 +3,7 @@
 #include <QVBoxLayout>
 #include <QLabel>
 
-const int EDITOR_WIDTH = 120;
+const int EDITOR_WIDTH = 130;
 
 PropertyList::PropertyList(QWidget* parent):
     QWidget(parent)
@@ -30,8 +30,8 @@ void PropertyList::addProperty(const QString& name, QWidget* editor) {
     editor->setFixedWidth(EDITOR_WIDTH);
 
     int rowCount = grid->rowCount();
-    grid->addWidget(label, rowCount, 0);
-    grid->addWidget(editor, rowCount, 1);
+    grid->addWidget(label, rowCount, 0, Qt::AlignTop);
+    grid->addWidget(editor, rowCount, 1, Qt::AlignTop);
 }
 
 void PropertyList::addWidget(QWidget* widget) {

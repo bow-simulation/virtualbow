@@ -1,4 +1,5 @@
 #include "MassesView.hpp"
+#include "ArrowMassView.hpp"
 #include "pre/models/MassesModel.hpp"
 #include "primitive/DoubleView.hpp"
 #include "pre/utils/DoubleRange.hpp"
@@ -7,7 +8,7 @@
 MassesView::MassesView(MassesModel* model) {
     addProperty(
         "Arrow",
-        new DoubleView(model, model->ARROW, Quantities::mass, DoubleRange::positive(1e-3), "Mass of the arrow")
+        new ArrowMassView(model, model->ARROW)
     );
 
     addProperty(

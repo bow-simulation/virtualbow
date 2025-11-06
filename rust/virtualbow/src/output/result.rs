@@ -39,6 +39,7 @@ pub struct Statics {
 pub struct Dynamics {
     pub states: StateVec,
 
+    pub arrow_mass: f64,
     pub arrow_departure: Option<ArrowDeparture>,
     pub max_forces: MaxForces,
     pub max_stresses: MaxStresses,

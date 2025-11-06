@@ -192,6 +192,7 @@ DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
 
         numbers->addColumn();
         numbers->addGroup("Performance");
+        numbers->addValue("Arrow mass", data.dynamics->arrow_mass, Quantities::mass);
         numbers->addValue("Final arrow velocity", departure.arrow_vel, Quantities::velocity);
         numbers->addValue("Final arrow energy", departure.kinetic_energy_arrow, Quantities::energy);
         numbers->addValue("Degree of efficiency", departure.energy_efficiency, Quantities::ratio);

@@ -71,10 +71,18 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     handle_angle,
     brace_height,
     draw_length
- )
+)
+
+struct Mass { double value; };
+struct MassPerForce { double value; };
+struct MassPerEnergy { double value; };
+using ArrowMass = std::variant<Mass, MassPerForce, MassPerEnergy>;
+
+void to_json(nlohmann::json& obj, const ArrowMass& input);
+void from_json(const nlohmann::json& obj, ArrowMass& output);
 
 struct Masses {
-    double arrow;
+    ArrowMass arrow;
     double string_center;
     double string_tip;
     double limb_tip;

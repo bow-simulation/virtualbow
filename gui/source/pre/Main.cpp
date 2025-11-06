@@ -1,18 +1,25 @@
 #include "MainWindow.hpp"
 #include "KeyEventFilter.hpp"
 #include "config.hpp"
+#include "solver/BowModel.hpp"
 #include <iostream>
 
 #include <QApplication>
 #include <QCommandLineParser>
 
-int main(int argc, char* argv[]) {
+Q_DECLARE_METATYPE(LayerAlignment)
+Q_DECLARE_METATYPE(ArrowMass)
+
+int main(int argc, char* argv[]) {   
     QApplication::setOrganizationName(Config::ORGANIZATION_NAME);
     QApplication::setOrganizationDomain(Config::ORGANIZATION_DOMAIN);
     QApplication::setApplicationName(Config::APPLICATION_NAME_GUI);
     QApplication::setApplicationDisplayName(Config::APPLICATION_DISPLAY_NAME_GUI);
     QApplication::setApplicationVersion(Config::APPLICATION_VERSION);
     QLocale::setDefault(QLocale::C);
+
+    qRegisterMetaType<LayerAlignment>("LayerAlignment");
+    qRegisterMetaType<ArrowMass>("ArrowMass");
 
     QApplication application(argc, argv);
     application.installEventFilter(new KeyEventFilter());

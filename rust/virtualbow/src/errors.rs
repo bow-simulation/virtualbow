@@ -69,6 +69,8 @@ pub enum ModelError {
     StringInvalidStrandStiffness(f64),
 
     MassesInvalidArrowMass(f64),
+    MassesInvalidArrowMassPerForce(f64),
+    MassesInvalidArrowMassPerEnergy(f64),
     MassesInvalidLimbTipMass(f64),
     MassesInvalidStringCenterMass(f64),
     MassesInvalidStringTipMass(f64),
@@ -170,7 +172,9 @@ impl Display for ModelError {
             ModelError::StringInvalidStrandStiffness(value) => write!(f, "String: Strand density must be a positive number but actual value is {value}.")?,
             ModelError::StringInvalidStrandDensity(value)   => write!(f, "String: Strand stiffness must be a positive number but actual value is {value}.")?,
 
-            ModelError::MassesInvalidArrowMass(value)        => write!(f, "Masses: Arrow mass must be a positive number but actual value is {value}.")?,
+            ModelError::MassesInvalidArrowMass(value)          => write!(f, "Masses: Arrow mass must be a positive number but actual value is {value}.")?,
+            ModelError::MassesInvalidArrowMassPerForce(value)  => write!(f, "Masses: Arrow mass per force must be a positive number but actual value is {value}.")?,
+            ModelError::MassesInvalidArrowMassPerEnergy(value) => write!(f, "Masses: Arrow mass per energy must be a positive number but actual value is {value}.")?,
             ModelError::MassesInvalidLimbTipMass(value)      => write!(f, "Masses: Limb tip mass must be a non-negative number but actual value is {value}.")?,
             ModelError::MassesInvalidStringCenterMass(value) => write!(f, "Masses: String center mass must be a non-negative number but actual value is {value}.")?,
             ModelError::MassesInvalidStringTipMass(value)    => write!(f, "Masses: Strand tip mass must be a non-negative number but actual value is {value}.")?,

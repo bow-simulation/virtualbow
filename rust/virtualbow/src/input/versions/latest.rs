@@ -8,10 +8,9 @@ use super::{version1, version3};
 pub use version1::Width;
 pub use version1::Height;
 pub use version1::BowString;
-pub use version1::Masses;
 pub use version1::Damping;
 
-#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct BowModel {
     pub comment: String,
     pub settings: Settings,
@@ -56,7 +55,7 @@ impl Default for Settings {
     }
 }
 
-#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Dimensions {
     pub handle_reference: HandleReference,
     pub handle_angle: f64,
@@ -67,16 +66,15 @@ pub struct Dimensions {
 }
 
 // Point at the limb root from which the handle's pivot point is measured
-#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum HandleReference {
     Back,
-    #[default]
     Belly,
     Profile,
 }
 
-#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Section {
     pub alignment: LayerAlignment,
     pub width: Width,
@@ -84,7 +82,7 @@ pub struct Section {
     pub layers: Vec<Layer>,
 }
 
-#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Material {
     pub name: String,
     pub color: String,
@@ -96,26 +94,25 @@ pub struct Material {
     pub safety_margin: f64
 }
 
-#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Layer {
     pub name: String,
     pub material: String,
     pub height: Height,
 }
 
-#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Profile {
     pub segments: Vec<ProfileSegment>
 }
 
-// Defines how the cross sections are aligned with the profile curve
+// Defines how the cross-sections are aligned with the profile curve
 // There are two categories:
 // - Section: The profile curve is aligned with the back side, belly side, or geometrical center of the combined section
 // - Layer: The profile curve is aligned with the back side, belly side, or geometrical center of a specific layer
-#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(tag = "type", content = "layer", rename_all = "snake_case")]
 pub enum LayerAlignment {
-    #[default]
     SectionBack,
     SectionBelly,
     SectionCenter,
@@ -154,6 +151,22 @@ pub struct Spiral {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Spline {
     pub points: Vec<[f64; 2]>
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[serde(tag = "type", content = "value", rename_all = "snake_case")]
+pub enum ArrowMass {
+    Mass(f64),
+    MassPerForce(f64),
+    MassPerEnergy(f64)
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct Masses {
+    pub arrow: ArrowMass,
+    pub limb_tip: f64,
+    pub string_center: f64,
+    pub string_tip: f64,
 }
 
 impl From<version3::BowModel> for BowModel {
@@ -220,6 +233,13 @@ impl From<version3::BowModel> for BowModel {
             segments,
         };
 
+        let masses = Masses {
+            arrow: ArrowMass::Mass(model.masses.arrow),
+            limb_tip: model.masses.limb_tip,
+            string_center: model.masses.string_center,
+            string_tip: model.masses.string_tip,
+        };
+
         Self {
             comment: model.comment,
             settings,
@@ -227,7 +247,7 @@ impl From<version3::BowModel> for BowModel {
             profile,
             section,
             string: model.string,
-            masses: model.masses,
+            masses,
             damping: model.damping,
         }
     }

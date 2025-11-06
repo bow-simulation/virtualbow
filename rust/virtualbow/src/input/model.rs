@@ -71,7 +71,7 @@ impl BowModel {
                 strand_stiffness: 3500.0,
             },
             masses: Masses {
-                arrow: 0.025,
+                arrow: ArrowMass::Mass(0.025),
                 limb_tip: 0.0,
                 string_center: 0.0,
                 string_tip: 0.0,
@@ -380,7 +380,7 @@ impl Height {
 
 impl BowString {
     pub fn validate(&self) -> Result<(), ModelError> {
-        let &Self { n_strands, strand_density, strand_stiffness } = self;
+        let Self { n_strands, strand_density, strand_stiffness } = self;
         n_strands.validate_positive().map_err(ModelError::StringInvalidNumberOfStrands)?;
         strand_density.validate_positive().map_err(ModelError::StringInvalidStrandDensity)?;
         strand_stiffness.validate_positive().map_err(ModelError::StringInvalidStrandStiffness)?;
@@ -391,8 +391,12 @@ impl BowString {
 
 impl Masses {
     pub fn validate(&self) -> Result<(), ModelError> {
-        let &Self { arrow, limb_tip, string_center, string_tip } = self;
-        arrow.validate_positive().map_err(ModelError::MassesInvalidArrowMass)?;
+        let Self { arrow, limb_tip, string_center, string_tip } = self;
+        match &arrow {
+            ArrowMass::Mass(mass) => mass.validate_positive().map_err(ModelError::MassesInvalidArrowMass)?,
+            ArrowMass::MassPerForce(mass) => mass.validate_positive().map_err(ModelError::MassesInvalidArrowMassPerForce)?,
+            ArrowMass::MassPerEnergy(mass) => mass.validate_positive().map_err(ModelError::MassesInvalidArrowMassPerEnergy)?,
+        }
         limb_tip.validate_nonneg().map_err(ModelError::MassesInvalidLimbTipMass)?;
         string_center.validate_nonneg().map_err(ModelError::MassesInvalidStringCenterMass)?;
         string_tip.validate_nonneg().map_err(ModelError::MassesInvalidStringTipMass)?;
@@ -403,7 +407,7 @@ impl Masses {
 
 impl Damping {
     pub fn validate(&self) -> Result<(), ModelError> {
-        let &Self { damping_ratio_limbs, damping_ratio_string } = self;
+        let Self { damping_ratio_limbs, damping_ratio_string } = self;
         damping_ratio_limbs.validate_range_inclusive(0.0, 1.0).map_err(ModelError::DampingInvalidLimbDampingRatio)?;
         damping_ratio_string.validate_range_inclusive(0.0, 1.0).map_err(ModelError::DampingInvalidStringDampingRatio)?;
 

@@ -9,5 +9,5 @@ DoubleView::DoubleView(QAbstractItemModel* model, QPersistentModelIndex index, c
 
     // Set value from model and keep model up to date on changes
     setValue(model->data(index, Qt::DisplayRole).toDouble());
-    QObject::connect(this, &QDoubleSpinBox::valueChanged, this, [=](double value){ model->setData(index, value); });
+    QObject::connect(this, &DoubleSpinBox::valueChanged, this, [=](double value){ model->setData(index, value); });
 }

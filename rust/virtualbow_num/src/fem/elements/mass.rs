@@ -23,6 +23,14 @@ impl MassElement {
         Self::new(m, 0.0)
     }
 
+    pub fn get_mass(&self) -> f64 {
+        self.M[0]
+    }
+
+    pub fn get_inertia(&self) -> f64 {
+        self.M[2]
+    }
+
     pub fn set_mass(&mut self, m: f64) {
         assert!(m >= 0.0, "Mass must not be negative");
         self.M[0] = m;

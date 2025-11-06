@@ -248,6 +248,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
 struct Dynamics {
     States states;
 
+    double arrow_mass;
     std::optional<ArrowDeparture> arrow_departure;
     MaxForces max_forces;
     MaxStresses max_stresses;
@@ -256,6 +257,7 @@ struct Dynamics {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     Dynamics,
     states,
+    arrow_mass,
     arrow_departure,
     max_forces,
     max_stresses

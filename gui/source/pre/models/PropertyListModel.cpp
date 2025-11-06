@@ -26,6 +26,11 @@ QPersistentModelIndex PropertyListModel::addDouble(double& value) {
     return addProperty(new DoubleProperty(this, value));
 }
 
+QPersistentModelIndex PropertyListModel::addArrowMass(ArrowMass& value) {
+    return addProperty(new ArrowMassProperty(this, value));
+}
+
+
 int PropertyListModel::rowCount(const QModelIndex& parent) const {
     return properties.count();
 }

@@ -150,6 +150,8 @@ add_executable(
     source/pre/views/LineView.hpp
     source/pre/views/MassesView.cpp
     source/pre/views/MassesView.hpp
+    source/pre/views/ArrowMassView.cpp
+    source/pre/views/ArrowMassView.hpp
     source/pre/views/MaterialView.cpp
     source/pre/views/MaterialView.hpp
     source/pre/views/primitive/ColorView.cpp

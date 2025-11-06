@@ -1,4 +1,5 @@
 #pragma once
+#include "solver/BowModel.hpp"
 #include <QVariant>
 #include <QColor>
 #include <QAbstractListModel>
@@ -170,6 +171,39 @@ private:
     EnumType& value;
 };
 
+class ArrowMassProperty: public AbstractProperty {
+public:
+    ArrowMassProperty(QObject* parent, ArrowMass& value):
+        value(value)
+    {
+        setParent(parent);  // TODO: Do this by calling super-constructor?
+    }
+
+    virtual QVariant data(int role) const override {
+        if(role == Qt::DisplayRole || role == Qt::EditRole ) {
+            return QVariant::fromValue(value);
+        }
+
+        return QVariant();
+    }
+
+    virtual bool setData(const QVariant &value, int role) override {
+        if(role != Qt::EditRole) {
+            return false;
+        }
+
+        if(!value.canConvert<ArrowMass>()) {
+            return false;
+        }
+
+        this->value = value.value<ArrowMass>();
+        return true;
+    }
+
+private:
+    ArrowMass& value;
+};
+
 class PropertyListModel: public QAbstractListModel {
     Q_OBJECT
 
@@ -180,6 +214,7 @@ public:
     QPersistentModelIndex addColor(std::string& value);
     QPersistentModelIndex addInteger(int& value);
     QPersistentModelIndex addDouble(double& value);
+    QPersistentModelIndex addArrowMass(ArrowMass& value);
 
     template<typename EnumType>
     QPersistentModelIndex addEnum(EnumType& value) {
