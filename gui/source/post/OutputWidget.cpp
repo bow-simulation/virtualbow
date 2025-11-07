@@ -3,6 +3,7 @@
 #include "OutputWidget.hpp"
 #include "NumberGrid.hpp"
 #include "ShapePlot.hpp"
+#include "DrawForcePlot.hpp"
 #include "StressPlot.hpp"
 #include "CurvaturePlot.hpp"
 #include "EnergyPlot.hpp"
@@ -129,6 +130,7 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
     numbers->addValue("String force (strand)", std::get<0>(data.statics->max_forces.max_strand_force),  Quantities::force);
 
     auto plot_shapes = new ShapePlot(data.common, data.statics->states, 4);
+    auto plot_draw = new DrawForcePlot(data.common, data.statics->states);
     auto plot_stress = new StressPlot(data.common, data.statics->states);
     auto plot_curvature = new CurvaturePlot(data.common, data.statics->states);
     auto plot_energy = new EnergyPlot(data.statics->states, data.statics->states.draw_length, "Draw length", Quantities::length, Quantities::energy);
@@ -147,6 +149,7 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
 
     tabs->addTab(scrollArea(numbers), "Characteristics");
     tabs->addTab(plot_shapes, "Shape");
+    tabs->addTab(plot_draw, "Draw Force");
     tabs->addTab(plot_stress, "Stress");
     tabs->addTab(plot_curvature, "Curvature");
     tabs->addTab(plot_energy, "Energy");
@@ -181,7 +184,6 @@ StaticOutputWidget::~StaticOutputWidget() {
     UserSettings settings;
     settings.setValue("StaticOutputWidget/selectedTab", tabs->currentIndex());
 }
-
 
 DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
     : tabs(new QTabWidget())

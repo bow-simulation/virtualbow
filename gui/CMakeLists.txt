@@ -203,6 +203,8 @@ add_executable(
     source/post/ComboPlot.hpp
     source/post/CurvaturePlot.cpp
     source/post/CurvaturePlot.hpp
+    source/post/DrawForcePlot.cpp
+    source/post/DrawForcePlot.hpp
     source/post/EnergyPlot.cpp
     source/post/EnergyPlot.hpp
     source/post/NumberGrid.cpp
