@@ -199,6 +199,8 @@ add_executable(
     source/pre/widgets/ScrollArea.hpp
     source/post/ResultWindow.cpp
     source/post/ResultWindow.hpp
+    source/post/ArrowPlot.cpp
+    source/post/ArrowPlot.hpp
     source/post/ComboPlot.cpp
     source/post/ComboPlot.hpp
     source/post/CurvaturePlot.cpp
