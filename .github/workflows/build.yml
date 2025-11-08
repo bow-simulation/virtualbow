@@ -181,13 +181,17 @@ jobs:
           mv virtualbow.rpm virtualbow-${GITHUB_SHA::7}-linux64.rpm
           mv virtualbow.dmg virtualbow-${GITHUB_SHA::7}-mac64.dmg
 
+      - name: Delete latest tag
+        run: gh release delete latest --cleanup-tag --repo "$GITHUB_REPOSITORY"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Create release
-        uses: marvinpinto/action-automatic-releases@v1.2.1
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: ${{ secrets.RELEASE_TOKEN }}
-          automatic_release_tag: latest
+          name: Development Build
+          tag_name: latest
           prerelease: true
-          title: Development Build
           files: virtualbow*
 
   tagged-release:
@@ -213,8 +217,7 @@ jobs:
           mv virtualbow.dmg virtualbow-${{github.ref_name}}-mac64.dmg
 
       - name: Create release
-        uses: marvinpinto/action-automatic-releases@latest
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: ${{ secrets.RELEASE_TOKEN }}
           draft: true
           files: virtualbow*
