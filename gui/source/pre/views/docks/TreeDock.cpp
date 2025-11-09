@@ -13,16 +13,16 @@
 
 #include <QDebug>
 
-//viewModel->getMainTreeModel(), viewModel->getModelTreeSelectionModel()
+//model->getMainTreeModel(), model->getModelTreeSelectionModel()
 
 TreeDock::TreeDock(MainModel* mainModel)
-    : viewModel(mainModel->getMainTreeModel()),
+    : model(mainModel->getMainTreeModel()),
       tree(new QTreeView()),
       menuAddMaterial(createMaterialMenu()),
       menuAddLayer(createLayerMenu()),
       menuAddSegment(createSegmentMenu())
 {
-    this->setObjectName("PlotView");    // Required to save state of main window
+    this->setObjectName("TreeDock2");    // Required to save state of main window // TODO: Remove 2 after one release cycle?
     this->setFeatures(QDockWidget::NoDockWidgetFeatures);
     this->setWindowTitle("Model");
     this->setWidget(tree);
@@ -36,19 +36,27 @@ TreeDock::TreeDock(MainModel* mainModel)
     actionRemove->setShortcutContext(Qt::WidgetShortcut);
     QObject::connect(actionRemove, &QAction::triggered, this, [=, this] {
         QModelIndexList selection = selectionModel->selectedIndexes();
-        viewModel->removeIndexes(selection);
+        model->removeIndexes(selection);
     });
 
     actionMoveUp = new QAction(QIcon(":/icons/list-move-up.svg"), "Up", tree);
     QObject::connect(actionMoveUp, &QAction::triggered, this, [=, this] {
         QModelIndexList selection = selectionModel->selectedIndexes();
-        viewModel->moveIndexesUp(selection);
+        model->moveIndexesUp(selection);
     });
 
     actionMoveDown = new QAction(QIcon(":/icons/list-move-down.svg"), "Down", tree);
     QObject::connect(actionMoveDown, &QAction::triggered, this, [=, this] {
         QModelIndexList selection = selectionModel->selectedIndexes();
-        viewModel->moveIndexesDown(selection);
+        model->moveIndexesDown(selection);
+    });
+
+    actionRename = new QAction("Rename...", tree);
+    QObject::connect(actionRename, &QAction::triggered, this, [=, this] {
+        QModelIndex index = tree->currentIndex();
+        if(index.isValid()) {
+            tree->edit(index);
+        }
     });
 
     buttonAdd = new QToolButton();
@@ -74,7 +82,7 @@ TreeDock::TreeDock(MainModel* mainModel)
     hbox->addWidget(buttonUp);
     hbox->addWidget(buttonDown);
 
-    tree->setModel(viewModel);
+    tree->setModel(model);
     tree->setSelectionModel(selectionModel);
     tree->setSelectionMode(QAbstractItemView::ExtendedSelection);
     tree->setContextMenuPolicy(Qt::ActionsContextMenu);
@@ -82,7 +90,7 @@ TreeDock::TreeDock(MainModel* mainModel)
     tree->setHeaderHidden(true);
 
     // Update the button states if either the model data/layout or the item selection changed
-    QObject::connect(viewModel, &MainTreeModel::contentModified, this, &TreeDock::updateActions);
+    QObject::connect(model, &MainTreeModel::contentModified, this, &TreeDock::updateActions);
     QObject::connect(selectionModel, &QItemSelectionModel::selectionChanged, this, &TreeDock::updateActions);
 
     updateActions();
@@ -93,10 +101,10 @@ QMenu* TreeDock::createMaterialMenu() {
     menu->addAction(QIcon(":/icons/model-material.svg"), "New Material", this, [=, this]{
         QModelIndex index = tree->selectionModel()->currentIndex();
         if(index.internalId() == ItemType::TOPLEVEL) {
-            viewModel->appendMaterial();    // If the top level item is selected, add the new material at the end
+            model->appendMaterial();    // If the top level item is selected, add the new material at the end
         }
         else {
-            viewModel->insertMaterial(index.row() + 1);    // If a material is selected, insert the new material below
+            model->insertMaterial(index.row() + 1);    // If a material is selected, insert the new material below
         }
     });
 
@@ -108,10 +116,10 @@ QMenu* TreeDock::createLayerMenu() {
     menu->addAction(QIcon(":/icons/model-layer.svg"), "New Layer", this, [=, this]{
         QModelIndex index = tree->selectionModel()->currentIndex();
         if(index.internalId() == ItemType::TOPLEVEL) {
-            viewModel->appendLayer();    // If the top level item is selected, add the new layer at the end
+            model->appendLayer();    // If the top level item is selected, add the new layer at the end
         }
         else {
-            viewModel->insertLayer(index.row() + 1);    // If a layer is selected, insert the new layer below
+            model->insertLayer(index.row() + 1);    // If a layer is selected, insert the new layer below
         }
     });
 
@@ -122,10 +130,10 @@ QMenu* TreeDock::createSegmentMenu() {
     auto add_segment_of_type = [=, this](SegmentType type) {
         QModelIndex index = tree->selectionModel()->currentIndex();
         if(index.internalId() == ItemType::TOPLEVEL) {
-            viewModel->appendSegment(type);    // If the top level item is selected, add the new segment at the end
+            model->appendSegment(type);    // If the top level item is selected, add the new segment at the end
         }
         else {
-            viewModel->insertSegment(index.row() + 1, type);    // If a layer is selected, insert the new segment below
+            model->insertSegment(index.row() + 1, type);    // If a layer is selected, insert the new segment below
         }
     };
 
@@ -149,17 +157,17 @@ void TreeDock::updateActions() {
 
     // If adding something is possible, the add button gets assigned the respective menu with the selection of things to add
     // and the tree view gets assigned the same menu actions in order to show them in its context menu in a flattened way.
-    if(viewModel->canInsertMaterial(selection)) {
+    if(model->canInsertMaterial(selection)) {
         tree->addActions(menuAddMaterial->actions());
         buttonAdd->setMenu(menuAddMaterial);
         buttonAdd->setEnabled(true);
     }
-    else if(viewModel->canInsertLayer(selection)) {
+    else if(model->canInsertLayer(selection)) {
         tree->addActions(menuAddLayer->actions());
         buttonAdd->setMenu(menuAddLayer);
         buttonAdd->setEnabled(true);
     }
-    else if(viewModel->canInsertSegment(selection)) {
+    else if(model->canInsertSegment(selection)) {
         tree->addActions(menuAddSegment->actions());
         buttonAdd->setMenu(menuAddSegment);
         buttonAdd->setEnabled(true);
@@ -170,9 +178,10 @@ void TreeDock::updateActions() {
     }
 
     // Other actions just get enabled/disbled based on the selection, which also affects all associated buttons and menu items
-    actionRemove->setEnabled(viewModel->canRemoveIndexes(selection));
-    actionMoveUp->setEnabled(viewModel->canMoveIndexesUp(selection));
-    actionMoveDown->setEnabled(viewModel->canMoveIndexesDown(selection));
+    actionMoveUp->setEnabled(model->canMoveIndexesUp(selection));
+    actionMoveDown->setEnabled(model->canMoveIndexesDown(selection));
+    actionRename->setEnabled(selection.size() == 1 && (selection[0].flags() & Qt::ItemIsEditable));
+    actionRemove->setEnabled(model->canRemoveIndexes(selection));
 
     // Add back standard actions of the tree view
 
@@ -185,6 +194,7 @@ void TreeDock::updateActions() {
     tree->addAction(sep1);
     tree->addAction(actionMoveUp);
     tree->addAction(actionMoveDown);
+    tree->addAction(actionRename);
     tree->addAction(sep2);
     tree->addAction(actionRemove);
 }

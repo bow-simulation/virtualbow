@@ -20,7 +20,7 @@
 EditDock::EditDock(MainModel* viewModel)
     : placeholder(new QTableView())    // Show an empty table view by default
 {
-    setObjectName("EditDock");    // Required to save state of main window
+    setObjectName("EditDock2");    // Required to save state of main window // TODO: Remove 2 after one release cycle?
     setFeatures(QDockWidget::NoDockWidgetFeatures);
     setWindowTitle("Properties");
 

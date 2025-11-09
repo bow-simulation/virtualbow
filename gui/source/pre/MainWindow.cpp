@@ -156,11 +156,11 @@ MainWindow::MainWindow()
 
     // Load geometry and state
     UserSettings settings;
-    restoreState(settings.value("MainWindow/state").toByteArray());
-    restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
+    restoreState(settings.value("MainWindow/state").toByteArray());    // TODO: Reenable
+    restoreGeometry(settings.value("MainWindow/geometry").toByteArray());    // TODO: Reenable
 
     // Load unit settings
-    Quantities::loadFromSettings(settings);    // TODO: Move to mainModel
+    Quantities::loadFromSettings(settings);    // TODO: Move to mainModel?
 }
 
 // Attempts to load the given file

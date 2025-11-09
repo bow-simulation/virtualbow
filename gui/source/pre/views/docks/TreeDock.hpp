@@ -14,13 +14,14 @@ public:
     TreeDock(MainModel* mainModel);
 
 private:
-    MainTreeModel* viewModel;
+    MainTreeModel* model;
     QTreeView* tree;
 
     QToolButton* buttonAdd;
     QAction* actionRemove;
     QAction* actionMoveUp;
     QAction* actionMoveDown;
+    QAction* actionRename;
 
     QMenu* menuAddMaterial;
     QMenu* menuAddLayer;

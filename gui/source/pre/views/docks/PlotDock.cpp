@@ -23,7 +23,7 @@ PlotDock::PlotDock(MainModel* model) {
     placeholder = new PlaceholderLabel();
 
     this->setWindowTitle("Graph");
-    this->setObjectName("PlotView");    // Required to save state of main window
+    this->setObjectName("PlotDock2");    // Required to save state of main window // TODO: Remove 2 after one release cycle?
     this->setFeatures(QDockWidget::NoDockWidgetFeatures);
     this->setWidget(placeholder);
 
