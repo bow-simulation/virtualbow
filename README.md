@@ -2,7 +2,7 @@
 
 ![Build Status](https://github.com/bow-simulation/virtualbow/actions/workflows/build.yml/badge.svg)
 
-VirtualBow software tool for designing and simulating bows.
+VirtualBow is a software tool for designing and simulating bows.
 Visit http://www.virtualbow.org for more information about the project.
 
 # Building
@@ -54,12 +54,12 @@ Contributions that fix issues with MSVC will be accepted.
 On Linux, the Qt libraries packaged with the system are used.
 On Ubuntu they can be installed with
 
-    sudo apt install qtbase5-dev
+    sudo apt install qt6-base-dev
 
 The rest of the build process is the same on Linux and MacOS
 
     mkdir build && cd build
-    cmake ../virtualbow -DCMAKE_TOOLCHAIN_FILE=[...]/paths.cmake -DCMAKE_BUILD_TYPE=Release
+    cmake ../virtualbow/gui -DCMAKE_TOOLCHAIN_FILE=[...]/paths.cmake -DCMAKE_BUILD_TYPE=Release
     cmake --build .
 
 # Contributing

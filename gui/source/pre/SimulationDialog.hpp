@@ -6,12 +6,15 @@ class SimulationDialog: public DialogBase {
     Q_OBJECT
 
 public:
-    SimulationDialog(QWidget* parent, const BowModel& model, BowResult& result, Mode mode);
+    SimulationDialog(QWidget* parent, const BowModel& model, Mode mode);
+    const BowResult& getResult() const;
 
 signals:
     void staticProgressChanged(int);
     void dynamicProgressChanged(int);
 
 private:
+    BowResult result;
+
     void closeEvent(QCloseEvent *event) override;
 };

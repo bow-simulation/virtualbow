@@ -13,7 +13,8 @@ mod api;
 pub struct Response {
     error: *mut c_char,
     data: *mut u8,
-    size: usize
+    size: usize,
+    capacity: usize
 }
 
 impl Response {
@@ -22,7 +23,8 @@ impl Response {
         Self {
             error: ptr::null_mut(),
             data: ptr::null_mut(),
-            size: 0
+            size: 0,
+            capacity: 0
         }
     }
 
@@ -33,7 +35,8 @@ impl Response {
         Self {
             error: message.into_raw(),
             data: ptr::null_mut(),
-            size: 0
+            size: 0,
+            capacity: 0
         }
     }
 
@@ -44,13 +47,15 @@ impl Response {
     fn data(mut bytes: Vec<u8>) -> Self {
         let data = bytes.as_mut_ptr();
         let size = bytes.len();
+        let capacity = bytes.capacity();
 
         std::mem::forget(bytes);
 
         Self {
             error: ptr::null_mut(),
             data,
-            size
+            size,
+            capacity
         }
     }
 
@@ -60,7 +65,7 @@ impl Response {
             let _string = CString::from_raw(self.error);
         }
         if !self.data.is_null() {
-            let _vector = Vec::from_raw_parts(self.data, self.size, self.size);
+            let _vector = Vec::from_raw_parts(self.data, self.size, self.capacity);
         }
     }
 }

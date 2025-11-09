@@ -1,17 +1,20 @@
 #include "ResultWindow.hpp"
 #include "OutputWidget.hpp"
 #include "pre/utils/UserSettings.hpp"
+#include <QCloseEvent>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QFileDialog>
 
-ResultWindow::ResultWindow(const QString& filePath, const BowResult& data) {
+ResultWindow::ResultWindow(const QString& filePath, const BowResult& data, QWidget* parent):
+    QMainWindow(parent)
+{
     // Main window properties
-    this->setWindowFilePath(filePath);
-    this->setWindowIcon(QIcon(":/icons/logo.svg"));
-    this->setStyleSheet("QMainWindow { background-image:url(:/icons/background.png); background-position: center; background-repeat: no-repeat; }");
-    this->menuBar()->setAutoFillBackground(true);
-    this->resize({1000, 700});    // Initial size, overwritten by stored window geometry if present
+    setWindowFilePath(filePath);
+    setWindowIcon(QIcon(":/icons/logo.svg"));
+    setStyleSheet("QMainWindow { background-image:url(:/icons/background.png); background-position: center; background-repeat: no-repeat; }");
+    menuBar()->setAutoFillBackground(true);
+    resize({1000, 700});    // Initial size, overwritten by stored window geometry if present
 
     // Load state and geometry
     UserSettings settings;
@@ -21,16 +24,18 @@ ResultWindow::ResultWindow(const QString& filePath, const BowResult& data) {
     // Try to load output data
     try {
         this->data = data;
-        this->setCentralWidget(new OutputWidget(this->data));
+        setCentralWidget(new OutputWidget(this->data));
     }
     catch(const std::exception& e) {
         QMessageBox::critical(this, "Error", "Failed to open result data:\n" + QString(e.what()));
     }
 }
 
-void ResultWindow::closeEvent(QCloseEvent *event) {
+void ResultWindow::closeEvent(QCloseEvent* event) {
     // Save state and geometry
     UserSettings settings;
     settings.setValue("OutputWindow/state", saveState());
     settings.setValue("OutputWindow/geometry", saveGeometry());
+
+    event->accept();
 }

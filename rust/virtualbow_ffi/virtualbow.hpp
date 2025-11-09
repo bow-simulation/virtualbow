@@ -19,6 +19,7 @@ struct Response {
     char *error;
     uint8_t *data;
     uintptr_t size;
+    uintptr_t capacity;
 };
 
 extern "C" {

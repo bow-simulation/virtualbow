@@ -191,7 +191,7 @@ bool MainWindow::saveToFile(const QString& path) {
     }
 }
 
-void MainWindow::closeEvent(QCloseEvent *event) {
+void MainWindow::closeEvent(QCloseEvent* event) {
     if(optionalSaveModifications()) {
         // Changes successfully saved or discarded
         // Continue closing, save window state and geometry
@@ -271,10 +271,10 @@ void MainWindow::runSimulation(Mode mode) {
     }
 
     // Run Simulation, launch Post on results if successful
-    BowResult result;
-    SimulationDialog dialog(this, mainModel->getBow(), result, mode);
+    SimulationDialog dialog(this, mainModel->getBow(), mode);
     if(dialog.exec() == QDialog::Accepted) {
-        auto window = new ResultWindow(this->windowFilePath(), result);
+        auto window = new ResultWindow(this->windowFilePath(), dialog.getResult(), this);
+        window->setAttribute(Qt::WA_DeleteOnClose);
         window->show();
     }
 }

@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 #include <QProgressBar>
 #include <QMessageBox>
+#include <QCloseEvent>
 #include <QLabel>
 #include <QProcess>
 #include <QDialogButtonBox>
@@ -10,7 +11,7 @@
 #include <QDir>
 #include <cmath>
 
-SimulationDialog::SimulationDialog(QWidget* parent, const BowModel& model, BowResult& result, Mode mode)
+SimulationDialog::SimulationDialog(QWidget* parent, const BowModel& model, Mode mode)
     : DialogBase(parent)
 {
     auto vbox = new QVBoxLayout();
@@ -95,6 +96,11 @@ SimulationDialog::SimulationDialog(QWidget* parent, const BowModel& model, BowRe
     watcher->setFuture(future);
 }
 
-void SimulationDialog::closeEvent(QCloseEvent *event) {
+const BowResult& SimulationDialog::getResult() const {
+    return result;
+}
+
+void SimulationDialog::closeEvent(QCloseEvent* event) {
+    event->accept();
     this->reject();
 }

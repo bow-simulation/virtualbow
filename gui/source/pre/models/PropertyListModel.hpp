@@ -45,7 +45,7 @@ public:
 
     virtual QVariant data(int role) const override {
         if(role == Qt::DisplayRole || role == Qt::EditRole ) {
-            return QColor::fromString(value);
+            return QColor(QString::fromStdString(value));
         }
 
         return QVariant();
