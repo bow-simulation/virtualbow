@@ -82,15 +82,16 @@ void ArrowPlot::updatePlots() {
     );
 
     // Rescale axes without triggering ranges update
+    // Include y = 0 and add space in y direction for all
     {
         QSignalBlocker blocker1(posPlot->xAxis);
-        posPlot->rescaleAxes();
+        posPlot->rescaleAxes(false, true, 1.0, 1.05);
 
         QSignalBlocker blocker2(velPlot->xAxis);
-        velPlot->rescaleAxes();
+        velPlot->rescaleAxes(false, true, 1.0, 1.05);
 
         QSignalBlocker blocker3(accPlot->xAxis);
-        accPlot->rescaleAxes();
+        accPlot->rescaleAxes(false, true, 1.0, 1.05);
     }
 
 

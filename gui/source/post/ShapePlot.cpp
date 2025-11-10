@@ -129,7 +129,7 @@ void ShapePlot::updateAxes() {
         expand2(states.string_pos[i]);
     }
 
-    this->setAxesLimits(x_range, y_range);
+    this->setAxesLimits(1.05*x_range, 1.05*y_range);    // Add a little extra space in the x and y directions
 }
 
 void ShapePlot::plotLimbOutline(QCPCurve* left, QCPCurve* right, const std::vector<std::array<double, 3>>& position) {

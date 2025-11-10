@@ -96,6 +96,6 @@ void HeightPlotView::updatePlot() {
     }
     */
 
-    this->rescaleAxes(true, true);
+    this->rescaleAxes(true, true, 1.0, 1.05);
     this->replot();
 }

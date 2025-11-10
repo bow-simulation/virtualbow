@@ -108,5 +108,5 @@ void StressPlot::updateAxes() {
         }
     }
 
-    this->setAxesLimits(x_range, y_range);
+    this->setAxesLimits(x_range, 1.05*y_range);    // Add a little extra space in the y direction
 }

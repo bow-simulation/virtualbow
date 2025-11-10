@@ -13,7 +13,7 @@ public:
     QMenu* contextMenu();
 
     void setupTopLegend();
-    void rescaleAxes(bool include_zero_x = false, bool include_zero_y = false);
+    void rescaleAxes(bool include_zero_x = false, bool include_zero_y = false, double scale_x = 1.0, double scale_y = 1.0);
     void setAxesLimits(QCPRange x_range, QCPRange y_range);
     void setAspectPolicy(AspectPolicy policy);
 

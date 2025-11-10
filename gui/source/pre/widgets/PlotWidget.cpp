@@ -108,22 +108,24 @@ void PlotWidget::setupTopLegend() {
 }
 
 // Limit the axis maximum ranges to current range
-void PlotWidget::rescaleAxes(bool include_zero_x, bool include_zero_y) {
+void PlotWidget::rescaleAxes(bool include_zero_x, bool include_zero_y, double scale_x, double scale_y) {
     max_x_range = std::nullopt;
     max_y_range = std::nullopt;
 
     QCustomPlot::rescaleAxes();
 
-    QCPRange x_range = xAxis->range();
-    QCPRange y_range = yAxis->range();
+    QCPRange range_x = xAxis->range();
+    QCPRange range_y = yAxis->range();
 
     if(include_zero_x) {
-        x_range.expand(0.0);
+        range_x.expand(0.0);
     }
+
     if(include_zero_y) {
-        y_range.expand(0.0);
+        range_y.expand(0.0);
     }
-    setAxesLimits(x_range, y_range);
+
+    setAxesLimits(scale_x*range_x, scale_y*range_y);
 }
 
 void PlotWidget::setAxesLimits(QCPRange x_range, QCPRange y_range) {
