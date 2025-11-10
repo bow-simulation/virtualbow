@@ -15,6 +15,11 @@
 #include <QFrame>
 #include <QLabel>
 #include <QDate>
+#include <QMenu>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QPixmap>
+#include <QPainter>
 
 LimbView::LimbView(MainModel* model):
     model(model),
@@ -100,6 +105,18 @@ LimbView::LimbView(MainModel* model):
     vbox->addWidget(buttonFrame, 0, Qt::AlignCenter);
     setLayout(vbox);
 
+    // Context menu
+    auto action_export = new QAction("Export as Image...", this);
+    QObject::connect(action_export, &QAction::triggered, this, &LimbView::exportImage);
+
+    auto menu = new QMenu(this);
+    menu->addAction(action_export);
+
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+    QObject::connect(this, &QOpenGLWidget::customContextMenuRequested, [=, this](QPoint pos) {
+        menu->exec(this->mapToGlobal(pos));
+    });
+
     // Initialize view parameters
     viewSymmetric(false);
     view3D();
@@ -134,6 +151,47 @@ void LimbView::updateView() {
     }
 
     update();
+}
+
+void LimbView::exportImage() {
+    const char* PNG_FILE = "PNG image (*.png)";
+    const char* JPG_FILE = "JPG image (*.jpg)";
+    const char* BMP_FILE = "BMP image (*.bmp)";
+
+    QFileDialog dialog(this);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setNameFilters({PNG_FILE, JPG_FILE, BMP_FILE});
+    dialog.selectFile("Export");
+
+    // Todo: Is there a better way to connect default suffix to the selected name filter?
+    // TODO: filterSelected is not triggered on some desktops (Linux/Cinnamon for example)
+    QObject::connect(&dialog, &QFileDialog::filterSelected, [&](const QString &filter) {
+        if(filter == PNG_FILE) {
+            dialog.setDefaultSuffix(".png");
+        }
+        else if(filter == JPG_FILE) {
+            dialog.setDefaultSuffix(".jpg");
+        }
+        else if(filter == BMP_FILE) {
+            dialog.setDefaultSuffix(".bmp");
+        }
+    });
+
+    dialog.selectNameFilter(PNG_FILE);
+    emit dialog.filterSelected(PNG_FILE);
+
+    if(dialog.exec() == QDialog::Accepted) {
+        // Render widget to pixmap
+        QPixmap pixmap(size());
+        QPainter painter(&pixmap);
+        render(&painter);
+
+        // Save pixmap to selected file path
+        QString path = dialog.selectedFiles().first();
+        if(!pixmap.save(path)) {
+            QMessageBox::critical(this, "Error", "Failed to export plot to " + path);
+        }
+    }
 }
 
 void LimbView::viewProfile() {
@@ -287,6 +345,7 @@ void LimbView::paintGL() {
 
 void LimbView::mousePressEvent(QMouseEvent *event) {
     mouse_pos = event->pos();
+    QOpenGLWidget::mousePressEvent(event);
 }
 
 void LimbView::mouseMoveEvent(QMouseEvent *event) {
@@ -310,8 +369,8 @@ void LimbView::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void LimbView::wheelEvent(QWheelEvent* event) {
-    float mouse_ratio_x = float(event->position().x())/this->width();                 // event->position() is not available on Qt 5.9.5
-    float mouse_ratio_y = float(event->position().y())/this->height();                // event->position() is not available on Qt 5.9.5
+    float mouse_ratio_x = float(event->position().x())/this->width();
+    float mouse_ratio_y = float(event->position().y())/this->height();
     float delta_zoom = -ZOOM_SPEED*event->angleDelta().y()/120.0f*zoom;    // Dividing by 120 gives the number of 15 degree steps on a standard mouse
 
     shift_x -= (mouse_ratio_x - 0.5f)*delta_zoom;

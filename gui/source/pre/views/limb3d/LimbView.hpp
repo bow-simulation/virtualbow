@@ -39,6 +39,7 @@ private:
 public:
     LimbView(MainModel* model);
     void updateView();
+    void exportImage();
 
     void viewProfile();
     void viewTop();
