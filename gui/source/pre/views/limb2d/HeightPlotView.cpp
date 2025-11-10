@@ -50,7 +50,7 @@ void HeightPlotView::updatePlot() {
         return;
     }
 
-    xAxis->setLabel("Length " + Quantities::ratio.getUnit().getLabel());
+    // Y axis always shows the width in length units
     yAxis->setLabel("Height " + Quantities::length.getUnit().getLabel());
 
     graphLine->data()->clear();
@@ -60,15 +60,32 @@ void HeightPlotView::updatePlot() {
     int iLayer = index.row();    // Layer index comes from row of the model index
 
     if(model->hasGeometry()) {
+        // If the geometry is valid, the x axis shows the length in length units
+        xAxis->setLabel("Length " + Quantities::length.getUnit().getLabel());
+
+        // Line
         for(size_t i = 0; i < model->getGeometry().ratio.size(); ++i) {
             graphLine->addData(
-                Quantities::ratio.getUnit().fromBase(model->getGeometry().ratio[i]),
+                Quantities::length.getUnit().fromBase(model->getGeometry().length[i]),
                 Quantities::length.getUnit().fromBase(model->getGeometry().heights[i][iLayer])
             );
         }
-    }
 
-    if(model->hasBow()) {
+        // Points
+        double length = model->getGeometry().length.back();     // Total length for scaling of the control points
+        const Layer& layer = *std::next(model->getBow().section.layers.begin(), iLayer);
+        for(auto& point: layer.height) {
+            graphPoints->addData(
+                Quantities::length.getUnit().fromBase(length*point[0]),
+                Quantities::length.getUnit().fromBase(point[1])
+            );
+        }
+    }
+    else if(model->hasBow()) {
+        // If the geometry is invalid, the x axis shows the length in relative units, so that the control points can still be shown
+        xAxis->setLabel("Length " + Quantities::ratio.getUnit().getLabel());
+
+        // Points
         const Layer& layer = *std::next(model->getBow().section.layers.begin(), iLayer);
         for(auto& point: layer.height) {
             graphPoints->addData(
@@ -77,24 +94,6 @@ void HeightPlotView::updatePlot() {
             );
         }
     }
-
-    /*
-    // Control points
-    for(int i = 0; i < input.size(); ++i) {
-        if(selection.contains(i)) {
-            this->graph(2)->addData(
-                x_quantity.getUnit().fromBase(input[i][0]),
-                y_quantity.getUnit().fromBase(input[i][1])
-            );
-        }
-        else {
-            this->graph(1)->addData(
-                x_quantity.getUnit().fromBase(input[i][0]),
-                y_quantity.getUnit().fromBase(input[i][1])
-            );
-        }
-    }
-    */
 
     this->rescaleAxes(true, true, 1.0, 1.05);
     this->replot();

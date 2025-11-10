@@ -44,7 +44,7 @@ WidthPlotView::WidthPlotView(MainModel* model):
 }
 
 void WidthPlotView::updatePlot() {
-    xAxis->setLabel("Length " + Quantities::ratio.getUnit().getLabel());
+    // Y axis always shows the width in length units
     yAxis->setLabel("Width " + Quantities::length.getUnit().getLabel());
 
     graphLine->data()->clear();
@@ -52,13 +52,29 @@ void WidthPlotView::updatePlot() {
     graphSelected->data()->clear();
 
     if(model->hasGeometry()) {
+        // If the geometry is valid, the x axis shows the length in length units
+        xAxis->setLabel("Length " + Quantities::length.getUnit().getLabel());
+
+        // Line
         graphLine->addData(
-            Quantities::ratio.getUnit().fromBase(model->getGeometry().ratio),
+            Quantities::length.getUnit().fromBase(model->getGeometry().length),
             Quantities::length.getUnit().fromBase(model->getGeometry().width)
         );
-    }
 
-    if(model->hasBow()) {
+        // Points
+        double length = model->getGeometry().length.back();     // Total length for scaling of the control points
+        for(auto& point: model->getBow().section.width) {
+            graphPoints->addData(
+                Quantities::length.getUnit().fromBase(length*point[0]),
+                Quantities::length.getUnit().fromBase(point[1])
+            );
+        }
+    }
+    else if(model->hasBow()) {
+        // If the geometry is invalid, the x axis shows the length in relative units, so that the control points can still be shown
+        xAxis->setLabel("Length " + Quantities::ratio.getUnit().getLabel());
+
+        // Points
         for(auto& point: model->getBow().section.width) {
             graphPoints->addData(
                 Quantities::ratio.getUnit().fromBase(point[0]),
@@ -66,24 +82,6 @@ void WidthPlotView::updatePlot() {
             );
         }
     }
-
-    /*
-    // Control points
-    for(int i = 0; i < input.size(); ++i) {
-        if(selection.contains(i)) {
-            this->graph(2)->addData(
-                x_quantity.getUnit().fromBase(input[i][0]),
-                y_quantity.getUnit().fromBase(input[i][1])
-            );
-        }
-        else {
-            this->graph(1)->addData(
-                x_quantity.getUnit().fromBase(input[i][0]),
-                y_quantity.getUnit().fromBase(input[i][1])
-            );
-        }
-    }
-    */
 
     this->rescaleAxes(true, true, 1.0, 1.05);
     this->replot();
