@@ -57,37 +57,80 @@ TableView::TableView() {
     this->verticalHeader()->sectionResizeMode(QHeaderView::Fixed);
     this->verticalHeader()->hide();
 
-    auto action_cut = new QAction("&Cut", this);
-    QObject::connect(action_cut, &QAction::triggered, this, &TableView::cutSelection);
-    action_cut->setShortcuts(QKeySequence::Cut);
-    this->addAction(action_cut);
+    auto actionInsertAbove = new QAction("Insert above", this);
+    QObject::connect(actionInsertAbove, &QAction::triggered, this, &TableView::insertAbove);
+    this->addAction(actionInsertAbove);
 
-    auto action_copy = new QAction("Cop&y", this);
-    QObject::connect(action_copy, &QAction::triggered, this, &TableView::copySelection);
-    action_copy->setShortcuts(QKeySequence::Copy);
-    this->addAction(action_copy);
+    auto actionInsertBelow = new QAction("Insert below", this);
+    QObject::connect(actionInsertBelow, &QAction::triggered, this, &TableView::insertBelow);
+    this->addAction(actionInsertBelow);
 
-    auto action_paste = new QAction("&Paste", this);
-    QObject::connect(action_paste, &QAction::triggered, this, &TableView::pasteToSelection);
-    action_paste->setShortcuts(QKeySequence::Paste);
-    this->addAction(action_paste);
+    auto actionRemoveRow = new QAction("Remove rows", this);
+    QObject::connect(actionRemoveRow, &QAction::triggered, this, &TableView::removeRows);
+    this->addAction(actionRemoveRow);
 
-    auto action_delete = new QAction("&Delete", this);
-    QObject::connect(action_delete, &QAction::triggered, this, &TableView::deleteSelection);
-    action_delete->setShortcut(QKeySequence::Delete);
-    action_delete->setShortcutContext(Qt::WidgetShortcut);
-    this->addAction(action_delete);
+    auto actionCut = new QAction("&Cut", this);
+    QObject::connect(actionCut, &QAction::triggered, this, &TableView::cutSelection);
+    actionCut->setShortcuts(QKeySequence::Cut);
+    this->addAction(actionCut);
+
+    auto actionCopy = new QAction("Cop&y", this);
+    QObject::connect(actionCopy, &QAction::triggered, this, &TableView::copySelection);
+    actionCopy->setShortcuts(QKeySequence::Copy);
+    this->addAction(actionCopy);
+
+    auto actionPaste = new QAction("&Paste", this);
+    QObject::connect(actionPaste, &QAction::triggered, this, &TableView::pasteToSelection);
+    actionPaste->setShortcuts(QKeySequence::Paste);
+    this->addAction(actionPaste);
+
+    auto actionDelete = new QAction("&Delete", this);
+    QObject::connect(actionDelete, &QAction::triggered, this, &TableView::deleteSelection);
+    actionDelete->setShortcut(QKeySequence::Delete);
+    actionDelete->setShortcutContext(Qt::WidgetShortcut);
+    this->addAction(actionDelete);
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
-    QObject::connect(this, &TableView::customContextMenuRequested, [=](const QPoint& pos){
+    QObject::connect(this, &TableView::customContextMenuRequested, [=](const QPoint& pos) {
         QMenu menu(this);
-        menu.addAction(action_cut);
-        menu.addAction(action_copy);
-        menu.addAction(action_paste);
+        menu.addAction(actionInsertAbove);
+        menu.addAction(actionInsertBelow);
+        menu.addAction(actionRemoveRow);
         menu.addSeparator();
-        menu.addAction(action_delete);
+        menu.addAction(actionCut);
+        menu.addAction(actionCopy);
+        menu.addAction(actionPaste);
+        menu.addSeparator();
+        menu.addAction(actionDelete);
         menu.exec(this->viewport()->mapToGlobal(pos));
     });
+}
+
+void TableView::insertAbove() {
+    QModelIndex index = selectedIndexes().at(0);
+    model()->insertRow(index.row());
+}
+
+void TableView::insertBelow() {
+    QModelIndex index = selectedIndexes().at(0);
+    model()->insertRow(index.row() + 1);
+}
+
+void TableView::removeRows() {
+    // Collect all selected rows
+    QSet<int> rows;
+    for (const QModelIndex& index: selectedIndexes()) {
+        rows.insert(index.row());
+    }
+
+    // Convert to list and sort descending
+    QList<int> rowList = rows.values();
+    std::sort(rowList.begin(), rowList.end(), std::greater<int>());
+
+    // Remove rows from bottom to top
+    for(int row: rowList) {
+        model()->removeRow(row);
+    }
 }
 
 void TableView::cutSelection() {
@@ -114,9 +157,9 @@ void TableView::pasteToSelection() {
     QString text = QApplication::clipboard()->text();
     QStringList rowContents = text.split("\n", Qt::SkipEmptyParts);
 
-    QModelIndex initIndex = selectedIndexes().at(0);
-    int i0 = initIndex.row();
-    int j0 = initIndex.column();
+    QModelIndex index = selectedIndexes().at(0);
+    int i0 = index.row();
+    int j0 = index.column();
 
     for(int i = 0; i < rowContents.size(); ++i) {
         QStringList columnContents = rowContents.at(i).split("\t");

@@ -29,6 +29,9 @@ public:
     TableView();
 
 private:
+    void insertAbove();
+    void insertBelow();
+    void removeRows();
     void cutSelection();
     void copySelection();
     void pasteToSelection();

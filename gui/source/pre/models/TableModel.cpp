@@ -101,6 +101,59 @@ void TableModel::fetchMore(const QModelIndex& parent) {
     endInsertRows();
 }
 
+bool TableModel::insertRows(int row, int count, const QModelIndex& parent) {
+    beginInsertRows(parent, row, row + count - 1);
+
+    // Create a new map where all entries below "row" are shifted down by "count" rows
+    QMap<QModelIndex, double> newEntries;
+    for(auto [oldIndex, oldValue]: entries.asKeyValueRange()) {
+        if(oldIndex.row() < row) {
+            // Entry stays in place
+            newEntries.insert(oldIndex, oldValue);
+        }
+        else {
+            // Entry gets shifted
+            QModelIndex newIndex = index(oldIndex.row() + count, oldIndex.column());
+            newEntries.insert(newIndex, oldValue);
+        }
+    }
+
+    // Assign shifted entries
+    entries = newEntries;
+
+    endInsertRows();
+    return true;
+}
+
+bool TableModel::removeRows(int row, int count, const QModelIndex& parent) {
+    beginRemoveRows(parent, row, row + count - 1);
+
+    // Create a new map where all entries below "row" are shifted up by "count" rows
+    QMap<QModelIndex, double> newEntries;
+    for(auto [oldIndex, oldValue]: entries.asKeyValueRange()) {
+        if(oldIndex.row() < row) {
+            // Entry stays in place
+            newEntries.insert(oldIndex, oldValue);
+        }
+        else if(oldIndex.row() < row + count) {
+            // Entry is deleted
+        }
+        else {
+            // Entry gets shifted
+            QModelIndex newIndex = index(oldIndex.row() - count, oldIndex.column());
+            newEntries.insert(newIndex, oldValue);
+        }
+    }
+
+    // Assign shifted entries
+    entries = newEntries;
+
+    endRemoveRows();
+    emit contentModified();
+
+    return true;
+}
+
 Points TableModel::getPoints() const {
     Points data;
     data.reserve(2*entries.size());    // Upper bound on number of valid data points
