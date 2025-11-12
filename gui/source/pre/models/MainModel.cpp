@@ -153,7 +153,7 @@ LayerModel* MainModel::getLayerModel(int index) {
 
 TableModel* MainModel::getLayerHeightModel(int index) {
     if(bow.has_value() && index >= 0 && index < bow->section.layers.size()) {
-        auto model = new TableModel(std::next(bow->section.layers.begin(), index)->height, "Position", "Height", Quantities::ratio, Quantities::length);
+        auto model = new TableModel(std::next(bow->section.layers.begin(), index)->height, "Position", "Height", Quantities::ratio, Quantities::length, true);
         connectSubModel(model);
         return model;
     }
@@ -163,7 +163,7 @@ TableModel* MainModel::getLayerHeightModel(int index) {
 
 TableModel* MainModel::getWidthModel() {
     if(bow.has_value()) {
-        auto model = new TableModel(bow->section.width, "Position", "Width", Quantities::ratio, Quantities::length);
+        auto model = new TableModel(bow->section.width, "Position", "Width", Quantities::ratio, Quantities::length, true);
         connectSubModel(model);
         return model;
     }

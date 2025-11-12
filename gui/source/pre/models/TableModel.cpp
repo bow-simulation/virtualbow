@@ -6,11 +6,12 @@
 const int INITIAL_ROWS = 25;    // Initial number of rows in the table
 const int DELTA_ROWS = 5;       // Number of rows to add when the end is reached
 
-TableModel::TableModel(Points& points, const QString& xLabel, const QString& yLabel, const Quantity& xQuantity, const Quantity& yQuantity):
+TableModel::TableModel(Points& points, const QString& xLabel, const QString& yLabel, const Quantity& xQuantity, const Quantity& yQuantity, bool sorted):
     columnLabels({xLabel, yLabel}),
     columnUnits({&xQuantity, &yQuantity}),
     loadedRows(INITIAL_ROWS),
-    points(points)
+    points(points),
+    sorted(sorted)
 {
     // Update table on units changes
     for(int i = 0; i < columnUnits.size(); ++i) {
@@ -123,6 +124,13 @@ Points TableModel::getPoints() const {
         }
 
         it_row_begin = it_row_end;
+    }
+
+    // Sort points by first coordinate
+    if(sorted) {
+        std::sort(data.begin(), data.end(), [](const auto& a, const auto& b) {
+            return a[0] < b[0];
+        });
     }
 
     return data;

@@ -8,7 +8,7 @@ class TableModel: public QAbstractTableModel {
     Q_OBJECT
 
 public:
-    TableModel(Points& points, const QString& xLabel, const QString& yLabel, const Quantity& xQuantity, const Quantity& yQuantity);
+    TableModel(Points& points, const QString& xLabel, const QString& yLabel, const Quantity& xQuantity, const Quantity& yQuantity, bool sorted = false);
 
     // Implementation of QAbstractItemModel
 
@@ -32,6 +32,7 @@ private:
     QMap<QModelIndex, double> entries;
     Points& points;
     int loadedRows;
+    bool sorted;
 
     Points getPoints() const;
     void setPoints(const Points& data);
