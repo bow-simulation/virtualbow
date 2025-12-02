@@ -95,7 +95,7 @@ pub fn solve_newton<F>(function: &mut F, x0: DVector<f64>, settings: NewtonSetti
             });
         }
 
-        // Check if the minimum error has been decreased
+        // Check if the minimum absolute error has been decreased
         // If yes, record the new minimum and reset the stagnation counter
         // If no, increase the stagnation counter and return error if the limit is reached
         if error < error_min {

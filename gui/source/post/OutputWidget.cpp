@@ -262,8 +262,8 @@ DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
     plot_combo->addData("Arrow acceleration", data.dynamics->states.arrow_acc, Quantities::acceleration);
     plot_combo->addData("String force (total)", data.dynamics->states.string_force, Quantities::force);
     plot_combo->addData("String force (strand)", data.dynamics->states.strand_force, Quantities::force);
-    plot_combo->addData("String tip angle", data.statics->states.string_tip_angle, Quantities::angle);
-    plot_combo->addData("String center angle", data.statics->states.string_center_angle, Quantities::angle);
+    plot_combo->addData("String tip angle", data.dynamics->states.string_tip_angle, Quantities::angle);
+    plot_combo->addData("String center angle", data.dynamics->states.string_center_angle, Quantities::angle);
     plot_combo->addData("Grip force", data.dynamics->states.grip_force, Quantities::force);
     plot_combo->addData("Pot. energy limbs", data.dynamics->states.elastic_energy_limbs, Quantities::energy);
     plot_combo->addData("Kin. energy limbs", data.dynamics->states.kinetic_energy_limbs, Quantities::energy);
