@@ -56,6 +56,7 @@ add_executable(
     source/pre/MainWindow.hpp
     source/pre/HelpMenu.cpp
     source/pre/HelpMenu.hpp
+    source/pre/Language.hpp
     source/pre/KeyEventFilter.cpp
     source/pre/KeyEventFilter.hpp
     source/pre/models/ArcModel.cpp

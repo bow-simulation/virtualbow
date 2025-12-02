@@ -1,5 +1,5 @@
 #include "EnergyPlot.hpp"
-#include "pre/models/units/UnitSystem.hpp"
+#include "pre/Language.hpp"
 #include <algorithm>
 #include <functional>
 
@@ -14,13 +14,13 @@ EnergyPlot::EnergyPlot(const States& states, const std::vector<double>& paramete
     plot->setupTopLegend();
 
     cb_stacked = new QCheckBox("Stacked");
-    cb_stacked->setToolTip("If selected, the energies are plotted as areas stacked on top of each other.\nOtherwise each energy is drawn as an individual line.");
+    cb_stacked->setToolTip(Tooltips::EnergiesStacked);
 
     cb_part = new QCheckBox("Group by component");
-    cb_part->setToolTip("Group energies by the component they belong to (limbs, string, arrow)");
+    cb_part->setToolTip(Tooltips::EnergiesByPart);
 
     cb_type = new QCheckBox("Group by energy");
-    cb_type->setToolTip("Group enegies by the type they belong to (potential, kinetic, damping)");
+    cb_type->setToolTip(Tooltips::EnergiesByType);
 
     auto vbox = new QVBoxLayout();
     this->setLayout(vbox);

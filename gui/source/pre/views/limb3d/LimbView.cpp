@@ -4,6 +4,7 @@
 #include "ErrorLabel.hpp"
 #include "OpenGLUtils.hpp"
 #include "pre/models/MainModel.hpp"
+#include "pre/Language.hpp"
 #include "solver/BowModel.hpp"
 #include "config.hpp"
 #include <QOpenGLShaderProgram>
@@ -42,35 +43,35 @@ LimbView::LimbView(MainModel* model):
     auto bt_view_3d = new QToolButton();
     QObject::connect(bt_view_3d, &QPushButton::clicked, this, &LimbView::view3D);
     bt_view_3d->setIcon(QIcon(":/icons/view-3d"));
-    bt_view_3d->setToolTip("Default view");
+    bt_view_3d->setToolTip(Tooltips::ViewDefault);
     bt_view_3d->setIconSize(BUTTON_SIZE);
     bt_view_3d->setStyleSheet(BUTTON_STYLE);
 
     auto bt_view_profile = new QToolButton();
     QObject::connect(bt_view_profile, &QPushButton::clicked, this, &LimbView::viewProfile);
     bt_view_profile->setIcon(QIcon(":/icons/view-profile"));
-    bt_view_profile->setToolTip("Profile view");
+    bt_view_profile->setToolTip(Tooltips::ViewProfile);
     bt_view_profile->setIconSize(BUTTON_SIZE);
     bt_view_profile->setStyleSheet(BUTTON_STYLE);
 
     auto bt_view_top = new QToolButton();
     QObject::connect(bt_view_top, &QPushButton::clicked, this, &LimbView::viewTop);
     bt_view_top->setIcon(QIcon(":/icons/view-top"));
-    bt_view_top->setToolTip("Top view");
+    bt_view_top->setToolTip(Tooltips::ViewBack);
     bt_view_top->setIconSize(BUTTON_SIZE);
     bt_view_top->setStyleSheet(BUTTON_STYLE);
 
     auto bt_view_fit = new QToolButton();
     QObject::connect(bt_view_fit, &QPushButton::clicked, this, &LimbView::viewFit);
     bt_view_fit->setIcon(QIcon(":/icons/view-fit"));
-    bt_view_fit->setToolTip("Reset zoom");
+    bt_view_fit->setToolTip(Tooltips::ViewReset);
     bt_view_fit->setIconSize(BUTTON_SIZE);
     bt_view_fit->setStyleSheet(BUTTON_STYLE);
 
     auto bt_view_symmetric = new QToolButton();
     QObject::connect(bt_view_symmetric, &QToolButton::toggled, this, &LimbView::viewSymmetric);
     bt_view_symmetric->setIcon(QIcon(":/icons/view-symmetric"));
-    bt_view_symmetric->setToolTip("Show symmetry");
+    bt_view_symmetric->setToolTip(Tooltips::ViewSymmetric);
     bt_view_symmetric->setIconSize(BUTTON_SIZE);
     bt_view_symmetric->setStyleSheet(BUTTON_STYLE);
     bt_view_symmetric->setCheckable(true);

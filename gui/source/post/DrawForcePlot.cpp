@@ -1,6 +1,7 @@
 #include "DrawForcePlot.hpp"
 #include "pre/widgets/PlotWidget.hpp"
 #include "pre/models/units/UnitSystem.hpp"
+#include "pre/Language.hpp"
 
 DrawForcePlot::DrawForcePlot(const Common& common, const States& states)
     : common(common),
@@ -22,10 +23,10 @@ DrawForcePlot::DrawForcePlot(const Common& common, const States& states)
     stiffnessGraph->setPen({QColor(128, 0, 128), 2.0});
 
     cbLine = new QCheckBox("Show line");
-    cbLine->setToolTip("Show a hypothetical line connecting the start- and endpoint of the draw force curve.");
+    cbLine->setToolTip(Tooltips::DrawForceShowLine);
 
     cbStiffness = new QCheckBox("Show stiffness");
-    cbStiffness->setToolTip("Show the stiffness of the draw force curve, i.e. force increase per length increase.");
+    cbStiffness->setToolTip(Tooltips::DrawForceShowStiffness);
 
     auto hbox = new QHBoxLayout();
     hbox->addStretch();
