@@ -141,6 +141,7 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
     plot_combo->addData("Draw stiffness", data.statics->states.draw_stiffness, Quantities::stiffness);
     plot_combo->addData("String force (total)", data.statics->states.string_force, Quantities::force);
     plot_combo->addData("String force (strand)", data.statics->states.strand_force, Quantities::force);
+    plot_combo->addData("String length", data.statics->states.string_length, Quantities::length);
     plot_combo->addData("String tip angle", data.statics->states.string_tip_angle, Quantities::angle);
     plot_combo->addData("String center angle", data.statics->states.string_center_angle, Quantities::angle);
     plot_combo->addData("Grip force", data.statics->states.grip_force, Quantities::force);
@@ -262,6 +263,7 @@ DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
     plot_combo->addData("Arrow acceleration", data.dynamics->states.arrow_acc, Quantities::acceleration);
     plot_combo->addData("String force (total)", data.dynamics->states.string_force, Quantities::force);
     plot_combo->addData("String force (strand)", data.dynamics->states.strand_force, Quantities::force);
+    plot_combo->addData("String length", data.dynamics->states.string_length, Quantities::length);
     plot_combo->addData("String tip angle", data.dynamics->states.string_tip_angle, Quantities::angle);
     plot_combo->addData("String center angle", data.dynamics->states.string_center_angle, Quantities::angle);
     plot_combo->addData("Grip force", data.dynamics->states.grip_force, Quantities::force);
