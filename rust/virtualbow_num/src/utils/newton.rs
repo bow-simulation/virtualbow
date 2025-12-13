@@ -3,19 +3,19 @@ use nalgebra::{DMatrix, DVector};
 
 #[derive(Copy, Clone)]
 pub struct NewtonSettings {
-    pub epsilon_rel: f64,       // Relative tolerance
-    pub epsilon_abs: f64,       // Absolute tolerance
-    pub max_iterations: u32,    // Maximum number of iterations per load step
-    pub max_stagnation: u32     // Maximum number of iterations that don't improve the objective
+    pub epsilon: f64,                // Absolute tolerance on the residual norm
+    pub max_iter: u32,               // Maximum number of iterations per load step
+    pub armijo_constant: f64,        // Factor for the reduction of the slope in the Armijo condition
+    pub backtracking_factor: f64,    // Reduction factor of the step size when backtracking
 }
 
 impl Default for NewtonSettings {
     fn default() -> Self {
         Self {
-            epsilon_rel: 1e-4,
-            epsilon_abs: 1e-6,
-            max_iterations: 50,
-            max_stagnation: 15,
+            epsilon: 1e-6,
+            max_iter: 50,
+            armijo_constant: 1e-4,
+            backtracking_factor: 0.5,
         }
     }
 }
@@ -36,7 +36,6 @@ pub enum NewtonError {
     NonFiniteConstraintEval,  // The return value of the constraint function is not finite, i.e. contains NaN or Inf values
     NonFiniteStateIncrement,  // The displacement delta is not finite, i.e. contains NaN or Inf values
     MaxIterationsReached,     // Maximum number of iterations was reached without convergence
-    MaxStagnationReached,     // Maximum number of iterations without improvement was reached
 }
 
 impl Display for NewtonError {
@@ -46,7 +45,6 @@ impl Display for NewtonError {
             NewtonError::NonFiniteConstraintEval => write!(f, "Encountered a non-finite constraint function return value.")?,
             NewtonError::NonFiniteStateIncrement => write!(f, "Encountered a non-finite displacement increment.")?,
             NewtonError::MaxIterationsReached    => write!(f, "Maximum number of iterations exceeded.")?,
-            NewtonError::MaxStagnationReached    => write!(f, "Maximum number of stagnating iterations exceeded.")?,
         }
 
         Ok(())
@@ -56,68 +54,71 @@ impl Display for NewtonError {
 pub fn solve_newton<F>(function: &mut F, x0: DVector<f64>, settings: NewtonSettings) -> Result<IterationResult, NewtonError>
     where F: FnMut(&DVector<f64>, &mut DVector<f64>, &mut DMatrix<f64>)  // x -> f, dfdx
 {
-    // Set velocities to zero and copy the current displacement vector
-    let mut x = x0;
-    let mut f = DVector::<f64>::zeros(x.len());
-    let mut dfdx = DMatrix::<f64>::zeros(x.len(), x.len());
+    // Tolerance on the squared norm of the residuals, adjusted for problem dimension
+    let epsilon_stop = ((x0.len() + 1) as f64)*settings.epsilon.powi(2);
+    let epsilon_search = ((x0.len() + 1) as f64)*(1e3*settings.epsilon).powi(2);  // TODO: Magic number
 
-    let mut error_ref = 0.0;              // Reference error at the first evaluation
-    let mut error_min = f64::INFINITY;    // Minimum encountered error
-    let mut stagnations = 0_u32;          // Current number of iterations without improvement of the minimum error
+    // Quantities at the current solution candidate
+    let mut x_current = x0;
+    let mut f_current = DVector::<f64>::zeros(x_current.len());
+    let mut J_current = DMatrix::<f64>::zeros(x_current.len(), x_current.len());
 
-    for i in 1..=settings.max_iterations {
-        // Evaluate function and jacobian at current solution
-        function(&x, &mut f, &mut dfdx);
+    // Quantities at the next solution candidate
+    let mut x_next = DVector::<f64>::zeros(x_current.len());
+    let mut f_next = DVector::<f64>::zeros(x_current.len());
+    let mut J_next = DMatrix::<f64>::zeros(x_current.len(), x_current.len());
 
-        // Factorize jacobian matrix and calculate solution increment
-        let decomposition = dfdx.clone().lu();
-        let delta_x = decomposition.solve(&f).ok_or(NewtonError::LinearSolutionFailed)?;
+    // Evaluate function and jacobian at initial solution candidate
+    function(&x_current, &mut f_current, &mut J_current);
 
-        // Check if the solution increment is finite
-        if !delta_x.iter().cloned().all(f64::is_finite) {
-            return Err(NewtonError::NonFiniteStateIncrement);
-        }
-
-        // Compute error of the residual
-        // If first iteration, store value as reference for relative comparison
-        let error = f.amax();
-        if i == 1 {
-            error_ref = error;
-        }
-
-        // Evaluate absolute and relative convergence criteria
-        if error < settings.epsilon_abs || error/error_ref < settings.epsilon_rel {
+    for i in 1..=settings.max_iter {
+        // Evaluate convergence criterion on residual norm, return early if fulfilled
+        let norm_current = f_current.norm_squared();
+        if  norm_current < epsilon_stop {
             return Ok(IterationResult {
-                x,
+                x: x_current,
                 λ: 0.0,
                 dxdλ: DVector::zeros(0),
                 iterations: i
             });
         }
 
-        // Check if the minimum error has been decreased
-        // If yes, record the new minimum and reset the stagnation counter
-        // If no, increase the stagnation counter and return error if the limit is reached
-        if error < error_min {
-            error_min = error;
-            stagnations = 0;
+        // Factorize jacobian matrix and calculate solution increment
+        let decomposition = J_current.clone().lu();
+        let delta_x = -decomposition.solve(&f_current).ok_or(NewtonError::LinearSolutionFailed)?;
+
+        // Check if the solution increment is finite
+        if !delta_x.iter().cloned().all(f64::is_finite) {
+            return Err(NewtonError::NonFiniteStateIncrement);
         }
-        else {
-            stagnations += 1;
-            if stagnations == settings.max_stagnation {
-                return Err(NewtonError::MaxStagnationReached);
+
+        // Compute next solution candidate, perform Armijo backtracking if required
+        let mut alpha = 1.0;    // Step size to be refined by backtracking
+        loop {
+            // Evaluate next solution candidate from direction (delta x) and step size (alpha)
+            // Note: Evaluating J during backtracking might seem wasteful, since it is only used when the step is accepted.
+            // But since we consider backtracking the exceptional case and acceptance the norm, we err on the side of computing J directly.
+            // It was also easier to implement.
+            x_next = &x_current + alpha*&delta_x;
+            function(&x_next, &mut f_next, &mut J_next);
+
+            // Armijo condition is fulfilled: Accept the solution candidate as the current one
+            // Otherwise reduce step size and try again
+            if norm_current < epsilon_search || f_next.norm_squared() <= norm_current + 2.0*settings.armijo_constant*alpha*f_current.dot(&(&J_current*&delta_x)) {
+                x_current.copy_from(&x_next);
+                f_current.copy_from(&f_next);
+                J_current.copy_from(&J_next);
+
+                break;
+            }
+            else {
+                alpha *= settings.backtracking_factor;
             }
         }
-
-        // Apply changes to displacements
-        x -= &delta_x;
-
-        // Remember error at first iteration as reference
-
     }
 
     // Maximum number of iterations exceeded
-    return Err(NewtonError::MaxIterationsReached);
+    Err(NewtonError::MaxIterationsReached)
 }
 
 // Function: x, λ -> f, dfdx, dfdλ
@@ -126,36 +127,54 @@ pub fn solve_newton_constrained<F, C>(function: &mut F, constraint: &mut C, x0: 
     where F: FnMut(&DVector<f64>, f64, &mut DVector<f64>, &mut DMatrix<f64>, &mut DVector<f64>),
           C: FnMut(&DVector<f64>, f64, &mut f64, &mut DVector<f64>, &mut f64),
 {
-    let mut error_ref_f = 0.0;              // Reference error of the function at the first evaluation
-    let mut error_min_f = f64::INFINITY;    // Minimum encountered error
+    // Tolerance on the squared norm of the residuals, adjusted for problem dimension (n + 1 for constraint)
+    let epsilon_stop = ((x0.len() + 1) as f64)*settings.epsilon.powi(2);
+    let epsilon_search = ((x0.len() + 1) as f64)*(1e3*settings.epsilon).powi(2);  // TODO: Magic number
 
-    let mut error_ref_c = 0.0;              // Reference error of the constraint at the first evaluation
-    let mut error_min_c = f64::INFINITY;    // Minimum encountered error
+    let mut x_current = x0;
+    let mut λ_current = λ0;
+    let mut f_current = DVector::<f64>::zeros(x_current.len());
+    let mut c_current = 0.0;
 
-    let mut stagnations = 0_u32;            // Counter for number of stagnant iterations
+    let mut dfdx_current = DMatrix::<f64>::zeros(x_current.len(), x_current.len());
+    let mut dfdλ_current = DVector::<f64>::zeros(x_current.len());
+    let mut dcdx_current = DVector::<f64>::zeros(x_current.len());
+    let mut dcdλ_current = 0.0;
 
-    let mut x = x0;
-    let mut λ = λ0;
-    let mut f = DVector::<f64>::zeros(x.len());
-    let mut c = 0.0;
+    let mut x_next = DVector::<f64>::zeros(x_current.len());
+    let mut λ_next = 0.0;
+    let mut f_next = DVector::<f64>::zeros(x_current.len());
+    let mut c_next = 0.0;
 
-    let mut dfdx = DMatrix::<f64>::zeros(x.len(), x.len());
-    let mut dfdλ = DVector::<f64>::zeros(x.len());
-    let mut dcdx = DVector::<f64>::zeros(x.len());
-    let mut dcdλ = 0.0;
+    let mut dfdx_next = DMatrix::<f64>::zeros(x_current.len(), x_current.len());
+    let mut dfdλ_next = DVector::<f64>::zeros(x_current.len());
+    let mut dcdx_next = DVector::<f64>::zeros(x_current.len());
+    let mut dcdλ_next = 0.0;
 
-    for i in 1..=settings.max_iterations {
-        // Evaluate function and jacobian
-        function(&x, λ, &mut f, &mut dfdx, &mut dfdλ);
+    // Evaluate functions and jacobians at initial solution candidate
+    function(&x_current, λ_current, &mut f_current, &mut dfdx_current, &mut dfdλ_current);
+    constraint(&x_current, λ_current, &mut c_current, &mut dcdx_current, &mut dcdλ_current);
 
+    for i in 1..=settings.max_iter {
         // Factorize jacobian and calculate auxiliary vectors alpha and beta
-        let decomposition = dfdx.clone().lu();
-        let alpha = -decomposition.solve(&f).ok_or(NewtonError::LinearSolutionFailed)?;
-        let beta = -decomposition.solve(&dfdλ).ok_or(NewtonError::LinearSolutionFailed)?;
+        // TODO: This could come after evaluating the convergence criterion, if it weren't for the return of beta
+        let decomposition = dfdx_current.clone().lu();
+        let alpha = -decomposition.solve(&f_current).ok_or(NewtonError::LinearSolutionFailed)?;
+        let beta = -decomposition.solve(&dfdλ_current).ok_or(NewtonError::LinearSolutionFailed)?;
 
-        // Evaluate constraint and calculate change in load parameter and displacement
-        constraint(&x, λ, &mut c, &mut dcdx, &mut dcdλ);
-        let delta_λ = -(c + dcdx.dot(&alpha))/(dcdλ + dcdx.dot(&beta));
+        // Evaluate convergence criterion on residual norm, return early if fulfilled
+        let norm_current = f_current.norm_squared() + c_current.powi(2);
+        if norm_current < epsilon_stop {
+            return Ok(IterationResult {
+                x: x_current,
+                λ: λ_current,
+                dxdλ: beta,
+                iterations: i,
+            });
+        }
+
+        // Calculate delta directions for load parameter and displacements
+        let delta_λ = -(c_current + dcdx_current.dot(&alpha))/(dcdλ_current + dcdx_current.dot(&beta));
         let delta_x = &alpha + &beta*delta_λ;
 
         // Check if the load factor increment is finite
@@ -169,60 +188,53 @@ pub fn solve_newton_constrained<F, C>(function: &mut F, constraint: &mut C, x0: 
             return Err(NewtonError::NonFiniteStateIncrement);
         }
 
-        // Compute errors of function and constraint
-        // If first iteration, store values as reference for relative comparison
-        let error_f = f.amax();
-        let error_c = c.abs();
-        if i == 1 {
-            error_ref_f = error_f;
-            error_ref_c = error_c;
-        }
+        // Compute next solution candidate, perform Armijo backtracking if required
+        let mut alpha = 1.0;    // Step size to be refined by backtracking
+        loop {
+            // Evaluate next solution candidate from directions and step size (alpha)
+            // Note: Evaluating jacobians during backtracking might seem wasteful, since it is only used when the step is accepted.
+            // But since we consider backtracking the exceptional case and acceptance the norm, we err on the side of computing J directly.
+            // It was also easier to implement.
+            x_next = &x_current + alpha*&delta_x;
+            λ_next = λ_current + alpha*delta_λ;
+            function(&x_next, λ_next, &mut f_next, &mut dfdx_next, &mut dfdλ_next);
+            constraint(&x_next, λ_next, &mut c_next, &mut dcdx_next, &mut dcdλ_next);
 
-        // Check convergence criteria, return only if both are fulfilled
-        let stopping_criterion_f = error_f < settings.epsilon_abs || error_f/error_ref_f < settings.epsilon_rel;
-        let stopping_criterion_c = error_c < settings.epsilon_abs || error_c/error_ref_c < settings.epsilon_rel;
-        if stopping_criterion_f && stopping_criterion_c {
-            return Ok(IterationResult {
-                x,
-                λ,
-                dxdλ: beta,
-                iterations: i,
-            });
-        }
+            // Armijo condition is fulfilled or we're close to the root: Accept the solution candidate as the current one and continue
+            // Otherwise reduce step size and try again
+            let norm_current = f_current.norm_squared() + c_current.powi(2);
+            let norm_next = f_next.norm_squared() + c_next.powi(2);
+            let slope = f_current.dot(&(&dfdx_current*&delta_x + &dfdλ_current*delta_λ)) + c_current*(dcdx_current.dot(&delta_x) + dcdλ_current*delta_λ);
 
-        // Check if any of the errors has been decreased
-        // If yes, record the new minimum and reset the stagnation counter
-        // If no, increase the stagnation counter and return error if the limit is reached
-        if error_f < error_min_f {
-            error_min_f = error_f;
-            stagnations = 0;
-        }
-        else if error_c < error_min_c {
-            error_min_c = error_c;
-            stagnations = 0;
-        }
-        else {
-            stagnations += 1;
-            if stagnations == settings.max_stagnation {
-                return Err(NewtonError::MaxStagnationReached);
+            if norm_current < epsilon_search || norm_next <= norm_current + 2.0*settings.armijo_constant*alpha*slope {
+                x_current.copy_from(&x_next);
+                f_current.copy_from(&f_next);
+                λ_current = λ_next;
+                c_current = c_next;
+
+                dfdx_current.copy_from(&dfdx_next);
+                dfdλ_current.copy_from(&dfdλ_next);
+                dcdx_current.copy_from(&dcdx_next);
+                dcdλ_current = dcdλ_next;
+
+                break;
+            }
+            else {
+                alpha *= settings.backtracking_factor;
             }
         }
-
-        // Apply changes to load factor and displacements
-        x += &delta_x;
-        λ += delta_λ;
     }
 
     // Maximum number of iterations exceeded
-    return Err(NewtonError::MaxIterationsReached);
+    Err(NewtonError::MaxIterationsReached)
 }
 
 #[cfg(test)]
 mod tests {
     use approx::assert_abs_diff_eq;
+    use assert2::assert;
     use nalgebra::{DMatrix, DVector, dvector};
     use crate::utils::newton::{NewtonSettings, solve_newton, solve_newton_constrained};
-    use assert2::assert;
 
     #[test]
     fn test_unconstrained() {
@@ -251,7 +263,7 @@ mod tests {
         };
 
         let x0 = dvector![1.0, 1.0];
-        let result = solve_newton(&mut f, x0, NewtonSettings { epsilon_rel: 1e-6, epsilon_abs: 0.0, ..Default::default() }).unwrap();
+        let result = solve_newton(&mut f, x0, NewtonSettings { epsilon: 1e-6, ..Default::default() }).unwrap();
 
         // Check of the solution converged in the same number of steps as the reference,
         // which depends on the numerical tolerances.
@@ -310,12 +322,12 @@ mod tests {
         let λ0 = 0.9;
 
         // Check results for constraint function 1
-        let result = solve_newton_constrained(&mut f, &mut c1, x0.clone(), λ0, NewtonSettings { epsilon_rel: 1e-6, epsilon_abs: 0.0, ..Default::default() }).unwrap();
+        let result = solve_newton_constrained(&mut f, &mut c1, x0.clone(), λ0, NewtonSettings { epsilon: 1e-6, ..Default::default() }).unwrap();
         assert_abs_diff_eq!(result.x, dvector![0.567297, -0.309442], epsilon=1e-6);
         assert_abs_diff_eq!(result.λ, 1.0, epsilon=1e-5);
 
         // Check results for constraint function 2
-        let result = solve_newton_constrained(&mut f, &mut c2, x0.clone(), λ0, NewtonSettings { epsilon_rel: 1e-6, epsilon_abs: 0.0, ..Default::default() }).unwrap();
+        let result = solve_newton_constrained(&mut f, &mut c2, x0.clone(), λ0, NewtonSettings { epsilon: 1e-6, ..Default::default() }).unwrap();
         assert_abs_diff_eq!(result.x, dvector![0.567297, -0.309442], epsilon=1e-6);
         assert_abs_diff_eq!(result.λ, 1.0, epsilon=1e-5);
 
@@ -372,7 +384,7 @@ mod tests {
 
         // Perform solution at a starting point that converges against the solution we picked previously,
         // compare the solution and its derivative to the parameter λ against the analytical solution for λ = 1.
-        let result = solve_newton_constrained(&mut f, &mut c, dvector![2.5, 1.5], 1.2, NewtonSettings { epsilon_rel: 1e-6, epsilon_abs: 0.0, ..Default::default() }).unwrap();
+        let result = solve_newton_constrained(&mut f, &mut c, dvector![2.5, 1.5], 1.2, NewtonSettings { epsilon: 1e-6, ..Default::default() }).unwrap();
         assert_abs_diff_eq!(result.x, x_ref, epsilon=1e-6);
         assert_abs_diff_eq!(result.λ, λ_ref, epsilon=1e-6);
         assert_abs_diff_eq!(result.dxdλ, dxdλ_ref, epsilon=1e-6);

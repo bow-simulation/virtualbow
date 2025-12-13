@@ -103,9 +103,21 @@ The iteration is stopped when either of those falls below a certain tolerance.
 The infinity or maximum norm $\lVert \boldsymbol{R} \rVert_{\infty}$ is chosen as the vector norm, which is the maximum absolute value of the vector.
 The scaling issue between translational and rotational degrees of freedom was solved by completely ignoring it.
 
+\textcolor{red}{Mention normalizing/scaling the coordinates as a possible solution}
+
+\textcolor{red}{Normalization with respect to coordinates:} When using the euclidean norm of the residual vector $\lVert\boldsymbol{f}\rVert = \sqrt{\sum_{i=0}^{n-1}f_{i}^2}$ as the convergence criterion with a constant (general purpose) tolerance $\varepsilon$, the criterion is stricter for residuals of higher dimensions.
+Imagine a residual vector with a constant error of $\varepsilon$ in each component:
+
+\begin{equation}
+\lVert\boldsymbol{f}\rVert = \sqrt{\sum_{i=0}^{n-1}\varepsilon^2} = \sqrt{n\cdot\varepsilon^2} = \sqrt{n}\cdot\varepsilon
+\end{equation}
+
+So we have to compare the residual norm with $\sqrt{n}\cdot\varepsilon$ in order to circumvent scaling issues.
+
+
 The basic Newton-Raphson method can be improved and extended in many ways, for example by combining it with a line search or by avoiding the calculation of the tangent stiffness matrix at every iteration (simplified Newton-Raphson method, BFGS method \textcolor{red}{[Source]}).
 
-\subsection{Constrained Newton-Raphson method}
+\subsection{Load- and Displacement Control}
 \label{sec:constrained-newton-raphson}
 
 In the previous section the Newton-Raphson method was applied to the problem of calculating the equilibrium displacements of a system when all applied forces are known. This method is used in VirtualBow for finding the braced equilibrium state of the bow (see section \textcolor{red}{[Reference]}). However, when calculating the draw curve we don't actually know the draw forces, just the displacement of the string center. \textcolor{red}{Also: Load decrease.}
@@ -187,9 +199,6 @@ The relative and absolute stopping conditions are therefore
 \lVert \boldsymbol{f}_{i} \rVert \ &< \ \varepsilon_{\mathrm{abs}} & &\mathrm{AND} & \lVert c_{i} \rVert \ &< \ \varepsilon_{\mathrm{abs}}.
 \end{align}
 
-
-\subsubsection*{Load- and displacement control}
-
 Finally, the constraint function has to be chosen.
 To get a displacement controlled method as initially stated we choose the constraint function as
 %
@@ -204,7 +213,8 @@ where~$u^k$ is the $k$-th component of the displacement vector that we want to c
 \frac{\partial c}{\partial \lambda} = 0,
 \end{align*}
 %
-with $\boldsymbol{e}_k$ being the $k$-th unit vector. If a load controlled method is needed instead, the constraint becomes
+with $\boldsymbol{e}_k$ being the $k$-th unit vector.
+If a load controlled method is needed instead, the constraint becomes
 %
 \begin{align}
 \boldsymbol{c}(\boldsymbol{u},\,\lambda) = \lambda - \overline{\lambda},
@@ -216,6 +226,174 @@ with the desired load factor $\overline{\lambda}$. Partial derivatives:
 \frac{\partial c}{\partial \boldsymbol{u}} &= \boldsymbol{0},\quad
 \frac{\partial c}{\partial \lambda} = 1,
 \end{align*}
+
+\subsection{Backtracking line search}
+
+One last modification to the Newton-Raphson method, which has proven to be essential for the robustness of the static bow simulation, is a line search.
+As we saw previously, the Newton-Raphson method repeatedly computes solution increments~$\Delta\boldsymbol{x}_{i}$ based on a linearization of the objective function around the current approximation~$\boldsymbol{x}_{i}$ of the solution.
+But can we be sure that applying~$\Delta\boldsymbol{x}_{i}$ actually improves the solution?
+We can interpret~$\Delta\boldsymbol{x}_{i}$ as the direction in which the error decreases most rapidly at the current point of linearization.
+But when moving away from the point of linearization, the actual nonlinear objective function might very well change in ways that make the error go up again.
+So the step~$\Delta\boldsymbol{x}_{i}$ can actually be too large, which potentially leads to slow convergence or even failure to converge to a solution at all.
+One example where such badly behaved objective functions can arise are systems with contact events, such as the contact between limb and string in our bow model.
+
+The idea behind a line search is to keep the increments~$\Delta\boldsymbol{x}_{i}$ produced by the Newton-Raphson iterations, but instead of applying them blindly we treat them as a direction in which to develop our solution.
+How much we actually travel in that direction is determined by a separate step, the so called line search.
+First of all, the update step of the Newton-Raphson method is modified from \textcolor{red}{Link} to
+
+\begin{equation}
+\boldsymbol{x}_{i+1} = \boldsymbol{x}_{i} + \alpha\Delta\boldsymbol{x}_{i}
+\end{equation}
+
+with the scalar step size $\alpha > 0$ that is to be determined by the line search.
+We define the error in the given search direction by a scalar \textit{merit function} $g(\alpha)$, often chosen as the squared norm of the residual function,
+
+\begin{equation}
+g(\alpha) = \lVert \boldsymbol{f}(\boldsymbol{x}_{i} + \alpha\Delta\boldsymbol{x}_{i}) \rVert^2.
+\end{equation}
+
+The conceptually most simple kind of line search would be called an exact line search and consists of finding the parameter $\alpha_{min}$ that actually minimizes the merit function and therefore the residual error in the given search direction,
+
+\begin{equation}
+\alpha_{min} = \argmin_{\alpha > 0}\ g(\alpha).
+\end{equation}
+
+But this is easier written down than actually computed, which would be fairly costly.
+Usually it is more advantageous to do a much more crude search and settle for a value of~$\alpha$ that just decreases the error instead of exactly minimizing it.
+The saved computational effort can then be better invested into a new Newton iteration with a new search direction.
+
+\textcolor{red}{Source: Wikipedia}
+Many different schemes have been established for inexact line searches.
+They can be divided into multiple categories.
+Zero-order methods only evaluate the merit function for different values of $\alpha$, but not its derivative.
+First-order methods also evaluate the first derivative
+
+\begin{equation}
+g'(\alpha) = \left(\frac{\partial g}{\partial \boldsymbol{f}}\right)^\intercal\left(\frac{\partial \boldsymbol{f}}{\partial \boldsymbol{x}} \cdot \frac{\partial \boldsymbol{x}}{\partial \alpha}\right) = 2\boldsymbol{f}(\boldsymbol{x}_{i} + \alpha\Delta\boldsymbol{x}_{i})^\intercal\boldsymbol{J}(\boldsymbol{x}_{i} + \alpha\Delta\boldsymbol{x}_{i})\,\Delta\boldsymbol{x}
+\end{equation}
+
+of the merit function, assuming that $g(\alpha)$ is differentiable.
+Looking for a root in the first derivative of the merit function by bisection or other root finding algorithms would be examples for first-order methods.
+Curve-fitting methods additionally try to approximate the merit function by some sort of curve, like e.g. a polynomial, in order to achieve faster convergence.
+For VirtualBow, a zero-order method called \textit{Armijo Backtracking}\textcolor{red}{TODO: Source} was chosen, since zero-order methods do not assume or require any sort of nice behaviour form the merit function.
+
+The core of the scheme is trying to find a value for $\alpha$ that fulfills the \textit{Armijo condition} \textcolor{red}{Source: Armijo}, also called the condition of sufficient decrease, which is written as
+
+\begin{equation}
+g(\alpha) \le g(0) + c\alpha\,g'(0).
+\end{equation}
+
+Stated in words, the value of the merit function at step length $\alpha$ must be less or equal to the linear projection according to $g(0)$ and the slope $g'(0)$, reduced by the Armijo constant $c\ \in ]0,\,1[$.
+Usually $c$ is chosen between $0.1$ and $0.0001$ \textcolor{red}{Source?}.
+Using \textcolor{red}{Link} and \textcolor{red}{Link}, the condition expands to
+
+\begin{equation}
+\lVert \boldsymbol{f}(\boldsymbol{x}_{i} + \alpha\Delta\boldsymbol{x}_{i}) \rVert^2 \le \lVert \boldsymbol{f}(\boldsymbol{x}_{i}) \rVert^2 + 2c\alpha\,\boldsymbol{f}(\boldsymbol{x}_{i})^\intercal\boldsymbol{J}(\boldsymbol{x}_{i})\,\Delta\boldsymbol{x}_{i}.
+\end{equation}
+
+Note that the coefficients on the right hand side of this expression are constant during each line search, which is consistent with the method being zero-order.
+
+As for the actual line searching, the method starts with the full step size $\alpha_{0} = 1$ and checks if this fulfills the Armijo condition.
+If it already does, there is no line search to be done.
+We just take the full step and continue the next Newton-Raphson iteration with barely any overhead from our line search method.
+Only if the initial step doesn't fulfill the condition, we start to backtrack by iteratively reducing the step by $\alpha_{k+1} = \tau \cdot \alpha_{k}$ with the backtracking factor $\tau\ \in (0,\,1)$.
+This is guaranteed to eventually terminate and fulfill the condition, provided that \textcolor{red}{What exactly? Search direction? Source}.
+
+\subsection{Constrained Newton-Raphson 2}
+
+\textcolor{red}{TODO: Combine with information in previous section}
+
+Augmented system of equations, denoted by an overline,
+
+\begin{equation}
+\overline{\boldsymbol{x}} =
+\begin{bmatrix}
+\boldsymbol{x} \\
+\lambda
+\end{bmatrix},\quad
+\overline{\boldsymbol{f}}(\overline{\boldsymbol{x}}) =
+\begin{bmatrix}
+\boldsymbol{f}(\boldsymbol{x},\,\lambda) \\
+c(\boldsymbol{x},\,\lambda)
+\end{bmatrix}
+\end{equation}
+
+Jacobian and Newton-Raphson step:
+
+\begin{equation}
+\renewcommand{\arraystretch}{1.5}
+\frac{\partial\overline{\boldsymbol{f}}}{\partial\overline{\boldsymbol{x}}} =
+\begin{bmatrix}
+\frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}} & \frac{\partial\boldsymbol{f}}{\partial\lambda} \\
+\frac{\partial c}{\partial \boldsymbol{x}} &  \frac{\partial c}{\partial \lambda}
+\end{bmatrix}
+\end{equation}
+
+Could leave it at that and use existing implementation, but efficiency etc.
+Instead, write Newton update step \textcolor{red}{Link} explicitly as
+
+\begin{equation}
+\renewcommand{\arraystretch}{1.5}
+\underbrace{
+\begin{bmatrix}
+\frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}} & \frac{\partial\boldsymbol{f}}{\partial\lambda} \\
+\frac{\partial c}{\partial \boldsymbol{x}} &  \frac{\partial c}{\partial \lambda}
+\end{bmatrix}
+}_{\frac{\partial\overline{\boldsymbol{f}}}{\partial\overline{\boldsymbol{x}}}}
+\underbrace{
+\begin{bmatrix}
+\Delta\boldsymbol{x} \\
+\Delta\lambda
+\end{bmatrix}
+}_{\Delta\overline{\boldsymbol{x}}}
+=
+-
+\underbrace{
+\begin{bmatrix}
+\boldsymbol{f}(\boldsymbol{x},\,\lambda) \\
+c(\boldsymbol{x},\,\lambda)
+\end{bmatrix}
+}_{\overline{\boldsymbol{f}}(\overline{\boldsymbol{x}})}
+\end{equation}
+
+\begin{align}
+\frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}}\Delta\boldsymbol{x} + \frac{\partial\boldsymbol{f}}{\partial\lambda}\Delta\lambda &= -\boldsymbol{f}(\boldsymbol{x},\,\lambda) \\
+\frac{\partial c}{\partial\boldsymbol{x}}\Delta\boldsymbol{x} + \frac{\partial c}{\partial\lambda}\Delta\lambda &= -c(\boldsymbol{x},\,\lambda)
+\end{align}
+
+Rest of derivation and concrete constraints form above.
+Residual norm:
+
+\begin{equation}
+\lVert\overline{\boldsymbol{f}}\rVert
+=
+\bigg\lVert
+\begin{bmatrix}
+\boldsymbol{f} \\
+c
+\end{bmatrix}
+\bigg\rVert
+=
+\sqrt{
+\begin{bmatrix}
+\boldsymbol{f} \\
+c
+\end{bmatrix}^\intercal
+\begin{bmatrix}
+\boldsymbol{f} \\
+c
+\end{bmatrix}
+}
+=
+\sqrt{\boldsymbol{f}^\intercal\boldsymbol{f} + c^2}
+< \sqrt{n+1}\cdot\varepsilon
+\end{equation}
+
+Slope term of the Armijo condition:
+
+\begin{equation}
+g'(0) = \boldsymbol{f}^\intercal\left(\frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}}\Delta\boldsymbol{x} + \frac{\partial\boldsymbol{f}}{\partial\lambda}\Delta\lambda\right) + c\left(\frac{\partial c}{\partial\boldsymbol{x}}\Delta\boldsymbol{x} + \frac{\partial c}{\partial\lambda}\Delta\lambda\right)
+\end{equation}
 
 \subsection{Equilibrium paths and step size control}
 
@@ -511,7 +689,7 @@ with $\Delta \boldsymbol{u} = \boldsymbol{u}_{i} - \boldsymbol{u}_{i-1}$ being t
 The current characteristic frequency is based on Rayleigh's quotient and provides an approximation for the frequency that currently dominates the system's dynamic response.
 It is in general not equal to any of the natural frequencies of the system.
 
-Let $N$ be the number of desired time steps per characteristic period.
+Let $N$ be a number of desired time steps per characteristic period.
 This value can be chosen in order to control how accurately the solution is to be resolved.
 A value of $N = 20$ is mentioned as typical in \cite{bib:rossi2014} with $N = 1000$ being a high accuracy and $N = 10$ being a low accuracy.
 From the current characteristic period and the desired time steps per period we can calculate the estimated optimal timestep as
@@ -520,20 +698,20 @@ From the current characteristic period and the desired time steps per period we 
 \Delta t^* = \frac{T}{N}.
 \end{equation}
 
-In figure \ref{fig:adaptive-timestep}, the current characteristic frequency and the resulting optimal timestep are shown for the dynamic simulation for a simple example bow.
-The actual timestep was kept constant for this experiment.
+In figure \ref{fig:adaptive-timestep}, the current characteristic frequency and the resulting optimal timestep are shown for the dynamic simulation of a simple example bow.
+The actual timestep was kept constant for this calculation.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.8\textwidth]{figures/solution/adaptive-timestep}
-\caption{Example for the estimated frequency~$\omega$ and the associated timestep~$\Delta t^*$ for~$N = 50$. Marked in red is the departure of the arrow.}
+\caption{Example for the characteristic frequency~$\omega$ and the associated timestep~$\Delta t^*$ for~$N = 50$. Marked in red is the departure of the arrow.}
 \label{fig:adaptive-timestep}
 \end{figure}
 
 It can be seen that the characteristic frequency varies greatly over the duration of the simulation, which confirms the usefulness of adaptive time stepping for dynamic bow simulations.
 The characteristic frequency is high at the start of the simulation, presumably because the sudden change of releasing the arrow sends a lot of initial oscillations through the string and the bow limbs.
-After this initial disturbance settles down, the motion of the bow turns into a more steady and continuous acceleration of limbs and arrow, represented by a relatively smooth section with a low characteristic frequency and larger optimal time steps.
-The second spike in characteristic frequency occurs when the string reaches brace height and the arrow separates from the bow.
+After this initial disturbance settles down, the motion of the bow turns into a more steady and continuous acceleration of limbs and arrow, represented by a relatively long and smooth section with a low characteristic frequency and larger optimal time steps.
+The second spike in characteristic frequency occurs when the string reaches brace height and the arrow separates from the bow, which is not surprising.
 
 Having verified the applicability of the Bergan and Mollestad method for our use case of simulating bows, we still have to define the actual algorithm by which the step size is adjusted.
 The easiest solution would be to always choose the estimated optimal step size~$\Delta t^*$ as the next step size,
@@ -588,7 +766,7 @@ With these modifications, the actual update logic of the time step used by Virtu
 
 \begin{align}
 f(\xi_{i}) &= \min\Big\{ \xi_{i}, \, 2 \Big\}, \\
-\Delta t_{i+1} &= \mathrm{clamp}\Big\{ f(\xi_{i})\,\Delta t_{i}, \, \Delta t_{\min}, \, \Delta t_{\max} \Big\}.
+\Delta t_{i+1} &= \mathrm{clamp}\Big\{ f(\xi_{i})\cdot\Delta t_{i}, \, \Delta t_{\min}, \, \Delta t_{\max} \Big\}.
 \end{align}
 
 The minimum timestep $\Delta t_{\min}$ also serves as the first timestep $\Delta t_{0}$ of the simulation that is needed to start the adaptive scheme.
