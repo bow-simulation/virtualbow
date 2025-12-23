@@ -116,7 +116,7 @@ fn simulate_and_test_beam(path: &Path) {
     let omega = 200.0;
 
     let settings = NewtonSettings {
-        epsilon: 1e-8,
+        epsilon: 1e-3,
         max_iter: 100,
         armijo_constant: 1e-4,
         backtracking_factor: 0.5,

@@ -99,7 +99,7 @@ pub fn solve_newton<F>(function: &mut F, x0: DVector<f64>, settings: NewtonSetti
             // Note: Evaluating J during backtracking might seem wasteful, since it is only used when the step is accepted.
             // But since we consider backtracking the exceptional case and acceptance the norm, we err on the side of computing J directly.
             // It was also easier to implement.
-            x_next = &x_current + alpha*&delta_x;
+            x_next.copy_from(&(&x_current + alpha*&delta_x));
             function(&x_next, &mut f_next, &mut J_next);
 
             // Armijo condition is fulfilled: Accept the solution candidate as the current one
@@ -142,7 +142,7 @@ pub fn solve_newton_constrained<F, C>(function: &mut F, constraint: &mut C, x0: 
     let mut dcdλ_current = 0.0;
 
     let mut x_next = DVector::<f64>::zeros(x_current.len());
-    let mut λ_next = 0.0;
+    let mut λ_next;
     let mut f_next = DVector::<f64>::zeros(x_current.len());
     let mut c_next = 0.0;
 
@@ -195,7 +195,7 @@ pub fn solve_newton_constrained<F, C>(function: &mut F, constraint: &mut C, x0: 
             // Note: Evaluating jacobians during backtracking might seem wasteful, since it is only used when the step is accepted.
             // But since we consider backtracking the exceptional case and acceptance the norm, we err on the side of computing J directly.
             // It was also easier to implement.
-            x_next = &x_current + alpha*&delta_x;
+            x_next.copy_from(&(&x_current + alpha*&delta_x));
             λ_next = λ_current + alpha*delta_λ;
             function(&x_next, λ_next, &mut f_next, &mut dfdx_next, &mut dfdλ_next);
             constraint(&x_next, λ_next, &mut c_next, &mut dcdx_next, &mut dcdλ_next);

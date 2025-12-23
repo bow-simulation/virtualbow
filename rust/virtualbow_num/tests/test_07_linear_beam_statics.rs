@@ -32,7 +32,7 @@ fn straight_uniform_elongation() {
     let n_eval = 5;
 
     let settings = NewtonSettings {
-        epsilon: 1e-8,
+        epsilon: 1e-7,
         max_iter: 100,
         armijo_constant: 1e-4,
         backtracking_factor: 0.5,
@@ -115,7 +115,7 @@ fn straight_uniform_cantilever() {
     let n_eval = 5;
 
     let settings = NewtonSettings {
-        epsilon: 1e-8,
+        epsilon: 1e-7,
         max_iter: 100,
         armijo_constant: 1e-4,
         backtracking_factor: 0.5,

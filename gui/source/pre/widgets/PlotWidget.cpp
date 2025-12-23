@@ -180,21 +180,26 @@ void PlotWidget::resizeEvent(QResizeEvent * event) {
 void PlotWidget::onExport() {
     const char* PDF_FILE = "Portable Document Format (*.pdf)";
     const char* PNG_FILE = "PNG image (*.png)";
+    const char* JPG_FILE = "JPG image (*.jpg)";
     const char* BMP_FILE = "BMP image (*.bmp)";
     const char* CSV_FILE = "CSV file (*.csv)";
 
     QFileDialog dialog(this);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setNameFilters({PDF_FILE, PNG_FILE, BMP_FILE, CSV_FILE});
+    dialog.setNameFilters({PDF_FILE, PNG_FILE, JPG_FILE, BMP_FILE, CSV_FILE});
     dialog.selectFile("Export");
 
     // Todo: Is there a better way to connect default suffix to the selected name filter?
+    // TODO: filterSelected is not triggered on some desktops (Linux/Cinnamon for example)
     QObject::connect(&dialog, &QFileDialog::filterSelected, [&](const QString &filter) {
         if(filter == PDF_FILE) {
             dialog.setDefaultSuffix(".pdf");
         }
         else if(filter == PNG_FILE) {
             dialog.setDefaultSuffix(".png");
+        }
+        else if(filter == JPG_FILE) {
+            dialog.setDefaultSuffix(".jpg");
         }
         else if(filter == BMP_FILE) {
             dialog.setDefaultSuffix(".bmp");
@@ -219,6 +224,9 @@ void PlotWidget::onExport() {
         }
         else if(filter == PNG_FILE) {
             success = savePng(path, 0, 0, scale);
+        }
+        else if(filter == JPG_FILE) {
+            success = saveJpg(path, 0, 0, scale);
         }
         else if(filter == BMP_FILE) {
             success = saveBmp(path, 0, 0, scale);
