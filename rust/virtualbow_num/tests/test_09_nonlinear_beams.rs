@@ -116,10 +116,10 @@ fn simulate_and_test_beam(path: &Path) {
     let omega = 200.0;
 
     let settings = NewtonSettings {
-        epsilon_rel: 1e-6,
-        epsilon_abs: 1e-8,
-        max_iterations: 100,
-        max_stagnation: 100,
+        epsilon: 1e-3,
+        max_iter: 100,
+        armijo_constant: 1e-4,
+        backtracking_factor: 0.5,
     };
 
     // Create linear beam segments and elements
