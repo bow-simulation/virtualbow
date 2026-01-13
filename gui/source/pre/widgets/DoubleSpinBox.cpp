@@ -19,7 +19,7 @@ DoubleSpinBox::DoubleSpinBox(const Quantity& quantity, const DoubleRange& range,
     // Prevent catching focus when scrolling, https://stackoverflow.com/a/19382766
     setFocusPolicy(Qt::StrongFocus);
 
-    QObject::connect(lineEdit(), &QLineEdit::textEdited, this, &DoubleSpinBox::contentModified);    // Signal modification by user when the text was edited
+    QObject::connect(lineEdit(), &QLineEdit::editingFinished, this, &DoubleSpinBox::contentModified);    // Signal modification by user when the text was edited
     QObject::connect(&quantity, &Quantity::unitChanged, this, &DoubleSpinBox::updateUnit);
     updateUnit();
 }
@@ -34,7 +34,7 @@ QString DoubleSpinBox::textFromValue(double baseValue) const {
     double unitValue = quantity.getUnit().fromBase(baseValue);
 
     // Convert value to string with fixed-point representation
-    // If the result has a decimal point, remove any trailing zeros and the point as well
+    // If the result has a decimal point, remove any trailing zeros and possibly the point as well
     QString result = QString::number(unitValue, 'f', decimals());
     if(result.indexOf('.') != -1) {
         while(result.endsWith('0')) {

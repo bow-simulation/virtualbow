@@ -11,6 +11,10 @@ IntegerSpinBox::IntegerSpinBox(const IntegerRange& range, QWidget* parent)
 
     // Prevent catching focus when scrolling, https://stackoverflow.com/a/19382766
     setFocusPolicy(Qt::StrongFocus);
+
+    // Signal modification by user when the text was edited
+    // QSpinBox::valueChanged is not used because it is triggered during typing, leading to unnecessary updates of the model.
+    QObject::connect(this, &QSpinBox::editingFinished, this, &IntegerSpinBox::contentModified);
 }
 
 int IntegerSpinBox::valueFromText(const QString& text) const {
@@ -29,4 +33,9 @@ QValidator::State IntegerSpinBox::validate(QString& text, int& pos) const {
     }
 
     return QValidator::Acceptable;
+}
+
+void IntegerSpinBox::stepBy(int steps) {
+    QSpinBox::stepBy(steps);
+    emit contentModified();    // Signal modification by user when the widget was stepped
 }

@@ -11,5 +11,5 @@ IntegerView::IntegerView(QAbstractItemModel* model, QPersistentModelIndex index,
 
     // Set value from model and keep model up to date on changes
     setValue(model->data(index, Qt::DisplayRole).toInt());
-    QObject::connect(this, &QSpinBox::valueChanged, this, [=](int value){ model->setData(index, value); });
+    QObject::connect(this, &IntegerSpinBox::contentModified, this, [=, this]{ model->setData(index, this->value()); });
 }
