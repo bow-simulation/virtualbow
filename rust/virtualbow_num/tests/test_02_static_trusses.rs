@@ -1,7 +1,7 @@
 use std::f64::consts::SQRT_2;
 use nalgebra::vector;
 use virtualbow_num::fem::elements::string::StringElement;
-use virtualbow_num::fem::solvers::statics::StaticSolver;
+use virtualbow_num::fem::solvers::statics::{DisplacementControl, LoadControl, StaticTolerances};
 use virtualbow_num::fem::system::system::System;
 use virtualbow_num::utils::newton::NewtonSettings;
 use virtualbow_num::testutils::syschecks::assert_system_invariants;
@@ -11,6 +11,10 @@ use virtualbow_num::fem::system::dof::DofType;
 // These tests solve various linear and nonlinear static bar trusses
 // and compare the results with analytical reference solutions.
 // See the theoretical documentation for the examples and their solutions.
+
+// Common solver tolerances and settings
+const TOLERANCES: StaticTolerances = StaticTolerances { linear_pos: 1e-6, angular_pos: 1e-6, loadfactor: 1e-6 };
+const SETTINGS: NewtonSettings = NewtonSettings { max_iterations: 100, line_searching: None, };
 
 #[test]
 fn linear_bar_truss_1() {
@@ -29,8 +33,8 @@ fn linear_bar_truss_1() {
 
     assert_system_invariants(&mut system);
 
-    let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
-    solver.equilibrium_load_controlled(1.0).unwrap();
+    let solver = LoadControl::new(&mut system, TOLERANCES, SETTINGS);
+    solver.solve_equilibrium().unwrap();
 
     let x_sys = system.get_position(node2.x());
     assert_relative_eq!(x_sys, x_ref, max_relative=1e-6);
@@ -39,6 +43,7 @@ fn linear_bar_truss_1() {
 #[test]
 fn linear_bar_truss_2() {
     // TODO: Test for linear constrained dofs
+    // TODO: Remove test, rename others and do the same in the theory manual
 }
 
 #[test]
@@ -67,8 +72,8 @@ fn linear_bar_truss_3() {
 
     assert_system_invariants(&mut system);
 
-    let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
-    solver.equilibrium_load_controlled(1.0).unwrap();
+    let solver = LoadControl::new(&mut system, TOLERANCES, SETTINGS);
+    solver.solve_equilibrium().unwrap();
 
     assert_relative_eq!(system.get_position(node3.x()), x_ref, max_relative=1e-3);
     assert_relative_eq!(system.get_position(node3.y()), y_ref, max_relative=1e-3);
@@ -120,8 +125,8 @@ fn linear_bar_truss_4() {
 
     assert_system_invariants(&mut system);
 
-    let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
-    solver.equilibrium_load_controlled(1.0).unwrap();
+    let solver = LoadControl::new(&mut system, TOLERANCES, SETTINGS);
+    solver.solve_equilibrium().unwrap();
 
     assert_relative_eq!(system.get_position(node_03.x()), 2.0*a, max_relative=1e-3);
     assert_relative_eq!(system.get_position(node_03.y()), -s_ref, max_relative=1e-3);
@@ -140,9 +145,9 @@ fn nonlinear_bar_truss_1() {
     system.add_force(node2.y(), |_t| { -1.0 });
 
     let mut plotter = Plotter::new();
-    let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
+    let solver = DisplacementControl::new(&mut system, TOLERANCES, SETTINGS);
 
-    let result = solver.equilibrium_path_displacement_controlled(node2.y(), -b, 100, &mut |system, statics, _| {
+    let result = solver.solve_equilibrium_path(node2.y(), -b, 100, &mut |system, statics, _info| {
         let y = system.get_position(node2.y());
         let ly = f64::hypot(a, y);
         let l0 = f64::hypot(a, b);
@@ -183,9 +188,9 @@ fn nonlinear_bar_truss_2() {
     system.add_force(node1.y(), |_t| { -1.0 });
 
     let mut plotter = Plotter::new();
-    let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
+    let solver = DisplacementControl::new(&mut system, TOLERANCES, SETTINGS);
 
-    let result = solver.equilibrium_path_displacement_controlled(node1.y(), -c, 100, &mut |system, statics, _| {
+    let result = solver.solve_equilibrium_path(node1.y(), -c, 100, &mut |system, statics, _| {
         let x = system.get_position(node1.x());
         let y = system.get_position(node1.y());
         let F = statics.get_external_force(node1.y());

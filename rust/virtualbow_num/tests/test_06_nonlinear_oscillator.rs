@@ -3,12 +3,30 @@ use nalgebra::vector;
 use spec_math::Ellip;
 use virtualbow_num::fem::elements::mass::MassElement;
 use virtualbow_num::fem::elements::string::StringElement;
-use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
+use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, DynamicTolerances, StopCondition, TimeStepping};
 use virtualbow_num::fem::system::system::System;
 use virtualbow_num::testutils::plotter::Plotter;
 use virtualbow_num::testutils::syschecks::assert_system_invariants;
 use approx::assert_abs_diff_eq;
 use virtualbow_num::fem::system::dof::DofType;
+use virtualbow_num::utils::newton::NewtonSettings;
+
+// Common solver tolerances and settings
+
+const TOLERANCES: DynamicTolerances = DynamicTolerances {
+    linear_acc: 1e-6,
+    angular_acc: 1e-6,
+    loadfactor: 1e-6,
+};
+
+const SETTINGS: DynamicSolverSettings = DynamicSolverSettings {
+    time_stepping: TimeStepping::Fixed(1e-3),
+    max_time: 0.0,
+    newton: NewtonSettings {
+        max_iterations: 100,
+        line_searching: None
+    }
+};
 
 #[test]
 fn nonlinear_oscillator() {
@@ -43,7 +61,7 @@ fn nonlinear_oscillator() {
     assert_system_invariants(&mut system);
 
     let mut plotter = Plotter::new();
-    let mut solver = DynamicSolver::new(&mut system, DynamicSolverSettings { time_stepping: TimeStepping::Fixed(1e-3), ..Default::default() });
+    let mut solver = DynamicSolver::new(&mut system, TOLERANCES, SETTINGS);
 
     solver.solve(StopCondition::Time(10.0), &mut |system, eval| {
         let t = system.get_time();

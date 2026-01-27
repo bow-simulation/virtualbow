@@ -1,5 +1,5 @@
 use crate::fem::system::element::Element;
-use crate::fem::system::dof::{Dof, DofType};
+use crate::fem::system::dof::{Dof, DofType, DofDimension};
 use crate::fem::system::node::Node;
 use crate::fem::system::views::{PositionView, VelocityView, VectorView, MatrixView, AccelerationView, ForceView, DisplacementView};
 use nalgebra::{DMatrix, DVector, SVector};
@@ -21,9 +21,10 @@ type ElementHandle = Box<dyn Element>;
 type ExternalForce = Box<dyn Fn(f64) -> f64>;
 
 pub struct System {
-    // Model elements
+    // Model properties
     elements: Vec<(Vec<Dof>, ElementHandle)>,    // List of elements with the dofs that connect them to the system
     forces: Vec<(Dof, ExternalForce)>,           // Externally applied forces, given as functions of time for each dof
+    dimensions: Vec<DofDimension>,               // Dimensions of the degrees of freedom of the system (length, angle, etc.)
 
     // Initial conditions
     xl: DVector<f64>,    // Initial positions of the locked dofs
@@ -41,6 +42,7 @@ impl System {
         Self {
             elements: Vec::new(),
             forces: Vec::new(),
+            dimensions: Vec::new(),
             xl: DVector::zeros(0),
             xa: DVector::zeros(0),
             t: 0.0,
@@ -77,15 +79,15 @@ impl System {
 
     // Creates a planar node with three degrees of freedom, two positions in x and y and a rotation angle
     pub fn create_node(&mut self, pos: &SVector<f64, 3>, kinds: &[DofType; 3]) -> Node {
-        let dof_x = self.create_dof(pos[0], kinds[0]);
-        let dof_y = self.create_dof(pos[1], kinds[1]);
-        let dof_φ = self.create_dof(pos[2], kinds[2]);
+        let dof_x = self.create_dof(pos[0], kinds[0], DofDimension::Position);
+        let dof_y = self.create_dof(pos[1], kinds[1], DofDimension::Position);
+        let dof_φ = self.create_dof(pos[2], kinds[2], DofDimension::Rotation);
 
         Node::new(dof_x, dof_y, dof_φ)
     }
 
     // Creates a single dof with initial position and velocity
-    fn create_dof(&mut self, pos: f64, kind: DofType) -> Dof {
+    fn create_dof(&mut self, pos: f64, kind: DofType, dimension: DofDimension) -> Dof {
         // Add the position to the respective vector of initial positions
         let index = match kind {
             DofType::Locked => {
@@ -104,6 +106,9 @@ impl System {
             }
         };
 
+        // Add the dimension to the vector of dimensions
+        self.dimensions.push(dimension);
+
         // Return dof with matching type and index
         Dof {
             kind,
@@ -114,6 +119,11 @@ impl System {
     // Returns the number of degrees of freedom of the system.
     pub fn n_dofs(&self) -> usize {
         self.u.len()
+    }
+
+    // Returns the dimension (e.g. length, angle) of each degree of freedom of the system
+    pub fn get_dimensions(&self) -> &[DofDimension] {
+        &self.dimensions
     }
 
     #[allow(dead_code)]

@@ -28,13 +28,15 @@ pub struct Settings {
     pub num_limb_eval_points: usize,
     pub min_draw_resolution: usize,
     pub max_draw_resolution: usize,
+    pub static_iteration_tolerance: f64,
     pub arrow_clamp_force: f64,
     pub string_compression_factor: f64,
     pub timespan_factor: f64,
     pub timeout_factor: f64,
     pub min_timestep: f64,
     pub max_timestep: f64,
-    pub steps_per_period: usize
+    pub steps_per_period: usize,
+    pub dynamic_iteration_tolerance: f64
 }
 
 impl Default for Settings {
@@ -44,6 +46,7 @@ impl Default for Settings {
             num_limb_eval_points: 250,
             min_draw_resolution: 100,
             max_draw_resolution: 100,
+            static_iteration_tolerance: 1e-6,
             arrow_clamp_force: 0.5,
             string_compression_factor: 1e-6,
             timespan_factor: 1.5,
@@ -51,6 +54,7 @@ impl Default for Settings {
             min_timestep: 1e-6,
             max_timestep: 1e-4,
             steps_per_period: 250,
+            dynamic_iteration_tolerance: 1e-6
         }
     }
 }

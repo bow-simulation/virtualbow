@@ -31,6 +31,12 @@ SettingsView::SettingsView(SettingsModel* model) {
         new IntegerView(model, model->MAX_DRAW_RESOLUTION, IntegerRange::positive(), "Upper bound for the number of equilibrium points from brace height to full draw")
     );
 
+    addProperty(
+        "Iteration tolerance",
+        new DoubleView(model, model->STATIC_ITERATION_TOLERANCE, Quantities::none, DoubleRange::positive(1e-6), "Stopping tolerance for the static equilibrium iterations")
+    );
+
+
     addHeading("Dynamics");
 
     addProperty(
@@ -66,6 +72,11 @@ SettingsView::SettingsView(SettingsModel* model) {
     addProperty(
         "Steps per period",
         new IntegerView(model, model->STEPS_PER_PERIOD, IntegerRange::positive(), "Number of steps the dynamic solver tries to take per current characteristic time period of the system")
+    );
+
+    addProperty(
+        "Iteration tolerance",
+        new DoubleView(model, model->DYNAMIC_ITERATION_TOLERANCE, Quantities::none, DoubleRange::positive(1e-6), "Stopping tolerance for the dynamic equilibrium iterations")
     );
 
     addStretch();

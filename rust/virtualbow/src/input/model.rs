@@ -104,12 +104,13 @@ impl TryFrom<&[u8]> for BowModel {
 
 impl Settings {
     pub fn validate(&self) -> Result<(), ModelError> {
-        let &Self { num_limb_elements, num_limb_eval_points, min_draw_resolution, max_draw_resolution, arrow_clamp_force, string_compression_factor, timespan_factor, timeout_factor, min_timestep, max_timestep, steps_per_period } = self;
+        let &Self { num_limb_elements, num_limb_eval_points, min_draw_resolution, max_draw_resolution, static_iteration_tolerance, arrow_clamp_force, string_compression_factor, timespan_factor, timeout_factor, min_timestep, max_timestep, steps_per_period, dynamic_iteration_tolerance} = self;
 
         num_limb_elements.validate_positive().map_err(ModelError::SettingsInvalidLimbElements)?;
         num_limb_eval_points.validate_at_least(2).map_err(ModelError::SettingsInvalidLimbEvalPoints)?;
         min_draw_resolution.validate_positive().map_err(ModelError::SettingsInvalidMinDrawResolution)?;
         max_draw_resolution.validate_positive().map_err(ModelError::SettingsInvalidMaxDrawResolution)?;
+        static_iteration_tolerance.validate_positive().map_err(ModelError::SettingsInvalidStaticTolerance)?;
 
         arrow_clamp_force.validate_nonneg().map_err(ModelError::SettingsInvalidArrowClampForce)?;
         string_compression_factor.validate_positive().map_err(ModelError::SettingsInvalidStringCompressionFactor)?;
@@ -119,6 +120,7 @@ impl Settings {
         min_timestep.validate_positive().map_err(ModelError::SettingsInvalidMinTimeStep)?;
         max_timestep.validate_positive().map_err(ModelError::SettingsInvalidMaxTimeStep)?;
         steps_per_period.validate_positive().map_err(ModelError::SettingsInvalidStepsPerPeriod)?;
+        dynamic_iteration_tolerance.validate_positive().map_err(ModelError::SettingsInvalidDynamicTolerance)?;
 
         Ok(())
     }

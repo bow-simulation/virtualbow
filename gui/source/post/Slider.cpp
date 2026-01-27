@@ -93,7 +93,7 @@ Slider::Slider(const std::vector<double>& values, const QString& text, const Qua
     // Timer for controlling the playback
     auto timer = new QTimer(this);
 
-    QObject::connect(slider, &QSlider::valueChanged, [=, &values](int index) {
+    QObject::connect(slider, &QSlider::valueChanged, [=](int index) {
         // Update text and edit labels
         updateLabels();
 

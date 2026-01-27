@@ -56,10 +56,9 @@ Since the tangent stiffness matrix is symmetric, an algorithm that exploits this
 (The tangent stiffness matrix isn't necessarily positive definite though, unlike the stiffness matrices of some linear mechanical systems.)
 
 In order to stop the iteration when an acceptable level of accuracy is reached, we need a stopping or convergence criterion.
-Formulating a convergence criterion that works for all edge cases and whose numerical tolerances scale well with different systems is surprisingly tricky.
-
-Convergence criteria are commonly formulated in terms of either the displacement step~$\Delta\boldsymbol{u}$, the residual forces~$\boldsymbol{R}$ or their product~$\Delta\boldsymbol{u}^\intercal\boldsymbol{R}$, which has the dimension of an energy.
-Convergence criteria can furthermore be based either on the absolute error of the respective quantity or on a relative error with respect to the start of the iteration.
+Formulating a convergence criterion that works for all edge cases and whose numerical tolerances scale well with different systems can be tricky.
+Convergence criteria are commonly formulated in terms of either the displacement step~$\Delta\boldsymbol{x}$, the residuals~$\boldsymbol{f}$ or their product~$\Delta\boldsymbol{x}^\intercal\boldsymbol{f}$, which has the dimension of an energy in our case.
+They can furthermore be based either on the absolute error of the respective quantity or on a relative error with respect to the start of the iteration.
 An overview of some of the possibilities is shown in table~\ref{tbl:convergence-criteria}.
 
 \begin{table}[h]
@@ -69,16 +68,16 @@ An overview of some of the possibilities is shown in table~\ref{tbl:convergence-
 \hline
 Quantity & Absolute Criterion & Relative Criterion \\
 \hline
-$\boldsymbol{R}$ & $\lVert \boldsymbol{R}_{i} \rVert < \varepsilon_\mathrm{abs}$ & $\lVert \boldsymbol{R}_{i} \rVert \,/\, \lVert \boldsymbol{R}_{0} \rVert < \varepsilon_\mathrm{rel}$ \\
-$\Delta\boldsymbol{u}$ & $\lVert \Delta\boldsymbol{u}_{i} \rVert < \varepsilon_\mathrm{abs}$ & $\lVert \Delta\boldsymbol{u}_{i} \rVert \,/\, \lVert \Delta\boldsymbol{u}_{0} \rVert < \varepsilon_\mathrm{rel}$ \\
-$\Delta\boldsymbol{u}^\intercal\boldsymbol{R}$ & $\lVert \Delta\boldsymbol{u}_{i}^\intercal\boldsymbol{R}_{i} \rVert < \varepsilon_\mathrm{abs}$ & $\lVert \Delta\boldsymbol{u}_{i}^\intercal\boldsymbol{R}_{i} \rVert \,/\, \lVert \Delta\boldsymbol{u}_{0}^\intercal\boldsymbol{R}_{0} \rVert < \varepsilon_\mathrm{rel}$ \\
+$\boldsymbol{f}$ & $\lVert \boldsymbol{f}_{i} \rVert < \varepsilon_\mathrm{abs}$ & $\lVert \boldsymbol{f}_{i} \rVert \,/\, \lVert \boldsymbol{f}_{0} \rVert < \varepsilon_\mathrm{rel}$ \\
+$\Delta\boldsymbol{x}$ & $\lVert \Delta\boldsymbol{x}_{i} \rVert < \varepsilon_\mathrm{abs}$ & $\lVert \Delta\boldsymbol{x}_{i} \rVert \,/\, \lVert \Delta\boldsymbol{x}_{0} \rVert < \varepsilon_\mathrm{rel}$ \\
+$\Delta\boldsymbol{x}^\intercal\boldsymbol{f}$ & $\lVert \Delta\boldsymbol{x}_{i}^\intercal\boldsymbol{f}_{i} \rVert < \varepsilon_\mathrm{abs}$ & $\lVert \Delta\boldsymbol{f}_{i}^\intercal\boldsymbol{f}_{i} \rVert \,/\, \lVert \Delta\boldsymbol{x}_{0}^\intercal\boldsymbol{f}_{0} \rVert < \varepsilon_\mathrm{rel}$ \\
 \hline
 \end{tabular}
 \caption{Different absolute and relative convergence criteria for the Newton-Raphson method. The vector norm $\rVert.\rVert$ can also be chosen freely.}
 \label{tbl:convergence-criteria}
 \end{table}
 
-Each choice has advantages and disadvantages, which will make it necessary to combine some of those criteria.
+Each choice has advantages and disadvantages, therefore it is common to combine some of those criteria.
 Between absolute and relative criteria, the relative criteria are more appealing because they are dimensionless and independent of the overall scale of the system.
 This means that we can find a generic value for the tolerance $\varepsilon_\mathrm{rel}$ that will work most of the time and for very different systems.
 The absolute tolerances $\varepsilon_\mathrm{abs}$ on the other hand represent a different accuracy depending on what typical forces, displacements or energies arise in the system.
@@ -98,22 +97,23 @@ The condition $\Delta\boldsymbol{u}^\intercal\boldsymbol{R} = \boldsymbol{0}$ is
 Or, as \textcolor{red}{Chrisfield} puts it, the condition merely implies that a stationary energy position has been reached along the current search direction $\Delta\boldsymbol{u}$, which frequently occurs when the solution is still a very long way from equilibrium.
 He therefore warns that such criteria should be used with great caution.
 
-VirtualBow currently uses the absolute and relative error of the residual forces as the convergence criterion.
-The iteration is stopped when either of those falls below a certain tolerance.
-The infinity or maximum norm $\lVert \boldsymbol{R} \rVert_{\infty}$ is chosen as the vector norm, which is the maximum absolute value of the vector.
-The scaling issue between translational and rotational degrees of freedom was solved by completely ignoring it.
-
-\textcolor{red}{Mention normalizing/scaling the coordinates as a possible solution}
-
-\textcolor{red}{Normalization with respect to coordinates:} When using the euclidean norm of the residual vector $\lVert\boldsymbol{f}\rVert = \sqrt{\sum_{i=0}^{n-1}f_{i}^2}$ as the convergence criterion with a constant (general purpose) tolerance $\varepsilon$, the criterion is stricter for residuals of higher dimensions.
-Imagine a residual vector with a constant error of $\varepsilon$ in each component:
+VirtualBow uses an absolute criterion on the residuial vector and works around the different dimensions by scaling the components accordingly.
+We formulate the criterion as
 
 \begin{equation}
-\lVert\boldsymbol{f}\rVert = \sqrt{\sum_{i=0}^{n-1}\varepsilon^2} = \sqrt{n\cdot\varepsilon^2} = \sqrt{n}\cdot\varepsilon
+\lVert \boldsymbol{S}^{-1}\boldsymbol{f} \rVert < 1
 \end{equation}
 
-So we have to compare the residual norm with $\sqrt{n}\cdot\varepsilon$ in order to circumvent scaling issues.
+using the Euclidean or L2 norm and a diagonal scaling matrix $\boldsymbol{S} = \rm{diag}(\varepsilon_{0},\ldots,\varepsilon_{n-1})$.
+The norm being less than 1 implies that each component of the vector inside the norm must be less than 1, too.
+Therefore the criterion guarantees that
 
+\begin{equation}
+|f_{i}| < \varepsilon_{i},\quad i = 0\,\ldots\,n-1.
+\end{equation}
+
+So the scaling factors $\varepsilon_{i}$ can be thought of as absolute tolerances for each component of the residual.
+This solves the problem of mixing dimensions because we can use different tolerances for forces and moments and the end result will be dimensionless.
 
 The basic Newton-Raphson method can be improved and extended in many ways, for example by combining it with a line search or by avoiding the calculation of the tangent stiffness matrix at every iteration (simplified Newton-Raphson method, BFGS method \textcolor{red}{[Source]}).
 
@@ -246,10 +246,11 @@ First of all, the update step of the Newton-Raphson method is modified from \tex
 \end{equation}
 
 with the scalar step size $\alpha > 0$ that is to be determined by the line search.
-We define the error in the given search direction by a scalar \textit{merit function} $g(\alpha)$, often chosen as the squared norm of the residual function,
+We define the error in the given search direction by a scalar \textit{merit function} $g(\alpha)$, often chosen as the squared norm of the residual function.
+In our case we also include the scaling matrix $\boldsymbol{S}$ used by the convergence criterion,
 
 \begin{equation}
-g(\alpha) = \lVert \boldsymbol{f}(\boldsymbol{x}_{i} + \alpha\Delta\boldsymbol{x}_{i}) \rVert^2.
+g(\alpha) = \lVert \boldsymbol{S}^{-1}\boldsymbol{f}(\boldsymbol{x}_{i} + \alpha\Delta\boldsymbol{x}_{i}) \rVert^2.
 \end{equation}
 
 The conceptually most simple kind of line search would be called an exact line search and consists of finding the parameter $\alpha_{min}$ that actually minimizes the merit function and therefore the residual error in the given search direction,
@@ -269,7 +270,7 @@ Zero-order methods only evaluate the merit function for different values of $\al
 First-order methods also evaluate the first derivative
 
 \begin{equation}
-g'(\alpha) = \left(\frac{\partial g}{\partial \boldsymbol{f}}\right)^\intercal\left(\frac{\partial \boldsymbol{f}}{\partial \boldsymbol{x}} \cdot \frac{\partial \boldsymbol{x}}{\partial \alpha}\right) = 2\boldsymbol{f}(\boldsymbol{x}_{i} + \alpha\Delta\boldsymbol{x}_{i})^\intercal\boldsymbol{J}(\boldsymbol{x}_{i} + \alpha\Delta\boldsymbol{x}_{i})\,\Delta\boldsymbol{x}
+g'(\alpha) = \left(\frac{\partial g}{\partial \boldsymbol{f}}\right)^\intercal\left(\frac{\partial \boldsymbol{f}}{\partial \boldsymbol{x}} \cdot \frac{\partial \boldsymbol{x}}{\partial \alpha}\right) = 2\left(\boldsymbol{S}^{-2}\boldsymbol{f}(\boldsymbol{x}_{i} + \alpha\Delta\boldsymbol{x}_{i})\right)^\intercal\boldsymbol{J}(\boldsymbol{x}_{i} + \alpha\Delta\boldsymbol{x}_{i})\,\Delta\boldsymbol{x}
 \end{equation}
 
 of the merit function, assuming that $g(\alpha)$ is differentiable.
@@ -284,13 +285,7 @@ g(\alpha) \le g(0) + c\alpha\,g'(0).
 \end{equation}
 
 Stated in words, the value of the merit function at step length $\alpha$ must be less or equal to the linear projection according to $g(0)$ and the slope $g'(0)$, reduced by the Armijo constant $c\ \in ]0,\,1[$.
-Usually $c$ is chosen between $0.1$ and $0.0001$ \textcolor{red}{Source?}.
-Using \textcolor{red}{Link} and \textcolor{red}{Link}, the condition expands to
-
-\begin{equation}
-\lVert \boldsymbol{f}(\boldsymbol{x}_{i} + \alpha\Delta\boldsymbol{x}_{i}) \rVert^2 \le \lVert \boldsymbol{f}(\boldsymbol{x}_{i}) \rVert^2 + 2c\alpha\,\boldsymbol{f}(\boldsymbol{x}_{i})^\intercal\boldsymbol{J}(\boldsymbol{x}_{i})\,\Delta\boldsymbol{x}_{i}.
-\end{equation}
-
+Usually $c$ is chosen between $0.1$ and $0.0001$ \textcolor{red}{Source? Effect of the choice?}.
 Note that the coefficients on the right hand side of this expression are constant during each line search, which is consistent with the method being zero-order.
 
 As for the actual line searching, the method starts with the full step size $\alpha_{0} = 1$ and checks if this fulfills the Armijo condition.
@@ -298,6 +293,15 @@ If it already does, there is no line search to be done.
 We just take the full step and continue the next Newton-Raphson iteration with barely any overhead from our line search method.
 Only if the initial step doesn't fulfill the condition, we start to backtrack by iteratively reducing the step by $\alpha_{k+1} = \tau \cdot \alpha_{k}$ with the backtracking factor $\tau\ \in (0,\,1)$.
 This is guaranteed to eventually terminate and fulfill the condition, provided that \textcolor{red}{What exactly? Search direction? Source}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/solution/newton-iteration-error}
+\caption{Development of the error during Newton iterations without line search (cantilever beam example)}
+\label{fig:newton-iteration-error}
+\end{figure}
+
+Diagram is at odds with enforcing a monotone decrease of the merit function in each iteration.
 
 \subsection{Constrained Newton-Raphson 2}
 
@@ -362,38 +366,38 @@ c(\boldsymbol{x},\,\lambda)
 \end{align}
 
 Rest of derivation and concrete constraints form above.
-Residual norm:
+Convergence criterion:
 
 \begin{equation}
-\lVert\overline{\boldsymbol{f}}\rVert
-=
-\bigg\lVert
-\begin{bmatrix}
-\boldsymbol{f} \\
-c
-\end{bmatrix}
-\bigg\rVert
-=
-\sqrt{
-\begin{bmatrix}
-\boldsymbol{f} \\
-c
-\end{bmatrix}^\intercal
-\begin{bmatrix}
-\boldsymbol{f} \\
-c
-\end{bmatrix}
-}
-=
-\sqrt{\boldsymbol{f}^\intercal\boldsymbol{f} + c^2}
-< \sqrt{n+1}\cdot\varepsilon
+\lVert \overline{\boldsymbol{S}}^{-1}\overline{\boldsymbol{f}} \rVert^2 = \lVert \boldsymbol{S}_{f}^{-1}\boldsymbol{f} \rVert^2 + |S_{c}^{-1}\,c|^2 < 1
 \end{equation}
 
 Slope term of the Armijo condition:
 
-\begin{equation}
-g'(0) = \boldsymbol{f}^\intercal\left(\frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}}\Delta\boldsymbol{x} + \frac{\partial\boldsymbol{f}}{\partial\lambda}\Delta\lambda\right) + c\left(\frac{\partial c}{\partial\boldsymbol{x}}\Delta\boldsymbol{x} + \frac{\partial c}{\partial\lambda}\Delta\lambda\right)
-\end{equation}
+\begin{align*}
+\renewcommand{\arraystretch}{1.5}
+g'(0) &= 2\left(\overline{\boldsymbol{S}}^{-2}\overline{\boldsymbol{f}}^\intercal\right)^\intercal\overline{\boldsymbol{J}}\Delta\overline{\boldsymbol{x}} \\
+&= 2
+\left(
+\begin{bmatrix}
+\boldsymbol{S}_{f}^{-2} & \\
+& S_{c}^{-2}
+\end{bmatrix}
+\begin{bmatrix}
+\boldsymbol{f} & \\
+c
+\end{bmatrix}
+\right)^\intercal
+\begin{bmatrix}
+\frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}} & \frac{\partial\boldsymbol{f}}{\partial\lambda} \\
+\frac{\partial c}{\partial \boldsymbol{x}} &  \frac{\partial c}{\partial \lambda}
+\end{bmatrix}
+\begin{bmatrix}
+\Delta\boldsymbol{x} \\
+\Delta\lambda
+\end{bmatrix} \\
+&= 2\left(\boldsymbol{S}_{f}^{-2}\boldsymbol{f}\right)^\intercal\left(\frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}}\Delta\boldsymbol{x} + \frac{\partial\boldsymbol{f}}{\partial\lambda}\Delta\lambda\right) + 2S_{c}^{-2}c\left(\frac{\partial c}{\partial\boldsymbol{x}}\Delta\boldsymbol{x} + \frac{\partial c}{\partial\lambda}\Delta\lambda\right)
+\end{align*}
 
 \subsection{Equilibrium paths and step size control}
 

@@ -27,6 +27,7 @@ pub enum ModelError {
     SettingsInvalidLimbEvalPoints(usize),
     SettingsInvalidMinDrawResolution(usize),
     SettingsInvalidMaxDrawResolution(usize),
+    SettingsInvalidStaticTolerance(f64),
     SettingsInvalidArrowClampForce(f64),
     SettingsInvalidStringCompressionFactor(f64),
     SettingsInvalidTimeSpanFactor(f64),
@@ -34,6 +35,7 @@ pub enum ModelError {
     SettingsInvalidMinTimeStep(f64),
     SettingsInvalidMaxTimeStep(f64),
     SettingsInvalidStepsPerPeriod(usize),
+    SettingsInvalidDynamicTolerance(f64),
 
     DimensionsInvalidBraceHeight(f64),
     DimensionsInvalidDrawLength(f64),
@@ -131,6 +133,7 @@ impl Display for ModelError {
             ModelError::SettingsInvalidLimbEvalPoints(value)          => write!(f, "Settings: Number of limb evaluation points must be at least 2 but actual number is {value}.")?,
             ModelError::SettingsInvalidMinDrawResolution(value)       => write!(f, "Settings: Minimum draw length resolution must be at least 1 but actual number is {value}.")?,
             ModelError::SettingsInvalidMaxDrawResolution(value)       => write!(f, "Settings: Maximum draw length resolution must be at least 1 but actual number is {value}.")?,
+            ModelError::SettingsInvalidStaticTolerance(value)           => write!(f, "Settings: Static iteration tolerance must be a positive number but actual value is {value}.")?,
             ModelError::SettingsInvalidArrowClampForce(value)         => write!(f, "Settings: Arrow clamp force must be a non-negative number but actual value is {value}.")?,
             ModelError::SettingsInvalidStringCompressionFactor(value) => write!(f, "Settings: String compression factor must be a positive number but actual value is {value}.")?,
             ModelError::SettingsInvalidTimeSpanFactor(value)          => write!(f, "Settings: Timespan factor must be larger or equal to one but actual value is {value}.")?,
@@ -138,6 +141,7 @@ impl Display for ModelError {
             ModelError::SettingsInvalidMinTimeStep(value)             => write!(f, "Settings: Minimum timestep must be a positive number but actual value is {value}.")?,
             ModelError::SettingsInvalidMaxTimeStep(value)             => write!(f, "Settings: Maximum timestep must be a positive number but actual value is {value}.")?,
             ModelError::SettingsInvalidStepsPerPeriod(value)          => write!(f, "Settings: Number of steps per period must be at least 1 but actual number is {value}.")?,
+            ModelError::SettingsInvalidDynamicTolerance(value)        => write!(f, "Settings: Dynamic iteration tolerance must be a positive number but actual value is {value}.")?,
 
             ModelError::DimensionsInvalidBraceHeight(value)   => write!(f, "Dimensions: Brace height must be a finite number, actual value is {value}.")?,
             ModelError::DimensionsInvalidDrawLength(value)    => write!(f, "Dimensions: Draw length must be finite and larger than the brace height but actual value is {value}.")?,

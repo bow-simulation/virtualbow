@@ -9,6 +9,7 @@ public:
     QPersistentModelIndex N_EVAL_POINTS;
     QPersistentModelIndex MIN_DRAW_RESOLUTION;
     QPersistentModelIndex MAX_DRAW_RESOLUTION;
+    QPersistentModelIndex STATIC_ITERATION_TOLERANCE;
     QPersistentModelIndex ARROW_CLAMP_FORCE;
     QPersistentModelIndex STRING_COMPRESSION_FACTOR;
     QPersistentModelIndex TIMESPAN_FACTOR;
@@ -16,6 +17,7 @@ public:
     QPersistentModelIndex MIN_TIMESTEP;
     QPersistentModelIndex MAX_TIMESTEP;
     QPersistentModelIndex STEPS_PER_PERIOD;
+    QPersistentModelIndex DYNAMIC_ITERATION_TOLERANCE;
 
     SettingsModel(Settings& settings);
 };

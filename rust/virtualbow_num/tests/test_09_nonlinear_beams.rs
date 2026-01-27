@@ -2,7 +2,7 @@
 // reference results obtained with GXBeam (https://github.com/byuflowlab/GXBeam.jl)
 
 use nalgebra::Complex;
-use std::f64::consts::{PI, TAU};
+use std::f64::consts::{FRAC_PI_2, PI, TAU};
 use assert2::assert;
 use approx::assert_abs_diff_eq;
 use std::fs::File;
@@ -12,9 +12,9 @@ use test_each_file::test_each_path;
 use virtualbow_num::fem::elements::beam::beam::BeamElement;
 use virtualbow_num::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
 use virtualbow_num::fem::elements::beam::linear::LinearBeamSegment;
-use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
+use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, DynamicTolerances, StopCondition, TimeStepping};
 use virtualbow_num::fem::solvers::eigen::{natural_frequencies, natural_frequencies_from_eigenvalues};
-use virtualbow_num::fem::solvers::statics::StaticSolver;
+use virtualbow_num::fem::solvers::statics::{LoadControl, StaticTolerances};
 use virtualbow_num::fem::system::dof::DofType;
 use virtualbow_num::fem::system::node::Node;
 use virtualbow_num::fem::system::system::System;
@@ -115,11 +115,12 @@ fn simulate_and_test_beam(path: &Path) {
     let Mz = 10.0;
     let omega = 200.0;
 
+    let static_tolerances = StaticTolerances::new(curve.length(), FRAC_PI_2, 1e-7);
+    let dynamic_tolerances = DynamicTolerances { linear_acc: 1e-7, angular_acc: 1e-6, loadfactor: 1e-7};
+
     let settings = NewtonSettings {
-        epsilon: 1e-3,
-        max_iter: 100,
-        armijo_constant: 1e-4,
-        backtracking_factor: 0.5,
+        max_iterations: 100,
+        line_searching: None
     };
 
     // Create linear beam segments and elements
@@ -158,7 +159,7 @@ fn simulate_and_test_beam(path: &Path) {
 
     // Simulate statics
 
-    let mut solver = StaticSolver::new(&mut system, settings);
+    let solver = LoadControl::new(&mut system, static_tolerances, settings);
 
     // Maximum absolute values as reference for numerical tolerances
     let N_max = output.statics.last().unwrap().N.iter().copied().map(f64::abs).fold(f64::NEG_INFINITY, f64::max);
@@ -169,7 +170,7 @@ fn simulate_and_test_beam(path: &Path) {
     let κ_max = output.statics.last().unwrap().kappa.iter().copied().map(f64::abs).fold(f64::NEG_INFINITY, f64::max);
 
     let mut iState = 0_usize;    // Index of the current loadstep (0 based)
-    solver.equilibrium_path_load_controlled(output.settings.n_static - 1, &mut |system, _eval| {
+    solver.solve_equilibrium_path(output.settings.n_static - 1, &mut |system, _eval, _info| {
         // 1. Check positions and angles of the nodes
         for (iNode, &node) in nodes.iter().enumerate() {
             let iRef = n_ref_per_element*iNode;    // Current GXBeam node index
@@ -292,7 +293,8 @@ fn simulate_and_test_beam(path: &Path) {
     system.add_force(nodes[n_elements].y(), move |t| { f64::sin(omega*t)*Fy });
     system.add_force(nodes[n_elements].φ(), move |t| { f64::sin(omega*t)*Mz });
 
-    let mut solver = DynamicSolver::new(&mut system, DynamicSolverSettings { time_stepping: TimeStepping::Fixed(timestep), newton: settings, ..Default::default() });
+    let settings = DynamicSolverSettings { time_stepping: TimeStepping::Fixed(timestep), ..Default::default() };
+    let mut solver = DynamicSolver::new(&mut system, dynamic_tolerances, settings);
 
     let mut iState = 1_usize;    // Index of the current timestep (1 based)
     solver.solve(StopCondition::Time(period), &mut |system, _eval| {

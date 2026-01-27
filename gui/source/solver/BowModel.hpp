@@ -16,6 +16,7 @@ struct Settings {
     int num_limb_eval_points;
     int min_draw_resolution;
     int max_draw_resolution;
+    double static_iteration_tolerance;
     double arrow_clamp_force;
     double string_compression_factor;
     double timespan_factor;
@@ -23,6 +24,7 @@ struct Settings {
     double min_timestep;
     double max_timestep;
     int steps_per_period;
+    double dynamic_iteration_tolerance;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
@@ -31,13 +33,15 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     num_limb_eval_points,
     min_draw_resolution,
     max_draw_resolution,
+    static_iteration_tolerance,
     arrow_clamp_force,
     string_compression_factor,
     timespan_factor,
     timeout_factor,
     min_timestep,
     max_timestep,
-    steps_per_period
+    steps_per_period,
+    dynamic_iteration_tolerance
 )
 
 enum class HandleReference {
