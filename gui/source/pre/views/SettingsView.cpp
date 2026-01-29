@@ -51,7 +51,7 @@ SettingsView::SettingsView(SettingsModel* model) {
 
     addProperty(
         "Timespan factor",
-        new DoubleView(model, model->TIMESPAN_FACTOR, Quantities::ratio, DoubleRange::positive(1e-2), "Factor for controlling the end time of the dynamic simulation.\nThe value 1.0 corresponds to the time until the arrow reaches brace height.\nValues larger than 1.0 extend the simulated time beyond that.")
+        new DoubleView(model, model->TIMESPAN_FACTOR, Quantities::ratio, DoubleRange::largerOrEqual(1.0, 1e-2), "Factor for controlling the end time of the dynamic simulation.\nThe value 1.0 corresponds to the time until the arrow reaches brace height.\nValues larger than 1.0 extend the simulated time beyond that.")
     );
 
     addProperty(

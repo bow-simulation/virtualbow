@@ -55,6 +55,8 @@ Instead,~$\Delta\boldsymbol{u}_i$ is obtained by solving the equivalent linear s
 Since the tangent stiffness matrix is symmetric, an algorithm that exploits this can be selected.
 (The tangent stiffness matrix isn't necessarily positive definite though, unlike the stiffness matrices of some linear mechanical systems.)
 
+\textcolor{red}{Maybe move the following to a separate section that comes after displacement control?}
+
 In order to stop the iteration when an acceptable level of accuracy is reached, we need a stopping or convergence criterion.
 Formulating a convergence criterion that works for all edge cases and whose numerical tolerances scale well with different systems can be tricky.
 Convergence criteria are commonly formulated in terms of either the displacement step~$\Delta\boldsymbol{x}$, the residuals~$\boldsymbol{f}$ or their product~$\Delta\boldsymbol{x}^\intercal\boldsymbol{f}$, which has the dimension of an energy in our case.
@@ -82,7 +84,7 @@ Between absolute and relative criteria, the relative criteria are more appealing
 This means that we can find a generic value for the tolerance $\varepsilon_\mathrm{rel}$ that will work most of the time and for very different systems.
 The absolute tolerances $\varepsilon_\mathrm{abs}$ on the other hand represent a different accuracy depending on what typical forces, displacements or energies arise in the system.
 Unfortunately though, relative criteria are not defined for the very first iteration and also don't work when the system was already in (or close to) static equilibrium at the start of the iterations.
-That's why they have to be combined with an absolute criterion.
+That's why they have to be combined with an absolute criterion anyway.
 
 Since the thing we want to compute are the equilibrium displacements, it would make sense to use a criterion on $\Delta\boldsymbol{u}$ and stop when the displacements do not change meaningfully anymore.
 It is however possible that the iterative displacement change is very small while the out of balance loads $\boldsymbol{R}$ are still large, which is why \textcolor{red}{Chrisfield} advises against using a displacement based criterion on its own without supplementing it with a force based one.
@@ -97,22 +99,28 @@ The condition $\Delta\boldsymbol{u}^\intercal\boldsymbol{R} = \boldsymbol{0}$ is
 Or, as \textcolor{red}{Chrisfield} puts it, the condition merely implies that a stationary energy position has been reached along the current search direction $\Delta\boldsymbol{u}$, which frequently occurs when the solution is still a very long way from equilibrium.
 He therefore warns that such criteria should be used with great caution.
 
-VirtualBow uses an absolute criterion on the residuial vector and works around the different dimensions by scaling the components accordingly.
-We formulate the criterion as
+Virtualbow currently only uses a single, absolute criterion based on the displacement increments $\Delta\boldsymbol{x}$.
+The reason for that is that we can actually derive reasonable tolerances from the dimensions of the bow model.
+We first define a generic numerical tolerance $\varepsilon$, this is called "static iteration tolerance" and "dynamic iteration tolerance" in the UI, respectively.
+From this we derive absolute tolerances for lengths, angles, accelerations and load factor (which will be needed later) based on a reference length $l_{\rm{ref}}$, reference angle $\varphi_{\rm{ref}}$ and reference acceleration $a_{\rm{ref}}$ that represent the overall scale of the model,
+
+\begin{align}
+&\varepsilon_{\rm{abs},l} = l_{\rm{ref}}\cdot\varepsilon \\
+&\varepsilon_{\rm{abs},\varphi} = \varphi_{\rm{ref}}\cdot\varepsilon \\
+&\varepsilon_{\rm{abs},a} = a_{\rm{ref}}\cdot\varepsilon \\
+&\varepsilon_{\rm{abs},\lambda} = \varepsilon
+\end{align}
+ 
+The reference length is chosen as the length of the limb and the reference angle is set to $\nicefrac{\pi}{2}$.
+The reference acceleration for dynamic iterations is the initial acceleration of the arrow, i.e. draw force divided by arrow mass.
+The dimensionless load factor $\lambda \in [0,\,1]$ does not require adjusting of the dimension and can just use the generic tolerance $\varepsilon$.
+The actual convergence criterion is then
 
 \begin{equation}
-\lVert \boldsymbol{S}^{-1}\boldsymbol{f} \rVert < 1
+\lVert \boldsymbol{S}^{-1}\Delta\boldsymbol{x} \rVert_{\infty} < 1
 \end{equation}
 
-using the Euclidean or L2 norm and a diagonal scaling matrix $\boldsymbol{S} = \rm{diag}(\varepsilon_{0},\ldots,\varepsilon_{n-1})$.
-The norm being less than 1 implies that each component of the vector inside the norm must be less than 1, too.
-Therefore the criterion guarantees that
-
-\begin{equation}
-|f_{i}| < \varepsilon_{i},\quad i = 0\,\ldots\,n-1.
-\end{equation}
-
-So the scaling factors $\varepsilon_{i}$ can be thought of as absolute tolerances for each component of the residual.
+where $\lVert\cdot\rVert_{\infty}$ is the maximum norm of the displacement increments, scaled by a diagonal scaling matrix $\boldsymbol{S} = \rm{diag}(\varepsilon_{\rm{abs},0},\ldots,\varepsilon_{\rm{abs},n-1})$ that contains the absolute tolerances for each displacement component depending on its type.
 This solves the problem of mixing dimensions because we can use different tolerances for forces and moments and the end result will be dimensionless.
 
 The basic Newton-Raphson method can be improved and extended in many ways, for example by combining it with a line search or by avoiding the calculation of the tangent stiffness matrix at every iteration (simplified Newton-Raphson method, BFGS method \textcolor{red}{[Source]}).
@@ -228,6 +236,8 @@ with the desired load factor $\overline{\lambda}$. Partial derivatives:
 \end{align*}
 
 \subsection{Backtracking line search}
+
+\textcolor{red}{Keep this explanation but make clear, using the plot below, why VirtualBow doesn't currently use line searching.}
 
 One last modification to the Newton-Raphson method, which has proven to be essential for the robustness of the static bow simulation, is a line search.
 As we saw previously, the Newton-Raphson method repeatedly computes solution increments~$\Delta\boldsymbol{x}_{i}$ based on a linearization of the objective function around the current approximation~$\boldsymbol{x}_{i}$ of the solution.

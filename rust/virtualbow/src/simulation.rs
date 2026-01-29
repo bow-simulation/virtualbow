@@ -392,27 +392,30 @@ impl<'a> Simulation<'a> {
                 let state = states.iter().next_back().unwrap();    // Unwrap is okay because there is at least one state
                 simulation.arrow_departure = Some((states.len() - 1, *state.time, *state.arrow_pos, *state.arrow_vel));
 
-                // Simulate the second part of the shot after arrow separation
-                // The end time is the time until arrow separation multiplied by the time span factor
-                let start_time = system.get_time();
-                let end_time = model.settings.timespan_factor*brace_crossing_time;
-                let stop_condition = StopCondition::Time(end_time);
-
                 // Set the arrow mass to zero since the arrow is no longer attached to the string
                 system.element_mut::<MassElement>(simulation.mass_element_arrow).set_mass(0.0);
 
-                let mut solver = DynamicSolver::new(&mut system, tolerances, settings);
-                solver.solve(stop_condition, &mut |system, eval| {
-                    // Skip the first time step, which is identical to the last timestep of the previous solution phase
-                    if system.get_time() > start_time {
-                        // Evaluate current bow state, update progress and add state
-                        let state = simulation.get_bow_state(system, eval, 0.0);
-                        progress = state.time/end_time;
-                        states.push(state);
-                    }
+                // Simulate the second part of the shot after arrow separation if the time span factor is larger than 1.
+                // The end time is the time until arrow separation multiplied by the time span factor
+                if model.settings.timespan_factor > 1.0 {
+                    let start_time = system.get_time();
+                    let end_time = model.settings.timespan_factor*brace_crossing_time;
+                    let stop_condition = StopCondition::Time(end_time);
 
-                    return callback(SimulationMode::Dynamic, 100.0*progress);
-                }).map_err(ModelError::SimulationDynamicSolutionFailed)?;
+                    let mut solver = DynamicSolver::new(&mut system, tolerances, settings);
+                    solver.solve(stop_condition, &mut |system, eval| {
+                        // Skip the first time step, which is identical to the last timestep of the previous solution phase
+                        if system.get_time() > start_time {
+                            // Evaluate current bow state, update progress and add state
+                            let state = simulation.get_bow_state(system, eval, 0.0);
+                            progress = state.time / end_time;
+                            states.push(state);
+                        }
+
+                        return callback(SimulationMode::Dynamic, 100.0 * progress);
+                    }).map_err(ModelError::SimulationDynamicSolutionFailed)?;
+
+                }
 
                 // Compute dissipated damping energy by numerically integrating the damping power
                 let damping_energy_limbs = cumulative_simpson(&states.time, &states.damping_power_limbs);
