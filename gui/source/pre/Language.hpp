@@ -40,6 +40,7 @@ namespace Tooltips {
     inline const QString SettingsNumEvalPoints = QStringLiteral("Number of points along the limb where results are evaluated");
     inline const QString SettingsMinDrawResolution = QStringLiteral("Lower bound for the number of equilibrium points from brace height to full draw");
     inline const QString SettingsMaxDrawResolution = QStringLiteral("Upper bound for the number of equilibrium points from brace height to full draw");
+    inline const QString SettingsStaticIterationTolerance = QStringLiteral("Stopping tolerance for the static equilibrium iterations");
     inline const QString SettingsArrowClampForce = QStringLiteral("Force that the arrow has to overcome before separating from the string");
     inline const QString SettingsStringCompressionFactor = QStringLiteral("Factor for the compressive stiffness of the string relative to its tensile stiffness.\nShould be very low but can't be zero for numerical reasons.");
     inline const QString SettingsTimespanFactor = QStringLiteral("Factor for controlling the end time of the dynamic simulation.\nThe value 1.0 corresponds to the time until the arrow reaches brace height.\nValues larger than 1.0 extend the simulated time beyond that.");
@@ -47,6 +48,7 @@ namespace Tooltips {
     inline const QString SettingsMinTimestep = QStringLiteral("Lower bound for the time step of the dynamic simulation");
     inline const QString SettingsMaxTimestep = QStringLiteral("Upper bound for the time step of the dynamic simulation");
     inline const QString SettingsStepsPerPeriod = QStringLiteral("Number of steps the dynamic solver tries to take per current characteristic time period of the system");
+    inline const QString SettingsDynamicIterationTolerance = QStringLiteral("Stopping tolerance for the dynamic equilibrium iterations");
 
     inline const QString MaterialColor = QStringLiteral("Color of the material, only used for visualization");
     inline const QString MaterialDensity = QStringLiteral("Density of the material (mass per unit volume)");

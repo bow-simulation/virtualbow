@@ -7,6 +7,7 @@ use virtualbow_num::fem::elements::string::StringElement;
 use virtualbow_num::testutils::syschecks::assert_system_invariants;
 use virtualbow_num::fem::elements::beam::geometry::{ArcCurve, RectangularSection};
 use virtualbow_num::fem::system::dof::DofType;
+
 // These tests perform basic consistency checks on the various elements
 // See the testutils::checks::check_system_invariants function for the details
 

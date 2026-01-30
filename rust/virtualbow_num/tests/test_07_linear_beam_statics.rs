@@ -2,7 +2,7 @@ use approx::assert_abs_diff_eq;
 use virtualbow_num::testutils::plotter::Plotter;
 use virtualbow_num::fem::elements::beam::beam::BeamElement;
 use virtualbow_num::fem::elements::beam::linear::LinearBeamSegment;
-use virtualbow_num::fem::solvers::statics::StaticSolver;
+use virtualbow_num::fem::solvers::statics::{LoadControl, StaticTolerances};
 use virtualbow_num::fem::system::dof::DofType;
 use virtualbow_num::fem::system::node::Node;
 use virtualbow_num::fem::system::system::System;
@@ -11,6 +11,10 @@ use virtualbow_num::testutils::sections::Section;
 use virtualbow_num::utils::newton::NewtonSettings;
 
 // Linear beam problems are solved and the results compared to analytical reference solutions.
+
+// Common solver tolerances and settings
+const TOLERANCES: StaticTolerances = StaticTolerances { linear_pos: 1e-8, angular_pos: 1e-8, loadfactor: 1e-8 };
+const SETTINGS: NewtonSettings = NewtonSettings { max_iterations: 100, line_searching: None };
 
 #[test]
 fn straight_uniform_elongation() {
@@ -31,13 +35,6 @@ fn straight_uniform_elongation() {
     let n_elements = 25;
     let n_eval = 5;
 
-    let settings = NewtonSettings {
-        epsilon: 1e-7,
-        max_iter: 100,
-        armijo_constant: 1e-4,
-        backtracking_factor: 0.5,
-    };
-
     // Beam model
     let curve = Line::new(l);
     let section = Section::new(ρ, E, G, &[w], &[h], &[0.0]);
@@ -49,8 +46,8 @@ fn straight_uniform_elongation() {
 
     // Compute numerical solution
     system.add_force(nodes[n_elements].x(), move |_t| { F });
-    let mut solver = StaticSolver::new(&mut system, settings);
-    solver.equilibrium_load_controlled(1.0).unwrap();
+    let solver = LoadControl::new(&mut system, TOLERANCES, SETTINGS);
+    solver.solve_equilibrium().unwrap();
 
     // Reference cross-section stiffnesses
     let A = w*h;
@@ -114,13 +111,6 @@ fn straight_uniform_cantilever() {
     let n_elements = 25;
     let n_eval = 5;
 
-    let settings = NewtonSettings {
-        epsilon: 1e-7,
-        max_iter: 100,
-        armijo_constant: 1e-4,
-        backtracking_factor: 0.5,
-    };
-
     // Beam model
     let curve = Line::new(l);
     let section = Section::new(ρ, E, G, &[w], &[h], &[0.0]);
@@ -132,8 +122,8 @@ fn straight_uniform_cantilever() {
 
     // Compute numerical solution
     system.add_force(nodes[n_elements].y(), move |_t| { F });
-    let mut solver = StaticSolver::new(&mut system, settings);
-    solver.equilibrium_load_controlled(1.0).unwrap();
+    let solver = LoadControl::new(&mut system, TOLERANCES, SETTINGS);
+    solver.solve_equilibrium().unwrap();
 
     // Reference cross-section stiffnesses
     let I = w*h.powi(3)/12.0;

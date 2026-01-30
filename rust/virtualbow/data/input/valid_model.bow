@@ -6,13 +6,15 @@
     "num_limb_eval_points": 250,
     "min_draw_resolution": 100,
     "max_draw_resolution": 100,
+    "static_iteration_tolerance": 1e-6,
     "arrow_clamp_force": 0.5,
     "string_compression_factor": 1e-6,
     "timespan_factor": 1.5,
     "timeout_factor": 10.0,
     "min_timestep": 1e-6,
     "max_timestep": 0.0001,
-    "steps_per_period": 250
+    "steps_per_period": 250,
+    "dynamic_iteration_tolerance": 1e-6
   },
   "dimensions": {
     "handle_reference": "belly",

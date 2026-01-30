@@ -3,7 +3,7 @@ use clap::ValueEnum;
 use itertools::Itertools;
 use nalgebra::{SVector, vector};
 use virtualbow_num::fem::solvers::eigen::{Mode, natural_frequencies};
-use virtualbow_num::fem::solvers::statics::StaticSolver;
+use virtualbow_num::fem::solvers::statics::{DisplacementControl, LoadControl, StaticTolerances};
 use virtualbow_num::fem::system::element::Element;
 use virtualbow_num::fem::system::node::Node;
 use virtualbow_num::fem::system::system::{System, SystemEval};
@@ -14,12 +14,12 @@ use crate::output::{ArrowDeparture, BowResult, Common, Dynamics, LayerInfo, MaxF
 use virtualbow_num::fem::elements::beam::beam::BeamElement;
 use virtualbow_num::fem::elements::mass::MassElement;
 use virtualbow_num::fem::elements::string::StringElement;
-use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
+use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, DynamicTolerances, StopCondition, TimeStepping};
 use virtualbow_num::fem::system::dof::DofType;
 use virtualbow_num::utils::integration::cumulative_simpson;
-use virtualbow_num::utils::newton;
 use virtualbow_num::utils::roots::find_root_falsi;
 use virtualbow_num::utils::minmax::{discrete_maximum_nd, discrete_minimum_nd};
+use virtualbow_num::utils::newton::NewtonSettings;
 
 #[derive(ValueEnum, PartialEq, Debug, Copy, Clone)]
 pub enum SimulationMode {
@@ -60,16 +60,16 @@ impl<'a> Simulation<'a> {
     const BRACING_TARGET_ITER: usize = 5;        // Desired number of iterations for the static solver
 
     // Set up the simulation either with or without string and with or without damping, depending on simulation mode.
-    fn initialize(input: &'a BowModel, string: bool, damping: bool) -> Result<(System, Simulation<'a>, Common), ModelError> {
+    fn initialize(model: &'a BowModel, string: bool, damping: bool) -> Result<(System, Simulation<'a>, Common), ModelError> {
         // Check basic validity of the model data and propagate any errors
-        input.validate()?;
+        model.validate()?;
 
         // Create bow geometry from input,
-        let geometry = LimbGeometry::new(input)?;
+        let geometry = LimbGeometry::new(model)?;
 
         // Layer setup data
-        let layers = input.section.layers.iter().map(|layer| {
-            let material = input.section.materials.iter().find(|mat| mat.name == layer.material).unwrap();    // Unwrap is okay because of previous validation
+        let layers = model.section.layers.iter().map(|layer| {
+            let material = model.section.materials.iter().find(|mat| mat.name == layer.material).unwrap();    // Unwrap is okay because of previous validation
             LayerInfo {
                 name: layer.name.clone(),
                 color: material.color.clone(),
@@ -81,7 +81,7 @@ impl<'a> Simulation<'a> {
         }).collect_vec();
 
         // Discretize geometry into evaluation points and elements
-        let geometry = geometry.discretize(input.settings.num_limb_eval_points, input.settings.num_limb_elements);
+        let geometry = geometry.discretize(model.settings.num_limb_eval_points, model.settings.num_limb_elements);
 
         let elements = geometry.segments.iter().map(BeamElement::new);
 
@@ -96,13 +96,13 @@ impl<'a> Simulation<'a> {
         }).collect();
 
         // Limb tip mass, required for limb damping calculation
-        let mass_element_limb_tip = system.add_element(&[*limb_nodes.last().unwrap()], MassElement::point(input.masses.limb_tip));    // Unwrap is okay because of previous validation
+        let mass_element_limb_tip = system.add_element(&[*limb_nodes.last().unwrap()], MassElement::point(model.masses.limb_tip));    // Unwrap is okay because of previous validation
 
         // If damping properties are to be initialized and the specified damping ratio for the limb is not zero,
         // perform a modal analysis of the limb without string and set the damping parameter of the beam elements according to the desired damping ratio.
-        if damping && input.damping.damping_ratio_limbs != 0.0 {
+        if damping && model.damping.damping_ratio_limbs != 0.0 {
             let modes = natural_frequencies(&mut system).map_err(ModelError::SimulationEigenSolutionFailed)?;
-            let alpha = 2.0*input.damping.damping_ratio_limbs/modes[0].omega;
+            let alpha = 2.0* model.damping.damping_ratio_limbs/modes[0].omega;
             for &e in &limb_elements {
                 system.element_mut::<BeamElement>(e).set_damping(alpha);
             }
@@ -112,7 +112,7 @@ impl<'a> Simulation<'a> {
 
         // String center node that is fixed in the case of no string.
         // The rest of the string nodes come from the limb.
-        let string_center = system.create_node(&vector![0.0, -input.dimensions.brace_height, 0.0], &[DofType::Locked, DofType::active_if(string), DofType::Locked]);
+        let string_center = system.create_node(&vector![0.0, -model.dimensions.brace_height, 0.0], &[DofType::Locked, DofType::active_if(string), DofType::Locked]);
         let mut string_nodes = vec![string_center];  // TODO: Preallocate
         string_nodes.extend_from_slice(&limb_nodes);
 
@@ -124,8 +124,8 @@ impl<'a> Simulation<'a> {
         let mass_element_string_tip = system.add_element(&[*limb_nodes.last().unwrap()], MassElement::point(0.0));    // Unwrap is okay because of previous validation
 
         // The string element only gets non-zero parameters if the string option is true
-        let EA = if string { (input.string.n_strands as f64)*input.string.strand_stiffness } else { 0.0 };
-        let ρA = if string { (input.string.n_strands as f64)*input.string.strand_density } else { 0.0 };
+        let EA = if string { (model.string.n_strands as f64)* model.string.strand_stiffness } else { 0.0 };
+        let ρA = if string { (model.string.n_strands as f64)* model.string.strand_density } else { 0.0 };
 
         let mut offsets = vec![0.0];                                            // Offset at the string node is zero TODO: Preallocate
         offsets.extend(geometry.y_nodes.iter().map(|y| y[y.len() - 1]));        // Offsets between the limb nodes and the belly surface of the limb
@@ -161,7 +161,7 @@ impl<'a> Simulation<'a> {
             // Abort if the initial slope is negative, which means that the supplied brace height is too
             if slope1 < 0.0 {
                 // TODO: Determine the minimum required brace height and put it into the error message
-                return Err(ModelError::SimulationBraceHeightTooLow(input.dimensions.brace_height));
+                return Err(ModelError::SimulationBraceHeightTooLow(model.dimensions.brace_height));
             }
 
             // Function that applies the given string length to the bow, solves for static equilibrium with the string pinned at brace height.
@@ -170,8 +170,12 @@ impl<'a> Simulation<'a> {
             let mut try_string_length = |factor: f64| {
                 system.element_mut::<StringElement>(string_element).set_initial_length(factor*unstressed_length);
 
-                let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());   // TODO: Don't construct new solver in each iteration
-                let result = solver.equilibrium_displacement_controlled(string_nodes[0].y(), 0.0);    // String node is already placed at brace height, therefore target displacement is zero
+                // TODO: Duplication with settings used in static analysis
+                let tolerances = StaticTolerances::new(*geometry.s_eval.last().unwrap(), FRAC_PI_2, model.settings.static_iteration_tolerance);  // Use limb length and pi/2 as reference displacements for absolute tolerances
+                let settings = NewtonSettings::default();    // TODO: Don't use default settings here?
+
+                let solver = DisplacementControl::new(&mut system, tolerances, settings);   // TODO: Don't construct new solver in each iteration?
+                let result = solver.solve_equilibrium(string_nodes[0].y(), 0.0);    // String node is already placed at brace height, therefore target displacement is zero
                 let slope = get_string_slope(&system);
 
                 (slope, result)
@@ -214,22 +218,22 @@ impl<'a> Simulation<'a> {
 
         // After the initial string length is known, we can calculate the viscosity that is required for achieving the prescribed damping ratio
         let l0 = system.element_ref::<StringElement>(string_element).get_initial_length();
-        let ηA = 4.0*l0/PI*f64::sqrt(ρA*EA)*input.damping.damping_ratio_string;
+        let ηA = 4.0*l0/PI*f64::sqrt(ρA*EA)* model.damping.damping_ratio_string;
         system.element_mut::<StringElement>(string_element).set_linear_damping(ηA);
 
         // Set additional masses to base mass + partial masses of the string
-        system.element_mut::<MassElement>(mass_element_string_center).set_mass(0.5*input.masses.string_center + 1.0/3.0*ρA*l0);
-        system.element_mut::<MassElement>(mass_element_string_tip).set_mass(input.masses.string_tip + 2.0/3.0*ρA*l0);
+        system.element_mut::<MassElement>(mass_element_string_center).set_mass(0.5* model.masses.string_center + 1.0/3.0*ρA*l0);
+        system.element_mut::<MassElement>(mass_element_string_tip).set_mass(model.masses.string_tip + 2.0/3.0*ρA*l0);
 
         // Compute additional common output results
         let string_length = 2.0*l0;                                                                                // Actual string length due to symmetry
         let string_stiffness = EA/string_length;                                                                   // Stiffness of the complete string from tip to tip
-        let string_mass = 2.0*(ρA*l0 + input.masses.string_tip) + input.masses.string_center;                      // String mass including additional masses and symmetry
-        let limb_mass = geometry.segments.iter().map(|segment| segment.m).sum::<f64>() + input.masses.limb_tip;    // Mass of a single limb, including additional masses
+        let string_mass = 2.0*(ρA*l0 + model.masses.string_tip) + model.masses.string_center;                      // String mass including additional masses and symmetry
+        let limb_mass = geometry.segments.iter().map(|segment| segment.m).sum::<f64>() + model.masses.limb_tip;    // Mass of a single limb, including additional masses
 
         // Simulation info object
         let simulation = Self {
-            input,
+            input: model,
             geometry,
             limb_nodes,
             limb_elements,
@@ -265,10 +269,16 @@ impl<'a> Simulation<'a> {
         let statics = {
             // "Draw" the bow by solving for a static equilibrium path of the string node from brace height to full draw
             // and store each intermediate step in the static output.
-            let mut states = StateVec::new();
-            let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());
 
-            solver.equilibrium_path_displacement_controlled(simulation.string_nodes[0].y(), -(model.dimensions.draw_length - model.dimensions.brace_height), model.settings.min_draw_resolution, &mut |system, eval, stiffness| {
+            let tolerances = StaticTolerances::new(*simulation.geometry.s_eval.last().unwrap(), FRAC_PI_2, model.settings.static_iteration_tolerance);  // Use limb length and pi/2 as reference displacements for absolute tolerances
+            let settings = NewtonSettings::default();    // TODO: Don't use default settings here?
+
+            let solver = DisplacementControl::new(&mut system, tolerances, settings);
+            let mut states = StateVec::new();
+
+            let string_dof = simulation.string_nodes[0].y();    // String center dof
+            solver.solve_equilibrium_path(string_dof, -(model.dimensions.draw_length - model.dimensions.brace_height), model.settings.min_draw_resolution, &mut |system, eval, info| {
+                let stiffness = 1.0/info.dxdλ[string_dof.index];    // Draw stiffness
                 let state = simulation.get_bow_state(system, eval, -2.0*stiffness);  // TODO: Why the sign flip of the stiffness?
                 let progress = (state.draw_length - model.dimensions.brace_height)/(model.dimensions.draw_length - model.dimensions.brace_height);
                 states.push(state);
@@ -324,8 +334,10 @@ impl<'a> Simulation<'a> {
                     steps_per_period: model.settings.steps_per_period
                 };
 
-                let settings = DynamicSolverSettings { time_stepping: step, max_time: t_max, ..Default::default() };
-                let mut states = StateVec::new();
+                let ref_linear_acc = statics.final_draw_force/simulation.arrow_mass;                // Reference acceleration for tolerances: Draw force divided by arrow mass
+                let ref_angular_acc = ref_linear_acc/simulation.geometry.s_eval.last().unwrap();    // Reference angular acceleration: Linear divided by limb length
+                let tolerances = DynamicTolerances::new(ref_linear_acc, ref_angular_acc, model.settings.dynamic_iteration_tolerance);
+                let settings = DynamicSolverSettings { time_stepping: step, max_time: t_max, newton: Default::default() };    // TODO: Don't use default tolerances?
 
                 // Modify the string's compression factor to make it a lot less stiff on compression
                 system.element_mut::<StringElement>(simulation.string_element).set_compression_factor(model.settings.string_compression_factor);
@@ -341,7 +353,9 @@ impl<'a> Simulation<'a> {
                 let mut estimated = true;                       // Whether the time is estimated or already known
                 let mut progress = 0.0;                         // Estimated simulation progress
 
-                let mut solver = DynamicSolver::new(&mut system, settings);
+                let mut solver = DynamicSolver::new(&mut system, tolerances, settings);
+                let mut states = StateVec::new();
+
                 solver.solve(stop_condition, &mut |system, eval| {
                     // Evaluate current bow state
                     let state = simulation.get_bow_state(system, eval, 0.0);
@@ -378,27 +392,30 @@ impl<'a> Simulation<'a> {
                 let state = states.iter().next_back().unwrap();    // Unwrap is okay because there is at least one state
                 simulation.arrow_departure = Some((states.len() - 1, *state.time, *state.arrow_pos, *state.arrow_vel));
 
-                // Simulate the second part of the shot after arrow separation
-                // The end time is the time until arrow separation multiplied by the time span factor
-                let start_time = system.get_time();
-                let end_time = model.settings.timespan_factor*brace_crossing_time;
-                let stop_condition = StopCondition::Time(end_time);
-
                 // Set the arrow mass to zero since the arrow is no longer attached to the string
                 system.element_mut::<MassElement>(simulation.mass_element_arrow).set_mass(0.0);
 
-                let mut solver = DynamicSolver::new(&mut system, settings);
-                solver.solve(stop_condition, &mut |system, eval| {
-                    // Skip the first time step, which is identical to the last timestep of the previous solution phase
-                    if system.get_time() > start_time {
-                        // Evaluate current bow state, update progress and add state
-                        let state = simulation.get_bow_state(system, eval, 0.0);
-                        progress = state.time/end_time;
-                        states.push(state);
-                    }
+                // Simulate the second part of the shot after arrow separation if the time span factor is larger than 1.
+                // The end time is the time until arrow separation multiplied by the time span factor
+                if model.settings.timespan_factor > 1.0 {
+                    let start_time = system.get_time();
+                    let end_time = model.settings.timespan_factor*brace_crossing_time;
+                    let stop_condition = StopCondition::Time(end_time);
 
-                    return callback(SimulationMode::Dynamic, 100.0*progress);
-                }).map_err(ModelError::SimulationDynamicSolutionFailed)?;
+                    let mut solver = DynamicSolver::new(&mut system, tolerances, settings);
+                    solver.solve(stop_condition, &mut |system, eval| {
+                        // Skip the first time step, which is identical to the last timestep of the previous solution phase
+                        if system.get_time() > start_time {
+                            // Evaluate current bow state, update progress and add state
+                            let state = simulation.get_bow_state(system, eval, 0.0);
+                            progress = state.time / end_time;
+                            states.push(state);
+                        }
+
+                        return callback(SimulationMode::Dynamic, 100.0 * progress);
+                    }).map_err(ModelError::SimulationDynamicSolutionFailed)?;
+
+                }
 
                 // Compute dissipated damping energy by numerically integrating the damping power
                 let damping_energy_limbs = cumulative_simpson(&states.time, &states.damping_power_limbs);
@@ -474,13 +491,17 @@ impl<'a> Simulation<'a> {
             system.add_force(node.φ(), move |_t| { Mz });
         }
 
-        let mut solver = StaticSolver::new(&mut system, newton::NewtonSettings::default());
+        // TODO: Duplication with settings used in static analysis
+        let tolerances = StaticTolerances::new(*simulation.geometry.s_eval.last().unwrap(), FRAC_PI_2, model.settings.static_iteration_tolerance);  // Use limb length and pi/2 as reference displacements for absolute tolerances
+        let settings = NewtonSettings::default();    // TODO: Don't use default settings here?
+
+        let solver = LoadControl::new(&mut system, tolerances, settings);    // TODO: Don't use default settings and tolerances
         let mut states = StateVec::new();
 
-        solver.equilibrium_path_load_controlled(model.settings.min_draw_resolution, &mut |system, eval| {
+        solver.solve_equilibrium_path(model.settings.min_draw_resolution, &mut |system, eval, _info| {
             let state = simulation.get_bow_state(system, eval, 0.0);
             states.push(state);
-            return true;
+            true
         }).map_err(ModelError::SimulationStaticSolutionFailed)?;
 
         Ok((common, states.pop().unwrap()))    // Unwrap is okay because there is at least one state

@@ -2,6 +2,12 @@
 // It can either be active (free to move) or locked (fixed in place) and contains the index of the corresponding system state.
 
 #[derive(Copy, Clone, Debug, PartialEq)]
+pub enum DofDimension {
+    Position,
+    Rotation
+}
+
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum DofType {
     Active,
     Locked

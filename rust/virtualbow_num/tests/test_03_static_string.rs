@@ -4,13 +4,18 @@ use itertools::Itertools;
 use nalgebra::vector;
 use virtualbow_num::fem::system::system::System;
 use virtualbow_num::fem::elements::string::StringElement;
-use virtualbow_num::fem::solvers::statics::StaticSolver;
+use virtualbow_num::fem::solvers::statics::{DisplacementControl, StaticTolerances};
 use virtualbow_num::utils::newton::NewtonSettings;
 use virtualbow_num::testutils::plotter::Plotter;
 use virtualbow_num::testutils::syschecks::assert_system_invariants;
 use approx::{assert_abs_diff_eq, assert_relative_eq};
 use virtualbow_num::fem::system::dof::DofType;
+
 // Tests the string element as part of a static system
+
+// Common solver tolerances and settings
+const TOLERANCES: StaticTolerances = StaticTolerances { linear_pos: 1e-6, angular_pos: 1e-6, loadfactor: 1e-6 };
+const SETTINGS: NewtonSettings = NewtonSettings { max_iterations: 100, line_searching: None };
 
 #[test]
 fn string_over_quarter_circle() {
@@ -43,9 +48,9 @@ fn string_over_quarter_circle() {
     assert_system_invariants(&mut system);
 
     let mut plotter = Plotter::new();
-    let mut solver = StaticSolver::new(&mut system, NewtonSettings::default());
+    let solver = DisplacementControl::new(&mut system, TOLERANCES, SETTINGS);
 
-    let result = solver.equilibrium_path_displacement_controlled(free_node.y(), 0.0, 100, &mut |system, statics, _| {
+    let result = solver.solve_equilibrium_path(free_node.y(), 0.0, 100, &mut |system, statics, _| {
         let y = system.get_position(free_node.y());
         let h = r - y;
 

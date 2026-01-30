@@ -4,13 +4,14 @@ use nalgebra::{SVector, vector};
 use virtualbow_num::fem::elements::beam::beam::BeamElement;
 use virtualbow_num::fem::elements::beam::geometry::CrossSection;
 use virtualbow_num::fem::elements::beam::linear::LinearBeamSegment;
-use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, StopCondition, TimeStepping};
+use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, DynamicTolerances, StopCondition, TimeStepping};
 use virtualbow_num::fem::system::dof::DofType;
 use virtualbow_num::fem::system::system::System;
 use virtualbow_num::testutils::curves::Line;
 use virtualbow_num::utils::integration::fixed_simpson;
 use virtualbow_num::testutils::plotter::Plotter;
 use virtualbow_num::testutils::sections::Section;
+
 // This tests compares the analytical solution for the linear vibration of a straight cantilever beam with the numerical FEM solution.
 // Unfortunately the analytical solution has its limitations too since numerical accuracy starts to become a problem at ~10 modes.
 // This number of modes is equivalent to 20 degrees of freedom for the analytical model. The FEM model has (and needs) more degrees of freedom,
@@ -70,9 +71,23 @@ fn test_linear_beam_dynamics() {
     let period = TAU/beam.ω[0];  // Period of the first natural frequency
     let t_end = 0.25*period;
 
-    let mut plotter = Plotter::new();
+    let tolerances = DynamicTolerances {
+        linear_acc: 1e-4,
+        angular_acc: 1e-3,
+        loadfactor: 1e-3,
+    };
 
-    let mut solver = DynamicSolver::new(&mut system, DynamicSolverSettings { time_stepping: TimeStepping::Adaptive { min_timestep: 1e-6, max_timestep: 1e-3, steps_per_period: 500 }, ..Default::default() });
+    let settings = DynamicSolverSettings {
+        time_stepping: TimeStepping::Adaptive {
+            min_timestep: 1e-6,
+            max_timestep: 1e-3,
+            steps_per_period: 500
+        },
+        ..Default::default()
+    };
+
+    let mut plotter = Plotter::new();
+    let mut solver = DynamicSolver::new(&mut system, tolerances, settings);
     solver.solve(StopCondition::Time(t_end), &mut |system, _eval| {
         for i in 0..nodes.len() {
             let t = system.get_time();

@@ -5,7 +5,7 @@ use iter_num_tools::lin_space;
 use nalgebra::{Complex, ComplexField, DMatrix, DVector, Dyn, LU, stack, vector};
 use virtualbow_num::fem::elements::mass::MassElement;
 use virtualbow_num::fem::elements::string::StringElement;
-use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, DynamicSolverError, StopCondition, TimeStepping};
+use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, DynamicSolverError, StopCondition, TimeStepping, DynamicTolerances};
 use virtualbow_num::fem::system::node::Node;
 use virtualbow_num::fem::system::system::{SystemEval, System};
 use virtualbow_num::testutils::plotter::Plotter;
@@ -13,6 +13,7 @@ use virtualbow_num::testutils::syschecks::assert_system_invariants;
 use approx::assert_abs_diff_eq;
 use assert_matches::assert_matches;
 use virtualbow_num::fem::system::dof::DofType;
+
 // These tests verify that the dynamics of linear mass-spring-damper systems is solved correctly.
 
 #[test]
@@ -47,8 +48,18 @@ fn mass_spring_damper_1() {
 
     assert!(delta < omega0);    // Make sure the system is underdamped
 
+    let tolerances = DynamicTolerances {
+        linear_acc: 1e-6,
+        angular_acc: 1e-6,
+        loadfactor: 1e-6,
+    };
+
+    let settings: DynamicSolverSettings = DynamicSolverSettings {
+        time_stepping: TimeStepping::Fixed(T/100.0), max_time: 10.0, newton: Default::default()
+    };
+
     let mut plotter = Plotter::new();
-    let mut solver = DynamicSolver::new(&mut system, DynamicSolverSettings { time_stepping: TimeStepping::Fixed(T/100.0), max_time: 10.0, ..Default::default() });
+    let mut solver = DynamicSolver::new(&mut system, tolerances, settings);
 
     let t_end = Cell::new(0.0);
     let a_end = Cell::new(0.0);
@@ -181,8 +192,11 @@ fn mass_spring_damper_n() {
 
     assert_system_invariants(&mut system);
 
+    let tolerances = DynamicTolerances { linear_acc: 1e-6, angular_acc: 1e-6, loadfactor: 1e-6};
+    let settings = DynamicSolverSettings { time_stepping: TimeStepping::Fixed(period/1000.0), ..Default::default() };
+
     let mut plotter = Plotter::new();
-    let mut solver = DynamicSolver::new(&mut system, DynamicSolverSettings { time_stepping: TimeStepping::Fixed(period/1000.0), ..Default::default() });
+    let mut solver = DynamicSolver::new(&mut system, tolerances, settings);
 
     solver.solve(StopCondition::Time(period), &mut |system, eval| {
         // Evaluate fem system and reference solution
@@ -289,6 +303,6 @@ impl LinearSolver {
         let q: DVector<f64> = &self.K*&u - &self.D*&v;
         let a: DVector<f64> = decomp_M.solve(&(p - q)).unwrap();
 
-        return (u, v, a);
+        (u, v, a)
     }
 }

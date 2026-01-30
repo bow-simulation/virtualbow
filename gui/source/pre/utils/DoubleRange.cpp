@@ -1,9 +1,5 @@
 #include "DoubleRange.hpp"
-#include <limits>
 #include <cmath>
-
-//const double DoubleRange::DECIMALS = 8;      // Magic number
-//const double DoubleRange::EPSILON = std::pow(10, -DoubleRange::DECIMALS);
 
 DoubleBound::DoubleBound(double bound, bool inclusive):
     bound(bound),
@@ -55,6 +51,22 @@ DoubleRange DoubleRange::inclusive(double min, double max, double step) {
 
 DoubleRange DoubleRange::exclusive(double min, double max, double step) {
     return DoubleRange(DoubleBound(min, false), DoubleBound(max, false), step);
+}
+
+DoubleRange DoubleRange::largerOrEqual(double min, double step) {
+    return DoubleRange(DoubleBound(min, true), std::nullopt, step);
+}
+
+DoubleRange DoubleRange::largerThan(double min, double step) {
+    return DoubleRange(DoubleBound(min, false), std::nullopt, step);
+}
+
+DoubleRange DoubleRange::lessOrEqual(double max, double step) {
+    return DoubleRange(std::nullopt, DoubleBound(max, true), step);
+}
+
+DoubleRange DoubleRange::lessThan(double max, double step) {
+    return DoubleRange(std::nullopt, DoubleBound(max, false), step);
 }
 
 DoubleRange DoubleRange::unrestricted(double step) {

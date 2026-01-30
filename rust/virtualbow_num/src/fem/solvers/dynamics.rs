@@ -1,10 +1,40 @@
 use std::fmt::{Debug, Display, Formatter};
 use nalgebra::{DMatrix, DVector};
-use crate::fem::system::dof::Dof;
+use crate::fem::system::dof::{Dof, DofDimension};
 use crate::fem::system::system::{System, SystemEval};
-use crate::utils::newton::{NewtonError, NewtonSettings, solve_newton, solve_newton_constrained};
+use crate::utils::newton::{NewtonError, NewtonSettings, solve_newton, solve_newton_constrained, NewtonTolerances};
 
-#[derive(Copy, Clone)]
+// TODO: Split into static and dynamic tolerances?
+#[derive(Copy, Clone, Debug)]
+pub struct DynamicTolerances {
+    pub linear_acc: f64,     // Linear acceleration
+    pub angular_acc: f64,    // Angular acceleration
+    pub loadfactor: f64      // Tolerance for load factor
+}
+
+impl DynamicTolerances {
+    // Constructs absolute tolerances from reference values for accelerations and a relative tolerance
+    pub fn new(ref_linear_acc: f64, ref_angular_acc: f64, relative_tolerance: f64) -> Self {
+        Self {
+            linear_acc: ref_linear_acc*relative_tolerance,
+            angular_acc: ref_angular_acc*relative_tolerance,
+            loadfactor: relative_tolerance
+        }
+    }
+
+    // Determine tolerances for the system's acceleration vector, taking into account the dimensions
+    // of the system dofs and the corresponding tolerances
+    pub fn xtol(&self, system: &System) -> DVector<f64> {
+        DVector::<f64>::from_fn(system.n_dofs(), |i, _| {
+            match system.get_dimensions()[i] {
+                DofDimension::Position => self.linear_acc,
+                DofDimension::Rotation => self.angular_acc
+            }
+        })
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
 pub struct DynamicSolverSettings {
     pub time_stepping: TimeStepping,    // Time step settings
     pub max_time: f64,                  // Maximum time after which the simulation is aborted if no regular stopping condition was met
@@ -21,7 +51,7 @@ impl Default for DynamicSolverSettings {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum TimeStepping {
     Fixed(f64),                    // Use a fixed timestep during the simulation
     Adaptive{
@@ -31,7 +61,7 @@ pub enum TimeStepping {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum StopCondition {
     Time(f64),                    // Simulate up to a specific point in time
     Acceleration(Dof, f64, i32)   // Acceleration component to watch, critical value and relevant sign change
@@ -64,13 +94,15 @@ impl std::error::Error for DynamicSolverError {
 
 pub struct DynamicSolver<'a> {
     system: &'a mut System,
+    tolerances: DynamicTolerances,
     settings: DynamicSolverSettings
 }
 
 impl<'a> DynamicSolver<'a> {
-    pub fn new(system: &'a mut System, settings: DynamicSolverSettings) -> Self {
+    pub fn new(system: &'a mut System, tolerances: DynamicTolerances, settings: DynamicSolverSettings) -> Self {
         Self {
             system,
+            tolerances,
             settings
         }
     }
@@ -119,6 +151,12 @@ impl<'a> DynamicSolver<'a> {
         self.system.compute_external_forces(&mut p_eval);
         self.system.compute_internal_forces(Some(&mut q_eval), Some(&mut K_eval), Some(&mut D_eval));
         a_eval.copy_from(&(&p_eval - &q_eval).component_div(&M));
+
+        // Determine tolerances for the Newton iterations
+        let tolerances = NewtonTolerances {
+            xtol: self.tolerances.xtol(self.system),    // Dynamics iterates on accelerations
+            λtol: self.tolerances.loadfactor,
+        };
 
         if !callback(self.system, &SystemEval::new(&p_eval, &q_eval, &a_eval)) {
             return Ok(());
@@ -173,7 +211,7 @@ impl<'a> DynamicSolver<'a> {
                 drda.copy_from(&(DMatrix::<f64>::from_diagonal(&M) + dt*gamma*&D_eval + dt*dt*beta*&K_eval));
             };
 
-            solve_newton(&mut residuum, a_prev.clone(), self.settings.newton)
+            solve_newton(&mut residuum, &a_prev, &tolerances, &self.settings.newton)
                 .map_err(DynamicSolverError::EquilibriumError)?;
 
             // If the termination is based on acceleration, check here for sign changes
@@ -215,7 +253,7 @@ impl<'a> DynamicSolver<'a> {
                     };
 
                     // Solve the constrained problem
-                    solve_newton_constrained(&mut residuum, &mut constraint, a_prev.clone(), dt, self.settings.newton)
+                    solve_newton_constrained(&mut residuum, &mut constraint, a_prev.clone(), dt, &tolerances, &self.settings.newton)
                         .map_err(DynamicSolverError::EquilibriumError)?;
 
                     // Invoke callback with final system state, then end the simulation
