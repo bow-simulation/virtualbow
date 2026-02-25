@@ -16,13 +16,15 @@
     "steps_per_period": 250,
     "dynamic_iteration_tolerance": 1e-6
   },
-  "dimensions": {
-    "handle_reference": "belly",
-    "handle_angle": 0.0,
-    "handle_length": 0.0,
-    "handle_offset": 0.0,
+  "handle": {
+    "type": "flexible"
+  },
+  "draw": {
     "brace_height": 0.2,
-    "draw_length": 0.7
+    "draw_length": {
+      "type": "standard",
+      "value": 0.7
+    }
   },
   "profile": {
     "segments": [

@@ -161,7 +161,7 @@ impl<'a> DisplacementControl<'a> {
         self.solve_equilibrium_path(dof, u_target, 1, &mut |_, _, _| true)
     }
 
-    // Static equilibrium for load factors from 0 to 1 with a given number of steps
+    // Static equilibrium for target displacement from current to given value with a given number of steps
     // points = steps + 1, callback evaluated at each point
     pub fn solve_equilibrium_path<F>(self, dof: Dof, u_target: f64, steps: usize, callback: &mut F) -> Result<NewtonInfo, StaticSolverError>
     where F: FnMut(&System, &SystemEval, &NewtonInfo) -> bool    // TODO: struct StepInfo { index, lambda }?
@@ -194,16 +194,16 @@ impl<'a> DisplacementControl<'a> {
         // Track current newton iteration info
         let mut info: NewtonInfo = NewtonInfo::default();
 
-        // Compute an equilibrium state for each displacement from current state to tagret
+        // Compute an equilibrium state for each displacement from current state to target
         for u_target in lin_space(self.system.get_displacement(dof)..=u_target, steps + 1) {
             // Initial values of displacements and load factor
-            let x0 = self.system.get_displacements().clone();
+            let u0 = self.system.get_displacements().clone();
             let λ0 = 1.0;
 
             // Objective function for static equilibrium
-            let mut objective = |x: &DVector<f64>, λ: f64, f: &mut DVector<f64>, dfdx: &mut DMatrix<f64>, dfdλ: &mut DVector<f64>| {
+            let mut objective = |u: &DVector<f64>, λ: f64, f: &mut DVector<f64>, dfdx: &mut DMatrix<f64>, dfdλ: &mut DVector<f64>| {
                 // Apply displacements to the system
-                self.system.set_displacements(x);
+                self.system.set_displacements(u);
                 self.system.compute_internal_forces(Some(&mut q), Some(&mut K), None);
 
                 // Apply load scaling
@@ -217,15 +217,15 @@ impl<'a> DisplacementControl<'a> {
             };
 
             // Constraint function for displacement control
-            let mut constraint = |x: &DVector<f64>, _λ: f64, c: &mut f64, dcdx: &mut DVector<f64>, dcdλ: &mut f64| {
-                *c = x[dof.index] - u_target;
+            let mut constraint = |u: &DVector<f64>, _λ: f64, c: &mut f64, dcdx: &mut DVector<f64>, dcdλ: &mut f64| {
+                *c = u[dof.index] - u_target;
                 *dcdλ = 0.0;
 
                 dcdx.fill(0.0);
                 dcdx[dof.index] = 1.0;
             };
 
-            info = solve_newton_constrained(&mut objective, &mut constraint, x0, λ0, &tolerances, &self.settings)
+            info = solve_newton_constrained(&mut objective, &mut constraint, u0, λ0, &tolerances, &self.settings)
                 .map_err(StaticSolverError::EquilibriumError)?;
 
             // Execute callback and pass current system info

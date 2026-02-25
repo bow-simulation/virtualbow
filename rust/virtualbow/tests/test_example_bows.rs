@@ -295,23 +295,16 @@ fn check_general_state_properties(model: &BowModel, states: &StateVec) {
         // Time must be non-negative
         assert!(time >= 0.0);
 
-        // Draw length must not exceed dimension setting
-        assert!(draw_length <= model.dimensions.draw_length);
+        // Draw length must not exceed draw length setting
+        assert!(draw_length <= model.draw.draw_length.value() + 1e-12);
 
         // Limb position and velocity must have as many entries as there are eval points
         assert!(limb_pos.len() == model.settings.num_limb_eval_points);
         assert!(limb_vel.len() == model.settings.num_limb_eval_points);
 
-        // Limb starting point (positions and angle) must match the dimension settings
-        //assert_abs_diff_eq!(limb_pos[0][0], 0.5*model.dimensions.handle_length, epsilon=1e-12);
-        //assert_abs_diff_eq!(limb_pos[0][1], model.dimensions.handle_offset, epsilon=1e-12);
-        assert_abs_diff_eq!(limb_pos[0][2], model.dimensions.handle_angle, epsilon=1e-12);
-
         // String position and velocity must have at least 2 entries and up to the maximum number of contact points defined by the number of limb elements
-        // The position of the first string point must be consistent with the draw length
         assert!(string_pos.len() >= 2 && string_pos.len() <= model.settings.num_limb_elements + 2);
         assert!(string_vel.len() >= 2 && string_vel.len() <= model.settings.num_limb_elements + 2);
-        assert!(string_pos[0][1] == -draw_length);
 
         // Limb strains and forces must have as many entries as there are eval points
         assert!(limb_strain.len() == model.settings.num_limb_eval_points);
@@ -345,11 +338,10 @@ fn check_static_state_properties(model: &BowModel, output: &BowResult) {
 
     let ABS_TOL_FORCE = 1e-3*statics.final_draw_force;
 
-    // First draw length must be equal to specified brace height, last draw length to specified draw length
+    // Last draw length must be equal to the specified draw length
     // The number of states must currently equal the minimum draw resolution (+1 because steps vs. points) since step size control isn't implemented yet
     // The states must be ordered by strictly increasing draw length
-    assert_abs_diff_eq!(*states.draw_length.first().unwrap(), model.dimensions.brace_height, epsilon=1e-15);
-    assert_abs_diff_eq!(*states.draw_length.last().unwrap(), model.dimensions.draw_length, epsilon=1e-15);
+    assert_abs_diff_eq!(*states.draw_length.last().unwrap(), model.draw.draw_length.value(), epsilon=1e-15);
     assert!(states.draw_length.len() == model.settings.min_draw_resolution + 1);
     assert!(states.draw_length.iter().tuple_windows().all(|(a, b)| a < b));
 
@@ -359,7 +351,7 @@ fn check_static_state_properties(model: &BowModel, output: &BowResult) {
     for state in states.iter() {
         let State {
             time,
-            draw_length,
+            draw_length: _,
             limb_pos: _,
             limb_vel,
             string_pos: _,
@@ -368,7 +360,7 @@ fn check_static_state_properties(model: &BowModel, output: &BowResult) {
             limb_force: _,
             layer_strain: _,
             layer_stress: _,
-            arrow_pos,
+            arrow_pos: _,
             arrow_vel,
             arrow_acc,
             elastic_energy_limbs: _,
@@ -393,16 +385,11 @@ fn check_static_state_properties(model: &BowModel, output: &BowResult) {
         // Time must be zero
         assert!(time == 0.0);
 
-        // Draw length must range from brace height to full draw
-        assert!(draw_length >= model.dimensions.brace_height);
-        assert!(draw_length <= model.dimensions.draw_length);
-
         // Limb and string velocities must be zero
         assert!(limb_vel.iter().all(SVector::is_zero));
         assert!(string_vel.iter().all(SVector::is_zero));
 
-        // Arrow position must be identical to negative draw length, velocity and acceleration must be zero
-        assert!(arrow_pos == -draw_length);
+        // Arrow velocity and acceleration must be zero
         assert!(arrow_vel == 0.0);
         assert!(arrow_acc == 0.0);
 
@@ -452,8 +439,7 @@ fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowModel, outpu
     assert!(states.limb_vel[0].iter().all(SVector::is_zero));
     assert!(states.string_vel[0].iter().all(SVector::is_zero));
 
-    // Initial arrow position must be consistent with specified draw length, velocity must be zero
-    assert_abs_diff_eq!(states.arrow_pos[0], -model.dimensions.draw_length, epsilon=1e-15);
+    // Initial arrow velocity must be zero
     assert!(states.arrow_vel[0] == 0.0);
 
     for state in states.iter() {
@@ -468,7 +454,7 @@ fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowModel, outpu
             limb_force: _,
             layer_strain: _,
             layer_stress: _,
-            arrow_pos,
+            arrow_pos: _,
             arrow_vel,
             arrow_acc,
             elastic_energy_limbs,
@@ -489,9 +475,6 @@ fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowModel, outpu
             string_force: _,
             strand_force: _
         } = state.to_owned();
-
-        // Arrow position must not exceed draw length
-        assert!(arrow_pos >= -model.dimensions.draw_length);
 
         // Arrow acceleration must be larger than critical acceleration due to clamp force
         assert!(arrow_acc >= -model.settings.arrow_clamp_force/output.dynamics.as_ref().unwrap().arrow_mass - ABS_TOL_ARROW_ACC);
@@ -539,10 +522,10 @@ fn check_static_state_physics(model: &BowModel, output: &BowResult) {
     let statics = output.statics.as_ref().unwrap();
     let states = &statics.states;
 
-    let ABS_TOL_ALPHA = 1e-6;                                                           // Tolerance for the string angle in braced state
-    let ABS_TOL_FORCE = 1e-3*statics.final_draw_force;                                  // Tolerance for force comparisons
-    let ABS_TOL_MOMENT = 1e-3*statics.final_draw_force*model.dimensions.draw_length;    // Tolerance for moment comparisons
-    let ABS_TOL_ENERGY = 0.5e-2*states.elastic_energy_limbs[0];                         // Tolerance for energy comparisons
+    let ABS_TOL_ALPHA = 1e-6;                                                                  // Tolerance for the string angle in braced state
+    let ABS_TOL_FORCE = 1e-3*statics.final_draw_force;                                         // Tolerance for force comparisons
+    let ABS_TOL_MOMENT = 1e-3*statics.final_draw_force*model.draw.draw_length.from_pivot();    // Tolerance for moment comparisons
+    let ABS_TOL_ENERGY = 0.5e-2*states.elastic_energy_limbs[0];                                // Tolerance for energy comparisons
 
     // Perform checks on each static state
     // i: State

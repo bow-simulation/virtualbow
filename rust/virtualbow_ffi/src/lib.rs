@@ -71,14 +71,6 @@ impl Response {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn new_model() -> Response {    
-    match api::new_model() {
-        Ok(vec) => Response::data(vec),
-        Err(msg) => Response::error(msg),
-    }
-}
-
-#[no_mangle]
 pub unsafe extern "C" fn load_model(path: *const c_char, converted: &mut bool) -> Response {
     let path = CStr::from_ptr(path);
     let path = path.to_str().expect("Failed to convert path to UTF-8");  // TODO: Encapsulate

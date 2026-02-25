@@ -44,35 +44,46 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     dynamic_iteration_tolerance
 )
 
-enum class HandleReference {
-    Back,
-    Belly,
-    Profile
-};
+struct FlexibleHandle {};
 
-NLOHMANN_JSON_SERIALIZE_ENUM(
-    HandleReference, {
-        {HandleReference::Back, "back"},
-        {HandleReference::Belly, "belly"},
-        {HandleReference::Profile, "profile"}
-    }
-)
-
-struct Dimensions {
-    HandleReference handle_reference;
-    double handle_length;
-    double handle_offset;
-    double handle_angle;
-    double brace_height;
-    double draw_length;
+struct RigidHandle {
+    double length;
+    double angle;
+    double pivot;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    Dimensions,
-    handle_reference,
-    handle_length,
-    handle_offset,
-    handle_angle,
+    RigidHandle,
+    length,
+    angle,
+    pivot
+)
+
+using Handle = std::variant<FlexibleHandle, RigidHandle>;
+
+void to_json(nlohmann::json& obj, const Handle& input);
+void from_json(const nlohmann::json& obj, Handle& output);
+
+struct StandardDrawLength {
+    double value;
+};
+
+struct AMODrawLength {
+    double value;
+};
+
+using DrawLength = std::variant<StandardDrawLength, AMODrawLength>;
+
+void to_json(nlohmann::json& obj, const DrawLength& input);
+void from_json(const nlohmann::json& obj, DrawLength& output);
+
+struct Draw {
+    double brace_height;
+    DrawLength draw_length;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    Draw,
     brace_height,
     draw_length
 )
@@ -245,12 +256,15 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
 struct BowModel {
     std::string comment;
     Settings settings;
-    Dimensions dimensions;
+    Handle handle;
+    Draw draw;
     Profile profile;
     Section section;
     String string;
     Masses masses;
     Damping damping;
+
+    static BowModel example();
 
     bool isValidMaterialName(const std::string& name) const;
     std::string generateMaterialName() const;
@@ -263,7 +277,8 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     BowModel,
     comment,
     settings,
-    dimensions,
+    handle,
+    draw,
     profile,
     section,
     string,

@@ -9,6 +9,7 @@
 
 Q_DECLARE_METATYPE(LayerAlignment)
 Q_DECLARE_METATYPE(ArrowMass)
+Q_DECLARE_METATYPE(DrawLength)
 
 int main(int argc, char* argv[]) {   
     QApplication::setOrganizationName(Config::ORGANIZATION_NAME);
@@ -20,6 +21,7 @@ int main(int argc, char* argv[]) {
 
     qRegisterMetaType<LayerAlignment>("LayerAlignment");
     qRegisterMetaType<ArrowMass>("ArrowMass");
+    qRegisterMetaType<DrawLength>("DrawLength");
 
     QApplication application(argc, argv);
     application.installEventFilter(new KeyEventFilter());

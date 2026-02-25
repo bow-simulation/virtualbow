@@ -3,7 +3,7 @@ use itertools::Itertools;
 use nalgebra::{DVector, SVector, vector};
 use serde::{Deserialize, Serialize};
 use crate::errors::ModelError;
-use crate::input::{BowModel, HandleReference};
+use crate::input::{BowModel, DrawLength};
 use crate::profile::profile::{CurvePoint, ProfileCurve};
 use crate::sections::section::LayeredCrossSection;
 use virtualbow_num::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
@@ -13,6 +13,8 @@ use crate::output::LimbInfo;
 pub struct LimbGeometry {
     pub profile: ProfileCurve,           // Limb profile curve
     pub section: LayeredCrossSection,    // Limb cross sections
+    pub brace_ref: f64,                  // Reference position in y direction from which the brace height is measured
+    pub draw_ref: f64,                   // Reference position in y direction from which the draw length is measured
 }
 
 // TODO: Return values s_nodes, u_node might not be needed if the evaluation works properly
@@ -36,6 +38,9 @@ pub struct DiscreteLimbGeometry {
 
     pub strain_eval: Vec<Vec<SVector<f64, 3>>>,      // Strain evaluation matrices for each evaluation point
     pub stress_eval: Vec<Vec<SVector<f64, 3>>>,      // Stress evaluation matrices for each evaluation point
+
+    pub brace_ref: f64,                  // Reference position for measurement of the brace height
+    pub draw_ref: f64,                   // Reference position for measurement of the draw length
 }
 
 impl LimbGeometry {
@@ -43,19 +48,24 @@ impl LimbGeometry {
         // Section properties according to layers, materials and alignment to the profile curve
         let section = LayeredCrossSection::new(&input.section)?;
 
-        // Profile curve with starting point according to the dimension settings.
-        // First the eccentricity, i.e. the distance of the reference point from the profile curve at the root of the limb is calculated.
-        // Then the starting point according to handle dimensions, eccentricity and limb root angle follows.
-        let eccentricity = match input.dimensions.handle_reference {
-            HandleReference::Back => section.section_bounds(0.0).0,
-            HandleReference::Belly => section.section_bounds(0.0).1,
-            HandleReference::Profile => 0.0,
-        };
-        let start = CurvePoint::new(0.0, input.dimensions.handle_angle, vector![
-            0.5*input.dimensions.handle_length + eccentricity*f64::sin(input.dimensions.handle_angle),
-            input.dimensions.handle_offset - eccentricity*f64::cos(input.dimensions.handle_angle)
-        ]);
+        // Determine rigid parameters of the handle according to selection (flexible/rigid)
+        let rigid_handle = &input.handle.to_rigid();
+
+        // Profile curve with starting point according to the rigid handle length and angle
+        // The pivot point of the handle determines the brace and draw offsets, while the profile curve always starts at y = 0
+        let start = CurvePoint::new(0.0, rigid_handle.angle, vector![0.5*rigid_handle.length, 0.0]);
         let profile = ProfileCurve::new(start, &input.profile.segments)?;
+
+        // Calculate the eccentricity, i.e. the distance between the reference point (belly) and the profile curve at the root of the limb.
+        let eccentricity = section.section_bounds(0.0).1;
+
+        // The brace offset is the offset of the pivot point, corrected by the contribution of the excentricity
+        // The draw offset is either the same as the brace offset in standard definition or adjusted by 1.75in in AMO mode.
+        let brace_ref = eccentricity*f64::cos(rigid_handle.angle) - rigid_handle.pivot;
+        let draw_ref = match input.draw.draw_length {
+            DrawLength::Standard(_) => brace_ref,
+            DrawLength::Amo(_) => brace_ref + 1.75*0.0254    // TODO: Verify direction
+        };
 
         // Check for self-intersecting geometry, which is the case when the thickness of the limb is higher than the radius of curvature
         // Since we can't check this analytically, we check for a fixed number of points along the length of the limb
@@ -75,7 +85,9 @@ impl LimbGeometry {
 
         Ok(Self {
             profile,
-            section
+            section,
+            brace_ref,
+            draw_ref
         })
     }
 
@@ -137,7 +149,9 @@ impl LimbGeometry {
             stress_eval,
             p_eval,
             w_eval,
-            h_eval
+            h_eval,
+            brace_ref: self.brace_ref,
+            draw_ref: self.draw_ref
         }
     }
 }

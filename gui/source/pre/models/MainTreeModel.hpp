@@ -17,14 +17,15 @@ enum ItemType {
 enum TopLevelItem {
     COMMENTS = 0,
     SETTINGS = 1,
-    DIMENSIONS = 2,
-    MATERIALS = 3,
-    LAYERS = 4,
-    PROFILE = 5,
-    WIDTH = 6,
-    STRING = 7,
-    MASSES = 8,
-    DAMPING = 9,
+    DRAW = 2,
+    HANDLE = 3,
+    MATERIALS = 4,
+    LAYERS = 5,
+    PROFILE = 6,
+    WIDTH = 7,
+    STRING = 8,
+    MASSES = 9,
+    DAMPING = 10,
 
     LAST = DAMPING,
     COUNT = LAST + 1

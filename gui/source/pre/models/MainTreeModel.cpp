@@ -547,7 +547,8 @@ QString MainTreeModel::topLevelItemName(int row) const {
     switch(row) {
         case TopLevelItem::COMMENTS: return "Comments";
         case TopLevelItem::SETTINGS: return "Settings";
-        case TopLevelItem::DIMENSIONS: return "Dimensions";
+        case TopLevelItem::DRAW: return "Draw";
+        case TopLevelItem::HANDLE: return "Handle";
         case TopLevelItem::MATERIALS: return "Materials";
         case TopLevelItem::LAYERS: return "Layers";
         case TopLevelItem::PROFILE: return "Profile";
@@ -563,7 +564,8 @@ QString MainTreeModel::topLevelToolTip(int row) const {
     switch(row) {
         case TopLevelItem::COMMENTS: return "Comments about this bow";
         case TopLevelItem::SETTINGS: return "Settings for the simulation";
-        case TopLevelItem::DIMENSIONS: return "Brace height, draw length and handle geometry";
+        case TopLevelItem::DRAW: return "Brace height and draw length";
+        case TopLevelItem::HANDLE: return "Handle geometry";
         case TopLevelItem::MATERIALS: return "Materials that can be assigned to the layers";
         case TopLevelItem::LAYERS: return "Layers that make up the bow limbs";
         case TopLevelItem::PROFILE: return "Initial profile shape of the bow";
@@ -579,7 +581,8 @@ QIcon MainTreeModel::topLevelItemIcon(int row) const {
     switch(row) {
         case TopLevelItem::COMMENTS: return QIcon(":/icons/model-comments.svg");
         case TopLevelItem::SETTINGS: return QIcon(":/icons/model-settings.svg");
-        case TopLevelItem::DIMENSIONS: return QIcon(":/icons/model-dimensions.svg");
+        case TopLevelItem::DRAW: return QIcon(":/icons/model-draw.svg");
+        case TopLevelItem::HANDLE: return QIcon(":/icons/model-handle.svg");
         case TopLevelItem::MATERIALS: return QIcon(":/icons/model-materials.svg");
         case TopLevelItem::LAYERS: return QIcon(":/icons/model-layers.svg");
         case TopLevelItem::PROFILE: return QIcon(":/icons/model-profile.svg");

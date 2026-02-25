@@ -39,9 +39,10 @@ pub enum ModelError {
 
     DimensionsInvalidBraceHeight(f64),
     DimensionsInvalidDrawLength(f64),
-    DimensionsInvalidHandleLength(f64),
-    DimensionsInvalidHandleSetback(f64),
-    DimensionsInvalidHandleAngle(f64),
+
+    HandleInvalidLength(f64),
+    HandleInvalidAngle(f64),
+    HandleInvalidPivot(f64),
 
     MaterialInvalidName(String),
     MaterialInvalidColor(String, String),
@@ -144,10 +145,11 @@ impl Display for ModelError {
             ModelError::SettingsInvalidDynamicTolerance(value)        => write!(f, "Settings: Dynamic iteration tolerance must be a positive number but actual value is {value}.")?,
 
             ModelError::DimensionsInvalidBraceHeight(value)   => write!(f, "Dimensions: Brace height must be a finite number, actual value is {value}.")?,
-            ModelError::DimensionsInvalidDrawLength(value)    => write!(f, "Dimensions: Draw length must be finite and larger than the brace height but actual value is {value}.")?,
-            ModelError::DimensionsInvalidHandleLength(value)  => write!(f, "Dimensions: Handle length must be a non-negative number but actual value is {value}.")?,
-            ModelError::DimensionsInvalidHandleSetback(value) => write!(f, "Dimensions: Handle setback must be a finite number but actual value is {value}.")?,
-            ModelError::DimensionsInvalidHandleAngle(value)   => write!(f, "Dimensions: Handle angle must be a finite number but actual value is {value}.")?,
+            ModelError::DimensionsInvalidDrawLength(value)    => write!(f, "Dimensions: Draw length wrt. handle pivot must be finite and larger than the brace height but actual value is {value}.")?,
+
+            ModelError::HandleInvalidLength(value) => write!(f, "Handle: Handle length must be a non-negative number but actual value is {value}.")?,
+            ModelError::HandleInvalidAngle(value)  => write!(f, "Handle: Handle angle must be a finite number but actual value is {value}.")?,
+            ModelError::HandleInvalidPivot(value)  => write!(f, "Handle: Handle pivot must be a finite number but actual value is {value}.")?,
 
             ModelError::MaterialInvalidName(value)                => write!(f, "Material: Name must be a non-empty string but actual value is \"{value}\".")?,
             ModelError::MaterialInvalidColor(name, value)         => write!(f, "Material \"{name}\": Color must be a hex color string (starting with #, followed by 6 digits of 0-9, a-f) but actual value is {value}.")?,

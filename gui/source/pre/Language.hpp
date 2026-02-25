@@ -21,6 +21,9 @@ namespace Tooltips {
     inline const QString MassStringTip = QStringLiteral("Additional mass(es) at the string tip (e.g. serving)");
     inline const QString MassLimbTip = QStringLiteral("Additional mass(es) at the limb tip (e.g. tip overlay)");
 
+    inline const QString DrawLengthDefinition = QStringLiteral("Select how the draw length is to be defined");
+    inline const QString DrawLengthStandard = QStringLiteral("Draw length as measured from the pivot point of the handle");
+    inline const QString DrawLengthAMO = QStringLiteral("Draw length as measured from the pivot point of the handle + 1.75\" according to the AMO definition");
 
     inline const QString LayerMaterialSelection = QStringLiteral("Material assigned to this layer");
     inline const QString LayerMaterialItem = QStringLiteral("Assign \"%1\" to this layer");

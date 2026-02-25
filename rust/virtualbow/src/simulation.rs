@@ -82,7 +82,6 @@ impl<'a> Simulation<'a> {
 
         // Discretize geometry into evaluation points and elements
         let geometry = geometry.discretize(model.settings.num_limb_eval_points, model.settings.num_limb_elements);
-
         let elements = geometry.segments.iter().map(BeamElement::new);
 
         let mut system = System::new();
@@ -112,7 +111,8 @@ impl<'a> Simulation<'a> {
 
         // String center node that is fixed in the case of no string.
         // The rest of the string nodes come from the limb.
-        let string_center = system.create_node(&vector![0.0, -model.dimensions.brace_height, 0.0], &[DofType::Locked, DofType::active_if(string), DofType::Locked]);
+
+        let string_center = system.create_node(&vector![0.0, geometry.brace_ref - model.draw.brace_height, 0.0], &[DofType::Locked, DofType::active_if(string), DofType::Locked]);
         let mut string_nodes = vec![string_center];  // TODO: Preallocate
         string_nodes.extend_from_slice(&limb_nodes);
 
@@ -161,7 +161,7 @@ impl<'a> Simulation<'a> {
             // Abort if the initial slope is negative, which means that the supplied brace height is too
             if slope1 < 0.0 {
                 // TODO: Determine the minimum required brace height and put it into the error message
-                return Err(ModelError::SimulationBraceHeightTooLow(model.dimensions.brace_height));
+                return Err(ModelError::SimulationBraceHeightTooLow(model.draw.brace_height));
             }
 
             // Function that applies the given string length to the bow, solves for static equilibrium with the string pinned at brace height.
@@ -175,7 +175,7 @@ impl<'a> Simulation<'a> {
                 let settings = NewtonSettings::default();    // TODO: Don't use default settings here?
 
                 let solver = DisplacementControl::new(&mut system, tolerances, settings);   // TODO: Don't construct new solver in each iteration?
-                let result = solver.solve_equilibrium(string_nodes[0].y(), 0.0);    // String node is already placed at brace height, therefore target displacement is zero
+                let result = solver.solve_equilibrium(string_nodes[0].y(), 0.0);    // TODO: Code repetition with initial position of the string node above
                 let slope = get_string_slope(&system);
 
                 (slope, result)
@@ -277,10 +277,12 @@ impl<'a> Simulation<'a> {
             let mut states = StateVec::new();
 
             let string_dof = simulation.string_nodes[0].y();    // String center dof
-            solver.solve_equilibrium_path(string_dof, -(model.dimensions.draw_length - model.dimensions.brace_height), model.settings.min_draw_resolution, &mut |system, eval, info| {
+            let draw_displacement = (simulation.geometry.draw_ref - model.draw.draw_length.value()) - (simulation.geometry.brace_ref - model.draw.brace_height);    // Relative displacement from brace height to full draw
+
+            solver.solve_equilibrium_path(string_dof, draw_displacement, model.settings.min_draw_resolution, &mut |system, eval, info| {
                 let stiffness = 1.0/info.dxdλ[string_dof.index];    // Draw stiffness
                 let state = simulation.get_bow_state(system, eval, -2.0*stiffness);  // TODO: Why the sign flip of the stiffness?
-                let progress = (state.draw_length - model.dimensions.brace_height)/(model.dimensions.draw_length - model.dimensions.brace_height);
+                let progress = state.draw_length/model.draw.draw_length.value();
                 states.push(state);
 
                 callback(SimulationMode::Static, 100.0*progress)
@@ -326,7 +328,7 @@ impl<'a> Simulation<'a> {
                 system.element_mut::<MassElement>(simulation.mass_element_arrow).set_mass(0.5*simulation.arrow_mass);
 
                 // Estimate timeout after which to abort the simulation
-                let k_bow = statics.final_draw_force/(model.dimensions.draw_length - model.dimensions.brace_height);
+                let k_bow = statics.final_draw_force/(model.draw.draw_length.from_pivot() - model.draw.brace_height);
                 let t_max = model.settings.timeout_factor*FRAC_PI_2*f64::sqrt(simulation.arrow_mass/k_bow);
                 let step = TimeStepping::Adaptive{
                     min_timestep: model.settings.min_timestep,
@@ -363,9 +365,9 @@ impl<'a> Simulation<'a> {
                     // Only update the brace crossing time if it is estimated,
                     // no need to update once it is known
                     if estimated {
-                        let ut = state.arrow_pos;                   // Current arrow travel
-                        let u0 = -model.dimensions.draw_length;     // Arrow travel at full draw
-                        let uT = -model.dimensions.brace_height;    // Arrow travel at brace height
+                        let ut = state.arrow_pos;                                                   // Current arrow position
+                        let u0 = simulation.geometry.draw_ref - model.draw.draw_length.value();     // Arrow position at full draw
+                        let uT = simulation.geometry.brace_ref - model.draw.brace_height;           // Arrow position at brace height
 
                         if ut < uT {
                             // Arrow hasn't yet reached brace height: Update estimate for crossing time from current time and velocity
@@ -511,7 +513,7 @@ impl<'a> Simulation<'a> {
     // TODO: Find a better way to get the stiffness of the force draw curve in there
     fn get_bow_state(&self, system: &System, eval: &SystemEval, draw_stiffness: f64) -> State {
         let time = system.get_time();
-        let draw_length = -system.get_position(self.string_nodes[0].y());
+        let draw_length = self.geometry.draw_ref - system.get_position(self.string_nodes[0].y());
         let draw_force = -2.0*eval.get_external_force(self.string_nodes[0].y());
 
         // The evaluation of the arrow position, velocity and acceleration depends on whether the arrow has separated from the string.

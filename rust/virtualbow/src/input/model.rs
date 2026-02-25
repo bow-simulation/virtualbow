@@ -17,10 +17,11 @@ impl BowModel {
     }
 
     pub fn validate(&self) -> Result<(), ModelError> {
-        let Self { comment: _, settings, dimensions, section, profile, string, masses, damping } = self;
+        let Self { comment: _, settings, handle, draw, section, profile, string, masses, damping } = self;
 
         settings.validate()?;
-        dimensions.validate()?;
+        handle.validate()?;
+        draw.validate()?;
         profile.validate()?;
         section.validate()?;
         string.validate()?;
@@ -35,26 +36,23 @@ impl BowModel {
         Self {
             comment: "".into(),
             settings: Settings::default(),
-            dimensions: Dimensions {
-                handle_reference: HandleReference::Belly,
-                handle_length: 0.0,
-                handle_offset: 0.0,
-                handle_angle: 0.0,
+            handle: Handle::Flexible,
+            draw: Draw {
                 brace_height: 0.2,
-                draw_length: 0.7
+                draw_length: DrawLength::Standard(0.7)
             },
             section: Section {
                 alignment: LayerAlignment::SectionBack,
                 width: Width::linear(0.04, 0.01),
                 materials: vec![Material {
-                     name: "Material 1".into(),
-                     color: "#d0b391".into(),
-                     density: 675.0,
-                     youngs_modulus: 12e9,
-                     shear_modulus: 6e9,
-                     tensile_strength: 0.0,
-                     compressive_strength: 0.0,
-                     safety_margin: 0.0,
+                    name: "Material 1".into(),
+                    color: "#d0b391".into(),
+                    density: 675.0,
+                    youngs_modulus: 12e9,
+                    shear_modulus: 6e9,
+                    tensile_strength: 0.0,
+                    compressive_strength: 0.0,
+                    safety_margin: 0.0,
                 }],
                 layers: vec![Layer {
                     name: "Layer 1".into(),
@@ -126,18 +124,62 @@ impl Settings {
     }
 }
 
-impl Dimensions {
+impl Handle {
     pub fn validate(&self) -> Result<(), ModelError> {
-        let &Self { brace_height, draw_length, handle_reference: _, handle_length, handle_offset, handle_angle} = self;
-
-        brace_height.validate_positive().map_err(ModelError::DimensionsInvalidBraceHeight)?;
-        draw_length.validate_larger_than(brace_height).map_err(ModelError::DimensionsInvalidDrawLength)?;
-
-        handle_length.validate_nonneg().map_err(ModelError::DimensionsInvalidHandleLength)?;
-        handle_offset.validate_finite().map_err(ModelError::DimensionsInvalidHandleSetback)?;
-        handle_angle.validate_finite().map_err(ModelError::DimensionsInvalidHandleAngle)?;
+        match self {
+            Handle::Flexible => {
+                // Nothing to validate here
+            }
+            Handle::Rigid(RigidHandle{ length, angle, pivot }) => {
+                length.validate_nonneg().map_err(ModelError::HandleInvalidLength)?;
+                angle.validate_finite().map_err(ModelError::HandleInvalidAngle)?;
+                pivot.validate_finite().map_err(ModelError::HandleInvalidPivot)?;
+            }
+        }
 
         Ok(())
+    }
+
+    // Determines the rigid handle parameters:
+    // - If a rigid handle is already selected, just pass its parameters through
+    // - A flexible handle corresponds to rigid handle length zero, angle zero and the pivot point placed at the belly
+    pub fn to_rigid(&self) -> &RigidHandle {
+        match self {
+            Handle::Rigid(handle) => handle,
+            Handle::Flexible => &RigidHandle {
+                length: 0.0,
+                angle: 0.0,
+                pivot: 0.0
+            }
+        }
+    }
+}
+
+impl Draw {
+    pub fn validate(&self) -> Result<(), ModelError> {
+        let Self { brace_height, draw_length } = self;
+
+        brace_height.validate_positive().map_err(ModelError::DimensionsInvalidBraceHeight)?;
+        draw_length.from_pivot().validate_larger_than(*brace_height).map_err(ModelError::DimensionsInvalidDrawLength)?;
+
+        Ok(())
+    }
+}
+
+impl DrawLength {
+    // Enclosed value, independent of present enum variant
+    pub fn value(&self) -> f64 {
+        match *self {
+            Self::Standard(value) | Self::Amo(value) => value,
+        }
+    }
+
+    // Draw length as measured from the pivot point of the handle
+    pub fn from_pivot(&self) -> f64 {
+        match *self {
+            DrawLength::Standard(value) => value,            // Already measured from pivot
+            DrawLength::Amo(value) => value - 1.75*0.0254    // Subtract 1.75 inches according to AMO standard
+        }
     }
 }
 

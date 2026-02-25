@@ -2,7 +2,7 @@
 #include "MainTreeModel.hpp"
 #include "CommentsModel.hpp"
 #include "SettingsModel.hpp"
-#include "DimensionsModel.hpp"
+#include "DrawModel.hpp"
 #include "MaterialModel.hpp"
 #include "LayerModel.hpp"
 #include "StringModel.hpp"
@@ -121,9 +121,9 @@ SettingsModel* MainModel::getSettingsModel() {
     return nullptr;
 }
 
-DimensionsModel* MainModel::getDimensionsModel() {
+DrawModel* MainModel::getDrawModel() {
     if(bow.has_value()) {
-        auto model = new DimensionsModel(bow->dimensions);
+        auto model = new DrawModel(bow->draw);
         connectSubModel(model);
         return model;
     }
@@ -250,8 +250,8 @@ TableModel* MainModel::getSplineModel(int index) {
 }
 
 void MainModel::newFile() {
-    // Create  default bow data, which is not linked to any file yet
-    this->bow = new_model();
+    // Create default bow data, which is not linked to any file yet
+    this->bow = BowModel::example();
     this->modelTreeSelectionModel->clearSelection();    // Needs to be done before resetting the model in order to get a selection changed signal
     this->mainTreeModel->setBowModel(&bow.value());
     this->path = "";

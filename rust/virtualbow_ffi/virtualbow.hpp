@@ -24,8 +24,6 @@ struct Response {
 
 extern "C" {
 
-Response new_model();
-
 Response load_model(const char *path, bool *converted);
 
 Response save_model(const uint8_t *data, uintptr_t size, const char *path, bool backup);

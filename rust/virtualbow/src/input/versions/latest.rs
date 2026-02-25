@@ -14,7 +14,8 @@ pub use version1::Damping;
 pub struct BowModel {
     pub comment: String,
     pub settings: Settings,
-    pub dimensions: Dimensions,
+    pub handle: Handle,
+    pub draw: Draw,
     pub profile: Profile,
     pub section: Section,
     pub string: BowString,
@@ -60,22 +61,31 @@ impl Default for Settings {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct Dimensions {
-    pub handle_reference: HandleReference,
-    pub handle_angle: f64,
-    pub handle_length: f64,
-    pub handle_offset: f64,
+pub struct Draw {
     pub brace_height: f64,
-    pub draw_length: f64,
+    pub draw_length: DrawLength,
 }
 
-// Point at the limb root from which the handle's pivot point is measured
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
-pub enum HandleReference {
-    Back,
-    Belly,
-    Profile,
+#[serde(tag = "type", content = "value", rename_all = "snake_case")]
+pub enum DrawLength {
+    Standard(f64),    // Measured from the handle's belly or pivot point
+    Amo(f64)          // Same but with 1.75" offset according to the AMO standard (not named AMO because snake_case turns that into a_m_o)
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[serde(tag = "type", content = "value", rename_all = "snake_case")]
+pub enum Handle {
+    Flexible,
+    Rigid(RigidHandle)
+}
+
+// Parameters for a rigid handle sections between the bow limbs
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct RigidHandle {
+    pub length: f64,
+    pub angle: f64,
+    pub pivot: f64
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -184,13 +194,22 @@ impl From<version3::BowModel> for BowModel {
             .. Default::default()
         };
 
-        let dimensions = Dimensions {
-            brace_height: model.dimensions.brace_height,
-            draw_length: model.dimensions.draw_length,
-            handle_reference: HandleReference::Back,    // Field was newly introduced. Previously the handle was defined with respect to the back of the limb.
-            handle_angle: model.dimensions.handle_angle,
-            handle_length: model.dimensions.handle_length,
-            handle_offset: model.dimensions.handle_setback,
+        let handle = Handle::Rigid(RigidHandle {
+            length: model.dimensions.handle_length,
+            angle: model.dimensions.handle_angle,
+            pivot: model.dimensions.handle_setback,
+        });
+
+        // The brace height changed reference point from back to belly,
+        // therefore we need the thickness of the limb root and the limb angle to work out the difference.
+        let thickness: f64 = model.layers.iter()
+            .filter(|layer| layer.height.0[0][0] == 0.0)    // Filter layers that have a thickness at relative position 0
+            .map(|layer| layer.height.0[0][1])              // Extract those thicknesses...as
+            .sum();                                       // And sum them up
+
+        let draw = Draw {
+            brace_height: model.dimensions.brace_height - thickness*f64::cos(model.dimensions.handle_angle),
+            draw_length: DrawLength::Standard(model.dimensions.draw_length),
         };
 
         let materials = model.materials.iter().map(|material| {
@@ -247,7 +266,8 @@ impl From<version3::BowModel> for BowModel {
         Self {
             comment: model.comment,
             settings,
-            dimensions,
+            handle,
+            draw,
             profile,
             section,
             string: model.string,

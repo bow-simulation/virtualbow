@@ -3,7 +3,7 @@
 #include "pre/models/MainTreeModel.hpp"
 #include "pre/views/CommentsView.hpp"
 #include "pre/views/SettingsView.hpp"
-#include "pre/views/DimensionsView.hpp"
+#include "pre/views/DrawView.hpp"
 #include "pre/views/MaterialView.hpp"
 #include "pre/views/LayerView.hpp"
 #include "pre/views/WidthView.hpp"
@@ -42,10 +42,17 @@ EditDock::EditDock(MainModel* viewModel)
             return;
         }
 
-        if(selection.size() == 1 && selection.first().internalId() == ItemType::TOPLEVEL && selection.first().row() == TopLevelItem::DIMENSIONS) {
-            auto model = viewModel->getDimensionsModel();
-            auto editor = new DimensionsView(model);
+        if(selection.size() == 1 && selection.first().internalId() == ItemType::TOPLEVEL && selection.first().row() == TopLevelItem::DRAW) {
+            auto model = viewModel->getDrawModel();
+            auto editor = new DrawView(model);
             showEditor(editor);
+            return;
+        }
+
+        if(selection.size() == 1 && selection.first().internalId() == ItemType::TOPLEVEL && selection.first().row() == TopLevelItem::HANDLE) {
+            //auto model = viewModel->getDrawModel();
+            //auto editor = new DrawView(model);
+            //showEditor(editor);
             return;
         }
 

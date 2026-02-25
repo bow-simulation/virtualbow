@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>icons/model-dimensions.svg</file>
+        <file>icons/model-draw.svg</file>
+        <file>icons/model-handle.svg</file>
         <file>icons/model-layers.svg</file>
         <file>icons/model-masses.svg</file>
         <file>icons/model-profile.svg</file>

@@ -67,8 +67,8 @@ add_executable(
     source/pre/models/CommentsModel.hpp
     source/pre/models/DampingModel.cpp
     source/pre/models/DampingModel.hpp
-    source/pre/models/DimensionsModel.cpp
-    source/pre/models/DimensionsModel.hpp
+    source/pre/models/DrawModel.cpp
+    source/pre/models/DrawModel.hpp
     source/pre/models/LayerModel.cpp
     source/pre/models/LayerModel.hpp
     source/pre/models/LayersModel.cpp
@@ -119,8 +119,8 @@ add_executable(
     source/pre/views/CommentsView.hpp
     source/pre/views/DampingView.cpp
     source/pre/views/DampingView.hpp
-    source/pre/views/DimensionsView.cpp
-    source/pre/views/DimensionsView.hpp
+    source/pre/views/DrawView.cpp
+    source/pre/views/DrawView.hpp
     source/pre/views/docks/EditDock.cpp
     source/pre/views/docks/EditDock.hpp
     source/pre/views/docks/PlotDock.cpp
@@ -153,6 +153,8 @@ add_executable(
     source/pre/views/MassesView.hpp
     source/pre/views/ArrowMassView.cpp
     source/pre/views/ArrowMassView.hpp
+    source/pre/views/DrawLengthView.cpp
+    source/pre/views/DrawLengthView.hpp
     source/pre/views/MaterialView.cpp
     source/pre/views/MaterialView.hpp
     source/pre/views/primitive/ColorView.cpp

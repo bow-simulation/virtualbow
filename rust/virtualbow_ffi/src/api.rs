@@ -9,13 +9,6 @@ use virtualbow::simulation::{SimulationMode, Simulation};
 
 // Safe Rust API to be wrapped and exposed by the unsafe FFI
 
-pub fn new_model() -> Result<Vec<u8>, String> {
-    let model = BowModel::example();
-    let data = model.try_into().map_err(|e: ModelError| e.to_string())?;
-
-    Ok(data)
-}
-
 pub fn load_model<P>(path: P, converted: &mut bool) -> Result<Vec<u8>, String>
     where P: AsRef<Path>
 {

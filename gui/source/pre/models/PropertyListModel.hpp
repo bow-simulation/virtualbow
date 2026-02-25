@@ -171,9 +171,10 @@ private:
     EnumType& value;
 };
 
-class ArrowMassProperty: public AbstractProperty {
+template<typename CustomType>
+class CustomTypeProperty: public AbstractProperty {
 public:
-    ArrowMassProperty(QObject* parent, ArrowMass& value):
+    CustomTypeProperty(QObject* parent, CustomType& value):
         value(value)
     {
         setParent(parent);  // TODO: Do this by calling super-constructor?
@@ -192,16 +193,16 @@ public:
             return false;
         }
 
-        if(!value.canConvert<ArrowMass>()) {
+        if(!value.canConvert<CustomType>()) {
             return false;
         }
 
-        this->value = value.value<ArrowMass>();
+        this->value = value.value<CustomType>();
         return true;
     }
 
 private:
-    ArrowMass& value;
+    CustomType& value;
 };
 
 class PropertyListModel: public QAbstractListModel {
@@ -214,11 +215,15 @@ public:
     QPersistentModelIndex addColor(std::string& value);
     QPersistentModelIndex addInteger(int& value);
     QPersistentModelIndex addDouble(double& value);
-    QPersistentModelIndex addArrowMass(ArrowMass& value);
 
     template<typename EnumType>
     QPersistentModelIndex addEnum(EnumType& value) {
         return addProperty(new EnumProperty<EnumType>(this, value));
+    }
+
+    template<typename CustomType>
+    QPersistentModelIndex addCustom(CustomType& value) {
+        return addProperty(new CustomTypeProperty(this, value));
     }
 
     // Implementation of abstract methods

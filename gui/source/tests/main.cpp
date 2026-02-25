@@ -11,10 +11,7 @@ TEST_CASE("test-solver-api") {
     std::string result_file = (fs::temp_directory_path() /= "result.res").string();    // Temporary result file path
 
     // Create new default bow model
-    BowModel model = new_model();
-
-    // Compute model geometry
-    LimbInfo geometry = compute_geometry(model);
+    BowModel model = BowModel::example();
 
     // Save model to file
     save_model(model, model_file, false);
@@ -22,6 +19,9 @@ TEST_CASE("test-solver-api") {
     // Load model from file
     bool converted;
     model = load_model(model_file, converted);
+
+    // Compute model geometry
+    LimbInfo geometry = compute_geometry(model);
 
     // Run a full simulation
     BowResult result = simulate_model(model, Mode::Dynamic, [](Mode mode, double progress) {
@@ -38,7 +38,7 @@ TEST_CASE("test-solver-api") {
 
 TEST_CASE("test-solver-errors") {
     // Create new default bow model and add invalid setting
-    BowModel model = new_model();
+    BowModel model = BowModel::example();
     model.settings.num_limb_eval_points = 1;
 
     // Verify that computations fail with an exception

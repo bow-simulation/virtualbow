@@ -26,11 +26,6 @@ T parse_response(Response response) {
     return object.template get<T>();
 }
 
-BowModel new_model() {
-    Response response = ffi::new_model();
-    return parse_response<BowModel>(response);
-}
-
 BowModel load_model(const std::string& path, bool& converted) {
     Response response = ffi::load_model(path.c_str(), &converted);
     return parse_response<BowModel>(response);
