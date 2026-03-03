@@ -1,6 +1,7 @@
 #include "DoubleSpinBox.hpp"
 #include "pre/utils/DoubleRange.hpp"
 #include "pre/utils/Expressions.hpp"
+#include "pre/utils/Rounding.hpp"
 #include "pre/models/units/UnitSystem.hpp"
 #include <QLineEdit>
 #include <cmath>
@@ -11,8 +12,7 @@ DoubleSpinBox::DoubleSpinBox(const Quantity& quantity, const DoubleRange& range,
     show_unit(true),
     quantity(quantity)
 {
-    setDecimals(8);    // Magic number
-    setSingleStep(range.step);
+    setDecimals(16);    // High precision since this only applies to the internal value stored in base unit. Conversion and rounding is done in textFromValue.
     setMinimum(-std::numeric_limits<double>::infinity());    // Not used
     setMaximum(std::numeric_limits<double>::infinity());     // Not used
 
@@ -33,9 +33,9 @@ QString DoubleSpinBox::textFromValue(double baseValue) const {
     // Convert value given in SI base to the selected unit
     double unitValue = quantity.getUnit().fromBase(baseValue);
 
-    // Convert value to string with fixed-point representation
+    // Convert value to string with fixed-point representation and limited precision for display
     // If the result has a decimal point, remove any trailing zeros and possibly the point as well
-    QString result = QString::number(unitValue, 'f', decimals());
+    QString result = QString::number(unitValue, 'f', 6);
     if(result.indexOf('.') != -1) {
         while(result.endsWith('0')) {
             result.chop(1);
@@ -80,7 +80,7 @@ QValidator::State DoubleSpinBox::validate(QString& text, int& pos) const {
 
 // Overwriting this ensures that the range validation also applies to steps made by "spinning"
 void DoubleSpinBox::stepBy(int steps) {
-    double newValue = value() + singleStep() * steps;
+    double newValue = value() + singleStep()*steps;    // Compute new value by applying step
     if(range.contains(newValue)) {
         setValue(newValue);
         emit contentModified();    // Signal modification by user
@@ -91,4 +91,10 @@ void DoubleSpinBox::updateUnit() {
     // Show the selected unit as suffix
     // Setting the suffix also triggers a new evaluation of textFromValue
     setSuffix(quantity.getUnit().getSuffix());
+
+    // Select the step so that is has a smooth value when converted to the unit
+    double unitStep = quantity.getUnit().fromBase(range.step);    // Convert the preferred step size to the unít
+    unitStep = floorToPow10(unitStep);                            // Make the unit step a smooth value by rounding down to the nearest power of 10
+
+    setSingleStep(quantity.getUnit().toBase(unitStep));     // Convert back to base value and apply
 }

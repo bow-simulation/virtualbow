@@ -113,6 +113,8 @@ add_executable(
     source/pre/utils/IntegerRange.hpp
     source/pre/utils/UserSettings.cpp
     source/pre/utils/UserSettings.hpp
+    source/pre/utils/Rounding.cpp
+    source/pre/utils/Rounding.hpp
     source/pre/views/ArcView.cpp
     source/pre/views/ArcView.hpp
     source/pre/views/CommentsView.cpp
@@ -224,6 +226,8 @@ add_executable(
     source/post/StressPlot.hpp
     source/pre/Main.cpp
     source/pre/utils/ListUtils.hpp
+    source/pre/utils/Rounding.hpp
+    source/pre/utils/Rounding.cpp
 )
 
 target_compile_definitions(virtualbow-gui PRIVATE JSON_HAS_CPP_17)

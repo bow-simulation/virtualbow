@@ -15,15 +15,15 @@ ArrowMassView::ArrowMassView(QAbstractItemModel* model, QPersistentModelIndex in
     selectionBox->setToolTip(Tooltips::ArrowMassDefinition);
     selectionBox->addItems({"Mass", "Mass per Force", "Mass per Energy"});
 
-    auto massEdit = new DoubleSpinBox(Quantities::mass, DoubleRange::nonNegative(1e-3));
+    auto massEdit = new DoubleSpinBox(Quantities::mass, DoubleRange::positive(1e-3));
     massEdit->setToolTip(Tooltips::ArrowMassAbsolute);
     massEdit->setValue(1e-3);
 
-    auto massPerForceEdit = new DoubleSpinBox(Quantities::mass_per_force, DoubleRange::nonNegative(1e-6));
+    auto massPerForceEdit = new DoubleSpinBox(Quantities::mass_per_force, DoubleRange::positive(1e-6));
     massPerForceEdit->setToolTip(Tooltips::ArrowMassPerForce);
     massPerForceEdit->setValue(1e-6);
 
-    auto massPerEnergyEdit = new DoubleSpinBox(Quantities::mass_per_energy, DoubleRange::nonNegative(1e-4));
+    auto massPerEnergyEdit = new DoubleSpinBox(Quantities::mass_per_energy, DoubleRange::positive(1e-4));
     massPerEnergyEdit->setToolTip(Tooltips::ArrowMassPerEnergy);
     massPerEnergyEdit->setValue(1e-4);
 
