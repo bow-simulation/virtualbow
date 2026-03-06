@@ -54,7 +54,7 @@ fn check_output(plotter: &mut Plotter, model: &BowModel) {
 // Checks the properties of the common output, i.e. the outputs that are independent of the simulation mode
 fn check_common_output(model: &BowModel, output: &BowResult) {
     let Common { limb, layers, string_length, string_stiffness, string_mass, limb_mass } = &output.common;
-    let LimbInfo { length, position_eval, position_control: _, width, height, bounds, ratio: _, heights: _ } = &limb;    // TODO: Come back to this once the contents of this struct are finalized
+    let LimbInfo { length, position_eval, position_control: _, width, height, bounds, ratio: _, heights: _, pivot_point: _ } = &limb;    // TODO: Come back to this once the contents of this struct are finalized
 
     // There must be as many lengths as there are limb evaluation points defined in the model
     // Lengths must be sorted in strictly ascending order and start at zero

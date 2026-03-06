@@ -2,6 +2,7 @@
 #include "MainTreeModel.hpp"
 #include "CommentsModel.hpp"
 #include "SettingsModel.hpp"
+#include "HandleModel.hpp"
 #include "DrawModel.hpp"
 #include "MaterialModel.hpp"
 #include "LayerModel.hpp"
@@ -114,6 +115,16 @@ CommentsModel* MainModel::getCommentsModel() {
 SettingsModel* MainModel::getSettingsModel() {
     if(bow.has_value()) {
         auto model = new SettingsModel(bow->settings);
+        connectSubModel(model);
+        return model;
+    }
+
+    return nullptr;
+}
+
+HandleModel* MainModel::getHandleModel() {
+    if(bow.has_value()) {
+        auto model = new HandleModel(bow->handle);
         connectSubModel(model);
         return model;
     }

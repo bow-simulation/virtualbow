@@ -52,6 +52,11 @@ ShapePlot::ShapePlot(const Common& common, const States& states, int background_
     string_left.back()->setPen({Qt::blue, 2.0});
     string_left.back()->setScatterSkip(0);
 
+    pivot = new QCPCurve(this->xAxis, this->yAxis);
+    pivot->setName("Pivot");
+    pivot->setLineStyle(QCPCurve::lsNone);
+    pivot->setScatterStyle({QCPScatterStyle::ssCross, Qt::blue, 10});
+
     arrow = new QCPCurve(this->xAxis, this->yAxis);
     arrow->setName("Arrow");
     arrow->setLineStyle(QCPCurve::lsNone);
@@ -95,6 +100,7 @@ void ShapePlot::updateCurrentState() {
     plotLimbOutline(limb_left.back(), limb_right.back(), states.limb_pos[index]);
     plotString(string_left.back(), string_right.back(), states.string_pos[index]);
     plotArrow(states.arrow_pos[index]);
+    plotPivot();
 }
 
 void ShapePlot::updateAxes() {
@@ -191,5 +197,13 @@ void ShapePlot::plotArrow(double position) {
     arrow->addData(
         quantity.getUnit().fromBase(0.0),
         quantity.getUnit().fromBase(position)
+    );
+}
+
+void ShapePlot::plotPivot() {
+    pivot->data()->clear();
+    pivot->addData(
+        quantity.getUnit().fromBase(0.0),
+        quantity.getUnit().fromBase(common.limb.pivot_point)
     );
 }

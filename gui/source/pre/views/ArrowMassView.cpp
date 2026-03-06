@@ -11,9 +11,12 @@
 #include <cmath>
 
 ArrowMassView::ArrowMassView(QAbstractItemModel* model, QPersistentModelIndex index) {
-    auto selectionBox = new QComboBox();
-    selectionBox->setToolTip(Tooltips::ArrowMassDefinition);
+    auto selectionBox = new QComboBox();   
     selectionBox->addItems({"Mass", "Mass per Force", "Mass per Energy"});
+    selectionBox->setToolTip(Tooltips::ArrowMassDefinition);
+    selectionBox->setItemData(0, Tooltips::ArrowMassAbsolute, Qt::ToolTipRole);
+    selectionBox->setItemData(1, Tooltips::ArrowMassPerForce, Qt::ToolTipRole);
+    selectionBox->setItemData(2, Tooltips::ArrowMassPerEnergy, Qt::ToolTipRole);
 
     auto massEdit = new DoubleSpinBox(Quantities::mass, DoubleRange::positive(1e-3));
     massEdit->setToolTip(Tooltips::ArrowMassAbsolute);

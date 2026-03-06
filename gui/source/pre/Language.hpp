@@ -3,25 +3,36 @@
 
 // Constants for all texts shown throughout the application
 // TODO: Actually pull all texts into here, not only tooltips
+// TODO: Put actual strings into a *.cpp file to reduce compile times
 
 namespace Tooltips {
     inline const QString EnergiesStacked = QStringLiteral("If selected, the energies are plotted as areas stacked on top of each other.\nOtherwise each energy is drawn as an individual line.");
     inline const QString EnergiesByPart = QStringLiteral("Group energies by the component they belong to (limbs, string, arrow)");
     inline const QString EnergiesByType = QStringLiteral("Group enegies by the type they belong to (potential, kinetic, damping)");
 
+    inline const QString HandleTypeDefinition = QStringLiteral("Selects the type of handle for this bow");
+    inline const QString HandleTypeFlexible = QStringLiteral("The handle is flexible and modelled as part of the bow limbs");
+    inline const QString HandleTypeRigid = QStringLiteral("The handle is modelled as a separate rigid section between the bow limbs");
+    inline const QString HandleLength = QStringLiteral("Length of the handle section");
+    inline const QString HandleAngle = QStringLiteral("Attachment angle of the limbs (positive = reflex, negative = deflex)");
+    inline const QString HandlePivot = QStringLiteral("Position of the pivot point (positive = reflex, negative = deflex)");
+
+    inline const QString BraceHeight = QStringLiteral("Brace height of the bow, i.e. distance between string and the handle's pivot point in the braced state");
+    inline const QString DrawLength = QStringLiteral("Draw length of the bow, i.e. distance between string and the handle's pivot point in the fully drawn state");
+
     inline const QString DrawForceShowLine = QStringLiteral("Show a hypothetical line connecting the start- and endpoint of the draw force curve");
     inline const QString DrawForceShowStiffness = QStringLiteral("Show the stiffness of the draw force curve, i.e. force increase per length increase");
 
-    inline const QString ArrowMassDefinition = QStringLiteral("Select how the arrow mass is to be defined");
-    inline const QString ArrowMassAbsolute = QStringLiteral("Arrow mass (absolute value)");
+    inline const QString ArrowMassDefinition = QStringLiteral("Selects how the arrow mass is specified");
+    inline const QString ArrowMassAbsolute = QStringLiteral("Arrow mass as an absolute value");
     inline const QString ArrowMassPerForce = QStringLiteral("Arrow mass relative to the final draw force of the bow");
-    inline const QString ArrowMassPerEnergy = QStringLiteral("Arrow mass relative to the input energy of the bow");
+    inline const QString ArrowMassPerEnergy = QStringLiteral("Arrow mass relative to the stored energy of the bow");
 
     inline const QString MassStringCenter = QStringLiteral("Additional mass(es) at the string center (e.g. serving, nocking point)");
     inline const QString MassStringTip = QStringLiteral("Additional mass(es) at the string tip (e.g. serving)");
     inline const QString MassLimbTip = QStringLiteral("Additional mass(es) at the limb tip (e.g. tip overlay)");
 
-    inline const QString DrawLengthDefinition = QStringLiteral("Select how the draw length is to be defined");
+    inline const QString DrawLengthDefinition = QStringLiteral("Selects the draw length definition to be used");
     inline const QString DrawLengthStandard = QStringLiteral("Draw length as measured from the pivot point of the handle");
     inline const QString DrawLengthAMO = QStringLiteral("Draw length as measured from the pivot point of the handle + 1.75\" according to the AMO definition");
 
@@ -76,17 +87,4 @@ namespace Tooltips {
 
     inline const QString DampingRatioLimbs = QStringLiteral("Damping ratio of the limbs");
     inline const QString DampingRatioString = QStringLiteral("Damping ratio of the string");
-
-    inline const QString HandleReference = QStringLiteral("Reference point at the limb base from which the handle dimensions as well as the brace height and draw length are measured");
-    inline const QString HandleReferenceBack = QStringLiteral("Measure from the back of the bow");
-    inline const QString HandleReferenceBelly = QStringLiteral("Measure from the belly of the bow");
-    inline const QString HandleReferenceProfile = QStringLiteral("Measure from the profile curve");
-
-    inline const QString HandleLength = QStringLiteral("Length of the handle, i.e. distance between the upper and lower limb as measured by the reference points");
-    inline const QString HandleOffset = QStringLiteral("Offset of the handle's pivot point in the direction of draw");
-    inline const QString HandleAngle = QStringLiteral("Angle at which the limbs are attached to the handle");
-    inline const QString BraceHeight = QStringLiteral("Brace height of the bow, i.e. distance between string and the handle's pivot point in the braced state");
-    inline const QString DrawLength = QStringLiteral("Draw length of the bow, i.e. distance between string and the handle's pivot point in the fully drawn state");
-
-
 }
