@@ -13,6 +13,7 @@
 class MainTreeModel;
 class CommentsModel;
 class SettingsModel;
+class HandleModel;
 class DrawModel;
 class MaterialModel;
 class LayerModel;
@@ -54,6 +55,7 @@ public:
 
     CommentsModel* getCommentsModel();
     SettingsModel* getSettingsModel();
+    HandleModel* getHandleModel();
     DrawModel* getDrawModel();
     MaterialModel* getMaterialModel(int index);
     LayerModel* getLayerModel(int index);

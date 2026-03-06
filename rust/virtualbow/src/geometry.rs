@@ -13,6 +13,7 @@ use crate::output::LimbInfo;
 pub struct LimbGeometry {
     pub profile: ProfileCurve,           // Limb profile curve
     pub section: LayeredCrossSection,    // Limb cross sections
+    pub pivot_point: f64,                // Position of the bow's pivot point in y direction
     pub brace_ref: f64,                  // Reference position in y direction from which the brace height is measured
     pub draw_ref: f64,                   // Reference position in y direction from which the draw length is measured
 }
@@ -39,6 +40,7 @@ pub struct DiscreteLimbGeometry {
     pub strain_eval: Vec<Vec<SVector<f64, 3>>>,      // Strain evaluation matrices for each evaluation point
     pub stress_eval: Vec<Vec<SVector<f64, 3>>>,      // Stress evaluation matrices for each evaluation point
 
+    pub pivot_point: f64,                // Position of the pivot point
     pub brace_ref: f64,                  // Reference position for measurement of the brace height
     pub draw_ref: f64,                   // Reference position for measurement of the draw length
 }
@@ -59,12 +61,16 @@ impl LimbGeometry {
         // Calculate the eccentricity, i.e. the distance between the reference point (belly) and the profile curve at the root of the limb.
         let eccentricity = section.section_bounds(0.0).1;
 
-        // The brace offset is the offset of the pivot point, corrected by the contribution of the excentricity
-        // The draw offset is either the same as the brace offset in standard definition or adjusted by 1.75in in AMO mode.
-        let brace_ref = eccentricity*f64::cos(rigid_handle.angle) - rigid_handle.pivot;
+
+        // The pivot point position is the handle parameter (which is measured from the belly side), corrected by the distance between profile and belly
+        let pivot_point = eccentricity*f64::cos(rigid_handle.angle) - rigid_handle.pivot;
+
+        // The brace reference point is currently identical to the pivot point
+        // The draw reference is either the pivot point (standard definition) or adjusted by 1.75in (AMO definition).
+        let brace_ref = pivot_point;
         let draw_ref = match input.draw.draw_length {
-            DrawLength::Standard(_) => brace_ref,
-            DrawLength::Amo(_) => brace_ref + 1.75*0.0254    // TODO: Verify direction
+            DrawLength::Standard(_) => pivot_point,
+            DrawLength::Amo(_) => pivot_point + 1.75*0.0254    // TODO: Verify direction
         };
 
         // Check for self-intersecting geometry, which is the case when the thickness of the limb is higher than the radius of curvature
@@ -86,6 +92,7 @@ impl LimbGeometry {
         Ok(Self {
             profile,
             section,
+            pivot_point,
             brace_ref,
             draw_ref
         })
@@ -150,6 +157,7 @@ impl LimbGeometry {
             p_eval,
             w_eval,
             h_eval,
+            pivot_point: self.pivot_point,
             brace_ref: self.brace_ref,
             draw_ref: self.draw_ref
         }
@@ -167,6 +175,7 @@ impl DiscreteLimbGeometry {
             bounds: self.y_eval.iter().map(|y| y.data.clone().into()).collect(),
             ratio: self.n_eval.clone(),
             heights: self.h_eval.iter().map(|h| h.data.clone().into()).collect(),
+            pivot_point: self.pivot_point
         }
     }
 }

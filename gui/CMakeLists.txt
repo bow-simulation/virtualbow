@@ -67,6 +67,8 @@ add_executable(
     source/pre/models/CommentsModel.hpp
     source/pre/models/DampingModel.cpp
     source/pre/models/DampingModel.hpp
+    source/pre/models/HandleModel.cpp
+    source/pre/models/HandleModel.hpp
     source/pre/models/DrawModel.cpp
     source/pre/models/DrawModel.hpp
     source/pre/models/LayerModel.cpp
@@ -121,6 +123,8 @@ add_executable(
     source/pre/views/CommentsView.hpp
     source/pre/views/DampingView.cpp
     source/pre/views/DampingView.hpp
+    source/pre/views/HandleView.cpp
+    source/pre/views/HandleView.hpp
     source/pre/views/DrawView.cpp
     source/pre/views/DrawView.hpp
     source/pre/views/docks/EditDock.cpp

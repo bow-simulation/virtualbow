@@ -3,6 +3,7 @@
 #include "pre/models/MainTreeModel.hpp"
 #include "pre/views/CommentsView.hpp"
 #include "pre/views/SettingsView.hpp"
+#include "pre/views/HandleView.hpp"
 #include "pre/views/DrawView.hpp"
 #include "pre/views/MaterialView.hpp"
 #include "pre/views/LayerView.hpp"
@@ -50,9 +51,9 @@ EditDock::EditDock(MainModel* viewModel)
         }
 
         if(selection.size() == 1 && selection.first().internalId() == ItemType::TOPLEVEL && selection.first().row() == TopLevelItem::HANDLE) {
-            //auto model = viewModel->getDrawModel();
-            //auto editor = new DrawView(model);
-            //showEditor(editor);
+            auto model = viewModel->getHandleModel();
+            auto editor = new HandleView(model);
+            showEditor(editor);
             return;
         }
 

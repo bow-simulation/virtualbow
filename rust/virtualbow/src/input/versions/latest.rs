@@ -207,9 +207,12 @@ impl From<version3::BowModel> for BowModel {
             .map(|layer| layer.height.0[0][1])              // Extract those thicknesses...as
             .sum();                                       // And sum them up
 
+        // The offset for brace height and draw length is the thickness of the limb in the direction of draw
+        let offset = thickness*f64::cos(model.dimensions.handle_angle);
+
         let draw = Draw {
-            brace_height: model.dimensions.brace_height - thickness*f64::cos(model.dimensions.handle_angle),
-            draw_length: DrawLength::Standard(model.dimensions.draw_length),
+            brace_height: model.dimensions.brace_height - offset,
+            draw_length: DrawLength::Standard(model.dimensions.draw_length - offset),
         };
 
         let materials = model.materials.iter().map(|material| {

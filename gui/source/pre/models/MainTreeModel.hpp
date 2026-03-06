@@ -17,8 +17,8 @@ enum ItemType {
 enum TopLevelItem {
     COMMENTS = 0,
     SETTINGS = 1,
-    DRAW = 2,
-    HANDLE = 3,
+    HANDLE = 2,
+    DRAW = 3,
     MATERIALS = 4,
     LAYERS = 5,
     PROFILE = 6,

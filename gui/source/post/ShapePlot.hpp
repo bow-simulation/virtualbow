@@ -20,6 +20,7 @@ private:
     QList<QCPCurve*> limb_left;
     QList<QCPCurve*> string_right;
     QList<QCPCurve*> string_left;
+    QCPCurve* pivot;    // Todo: Replace with other QCustomPlot object?
     QCPCurve* arrow;    // Todo: Replace with other QCustomPlot object?
 
     void updatePlot();
@@ -31,4 +32,5 @@ private:
     void plotLimbOutline(QCPCurve* left, QCPCurve* right, const std::vector<std::array<double, 3>>& position);
     void plotString(QCPCurve* left, QCPCurve* right, const std::vector<std::array<double, 2>>& position);
     void plotArrow(double position);
+    void plotPivot();
 };

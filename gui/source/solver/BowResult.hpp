@@ -53,6 +53,8 @@ struct LimbInfo {
 
     std::vector<double> ratio;
     std::vector<std::vector<double>> heights;
+
+    double pivot_point;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
@@ -64,7 +66,8 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     height,
     bounds,
     ratio,
-    heights
+    heights,
+    pivot_point
 )
 
 struct MaxForces {
