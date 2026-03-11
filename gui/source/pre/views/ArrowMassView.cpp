@@ -90,7 +90,7 @@ ArrowMassView::ArrowMassView(QAbstractItemModel* model, QPersistentModelIndex in
 
     // Keep model up to date on changes
     QObject::connect(selectionBox, &QComboBox::currentIndexChanged, this, updateModel);
-    QObject::connect(massEdit, &DoubleSpinBox::valueChanged, this, updateModel);
-    QObject::connect(massPerForceEdit, &DoubleSpinBox::valueChanged, this, updateModel);
-    QObject::connect(massPerEnergyEdit, &DoubleSpinBox::valueChanged, this, updateModel);
+    QObject::connect(massEdit, &DoubleSpinBox::contentModified, this, updateModel);
+    QObject::connect(massPerForceEdit, &DoubleSpinBox::contentModified, this, updateModel);
+    QObject::connect(massPerEnergyEdit, &DoubleSpinBox::contentModified, this, updateModel);
 }

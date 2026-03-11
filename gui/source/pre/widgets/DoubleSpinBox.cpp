@@ -19,7 +19,9 @@ DoubleSpinBox::DoubleSpinBox(const Quantity& quantity, const DoubleRange& range,
     // Prevent catching focus when scrolling, https://stackoverflow.com/a/19382766
     setFocusPolicy(Qt::StrongFocus);
 
-    QObject::connect(lineEdit(), &QLineEdit::editingFinished, this, &DoubleSpinBox::contentModified);    // Signal modification by user when the text was edited
+    // Signal modification by user when the text was edited
+    // QDoubleSpinBox::valueChanged is not used because it is triggered during typing, leading to unnecessary updates of the model.
+    QObject::connect(this, &QDoubleSpinBox::editingFinished, this, &DoubleSpinBox::contentModified);
     QObject::connect(&quantity, &Quantity::unitChanged, this, &DoubleSpinBox::updateUnit);
     updateUnit();
 }

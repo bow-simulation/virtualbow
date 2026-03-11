@@ -86,5 +86,5 @@ DrawLengthView::DrawLengthView(QAbstractItemModel* model, QPersistentModelIndex 
 
     // Keep model up to date on changes
     QObject::connect(selectionBox, &QComboBox::currentIndexChanged, this, updateModel);
-    QObject::connect(lengthEdit, &DoubleSpinBox::valueChanged, this, updateModel);
+    QObject::connect(lengthEdit, &DoubleSpinBox::contentModified, this, updateModel);
 }
