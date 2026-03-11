@@ -19,13 +19,13 @@ private:
     QAction* action_show_nodes;
 
     QCPCurve* curveLine;
-    QCPCurve* curvePoints;
-    QCPCurve* curveSelected;
+    QCPCurve* curveNodes;
+    QCPCurve* curvatureOutline;
 
     void updatePlot();
     void updateSelection();
     void updateVisibility();
 
-    //void setCurvatureVisible(bool visible);
-    //void setNodesVisible(bool visible);
+    void setCurvatureVisible(bool visible);
+    void setNodesVisible(bool visible);
 };

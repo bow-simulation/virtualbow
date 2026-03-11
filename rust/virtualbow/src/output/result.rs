@@ -180,6 +180,7 @@ pub struct LimbInfo {
 
     pub position_eval: Vec<SVector<f64, 3>>,       // Eval points of the profile curve (x, y, φ)
     pub position_control: Vec<SVector<f64, 3>>,    // Control points of the profile curve (x, y, φ)
+    pub curvature_eval: Vec<f64>,                  // Curvature at the eval points of the profile curve
 
     pub pivot_point: f64,                // Position of the pivot point
 

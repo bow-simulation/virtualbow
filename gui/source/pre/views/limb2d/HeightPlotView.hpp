@@ -7,7 +7,6 @@ class QCPGraph;
 class HeightPlotView: public PlotWidget {
 public:
     HeightPlotView(MainModel* model, QPersistentModelIndex index);
-    void updatePlot();
 
 private:
     MainModel* model;
@@ -16,4 +15,7 @@ private:
     QCPGraph* graphLine;
     QCPGraph* graphPoints;
     QCPGraph* graphSelected;
+
+    void updatePlot();
+    void setNodesVisible(bool visible);
 };

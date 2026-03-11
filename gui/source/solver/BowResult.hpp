@@ -47,6 +47,7 @@ struct LimbInfo {
     std::vector<double> length;
     std::vector<std::array<double, 3>> position_eval;
     std::vector<std::array<double, 3>> position_control;
+    std::vector<double> curvature_eval;
     std::vector<double> width;
     std::vector<double> height;
     std::vector<std::vector<double>> bounds;
@@ -62,6 +63,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     length,
     position_eval,
     position_control,
+    curvature_eval,
     width,
     height,
     bounds,

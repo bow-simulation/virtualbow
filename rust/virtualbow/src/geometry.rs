@@ -24,6 +24,7 @@ pub struct DiscreteLimbGeometry {
     pub segments: Vec<LinearBeamSegment>,    // Linear beam segment properties
     pub n_nodes: Vec<f64>,                   // Relative lengths of the element nodes
     pub s_nodes: Vec<f64>,                   // Arc lengths of the element nodes
+    pub k_nodes: Vec<f64>,                   // Curvatures at the element nodes
     pub p_nodes: Vec<SVector<f64, 3>>,       // Positions (x, y, φ) of the element nodes
     pub y_nodes: Vec<DVector<f64>>,          // Layer bounds (back to belly) at nodes (y in cross-section coordinates)
     pub h_nodes: Vec<DVector<f64>>,          // Layer heights (back to belly) at nodes
@@ -32,6 +33,7 @@ pub struct DiscreteLimbGeometry {
 
     pub n_eval: Vec<f64>,                    // Relative lengths at which the limb quantities are evaluated
     pub s_eval: Vec<f64>,                    // Arc lengths at which the limb quantities are evaluated
+    pub k_eval: Vec<f64>,                    // Curvatures at the eval points
     pub p_eval: Vec<SVector<f64, 3>>,        // Positions (x, y, φ) of the evaluation points
     pub y_eval: Vec<DVector<f64>>,           // Layer bounds at eval points (y in cross-section coordinates)
     pub h_eval: Vec<DVector<f64>>,           // Layer heights at eval points
@@ -104,11 +106,13 @@ impl LimbGeometry {
         // Arc lengths and normalized positions along the profile where the element nodes are placed
         let s_nodes = lin_space(self.profile.length_start()..=self.profile.length_end(), n_elements + 1).collect_vec();
         let n_nodes = s_nodes.iter().map(|&s| self.profile.normalize(s)).collect_vec();
+        let k_nodes = s_nodes.iter().map(|&s| self.profile.curvature(s)).collect_vec();
         let p_nodes = s_nodes.iter().map(|&s| self.profile.point(s)).collect_vec();
         let y_nodes = n_nodes.iter().map(|&n| self.section.layer_bounds(n).0).collect_vec();
         let h_nodes = n_nodes.iter().map(|&n| self.section.layer_bounds(n).1).collect_vec();    // TODO: Collect in one step
 
         // Control points of the profile curve
+        //let k_control = s_control.iter().map(|&s| self.profile.curvature(s)).collect_vec();                           // TODO: Implement
         let p_control = self.profile.get_nodes().iter().map(|node| vector![node.r[0], node.r[1], node.φ]).collect();    // TODO: Make those conversions unnecessary by using a single format for curve points
 
         // Equidistant evaluation points along the length of the limb
@@ -135,6 +139,7 @@ impl LimbGeometry {
             LinearBeamSegment::new(&self.profile, &self.section, s0, s1, &s_eval)
         }).collect();
 
+        let k_eval = s_eval.iter().map(|&s| self.profile.curvature(s)).collect_vec();
         let p_eval = s_eval.iter().map(|&s| self.profile.point(s)).collect();
         let w_eval = n_eval.iter().map(|&n| self.section.width(n)).collect();
 
@@ -145,6 +150,7 @@ impl LimbGeometry {
             segments,
             n_nodes,
             s_nodes,
+            k_nodes,
             p_nodes,
             y_nodes,
             h_nodes,
@@ -154,6 +160,7 @@ impl LimbGeometry {
             y_eval,
             strain_eval,
             stress_eval,
+            k_eval,
             p_eval,
             w_eval,
             h_eval,
@@ -170,12 +177,13 @@ impl DiscreteLimbGeometry {
             length: self.s_eval.clone(),
             position_eval: self.p_eval.clone(),
             position_control: self.p_control.clone(),
+            curvature_eval: self.k_eval.clone(),
             width: self.w_eval.clone(),
             height: self.h_eval.iter().map(|h| h.sum()).collect(),
             bounds: self.y_eval.iter().map(|y| y.data.clone().into()).collect(),
             ratio: self.n_eval.clone(),
             heights: self.h_eval.iter().map(|h| h.data.clone().into()).collect(),
-            pivot_point: self.pivot_point
+            pivot_point: self.pivot_point,
         }
     }
 }

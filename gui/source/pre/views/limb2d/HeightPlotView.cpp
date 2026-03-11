@@ -27,7 +27,7 @@ HeightPlotView::HeightPlotView(MainModel* model, QPersistentModelIndex index):
     action_show_nodes->setCheckable(true);
     action_show_nodes->setChecked(true);
     QObject::connect(action_show_nodes, &QAction::triggered, [&](bool checked) {
-        //setNodesVisible(checked);
+        setNodesVisible(checked);
         replot();
     });
 
@@ -95,6 +95,11 @@ void HeightPlotView::updatePlot() {
         }
     }
 
-    this->rescaleAxes(true, true, 1.0, 1.05);
-    this->replot();
+    rescaleAxes(true, true, 1.0, 1.05);
+    replot();
+}
+
+void HeightPlotView::setNodesVisible(bool visible) {
+    graphPoints->setVisible(visible);
+    graphSelected->setVisible(visible);
 }

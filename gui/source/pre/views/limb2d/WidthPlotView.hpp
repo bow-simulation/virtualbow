@@ -7,11 +7,13 @@ class QCPGraph;
 class WidthPlotView: public PlotWidget {
 public:
     WidthPlotView(MainModel* model);
-    void updatePlot();
 
 private:
     MainModel* model;
     QCPGraph* graphLine;
     QCPGraph* graphPoints;
     QCPGraph* graphSelected;
+
+    void updatePlot();
+    void setNodesVisible(bool visible);
 };
