@@ -1,4 +1,5 @@
 #include "UnitDialog.hpp"
+#include "pre/models/units/UnitSystem.hpp"
 #include "pre/utils/UserSettings.hpp"
 #include <QLabel>
 #include <QComboBox>

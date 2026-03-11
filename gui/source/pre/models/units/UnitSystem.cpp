@@ -143,7 +143,7 @@ Quantity Quantities::stiffness = Quantity("Stiffness", {
 Quantity Quantities::time = Quantity("Time", {
     Units::Second,
     Units::Millisecond
-}, 0, 0);
+}, 1, 1);
 
 Quantity Quantities::energy = Quantity("Energy",  {
     Units::Joule,

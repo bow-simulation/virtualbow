@@ -1,8 +1,9 @@
 #pragma once
-#include "pre/models/units/UnitSystem.hpp"
-#include "pre/widgets/PersistentDialog.hpp"
+#include <QWidget>
+#include <QDialog>
 
 class UnitDialog;
+class Quantity;
 
 class UnitEditor: public QWidget {
 public:

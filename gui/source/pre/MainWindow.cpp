@@ -3,6 +3,7 @@
 #include "RecentFilesMenu.hpp"
 #include "HelpMenu.hpp"
 #include "post/ResultWindow.hpp"
+#include "pre/models/units/UnitSystem.hpp"
 #include "views/docks/TreeDock.hpp"
 #include "views/docks/EditDock.hpp"
 #include "views/docks/PlotDock.hpp"
@@ -64,8 +65,9 @@ MainWindow::MainWindow()
 
     auto actionEditUnits = new QAction("&Units...", this);
     QObject::connect(actionEditUnits, &QAction::triggered, this, [&]{
-        UnitDialog dialog(this);
-        dialog.exec();
+        auto *dialog = new UnitDialog(this);
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
+        dialog->show();
     });
     actionEditUnits->setMenuRole(QAction::NoRole);
 
