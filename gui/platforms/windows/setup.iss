@@ -15,7 +15,8 @@ SolidCompression=yes
 UsePreviousTasks=no
 DisableWelcomePage=no
 DisableDirPage=no
-ChangesAssociations = yes
+ChangesAssociations=yes
+UninstallDisplayIcon={app}\virtualbow-gui.exe
 
 [Languages]
 Name: english; MessagesFile: compiler:Default.isl
@@ -28,17 +29,17 @@ Name: {group}\VirtualBow; Filename: {app}\virtualbow-gui.exe
 Name: {commondesktop}\VirtualBow; Filename: {app}\virtualbow-gui.exe; Tasks: DesktopIcons
 
 [Tasks]
-Name: DesktopIcons; Description: "Create desktop shortcuts";
-Name: FileAssociation; Description: "Associate .bow and .res files with VirtualBow";
-Name: AddToPath; Description: "Add VirtualBow to PATH";
+Name: DesktopIcons; Description: "Create desktop shortcut";
+Name: FileAssociation; Description: "Associate *.bow and *.res files with VirtualBow";
+Name: AddToPath; Description: "Add VirtualBow to system PATH"; Flags: unchecked
 
 [Registry]
-Root: HKCR; Subkey: .bow; ValueType: string; ValueName: ""; ValueData: VirtualBowModelFile; Flags: uninsdeletevalue; Tasks: FileAssociation 
-Root: HKCR; Subkey: VirtualBowModelFile; ValueType: string; ValueName: ""; ValueData: VirtualBow Model; Flags: uninsdeletekey; Tasks: FileAssociation
-Root: HKCR; Subkey: VirtualBowModelFile\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\virtualbow-gui.exe,-2"; Tasks: FileAssociation
-Root: HKCR; Subkey: VirtualBowModelFile\shell\open\command; ValueType: string; ValueName: ""; ValueData: "{app}\virtualbow-gui.exe %1"; Tasks: FileAssociation 
+Root: HKCR; Subkey: .bow; ValueType: string; ValueName: ""; ValueData: VirtualBowModelFile; Tasks: FileAssociation; Flags: uninsdeletevalue
+Root: HKCR; Subkey: VirtualBowModelFile; ValueType: string; ValueName: ""; ValueData: VirtualBow Model; Tasks: FileAssociation; Flags: uninsdeletekey
+Root: HKCR; Subkey: VirtualBowModelFile\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\virtualbow-gui.exe,-2"; Tasks: FileAssociation; Flags: uninsdeletekey
+Root: HKCR; Subkey: VirtualBowModelFile\shell\open\command; ValueType: string; ValueName: ""; ValueData: "{app}\virtualbow-gui.exe %1"; Tasks: FileAssociation; Flags: uninsdeletekey
 
-Root: HKCU; Subkey: Environment; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Tasks: AddToPath; Check: NotInPath(ExpandConstant('{app}'))
+Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Tasks: AddToPath; Check: NotInPath(ExpandConstant('{app}'))
 
 [Run]
 Filename: {app}\virtualbow-gui.exe; Description: "Launch VirtualBow"; Flags: nowait postinstall skipifsilent
