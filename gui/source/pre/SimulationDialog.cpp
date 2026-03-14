@@ -50,13 +50,6 @@ SimulationDialog::SimulationDialog(QWidget* parent, const BowModel& model, Mode 
         watcher->future().cancel();
     });
 
-    /*
-    // Cancel the task when the dialog was rejected
-    QObject::connect(this, &QDialog::rejected, this, [=] {
-        watcher->future().cancel();
-    });
-    */
-
     // When the task has finished, accept/reject the dialog or show an error messagebox as needed
     QObject::connect(watcher, &QFutureWatcher<QString>::finished, this, [=, this] {
         // Future was canceled: Reject the dialog and do nothing else

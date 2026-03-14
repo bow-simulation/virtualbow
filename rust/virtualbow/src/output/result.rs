@@ -17,6 +17,7 @@ pub struct Common {
     pub limb: LimbInfo,
     pub layers: Vec<LayerInfo>,
 
+    pub power_stroke: f64,
     pub string_length: f64,
     pub string_stiffness: f64,
     pub string_mass: f64,
@@ -127,6 +128,7 @@ impl MaxStresses {
 pub struct State {
     pub time: f64,
     pub draw_length: f64,
+    pub power_stroke: f64,
 
     pub limb_pos: Vec<SVector<f64, 3>>,    // x, y, φ
     pub limb_vel: Vec<SVector<f64, 3>>,    // x, y, φ

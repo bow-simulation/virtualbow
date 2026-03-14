@@ -20,8 +20,8 @@ namespace Tooltips {
     inline const QString BraceHeight = QStringLiteral("Brace height of the bow, i.e. distance between string and the handle's pivot point in the braced state");
     inline const QString DrawLength = QStringLiteral("Draw length of the bow, i.e. distance between string and the handle's pivot point in the fully drawn state");
 
-    inline const QString DrawForceShowLine = QStringLiteral("Show a hypothetical line connecting the start- and endpoint of the draw force curve");
-    inline const QString DrawForceShowStiffness = QStringLiteral("Show the stiffness of the draw force curve, i.e. force increase per length increase");
+    inline const QString DrawForceShowLine = QStringLiteral("Show a hypothetical line connecting the start- and endpoint of the force-draw curve");
+    inline const QString DrawForceShowStiffness = QStringLiteral("Show the stiffness of the force-draw curve, i.e. force increase per length increase");
 
     inline const QString ArrowMassDefinition = QStringLiteral("Selects how the arrow mass is specified");
     inline const QString ArrowMassAbsolute = QStringLiteral("Arrow mass as an absolute value");
@@ -97,6 +97,7 @@ namespace Tooltips {
     inline const QString OutputLimbMass = QStringLiteral("Computed mass of a single bow limb, including the additional tip mass");
     inline const QString OutputStringMass = QStringLiteral("Computed mass of the bow string, including additional masses");
     inline const QString OutputStringLength = QStringLiteral("Length of the string as determined by the configured brace height");
+    inline const QString OutputPowerStroke = QStringLiteral("Length the string travels from brace height to full draw");
     inline const QString OutputMaxDrawForce = QStringLiteral("Maximum draw force (not necessarily equal to the final draw force)");
     inline const QString OutputMaxStringForce = QStringLiteral("Maximum tensile force in the string");
     inline const QString OutputMaxStrandForce = QStringLiteral("Maximum tensile force in the string per strand");

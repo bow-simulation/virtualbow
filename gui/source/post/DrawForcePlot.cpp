@@ -22,7 +22,7 @@ DrawForcePlot::DrawForcePlot(const Common& common, const States& states)
     stiffnessGraph->setName("Stiffness");
     stiffnessGraph->setPen({QColor(128, 0, 128), 2.0});
 
-    cbLine = new QCheckBox("Show line");
+    cbLine = new QCheckBox("Show linear reference");
     cbLine->setToolTip(Tooltips::DrawForceShowLine);
 
     cbStiffness = new QCheckBox("Show stiffness");

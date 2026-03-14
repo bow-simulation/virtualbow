@@ -53,7 +53,7 @@ fn check_output(plotter: &mut Plotter, model: &BowModel) {
 
 // Checks the properties of the common output, i.e. the outputs that are independent of the simulation mode
 fn check_common_output(model: &BowModel, output: &BowResult) {
-    let Common { limb, layers, string_length, string_stiffness, string_mass, limb_mass } = &output.common;
+    let Common { limb, layers, power_stroke, string_length, string_stiffness, string_mass, limb_mass } = &output.common;
     let LimbInfo { length, position_eval, position_control: _, curvature_eval: _, width, height, bounds, ratio: _, heights: _, pivot_point: _ } = &limb;    // TODO: Come back to this once the contents of this struct are finalized
 
     // There must be as many lengths as there are limb evaluation points defined in the model
@@ -92,7 +92,8 @@ fn check_common_output(model: &BowModel, output: &BowResult) {
         assert!(allowed_strains.1 >= 0.0);
     }
 
-    // String length, stiffness, mass and limb mass must be positive
+    // Power stroke, String length, stiffness, mass and limb mass must be positive
+    assert!(*power_stroke > 0.0);
     assert!(*string_length > 0.0);
     assert!(*string_stiffness > 0.0);
     assert!(*string_mass > 0.0);
@@ -262,6 +263,7 @@ fn check_general_state_properties(model: &BowModel, states: &StateVec) {
         let State {
             time,
             draw_length,
+            power_stroke: _,
             limb_pos,
             limb_vel,
             string_pos,
@@ -351,7 +353,8 @@ fn check_static_state_properties(model: &BowModel, output: &BowResult) {
     for state in states.iter() {
         let State {
             time,
-            draw_length: _,
+            draw_length,
+            power_stroke,
             limb_pos: _,
             limb_vel,
             string_pos: _,
@@ -384,6 +387,10 @@ fn check_static_state_properties(model: &BowModel, output: &BowResult) {
 
         // Time must be zero
         assert!(time == 0.0);
+
+        // Draw length and power stroke must be positive
+        assert!(draw_length >= 0.0);
+        assert!(power_stroke >= 0.0);
 
         // Limb and string velocities must be zero
         assert!(limb_vel.iter().all(SVector::is_zero));
@@ -446,6 +453,7 @@ fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowModel, outpu
         let State {
             time,
             draw_length: _,
+            power_stroke: _,
             limb_pos: _,
             limb_vel: _,
             string_pos: _,
@@ -651,6 +659,7 @@ fn check_dynamic_derivatives(_model: &BowModel, output: &BowResult) {
         let State {
             time: time0,
             draw_length: _,
+            power_stroke: _,
             limb_pos: limb_pos0,
             limb_vel: limb_vel0,
             string_pos: string_pos0,
@@ -684,6 +693,7 @@ fn check_dynamic_derivatives(_model: &BowModel, output: &BowResult) {
         let State {
             time: time1,
             draw_length: _,
+            power_stroke: _,
             limb_pos: limb_pos1,
             limb_vel: limb_vel1,
             string_pos: string_pos1,
@@ -782,6 +792,7 @@ fn check_static_derivatives(_model: &BowModel, output: &BowResult) {
         let State {
             time: _,
             draw_length: draw_length0,
+            power_stroke: _,
             limb_pos: _,
             limb_vel: _,
             string_pos: string_pos0,
@@ -815,6 +826,7 @@ fn check_static_derivatives(_model: &BowModel, output: &BowResult) {
         let State {
             time: _,
             draw_length: draw_length1,
+            power_stroke: _,
             limb_pos: _,
             limb_vel: _,
             string_pos: string_pos1,

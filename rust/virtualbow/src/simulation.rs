@@ -112,7 +112,7 @@ impl<'a> Simulation<'a> {
         // String center node that is fixed in the case of no string.
         // The rest of the string nodes come from the limb.
 
-        let string_center = system.create_node(&vector![0.0, geometry.brace_ref - model.draw.brace_height, 0.0], &[DofType::Locked, DofType::active_if(string), DofType::Locked]);
+        let string_center = system.create_node(&vector![0.0, geometry.draw.brace_pos, 0.0], &[DofType::Locked, DofType::active_if(string), DofType::Locked]);
         let mut string_nodes = vec![string_center];  // TODO: Preallocate
         string_nodes.extend_from_slice(&limb_nodes);
 
@@ -226,6 +226,7 @@ impl<'a> Simulation<'a> {
         system.element_mut::<MassElement>(mass_element_string_tip).set_mass(model.masses.string_tip + 2.0/3.0*ρA*l0);
 
         // Compute additional common output results
+        let power_stroke = geometry.draw.power_stroke;
         let string_length = 2.0*l0;                                                                                // Actual string length due to symmetry
         let string_stiffness = EA/string_length;                                                                   // Stiffness of the complete string from tip to tip
         let string_mass = 2.0*(ρA*l0 + model.masses.string_tip) + model.masses.string_center;                      // String mass including additional masses and symmetry
@@ -250,6 +251,7 @@ impl<'a> Simulation<'a> {
         let common = Common {
             limb: simulation.geometry.to_limb_info(),
             layers,
+            power_stroke,
             string_length,
             string_stiffness,
             string_mass,
@@ -277,12 +279,10 @@ impl<'a> Simulation<'a> {
             let mut states = StateVec::new();
 
             let string_dof = simulation.string_nodes[0].y();    // String center dof
-            let draw_displacement = (simulation.geometry.draw_ref - model.draw.draw_length.value()) - (simulation.geometry.brace_ref - model.draw.brace_height);    // Relative displacement from brace height to full draw
-
-            solver.solve_equilibrium_path(string_dof, draw_displacement, model.settings.min_draw_resolution, &mut |system, eval, info| {
+            solver.solve_equilibrium_path(string_dof, -simulation.geometry.draw.power_stroke, model.settings.min_draw_resolution, &mut |system, eval, info| {
                 let stiffness = 1.0/info.dxdλ[string_dof.index];    // Draw stiffness
                 let state = simulation.get_bow_state(system, eval, -2.0*stiffness);  // TODO: Why the sign flip of the stiffness?
-                let progress = state.draw_length/model.draw.draw_length.value();
+                let progress = state.power_stroke/simulation.geometry.draw.power_stroke;
                 states.push(state);
 
                 callback(SimulationMode::Static, 100.0*progress)
@@ -290,15 +290,12 @@ impl<'a> Simulation<'a> {
 
             // Compute additional static output values
 
-            let draw_length_front = *states.draw_length.first().unwrap();    // Unwrap is okay because number of steps was validated, so there is a first and last
-            let draw_length_back = *states.draw_length.last().unwrap();      // Unwrap is okay
-            let draw_force_back = *states.draw_force.last().unwrap();        // Unwrap is okay
             let e_pot_front = states.elastic_energy_limbs.first().unwrap() + states.elastic_energy_string.first().unwrap();    // Unwrap is okay
             let e_pot_back = states.elastic_energy_limbs.last().unwrap() + states.elastic_energy_string.last().unwrap();       // Unwrap is okay
 
-            let final_draw_force = draw_force_back;
+            let final_draw_force = *states.draw_force.last().unwrap();        // Unwrap is okay
             let final_drawing_work = e_pot_back - e_pot_front;
-            let storage_factor = (e_pot_back - e_pot_front) / (0.5*(draw_length_back - draw_length_front)*draw_force_back);
+            let storage_factor = (e_pot_back - e_pot_front) / (0.5*simulation.geometry.draw.power_stroke*final_draw_force);
 
             let max_forces = MaxForces::from_states(&states);
             let max_stresses = MaxStresses::from_states(&states);
@@ -365,9 +362,9 @@ impl<'a> Simulation<'a> {
                     // Only update the brace crossing time if it is estimated,
                     // no need to update once it is known
                     if estimated {
-                        let ut = state.arrow_pos;                                                   // Current arrow position
-                        let u0 = simulation.geometry.draw_ref - model.draw.draw_length.value();     // Arrow position at full draw
-                        let uT = simulation.geometry.brace_ref - model.draw.brace_height;           // Arrow position at brace height
+                        let ut = state.arrow_pos;                       // Current arrow position
+                        let u0 = simulation.geometry.draw.draw_pos;     // Arrow position at full draw
+                        let uT = simulation.geometry.draw.brace_pos;    // Arrow position at brace height
 
                         if ut < uT {
                             // Arrow hasn't yet reached brace height: Update estimate for crossing time from current time and velocity
@@ -513,7 +510,8 @@ impl<'a> Simulation<'a> {
     // TODO: Find a better way to get the stiffness of the force draw curve in there
     fn get_bow_state(&self, system: &System, eval: &SystemEval, draw_stiffness: f64) -> State {
         let time = system.get_time();
-        let draw_length = self.geometry.draw_ref - system.get_position(self.string_nodes[0].y());
+        let draw_length = self.geometry.draw.draw_ref - system.get_position(self.string_nodes[0].y());
+        let power_stroke = self.geometry.draw.brace_pos - system.get_position(self.string_nodes[0].y());
         let draw_force = -2.0*eval.get_external_force(self.string_nodes[0].y());
 
         // The evaluation of the arrow position, velocity and acceleration depends on whether the arrow has separated from the string.
@@ -603,6 +601,7 @@ impl<'a> Simulation<'a> {
         State {
             time,
             draw_length,
+            power_stroke,
 
             limb_pos,
             limb_vel,

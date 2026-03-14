@@ -108,6 +108,7 @@ struct Common {
     LimbInfo limb;
     std::vector<LayerInfo> layers;
 
+    double power_stroke;
     double string_length;
     double string_stiffness;
     double string_mass;
@@ -118,6 +119,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     Common,
     limb,
     layers,
+    power_stroke,
     string_length,
     string_stiffness,
     string_mass,
@@ -127,6 +129,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
 struct States {
     std::vector<double> time;
     std::vector<double> draw_length;
+    std::vector<double> power_stroke;
 
     std::vector<std::vector<std::array<double, 3>>> limb_pos;
     std::vector<std::vector<std::array<double, 3>>> limb_vel;
@@ -170,6 +173,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     States,
     time,
     draw_length,
+    power_stroke,
     limb_pos,
     limb_vel,
     string_pos,

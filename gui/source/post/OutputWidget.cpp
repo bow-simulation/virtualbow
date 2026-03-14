@@ -99,6 +99,7 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
     numbers->addValue("Limb mass", new DoubleOutput(data.common.limb_mass, Quantities::mass, 2, Tooltips::OutputLimbMass));
     numbers->addValue("String mass", new DoubleOutput(data.common.string_mass, Quantities::mass, 2, Tooltips::OutputStringMass));
     numbers->addValue("String length", new DoubleOutput(data.common.string_length, Quantities::length, 2, Tooltips::OutputStringLength));
+    numbers->addValue("Power stroke", new DoubleOutput(data.common.power_stroke, Quantities::length, 2, Tooltips::OutputPowerStroke));
 
     numbers->addColumn();
     numbers->addGroup("Maximum stresses");
@@ -150,6 +151,7 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
     auto plot_curvature = new CurvaturePlot(data.common, data.statics->states);
     auto plot_energy = new EnergyPlot(data.statics->states, data.statics->states.draw_length, "Draw length", Quantities::length, Quantities::energy);
     auto plot_combo = new ComboPlot();
+    plot_combo->addData("Power stroke", data.statics->states.power_stroke, Quantities::length);
     plot_combo->addData("Draw length", data.statics->states.draw_length, Quantities::length);
     plot_combo->addData("Draw force", data.statics->states.draw_force, Quantities::force);
     plot_combo->addData("Draw stiffness", data.statics->states.draw_stiffness, Quantities::stiffness);
@@ -161,7 +163,7 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
     plot_combo->addData("Grip force", data.statics->states.grip_force, Quantities::force);
     plot_combo->addData("Pot. energy limbs", data.statics->states.elastic_energy_limbs, Quantities::energy);
     plot_combo->addData("Pot. energy string", data.statics->states.elastic_energy_string, Quantities::energy);
-    plot_combo->setCombination(0, 1);
+    plot_combo->setCombination(1, 2);
 
     tabs->addTab(scrollArea(numbers), "Characteristics");
     tabs->addTab(plot_shapes, "Shape");

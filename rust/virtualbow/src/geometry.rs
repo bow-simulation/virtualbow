@@ -13,9 +13,7 @@ use crate::output::LimbInfo;
 pub struct LimbGeometry {
     pub profile: ProfileCurve,           // Limb profile curve
     pub section: LayeredCrossSection,    // Limb cross sections
-    pub pivot_point: f64,                // Position of the bow's pivot point in y direction
-    pub brace_ref: f64,                  // Reference position in y direction from which the brace height is measured
-    pub draw_ref: f64,                   // Reference position in y direction from which the draw length is measured
+    pub draw: DrawInfo                   // Info about brace and draw positions
 }
 
 // TODO: Return values s_nodes, u_node might not be needed if the evaluation works properly
@@ -42,9 +40,17 @@ pub struct DiscreteLimbGeometry {
     pub strain_eval: Vec<Vec<SVector<f64, 3>>>,      // Strain evaluation matrices for each evaluation point
     pub stress_eval: Vec<Vec<SVector<f64, 3>>>,      // Stress evaluation matrices for each evaluation point
 
+    pub draw: DrawInfo
+}
+
+#[derive(Serialize, Deserialize, Default, PartialEq, Debug, Clone)]
+pub struct DrawInfo {
     pub pivot_point: f64,                // Position of the pivot point
     pub brace_ref: f64,                  // Reference position for measurement of the brace height
     pub draw_ref: f64,                   // Reference position for measurement of the draw length
+    pub brace_pos: f64,                  // Position of the braced string
+    pub draw_pos: f64,                   // Position of the fully drawn string
+    pub power_stroke: f64,               // Difference between brace height and full draw (positive)
 }
 
 impl LimbGeometry {
@@ -75,6 +81,19 @@ impl LimbGeometry {
             DrawLength::Amo(_) => pivot_point + 1.75*0.0254    // TODO: Verify direction
         };
 
+        // Position of the string at brace and full draw as determined by the reference points
+        let brace_pos = brace_ref - input.draw.brace_height;
+        let draw_pos = draw_ref - input.draw.draw_length.value();
+        let power_stroke = brace_pos - draw_pos;
+        let draw = DrawInfo{
+            pivot_point,
+            brace_ref,
+            draw_ref,
+            brace_pos,
+            draw_pos,
+            power_stroke,
+        };
+
         // Check for self-intersecting geometry, which is the case when the thickness of the limb is higher than the radius of curvature
         // Since we can't check this analytically, we check for a fixed number of points along the length of the limb
         for s in lin_space(profile.length_start()..=profile.length_end(), 1000) {  // TODO: Magic number
@@ -94,9 +113,7 @@ impl LimbGeometry {
         Ok(Self {
             profile,
             section,
-            pivot_point,
-            brace_ref,
-            draw_ref
+            draw
         })
     }
 
@@ -164,9 +181,7 @@ impl LimbGeometry {
             p_eval,
             w_eval,
             h_eval,
-            pivot_point: self.pivot_point,
-            brace_ref: self.brace_ref,
-            draw_ref: self.draw_ref
+            draw: self.draw.clone(),
         }
     }
 }
@@ -183,7 +198,7 @@ impl DiscreteLimbGeometry {
             bounds: self.y_eval.iter().map(|y| y.data.clone().into()).collect(),
             ratio: self.n_eval.clone(),
             heights: self.h_eval.iter().map(|h| h.data.clone().into()).collect(),
-            pivot_point: self.pivot_point,
+            pivot_point: self.draw.pivot_point,
         }
     }
 }
