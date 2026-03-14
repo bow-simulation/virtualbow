@@ -4,15 +4,14 @@
 
 class DoubleOutput: public QLineEdit {
 public:
-    DoubleOutput(double value, const Quantity& quantity, int decimals = 2);
-
-    void setAllowedLimit(std::optional<double> value);
-    void setMaximumLimit(std::optional<double> value);
+    DoubleOutput(double value, const Quantity& quantity, int decimals, const QString& tooltip);
+    DoubleOutput(double value, double allowed, double maximum, const Quantity& quantity, int decimals, const QString& tooltip);
 
 private:
     const Quantity& quantity;
     double value;
     int decimals;
+    QString tooltip;
 
     std::optional<double> allowedLimit;
     std::optional<double> maximumLimit;

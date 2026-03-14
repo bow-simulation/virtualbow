@@ -1,4 +1,4 @@
-#include "NumberGrid.hpp"
+#include "OutputGrid.hpp"
 #include "pre/widgets/DoubleOutput.hpp"
 #include "pre/models/units/Quantity.hpp"
 #include <QHBoxLayout>
@@ -8,7 +8,7 @@
 #include <QLineEdit>
 #include <QLabel>
 
-NumberGrid::NumberGrid()
+OutputGrid::OutputGrid()
     : columnLayout(new QHBoxLayout()),
       currentColumn(nullptr),
       currentGrid(nullptr)
@@ -19,7 +19,7 @@ NumberGrid::NumberGrid()
     this->setLayout(columnLayout);
 }
 
-void NumberGrid::addColumn() {
+void OutputGrid::addColumn() {
     // Create new column
     currentColumn = new QVBoxLayout();
     currentColumn->addStretch();
@@ -32,7 +32,7 @@ void NumberGrid::addColumn() {
     columnLayout->insertLayout(i, currentColumn);
 }
 
-void NumberGrid::addGroup(const QString& name) {
+void OutputGrid::addGroup(const QString& name) {
     if(currentColumn == nullptr) {
         addColumn();
     }
@@ -46,7 +46,7 @@ void NumberGrid::addGroup(const QString& name) {
     currentColumn->insertWidget(i, group);
 }
 
-void NumberGrid::addHeaders(const QStringList& headers) {
+void OutputGrid::addHeaders(const QStringList& headers) {
     if(currentColumn == nullptr) {
         addColumn();
     }
@@ -63,7 +63,11 @@ void NumberGrid::addHeaders(const QStringList& headers) {
     }
 }
 
-void NumberGrid::addValues(const QString& name, const QList<double>& values, const QList<const Quantity*> quantities, const QList<double>& allowed, const QList<double>& maximum, int decimals) {
+void OutputGrid::addValue(const QString& name, QWidget* widget) {
+    addValues(name, {widget});
+}
+
+void OutputGrid::addValues(const QString& name, QList<QWidget*> widgets) {
     if(currentColumn == nullptr) {
         addColumn();
     }
@@ -74,20 +78,10 @@ void NumberGrid::addValues(const QString& name, const QList<double>& values, con
 
     int row = currentGrid->rowCount();
     auto label = new QLabel(name);
+
     currentGrid->addWidget(label, row, 0);
-
-    for(int col = 0; col < values.size(); ++col) {
-        auto output = new DoubleOutput(values[col], *quantities[col], decimals);
-        currentGrid->addWidget(output, row, col + 1);
-
-        // Set warning limits if nonzero ones are given
-        if(col < allowed.size() && col < maximum.size() && allowed[col] != 0.0 && maximum[col] != 0.0) {
-            output->setAllowedLimit(allowed[col]);
-            output->setMaximumLimit(maximum[col]);
-        }
+    for(int col = 0; col < widgets.size(); ++col) {
+        currentGrid->addWidget(widgets[col], row, col + 1);
     }
 }
 
-void NumberGrid::addValue(const QString& name, double value, const Quantity& quantity, int decimals) {
-    addValues(name, {value}, {&quantity}, {}, {}, decimals);
-}

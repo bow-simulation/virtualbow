@@ -1,7 +1,9 @@
 #include "solver/BowResult.hpp"
 #include "pre/models/units/UnitSystem.hpp"
+#include "pre/widgets/DoubleOutput.hpp"
+#include "pre/Language.hpp"
 #include "OutputWidget.hpp"
-#include "NumberGrid.hpp"
+#include "OutputGrid.hpp"
 #include "ShapePlot.hpp"
 #include "ArrowPlot.hpp"
 #include "DrawForcePlot.hpp"
@@ -14,10 +16,14 @@
 #include "pre/widgets/ScrollArea.hpp"
 
 OutputWidget::OutputWidget(const BowResult& data)
-    : data(data),
-      button_statics(new QPushButton("Statics")),
-      button_dynamics(new QPushButton("Dynamics"))
+    : data(data)
 {
+    button_statics = new QPushButton("Statics");
+    button_statics->setToolTip(Tooltips::ButtonShowStatics);
+
+    button_dynamics = new QPushButton("Dynamics");
+    button_dynamics->setToolTip(Tooltips::ButtonShowDynamics);
+
     bool enable_statics = data.statics.has_value();
     bool enable_dynamics = data.dynamics.has_value();
 
@@ -83,21 +89,22 @@ const BowResult& OutputWidget::getData() {
 StaticOutputWidget::StaticOutputWidget(const BowResult& data)
     : tabs(new QTabWidget())
 {
-    auto numbers = new NumberGrid();
+    auto numbers = new OutputGrid();
     numbers->addColumn();
     numbers->addGroup("Performance");
-    numbers->addValue("Final draw force", data.statics->final_draw_force, Quantities::force);
-    numbers->addValue("Drawing work", data.statics->final_drawing_work, Quantities::energy);
-    numbers->addValue("Energy storage factor", data.statics->storage_factor, Quantities::ratio);
+    numbers->addValue("Final draw force", new DoubleOutput(data.statics->final_draw_force, Quantities::force, 2, Tooltips::OutputFinalDrawForce));
+    numbers->addValue("Drawing work", new DoubleOutput(data.statics->final_drawing_work, Quantities::energy, 2, Tooltips::OutputDrawingWork));
+    numbers->addValue("Energy storage factor", new DoubleOutput(data.statics->storage_factor, Quantities::ratio, 2, Tooltips::OutputEnergyStorageFactor));
     numbers->addGroup("Properties");
-    numbers->addValue("Limb mass", data.common.limb_mass, Quantities::mass);
-    numbers->addValue("String mass", data.common.string_mass, Quantities::mass);
-    numbers->addValue("String length", data.common.string_length, Quantities::length);
+    numbers->addValue("Limb mass", new DoubleOutput(data.common.limb_mass, Quantities::mass, 2, Tooltips::OutputLimbMass));
+    numbers->addValue("String mass", new DoubleOutput(data.common.string_mass, Quantities::mass, 2, Tooltips::OutputStringMass));
+    numbers->addValue("String length", new DoubleOutput(data.common.string_length, Quantities::length, 2, Tooltips::OutputStringLength));
 
     numbers->addColumn();
     numbers->addGroup("Maximum stresses");
     numbers->addHeaders({"Tension", "Compression"});
     for(size_t i = 0; i < data.common.layers.size(); ++i) {
+        QString layer = QString::fromStdString(data.common.layers[i].name);
         double tension = std::get<0>(data.statics->max_stresses.max_layer_stress_tension.at(i));
         double compression = std::get<0>(data.statics->max_stresses.max_layer_stress_compression.at(i));
 
@@ -106,12 +113,16 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
         double maximum_tension = data.common.layers.at(i).maximum_stresses.first;
         double maximum_compression = data.common.layers.at(i).maximum_stresses.second;
 
-        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::stress, &Quantities::stress}, {allowed_tension, allowed_compression}, {maximum_tension, maximum_compression});
+        numbers->addValues(layer, {
+            new DoubleOutput(tension, allowed_tension, maximum_tension, Quantities::stress, 2, Tooltips::OutputMaxTensileStress.arg(layer)),
+            new DoubleOutput(compression, allowed_compression, maximum_compression, Quantities::stress, 2, Tooltips::OutputMaxCompressiveStress.arg(layer))
+        });
     }
 
     numbers->addGroup("Maximum strains");
     numbers->addHeaders({"Tension", "Compression"});
     for(size_t i = 0; i < data.common.layers.size(); ++i) {
+        QString layer = QString::fromStdString(data.common.layers[i].name);
         double tension = std::get<0>(data.statics->max_stresses.max_layer_strain_tension.at(i));
         double compression = std::get<0>(data.statics->max_stresses.max_layer_strain_compression.at(i));
 
@@ -120,15 +131,18 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
         double maximum_tension = data.common.layers.at(i).maximum_strains.first;
         double maximum_compression = data.common.layers.at(i).maximum_strains.second;
 
-        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::strain, &Quantities::strain}, {allowed_tension, allowed_compression}, {maximum_tension, maximum_compression}, 4);
+        numbers->addValues(layer, {
+            new DoubleOutput(tension, allowed_tension, maximum_tension, Quantities::strain, 4, Tooltips::OutputMaxTensileStrain.arg(layer)),
+            new DoubleOutput(compression, allowed_compression, maximum_compression, Quantities::strain, 4, Tooltips::OutputMaxCompressiveStrain.arg(layer))
+        });
     }
 
     numbers->addColumn();
     numbers->addGroup("Maximum absolute forces");
-    numbers->addValue("Draw force", std::get<0>(data.statics->max_forces.max_draw_force), Quantities::force);
-    numbers->addValue("Grip force", std::get<0>(data.statics->max_forces.max_grip_force), Quantities::force);
-    numbers->addValue("String force (total)", std::get<0>(data.statics->max_forces.max_string_force), Quantities::force);
-    numbers->addValue("String force (strand)", std::get<0>(data.statics->max_forces.max_strand_force),  Quantities::force);
+    numbers->addValue("Draw force", new DoubleOutput(std::get<0>(data.statics->max_forces.max_draw_force), Quantities::force, 2, Tooltips::OutputMaxDrawForce));
+    numbers->addValue("Grip force", new DoubleOutput(std::get<0>(data.statics->max_forces.max_grip_force), Quantities::force, 2, Tooltips::OutputMaxGripPushForce));
+    numbers->addValue("String force (total)", new DoubleOutput(std::get<0>(data.statics->max_forces.max_string_force), Quantities::force, 2, Tooltips::OutputMaxStringForce));
+    numbers->addValue("String force (strand)", new DoubleOutput(std::get<0>(data.statics->max_forces.max_strand_force),  Quantities::force, 2, Tooltips::OutputMaxStrandForce));
 
     auto plot_shapes = new ShapePlot(data.common, data.statics->states, 4);
     auto plot_draw = new DrawForcePlot(data.common, data.statics->states);
@@ -190,16 +204,16 @@ StaticOutputWidget::~StaticOutputWidget() {
 DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
     : tabs(new QTabWidget())
 {
-    auto numbers = new NumberGrid();
+    auto numbers = new OutputGrid();
     if(data.dynamics->arrow_departure.has_value()) {
         auto& departure = *data.dynamics->arrow_departure;
 
         numbers->addColumn();
         numbers->addGroup("Performance");
-        numbers->addValue("Arrow mass", data.dynamics->arrow_mass, Quantities::mass);
-        numbers->addValue("Final arrow velocity", departure.arrow_vel, Quantities::velocity);
-        numbers->addValue("Final arrow energy", departure.kinetic_energy_arrow, Quantities::energy);
-        numbers->addValue("Degree of efficiency", departure.energy_efficiency, Quantities::ratio);
+        numbers->addValue("Arrow mass", new DoubleOutput(data.dynamics->arrow_mass, Quantities::mass, 2, Tooltips::OutputArrowMass));
+        numbers->addValue("Final arrow velocity", new DoubleOutput(departure.arrow_vel, Quantities::velocity, 2, Tooltips::OutputFinalArrowVelocity));
+        numbers->addValue("Final arrow energy", new DoubleOutput(departure.kinetic_energy_arrow, Quantities::energy, 2, Tooltips::OutputFinalArrowEnergy));
+        numbers->addValue("Degree of efficiency", new DoubleOutput(departure.energy_efficiency, Quantities::ratio, 2, Tooltips::OutputEnergyEfficiency));
 
         double drawing_work = data.statics->final_drawing_work;
         double initial_energy_limbs = data.statics->states.elastic_energy_limbs[0];    // TODO: Make this a dedicated result?
@@ -207,18 +221,37 @@ DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
 
         numbers->addGroup("Efficiency losses");
         numbers->addHeaders({"Energy", "Efficiency"});
-        numbers->addValues("Limbs (kinetic)", {departure.kinetic_energy_limbs, departure.kinetic_energy_limbs/drawing_work}, {&Quantities::energy, &Quantities::ratio});
-        numbers->addValues("Limbs (elastic)", {departure.elastic_energy_limbs - initial_energy_limbs, (departure.elastic_energy_limbs - initial_energy_limbs)/drawing_work}, {&Quantities::energy, &Quantities::ratio});
-        numbers->addValues("Limbs (damping)", {departure.damping_energy_limbs, departure.damping_energy_limbs/drawing_work}, {&Quantities::energy, &Quantities::ratio});
-        numbers->addValues("String (kinetic)", {departure.kinetic_energy_string, departure.kinetic_energy_string/drawing_work}, {&Quantities::energy, &Quantities::ratio});
-        numbers->addValues("String (elastic)", {departure.elastic_energy_string - initial_energy_string, (departure.elastic_energy_string - initial_energy_string)/drawing_work}, {&Quantities::energy, &Quantities::ratio});
-        numbers->addValues("String (damping)", {departure.damping_energy_string, departure.damping_energy_string/drawing_work}, {&Quantities::energy, &Quantities::ratio});
+        numbers->addValues("Limbs (kinetic)", {
+            new DoubleOutput(departure.kinetic_energy_limbs, Quantities::energy, 2, Tooltips::OutputEnergyLossLimbsKineticAbsolute),
+            new DoubleOutput(departure.kinetic_energy_limbs/drawing_work, Quantities::ratio, 2, Tooltips::OutputEnergyLossLimbsKineticRelative)
+        });
+        numbers->addValues("Limbs (elastic)", {
+            new DoubleOutput(departure.elastic_energy_limbs - initial_energy_limbs, Quantities::energy, 2, Tooltips::OutputEnergyLossLimbsElasticAbsolute),
+            new DoubleOutput((departure.elastic_energy_limbs - initial_energy_limbs)/drawing_work, Quantities::ratio, 2, Tooltips::OutputEnergyLossLimbsElasticRelative)
+        });
+        numbers->addValues("Limbs (damping)", {
+            new DoubleOutput(departure.damping_energy_limbs, Quantities::energy, 2, Tooltips::OutputEnergyLossLimbsDampingAbsolute),
+            new DoubleOutput(departure.damping_energy_limbs/drawing_work, Quantities::ratio, 2, Tooltips::OutputEnergyLossLimbsDampingRelative)
+        });
+        numbers->addValues("String (kinetic)", {
+            new DoubleOutput(departure.kinetic_energy_string, Quantities::energy, 2, Tooltips::OutputEnergyLossStringKineticAbsolute),
+            new DoubleOutput(departure.kinetic_energy_string/drawing_work, Quantities::ratio, 2, Tooltips::OutputEnergyLossStringKineticRelative)
+        });
+        numbers->addValues("String (elastic)", {
+            new DoubleOutput(departure.elastic_energy_string - initial_energy_string, Quantities::energy, 2, Tooltips::OutputEnergyLossStringElasticAbsolute),
+            new DoubleOutput((departure.elastic_energy_string - initial_energy_string)/drawing_work, Quantities::ratio, 2, Tooltips::OutputEnergyLossStringElasticRelative)
+        });
+        numbers->addValues("String (damping)", {
+            new DoubleOutput(departure.damping_energy_string, Quantities::energy, 2, Tooltips::OutputEnergyLossStringDampingAbsolute),
+            new DoubleOutput(departure.damping_energy_string/drawing_work, Quantities::ratio, 2, Tooltips::OutputEnergyLossStringDampingRelative)
+        });
     }
 
     numbers->addColumn();
     numbers->addGroup("Maximum stresses");
     numbers->addHeaders({"Tension", "Compression"});
     for(size_t i = 0; i < data.common.layers.size(); ++i) {
+        QString layer = QString::fromStdString(data.common.layers[i].name);
         double tension = std::get<0>(data.dynamics->max_stresses.max_layer_stress_tension.at(i));
         double compression = std::get<0>(data.dynamics->max_stresses.max_layer_stress_compression.at(i));
 
@@ -227,12 +260,16 @@ DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
         double maximum_tension = data.common.layers.at(i).maximum_stresses.first;
         double maximum_compression = data.common.layers.at(i).maximum_stresses.second;
 
-        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::stress, &Quantities::stress}, {allowed_tension, allowed_compression}, {maximum_tension, maximum_compression});
+        numbers->addValues(layer, {
+            new DoubleOutput(tension, allowed_tension, maximum_tension, Quantities::stress, 2, Tooltips::OutputMaxTensileStress.arg(layer)),
+            new DoubleOutput(compression, allowed_compression, maximum_compression, Quantities::stress, 2, Tooltips::OutputMaxCompressiveStress.arg(layer))
+        });
     }
 
     numbers->addGroup("Maximum strains");
     numbers->addHeaders({"Tension", "Compression"});
     for(size_t i = 0; i < data.common.layers.size(); ++i) {
+        QString layer = QString::fromStdString(data.common.layers[i].name);
         double tension = std::get<0>(data.dynamics->max_stresses.max_layer_strain_tension.at(i));
         double compression = std::get<0>(data.dynamics->max_stresses.max_layer_strain_compression.at(i));
 
@@ -241,15 +278,18 @@ DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
         double maximum_tension = data.common.layers.at(i).maximum_strains.first;
         double maximum_compression = data.common.layers.at(i).maximum_strains.second;
 
-        numbers->addValues(QString::fromStdString(data.common.layers.at(i).name), {tension, compression}, {&Quantities::strain, &Quantities::strain}, {allowed_tension, allowed_compression}, {maximum_tension, maximum_compression}, 4);
+        numbers->addValues(layer, {
+            new DoubleOutput(tension, allowed_tension, maximum_tension, Quantities::strain, 4, Tooltips::OutputMaxTensileStrain.arg(layer)),
+            new DoubleOutput(compression, allowed_compression, maximum_compression, Quantities::strain, 4, Tooltips::OutputMaxCompressiveStrain.arg(layer))
+        });
     }
 
     numbers->addColumn();
     numbers->addGroup("Maximum forces");
-    numbers->addValue("Grip push force", std::get<0>(data.dynamics->max_forces.max_grip_force), Quantities::force);
-    numbers->addValue("Grip pull force", std::get<0>(data.dynamics->max_forces.min_grip_force), Quantities::force);
-    numbers->addValue("String force (total)", std::get<0>(data.dynamics->max_forces.max_string_force), Quantities::force);
-    numbers->addValue("String force (strand)", std::get<0>(data.dynamics->max_forces.max_strand_force), Quantities::force);
+    numbers->addValue("Grip push force", new DoubleOutput(std::get<0>(data.dynamics->max_forces.max_grip_force), Quantities::force, 2, Tooltips::OutputMaxGripPushForce));
+    numbers->addValue("Grip pull force", new DoubleOutput(std::get<0>(data.dynamics->max_forces.min_grip_force), Quantities::force, 2, Tooltips::OutputMaxGripPullForce));
+    numbers->addValue("String force (total)", new DoubleOutput(std::get<0>(data.dynamics->max_forces.max_string_force), Quantities::force, 2, Tooltips::OutputMaxStringForce));
+    numbers->addValue("String force (strand)", new DoubleOutput(std::get<0>(data.dynamics->max_forces.max_strand_force), Quantities::force, 2, Tooltips::OutputMaxStrandForce));
 
     auto plot_shapes = new ShapePlot(data.common, data.dynamics->states, 0);
     auto plot_arrow = new ArrowPlot(data.common, data.dynamics->states);

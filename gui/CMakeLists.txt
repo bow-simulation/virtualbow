@@ -218,8 +218,8 @@ add_executable(
     source/post/DrawForcePlot.hpp
     source/post/EnergyPlot.cpp
     source/post/EnergyPlot.hpp
-    source/post/NumberGrid.cpp
-    source/post/NumberGrid.hpp
+    source/post/OutputGrid.cpp
+    source/post/OutputGrid.hpp
     source/post/OutputWidget.cpp
     source/post/OutputWidget.hpp
     source/post/ShapePlot.cpp

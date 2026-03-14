@@ -39,13 +39,13 @@ TreeDock::TreeDock(MainModel* mainModel)
         model->removeIndexes(selection);
     });
 
-    actionMoveUp = new QAction(QIcon(":/icons/list-move-up.svg"), "Up", tree);
+    actionMoveUp = new QAction(QIcon(":/icons/list-move-up.svg"), "Move up", tree);
     QObject::connect(actionMoveUp, &QAction::triggered, this, [=, this] {
         QModelIndexList selection = selectionModel->selectedIndexes();
         model->moveIndexesUp(selection);
     });
 
-    actionMoveDown = new QAction(QIcon(":/icons/list-move-down.svg"), "Down", tree);
+    actionMoveDown = new QAction(QIcon(":/icons/list-move-down.svg"), "Move down", tree);
     QObject::connect(actionMoveDown, &QAction::triggered, this, [=, this] {
         QModelIndexList selection = selectionModel->selectedIndexes();
         model->moveIndexesDown(selection);

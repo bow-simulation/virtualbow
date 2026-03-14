@@ -1,5 +1,6 @@
 #include "Slider.hpp"
 #include "pre/models/units/Quantity.hpp"
+#include "pre/Language.hpp"
 #include <QLineEdit>
 #include <QDoubleValidator>
 #include <QToolButton>
@@ -24,9 +25,10 @@ Slider::Slider(const std::vector<double>& values, const QString& text, const Qua
 
     edit = new QLineEdit();
     edit->setFixedHeight(height);
-    edit->setValidator(new QDoubleValidator());//values.front(), values.back(), 10));
+    edit->setValidator(new QDoubleValidator());
 
     auto button_jump_to = new QToolButton();
+    button_jump_to->setToolTip(Tooltips::SliderJumpTo);
     button_jump_to->setIcon(QIcon(":/icons/media-jump-to.svg"));
     button_jump_to->setFixedSize(height, height);
     button_jump_to->setStyleSheet("QToolButton::menu-indicator { image: none; }");
@@ -34,14 +36,17 @@ Slider::Slider(const std::vector<double>& values, const QString& text, const Qua
     button_jump_to->setPopupMode(QToolButton::InstantPopup);
 
     auto button_skip_backward = new QToolButton();
+    button_skip_backward->setToolTip(Tooltips::SliderSkipToStart);
     button_skip_backward->setIcon(QIcon(":/icons/media-skip-backward.svg"));
     button_skip_backward->setFixedSize(height, height);
 
     auto button_play_pause = new QToolButton();
+    button_play_pause->setToolTip(Tooltips::SliderPlayPause);
     button_play_pause->setIcon(QIcon(":/icons/media-playback-start.svg"));
     button_play_pause->setFixedSize(height, height);
 
     auto button_skip_forward = new QToolButton();
+    button_skip_forward->setToolTip(Tooltips::SliderSkipToEnd);
     button_skip_forward->setIcon(QIcon(":/icons/media-skip-forward.svg"));
     button_skip_forward->setFixedSize(height, height);
 

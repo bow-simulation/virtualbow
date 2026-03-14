@@ -1,4 +1,5 @@
 #include "UnitDialog.hpp"
+#include "Language.hpp"
 #include "pre/models/units/UnitSystem.hpp"
 #include "pre/utils/UserSettings.hpp"
 #include <QLabel>
@@ -86,9 +87,11 @@ UnitDialog::UnitDialog(QWidget* parent)
     group->setLayout(grid);
 
     auto button_si = new QPushButton("Defaults (SI)");
+    button_si->setToolTip(Tooltips::ResetSIDefaults);
     QObject::connect(button_si, &QPushButton::clicked, []{ Quantities::resetSI(); });
 
     auto button_us = new QPushButton("Defaults (US)");
+    button_us->setToolTip(Tooltips::ResetUSDefaults);
     QObject::connect(button_us, &QPushButton::clicked, []{ Quantities::resetUS(); });
 
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -99,11 +102,11 @@ UnitDialog::UnitDialog(QWidget* parent)
         switch(buttons->standardButton(button)) {
         case QDialogButtonBox::Ok:
             accept();
-            Quantities::saveToSettings(settings);
+            Quantities::saveToSettings(settings);    // Okay: Save selection to settings
             break;
         case QDialogButtonBox::Cancel:
             reject();
-            Quantities::loadFromSettings(settings);
+            Quantities::loadFromSettings(settings);    // Cancel: Reload previous selection from settings
             break;
         default:
             // Ignore, SI and US buttons are handled elsewhere

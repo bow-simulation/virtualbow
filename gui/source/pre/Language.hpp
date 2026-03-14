@@ -47,8 +47,8 @@ namespace Tooltips {
     inline const QString ViewDefault = QStringLiteral("Default view");
     inline const QString ViewProfile = QStringLiteral("Profile view");
     inline const QString ViewBack = QStringLiteral("Back view");
-    inline const QString ViewReset = QStringLiteral("Reset view");
-    inline const QString ViewSymmetric = QStringLiteral("Show symmetry");
+    inline const QString ViewReset = QStringLiteral("Reset zoom");
+    inline const QString ViewSymmetric = QStringLiteral("Show both limbs");
 
     inline const QString SettingsNumLimbElements = QStringLiteral("Number of finite elements used to approximate the limb");
     inline const QString SettingsNumEvalPoints = QStringLiteral("Number of points along the limb where results are evaluated");
@@ -87,4 +87,51 @@ namespace Tooltips {
 
     inline const QString DampingRatioLimbs = QStringLiteral("Damping ratio of the limbs");
     inline const QString DampingRatioString = QStringLiteral("Damping ratio of the string");
+
+    inline const QString ResetSIDefaults = QStringLiteral("Reset selection to SI default units");
+    inline const QString ResetUSDefaults = QStringLiteral("Reset selection to US default units");
+
+    inline const QString OutputFinalDrawForce = QStringLiteral("Draw force of the bow at full draw");
+    inline const QString OutputDrawingWork = QStringLiteral("Total work done by drawing the bow from brace height to full draw");
+    inline const QString OutputEnergyStorageFactor = QStringLiteral("Quality indicator for the shape of the force-draw curve in terms of energy storage");
+    inline const QString OutputLimbMass = QStringLiteral("Computed mass of a single bow limb, including the additional tip mass");
+    inline const QString OutputStringMass = QStringLiteral("Computed mass of the bow string, including additional masses");
+    inline const QString OutputStringLength = QStringLiteral("Length of the string as determined by the configured brace height");
+    inline const QString OutputMaxDrawForce = QStringLiteral("Maximum draw force (not necessarily equal to the final draw force)");
+    inline const QString OutputMaxStringForce = QStringLiteral("Maximum tensile force in the string");
+    inline const QString OutputMaxStrandForce = QStringLiteral("Maximum tensile force in the string per strand");
+    inline const QString OutputArrowMass = QStringLiteral("Arrow mass (either from direct input or computed from mass per force/energy)");
+    inline const QString OutputFinalArrowVelocity = QStringLiteral("Final velocity of the arrow when leaving the bow");
+    inline const QString OutputFinalArrowEnergy = QStringLiteral("Final kinetic energy of the arrow when leaving the bow");
+    inline const QString OutputEnergyEfficiency = QStringLiteral("Degree of efficiency of the bow\nRatio of the drawing work that is being converted into kinetic energy of the arrow");
+    inline const QString OutputMaxGripPushForce = QStringLiteral("Maximum push force that the grip exerts onto the bow hand");
+    inline const QString OutputMaxGripPullForce = QStringLiteral("Maximum pull force that the grip exerts onto the bow hand");
+    inline const QString OutputMaxTensileStress = QStringLiteral("Maximum tensile stress for layer \"%1\"");
+    inline const QString OutputMaxCompressiveStress = QStringLiteral("Maximum compressive stress for layer \"%1\"");
+    inline const QString OutputMaxTensileStrain = QStringLiteral("Maximum tensile strain for layer \"%1\"");
+    inline const QString OutputMaxCompressiveStrain = QStringLiteral("Maximum compressive strain for layer \"%1\"");
+
+    inline const QString OutputEnergyLossLimbsKineticAbsolute = QStringLiteral("Energy lost due to kinetic energy remaining in the limbs after arrow departure");
+    inline const QString OutputEnergyLossLimbsKineticRelative = QStringLiteral("Efficiency lost due to kinetic energy remaining in the limbs after arrow departure");
+    inline const QString OutputEnergyLossLimbsElasticAbsolute = QStringLiteral("Energy lost due to elastic energy remaining in the limbs after arrow departure");
+    inline const QString OutputEnergyLossLimbsElasticRelative = QStringLiteral("Efficiency lost due to elastic energy remaining in the limbs after arrow departure");
+    inline const QString OutputEnergyLossLimbsDampingAbsolute = QStringLiteral("Energy lost due to damping in the limbs up until arrow departure");
+    inline const QString OutputEnergyLossLimbsDampingRelative = QStringLiteral("Efficiency lost due to damping in the limbs up until arrow departure");
+    inline const QString OutputEnergyLossStringKineticAbsolute = QStringLiteral("Energy lost due to kinetic energy remaining in the string after arrow departure");
+    inline const QString OutputEnergyLossStringKineticRelative = QStringLiteral("Efficiency lost due to kinetic energy remaining in the string after arrow departure");
+    inline const QString OutputEnergyLossStringElasticAbsolute = QStringLiteral("Energy lost due to elastic energy remaining in the string after arrow departure");
+    inline const QString OutputEnergyLossStringElasticRelative = QStringLiteral("Efficiency lost due to elastic energy remaining in the string after arrow departure");
+    inline const QString OutputEnergyLossStringDampingAbsolute = QStringLiteral("Energy lost due to damping in the string up until arrow departure");
+    inline const QString OutputEnergyLossStringDampingRelative = QStringLiteral("Efficiency lost due to damping in the string up until arrow departure");
+
+    inline const QString SliderJumpTo = QStringLiteral("Jump to a specific point in the simulation results");
+    inline const QString SliderSkipToStart = QStringLiteral("Jump to start");
+    inline const QString SliderSkipToEnd = QStringLiteral("Jump to end");
+    inline const QString SliderPlayPause = QStringLiteral("Play/Pause");
+
+    inline const QString SelectPlotChannelX = QStringLiteral("Select simulation result to be plotted on the x axis");
+    inline const QString SelectPlotChannelY = QStringLiteral("Select simulation result to be plotted on the y axis");
+
+    inline const QString ButtonShowStatics = QStringLiteral("Show the static simulation results");
+    inline const QString ButtonShowDynamics = QStringLiteral("Show the dynamic simulation results");
 }

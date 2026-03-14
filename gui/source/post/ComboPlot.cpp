@@ -1,11 +1,16 @@
 #include "ComboPlot.hpp"
+#include "pre/Language.hpp"
 
 ComboPlot::ComboPlot()
-    : combo_x(new QComboBox()),
-      combo_y(new QComboBox()),
-      plot(new PlotWidget()),
+    : plot(new PlotWidget()),
       curve(new QCPCurve(plot->xAxis, plot->yAxis))
 {    
+    combo_x = new QComboBox();
+    combo_x->setToolTip(Tooltips::SelectPlotChannelX);
+
+    combo_y = new QComboBox();
+    combo_y->setToolTip(Tooltips::SelectPlotChannelY);
+
     curve->setName("Line");
     curve->setPen({Qt::blue, 2.0});
 
