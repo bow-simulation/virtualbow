@@ -41,28 +41,39 @@ SimulationDialog::SimulationDialog(QWidget* parent, const BowModel& model, Mode 
 
     // Create cancel button
     auto btbox = new QDialogButtonBox(QDialogButtonBox::Cancel);
-    QObject::connect(btbox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     vbox->addSpacing(8);
     vbox->addWidget(btbox);
 
-    // Run simulation as an asynchronous task
-
+    // Create future watcher and make cancel button cancel the future
     auto watcher = new QFutureWatcher<QString>(this);
+    QObject::connect(btbox, &QDialogButtonBox::rejected, this, [=] {
+        watcher->future().cancel();
+    });
 
+    /*
     // Cancel the task when the dialog was rejected
     QObject::connect(this, &QDialog::rejected, this, [=] {
         watcher->future().cancel();
     });
+    */
 
-    // When the task has finished, accept the dialog if no error occurred or show a messagebow and reject
-    QObject::connect(watcher, &QFutureWatcher<void>::finished, this, [=, this] {
-        QString error = watcher->future().result();
-        if(error.isEmpty()) {
-            accept();
+    // When the task has finished, accept/reject the dialog or show an error messagebox as needed
+    QObject::connect(watcher, &QFutureWatcher<QString>::finished, this, [=, this] {
+        // Future was canceled: Reject the dialog and do nothing else
+        if(watcher->future().isCanceled()) {
+            reject();
         }
         else {
-            QMessageBox::critical(this, "Error", error);
-            reject();
+            // Otherwise have a look at the result of the future, which is an optional error string.
+            // No error: Accept the dialog, Error: Reject the dialog and show the error.
+            QString error = watcher->future().result();
+            if(error.isEmpty()) {
+                accept();
+            }
+            else {
+                QMessageBox::critical(this, "Error", error);
+                reject();
+            }
         }
     });
 
@@ -101,6 +112,6 @@ const BowResult& SimulationDialog::getResult() const {
 }
 
 void SimulationDialog::closeEvent(QCloseEvent* event) {
-    event->accept();
-    this->reject();
+    //event->accept();
+    //this->reject();
 }
