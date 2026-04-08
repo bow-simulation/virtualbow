@@ -24,8 +24,8 @@ const Unit Units::Grain_Per_PoundForce = Unit("gr/lbf", "Grain per pound-force",
 const Unit Units::Kilogram_Per_Joule = Unit("kg/J", "Kilogram per Joule", SI, 1.0);
 const Unit Units::Gram_Per_Joule = Unit("g/J", "Gram per Joule", SI, 1e-3);
 const Unit Units::Pound_Per_FootPound = Unit("lb/ft*lbf", "Pound per foot-pound", US, 0.453592/1.35582);
-const Unit Units::Ounce_Per_FootPound = Unit("oz/ft*lbf", "Ounce per pound-force", US, 0.0283495/1.35582);
-const Unit Units::Grain_Per_FootPound = Unit("gr/ft*lbf", "Grain per pound-force", US, 0.00006479891/1.35582);
+const Unit Units::Ounce_Per_FootPound = Unit("oz/ft*lbf", "Ounce per foot-pound", US, 0.0283495/1.35582);
+const Unit Units::Grain_Per_FootPound = Unit("gr/ft*lbf", "Grain per foot-pound", US, 0.00006479891/1.35582);
 
 const Unit Units::Newton = Unit("N", "Newton", SI, 1.0);
 const Unit Units::Newton_Per_Percent = Unit("N/%", "Newton per percent", SI, 1e2);

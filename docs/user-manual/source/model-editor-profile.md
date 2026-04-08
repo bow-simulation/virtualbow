@@ -1,28 +1,27 @@
 # Profile
 
-The profile defines the shape of the (back of the) bow in unbraced state.
+The profile defines the shape of the bow in its unbraced state.
+It establishes the limb’s base curvature before any string tension is applied, and therefore determines the fundamental design of the bow - such as a straight longbow form, reflex/deflex, recurve, or any other variation.
 
 <figure>
   <img src="images/screenshots/editor/profile.png" style="width:200px">
   <figcaption><b>Figure:</b> Profile segments in the model tree</figcaption>
 </figure>
 
-If the _Profile_ category in the model tree is selected, the buttons (<img src="images/icons/list-add.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-remove.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-up.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-down.svg" style="width:20; vertical-align:middle">) can be used to add, remove and reorder segments of different types that make up the profile curve (e.g. lines, arcs and more).
-The properties of each segment depend on its type and are explained below.
-The resulting shape of the profile curve is shown in the _Graph_ panel.
-You can use the context menu for additional options on the plot, like showing/hiding control points, curvature or adding an overlay image.
+If the _Profile_ category in the model tree is selected, the buttons (<img src="images/icons/list-add.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-remove.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-up.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-down.svg" style="width:20; vertical-align:middle">) can be used to add, remove, and reorder the segments that make up the profile curve (such as lines, arcs, and other types).
+The properties available for each segment depend on its type and are described below.
+The resulting profile shape is displayed in the _Graph_ panel.
+The plot's context menu provides additional options, such as showing or hiding control points, displaying curvature, or adding an overlay image.
 
 <figure>
   <img src="images/screenshots/editor/profile-plot.png" style="width:800px">
   <figcaption><b>Figure:</b> Profile plot</figcaption>
 </figure>
 
->  **Note:** The profile curve always starts at (0, 0) and with a horizontal angle. Any offsets in the actual bow can be achieved with the parameters in [Dimensions](model-editor-dimensions.md).
-
 ## Line Segments
 
-The line segment is simply a straight line.
-Its only editable property is the length of the line.
+A line segment represents a straight section of the profile.
+Its only adjustable property is its **length**.
 
 <figure>
   <img src="images/segment-line.svg" style="width:500px">
@@ -31,10 +30,9 @@ Its only editable property is the length of the line.
 
 ## Arc Segments
 
-The arc segment describes a circular arc with given length and radius.
-
-> **Note:** The radius can be positive or negative, which makes the arc curve into different directions.
-It can also be zero, in this case the arc turns into a straight line.
+An arc segmnent represents a circular arc defined by its **length** and **radius**.
+The radius may be positive or negative, which determines the direction in which the arc curves.
+A radius of zero will be interpreted as a straight line instead.
 
 <figure>
   <img src="images/segment-arc.svg" style="width:400px">
@@ -43,11 +41,10 @@ It can also be zero, in this case the arc turns into a straight line.
 
 ## Spiral Segments
 
-The spiral segment describes an [Euler spiral](https://en.wikipedia.org/wiki/Euler_spiral), a curve that linearly transitions between two curvatures.
-It is therefore well suited for making smooth transitions between lines and arcs or arcs of different radius.
-It is defined by a starting radius, and end radius and a length.
-
-> **Note:** The start and end radius can be positive, negative or zero (similar to the arc segment).
+A spiral segment represents an [Euler spiral](https://en.wikipedia.org/wiki/Euler_spiral), a curve whose curvature changes linearly along its length.
+This makes it ideal for creating smooth transitions between straight lines and arcs, or between arcs of different radii.
+It is defined by a **start radius**, an **end radius**, and a **length**.
+Both the start and end radius may be positive, negative, or zero, allowing the spiral's endpoints to curve in either direction or transition seamlessly into straight sections.
 
 <figure>
   <img src="images/segment-spiral.svg" style="width:400px">
@@ -56,8 +53,8 @@ It is defined by a starting radius, and end radius and a length.
 
 ## Spline Segments
 
-The spline segment interpolates a table of `(x, y)` values with a cubic spline.
-The values are measured relative to the starting point of the segment/the end point of the previous segment.
+A spline segment interpolates a series of `(x, y)` points using a cubic spline curve.
+The coordinates are specified relative to the segment's starting point (i.e. the end point of the previous segment, if present).
 
 <figure>
   <img src="images/segment-spline.svg" style="width:400px">

@@ -51,7 +51,7 @@ pub enum ModelError {
     MaterialInvalidShearModulus(String, f64),
     MaterialInvalidTensileStrength(String, f64),
     MaterialInvalidCompressiveStrength(String, f64),
-    MaterialInvalidSafetyMargin(String, f64),
+    MaterialInvalidMarginOfSafety(String, f64),
 
     WidthControlPointsTooFew(usize),
     WidthControlPointsNotSorted(f64, f64),
@@ -158,7 +158,7 @@ impl Display for ModelError {
             ModelError::MaterialInvalidShearModulus(name, value)  => write!(f, "Material \"{name}\": Shear modulus must be a positive number but actual value is {value}.")?,
             ModelError::MaterialInvalidTensileStrength(name, value)      => write!(f, "Material \"{name}\": Tensile strength must be a positive number but actual value is {value}.")?,
             ModelError::MaterialInvalidCompressiveStrength(name, value)  => write!(f, "Material \"{name}\": Compressive strength must be a positive number but actual value is {value}.")?,
-            ModelError::MaterialInvalidSafetyMargin(name, value)         => write!(f, "Material \"{name}\": Safety margin must be in the range [0, 1] but actual value is {value}.")?,
+            ModelError::MaterialInvalidMarginOfSafety(name, value)         => write!(f, "Material \"{name}\": Margin of safety must be non-negative and finite but actual value is {value}.")?,
 
             ModelError::WidthControlPointsTooFew(value)      => write!(f, "Width: At least 2 control points are required but actual number is {value}.")?,
             ModelError::WidthControlPointsNotSorted(a, b)    => write!(f, "Width: Control points must be sorted by length but found actual values {a}, {b}.")?,

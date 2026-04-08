@@ -1,6 +1,6 @@
 # Tips & Tricks
 
-This section contains various notes about useful features of VirtualBow that didn't reall fit anywhere else in this manual.
+This section collects various notes about useful VirtualBow features that didn't quite fit into any other part of the manual.
 
 ## Units
 
@@ -18,7 +18,7 @@ There are also two pre-defined sets of defaults, one for SI units and one for US
 You can use those by clicking either of the buttons on the bottom left.
 
 It is worth noting that the units only affect how values are shown in the user interface.
-The data in the model and result files is always stored in SI base units, so they can be exchanged with other users who might have different unit preferences.
+The data in the model and result files is always stored in SI base units.
 
 ## Plots
 

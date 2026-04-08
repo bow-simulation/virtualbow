@@ -52,7 +52,7 @@ impl BowModel {
                     shear_modulus: 6e9,
                     tensile_strength: 0.0,
                     compressive_strength: 0.0,
-                    safety_margin: 0.0,
+                    margin_of_safety: 0.0,
                 }],
                 layers: vec![Layer {
                     name: "Layer 1".into(),
@@ -193,7 +193,7 @@ impl Material {
             shear_modulus: G,
             tensile_strength: 0.0,
             compressive_strength: 0.0,
-            safety_margin: 0.0
+            margin_of_safety: 0.0
         }
     }
 
@@ -202,10 +202,10 @@ impl Material {
         (self.tensile_strength, self.compressive_strength)
     }
 
-    // Allowed stresses (tension, compression) according to the safety margin
+    // Allowed stresses (tension, compression) according to the margin of safety
     pub fn allowed_stresses(&self) -> (f64, f64) {
         let (tension, compression) = self.maximum_stresses();
-        (tension*(1.0 - self.safety_margin), compression*(1.0 - self.safety_margin))
+        (tension/(1.0 + self.margin_of_safety), compression/(1.0 + self.margin_of_safety))
     }
 
     // Maximum strains (tension, compression) at which the material fails
@@ -214,14 +214,14 @@ impl Material {
         (tension/self.youngs_modulus, compression/self.youngs_modulus)
     }
 
-    // Allowed strains (tension, compression) according to the safety margin
+    // Allowed strains (tension, compression) according to the margin of safety
     pub fn allowed_strains(&self) -> (f64, f64) {
         let (tension, compression) = self.allowed_stresses();
         (tension/self.youngs_modulus, compression/self.youngs_modulus)
     }
 
     pub fn validate(&self) -> Result<(), ModelError> {
-        let Self { name, color, density, youngs_modulus, shear_modulus, tensile_strength, compressive_strength, safety_margin } = self;
+        let Self { name, color, density, youngs_modulus, shear_modulus, tensile_strength, compressive_strength, margin_of_safety: safety_margin } = self;
 
         name.validate_name().map_err(ModelError::MaterialInvalidName)?;
         color.validate_hex_color().map_err(|value| ModelError::MaterialInvalidColor(name.into(), value))?;
@@ -232,7 +232,7 @@ impl Material {
 
         tensile_strength.validate_nonneg().map_err(|value| ModelError::MaterialInvalidTensileStrength(name.into(), value))?;    // Allows values of zero for "unknown"
         compressive_strength.validate_nonneg().map_err(|value| ModelError::MaterialInvalidCompressiveStrength(name.into(), value))?;    // Allows values of zero for "unknown"
-        safety_margin.validate_range_inclusive(0.0, 1.0).map_err(|value| ModelError::MaterialInvalidSafetyMargin(name.into(), value))?;
+        safety_margin.validate_nonneg().map_err(|value| ModelError::MaterialInvalidMarginOfSafety(name.into(), value))?;
 
         Ok(())
     }

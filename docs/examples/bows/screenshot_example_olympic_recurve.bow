@@ -1,0 +1,203 @@
+{
+  "version": "0.10.0",
+  "comment": "",
+  "settings": {
+    "num_limb_elements": 30,
+    "num_limb_eval_points": 250,
+    "min_draw_resolution": 100,
+    "max_draw_resolution": 100,
+    "static_iteration_tolerance": 1e-6,
+    "arrow_clamp_force": 0.5,
+    "string_compression_factor": 1e-6,
+    "timespan_factor": 1.5,
+    "timeout_factor": 10.0,
+    "min_timestep": 1e-6,
+    "max_timestep": 0.0001,
+    "steps_per_period": 250,
+    "dynamic_iteration_tolerance": 1e-6
+  },
+  "handle": {
+    "type": "rigid",
+    "value": {
+      "length": 0.45,
+      "angle": -0.3490658503988659,
+      "pivot": 0.0
+    }
+  },
+  "draw": {
+    "brace_height": 0.2,
+    "draw_length": {
+      "type": "standard",
+      "value": 0.7
+    }
+  },
+  "profile": {
+    "segments": [
+      {
+        "type": "spiral",
+        "parameters": {
+          "length": 0.3,
+          "radius_start": 0.0,
+          "radius_end": 0.7000000000000001
+        }
+      },
+      {
+        "type": "spiral",
+        "parameters": {
+          "length": 0.225,
+          "radius_start": 0.7000000000000001,
+          "radius_end": 0.09
+        }
+      }
+    ]
+  },
+  "section": {
+    "alignment": {
+      "type": "section_back"
+    },
+    "width": [
+      [
+        0.0,
+        0.039
+      ],
+      [
+        0.6,
+        0.034
+      ],
+      [
+        1.0,
+        0.014
+      ]
+    ],
+    "materials": [
+      {
+        "name": "Wood 1",
+        "color": "#d0b391",
+        "density": 675.0,
+        "youngs_modulus": 12000000000.0,
+        "shear_modulus": 6000000000.0,
+        "tensile_strength": 0.0,
+        "compressive_strength": 0.0,
+        "safety_margin": 0.0
+      },
+      {
+        "name": "Wood 2",
+        "color": "#947f67",
+        "density": 675.0,
+        "youngs_modulus": 12000000000.0,
+        "shear_modulus": 6000000000.0,
+        "tensile_strength": 0.0,
+        "compressive_strength": 0.0,
+        "safety_margin": 0.0
+      },
+      {
+        "name": "Glass",
+        "color": "#eeeeee",
+        "density": 675.0,
+        "youngs_modulus": 12000000000.0,
+        "shear_modulus": 6000000000.0,
+        "tensile_strength": 0.0,
+        "compressive_strength": 0.0,
+        "safety_margin": 0.0
+      }
+    ],
+    "layers": [
+      {
+        "name": "Backing",
+        "material": "Glass",
+        "height": [
+          [
+            0.0,
+            0.001
+          ],
+          [
+            1.0,
+            0.001
+          ]
+        ]
+      },
+      {
+        "name": "Core 1",
+        "material": "Wood 2",
+        "height": [
+          [
+            0.0,
+            0.001
+          ],
+          [
+            1.0,
+            0.001
+          ]
+        ]
+      },
+      {
+        "name": "Fadeout",
+        "material": "Wood 1",
+        "height": [
+          [
+            0.0,
+            0.007
+          ],
+          [
+            0.02,
+            0.007
+          ],
+          [
+            0.18,
+            0.0001
+          ],
+          [
+            0.2,
+            0.0
+          ]
+        ]
+      },
+      {
+        "name": "Core 2",
+        "material": "Wood 2",
+        "height": [
+          [
+            0.0,
+            0.001
+          ],
+          [
+            1.0,
+            0.001
+          ]
+        ]
+      },
+      {
+        "name": "Facing",
+        "material": "Glass",
+        "height": [
+          [
+            0.0,
+            0.001
+          ],
+          [
+            1.0,
+            0.001
+          ]
+        ]
+      }
+    ]
+  },
+  "string": {
+    "strand_stiffness": 3500.0,
+    "strand_density": 0.0005,
+    "n_strands": 12
+  },
+  "masses": {
+    "arrow": {
+      "type": "mass",
+      "value": 0.025
+    },
+    "limb_tip": 0.0,
+    "string_center": 0.0,
+    "string_tip": 0.0
+  },
+  "damping": {
+    "damping_ratio_limbs": 0.05,
+    "damping_ratio_string": 0.05
+  }
+}

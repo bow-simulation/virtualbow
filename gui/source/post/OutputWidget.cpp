@@ -161,8 +161,8 @@ StaticOutputWidget::StaticOutputWidget(const BowResult& data)
     plot_combo->addData("String tip angle", data.statics->states.string_tip_angle, Quantities::angle);
     plot_combo->addData("String center angle", data.statics->states.string_center_angle, Quantities::angle);
     plot_combo->addData("Grip force", data.statics->states.grip_force, Quantities::force);
-    plot_combo->addData("Pot. energy limbs", data.statics->states.elastic_energy_limbs, Quantities::energy);
-    plot_combo->addData("Pot. energy string", data.statics->states.elastic_energy_string, Quantities::energy);
+    plot_combo->addData("Elastic energy limbs", data.statics->states.elastic_energy_limbs, Quantities::energy);
+    plot_combo->addData("Elastic energy string", data.statics->states.elastic_energy_string, Quantities::energy);
     plot_combo->setCombination(1, 2);
 
     tabs->addTab(scrollArea(numbers), "Characteristics");
@@ -309,11 +309,11 @@ DynamicOutputWidget::DynamicOutputWidget(const BowResult& data)
     plot_combo->addData("String tip angle", data.dynamics->states.string_tip_angle, Quantities::angle);
     plot_combo->addData("String center angle", data.dynamics->states.string_center_angle, Quantities::angle);
     plot_combo->addData("Grip force", data.dynamics->states.grip_force, Quantities::force);
-    plot_combo->addData("Pot. energy limbs", data.dynamics->states.elastic_energy_limbs, Quantities::energy);
-    plot_combo->addData("Kin. energy limbs", data.dynamics->states.kinetic_energy_limbs, Quantities::energy);
-    plot_combo->addData("Pot. energy string", data.dynamics->states.elastic_energy_string, Quantities::energy);
-    plot_combo->addData("Kin. energy string", data.dynamics->states.kinetic_energy_string, Quantities::energy);
-    plot_combo->addData("Kin. energy arrow", data.dynamics->states.kinetic_energy_arrow, Quantities::energy);
+    plot_combo->addData("Elastic energy limbs", data.dynamics->states.elastic_energy_limbs, Quantities::energy);
+    plot_combo->addData("Kinetic energy limbs", data.dynamics->states.kinetic_energy_limbs, Quantities::energy);
+    plot_combo->addData("Elastic energy string", data.dynamics->states.elastic_energy_string, Quantities::energy);
+    plot_combo->addData("Kinetic energy string", data.dynamics->states.kinetic_energy_string, Quantities::energy);
+    plot_combo->addData("Kinetic energy arrow", data.dynamics->states.kinetic_energy_arrow, Quantities::energy);
     plot_combo->setCombination(0, 1);
 
     tabs->addTab(scrollArea(numbers), "Characteristics");

@@ -44,7 +44,7 @@ BowModel BowModel::example() {
                     .shear_modulus = 6e9,
                     .tensile_strength = 0.0,
                     .compressive_strength = 0.0,
-                    .safety_margin = 0.0
+                    .margin_of_safety = 0.0
                 }
             },
             .layers = {

@@ -1,26 +1,30 @@
 # Energy
 
-This plot shows how the energy stored in the bow develops during the simulation and how it is distributed between components (limbs, string arrow) and type of energy (potential/elastic or kinetic).
+This plot shows how the energy stored in the bow evolves during the simulation and how it is distributed between components (limbs, string, arrow) and energy types (elastic/potential, kinetic, damping losses).
+For **static** simulations, it displays how the elastic energy in the limbs and string builds up during the draw.
+No kinetic energies or damping losses are shown, because they are zero in a static analysis.
+For **dynamic** simulations, it shows how the initial elastic energy in the limbs is transferred to the arrow and other bow components, as well as how much unused energy remains in the bow after the arrow departs.
 
-In the static case it shows how the elastic energy of the limbs and string develops during draw.
-No kinetic energies are shown, because they are zero in static analysis.
+In both modes, three display options can be selected independently:
+
+- **Stacked:** Stacks all energy curves to show how they add up. If the simulation was correct, their sum should be constant.
+
+- **Group by component:** Group energies by component (limbs, string, arrow, damping)
+
+- **Group by type:** Group the energies only by type (elastic, kinetic, damping)
+
+The reference for all elastic energies shown is the initial, unbraced state of the bow.
+This means the energy required to brace the bow is included.
 
 <figure>
   <img src="images/screenshots/viewer/energy-statics.png" style="width:90%">
   <figcaption><b>Figure:</b> Screenshot of the energy tab for static results</figcaption>
 </figure>
 
-In the dynamic case it shows how the initial potential energy of the limbs is transferred to the arrow and other components of the bow and how much unused energy stays in the bow after the departure of the arrow.
+
 
 <figure>
   <img src="images/screenshots/viewer/energy-dynamics.png" style="width:90%">
   <figcaption><b>Figure:</b> Screenshot of the energy tab for dynamic results</figcaption>
 </figure>
 
-In both cases there are three options for display that can be selected individually:
-
-- **Stacked:** Stack the energies on top of each other, so it can bee seen how they add up
-
-- **Group by component:** Group the energies only by component (limbs, string, arrow)
-
-- **Group by type:** Group the energies only by type (potential, kinetic)

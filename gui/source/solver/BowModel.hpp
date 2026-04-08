@@ -210,7 +210,7 @@ struct Material {
     double shear_modulus;
     double tensile_strength;
     double compressive_strength;
-    double safety_margin;
+    double margin_of_safety;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
@@ -222,7 +222,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     shear_modulus,
     tensile_strength,
     compressive_strength,
-    safety_margin
+    margin_of_safety
 )
 
 struct Layer {

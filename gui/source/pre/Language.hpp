@@ -8,7 +8,7 @@
 namespace Tooltips {
     inline const QString EnergiesStacked = QStringLiteral("If selected, the energies are plotted as areas stacked on top of each other.\nOtherwise each energy is drawn as an individual line.");
     inline const QString EnergiesByPart = QStringLiteral("Group energies by the component they belong to (limbs, string, arrow)");
-    inline const QString EnergiesByType = QStringLiteral("Group enegies by the type they belong to (potential, kinetic, damping)");
+    inline const QString EnergiesByType = QStringLiteral("Group enegies by the type they belong to (elastic, kinetic, damping)");
 
     inline const QString HandleTypeDefinition = QStringLiteral("Selects the type of handle for this bow");
     inline const QString HandleTypeFlexible = QStringLiteral("The handle is flexible and modelled as part of the bow limbs");
@@ -58,7 +58,7 @@ namespace Tooltips {
     inline const QString SettingsArrowClampForce = QStringLiteral("Force that the arrow has to overcome before separating from the string");
     inline const QString SettingsStringCompressionFactor = QStringLiteral("Factor for the compressive stiffness of the string relative to its tensile stiffness.\nShould be very low but can't be zero for numerical reasons.");
     inline const QString SettingsTimespanFactor = QStringLiteral("Factor for controlling the end time of the dynamic simulation.\nThe value 1.0 corresponds to the time until the arrow reaches brace height.\nValues larger than 1.0 extend the simulated time beyond that.");
-    inline const QString SettingsTimeoutFactor = QStringLiteral("Factor for controlling the timeout of the dynamic simulation.\nThe simulation is aborted when arrow separation didn't happen until the simulation time exceeds the timeout factor multiplied by a characteristic time of the bow.");
+    inline const QString SettingsTimeoutFactor = QStringLiteral("Factor for controlling the timeout of the dynamic simulation.\nThe simulation is aborted when arrow separation didn't happen until the simulation time exceeds the timeout factor multiplied by a reference time of the bow.");
     inline const QString SettingsMinTimestep = QStringLiteral("Lower bound for the time step of the dynamic simulation");
     inline const QString SettingsMaxTimestep = QStringLiteral("Upper bound for the time step of the dynamic simulation");
     inline const QString SettingsStepsPerPeriod = QStringLiteral("Number of steps the dynamic solver tries to take per current characteristic time period of the system");
@@ -70,7 +70,7 @@ namespace Tooltips {
     inline const QString MaterialShearModulus = QStringLiteral("Shear modulus of the material");
     inline const QString MaterialTensileStrength = QStringLiteral("Tensile strength of the material");
     inline const QString MaterialCompressiveStrength = QStringLiteral("Compressive strength of the material");
-    inline const QString MaterialSafetyMargin = QStringLiteral("Safety margin for tensile and compressive strength");
+    inline const QString MaterialMarginOfSafety = QStringLiteral("Safety margin for tensile and compressive strength");
 
     inline const QString StringLinearStiffness = QStringLiteral("Linear stiffness of a single strand of the string material");
     inline const QString StringLinearDensity = QStringLiteral("Linear density of a single strand of the string material");

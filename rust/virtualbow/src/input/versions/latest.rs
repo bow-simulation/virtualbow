@@ -105,7 +105,7 @@ pub struct Material {
     pub shear_modulus: f64,
     pub tensile_strength: f64,
     pub compressive_strength: f64,
-    pub safety_margin: f64
+    pub margin_of_safety: f64
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -229,7 +229,7 @@ impl From<version3::BowModel> for BowModel {
                 shear_modulus,
                 tensile_strength: 0.0,        // Field was newly introduced, value unknown.
                 compressive_strength: 0.0,    // Field was newly introduced, value unknown.
-                safety_margin: 0.0            // Field was newly introduced, value unknown.
+                margin_of_safety: 0.0            // Field was newly introduced, value unknown.
             }
         }).collect_vec();
 
