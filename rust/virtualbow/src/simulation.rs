@@ -81,7 +81,7 @@ impl<'a> Simulation<'a> {
         }).collect_vec();
 
         // Discretize geometry into evaluation points and elements
-        let geometry = geometry.discretize(model.settings.num_limb_eval_points, model.settings.num_limb_elements);
+        let geometry = geometry.discretize(model.settings.num_limb_sample_points, model.settings.num_limb_elements);
         let elements = geometry.segments.iter().map(BeamElement::new);
 
         let mut system = System::new();
@@ -124,8 +124,8 @@ impl<'a> Simulation<'a> {
         let mass_element_string_tip = system.add_element(&[*limb_nodes.last().unwrap()], MassElement::point(0.0));    // Unwrap is okay because of previous validation
 
         // The string element only gets non-zero parameters if the string option is true
-        let EA = if string { (model.string.n_strands as f64)* model.string.strand_stiffness } else { 0.0 };
-        let ρA = if string { (model.string.n_strands as f64)* model.string.strand_density } else { 0.0 };
+        let EA = if string { (model.string.num_strands as f64)* model.string.strand_stiffness } else { 0.0 };
+        let ρA = if string { (model.string.num_strands as f64)* model.string.strand_density } else { 0.0 };
 
         let mut offsets = vec![0.0];                                            // Offset at the string node is zero TODO: Preallocate
         offsets.extend(geometry.y_nodes.iter().map(|y| y[y.len() - 1]));        // Offsets between the limb nodes and the belly surface of the limb
@@ -223,13 +223,13 @@ impl<'a> Simulation<'a> {
 
         // Set additional masses to base mass + partial masses of the string
         system.element_mut::<MassElement>(mass_element_string_center).set_mass(0.5* model.masses.string_center + 1.0/3.0*ρA*l0);
-        system.element_mut::<MassElement>(mass_element_string_tip).set_mass(model.masses.string_tip + 2.0/3.0*ρA*l0);
+        system.element_mut::<MassElement>(mass_element_string_tip).set_mass(model.masses.string_end + 2.0/3.0*ρA*l0);
 
         // Compute additional common output results
         let power_stroke = geometry.draw.power_stroke;
         let string_length = 2.0*l0;                                                                                // Actual string length due to symmetry
         let string_stiffness = EA/string_length;                                                                   // Stiffness of the complete string from tip to tip
-        let string_mass = 2.0*(ρA*l0 + model.masses.string_tip) + model.masses.string_center;                      // String mass including additional masses and symmetry
+        let string_mass = 2.0*(ρA*l0 + model.masses.string_end) + model.masses.string_center;                      // String mass including additional masses and symmetry
         let limb_mass = geometry.segments.iter().map(|segment| segment.m).sum::<f64>() + model.masses.limb_tip;    // Mass of a single limb, including additional masses
 
         // Simulation info object
@@ -589,7 +589,7 @@ impl<'a> Simulation<'a> {
 
         let string_length = system.element_ref::<StringElement>(self.string_element).get_current_length();
         let string_force = system.element_ref::<StringElement>(self.string_element).normal_force_total();
-        let strand_force = string_force/(self.input.string.n_strands as f64);
+        let strand_force = string_force/(self.input.string.num_strands as f64);
 
         let dir_limb_tip: SVector<f64, 2> = (limb_pos[limb_pos.len() - 1] - limb_pos[limb_pos.len() - 2]).fixed_rows::<2>(0).into();
         let dir_string_tip: SVector<f64, 2> = string_pos[string_pos.len() - 1] - string_pos[string_pos.len() - 2];

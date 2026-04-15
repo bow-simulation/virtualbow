@@ -9,8 +9,8 @@
 
 SettingsView::SettingsView(SettingsModel* model) {
     addHeading("General");
-    addProperty("Limb elements", new IntegerView(model, model->N_LIMB_ELEMENTS, IntegerRange::positive(), Tooltips::SettingsNumLimbElements));
-    addProperty("Limb sample points", new IntegerView(model, model->N_EVAL_POINTS, IntegerRange::greaterOrEqual(2), Tooltips::SettingsNumEvalPoints));
+    addProperty("Limb elements", new IntegerView(model, model->NUM_LIMB_ELEMENTS, IntegerRange::positive(), Tooltips::SettingsNumLimbElements));
+    addProperty("Limb sample points", new IntegerView(model, model->NUM_LIMB_SAMPLE_POINTS, IntegerRange::greaterOrEqual(2), Tooltips::SettingsNumEvalPoints));
 
     addHeading("Statics");
     addProperty("Min. draw resolution", new IntegerView(model, model->MIN_DRAW_RESOLUTION, IntegerRange::positive(), Tooltips::SettingsMinDrawResolution));

@@ -29,8 +29,8 @@ namespace Tooltips {
     inline const QString ArrowMassPerEnergy = QStringLiteral("Arrow mass relative to the stored energy of the bow");
 
     inline const QString MassStringCenter = QStringLiteral("Additional mass(es) at the string center (e.g. serving, nocking point)");
-    inline const QString MassStringTip = QStringLiteral("Additional mass(es) at the string tip (e.g. serving)");
-    inline const QString MassLimbTip = QStringLiteral("Additional mass(es) at the limb tip (e.g. tip overlay)");
+    inline const QString MassStringEnd = QStringLiteral("Additional mass(es) at the string ends (e.g. serving)");
+    inline const QString MassLimbTip = QStringLiteral("Additional mass(es) at the limb tips (e.g. tip overlay)");
 
     inline const QString DrawLengthDefinition = QStringLiteral("Selects the draw length definition to be used");
     inline const QString DrawLengthStandard = QStringLiteral("Draw length as measured from the pivot point of the handle");

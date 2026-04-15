@@ -2,8 +2,8 @@
 #include "solver/BowModel.hpp"
 
 SettingsModel::SettingsModel(Settings& settings) {
-    N_LIMB_ELEMENTS = addInteger(settings.num_limb_elements);
-    N_EVAL_POINTS = addInteger(settings.num_limb_eval_points);
+    NUM_LIMB_ELEMENTS = addInteger(settings.num_limb_elements);
+    NUM_LIMB_SAMPLE_POINTS = addInteger(settings.num_limb_sample_points);
     MIN_DRAW_RESOLUTION = addInteger(settings.min_draw_resolution);
     MAX_DRAW_RESOLUTION = addInteger(settings.max_draw_resolution);
     STATIC_ITERATION_TOLERANCE = addDouble(settings.static_iteration_tolerance);

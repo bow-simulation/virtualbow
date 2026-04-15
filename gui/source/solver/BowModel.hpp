@@ -13,7 +13,7 @@ using Height = Points;
 
 struct Settings {
     int num_limb_elements;
-    int num_limb_eval_points;
+    int num_limb_sample_points;
     int min_draw_resolution;
     int max_draw_resolution;
     double static_iteration_tolerance;
@@ -30,7 +30,7 @@ struct Settings {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     Settings,
     num_limb_elements,
-    num_limb_eval_points,
+    num_limb_sample_points,
     min_draw_resolution,
     max_draw_resolution,
     static_iteration_tolerance,
@@ -99,7 +99,7 @@ void from_json(const nlohmann::json& obj, ArrowMass& output);
 struct Masses {
     ArrowMass arrow;
     double string_center;
-    double string_tip;
+    double string_end;
     double limb_tip;
 };
 
@@ -107,7 +107,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     Masses,
     arrow,
     string_center,
-    string_tip,
+    string_end,
     limb_tip
 )
 
@@ -122,17 +122,17 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     damping_ratio_string
 )
 
-struct String {
+struct BowString {
     double strand_stiffness;
     double strand_density;
-    int n_strands;
+    int num_strands;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    String,
+    BowString,
     strand_stiffness,
     strand_density,
-    n_strands
+    num_strands
 )
 
 struct Line {
@@ -260,7 +260,7 @@ struct BowModel {
     Draw draw;
     Profile profile;
     Section section;
-    String string;
+    BowString string;
     Masses masses;
     Damping damping;
 

@@ -7,7 +7,6 @@ use super::{version1, version3};
 
 pub use version1::Width;
 pub use version1::Height;
-pub use version1::BowString;
 pub use version1::Damping;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -26,7 +25,7 @@ pub struct BowModel {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Settings {
     pub num_limb_elements: usize,
-    pub num_limb_eval_points: usize,
+    pub num_limb_sample_points: usize,
     pub min_draw_resolution: usize,
     pub max_draw_resolution: usize,
     pub static_iteration_tolerance: f64,
@@ -44,7 +43,7 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             num_limb_elements: 30,
-            num_limb_eval_points: 250,
+            num_limb_sample_points: 250,
             min_draw_resolution: 100,
             max_draw_resolution: 100,
             static_iteration_tolerance: 1e-6,
@@ -175,12 +174,19 @@ pub enum ArrowMass {
     MassPerEnergy(f64)
 }
 
+#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+pub struct BowString {
+    pub strand_stiffness: f64,
+    pub strand_density: f64,
+    pub num_strands: usize,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Masses {
     pub arrow: ArrowMass,
     pub limb_tip: f64,
     pub string_center: f64,
-    pub string_tip: f64,
+    pub string_end: f64,
 }
 
 impl From<version3::BowModel> for BowModel {
@@ -259,11 +265,17 @@ impl From<version3::BowModel> for BowModel {
             segments,
         };
 
+        let string = BowString {
+            strand_stiffness: model.string.strand_stiffness,
+            strand_density: model.string.strand_density,
+            num_strands: model.string.n_strands,
+        };
+
         let masses = Masses {
             arrow: ArrowMass::Mass(model.masses.arrow),
             limb_tip: model.masses.limb_tip,
             string_center: model.masses.string_center,
-            string_tip: model.masses.string_tip,
+            string_end: model.masses.string_tip,
         };
 
         Self {
@@ -273,7 +285,7 @@ impl From<version3::BowModel> for BowModel {
             draw,
             profile,
             section,
-            string: model.string,
+            string,
             masses,
             damping: model.damping,
         }

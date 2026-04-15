@@ -5,8 +5,8 @@ struct Settings;
 
 class SettingsModel: public PropertyListModel {
 public:
-    QPersistentModelIndex N_LIMB_ELEMENTS;
-    QPersistentModelIndex N_EVAL_POINTS;
+    QPersistentModelIndex NUM_LIMB_ELEMENTS;
+    QPersistentModelIndex NUM_LIMB_SAMPLE_POINTS;
     QPersistentModelIndex MIN_DRAW_RESOLUTION;
     QPersistentModelIndex MAX_DRAW_RESOLUTION;
     QPersistentModelIndex STATIC_ITERATION_TOLERANCE;

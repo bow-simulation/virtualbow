@@ -64,7 +64,7 @@ impl BowModel {
                 ProfileSegment::Line(Line::new(0.8))
             ]),
             string: BowString {
-                n_strands: 12,
+                num_strands: 12,
                 strand_density: 0.0005,
                 strand_stiffness: 3500.0,
             },
@@ -72,7 +72,7 @@ impl BowModel {
                 arrow: ArrowMass::Mass(0.025),
                 limb_tip: 0.0,
                 string_center: 0.0,
-                string_tip: 0.0,
+                string_end: 0.0,
             },
             damping: Damping {
                 damping_ratio_limbs: 0.05,
@@ -102,7 +102,7 @@ impl TryFrom<&[u8]> for BowModel {
 
 impl Settings {
     pub fn validate(&self) -> Result<(), ModelError> {
-        let &Self { num_limb_elements, num_limb_eval_points, min_draw_resolution, max_draw_resolution, static_iteration_tolerance, arrow_clamp_force, string_compression_factor, timespan_factor, timeout_factor, min_timestep, max_timestep, steps_per_period, dynamic_iteration_tolerance} = self;
+        let &Self { num_limb_elements, num_limb_sample_points: num_limb_eval_points, min_draw_resolution, max_draw_resolution, static_iteration_tolerance, arrow_clamp_force, string_compression_factor, timespan_factor, timeout_factor, min_timestep, max_timestep, steps_per_period, dynamic_iteration_tolerance} = self;
 
         num_limb_elements.validate_positive().map_err(ModelError::SettingsInvalidLimbElements)?;
         num_limb_eval_points.validate_at_least(2).map_err(ModelError::SettingsInvalidLimbEvalPoints)?;
@@ -424,8 +424,8 @@ impl Height {
 
 impl BowString {
     pub fn validate(&self) -> Result<(), ModelError> {
-        let Self { n_strands, strand_density, strand_stiffness } = self;
-        n_strands.validate_positive().map_err(ModelError::StringInvalidNumberOfStrands)?;
+        let Self { num_strands, strand_density, strand_stiffness } = self;
+        num_strands.validate_positive().map_err(ModelError::StringInvalidNumberOfStrands)?;
         strand_density.validate_positive().map_err(ModelError::StringInvalidStrandDensity)?;
         strand_stiffness.validate_positive().map_err(ModelError::StringInvalidStrandStiffness)?;
 
@@ -435,7 +435,7 @@ impl BowString {
 
 impl Masses {
     pub fn validate(&self) -> Result<(), ModelError> {
-        let Self { arrow, limb_tip, string_center, string_tip } = self;
+        let Self { arrow, limb_tip, string_center, string_end: string_tip } = self;
         match &arrow {
             ArrowMass::Mass(mass) => mass.validate_positive().map_err(ModelError::MassesInvalidArrowMass)?,
             ArrowMass::MassPerForce(mass) => mass.validate_positive().map_err(ModelError::MassesInvalidArrowMassPerForce)?,

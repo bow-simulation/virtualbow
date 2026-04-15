@@ -5,7 +5,7 @@ BowModel BowModel::example() {
         .comment = "",
         .settings = Settings {
              .num_limb_elements = 30,
-             .num_limb_eval_points = 250,
+             .num_limb_sample_points = 250,
              .min_draw_resolution = 100,
              .max_draw_resolution = 100,
              .static_iteration_tolerance = 1e-6,
@@ -55,15 +55,15 @@ BowModel BowModel::example() {
                 }
             },
         },
-        .string = String {
+        .string = BowString {
             .strand_stiffness = 3500.0,
             .strand_density = 0.0005,
-            .n_strands = 12
+            .num_strands = 12
         },
         .masses = Masses {
             .arrow = Mass{ .value = 0.025 },
             .string_center = 0.0,
-            .string_tip = 0.0,
+            .string_end = 0.0,
             .limb_tip = 0.0
         },
         .damping = Damping {
