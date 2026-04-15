@@ -14,7 +14,7 @@ The available options are divided into general settings that affect both simulat
 **Limb elements:** Number of finite elements used to approximate the limb geometry.
 Increasing this value improves accuracy at the cost of longer computation times.
 
-**Limb eval points:** Number of sampling points along the limb where stresses, strains and other quantities are evaluated.
+**Limb sample points:** Number of sampling points along the limb where stresses, strains and other quantities are evaluated.
 Higher values produce result plots with a finer resolution.
 The added computational cost of increasing this value is small, but beyond a certain point the increased resolution offers no practical advantage anymore.
 
