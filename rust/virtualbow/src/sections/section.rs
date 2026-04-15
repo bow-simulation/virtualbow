@@ -32,7 +32,11 @@ impl LayeredCrossSection {
 
         // Construct layer geometries
         let layers = section.layers.iter().map(|layer| {
-            let height = CubicSpline::from_points(&layer.height.0, true, BoundaryCondition::SecondDerivative(0.0), BoundaryCondition::SecondDerivative(0.0));
+            let points = &layer.height.0;
+            let boundary_left = if points.first().unwrap()[0] == 0.0 { BoundaryCondition::SecondDerivative(0.0) } else { BoundaryCondition::FirstDerivative(0.0) };
+            let boundary_right = if points.last().unwrap()[0] == 1.0 { BoundaryCondition::SecondDerivative(0.0) } else { BoundaryCondition::FirstDerivative(0.0) };
+
+            let height = CubicSpline::from_points(points, true, boundary_left, boundary_right);
             LayerGeometry {
                 name: layer.name.clone(),
                 height,
