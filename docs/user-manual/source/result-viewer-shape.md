@@ -5,5 +5,7 @@ The small red circle marks the nock end of the arrow, and the blue cross marks t
 You can use the slider at the bottom to move through the states or play them as a continuous animation.
 
 <figure>
-  <img src="images/screenshots/viewer/shape.png" style="width:90%">
+  <a href="images/screenshots/viewer/shape.png" target="_blank">
+    <img src="images/screenshots/viewer/shape.png" width="90%">
+  </a>
 </figure>

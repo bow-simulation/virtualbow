@@ -1,4 +1,4 @@
-# Width
+# <img src="images/icons/model-width.png" style="height:24; vertical-align:center"> Width
 
 The width distribution along the limb defines its side‑to‑side shape, which is shared by all layers.
 It is defined by a table of relative length and width values.
@@ -8,6 +8,8 @@ The plot's context menu offers additional options, such as showing or hiding con
 
 
 <figure>
-  <img src="images/screenshots/editor/width.png" style="width:800px">
+  <a href="images/screenshots/editor/width.png" target="_blank">
+    <img src="images/screenshots/editor/width.png" width="800px">
+  </a>
   <figcaption><b>Figure:</b> Width properties</figcaption>
 </figure>

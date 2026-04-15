@@ -1,10 +1,12 @@
-# Layers
+# <img src="images/icons/model-layers.png" style="height:24; vertical-align:center"> Layers
 
 Layers define the makeup of the bow in the thickness direction.
 A bow may consist of a single continuous layer, as in traditional self bows, or it may be built from multiple layers made from different materials.
 
 <figure>
-  <img src="images/screenshots/editor/layers.png" style="width:200px">
+  <a href="images/screenshots/editor/layers.png" target="_blank">
+    <img src="images/screenshots/editor/layers.png" width="200px">
+  </a>
   <figcaption><b>Figure:</b> Layers in the model tree</figcaption>
 </figure>
 
@@ -15,7 +17,9 @@ Layers can be renamed by double-clicking and entering a new name.
 ## Layer properties
 
 <figure>
-  <img src="images/screenshots/editor/layer.png" style="width:800px">
+  <a href="images/screenshots/editor/layer.png" target="_blank">
+    <img src="images/screenshots/editor/layer.png" width="800px">
+  </a>
   <figcaption><b>Figure:</b> Layer properties</figcaption>
 </figure>
 
@@ -38,7 +42,9 @@ VirtualBow handles these checks for you - either enforcing the rules automatical
 ### Disjoint layers
 
 <p style="text-align: justify;">
-<img src="images/layer-rules-1.png" width="350px" align="right">
+<a href="images/layer-rules-1.png" target="_blank">
+  <img src="images/layer-rules-1.png" width="350px" align="right">
+</a>
 Layers may have a thickness of zero at their start or end to model layers that fade out <b>(b)</b>, fade in <b>(c)</b> or both <b>(d)</b>.
 However, they may not contain a zero-thickness point somewhere inbetween, as this would create multiple disjoint layer segments <b>(e)</b>.
 
@@ -49,7 +55,9 @@ In other words, the stack of layers must cover the entire limb without gaps.
 ### Continuity
 
 <p style="text-align: justify;">
-<img src="images/layer-rules-2.png" width="350px" align="right">
+<a href="images/layer-rules-2.png" target="_blank">
+  <img src="images/layer-rules-2.png" width="350px" align="right">
+</a>
 Layers that start or end within the limb must taper to zero thickness to avoid creating a visible discontinuity in the geometry <b>(a)</b>.
 However, this alone could still create a kink in adjacent layers, as shown in case <b>(b)</b>.
 To prevent this, a layer that fades in or out within the limb must have both zero thickness <i>and</i> zero slope at that point <b>(c)</b>.

@@ -1,4 +1,4 @@
-# Masses
+# <img src="images/icons/model-masses.png" style="height:24; vertical-align:center"> Masses
 
 Here you can set the mass of the arrow as well as additional masses placed on the bow or the string.
 Only the arrow mass is required, the others are optional and may be set to zero if not needed.
@@ -9,10 +9,11 @@ Only the arrow mass is required, the others are optional and may be set to zero 
 
 - **Mass per force:** To compare bow/arrow setups of different draw weight, arrow mass is often expressed relative to the bow’s draw weight, typically in grains per pound (GPP). When you specify the arrow mass in this way, VirtualBow calculates the actual mass after the static simulation, once the bow’s draw force is known.
 
-- **Mass per energy:** The established method of defining arrow mass relative to draw force has one limitation: it does not account for the bow's power stroke.
-As a result, it is not a good metric for comparing bows with different draw lengths or brace heights.
+- **Mass per energy:** The established method of defining arrow mass relative to draw force has one limitation: it does not account for the bow's power stroke or the shape of its force-draw curve.
+As a result, it is not a good metric for comparing bows with different energy storage characteristics.
 For example, a 10 gpp arrow on a bow with a 26" draw length is a very different setup from a 10 gpp arrow on a 30" draw length, because both produce the same arrow mass for a given draw force, even though the longer draw stores significantly more energy and would therefore require a heavier arrow.
-To address this, VirtualBow offers an alternative definition based on the bow's stored energy, suggested to be measured in grains per Joule (GPJ).
+The same problem arises when comparing, for example, a longbow and a recurve bow since they store different amounts of energy even at the same draw force and power stroke.
+To address these issues, VirtualBow offers an alternative definition of the arrow mass relative the bow's stored energy, suggested to be measured in grains per Joule (GPJ).
 When you specify the arrow mass in this way, VirtualBow calculates the actual mass after the static simulation, once the bow’s force-draw curve and stored energy are known.
 A conversion table between GPP and GPJ is provided below to give you a sense of typical values.
 
@@ -20,7 +21,9 @@ A conversion table between GPP and GPJ is provided below to give you a sense of 
 The image below shows a typical center serving with a single brass nocking point.
 
 <figure>
-  <img src="images/mass-string-center.png" width="600x">
+  <a href="images/mass-string-center.png" target="_blank">
+    <img src="images/mass-string-center.png" width="600px">
+  </a>
 </figure>
 
 **String end:** Additional masses located near the ends of the string, typically the serving on the ears of an endless-loop string or the doubled-up splice section on a flemish twist string.
@@ -28,7 +31,9 @@ See the image below for examples of both types.
 
 
 <figure>
-  <img src="images/mass-string-end.png" width="600x">
+  <a href="images/mass-string-end.png" target="_blank">
+    <img src="images/mass-string-end.png" width="600px">
+  </a>
 </figure>
 
 
@@ -37,7 +42,9 @@ What they all share is that they add some mass to the end of the limb, which can
 The added mass typically consists of the small portion of the limb extending beyond the string attachment point, along with any reinforcing elements such as tip overlays or similar.
 
 <figure>
-  <img src="images/mass-limb-tip.png" width="600x">
+  <a href="images/mass-limb-tip.png" target="_blank">
+    <img src="images/mass-limb-tip.png" width="600px">
+  </a>
 </figure>
 
 <br>

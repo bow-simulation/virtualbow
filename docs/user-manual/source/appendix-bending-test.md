@@ -19,7 +19,9 @@ Alternatively, an accurate bow/hanging scale might also work.
 ## Clamped Setup
 
 <figure>
-  <img src="images/bending-test/setup-clamped.svg" style="width:450px">
+  <a href="images/bending-test/setup-clamped.svg" target="_blank">
+    <img src="images/bending-test/setup-clamped.svg" width="450px">
+  </a>
 </figure>
 
 In this setup the sample is clamped on one end and the force is applied on the free end.
@@ -30,7 +32,9 @@ The elastic modulus can be calculated as
 ## Three-point Setup
 
 <figure>
-  <img src="images/bending-test/setup-three-point.svg" style="width:400px">
+  <a href="images/bending-test/setup-three-point.svg" target="_blank">
+    <img src="images/bending-test/setup-three-point.svg" width="400px">
+  </a>
 </figure>
 
 In this setup the sample is placed between two rolling supports with distance \\(l\\) and the force is applied in the middle.

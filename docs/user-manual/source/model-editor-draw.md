@@ -19,7 +19,9 @@ This definition is widely used by bow manufacturers.
 
 <br>
 <figure>
-  <img src="images/draw-definition.svg" style="width:600px">
+  <a href="images/draw-definition.svg" target="_blank">
+    <img src="images/draw-definition.svg" width="600px">
+  </a>
   <figcaption><b>Figure:</b> Definition of the brace height and draw length in both conventions.</figcaption>
 </figure>
 

@@ -4,7 +4,9 @@ This tab shows the distribution of bending stress for each layer along the lengt
 It helps identify regions of the limb that are overstressed and ones that are carrying less load than they could.
 
 <figure>
-  <img src="images/screenshots/viewer/stress.png" style="width:90%">
+  <a href="images/screenshots/viewer/stress.png" target="_blank">
+    <img src="images/screenshots/viewer/stress.png" width="90%">
+  </a>
 </figure>
 
 The bending stresses (tension and/or compression) vary linearly across the thickness of each layer.

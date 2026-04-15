@@ -1,4 +1,4 @@
-# Damping
+# <img src="images/icons/model-damping.png" style="height:24; vertical-align:center"> Damping
 
 Damping accounts for energy dissipation, such as losses caused by internal friction or hysteresis in the materials.
 It affects only the dynamic analysis.
@@ -26,8 +26,11 @@ The longer it continues to oscillate, the lower the damping ratio.
 
 <br>
 
-| Damping ratio | Oscillation                                                 |
-|---------------|-------------------------------------------------------------|
-| 0%            | <img src="images/damping-ratio-00.svg" style="width:200px"> |
-| 10%           | <img src="images/damping-ratio-01.svg" style="width:200px"> |
-| 100%          | <img src="images/damping-ratio-10.svg" style="width:200px"> |
+| Damping ratio | Oscillation                                                                                                     |
+|---------------|-----------------------------------------------------------------------------------------------------------------|
+| 0%            | <a href="images/damping-ratio-00.svg" target="_blank"><img src="images/damping-ratio-00.svg" width="200px"></a> |
+| 10%           | <a href="images/damping-ratio-01.svg" target="_blank"><img src="images/damping-ratio-01.svg" width="200px"></a> |
+| 100%          | <a href="images/damping-ratio-10.svg" target="_blank"><img src="images/damping-ratio-10.svg" width="200px"></a> |
+
+
+

@@ -1,10 +1,12 @@
-# Profile
+# <img src="images/icons/model-profile.png" style="height:24; vertical-align:center"> Profile
 
 The profile defines the shape of the bow in its unbraced state.
 It establishes the limb’s base curvature before any string tension is applied, and therefore determines the fundamental design of the bow - such as a straight longbow form, reflex/deflex, recurve, or any other variation.
 
 <figure>
-  <img src="images/screenshots/editor/profile.png" style="width:200px">
+  <a href="images/screenshots/editor/profile.png" target="_blank">
+    <img src="images/screenshots/editor/profile.png" width="200px">
+  </a>
   <figcaption><b>Figure:</b> Profile segments in the model tree</figcaption>
 </figure>
 
@@ -14,7 +16,9 @@ The resulting profile shape is displayed in the _Graph_ panel.
 The plot's context menu provides additional options, such as showing or hiding control points, displaying curvature, or adding an overlay image.
 
 <figure>
-  <img src="images/screenshots/editor/profile-plot.png" style="width:800px">
+  <a href="images/screenshots/editor/profile-plot.png" target="_blank">
+    <img src="images/screenshots/editor/profile-plot.png" width="800px">
+  </a>
   <figcaption><b>Figure:</b> Profile plot</figcaption>
 </figure>
 
@@ -24,7 +28,9 @@ A line segment represents a straight section of the profile.
 Its only adjustable property is its **length**.
 
 <figure>
-  <img src="images/segment-line.svg" style="width:500px">
+  <a href="images/segment-line.svg" target="_blank">
+    <img src="images/segment-line.svg" width="500px">
+  </a>
   <figcaption><b>Figure:</b> Line segment properties</figcaption>
 </figure>
 
@@ -35,7 +41,9 @@ The radius may be positive or negative, which determines the direction in which 
 A radius of zero will be interpreted as a straight line instead.
 
 <figure>
-  <img src="images/segment-arc.svg" style="width:400px">
+  <a href="images/segment-arc.svg" target="_blank">
+    <img src="images/segment-arc.svg" width="400px">
+  </a>
   <figcaption><b>Figure:</b> Arc segment properties</figcaption>
 </figure>
 
@@ -47,7 +55,9 @@ It is defined by a **start radius**, an **end radius**, and a **length**.
 Both the start and end radius may be positive, negative, or zero, allowing the spiral's endpoints to curve in either direction or transition seamlessly into straight sections.
 
 <figure>
-  <img src="images/segment-spiral.svg" style="width:400px">
+  <a href="images/segment-spiral.svg" target="_blank">
+    <img src="images/segment-spiral.svg" width="400px">
+  </a>
   <figcaption><b>Figure:</b> Spiral segment properties</figcaption>
 </figure>
 
@@ -57,6 +67,8 @@ A spline segment interpolates a series of `(x, y)` points using a cubic spline c
 The coordinates are specified relative to the segment's starting point (i.e. the end point of the previous segment, if present).
 
 <figure>
-  <img src="images/segment-spline.svg" style="width:400px">
+  <a href="images/segment-spline.svg" target="_blank">
+    <img src="images/segment-spline.svg" width="400px">
+  </a>
   <figcaption><b>Figure:</b> Spline segment properties</figcaption>
 </figure>

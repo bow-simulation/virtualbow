@@ -12,9 +12,15 @@ You model the handle as part of the limb geometry, and the simulation treats it 
 Of course, the options for modeling intricate handle geometries in VirtualBow are limited, since this is not its primary focus.
 
 <figure>
-  <img src="images/screenshots/editor/handle-flexible-example-1.png" style="height:115px">
-  <img src="images/screenshots/editor/handle-flexible-example-2.png" style="height:115px">
-  <img src="images/screenshots/editor/handle-flexible-example-3.png" style="height:115px">
+  <a href="images/screenshots/editor/handle-flexible-example-1.png" target="_blank">
+    <img src="images/screenshots/editor/handle-flexible-example-1.png" height="110px">
+  </a>
+  <a href="images/screenshots/editor/handle-flexible-example-2.png" target="_blank">
+    <img src="images/screenshots/editor/handle-flexible-example-2.png" height="110px">
+  </a>
+  <a href="images/screenshots/editor/handle-flexible-example-3.png" target="_blank">
+    <img src="images/screenshots/editor/handle-flexible-example-3.png" height="110px">
+  </a>
   <figcaption><b>Figure:</b> Some examples for bows with a handle modeled as <i>Flexible</i>. It doesn't matter whether the handle actually flexes significantly or not.</figcaption>
 </figure>
 
@@ -26,8 +32,12 @@ Selecting *Rigid* allows you to specify a rigid middle section of the bow to whi
 This configuration is typical for takedown bows with a riser, but it can also be used for other middle‑section designs that you prefer not to model explicitly in VirtualBow.
 
 <figure>
-  <img src="images/screenshots/editor/handle-rigid-example-1.png" style="width:300px">
-  <img src="images/screenshots/editor/handle-rigid-example-2.png" style="width:300px">
+  <a href="images/screenshots/editor/handle-rigid-example-1.png" target="_blank">
+    <img src="images/screenshots/editor/handle-rigid-example-1.png" width="300px">
+  </a>
+  <a href="images/screenshots/editor/handle-rigid-example-2.png" target="_blank">
+    <img src="images/screenshots/editor/handle-rigid-example-2.png" width="300px">
+  </a>
   <figcaption><b>Figure:</b> Some examples of bows with a handle modeled as <i>Rigid</i>.</figcaption>
 </figure>
 
@@ -46,7 +56,9 @@ Positive values add reflex; negative values add deflex.
 The pivot point is used as the reference for measuring brace height and draw length.
 
 <figure>
-  <img src="images/rigid-handle.svg" style="width:600px">
+  <a href="images/rigid-handle.svg" target="_blank">
+    <img src="images/rigid-handle.svg" width="600px">
+  </a>
   <figcaption><b>Figure:</b> Definition of the rigid handle dimensions, shown here on a typical modern recurve‑bow riser. Note that the actual flexible limbs start at the attachment points, the portion fixed to the riser belongs to the middle section.</figcaption>
 </figure>
 

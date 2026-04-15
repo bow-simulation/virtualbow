@@ -1,4 +1,4 @@
-# Materials
+# <img src="images/icons/model-materials.png" style="height:24; vertical-align:center"> Materials
 
 This item contains a list of all materials in the bow.
 The layers, which are defined later, each reference one such material and multiple layers can also share the same material.
@@ -6,8 +6,12 @@ If the _Materials_ category in the model tree is selected, the buttons (<img src
 Materials can be renamed by double-clicking and entering a new name.
 
 <figure>
-  <img src="images/screenshots/editor/materials.png" style="height:220px">
-  <img src="images/screenshots/editor/material.png" style="height:220px">
+  <a href="images/screenshots/editor/materials.png" target="_blank">
+    <img src="images/screenshots/editor/materials.png" height="220px">
+  </a>
+  <a href="images/screenshots/editor/material.png" target="_blank">
+    <img src="images/screenshots/editor/material.png" height="220px">
+  </a>
   <figcaption><b>Figure:</b> Material list in the model tree and material properties</figcaption>
 </figure>
 
@@ -25,7 +29,9 @@ It doesn't have any other effect than graphics.
 ## Elastic
 
 <p style="text-align: justify;">
-<img src="images/strain-normal.svg" height="100px" align="right">
+<a href="images/strain-normal.svg" target="_blank">
+  <img src="images/strain-normal.svg" height="100px" align="right">
+</a>
 <b>Young's modulus:</b> A material's Young's modulus, usually denoted \(E\), describes its stiffness against normal (tensile or compressive) loading.
 It is defined as the quotient of normal stress to normal strain.
 This assumes <i>linear elasticity</i>, meaning stress and strain are proportional.
@@ -33,7 +39,9 @@ Many common materials follow such a linear relationship up to a certain limit.
 </p>
 
 <p style="text-align: justify;">
-<img src="images/strain-shear.svg" height="100px" align="right">
+<a href="images/strain-shear.svg" target="_blank">
+  <img src="images/strain-shear.svg" height="100px" align="right">
+</a>
 <b>Shear modulus:</b> The shear modulus, usually denoted \(G\), is similar to Young's modulus in that it characterizes the stiffness against deformation.
 But unlike Young’s modulus, which relates to normal deformation, the shear modulus characterizes how the material responds to shear deformation.
 VirtualBow does not make much use of the shear modulus yet, but it will form the basis for future features such as modeling the limbs’ torsional rigidity. If you do not know the exact value for your material, you can estimate it as roughly one‑third to one‑half of Young’s modulus. If the material’s <i>Poisson ratio</i> \(\nu\) is known instead, the shear modulus can be computed from Young’s modulus using the relation \(G = E/(2(1 + \nu))\).

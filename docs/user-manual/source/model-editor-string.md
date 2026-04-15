@@ -1,4 +1,4 @@
-# String
+# <img src="images/icons/model-string.png" style="height:24; vertical-align:center"> String
 
 The string is defined by the material properties of a single strand and the number of strands it consists of.
 Its final length is calculated automatically based on the brace height specified in the [Draw](model-editor-draw.md) settings.

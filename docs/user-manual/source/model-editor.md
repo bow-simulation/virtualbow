@@ -6,7 +6,9 @@ Here you can specify shape and dimensions, adjust material properties, and confi
 Once the model is set up, you can launch simulations to evaluate the performance of your design.
 
 <figure>
-  <img src="images/screenshots/editor/model-editor.png" style="width:90%">
+  <a href="images/screenshots/editor/model-editor.png" target="_blank">
+    <img src="images/screenshots/editor/model-editor.png" width="90%">
+  </a>
   <figcaption><b>Figure:</b> Screenshot of the model editor</figcaption>
 </figure>
 

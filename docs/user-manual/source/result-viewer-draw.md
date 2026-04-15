@@ -2,6 +2,13 @@
 
 This tab is available only for static simulations.
 It displays the bow’s force–draw curve, showing how draw force changes with draw length.
+
+<figure>
+  <a href="images/screenshots/viewer/draw.png" target="_blank">
+    <img src="images/screenshots/viewer/draw.png" width="90%">
+  </a>
+</figure>
+
 Two options for this plot are available:
 
 **Show linear reference:** Adds a straight line as a reference for comparison. See also the energy storage factor in the [Characteristics tab](result-viewer-characteristics.md).

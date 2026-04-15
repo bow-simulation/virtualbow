@@ -5,8 +5,9 @@ It allows you to explore the data freely and visualize relationships that arenâ€
 The available data series for static and dynamic analyses are listed below.
 
 <figure>
-  <img src="images/screenshots/viewer/other-plots.png" style="width:90%">
-  <figcaption><b>Figure:</b> Screenshot of the other plots tab</figcaption>
+  <a href="images/screenshots/viewer/other-plots.png" target="_blank">
+    <img src="images/screenshots/viewer/other-plots.png" width="90%">
+  </a>
 </figure>
 
 ## Static analysis

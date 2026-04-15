@@ -5,7 +5,9 @@ The buttons on the lower-right corner let you switch between static and dynamic 
 All results are organized into tabs, which are described in the following sections.
 
 <figure>
-  <img src="images/screenshots/viewer/result-viewer.png" style="width:90%">
+  <a href="images/screenshots/viewer/result-viewer.png" target="_blank">
+    <img src="images/screenshots/viewer/result-viewer.png" width="90%">
+  </a>
 </figure>
 
 Beneath the tabs is a slider that controls the current state of the bow being displayed.

@@ -4,7 +4,9 @@ This tab lists all results that can be expressed as single numerical values.
 Some of these values apply only to static or only to dynamic analysis, while others are shared between both modes.
 
 <figure>
-  <img src="images/screenshots/viewer/characteristics.png" style="width:90%">
+  <a href="images/screenshots/viewer/characteristics.png" target="_blank">
+    <img src="images/screenshots/viewer/characteristics.png" width="90%">
+  </a>
 </figure>
 
 ## Common
@@ -42,7 +44,9 @@ It is defined as the ratio between the actual energy stored in the bow and the e
 A more convex curve has a higher storage factor because it accumulates more energy for the same final draw force.
 
 <p style="text-align: justify;">
-<img src="images/storage-factor.svg" width="250px" align="right">
+<a href="images/storage-factor.svg" target="_blank">
+  <img src="images/storage-factor.svg" width="250px" align="right">
+</a>
 <ul>
   <li><b>Factor < 100%:</b> The bow stores less energy than a linear draw curve would allow. This is generally undesireable and might indicate stacking towards the end of the draw.</li>
   <br>
