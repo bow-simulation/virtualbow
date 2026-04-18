@@ -89,7 +89,7 @@ HandleView::HandleView(HandleModel* model) {
 
     // Keep model up to date on changes
     QObject::connect(selectionBox, &QComboBox::currentIndexChanged, this, updateModel);
-    QObject::connect(lengthEdit, &DoubleSpinBox::valueChanged, this, updateModel);
-    QObject::connect(angleEdit, &DoubleSpinBox::valueChanged, this, updateModel);
-    QObject::connect(pivotEdit, &DoubleSpinBox::valueChanged, this, updateModel);
+    QObject::connect(lengthEdit, &DoubleSpinBox::contentModified, this, updateModel);
+    QObject::connect(angleEdit, &DoubleSpinBox::contentModified, this, updateModel);
+    QObject::connect(pivotEdit, &DoubleSpinBox::contentModified, this, updateModel);
 }
