@@ -20,15 +20,15 @@ ArrowMassView::ArrowMassView(QAbstractItemModel* model, QPersistentModelIndex in
 
     auto massEdit = new DoubleSpinBox(Quantities::mass, DoubleRange::positive(1e-3));
     massEdit->setToolTip(Tooltips::ArrowMassAbsolute);
-    massEdit->setValue(1e-3);
+    massEdit->setValue(Units::Gram.toBase(20.0));    // Default value in case the model doesn't contain this case
 
     auto massPerForceEdit = new DoubleSpinBox(Quantities::mass_per_force, DoubleRange::positive(1e-6));
     massPerForceEdit->setToolTip(Tooltips::ArrowMassPerForce);
-    massPerForceEdit->setValue(1e-6);
+    massPerForceEdit->setValue(Units::Grain_Per_PoundForce.toBase(10.0));    // Default value in case the model doesn't contain this case
 
     auto massPerEnergyEdit = new DoubleSpinBox(Quantities::mass_per_energy, DoubleRange::positive(1e-4));
     massPerEnergyEdit->setToolTip(Tooltips::ArrowMassPerEnergy);
-    massPerEnergyEdit->setValue(1e-4);
+    massPerEnergyEdit->setValue(Units::Grain_Per_Joule.toBase(8.0));    // Default value in case the model doesn't contain this case, equivalent to 10gpp for 22" linear powerstroke
 
     auto stack = new QStackedLayout();
     stack->addWidget(massEdit);

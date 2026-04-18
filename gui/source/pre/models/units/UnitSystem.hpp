@@ -29,6 +29,9 @@ public:
     static const Unit Pound_Per_FootPound;
     static const Unit Ounce_Per_FootPound;
     static const Unit Grain_Per_FootPound;
+    static const Unit Pound_Per_Joule;
+    static const Unit Ounce_Per_Joule;
+    static const Unit Grain_Per_Joule;
 
     static const Unit Newton;
     static const Unit Newton_Per_Percent;
