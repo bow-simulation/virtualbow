@@ -32,12 +32,12 @@ jobs:
 
       - name: Extract test files
         run: |
-          cd virtualbow/rust/virtualbow/data
+          cd virtualbow/solver/virtualbow/data
           7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
  
       - name: Build and test solver
         run: |
-          cd virtualbow/rust
+          cd virtualbow/solver
           cargo clippy --all-targets
           cargo build --release
           cargo test --release
@@ -80,12 +80,12 @@ jobs:
 
       - name: Extract test files
         run: |
-          cd virtualbow/rust/virtualbow/data
+          cd virtualbow/solver/virtualbow/data
           7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
 
       - name: Build and test solver
         run: |
-          cd virtualbow/rust
+          cd virtualbow/solver
           cargo clippy --all-targets
           cargo build --release
           cargo test --release
@@ -129,12 +129,12 @@ jobs:
   
       - name: Extract test files
         run: |
-          cd virtualbow/rust/virtualbow/data
+          cd virtualbow/solver/virtualbow/data
           7z x examples.zip -p${{ secrets.UNZIP_PASSWORD }}
 
       - name: Build and test solver
         run: |
-          cd virtualbow/rust
+          cd virtualbow/solver
           cargo clippy --all-targets
           cargo build --release
           cargo test --release

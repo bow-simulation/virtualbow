@@ -37,7 +37,7 @@ QString DoubleSpinBox::textFromValue(double baseValue) const {
 
     // Convert value to string with fixed-point representation and limited precision for display
     // If the result has a decimal point, remove any trailing zeros and possibly the point as well
-    QString result = QString::number(unitValue, 'f', 6);
+    QString result = QString::number(unitValue, 'f', 9);
     if(result.indexOf('.') != -1) {
         while(result.endsWith('0')) {
             result.chop(1);
