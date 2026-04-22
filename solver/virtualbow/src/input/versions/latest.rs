@@ -124,7 +124,7 @@ pub struct Profile {
 // - Section: The profile curve is aligned with the back side, belly side, or geometrical center of the combined section
 // - Layer: The profile curve is aligned with the back side, belly side, or geometrical center of a specific layer
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-#[serde(tag = "type", content = "layer", rename_all = "snake_case")]
+#[serde(tag = "type", content = "value", rename_all = "snake_case")]
 pub enum LayerAlignment {
     SectionBack,
     SectionBelly,
@@ -135,7 +135,7 @@ pub enum LayerAlignment {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-#[serde(tag = "type", content = "parameters", rename_all = "snake_case")]
+#[serde(tag = "type", content = "value", rename_all = "snake_case")]
 pub enum ProfileSegment {
     Line(Line),
     Arc(Arc),

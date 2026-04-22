@@ -90,7 +90,7 @@ fn create_section(name: &str) -> impl CrossSection {
     }
 }
 
-test_each_path!{ in "virtualbow_num/data/gxbeam" => simulate_and_test_beam}
+test_each_path!{ in "virtualbow_num/data/gxbeam" => simulate_and_test_beam }
 
 fn simulate_and_test_beam(path: &Path) {
     // Open reference data from path
