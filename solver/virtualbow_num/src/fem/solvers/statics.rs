@@ -110,9 +110,6 @@ impl<'a> LoadControl<'a> {
 
         // Compute an equilibrium state for each load factor from 0 to 1
         for λ in lin_space(0.0..=1.0, steps + 1) {
-
-            println!("Load step: {}", λ);
-
             // Compute current scaled load
             pλ.copy_from(&(λ*&p0));
 
