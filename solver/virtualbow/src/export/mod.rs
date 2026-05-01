@@ -4,7 +4,7 @@ pub mod stl;
 use iter_num_tools::lin_space;
 use itertools::Itertools;
 use nalgebra::{vector, SVector};
-use virtualbow_num::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
+use virtualbow_fem::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
 use crate::geometry::LimbGeometry;
 
 type Point = SVector<f64, 3>;

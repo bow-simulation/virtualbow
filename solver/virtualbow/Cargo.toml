@@ -8,13 +8,11 @@ authors.workspace = true
 homepage.workspace = true
 license.workspace = true
 
-[features]
-plotters = ["virtualbow_num/plotters"]    # Debug plots for the tests
-
 [lints]
 workspace = true
 
 [dependencies]
+virtualbow_fem = { version = "0.10.0", path = "../virtualbow_fem" }
 virtualbow_num = { version = "0.10.0", path = "../virtualbow_num" }
 fresnel.workspace = true
 nalgebra.workspace = true
@@ -31,5 +29,4 @@ approx.workspace = true
 assert2.workspace = true
 assert_matches.workspace = true
 test_each_file.workspace = true
-plotters.workspace = true
 num.workspace = true

@@ -9,7 +9,7 @@ mod tests {
     use crate::profile::profile::CurvePoint;
     use crate::profile::segments::clothoid::ClothoidSegment;
     use crate::profile::segments::spline::SplineSegment;
-    use virtualbow_num::fem::elements::beam::geometry::PlanarCurve;
+    use virtualbow_fem::elements::beam::geometry::PlanarCurve;
 
     #[test]
     fn test_line_segment() {

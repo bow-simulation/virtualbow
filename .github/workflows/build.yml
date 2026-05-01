@@ -17,11 +17,11 @@ jobs:
     env:
       RUSTFLAGS: -D warnings    # Make Rust compiler fail on warnings
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           path: virtualbow
       
-      - uses: TheMrMilchmann/setup-msvc-dev@v3    # Setup MSVC build environment
+      - uses: TheMrMilchmann/setup-msvc-dev@v4    # Setup MSVC build environment
         with:
           arch: x64
       
@@ -50,13 +50,13 @@ jobs:
           cmake --build . --target iss-installer -j4
           virtualbow-test.exe
  
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: windows-application
           path: build/application
           if-no-files-found: error
  
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: windows-packages
           path: build/packages
@@ -68,7 +68,7 @@ jobs:
     env:
       RUSTFLAGS: -D warnings    # Make Rust compiler fail on warnings
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           path: virtualbow
       
@@ -99,13 +99,13 @@ jobs:
           cmake --build . --target rpm-package -j4
           ./virtualbow-test
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: linux-application
           path: build/application
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: linux-packages
           path: build/packages
@@ -117,7 +117,7 @@ jobs:
     env:
       RUSTFLAGS: -D warnings    # Make Rust compiler fail on warnings
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           path: virtualbow
       
@@ -147,13 +147,13 @@ jobs:
           cmake --build . --target dmg-installer -j4
           ./virtualbow-test
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: macos-application
           path: build/application
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: macos-packages
           path: build/packages

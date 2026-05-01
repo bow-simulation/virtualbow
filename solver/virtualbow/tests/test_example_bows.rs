@@ -3,9 +3,8 @@ use std::path::Path;
 use virtualbow::input::BowModel;
 use virtualbow::output::{ArrowDeparture, BowResult, Common, Dynamics, LayerInfo, LimbInfo, MaxForces, MaxStresses, State, StateVec, Statics};
 use virtualbow::simulation::Simulation;
-use virtualbow_num::utils::integration::fixed_simpson;
-use virtualbow_num::utils::minmax::discrete_maximum_1d;
-use virtualbow_num::testutils::plotter::Plotter;
+use virtualbow_num::integration::fixed_simpson;
+use virtualbow_num::minmax::discrete_maximum_1d;
 
 use itertools::Itertools;
 use nalgebra::{SVector, vector};
@@ -13,7 +12,7 @@ use assert2::assert;
 use approx::{assert_abs_diff_eq, assert_relative_eq};
 use num::Zero;
 use test_each_file::test_each_path;
-
+use virtualbow_fem::testutils::plotter::Plotter;
 // Example bows are loaded, simulated, and the results are verified by various consistency checks
 // TODO: Improvements
 // - Use relative error tolerances where it makes sense (especially derivatives)

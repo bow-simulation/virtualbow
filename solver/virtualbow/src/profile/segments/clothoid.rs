@@ -3,7 +3,7 @@ use fresnel::fresnl;
 use nalgebra::{SVector, vector};
 use crate::input::{Arc, Line, Spiral};
 use crate::profile::profile::CurvePoint;
-use virtualbow_num::fem::elements::beam::geometry::PlanarCurve;
+use virtualbow_fem::elements::beam::geometry::PlanarCurve;
 
 // Curve segment whose curvature varies linearly varying over its arc length.
 // Can represent a clothoid, circular arc or a straight line depending on the choice of parameters.

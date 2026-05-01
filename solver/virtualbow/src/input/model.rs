@@ -576,7 +576,7 @@ mod tests {
             .filter(|path| path.file_name().map(|s| s != "latest.bow").unwrap())
             .map(|file| {
                 let model = BowModel::load(&file).unwrap_or_else(|_| panic!("Failed to load model {file:?}"));
-                return (file, model);
+                (file, model)
             })
             .collect()
     }

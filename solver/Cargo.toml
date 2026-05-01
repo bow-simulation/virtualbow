@@ -3,6 +3,7 @@ resolver = "2"
 
 members = [
     "virtualbow",
+    "virtualbow_fem",
     "virtualbow_num",
     "virtualbow_cli",
     "virtualbow_ffi",
@@ -25,18 +26,18 @@ confusable_idents = "allow"         # Style
 type_complexity = "allow"        # Style
 too_many_arguments = "allow"     # Style
 needless_range_loop = "allow"    # Sometimes needed
-needless_return = "allow"        # Style
 toplevel_ref_arg = "allow"       # Triggers on nalgebra stack! macros, reenable when fixed
 identity_op = "allow"            # Style (i.e. use of + 0 for clarity)
 module_inception = "allow"       # Style (maybe reenable later)
 manual_range_contains = "allow"  # Style (manual version can be more readable)
 collapsible_else_if = "allow"    # Style (can be more clear sometimes)
+collapsible_match = "allow"      # Style (can be more clear sometimes)
 new_without_default = "allow"
 len_without_is_empty = "allow"
 missing_safety_doc = "allow"     # Enable this later
 
 [workspace.dependencies]
-nalgebra = { version = "0.34.1", features = ["serde-serialize", "rand"] }
+nalgebra = { version = "0.34.2", features = ["serde-serialize", "rand"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.145", features = ["float_roundtrip"] }
 rmp-serde = "1.3.0"                                     # TODO: Remove one of them?

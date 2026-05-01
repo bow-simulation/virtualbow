@@ -1,7 +1,7 @@
 use nalgebra::{SVector};
 use serde::{Deserialize, Serialize};
 use soa_derive::StructOfArray;
-use virtualbow_num::utils::minmax::{discrete_maximum_1d, discrete_minimum_1d};
+use virtualbow_num::minmax::{discrete_maximum_1d, discrete_minimum_1d};
 
 use crate::simulation::{find_max_layer_result, find_min_layer_result};
 

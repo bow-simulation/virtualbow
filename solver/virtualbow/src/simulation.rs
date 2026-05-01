@@ -2,24 +2,24 @@ use std::f64::consts::{PI, FRAC_PI_2};
 use clap::ValueEnum;
 use itertools::Itertools;
 use nalgebra::{SVector, vector};
-use virtualbow_num::fem::solvers::eigen::{Mode, natural_frequencies};
-use virtualbow_num::fem::solvers::statics::{DisplacementControl, LoadControl, StaticTolerances};
-use virtualbow_num::fem::system::element::Element;
-use virtualbow_num::fem::system::node::Node;
-use virtualbow_num::fem::system::system::{System, SystemEval};
+use virtualbow_fem::solvers::eigen::{Mode, natural_frequencies};
+use virtualbow_fem::solvers::statics::{DisplacementControl, LoadControl, StaticTolerances};
+use virtualbow_fem::system::element::Element;
+use virtualbow_fem::system::node::Node;
+use virtualbow_fem::system::system::{System, SystemEval};
 use crate::errors::ModelError;
 use crate::geometry::{DiscreteLimbGeometry, LimbGeometry};
 use crate::input::{ArrowMass, BowModel};
 use crate::output::{ArrowDeparture, BowResult, Common, Dynamics, LayerInfo, MaxForces, MaxStresses, State, StateVec, Statics};
-use virtualbow_num::fem::elements::beam::beam::BeamElement;
-use virtualbow_num::fem::elements::mass::MassElement;
-use virtualbow_num::fem::elements::string::StringElement;
-use virtualbow_num::fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, DynamicTolerances, StopCondition, TimeStepping};
-use virtualbow_num::fem::system::dof::DofType;
-use virtualbow_num::utils::integration::cumulative_simpson;
-use virtualbow_num::utils::roots::find_root_falsi;
-use virtualbow_num::utils::minmax::{discrete_maximum_nd, discrete_minimum_nd};
-use virtualbow_num::utils::newton::NewtonSettings;
+use virtualbow_fem::elements::beam::beam::BeamElement;
+use virtualbow_fem::elements::mass::MassElement;
+use virtualbow_fem::elements::string::StringElement;
+use virtualbow_fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, DynamicTolerances, StopCondition, TimeStepping};
+use virtualbow_fem::system::dof::DofType;
+use virtualbow_num::integration::cumulative_simpson;
+use virtualbow_num::roots::find_root_falsi;
+use virtualbow_num::minmax::{discrete_maximum_nd, discrete_minimum_nd};
+use virtualbow_num::newton::NewtonSettings;
 
 #[derive(ValueEnum, PartialEq, Debug, Copy, Clone)]
 pub enum SimulationMode {
@@ -383,7 +383,7 @@ impl<'a> Simulation<'a> {
                     // Add bow state to the results
                     states.push(state);
 
-                    return callback(SimulationMode::Dynamic, 100.0*progress);
+                    callback(SimulationMode::Dynamic, 100.0*progress)
                 }).map_err(ModelError::SimulationDynamicSolutionFailed)?;
 
                 // Record arrow state at the time of separation from the string
@@ -411,7 +411,7 @@ impl<'a> Simulation<'a> {
                             states.push(state);
                         }
 
-                        return callback(SimulationMode::Dynamic, 100.0 * progress);
+                        callback(SimulationMode::Dynamic, 100.0 * progress)
                     }).map_err(ModelError::SimulationDynamicSolutionFailed)?;
 
                 }

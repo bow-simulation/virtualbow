@@ -2,9 +2,9 @@ use iter_num_tools::lin_space;
 use nalgebra::{SVector, vector};
 use crate::input::Spline;
 use crate::profile::profile::CurvePoint;
-use virtualbow_num::fem::elements::beam::geometry::PlanarCurve;
-use virtualbow_num::utils::spline::BoundaryCondition::{FirstDerivative, SecondDerivative};
-use virtualbow_num::utils::spline::{CubicSpline, Extrapolation};
+use virtualbow_fem::elements::beam::geometry::PlanarCurve;
+use virtualbow_num::spline::BoundaryCondition::{FirstDerivative, SecondDerivative};
+use virtualbow_num::spline::{CubicSpline, Extrapolation};
 
 // Curve segment that is defined by a number of 2d control points interpolated by cubic splines.
 
@@ -47,7 +47,7 @@ impl SplineSegment {
         let mut dtds = vec![0.0; k];
 
         let dsdt = |t| {
-            return f64::hypot(spline_x.deriv1(t, Extrapolation::Cubic), spline_y.deriv1(t, Extrapolation::Cubic));
+            f64::hypot(spline_x.deriv1(t, Extrapolation::Cubic), spline_y.deriv1(t, Extrapolation::Cubic))
         };
 
         for i in 1..k {

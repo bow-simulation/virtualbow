@@ -3,9 +3,9 @@ use itertools::Itertools;
 use nalgebra::{DMatrix, DVector, matrix, SMatrix, SVector, vector};
 use crate::errors::ModelError;
 use crate::input::{Material, LayerAlignment, Section};
-use virtualbow_num::fem::elements::beam::geometry::CrossSection;
-use virtualbow_num::utils::spline::{BoundaryCondition, CubicSpline, Extrapolation};
-use virtualbow_num::utils::intervals::{Bound, Interval};
+use virtualbow_fem::elements::beam::geometry::CrossSection;
+use virtualbow_num::spline::{BoundaryCondition, CubicSpline, Extrapolation};
+use virtualbow_num::intervals::{Bound, Interval};
 
 #[derive(Debug)]
 pub struct LayerGeometry {

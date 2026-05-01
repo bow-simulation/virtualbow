@@ -102,7 +102,7 @@ impl From<version2::BowModel> for BowModel {
                 Entry::Vacant(entry) => {
                     let value = entry.insert(COLOR_PALETTE[next_color % COLOR_PALETTE.len()].to_string()).clone();
                     next_color += 1;
-                    return value;
+                    value
                 },
             }
         };

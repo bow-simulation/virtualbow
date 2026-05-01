@@ -3,8 +3,8 @@ use crate::errors::ModelError;
 use crate::input::ProfileSegment;
 use crate::profile::segments::clothoid::ClothoidSegment;
 use crate::profile::segments::spline::SplineSegment;
-use virtualbow_num::fem::elements::beam::geometry::PlanarCurve;
-use virtualbow_num::utils::bisection::bisect_right_by;
+use virtualbow_fem::elements::beam::geometry::PlanarCurve;
+use virtualbow_num::bisection::bisect_right_by;
 
 #[derive(Copy ,Clone, PartialEq)]
 pub struct CurvePoint {

@@ -6,8 +6,8 @@ use crate::errors::ModelError;
 use crate::input::{BowModel, DrawLength};
 use crate::profile::profile::{CurvePoint, ProfileCurve};
 use crate::sections::section::LayeredCrossSection;
-use virtualbow_num::fem::elements::beam::geometry::{CrossSection, PlanarCurve};
-use virtualbow_num::fem::elements::beam::linear::LinearBeamSegment;
+use virtualbow_fem::elements::beam::geometry::{CrossSection, PlanarCurve};
+use virtualbow_fem::elements::beam::linear::LinearBeamSegment;
 use crate::output::LimbInfo;
 
 pub struct LimbGeometry {

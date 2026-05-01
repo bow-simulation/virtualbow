@@ -1,9 +1,9 @@
 use std::fmt::{Display, Formatter};
 
 use std::path::PathBuf;
-use virtualbow_num::fem::solvers::dynamics::DynamicSolverError;
-use virtualbow_num::fem::solvers::eigen::EigenSolverError;
-use virtualbow_num::fem::solvers::statics::StaticSolverError;
+use virtualbow_fem::solvers::dynamics::DynamicSolverError;
+use virtualbow_fem::solvers::eigen::EigenSolverError;
+use virtualbow_fem::solvers::statics::StaticSolverError;
 
 #[derive(Debug)]
 pub enum ModelError {
