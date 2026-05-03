@@ -53,8 +53,8 @@ fn verify_analytic_damping_ratio() {
         let omega_ref = PI*((2*k - 1) as f64)/(2.0*L)*f64::sqrt(EA/ρA);
         let zeta_ref = PI*((2*k - 1) as f64)/(4.0*L)*ηA /f64::sqrt(ρA*EA);
 
-        plotter.add_point((i as f64, mode.omega), (i as f64, omega_ref), "Modal Frequency", "Mode [-]", "Omega [1/s]");
-        plotter.add_point((i as f64, mode.zeta), (i as f64, zeta_ref), "Modal Damping", "Mode [-]", "Zeta [-]");
+        plotter.add_points("Modal Frequency", "Mode [-]", "Omega [1/s]", [("Actual", i, mode.omega), ("Reference", i, omega_ref)]);
+        plotter.add_points("Modal Damping", "Mode [-]", "Zeta [-]", [("Actual", i, mode.zeta), ("Reference", i, zeta_ref)]);
 
         assert_relative_eq!(mode.omega, omega_ref, max_relative=1e-2);
         assert_relative_eq!(mode.zeta, zeta_ref, max_relative=1e-2);

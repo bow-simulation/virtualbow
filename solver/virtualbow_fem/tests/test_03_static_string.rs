@@ -50,7 +50,7 @@ fn string_over_quarter_circle() {
     let mut plotter = Plotter::new();
     let solver = DisplacementControl::new(&mut system, TOLERANCES, SETTINGS);
 
-    let result = solver.solve_equilibrium_path(free_node.y(), 0.0, 100, &mut |system, statics, _| {
+    let result = solver.solve_equilibrium_path(free_node.y(), -r, 100, &mut |system, statics, _| {
         let y = system.get_position(free_node.y());
         let h = r - y;
 
@@ -60,28 +60,28 @@ fn string_over_quarter_circle() {
         let alpha_num = f64::atan2(points[1][1], points[1][0]);
         let alpha_ref = 2.0*f64::atan(1.0 - h/r);
 
-        plotter.add_point((h, alpha_num), (h, alpha_ref), "Contact angle", "h [m]", "α [rad]");
+        plotter.add_points("Contact angle", "h [m]", "α [rad]", [("Actual", h, alpha_num), ("Reference", h, alpha_ref)]);
         assert_abs_diff_eq!(alpha_num, alpha_ref, epsilon=1e-1);    // Expectedly not very accurate due to the finite number of contact points
 
         // Actual string length vs analytical reference
         let l_num = system.element_ref::<StringElement>(element).get_current_length();
         let l_ref = (FRAC_PI_2 - alpha_ref + f64::tan(alpha_ref/2.0))*r;
 
-        plotter.add_point((h, l_num), (h, l_ref), "String length", "h [m]", "l [m]");
+        plotter.add_points("String length", "h [m]", "l [m]", [("Actual", h, l_num), ("Reference", h, l_ref)]);
         assert_abs_diff_eq!(l_num, l_ref, epsilon=1e-4*l0);
 
         // Actual node force vs analytical reference
         let F_num = statics.get_external_force(free_node.y());
         let F_ref = EA/l0*(l_ref - l0)*(1.0/(1.0 + f64::cos(alpha_ref)) - 1.0)*2.0*r*r/(h*h - 2.0*h*r + 2.0*r*r);
 
-        plotter.add_point((h, l_num), (h, l_ref), "Node force", "h [m]", "F [m]");
+        plotter.add_points("Node force", "h [m]", "F [m]", [("Actual", h, F_num), ("Reference", h, F_ref)]);
         assert_relative_eq!(F_num, F_ref, max_relative=1e-2);
 
         // Actual string force vs analytical reference
         let N_num = system.element_ref::<StringElement>(element).normal_force_total();
         let N_ref = EA/l0*(l_ref - l0);
 
-        plotter.add_point((h, N_num), (h, N_ref), "String force", "h [m]", "N [m]");
+        plotter.add_points("String force", "h [m]", "N [m]", [("Actual", h, N_num), ("Reference", h, N_ref)]);
         assert_relative_eq!(N_num, N_ref, max_relative=1e-2);
 
         true

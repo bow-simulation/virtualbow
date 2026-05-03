@@ -37,8 +37,8 @@ fn check_modal_properties(plotter: &mut Plotter, model: &BowModel) {
     assert_abs_diff_eq!(modes[0].zeta, model.damping.damping_ratio_limbs, epsilon=1e-5);  // TODO: Can this be made more accurate?
 
     for (i, mode) in modes.iter().enumerate() {
-        plotter.add_point((i as f64, mode.omega), (i as f64, 0.0), "Modal Frequency", "Mode [-]", "Omega [1/s]");
-        plotter.add_point((i as f64, mode.zeta), (i as f64, 0.0), "Modal Damping", "Mode [-]", "Zeta [-]");
+        plotter.add_point("Modal Frequency", "Mode [-]", "Omega [1/s]", "Actual", (i, mode.omega));
+        plotter.add_point("Modal Damping", "Mode [-]", "Zeta [-]", "Actual", (i, mode.zeta));
     }
 }
 
@@ -512,14 +512,14 @@ fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowModel, outpu
 
         // Todo: Find a way to check dynamics, i.e. Force = Mass x Acceleration
 
-        plotter.add_point((time, damping_energy_limbs), (time, 0.0), "Damping energy limbs", "Time [s]", "Energy [J]");
-        plotter.add_point((time, damping_energy_string), (time, 0.0), "Damping energy string", "Time [s]", "Energy [J]");
+        plotter.add_point("Damping energy limbs", "Time [s]", "Energy [J]", "Actual", (time, damping_energy_limbs));
+        plotter.add_point("Damping energy string", "Time [s]", "Energy [J]", "Actual", (time, damping_energy_string));
 
-        plotter.add_point((time, damping_power_limbs), (time, 0.0), "Damping power limbs", "Time [s]", "Energy [J]");
-        plotter.add_point((time, damping_power_string), (time, 0.0), "Damping power string", "Time [s]", "Energy [J]");
+        plotter.add_point("Damping power limbs", "Time [s]", "Energy [J]", "Actual", (time, damping_power_limbs));
+        plotter.add_point("Damping power string", "Time [s]", "Energy [J]", "Actual", (time, damping_power_string));
 
         let total_energy = elastic_energy_limbs + elastic_energy_string + kinetic_energy_limbs + kinetic_energy_string + kinetic_energy_arrow + damping_energy_limbs + damping_energy_string;
-        plotter.add_point((time, total_energy), (time, 0.0), "Total energy", "Time [s]", "Energy [J]");
+        plotter.add_point("Total energy", "Time [s]", "Energy [J]", "Actual", (time, total_energy));
     }
 }
 

@@ -32,7 +32,7 @@ const SETTINGS: DynamicSolverSettings = DynamicSolverSettings {
 fn nonlinear_oscillator() {
     // In this example, a simple pendulum is simulated and the results are compared with an analytic solution according to [1].
     // This tests how the dynamic solver deals with a simple nonlinear system where the equilibrium iterations at each time step actually have to do something.
-    // The pendulum bar is modelled as a spring, so the systems are not exactly equivalent.
+    // The pendulum bar is modelled as a very stiff spring, so the systems are not perfectly equivalent.
     // [1] https://www.scielo.br/j/rbef/a/ns9Lc7tfqhZh678dBPXxRsQ/?format=pdf&lang=en
 
     // Pendulum parameters
@@ -81,6 +81,8 @@ fn nonlinear_oscillator() {
         let y_ddot_ref = l*φ_ddot_ref*f64::sin(φ_ref) + l*φ_dot_ref*φ_dot_ref*f64::cos(φ_ref);
 
         // Numerical solution
+        // Rotation angle φ is redundant with x and y, so we only check x and y.
+
         let x_num = system.get_position(node_b.x());
         let x_dot_num = system.get_velocity(node_b.x());
         let x_ddot_num = eval.get_acceleration(node_b.x());
@@ -89,17 +91,17 @@ fn nonlinear_oscillator() {
         let y_dot_num = system.get_velocity(node_b.y());
         let y_ddot_num = eval.get_acceleration(node_b.y());
 
-        plotter.add_point((t, 0.0), (t, φ_ref), "position φ", "Time [s]", "φ [rad]");
-        plotter.add_point((t, 0.0), (t, φ_dot_ref), "velocity φ", "Time [s]", "d/dt φ [rad/s]");
-        plotter.add_point((t, 0.0), (t, φ_ddot_ref), "acceleration φ", "Time [s]", "d²/dt² φ [rad/s²]");
+        plotter.add_point("Position φ", "Time [s]", "φ [rad]", "Reference", (t, φ_ref));
+        plotter.add_point("Velocity φ", "Time [s]", "d/dt φ [rad/s]", "Reference", (t, φ_dot_ref));
+        plotter.add_point("Acceleration φ", "Time [s]", "d²/dt² φ [rad/s²]", "Reference", (t, φ_ddot_ref));
 
-        plotter.add_point((t, x_num), (t, x_ref), "position x", "Time [s]", "x [m]");
-        plotter.add_point((t, x_dot_num), (t, x_dot_ref), "velocity x", "Time [s]", "d/dt x [m]");
-        plotter.add_point((t, x_ddot_num), (t, x_ddot_ref), "acceleration x", "Time [s]", "d²/dt² x [m]");
+        plotter.add_points("Position x", "Time [s]", "x [m]", [("Actual", t, x_num), ("Reference", t, x_ref)]);
+        plotter.add_points("Velocity x", "Time [s]", "d/dt x [m]", [("Actual", t, x_dot_num), ("Reference", t, x_dot_ref)]);
+        plotter.add_points("Acceleration x", "Time [s]", "d²/dt² x [m]", [("Actual", t, x_ddot_num), ("Reference", t, x_ddot_ref)]);
 
-        plotter.add_point((t, y_num), (t, y_ref), "position y", "Time [s]", "y [m]");
-        plotter.add_point((t, y_dot_num), (t, y_dot_ref), "velocity y", "Time [s]", "d/dt y [m]");
-        plotter.add_point((t, y_ddot_num), (t, y_ddot_ref), "acceleration y", "Time [s]", "d²/dt² y [m]");
+        plotter.add_points("Position y", "Time [s]", "y [m]", [("Actual", t, y_num), ("Reference", t, y_ref)]);
+        plotter.add_points("Velocity y", "Time [s]", "d/dt y [m]", [("Actual", t, y_dot_num), ("Reference", t, y_dot_ref)]);
+        plotter.add_points("Acceleration y", "Time [s]", "d²/dt² y [m]", [("Actual", t, y_ddot_num), ("Reference", t, y_ddot_ref)]);
 
         assert_abs_diff_eq!(x_num, x_ref, epsilon=1e-2);
         assert_abs_diff_eq!(x_dot_num, x_dot_ref, epsilon=1e-2);

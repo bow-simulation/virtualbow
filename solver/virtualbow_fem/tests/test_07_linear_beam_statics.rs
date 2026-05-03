@@ -75,11 +75,11 @@ fn straight_uniform_elongation() {
             let Q_ref = 0.0;
             let M_ref = 0.0;
 
-            plotter.add_point((x_num, u_num), (x_num, u_ref), "01 Elongation", "x [m]", "u [m]");
-            plotter.add_point((x_num, N_num), (x_num, N_ref), "02 Normal Force", "x [m]", "Force [N]");
-            plotter.add_point((x_num, N_num), (x_num, N_ref), "03 Normal Force", "x [m]", "Force [N]");
-            plotter.add_point((x_num, Q_num), (x_num, Q_ref), "04 Shear Force", "x [m]", "Force [N]");
-            plotter.add_point((x_num, M_num), (x_num, M_ref), "05 Bending Moment", "x [m]", "Moment [Nm]");
+            plotter.add_points("01 Elongation", "x [m]", "u [m]", [("Actual", x_num, u_num), ("Reference", x_num, u_ref)]);
+            plotter.add_points("02 Normal Force", "x [m]", "Force [N]", [("Actual", x_num, N_num), ("Reference", x_num, N_ref)]);
+            plotter.add_points("03 Normal Force", "x [m]", "Force [N]", [("Actual", x_num, N_num), ("Reference", x_num, N_ref)]);
+            plotter.add_points("04 Shear Force", "x [m]", "Force [N]", [("Actual", x_num, Q_num), ("Reference", x_num, Q_ref)]);
+            plotter.add_points("05 Bending Moment", "x [m]", "Moment [Nm]", [("Actual", x_num, M_num), ("Reference", x_num, M_ref)]);
 
             assert_abs_diff_eq!(u_num, u_ref, epsilon=1e-9);
             assert_abs_diff_eq!(y_num, y_ref, epsilon=1e-9);
@@ -153,11 +153,30 @@ fn straight_uniform_cantilever() {
             let Q_ref = F;
             let M_ref = F*(l - x_ref);
 
-            plotter.add_point((x_num, y_num), (x_ref, y_ref), "01 Deflection", "x [m]", "y [m]");
-            plotter.add_point((x_num, φ_num), (x_ref, φ_ref), "02 Section Angle", "x [m]", "φ [rad]");
-            plotter.add_point((x_num, N_num), (x_ref, N_ref), "03 Normal Force", "x [m]", "Force [N]");
-            plotter.add_point((x_num, Q_num), (x_ref, Q_ref), "04 Shear Force", "x [m]", "Force [N]");
-            plotter.add_point((x_num, M_num), (x_ref, M_ref), "05 Bending Moment", "x [m]", "Moment [Nm]");
+            plotter.add_points("01 Deflection", "x [m]", "y [m]", [
+                ("Actual", x_num, y_num),
+                ("Reference", x_ref, y_ref)
+            ]);
+
+            plotter.add_points("02 Section Angle", "x [m]", "φ [rad]", [
+                ("Actual", x_num, φ_num),
+                ("Reference", x_ref, φ_ref)
+            ]);
+
+            plotter.add_points("03 Normal Force", "x [m]", "Force [N]", [
+                ("Actual", x_num, N_num),
+                ("Reference", x_ref, N_ref)
+            ]);
+
+            plotter.add_points("04 Shear Force", "x [m]", "Force [N]", [
+                ("Actual", x_num, Q_num),
+                ("Reference", x_ref, Q_ref)
+            ]);
+
+            plotter.add_points("05 Bending Moment", "x [m]", "Moment [Nm]", [
+                ("Actual", x_num, M_num),
+                ("Reference", x_ref, M_ref)
+            ]);
 
             assert_abs_diff_eq!(x_num, x_ref, epsilon=1e-9);
             assert_abs_diff_eq!(y_num, y_ref, epsilon=1e-9);

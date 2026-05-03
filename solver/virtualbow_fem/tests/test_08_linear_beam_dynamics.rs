@@ -99,8 +99,8 @@ fn test_linear_beam_dynamics() {
             let w_ref = beam.w(x, t);
             let φ_ref = beam.φ(x, t);
 
-            plotter.add_point((t, w_num), (t, w_ref), &format!("Deflection at x={x:.3}"), "Time [s]", "Position [m]");
-            plotter.add_point((t, φ_num), (t, φ_ref), &format!("Angle at x={x:.3}"), "Time [s]", "Angle [m]");
+            plotter.add_points(&format!("Deflection at x={x:.3}"), "Time [s]", "Position [m]", [("Actual", t, w_num), ("Reference", t, w_ref)]);
+            plotter.add_points(&format!("Angle at x={x:.3}"), "Time [s]", "Angle [m]", [("Actual", t, φ_num), ("Reference", t, φ_ref)]);
 
             assert_abs_diff_eq!(w_num, w_ref, epsilon=1e-2*w0(l));
             assert_abs_diff_eq!(φ_num, φ_num, epsilon=1e-2*φ0(l));
@@ -114,8 +114,15 @@ fn test_linear_beam_dynamics() {
         let y = system.get_position(node.y());
         let φ = system.get_position(node.φ());
 
-        plotter.add_point((x, y), (x, beam.w(x, system.get_time())), "Final Deflection", "x [m]", "y [m]");
-        plotter.add_point((x, φ), (x, beam.φ(x, system.get_time())), "Final Angle", "x [m]", "φ [rad]");
+        plotter.add_points("Final Deflection", "x [m]", "y [m]", [
+            ("Actual", x, y),
+            ("Reference", x, beam.w(x, system.get_time()))
+        ]);
+
+        plotter.add_points("Final Angle", "x [m]", "φ [rad]", [
+            ("Actual", x, φ),
+            ("Reference", x, beam.φ(x, system.get_time()))
+        ]);
     }
 }
 

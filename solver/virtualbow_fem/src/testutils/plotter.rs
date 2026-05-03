@@ -1,40 +1,52 @@
-use std::collections::HashMap;
-use itertools::chain;
+use indexmap::IndexMap;
+use num_traits::ToPrimitive;
 
 // Utility for creating simple comparison plots for tests without having to aggregate the data manually.
 // Create an instance and add points for various plots as needed. When the instance goes out of scope,
 // the plot images are written to the target directory, named after the currently running test.
 // Inspired by https://github.com/fabianboesiger/debug-plotter
 
+// TODO: Replace plotter module with plotter2
+
 pub struct Plotter {
-    plots: HashMap<PlotInfo, PlotData>
+    plots: IndexMap<String, PlotData>    // IndexMap preserves order of insertion
 }
 
 impl Plotter {
     pub fn new() -> Self {
         Self {
-            plots: HashMap::new()
+            plots: Default::default()
         }
     }
 
-    pub fn add_point(&mut self, point: (f64, f64), point_ref: (f64, f64), name: &str, x_label: &str, y_label: &str) {
-        self.data_mut(name, x_label, y_label).add_point(point, point_ref);
-    }
-
-    pub fn add_points<I1, I2>(&mut self, points: I1, points_ref: I2, name: &str, x_label: &str, y_label: &str)
-        where I1: IntoIterator<Item=(f64, f64)>, I2: IntoIterator<Item=(f64, f64)>
+    pub fn add_points<const N: usize, X, Y>(&mut self, title: &str, xlabel: &str, ylabel: &str, points: [(&str, X, Y); N])
+    where X: ToPrimitive + Copy,
+          Y: ToPrimitive + Copy
     {
-        self.data_mut(name, x_label, y_label).add_points(points, points_ref);
+        for i in 0..N {
+            let (series, x, y) = points[i];
+            self.data_mut(title, xlabel, ylabel, series, i).add_point((x, y));    // Color according to index
+        }
     }
 
-    fn data_mut(&mut self, name: &str, x_label: &str, y_label: &str) -> &mut PlotData {
-        let info = PlotInfo {
-            name: name.into(),
-            x_label: x_label.into(),
-            y_label: y_label.into()
-        };
+    pub fn add_point<X, Y>(&mut self, title: &str, xlabel: &str, ylabel: &str, series: &str, point: (X, Y))
+        where X: ToPrimitive,
+              Y: ToPrimitive
+    {
+        self.data_mut(title, xlabel, ylabel, series, 0).add_point(point);    // Color zero
+    }
 
-        self.plots.entry(info).or_default()
+    fn data_mut(&mut self, title: &str, xlabel: &str, ylabel: &str, series: &str, color: usize) -> &mut SeriesData {
+        let plot = self.plots.entry(title.into()).or_insert(PlotData {
+            series: Default::default(),
+            xlabel: xlabel.into(),
+            ylabel: ylabel.into(),
+        });
+
+        plot.series.entry(series.into()).or_insert(SeriesData {
+            points: Vec::new(),
+            color,
+        })
     }
 }
 
@@ -66,89 +78,107 @@ impl Drop for Plotter {
     }
 }
 
-#[derive(Hash, Eq, PartialEq)]
-struct PlotInfo {
-    name: String,
-    x_label: String,
-    y_label: String
+#[allow(dead_code)]
+struct PlotData {
+    series: IndexMap<String, SeriesData>,    // IndexMap preserves order of insertion
+    xlabel: String,
+    ylabel: String,
 }
 
-#[derive(Default)]
-struct PlotData {
+#[allow(dead_code)]
+struct SeriesData {
     points: Vec<(f64, f64)>,
-    points_ref: Vec<(f64, f64)>,
+    color: usize
+}
+
+impl SeriesData {
+    fn add_point<X, Y>(&mut self, point: (X, Y))
+        where X: ToPrimitive,
+              Y: ToPrimitive
+    {
+        let x = point.0.to_f64().unwrap();
+        let y = point.1.to_f64().unwrap();
+        self.points.push((x, y));
+    }
+
+    fn x_min(&self) -> f64 {
+        self.points.iter().map(|p| p.0).fold(f64::NAN, f64::min)
+    }
+
+    fn x_max(&self) -> f64 {
+        self.points.iter().map(|p| p.0).fold(f64::NAN, f64::max)
+    }
+
+    fn y_min(&self) -> f64 {
+        self.points.iter().map(|p| p.1).fold(f64::NAN, f64::min)
+    }
+
+    fn y_max(&self) -> f64 {
+        self.points.iter().map(|p| p.1).fold(f64::NAN, f64::max)
+    }
 }
 
 #[allow(dead_code)]
 impl PlotData {
-    fn add_point(&mut self, point: (f64, f64), point_ref: (f64, f64)) {
-        self.points.push(point);
-        self.points_ref.push(point_ref);
-    }
-
-    fn add_points<I1, I2>(&mut self, points: I1, points_ref: I2)
-        where I1: IntoIterator<Item=(f64, f64)>, I2: IntoIterator<Item=(f64, f64)>
-    {
-        self.points.extend(points);
-        self.points_ref.extend(points_ref);
-    }
-
     fn x_min(&self) -> f64 {
-        chain!(&self.points, &self.points_ref).map(|pt| pt.0).fold(f64::NAN, f64::min)
+        self.series.values().map(|s| s.x_min()).fold(f64::NAN, f64::min)
     }
 
     fn x_max(&self) -> f64 {
-        chain!(&self.points, &self.points_ref).map(|pt| pt.0).fold(f64::NAN, f64::max)
+        self.series.values().map(|s| s.x_max()).fold(f64::NAN, f64::max)
     }
 
     fn y_min(&self) -> f64 {
-        chain!(&self.points, &self.points_ref).map(|pt| pt.1).fold(f64::NAN, f64::min)
+        self.series.values().map(|s| s.y_min()).fold(f64::NAN, f64::min)
     }
 
     fn y_max(&self) -> f64 {
-        chain!(&self.points, &self.points_ref).map(|pt| pt.1).fold(f64::NAN, f64::max)
+        self.series.values().map(|s| s.y_max()).fold(f64::NAN, f64::max)
     }
 }
 
 // Actually creates the plot file from the given info and data (only if the optional "plotters" dependency is enabled)
 // The output directory is determined from the name of the current thread, which is named after the test method
 #[cfg(feature = "plotters")]
-fn create_plot(output_path: &str, info: &PlotInfo, data: &PlotData) {
+fn create_plot(output_path: &str, title: &str, data: &PlotData) {
     use plotters::backend::BitMapBackend;
     use plotters::chart::ChartBuilder;
     use plotters::drawing::IntoDrawingArea;
-    use plotters::element::PathElement;
     use plotters::series::LineSeries;
-    use plotters::style::WHITE;
-    use plotters::style::BLACK;
-    use plotters::style::BLUE;
-    use plotters::style::RED;
+    use plotters::element::PathElement;
+    use plotters::style::{BLACK, WHITE, BLUE, RED, MAGENTA, CYAN, GREEN, YELLOW};
 
-    let file_path = format!("{}/{}.png", output_path, info.name.to_lowercase().replace(" ", "_"));
+    let file_path = format!("{}/{}.png", output_path, title.to_lowercase().replace(" ", "_"));
     let root_area = BitMapBackend::new(&file_path, (1200, 800)).into_drawing_area();
     root_area.fill(&WHITE).unwrap();
+
+
+    let colors = [BLUE, RED, MAGENTA, CYAN, GREEN, YELLOW];
+    let color_from_index = |index: usize| {
+        let idx = index % colors.len();
+        colors[idx]
+    };
 
     let mut ctx = ChartBuilder::on(&root_area)
         .margin(30)
         .x_label_area_size(30)
         .y_label_area_size(60)
-        .caption(&info.name, 20)
+        .caption(&title, 20)
         .build_cartesian_2d(data.x_min()..data.x_max(), data.y_min()..data.y_max())
         .unwrap();
 
     ctx.configure_mesh()
-        .x_desc(&info.x_label)
-        .y_desc(&info.y_label)
+        .x_desc(&data.xlabel)
+        .y_desc(&data.ylabel)
         .draw()
         .unwrap();
 
-    ctx.draw_series(LineSeries::new(data.points.iter().copied(), BLUE)).unwrap()
-        .label("Actual")
-        .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], BLUE));
-
-    ctx.draw_series(LineSeries::new(data.points_ref.iter().copied(), RED)).unwrap()
-        .label("Reference")
-        .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], RED));
+    for (name, series) in &data.series {
+        let color = color_from_index(series.color);
+        ctx.draw_series(LineSeries::new(series.points.iter().copied(), color)).unwrap()
+            .label(name)
+            .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], color));
+    }
 
     ctx.configure_series_labels()
         .border_style(BLACK)

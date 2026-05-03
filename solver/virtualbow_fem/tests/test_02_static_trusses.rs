@@ -158,8 +158,15 @@ fn nonlinear_bar_truss_1() {
         let N_sys = system.element_ref::<StringElement>(element).normal_force_total();
         let F_sys = statics.get_external_force(node2.y());
 
-        plotter.add_point((y, F_sys), (y, F_ref), "Applied Force", "y [m]", "F [N]");
-        plotter.add_point((y, N_sys), (y, N_ref), "Normal Force", "y [m]", "N [N]");
+        plotter.add_points("Applied Force", "y [m]", "F [N]", [
+            ("Actual", y, F_sys),
+            ("Reference", y, F_ref)
+        ]);
+
+        plotter.add_points("Normal Force", "y [m]", "N [N]", [
+            ("Actual", y, N_sys),
+            ("Reference", y, N_ref)
+        ]);
 
         assert_relative_eq!(N_sys, N_ref, max_relative=1e-6);
         assert_relative_eq!(F_sys, F_ref, max_relative=1e-6);
@@ -207,8 +214,15 @@ fn nonlinear_bar_truss_2() {
         let N1_sys = system.element_ref::<StringElement>(bar01).normal_force_total();
         let N2_sys = system.element_ref::<StringElement>(bar12).normal_force_total();
 
-        plotter.add_point((y, N1_sys), (y, N1_ref), "Normal Force 1", "y [m]", "N [N]");
-        plotter.add_point((y, N2_sys), (y, N2_ref), "Normal Force 2", "y [m]", "N [N]");
+        plotter.add_points("Normal Force 1", "y [m]", "N [N]", [
+            ("Actual", y, N1_sys),
+            ("Reference", y, N1_ref)
+        ]);
+
+        plotter.add_points("Normal Force 2", "y [m]", "N [N]", [
+            ("Actual", y, N2_sys),
+            ("Reference", y, N2_ref)
+        ]);
 
         // Check if normal forces in the bars match
         assert_abs_diff_eq!(N1_sys, N1_ref, epsilon=1e-6);

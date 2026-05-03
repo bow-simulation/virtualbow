@@ -19,7 +19,7 @@ use virtualbow_fem::system::dof::DofType;
 use virtualbow_fem::system::node::Node;
 use virtualbow_fem::system::system::System;
 use virtualbow_fem::testutils::curves::{Line, Arc, Wave};
-use virtualbow_fem::testutils::plotter2::Plotter;
+use virtualbow_fem::testutils::plotter::Plotter;
 use virtualbow_fem::testutils::sections::Section;
 use virtualbow_num::newton::NewtonSettings;
 
@@ -142,18 +142,22 @@ fn simulate_and_test_beam(path: &Path) {
     let modes_num = natural_frequencies(&mut system).unwrap();
     let modes_ref = natural_frequencies_from_eigenvalues(&output.eigen).unwrap();
 
-    for i in 0..modes_ref.len() {
-        plotter.add_point("01 Modal Frequency", "Mode [-]", "Omega [1/s]", "Actual", 0, (i as f64, modes_num[i].omega));
-        plotter.add_point("01 Modal Frequency", "Mode [-]", "Omega [1/s]", "GXBeam", 1, (i as f64, modes_ref[i].omega));
+    for iMode in 0..modes_ref.len() {
+        plotter.add_points("01 Modal Frequency", "Mode [-]", "Omega [1/s]", [
+            ("Actual", iMode, modes_num[iMode].omega),
+            ("GXBeam", iMode, modes_ref[iMode].omega)
+        ]);
 
-        plotter.add_point("02 Modal Damping", "Mode [-]", "Zeta [-]", "Actual", 0, (i as f64, modes_num[i].zeta));
-        plotter.add_point("02 Modal Damping", "Mode [-]", "Zeta [-]", "GXBeam", 1, (i as f64, modes_ref[i].zeta));
+        plotter.add_points("02 Modal Damping", "Mode [-]", "Zeta [-]", [
+            ("Actual", iMode, modes_num[iMode].zeta),
+            ("GXBeam", iMode, modes_ref[iMode].zeta)
+        ]);
 
         // Plot all reference frequencies, but only check first four for accuracy
         // Higher frequencies start to diverge slightly due to VirtualBow's simpler mass matrix
-        if i < 3 {
-            assert_abs_diff_eq!(modes_num[i].omega, modes_ref[i].omega, epsilon=2e-2*modes_ref[i].omega);
-            assert_abs_diff_eq!(modes_num[i].zeta, modes_ref[i].zeta, epsilon=1e-4);
+        if iMode < 3 {
+            assert_abs_diff_eq!(modes_num[iMode].omega, modes_ref[iMode].omega, epsilon=2e-2*modes_ref[iMode].omega);
+            assert_abs_diff_eq!(modes_num[iMode].zeta, modes_ref[iMode].zeta, epsilon=1e-4);
         }
     }
 
@@ -183,11 +187,15 @@ fn simulate_and_test_beam(path: &Path) {
             let y_ref = output.statics[iState].y[iRef];
             let φ_ref = output.statics[iState].phi[iRef];
 
-            plotter.add_point("03 Static Position (Nodes)", "x [m]", "y [m]", &format!("State {iState:02} - Actual"), 0, (x_num, y_num));
-            plotter.add_point("03 Static Position (Nodes)", "x [m]", "y [m]", &format!("State {iState:02} - GXBeam"), 1, (x_ref, y_ref));
+            plotter.add_points("03 Static Position (Nodes)", "x [m]", "y [m]", [
+                (&format!("State {iState:02} - Actual"), x_num, y_num),
+                (&format!("State {iState:02} - GXBeam"), x_ref, y_ref)
+            ]);
 
-            plotter.add_point("04 Static Angle (Nodes)", "Index", "Angle [rad]", &format!("State {iState:02} - Actual"), 0, (iNode as f64, φ_num));
-            plotter.add_point("04 Static Angle (Nodes)", "Index", "Angle [rad]", &format!("State {iState:02} - GXBeam"), 1, (iNode as f64, φ_ref));
+            plotter.add_points("04 Static Angle (Nodes)", "Index", "Angle [rad]", [
+                (&format!("State {iState:02} - Actual"), iNode, φ_num),
+                (&format!("State {iState:02} - GXBeam"), iNode, φ_ref)
+            ]);
 
             assert_abs_diff_eq!(x_ref, x_num, epsilon=2e-3*curve.length());
             assert_abs_diff_eq!(y_ref, y_num, epsilon=2e-3*curve.length());
@@ -219,11 +227,15 @@ fn simulate_and_test_beam(path: &Path) {
                         φ_num
                     };
 
-                    plotter.add_point("05 Static Position (Elements)", "x [m]", "y [m]", &format!("State {iState:02} - Actual"), 0, (x_num, y_num));
-                    plotter.add_point("05 Static Position (Elements)", "x [m]", "y [m]", &format!("State {iState:02} - GXBeam"), 1, (x_ref, y_ref));
+                    plotter.add_points("05 Static Position (Elements)", "x [m]", "y [m]", [
+                        (&format!("State {iState:02} - Actual"), x_num, y_num),
+                        (&format!("State {iState:02} - GXBeam"), x_ref, y_ref)
+                    ]);
 
-                    plotter.add_point("06 Static Angle (Elements)", "Index", "Angle [rad]", &format!("State {iState:02} - Actual"), 0, (iRef as f64, φ_num));
-                    plotter.add_point("06 Static Angle (Elements)", "Index", "Angle [rad]", &format!("State {iState:02} - GXBeam"), 1, (iRef as f64, φ_ref));
+                    plotter.add_points("06 Static Angle (Elements)", "Index", "Angle [rad]", [
+                        (&format!("State {iState:02} - Actual"), iRef, φ_num),
+                        (&format!("State {iState:02} - GXBeam"), iRef, φ_ref)
+                    ]);
 
                     assert_abs_diff_eq!(x_ref, x_num, epsilon=2e-3*curve.length());
                     assert_abs_diff_eq!(y_ref, y_num, epsilon=2e-3*curve.length());
@@ -248,23 +260,35 @@ fn simulate_and_test_beam(path: &Path) {
                     let γ_ref = output.statics[iState].gamma[iRef];
                     let κ_ref = output.statics[iState].kappa[iRef];
 
-                    plotter.add_point("07 Static Normal Force (Elements)", "Index", "Force [N]", &format!("State {iState:02} - Actual"), 0, (iRef as f64, N_num));
-                    plotter.add_point("07 Static Normal Force (Elements)", "Index", "Force [N]", &format!("State {iState:02} - GXBeam"), 1, (iRef as f64, N_ref));
+                    plotter.add_points("07 Static Normal Force (Elements)", "Index", "Force [N]", [
+                        (&format!("State {iState:02} - Actual"), iRef, N_num),
+                        (&format!("State {iState:02} - GXBeam"), iRef, N_ref)
+                    ]);
 
-                    plotter.add_point("08 Static Shear Force (Elements)", "Index", "Force [N]", &format!("State {iState:02} - Actual"), 0, (iRef as f64, Q_num));
-                    plotter.add_point("08 Static Shear Force (Elements)", "Index", "Force [N]", &format!("State {iState:02} - GXBeam"), 1, (iRef as f64, Q_ref));
+                    plotter.add_points("08 Static Shear Force (Elements)", "Index", "Force [N]", [
+                        (&format!("State {iState:02} - Actual"), iRef, Q_num),
+                        (&format!("State {iState:02} - GXBeam"), iRef, Q_ref)
+                    ]);
 
-                    plotter.add_point("09 Static Bending Moment (Elements)", "Index", "Moment [Nm]", &format!("State {iState:02} - Actual"), 0, (iRef as f64, M_num));
-                    plotter.add_point("09 Static Bending Moment (Elements)", "Index", "Moment [Nm]", &format!("State {iState:02} - GXBeam"), 1, (iRef as f64, M_ref));
+                    plotter.add_points("09 Static Bending Moment (Elements)", "Index", "Moment [Nm]", [
+                        (&format!("State {iState:02} - Actual"), iRef, M_num),
+                        (&format!("State {iState:02} - GXBeam"), iRef, M_ref)
+                    ]);
 
-                    plotter.add_point("10 Static Longitudinal Strain (Elements)", "Index", "Strain [-]", &format!("State {iState:02} - Actual"), 0, (iRef as f64, ε_num));
-                    plotter.add_point("10 Static Longitudinal Strain (Elements)", "Index", "Strain [-]", &format!("State {iState:02} - GXBeam"), 1, (iRef as f64, ε_ref));
+                    plotter.add_points("10 Static Longitudinal Strain (Elements)", "Index", "Strain [-]", [
+                        (&format!("State {iState:02} - Actual"), iRef, ε_num),
+                        (&format!("State {iState:02} - GXBeam"), iRef, ε_ref)
+                    ]);
 
-                    plotter.add_point("11 Static Shear Strain (Elements)", "Index", "Strain [-]", &format!("State {iState:02} - Actual"), 0, (iRef as f64, γ_num));
-                    plotter.add_point("11 Static Shear Strain (Elements)", "Index", "Strain [-]", &format!("State {iState:02} - GXBeam"), 1, (iRef as f64, γ_ref));
+                    plotter.add_points("11 Static Shear Strain (Elements)", "Index", "Strain [-]", [
+                        (&format!("State {iState:02} - Actual"), iRef, γ_num),
+                        (&format!("State {iState:02} - GXBeam"), iRef, γ_ref)
+                    ]);
 
-                    plotter.add_point("12 Static Bending Curvature (Elements)", "Index", "Strain [-]", &format!("State {iState:02} - Actual"), 0, (iRef as f64, κ_num));
-                    plotter.add_point("12 Static Bending Curvature (Elements)", "Index", "Strain [-]", &format!("State {iState:02} - GXBeam"), 1, (iRef as f64, κ_ref));
+                    plotter.add_points("12 Static Bending Curvature (Elements)", "Index", "Strain [-]", [
+                        (&format!("State {iState:02} - Actual"), iRef, κ_num),
+                        (&format!("State {iState:02} - GXBeam"), iRef, κ_ref)
+                    ]);
 
                     assert_abs_diff_eq!(N_ref, N_num, epsilon=2e-2*N_max);
                     assert_abs_diff_eq!(Q_ref, Q_num, epsilon=2e-2*Q_max);
@@ -317,11 +341,15 @@ fn simulate_and_test_beam(path: &Path) {
                 let y_ref = output.dynamics[iEval].y[iRef];
                 let φ_ref = output.dynamics[iEval].phi[iRef];
 
-                plotter.add_point("13 Dynamic Position (Nodes)", "x [m]", "y [m]", &format!("State {iState:02} - Actual"), 0, (x_num, y_num));
-                plotter.add_point("13 Dynamic Position (Nodes)", "x [m]", "y [m]", &format!("State {iState:02} - GXBeam"), 1, (x_ref, y_ref));
+                plotter.add_points("13 Dynamic Position (Nodes)", "x [m]", "y [m]", [
+                    (&format!("State {iState:02} - Actual"), x_num, y_num),
+                    (&format!("State {iState:02} - GXBeam"), x_ref, y_ref)
+                ]);
 
-                plotter.add_point("14 Dynamic Angle (Nodes)", "Index", "Angle [rad]", &format!("State {iState:02} - Actual"), 0, (iNode as f64, φ_num));
-                plotter.add_point("14 Dynamic Angle (Nodes)", "Index", "Angle [rad]", &format!("State {iState:02} - GXBeam"), 1, (iNode as f64, φ_ref));
+                plotter.add_points("14 Dynamic Angle (Nodes)", "Index", "Angle [rad]", [
+                    (&format!("State {iState:02} - Actual"), iNode, φ_num),
+                    (&format!("State {iState:02} - GXBeam"), iNode, φ_ref)
+                ]);
 
                 assert_abs_diff_eq!(x_ref, x_num, epsilon=1e-2*curve.length());
                 assert_abs_diff_eq!(y_ref, y_num, epsilon=1e-2*curve.length());

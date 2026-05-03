@@ -21,7 +21,7 @@ To run the tests, use `cargo test --release`.
 The release flag helps with performance since the simulation is very slow in debug mode.
 Some of the tests are capable of producing plots using the [`plotters`](https://github.com/plotters-rs/plotters) crate.
 This can be enabled with the `plotters` feature flag, for example by running the tests as `cargo test --release --features "plotters"`.
-The resulting plots can be found in the `target` directory.
+The output can be found in the `target` directory of the respective crate.
 On Linux this feature requires some additional dependencies [as documented in the plotters readme](https://github.com/plotters-rs/plotters#dependencies).
 
 
@@ -93,9 +93,9 @@ For actually contributing to this repository please follow these steps:
 
 4. **Wait and see if the build pipeline passes.** This automatic process ensures that the project still compiles successfully and all tests work as expected. Don't worry if this step fails initially, you can keep updating your branch with new commits until all checks have passed.
 
-5. **Sign the Contributor License Agreement**. If this is your first contribution to VirtualBow, you will be asked to sign our [Contributor License Agreement](https://cla-assistant.io/bow-simulation/virtualbow) (CLA). This document clarifies the rights to your contribution and ensures that we can use your contribution(s) for our purposes. Our CLA is adapted from the [Apache Individual Contributor License Agreement](https://www.apache.org/licenses/icla.pdf) with only minor changes, so it is a fairly standard license agreement.
+5. **Sign the Contributor License Agreement**. If this is your first contribution to VirtualBow, you will be asked to sign our [Contributor License Agreement](https://cla-assistant.io/bow-simulation/virtualbow) (CLA). This document clarifies the rights to your contribution and ensures that we can use your contribution(s) for our purposes. Our CLA is adapted from the [Apache Individual Contributor License Agreement](https://www.apache.org/licenses/icla.pdf) with only minor changes.
 
-6. **You are almost done!** Your changes will now be reviewed for merging as soon as possible.
+6. **Almost done!** Your changes will now be reviewed for merging as soon as possible.
 
 # License
 

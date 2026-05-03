@@ -82,9 +82,20 @@ fn mass_spring_damper_1() {
         let v_ref = -f64::exp(-delta*t)*((omega*B + delta*A)*f64::sin(omega*t) + (delta*B - omega*A)*f64::cos(omega*t));
         let a_ref = f64::exp(-delta*t)*(-B*(omega*omega + delta*delta)*f64::cos(omega*t) + (A*(delta*delta - omega*omega) + 2.0*B*omega*delta)*f64::sin(omega*t));
 
-        plotter.add_point((system.get_time(), x_sys), (system.get_time(), x_ref), "position", "Time [s]", "Position [m]");
-        plotter.add_point((system.get_time(), v_sys), (system.get_time(), v_ref), "velocity", "Time [s]", "Velocity [m/s]");
-        plotter.add_point((system.get_time(), a_sys), (system.get_time(), a_ref), "acceleration", "Time [s]", "Acceleration [m/s]");
+        plotter.add_points("Position", "Time [s]", "Position [m]", [
+            ("Actual", system.get_time(), x_sys),
+            ("Reference", system.get_time(), x_ref)
+        ]);
+
+        plotter.add_points("Velocity", "Time [s]", "Velocity [m/s]", [
+            ("Actual", system.get_time(), v_sys),
+            ("Reference", system.get_time(), v_ref)
+        ]);
+
+        plotter.add_points("Acceleration", "Time [s]", "Acceleration [m/s]", [
+            ("Actual", system.get_time(), a_sys),
+            ("Reference", system.get_time(), a_ref)
+        ]);
 
         assert_abs_diff_eq!(x_sys, x_ref, epsilon=1e-4);
         assert_abs_diff_eq!(v_sys, v_ref, epsilon=1e-3);
@@ -206,9 +217,20 @@ fn mass_spring_damper_n() {
         let (u_ref, v_ref, a_ref) = ref_solver.evaluate(system.get_time());
 
         for i in 0..n {
-            plotter.add_point((system.get_time(), u_sys[i]), (system.get_time(), u_ref[i]), &format!("position_{i:02}"), "Time [s]", "Position [m]");
-            plotter.add_point((system.get_time(), v_sys[i]), (system.get_time(), v_ref[i]), &format!("velocity_{i:02}"), "Time [s]", "Velocity [m/s]");
-            plotter.add_point((system.get_time(), a_sys[i]), (system.get_time(), a_ref[i]), &format!("acceleration_{i:02}"), "Time [s]", "Acceleration [m/s]");
+            plotter.add_points(&format!("Position_{i:02}"), "Time [s]", "Position [m]", [
+                ("Actual", system.get_time(), u_sys[i]),
+                ("Reference", system.get_time(), u_ref[i])
+            ]);
+
+            plotter.add_points(&format!("Velocity_{i:02}"), "Time [s]", "Velocity [m/s]", [
+                ("Actual", system.get_time(), v_sys[i]),
+                ("Reference", system.get_time(), v_ref[i])
+            ]);
+
+            plotter.add_points(&format!("Acceleration_{i:02}"), "Time [s]", "Acceleration [m/s]", [
+                ("Actual", system.get_time(), a_sys[i]),
+                ("Reference", system.get_time(), a_ref[i])
+            ]);
         }
 
         assert_abs_diff_eq!(u_sys, u_ref, epsilon=1e-3*u_max);

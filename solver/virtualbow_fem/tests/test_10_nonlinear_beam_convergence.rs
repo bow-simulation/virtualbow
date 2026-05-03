@@ -33,9 +33,9 @@ fn cantilever_eigen_convergence() {
 
         // Plot the errors over the number of elements up to a certain number (plot becomes boring)
         if n_elements <= 50 {
-            plotter.add_point((n_elements as f64, 100.0 * error_0), (0.0, 0.0), "1st Natural Frequency", "N Elements", "Error [%]");
-            plotter.add_point((n_elements as f64, 100.0 * error_1), (0.0, 0.0), "2nd Natural Frequency", "N Elements", "Error [%]");
-            plotter.add_point((n_elements as f64, 100.0 * error_2), (0.0, 0.0), "3rd Natural Frequency", "N Elements", "Error [%]");
+            plotter.add_point("1st Natural Frequency", "N Elements", "Error [%]", "Actual", (n_elements, 100.0*error_0));
+            plotter.add_point("2nd Natural Frequency", "N Elements", "Error [%]", "Actual", (n_elements, 100.0*error_1));
+            plotter.add_point("3rd Natural Frequency", "N Elements", "Error [%]", "Actual", (n_elements, 100.0*error_2));
         }
 
         // Start checking the errors after a certain number of elements
@@ -61,9 +61,9 @@ fn cantilever_static_convergence() {
 
         // Plot the errors over the number of elements up to a certain number (plot becomes boring)
         if n_elements <= 50 {
-            plotter.add_point((n_elements as f64, 100.0 * error_x), (0.0, 0.0), "Tip Displacement X", "N Elements", "Error [%]");
-            plotter.add_point((n_elements as f64, 100.0 * error_y), (0.0, 0.0), "Tip Displacement Y", "N Elements", "Error [%]");
-            plotter.add_point((n_elements as f64, 100.0 * error_φ), (0.0, 0.0), "Tip Rotation Angle", "N Elements", "Error [%]");
+            plotter.add_point("Tip Displacement X", "N Elements", "Error [%]", "Actual", (n_elements, 100.0*error_x));
+            plotter.add_point("Tip Displacement Y", "N Elements", "Error [%]", "Actual", (n_elements, 100.0*error_y));
+            plotter.add_point("Tip Rotation Angle", "N Elements", "Error [%]", "Actual", (n_elements, 100.0*error_φ));
         }
 
         // Start checking the errors after a certain number of elements
@@ -88,9 +88,9 @@ fn cantilever_dynamic_convergence() {
 
         // Plot the errors over the number of elements up to a certain number (plot becomes boring)
         if n_elements <= 50 {
-            plotter.add_point((n_elements as f64, 100.0 * error_x), (0.0, 0.0), "Tip Displacement X", "N Elements", "Error [%]");
-            plotter.add_point((n_elements as f64, 100.0 * error_y), (0.0, 0.0), "Tip Displacement Y", "N Elements", "Error [%]");
-            plotter.add_point((n_elements as f64, 100.0 * error_φ), (0.0, 0.0), "Tip Rotation Angle", "N Elements", "Error [%]");
+            plotter.add_point("Tip Displacement X", "N Elements", "Error [%]", "Actual", (n_elements, 100.0*error_x));
+            plotter.add_point("Tip Displacement Y", "N Elements", "Error [%]", "Actual", (n_elements, 100.0*error_y));
+            plotter.add_point("Tip Rotation Angle", "N Elements", "Error [%]", "Actual", (n_elements, 100.0*error_φ));
         }
 
         // Start checking the errors after a certain number of elements
