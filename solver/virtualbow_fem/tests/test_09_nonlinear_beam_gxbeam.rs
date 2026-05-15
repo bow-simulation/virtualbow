@@ -179,9 +179,7 @@ fn simulate_and_test_beam(path: &Path) {
         for (iNode, &node) in nodes.iter().enumerate() {
             let iRef = n_ref_per_element*iNode;    // Current GXBeam node index
 
-            let x_num = system.get_position(node.x());
-            let y_num = system.get_position(node.y());
-            let φ_num = system.get_position(node.φ());
+            let [x_num, y_num, φ_num] = system.get_node_positions(&node);
 
             let x_ref = output.statics[iState].x[iRef];
             let y_ref = output.statics[iState].y[iRef];
@@ -333,9 +331,10 @@ fn simulate_and_test_beam(path: &Path) {
             for (iNode, &node) in nodes.iter().enumerate() {
                 let iRef = n_ref_per_element * iNode;    // Current GXBeam node index
 
-                let x_num = system.get_position(node.x());
-                let y_num = system.get_position(node.y());
-                let φ_num = system.get_position(node.φ());
+                // TODO: Use node position
+                let x_num = system.get_dof_position(node.x());
+                let y_num = system.get_dof_position(node.y());
+                let φ_num = system.get_dof_position(node.φ());
 
                 let x_ref = output.dynamics[iEval].x[iRef];
                 let y_ref = output.dynamics[iEval].y[iRef];

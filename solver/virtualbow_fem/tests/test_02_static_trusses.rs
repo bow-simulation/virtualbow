@@ -36,7 +36,7 @@ fn linear_bar_truss_1() {
     let solver = LoadControl::new(&mut system, TOLERANCES, SETTINGS);
     solver.solve_equilibrium().unwrap();
 
-    let x_sys = system.get_position(node2.x());
+    let x_sys = system.get_dof_position(node2.x());
     assert_relative_eq!(x_sys, x_ref, max_relative=1e-6);
 }
 
@@ -75,8 +75,8 @@ fn linear_bar_truss_3() {
     let solver = LoadControl::new(&mut system, TOLERANCES, SETTINGS);
     solver.solve_equilibrium().unwrap();
 
-    assert_relative_eq!(system.get_position(node3.x()), x_ref, max_relative=1e-3);
-    assert_relative_eq!(system.get_position(node3.y()), y_ref, max_relative=1e-3);
+    assert_relative_eq!(system.get_dof_position(node3.x()), x_ref, max_relative=1e-3);
+    assert_relative_eq!(system.get_dof_position(node3.y()), y_ref, max_relative=1e-3);
 }
 
 #[test]
@@ -128,8 +128,8 @@ fn linear_bar_truss_4() {
     let solver = LoadControl::new(&mut system, TOLERANCES, SETTINGS);
     solver.solve_equilibrium().unwrap();
 
-    assert_relative_eq!(system.get_position(node_03.x()), 2.0*a, max_relative=1e-3);
-    assert_relative_eq!(system.get_position(node_03.y()), -s_ref, max_relative=1e-3);
+    assert_relative_eq!(system.get_dof_position(node_03.x()), 2.0*a, max_relative=1e-3);
+    assert_relative_eq!(system.get_dof_position(node_03.y()), -s_ref, max_relative=1e-3);
 }
 
 #[test]
@@ -148,7 +148,7 @@ fn nonlinear_bar_truss_1() {
     let solver = DisplacementControl::new(&mut system, TOLERANCES, SETTINGS);
 
     let result = solver.solve_equilibrium_path(node2.y(), -b, 100, &mut |system, statics, _info| {
-        let y = system.get_position(node2.y());
+        let y = system.get_dof_position(node2.y());
         let ly = f64::hypot(a, y);
         let l0 = f64::hypot(a, b);
 
@@ -198,8 +198,8 @@ fn nonlinear_bar_truss_2() {
     let solver = DisplacementControl::new(&mut system, TOLERANCES, SETTINGS);
 
     let result = solver.solve_equilibrium_path(node1.y(), -c, 100, &mut |system, statics, _| {
-        let x = system.get_position(node1.x());
-        let y = system.get_position(node1.y());
+        let x = system.get_dof_position(node1.x());
+        let y = system.get_dof_position(node1.y());
         let F = statics.get_external_force(node1.y());
 
         let alpha = f64::atan(y/x);

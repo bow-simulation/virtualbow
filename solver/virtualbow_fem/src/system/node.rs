@@ -6,16 +6,14 @@ pub struct Node {
 }
 
 impl Node {
-    pub fn dofs(&self) -> &[Dof] {
-        &self.dofs
-    }
-}
-
-impl Node {
     pub fn new(x: Dof, y: Dof, φ: Dof) -> Self {
         Self {
             dofs: [x, y, φ]
         }
+    }
+
+    pub fn dofs(&self) -> &[Dof; 3] {
+        &self.dofs
     }
 
     pub fn x(&self) -> Dof {

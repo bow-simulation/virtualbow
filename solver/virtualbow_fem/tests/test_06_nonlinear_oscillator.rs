@@ -83,13 +83,13 @@ fn nonlinear_oscillator() {
         // Numerical solution
         // Rotation angle φ is redundant with x and y, so we only check x and y.
 
-        let x_num = system.get_position(node_b.x());
-        let x_dot_num = system.get_velocity(node_b.x());
-        let x_ddot_num = eval.get_acceleration(node_b.x());
+        let x_num = system.get_dof_position(node_b.x());
+        let x_dot_num = system.get_dof_velocity(node_b.x());
+        let x_ddot_num = eval.get_dof_acceleration(node_b.x());
 
-        let y_num = system.get_position(node_b.y());
-        let y_dot_num = system.get_velocity(node_b.y());
-        let y_ddot_num = eval.get_acceleration(node_b.y());
+        let y_num = system.get_dof_position(node_b.y());
+        let y_dot_num = system.get_dof_velocity(node_b.y());
+        let y_ddot_num = eval.get_dof_acceleration(node_b.y());
 
         plotter.add_point("Position φ", "Time [s]", "φ [rad]", "Reference", (t, φ_ref));
         plotter.add_point("Velocity φ", "Time [s]", "d/dt φ [rad/s]", "Reference", (t, φ_dot_ref));

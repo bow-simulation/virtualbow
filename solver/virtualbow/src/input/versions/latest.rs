@@ -26,9 +26,11 @@ pub struct BowModel {
 pub struct Settings {
     pub num_limb_elements: usize,
     pub num_limb_sample_points: usize,
+    
     pub min_draw_resolution: usize,
     pub max_draw_resolution: usize,
     pub static_iteration_tolerance: f64,
+    
     pub arrow_clamp_force: f64,
     pub string_compression_factor: f64,
     pub timespan_factor: f64,

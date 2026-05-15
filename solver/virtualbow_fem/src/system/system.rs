@@ -37,7 +37,7 @@ pub struct System {
 }
 
 impl System {
-    // Creates a new empty system with zero degrees of freedom.
+    /// Creates a new empty system with zero degrees of freedom and no elements or external forces.
     pub fn new() -> Self {
         Self {
             elements: Vec::new(),
@@ -126,7 +126,6 @@ impl System {
         &self.dimensions
     }
 
-    #[allow(dead_code)]
     pub fn elements(&self) -> impl Iterator<Item=&ElementHandle> {
         self.elements.iter().map(|(_dofs, handle)| { handle })
     }
@@ -165,19 +164,34 @@ impl System {
         self.v.copy_from(v);
     }
 
-    pub fn get_displacement(&self, dof: Dof) -> f64 {
+    pub fn get_dof_displacement(&self, dof: Dof) -> f64 {
         DisplacementView::transform(&self.u, dof)
     }
 
-    pub fn get_position(&self, dof: Dof) -> f64 {
+    pub fn get_dof_position(&self, dof: Dof) -> f64 {
         PositionView::transform(&self.xl, &self.xa, &self.u, dof)
     }
 
-    pub fn get_velocity(&self, dof: Dof) -> f64 {
+    pub fn get_dof_velocity(&self, dof: Dof) -> f64 {
         VelocityView::transform(&self.v, dof)
     }
 
-    // Restores the initial state of the system (t = 0, u = 0, v = 0)
+    /// Returns the relative displacements (x, y, φ) associated with a specific node
+    pub fn get_node_displacements(&self, node: &Node) -> [f64; 3] {
+        node.dofs().map(|dof| self.get_dof_displacement(dof))
+    }
+
+    /// Returns the absolute positions (x, y, φ) associated with a specific node
+    pub fn get_node_positions(&self, node: &Node) -> [f64; 3] {
+        node.dofs().map(|dof| self.get_dof_position(dof))
+    }
+
+    /// Returns the velocities (x, y, φ) associated with a specific node
+    pub fn get_node_velocities(&self, node: &Node) -> [f64; 3] {
+        node.dofs().map(|dof| self.get_dof_velocity(dof))
+    }
+
+    /// Restores the initial state of the system (t = 0, u = 0, v = 0)
     pub fn reset_state(&mut self) {
         self.t = 0.0;
         self.u.fill(0.0);
@@ -257,12 +271,11 @@ impl<'a> SystemEval<'a> {
         ForceView::transform(self.p, dof)
     }
 
-    #[allow(dead_code)]
     pub fn get_internal_force(&self, dof: Dof) -> f64 {
         ForceView::transform(self.q, dof)
     }
 
-    pub fn get_acceleration(&self, dof: Dof) -> f64 {
+    pub fn get_dof_acceleration(&self, dof: Dof) -> f64 {
         AccelerationView::transform(self.a, dof)
     }
 }

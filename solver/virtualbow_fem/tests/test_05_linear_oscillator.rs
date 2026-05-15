@@ -68,9 +68,9 @@ fn mass_spring_damper_1() {
     let mut callback = |system: &System, eval: &SystemEval| {
         // Numerical solution
         let t_sys = system.get_time();
-        let x_sys = system.get_position(node_b.x()) - l;
-        let v_sys = system.get_velocity(node_b.x());
-        let a_sys = eval.get_acceleration(node_b.x());
+        let x_sys = system.get_dof_position(node_b.x()) - l;
+        let v_sys = system.get_dof_velocity(node_b.x());
+        let a_sys = eval.get_dof_acceleration(node_b.x());
 
         // Record endpoint
         t_end.set(t_sys);
@@ -211,9 +211,9 @@ fn mass_spring_damper_n() {
 
     solver.solve(StopCondition::Time(period), &mut |system, eval| {
         // Evaluate fem system and reference solution
-        let u_sys = DVector::<f64>::from_fn(system.n_dofs(), |i, _| { system.get_position(nodes[i+1].x()) - lengths[i+1] });
-        let v_sys = DVector::<f64>::from_fn(system.n_dofs(), |i, _| { system.get_velocity(nodes[i+1].x()) });
-        let a_sys = DVector::<f64>::from_fn(system.n_dofs(), |i, _| { eval.get_acceleration(nodes[i+1].x()) });
+        let u_sys = DVector::<f64>::from_fn(system.n_dofs(), |i, _| { system.get_dof_position(nodes[i+1].x()) - lengths[i+1] });
+        let v_sys = DVector::<f64>::from_fn(system.n_dofs(), |i, _| { system.get_dof_velocity(nodes[i+1].x()) });
+        let a_sys = DVector::<f64>::from_fn(system.n_dofs(), |i, _| { eval.get_dof_acceleration(nodes[i+1].x()) });
         let (u_ref, v_ref, a_ref) = ref_solver.evaluate(system.get_time());
 
         for i in 0..n {

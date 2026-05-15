@@ -159,9 +159,9 @@ fn solve_straight_uniform_cantilever_statics(n_elements: usize) -> (f64, f64, f6
 
     // TODO: Introduce get_positions/get_displacements(&Node) -> [f64; 3]?
     let tip_node = nodes.last().unwrap();
-    let x_num = system.get_position(tip_node.x());
-    let y_num = system.get_position(tip_node.y());
-    let φ_num = system.get_position(tip_node.φ());
+    let x_num = system.get_dof_position(tip_node.x());
+    let y_num = system.get_dof_position(tip_node.y());
+    let φ_num = system.get_dof_position(tip_node.φ());
 
     // Reference solution
     // TODO: Get from gxbeam data
@@ -208,9 +208,9 @@ fn solve_straight_uniform_cantilever_dynamics(n_elements: usize) -> (f64, f64, f
 
     // TODO: Introduce get_positions/get_displacements(&Node) -> [f64; 3]?
     let tip_node = nodes.last().unwrap();
-    let x_num = system.get_position(tip_node.x());
-    let y_num = system.get_position(tip_node.y());
-    let φ_num = system.get_position(tip_node.φ());
+    let x_num = system.get_dof_position(tip_node.x());
+    let y_num = system.get_dof_position(tip_node.y());
+    let φ_num = system.get_dof_position(tip_node.φ());
 
     // Reference solution
     // TODO: Get from gxbeam data

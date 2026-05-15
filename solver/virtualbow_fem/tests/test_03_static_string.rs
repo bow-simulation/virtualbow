@@ -51,7 +51,7 @@ fn string_over_quarter_circle() {
     let solver = DisplacementControl::new(&mut system, TOLERANCES, SETTINGS);
 
     let result = solver.solve_equilibrium_path(free_node.y(), -r, 100, &mut |system, statics, _| {
-        let y = system.get_position(free_node.y());
+        let y = system.get_dof_position(free_node.y());
         let h = r - y;
 
         let points = system.element_ref::<StringElement>(element).contact_positions().collect_vec();

@@ -93,8 +93,8 @@ fn test_linear_beam_dynamics() {
             let t = system.get_time();
             let x = x_nodes[i];
 
-            let w_num = system.get_position(nodes[i].y());
-            let φ_num = system.get_position(nodes[i].φ());
+            let w_num = system.get_dof_position(nodes[i].y());
+            let φ_num = system.get_dof_position(nodes[i].φ());
 
             let w_ref = beam.w(x, t);
             let φ_ref = beam.φ(x, t);
@@ -110,9 +110,9 @@ fn test_linear_beam_dynamics() {
     }).unwrap();
 
     for node in &nodes {
-        let x = system.get_position(node.x());
-        let y = system.get_position(node.y());
-        let φ = system.get_position(node.φ());
+        let x = system.get_dof_position(node.x());
+        let y = system.get_dof_position(node.y());
+        let φ = system.get_dof_position(node.φ());
 
         plotter.add_points("Final Deflection", "x [m]", "y [m]", [
             ("Actual", x, y),

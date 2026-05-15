@@ -16,7 +16,6 @@ pub struct LimbGeometry {
     pub draw: DrawInfo                   // Info about brace and draw positions
 }
 
-// TODO: Return values s_nodes, u_node might not be needed if the evaluation works properly
 #[derive(Serialize, Deserialize, Default, PartialEq, Debug, Clone)]
 pub struct DiscreteLimbGeometry {
     pub segments: Vec<LinearBeamSegment>,    // Linear beam segment properties
@@ -78,7 +77,7 @@ impl LimbGeometry {
         let brace_ref = pivot_point;
         let draw_ref = match input.draw.draw_length {
             DrawLength::Standard(_) => pivot_point,
-            DrawLength::Amo(_) => pivot_point + 1.75*0.0254    // TODO: Verify direction
+            DrawLength::Amo(_) => pivot_point + 1.75*0.0254
         };
 
         // Position of the string at brace and full draw as determined by the reference points
@@ -94,9 +93,9 @@ impl LimbGeometry {
             power_stroke,
         };
 
-        // Check for self-intersecting geometry, which is the case when the thickness of the limb is higher than the radius of curvature
-        // Since we can't check this analytically, we check for a fixed number of points along the length of the limb
-        for s in lin_space(profile.length_start()..=profile.length_end(), 1000) {  // TODO: Magic number
+        // Check for self-intersecting geometry, which is the case when the thickness of the limb is higher than the radius of curvature.
+        // Since we can't check this analytically, we check for a fixed number of points along the length of the limb.
+        for s in lin_space(profile.length_start()..=profile.length_end(), 1000) {  // Magic number
             let kappa = profile.curvature(s);
             let (y_back, y_belly) = section.section_bounds(profile.normalize(s));
 
@@ -125,8 +124,7 @@ impl LimbGeometry {
         let n_nodes = s_nodes.iter().map(|&s| self.profile.normalize(s)).collect_vec();
         let k_nodes = s_nodes.iter().map(|&s| self.profile.curvature(s)).collect_vec();
         let p_nodes = s_nodes.iter().map(|&s| self.profile.point(s)).collect_vec();
-        let y_nodes = n_nodes.iter().map(|&n| self.section.layer_bounds(n).0).collect_vec();
-        let h_nodes = n_nodes.iter().map(|&n| self.section.layer_bounds(n).1).collect_vec();    // TODO: Collect in one step
+        let (y_nodes, h_nodes): (Vec<_>, Vec<_>) = n_nodes.iter().map(|&n| self.section.layer_bounds(n)).unzip();
 
         // Control points of the profile curve
         //let k_control = s_control.iter().map(|&s| self.profile.curvature(s)).collect_vec();                           // TODO: Implement

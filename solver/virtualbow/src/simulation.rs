@@ -27,6 +27,28 @@ pub enum SimulationMode {
     Dynamic
 }
 
+struct BracingSettings {
+    delta_start: f64,             // Initial decrement in string length
+    delta_min: f64,               // Minimum step length, abort if smaller
+    delta_max: f64,               // Maximum step length, don't increase beyond
+    slope_tol: f64,               // Tolerance for the string's slope error
+    max_root_iter: usize,         // Maximum number of iterations for the terminal root finding algorithm
+    target_newton_iter: usize,    // Desired number of iterations for the static solver
+}
+
+impl Default for BracingSettings {
+    fn default() -> Self {
+        Self {
+            delta_start: 1e-3,
+            delta_min: 1e-5,
+            delta_max: 1e-2,
+            slope_tol: 1e-6,
+            max_root_iter: 20,
+            target_newton_iter: 5
+        }
+    }
+}
+
 pub struct Simulation<'a> {
     input: &'a BowModel,
     geometry: DiscreteLimbGeometry,
@@ -53,11 +75,7 @@ pub struct Simulation<'a> {
 impl<'a> Simulation<'a> {
     // Numerical constants for the bracing simulation
     // TODO: Maybe put all those numerical parameters into a separate struct
-    const BRACING_DELTA_START: f64 = 1e-3;       // Initial decrement in string length
-    const BRACING_DELTA_MIN: f64 = 1e-5;         // Minimum step length, abort if smaller
-    const BRACING_SLOPE_TOL: f64 = 1e-6;         // Tolerance for the string's slope error
-    const BRACING_MAX_ROOT_ITER: usize = 20;     // Maximum number of iterations for the terminal root finding algorithm
-    const BRACING_TARGET_ITER: usize = 5;        // Desired number of iterations for the static solver
+
 
     // Set up the simulation either with or without string and with or without damping, depending on simulation mode.
     fn initialize(model: &'a BowModel, string: bool, damping: bool) -> Result<(System, Simulation<'a>, Common), ModelError> {
@@ -141,6 +159,10 @@ impl<'a> Simulation<'a> {
 
         // If string is to be initialized, perform bracing simulation
         if string {
+            // Settings for the bracing algorithm
+            let bracing_settings = BracingSettings::default();
+            let newton_settings = NewtonSettings::default();
+
             // Direction of the applied force for displacement control
             system.add_force(string_nodes[0].y(), move |_t| { -1.0 });
 
@@ -156,7 +178,7 @@ impl<'a> Simulation<'a> {
             // Initial values for the string length factor, the string's slope and the step size for iterating on the string factor
             let mut factor1 = 1.0;
             let mut slope1 = get_string_slope(&system);
-            let mut delta = Self::BRACING_DELTA_START;
+            let mut delta = bracing_settings.delta_start;
 
             // Abort if the initial slope is negative, which means that the supplied brace height is too
             if slope1 < 0.0 {
@@ -172,9 +194,8 @@ impl<'a> Simulation<'a> {
 
                 // TODO: Duplication with settings used in static analysis
                 let tolerances = StaticTolerances::new(*geometry.s_eval.last().unwrap(), FRAC_PI_2, model.settings.static_iteration_tolerance);  // Use limb length and pi/2 as reference displacements for absolute tolerances
-                let settings = NewtonSettings::default();    // TODO: Don't use default settings here?
 
-                let solver = DisplacementControl::new(&mut system, tolerances, settings);   // TODO: Don't construct new solver in each iteration?
+                let solver = DisplacementControl::new(&mut system, tolerances, newton_settings);   // TODO: Don't construct new solver in each iteration?
                 let result = solver.solve_equilibrium(string_nodes[0].y(), 0.0);    // TODO: Code repetition with initial position of the string node above
                 let slope = get_string_slope(&system);
 
@@ -192,7 +213,7 @@ impl<'a> Simulation<'a> {
                     if slope2 <= 0.0 {
                         // Sign change of the slope: Almost done, do the rest by root finding
                         let try_string_length = |factor| { try_string_length(factor).0 };  // TODO: Error handling, do something with the solver information
-                        find_root_falsi(try_string_length, factor1, factor2, slope1, slope2, 0.0, Self::BRACING_SLOPE_TOL, Self::BRACING_MAX_ROOT_ITER).ok_or(ModelError::SimulationBracingNoConvergence)?;
+                        find_root_falsi(try_string_length, factor1, factor2, slope1, slope2, 0.0, bracing_settings.slope_tol, bracing_settings.max_root_iter).ok_or(ModelError::SimulationBracingNoConvergence)?;
                         break;
                     }
                     else {
@@ -200,8 +221,9 @@ impl<'a> Simulation<'a> {
                         factor1 = factor2;
                         slope1 = slope2;
 
-                        // Adjust step size according to static solver performance
-                        delta *= (Self::BRACING_TARGET_ITER as f64) / (info.iterations as f64);
+                        // Adjust step size according to static solver performance, cap at maximum
+                        delta *= (bracing_settings.target_newton_iter as f64) / (info.iterations as f64);
+                        delta = f64::min(delta, bracing_settings.delta_max);
                     }
                 }
                 else {
@@ -210,7 +232,7 @@ impl<'a> Simulation<'a> {
                 }
 
                 // Abort if the step size becomes too small
-                if delta < Self::BRACING_DELTA_MIN {
+                if delta < bracing_settings.delta_min {
                     return Err(ModelError::SimulationBracingNoSignChange)
                 }
             }
@@ -510,8 +532,8 @@ impl<'a> Simulation<'a> {
     // TODO: Find a better way to get the stiffness of the force draw curve in there
     fn get_bow_state(&self, system: &System, eval: &SystemEval, draw_stiffness: f64) -> State {
         let time = system.get_time();
-        let draw_length = self.geometry.draw.draw_ref - system.get_position(self.string_nodes[0].y());
-        let power_stroke = self.geometry.draw.brace_pos - system.get_position(self.string_nodes[0].y());
+        let draw_length = self.geometry.draw.draw_ref - system.get_dof_position(self.string_nodes[0].y());
+        let power_stroke = self.geometry.draw.brace_pos - system.get_dof_position(self.string_nodes[0].y());
         let draw_force = -2.0*eval.get_external_force(self.string_nodes[0].y());
 
         // The evaluation of the arrow position, velocity and acceleration depends on whether the arrow has separated from the string.
@@ -526,9 +548,9 @@ impl<'a> Simulation<'a> {
         }
         else {
             (
-                eval.get_acceleration(self.string_nodes[0].y()),
-                system.get_velocity(self.string_nodes[0].y()),
-                system.get_position(self.string_nodes[0].y()),
+                eval.get_dof_acceleration(self.string_nodes[0].y()),
+                system.get_dof_velocity(self.string_nodes[0].y()),
+                system.get_dof_position(self.string_nodes[0].y()),
             )
         };
 

@@ -22,7 +22,7 @@ serde.workspace = true
 serde_json.workspace = true
 rmp-serde.workspace = true
 soa_derive.workspace = true
-clap.workspace = true  # TODO: Find a way around this dependency?
+clap.workspace = true
 
 [dev-dependencies]
 approx.workspace = true

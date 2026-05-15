@@ -192,7 +192,7 @@ impl<'a> DisplacementControl<'a> {
         let mut info: NewtonInfo = NewtonInfo::default();
 
         // Compute an equilibrium state for each displacement from current state to target
-        for u_target in lin_space(self.system.get_displacement(dof)..=u_target, steps + 1) {
+        for u_target in lin_space(self.system.get_dof_displacement(dof)..=u_target, steps + 1) {
             // Initial values of displacements and load factor
             let u0 = self.system.get_displacements().clone();
             let λ0 = 1.0;
