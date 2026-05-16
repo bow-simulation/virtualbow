@@ -8,25 +8,22 @@ use virtualbow_num::bisection::bisect_right_by;
 
 #[derive(Copy ,Clone, PartialEq)]
 pub struct CurvePoint {
-    pub s: f64,                // Arc length
-    pub φ: f64,                // Tangent angle
-    pub r: SVector<f64, 2>,    // Position (x, y)
+    pub length: f64,                // Arc length
+    pub position: [f64; 3],         // Position and tangent angle
 }
 
 impl CurvePoint {
-    pub fn new(s: f64, φ: f64, r: SVector<f64, 2>) -> CurvePoint {
+    pub fn new(length: f64, position: [f64; 3]) -> CurvePoint {
         CurvePoint {
-            s,
-            φ,
-            r
+            length,
+            position
         }
     }
 
     pub fn zero() -> CurvePoint {
         CurvePoint {
-            s: 0.0,
-            φ: 0.0,
-            r: SVector::zeros()
+            length: 0.0,
+            position: [0.0; 3]
         }
     }
 }
@@ -53,7 +50,7 @@ impl ProfileCurve {
         for (index, input) in segment_inputs.iter().enumerate() {
             input.validate(index)?;
             let segment = Self::create_curve(input, nodes.last().unwrap());    // Unwrap is okay because of previous validation
-            let endpoint = CurvePoint::new(segment.end(), segment.angle(segment.end()), segment.position(segment.end()));
+            let endpoint = CurvePoint::new(segment.end(), segment.point(segment.end()));
             nodes.push(endpoint);
             segments.push(segment);
         }
@@ -78,7 +75,7 @@ impl ProfileCurve {
     }
 
     fn find_segment_index(&self, s: f64) -> usize {
-        bisect_right_by(&self.nodes, |point| point.s.partial_cmp(&s).expect("Failed to compare floating point values"))
+        bisect_right_by(&self.nodes, |point| point.length.partial_cmp(&s).expect("Failed to compare floating point values"))
     }
 }
 
@@ -133,10 +130,10 @@ mod tests {
 
         let profile = ProfileCurve::new(CurvePoint::zero(), &input).unwrap();
 
-        let iter = lin_space(profile.nodes[0].s..=profile.nodes[1].s, 100)
-            .chain(lin_space(profile.nodes[1].s..=profile.nodes[2].s, 100))
-            .chain(lin_space(profile.nodes[2].s..=profile.nodes[3].s, 100))
-            .chain(lin_space(profile.nodes[3].s..=profile.nodes[4].s, 100));
+        let iter = lin_space(profile.nodes[0].length..=profile.nodes[1].length, 100)
+            .chain(lin_space(profile.nodes[1].length..=profile.nodes[2].length, 100))
+            .chain(lin_space(profile.nodes[2].length..=profile.nodes[3].length, 100))
+            .chain(lin_space(profile.nodes[3].length..=profile.nodes[4].length, 100));
 
         for (i, s) in iter.enumerate() {
             assert_relative_eq!(profile.position(s), vector![1e-3*x_ref[i], 1e-3*y_ref[i]], max_relative=1e-4);

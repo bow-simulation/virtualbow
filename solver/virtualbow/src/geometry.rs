@@ -1,6 +1,6 @@
 use iter_num_tools::lin_space;
 use itertools::Itertools;
-use nalgebra::{DVector, SVector, vector};
+use nalgebra::{DVector, SVector};
 use serde::{Deserialize, Serialize};
 use crate::errors::ModelError;
 use crate::input::{BowModel, DrawLength};
@@ -62,7 +62,7 @@ impl LimbGeometry {
 
         // Profile curve with starting point according to the rigid handle length and angle
         // The pivot point of the handle determines the brace and draw offsets, while the profile curve always starts at y = 0
-        let start = CurvePoint::new(0.0, rigid_handle.angle, vector![0.5*rigid_handle.length, 0.0]);
+        let start = CurvePoint::new(0.0, [0.5*rigid_handle.length, 0.0, rigid_handle.angle]);
         let profile = ProfileCurve::new(start, &input.profile.segments)?;
 
         // Calculate the eccentricity, i.e. the distance between the reference point (belly) and the profile curve at the root of the limb.
@@ -118,7 +118,6 @@ impl LimbGeometry {
 
     // Divides the given curve into a number of equally spaced elements.
     // Returns a list of elements as well as the arc lengths, positions and angles of the nodes.
-    // TODO: Should/could this move self?
     pub fn discretize(&self, n_eval_points: usize, n_elements: usize) -> DiscreteLimbGeometry {
         // Arc lengths and normalized positions along the profile where the element nodes are placed
         let s_nodes = lin_space(self.profile.start()..=self.profile.end(), n_elements + 1).collect_vec();
@@ -128,8 +127,8 @@ impl LimbGeometry {
         let (y_nodes, h_nodes): (Vec<_>, Vec<_>) = n_nodes.iter().map(|&n| self.section.layer_bounds(n)).unzip();
 
         // Control points of the profile curve
-        //let k_control = s_control.iter().map(|&s| self.profile.curvature(s)).collect_vec();                           // TODO: Implement
-        let p_control = self.profile.get_nodes().iter().map(|node| [node.r[0], node.r[1], node.φ]).collect();    // TODO: Make those conversions unnecessary by using a single format for curve points
+        //let k_control = s_control.iter().map(|&s| self.profile.curvature(s)).collect_vec();                    // TODO: Implement
+        let p_control = self.profile.get_nodes().iter().map(|node| node.position).collect();    // TODO: Make those conversions unnecessary by using a single format for curve points
 
         // Equidistant evaluation points along the length of the limb
         let s_eval = lin_space(self.profile.start()..=self.profile.end(), n_eval_points).collect_vec();

@@ -32,17 +32,17 @@ impl ClothoidSegment {
     }
 
     fn new(start: &CurvePoint, l: f64, k0: f64, k1: f64) -> ClothoidSegment {
-        let s0 = start.s;
-        let s1 = start.s + l;
+        let s0 = start.length;
+        let s1 = start.length + l;
         let a = 0.5*(k1 - k0)/(s1 - s0);
         let b = (s1*k0 - s0*k1)/(s1 - s0);
-        let c = start.φ - b*s0 - a*s0*s0;
+        let c = start.position[2] - b*s0 - a*s0*s0;
 
         ClothoidSegment {
             s0,
             s1,
-            x0: start.r[0],
-            y0: start.r[1],
+            x0: start.position[0],
+            y0: start.position[1],
             a,
             b,
             c

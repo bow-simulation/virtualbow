@@ -21,29 +21,29 @@ impl SplineSegment {
 
         // Add point (0, 0) if missing
         if !input.points.is_empty() && input.points[0] != [0.0, 0.0] {
-            x.push(start.r[0]);
-            y.push(start.r[1]);
+            x.push(start.position[0]);
+            y.push(start.position[1]);
         }
 
         // Add points from model, relative to starting point
         for point in &input.points {
-            x.push(start.r[0] + point[0]);
-            y.push(start.r[1] + point[1]);
+            x.push(start.position[0] + point[0]);
+            y.push(start.position[1] + point[1]);
         }
 
         assert!(x.len() >= 2, "At least two points are required");
 
         let N = f64::hypot(x[1] - x[0], y[1] - y[0]);                 // Length of normal vector at start point (magic number motivated by cubic Bezier curve)
         let t = lin_space(0.0..=1.0, x.len()).collect::<Vec<f64>>();    // Linearly spaced curve parameter
-        let spline_x = CubicSpline::from_components(&t, &x, false, FirstDerivative(N*f64::cos(start.φ)), SecondDerivative(0.0));
-        let spline_y = CubicSpline::from_components(&t, &y, false, FirstDerivative(N*f64::sin(start.φ)), SecondDerivative(0.0));
+        let spline_x = CubicSpline::from_components(&t, &x, false, FirstDerivative(N*f64::cos(start.position[2])), SecondDerivative(0.0));
+        let spline_y = CubicSpline::from_components(&t, &y, false, FirstDerivative(N*f64::sin(start.position[2])), SecondDerivative(0.0));
 
         // Approximate arc length s over curve parameter t
 
         let k = 50*(t.len() - 1);    // Magic number, integration points per cubic interval
         let t = lin_space(0.0..=1.0, k).collect::<Vec<f64>>();
 
-        let mut s = vec![start.s; k];
+        let mut s = vec![start.length; k];
         let mut dtds = vec![0.0; k];
 
         let dsdt = |t| {
