@@ -1,5 +1,4 @@
 use std::f64::consts::PI;
-use nalgebra::vector;
 use spec_math::Ellip;
 use virtualbow_fem::elements::mass::MassElement;
 use virtualbow_fem::elements::string::StringElement;
@@ -51,8 +50,8 @@ fn nonlinear_oscillator() {
     let c = f64::sin(φ0 /2.0);
 
     let mut system = System::new();
-    let node_a = system.create_node(&vector![0.0, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
-    let node_b = system.create_node(&vector![x0, y0, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
+    let node_a = system.create_node(&[0.0, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node_b = system.create_node(&[x0, y0, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
 
     system.add_element(&[node_a, node_b], StringElement::spring(k, d, l));
     system.add_element(&[node_b], MassElement::point(m));

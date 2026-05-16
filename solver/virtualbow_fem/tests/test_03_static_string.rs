@@ -1,7 +1,6 @@
 use std::f64::consts::FRAC_PI_2;
 use iter_num_tools::lin_space;
 use itertools::Itertools;
-use nalgebra::vector;
 use virtualbow_fem::system::system::System;
 use virtualbow_fem::elements::string::StringElement;
 use virtualbow_fem::solvers::statics::{DisplacementControl, StaticTolerances};
@@ -30,11 +29,11 @@ fn string_over_quarter_circle() {
 
     // Create fixed nodes in a circular arc from {x=r, y=0} to {x=0, y=r}
     let fixed_nodes = lin_space(0.0..=FRAC_PI_2, n).map(|alpha| {
-        system.create_node(&vector![r*f64::cos(alpha), r*f64::sin(alpha), 0.0], &[DofType::Locked; 3])
+        system.create_node(&[r*f64::cos(alpha), r*f64::sin(alpha), 0.0], &[DofType::Locked; 3])
     }).collect_vec();
 
     // Create end node for the string that is free in y direction
-    let free_node = system.create_node(&vector![r, r, 0.0], &[DofType::Locked, DofType::Active, DofType::Locked]);
+    let free_node = system.create_node(&[r, r, 0.0], &[DofType::Locked, DofType::Active, DofType::Locked]);
     system.add_force(free_node.y(), |_t| { 1.0 });
 
     // String nodes are the free node, followed by the fixed ones

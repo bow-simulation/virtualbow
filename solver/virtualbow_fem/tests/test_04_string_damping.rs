@@ -1,6 +1,5 @@
 use std::f64::consts::PI;
 use iter_num_tools::lin_space;
-use nalgebra::vector;
 use virtualbow_fem::elements::mass::MassElement;
 use virtualbow_fem::elements::string::StringElement;
 use virtualbow_fem::solvers::eigen::natural_frequencies;
@@ -29,7 +28,7 @@ fn verify_analytic_damping_ratio() {
 
     let lengths: Vec<f64> = lin_space(0.0..=L, n+2).collect();
     for (i, &s) in lengths.iter().enumerate() {
-        nodes.push(system.create_node(&vector![s, 0.0, 0.0], &[DofType::active_if(i != 0), DofType::Locked, DofType::Locked]));
+        nodes.push(system.create_node(&[s, 0.0, 0.0], &[DofType::active_if(i != 0), DofType::Locked, DofType::Locked]));
     }
 
     // Add bar elements between nodes

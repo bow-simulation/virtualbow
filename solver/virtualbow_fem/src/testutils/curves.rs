@@ -17,11 +17,11 @@ impl Line {
 }
 
 impl PlanarCurve for Line {
-    fn length_start(&self) -> f64 {
+    fn start(&self) -> f64 {
         0.0
     }
 
-    fn length_end(&self) -> f64 {
+    fn end(&self) -> f64 {
         self.l
     }
 
@@ -53,11 +53,11 @@ impl Arc {
 }
 
 impl PlanarCurve for Arc {
-    fn length_start(&self) -> f64 {
+    fn start(&self) -> f64 {
         0.0
     }
 
-    fn length_end(&self) -> f64 {
+    fn end(&self) -> f64 {
         self.l
     }
 
@@ -106,11 +106,11 @@ impl Wave {
 }
 
 impl PlanarCurve for Wave {
-    fn length_start(&self) -> f64 {
+    fn start(&self) -> f64 {
         0.0
     }
 
-    fn length_end(&self) -> f64 {
+    fn end(&self) -> f64 {
         self.l
     }
 
@@ -136,11 +136,11 @@ impl PlanarCurve for Wave {
 // Makes things a little easier
 impl PlanarCurve for Box<dyn PlanarCurve> {
     fn length_start(&self) -> f64 {
-        self.as_ref().length_start()
+        self.as_ref().start()
     }
 
     fn length_end(&self) -> f64 {
-        self.as_ref().length_end()
+        self.as_ref().end()
     }
 
     fn position(&self, s: f64) -> SVector<f64, 2> {

@@ -1,6 +1,6 @@
 use std::f64::consts::{FRAC_PI_2, TAU};
 use approx::assert_abs_diff_eq;
-use nalgebra::{SVector, vector};
+use nalgebra::SVector;
 use virtualbow_fem::elements::beam::beam::BeamElement;
 use virtualbow_fem::elements::beam::geometry::CrossSection;
 use virtualbow_fem::elements::beam::linear::LinearBeamSegment;
@@ -58,7 +58,7 @@ fn test_linear_beam_dynamics() {
     // Create nodes with initial positions
     for &x in &x_nodes {
         let kind = DofType::active_if(x != 0.0);
-        let node = system.create_node(&vector![x, w0(x), φ0(x)], &[kind; 3]);
+        let node = system.create_node(&[x, w0(x), φ0(x)], &[kind; 3]);
         nodes.push(node);
     }
 

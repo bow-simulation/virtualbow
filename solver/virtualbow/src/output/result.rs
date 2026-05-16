@@ -1,4 +1,3 @@
-use nalgebra::{SVector};
 use serde::{Deserialize, Serialize};
 use soa_derive::StructOfArray;
 use virtualbow_num::minmax::{discrete_maximum_1d, discrete_minimum_1d};
@@ -130,14 +129,14 @@ pub struct State {
     pub draw_length: f64,
     pub power_stroke: f64,
 
-    pub limb_pos: Vec<SVector<f64, 3>>,    // x, y, φ
-    pub limb_vel: Vec<SVector<f64, 3>>,    // x, y, φ
+    pub limb_pos: Vec<[f64; 3]>,    // x, y, φ
+    pub limb_vel: Vec<[f64; 3]>,    // x, y, φ
 
-    pub string_pos: Vec<SVector<f64, 2>>,    // x, y
-    pub string_vel: Vec<SVector<f64, 2>>,    // x, y
+    pub string_pos: Vec<[f64; 2]>,    // x, y
+    pub string_vel: Vec<[f64; 2]>,    // x, y
 
-    pub limb_strain: Vec<SVector<f64, 3>>,    // epsilon, kappa, gamma
-    pub limb_force: Vec<SVector<f64, 3>>,     // N, Q, M
+    pub limb_strain: Vec<[f64; 3]>,    // epsilon, kappa, gamma
+    pub limb_force: Vec<[f64; 3]>,     // N, Q, M
 
     pub layer_strain: Vec<Vec<[f64; 2]>>,     // layer, length, back/belly
     pub layer_stress: Vec<Vec<[f64; 2]>>,     // layer, length, back/belly
@@ -180,8 +179,8 @@ pub struct LimbInfo {
     pub ratio: Vec<f64>,
     pub heights: Vec<Vec<f64>>,
 
-    pub position_eval: Vec<SVector<f64, 3>>,       // Eval points of the profile curve (x, y, φ)
-    pub position_control: Vec<SVector<f64, 3>>,    // Control points of the profile curve (x, y, φ)
+    pub position_eval: Vec<[f64; 3]>,       // Eval points of the profile curve (x, y, φ)
+    pub position_control: Vec<[f64; 3]>,    // Control points of the profile curve (x, y, φ)
     pub curvature_eval: Vec<f64>,                  // Curvature at the eval points of the profile curve
 
     pub pivot_point: f64,                // Position of the pivot point

@@ -1,7 +1,7 @@
 use std::f64::consts::{PI, FRAC_PI_2};
 use clap::ValueEnum;
 use itertools::Itertools;
-use nalgebra::{SVector, vector};
+use nalgebra::{vector, SVector};
 use virtualbow_fem::solvers::eigen::{Mode, natural_frequencies};
 use virtualbow_fem::solvers::statics::{DisplacementControl, LoadControl, StaticTolerances};
 use virtualbow_fem::system::element::Element;
@@ -130,7 +130,7 @@ impl<'a> Simulation<'a> {
         // String center node that is fixed in the case of no string.
         // The rest of the string nodes come from the limb.
 
-        let string_center = system.create_node(&vector![0.0, geometry.draw.brace_pos, 0.0], &[DofType::Locked, DofType::active_if(string), DofType::Locked]);
+        let string_center = system.create_node(&[0.0, geometry.draw.brace_pos, 0.0], &[DofType::Locked, DofType::active_if(string), DofType::Locked]);
         let mut string_nodes = vec![string_center];  // TODO: Preallocate
         string_nodes.extend_from_slice(&limb_nodes);
 
@@ -556,23 +556,24 @@ impl<'a> Simulation<'a> {
 
         // String kinematics
 
-        let string_pos = system.element_ref::<StringElement>(self.string_element).contact_positions().collect_vec();
-        let string_vel = system.element_ref::<StringElement>(self.string_element).contact_velocities().collect_vec();
+        let string_pos: Vec<[f64; 2]> = system.element_ref::<StringElement>(self.string_element).contact_positions().map_into().collect_vec();
+        let string_vel: Vec<[f64; 2]> = system.element_ref::<StringElement>(self.string_element).contact_velocities().map_into().collect_vec();
 
         // Evaluate positions, velocities, forces and strains at the limb's evaluation points
 
-        let mut limb_pos = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
-        let mut limb_vel = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
-        let mut limb_strain = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
-        let mut limb_force  = Vec::<SVector<f64, 3>>::new();  // TODO: Capacity
+        // TODO: Collect a Vec<BeamEval> here instead of single vectors, then split into components later
+        let mut limb_pos = Vec::<[f64; 3]>::new();  // TODO: Capacity
+        let mut limb_vel = Vec::<[f64; 3]>::new();  // TODO: Capacity
+        let mut limb_strain = Vec::<[f64; 3]>::new();  // TODO: Capacity
+        let mut limb_force  = Vec::<[f64; 3]>::new();  // TODO: Capacity
 
         for &element in &self.limb_elements {
             let element = system.element_ref::<BeamElement>(element);
             element.eval_properties().for_each(|eval| {
-                limb_pos.push(eval.position);
-                limb_vel.push(eval.velocity);
-                limb_strain.push(eval.strains);
-                limb_force.push(eval.forces);
+                limb_pos.push(eval.position.into());
+                limb_vel.push(eval.velocity.into());
+                limb_strain.push(eval.strains.into());
+                limb_force.push(eval.forces.into());
             });
         }
 
@@ -583,11 +584,17 @@ impl<'a> Simulation<'a> {
 
         for i in 0..limb_strain.len() {
             self.geometry.strain_eval[i].iter().tuples().enumerate().for_each(|(j, (eval_back, eval_belly))| {
-                layer_strain[j].push([eval_back.dot(&limb_strain[i]), eval_belly.dot(&limb_strain[i])]);
+                layer_strain[j].push([
+                    eval_back.dot(&SVector::<f64, 3>::from(limb_strain[i])),
+                    eval_belly.dot(&SVector::<f64, 3>::from(limb_strain[i]))
+                ]);
             });
 
             self.geometry.stress_eval[i].iter().tuples().enumerate().for_each(|(j, (eval_back, eval_belly))| {
-                layer_stress[j].push([eval_back.dot(&limb_strain[i]), eval_belly.dot(&limb_strain[i])]);
+                layer_stress[j].push([
+                    eval_back.dot(&SVector::<f64, 3>::from(limb_strain[i])),
+                    eval_belly.dot(&SVector::<f64, 3>::from(limb_strain[i]))
+                ]);
             });
         }
 
@@ -613,11 +620,23 @@ impl<'a> Simulation<'a> {
         let string_force = system.element_ref::<StringElement>(self.string_element).normal_force_total();
         let strand_force = string_force/(self.input.string.num_strands as f64);
 
-        let dir_limb_tip: SVector<f64, 2> = (limb_pos[limb_pos.len() - 1] - limb_pos[limb_pos.len() - 2]).fixed_rows::<2>(0).into();
-        let dir_string_tip: SVector<f64, 2> = string_pos[string_pos.len() - 1] - string_pos[string_pos.len() - 2];
+        // TODO: Using the orientation angle of the last node might be more accurate here
+        let dir_limb_tip = vector![
+            limb_pos[limb_pos.len() - 1][0] - limb_pos[limb_pos.len() - 2][0],    // X difference between two last limb positions
+            limb_pos[limb_pos.len() - 1][1] - limb_pos[limb_pos.len() - 2][1]     // Y difference between two last limb positions
+        ];
+
+        let dir_string_tip = vector![
+            string_pos[string_pos.len() - 1][0] - string_pos[string_pos.len() - 2][0],    // X difference between two last limb positions
+            string_pos[string_pos.len() - 1][1] - string_pos[string_pos.len() - 2][1]     // Y difference between two last limb positions
+        ];
+
         let string_tip_angle = dir_limb_tip.angle(&dir_string_tip);
 
-        let dir_string_center = string_pos[1] - string_pos[0];
+        let dir_string_center = [
+            string_pos[1][0] - string_pos[0][0],    // X difference between the first two string nodes
+            string_pos[1][1] - string_pos[0][1],    // Y difference between the first two string nodes
+        ];
         let string_center_angle = 2.0*f64::atan2(dir_string_center[0], dir_string_center[1]);
 
         State {

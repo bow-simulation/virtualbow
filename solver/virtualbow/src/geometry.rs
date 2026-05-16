@@ -22,16 +22,16 @@ pub struct DiscreteLimbGeometry {
     pub n_nodes: Vec<f64>,                   // Relative lengths of the element nodes
     pub s_nodes: Vec<f64>,                   // Arc lengths of the element nodes
     pub k_nodes: Vec<f64>,                   // Curvatures at the element nodes
-    pub p_nodes: Vec<SVector<f64, 3>>,       // Positions (x, y, φ) of the element nodes
+    pub p_nodes: Vec<[f64; 3]>,              // Positions (x, y, φ) of the element nodes
     pub y_nodes: Vec<DVector<f64>>,          // Layer bounds (back to belly) at nodes (y in cross-section coordinates)
     pub h_nodes: Vec<DVector<f64>>,          // Layer heights (back to belly) at nodes
 
-    pub p_control: Vec<SVector<f64, 3>>,     // Positions (x, y, φ) of the control points
+    pub p_control: Vec<[f64; 3]>,     // Positions (x, y, φ) of the control points
 
     pub n_eval: Vec<f64>,                    // Relative lengths at which the limb quantities are evaluated
     pub s_eval: Vec<f64>,                    // Arc lengths at which the limb quantities are evaluated
     pub k_eval: Vec<f64>,                    // Curvatures at the eval points
-    pub p_eval: Vec<SVector<f64, 3>>,        // Positions (x, y, φ) of the evaluation points
+    pub p_eval: Vec<[f64; 3]>,               // Positions (x, y, φ) of the evaluation points
     pub y_eval: Vec<DVector<f64>>,           // Layer bounds at eval points (y in cross-section coordinates)
     pub h_eval: Vec<DVector<f64>>,           // Layer heights at eval points
     pub w_eval: Vec<f64>,                    // Widths at eval points
@@ -95,7 +95,7 @@ impl LimbGeometry {
 
         // Check for self-intersecting geometry, which is the case when the thickness of the limb is higher than the radius of curvature.
         // Since we can't check this analytically, we check for a fixed number of points along the length of the limb.
-        for s in lin_space(profile.length_start()..=profile.length_end(), 1000) {  // Magic number
+        for s in lin_space(profile.start()..=profile.end(), 1000) {  // Magic number
             let kappa = profile.curvature(s);
             let (y_back, y_belly) = section.section_bounds(profile.normalize(s));
 
@@ -118,9 +118,10 @@ impl LimbGeometry {
 
     // Divides the given curve into a number of equally spaced elements.
     // Returns a list of elements as well as the arc lengths, positions and angles of the nodes.
+    // TODO: Should/could this move self?
     pub fn discretize(&self, n_eval_points: usize, n_elements: usize) -> DiscreteLimbGeometry {
         // Arc lengths and normalized positions along the profile where the element nodes are placed
-        let s_nodes = lin_space(self.profile.length_start()..=self.profile.length_end(), n_elements + 1).collect_vec();
+        let s_nodes = lin_space(self.profile.start()..=self.profile.end(), n_elements + 1).collect_vec();
         let n_nodes = s_nodes.iter().map(|&s| self.profile.normalize(s)).collect_vec();
         let k_nodes = s_nodes.iter().map(|&s| self.profile.curvature(s)).collect_vec();
         let p_nodes = s_nodes.iter().map(|&s| self.profile.point(s)).collect_vec();
@@ -128,10 +129,10 @@ impl LimbGeometry {
 
         // Control points of the profile curve
         //let k_control = s_control.iter().map(|&s| self.profile.curvature(s)).collect_vec();                           // TODO: Implement
-        let p_control = self.profile.get_nodes().iter().map(|node| vector![node.r[0], node.r[1], node.φ]).collect();    // TODO: Make those conversions unnecessary by using a single format for curve points
+        let p_control = self.profile.get_nodes().iter().map(|node| [node.r[0], node.r[1], node.φ]).collect();    // TODO: Make those conversions unnecessary by using a single format for curve points
 
         // Equidistant evaluation points along the length of the limb
-        let s_eval = lin_space(self.profile.length_start()..=self.profile.length_end(), n_eval_points).collect_vec();
+        let s_eval = lin_space(self.profile.start()..=self.profile.end(), n_eval_points).collect_vec();
         let n_eval = s_eval.iter().map(|&s| self.profile.normalize(s)).collect_vec();
         let y_eval = n_eval.iter().map(|&n| self.section.layer_bounds(n).0).collect_vec();
         let h_eval = n_eval.iter().map(|&n| self.section.layer_bounds(n).1).collect_vec();    // TODO: Collect in one step
@@ -193,9 +194,9 @@ impl DiscreteLimbGeometry {
             curvature_eval: self.k_eval.clone(),
             width: self.w_eval.clone(),
             height: self.h_eval.iter().map(|h| h.sum()).collect(),
-            bounds: self.y_eval.iter().map(|y| y.data.clone().into()).collect(),
+            bounds: self.y_eval.iter().map(|y| y.data.clone().into()).collect(),    // TODO: Use map_into()
             ratio: self.n_eval.clone(),
-            heights: self.h_eval.iter().map(|h| h.data.clone().into()).collect(),
+            heights: self.h_eval.iter().map(|h| h.data.clone().into()).collect(),    // TODO: Use map_into()
             pivot_point: self.draw.pivot_point,
         }
     }

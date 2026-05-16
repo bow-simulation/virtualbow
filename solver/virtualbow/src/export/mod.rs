@@ -29,7 +29,7 @@ impl LimbExportInfo {
         }).collect_vec();
 
         // Lengths and widths at which to evaluate the limb
-        let lengths = lin_space(geometry.profile.length_start()..=geometry.profile.length_end(), 10).collect_vec();    // Lengths along the profile curve
+        let lengths = lin_space(geometry.profile.start()..=geometry.profile.end(), 10).collect_vec();    // Lengths along the profile curve
         let ratios = lin_space(0.0..=1.0, 10).collect_vec();
 
         // Profile and cross-section properties

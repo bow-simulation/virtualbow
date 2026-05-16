@@ -14,10 +14,10 @@ pub struct LinearBeamSegment {
     pub se: Vec<f64>,                   // Eval lengths
 
     pub p0: SVector<f64, 3>,            // Starting point (x, y, φ)
-    pub p1: SVector<f64, 3>,            // Ending point (x, y, φ)
+    pub p1: SVector<f64, 3>,            // End point (x, y, φ)
     pub pe: Vec<SVector<f64, 3>>,       // Eval points (x, y, φ)
 
-    pub Ep: Vec<SMatrix<f64, 3, 6>>,    // Evaluation of displacements (x, y, phi)
+    pub Ep: Vec<SMatrix<f64, 3, 6>>,    // Evaluation of displacements (x, y, φ)
     pub Ef: Vec<SMatrix<f64, 3, 6>>,    // Evaluation of section forces (N, Q, M)
     pub Ci: Vec<SMatrix<f64, 3, 3>>,    // Inverse cross-section stiffness (compliance)
 
@@ -30,10 +30,10 @@ impl LinearBeamSegment {
     // Discretizes a continuous geometry into a given number of linear beam segments
     // Returns segments, points, lengths
     // TODO: Specify (number of) eval points?
-    pub fn discretize(curve: &dyn PlanarCurve, section: &dyn CrossSection, n_elements: usize, n_eval_per_element: usize) -> (Vec<Self>, Vec<SVector<f64, 3>>, Vec<f64>) {
+    pub fn discretize(curve: &dyn PlanarCurve, section: &dyn CrossSection, n_elements: usize, n_eval_per_element: usize) -> (Vec<Self>, Vec<[f64; 3]>, Vec<f64>) {
         assert!(n_elements >= 1, "At least one element required");
 
-        let s_node = lin_space(curve.length_start()..=curve.length_end(), n_elements + 1).collect_vec();                            // Lengths at which the element nodes are placed
+        let s_node = lin_space(curve.start()..=curve.end(), n_elements + 1).collect_vec();                            // Lengths at which the element nodes are placed
 
         let segments = s_node.iter().tuple_windows().map(|(&s0, &s1)| {
             let s_eval = lin_space(s0..=s1, n_eval_per_element).collect_vec();            // Lengths at which the elements are evaluated
@@ -42,8 +42,8 @@ impl LinearBeamSegment {
 
         // TODO: This is kind of ugly...
         let mut points = Vec::new();
-        points.push(segments[0].p0);
-        segments.iter().for_each(|s| points.push(s.p1));
+        points.push(segments[0].p0.into());
+        segments.iter().for_each(|s| points.push(s.p1.into()));
 
         (segments, points, s_node)
     }
@@ -177,9 +177,9 @@ impl LinearBeamSegment {
             s0,
             s1,
             se: se.to_vec(),
-            p0,
-            p1,
-            pe,
+            p0: p0.into(),
+            p1: p1.into(),
+            pe: pe.iter().copied().map_into().collect_vec(),
             Ep,
             Ef,
             Ci,

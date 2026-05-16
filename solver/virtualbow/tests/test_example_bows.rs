@@ -10,7 +10,6 @@ use itertools::Itertools;
 use nalgebra::{SVector, vector};
 use assert2::assert;
 use approx::{assert_abs_diff_eq, assert_relative_eq};
-use num::Zero;
 use test_each_file::test_each_path;
 use virtualbow_fem::testutils::plotter::Plotter;
 // Example bows are loaded, simulated, and the results are verified by various consistency checks
@@ -392,8 +391,8 @@ fn check_static_state_properties(model: &BowModel, output: &BowResult) {
         assert!(power_stroke >= 0.0);
 
         // Limb and string velocities must be zero
-        assert!(limb_vel.iter().all(SVector::is_zero));
-        assert!(string_vel.iter().all(SVector::is_zero));
+        assert!(limb_vel.iter().all(|&x| x == [0.0; 3]));
+        assert!(string_vel.iter().all(|&x| x == [0.0; 2]));
 
         // Arrow velocity and acceleration must be zero
         assert!(arrow_vel == 0.0);
@@ -442,8 +441,8 @@ fn check_dynamic_state_properties(plotter: &mut Plotter, model: &BowModel, outpu
     }
 
     // Limb and string velocities must be zero initially
-    assert!(states.limb_vel[0].iter().all(SVector::is_zero));
-    assert!(states.string_vel[0].iter().all(SVector::is_zero));
+    assert!(states.limb_vel[0].iter().all(|&x| x == [0.0; 3]));
+    assert!(states.string_vel[0].iter().all(|&x| x == [0.0; 2]));
 
     // Initial arrow velocity must be zero
     assert!(states.arrow_vel[0] == 0.0);
@@ -739,8 +738,8 @@ fn check_dynamic_derivatives(_model: &BowModel, output: &BowResult) {
 
         // Compare numerical limb velocity (forward difference) to average velocity in the interval for each point of the limb.
         for i in 0..limb_pos0.len() {
-            let limb_vel_num = (limb_pos1[i] - limb_pos0[i])/(time1 - time0);
-            let limb_vel_avg = 0.5*(limb_vel0[i] + limb_vel1[i]);
+            let limb_vel_num = (SVector::from(limb_pos1[i]) - SVector::from(limb_pos0[i]))/(time1 - time0);
+            let limb_vel_avg = 0.5*(SVector::from(limb_vel0[i]) + SVector::from(limb_vel1[i]));
             assert_abs_diff_eq!(limb_vel_avg[0], limb_vel_num[0], epsilon=ABS_TOL_VEL_LINEAR);
             assert_abs_diff_eq!(limb_vel_avg[1], limb_vel_num[1], epsilon=ABS_TOL_VEL_LINEAR);
             assert_abs_diff_eq!(limb_vel_avg[2], limb_vel_num[2], epsilon=ABS_TOL_VEL_ANGULAR);
@@ -751,8 +750,8 @@ fn check_dynamic_derivatives(_model: &BowModel, output: &BowResult) {
         // There will also be a problem if one contact appears and another disappears in the same timestep (=> same number of contacts), but the probability of this happening is low.
         if string_pos0.len() == string_pos1.len() {
             for i in 0..string_pos0.len() {
-                let string_vel_num = (string_pos1[i] - string_pos0[i])/(time1 - time0);
-                let string_vel_avg = 0.5*(string_vel0[i] + string_vel1[i]);
+                let string_vel_num = (SVector::from(string_pos1[i]) - SVector::from(string_pos0[i]))/(time1 - time0);
+                let string_vel_avg = 0.5*(SVector::from(string_vel0[i]) + SVector::from(string_vel1[i]));
                 assert_abs_diff_eq!(string_vel_avg, string_vel_num, epsilon=ABS_TOL_VEL_LINEAR);
             }
         }

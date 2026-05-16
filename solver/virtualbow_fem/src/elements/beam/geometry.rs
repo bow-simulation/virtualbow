@@ -5,15 +5,16 @@ use nalgebra::{SMatrix, SVector, matrix, vector};
 // Planar curve, parameterized over arc length s
 pub trait PlanarCurve {
     // Arc length at the start of the curve
-    fn length_start(&self) -> f64;
+    // TODO: Always start at zero and only have length() method for easier implementation?
+    fn start(&self) -> f64;
 
     // Arc length at the end of the curve
-    fn length_end(&self) -> f64;
+    fn end(&self) -> f64;
 
     // Position vector [x(s), y(s)]
     fn position(&self, s: f64) -> SVector<f64, 2>;
 
-    // Angle between curve tangent and the x axis
+    // Angle between curve tangent and the x-axis
     fn angle(&self, s: f64) -> f64;
 
     // Curvature, first derivative of the tangent angle
@@ -21,20 +22,21 @@ pub trait PlanarCurve {
 
     // Arc length of the curve from start to end
     fn length(&self) -> f64 {
-        self.length_end() - self.length_start()
+        self.end() - self.start()
     }
 
     // Converts the given arc length to a normalized position from 0 to 1
     fn normalize(&self, s: f64) -> f64 {
-        (s - self.length_start())/self.length()
+        (s - self.start())/self.length()
     }
 
     // Position and angle [x(s), y(s), φ(s)]
     // TODO: Better name for this?
-    fn point(&self, s: f64) -> SVector<f64, 3> {
+    // TODO: Remove position, angle and curvature for a single evaluation method?
+    fn point(&self, s: f64) -> [f64; 3] {
         let r = self.position(s);
         let φ = self.angle(s);
-        vector![
+        [
             r[0],
             r[1],
             φ
@@ -133,11 +135,11 @@ pub struct LineCurve {
 }
 
 impl PlanarCurve for LineCurve {
-    fn length_start(&self) -> f64 {
+    fn start(&self) -> f64 {
         0.0
     }
 
-    fn length_end(&self) -> f64 {
+    fn end(&self) -> f64 {
         self.l
     }
 
@@ -167,11 +169,11 @@ pub struct ArcCurve {
 }
 
 impl PlanarCurve for ArcCurve {
-    fn length_start(&self) -> f64 {
+    fn start(&self) -> f64 {
         0.0
     }
 
-    fn length_end(&self) -> f64 {
+    fn end(&self) -> f64 {
         self.l
     }
 
