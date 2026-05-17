@@ -18,9 +18,9 @@ use virtualbow_fem::solvers::statics::{LoadControl, StaticTolerances};
 use virtualbow_fem::system::dof::DofType;
 use virtualbow_fem::system::node::Node;
 use virtualbow_fem::system::system::System;
-use virtualbow_fem::testutils::curves::{Line, Arc, Wave};
+use virtualbow_fem::testutils::curves::{LineCurve, ArcCurve, Wave};
 use virtualbow_fem::testutils::plotter::Plotter;
-use virtualbow_fem::testutils::sections::Section;
+use virtualbow_fem::testutils::sections::RectangularSection;
 use virtualbow_num::newton::NewtonSettings;
 
 #[derive(Deserialize)]
@@ -70,8 +70,8 @@ impl Output {
 
 fn create_curve(name: &str) -> Box<dyn PlanarCurve> {
     match name  {
-        "curve1" => Box::new(Line::new(0.9)),
-        "curve2" => Box::new(Arc::new(0.9, 1.2)),
+        "curve1" => Box::new(LineCurve::new([0.0; 3], 0.9)),
+        "curve2" => Box::new(ArcCurve::new([0.0; 3], 0.9, 1.2)),
         "curve3" => Box::new(Wave::new(0.9, 10)),
         _ => unreachable!(),
     }
@@ -79,13 +79,13 @@ fn create_curve(name: &str) -> Box<dyn PlanarCurve> {
 
 fn create_section(name: &str) -> impl CrossSection {
     match name {
-        "section1" => Section::new(800.0, 15e9, 5e9, &[0.01], &[0.01], &[0.0]),
-        "section2" => Section::new(800.0, 15e9, 5e9, &[0.01], &[0.01], &[-0.005]),
-        "section3" => Section::new(800.0, 15e9, 5e9, &[0.01], &[0.01], &[0.005]),
-        "section4" => Section::new(800.0, 15e9, 5e9, &[0.012, 0.006], &[0.012, 0.006], &[0.0, 0.0]),
-        "section5" => Section::new(800.0, 15e9, 5e9, &[0.012, 0.006], &[0.012, 0.006], &[-0.006, 0.003]),
-        "section6" => Section::new(800.0, 15e9, 5e9, &[0.012, 0.009, 0.012, 0.009], &[0.012, 0.009, 0.012, 0.009], &[0.0, 0.0, 0.0, 0.0]),
-        "section7" => Section::new(800.0, 15e9, 5e9, &[0.012, 0.009, 0.012, 0.009], &[0.012, 0.009, 0.012, 0.009], &[-0.006, 0.0045, -0.006, 0.0045]),
+        "section1" => RectangularSection::new(800.0, 15e9, 5e9, &[0.01], &[0.01], &[0.0]),
+        "section2" => RectangularSection::new(800.0, 15e9, 5e9, &[0.01], &[0.01], &[-0.005]),
+        "section3" => RectangularSection::new(800.0, 15e9, 5e9, &[0.01], &[0.01], &[0.005]),
+        "section4" => RectangularSection::new(800.0, 15e9, 5e9, &[0.012, 0.006], &[0.012, 0.006], &[0.0, 0.0]),
+        "section5" => RectangularSection::new(800.0, 15e9, 5e9, &[0.012, 0.006], &[0.012, 0.006], &[-0.006, 0.003]),
+        "section6" => RectangularSection::new(800.0, 15e9, 5e9, &[0.012, 0.009, 0.012, 0.009], &[0.012, 0.009, 0.012, 0.009], &[0.0, 0.0, 0.0, 0.0]),
+        "section7" => RectangularSection::new(800.0, 15e9, 5e9, &[0.012, 0.009, 0.012, 0.009], &[0.012, 0.009, 0.012, 0.009], &[-0.006, 0.0045, -0.006, 0.0045]),
         _ => unreachable!(),
     }
 }

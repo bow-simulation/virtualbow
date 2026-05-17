@@ -3,16 +3,18 @@ use crate::elements::beam::geometry::CrossSection;
 
 // Simple rectangular cross-section for use in tests
 
-pub struct Section {
-    ρ: f64,
-    E: f64,
-    G: f64,
-    w: Vec<f64>,
-    h: Vec<f64>,
-    y: Vec<f64>
+pub struct RectangularSection {
+    pub ρ: f64,
+    pub E: f64,
+    pub G: f64,
+    pub w: Vec<f64>,
+    pub h: Vec<f64>,
+    pub y: Vec<f64>
 }
 
-impl Section {
+impl RectangularSection {
+    // TODO: &[(width, height, offset)]?
+    // TODO: More constructors (constant, linear, cubic)
     pub fn new(ρ: f64, E: f64, G: f64, w: &[f64], h: &[f64], y: &[f64]) -> Self {
         Self {
             ρ,
@@ -51,7 +53,7 @@ impl Section {
     }
 }
 
-impl CrossSection for Section {
+impl CrossSection for RectangularSection {
     fn stiffness(&self, n: f64) -> SMatrix<f64, 3, 3> {
         let w = self.width(n);
         let h = self.height(n);

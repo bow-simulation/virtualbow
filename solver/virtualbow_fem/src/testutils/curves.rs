@@ -3,30 +3,39 @@ use std::{f64::consts::FRAC_PI_2, f64::consts::PI};
 use nalgebra::{vector, SVector};
 use crate::elements::beam::geometry::PlanarCurve;
 
-// Simple straight line of given length for use in tests
-pub struct Line {
-    l: f64
+// Implementation of a straight line curve for use in tests
+pub struct LineCurve {
+    x: f64,
+    y: f64,
+    φ: f64,
+    l: f64,
 }
 
-impl Line {
-    pub fn new(l: f64) -> Self {
+impl LineCurve {
+    pub fn new(start: [f64; 3], l: f64) -> Self {
         Self {
-            l
+            x: start[0],
+            y: start[1],
+            φ: start[2],
+            l,
         }
     }
 }
 
-impl PlanarCurve for Line {
+impl PlanarCurve for LineCurve {
     fn length(&self) -> f64 {
         self.l
     }
 
     fn position(&self, s: f64) -> SVector<f64, 2> {
-        vector![s, 0.0]
+        vector![
+            self.x + s*f64::cos(self.φ),
+            self.y + s*f64::sin(self.φ),
+        ]
     }
 
     fn angle(&self, _s: f64) -> f64 {
-        0.0
+        self.φ
     }
 
     fn curvature(&self, _s: f64) -> f64 {
@@ -34,35 +43,41 @@ impl PlanarCurve for Line {
     }
 }
 
-pub struct Arc {
+// Implementation of a circular arc curve for use in tests
+pub struct ArcCurve {
+    x: f64,
+    y: f64,
+    φ: f64,
     l: f64,
-    r: f64
+    r: f64,
 }
 
-impl Arc {
-    pub fn new(l: f64, r: f64) -> Self {
+impl ArcCurve {
+    pub fn new(start: [f64; 3], l: f64, r: f64) -> Self {
         Self {
+            x: start[0],
+            y: start[1],
+            φ: start[2],
             l,
             r
         }
     }
 }
 
-impl PlanarCurve for Arc {
+impl PlanarCurve for ArcCurve {
     fn length(&self) -> f64 {
         self.l
     }
 
     fn position(&self, s: f64) -> SVector<f64, 2> {
-        let φ = self.angle(s);
         vector![
-            self.r*f64::sin(φ),
-            self.r*(1.0 - f64::cos(φ))
+            self.x + self.r*(f64::sin(s/self.r + self.φ) - f64::sin(self.φ)),
+            self.y + self.r*(f64::cos(self.φ) - f64::cos(s/self.r + self.φ))
         ]
     }
 
     fn angle(&self, s: f64) -> f64 {
-        s/self.r
+        self.φ + s/self.r
     }
 
     fn curvature(&self, _s: f64) -> f64 {
@@ -89,8 +104,8 @@ impl Wave {
     fn center(&self, s: f64) -> (f64, f64, f64) {
         let n = s/self.l;
 
-        let i = f64::floor(n*(self.k as f64));            // Index of the current arc
-        let c = self.r*(1.0 + 2.0*i);                     // Center of the current arc
+        let i = f64::floor(n*(self.k as f64));        // Index of the current arc
+        let c = self.r*(1.0 + 2.0*i);                 // Center of the current arc
         let α = (s/self.l*(self.k as f64) - i)*PI;    // Angle from arc center
 
         (i, c, α)

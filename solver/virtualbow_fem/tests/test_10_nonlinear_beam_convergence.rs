@@ -10,9 +10,9 @@ use virtualbow_fem::solvers::statics::{LoadControl, StaticTolerances};
 use virtualbow_fem::system::dof::DofType;
 use virtualbow_fem::system::node::Node;
 use virtualbow_fem::system::system::System;
-use virtualbow_fem::testutils::curves::Line;
+use virtualbow_fem::testutils::curves::LineCurve;
 use virtualbow_fem::testutils::plotter::Plotter;
-use virtualbow_fem::testutils::sections::Section;
+use virtualbow_fem::testutils::sections::RectangularSection;
 use virtualbow_num::newton::NewtonSettings;
 
 // Common solver tolerances and settings
@@ -104,8 +104,8 @@ fn cantilever_dynamic_convergence() {
 
 fn solve_straight_uniform_cantilever_eigen(n_elements: usize) -> (f64, f64, f64) {
     // Beam model
-    let curve = Line::new(0.9);                                                // TODO: Get from GXBeam tests
-    let section = Section::new(800.0, 15e9, 5e9, &[0.01], &[0.01], &[0.0]);    // TODO: Get from GXBeam tests
+    let curve = LineCurve::new([0.0; 3], 0.9);                                                // TODO: Get from GXBeam tests
+    let section = RectangularSection::new(800.0, 15e9, 5e9, &[0.01], &[0.01], &[0.0]);    // TODO: Get from GXBeam tests
     let (segments, points, _lengths) = LinearBeamSegment::discretize(&curve, &section, n_elements, 0);
 
     let mut system = System::new();
@@ -139,8 +139,8 @@ fn solve_straight_uniform_cantilever_statics(n_elements: usize) -> (f64, f64, f6
     let Mz = 10.0;
 
     // Beam model
-    let curve = Line::new(0.9);                                                // TODO: Get from GXBeam tests
-    let section = Section::new(800.0, 15e9, 5e9, &[0.01], &[0.01], &[0.0]);    // TODO: Get from GXBeam tests
+    let curve = LineCurve::new([0.0; 3], 0.9);                                                // TODO: Get from GXBeam tests
+    let section = RectangularSection::new(800.0, 15e9, 5e9, &[0.01], &[0.01], &[0.0]);    // TODO: Get from GXBeam tests
     let (segments, points, _lengths) = LinearBeamSegment::discretize(&curve, &section, n_elements, 0);
 
     let mut system = System::new();
@@ -183,8 +183,8 @@ fn solve_straight_uniform_cantilever_dynamics(n_elements: usize) -> (f64, f64, f
     let omega = 200.0;
 
     // Beam model
-    let curve = Line::new(0.9);                                                // TODO: Get from GXBeam tests
-    let section = Section::new(800.0, 15e9, 5e9, &[0.01], &[0.01], &[0.0]);    // TODO: Get from GXBeam tests
+    let curve = LineCurve::new([0.0; 3], 0.9);                                                // TODO: Get from GXBeam tests
+    let section = RectangularSection::new(800.0, 15e9, 5e9, &[0.01], &[0.01], &[0.0]);    // TODO: Get from GXBeam tests
     let (segments, points, _lengths) = LinearBeamSegment::discretize(&curve, &section, n_elements, 0);
 
     let mut system = System::new();

@@ -9,8 +9,8 @@ use virtualbow_fem::system::dof::DofType;
 use virtualbow_fem::system::system::System;
 use virtualbow_num::integration::fixed_simpson;
 use virtualbow_fem::testutils::plotter::Plotter;
-use virtualbow_fem::testutils::sections::Section;
-use virtualbow_fem::testutils::curves::Line;
+use virtualbow_fem::testutils::sections::RectangularSection;
+use virtualbow_fem::testutils::curves::LineCurve;
 
 // This tests compares the analytical solution for the linear vibration of a straight cantilever beam with the numerical FEM solution.
 // Unfortunately the analytical solution has its limitations too since numerical accuracy starts to become a problem at ~10 modes.
@@ -46,8 +46,8 @@ fn test_linear_beam_dynamics() {
     //let φ0 = |x: f64| 0.01*x.powi(2)*(9.0*l - 4.0*x);
     //let v1 = |_: f64| 0.0;
 
-    let curve = Line::new(l);
-    let section = Section::new(ρ, E, G, &[w], &[h], &[0.0]);
+    let curve = LineCurve::new([0.0; 3], l);
+    let section = RectangularSection::new(ρ, E, G, &[w], &[h], &[0.0]);
 
     let mut system = System::new();
     let mut nodes = Vec::new();

@@ -196,8 +196,10 @@ mod tests {
     use approx::{assert_abs_diff_eq, assert_relative_eq};
     use iter_num_tools::lin_space;
     use nalgebra::{DMatrix, matrix, SMatrix, stack};
-    use crate::elements::beam::geometry::{ArcCurve, CrossSection, LineCurve, PlanarCurve, RectangularSection};
+    use crate::elements::beam::geometry::{CrossSection, PlanarCurve};
     use crate::elements::beam::linear::LinearBeamSegment;
+    use crate::testutils::curves::{ArcCurve, LineCurve};
+    use crate::testutils::sections::RectangularSection;
 
     #[test]
     fn test_linear_stiffness_matrix_straight() {
@@ -205,17 +207,17 @@ mod tests {
         // and an arbitrary starting point and -angle and compares it to the exact solution
         // as well as the fem approximation.
 
-        let angle = 0.1;
         let length = 0.8;
-        let curve = LineCurve { x: 1.5, y: 2.0, φ: angle, l: length };
-        let section = RectangularSection { w0: 0.01, h0: 0.01, w1: 0.01, h1: 0.01, ρ: 7850.0, E: 210e9, G: 80e9 };
+        let angle = 0.1;
+        let curve = LineCurve::new([1.5, 2.0, angle], length);
+        let section = RectangularSection::new(7850.0, 210e9, 80e9, &[0.01], &[0.01], &[0.0]);
 
         let n_elements = 100;
         let segment_fem = LinearBeamSegmentFEM::new(&curve, &section, 0.0, curve.length(), n_elements);
         let segment_num = LinearBeamSegment::new(&curve, &section, 0.0, curve.length(), &segment_fem.s_eval);
 
         let C_sec = section.stiffness(0.0);
-        let K_ref = LinearBeamSegmentFEM::element_stiffness_matrix(C_sec[(0, 0)], C_sec[(1, 1)], C_sec[(2, 2)], curve.length(), angle);
+        let K_ref = LinearBeamSegmentFEM::element_stiffness_matrix(C_sec[(0, 0)], C_sec[(1, 1)], C_sec[(2, 2)], length, angle);
 
         // Check stiffness matrices
         assert_relative_eq!(segment_num.K, K_ref, max_relative=1e-9);
@@ -227,7 +229,7 @@ mod tests {
         }
 
         // Check total segment mass
-        assert_abs_diff_eq!(segment_num.m, section.ρ*section.w0*section.h0*length, epsilon=1e-12);
+        assert_abs_diff_eq!(segment_num.m, section.ρ*section.w[0]*section.h[0]*length, epsilon=1e-12);
     }
 
     #[test]
@@ -236,8 +238,8 @@ mod tests {
         // and an arbitrary starting point and -angle and compares it to the fem approximation.
 
         let length = 0.8;
-        let curve = ArcCurve { x: 1.5, y: 2.0, φ: 0.1, l: length, r: 0.4 };
-        let section = RectangularSection { w0: 0.01, h0: 0.01, w1: 0.01, h1: 0.01, ρ: 7850.0, E: 210e9, G: 80e9 };
+        let curve = ArcCurve::new([1.5, 2.0, 0.1], length, 0.4);
+        let section = RectangularSection::new(7850.0, 210e9, 80e9, &[0.01], &[0.01], &[0.0]);
 
         let n_elements = 100;
         let segment_fem = LinearBeamSegmentFEM::new(&curve, &section, 0.0, curve.length(), n_elements);
@@ -252,7 +254,7 @@ mod tests {
         }
 
         // Check total segment mass
-        assert_abs_diff_eq!(segment_num.m, section.ρ*section.w0*section.h0*length, epsilon=1e-12);
+        assert_abs_diff_eq!(segment_num.m, section.ρ*section.w[0]*section.h[0]*length, epsilon=1e-12);
     }
 
     #[test]
@@ -261,8 +263,8 @@ mod tests {
         // and an arbitrary starting point and -angle and compares it to the fem approximation.
 
         let length = 0.8;
-        let curve = ArcCurve { x: 1.5, y: 2.0, φ: 0.1, l: length, r: 0.4 };
-        let section = RectangularSection { w0: 0.01, h0: 0.01, w1: 0.005, h1: 0.005, ρ: 7850.0, E: 210e9, G: 80e9 };
+        let curve = ArcCurve::new([1.5, 2.0, 0.1], length, 0.4);
+        let section = RectangularSection::new(7850.0, 210e9, 80e9, &[0.01, 0.005], &[0.01, 0.005], &[0.0, 0.0]);
 
         let n_elements = 100;
         let segment_fem = LinearBeamSegmentFEM::new(&curve, &section, 0.0, curve.length(), n_elements);
@@ -278,8 +280,8 @@ mod tests {
 
         // Check total segment mass
         // Analytical volume from truncated pyramid: https://de.wikipedia.org/wiki/Pyramidenstumpf
-        let A0 = section.w0*section.h0;
-        let A1 = section.w1*section.h1;
+        let A0 = section.w[0]*section.h[0];
+        let A1 = section.w[1]*section.h[1];
         assert_abs_diff_eq!(segment_num.m, section.ρ*length/3.0*(A0 + f64::sqrt(A0*A1) + A1), epsilon=1e-12);
     }
 

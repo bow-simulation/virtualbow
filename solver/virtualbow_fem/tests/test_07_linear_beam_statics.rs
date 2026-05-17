@@ -6,9 +6,9 @@ use virtualbow_fem::solvers::statics::{LoadControl, StaticTolerances};
 use virtualbow_fem::system::dof::DofType;
 use virtualbow_fem::system::node::Node;
 use virtualbow_fem::system::system::System;
-use virtualbow_fem::testutils::sections::Section;
+use virtualbow_fem::testutils::sections::RectangularSection;
 use virtualbow_num::newton::NewtonSettings;
-use virtualbow_fem::testutils::curves::Line;
+use virtualbow_fem::testutils::curves::LineCurve;
 
 // Linear beam problems are solved and the results compared to analytical reference solutions.
 
@@ -36,8 +36,8 @@ fn straight_uniform_elongation() {
     let n_eval = 5;
 
     // Beam model
-    let curve = Line::new(l);
-    let section = Section::new(ρ, E, G, &[w], &[h], &[0.0]);
+    let curve = LineCurve::new([0.0; 3], l);
+    let section = RectangularSection::new(ρ, E, G, &[w], &[h], &[0.0]);
     let (segments, points, _lengths) = LinearBeamSegment::discretize(&curve, &section, n_elements, n_eval);
 
     let mut system = System::new();
@@ -112,8 +112,8 @@ fn straight_uniform_cantilever() {
     let n_eval = 5;
 
     // Beam model
-    let curve = Line::new(l);
-    let section = Section::new(ρ, E, G, &[w], &[h], &[0.0]);
+    let curve = LineCurve::new([0.0; 3], l);
+    let section = RectangularSection::new(ρ, E, G, &[w], &[h], &[0.0]);
     let (segments, points, _lengths) = LinearBeamSegment::discretize(&curve, &section, n_elements, n_eval);
 
     let mut system = System::new();
