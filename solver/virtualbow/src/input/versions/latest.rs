@@ -248,7 +248,7 @@ impl From<version3::BowModel> for BowModel {
         }).collect_vec();
         
         let section = Section {
-            alignment: LayerAlignment::SectionBack,  // Field was newly introduced. Previously the profile curve was always aligned with the cross section's back.
+            alignment: LayerAlignment::SectionBack,  // Field was newly introduced. Previously the profile curve was always aligned with the cross-section's back.
             width: model.width,
             materials,
             layers,

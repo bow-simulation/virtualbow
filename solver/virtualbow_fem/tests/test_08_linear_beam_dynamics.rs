@@ -58,7 +58,7 @@ fn test_linear_beam_dynamics() {
     // Create nodes with initial positions
     for &x in &x_nodes {
         let kind = DofType::active_if(x != 0.0);
-        let node = system.create_node(&[x, w0(x), φ0(x)], &[kind; 3]);
+        let node = system.create_node([x, w0(x), φ0(x)], [kind; 3]);
         nodes.push(node);
     }
 

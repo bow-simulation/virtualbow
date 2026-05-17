@@ -78,7 +78,7 @@ impl System {
     }
 
     // Creates a planar node with three degrees of freedom, two positions in x and y and a rotation angle
-    pub fn create_node(&mut self, pos: &[f64; 3], kinds: &[DofType; 3]) -> Node {
+    pub fn create_node(&mut self, pos: [f64; 3], kinds: [DofType; 3]) -> Node {
         let dof_x = self.create_dof(pos[0], kinds[0], DofDimension::Position);
         let dof_y = self.create_dof(pos[1], kinds[1], DofDimension::Position);
         let dof_φ = self.create_dof(pos[2], kinds[2], DofDimension::Rotation);

@@ -35,7 +35,7 @@ pub struct BeamElement {
 pub struct EvalResult {
     pub length: f64,                  // Length at which the element was evaluated
     pub position: SVector<f64, 3>,    // Cross section position and orientation [x, y, φ]
-    pub velocity: SVector<f64, 3>,    // Velocity of the cross section position [vx, vy, vφ]
+    pub velocity: SVector<f64, 3>,    // Velocity of the cross-section position [vx, vy, vφ]
     pub forces: SVector<f64, 3>,      // Cross section forces [N, Q, M]
     pub strains: SVector<f64, 3>      // Cross section strains [ε, γ, κ]
 }

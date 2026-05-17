@@ -109,7 +109,7 @@ fn solve_straight_uniform_cantilever_eigen(n_elements: usize) -> (f64, f64, f64)
     let (segments, points, _lengths) = LinearBeamSegment::discretize(&curve, &section, n_elements, 0);
 
     let mut system = System::new();
-    let nodes: Vec<Node> = points.iter().enumerate().map(|(i, point)| system.create_node(point, &[DofType::active_if(i != 0); 3])).collect();
+    let nodes: Vec<Node> = points.iter().enumerate().map(|(i, &point)| system.create_node(point, [DofType::active_if(i != 0); 3])).collect();
     segments.iter().enumerate().for_each(|(i, segment)| {
         system.add_element(&[nodes[i], nodes[i+1]], BeamElement::new(segment));
     });
@@ -144,7 +144,7 @@ fn solve_straight_uniform_cantilever_statics(n_elements: usize) -> (f64, f64, f6
     let (segments, points, _lengths) = LinearBeamSegment::discretize(&curve, &section, n_elements, 0);
 
     let mut system = System::new();
-    let nodes: Vec<Node> = points.iter().enumerate().map(|(i, point)| system.create_node(point, &[DofType::active_if(i != 0); 3])).collect();
+    let nodes: Vec<Node> = points.iter().enumerate().map(|(i, &point)| system.create_node(point, [DofType::active_if(i != 0); 3])).collect();
     segments.iter().enumerate().for_each(|(i, segment)| {
         system.add_element(&[nodes[i], nodes[i+1]], BeamElement::new(segment));
     });
@@ -188,7 +188,7 @@ fn solve_straight_uniform_cantilever_dynamics(n_elements: usize) -> (f64, f64, f
     let (segments, points, _lengths) = LinearBeamSegment::discretize(&curve, &section, n_elements, 0);
 
     let mut system = System::new();
-    let nodes: Vec<Node> = points.iter().enumerate().map(|(i, point)| system.create_node(point, &[DofType::active_if(i != 0); 3])).collect();
+    let nodes: Vec<Node> = points.iter().enumerate().map(|(i, &point)| system.create_node(point, [DofType::active_if(i != 0); 3])).collect();
     segments.iter().enumerate().for_each(|(i, segment)| {
         system.add_element(&[nodes[i], nodes[i+1]], BeamElement::new(segment));
     });

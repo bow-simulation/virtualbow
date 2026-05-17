@@ -33,7 +33,7 @@ impl LinearBeamSegment {
     pub fn discretize(curve: &dyn PlanarCurve, section: &dyn CrossSection, n_elements: usize, n_eval_per_element: usize) -> (Vec<Self>, Vec<[f64; 3]>, Vec<f64>) {
         assert!(n_elements >= 1, "At least one element required");
 
-        let s_node = lin_space(curve.start()..=curve.end(), n_elements + 1).collect_vec();                            // Lengths at which the element nodes are placed
+        let s_node = lin_space(0.0..=curve.length(), n_elements + 1).collect_vec();                            // Lengths at which the element nodes are placed
 
         let segments = s_node.iter().tuple_windows().map(|(&s0, &s1)| {
             let s_eval = lin_space(s0..=s1, n_eval_per_element).collect_vec();            // Lengths at which the elements are evaluated
@@ -201,7 +201,7 @@ mod tests {
 
     #[test]
     fn test_linear_stiffness_matrix_straight() {
-        // Computes the stiffness matrix of a straight beam segment with constant cross section
+        // Computes the stiffness matrix of a straight beam segment with constant cross-section
         // and an arbitrary starting point and -angle and compares it to the exact solution
         // as well as the fem approximation.
 
@@ -232,7 +232,7 @@ mod tests {
 
     #[test]
     fn test_linear_stiffness_matrix_curved() {
-        // Computes the stiffness matrix of a curved beam segment with constant cross section
+        // Computes the stiffness matrix of a curved beam segment with constant cross-section
         // and an arbitrary starting point and -angle and compares it to the fem approximation.
 
         let length = 0.8;
@@ -257,7 +257,7 @@ mod tests {
 
     #[test]
     fn test_linear_stiffness_matrix_curved_nonuniform() {
-        // Computes the stiffness matrix of a curved beam segment with varying cross section
+        // Computes the stiffness matrix of a curved beam segment with varying cross-section
         // and an arbitrary starting point and -angle and compares it to the fem approximation.
 
         let length = 0.8;
@@ -408,7 +408,7 @@ mod tests {
         }
 
         // Returns the analytical stiffness matrix of a straight Timoshenko beam segment
-        // with constant cross section and a rotation angle alpha against the x-axis.
+        // with constant cross-section and a rotation angle alpha against the x-axis.
         // TODO: Add a source for the matrices K and T below
         fn element_stiffness_matrix(EA: f64, GA: f64, EI: f64, l: f64, alpha: f64) -> SMatrix<f64, 6, 6> {
             let Φ = 12.0*EI/(GA*l*l);

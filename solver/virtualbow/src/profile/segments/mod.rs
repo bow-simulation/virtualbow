@@ -5,55 +5,52 @@ pub mod spline;
 mod tests {
     use approx::assert_abs_diff_eq;
     use crate::input::{Arc, Line, Spiral, Spline};
-    use crate::profile::profile::CurvePoint;
     use crate::profile::segments::clothoid::ClothoidSegment;
     use crate::profile::segments::spline::SplineSegment;
     use virtualbow_fem::elements::beam::geometry::PlanarCurve;
 
     #[test]
     fn test_line_segment() {
-        let start = CurvePoint::new(1.5, [2.5, 5.4, 0.2]);
+        let start = [2.5, 5.4, 0.2];
         let input = Line{ length: 0.9 };
 
-        let segment = ClothoidSegment::line(&start, &input);
-        test_segment(&start, &segment, 1e-12);
+        let segment = ClothoidSegment::line(start, &input);
+        test_segment(start, &segment, 1e-12);
     }
 
     #[test]
     fn test_arc_segment() {
-        let start = CurvePoint::new(1.5, [2.5, 5.4, 0.2]);
+        let start = [2.5, 5.4, 0.2];
         let input = Arc{ length: 0.9, radius: 5.0 };
 
-        let segment = ClothoidSegment::arc(&start, &input);
-        test_segment(&start, &segment, 1e-12);
+        let segment = ClothoidSegment::arc(start, &input);
+        test_segment(start, &segment, 1e-12);
     }
 
     #[test]
     fn test_spiral_segment() {
-        let start = CurvePoint::new(1.5, [2.5, 5.4, 0.2]);
+        let start = [2.5, 5.4, 0.2];
         let input = Spiral{ length: 0.9, radius_start: 2.0, radius_end: -2.0 };
 
-        let segment = ClothoidSegment::spiral(&start, &input);
-        test_segment(&start, &segment, 1e-12);
+        let segment = ClothoidSegment::spiral(start, &input);
+        test_segment(start, &segment, 1e-12);
     }
 
     #[test]
     fn test_spline_segment() {
-        let start = CurvePoint::new(1.5, [2.5, 5.4, 0.2]);
+        let start = [2.5, 5.4, 0.2];
         let input = Spline{ points: vec![[0.0, 0.0], [1.0, 1.0], [2.0, 4.0], [3.0, 9.0]] };
 
-        let segment = SplineSegment::new(&start, &input);
-        test_segment(&start, &segment, 1e-12);
+        let segment = SplineSegment::new(start, &input);
+        test_segment(start, &segment, 1e-12);
     }
 
-    fn test_segment<S: PlanarCurve>(start: &CurvePoint, segment: &S, tol: f64) {
+    fn test_segment<S: PlanarCurve>(start: [f64; 3], segment: &S, tol: f64) {
         // Check if the segment has the correct startpoint properties
-        assert_abs_diff_eq!(segment.start(), start.length, epsilon=tol);
-        assert_abs_diff_eq!(segment.angle(start.length), start.position[2], epsilon=tol);
-        assert_abs_diff_eq!(segment.position(start.length)[0], start.position[0], epsilon=tol);
-        assert_abs_diff_eq!(segment.position(start.length)[1], start.position[1], epsilon=tol);
-
-
+        assert_abs_diff_eq!(segment.position(0.0)[0], start[0], epsilon=tol);
+        assert_abs_diff_eq!(segment.position(0.0)[1], start[1], epsilon=tol);
+        assert_abs_diff_eq!(segment.angle(0.0), start[2], epsilon=tol);
+        
         // TODO: More tests?
     }
 }

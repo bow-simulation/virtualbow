@@ -1,7 +1,7 @@
 use nalgebra::{matrix, SMatrix, SVector};
 use crate::elements::beam::geometry::CrossSection;
 
-// Simple rectangular cross section for use in tests
+// Simple rectangular cross-section for use in tests
 
 pub struct Section {
     ρ: f64,

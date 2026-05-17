@@ -30,8 +30,8 @@ fn mass_spring_damper_1() {
     let x0 = 0.1;   // Initial displacement
 
     let mut system = System::new();
-    let node_a = system.create_node(&[0.0, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
-    let node_b = system.create_node(&[l + x0, 0.0, 0.0], &[DofType::Active, DofType::Locked, DofType::Locked]);
+    let node_a = system.create_node([0.0, 0.0, 0.0], [DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node_b = system.create_node([l + x0, 0.0, 0.0], [DofType::Active, DofType::Locked, DofType::Locked]);
 
     system.add_element(&[node_a, node_b], StringElement::spring(k, d, l));
     system.add_element(&[node_b], MassElement::point(m));
@@ -178,9 +178,9 @@ fn mass_spring_damper_n() {
     let lengths: Vec<f64> = lin_space(0.0..=L, n+2).collect();
     for (i, s) in lengths.iter().enumerate() {
         if (*s != 0.0) && (*s != L) {
-            nodes.push(system.create_node(&[*s + u0[i-1], 0.0, 0.0], &[DofType::Active, DofType::Locked, DofType::Locked]));
+            nodes.push(system.create_node([*s + u0[i-1], 0.0, 0.0], [DofType::Active, DofType::Locked, DofType::Locked]));
         } else {
-            nodes.push(system.create_node(&[*s, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]));
+            nodes.push(system.create_node([*s, 0.0, 0.0], [DofType::Locked, DofType::Locked, DofType::Locked]));
         };
     }
 

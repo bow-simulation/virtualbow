@@ -24,8 +24,8 @@ fn linear_bar_truss_1() {
     let F_ref = EA/a*(x_ref - a);    // Reference force
 
     let mut system = System::new();
-    let node1 = system.create_node(&[0.0, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
-    let node2 = system.create_node(&[a, 0.0, 0.0], &[DofType::Active, DofType::Locked, DofType::Locked]);
+    let node1 = system.create_node([0.0, 0.0, 0.0], [DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node2 = system.create_node([a, 0.0, 0.0], [DofType::Active, DofType::Locked, DofType::Locked]);
 
     system.add_element(&[node1, node2], StringElement::bar(EA, 0.0, a));
     system.add_force(node2.x(), move |_t|{ F_ref });
@@ -56,10 +56,10 @@ fn linear_bar_truss_3() {
 
     let mut system = System::new();
 
-    let node1 = system.create_node(&[0.0, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
-    let node2 = system.create_node(&[a, 0.0, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
-    let node3 = system.create_node(&[a, a, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
-    let node4 = system.create_node(&[0.0, 2.0*a, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node1 = system.create_node([0.0, 0.0, 0.0], [DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node2 = system.create_node([a, 0.0, 0.0], [DofType::Active, DofType::Active, DofType::Locked]);
+    let node3 = system.create_node([a, a, 0.0], [DofType::Active, DofType::Active, DofType::Locked]);
+    let node4 = system.create_node([0.0, 2.0*a, 0.0], [DofType::Locked, DofType::Locked, DofType::Locked]);
 
     system.add_element(&[node1, node2], StringElement::bar(EA, 0.0, a));
     system.add_element(&[node2, node3], StringElement::bar(EA, 0.0, a));
@@ -87,16 +87,16 @@ fn linear_bar_truss_4() {
     let s_ref = (4.0 + 2.0*SQRT_2)*F_ref*a/EA;
 
     let mut system = System::new();
-    let node_01 = system.create_node(&[0.0, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
-    let node_02 = system.create_node(&[a, 0.0, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
-    let node_03 = system.create_node(&[2.0*a, 0.0, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
-    let node_04 = system.create_node(&[3.0*a, 0.0, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
-    let node_05 = system.create_node(&[4.0*a, 0.0, 0.0], &[DofType::Active, DofType::Locked, DofType::Locked]);
-    let node_06 = system.create_node(&[0.0, a, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
-    let node_07 = system.create_node(&[a, a, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
-    let node_08 = system.create_node(&[2.0*a, a, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
-    let node_09 = system.create_node(&[3.0*a, a, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
-    let node_10 = system.create_node(&[4.0*a, a, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
+    let node_01 = system.create_node([0.0, 0.0, 0.0], [DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node_02 = system.create_node([a, 0.0, 0.0], [DofType::Active, DofType::Active, DofType::Locked]);
+    let node_03 = system.create_node([2.0*a, 0.0, 0.0], [DofType::Active, DofType::Active, DofType::Locked]);
+    let node_04 = system.create_node([3.0*a, 0.0, 0.0], [DofType::Active, DofType::Active, DofType::Locked]);
+    let node_05 = system.create_node([4.0*a, 0.0, 0.0], [DofType::Active, DofType::Locked, DofType::Locked]);
+    let node_06 = system.create_node([0.0, a, 0.0], [DofType::Active, DofType::Active, DofType::Locked]);
+    let node_07 = system.create_node([a, a, 0.0], [DofType::Active, DofType::Active, DofType::Locked]);
+    let node_08 = system.create_node([2.0*a, a, 0.0], [DofType::Active, DofType::Active, DofType::Locked]);
+    let node_09 = system.create_node([3.0*a, a, 0.0], [DofType::Active, DofType::Active, DofType::Locked]);
+    let node_10 = system.create_node([4.0*a, a, 0.0], [DofType::Active, DofType::Active, DofType::Locked]);
 
     system.add_element(&[node_01, node_02], StringElement::bar(EA, 0.0, a));
     system.add_element(&[node_02, node_03], StringElement::bar(EA, 0.0, a));
@@ -138,8 +138,8 @@ fn nonlinear_bar_truss_1() {
     let EA = 21000.0;
 
     let mut system = System::new();
-    let node1 = system.create_node(&[0.0, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
-    let node2 = system.create_node(&[a, b, 0.0], &[DofType::Locked, DofType::Active, DofType::Locked]);
+    let node1 = system.create_node([0.0, 0.0, 0.0], [DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node2 = system.create_node([a, b, 0.0], [DofType::Locked, DofType::Active, DofType::Locked]);
     let element = system.add_element(&[node1, node2], StringElement::bar(EA, 0.0, f64::hypot(a, b)));
     system.add_force(node2.y(), |_t| { -1.0 });
 
@@ -184,9 +184,9 @@ fn nonlinear_bar_truss_2() {
     let EA = 21000.0;
 
     let mut system = System::new();
-    let node0 = system.create_node(&[0.0, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
-    let node1 = system.create_node(&[a, c, 0.0], &[DofType::Active, DofType::Active, DofType::Locked]);
-    let node2 = system.create_node(&[a + b, 0.0, 0.0], &[DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node0 = system.create_node([0.0, 0.0, 0.0], [DofType::Locked, DofType::Locked, DofType::Locked]);
+    let node1 = system.create_node([a, c, 0.0], [DofType::Active, DofType::Active, DofType::Locked]);
+    let node2 = system.create_node([a + b, 0.0, 0.0], [DofType::Locked, DofType::Locked, DofType::Locked]);
 
     let bar01 = system.add_element(&[node0, node1], StringElement::bar(EA, 0.0, f64::hypot(a, c)));
     let bar12 = system.add_element(&[node1, node2], StringElement::bar(EA, 0.0, f64::hypot(b, c)));

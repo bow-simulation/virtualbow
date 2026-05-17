@@ -28,7 +28,7 @@ fn verify_analytic_damping_ratio() {
 
     let lengths: Vec<f64> = lin_space(0.0..=L, n+2).collect();
     for (i, &s) in lengths.iter().enumerate() {
-        nodes.push(system.create_node(&[s, 0.0, 0.0], &[DofType::active_if(i != 0), DofType::Locked, DofType::Locked]));
+        nodes.push(system.create_node([s, 0.0, 0.0], [DofType::active_if(i != 0), DofType::Locked, DofType::Locked]));
     }
 
     // Add bar elements between nodes

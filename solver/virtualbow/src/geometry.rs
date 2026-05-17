@@ -4,7 +4,7 @@ use nalgebra::{DVector, SVector};
 use serde::{Deserialize, Serialize};
 use crate::errors::ModelError;
 use crate::input::{BowModel, DrawLength};
-use crate::profile::profile::{CurvePoint, ProfileCurve};
+use crate::profile::profile::ProfileCurve;
 use crate::sections::section::LayeredCrossSection;
 use virtualbow_fem::elements::beam::geometry::{CrossSection, PlanarCurve};
 use virtualbow_fem::elements::beam::linear::LinearBeamSegment;
@@ -12,7 +12,7 @@ use crate::output::LimbInfo;
 
 pub struct LimbGeometry {
     pub profile: ProfileCurve,           // Limb profile curve
-    pub section: LayeredCrossSection,    // Limb cross sections
+    pub section: LayeredCrossSection,    // Limb cross-sections
     pub draw: DrawInfo                   // Info about brace and draw positions
 }
 
@@ -62,7 +62,7 @@ impl LimbGeometry {
 
         // Profile curve with starting point according to the rigid handle length and angle
         // The pivot point of the handle determines the brace and draw offsets, while the profile curve always starts at y = 0
-        let start = CurvePoint::new(0.0, [0.5*rigid_handle.length, 0.0, rigid_handle.angle]);
+        let start = [0.5*rigid_handle.length, 0.0, rigid_handle.angle];
         let profile = ProfileCurve::new(start, &input.profile.segments)?;
 
         // Calculate the eccentricity, i.e. the distance between the reference point (belly) and the profile curve at the root of the limb.
@@ -95,7 +95,7 @@ impl LimbGeometry {
 
         // Check for self-intersecting geometry, which is the case when the thickness of the limb is higher than the radius of curvature.
         // Since we can't check this analytically, we check for a fixed number of points along the length of the limb.
-        for s in lin_space(profile.start()..=profile.end(), 1000) {  // Magic number
+        for s in lin_space(0.0..=profile.length(), 1000) {  // Magic number
             let kappa = profile.curvature(s);
             let (y_back, y_belly) = section.section_bounds(profile.normalize(s));
 
@@ -120,7 +120,7 @@ impl LimbGeometry {
     // Returns a list of elements as well as the arc lengths, positions and angles of the nodes.
     pub fn discretize(&self, n_eval_points: usize, n_elements: usize) -> DiscreteLimbGeometry {
         // Arc lengths and normalized positions along the profile where the element nodes are placed
-        let s_nodes = lin_space(self.profile.start()..=self.profile.end(), n_elements + 1).collect_vec();
+        let s_nodes = lin_space(0.0..=self.profile.length(), n_elements + 1).collect_vec();
         let n_nodes = s_nodes.iter().map(|&s| self.profile.normalize(s)).collect_vec();
         let k_nodes = s_nodes.iter().map(|&s| self.profile.curvature(s)).collect_vec();
         let p_nodes = s_nodes.iter().map(|&s| self.profile.point(s)).collect_vec();
@@ -131,7 +131,7 @@ impl LimbGeometry {
         let p_control = self.profile.get_nodes().iter().map(|node| node.position).collect();    // TODO: Make those conversions unnecessary by using a single format for curve points
 
         // Equidistant evaluation points along the length of the limb
-        let s_eval = lin_space(self.profile.start()..=self.profile.end(), n_eval_points).collect_vec();
+        let s_eval = lin_space(0.0..=self.profile.length(), n_eval_points).collect_vec();
         let n_eval = s_eval.iter().map(|&s| self.profile.normalize(s)).collect_vec();
         let y_eval = n_eval.iter().map(|&n| self.section.layer_bounds(n).0).collect_vec();
         let h_eval = n_eval.iter().map(|&n| self.section.layer_bounds(n).1).collect_vec();    // TODO: Collect in one step

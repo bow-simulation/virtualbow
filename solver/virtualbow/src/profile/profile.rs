@@ -34,7 +34,8 @@ pub struct ProfileCurve {
 }
 
 impl ProfileCurve {
-    pub fn new(start: CurvePoint, segment_inputs: &[ProfileSegment]) -> Result<ProfileCurve, ModelError> {
+    // TODO: Pass [f64; 3] by value either everywhere or nowhere (-> by refernce instead)
+    pub fn new(start: [f64; 3], segment_inputs: &[ProfileSegment]) -> Result<ProfileCurve, ModelError> {
         if segment_inputs.is_empty() {
             return Err(ModelError::ProfileNoSegments);
         }
@@ -42,16 +43,22 @@ impl ProfileCurve {
         let mut nodes = Vec::with_capacity(segment_inputs.len() + 1);
         let mut segments = Vec::with_capacity(segment_inputs.len());
 
-        // The first node is the starting point
-        nodes.push(start);
+        // The first node is the starting point at arc length = 0
+        nodes.push(CurvePoint::new(0.0, start));
 
         // Create curve segments for each model in the list, using the currently last node as the starting point.
         // Add each segment's endpoint to the nodes as the starting point for the next segment.
         for (index, input) in segment_inputs.iter().enumerate() {
+            // Make sure the input is valid
             input.validate(index)?;
-            let segment = Self::create_curve(input, nodes.last().unwrap());    // Unwrap is okay because of previous validation
-            let endpoint = CurvePoint::new(segment.end(), segment.point(segment.end()));
-            nodes.push(endpoint);
+
+            // Construct nodes and segment
+            let node_start = nodes.last().unwrap();    // The last node is the starting point of the new segment (unwrap is okay because of previous push)
+            let segment = Self::create_curve(input, node_start.position);    // Create the new segment from its input and starting point
+            let node_end = CurvePoint::new(node_start.length + segment.length(), segment.point(segment.length()));    // Compute endpoint of the segment, advance arc length by length of the segment
+
+            // Add both to the accumulated curve
+            nodes.push(node_end);
             segments.push(segment);
         }
 
@@ -65,7 +72,7 @@ impl ProfileCurve {
         &self.nodes
     }
     
-    fn create_curve(segment: &ProfileSegment, start: &CurvePoint) -> Box<dyn PlanarCurve> {
+    fn create_curve(segment: &ProfileSegment, start: [f64; 3]) -> Box<dyn PlanarCurve> {
         match segment {
             ProfileSegment::Line(input)   => Box::new(ClothoidSegment::line(start, input)),
             ProfileSegment::Arc(input)    => Box::new(ClothoidSegment::arc(start, input)),
@@ -75,32 +82,28 @@ impl ProfileCurve {
     }
 
     fn find_segment_index(&self, s: f64) -> usize {
-        bisect_right_by(&self.nodes, |point| point.length.partial_cmp(&s).expect("Failed to compare floating point values"))
+        bisect_right_by(&self.nodes, |node| node.length.partial_cmp(&s).expect("Failed to compare floating point values"))
     }
 }
 
 impl PlanarCurve for ProfileCurve {
-    fn start(&self) -> f64 {
-        self.segments.first().unwrap().start()    // Unwrap is ensured by construction
-    }
-
-    fn end(&self) -> f64 {
-        self.segments.last().unwrap().end()    // Unwrap is ensured by construction
+    fn length(&self) -> f64 {
+        self.nodes.last().unwrap().length    // Unwrap is ensured by construction
     }
 
     fn position(&self, s: f64) -> SVector<f64, 2> {
         let index = self.find_segment_index(s);
-        self.segments[index].position(s)
+        self.segments[index].position(s - self.nodes[index].length)
     }
 
     fn angle(&self, s: f64) -> f64 {
         let index = self.find_segment_index(s);
-        self.segments[index].angle(s)
+        self.segments[index].angle(s - self.nodes[index].length)
     }
 
     fn curvature(&self, s: f64) -> f64 {
         let index = self.find_segment_index(s);
-        self.segments[index].curvature(s)
+        self.segments[index].curvature(s - self.nodes[index].length)
     }
 }
 
@@ -128,14 +131,20 @@ mod tests {
             ProfileSegment::Spline(Spline::new(vec![[0.0, 0.0], [0.1, 0.02], [0.15, 0.0]])),
         ];
 
-        let profile = ProfileCurve::new(CurvePoint::zero(), &input).unwrap();
+        let profile = ProfileCurve::new([0.0; 3], &input).unwrap();
 
         let iter = lin_space(profile.nodes[0].length..=profile.nodes[1].length, 100)
             .chain(lin_space(profile.nodes[1].length..=profile.nodes[2].length, 100))
             .chain(lin_space(profile.nodes[2].length..=profile.nodes[3].length, 100))
             .chain(lin_space(profile.nodes[3].length..=profile.nodes[4].length, 100));
 
+        println!("{}", profile.nodes[0].length);
+        println!("{}", profile.nodes[1].length);
+        println!("{}", profile.nodes[2].length);
+        println!("{}", profile.nodes[3].length);
+
         for (i, s) in iter.enumerate() {
+            println!("Test: {}", s);
             assert_relative_eq!(profile.position(s), vector![1e-3*x_ref[i], 1e-3*y_ref[i]], max_relative=1e-4);
         }
     }

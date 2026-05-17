@@ -563,7 +563,7 @@ fn check_static_state_physics(model: &BowModel, output: &BowResult) {
         // Compare actual and numerical drawing work
         assert_abs_diff_eq!(drawing_work, drawing_work_ref, epsilon=ABS_TOL_ENERGY);
 
-        // Check equilibrium of the limb's cross section forces with the string force.
+        // Check equilibrium of the limb's cross-section forces with the string force.
         // For now only if the string does not contact the limb, since that is more complicated.
         // TODO: Handle the case when it does, which is more complicated because of the contact forces.
         if state.string_pos.len() == 2 {
@@ -573,7 +573,7 @@ fn check_static_state_physics(model: &BowModel, output: &BowResult) {
                 let Q_out = state.limb_force[j][1];
                 let M_out = state.limb_force[j][2];
 
-                // Calculate the cross section's normal force and bending moment by integrating the normal stresses over the cross section.
+                // Calculate the cross-section's normal force and bending moment by integrating the normal stresses over the cross-section.
                 // Compare the integrated forces to those from the simulation output to check if the stresses are consistent with the section forces.
                 // (Shear force is not calculated since the shear stress is not yet part of the output results)
 

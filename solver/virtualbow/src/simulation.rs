@@ -104,8 +104,8 @@ impl<'a> Simulation<'a> {
 
         let mut system = System::new();
 
-        let limb_nodes: Vec<Node> = geometry.p_nodes.iter().enumerate().map(|(i, u)| {
-            system.create_node(u, &[DofType::active_if(i != 0); 3])    // First node is fixed, all others
+        let limb_nodes: Vec<Node> = geometry.p_nodes.iter().enumerate().map(|(i, &pos)| {
+            system.create_node(pos, [DofType::active_if(i != 0); 3])    // First node is fixed, all others
         }).collect();
 
         let limb_elements: Vec<usize> = elements.into_iter().enumerate().map(|(i, element)| {
@@ -130,7 +130,7 @@ impl<'a> Simulation<'a> {
         // String center node that is fixed in the case of no string.
         // The rest of the string nodes come from the limb.
 
-        let string_center = system.create_node(&[0.0, geometry.draw.brace_pos, 0.0], &[DofType::Locked, DofType::active_if(string), DofType::Locked]);
+        let string_center = system.create_node([0.0, geometry.draw.brace_pos, 0.0], [DofType::Locked, DofType::active_if(string), DofType::Locked]);
         let mut string_nodes = vec![string_center];  // TODO: Preallocate
         string_nodes.extend_from_slice(&limb_nodes);
 

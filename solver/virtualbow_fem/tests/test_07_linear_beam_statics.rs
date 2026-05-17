@@ -41,7 +41,7 @@ fn straight_uniform_elongation() {
     let (segments, points, _lengths) = LinearBeamSegment::discretize(&curve, &section, n_elements, n_eval);
 
     let mut system = System::new();
-    let nodes: Vec<Node> = points.iter().enumerate().map(|(i, point)| system.create_node(point, &[DofType::active_if(i != 0); 3])).collect();
+    let nodes: Vec<Node> = points.iter().enumerate().map(|(i, &point)| system.create_node(point, [DofType::active_if(i != 0); 3])).collect();
     let elements: Vec<usize> = segments.iter().enumerate().map(|(i, segment)| system.add_element(&[nodes[i], nodes[i+1]], BeamElement::new(segment))).collect();
 
     // Compute numerical solution
@@ -117,7 +117,7 @@ fn straight_uniform_cantilever() {
     let (segments, points, _lengths) = LinearBeamSegment::discretize(&curve, &section, n_elements, n_eval);
 
     let mut system = System::new();
-    let nodes: Vec<Node> = points.iter().enumerate().map(|(i, point)| system.create_node(point, &[DofType::active_if(i != 0); 3])).collect();
+    let nodes: Vec<Node> = points.iter().enumerate().map(|(i, &point)| system.create_node(point, [DofType::active_if(i != 0); 3])).collect();
     let elements: Vec<usize> = segments.iter().enumerate().map(|(i, segment)| system.add_element(&[nodes[i], nodes[i+1]], BeamElement::new(segment))).collect();
 
     // Compute numerical solution

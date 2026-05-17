@@ -128,7 +128,7 @@ fn simulate_and_test_beam(path: &Path) {
 
     // Create nodes and elements
     let mut system = System::new();
-    let nodes: Vec<Node> = points.iter().enumerate().map(|(i, point)| system.create_node(point, &[DofType::active_if(i != 0); 3])).collect();
+    let nodes: Vec<Node> = points.iter().enumerate().map(|(i, &point)| system.create_node(point, [DofType::active_if(i != 0); 3])).collect();
     let elements: Vec<usize> = segments.iter().enumerate().map(|(i, segment)| system.add_element(&[nodes[i], nodes[i+1]], BeamElement::new(segment))).collect();
 
     // Add tip forces

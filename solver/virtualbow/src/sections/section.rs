@@ -375,7 +375,7 @@ mod tests {
         assert_matches!(LayeredCrossSection::new(&Section::new(LayerAlignment::SectionCenter, width.clone(), materials.clone(), vec![Layer::new("layer", "material", Height::new(vec![[0.1, 0.02], [1.0, 0.02]]))])), Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(_, 0.1, 0.02)));
         assert_matches!(LayeredCrossSection::new(&Section::new(LayerAlignment::SectionCenter, width.clone(), materials.clone(), vec![Layer::new("layer", "material", Height::new(vec![[0.0, 0.02], [0.9, 0.02]]))])), Err(ModelError::LayerHeightControlPointsDiscontinuousBoundary(_, 0.9, 0.02)));
 
-        // 4. Invalid cross section
+        // 4. Invalid cross-section
         assert_matches!(LayeredCrossSection::new(&Section::new(LayerAlignment::SectionCenter, width.clone(), materials.clone(), vec![])), Err(ModelError::CrossSectionNoLayers));
         assert_matches!(LayeredCrossSection::new(&Section::new(LayerAlignment::SectionCenter, width.clone(), vec![], layers.clone())), Err(ModelError::CrossSectionNoMaterials));
         assert_matches!(LayeredCrossSection::new(&Section::new(LayerAlignment::SectionCenter, width.clone(), materials.clone(), vec![Layer::new("layer", "nonexistent", Height::new(vec![[0.0, 0.02], [1.0, 0.02]]))])), Err(ModelError::CrossSectionInvalidMaterialName(_, _)));
@@ -887,7 +887,7 @@ mod tests {
 
     #[test]
     fn test_properties_single_layer() {
-        // Tests whether the cross section properties of a single, rectangular section match the known analytical expressions
+        // Tests whether the cross-section properties of a single, rectangular section match the known analytical expressions
         // TODO: Test shear stiffness and rotary inertia too
 
         let rho = 7000.0;
@@ -952,7 +952,7 @@ mod tests {
 
     #[test]
     fn test_properties_multi_layer_1() {
-        // Tests whether the cross section properties of multiple rectangular layers match an analytical solution
+        // Tests whether the cross-section properties of multiple rectangular layers match an analytical solution
         // TODO: Test shear stiffness and rotary inertia too
 
         let rho1 = 5000.0;

@@ -63,7 +63,7 @@ impl StringElement {
         Self::new(EA, ηA, l0, 1.0, vec![0.0; 2])
     }
 
-    // Creates a bar with spring parameters, i.e. mass (total), damping and stiffness instead of cross section properties
+    // Creates a bar with spring parameters, i.e. mass (total), damping and stiffness instead of cross-section properties
     pub fn spring(k: f64, d: f64, l0: f64) -> Self {
         Self::bar(k*l0, d*l0, l0)
     }

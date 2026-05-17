@@ -4,14 +4,10 @@ use nalgebra::{SMatrix, SVector, matrix, vector};
 
 // Planar curve, parameterized over arc length s
 pub trait PlanarCurve {
-    // Arc length at the start of the curve
-    // TODO: Always start at zero and only have length() method for easier implementation?
-    fn start(&self) -> f64;
+    // Total arc length of the curve
+    fn length(&self) -> f64;
 
-    // Arc length at the end of the curve
-    fn end(&self) -> f64;
-
-    // Position vector [x(s), y(s)]
+    // Position vector [x(s), y(s)] over arc length
     fn position(&self, s: f64) -> SVector<f64, 2>;
 
     // Angle between curve tangent and the x-axis
@@ -20,14 +16,9 @@ pub trait PlanarCurve {
     // Curvature, first derivative of the tangent angle
     fn curvature(&self, s: f64) -> f64;
 
-    // Arc length of the curve from start to end
-    fn length(&self) -> f64 {
-        self.end() - self.start()
-    }
-
     // Converts the given arc length to a normalized position from 0 to 1
     fn normalize(&self, s: f64) -> f64 {
-        (s - self.start())/self.length()
+        s/self.length()
     }
 
     // Position and angle [x(s), y(s), φ(s)]
@@ -44,13 +35,13 @@ pub trait PlanarCurve {
     }
 }
 
-// Cross section properties, parameterized over the normalized position p from 0 to 1
+// Cross-section properties, parameterized over the normalized position p from 0 to 1
 pub trait CrossSection {
-    // Full cross section stiffness matrix that describes the relation
+    // Full cross-section stiffness matrix that describes the relation
     // (epsilon, kappa, gamma) -> (normal force, bending moment, shear force)
     fn stiffness(&self, n: f64) -> SMatrix<f64, 3, 3>;
 
-    // Full cross section mass matrix
+    // Full cross-section mass matrix
     fn mass(&self, n: f64) -> SMatrix<f64, 3, 3>;
 
     // Total width
@@ -59,16 +50,17 @@ pub trait CrossSection {
     // Total height
     fn height(&self, n: f64) -> f64;
 
-    // Returns the strain recovery matrices for the cross section at relative position n and for implementation-specific points of interest.
-    // When multiplied with the strain vector [epsilon, gamma, kappa], each matrix matrix produces the normal strain at that point.
+    // Returns the strain recovery matrices for the cross-section at relative position n and for implementation-specific points of interest.
+    // When multiplied with the strain vector [epsilon, gamma, kappa], each matrix produces the normal strain at that point.
     fn strain_recovery(&self, n: f64) -> Vec<SVector<f64, 3>>;
 
-    // Returns the stress recovery matrices for the cross section at relative position n and for implementation-specific points of interest.
-    // When multiplied with the strain vector [epsilon, gamma, kappa], each matrix matrix produces the normal stress at that point.
+    // Returns the stress recovery matrices for the cross-section at relative position n and for implementation-specific points of interest.
+    // When multiplied with the strain vector [epsilon, gamma, kappa], each matrix produces the normal stress at that point.
     fn stress_recovery(&self, n: f64) -> Vec<SVector<f64, 3>>;
 }
 
-// Implementation of a linearly varying rectangular cross section for use in tests
+// TODO: Duplicate with testutils/curves.rs?
+// Implementation of a linearly varying rectangular cross-section for use in tests
 pub struct RectangularSection {
     pub w0: f64,
     pub h0: f64,
@@ -126,6 +118,7 @@ impl CrossSection for RectangularSection {
     }
 }
 
+// TODO: Duplicate with testutils/curves.rs?
 // Implementation of a straight line curve for use in tests
 pub struct LineCurve {
     pub x: f64,
@@ -135,11 +128,7 @@ pub struct LineCurve {
 }
 
 impl PlanarCurve for LineCurve {
-    fn start(&self) -> f64 {
-        0.0
-    }
-
-    fn end(&self) -> f64 {
+    fn length(&self) -> f64 {
         self.l
     }
 
@@ -159,6 +148,7 @@ impl PlanarCurve for LineCurve {
     }
 }
 
+// TODO: Duplicate with testutils/curves.rs?
 // Implementation of a circular arc curve for use in tests
 pub struct ArcCurve {
     pub x: f64,
@@ -169,19 +159,15 @@ pub struct ArcCurve {
 }
 
 impl PlanarCurve for ArcCurve {
-    fn start(&self) -> f64 {
-        0.0
-    }
-
-    fn end(&self) -> f64 {
+    fn length(&self) -> f64 {
         self.l
     }
 
     fn position(&self, s: f64) -> SVector<f64, 2> {
         vector![
-                self.x + self.r*(f64::sin(s/self.r + self.φ) - f64::sin(self.φ)),
-                self.y + self.r*(f64::cos(self.φ) - f64::cos(s/self.r + self.φ))
-            ]
+            self.x + self.r*(f64::sin(s/self.r + self.φ) - f64::sin(self.φ)),
+            self.y + self.r*(f64::cos(self.φ) - f64::cos(s/self.r + self.φ))
+        ]
     }
 
     fn angle(&self, s: f64) -> f64 {

@@ -1,7 +1,6 @@
 use iter_num_tools::lin_space;
 use nalgebra::{SVector, vector};
 use crate::input::Spline;
-use crate::profile::profile::CurvePoint;
 use virtualbow_fem::elements::beam::geometry::PlanarCurve;
 use virtualbow_num::spline::BoundaryCondition::{FirstDerivative, SecondDerivative};
 use virtualbow_num::spline::{CubicSpline, Extrapolation};
@@ -15,35 +14,35 @@ pub struct SplineSegment {
 }
 
 impl SplineSegment {
-    pub fn new(start: &CurvePoint, input: &Spline) -> SplineSegment {
+    pub fn new(start: [f64; 3], input: &Spline) -> SplineSegment {
         let mut x = Vec::<f64>::with_capacity(input.points.len() + 1);
         let mut y = Vec::<f64>::with_capacity(input.points.len() + 1);
 
         // Add point (0, 0) if missing
         if !input.points.is_empty() && input.points[0] != [0.0, 0.0] {
-            x.push(start.position[0]);
-            y.push(start.position[1]);
+            x.push(start[0]);
+            y.push(start[1]);
         }
 
-        // Add points from model, relative to starting point
+        // Add points from input, relative to starting point
         for point in &input.points {
-            x.push(start.position[0] + point[0]);
-            y.push(start.position[1] + point[1]);
+            x.push(start[0] + point[0]);
+            y.push(start[1] + point[1]);
         }
 
         assert!(x.len() >= 2, "At least two points are required");
 
-        let N = f64::hypot(x[1] - x[0], y[1] - y[0]);                 // Length of normal vector at start point (magic number motivated by cubic Bezier curve)
+        let N = f64::hypot(x[1] - x[0], y[1] - y[0]);                   // Length of normal vector at start point (magic number motivated by cubic Bezier curve)
         let t = lin_space(0.0..=1.0, x.len()).collect::<Vec<f64>>();    // Linearly spaced curve parameter
-        let spline_x = CubicSpline::from_components(&t, &x, false, FirstDerivative(N*f64::cos(start.position[2])), SecondDerivative(0.0));
-        let spline_y = CubicSpline::from_components(&t, &y, false, FirstDerivative(N*f64::sin(start.position[2])), SecondDerivative(0.0));
+        let spline_x = CubicSpline::from_components(&t, &x, false, FirstDerivative(N*f64::cos(start[2])), SecondDerivative(0.0));
+        let spline_y = CubicSpline::from_components(&t, &y, false, FirstDerivative(N*f64::sin(start[2])), SecondDerivative(0.0));
 
         // Approximate arc length s over curve parameter t
 
         let k = 50*(t.len() - 1);    // Magic number, integration points per cubic interval
         let t = lin_space(0.0..=1.0, k).collect::<Vec<f64>>();
 
-        let mut s = vec![start.length; k];
+        let mut s = vec![0.0; k];
         let mut dtds = vec![0.0; k];
 
         let dsdt = |t| {
@@ -55,7 +54,7 @@ impl SplineSegment {
             dtds[i] = 1.0/dsdt(t[i]);
         }
 
-        //let spline_t = CubicSpline::from_components(&s, &t, true, SecondDerivative(0.0), SecondDerivative(0.0));
+        // Spline function for interpolating the arc length, derivatives at the bounds are known
         let spline_t = CubicSpline::from_components(&s, &t, true, FirstDerivative(1.0/dsdt(0.0)), FirstDerivative(1.0/dsdt(1.0)));
 
         Self {
@@ -67,11 +66,7 @@ impl SplineSegment {
 }
 
 impl PlanarCurve for SplineSegment {
-    fn start(&self) -> f64 {
-        self.spline_t.arg_min()
-    }
-
-    fn end(&self) -> f64 {
+    fn length(&self) -> f64 {
         self.spline_t.arg_max()
     }
 
