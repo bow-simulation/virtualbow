@@ -56,13 +56,13 @@ impl LinearBeamSegment {
         let n_integration = 1000;
 
         // Segment starting point, endpoint and evaluation points
-        let p0 = curve.point(s0);
-        let p1 = curve.point(s1);
-        let pe = se.iter().map(|&s| { curve.point(s) }).collect_vec();
+        let p0 = curve.position(s0);
+        let p1 = curve.position(s1);
+        let pe = se.iter().map(|&s| { curve.position(s) }).collect_vec();
 
         let H = |s, sn| -> SMatrix<f64, 3, 3> {
-            let r = curve.position(s);
-            let rn = curve.position(sn);
+            let r = curve.point(s);
+            let rn = curve.point(sn);
             let φ = curve.angle(s);
 
             matrix![
@@ -73,8 +73,8 @@ impl LinearBeamSegment {
         };
 
         let B = |si, sj| -> SMatrix<f64, 3, 3> {
-            let ri = curve.position(si);
-            let rj = curve.position(sj);
+            let ri = curve.point(si);
+            let rj = curve.point(sj);
             matrix![
                 -1.0, 0.0, 0.0;
                 0.0, -1.0, 0.0;
@@ -309,8 +309,8 @@ mod tests {
 
             let s: Vec<f64> = lin_space(s0..=s1, n_nodes).collect();
             for i in 0..n_elements {
-                let r_prev = curve.position(s[i]);
-                let r_next = curve.position(s[i+1]);
+                let r_prev = curve.point(s[i]);
+                let r_next = curve.point(s[i+1]);
 
                 let dx = r_next[0] - r_prev[0];
                 let dy = r_next[1] - r_prev[1];

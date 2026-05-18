@@ -7,8 +7,8 @@ pub trait PlanarCurve {
     // Total arc length of the curve
     fn length(&self) -> f64;
 
-    // Position vector [x(s), y(s)] over arc length
-    fn position(&self, s: f64) -> SVector<f64, 2>;
+    // Curve point [x(s), y(s)] for given arc length
+    fn point(&self, s: f64) -> SVector<f64, 2>;
 
     // Angle between curve tangent and the x-axis
     fn angle(&self, s: f64) -> f64;
@@ -22,10 +22,8 @@ pub trait PlanarCurve {
     }
 
     // Position and angle [x(s), y(s), φ(s)]
-    // TODO: Better name for this?
-    // TODO: Remove position, angle and curvature for a single evaluation method?
-    fn point(&self, s: f64) -> [f64; 3] {
-        let r = self.position(s);
+    fn position(&self, s: f64) -> [f64; 3] {
+        let r = self.point(s);
         let φ = self.angle(s);
         [
             r[0],

@@ -123,7 +123,7 @@ impl LimbGeometry {
         let s_nodes = lin_space(0.0..=self.profile.length(), n_elements + 1).collect_vec();
         let n_nodes = s_nodes.iter().map(|&s| self.profile.normalize(s)).collect_vec();
         let k_nodes = s_nodes.iter().map(|&s| self.profile.curvature(s)).collect_vec();
-        let p_nodes = s_nodes.iter().map(|&s| self.profile.point(s)).collect_vec();
+        let p_nodes = s_nodes.iter().map(|&s| self.profile.position(s)).collect_vec();
         let (y_nodes, h_nodes): (Vec<_>, Vec<_>) = n_nodes.iter().map(|&n| self.section.layer_bounds(n)).unzip();
 
         // Control points of the profile curve
@@ -155,7 +155,7 @@ impl LimbGeometry {
         }).collect();
 
         let k_eval = s_eval.iter().map(|&s| self.profile.curvature(s)).collect_vec();
-        let p_eval = s_eval.iter().map(|&s| self.profile.point(s)).collect();
+        let p_eval = s_eval.iter().map(|&s| self.profile.position(s)).collect();
         let w_eval = n_eval.iter().map(|&n| self.section.width(n)).collect();
 
         let strain_eval = n_eval.iter().map(|&n| self.section.strain_recovery(n)).collect();

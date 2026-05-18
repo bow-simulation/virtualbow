@@ -7,7 +7,7 @@ use virtualbow_fem::elements::beam::geometry::PlanarCurve;
 // Curve segment whose curvature varies linearly varying over its arc length.
 // Can represent a clothoid, circular arc or a straight line depending on the choice of parameters.
 
-pub struct ClothoidSegment {
+pub struct ClothoidCurve {
     x0: f64,
     y0: f64,
     a: f64,
@@ -16,21 +16,21 @@ pub struct ClothoidSegment {
     l: f64,
 }
 
-impl ClothoidSegment {
-    pub fn line(start: [f64; 3], input: &Line) -> ClothoidSegment {
+impl ClothoidCurve {
+    pub fn line(start: [f64; 3], input: &Line) -> ClothoidCurve {
         Self::new(start, input.length, 0.0, 0.0)
     }
 
-    pub fn arc(start: [f64; 3], input: &Arc) -> ClothoidSegment {
+    pub fn arc(start: [f64; 3], input: &Arc) -> ClothoidCurve {
         Self::new(start, input.length, Self::radius_to_curvature(input.radius), Self::radius_to_curvature(input.radius))
     }
 
-    pub fn spiral(start: [f64; 3], input: &Spiral) -> ClothoidSegment {
+    pub fn spiral(start: [f64; 3], input: &Spiral) -> ClothoidCurve {
         Self::new(start, input.length, Self::radius_to_curvature(input.radius_start), Self::radius_to_curvature(input.radius_end))
     }
 
-    fn new(start: [f64; 3], l: f64, k0: f64, k1: f64) -> ClothoidSegment {
-        ClothoidSegment {
+    fn new(start: [f64; 3], l: f64, k0: f64, k1: f64) -> ClothoidCurve {
+        ClothoidCurve {
             x0: start[0],
             y0: start[1],
             a: 0.5*(k1 - k0)/l,
@@ -50,12 +50,12 @@ impl ClothoidSegment {
     }
 }
 
-impl PlanarCurve for ClothoidSegment {
+impl PlanarCurve for ClothoidCurve {
     fn length(&self) -> f64 {
         self.l
     }
 
-    fn position(&self, s: f64) -> SVector<f64, 2> {
+    fn point(&self, s: f64) -> SVector<f64, 2> {
         // The curve's coordinates are (https://en.wikipedia.org/wiki/Tangential_angle)
         // x(s) = x0 + integrate cos(phi(t)) dt from 0 to s
         // y(s) = y0 + integrate sin(phi(t)) dt from 0 to s

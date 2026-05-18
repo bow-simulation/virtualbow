@@ -7,14 +7,14 @@ use virtualbow_num::spline::{CubicSpline, Extrapolation};
 
 // Curve segment that is defined by a number of 2d control points interpolated by cubic splines.
 
-pub struct SplineSegment {
+pub struct SplineCurve {
     spline_t: CubicSpline,    // t(s): arc length -> parameter
     spline_x: CubicSpline,    // x(t): parameter -> x position
     spline_y: CubicSpline,    // y(t): parameter -> y position
 }
 
-impl SplineSegment {
-    pub fn new(start: [f64; 3], input: &Spline) -> SplineSegment {
+impl SplineCurve {
+    pub fn new(start: [f64; 3], input: &Spline) -> SplineCurve {
         let mut x = Vec::<f64>::with_capacity(input.points.len() + 1);
         let mut y = Vec::<f64>::with_capacity(input.points.len() + 1);
 
@@ -65,12 +65,12 @@ impl SplineSegment {
     }
 }
 
-impl PlanarCurve for SplineSegment {
+impl PlanarCurve for SplineCurve {
     fn length(&self) -> f64 {
         self.spline_t.arg_max()
     }
 
-    fn position(&self, s: f64) -> SVector<f64, 2> {
+    fn point(&self, s: f64) -> SVector<f64, 2> {
         let t = self.spline_t.value(s, Extrapolation::Cubic);
         vector![
             self.spline_x.value(t, Extrapolation::Cubic),

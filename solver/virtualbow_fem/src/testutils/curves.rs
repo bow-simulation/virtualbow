@@ -27,7 +27,7 @@ impl PlanarCurve for LineCurve {
         self.l
     }
 
-    fn position(&self, s: f64) -> SVector<f64, 2> {
+    fn point(&self, s: f64) -> SVector<f64, 2> {
         vector![
             self.x + s*f64::cos(self.φ),
             self.y + s*f64::sin(self.φ),
@@ -69,7 +69,7 @@ impl PlanarCurve for ArcCurve {
         self.l
     }
 
-    fn position(&self, s: f64) -> SVector<f64, 2> {
+    fn point(&self, s: f64) -> SVector<f64, 2> {
         vector![
             self.x + self.r*(f64::sin(s/self.r + self.φ) - f64::sin(self.φ)),
             self.y + self.r*(f64::cos(self.φ) - f64::cos(s/self.r + self.φ))
@@ -117,7 +117,7 @@ impl PlanarCurve for Wave {
         self.l
     }
 
-    fn position(&self, s: f64) -> SVector<f64, 2> {
+    fn point(&self, s: f64) -> SVector<f64, 2> {
         let (i, c, α) = self.center(s);
         vector![
             c - self.r*f64::cos(α),
