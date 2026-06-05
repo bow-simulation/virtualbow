@@ -1,0 +1,452 @@
+%!TeX root=../document.tex
+
+\chapter{The Bow Model}
+
+A scientific model is a simplified and abstracted representation of reality, often expressed in a mathematical way.
+A good model reduces the complexity of a real system by capturing only its most significant aspects and neglecting less significant ones.
+Analyzing this simplified representation can then lead to conclusions about the real system that wouldn't have been possible otherwise.
+
+Which aspects of reality a model must reflect depends on the kinds of questions it is intended to answer.
+The first step in developing a bow model is therefore to clarify its scope and intended application.
+
+\section{Scope of the Model}
+\label{section:model-scope}
+
+In the case of VirtualBow, the purpose of the bow model is to give users the ability to evaluate the bow designs they come up with.
+So what characteristics make a bow design a good one and what are the implications for the bow model?
+Many things could be considered, but we mainly focus on the following three categories:
+
+\begin{enumerate}
+\item \textbf{Viability}: Can the design be realized in practice?
+The most important limitation on a bow's viability is whether the chosen materials can withstand the loads that occur during use.
+To assess this, the model must accurately predict the distribution of stress across the limbs as well as the tensile forces in the string throughout the shot cycle.
+A less common, but still very important limitation to the viability of a design is stability.
+As an example, imagine a bow with deep recurves and narrow limbs.
+If taken too far, such a design might be prone to the limbs twisting and the bow "flipping around".
+Other designs might "flip flop" between two states where the tension switches between the lower and upper limb.
+Both might happen long before any material limit has been reached.
+The common reason is that one of the equilibrium states of the bow has been unstable, meaning that the system has no tendency to return to this state after a small disturbance.
+This is something that VirtualBow cannot yet predict, but falls well within this category and is therefore planned for the future.
+
+\item \textbf{Performance}: Being viable is of course only the bottom line for a bow.
+Ideally we also want to get good performance out of it.
+Important performance characteristics include the arrow's velocity and the bow's degree of efficiency, i.e. the percentage of the stored elastic energy that is transferred to the arrow during the shot.
+To capture these, the model has to represent all major mechanisms through which a bow loses efficiency.
+We will examine these mechanisms in more detail when reviewing existing research.
+
+\item \textbf{Comfort}: Raw performance is not everything either.
+A bow design is also judged by how it feels to the archer: the draw force, the shape of the draw curve (does it feel smooth or is there stacking) and the dynamic forces exerted to the shooter (hand shock).
+Acoustic vibrations technically belong in this category as well, but this is where we draw the line to keep the complexity manageable.
+\end{enumerate}
+
+Any physical effects in archery that don't significantly affect one of those categories above fall outside the scope of VirtualBow.
+One example is \textit{exterior ballistics}, i.e. everything that happens to the arrow and its flight path after it leaves the bow.
+Another example is the elastic flexing motion of the arrow depending on its dynamic spine and its interaction with the string and the arrow rest.
+Both topics are important in their own right, but they do not significantly feed back into the fundamental design decisions of a bow and are therefore not included in the model.
+
+Another decision that VirtualBow has to make is what kinds of bow designs it supports.
+There is a wide variety of design elements in bow making and it would be impractical to support each and every one of them.
+Not only from the perspective of physical modelling but also from a UI perspective, keeping the user interface simple for the most common types of bows while still ideally making more complex designs possible.
+That said, some of the limitations that VirtualBow currently places on bow designs are just technical limitations, not some deliberate decisions, and will hopefully be lifted in the future.
+An example is that cross sections have to be rectangular and made up of horizontal layers.
+This is just a result of VirtualBow first focussing on the most common case of \mbox{(glass-)laminated} bows, since that's how most modern bows are being made.
+In the long term, non-rectangular cross sections and more complex internal compositions are very desirable features.
+Another major design limitation imposed by VirtualBow is that of symmetry: The upper and lower limbs are identical to each other and the pivot point of the handle and the nocking point on the string are both located exactly at the center of the bow.
+In real bows, however, due to the arrow rest being located above the handle's pivot point, almost every bow is slightly asymmetric, even if we disregard extreme cases such as the typical Japanese Yumi longbow.
+This asymmetry is usually compensated by one limb being slighty stronger than the other, giving the bow either a positive, neutral or negative tiller depending on the desired shooting style.
+Whether asymmetry will ever be included in VirtualBow is not entirely clear yet.
+On one hand it is a property that almost every bow has, on the other hand it is for most bows more a question of fine-tuning rather than something that has a big impact on the fundamental properties of a bow design as defined by the three categories above.
+
+% Idea: Section about specifics for crossbows: Symmetric in "upper" and "lower" limb, but sometimes asymmetric in the other direction.
+
+Having clarified the scope of VirtualBow's internal bow model at least somewhat, the next question becomes: What does a bow model have to look like in order to capture the things listed above?
+That's not easy to answer and usually there is a certain amount of experience as well as trial and error involved in physical modelling before getting it right.
+Luckily there has already been done some scientific research about bow and arrow physics in the past that we can draw inspiration from.
+The next section therefore examines some of that research before we go ahead and define our own model in detail.
+
+\section{Literature Review}
+
+Research about the mechanics of bow and arrow goes back to at least the 1930s, when C.N.~Hickman, P.E.~Klopstek and others performed systematic experiments and developed simple mathematical models.
+Without modern computers available, these early models were still limited in their complexity by what could be solved analytically.
+Their focus was therefore on qualitative insight rather than accurate prediction.
+One such early models is the~\textit{Hickman Model}~\cite{bib:hi37}, published in~1937.
+It assumes the bow to consist of two rigid limbs that are connected to the stationary midsection via elastic hinges as shown in figure~\ref{fig:model:hickman}.
+Even though this is obviously a huge simplification, this model can already be used to explain the general shape of the force-draw curve of a bow (including stacking) and to investigate the bow's efficiency, i.e. how it transfers its stored elastic energy to an arrow.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.4\textwidth]{figures/model/hickman}
+\caption{Hickman model as used by W.C. Marlow \cite{bib:ma80}}
+\label{fig:model:hickman}
+\end{figure}
+
+An important modification to the Hickman model was suggested by W.C.~Marlow in 1980~\cite{bib:ma80}.
+It was already known that the original Hickman model severely overpredicted a bow's degree of efficiency.
+Marlow mentions predicted efficiencies over 90\% while measurements suggest values between 70\% and 85\% for most bows.
+Popular explanations for this discrepancy were effects like hysteresis and air resistance.
+Marlow however found another reason: With the assumption of an inextensible string, as was the case in Hickman's original model, the arrow exits the bow exactly at brace height, where the limbs are exactly at the reversal point of their motion and therefore have zero velocity.
+Only the kinetic energy of the string remains in the bow, the rest is transferred to the arrow.
+Marlow then showed that accounting for the elasticity of the string shifts the point of exit for the arrow away from the braced position, such that the limbs still have substantial kinetic energy left.
+In his numerical example this modification reduces the predicted efficiency to a much more realistic~78\% as opposed to~92\% previously.
+Of the energy remaining in the bow,~11\% were the kinetic energy of the limbs,~9\% the kinetic energy of the string and~2\% the potential energy of limbs and string.
+
+An actual elastic limb, as opposed to the rigid simplification used in Hickman's model, might not have such a clear reversal point with zero kinetic energy.
+But there is still a relevant lesson in Marlow's work: The efficiency of a bow is mainly determined by the kinetic energy that stays in the system due to mass and elasticity of the string and the mass distribution of the limbs. The contribution of dissipative effects like air resistance and hysteresis to the overall efficiency was estimated by Marlow to be less than~2\% and~3\% respectively.
+This is good news for us, because those dissipative effects are very tricky to model accurately.
+But we will still have to think about them eventually, because a model without any form of motion decay won't look very convinving either.
+
+Moving  forward in time, the widespread availability of digital computers eventually made it possible to simulate far more detailed models of bows and arrows, enabling much more accurate predictions.
+Significant contributions in this area were made by Dr.~Bob~Kooi and his co-authors, who throughout the~1980s and~1990s published numerous papers on bow and arrow mechanics, applying numerical methods to solve increasingly complex mathematical models.
+
+
+The first one of those papers is titled \textit{On the static deformation of a bow}~\cite{bib:kosp80} and investigates the storage of deformation energy in bows with and without recurve.
+Figure~\ref{fig:model:kooi} was taken from that paper and gives an impression of the model used there.
+The bow is assumed to be symmetric and has an inextensible string.
+The limb is represented as an Euler-Bernoulli beam with varying bending stiffness along its length.
+We will have a closer look at the variuos beam theories, including Euler-Bernoulli, later.
+Kooi uses the general form of the Euler-Bernoulli beam's differential equation that accounts for arbitrarily large deformations.
+Combining this with geometric constraints for the string and some boundary conditions leads to the bow's equations of equilibrium, a free-boundary value problem for a set of ordinary differential equations. The equations of equilibrium are solved numerically for specific draw lengths of the bow.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/model/kooi}
+\caption{Bow model used by Bob Kooi \cite{bib:kosp80}}
+\label{fig:model:kooi}
+\end{figure}
+
+In subsequent papers titled \textit{On the mechanics of the bow and arrow}~\cite{bib:kooi81} and \textit{On the mechanics of the modern working-recurve bow}~\cite{bib:kooi91} Kooi also considers the dynamic case.
+Like Marlow he uses a linear-elastic string and assumes the arrow as a concentrated point mass. The equations of motion for the system now form a moving-boundary value problem for a set of partial differential equations.
+They are solved numerically by using a finite-difference method with complete discretization.
+This means that both space and time are approximated by a discrete "grid" of values.
+The partial derivatives in the governing equations are then approximated by finite difference quotients operating on those grid points.
+The resulting large number of difference equations can then be solved with a computer program.
+
+In the paper \textit{On the Mechanics of the Arrow: Archer's Paradox}~\cite{bib:kosp97}, Kooi refines his model even more by including an elastic arrow with a sliding contact to the bow's grip. This makes it possible to analyze the Archer's Paradox: The phenomenon of arrows going around the grip of a bow by performing a bending motion in the horizontal plane.
+The dynamics of the arrow are however treated partly decoupled from the bow's dynamics: Only the influence of the bow on the arrow's motion is considered, the other way around is neglected.
+This is in line with our assumption from section~\ref{section:model-scope} that the bending motion of the arrow doesn't contribute much to a bow's overall performance and is therefore out of scope for our model.
+
+\newpage
+\section{Beam Theories}
+
+At this point it makes sense to take a brief look at beam theories.
+A beam, in this context, is a slender structural element whose length is much greater than its cross‑sectional dimensions, and which can resist loads applied perpendicular to its longitudinal axis through bending, shear, and sometimes torsion.
+All beam theories share the same basic approach: they reduce the mechanical properties of each cross‑section to an idealized, infinitely thin centerline, which then serves as the basis for analyzing the beam's static or dynamic behaviour.
+
+\subsection*{Linear vs Nonlinear}
+
+In many engineering applications, a beam can be assumed to bend only slightly.
+These small deflections do not change the shape of the beam enough to significantly affect its internal balance of forces.
+If the materials are also linear-elastic - meaning stresses increase proportionally with strains - then the entire beam responds in a linear way: increasing the externally applied loads proportionally increases the deformation.
+Problems in this linear regime can usually be solved analytically, with many solutions to standard cases available in textbooks.
+According to the preconditions listed above, linear beam theory can break down for two main reasons, both of which introduce nonlinear behavior:
+
+\begin{enumerate}
+\item \textbf{Geometric nonlinearity}: The assumption of small deformations does not hold. The beam deflects enough such that the balance of forces in the final, deflected state is no longer similar to that in the original, undeflected state.
+\item \textbf{Material nonlinearity}: The material does not follow a simple proportional relationship between stress and strain.
+\end{enumerate}
+
+Most common materials - including those used for making bows - behave linearly up to a certain level of strain, called the proportional limit (see figure \ref{fig:model:proportional-limit}).
+After this limit, the stress-strain curve begins to deviate from the linear projection.
+Plastic deformation and eventually failure of the material follow.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.4\textwidth]{figures/model/proportional-limit}
+\caption{Linear vs. nonlinear material behaviour}
+\label{fig:model:proportional-limit}
+\end{figure}
+
+If we assume the materials in a bow to operate safely below their elastic limit, the point where plastic deformation sets in, they will usually also stay within their proportional limit.
+Assuming linear material behavior in a bow therefore seems reasonable, we just have to keep in mind that the simulation results become invalid if stresses beyond the elastic limit occur.
+But at that point the bow design has to be rejected due to high stresses anyway.
+The deflections of a bow limb, however, are far too large as to treat them in a geometrically linear way, making the problem geometrically nonlinear even if the material itself remains linear-elastic.
+Nonlinear bending problems can't generally be solved analytically and therefore require numerical methods for computing an approximate solution.
+
+\subsection*{Cross-section Kinematics}
+
+Having established that we need the nonlinear form of any beam theory, the main point of distinction between the various beam theories becomes how they assume the cross-sections to deform in relation to the deformation of the beam's centerline.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/model/beam-theories}
+\caption{Deformation of a beam segment according to different beam theories (exaggerated)}
+\label{fig:model:beam-theories}
+\end{figure}
+
+The oldest and most widely used beam theory is the Euler-Bernoulli theory that we already came across in Kooi's bow models.
+In this theory, the cross-sections of a beam are subject to the following assumptions:
+
+\begin{enumerate}
+\item Initially planar cross-sections stay planar during the deformation of the beam
+\item Cross-sections perpendicular to beam's centerline stay perpendicular during deformation
+\end{enumerate}
+
+In figure \ref{fig:model:beam-theories}, which schematically shows a deformed segment of a beam with its centerline, the Euler-Bernoulli case is shown as the blue, planar section perpendicular to the beam's centerline.
+A more accurate but also more complex beam theory is the Timoshenko theory.
+It relaxes the assumption of perpendicular cross-sections.
+This is shown in figure \ref{fig:model:beam-theories} as the purple section, allowed to rotate by the so-called shear angle $\gamma$ with respect to the perpendicular section.
+But even this theory is not perfect, because cross-sections of a deforming beam don't stay exactly planar: they actually warp in a complicated way, which more advanced beam theories attempt to capture with varying accuracy.
+
+So how do those theories affect the overall behaviour of the beam and in which situations does the improved accuracy of more advanced theories make a difference?
+Consider a simple cantilever beam as shown in figure \ref{fig:model:section-forces}, clamped on the left side and subjected to a transversal tip force $F$ at the right.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/model/section-forces}
+\caption{Cross-section forces of a cantilever beam with tip load}
+\label{fig:model:section-forces}
+\end{figure}
+
+Let's call the length along the beam axis $s$.
+There are three internal forces that can potentially act on the cross-sections: a normal force $N$ perpendicular to the section, a shear force $Q$ in parallel to the section and a bending moment $M$.
+Those are determined by the condition that each section has to be in balance with the externally applied load $F$.
+In the case of this cantilever beam this means that the normal force $N$ is zero over the length $s$, the shear force $Q$ is constant and opposed to $F$ and the bending moment $M$ has a linear distribution, since it is proportional to the "lever arm" between the section in question and the tip force.
+Each of the section forces has a different effect with regards to the deformation of the beam:
+
+\begin{itemize}
+\item \textbf{The bending moment $M$}, as already given away by its name, causes a bending deformation of the beam as shown in figure \ref{fig:bending-vs-shear} (1).
+The cross sections develop a linear stress and strain distribution in the normal direction.
+This bending stress is maximal at the top and bottom surface of the beam and zero at one point inside, the so-called neutral fiber.
+The resultant of those bending stresses is the bending moment $M$.
+\item \textbf{The shear force $Q$} also causes a distinct contribution to the beam's deformation, as shown in figure \ref{fig:bending-vs-shear} (2).
+The shear deformation corresponds to stresses and strains in parallel to the section and distorts the beam into a parallelogram-like shape.
+Note how the shear deformation causes the beam's cross-sections to rotate relative to the centerline.
+\item \textbf{The normal force $N$}, if present, would extend or contract the beam in the longitudinal direction.
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/model/bending-vs-shear}
+\caption{Deflection of a beam as a sum of bending, shear and warping}
+\label{fig:bending-vs-shear}
+\end{figure}
+
+As figure \ref{fig:bending-vs-shear} furthermore shows, the \textbf{total deformation (3)} of the beam is a combination of the \textbf{bending deformation (1)} and the \textbf{shear deformation (2}) and also includes the warping of the cross-sections.
+
+The Euler-Bernoulli theory only captures the bending aspect.
+This is because shear deformation, as we saw, requires the cross-sections to rotate relative to the beam's centerline, which the Euler-Bernoulli theory does not permit.
+The Timoshenko theory, on the other hand, does capture the additional shear deformation for exactly that reason.
+So how relevant is this limitation of the Euler-Bernoulli theory?
+Does shear deformation actually meaningfully contribute to the overall deflection of a beam?
+This depends in large part on the "slenderness" of the beam.
+The more slender a beam is, i.e. the higher the slenderness ratio $l/h$ of length to cross section height, the more dominant the bending deformation becomes over the shear deformation and the more accurate the Euler-Bernoulli theory becomes.
+Short, stubby beams on the other hand can show significant shear deformation, requiring more advanced theories like Timoshenko's.
+This becomes plausible if we look at figure \ref{fig:model:section-forces} again: The shear force $Q$ is constant, it only depends on the external force $F$ and does not increase when the beam is made longer.
+The peak of the bending moment $M$ however increases with the length of the beam, due to the increasing leverage, leading to the bending effect becoming more dominant relative to the shearing.
+
+\subsection*{Selection of a beam theory}
+
+Ideally we would like the most simple theory that is accurate enough for our use case.
+Therefore the question we need to answer is whether or not a bow limb is slender enough to justify the application of the Euler-Bernoulli theory.
+A common rule of thumb states that beams with a slenderness ratio of $l/h > 10$ are a good match.
+It only takes a few back-of-the-envelope calculations to realize that basically all reasonable bow limbs designs far exceed this minimum slenderness requirement, which seems to justify the use of the Euler-Bernoulli theory.
+But there is one more complication that we have to consider.
+Shear deformation cannot only become important in short and stubby beams, but also in composite beams where layers of very soft and very stiff materials are combined with each other.
+
+As an example, let's look at a classical sandwich beam as shown in figure \ref{fig:sandwich-beam}.
+It consists of a soft and light core of thickness $t_c$ and shear modulus $G_c$, covered by two comparably much more stiff face sheets of thickness $t_f$ and with a Young's modulus of $E_f$.
+The figure shows how the beam would deform under pure bending (green/dashed line) and under the additional influence of the core's shear deformation (red/solid line).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/model/sandwich-beam}
+\caption{Deformation of a sandwich beam}
+\label{fig:sandwich-beam}
+\end{figure}
+
+According to Zenkert \textcolor{red}{(An Introduction to Sandwich Structures)}, the deflection of such a beam, assuming that the stiffness of the face sheets is much higher than that of the core, is calculated as the sum of bending deflection $w_b$ and shear deflection $w_s$ as
+
+\begin{equation}
+w = w_b + w_s, \quad w_s = \frac{FL}{S}, \quad w_b = \frac{FL^3}{3D}
+\end{equation}
+
+with the shear stiffness $S = \frac{G_c d^2}{t_c}$ and the bending stiffness $D = \frac{E_f t_f d^2}{2}$ and $d = t_c + t_f$ being the distance between the center of the faces.
+This assumes small deflections, i.e. linear beam theory, but that's okay for this simple consideration.
+Since we are interested in the relevance of the shear deflection compared to the total deflection, we calculate the ratio of the two as
+
+\begin{equation}
+\eta = \frac{w_s}{w} = \frac{w_s}{w_b + w_s} = \frac{1}{1 + \frac{SL^2}{3D}}
+\end{equation}
+
+Table \ref{tbl:material-shear-ratio} shows this value for a beam of length $L = 0.6\,\unit{m}$ that is supposed to be somwehat representative of a bow limb, and for different combinations of materials.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{| c | c c c c |}
+\hline
+Face & Glass & Carbon & Carbon & Carbon \\
+\hline
+$E_f$ & 39000 MPa & 180000 MPa & 180000 MPa & 180000 MPa \\
+$t_f$ & 1.0\,\unit{mm} & 1.0\,\unit{mm} & 1.0\,\unit{mm} & 1.0\,\unit{mm} \\
+\hline
+Core & Wood & Wood & Foam (stiff) & Foam (soft) \\
+\hline
+$G_c$ & 3600 MPa & 3600 MPa & 150 MPa & 25 MPa \\
+$t_c$ & 4\,\unit{mm} & 4\,\unit{mm} & 4\,\unit{mm} & 4\,\unit{mm} \\
+\hline
+$\eta$ & 0.02\,\% & 0.08\,\% & 1.96\,\% & 10.71\,\% \\
+\hline
+\end{tabular}
+\caption{Ratio of shear deflection for differernt material combinations. Material properties: Hypothetical soft wood with $\nu = 0.4$, others from Zenkert.}
+\label{tbl:material-shear-ratio}
+\end{table}
+
+% Python code used for calculations:
+%L = 0.6         # Beam length
+%tf = 0.0010     # Face thickness
+%tc = 0.0040     # Core thickness
+%
+%
+%#Ef = 39000e6    # Face: Fiberglass
+%Ef = 180000e6    # Face: Carbon
+%
+%
+%#Gc = 3600e6    # Core: Wood
+%#Gc = 150e6    # Core: Foam (stiff)
+%Gc = 25e6     # Core: Foam (soft)
+%
+%# Stiffnesses
+%d = tc + tf         # Distance between center of faces
+%S = Gc*d**2/tc      # Shear stiffness
+%D = Ef*tf*d**2/2    # Bending stiffness
+%
+%# Shear deflection ratio
+%n = 1/(1 + S*L**2/(3*D))
+%
+%print("Ratio of shear deflection: {} %".format(n*100))
+
+The combination of a wooden core with fiberglass sheets, which is probably the most common pairing for modern bows, produces negligible shear deflection of just $0.02\%$ in this example.
+Switching the sheets from glass to carbon, which has a higher tensile stiffness, increases the shear deflection to $0.08\%$, which is still fairly small.
+Relevant shear deflection only starts to happen in this example with more exotic core materials, like synthetic foams.
+The material properties of foams that are actually used in modern bow limbs are not known to the author, so two hypothetical foams, stiff and soft, have been selected to cover a plausible range.
+Although it is probably safe to say that at least the soft foam, leading to a significant shear deflection of $10.71\%$, is not strong enough to actually work as a bow material in this combination.
+
+So the answer to the question of whether shear deformation matters in a bow is: most likely not.
+At least not for 99\% of bows that are made from common traditional or modern materials.
+That's why the Euler-Bernoulli theory is a good general choice for modeling bows.
+Bows with extreme material pairings though, where shear deformation is important, are certainly conceivable, so we have to keep this in mind as a limitation of our model.
+
+\newpage
+\section{Model Definition}
+
+We have now learned enough in order to define our own bow model. First of all a few words on the general modeling approach. As we saw in the previous section, any decently complex bow model cannot be solved analytically but has to be combined with some sort of numerical method for calculating an approximate solution. Models based on continuum mechanics (e.g. Euler-Bernoulli beam theory) always have an infinite number of degrees of freedom and will eventually have to be approximated by a discrete system with finitely many degrees of freedom in order to be solvable by a computer program. This step is called discretization. Kooi for example, like a true mathematician, formulates the complete equations of motion for his continuous bow model and only then starts to employ a discretization technique (in this case a finite difference method) to solve those equations. This results in a clear separation between the mathematical model and the numerical solution methods.
+
+We're going to use more of an engineering approach here instead and start with a discrete system in the first place. We do this by constructing the continuous parts of the bow from a large number of so-called finite elements. A finite element is an approximation of a little part of a continuous structure, e.g. a beam or a bar, but with only finitely many degrees of freedom, namely the displacements of the nodes at which the elements are connected to each other. The more elements are used, the better the approximation gets and the closer the results will be to the exact solution.
+
+The finite element method leads to a (potentially large) system of ordinary differential equations as the equations of motion, which can be solved by standard numerical methods as we will see later.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/model/bow-simulator}
+\caption{Finite element model of the bow}
+\label{fig:model:bow-simulator}
+\end{figure}
+
+Figure~\ref{fig:model:bow-simulator} shows the finite element approximation of our bow model. Like Kooi's model it is symmetric with respect to the horizontal plane, assumes the limbs to satisfy the Euler-Bernoulli assumptions and neglects any dissipative effects like air resistance and hysteresis. The limbs are therefore made up of Euler-Bernoulli beam elements. A concentrated point mass is placed at the tips to account for any added weight, like overlays for example.
+
+The string, as opposed to the limbs, only transfers longitudinal forces and is therefore approximated by linear-elastic bar elements. We limit ourselves to linear elasticity for pragmatic reasons: Obtaining the exact nonlinear stress-strain curve of a particular string material is pretty difficult. Instead, any material nonlinearity (which can be the case especially for modern synthetic materials) will have to be accounted for by using an "average" stiffness. In the previous section we saw that the mass properties of the string are fairly important, so in addition to the mass of the string itself there are two additional point masses at the tips and center to account for things like servings, nocking point, etc.
+
+The arrow is another point mass, as already justified earlier. It is connected to the string by an ideal, frictionless contact without any release force. This means that the arrow will be released as soon as the string doesn't push against/accelerate it anymore.
+
+Not shown in figure~\ref{fig:model:bow-simulator} are the contact elements that prevent the string nodes from passing through the limb, thereby making it possible to simulate recurves. These are also ideal contacts without any friction.
+
+All in all, there are four different types of elements needed:
+
+\begin{itemize}
+\item Beam Elements (Limbs)
+\item Bar Elements (String)
+\item Mass Elements (Arrow + additional masses)
+\item Contact Elements (String to limb contact)
+\end{itemize}
+
+All of them have to account for arbitrarily large displacements and are therefore geometrically nonlinear (even though all the materials are linear-elastic).
+
+In the next chapters we will first show how the equations of motion for a finite element system can be assembled from the equations of motion for the single elements. We will then derive the equations of motion for the element types listed above. Finally we're going to discuss the numerical solution of those equations for the static and dynamic case and how this is implemented in VirtualBow.
+
+\section{Profile Curve}
+
+\subsection*{Clothoid Segment}
+
+A clothoid, also called Euler Spiral, is a curve whose curvature varies linearly over its length.
+It can be used as a smooth transition between two segments of different curvature.
+
+For a curve segment of length~$l$ with a starting curvature of~$\kappa_0$ and an end curvature of~$\kappa_1$ the linear curvature distribution is
+
+\begin{equation}
+\kappa(s) = \kappa_0 + \frac{s}{l}\,(\kappa_1 - \kappa_0)
+\end{equation}
+
+Integrating the curvature leads to the tangent angle $\varphi$,
+%
+\begin{align}
+\varphi(s) &= \varphi_0 + \int_{0}^{s} \kappa(\tau)\,d\tau \notag \\
+&= \varphi_0 + \frac{s^2}{2l}\,(\kappa_1 - \kappa_0) \notag \\
+&= as^2 + bs + c
+\end{align}
+
+which we write in terms of the quadratic coefficients $a$, $b$ and $c$.
+The integrals for obtaining the positions $x(s)$ and $y(s)$ are [Source: \url{https://en.wikipedia.org/wiki/Tangential_angle}]
+%
+\begin{align}
+x(s) &= x_0 + \int_{0}^{s} \cos(\varphi(\tau))\,d\tau, \\
+y(s) &= y_0 + \int_{0}^{s} \sin(\varphi(\tau))\,d\tau.
+\end{align}
+
+Those have different solutions depending on the quadratic coefficients.
+For $a > 0$ we get
+
+\begin{align}
+x(s) &= x_0 + \sqrt{\frac{\pi}{2a}}\left(\cos\left(\frac{b^2}{4a} - c\right)(C_s - C_0) + \sin\left(\frac{b^2}{4a} - c\right)(S_s - S_0)\right) \\
+y(s) &= y_0 + \sqrt{\frac{\pi}{2a}}\left(\sin\left(\frac{b^2}{4a} - c\right)(C_0 - C_s) + \cos\left(\frac{b^2}{4a} - c\right)(S_s - S_0)\right)
+\end{align}
+
+with the intermediate expressions
+
+\begin{align}
+S_s &= S\left(\frac{b + 2as}{\sqrt{2\pi a}}\right) \\
+C_s &= C\left(\frac{b + 2as}{\sqrt{2\pi a}}\right) \\
+S_0 &= S\left(\frac{b}{\sqrt{2\pi a}}\right) \\
+C_0 &= C\left(\frac{b}{\sqrt{2\pi a}}\right)
+\end{align}
+
+defined by the Fresnel integrals $S(x)$ and $C(x)$.
+
+For $a < 0$ we get something very similar, but with a few switched signs,
+
+\begin{align}
+x(s) &= x_0 - \sqrt{-\frac{\pi}{2a}}\left(\cos\left(c - \frac{b^2}{4a}\right)(C_s - C_0) + \sin\left(c - \frac{b^2}{4a}\right)(S_s - S_0)\right) \\
+y(s) &= y_0 + \sqrt{-\frac{\pi}{2a}}\left(\sin\left(c - \frac{b^2}{4a}\right)(C_0 - C_s) + \cos\left(c - \frac{b^2}{4a}\right)(S_s - S_0)\right)
+\end{align}
+
+\begin{align}
+S_s &= S\left(\frac{b + 2as}{\sqrt{-2\pi a}}\right) \\
+C_s &= C\left(\frac{b + 2as}{\sqrt{-2\pi a}}\right) \\
+S_0 &= S\left(\frac{b}{\sqrt{2\pi a}}\right) \\
+C_0 &= C\left(\frac{b}{\sqrt{2\pi a}}\right)
+\end{align}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
