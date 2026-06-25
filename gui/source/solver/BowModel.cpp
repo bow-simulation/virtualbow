@@ -5,7 +5,7 @@ BowModel BowModel::example() {
         .comment = "",
         .settings = Settings {
              .num_limb_elements = 30,
-             .num_limb_eval_points = 250,
+             .num_limb_sample_points = 250,
              .min_draw_resolution = 100,
              .max_draw_resolution = 100,
              .static_iteration_tolerance = 1e-6,
@@ -44,7 +44,7 @@ BowModel BowModel::example() {
                     .shear_modulus = 6e9,
                     .tensile_strength = 0.0,
                     .compressive_strength = 0.0,
-                    .safety_margin = 0.0
+                    .margin_of_safety = 0.0
                 }
             },
             .layers = {
@@ -55,15 +55,15 @@ BowModel BowModel::example() {
                 }
             },
         },
-        .string = String {
+        .string = BowString {
             .strand_stiffness = 3500.0,
             .strand_density = 0.0005,
-            .n_strands = 12
+            .num_strands = 12
         },
         .masses = Masses {
             .arrow = Mass{ .value = 0.025 },
             .string_center = 0.0,
-            .string_tip = 0.0,
+            .string_end = 0.0,
             .limb_tip = 0.0
         },
         .damping = Damping {
@@ -183,19 +183,19 @@ void from_json(const nlohmann::json& obj, DrawLength& output) {
 void to_json(nlohmann::json& obj, const ProfileSegment& input) {
     if(auto value = std::get_if<Line>(&input)) {
         obj["type"] = "line";
-        obj["parameters"] = *value;
+        obj["value"] = *value;
     }
     else if(auto value = std::get_if<Arc>(&input)) {
         obj["type"] = "arc";
-        obj["parameters"] = *value;
+        obj["value"] = *value;
     }
     else if(auto value = std::get_if<Spiral>(&input)) {
         obj["type"] = "spiral";
-        obj["parameters"] = *value;
+        obj["value"] = *value;
     }
     else if(auto value = std::get_if<Spline>(&input)) {
         obj["type"] = "spline";
-        obj["parameters"] = *value;
+        obj["value"] = *value;
     }
     else {
         throw std::runtime_error("Unknown segment type");
@@ -204,16 +204,16 @@ void to_json(nlohmann::json& obj, const ProfileSegment& input) {
 
 void from_json(const nlohmann::json& obj, ProfileSegment& output) {
     if(obj.at("type") == "line") {
-        output = obj.at("parameters").get<Line>();
+        output = obj.at("value").get<Line>();
     }
     else if(obj.at("type") == "arc") {
-        output = obj.at("parameters").get<Arc>();
+        output = obj.at("value").get<Arc>();
     }
     else if(obj.at("type") == "spiral") {
-        output = obj.at("parameters").get<Spiral>();
+        output = obj.at("value").get<Spiral>();
     }
     else if(obj.at("type") == "spline") {
-        output = obj.at("parameters").get<Spline>();
+        output = obj.at("value").get<Spline>();
     }
     else {
         throw std::runtime_error("Unknown segment type");
@@ -232,15 +232,15 @@ void to_json(nlohmann::json& obj, const LayerAlignment& input) {
     }
     else if(auto value = std::get_if<LayerBack>(&input)) {
         obj["type"] = "layer_back";
-        obj["layer"] = value->layer;
+        obj["value"] = value->layer;
     }
     else if(auto value = std::get_if<LayerBelly>(&input)) {
         obj["type"] = "layer_belly";
-        obj["layer"] = value->layer;
+        obj["value"] = value->layer;
     }
     else if(auto value = std::get_if<LayerCenter>(&input)) {
         obj["type"] = "layer_center";
-        obj["layer"] = value->layer;
+        obj["value"] = value->layer;
     }
     else {
         throw std::runtime_error("Unknown alignment type");
@@ -259,17 +259,17 @@ void from_json(const nlohmann::json& obj, LayerAlignment& output) {
     }
     else if(obj.at("type") == "layer_back") {
         output = LayerBack {
-            .layer = obj.at("layer")
+            .layer = obj.at("value")
         };
     }
     else if(obj.at("type") == "layer_belly") {
         output = LayerBelly {
-            .layer = obj.at("layer")
+            .layer = obj.at("value")
         };
     }
     else if(obj.at("type") == "layer_center") {
         output = LayerCenter {
-            .layer = obj.at("layer")
+            .layer = obj.at("value")
         };
     }
     else {

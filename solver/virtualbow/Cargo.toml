@@ -1,0 +1,32 @@
+[package]
+name = "virtualbow"
+description = "VirtualBow solver library"
+
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+homepage.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+virtualbow_fem = { version = "0.10.0", path = "../virtualbow_fem" }
+virtualbow_num = { version = "0.10.0", path = "../virtualbow_num" }
+fresnel.workspace = true
+nalgebra.workspace = true
+itertools.workspace = true
+iter_num_tools.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+rmp-serde.workspace = true
+soa_derive.workspace = true
+clap.workspace = true
+
+[dev-dependencies]
+approx.workspace = true
+assert2.workspace = true
+assert_matches.workspace = true
+test_each_file.workspace = true
+num.workspace = true

@@ -3,29 +3,42 @@
 ![Build Status](https://github.com/bow-simulation/virtualbow/actions/workflows/build.yml/badge.svg)
 
 VirtualBow is a software tool for designing and simulating bows.
-Visit http://www.virtualbow.org for more information about the project.
+It consists of an editor and a result viewer written in C++/Qt and a custom finite element solver written in Rust.
+For more information about the project visit http://www.virtualbow.org.
+
+<img src="docs/user-manual/source/images/screenshots/editor/model-editor.png" width="600px">
 
 # Building
 
 ## Solver
 
-The solver is the part that does the numerical computations and is written in Rust.
-Building the solver therefore requires a Rust compiler and the Cargo build tool.
-Building the solver executable is as easy as running `cargo build --release`, which automatically downloads and compiles the required dependencies as well.
-To run the tests, use `cargo test --release` (the release flag helps with performance since the simulation is very slow in debug mode).
+The solver is the part that does the numerical computations.
+It is located unter [solver/](solver/).
+
+Building the solver requires a Rust compiler and the Cargo build tool and should be as easy as running `cargo build --release`, which automatically downloads and compiles the required dependencies as well.
+
+To run the tests, use `cargo test --release`.
+The release flag helps with performance since the simulation is very slow in debug mode.
+Some of the tests are capable of producing plots using the [`plotters`](https://github.com/plotters-rs/plotters) crate.
+This can be enabled with the `plotters` feature flag, for example by running the tests as `cargo test --release --features "plotters"`.
+The output can be found in the `target` directory of the respective crate.
+On Linux this feature requires some additional dependencies [as documented in the plotters readme](https://github.com/plotters-rs/plotters#dependencies).
+
 
 ## GUI
 
-The VirtualBow GUI application built around the solver is written in C++.
-Building it requires, in addition to the solver requirements, CMake, a C++17 compiler and the following external dependencies:
+The GUI application, consisting of a model editor and a result viewer, is located under [gui/](gui/).
 
-* [Qt 5.9.5](https://www.qt.io/)
+Building it requires, in addition to the solver's requirements, CMake, a C++17 compiler and the following external dependencies:
+
+* [Qt 6.2.4](https://www.qt.io/)
 * [Boost 1.79.0](https://www.boost.org/)
+* [Catch 2.13.9](https://www.boost.org/)
 * [Eigen 3.4.0](http://eigen.tuxfamily.org/)
 * [Json 3.10.5](https://github.com/nlohmann/json)
 
-Also used are [QCustomPlot](https://www.qcustomplot.com/) and [Calculate](https://github.com/newlawrence/Calculate), but those are already included with this repository.
-The version numbers are just the minimum needed, newer versions might work too.
+Also used are [QCustomPlot](https://www.qcustomplot.com/) and [Calculate](https://github.com/newlawrence/Calculate), but those are already included in the repository.
+The version numbers are just the ones currently used, other/newer versions might work too.
 
 Optional pre-built dependencies for the supported platforms and compilers are available at [virtualbow-dependencies](https://github.com/bow-simulation/virtualbow-dependencies/releases).
 They each contain a file named `paths.cmake` that will set up the `CMAKE_PREFIX_PATH` so that the libraries are found by CMake.
@@ -66,7 +79,7 @@ The rest of the build process is the same on Linux and MacOS
 
 Contributions of any kind are very welcome!
 
-The development of VirtualBow is discussed and planned publicly on our [issue tracker](https://github.com/bow-simulation/virtualbow/issues) and the [discussions](https://github.com/bow-simulation/virtualbow/discussions).
+The development of VirtualBow is discussed and planned on our [issue tracker](https://github.com/bow-simulation/virtualbow/issues) and the [discussions](https://github.com/bow-simulation/virtualbow/discussions).
 Feel free to participate by either commenting on existing topics or opening your own ones for feedback, new ideas, feature requests or bug reports.
 If you plan a larger contribution, consider discussing it with us first to make sure that it fits the scope and vision of the project.
 
@@ -80,9 +93,9 @@ For actually contributing to this repository please follow these steps:
 
 4. **Wait and see if the build pipeline passes.** This automatic process ensures that the project still compiles successfully and all tests work as expected. Don't worry if this step fails initially, you can keep updating your branch with new commits until all checks have passed.
 
-5. **Sign the Contributor License Agreement**. If this is your first contribution to VirtualBow, you will be asked to sign our [Contributor License Agreement](https://cla-assistant.io/bow-simulation/virtualbow) (CLA). This document clarifies the rights to your contribution and ensures that we can use your contribution(s) for our purposes. Our CLA is adapted from the [Apache Individual Contributor License Agreement](https://www.apache.org/licenses/icla.pdf) with only minor changes, so it is a fairly standard license agreement.
+5. **Sign the Contributor License Agreement**. If this is your first contribution to VirtualBow, you will be asked to sign our [Contributor License Agreement](https://cla-assistant.io/bow-simulation/virtualbow) (CLA). This document clarifies the rights to your contribution and ensures that we can use your contribution(s) for our purposes. Our CLA is adapted from the [Apache Individual Contributor License Agreement](https://www.apache.org/licenses/icla.pdf) with only minor changes.
 
-6. **You are almost done!** Your changes will now be reviewed for merging as soon as possible.
+6. **Almost done!** Your changes will now be reviewed for merging as soon as possible.
 
 # License
 

@@ -51,7 +51,7 @@ void HeightPlotView::updatePlot() {
     }
 
     // Y axis always shows the width in length units
-    yAxis->setLabel("Height " + Quantities::length.getUnit().getLabel());
+    yAxis->setLabel("Thickness " + Quantities::length.getUnit().getLabel());
 
     graphLine->data()->clear();
     graphPoints->data()->clear();

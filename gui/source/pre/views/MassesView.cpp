@@ -9,7 +9,7 @@
 MassesView::MassesView(MassesModel* model) {
     addProperty("Arrow", new ArrowMassView(model, model->ARROW));
     addProperty("String center", new DoubleView(model, model->STRING_CENTER, Quantities::mass, DoubleRange::nonNegative(1e-3), Tooltips::MassStringCenter));
-    addProperty("String tip", new DoubleView(model, model->STRING_TIP, Quantities::mass, DoubleRange::nonNegative(1e-3), Tooltips::MassStringTip));
+    addProperty("String end", new DoubleView(model, model->STRING_END, Quantities::mass, DoubleRange::nonNegative(1e-3), Tooltips::MassStringEnd));
     addProperty("Limb tip", new DoubleView(model, model->LIMB_TIP, Quantities::mass, DoubleRange::nonNegative(1e-3), Tooltips::MassLimbTip));
     addStretch();
 }

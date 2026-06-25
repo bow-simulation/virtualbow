@@ -41,6 +41,7 @@ and requires [node-appdmg](https://github.com/LinusU/node-appdmg) for creating t
 # Release Checklist
 
 * Solve all issues in the current milestone
+* Run solver tests and manually inspect plot outputs
 * Update version number and copyright notice in
     * User manual
     * Theory manual

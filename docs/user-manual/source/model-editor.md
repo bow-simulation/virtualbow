@@ -1,55 +1,63 @@
 # Model Editor
 
 The model editor is the first thing you will see when opening VirtualBow.
-Here you can design your bows, specify their physical properties and start simulations to investigate their performance.
+It serves as the central workspace where you create and refine your bow designs.
+Here you can specify shape and dimensions, adjust material properties, and configure all other parameters that affect the bow's behaviour.
+Once the model is set up, you can launch simulations to evaluate the performance of your design.
 
 <figure>
-  <img src="images/screenshots/editor/model-editor.png" style="width:90%">
+  <a href="images/screenshots/editor/model-editor.png" target="_blank">
+    <img src="images/screenshots/editor/model-editor.png" width="90%">
+  </a>
   <figcaption><b>Figure:</b> Screenshot of the model editor</figcaption>
 </figure>
 
 ## Loading and saving files
 
-Use the file menu and/or the toolbar buttons on the top to create, open and save bow models.
-Bow models are stored as `.bow` files on disk, which contain all the physical parameters of the bow.
-You could share those files with other users and they would be able to open and view your creations.
+Use the file menu or the toolbar buttons at the top to create, open, and save bow models.
+These models are stored on disk as `.bow` files, which contain all physical and geometric parameters of the design.
+You can share these files with other users, who can then open them in VirtualBow to inspect or work with your models.
 
-> **Note:** VirtualBow's goal is to keep compatibility with older `.bow` files as much as possible, so you should be able to open files that were created with older versions.
-> Keep in mind though that saving will overwrite the file in the new format.
+> [!NOTE]
+> New versions of VirtualBow often introduce internal changes to the `.bow` file format.
+> The software aims to remain compatible with older files whenever possible, so you can still open models created with earlier releases (currently down to version `0.7`).
+> When you save such a file, VirtualBow automatically converts it to the current format and creates a backup with a `.bak` extension in case anything goes wrong.
+> After opening an older `.bow` file, it’s a good idea to review the model to ensure that the conversion was successful.
 
 ## Editing the bow model
 
-The main view of the editor is a 3D visualization of the bow's current geometry.
-Use the mouse to rotate (left button), shift (middle button) and zoom (mouse wheel) the perspective.
-More view options are available through the buttons on the bottom.
-Besides this 3D view, the editor interface contains three additional panels:
+The main area of the editor displays a 3D visualization of the bow’s current geometry.
+You can rotate the view with the left mouse button, pan with the middle button, and zoom using the mouse wheel.
+Additional view controls are available through the buttons at the bottom of the window.
+Alongside the 3D view, the editor interface includes three panels:
 
-- **Model**: The model tree on the top left shows how the bow model is organized, with various categories of physical properties.
-If an item in the model tree is selected, its details are shown in the _Properties_ and/or the _Graph_ panels.
-Some categories can be edited in the tree by adding, removing or renaming items, namely _Materials_, _Layers_ and _Profile_.
+- **Model:** The model tree in the top-left corner shows how the bow model is organized, grouping its various physical and geometric properties.
+Selecting an item in the tree displays its details in the _Properties_ and/or _Graph_ panels. Some categories - such as _Materials_, _Layers_, and _Profile_ - can be edited directly in the tree by adding, removing, or renaming items.
 
-- **Properties**: The property editor shows the details of the currently selected item in the model tree.
-Here you can view and edit the physical properties of the bow model.
+- **Properties:** The property editor displays the properties of the currently selected item in the model tree.
+Here you can inspect and modify the physical and geometric parameters of the bow model.
 
-- **Graph**: The graph view will show any graphs/plots that are associated with the selected item in the model tree.
+- **Graph:** The graph view will show any graphs/plots that are associated with the selected item in the model tree.
 The graphs reflect the current properties and change as the properties are being edited.
 
-> **Note:** The physical units that are used throughout the model editor can be changed under _Options_ - _Units_.
+- **Graph:** The graph panel displays any plots associated with the selected item in the model tree.
+These graphs update automatically as you adjust the corresponding properties, providing immediate visual feedback.
+
+> [!NOTE]
+> You can change the physical units used throughout the model editor under _Options_ → _Units_.
 
 ## Running Simulations
 
-Simulations can be started with the _Simuate_ menu or by clicking one of the toolbar buttons.
-Any changes to the bow are automatically saved and the VirtualBow solver is invoked on the model file.
-There are two different simulation modes:
+Simulations can be started from the _Simuate_ menu or by clicking one of the toolbar buttons.
+Once a simulation has finished, the results open in a separate result-viewer window.
+There are two simulation modes:
 
 - <img src="images/icons/run-statics.svg" style="width:20; vertical-align:top"> **Statics**:
-The static simulation analyzes the bow as it is being drawn from brace height to full draw.
-One of the results is the force/draw curve, for example.
-This mode is called static since the bow is considered to be in static equilibrium at each stage of the draw.
+The static simulation analyzes the bow as it is drawn from brace height to full draw.
+One of the results is the force-draw curve, among other characteristics.
+This mode is called _static_ because the bow is considered to be in static equilibrium at each stage of the draw.
 
 - <img src="images/icons/run-dynamics.svg" style="width:20; vertical-align:top"> **Dynamics**:
 The dynamic simulation analyzes the bow and arrow in motion as the string is released from full draw.
-It adds things like arrow speed and degree of efficiency to the results.
-Since it requires the initial state of the bow at full draw, the dynamic simulation will always be preceded by a static simulation as well.
-
-The simulation results are stored as a `.res` file next to the model file and automatically opened in the result viewer for analysis.
+It provides results such as arrow speed and efficiency.
+Because it requires the initial state of the bow at full draw, every dynamic simulation is automatically preceded by a static simulation.

@@ -1,23 +1,30 @@
 # File Formats
 
-## Input
+## Model files
 
-The input files of the solver are `.bow` model files as created by the model editor.
-Those files use the text based JSON[^1] format.
-JSON (JavaScript Object Notation) is a very common exchange format for hierarchical data in the form of objects, arrays, strings, numbers and more.
-Since the format is text based, it is easy to inspect and modify with a text editor.
+The solver reads `.bow` model files as created by the VirtualBow model editor.
+These files use the text-based [JSON](https://www.json.org/) format.
+JSON (JavaScript Object Notation) is a widely used standard for hierarchical data composed of objects, arrays, strings, numbers, and more.
+Because it is human-readable, `.bow` files can be easily inspected or modified with any text editor.
 
-A detailed specification of the model files can be found in [Appendix A](appendix-model-files.md).
+## Result files
 
-## Output
+The solver produces `.res` result files containing all static and/or dynamic simulation results.
+These files use the binary [MessagePack](https://msgpack.org/) format.
+MessagePack represents the same kinds of data as JSON but in a more compact binary form.
+Unlike the input files, `.res` files cannot be viewed directly in a text editor, but *Visual Studio Code*, for example, with a Plugins such as `PackLens` or `Data File Viewer` can be used instead.
 
-The output files of the solver are `.res` result files that can be opened with the result viewer.
-The result files use the binary MessagePack[^2] format.
-MessagePack is very similar to JSON in the kind of data it can represent, but more space efficient due to being a binary format.
-Unlike the input files, the output files cannot be inspected with a text editor.
+##
 
-A detailed specification of the model files can be found in [Appendix B](appendix-result-files.md).
+> [!NOTE]
+> Earlier versions of this manual included detailed specifications of the internal structure of both input and output files.
+> As the contents of these files have grown and evolved, maintaining those specifications has become impractical.
+> Fortunately, their content is not too complicated.
+> Most of it can be understood by experimenting and examining the resulting files.
+> The field names often correspond to the names used in the VirtualBow GUI.
+> If you have questions about the file formats or need guidance for advanced use cases, feel free to get in touch.
 
-[^1]: [https://www.json.org/](https://www.json.org/)
-
-[^2]: [https://msgpack.org/](https://msgpack.org/)
+> [!WARNING]
+> The internal file structure used by VirtualBow changes frequently.
+> VirtualBow maintains backward compatibility only for `.bow` model files, not for `.res` result files.
+> If you integrate tools or workflows with these formats, you should expect having to update them to keep them working with newer versions of VirtualBow.

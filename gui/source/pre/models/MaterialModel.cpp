@@ -9,5 +9,5 @@ MaterialModel::MaterialModel(Material& material) {
     SHEAR_MODULUS = addDouble(material.shear_modulus);
     TENSILE_STRENGTH = addDouble(material.tensile_strength);
     COMPRESSIVE_STRENGTH = addDouble(material.compressive_strength);
-    SAFETY_MARGIN = addDouble(material.safety_margin);
+    MARGIN_OF_SAFETY = addDouble(material.margin_of_safety);
 }

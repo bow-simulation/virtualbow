@@ -1,38 +1,48 @@
 # Other Plots
 
-Here you can combine arbitrary simulation results and plot them together in order to visualize things that aren't shown on any of the default plots.
-Examples are the draw curve of the bow (draw force over draw length) or the velocity of the arrow over time.
+This tab lets you combine any results from the simulation and plot them against one another.
+It allows you to explore the data freely and visualize relationships that aren’t covered by the default plots.
+The available data series for static and dynamic analyses are listed below.
 
 <figure>
-  <img src="images/screenshots/viewer/other-plots.png" style="width:90%">
-  <figcaption><b>Figure:</b> Screenshot of the other plots tab</figcaption>
+  <a href="images/screenshots/viewer/other-plots.png" target="_blank">
+    <img src="images/screenshots/viewer/other-plots.png" width="90%">
+  </a>
 </figure>
 
-Data series available in static analysis:
+## Static analysis
 
-| Data Series               | Description                             |
-|:--------------------------|:----------------------------------------|
-| Draw length               | Length to which the bow is drawn        |
-| Draw force                | Draw force of the bow                   |
-| String force (total)      | Tension force in the string             |
-| String force (strand)     | String tension per strand               |
-| Grip force                | Force that is required to hold the grip |
-| Pot. energy limbs         | Potential energy of the limbs           |
-| Pot. energy string        | Potential energy of the string          |
+| Data Series               | Description                                                            |
+|:--------------------------|:-----------------------------------------------------------------------|
+| Power stroke              | Current distance between brace height and string                       |
+| Draw length               | Current draw length of the bow                                         |
+| Draw force                | Current draw force of the bow                                          |
+| Draw stiffness            | Stiffness of the draw, i.e. force increase per increase in draw length |
+| String force (total)      | Total tensile force in the string                                      |
+| String force (strand)     | Tensile force per individual strand                                    |
+| String length             | Current length of the string, including elastic stretch                |
+| String tip angle          | Angle between the limb tip and the string                              |
+| String center angle       | Angle at the center of the string                                      |
+| Grip force                | Force required to hold the grip                                        |
+| Elastic energy limbs      | Elastic energy of the limbs                                            |
+| Elastic energy string     | Elastic energy of the string                                           |
 
-Data series available in dynamic analysis:
+## Dynamic analysis
 
-| Data Series               | Description                             |
-|:--------------------------|:----------------------------------------|
-| Time                      | Time since the release of the shot      |
-| Arrow position            | Position of the arrow                   |
-| Arrow velocity            | Velocity of the arrow                   |
-| Arrow acceleration        | Acceleration of the arrow               |
-| String force (total)      | Tension force in the string             |
-| String force (strand)     | String tension per strand               |
-| Grip force                | Force that is required to hold the grip |
-| Pot. energy limbs         | Potential energy of the limbs           |
-| Kin. energy limbs         | Kinetic energy of the limbs             |
-| Pot. energy string        | Potential energy of the string          |
-| Kin. energy string        | Kinetic energy of the string            |
-| Kin. energy arrow         | Kinetic energy of the arrow             |
+| Data Series               | Description                                             |
+|:--------------------------|:--------------------------------------------------------|
+| Time                      | Time elapsed since release                              |
+| Arrow position            | Position of the arrow                                   |
+| Arrow velocity            | Velocity of the arrow                                   |
+| Arrow acceleration        | Acceleration of the arrow                               |
+| String force (total)      | Total tensile force in the string                       |
+| String force (strand)     | Tensile force per individual strand                     |
+| String length             | Current length of the string, including elastic stretch |
+| String tip angle          | Angle between the limb tip and the string               |
+| String center angle       | Angle at the center of the string                       |
+| Grip force                | Force required to hold the grip                         |
+| Elastic energy limbs      | Elastic energy of the limbs                             |
+| Kinetic energy limbs      | Kinetic energy of the limbs                             |
+| Elastic energy string     | Elastic energy of the string                            |
+| Kinetic energy string     | Kinetic energy of the string                            |
+| Kinetic energy arrow      | Kinetic energy of the arrow                             |

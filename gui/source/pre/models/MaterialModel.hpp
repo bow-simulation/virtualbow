@@ -12,7 +12,7 @@ public:
     QPersistentModelIndex SHEAR_MODULUS;
     QPersistentModelIndex TENSILE_STRENGTH;
     QPersistentModelIndex COMPRESSIVE_STRENGTH;
-    QPersistentModelIndex SAFETY_MARGIN;
+    QPersistentModelIndex MARGIN_OF_SAFETY;
 
     MaterialModel(Material& material);
 };

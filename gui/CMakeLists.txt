@@ -31,8 +31,8 @@ set(CMAKE_AUTORCC ON)
 configure_file(source/config.hpp.in ${CMAKE_BINARY_DIR}/config.hpp)
 include_directories(source ${PROJECT_BINARY_DIR})
 
-include_directories("../rust/virtualbow_ffi")
-link_directories("../rust/target/release")
+include_directories("../solver/virtualbow_ffi")
+link_directories("../solver/target/release")
 
 # Target: Solver library
 
@@ -274,9 +274,9 @@ set_target_properties(
 add_custom_target(virtualbow-cli)
 add_custom_command(
     TARGET virtualbow-cli
-    COMMAND cargo build --release --manifest-path=${CMAKE_CURRENT_SOURCE_DIR}/../rust/Cargo.toml
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../rust/target/release/virtualbow_cli ${CMAKE_BINARY_DIR}/application/virtualbow-cli ||
-            ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../rust/target/release/virtualbow_cli.exe ${CMAKE_BINARY_DIR}/application/virtualbow-cli.exe
+    COMMAND cargo build --release --manifest-path=${CMAKE_CURRENT_SOURCE_DIR}/../solver/Cargo.toml
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../solver/target/release/virtualbow_cli ${CMAKE_BINARY_DIR}/application/virtualbow-cli ||
+            ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../solver/target/release/virtualbow_cli.exe ${CMAKE_BINARY_DIR}/application/virtualbow-cli.exe
 )
 
 # Platform-specific build targets

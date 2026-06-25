@@ -4,6 +4,6 @@
 MassesModel::MassesModel(Masses& masses) {
     ARROW = addCustom(masses.arrow);
     STRING_CENTER = addDouble(masses.string_center);
-    STRING_TIP = addDouble(masses.string_tip);
+    STRING_END = addDouble(masses.string_end);
     LIMB_TIP = addDouble(masses.limb_tip);
 }

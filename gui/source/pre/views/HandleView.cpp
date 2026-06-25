@@ -8,24 +8,21 @@
 #include <QLabel>
 
 HandleView::HandleView(HandleModel* model) {
-    //addProperty("Brace height", new DoubleView(model, model->BRACE_HEIGHT, Quantities::length, DoubleRange::positive(1e-3), Tooltips::BraceHeight));
-    //addProperty("Draw length", new DrawLengthView(model, model->DRAW_LENGTH));
-
     auto selectionBox = new QComboBox();
     selectionBox->addItems({"Flexible", "Rigid"});
     selectionBox->setToolTip(Tooltips::HandleTypeDefinition);
     selectionBox->setItemData(0, Tooltips::HandleTypeFlexible, Qt::ToolTipRole);
     selectionBox->setItemData(1, Tooltips::HandleTypeRigid, Qt::ToolTipRole);
 
-    auto lengthEdit = new DoubleSpinBox(Quantities::length, DoubleRange::positive(1e-3));
+    auto lengthEdit = new DoubleSpinBox(Quantities::length, DoubleRange::nonNegative(1e-3));
     lengthEdit->setToolTip(Tooltips::HandleLength);
     lengthEdit->setValue(0.0);
 
-    auto angleEdit = new DoubleSpinBox(Quantities::angle, DoubleRange::positive(1e-2));
+    auto angleEdit = new DoubleSpinBox(Quantities::angle, DoubleRange::unrestricted(1e-2));
     angleEdit->setToolTip(Tooltips::HandleAngle);
     angleEdit->setValue(0.0);
 
-    auto pivotEdit = new DoubleSpinBox(Quantities::length, DoubleRange::positive(1e-3));
+    auto pivotEdit = new DoubleSpinBox(Quantities::length, DoubleRange::unrestricted(1e-3));
     pivotEdit->setToolTip(Tooltips::HandlePivot);
     pivotEdit->setValue(0.0);
 
@@ -92,7 +89,7 @@ HandleView::HandleView(HandleModel* model) {
 
     // Keep model up to date on changes
     QObject::connect(selectionBox, &QComboBox::currentIndexChanged, this, updateModel);
-    QObject::connect(lengthEdit, &DoubleSpinBox::valueChanged, this, updateModel);
-    QObject::connect(angleEdit, &DoubleSpinBox::valueChanged, this, updateModel);
-    QObject::connect(pivotEdit, &DoubleSpinBox::valueChanged, this, updateModel);
+    QObject::connect(lengthEdit, &DoubleSpinBox::contentModified, this, updateModel);
+    QObject::connect(angleEdit, &DoubleSpinBox::contentModified, this, updateModel);
+    QObject::connect(pivotEdit, &DoubleSpinBox::contentModified, this, updateModel);
 }

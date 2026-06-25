@@ -1,7 +1,7 @@
 #pragma once
 #include "pre/models/PropertyListModel.hpp"
 
-struct String;
+struct BowString;
 
 class StringModel: public PropertyListModel {
 public:
@@ -9,5 +9,5 @@ public:
     QPersistentModelIndex STRAND_DENSITY;
     QPersistentModelIndex N_STRANDS;
 
-    StringModel(String& string);
+    StringModel(BowString& string);
 };

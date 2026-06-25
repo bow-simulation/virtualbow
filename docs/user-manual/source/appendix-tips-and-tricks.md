@@ -1,6 +1,6 @@
 # Tips & Tricks
 
-This section contains various notes about useful features of VirtualBow that didn't reall fit anywhere else in this manual.
+This section collects various notes about useful VirtualBow features that didn't quite fit into any other part of the manual.
 
 ## Units
 
@@ -8,7 +8,9 @@ Manually converting between units is tedious and error-prone.
 That's why all inputs and outputs in VirtualBow have a configurable unit that can be changed under *Options* - *Units*.
 
 <figure>
-  <img src="images/screenshots/editor/units.png" style="width:400px">
+  <a href="images/screenshots/editor/units.png" target="_blank">
+    <img src="images/screenshots/editor/units.png" width="400px">
+  </a>
   <figcaption><b>Figure:</b> Unit selection dialog</figcaption>
 </figure>
 
@@ -18,7 +20,7 @@ There are also two pre-defined sets of defaults, one for SI units and one for US
 You can use those by clicking either of the buttons on the bottom left.
 
 It is worth noting that the units only affect how values are shown in the user interface.
-The data in the model and result files is always stored in SI base units, so they can be exchanged with other users who might have different unit preferences.
+The data in the model and result files is always stored in SI base units.
 
 ## Plots
 
@@ -28,7 +30,9 @@ Any plot can be given a background image.
 After selecting *Background image...* in the plot's context menu, you can load an image and adjust its position and orientation.
 
 <figure>
-  <img src="images/screenshots/editor/plot-overlay.png" style="width:600px">
+  <a href="images/screenshots/editor/plot-overlay.png" target="_blank">
+    <img src="images/screenshots/editor/plot-overlay.png" width="600px">
+  </a>
   <figcaption><b>Figure:</b> Background image dialog</figcaption>
 </figure>
 
@@ -58,7 +62,9 @@ The profile plot, for example, has options to show or hide nodes or visualize th
 Number input fields may seem simple, but there are a few details worth knowing to use them more effectively.
 
 <figure>
-  <img src="images/screenshots/editor/spinbox.png" style="width:150px">
+  <a href="images/screenshots/editor/spinbox.png" target="_blank">
+    <img src="images/screenshots/editor/spinbox.png" width="150px">
+  </a>
   <figcaption><b>Figure:</b> Number input field</figcaption>
 </figure>
 
@@ -86,6 +92,8 @@ Content in tables can be copied, cut, pasted and deleted using either the contex
 Copy and paste also works between VirtualBow and other applications, for example spreadsheet software like Excel or LibreOffice Calc.
 
 <figure>
-  <img src="images/screenshots/editor/tableview.png" style="width:250px">
+  <a href="images/screenshots/editor/tableview.png" target="_blank">
+    <img src="images/screenshots/editor/tableview.png" width="250px">
+  </a>
   <figcaption><b>Figure:</b> Table context menu</figcaption>
 </figure>

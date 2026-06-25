@@ -1,4 +1,5 @@
 # Solver
 
-The solver is the part of VirtualBow that actually performs the required calculations.
-It only has a command line interface and is invoked automatically by the model editor when a simulation is started, but can also be used on its own for advanced use cases.
+The solver is the component of VirtualBow that performs all the numerical calculations required for a simulation.
+It is normally invoked automatically by the model editor whenever you start a static or dynamic analysis.
+For advanced workflows, however, the solver can also be run independently, allowing you to batch‑process models or integrate VirtualBow with external scripts.

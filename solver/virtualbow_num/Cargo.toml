@@ -1,0 +1,22 @@
+[package]
+name = "virtualbow_num"
+description = "Library of numerical methods for VirtualBow, intended for internal use"
+
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+homepage.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+nalgebra.workspace = true
+itertools.workspace = true
+num.workspace = true
+iter_num_tools.workspace = true
+approx.workspace = true
+
+[dev-dependencies]
+assert2.workspace = true

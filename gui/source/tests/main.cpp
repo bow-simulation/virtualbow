@@ -39,7 +39,7 @@ TEST_CASE("test-solver-api") {
 TEST_CASE("test-solver-errors") {
     // Create new default bow model and add invalid setting
     BowModel model = BowModel::example();
-    model.settings.num_limb_eval_points = 1;
+    model.settings.num_limb_sample_points = 1;
 
     // Verify that computations fail with an exception
     REQUIRE_THROWS(compute_geometry(model));

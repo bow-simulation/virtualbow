@@ -24,8 +24,11 @@ const Unit Units::Grain_Per_PoundForce = Unit("gr/lbf", "Grain per pound-force",
 const Unit Units::Kilogram_Per_Joule = Unit("kg/J", "Kilogram per Joule", SI, 1.0);
 const Unit Units::Gram_Per_Joule = Unit("g/J", "Gram per Joule", SI, 1e-3);
 const Unit Units::Pound_Per_FootPound = Unit("lb/ft*lbf", "Pound per foot-pound", US, 0.453592/1.35582);
-const Unit Units::Ounce_Per_FootPound = Unit("oz/ft*lbf", "Ounce per pound-force", US, 0.0283495/1.35582);
-const Unit Units::Grain_Per_FootPound = Unit("gr/ft*lbf", "Grain per pound-force", US, 0.00006479891/1.35582);
+const Unit Units::Ounce_Per_FootPound = Unit("oz/ft*lbf", "Ounce per foot-pound", US, 0.0283495/1.35582);
+const Unit Units::Grain_Per_FootPound = Unit("gr/ft*lbf", "Grain per foot-pound", US, 0.00006479891/1.35582);
+const Unit Units::Pound_Per_Joule = Unit("lb/J", "Pound per Joule", US, 0.453592);
+const Unit Units::Ounce_Per_Joule = Unit("oz/J", "Ounce per Joule", US, 0.0283495);
+const Unit Units::Grain_Per_Joule = Unit("gr/J", "Grain per Joule", US, 0.00006479891);
 
 const Unit Units::Newton = Unit("N", "Newton", SI, 1.0);
 const Unit Units::Newton_Per_Percent = Unit("N/%", "Newton per percent", SI, 1e2);
@@ -118,7 +121,7 @@ Quantity Quantities::mass_per_force = Quantity("Mass per Force", {
     Units::Pound_Per_PoundForce,
     Units::Ounce_Per_PoundForce,
     Units::Grain_Per_PoundForce,
-}, 1, 4);
+}, 4, 4);    // Exception: SI default = US default
 
 Quantity Quantities::mass_per_energy = Quantity("Mass per Energy", {
     Units::Kilogram_Per_Joule,
@@ -126,7 +129,10 @@ Quantity Quantities::mass_per_energy = Quantity("Mass per Energy", {
     Units::Pound_Per_FootPound,
     Units::Ounce_Per_FootPound,
     Units::Grain_Per_FootPound,
-}, 1, 4);
+    Units::Pound_Per_Joule,
+    Units::Ounce_Per_Joule,
+    Units::Grain_Per_Joule,
+}, 7, 7);    // Exception: SI default = US default
 
 Quantity Quantities::force = Quantity("Force", {
     Units::Newton,
