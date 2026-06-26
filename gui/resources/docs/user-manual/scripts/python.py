@@ -14,18 +14,11 @@ with open("input.bow", "w") as file:
     json.dump(input, file, indent=2)
 
 # Run a static simulation
-subprocess.call(["virtualbow-cli", "--static", "input.bow", "output.res"])
+subprocess.call(["virtualbow-cli", "static", "input.bow", "output.res"])
 
 # Load the result file
 with open("output.res", "rb") as file:
     output = msgpack.unpack(file, raw=False)
 
-# Evaluate stresses
-He_back = np.array(output["setup"]["limb_properties"]["layers"][0]["He_back"])
-Hk_back = np.array(output["setup"]["limb_properties"]["layers"][0]["Hk_back"])
-
-epsilon = np.array(output["statics"]["states"]["epsilon"][-1])
-kappa   = np.array(output["statics"]["states"]["kappa"][-1])
-sigma = He_back.dot(epsilon) + Hk_back.dot(kappa)
-
-print(sigma.max())
+# Evaluate final draw force
+print(output["statics"]["final_draw_force"])
