@@ -15,6 +15,7 @@
 \usepackage{amssymb}
 \usepackage{units}
 \usepackage{relsize}    % \mathlarger
+\usepackage{mathdots}    % \iddots
 
 % Custom operators
 \DeclareMathOperator*{\argmin}{\arg\!\min}    % https://tex.stackexchange.com/a/5255
@@ -28,11 +29,13 @@
 % Settings
 % \allowdisplaybreaks		% Break aligned equations over pages
 \setcounter{MaxMatrixCols}{20}  % https://tex.stackexchange.com/questions/436646/
+\setcounter{tocdepth}{3}    % Table of contents depth
+\setcounter{secnumdepth}{4}    % Table of contents numeration depth
 
 % Parameters
 \newcommand{\version}{0.10.0}
 \newcommand{\website}{\href{http://www.virtualbow.org/}{\texttt{\textcolor{blue}{http://www.virtualbow.org/}}}}
-\newcommand{\copyrights}{Copyright (C) 2016-2026 Stefan Pfeifer}
+\newcommand{\copyrights}{Copyright (C) 2016-\the\year{} Stefan Pfeifer}
 
 \begin{document}
 
@@ -41,9 +44,12 @@
 \tableofcontents
 
 \input{latex/introduction.tex}
-\input{latex/bowmodel.tex}
-\input{latex/equations.tex}
-\input{latex/solution.tex}
+\input{latex/model.tex}
+\input{latex/system.tex}
+\input{latex/elements.tex}
+\input{latex/statics.tex}
+\input{latex/dynamics.tex}
+\input{latex/eigen.tex}
 
 \appendix
 

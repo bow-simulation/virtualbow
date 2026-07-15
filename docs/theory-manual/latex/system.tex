@@ -1,0 +1,225 @@
+%!TeX root=../document.tex
+
+\chapter{System Equations}
+
+\section{Element Equations}
+
+Consider a single, unconstrained finite element with $n \in \mathbb{N}$ degrees of freedom.
+These degrees of freedom are the sum of the translational and rotational degrees of freedom of each of the element's nodes.
+The configuration of an element $k$ at time $t \in \mathbb{R}$ will be described by the vector~$\boldsymbol{u}_{k}(t) \in \mathbb{R}^n$ of nodal coordinates, which contains a position or angle for each degree of freedom of the element.
+
+For the kinds of elements we are interested in, the equation of motion, which governs the static and dynamic behaviour of the element, takes the form
+
+\begin{equation}
+\boldsymbol{M}_{k}\,\ddot{\boldsymbol{u}}_{k}(t) + \boldsymbol{Q}_{k}(\boldsymbol{u}_{k}(t),\,\dot{\boldsymbol{u}}_{k}(t)) = \boldsymbol{P}_{k}(t).\label{eq:local-equation-of-motion}
+\end{equation}
+
+This is a nonlinear ordinary differential equation of second order for the displacements~$\boldsymbol{u}_{k}(t)$.
+Second order because of the involvement of the nodal velocities $\dot{\boldsymbol{u}}_{k}(t)$ and accelerations $\ddot{\boldsymbol{u}}_{k}(t)$, which are the first and second derivative of the nodal coordinates with respect to time.
+The matrix~$\boldsymbol{M}_{k} \in \mathbb{R}^{n \times n}$ is called the element's mass matrix.
+It defines the element's inertia and must be constant and positive definite.
+The only nonlinear term in the equation is the vector~$\boldsymbol{Q}_{k} \in \mathbb{R}^n$ of internal forces, which depends on the nodal positions and velocities in a possibly nonlinear way and describes the element's internal forces, such as elastic forces due to the element's deformation or damping forces due to the element's motion.
+Finally, the vector~$\boldsymbol{P}_{k}(t) \in \mathbb{R}^n$ of external forces defines externally applied forces/moments at time $t$, one for each of the element's nodal coordinates.
+
+In later chapters we are going to derive the actual components of this element equation for the various element types used in VirtualBow, but first let's consider the overall system that results from combining a number of such elements.
+
+\newpage
+\section{System Equation}
+
+If the overall finite element system has a total of~$N$ degrees of freedom, it's configuration can be described by a global coordinate vector~$\boldsymbol{u}(t) \in \mathbb{R}^{N}$.
+The local coordinates~$\boldsymbol{u}_{k}$ of each element $k$ are now no longer independent but instead directly related to the global coordinates of the system they are part of.
+There are many conceivable ways in which the local coordinates could be related to the global coordinates, but in our case we select the affine transformation
+
+\begin{equation}
+\boldsymbol{u}_{k}(t) = \boldsymbol{A}_{k}\,\boldsymbol{u}(t) + \boldsymbol{b}_{k},\label{eq:kinematics-local-global}
+\end{equation}
+
+where~$\boldsymbol{A}_{k} \in \mathbb{R}^{\mathlarger{n} \times N}$ is a linear transformation matrix for the element and~$\boldsymbol{b}_{k} \in \mathbb{R}^{N}$ a constant offset.
+Applying this kinematic relationship to the local equations of motion~(\ref{eq:local-equation-of-motion}) leads to the element equations expressed in the global coordinates,
+
+\begin{equation}
+\boldsymbol{A}_{k}^\intercal\boldsymbol{M}_{k}\boldsymbol{A}_{k}\,\ddot{\boldsymbol{u}}(t) + \boldsymbol{A}_{k}^\intercal\boldsymbol{Q}_{k}(\boldsymbol{A}_{k}\,\boldsymbol{u}(t) + \boldsymbol{b}_{k},\,\boldsymbol{A}_{k}\,\dot{\boldsymbol{u}}(t)) = \boldsymbol{A}_{k}^\intercal\boldsymbol{P}_{k}.
+\end{equation}
+
+And finally, by summing up the element contributions, the equation of motion of the overall system turns out to have the same structure as the element equations,
+
+\begin{equation}
+\boldsymbol{M}\ddot{\boldsymbol{u}} + \boldsymbol{Q}(\boldsymbol{u},\,\dot{\boldsymbol{u}}) = \boldsymbol{P}(t)\label{eq:global-equation-of-motion}
+\end{equation}
+
+where the global mass matrix $\boldsymbol{M} \in \mathbb{R}^{N \times N}$, the internal forces~$\boldsymbol{Q} \in \mathbb{R}^{N}$ and the external forces $\boldsymbol{P} \in \mathbb{R}^{N}$ are calculated from the local element matrices as
+
+\begin{align}
+\boldsymbol{M} &= \sum_{k} \boldsymbol{A}_{k}^\intercal\boldsymbol{M}_{k}\boldsymbol{A}_{k}, & \boldsymbol{Q} &= \sum_{k} \boldsymbol{A}_{k}^\intercal\boldsymbol{Q}_{k}(\boldsymbol{A}_{k}\boldsymbol{u} + \boldsymbol{b}_{k},\,\boldsymbol{A}_{k}\dot{\boldsymbol{u}}), & \boldsymbol{P} &= \sum_{k} \boldsymbol{A}_{k}^\intercal\boldsymbol{P}_{k}.
+\end{align}
+
+In order to solve this equation of motion for equilibrium we're later going to need the derivative of the internal forces with respect to the nodal coordinates, which is called the tangent stiffness matrix~$\boldsymbol{K} \in \mathbb{R}^{N \times N}$ of the system and can be calculated from the element's local tangent stiffness matrices as
+
+\begin{equation}
+\boldsymbol{K} = \frac{\partial \boldsymbol{Q}}{\partial \boldsymbol{u}} = \frac{\partial}{\partial \boldsymbol{u}} \sum_{k} \boldsymbol{A}_{k}^\intercal\boldsymbol{Q}_{k} = \sum_{k} \boldsymbol{A}_{k}^\intercal \frac{\partial \boldsymbol{Q}_{k}}{\partial \boldsymbol{u}_{k}}\,\frac{\partial \boldsymbol{u}_{k}}{\partial \boldsymbol{u}} = \sum_{k} \boldsymbol{A}_{k}^\intercal \boldsymbol{K}_{k} \boldsymbol{A}_{k}.
+\end{equation}
+
+Similarly, the tangent damping matrix~$\boldsymbol{D} \in \mathbb{R}^{N \times N}$ is the derivative of the internal forces with respect to the nodal velocities and is calculated from the element's tangent damping matrices as 
+
+\begin{equation}
+\boldsymbol{D} = \frac{\partial \boldsymbol{Q}}{\partial \dot{\boldsymbol{u}}} = \frac{\partial}{\partial \dot{\boldsymbol{u}}} \sum_{k} \boldsymbol{A}_{k}^\intercal\boldsymbol{Q}_{k} = \sum_{k} \boldsymbol{A}_{k}^\intercal \frac{\partial \boldsymbol{Q}_{k}}{\partial \dot{\boldsymbol{u}_{k}}}\,\frac{\partial \dot{\boldsymbol{u}_{k}}}{\partial \dot{\boldsymbol{u}}} = \sum_{k} \boldsymbol{A}_{k}^\intercal \boldsymbol{D}_{k} \boldsymbol{A}_{k}.
+\end{equation}
+
+\section{Connectivity}
+
+The transformation matrices $\boldsymbol{A}$ and $\boldsymbol{b}$ for the connectivity of the elements are not totally arbitrary.
+In out case it is sufficient that any element coordinate $u_{i}$, where $i$ is the index in the local coordinate vector, only depends on the corresponding global displacement $\overline{u}_{m(i)}$, where $m(i)$ is a mapping from the local to the corresponding global coordinate index.
+The relationship between the two, that we like to model, is
+
+\begin{equation}
+u_{i} = a_{i}\,\overline{u}_{m(i)} + b_{i}
+\end{equation}
+
+This includes the special case of $a_{i} = 0$, where the element coordinate is fixed to the value $b_{i}$ and does not depend on a global coordinate.
+Another special case is $a_{i} = 1$, where the local coordinate scales exactly like the global coordinate.
+In order to understand how this relates to the calculation of the transformation matrices $\boldsymbol{A}$ and $\boldsymbol{b}$, consider two displacements $u_{i}$ and $u_{j}$,
+%
+\begin{align*}
+u_{i} &= a_{i}\,\overline{u}_{m(i)} + b_{i} \\
+u_{j} &= a_{j}\,\overline{u}_{m(j)} + b_{j}
+\end{align*}
+
+The transformation with respect to those two displacements takes the following form, where each row in $\boldsymbol{A}$ only contains one non-zero element $a$ that relates two displacements:
+
+$$
+\underbrace{
+\begin{bmatrix}
+\vdots \\ u_{i} \\ \vdots \\ u_{j} \\ \vdots
+\end{bmatrix}
+}_{\boldsymbol{u}_{k}}
+=
+\underbrace{
+\begin{bmatrix}
+& \vdots & \vdots & \\
+0 \hdots 0 & a_{i} & 0 & 0 \hdots 0 \\
+& \vdots & \vdots & \\
+0 \hdots 0 & 0 & a_{j} & 0 \hdots 0 \\
+& \vdots & \vdots &
+\end{bmatrix}
+}_{\boldsymbol{A}_{k}}
+\underbrace{
+\begin{bmatrix}
+\vdots \\ u_{m(i)} \\ \vdots \\ u_{m(j)} \\ \vdots
+\end{bmatrix}
+}_{\boldsymbol{u}}
++
+\underbrace{
+\begin{bmatrix}
+\vdots \\ b_{i} \\ \vdots \\ b_{j} \\ \vdots
+\end{bmatrix}
+}_{\boldsymbol{b}_{k}}
+$$
+
+By transposing this matrix, we can write the dependence of the global internal forces on the local internal forces as:
+
+$$
+\underbrace{
+\begin{bmatrix}
+\vdots \\ \overline{Q}_{m(i)} \\ \vdots \\ \overline{Q}_{m(j)} \\ \vdots
+\end{bmatrix}
+}_{\boldsymbol{Q}}
+=
+\underbrace{
+\begin{bmatrix}
+& 0 & & 0 & \\
+& \vdots & & \vdots & \\
+\hdots & a_{i} & \hdots & 0 & \hdots \\
+\hdots & 0 & \hdots & a_{j} & \hdots \\
+& \vdots & & \vdots & \\
+& 0 & & 0 &
+\end{bmatrix}
+}_{\boldsymbol{A}_{k}^\intercal}
+\underbrace{
+\begin{bmatrix}
+\vdots \\ Q_{i} \\ \vdots \\ Q_{j} \\ \vdots
+\end{bmatrix}
+}_{\boldsymbol{Q}_{k}}
+$$
+
+Which can simply be written as the scalar relationship $\overline{Q}_{m(i)} = a_{i}\,Q_{i}$.
+Similarly, the dependence of the global mass matrix on the local mass matrix is
+
+$$
+\underbrace{
+\begin{bmatrix}
+& \vdots & \\
+\hdots & \overline{M}_{m(i),m(j)} & \hdots \\
+& \vdots &
+\end{bmatrix}
+}_{\boldsymbol{M}}
+=
+\underbrace{
+\begin{bmatrix}
+& 0 & & 0 & \\
+& \vdots & & \vdots & \\
+\hdots & a_{i} & \hdots & 0 & \hdots \\
+\hdots & 0 & \hdots & a_{j} & \hdots \\
+& \vdots & & \vdots & \\
+& 0 & & 0 &
+\end{bmatrix}
+}_{\boldsymbol{A}_{k}^\intercal}
+\underbrace{
+\begin{bmatrix}
+& \vdots & \\
+\hdots & M_{i,j} & \hdots \\
+& \vdots &
+\end{bmatrix}
+}_{\boldsymbol{M}_{k}}
+\underbrace{
+\begin{bmatrix}
+& \vdots & \vdots & \\
+0 \hdots 0 & a_{i} & 0 & 0 \hdots 0 \\
+& \vdots & \vdots & \\
+0 \hdots 0 & 0 & a_{j} & 0 \hdots 0 \\
+& \vdots & \vdots &
+\end{bmatrix}
+}_{\boldsymbol{A}_{k}}
+$$
+
+which can be written as the scalar relationship $\overline{M}_{m(i),m(j)} = a_{i}\,a_{j}\,M_{i,j}$.
+Analogous results are obtained for the transformation of $\boldsymbol{P}$, $\boldsymbol{D}$ and $\boldsymbol{K}$.
+This shows that it is actually not necessary to perform any matrix operations with $\boldsymbol{A}$ when converting between local and global quantities, we don't even need to construct these matrices at all.
+Instead, the mapping between element coordinates and global coordinates is enough.
+This mapping and the scalar relationships found can be used to transform the element vectors/matrices and add them to their respective global counterpart in one go.
+
+% Quick python script for verification
+%
+% import numpy as np
+%
+% n = 6
+% N = 10
+%
+% i = 2
+% j = 4
+%
+% ki = 5
+% kj = 8
+%
+% ai = 3
+% aj = 7
+%
+% Mij = 11
+% Qi = 13
+%
+% M_local = np.zeros([n, n])
+% M_local[i, j] = Mij
+%
+% Q_local = np.zeros([n])
+% Q_local[i] = Qi
+%
+% A = np.zeros([n, N])
+% A[i, ki] = ai
+% A[j, kj] = aj
+%
+% M_global = A.T @ M_local @ A
+% Q_global = A.T @ Q_local
+%
+% print(M_local)
+% print(M_global)
+% print(Q_local)
+% print(Q_global)

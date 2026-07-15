@@ -1,85 +1,100 @@
 %!TeX root=../document.tex
 
-\chapter{Vibrations of a viscoelastic bar}
-\label{chapter:viscoelastic-bar-vibrations}
-Consider the elastic bar shown in figure~\ref{fig:viscoelastic-bar}. It is fixed on the left hand side and free on the right, has a length of $L$ and can undergo longitudinal motion as described by the function $u(x,\,t)$. We want to calculate its (undamped) natural frequencies $\omega_0$ and associated damping ratios $\zeta$.
-\textcolor{red}{TODO: Explain choice of boundary conditions}
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.5\textwidth]{figures/appendix/viscoelastic-bar}
-\caption{Kinematics and boundary conditions of the bar}
-\label{fig:viscoelastic-bar}
-\end{figure}
-The material of the bar is assumed to behave according to the viscoelastic Kelvin-Voigt model, which expresses the stress $\sigma$ in the bar as
-%
+\chapter{Limb Geometry}
+
+\section{Profile Curve}
+
+The profile curve in VirtualBow is composed of one or more segments, where each segment can have a different type, like line, arc, spiral, etc.
+What follows is a geometrical description of each segment type.
+
+\subsection{Spiral Segment}
+
+This spiral segment is a \textit{Clothoid}, also called \textit{Euler Spiral}, which is a curve whose curvature varies linearly over its length.
+It can be used as a smooth transition between two segments of different curvature.
+For a curve segment of length~$l$ with a starting curvature of~$\kappa_0$ and an end curvature of~$\kappa_1$ the linear curvature distribution is
+
 \begin{equation}
-\sigma = E\,\varepsilon + \eta\,\dot{\varepsilon}\label{eq:viscoelastic-bar-material}
-\end{equation}
-where $\varepsilon = \frac{\partial\,u}{\partial\,x}$ is the longitudinal strain, $E$ the elastic modulus and $\eta$ the viscosity of the material. The acceleration at every point in the bar is given by \textcolor{red}{Source?}
-%
-\begin{equation}
-\rho\,\frac{\partial^2\,u}{\partial\,t^2} = \frac{\partial\,\sigma}{\partial\,x}\label{eq:viscoelastic-bar-kinetic}
-\end{equation}
-where $\rho$ is the bar's density. Combining the equations (\ref{eq:viscoelastic-bar-material}) and (\ref{eq:viscoelastic-bar-kinetic}) and multiplying with the cross section area $A$ results in the equation of motion
-%
-\begin{equation}
-\rho A\,\frac{\partial^2\,u}{\partial\,t^2} = EA\,\frac{\partial^2\,u}{\partial\,x^2} + \eta A\,\frac{\partial^3\,u}{\partial\,x^2\,\partial\,t}.\label{eq:viscoelastic-bar-motion}
-\end{equation}
-This partial differential equation can be solved by separation of variables. The solution is assumed as $u(x,\,t) = X(x)\,T(t)$, a product of two functions depending on $x$ and $t$ respectively. Inserting this into the equation of motion (\ref{eq:viscoelastic-bar-motion}) and separating terms depending on $x$ from terms depending on $t$ leads to
-%
-\begin{align}
-\rho A\,X(x)\,\ddot{T}(t) &= EA\,X''(x)\,T(t) + \eta A\,X''(x)\,\dot{T}(t)\notag \\
-\frac{X''(x)}{X(x)} &= \frac{\ddot{T}(t)}{\frac{EA}{\rho A}\,T(t) + \frac{\eta A}{\rho A}\,\dot{T}(t)} =: -\frac{\rho A}{EA}\,\omega_0^2\label{eq:viscoelastic-bar-separated}
-\end{align}
-Apply the usual argument: As one side of the equation depends on position and the other on time they have to be constant in order to be equal. We choose that constant to be~$-\frac{\rho A}{EA}\,\omega_0^2$ for reasons that will become clear later and obtain the two ordinary differential equations
-%
-\begin{align}
-\ddot{T}(t) + \frac{\eta A}{EA}\,\omega_0^2\,\dot{T}(t) + \omega_0^2\,T(t) = 0,\label{eq:viscoelastic-bar-t} \\
-X''(x) + \frac{\rho A}{EA}\,\omega_0^2\,X(x) = 0.\label{eq:viscoelastic-bar-x}
-\end{align}
-The time equation (\ref{eq:viscoelastic-bar-t}) describes a damped harmonic oscillator with undamped natural frequency $\omega_0$ and damping ratio
-%
-\begin{equation}
-\zeta = \frac{1}{2}\,\frac{\eta\,A}{EA}\,\omega_0\label{eq:viscoelastic-bar-result-zeta}
-\end{equation}
-as determined by the coefficients of the equation. The last remaining task is to determine the natural frequencies $\omega_0$ which solve the second differential equation (\ref{eq:viscoelastic-bar-x}) while also satisfying the boundary conditions of the bar. The general solution of (\ref{eq:viscoelastic-bar-x}) is
-%
-\begin{equation}
-X(x) = C\cdot\sin\left(\sqrt{\frac{\rho A}{EA}}\,\omega_0\,x - \varphi\right).
-\end{equation}
-Boundary condition on the fixed end:
-%
-\begin{align}
-u(0,\,t) = 0: \quad\quad\quad X(0)\,T(t) &= 0 \notag \\
-C\cdot\sin(-\varphi) &= 0 \notag \\
-\varphi &= 0
-\end{align}
-The case $T(t) = 0$ was ignored here because it is of no interest. The boundary condition for the free end is
-%
-\begin{align}
-\sigma(L,\,t) = 0: \quad\quad E\,\varepsilon(L,\,t) + \eta\,\dot{\varepsilon}(L,\,t) &= 0 \notag \\
-EA\,\frac{\partial u}{\partial x}(L,\,t) + \eta A\,\frac{\partial^2 u}{\partial x\,\partial t}(L,\,t) &= 0 \notag \\
-EA\,X'(L)\,T(t) + \eta A\,X'(L)\,\dot{T}(t) &= 0 \notag \\
-(EA\,T(t) + \eta A\,\dot{T}(t))\,X'(L) &= 0 \notag \\
-\ddot{T}(t)\,X'(L) &= 0 \notag
-\end{align}
-And therefore the solution for the natural frequencies is
-%
-\begin{align}
-X'(L) &= C\cdot\sqrt{\frac{\rho A}{EA}}\,\omega_0\cos\left(\sqrt{\frac{\rho A}{EA}}\,\omega_0\,L\right) = 0, \notag \\
-\omega_0 &= \frac{\pi(2k - 1)}{2L}\cdot\sqrt{\frac{EA}{\rho A}},\quad k \in \mathbb{Z}.\label{eq:viscoelastic-bar-result-omega}
-\end{align}
-And finally, with equations (\ref{eq:viscoelastic-bar-result-zeta}) and (\ref{eq:viscoelastic-bar-result-omega}) the damping ratio follow as
-%
-\begin{equation}
-\zeta = \frac{\pi(2k - 1)}{4L}\cdot\frac{\eta A}{\sqrt{\rho A \cdot EA}},\quad k \in \mathbb{Z}.
+\kappa(s) = \kappa_0 + \frac{s}{l}\,(\kappa_1 - \kappa_0)
 \end{equation}
 
-\chapter{Cubic Spline Interpolation}
+Integrating the curvature over the arc length leads to the tangent angle $\varphi$,
+%
+\begin{align}
+\varphi(s) = \varphi_0 + \int_{0}^{s} \kappa(\tau)\,d\tau &= \varphi_0 + \frac{s^2}{2l}\,(\kappa_1 - \kappa_0) \notag \\
+&= as^2 + bs + c
+\end{align}
 
-Cubic splines are used to define some of the geometric features of the bow, namely the profile curve, width and layer heights.
+which we write in terms of the quadratic coefficients $a$, $b$ and $c$.
+The positions $x(s)$ and $y(s)$ are then given by the integrals
+%
+\begin{align}
+x(s) &= x_0 + \int_{0}^{s} \cos(\varphi(\tau))\,d\tau, \\
+y(s) &= y_0 + \int_{0}^{s} \sin(\varphi(\tau))\,d\tau.
+\end{align}
 
-\section{Cubic $C^2$ Spline}
+Those have different solutions depending on the quadratic coefficients.
+For $a > 0$ we get
+
+\begin{align}
+x(s) &= x_0 + \sqrt{\frac{\pi}{2a}}\left(\cos\left(\frac{b^2}{4a} - c\right)(C_s - C_0) + \sin\left(\frac{b^2}{4a} - c\right)(S_s - S_0)\right) \\
+y(s) &= y_0 + \sqrt{\frac{\pi}{2a}}\left(\sin\left(\frac{b^2}{4a} - c\right)(C_0 - C_s) + \cos\left(\frac{b^2}{4a} - c\right)(S_s - S_0)\right)
+\end{align}
+
+with the intermediate expressions
+
+\begin{align}
+S_s &= S\left(\frac{b + 2as}{\sqrt{2\pi a}}\right) & S_0 &= S\left(\frac{b}{\sqrt{2\pi a}}\right) \\
+C_s &= C\left(\frac{b + 2as}{\sqrt{2\pi a}}\right) & C_0 &= C\left(\frac{b}{\sqrt{2\pi a}}\right)
+\end{align}
+
+defined by the Fresnel integrals $S(x)$ and $C(x)$.
+For $a < 0$ we get something very similar, but with a few switched signs,
+
+\begin{align}
+x(s) &= x_0 - \sqrt{-\frac{\pi}{2a}}\left(\cos\left(c - \frac{b^2}{4a}\right)(C_s - C_0) + \sin\left(c - \frac{b^2}{4a}\right)(S_s - S_0)\right) \\
+y(s) &= y_0 + \sqrt{-\frac{\pi}{2a}}\left(\sin\left(c - \frac{b^2}{4a}\right)(C_0 - C_s) + \cos\left(c - \frac{b^2}{4a}\right)(S_s - S_0)\right)
+\end{align}
+
+\begin{align}
+S_s &= S\left(\frac{b + 2as}{\sqrt{-2\pi a}}\right) & S_0 &= S\left(\frac{b}{\sqrt{2\pi a}}\right) \\
+C_s &= C\left(\frac{b + 2as}{\sqrt{-2\pi a}}\right) & C_0 &= C\left(\frac{b}{\sqrt{2\pi a}}\right)
+\end{align}
+
+\subsection{Arc Segment}
+
+An arc segment, which is a segment with a constant nonzero curvature, follows from the same derivation as the clothoid segment, but for the special case $a = 0$ and $b \neq 0$.
+This results in the curve
+
+\begin{align}
+x(s) &= x_0 + \frac{1}{b}\bigg(\sin(bs + c) - \sin(c)\bigg) \\
+y(s) &= y_0 + \frac{1}{b}\bigg(-\cos(bs + c) + \cos(c)\bigg)
+\end{align}
+
+\subsection{Line Segment}
+
+Similarly, a line segment with zero curvature follows for the special case $a = 0$ and $b = 0$.
+The resulting curve is
+
+\begin{align}
+x(s) &= x_0 + s\cdot\cos(c) \\
+y(s) &= y_0 + s\cdot\sin(c)
+\end{align}
+
+\subsection{Spline Segment}
+
+The spline segment interpolates a number of user-defined control points.
+It does this by constructing two cubic splines~$x(t)$ and~$y(t)$ for each curve component.
+The original spline parameter~$t$ does not correspond to the arc length of the curve, though.
+In order to get an arc length parameterization, the arc length function~$s(t)$ is approximated numerically and inverted as~$t(s)$.
+This inverse arc length function is then used to parameterize the spline as~$x(s) = x(t(s))$ and~$y(s) = y(t(s))$.
+
+More about splines in the following sections about width and thickness.
+
+\section{Width and Thickness}
+
+The width and thickness of the limb and its layers is described by monotonic cubic splines that interpolate user-supplied control points.
+
+\subsection{Cubic $C^2$ Spline}
 
 Consider $n$ points $(x_{0},\,y_{0}) \ldots (x_{n-1},\,y_{n-1})$ with increasing values of $x$.
 We define the differences $\Delta x_{i} = x_{i+1} - x_{i}$ and $\Delta y_{i} = y_{i+1} - y_{i}$ as well as the slope $\delta_{i} = \Delta y_{i} / \Delta x_{i}$ of the secant line between two successive points.
@@ -189,10 +204,10 @@ c_{n-1} \\
 
 where $a$, $b$ and $c$ depend on the choice of boundary conditions. Since the coefficient matrix has a tridiagonal structure it can be solved very efficiently by using the Thomas algorithm.
 
-\section{Monotonicity}
+\subsection{Monotonicity}
 
 Sometimes it is desirable for an interpolating curve to preserve monotonicity of the input data, i.e. not to introduce any local minima or maxima between the given data points.
-In VirtualBow this is used for the width and layer heights, not least to ensure that those quantities are always positive if the user entered positive values.
+In VirtualBow this is used for the width and layer heights, to ensure that those quantities are always positive if the user entered positive values.
 
 One popular method for monotonic cubic interpolation is the Fritsch–Carlson method\cite{bib:fc80}, which operates on a cubic hermite spline like the one we defined above and adjusts the slopes according to some simple rules in order to make the spline monotonic within each interval.
 The only difference is that Fritsch and Carlson use finite differences to determine the initial slopes for their spline while we used the condition of $C^2$ continuity.
@@ -227,3 +242,685 @@ m_{i} = \tau_{i}\,\alpha_{i}\,\delta_{i},\quad m_{i+1} = \tau_{i}\,\beta_{i}\,\d
 
 After these modifications the spline will be monotonous within each interval, but may no longer be $C^2$ continuous.
 Also the chosen boundary conditions may no longer be fulfilled.
+
+\chapter{Element Details}
+\section{Derivatives for the Beam Element}
+\label{section:beam-element-stiffness-damping}
+
+Tangent stiffness and damping matrices:
+
+\begin{align}
+\frac{\partial\boldsymbol{Q}}{\partial u_{i}} &= \frac{\partial\boldsymbol{J}^\intercal}{\partial u_{i}}\bigg(\boldsymbol{K}_{l}\,\boldsymbol{u}_{l} + \boldsymbol{D}_{l}\,\dot{\boldsymbol{u}}_{l}\bigg) + \boldsymbol{J}^\intercal\bigg(\boldsymbol{K}_{l}\,\frac{\partial\boldsymbol{u}_{l}}{\partial u_{i}} + \boldsymbol{D}_{l}\,\frac{\partial\boldsymbol{J}}{\partial u_{i}}\dot{\boldsymbol{u}}\bigg) \notag \\
+&= \frac{\partial\boldsymbol{J}^\intercal}{\partial u_{i}}\bigg(\boldsymbol{K}_{l}\,\boldsymbol{u}_{l} + \boldsymbol{D}_{l}\,\dot{\boldsymbol{u}}_{l}\bigg) + \boldsymbol{J}^\intercal \boldsymbol{D}_{l}\,\frac{\partial\boldsymbol{J}}{\partial u_{i}}\dot{\boldsymbol{u}} + \boldsymbol{J}^\intercal\boldsymbol{K}_{l}\boldsymbol{J}_{i} \\
+\notag \\
+\frac{\partial\boldsymbol{Q}}{\partial\boldsymbol{u}} &=
+\bigg[\cdots,\,\frac{\partial\boldsymbol{Q}}{\partial u_{i}},\cdots\bigg]_{6 \times 6} \notag \\
+&= \bigg[\frac{\partial\boldsymbol{J}^\intercal}{\partial u_{i}}\bigg(\boldsymbol{K}_{l}\,\boldsymbol{u}_{l} + \boldsymbol{D}_{l}\,\dot{\boldsymbol{u}}_{l}\bigg)\bigg]_{6 \times 6} + \boldsymbol{J}^\intercal \boldsymbol{D}_{l}\bigg[\frac{\partial\boldsymbol{J}}{\partial u_{i}}\dot{\boldsymbol{u}}\bigg]_{3 \times 6} + \boldsymbol{J}^\intercal\boldsymbol{K}_{l}\boldsymbol{J} \\
+\notag \\
+\frac{\partial\boldsymbol{Q}}{\partial\dot{\boldsymbol{u}}} &= \boldsymbol{J}^\intercal\boldsymbol{D}_{l}\boldsymbol{J}
+\end{align}
+
+Jacobian of the elastic displacements:
+
+\begin{equation}
+\boldsymbol{J}(\boldsymbol{u}) = \frac{\partial\boldsymbol{u}_l}{\partial\boldsymbol{u}}
+=
+\begin{bmatrix}
+\renewcommand\arraystretch{1.5}
+-\frac{\Delta x}{l} & -\frac{\Delta y}{l} & 0 & \frac{\Delta x}{l} & \frac{\Delta y}{l} & 0 \\
+-\frac{\Delta y}{l^2} & \frac{\Delta x}{l^2} & 1 & \frac{\Delta y}{l^2} & -\frac{\Delta x}{l^2} & 0 \\
+-\frac{\Delta y}{l^2} & \frac{\Delta x}{l^2} & 0 & \frac{\Delta y}{l^2} & -\frac{\Delta x}{l^2} & 1
+\end{bmatrix}
+\end{equation}
+
+\newpage
+Further derivatives of the Jacobian:
+
+\begin{align}
+\frac{\partial \boldsymbol{J}}{\partial x_0} &= \begin{bmatrix}
+-c_0 & -c_2 & 0 & c_0 &  c_2 & 0 \\
+-c_5 &  c_3 & 0 & c_5 & -c_3 & 0 \\
+-c_5 &  c_3 & 0 & c_5 & -c_3 & 0
+\end{bmatrix} & \frac{\partial \boldsymbol{J}}{\partial x_1} &= -\frac{\partial \boldsymbol{J}}{\partial x_0} \\
+\frac{\partial \boldsymbol{J}}{\partial y_0} &= \begin{bmatrix}
+-c_2 & -c_1 & 0 & c_2 &  c_1 & 0 \\
+-c_4 &  c_5 & 0 & c_4 & -c_5 & 0 \\
+-c_4 &  c_5 & 0 & c_4 & -c_5 & 0
+\end{bmatrix} & \frac{\partial \boldsymbol{J}}{\partial y_1} &= -\frac{\partial \boldsymbol{J}}{\partial y_0} \\
+\notag \\
+\frac{\partial \boldsymbol{J}}{\partial \varphi_0} &= \boldsymbol{0} & \frac{\partial \boldsymbol{J}}{\partial \varphi_1} &= \boldsymbol{0}
+\end{align}
+
+The following abbreviations have been used here:
+
+\begin{align}
+c_0 &= \frac{\Delta x^2}{l^3} - \frac{1}{l} & c_1 &= \frac{\Delta y^2}{l^3} - \frac{1}{l} & c_2 &= \frac{\Delta y\Delta y}{l^3} \\
+c_3 &= 2\frac{\Delta x^2}{l^4} - \frac{1}{l^2} & c_4 &= 2\frac{\Delta y^2}{l^4} - \frac{1}{l^2} & c_5 &= 2\frac{\Delta y\Delta y}{l^4}
+\end{align}
+
+\newpage
+\section{Beam Stiffness Matrix by FEM}
+\label{section:beam-stiffness-matrix-alternative}
+
+As an alternative to the analytical solution by integration, the stiffness matrix of an arbitrarily shaped beam segment can be computed by approximating it with a number of straight beam elements of constant cross section.
+First of all, divide the beam segment into $n$ elements with index $i = 0 \ldots n-1$.
+The length $l_i$ and orientation angle $\alpha_i$ of each element is then given by
+
+\begin{align}
+l_{i} &= \left| r_{i+1} - r_{i} \right|, \\
+\alpha_i &= \mathrm{arctan2}\left(\frac{y_{i+1} - y_{i}}{x_{i+1} - x_{i}}\right).
+\end{align}
+
+The stiffness matrix of a straight timoshenko beam element with a constant section stiffness $\boldsymbol{C} = \mathrm{diag}(EA,\,EI,\,GA_s)$ with longitudinal stiffness $EA$, bending stiffness $EI$ and shear stiffness $GA_s$ is well known in structural mechanics, see for example~\cite{bib:GFAS}, and reads
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\overline{\boldsymbol{K}}_i = \begin{bmatrix}
+ \frac{EA_i}{l_i} &                           0 &                                0 & -\frac{EA_i}{l_i} &                           0 &                                0 \\
+            0 &  \frac{12EI_i}{l_i^3(1 + \Phi)} &        \frac{6EI_i}{l_i^2(1 + \Phi)} &             0 & -\frac{12EI_i}{l_i^3(1 + \Phi)} &        \frac{6EI_i}{l_i^2(1 + \Phi)} \\
+            0 &   \frac{6EI_i}{l_i^2(1 + \Phi)} & \frac{EI_i(4 + \Phi)}{l_i(1 + \Phi)} &             0 &  -\frac{6EI_i}{l_i^2(1 + \Phi)} & \frac{EI_i(2 - \Phi)}{l_i(1 + \Phi)} \\
+-\frac{EA_i}{l_i} &                           0 &                                0 &  \frac{EA_i}{l_i} &                           0 &                                0 \\
+            0 & -\frac{12EI_i}{l_i^3(1 + \Phi)} &       -\frac{6EI_i}{l_i^2(1 + \Phi)} &             0 &  \frac{12EI_i}{l_i^3(1 + \Phi)} &       -\frac{6EI_i}{l_i^2(1 + \Phi)} \\
+            0 &   \frac{6EI_i}{l_i^2(1 + \Phi)} & \frac{EI_i(2 - \Phi)}{l_i(1 + \Phi)} &             0 &  -\frac{6EI_i}{l_i^2(1 + \Phi)} & \frac{EI_i(4 + \Phi)}{l_i(1 + \Phi)} \\
+\end{bmatrix}
+\end{equation}
+
+with the shear parameter $\Phi = \frac{12EI}{GA_s l^2}$.
+These local stiffness matrices are transformed by the transformation matrix
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\boldsymbol{T}_i = \begin{bmatrix}
+\phantom{-}\cos(\alpha_i) & \sin(\alpha_i) & 0 & 0 & 0 & 0 \\
+          -\sin(\alpha_i) & \cos(\alpha_i) & 0 & 0 & 0 & 0 \\
+                      0 &            0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & \phantom{-}\cos(\alpha_i) & \sin(\alpha_i) & 0 \\
+0 & 0 & 0 &           -\sin(\alpha_i) & \cos(\alpha_i) & 0 \\
+0 & 0 & 0 &                       0 &            0 & 1 \\
+\end{bmatrix}
+\end{equation}
+
+in order to account for the orientation angle $\alpha$ of each element.
+This leads to the element stiffness matrices
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\boldsymbol{K}_{i} = \boldsymbol{T}_i^\intercal\,\overline{\boldsymbol{K}}_i\,\boldsymbol{T} =
+\begin{bmatrix}
+\boldsymbol{K}_{00}^{(i)} & \boldsymbol{K}_{01}^{(i)} \\
+\boldsymbol{K}_{10}^{(i)} & \boldsymbol{K}_{11}^{(i)} \\
+\end{bmatrix}
+\end{equation}
+
+which we partitioned into four equal blocks.
+Due to the interconnection of the elements, where the end node of one element is the starting node of the next one, the full stiffness matrix of the assembly is given by the following matrix of overlapping blocks,
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\boldsymbol{K}_{\mathrm{full}} = \begin{bmatrix}
+\ddots & \ddots \\
+& \boldsymbol{K}_{11}^{(i-1)} + \boldsymbol{K}_{00}^{(i)} & \boldsymbol{K}_{01}^{(i)} & \\
+& \boldsymbol{K}_{10}^{(i)} & \boldsymbol{K}_{11}^{(i)} + \boldsymbol{K}_{00}^{(i+1)} & \boldsymbol{K}_{01}^{(i+1)} \\
+&                           & \boldsymbol{K}_{10}^{(i+1)} & \boldsymbol{K}_{11}^{(i+1)} + \boldsymbol{K}_{00}^{(i+2)} \\
+&                           &                             &                                          \ddots & \ddots \\
+\end{bmatrix}.
+\end{equation}
+
+This matrix has the dimension $3(n+1) \times 3(n+1)$ and relates the forces and displacements of all nodes to each other.
+We are however only interested in the $6 \times 6$ stiffness matrix with respect to the first and last node of the assembly.
+This can be achieved by something called a \textit{static reduction} or \textit{Guyan reduction}.
+
+First of all, the full stiffness relation is partitioned as follows,
+
+\begin{equation}
+\begin{bmatrix}
+\boldsymbol{F}_{1} \\
+\boldsymbol{0} \\
+\boldsymbol{F}_{3} \\
+\end{bmatrix}
+=
+\underbrace{
+\begin{bmatrix}
+          \boldsymbol{K}_{11} &           \boldsymbol{K}_{12} & \boldsymbol{K}_{13} \\
+\boldsymbol{K}_{12}^\intercal &           \boldsymbol{K}_{22} & \boldsymbol{K}_{23} \\
+\boldsymbol{K}_{13}^\intercal & \boldsymbol{K}_{23}^\intercal & \boldsymbol{K}_{33} \\
+\end{bmatrix}
+}_{\boldsymbol{K}_{\mathrm{full}}}
+\begin{bmatrix}
+\boldsymbol{u}_{1} \\
+\boldsymbol{u}_{2} \\
+\boldsymbol{u}_{3} \\
+\end{bmatrix}
+\end{equation}
+
+where $\boldsymbol{u}_1 \in \mathbb{R}^3$ are the displacements of the first node, $\boldsymbol{u}_3 \in \mathbb{R}^3$ are the displacements of the last node and $\boldsymbol{u}_2 \in \mathbb{R}^{3n-1}$ are the displacements of all the intermediate nodes.
+Only the first and last nodes have a corresponding applied force $\boldsymbol{F}_{1}$ and $\boldsymbol{F}_{3}$ while the intermediate nodes are free of external forces.
+
+From the second block equation we can calculate the equilibrium displacements $\boldsymbol{u}_{2}$ of the intermediate nodes in terms of the other displacements,
+%
+\begin{align}
+0 &= \boldsymbol{K}_{12}^\intercal \boldsymbol{u}_1 + \boldsymbol{K}_{22}\boldsymbol{u}_2 + \boldsymbol{K}_{23}\boldsymbol{u}_3 \notag \\
+\Rightarrow \boldsymbol{u}_2 &= -\boldsymbol{K}_{22}^{-1}(\boldsymbol{K}_{12}^\intercal \boldsymbol{u}_1 + \boldsymbol{K}_{23}\boldsymbol{u}_3).
+\end{align}
+
+Using this, the intermediate displacements can be eliminated from the first and third block equations,
+%
+\begin{align}
+\boldsymbol{F}_1 &= \boldsymbol{K}_{11}\boldsymbol{u}_1 + \boldsymbol{K}_{11}\boldsymbol{u}_2 + \boldsymbol{K}_{11}\boldsymbol{u}_3 \notag \\
+   &= \boldsymbol{K}_{11}\boldsymbol{u}_1 - \boldsymbol{K}_{11}\boldsymbol{K}_{22}^{-1}(\boldsymbol{K}_{11}^\intercal \boldsymbol{u}_1 + \boldsymbol{K}_{11}\boldsymbol{u}_3) + \boldsymbol{K}_{11}\boldsymbol{u}_3 \notag \\
+   &= (\boldsymbol{K}_{11} - \boldsymbol{K}_{11}\boldsymbol{K}_{22}^{-1}\boldsymbol{K}_{11}^\intercal )\boldsymbol{u}_1 + (\boldsymbol{K}_{11} - \boldsymbol{K}_{11}\boldsymbol{K}_{22}^{-1}\boldsymbol{K}_{11})\boldsymbol{u}_3, \\
+\notag \\
+\boldsymbol{F}_3 &= \boldsymbol{K}_{11}^\intercal \boldsymbol{u}_1 + \boldsymbol{K}_{11}^\intercal \boldsymbol{u}_2 + \boldsymbol{K}_{33}\boldsymbol{u}_3 \notag \\
+   &= \boldsymbol{K}_{11}^\intercal \boldsymbol{u}_1 - \boldsymbol{K}_{11}^\intercal \boldsymbol{K}_{22}^{-1}(\boldsymbol{K}_{11}^\intercal \boldsymbol{u}_1 + \boldsymbol{K}_{11}\boldsymbol{u}_3) + \boldsymbol{K}_{33}\boldsymbol{u}_3 \notag \\
+   &= (\boldsymbol{K}_{11}^\intercal  - \boldsymbol{K}_{11}^\intercal \boldsymbol{K}_{22}^{-1}\boldsymbol{K}_{11}^\intercal )\boldsymbol{u}_1 + (\boldsymbol{K}_{33} - \boldsymbol{K}_{11}^\intercal \boldsymbol{K}_{22}^{-1}\boldsymbol{K}_{11})\boldsymbol{u}_3.
+\end{align}
+
+Finally, rearranging the forces $\boldsymbol{F}_1$ and $\boldsymbol{F}_3$ and the corresponding displacements back into the matrix form
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\begin{bmatrix}
+\boldsymbol{F}_{1} \\
+\boldsymbol{F}_{3} \\
+\end{bmatrix}
+=
+\underbrace{
+\begin{bmatrix}
+\boldsymbol{K}_{11} - \boldsymbol{K}_{12}\boldsymbol{K}_{22}^{-1}\boldsymbol{K}_{12}^\intercal   &   \boldsymbol{K}_{13} - \boldsymbol{K}_{12}\boldsymbol{K}_{22}^{-1}\boldsymbol{K}_{23} \\
+\boldsymbol{K}_{13}^\intercal - \boldsymbol{K}_{23}^\intercal \boldsymbol{K}_{22}^{-1}\boldsymbol{K}_{12}^\intercal & \boldsymbol{K}_{33} - \boldsymbol{K}_{23}^\intercal \boldsymbol{K}_{22}^{-1}\boldsymbol{K}_{23}
+\end{bmatrix}
+}_{\boldsymbol{K}_{\mathrm{red}}}
+\begin{bmatrix}
+\boldsymbol{u}_{1} \\
+\boldsymbol{u}_{3} \\
+\end{bmatrix}
+\end{equation}
+
+reveals the reduced stiffness matrix $\boldsymbol{K}_{\mathrm{red}} \in \mathbb{R}^{6 \times 6}$ as the final result.
+Some quick benchmarks have shown that this method is less efficient than the numerical integration if high precision is required (i.e. large numbers of elements).
+That's why it is only used in VirtualBow's unit tests as a cross-check for the integration-based method.
+
+\newpage
+\section{Derivatives for the String Element}
+\label{sec:derivatives-for-the-string-element}
+
+To complete the string element, the derivatives~$\nicefrac{\partial l}{\partial \boldsymbol{u}}$ and~$\nicefrac{\partial^2 l}{\partial \boldsymbol{u}^2}$ of the length with respect to the displacement vector are required.
+Since the total length $l$ is a sum of partial lengths $l_{ij}$ between the contact points, we can compute the derivatives of the partial lengths with respect to their adjacent nodes and assemble the full first derivative as
+
+\begin{equation}
+\renewcommand\arraystretch{1.5}
+\frac{\partial l}{\partial \boldsymbol{u}} = \sum_{k} \frac{\partial l_{k-1,k}}{\partial \boldsymbol{u}} =
+\begin{bmatrix}
+\frac{\partial l_{01}}{\partial x_{0}} \\
+\frac{\partial l_{01}}{\partial y_{0}} \\
+\frac{\partial l_{01}}{\partial \varphi_{0}} \\
+\frac{\partial l_{01}}{\partial x_{1}} \\
+\frac{\partial l_{01}}{\partial y_{1}} \\
+\frac{\partial l_{01}}{\partial \varphi_{1}} \\
+0 \\
+0 \\
+0 \\
+0 \\
+0 \\
+0 \\
+\vdots
+\end{bmatrix}
++
+\begin{bmatrix}
+0 \\
+0 \\
+0 \\
+\frac{\partial l_{12}}{\partial x_{1}} \\
+\frac{\partial l_{12}}{\partial y_{1}} \\
+\frac{\partial l_{12}}{\partial \varphi_{1}} \\
+\frac{\partial l_{12}}{\partial x_{2}} \\
+\frac{\partial l_{12}}{\partial y_{2}} \\
+\frac{\partial l_{12}}{\partial \varphi_{2}} \\
+0 \\
+0 \\
+0 \\
+\vdots
+\end{bmatrix}
++
+\begin{bmatrix}
+0 \\
+0 \\
+0 \\
+0 \\
+0 \\
+0 \\
+\frac{\partial l_{23}}{\partial x_{2}} \\
+\frac{\partial l_{23}}{\partial y_{2}} \\
+\frac{\partial l_{23}}{\partial \varphi_{2}} \\
+\frac{\partial l_{23}}{\partial x_{3}} \\
+\frac{\partial l_{23}}{\partial y_{3}} \\
+\frac{\partial l_{23}}{\partial \varphi_{3}} \\
+\vdots
+\end{bmatrix}
++
+\cdots
+\end{equation}
+
+Analogous for the second derivative $\partial^2 l/\partial \boldsymbol{u}^2$, which results in a block-diagonal structure of overlapping $6 \times 6$ blocks.
+
+The first derivatives of~$l_{ij}$ with respect to the positions and rotations of nodes~$i$ and~$j$ are:
+
+% https://www.wolframalpha.com/input?i=derive+sqrt%28%28x1+-+x0%29%5E2+%2B+%28y1+-+y0%29%5E2%29+wrt+x0
+% https://www.wolframalpha.com/input?i=derive+sqrt%28%28x1+-+x0%29%5E2+%2B+%28y1+-+y0%29%5E2%29+wrt+y0
+% https://www.wolframalpha.com/input?i=derive+sqrt%28%28x1+-+x0%29%5E2+%2B+%28y1+-+y0%29%5E2%29+wrt+x1
+% https://www.wolframalpha.com/input?i=derive+sqrt%28%28x1+-+x0%29%5E2+%2B+%28y1+-+y0%29%5E2%29+wrt+y1
+
+\begin{align}
+\frac{\partial l_{ij}}{\partial x_i} &= \frac{x_i - x_j}{l_{i,j}} , & \frac{\partial l_{ij}}{\partial y_i} &= \frac{y_i - y_j}{l_{i,j}}, & \frac{\partial l_{ij}}{\partial \varphi_i} &= -d_{i}\left(\frac{\partial l_{ij}}{\partial x_i}\cos(\varphi_i) + \frac{\partial l_{ij}}{\partial y_i}\sin(\varphi_i)\right) \\
+\frac{\partial l_{ij}}{\partial x_j} &= -\frac{\partial l_{i,j}}{\partial x_i}, & \frac{\partial l_{ij}}{\partial y_j} &= -\frac{\partial l_{i,j}}{\partial y_i}, & \frac{\partial l_{ij}}{\partial \varphi_j} &= -d_{j}\left(\frac{\partial l_{ij}}{\partial x_j}\cos(\varphi_j) + \frac{\partial l_{ij}}{\partial y_j}\sin(\varphi_j)\right)
+\end{align}
+
+\newpage
+The second derivatives with respect to the positions $x_i$, $x_j$, $y_i$, $y_j$ are (omitting symmetric ones since $\nicefrac{\partial l}{\partial a \partial b} = \nicefrac{\partial l}{\partial b \partial a}$):
+
+% https://www.wolframalpha.com/input?i2d=true&i=Partial%5B%5C%2840%29Sqrt%5BPower%5B%5C%2840%29x1+-+x0%5C%2841%29%2C2%5D%2BPower%5B%5C%2840%29y1+-+y0%5C%2841%29%2C2%5D%5D%5C%2841%29%2Cx0%2Cx0%5D
+
+\begin{align}
+\frac{\partial l_{ij}}{\partial x_i \partial x_i} &= \frac{(y_j - y_i)^2}{l_{ij}^3} \\
+\frac{\partial l_{ij}}{\partial x_i \partial y_i} &= -\frac{(x_j - x_i)(y_j - y_i)}{l_{ij}^3} \\
+\frac{\partial l_{ij}}{\partial x_i \partial x_j} &= -\frac{\partial l_{ij}}{\partial x_i \partial x_i} \\
+\frac{\partial l_{ij}}{\partial x_i \partial y_j} &= -\frac{\partial l_{ij}}{\partial x_i \partial y_i} \\
+\notag \\
+\frac{\partial l_{ij}}{\partial y_i \partial y_i} &= \frac{(x_j - x_i)^2}{l_{ij}^3} \\
+\frac{\partial l_{ij}}{\partial y_i \partial x_j} &= -\frac{\partial l_{ij}}{\partial x_i \partial y_i} \\
+\frac{\partial l_{ij}}{\partial y_i \partial y_j} &= -\frac{\partial l_{ij}}{\partial y_i \partial y_i} \\
+\notag \\
+\frac{\partial l_{ij}}{\partial x_j \partial x_j} &= \frac{\partial l_{ij}}{\partial x_i \partial x_i} \\
+\frac{\partial l_{ij}}{\partial x_j \partial y_j} &= \frac{\partial l_{ij}}{\partial x_i \partial y_i} \\
+\notag \\
+\frac{\partial l_{ij}}{\partial y_j \partial y_j} &= \frac{\partial l_{ij}}{\partial y_i \partial y_i}
+\end{align}
+
+\newpage
+The second derivatives involving the angles $\varphi_i$, $\varphi_j$ are:
+
+\begin{align}
+\frac{\partial^2 l_{ij}}{\partial x_{i} \partial \varphi_{j}} &= -d_{i}\left( \frac{\partial^2 l_{ij}}{\partial x_{i} \partial x_{i}}\cos(\varphi_{i}) + \frac{\partial^2 l_{ij}}{\partial x_{i} \partial y_{i}}\sin(\varphi_{i})\right) \\
+\frac{\partial^2 l_{ij}}{\partial y_{i} \partial \varphi_{i}} &= -d_{i}\left( \frac{\partial^2 l_{ij}}{\partial y_{i} \partial y_{i}}\sin(\varphi_{i}) + \frac{\partial^2 l_{ij}}{\partial x_{i} \partial y_{i}}\cos(\varphi_{i})\right) \\
+\frac{\partial^2 l_{ij}}{\partial \varphi_{i} \partial \varphi_{i}} &= -d_{i}\left(\left(\frac{\partial^2 l_{ij}}{\partial x_{i} \partial \varphi_{i}} + \frac{\partial l}{\partial \bar{y}_{i}}\right)\cos(\varphi_{i}) + \left(\frac{\partial^2 l_{ij}}{\partial y_{i} \partial \varphi_{i}} - \frac{\partial l}{\partial \bar{x}_{i}}\right)\sin(\varphi_{i})\right) \\
+\notag \\
+\frac{\partial^2 l_{ij}}{\partial x_{j} \partial \varphi_{j}} &= -d_{j}\left( \frac{\partial^2 l_{ij}}{\partial x_{j} \partial x_{j}}\cos(\varphi_{j}) + \frac{\partial^2 l_{ij}}{\partial x_{j} \partial y_{j}}\sin(\varphi_{j})\right) \\
+\frac{\partial^2 l_{ij}}{\partial y_{j} \partial \varphi_{j}} &= -d_{j}\left( \frac{\partial^2 l_{ij}}{\partial y_{j} \partial y_{j}}\sin(\varphi_{j}) + \frac{\partial^2 l_{ij}}{\partial x_{j} \partial y_{j}}\cos(\varphi_{j})\right) \\
+\frac{\partial^2 l_{ij}}{\partial \varphi_{j} \partial \varphi_{j}} &= -d_{j}\left(\left(\frac{\partial^2 l_{ij}}{\partial x_{j} \partial \varphi_{j}} + \frac{\partial l}{\partial \bar{y}_{j}}\right)\cos(\varphi_{j}) + \left(\frac{\partial^2 l_{ij}}{\partial y_{j} \partial \varphi_{j}} - \frac{\partial l}{\partial \bar{x}_{j}}\right)\sin(\varphi_{j})\right) \\
+\notag \\
+\frac{\partial^2 l_{ij}}{\partial x_{i} \partial \varphi_{j}} &= -d_{j}\left( \frac{\partial^2 l_{ij}}{\partial x_{i} \partial x_{j}}\cos(\varphi_{j}) + \frac{\partial^2 l_{ij}}{\partial x_{i} \partial y_{j}}\sin(\varphi_{j})\right) \\
+\frac{\partial^2 l_{ij}}{\partial y_{i} \partial \varphi_{j}} &= -d_{j}\left( \frac{\partial^2 l_{ij}}{\partial y_{i} \partial y_{j}}\cos(\varphi_{j}) + \frac{\partial^2 l_{ij}}{\partial y_{i} \partial x_{j}}\sin(\varphi_{j}) \right) \\
+\frac{\partial^2 l_{ij}}{\partial \varphi_{i} \partial \varphi_{j}} &= -d_{i}\left( \frac{\partial^2 l_{ij}}{\partial x_{i} \partial \varphi_{j}}\cos(\varphi_{i}) + \frac{\partial^2 l_{ij}}{\partial y_{i} \partial \varphi_{j}}\sin(\varphi_{i})\right) \\
+\notag \\
+\frac{\partial^2 l_{ij}}{\partial x_{j} \partial \varphi_{i}} &= -d_{i}\left( \frac{\partial^2 l_{ij}}{\partial x_{i} \partial x_{j}}\cos(\varphi_{i}) + \frac{\partial^2 l_{ij}}{\partial x_{i} \partial y_{j}}\sin(\varphi_{i})\right) \\
+\frac{\partial^2 l_{ij}}{\partial y_{j} \partial \varphi_{i}} &= -d_{i}\left( \frac{\partial^2 l_{ij}}{\partial x_{i} \partial y_{j}}\cos(\varphi_{i}) + \frac{\partial^2 l_{ij}}{\partial y_{i} \partial y_{j}}\sin(\varphi_{i}) \right)
+\end{align}
+
+\newpage
+\section{Vibrations of a viscoelastic bar}
+\label{chapter:viscoelastic-bar-vibrations}
+
+Consider the elastic bar shown in figure~\ref{fig:viscoelastic-bar}.
+It is fixed on the left hand side and free on the right, has a length of $L$ and can undergo longitudinal motion as described by the continuous function $u(x,\,t)$.
+We want to calculate the undamped natural frequency $\omega_0$ and associated damping ratio $\zeta$ for each eigenmode of the system.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/appendix/viscoelastic-bar}
+\caption{Kinematics and boundary conditions of the bar}
+\label{fig:viscoelastic-bar}
+\end{figure}
+
+We are going to follow the usual derivation for longitudinal vibrations of bars that can be found in many mechnaics textbooks, like \cite{bib:tm4}, except that we introduce a viscoelastic material into the mix.
+The bar is assumed to behave according to the Kelvin-Voigt model, which expresses the normal stress $\sigma$ in the bar as
+
+\begin{equation}
+\sigma = E\,\varepsilon + \eta\,\dot{\varepsilon}\label{eq:viscoelastic-bar-material}
+\end{equation}
+
+where $\varepsilon = \frac{\partial\,u}{\partial\,x}$ is the longitudinal strain, $E$ the elastic modulus and $\eta$ the viscosity of the material. The acceleration at every point in the bar is given by
+
+\begin{equation}
+\rho\,\frac{\partial^2\,u}{\partial\,t^2} = \frac{\partial\,\sigma}{\partial\,x}\label{eq:viscoelastic-bar-kinetic}
+\end{equation}
+
+where $\rho$ is the bar's density. Combining the equations (\ref{eq:viscoelastic-bar-material}) and (\ref{eq:viscoelastic-bar-kinetic}) and multiplying with the cross section area $A$ results in the equation of motion
+
+\begin{equation}
+\rho A\,\frac{\partial^2\,u}{\partial\,t^2} = EA\,\frac{\partial^2\,u}{\partial\,x^2} + \eta A\,\frac{\partial^3\,u}{\partial\,x^2\,\partial\,t}.\label{eq:viscoelastic-bar-motion}
+\end{equation}
+
+This partial differential equation can be solved by separation of variables.
+The solution is assumed to be of the form $u(x,\,t) = X(x)\,T(t)$, a product of two functions depending only on $x$ and $t$ respectively.
+Inserting this into the equation of motion (\ref{eq:viscoelastic-bar-motion}) and separating terms depending on $x$ from terms depending on $t$ leads to
+
+\begin{align}
+\rho A\,X(x)\,\ddot{T}(t) &= EA\,X''(x)\,T(t) + \eta A\,X''(x)\,\dot{T}(t)\notag \\
+\frac{X''(x)}{X(x)} &= \frac{\ddot{T}(t)}{\frac{EA}{\rho A}\,T(t) + \frac{\eta A}{\rho A}\,\dot{T}(t)} =: -\frac{\rho A}{EA}\,\omega_0^2\label{eq:viscoelastic-bar-separated}
+\end{align}
+
+Apply the usual argument: As one side of the equation depends on position and the other on time they have to be constant in order to be equal. We choose that constant to be~$-\frac{\rho A}{EA}\,\omega_0^2$ for reasons that will become clear later and obtain the two ordinary differential equations
+
+\begin{align}
+\ddot{T}(t) + \frac{\eta A}{EA}\,\omega_0^2\,\dot{T}(t) + \omega_0^2\,T(t) = 0,\label{eq:viscoelastic-bar-t} \\
+X''(x) + \frac{\rho A}{EA}\,\omega_0^2\,X(x) = 0.\label{eq:viscoelastic-bar-x}
+\end{align}
+
+The time equation (\ref{eq:viscoelastic-bar-t}) describes a damped harmonic oscillator with undamped natural frequency $\omega_0$ and damping ratio
+
+\begin{equation}
+\zeta = \frac{1}{2}\,\frac{\eta\,A}{EA}\,\omega_0\label{eq:viscoelastic-bar-result-zeta}
+\end{equation}
+
+as determined by the coefficients of the equation. The last remaining task is to determine the natural frequencies $\omega_0$ which solve the second differential equation (\ref{eq:viscoelastic-bar-x}) while also satisfying the boundary conditions of the bar. The general solution of (\ref{eq:viscoelastic-bar-x}) is
+
+\begin{equation}
+X(x) = C\cdot\sin\left(\sqrt{\frac{\rho A}{EA}}\,\omega_0\,x - \varphi\right).
+\end{equation}
+
+Boundary condition on the fixed end:
+
+\begin{align}
+u(0,\,t) = 0: \quad\quad\quad X(0)\,T(t) &= 0 \notag \\
+C\cdot\sin(-\varphi) &= 0 \notag \\
+\varphi &= 0
+\end{align}
+
+The case $T(t) = 0$ was ignored here because it is of no interest. The boundary condition for the free end is
+
+\begin{align}
+\sigma(L,\,t) = 0: \quad\quad E\,\varepsilon(L,\,t) + \eta\,\dot{\varepsilon}(L,\,t) &= 0 \notag \\
+EA\,\frac{\partial u}{\partial x}(L,\,t) + \eta A\,\frac{\partial^2 u}{\partial x\,\partial t}(L,\,t) &= 0 \notag \\
+EA\,X'(L)\,T(t) + \eta A\,X'(L)\,\dot{T}(t) &= 0 \notag \\
+(EA\,T(t) + \eta A\,\dot{T}(t))\,X'(L) &= 0 \notag \\
+\ddot{T}(t)\,X'(L) &= 0 \notag
+\end{align}
+
+And therefore the solution for the $k$-th natural frequency is
+
+\begin{align}
+X'(L) &= C\cdot\sqrt{\frac{\rho A}{EA}}\,\omega_0\cos\left(\sqrt{\frac{\rho A}{EA}}\,\omega_0\,L\right) = 0, \notag \\
+\omega_0 &= \frac{\pi(2k - 1)}{2L}\cdot\sqrt{\frac{EA}{\rho A}},\quad k \in \mathbb{Z}.\label{eq:viscoelastic-bar-result-omega}
+\end{align}
+
+And finally, with equations (\ref{eq:viscoelastic-bar-result-zeta}) and (\ref{eq:viscoelastic-bar-result-omega}) the damping ratio follow as
+
+\begin{equation}
+\zeta = \frac{\pi(2k - 1)}{4L}\cdot\frac{\eta A}{\sqrt{\rho A \cdot EA}},\quad k \in \mathbb{Z}.
+\end{equation}
+
+\chapter{Unrealized}
+
+This chapter is for unrealized ideas and improvements that have already been partly documented while exploring them, but didn't yet make it into VirtualBow for various reasons.
+
+\section{Static Step Size Control}
+
+With the displacement controlled Newton-Raphson method we can solve for static equilibrium at any given displacement.
+We often want to do this repeatedly for a whole range of target displacements.
+The static simulation of the bow, for example, produces a series of equilibrium states from brace height to full draw from which things like the force-draw curve can be extracted.
+Even if the intermediate states were of no interest, sometimes the target displacement may be too far from the initial displacement such that the Newton-Raphson iterations only converge if multiple smaller displacement steps are being made.
+
+The easiest way to move through a range of displacements is to use a fixed number of equal steps.
+This works fine as long as there is good converge at each step.
+However, during some part of this equilibrium path the step size might be too large so that there is either no convergence or many iterations are needed at each step.
+In this case we would like to decrease the step size temporarily.
+Conversely, if convergence gets better we would like to increase the displacement step again for efficiency.
+This adaption is called step size control.
+
+The method (not yet) used in VirtualBow first calculates a lower and upper bound on the displacement step as
+
+\begin{align}
+\Delta u_\mathrm{min} &= \frac{u_\mathrm{target} - u_\mathrm{start}}{n_\mathrm{max}}, \\
+\Delta u_\mathrm{max} &= \frac{u_\mathrm{target} - u_\mathrm{start}}{n_\mathrm{min}},
+\end{align}
+
+were,~$n_\mathrm{min}$ and~$n_\mathrm{max}$ are parameters that determine the minimum resolution of the output as well as the maximum resolution before the procedure is aborted when the steps become too small.
+Another required parameter is the desired number of Newton iterations $\mathrm{iter\_target}$ at each displacement step.
+We start the step size control with the maximum step of~$\Delta u = \Delta u_\mathrm{max}$.
+After performing the Newton-Raphson iterations we adjust the step size depending on whether the iteration was successful or not:
+
+\textbf{Success:} If the iterations converged, the step size is adjusted based on the number of iterations $\mathrm{iter\_actual}$ that were needed and the desired number of iterations $\mathrm{iter\_target}$:
+
+\begin{equation}
+\Delta u := \mathrm{clamp} \left\lbrace \Delta u \sqrt{\frac{\mathrm{iter\_target}}{\mathrm{iter\_actual}}},\,\Delta u_\mathrm{min},\,\Delta u_\mathrm{max} \right\rbrace
+\end{equation}
+
+In other words, the step size is decreased if more iterations than desired were needed and increased if fewer were needed.
+Also the step size is never decreased below~$\Delta u_\mathrm{min}$ or increased above~$\Delta u_\mathrm{max}$.
+
+\textbf{Failure:} In the case of iteration failure, the number of iterations can't be used to adjust the step size.
+But we know that the step size has to be reduced in order to increase the chance for a successful iteration.
+That's why it is multiplied with a reduction factor~$0 < r < 1$,
+
+\begin{equation}
+\Delta u := r \cdot \Delta u.
+\end{equation}
+
+The simulation is aborted if there was a failure and the step size can not be decreased any further (because the lower bound~$\Delta u_\mathrm{min}$ was already reached).
+
+\newpage
+\section{Backtracking Line Search}
+
+One last modification to the Newton-Raphson method, which could be important for the robustness of the static bow simulation, is a line search.
+As we saw previously, the Newton-Raphson method repeatedly computes solution increments~$\Delta\boldsymbol{x}_{i}$ based on a linearization of the objective function around the current approximation~$\boldsymbol{x}_{i}$ of the solution.
+But can we be sure that applying~$\Delta\boldsymbol{x}_{i}$ actually improves the solution?
+We can interpret~$\Delta\boldsymbol{x}_{i}$ as the direction in which the error decreases most rapidly at the current point of linearization.
+But when moving away from the point of linearization, the actual nonlinear objective function might very well change in ways that make the error go up again.
+So the step~$\Delta\boldsymbol{x}_{i}$ can actually be too large, which potentially leads to slow convergence or even failure to converge on a solution at all.
+One example where such badly behaved objective functions can arise are systems with contact events, such as the contact between limb and string in our bow model.
+
+The idea behind a line search is to keep the increments~$\Delta\boldsymbol{x}_{i}$ produced by the Newton-Raphson iterations, but instead of applying them blindly we treat them as a direction in which to develop our solution.
+How much we actually travel in that direction is determined by a separate step, the so called line search.
+First of all, the update step of the Newton-Raphson method is modified to
+
+\begin{equation}
+\boldsymbol{x}_{i+1} = \boldsymbol{x}_{i} + \alpha\Delta\boldsymbol{x}_{i}
+\end{equation}
+
+with the scalar step size $\alpha > 0$ that is to be determined by the line search.
+We define the error in the given search direction by a scalar \textit{merit function} $g(\alpha)$, often chosen as the squared norm of the residual function.
+In our case we also include the scaling matrix $\boldsymbol{S}$ used by the convergence criterion,
+
+\begin{equation}
+g(\alpha) = \lVert \boldsymbol{S}^{-1}\boldsymbol{f}(\boldsymbol{x}_{i} + \alpha\Delta\boldsymbol{x}_{i}) \rVert^2.
+\end{equation}
+
+The conceptually most simple kind of line search would be called an exact line search and consists of finding the parameter $\alpha_{min}$ that actually minimizes the merit function and therefore the residual error in the given search direction,
+
+\begin{equation}
+\alpha_{min} = \argmin_{\alpha > 0}\ g(\alpha).
+\end{equation}
+
+But this is easier written down than actually computed, which would be fairly costly.
+Usually it is more advantageous to do a much more crude search and settle for a value of~$\alpha$ that just decreases the error instead of exactly minimizing it.
+The saved computational effort can then be better invested into a new Newton iteration with a new search direction.
+Many different schemes have been established for inexact line searches.
+They can be divided into multiple categories.
+Zero-order methods only evaluate the merit function for different values of $\alpha$, but not its derivative.
+First-order methods also evaluate the first derivative
+
+\begin{equation}
+g'(\alpha) = \left(\frac{\partial g}{\partial \boldsymbol{f}}\right)^\intercal\left(\frac{\partial \boldsymbol{f}}{\partial \boldsymbol{x}} \cdot \frac{\partial \boldsymbol{x}}{\partial \alpha}\right) = 2\left(\boldsymbol{S}^{-2}\boldsymbol{f}(\boldsymbol{x}_{i} + \alpha\Delta\boldsymbol{x}_{i})\right)^\intercal\boldsymbol{J}(\boldsymbol{x}_{i} + \alpha\Delta\boldsymbol{x}_{i})\,\Delta\boldsymbol{x}
+\end{equation}
+
+of the merit function, assuming that $g(\alpha)$ is differentiable.
+Looking for a root in the first derivative of the merit function by bisection or other root finding algorithms would be examples for first-order methods.
+Curve-fitting methods additionally try to approximate the merit function by some sort of curve, like e.g. a polynomial, in order to achieve faster convergence.
+For VirtualBow, a zero-order method called \textit{Armijo Backtracking} was chosen, since zero-order methods do not assume or require any sort of nice behaviour form the merit function.
+
+The core of the scheme is trying to find a value for $\alpha$ that fulfills the \textit{Armijo condition}, also called the condition of sufficient decrease, which is written as
+
+\begin{equation}
+g(\alpha) \le g(0) + c\alpha\,g'(0).
+\end{equation}
+
+Stated in words, the value of the merit function at step length $\alpha$ must be less or equal to the linear projection according to $g(0)$ and the slope $g'(0)$, reduced by the Armijo constant $c\ \in ]0,\,1[$.
+Usually $c$ is chosen between $0.1$ and $0.0001$.
+Note that the coefficients on the right hand side of this expression are constant during each line search, which is consistent with the method being zero-order.
+
+As for the actual line searching, the method starts with the full step size $\alpha_{0} = 1$ and checks if this fulfills the Armijo condition.
+If it already does, there is no line search to be done.
+We just take the full step and continue the next Newton-Raphson iteration with barely any overhead from our line search method.
+Only if the initial step doesn't fulfill the condition, we start to backtrack by iteratively reducing the step by $\alpha_{k+1} = \tau \cdot \alpha_{k}$ with the backtracking factor $\tau\ \in (0,\,1)$.
+
+\subsection*{Constrainted Newton-Raphson}
+
+To combine the constrained newton-Raphson method with backtracking, we have to look at the complete system of equations, including the constraint and the load factor, as if it were a single equation.
+Augmented system of equations, denoted by an overline:
+
+\begin{equation}
+\overline{\boldsymbol{x}} =
+\begin{bmatrix}
+\boldsymbol{x} \\
+\lambda
+\end{bmatrix},\quad
+\overline{\boldsymbol{f}}(\overline{\boldsymbol{x}}) =
+\begin{bmatrix}
+\boldsymbol{f}(\boldsymbol{x},\,\lambda) \\
+c(\boldsymbol{x},\,\lambda)
+\end{bmatrix}
+\end{equation}
+
+Jacobian and Newton-Raphson step:
+
+\begin{equation}
+\renewcommand{\arraystretch}{1.5}
+\frac{\partial\overline{\boldsymbol{f}}}{\partial\overline{\boldsymbol{x}}} =
+\begin{bmatrix}
+\frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}} & \frac{\partial\boldsymbol{f}}{\partial\lambda} \\
+\frac{\partial c}{\partial \boldsymbol{x}} &  \frac{\partial c}{\partial \lambda}
+\end{bmatrix}
+\end{equation}
+
+Could leave it at that and use existing implementation, but efficiency etc.
+Instead, write Newton update step explicitly as
+
+\begin{equation}
+\renewcommand{\arraystretch}{1.5}
+\underbrace{
+\begin{bmatrix}
+\frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}} & \frac{\partial\boldsymbol{f}}{\partial\lambda} \\
+\frac{\partial c}{\partial \boldsymbol{x}} &  \frac{\partial c}{\partial \lambda}
+\end{bmatrix}
+}_{\frac{\partial\overline{\boldsymbol{f}}}{\partial\overline{\boldsymbol{x}}}}
+\underbrace{
+\begin{bmatrix}
+\Delta\boldsymbol{x} \\
+\Delta\lambda
+\end{bmatrix}
+}_{\Delta\overline{\boldsymbol{x}}}
+=
+-
+\underbrace{
+\begin{bmatrix}
+\boldsymbol{f}(\boldsymbol{x},\,\lambda) \\
+c(\boldsymbol{x},\,\lambda)
+\end{bmatrix}
+}_{\overline{\boldsymbol{f}}(\overline{\boldsymbol{x}})}
+\end{equation}
+
+\begin{align}
+\frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}}\Delta\boldsymbol{x} + \frac{\partial\boldsymbol{f}}{\partial\lambda}\Delta\lambda &= -\boldsymbol{f}(\boldsymbol{x},\,\lambda) \\
+\frac{\partial c}{\partial\boldsymbol{x}}\Delta\boldsymbol{x} + \frac{\partial c}{\partial\lambda}\Delta\lambda &= -c(\boldsymbol{x},\,\lambda)
+\end{align}
+
+Rest of derivation and concrete constraints form above.
+Convergence criterion:
+
+\begin{equation}
+\lVert \overline{\boldsymbol{S}}^{-1}\overline{\boldsymbol{f}} \rVert^2 = \lVert \boldsymbol{S}_{f}^{-1}\boldsymbol{f} \rVert^2 + |S_{c}^{-1}\,c|^2 < 1
+\end{equation}
+
+Slope term of the Armijo condition:
+
+\begin{align*}
+\renewcommand{\arraystretch}{1.5}
+g'(0) &= 2\left(\overline{\boldsymbol{S}}^{-2}\overline{\boldsymbol{f}}^\intercal\right)^\intercal\overline{\boldsymbol{J}}\Delta\overline{\boldsymbol{x}} \\
+&= 2
+\left(
+\begin{bmatrix}
+\boldsymbol{S}_{f}^{-2} & \\
+& S_{c}^{-2}
+\end{bmatrix}
+\begin{bmatrix}
+\boldsymbol{f} & \\
+c
+\end{bmatrix}
+\right)^\intercal
+\begin{bmatrix}
+\frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}} & \frac{\partial\boldsymbol{f}}{\partial\lambda} \\
+\frac{\partial c}{\partial \boldsymbol{x}} &  \frac{\partial c}{\partial \lambda}
+\end{bmatrix}
+\begin{bmatrix}
+\Delta\boldsymbol{x} \\
+\Delta\lambda
+\end{bmatrix} \\
+&= 2\left(\boldsymbol{S}_{f}^{-2}\boldsymbol{f}\right)^\intercal\left(\frac{\partial\boldsymbol{f}}{\partial\boldsymbol{x}}\Delta\boldsymbol{x} + \frac{\partial\boldsymbol{f}}{\partial\lambda}\Delta\lambda\right) + 2S_{c}^{-2}c\left(\frac{\partial c}{\partial\boldsymbol{x}}\Delta\boldsymbol{x} + \frac{\partial c}{\partial\lambda}\Delta\lambda\right)
+\end{align*}
+
+\subsection*{Numerical experiment}
+
+The figure shows the norm of the residual error for the static simulation of a cantilever beam with VirtualBow's FEM code.
+No line search has been used.
+The error doesn't decrease in each iteration, it zig-zags around until it eventually converges.
+Seems like something a line search would fix?
+The problem was that it never seemed to work when a line search was introduced that tries to force a monotonous decrease of the error in each iteration.
+So maybe the problem inherently needs the freedom to increase the error temporarily in order to eventually converge?
+Or the line search was not implemented correctly?
+In any case, some more thought needs to be put into this before line seaching can make its way into VirtualBow.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/solution/newton-iteration-error}
+\caption{Development of the error during Newton iterations without line search (cantilever beam example)}
+\label{fig:newton-iteration-error}
+\end{figure}
+
+\newpage
+\section{Generalized-$\boldsymbol{\alpha}$ Method}
+
+The Newmark method is the basis for various other methods that improve on some of its numerical properties.
+One of those is the Generalized-$\alpha$ method~\cite{bib:chung1993}, which itself is a generalization of various other Newmark-derived schemes.
+Its key improvement over the classical Newmark method is configurable numerical dissipation, i.e. damping of spurious oscillations in the high frequency range that are not properly resolved.
+A good description and analysis of the method for the nonlinear case can be found in \cite{bib:erlicher2002}.
+
+The Newmark approximations (\ref{eq:newmark_v}), (\ref{eq:newmark_u}) are left unchanged, but the balance equation~(\ref{eq:newmark_balance}) is modified to
+%
+\begin{equation}
+\boldsymbol{M}\boldsymbol{a}_{n+1-\alpha_m} + \boldsymbol{Q}_{n+1-\alpha_f} = \boldsymbol{P}_{n+1-\alpha_f},
+\end{equation}
+
+so the equation of motion is not evaluated at the interval end~$t_{n+1}$ but at two different points~$t_{n+1-\alpha_m}$ and~ $t_{n+1-\alpha_f}$ within the interval instead.
+This can be configured with the additional parameters~$\alpha_{m}$ and~$\alpha_{f}$.
+The intermediate displacements, velocities and accelerations are interpolated linearly as
+%
+\begin{align}
+\boldsymbol{u}_{i+1-\alpha_f} &= (1 - \alpha_f)\,\boldsymbol{u}_{i+1} + \alpha_f\boldsymbol{u}_{i} \\
+\mathbf{v}_{i+1-\alpha_f} &= (1 - \alpha_f)\,\mathbf{v}_{i+1} + \alpha_f\mathbf{v}_{i} \\
+\boldsymbol{a}_{i+1-\alpha_m} &= (1 - \alpha_m)\,\boldsymbol{a}_{i+1} + \alpha_m\boldsymbol{a}_{i}
+\end{align}
+
+For the evaluation of the forces there are several alternatives described in \cite{bib:erlicher2002}.
+The most simple one, referred to by the authors as the \textit{generalized trapezoidal rule}, is to use linear interpolation as well:
+%
+\begin{align}
+\boldsymbol{Q}_{n+1-\alpha_f} =  (1 - \alpha_f)\,\boldsymbol{Q}_{i+1} + \alpha_f\boldsymbol{Q}_{i}, \\
+\boldsymbol{P}_{n+1-\alpha_f} =  (1 - \alpha_f)\,\boldsymbol{P}_{i+1} + \alpha_f\boldsymbol{P}_{i}.
+\end{align}
+
+With this, the system of equations to solve at each time step, including its jacobian matrix, becomes
+%
+\begin{align}
+\boldsymbol{R}(\boldsymbol{a}_{n+1}) &= \boldsymbol{M}\boldsymbol{a}_{n+1-\alpha_m} + \boldsymbol{Q}_{n+1-\alpha_f} - \boldsymbol{P}_{n+1-\alpha_f}, \\
+\frac{\partial \boldsymbol{R}}{\partial \boldsymbol{a}_{n+1}} &= (1 - \alpha_m)\boldsymbol{M} + (1 - \alpha_f)\left( \gamma \Delta t \boldsymbol{D}_{n+1} + \beta \Delta t^2 \boldsymbol{K}_{n+1} \right).
+\end{align}
+
+The numerical damping of high-frequency modes is controlled by specifying the spectral radius $\rho_{\infty} \in [0,\,1]$ at infinity.
+A value of 1 corresponds to no numerical dissipation, while a value of 0 corresponds to the so-called asymptotic annihilation of the high-frequency response.
+The other constants are chosen in terms of the spectral radius as
+%
+\begin{equation}
+\alpha_m = \frac{2\rho_{\infty} - 1}{\rho_{\infty} + 1},\quad \alpha_f = \frac{\rho_{\infty}}{\rho_{\infty} + 1},\quad \beta = \frac{1}{4}\left(1 - \alpha_m + \alpha_f\right)^2,\quad \gamma = \frac{1}{2} - \alpha_m + \alpha_f.
+\end{equation}
+
+These relations guarantee second order accuracy as well as unconditional stability in the linear case.
