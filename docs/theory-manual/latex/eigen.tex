@@ -1,0 +1,73 @@
+%!TeX root=../document.tex
+
+\chapter{Modal Analysis}
+
+The goal of a modal analysis is to obtain the natural frequencies and mode shapes of a linear system.
+Natural frequencies are used in VirtualBow for determining the damping that is applied to the bow limb (see Section~\ref{sec:rayleigh-damping}) and also in some of the verification tests as a quick way to check the dynamic properties of a system.
+Since modal analysis is inherently tied to the dynamics of linear systems, we have to linearize our nonlinear system around a certain setpoint before performing one.
+The results are only meaningful for small displacements relative to that setpoint.
+
+\section{Generalized Eigenvalue Problem}
+
+The starting point is the linearization of the equations of motion~\eqref{eq:global-equation-of-motion} for the case of free vibration,
+
+\begin{equation}
+\boldsymbol{M}\Delta\ddot{\boldsymbol{u}} + \boldsymbol{D}\Delta\dot{\boldsymbol{u}} + \boldsymbol{K}\Delta\boldsymbol{u} = \boldsymbol{0} \label{eq:solution:ode-linearized}
+\end{equation}
+
+with the displacement vector~$\Delta\boldsymbol{u}$ being measured relative to the setpoint at which the system has been linearized.
+Since this is a linear, homogeneous differential equation, we can assume its solutions to take the form~$\boldsymbol{u}(t) = \hat{\boldsymbol{u}}\,e^{\lambda\,t}$ with~$\hat{\boldsymbol{u}} \in \mathbb{R}^n$ and~$\lambda \in \mathbb{C}$. Substituting this into the equation gives us the condition
+
+\begin{equation}
+\left(\lambda^2 \boldsymbol{M} + \lambda \boldsymbol{D} + \boldsymbol{K}\right)\hat{\boldsymbol{u}} = \boldsymbol{0}. \label{eq:solution:quadratic-evp}
+\end{equation}
+
+This is a \textit{quadratic eigenvalue problem}~\cite{bib:dw07}, whose solutions are the~$2n$ eigenvalues~$\lambda_{i}$ and eigenvectors~$\hat{\boldsymbol{u}}_{i}$.
+In order to compute a solution, it can be helpful to transform~\eqref{eq:solution:quadratic-evp} into the more common linear generalized eigenvalue problem
+
+\begin{equation}
+\boldsymbol{A}\boldsymbol{v} = \lambda\boldsymbol{B}\boldsymbol{v}
+\end{equation}
+
+using the following auxiliary matrices (see approach II from~\cite{bib:dw07})
+
+\begin{equation}
+\boldsymbol{A}
+=
+\begin{bmatrix}
+\boldsymbol{0} & \boldsymbol{K} \\
+\boldsymbol{K} & \boldsymbol{D}
+\end{bmatrix},
+\quad
+\boldsymbol{B}
+=
+\begin{bmatrix}
+\boldsymbol{K} & \boldsymbol{0} \\
+\boldsymbol{0} & \boldsymbol{-M}
+\end{bmatrix},
+\quad
+\boldsymbol{v}
+=
+\begin{bmatrix}
+\boldsymbol{u} \\
+\dot{\boldsymbol{u}}
+\end{bmatrix}.
+\end{equation}
+
+This can now be solved with standard methods, which we don't have to implement ourselves.
+Note that~$\boldsymbol{A}$ and~$\boldsymbol{B}$ are symmetric but not positive definite. The symmetry can be exploited when looking for an efficient algorithm.
+
+\section{Evaluating Modal Properties}
+
+For an underdamped system, which is the case if~$4\boldsymbol{K} - \boldsymbol{D}^2$ is positive definite, the eigenvalues come in complex conjugate pairs of the form~\cite{bib:li95}
+
+\begin{equation}
+\lambda_{i,\,i+1} = -\zeta_{i}\omega_{i} \pm j\omega_{i}\sqrt{1 - \zeta_{i}^2}
+\end{equation}
+
+where~$\omega_{i}$ is the~$i$-th undamped natural frequency and~$\zeta_{i}$ is the~$i$-th \textit{modal damping ratio}.
+When given the eigenvalue~$\lambda_{i} = a_{i} + jb_{i}$ with~$a_{i} = \mathrm{Re}(\lambda_i)$ and~$b_{i} = \mathrm{Im}(\lambda_i)$, these can be calculated as
+
+\begin{equation}
+\omega_{i} = \sqrt{a_{i}^2 + b_{i}^2}, \quad \zeta_{i} = -\frac{a_{i}}{\sqrt{a_{i}^2 + b_{i}^2}}.
+\end{equation}
