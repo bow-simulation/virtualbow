@@ -1,0 +1,50 @@
+/* Sizing and placement for mdBook's zoomable images.
+   Markdown images are rendered as
+       <label class="checkbox-label"><input class="checkbox-img" …>
+         <img …>                                  <- thumbnail shown in the page
+         <span class="img-wrapper"><img …></span> <- copy shown while zoomed in
+       </label>
+   so only the thumbnail may be sized here; the zoomed copy is sized by mdBook.
+
+   Individual images carry their size as --img-width / --img-height on the
+   surrounding <figure> or <div>, which inherits down to the image. */
+
+.content main .checkbox-label > img {
+    width: var(--img-width, auto);
+    height: var(--img-height, auto);
+    max-width: 100%;
+}
+
+/* Figures holding several images that belong side by side */
+.content main figure.row .checkbox-label {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 0.4em;
+}
+
+/* Images placed beside the text instead of between paragraphs */
+.content main .float-right {
+    float: right;
+    clear: right;
+    margin: 0 0 0.75em 1.25em;
+}
+
+/* Markdown wraps the image in a paragraph of its own inside the figure */
+.content main figure p {
+    margin: 0;
+}
+
+/* The only images inside tables are the damping ratio diagrams */
+.content main td .checkbox-label > img {
+    width: 200px;
+}
+
+/* Keep figures clear of the surrounding text */
+.content main figure {
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
+.content main figcaption {
+    margin-top: 0.5em;
+}

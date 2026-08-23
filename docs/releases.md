@@ -43,13 +43,12 @@ and requires [node-appdmg](https://github.com/LinusU/node-appdmg) for creating t
 * Solve all issues in the current milestone
 * Run solver tests and manually inspect plot outputs
 * Update version number and copyright notice in
-    * User manual
     * Theory manual
     * CMakeLists.txt
 * Implement the conversion from bow files of the previous version
 * Execute basic manual tests defined below on all platforms and other tests if relevant
-* Update user manual, place copy into resources/docs
-* Create new changelog entry
+* Create new changelog entry (before user manual)
+* Update user manual, run `mdbook build` to place output in resources/docs
 * Create commit, merge to master and possibly develop
 * Create a tag of the form vX.Y.Z, which triggers an automatic release
 * Edit the release description and add latest changelog entry

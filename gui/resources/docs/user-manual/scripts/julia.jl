@@ -15,19 +15,12 @@ JSON.print(stream, input, 2)
 close(stream)
 
 # Run a static simulation
-run(`virtualbow-cli --static input.bow output.res`)
+run(`virtualbow-cli static input.bow output.res`)
 
 # Load the result file
 stream = open("output.res", "r")
 output = unpack(stream)
 close(stream)
 
-# Evaluate stresses
-He_back = hcat(output["setup"]["limb_properties"]["layers"][1]["He_back"]... )
-Hk_back = hcat(output["setup"]["limb_properties"]["layers"][1]["Hk_back"]... )
-
-epsilon = output["statics"]["states"]["epsilon"][end]
-kappa   = output["statics"]["states"]["kappa"][end]
-sigma = He_back*epsilon + Hk_back*kappa
-
-println(max(sigma...))
+# Evaluate final draw force
+println(output["statics"]["final_draw_force"])
