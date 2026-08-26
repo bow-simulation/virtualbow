@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Settings - User Manual - VirtualBow v0.10.0</title>
+        <title>Settings - VirtualBow User Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -15,8 +15,8 @@
         <link rel="icon" href="favicon-de23e50b.svg">
         <link rel="shortcut icon" href="favicon-8114d1fc.png">
         <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-0392ca55.css">
-        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
         <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
@@ -28,19 +28,20 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/justify-8b465511.css">
+        <link rel="stylesheet" href="theme/images-a5c4c95c.css">
+        <link rel="stylesheet" href="theme/katex-fa97f2bc.min.css">
 
-        <!-- MathJax -->
-        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e8a6249a.js";
+            window.path_to_searchindex_js = "searchindex-108bfcbe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-7c70e051.js"></script>
+        <script src="toc-f4b496fb.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -139,7 +140,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">User Manual - VirtualBow v0.10.0</h1>
+                    <h1 class="menu-title">VirtualBow User Manual</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -176,19 +177,19 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="settings"><a class="header" href="#settings"><img src="images/icons/model-settings.png" style="height:24; vertical-align:center"> Settings</a></h1>
+                        <h1 id="settings"><a class="header" href="#settings"><img src="images/icons/model-settings.png" style="height:24px; vertical-align:baseline"> Settings</a></h1>
 <p>The Settings allow you to fine-tune how the simulation is carried out.
 In most cases, the default values provide a good balance and will work just fine, so if you are reading this manual for the first time, you may choose to skip this section and revisit it later if needed.</p>
-<p>Because the default settings are chosen as a reliable general choice, they prioritize accuracy and stability over raw simulation speed.
-For certain tasks, however - such as running a large number of scripted simulations - it may be worthwile to adjust the settings for better performance.
+<p>Because the default settings are meant to be general-purpose, they prioritize accuracy and stability over raw simulation speed.
+For certain tasks, however — such as running a large number of scripted simulations — it may be worthwhile to adjust the settings for better performance.
 Conversely, some bow designs may occasionally fail with default settings, in which case alternative settings can help the simulation complete successfully.</p>
-<p>The available options are divided into general settings that affect both simulation modes, as well as mode‑specific settings for the static and dynamic simulations.</p>
+<p>The available options are divided into general settings that affect both simulation modes and mode-specific settings for the static and dynamic simulations.</p>
 <h2 id="general"><a class="header" href="#general">General</a></h2>
 <p><strong>Limb elements:</strong> Number of finite elements used to approximate the limb geometry.
 Increasing this value improves accuracy at the cost of longer computation times.</p>
 <p><strong>Limb sample points:</strong> Number of sampling points along the limb where stresses, strains and other quantities are evaluated.
 Higher values produce result plots with a finer resolution.
-The added computational cost of increasing this value is small, but beyond a certain point the increased resolution offers no practical advantage anymore.</p>
+The added computational cost of increasing this value is small, but beyond a certain point the increased resolution no longer offers any practical advantage.</p>
 <h2 id="statics"><a class="header" href="#statics">Statics</a></h2>
 <p><strong>Min. draw resolution:</strong> Defines the minimum number of steps the static simulation takes as it progresses from brace height to full draw.
 A higher value increases the resolution of the static results.
@@ -197,7 +198,7 @@ You can usually reduce this value to speed up the simulation, especially if you 
 This setting is currently unused, but future versions of VirtualBow might use it for adaptive step size control.</p>
 <p><strong>Iteration tolerance:</strong> Stopping tolerance for the static equilibrium iterations. This value is a tradeoff between accuracy and simulation time.
 A tolerance that is too large may produce inaccurate results, while one that is too small wastes computation on unnecessary precision.
-Both an overly low and an overly high tolerance can eventually lead to simulation failure.</p>
+Both an overly low and an overly high tolerance can cause the simulation to fail.</p>
 <h2 id="dynamics"><a class="header" href="#dynamics">Dynamics</a></h2>
 <p><strong>Arrow clamp force:</strong> The force the arrow must overcome to separate from the string.
 This value is set fairly low by default.
@@ -208,7 +209,7 @@ For numerical reasons, however, the compressive stiffness cannot be set to zero,
 <p><strong>Timespan factor:</strong> This factor controls the duration of the simulated time interval.
 A value of 100% corresponds to the moment when the arrow passes brace height.
 The default value is higher to capture events that may occur after the arrow has left the bow, such as peak forces and stresses on the limbs and string.</p>
-<p><strong>Timeout factor:</strong> Factor controlling the timeout of the dynamic simulation.
+<p><strong>Timeout factor:</strong> Controls how long the dynamic simulation may run before it is aborted.
 The simulation is aborted if arrow separation has not occurred by the time the simulated duration exceeds this factor multiplied by a reference time determined for the bow.</p>
 <p><strong>Min. timestep:</strong> Lower bound for the time step of the dynamic simulation. The solver adjusts its step size automatically, but this setting ensures that the steps stay large enough to prevent the simulation from slowing to a crawl.</p>
 <p><strong>Max. timestep:</strong> Upper bound for the time step of the dynamic simulation. The solver adjusts its step size automatically, but this setting ensures that the steps stay small enough to maintain sufficient detail in the results.</p>
@@ -217,7 +218,7 @@ This serves as the target the solver uses when adjusting its time step.
 Increasing it improves accuracy and stability, at the cost of additional computation time.</p>
 <p><strong>Iteration tolerance:</strong> Stopping tolerance for the dynamic equilibrium iterations. This value is a tradeoff between accuracy and simulation time.
 A tolerance that is too large may produce inaccurate results, while one that is too small wastes computation on unnecessary precision.
-Both an overly low and an overly high tolerance can eventually lead to simulation failure.</p>
+Both an overly low and an overly high tolerance can cause the simulation to fail.</p>
 
                     </main>
 
@@ -267,7 +268,7 @@ Both an overly low and an overly high tolerance can eventually lead to simulatio
 
         <script src="clipboard-1626706a.min.js"></script>
         <script src="highlight-5a157b91.js"></script>
-        <script src="book-c22b7243.js"></script>
+        <script src="book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 

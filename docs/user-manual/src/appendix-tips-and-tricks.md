@@ -1,0 +1,99 @@
+# Tips & Tricks
+
+This section collects various notes about useful VirtualBow features that didn't quite fit into any other part of the manual.
+
+## Units
+
+Manually converting between units is tedious and error-prone.
+That's why all inputs and outputs in VirtualBow have a configurable unit that can be changed under *Options* → *Units*.
+
+<figure style="--img-width: 400px">
+
+![Unit selection dialog](images/screenshots/editor/units.png)
+
+  <figcaption><b>Figure:</b> Unit selection dialog</figcaption>
+</figure>
+
+In this dialog you can select units for different categories of values.
+Changing the unit for *Length*, for example, will change the unit wherever lengths are shown (e.g. width, layer thickness, dimensions).
+There are also two pre-defined sets of defaults, one for SI units and one for US units.
+You can use those by clicking either of the buttons in the bottom left.
+
+It is worth noting that the units only affect how values are shown in the user interface.
+The data in the model and result files is always stored in SI base units.
+
+## Plots
+
+**Background images**
+
+Any plot can be given a background image.
+After selecting *Background image...* in the plot's context menu, you can load an image and adjust its position and orientation.
+
+<figure style="--img-width: 600px">
+
+![Background image dialog](images/screenshots/editor/plot-overlay.png)
+
+  <figcaption><b>Figure:</b> Background image dialog</figcaption>
+</figure>
+
+This feature can be used to model existing bows more easily or to compare the simulation results with actual photographs.
+Background images are only temporary; they are not saved with the model files.
+
+**File exports**
+
+Plots can be exported to various image and data formats using the menu entry *Export as...*.
+Supported export formats are:
+
+* PDF vector graphic
+
+* PNG image
+
+* BMP image
+
+* CSV table
+
+**Other options**
+
+Some of the plots have additional context menu entries.
+The profile plot, for example, has options to show or hide control points or visualize the curvature.
+
+## Number inputs
+
+Number input fields may seem simple, but there are a few details worth knowing to use them more effectively.
+
+<figure style="--img-width: 150px">
+
+![Number input field](images/screenshots/editor/spinbox.png)
+
+  <figcaption><b>Figure:</b> Number input field</figcaption>
+</figure>
+
+**Arithmetic expressions**
+
+Most number input fields in VirtualBow accept arithmetic expressions.
+This means that you can enter expressions like `1 + 5/2`, press Enter, and it will automatically be evaluated to `3.5`.
+Supported operations are `+`, `-`, `*`, `/`, `^` and grouping with `(` and `)`.
+
+**Decimal separator**
+
+VirtualBow uses a dot (`.`) as the decimal separator for numbers, regardless of local conventions.
+However, since some countries use a comma (`,`) instead, their keyboard layouts have a comma on the number pad, making it cumbersome to enter numbers with a dot.
+Therefore, to make things easier for such users, the comma on the number pad is automatically converted to a dot.
+
+**Scrolling**
+
+The little arrow buttons on the right of the input field can be used to increment/decrement the value.
+Scrolling the mouse wheel while the field is selected does the same thing, just faster.
+This can be used to quickly move through a whole range of values, which is especially useful when editing the bow's geometry and observing the changes in the plots and the 3D view.
+
+## Tables
+
+Content in tables can be copied, cut, pasted and deleted using either the context menu or the standard shortcuts.
+Copy and paste also works between VirtualBow and other applications, for example spreadsheet software like Excel or LibreOffice Calc.
+
+<figure style="--img-width: 250px">
+
+![Table context menu](images/screenshots/editor/tableview.png)
+
+  <figcaption><b>Figure:</b> Table context menu</figcaption>
+</figure>

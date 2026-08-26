@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Profile - User Manual - VirtualBow v0.10.0</title>
+        <title>Profile - VirtualBow User Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -15,8 +15,8 @@
         <link rel="icon" href="favicon-de23e50b.svg">
         <link rel="shortcut icon" href="favicon-8114d1fc.png">
         <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-0392ca55.css">
-        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
         <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
@@ -28,19 +28,20 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/justify-8b465511.css">
+        <link rel="stylesheet" href="theme/images-a5c4c95c.css">
+        <link rel="stylesheet" href="theme/katex-fa97f2bc.min.css">
 
-        <!-- MathJax -->
-        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e8a6249a.js";
+            window.path_to_searchindex_js = "searchindex-108bfcbe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-7c70e051.js"></script>
+        <script src="toc-f4b496fb.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -139,7 +140,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">User Manual - VirtualBow v0.10.0</h1>
+                    <h1 class="menu-title">VirtualBow User Manual</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -176,62 +177,50 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="profile"><a class="header" href="#profile"><img src="images/icons/model-profile.png" style="height:24; vertical-align:center"> Profile</a></h1>
+                        <h1 id="profile"><a class="header" href="#profile"><img src="images/icons/model-profile.png" style="height:24px; vertical-align:baseline"> Profile</a></h1>
 <p>The profile defines the shape of the bow in its unbraced state.
-It establishes the limb’s base curvature before any string tension is applied, and therefore determines the fundamental design of the bow - such as a straight longbow form, reflex/deflex, recurve, or any other variation.</p>
-<figure>
-  <a href="images/screenshots/editor/profile.png" target="_blank">
-    <img src="images/screenshots/editor/profile.png" width="200px">
-  </a>
+It establishes the limb’s base curvature before any string tension is applied, and therefore determines the fundamental design of the bow — such as a straight longbow form, reflex/deflex, recurve, or any other variation.</p>
+<figure style="--img-width: 200px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/profile.png" alt="Profile segments in the model tree"><span class="img-wrapper"><img src="images/screenshots/editor/profile.png" alt="Profile segments in the model tree"></span></label></p>
   <figcaption><b>Figure:</b> Profile segments in the model tree</figcaption>
 </figure>
-<p>If the <em>Profile</em> category in the model tree is selected, the buttons (<img src="images/icons/list-add.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-remove.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-up.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-down.svg" style="width:20; vertical-align:middle">) can be used to add, remove, and reorder the segments that make up the profile curve (such as lines, arcs, and other types).
+<p>If the <em>Profile</em> category in the model tree is selected, the buttons (<img src="images/icons/list-add.svg" style="width:20px; vertical-align:middle">, <img src="images/icons/list-remove.svg" style="width:20px; vertical-align:middle">, <img src="images/icons/list-move-up.svg" style="width:20px; vertical-align:middle">, <img src="images/icons/list-move-down.svg" style="width:20px; vertical-align:middle">) can be used to add, remove and reorder the segments that make up the profile curve (such as lines, arcs, and other types).
 The properties available for each segment depend on its type and are described below.
 The resulting profile shape is displayed in the <em>Graph</em> panel.
 The plot’s context menu provides additional options, such as showing or hiding control points, displaying curvature, or adding an overlay image.</p>
-<figure>
-  <a href="images/screenshots/editor/profile-plot.png" target="_blank">
-    <img src="images/screenshots/editor/profile-plot.png" width="800px">
-  </a>
+<figure style="--img-width: 800px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/profile-plot.png" alt="Profile plot"><span class="img-wrapper"><img src="images/screenshots/editor/profile-plot.png" alt="Profile plot"></span></label></p>
   <figcaption><b>Figure:</b> Profile plot</figcaption>
 </figure>
-<h2 id="line-segments"><a class="header" href="#line-segments">Line Segments</a></h2>
+<h2 id="line-segments"><a class="header" href="#line-segments">Line segments</a></h2>
 <p>A line segment represents a straight section of the profile.
 Its only adjustable property is its <strong>length</strong>.</p>
-<figure>
-  <a href="images/segment-line.svg" target="_blank">
-    <img src="images/segment-line.svg" width="500px">
-  </a>
+<figure style="--img-width: 500px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/segment-line.svg" alt="Line segment properties"><span class="img-wrapper"><img src="images/segment-line.svg" alt="Line segment properties"></span></label></p>
   <figcaption><b>Figure:</b> Line segment properties</figcaption>
 </figure>
-<h2 id="arc-segments"><a class="header" href="#arc-segments">Arc Segments</a></h2>
-<p>An arc segmnent represents a circular arc defined by its <strong>length</strong> and <strong>radius</strong>.
+<h2 id="arc-segments"><a class="header" href="#arc-segments">Arc segments</a></h2>
+<p>An arc segment represents a circular arc defined by its <strong>length</strong> and <strong>radius</strong>.
 The radius may be positive or negative, which determines the direction in which the arc curves.
 A radius of zero will be interpreted as a straight line instead.</p>
-<figure>
-  <a href="images/segment-arc.svg" target="_blank">
-    <img src="images/segment-arc.svg" width="400px">
-  </a>
+<figure style="--img-width: 400px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/segment-arc.svg" alt="Arc segment properties"><span class="img-wrapper"><img src="images/segment-arc.svg" alt="Arc segment properties"></span></label></p>
   <figcaption><b>Figure:</b> Arc segment properties</figcaption>
 </figure>
-<h2 id="spiral-segments"><a class="header" href="#spiral-segments">Spiral Segments</a></h2>
+<h2 id="spiral-segments"><a class="header" href="#spiral-segments">Spiral segments</a></h2>
 <p>A spiral segment represents an <a href="https://en.wikipedia.org/wiki/Euler_spiral">Euler spiral</a>, a curve whose curvature changes linearly along its length.
 This makes it ideal for creating smooth transitions between straight lines and arcs, or between arcs of different radii.
 It is defined by a <strong>start radius</strong>, an <strong>end radius</strong>, and a <strong>length</strong>.
 Both the start and end radius may be positive, negative, or zero, allowing the spiral’s endpoints to curve in either direction or transition seamlessly into straight sections.</p>
-<figure>
-  <a href="images/segment-spiral.svg" target="_blank">
-    <img src="images/segment-spiral.svg" width="400px">
-  </a>
+<figure style="--img-width: 400px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/segment-spiral.svg" alt="Spiral segment properties"><span class="img-wrapper"><img src="images/segment-spiral.svg" alt="Spiral segment properties"></span></label></p>
   <figcaption><b>Figure:</b> Spiral segment properties</figcaption>
 </figure>
-<h2 id="spline-segments"><a class="header" href="#spline-segments">Spline Segments</a></h2>
+<h2 id="spline-segments"><a class="header" href="#spline-segments">Spline segments</a></h2>
 <p>A spline segment interpolates a series of <code>(x, y)</code> points using a cubic spline curve.
 The coordinates are specified relative to the segment’s starting point (i.e. the end point of the previous segment, if present).</p>
-<figure>
-  <a href="images/segment-spline.svg" target="_blank">
-    <img src="images/segment-spline.svg" width="400px">
-  </a>
+<figure style="--img-width: 400px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/segment-spline.svg" alt="Spline segment properties"><span class="img-wrapper"><img src="images/segment-spline.svg" alt="Spline segment properties"></span></label></p>
   <figcaption><b>Figure:</b> Spline segment properties</figcaption>
 </figure>
 
@@ -283,7 +272,7 @@ The coordinates are specified relative to the segment’s starting point (i.e. t
 
         <script src="clipboard-1626706a.min.js"></script>
         <script src="highlight-5a157b91.js"></script>
-        <script src="book-c22b7243.js"></script>
+        <script src="book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 

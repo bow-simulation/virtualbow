@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Handle - User Manual - VirtualBow v0.10.0</title>
+        <title>Handle - VirtualBow User Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -15,8 +15,8 @@
         <link rel="icon" href="favicon-de23e50b.svg">
         <link rel="shortcut icon" href="favicon-8114d1fc.png">
         <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-0392ca55.css">
-        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
         <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
@@ -28,19 +28,20 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/justify-8b465511.css">
+        <link rel="stylesheet" href="theme/images-a5c4c95c.css">
+        <link rel="stylesheet" href="theme/katex-fa97f2bc.min.css">
 
-        <!-- MathJax -->
-        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e8a6249a.js";
+            window.path_to_searchindex_js = "searchindex-108bfcbe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-7c70e051.js"></script>
+        <script src="toc-f4b496fb.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -139,7 +140,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">User Manual - VirtualBow v0.10.0</h1>
+                    <h1 class="menu-title">VirtualBow User Manual</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -176,55 +177,43 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="handle"><a class="header" href="#handle"><img src="images/icons/model-handle.png" style="height:24; vertical-align:center"> Handle</a></h1>
+                        <h1 id="handle"><a class="header" href="#handle"><img src="images/icons/model-handle.png" style="height:24px; vertical-align:baseline"> Handle</a></h1>
 <p>This category determines how the middle section of the bow is modeled.
 There are two options to choose from: <em>Flexible</em> and <em>Rigid</em>.
 Selecting <em>Flexible</em> means the middle section is fully modeled and simulated as part of the limb geometry you define later.
 If your bow has a middle section that shouldn’t or can’t be modeled in VirtualBow, choose <em>Rigid</em> to specify the dimensions of a rigid section placed between the limbs.</p>
 <h2 id="flexible"><a class="header" href="#flexible">Flexible</a></h2>
-<p>A flexible handle is the simplest option - no additional parameters are required.
+<p>A flexible handle is the simplest option — no additional parameters are required.
 You model the handle as part of the limb geometry, and the simulation treats it just like the rest of the limb.
 Of course, the options for modeling intricate handle geometries in VirtualBow are limited, since this is not its primary focus.</p>
-<figure>
-  <a href="images/screenshots/editor/handle-flexible-example-1.png" target="_blank">
-    <img src="images/screenshots/editor/handle-flexible-example-1.png" height="110px">
-  </a>
-  <a href="images/screenshots/editor/handle-flexible-example-2.png" target="_blank">
-    <img src="images/screenshots/editor/handle-flexible-example-2.png" height="110px">
-  </a>
-  <a href="images/screenshots/editor/handle-flexible-example-3.png" target="_blank">
-    <img src="images/screenshots/editor/handle-flexible-example-3.png" height="110px">
-  </a>
-  <figcaption><b>Figure:</b> Some examples for bows with a handle modeled as <i>Flexible</i>. It doesn't matter whether the handle actually flexes significantly or not.</figcaption>
+<figure class="row" style="--img-height: 110px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/handle-flexible-example-1.png" alt="Handle flexible example 1"><span class="img-wrapper"><img src="images/screenshots/editor/handle-flexible-example-1.png" alt="Handle flexible example 1"></span></label>
+<label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/handle-flexible-example-2.png" alt="Handle flexible example 2"><span class="img-wrapper"><img src="images/screenshots/editor/handle-flexible-example-2.png" alt="Handle flexible example 2"></span></label>
+<label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/handle-flexible-example-3.png" alt="Handle flexible example 3"><span class="img-wrapper"><img src="images/screenshots/editor/handle-flexible-example-3.png" alt="Handle flexible example 3"></span></label></p>
+  <figcaption><b>Figure:</b> Some examples of bows with a handle modeled as <i>Flexible</i>. It doesn't matter whether the handle actually flexes significantly or not.</figcaption>
 </figure>
 <p>The bow’s pivot point, which is later needed for defining brace height and draw length, is automatically placed on the belly side of the bow’s center.</p>
 <h2 id="rigid"><a class="header" href="#rigid">Rigid</a></h2>
 <p>Selecting <em>Rigid</em> allows you to specify a rigid middle section of the bow to which the limbs are attached.
-This configuration is typical for takedown bows with a riser, but it can also be used for other middle‑section designs that you prefer not to model explicitly in VirtualBow.</p>
-<figure>
-  <a href="images/screenshots/editor/handle-rigid-example-1.png" target="_blank">
-    <img src="images/screenshots/editor/handle-rigid-example-1.png" width="300px">
-  </a>
-  <a href="images/screenshots/editor/handle-rigid-example-2.png" target="_blank">
-    <img src="images/screenshots/editor/handle-rigid-example-2.png" width="300px">
-  </a>
+This configuration is typical for takedown bows with a riser, but it can also be used for other middle section designs that you prefer not to model explicitly in VirtualBow.</p>
+<figure class="row" style="--img-width: 300px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/handle-rigid-example-1.png" alt="Handle rigid example 1"><span class="img-wrapper"><img src="images/screenshots/editor/handle-rigid-example-1.png" alt="Handle rigid example 1"></span></label>
+<label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/handle-rigid-example-2.png" alt="Handle rigid example 2"><span class="img-wrapper"><img src="images/screenshots/editor/handle-rigid-example-2.png" alt="Handle rigid example 2"></span></label></p>
   <figcaption><b>Figure:</b> Some examples of bows with a handle modeled as <i>Rigid</i>.</figcaption>
 </figure>
 <p>The following parameters are required for a rigid handle.
 They determine the spacing and orientation of the two limbs as well as the placement of the pivot point.
 See also the figure below for a visual definition of each parameter.</p>
 <p><strong>Length:</strong> Specifies the length of the rigid middle section, measured as the distance between the limb attachment points.
-The limbs are attached to the attachment points by their belly-side edges.</p>
+The limbs are attached at these points by their belly-side edges.</p>
 <p><strong>Angle:</strong> Sets the angle at which the limbs attach to the rigid middle section.
-Positive angles add reflex; negative angles add deflex.</p>
+Positive angles add reflex to the limbs; negative angles add deflex.</p>
 <p><strong>Pivot:</strong> Defines the position of the pivot point relative to the limb attachment points.
-Positive values add reflex; negative values add deflex.
+Positive values add reflex to the middle section; negative values add deflex.
 The pivot point is used as the reference for measuring brace height and draw length.</p>
-<figure>
-  <a href="images/rigid-handle.svg" target="_blank">
-    <img src="images/rigid-handle.svg" width="600px">
-  </a>
-  <figcaption><b>Figure:</b> Definition of the rigid handle dimensions, shown here on a typical modern recurve‑bow riser. Note that the actual flexible limbs start at the attachment points, the portion fixed to the riser belongs to the middle section.</figcaption>
+<figure style="--img-width: 600px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/rigid-handle.svg" alt="Definition of the rigid handle dimensions on a recurve riser"><span class="img-wrapper"><img src="images/rigid-handle.svg" alt="Definition of the rigid handle dimensions on a recurve riser"></span></label></p>
+  <figcaption><b>Figure:</b> Definition of the rigid handle dimensions, shown here on a typical modern recurve-bow riser. Note that the actual flexible limbs start at the attachment points; the portion fixed to the riser belongs to the middle section.</figcaption>
 </figure>
 <br>
 <blockquote class="blockquote-tag blockquote-tag-note">
@@ -233,8 +222,8 @@ The pivot point is used as the reference for measuring brace height and draw len
 </blockquote>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>You may still choose <em>Rigid</em> for the additional settings even when the handle itself is modeled as part of the limb geometry.
-This is useful, for example, if you want to override the pivot point placement: simply define a zero‑length rigid handle and set the pivot point as needed.</p>
+<p>You may still choose <em>Rigid</em> just for the additional settings, even when the handle itself is modeled as part of the limb geometry.
+This is useful, for example, if you want to override the pivot point placement: simply define a zero-length rigid handle and set the pivot point as needed.</p>
 </blockquote>
 
                     </main>
@@ -285,7 +274,7 @@ This is useful, for example, if you want to override the pivot point placement: 
 
         <script src="clipboard-1626706a.min.js"></script>
         <script src="highlight-5a157b91.js"></script>
-        <script src="book-c22b7243.js"></script>
+        <script src="book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 

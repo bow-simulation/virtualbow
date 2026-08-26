@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Draw - User Manual - VirtualBow v0.10.0</title>
+        <title>Draw - VirtualBow User Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -15,8 +15,8 @@
         <link rel="icon" href="favicon-de23e50b.svg">
         <link rel="shortcut icon" href="favicon-8114d1fc.png">
         <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-0392ca55.css">
-        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
         <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
@@ -28,19 +28,20 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/justify-8b465511.css">
+        <link rel="stylesheet" href="theme/images-a5c4c95c.css">
+        <link rel="stylesheet" href="theme/katex-fa97f2bc.min.css">
 
-        <!-- MathJax -->
-        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e8a6249a.js";
+            window.path_to_searchindex_js = "searchindex-108bfcbe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-7c70e051.js"></script>
+        <script src="toc-f4b496fb.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -139,7 +140,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">User Manual - VirtualBow v0.10.0</h1>
+                    <h1 class="menu-title">VirtualBow User Manual</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -176,17 +177,17 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="draw"><a class="header" href="#draw"><img src="images/icons/model-draw.png" style="height:24; vertical-align:center"> Draw</a></h1>
-<p>Here, the brace height and draw length under which the bow operates are defined.
+                        <h1 id="draw"><a class="header" href="#draw"><img src="images/icons/model-draw.png" style="height:24px; vertical-align:baseline"> Draw</a></h1>
+<p>This section defines the brace height and draw length at which the bow is operated.
 Both values reference the bow’s pivot point, which is configured in the <a href="model-editor-handle.html">Handle</a> section, so they only become meaningful once the handle has been properly set up.
 See also the figure below for a visual definition of each parameter.</p>
 <p><strong>Brace height:</strong> The brace height is measured as the distance between the bowstring and the handle’s pivot point on the braced bow.
 VirtualBow automatically determines the string length required to achieve the specified brace height.</p>
 <p><strong>Draw length:</strong> The bow’s draw length can be specified according to two conventions.
-Choosing between them is purely a matter of preference and convenience and has no other effects.</p>
+Choosing between them is purely a matter of preference and convenience; it has no other effect.</p>
 <ul>
 <li>
-<p><strong>Standard:</strong> Under the <em>Standard</em> convention, the draw length is defined as the distance between the handle’s pivot point and the string at full draw - sometimes referred to as the <em>true</em> draw length.</p>
+<p><strong>Standard:</strong> Under the <em>Standard</em> convention, the draw length is defined as the distance between the handle’s pivot point and the string at full draw — sometimes referred to as the <em>true</em> draw length.</p>
 </li>
 <li>
 <p><strong>AMO:</strong> The alternative is the <em>AMO</em> convention, defined by the <em>Archery Manufacturers Organization</em>, where the draw length is taken as the pivot-to-string distance plus 1.75 inches.
@@ -194,46 +195,10 @@ This definition is widely used by bow manufacturers.</p>
 </li>
 </ul>
 <br>
-<figure>
-  <a href="images/draw-definition.svg" target="_blank">
-    <img src="images/draw-definition.svg" width="600px">
-  </a>
+<figure style="--img-width: 600px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/draw-definition.svg" alt="Definition of the brace height and draw length in both conventions"><span class="img-wrapper"><img src="images/draw-definition.svg" alt="Definition of the brace height and draw length in both conventions"></span></label></p>
   <figcaption><b>Figure:</b> Definition of the brace height and draw length in both conventions.</figcaption>
 </figure>
-<!--
-
-# Dimensions
-
-The dimensions define some overall lengths and angles of the bow, including an optional stiff middle section.
-
-<figure>
-  <img src="images/screenshots/editor/dimensions.png" style="width:200px">
-  <figcaption><b>Figure:</b> Dimensions</figcaption>
-</figure>
-
-**Draw**
-
-- **Brace height:** Distance between the deepest point of the handle and the string at rest
-
-- **Draw length:** Distance between the deepest point of the handle and the string at full draw
-
-**Handle**
-
-- **Length:** Optional length of a stiff middle section (grip/riser) between the limbs
-
-- **Setback:** Distance between the deepest point of the grip and the attachment point of the limbs to the middle section
-
-- **Angle:** Angle at which the limbs are attached to the middle section
-
-See the image below for a visual definition of the dimensions.
-
-<figure>
-  <img src="images/dimensions.svg" style="width:200px">
-  <figcaption><b>Figure:</b> Definition of the dimensions</figcaption>
-</figure>
-
--->
-
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
@@ -282,7 +247,7 @@ See the image below for a visual definition of the dimensions.
 
         <script src="clipboard-1626706a.min.js"></script>
         <script src="highlight-5a157b91.js"></script>
-        <script src="book-c22b7243.js"></script>
+        <script src="book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 

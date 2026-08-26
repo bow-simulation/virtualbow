@@ -1,0 +1,8 @@
+/* Justified body text with automatic hyphenation */
+
+.content main p,
+.content main li {
+    text-align: justify;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+}

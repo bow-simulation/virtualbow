@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Damping - User Manual - VirtualBow v0.10.0</title>
+        <title>Damping - VirtualBow User Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -15,8 +15,8 @@
         <link rel="icon" href="favicon-de23e50b.svg">
         <link rel="shortcut icon" href="favicon-8114d1fc.png">
         <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-0392ca55.css">
-        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
         <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
@@ -28,19 +28,20 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/justify-8b465511.css">
+        <link rel="stylesheet" href="theme/images-a5c4c95c.css">
+        <link rel="stylesheet" href="theme/katex-fa97f2bc.min.css">
 
-        <!-- MathJax -->
-        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e8a6249a.js";
+            window.path_to_searchindex_js = "searchindex-108bfcbe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-7c70e051.js"></script>
+        <script src="toc-f4b496fb.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -139,7 +140,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">User Manual - VirtualBow v0.10.0</h1>
+                    <h1 class="menu-title">VirtualBow User Manual</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -176,15 +177,15 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="damping"><a class="header" href="#damping"><img src="images/icons/model-damping.png" style="height:24; vertical-align:center"> Damping</a></h1>
+                        <h1 id="damping"><a class="header" href="#damping"><img src="images/icons/model-damping.png" style="height:24px; vertical-align:baseline"> Damping</a></h1>
 <p>Damping accounts for energy dissipation, such as losses caused by internal friction or hysteresis in the materials.
 It affects only the dynamic analysis.</p>
 <p>A typical bow loses only a small part of its efficiency to energy dissipation.
-Most of the loss comes from kinetic energy that remains in the bow after the arrow leaves the string.
-For this reason, the damping parameters are not critical for modelling overall bow performance.
-They do however make the behaviour of the bow after the shot more realistic, since without damping the bow’s motion would never decay.</p>
-<p>Because modelling every form of energy dissipation in a bow in an exact way would be way too complex, the damping is reduced to two empirical values:
-The damping ratio of the <strong>Limbs</strong> and the damping ratio of the <strong>String</strong>.
+Most of its losses come instead from kinetic energy that remains in the bow after the arrow leaves the string.
+For this reason, the damping parameters are not critical for modeling overall bow performance.
+They do however make the behavior of the bow after the shot more realistic, since without damping the bow’s motion would never decay.</p>
+<p>Because modeling every form of energy dissipation in a bow in an exact way would be far too complex, the damping is reduced to two empirical values:
+the damping ratio of the <strong>Limbs</strong> and the damping ratio of the <strong>String</strong>.
 The <a href="https://en.wikipedia.org/wiki/Damping">damping ratio</a> describes how quickly oscillations decay over time:</p>
 <ul>
 <li>
@@ -199,8 +200,8 @@ The <a href="https://en.wikipedia.org/wiki/Damping">damping ratio</a> describes 
 </ul>
 <p>See the table below for a visualization of these three cases.
 The damping ratios of a bow’s limbs and string are largely empirical, and there is still limited practical experience with them.
-Realistic values are probably in the range of <strong>1 - 10%</strong> though.
-You can observe the damping behaviour of your bow’s limb by clamping the handle firmly on a table or workbench and plucking the limb tip.
+Realistic values are probably in the range of <strong>1–10%</strong>, though.
+You can observe the damping behavior of your bow’s limbs by clamping the handle firmly on a table or workbench and plucking the limb tip.
 The longer it continues to oscillate, the lower the damping ratio.</p>
 <br>
 <div class="table-wrapper">
@@ -209,9 +210,9 @@ The longer it continues to oscillate, the lower the damping ratio.</p>
 <tr><th>Damping ratio</th><th>Oscillation</th></tr>
 </thead>
 <tbody>
-<tr><td>0%</td><td><a href="images/damping-ratio-00.svg" target="_blank"><img src="images/damping-ratio-00.svg" width="200px"></a></td></tr>
-<tr><td>10%</td><td><a href="images/damping-ratio-01.svg" target="_blank"><img src="images/damping-ratio-01.svg" width="200px"></a></td></tr>
-<tr><td>100%</td><td><a href="images/damping-ratio-10.svg" target="_blank"><img src="images/damping-ratio-10.svg" width="200px"></a></td></tr>
+<tr><td>0%</td><td><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/damping-ratio-00.svg" alt="Undamped oscillation"><span class="img-wrapper"><img src="images/damping-ratio-00.svg" alt="Undamped oscillation"></span></label></td></tr>
+<tr><td>10%</td><td><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/damping-ratio-01.svg" alt="Lightly damped oscillation"><span class="img-wrapper"><img src="images/damping-ratio-01.svg" alt="Lightly damped oscillation"></span></label></td></tr>
+<tr><td>100%</td><td><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/damping-ratio-10.svg" alt="Critically damped oscillation"><span class="img-wrapper"><img src="images/damping-ratio-10.svg" alt="Critically damped oscillation"></span></label></td></tr>
 </tbody>
 </table>
 </div>
@@ -264,7 +265,7 @@ The longer it continues to oscillate, the lower the damping ratio.</p>
 
         <script src="clipboard-1626706a.min.js"></script>
         <script src="highlight-5a157b91.js"></script>
-        <script src="book-c22b7243.js"></script>
+        <script src="book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 

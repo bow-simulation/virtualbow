@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>User Manual - VirtualBow v0.10.0</title>
+        <title>VirtualBow User Manual</title>
         <meta name="robots" content="noindex">
 
 
@@ -16,8 +16,8 @@
         <link rel="icon" href="favicon-de23e50b.svg">
         <link rel="shortcut icon" href="favicon-8114d1fc.png">
         <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-0392ca55.css">
-        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
         <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
@@ -29,19 +29,20 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/justify-8b465511.css">
+        <link rel="stylesheet" href="theme/images-a5c4c95c.css">
+        <link rel="stylesheet" href="theme/katex-fa97f2bc.min.css">
 
-        <!-- MathJax -->
-        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e8a6249a.js";
+            window.path_to_searchindex_js = "searchindex-108bfcbe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-7c70e051.js"></script>
+        <script src="toc-f4b496fb.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -140,7 +141,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">User Manual - VirtualBow v0.10.0</h1>
+                    <h1 class="menu-title">VirtualBow User Manual</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -179,36 +180,270 @@
                     <main>
                         <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
 <p>Welcome to the VirtualBow user manual!
-This guide will show you how to use the VirtualBow software to design bows, simulate their performance, and interpret the results.
-For support, feedback, or to download the latest version, please visit the project website: <a href="https://www.virtualbow.org/">https://www.virtualbow.org/</a>.</p>
+This guide will show you how to design bows, simulate their performance, and interpret the results using the VirtualBow software.
+The chapters follow the order in which you will typically use them: <a href="#model-editor">Model Editor</a> for creating a bow, <a href="#result-viewer">Result Viewer</a> for interpreting the simulation results, and <a href="#solver">Solver</a> for more advanced use cases.
+The <a href="#appendix">Appendix</a> collects practical tips and a bending test for determining material properties, while the <a href="#changelog">Changelog</a> records what changed in each release.
+For support, feedback, or to download the latest version of the software, visit the project’s website:</p>
+<p><a href="https://www.virtualbow.org/"><strong>https://www.virtualbow.org/</strong></a></p>
 <p>Please keep in mind that VirtualBow is still under active development, and many of its simulation results have not yet been systematically validated.
-Although users often report good agreement with real-world behavior, the results should not be taken at face value.
-Generally, three main factors influence how closely the simulation can match an actual bow:</p>
-<ul>
-<li>
-<p><strong>Physical simplifications:</strong> Every simulation relies on assumptions that make complex real-world behavior mathematically manageable. VirtualBow tries to make reasonable assumptions, but no model can capture reality perfectly. If you’re interested in the underlying theory, you may want to explore the <em>VirtualBow theory manual</em>.</p>
-</li>
-<li>
-<p><strong>Software implementation:</strong> Errors in the code can obviously affect accuracy. While much work has been put into verifying the simulation code by automated testing, bugs can never be completely ruled out.</p>
-</li>
-<li>
-<p><strong>Quality of input data:</strong> A simulation is only as accurate as the data provided.
-In practice, no bow can be built exactly as modeled in VirtualBow, even though the type of bow can make this task easier or harder. Natural variations in material properties and small deviations in geometry, for example, will accumulate and affect the outcome.</p>
-</li>
-</ul>
-<p>Many of those points are being worked on to further improve the accuracy of VirtualBow.
+So the results should not be taken at face value just yet, even though users often report good agreement already.
+Generally, three main factors influence how closely a simulation can match an actual bow:</p>
+<p><strong>Physical simplifications:</strong> Every simulation relies on simplifying assumptions that make complex real-world behavior mathematically manageable. VirtualBow tries to make reasonable assumptions, but no model can capture reality perfectly. If you’re interested in the details of the underlying theory, have a look at the <a href="https://www.virtualbow.org/files/theory-manual.pdf">VirtualBow Theory Manual [PDF]</a>.</p>
+<p><strong>Software implementation:</strong> Errors in the software’s code can affect accuracy as well.
+And even though much work has been put into verifying the simulation code through automated testing, bugs can never be completely ruled out.</p>
+<p><strong>Quality of input data:</strong> A simulation is only as accurate as the provided input.
+Material properties or other parameters might not be known for certain due to a lack of data, natural variations, or other reasons.
+Also, in practice no bow can be built exactly as it has been modeled in VirtualBow.
+Even small deviations in geometry, for example, can accumulate and affect the outcome.</p>
+<p>Many of these points are being worked on to further improve the accuracy of VirtualBow.
 And while simulations will never be perfect, they can still reveal a lot about how a bow design works, highlight weaknesses, and point you toward possible improvements.
-Think of VirtualBow as a complementary tool to real world experimentation: it won’t replace building and testing real bows, but it can make the process more informed and efficient.</p>
+So think of VirtualBow as a complementary tool to real-world experimentation: it won’t replace building and testing real bows, but it can make the process more informed and efficient.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="changelog"><a class="header" href="#changelog">Changelog</a></h1>
+<h2 id="version-0100"><a class="header" href="#version-0100">Version 0.10.0</a></h2>
+<hr>
+<p><strong>Added</strong></p>
+<ul>
+<li>New material properties: shear modulus, tensile and compressive strength</li>
+<li>Option to change the definition of the draw length to the AMO convention</li>
+<li>Option to specify the arrow mass relative to the draw force or the stored energy</li>
+<li>Dedicated result page for arrow position, velocity and acceleration</li>
+<li>Dedicated result page for the force-draw curve and its stiffness</li>
+<li>New output results for the string tip and string center angles</li>
+<li>Indication of material failure based on stresses and strains</li>
+<li>Detailed breakdown of the energy remaining in the limbs and string and lost to damping</li>
+<li>Creation of backup files before converting models to a newer version</li>
+<li>Simulations can be run with unsaved bow models</li>
+<li>Option to export the 3D view of the limb(s) as an image</li>
+<li>More and better error messages</li>
+<li>Additional and improved tooltips throughout the user interface</li>
+<li>Verification tests for the numerical methods</li>
+<li>Verification tests for beam statics and dynamics</li>
+<li>Verification tests for many of the bow simulation outputs</li>
+</ul>
+<p><strong>Changed</strong></p>
+<ul>
+<li>Complete rewrite and redesign of the solver for better accuracy, performance and robustness</li>
+<li>Use of implicit time integration with an adaptive step size for dynamic analysis</li>
+<li>More accurate computation of damping forces</li>
+<li>More restrictive rules for layer heights to prevent malformed geometries</li>
+<li>Width and height plots show arc length instead of relative position, where possible</li>
+<li>Layer stress results are now divided by tension and compression</li>
+<li>More fine-grained evaluation of stresses and strains</li>
+</ul>
+<p><strong>Fixed</strong></p>
+<ul>
+<li>Memory leak on macOS</li>
+</ul>
+<p><strong>Removed</strong></p>
+<ul>
+<li>Support for Intel-based macOS</li>
+</ul>
+<h2 id="version-091"><a class="header" href="#version-091">Version 0.9.1</a></h2>
+<hr>
+<p><strong>Fixed</strong></p>
+<ul>
+<li>Wrong unit on string length result</li>
+<li>Error in computation of the limb geometry that leads to unwanted sharp limb tips</li>
+</ul>
+<h2 id="version-090"><a class="header" href="#version-090">Version 0.9.0</a></h2>
+<hr>
+<p><strong>Added</strong></p>
+<ul>
+<li>Configurable units for all inputs and outputs (including SI and US units)</li>
+<li>Easier way to model the profile using line, arc, spiral and spline segments</li>
+<li>Option to visualize the curvature of the profile</li>
+<li>Option to overlay images over plots</li>
+<li>Plot contents can be exported as CSV files</li>
+<li>Input fields for numbers accept arithmetic expressions</li>
+<li>Better error message on failed bracing</li>
+</ul>
+<p><strong>Changed</strong></p>
+<ul>
+<li>Different layout of the bow editor based on panels instead of dialogs</li>
+<li>Material properties are edited separately from the layer properties</li>
+<li>Improved monotonic cubic spline interpolation (width and height)</li>
+<li>Automatically convert the decimal comma to a dot for keyboard layouts that use a comma</li>
+<li>The number of layers is no longer limited (previously 15)</li>
+<li>The number of table rows is no longer limited (previously 100)</li>
+</ul>
+<p><strong>Fixed</strong></p>
+<ul>
+<li>Error when saving files to a path that contains special characters</li>
+<li>Missing error handling when loading and saving files</li>
+<li>Colors in the stress plot not always easily distinguishable</li>
+</ul>
+<h2 id="version-080"><a class="header" href="#version-080">Version 0.8.0</a></h2>
+<hr>
+<p><strong>Added</strong></p>
+<ul>
+<li>Arrow clamp force parameter to prevent the arrow from leaving the bow too early in some cases</li>
+</ul>
+<p><strong>Changed</strong></p>
+<ul>
+<li>Main windows are now empty until a file is loaded or created</li>
+<li>Allow layers to have zero height for modeling fadeouts</li>
+<li>Renamed ‘storage ratio’ to ‘energy storage factor’</li>
+<li>Show minimum and maximum stresses instead of maximum absolute value</li>
+<li>The y-axis of the energy plot always starts at zero</li>
+<li>Increase resolution of images exported from plots</li>
+<li>New icons for the toolbar, menu actions and model tree</li>
+<li>Better random color generation for the layers</li>
+<li>Visual improvements to the limb view</li>
+</ul>
+<p><strong>Fixed</strong></p>
+<ul>
+<li>Action <em>New File</em> ignored modifications to already loaded files</li>
+<li>Remove files from <em>Open Recent</em> menu if they no longer exist</li>
+<li>Wrong default selection between static/dynamic results</li>
+</ul>
+<h2 id="version-071"><a class="header" href="#version-071">Version 0.7.1</a></h2>
+<hr>
+<p><strong>Fixed</strong></p>
+<ul>
+<li>Missing libraries for VirtualBow Solver and Post on MacOS</li>
+<li>Static/Dynamic buttons in VirtualBow Post not working on MacOS</li>
+<li>Simulation failing with <code>Error: bad_function_call</code> for certain lengths of the profile curve</li>
+</ul>
+<h2 id="version-070"><a class="header" href="#version-070">Version 0.7.0</a></h2>
+<hr>
+<p><strong>Added</strong></p>
+<ul>
+<li>Separate component <em>VirtualBow Post</em> for viewing simulation results</li>
+<li>Separate component <em>VirtualBow Solver</em> for performing simulations</li>
+<li>Damping parameters for limbs and string</li>
+<li>Show kinetic energy of limbs and string at arrow departure</li>
+<li>Show mass of limbs and string</li>
+<li>Show maximum forces and stresses</li>
+<li>Help menu entry that opens the user manual</li>
+<li>File menu entry <em>Open Recent</em></li>
+<li>Indicate in the profile, width and height plots which points are being edited</li>
+<li>Remember open tab and simulation mode in VirtualBow Post</li>
+<li>Play buttons for the output slider in VirtualBow Post</li>
+<li><em>Go to</em> menu for the output slider in VirtualBow Post</li>
+<li>Option to add installation directory to PATH on Windows</li>
+</ul>
+<p><strong>Changed</strong></p>
+<ul>
+<li>Application logo</li>
+<li>Compile with MinGW under Windows for better simulation performance</li>
+<li>The profile curve now has continuous curvature, no more jumps</li>
+<li>Keep the blue default color on stress plots when there is only one layer</li>
+<li>More ticks on the y-axis of the stress plots and others</li>
+</ul>
+<p><strong>Fixed</strong></p>
+<ul>
+<li>Problem that <code>VCRUNTIME_140_1.dll</code> was not found under Windows</li>
+<li>Short flashing of the console window when starting VirtualBow on Windows</li>
+</ul>
+<p><strong>Removed</strong></p>
+<ul>
+<li>Most of the menu icons, except very specific ones</li>
+<li>Releases for 32 bit Windows</li>
+<li>AppImage releases</li>
+</ul>
+<h2 id="version-061"><a class="header" href="#version-061">Version 0.6.1</a></h2>
+<hr>
+<p><strong>Fixed</strong></p>
+<ul>
+<li>Error when trying to read the simulation output on Windows with the Python example script</li>
+</ul>
+<h2 id="version-060"><a class="header" href="#version-060">Version 0.6.0</a></h2>
+<hr>
+<p><strong>Added</strong></p>
+<ul>
+<li>Support for MacOS</li>
+<li>Support for <code>rpm</code> based Linux distributions</li>
+<li>Output limb curvature</li>
+</ul>
+<p><strong>Changed</strong></p>
+<ul>
+<li>Use monotonic cubic splines for layer width and height interpolation</li>
+<li>Define the offsets of the limb centerline in terms of <em>setback</em> and <em>handle length</em> parameters</li>
+</ul>
+<p><strong>Fixed</strong></p>
+<ul>
+<li>Crash when loading an invalid <code>.bow</code> file from the command line</li>
+<li>Problem with face orientation of the limb geometry in the 3D view</li>
+</ul>
+<h2 id="version-050"><a class="header" href="#version-050">Version 0.5.0</a></h2>
+<hr>
+<p><strong>Added</strong></p>
+<ul>
+<li>Possibility to define laminated bows</li>
+<li>Support for 64 bit Windows</li>
+<li>Cancel and Reset buttons for input dialogs</li>
+<li>Grouping options for the energy plot</li>
+<li>Copy, cut and paste on all tables</li>
+</ul>
+<p><strong>Changed</strong></p>
+<ul>
+<li>Use desktop theme icons on Linux where appropriate</li>
+<li>Save window sizes and reload them on startup</li>
+</ul>
+<p><strong>Fixed</strong></p>
+<ul>
+<li>Initial state <code>t = 0</code> missing from the dynamic output data</li>
+<li>Program terminates when GUI is started with invalid file</li>
+</ul>
+<h2 id="version-040"><a class="header" href="#version-040">Version 0.4.0</a></h2>
+<hr>
+<p><strong>Added</strong></p>
+<ul>
+<li>More robust static simulation by using line searching</li>
+<li>Contact handling for simulating recurve bows</li>
+<li>New output result: Grip force</li>
+<li>New output result: String force</li>
+</ul>
+<p><strong>Changed</strong></p>
+<ul>
+<li>Don’t start the simulation when draw length is smaller than brace height</li>
+</ul>
+<h2 id="version-030"><a class="header" href="#version-030">Version 0.3.0</a></h2>
+<hr>
+<p><strong>Added</strong></p>
+<ul>
+<li>Command line interface for starting simulations without the GUI</li>
+<li>Store simulation results in binary <code>.dat</code> files</li>
+<li>Compatibility for older <code>.bow</code> files</li>
+</ul>
+<p><strong>Changed</strong></p>
+<ul>
+<li>Replace sampling time with sampling rate/frequency in the dynamics settings</li>
+</ul>
+<h2 id="version-020"><a class="header" href="#version-020">Version 0.2.0</a></h2>
+<hr>
+<p><strong>Added</strong></p>
+<ul>
+<li>Tree based bow editor</li>
+<li>3D view of the limb geometry</li>
+<li>Energies in user selected plots</li>
+</ul>
+<p><strong>Fixed</strong></p>
+<ul>
+<li>Ticks on opposite plot axis didn’t fit together</li>
+<li>Crash when section height is zero</li>
+<li>Crash when cancel is clicked right after starting the simulation</li>
+</ul>
+<p><strong>Removed</strong></p>
+<ul>
+<li>Support for MacOS</li>
+</ul>
+<h2 id="version-010"><a class="header" href="#version-010">Version 0.1.0</a></h2>
+<hr>
+<p><strong>Added</strong></p>
+<ul>
+<li>Platform support for Windows, Linux and MacOS</li>
+<li>New GUI using the Qt framework</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="model-editor"><a class="header" href="#model-editor">Model Editor</a></h1>
 <p>The model editor is the first thing you will see when opening VirtualBow.
 It serves as the central workspace where you create and refine your bow designs.
-Here you can specify shape and dimensions, adjust material properties, and configure all other parameters that affect the bow’s behaviour.
+Here you can specify shape and dimensions, adjust material properties, and configure all other parameters that affect the bow’s behavior.
 Once the model is set up, you can launch simulations to evaluate the performance of your design.</p>
-<figure>
-  <a href="images/screenshots/editor/model-editor.png" target="_blank">
-    <img src="images/screenshots/editor/model-editor.png" width="90%">
-  </a>
+<figure style="--img-width: 90%">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/model-editor.png" alt="Screenshot of the model editor"><span class="img-wrapper"><img src="images/screenshots/editor/model-editor.png" alt="Screenshot of the model editor"></span></label></p>
   <figcaption><b>Figure:</b> Screenshot of the model editor</figcaption>
 </figure>
 <h2 id="loading-and-saving-files"><a class="header" href="#loading-and-saving-files">Loading and saving files</a></h2>
@@ -219,7 +454,7 @@ You can share these files with other users, who can then open them in VirtualBow
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>New versions of VirtualBow often introduce internal changes to the <code>.bow</code> file format.
 The software aims to remain compatible with older files whenever possible, so you can still open models created with earlier releases (currently down to version <code>0.7</code>).
-When you save such a file, VirtualBow automatically converts it to the current format and creates a backup with a <code>.bak</code> extension in case anything goes wrong.
+When you save such a file again, VirtualBow automatically converts it to the current format and creates a backup with a <code>.bak</code> extension in case anything goes wrong.
 After opening an older <code>.bow</code> file, it’s a good idea to review the model to ensure that the conversion was successful.</p>
 </blockquote>
 <h2 id="editing-the-bow-model"><a class="header" href="#editing-the-bow-model">Editing the bow model</a></h2>
@@ -227,71 +462,51 @@ After opening an older <code>.bow</code> file, it’s a good idea to review the 
 You can rotate the view with the left mouse button, pan with the middle button, and zoom using the mouse wheel.
 Additional view controls are available through the buttons at the bottom of the window.
 Alongside the 3D view, the editor interface includes three panels:</p>
-<ul>
-<li>
 <p><strong>Model:</strong> The model tree in the top-left corner shows how the bow model is organized, grouping its various physical and geometric properties.
-Selecting an item in the tree displays its details in the <em>Properties</em> and/or <em>Graph</em> panels. Some categories - such as <em>Materials</em>, <em>Layers</em>, and <em>Profile</em> - can be edited directly in the tree by adding, removing, or renaming items.</p>
-</li>
-<li>
+Selecting an item in the tree displays its details in the <em>Properties</em> and/or <em>Graph</em> panels. Some categories — such as <em>Materials</em>, <em>Layers</em>, and <em>Profile</em> — can be edited directly in the tree by adding, removing, or renaming items.</p>
 <p><strong>Properties:</strong> The property editor displays the properties of the currently selected item in the model tree.
 Here you can inspect and modify the physical and geometric parameters of the bow model.</p>
-</li>
-<li>
-<p><strong>Graph:</strong> The graph view will show any graphs/plots that are associated with the selected item in the model tree.
-The graphs reflect the current properties and change as the properties are being edited.</p>
-</li>
-<li>
 <p><strong>Graph:</strong> The graph panel displays any plots associated with the selected item in the model tree.
-These graphs update automatically as you adjust the corresponding properties, providing immediate visual feedback.</p>
-</li>
-</ul>
+These graphs update automatically as you adjust the corresponding properties, providing visual feedback.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>You can change the physical units used throughout the model editor under <em>Options</em> → <em>Units</em>.</p>
 </blockquote>
-<h2 id="running-simulations"><a class="header" href="#running-simulations">Running Simulations</a></h2>
-<p>Simulations can be started from the <em>Simuate</em> menu or by clicking one of the toolbar buttons.
-Once a simulation has finished, the results open in a separate result-viewer window.
+<h2 id="running-simulations"><a class="header" href="#running-simulations">Running simulations</a></h2>
+<p>Simulations can be started from the <em>Simulate</em> menu or by clicking one of the toolbar buttons.
+Once a simulation has finished, the results open in a separate result viewer window.
 There are two simulation modes:</p>
-<ul>
-<li>
-<p><img src="images/icons/run-statics.svg" style="width:20; vertical-align:top"> <strong>Statics</strong>:
+<p><img src="images/icons/run-statics.svg" style="width:20px; vertical-align:top"> <strong>Statics</strong>:
 The static simulation analyzes the bow as it is drawn from brace height to full draw.
-One of the results is the force-draw curve, among other characteristics.
+Among other characteristics, the results include the force-draw curve.
 This mode is called <em>static</em> because the bow is considered to be in static equilibrium at each stage of the draw.</p>
-</li>
-<li>
-<p><img src="images/icons/run-dynamics.svg" style="width:20; vertical-align:top"> <strong>Dynamics</strong>:
+<p><img src="images/icons/run-dynamics.svg" style="width:20px; vertical-align:top"> <strong>Dynamics</strong>:
 The dynamic simulation analyzes the bow and arrow in motion as the string is released from full draw.
 It provides results such as arrow speed and efficiency.
 Because it requires the initial state of the bow at full draw, every dynamic simulation is automatically preceded by a static simulation.</p>
-</li>
-</ul>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="comments"><a class="header" href="#comments"><img src="images/icons/model-comments.png" style="height:24; vertical-align:center"> Comments</a></h1>
-<p>The Comments item at the top of the model tree is provided purely for documentation.
+<h1 id="comments"><a class="header" href="#comments"><img src="images/icons/model-comments.png" style="height:24px; vertical-align:baseline"> Comments</a></h1>
+<p>The <em>Comments</em> item at the top of the model tree is provided purely for documentation.
 It does not affect the simulation in any way.
 You can use this section to record notes about anything, including the bow design, its parameters, design decisions, or observations from simulations.</p>
-<figure>
-  <a href="images/screenshots/editor/comments.png" target="_blank">
-    <img src="images/screenshots/editor/comments.png" width="30%">
-  </a>
+<figure style="--img-width: 30%">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/comments.png" alt="Comment box"><span class="img-wrapper"><img src="images/screenshots/editor/comments.png" alt="Comment box"></span></label></p>
   <figcaption><b>Figure:</b> Comment box</figcaption>
 </figure>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="settings"><a class="header" href="#settings"><img src="images/icons/model-settings.png" style="height:24; vertical-align:center"> Settings</a></h1>
+<h1 id="settings"><a class="header" href="#settings"><img src="images/icons/model-settings.png" style="height:24px; vertical-align:baseline"> Settings</a></h1>
 <p>The Settings allow you to fine-tune how the simulation is carried out.
 In most cases, the default values provide a good balance and will work just fine, so if you are reading this manual for the first time, you may choose to skip this section and revisit it later if needed.</p>
-<p>Because the default settings are chosen as a reliable general choice, they prioritize accuracy and stability over raw simulation speed.
-For certain tasks, however - such as running a large number of scripted simulations - it may be worthwile to adjust the settings for better performance.
+<p>Because the default settings are meant to be general-purpose, they prioritize accuracy and stability over raw simulation speed.
+For certain tasks, however — such as running a large number of scripted simulations — it may be worthwhile to adjust the settings for better performance.
 Conversely, some bow designs may occasionally fail with default settings, in which case alternative settings can help the simulation complete successfully.</p>
-<p>The available options are divided into general settings that affect both simulation modes, as well as mode‑specific settings for the static and dynamic simulations.</p>
+<p>The available options are divided into general settings that affect both simulation modes and mode-specific settings for the static and dynamic simulations.</p>
 <h2 id="general"><a class="header" href="#general">General</a></h2>
 <p><strong>Limb elements:</strong> Number of finite elements used to approximate the limb geometry.
 Increasing this value improves accuracy at the cost of longer computation times.</p>
 <p><strong>Limb sample points:</strong> Number of sampling points along the limb where stresses, strains and other quantities are evaluated.
 Higher values produce result plots with a finer resolution.
-The added computational cost of increasing this value is small, but beyond a certain point the increased resolution offers no practical advantage anymore.</p>
+The added computational cost of increasing this value is small, but beyond a certain point the increased resolution no longer offers any practical advantage.</p>
 <h2 id="statics"><a class="header" href="#statics">Statics</a></h2>
 <p><strong>Min. draw resolution:</strong> Defines the minimum number of steps the static simulation takes as it progresses from brace height to full draw.
 A higher value increases the resolution of the static results.
@@ -300,7 +515,7 @@ You can usually reduce this value to speed up the simulation, especially if you 
 This setting is currently unused, but future versions of VirtualBow might use it for adaptive step size control.</p>
 <p><strong>Iteration tolerance:</strong> Stopping tolerance for the static equilibrium iterations. This value is a tradeoff between accuracy and simulation time.
 A tolerance that is too large may produce inaccurate results, while one that is too small wastes computation on unnecessary precision.
-Both an overly low and an overly high tolerance can eventually lead to simulation failure.</p>
+Both an overly low and an overly high tolerance can cause the simulation to fail.</p>
 <h2 id="dynamics"><a class="header" href="#dynamics">Dynamics</a></h2>
 <p><strong>Arrow clamp force:</strong> The force the arrow must overcome to separate from the string.
 This value is set fairly low by default.
@@ -311,7 +526,7 @@ For numerical reasons, however, the compressive stiffness cannot be set to zero,
 <p><strong>Timespan factor:</strong> This factor controls the duration of the simulated time interval.
 A value of 100% corresponds to the moment when the arrow passes brace height.
 The default value is higher to capture events that may occur after the arrow has left the bow, such as peak forces and stresses on the limbs and string.</p>
-<p><strong>Timeout factor:</strong> Factor controlling the timeout of the dynamic simulation.
+<p><strong>Timeout factor:</strong> Controls how long the dynamic simulation may run before it is aborted.
 The simulation is aborted if arrow separation has not occurred by the time the simulated duration exceeds this factor multiplied by a reference time determined for the bow.</p>
 <p><strong>Min. timestep:</strong> Lower bound for the time step of the dynamic simulation. The solver adjusts its step size automatically, but this setting ensures that the steps stay large enough to prevent the simulation from slowing to a crawl.</p>
 <p><strong>Max. timestep:</strong> Upper bound for the time step of the dynamic simulation. The solver adjusts its step size automatically, but this setting ensures that the steps stay small enough to maintain sufficient detail in the results.</p>
@@ -320,57 +535,45 @@ This serves as the target the solver uses when adjusting its time step.
 Increasing it improves accuracy and stability, at the cost of additional computation time.</p>
 <p><strong>Iteration tolerance:</strong> Stopping tolerance for the dynamic equilibrium iterations. This value is a tradeoff between accuracy and simulation time.
 A tolerance that is too large may produce inaccurate results, while one that is too small wastes computation on unnecessary precision.
-Both an overly low and an overly high tolerance can eventually lead to simulation failure.</p>
+Both an overly low and an overly high tolerance can cause the simulation to fail.</p>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="handle"><a class="header" href="#handle"><img src="images/icons/model-handle.png" style="height:24; vertical-align:center"> Handle</a></h1>
+<h1 id="handle"><a class="header" href="#handle"><img src="images/icons/model-handle.png" style="height:24px; vertical-align:baseline"> Handle</a></h1>
 <p>This category determines how the middle section of the bow is modeled.
 There are two options to choose from: <em>Flexible</em> and <em>Rigid</em>.
 Selecting <em>Flexible</em> means the middle section is fully modeled and simulated as part of the limb geometry you define later.
 If your bow has a middle section that shouldn’t or can’t be modeled in VirtualBow, choose <em>Rigid</em> to specify the dimensions of a rigid section placed between the limbs.</p>
 <h2 id="flexible"><a class="header" href="#flexible">Flexible</a></h2>
-<p>A flexible handle is the simplest option - no additional parameters are required.
+<p>A flexible handle is the simplest option — no additional parameters are required.
 You model the handle as part of the limb geometry, and the simulation treats it just like the rest of the limb.
 Of course, the options for modeling intricate handle geometries in VirtualBow are limited, since this is not its primary focus.</p>
-<figure>
-  <a href="images/screenshots/editor/handle-flexible-example-1.png" target="_blank">
-    <img src="images/screenshots/editor/handle-flexible-example-1.png" height="110px">
-  </a>
-  <a href="images/screenshots/editor/handle-flexible-example-2.png" target="_blank">
-    <img src="images/screenshots/editor/handle-flexible-example-2.png" height="110px">
-  </a>
-  <a href="images/screenshots/editor/handle-flexible-example-3.png" target="_blank">
-    <img src="images/screenshots/editor/handle-flexible-example-3.png" height="110px">
-  </a>
-  <figcaption><b>Figure:</b> Some examples for bows with a handle modeled as <i>Flexible</i>. It doesn't matter whether the handle actually flexes significantly or not.</figcaption>
+<figure class="row" style="--img-height: 110px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/handle-flexible-example-1.png" alt="Handle flexible example 1"><span class="img-wrapper"><img src="images/screenshots/editor/handle-flexible-example-1.png" alt="Handle flexible example 1"></span></label>
+<label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/handle-flexible-example-2.png" alt="Handle flexible example 2"><span class="img-wrapper"><img src="images/screenshots/editor/handle-flexible-example-2.png" alt="Handle flexible example 2"></span></label>
+<label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/handle-flexible-example-3.png" alt="Handle flexible example 3"><span class="img-wrapper"><img src="images/screenshots/editor/handle-flexible-example-3.png" alt="Handle flexible example 3"></span></label></p>
+  <figcaption><b>Figure:</b> Some examples of bows with a handle modeled as <i>Flexible</i>. It doesn't matter whether the handle actually flexes significantly or not.</figcaption>
 </figure>
 <p>The bow’s pivot point, which is later needed for defining brace height and draw length, is automatically placed on the belly side of the bow’s center.</p>
 <h2 id="rigid"><a class="header" href="#rigid">Rigid</a></h2>
 <p>Selecting <em>Rigid</em> allows you to specify a rigid middle section of the bow to which the limbs are attached.
-This configuration is typical for takedown bows with a riser, but it can also be used for other middle‑section designs that you prefer not to model explicitly in VirtualBow.</p>
-<figure>
-  <a href="images/screenshots/editor/handle-rigid-example-1.png" target="_blank">
-    <img src="images/screenshots/editor/handle-rigid-example-1.png" width="300px">
-  </a>
-  <a href="images/screenshots/editor/handle-rigid-example-2.png" target="_blank">
-    <img src="images/screenshots/editor/handle-rigid-example-2.png" width="300px">
-  </a>
+This configuration is typical for takedown bows with a riser, but it can also be used for other middle section designs that you prefer not to model explicitly in VirtualBow.</p>
+<figure class="row" style="--img-width: 300px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/handle-rigid-example-1.png" alt="Handle rigid example 1"><span class="img-wrapper"><img src="images/screenshots/editor/handle-rigid-example-1.png" alt="Handle rigid example 1"></span></label>
+<label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/handle-rigid-example-2.png" alt="Handle rigid example 2"><span class="img-wrapper"><img src="images/screenshots/editor/handle-rigid-example-2.png" alt="Handle rigid example 2"></span></label></p>
   <figcaption><b>Figure:</b> Some examples of bows with a handle modeled as <i>Rigid</i>.</figcaption>
 </figure>
 <p>The following parameters are required for a rigid handle.
 They determine the spacing and orientation of the two limbs as well as the placement of the pivot point.
 See also the figure below for a visual definition of each parameter.</p>
 <p><strong>Length:</strong> Specifies the length of the rigid middle section, measured as the distance between the limb attachment points.
-The limbs are attached to the attachment points by their belly-side edges.</p>
+The limbs are attached at these points by their belly-side edges.</p>
 <p><strong>Angle:</strong> Sets the angle at which the limbs attach to the rigid middle section.
-Positive angles add reflex; negative angles add deflex.</p>
+Positive angles add reflex to the limbs; negative angles add deflex.</p>
 <p><strong>Pivot:</strong> Defines the position of the pivot point relative to the limb attachment points.
-Positive values add reflex; negative values add deflex.
+Positive values add reflex to the middle section; negative values add deflex.
 The pivot point is used as the reference for measuring brace height and draw length.</p>
-<figure>
-  <a href="images/rigid-handle.svg" target="_blank">
-    <img src="images/rigid-handle.svg" width="600px">
-  </a>
-  <figcaption><b>Figure:</b> Definition of the rigid handle dimensions, shown here on a typical modern recurve‑bow riser. Note that the actual flexible limbs start at the attachment points, the portion fixed to the riser belongs to the middle section.</figcaption>
+<figure style="--img-width: 600px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/rigid-handle.svg" alt="Definition of the rigid handle dimensions on a recurve riser"><span class="img-wrapper"><img src="images/rigid-handle.svg" alt="Definition of the rigid handle dimensions on a recurve riser"></span></label></p>
+  <figcaption><b>Figure:</b> Definition of the rigid handle dimensions, shown here on a typical modern recurve-bow riser. Note that the actual flexible limbs start at the attachment points; the portion fixed to the riser belongs to the middle section.</figcaption>
 </figure>
 <br>
 <blockquote class="blockquote-tag blockquote-tag-note">
@@ -379,21 +582,21 @@ The pivot point is used as the reference for measuring brace height and draw len
 </blockquote>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>You may still choose <em>Rigid</em> for the additional settings even when the handle itself is modeled as part of the limb geometry.
-This is useful, for example, if you want to override the pivot point placement: simply define a zero‑length rigid handle and set the pivot point as needed.</p>
+<p>You may still choose <em>Rigid</em> just for the additional settings, even when the handle itself is modeled as part of the limb geometry.
+This is useful, for example, if you want to override the pivot point placement: simply define a zero-length rigid handle and set the pivot point as needed.</p>
 </blockquote>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="draw"><a class="header" href="#draw"><img src="images/icons/model-draw.png" style="height:24; vertical-align:center"> Draw</a></h1>
-<p>Here, the brace height and draw length under which the bow operates are defined.
+<h1 id="draw"><a class="header" href="#draw"><img src="images/icons/model-draw.png" style="height:24px; vertical-align:baseline"> Draw</a></h1>
+<p>This section defines the brace height and draw length at which the bow is operated.
 Both values reference the bow’s pivot point, which is configured in the <a href="#handle">Handle</a> section, so they only become meaningful once the handle has been properly set up.
 See also the figure below for a visual definition of each parameter.</p>
 <p><strong>Brace height:</strong> The brace height is measured as the distance between the bowstring and the handle’s pivot point on the braced bow.
 VirtualBow automatically determines the string length required to achieve the specified brace height.</p>
 <p><strong>Draw length:</strong> The bow’s draw length can be specified according to two conventions.
-Choosing between them is purely a matter of preference and convenience and has no other effects.</p>
+Choosing between them is purely a matter of preference and convenience; it has no other effect.</p>
 <ul>
 <li>
-<p><strong>Standard:</strong> Under the <em>Standard</em> convention, the draw length is defined as the distance between the handle’s pivot point and the string at full draw - sometimes referred to as the <em>true</em> draw length.</p>
+<p><strong>Standard:</strong> Under the <em>Standard</em> convention, the draw length is defined as the distance between the handle’s pivot point and the string at full draw — sometimes referred to as the <em>true</em> draw length.</p>
 </li>
 <li>
 <p><strong>AMO:</strong> The alternative is the <em>AMO</em> convention, defined by the <em>Archery Manufacturers Organization</em>, where the draw length is taken as the pivot-to-string distance plus 1.75 inches.
@@ -401,87 +604,44 @@ This definition is widely used by bow manufacturers.</p>
 </li>
 </ul>
 <br>
-<figure>
-  <a href="images/draw-definition.svg" target="_blank">
-    <img src="images/draw-definition.svg" width="600px">
-  </a>
+<figure style="--img-width: 600px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/draw-definition.svg" alt="Definition of the brace height and draw length in both conventions"><span class="img-wrapper"><img src="images/draw-definition.svg" alt="Definition of the brace height and draw length in both conventions"></span></label></p>
   <figcaption><b>Figure:</b> Definition of the brace height and draw length in both conventions.</figcaption>
-</figure>
-<!--
-
-# Dimensions
-
-The dimensions define some overall lengths and angles of the bow, including an optional stiff middle section.
-
-<figure>
-  <img src="images/screenshots/editor/dimensions.png" style="width:200px">
-  <figcaption><b>Figure:</b> Dimensions</figcaption>
-</figure>
-
-**Draw**
-
-- **Brace height:** Distance between the deepest point of the handle and the string at rest
-
-- **Draw length:** Distance between the deepest point of the handle and the string at full draw
-
-**Handle**
-
-- **Length:** Optional length of a stiff middle section (grip/riser) between the limbs
-
-- **Setback:** Distance between the deepest point of the grip and the attachment point of the limbs to the middle section
-
-- **Angle:** Angle at which the limbs are attached to the middle section
-
-See the image below for a visual definition of the dimensions.
-
-<figure>
-  <img src="images/dimensions.svg" style="width:200px">
-  <figcaption><b>Figure:</b> Definition of the dimensions</figcaption>
-</figure>
-
--->
-<div style="break-before: page; page-break-before: always;"></div>
-<h1 id="materials"><a class="header" href="#materials"><img src="images/icons/model-materials.png" style="height:24; vertical-align:center"> Materials</a></h1>
+</figure><div style="break-before: page; page-break-before: always;"></div>
+<h1 id="materials"><a class="header" href="#materials"><img src="images/icons/model-materials.png" style="height:24px; vertical-align:baseline"> Materials</a></h1>
 <p>This item contains a list of all materials in the bow.
-The layers, which are defined later, each reference one such material and multiple layers can also share the same material.
-If the <em>Materials</em> category in the model tree is selected, the buttons (<img src="images/icons/list-add.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-remove.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-up.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-down.svg" style="width:20; vertical-align:middle">) can be used to add, remove and reorder materials.
-Materials can be renamed by double-clicking and entering a new name.</p>
-<figure>
-  <a href="images/screenshots/editor/materials.png" target="_blank">
-    <img src="images/screenshots/editor/materials.png" height="220px">
-  </a>
-  <a href="images/screenshots/editor/material.png" target="_blank">
-    <img src="images/screenshots/editor/material.png" height="220px">
-  </a>
-  <figcaption><b>Figure:</b> Material list in the model tree and material properties</figcaption>
+The layers, which are defined later, each reference one of these materials, and several layers can share the same material.</p>
+<figure style="--img-height: 220px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/materials.png" alt="Materials in the model tree"><span class="img-wrapper"><img src="images/screenshots/editor/materials.png" alt="Materials in the model tree"></span></label></p>
+  <figcaption><b>Figure:</b> Materials in the model tree</figcaption>
 </figure>
-<p>Selecting a material from the list opens its associated material properties.
-They are grouped into <em>General</em>, <em>Elastic</em>, and <em>Strength</em> properties.
+<p>If the <em>Materials</em> category in the model tree is selected, the buttons (<img src="images/icons/list-add.svg" style="width:20px; vertical-align:middle">, <img src="images/icons/list-remove.svg" style="width:20px; vertical-align:middle">, <img src="images/icons/list-move-up.svg" style="width:20px; vertical-align:middle">, <img src="images/icons/list-move-down.svg" style="width:20px; vertical-align:middle">) can be used to add, remove and reorder materials.
+Materials can be renamed by double-clicking and entering a new name.
+Selecting a material from the list opens its associated material properties.
+They are grouped into <em>General</em>, <em>Elastic</em> and <em>Strength</em> properties.
 The elastic material properties define how the material deforms under load, while the strength properties define the material’s failure limits.</p>
 <h2 id="general-1"><a class="header" href="#general-1">General</a></h2>
 <p><strong>Color:</strong> The material can be given any color desired to make it look a bit more realistic.
-It doesn’t have any other effect than graphics.</p>
-<p><strong>Density:</strong> The density of a material is defined as its mass per unit volume and characterizes its specific weight.</p>
+It has no effect other than on the appearance of the bow.</p>
+<p><strong>Density:</strong> The density of a material is defined as its mass per unit volume.</p>
 <h2 id="elastic"><a class="header" href="#elastic">Elastic</a></h2>
-<p style="text-align: justify;">
-<a href="images/strain-normal.svg" target="_blank">
-  <img src="images/strain-normal.svg" height="100px" align="right">
-</a>
-<b>Young's modulus:</b> A material's Young's modulus, usually denoted \(E\), describes its stiffness against normal (tensile or compressive) loading.
-It is defined as the quotient of normal stress to normal strain.
+<div class="float-right" style="--img-height: 100px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/strain-normal.svg" alt="Normal strain of a material sample"><span class="img-wrapper"><img src="images/strain-normal.svg" alt="Normal strain of a material sample"></span></label></p>
+</div>
+
+<p><b>Young’s modulus:</b> A material’s Young’s modulus, usually denoted <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">E</span></span></span></span>, describes its stiffness against normal (tensile or compressive) loading.
+It is defined as the ratio of normal stress to normal strain.
 This assumes <i>linear elasticity</i>, meaning stress and strain are proportional.
-Many common materials follow such a linear relationship up to a certain limit.
-</p>
+Many common materials follow such a linear relationship up to a certain limit.</p>
+<div class="float-right" style="--img-height: 100px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/strain-shear.svg" alt="Shear strain of a material sample"><span class="img-wrapper"><img src="images/strain-shear.svg" alt="Shear strain of a material sample"></span></label></p>
+</div>
 
-<p style="text-align: justify;">
-<a href="images/strain-shear.svg" target="_blank">
-  <img src="images/strain-shear.svg" height="100px" align="right">
-</a>
-<b>Shear modulus:</b> The shear modulus, usually denoted \(G\), is similar to Young's modulus in that it characterizes the stiffness against deformation.
-But unlike Young’s modulus, which relates to normal deformation, the shear modulus characterizes how the material responds to shear deformation.
-VirtualBow does not make much use of the shear modulus yet, but it will form the basis for future features such as modeling the limbs’ torsional rigidity. If you do not know the exact value for your material, you can estimate it as roughly one‑third to one‑half of Young’s modulus. If the material’s <i>Poisson ratio</i> \(\nu\) is known instead, the shear modulus can be computed from Young’s modulus using the relation \(G = E/(2(1 + \nu))\).
-</p>
-
+<p><b>Shear modulus:</b> The shear modulus, usually denoted <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal">G</span></span></span></span>, is similar to Young’s modulus in that it characterizes the stiffness against deformation.
+Unlike Young’s modulus, which relates to normal deformation, it describes how the material responds to shear deformation.
+VirtualBow does not make much use of the shear modulus yet, but it will form the basis for future features such as modeling the limbs’ torsional rigidity.
+If you do not know the exact value for your material, you can estimate it as roughly one-third to one-half of Young’s modulus.
+If the material’s <i>Poisson ratio</i> <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.06366em;">ν</span></span></span></span> is known instead, the shear modulus can be computed from the relation <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal">G</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">E</span><span class="mord">/</span><span class="mopen">(</span><span class="mord">2</span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.06366em;">ν</span><span class="mclose">))</span></span></span></span>.</p>
 <h2 id="strength"><a class="header" href="#strength">Strength</a></h2>
 <p><strong>Tensile strength:</strong> The tensile strength defines the maximum normal stress a material can withstand while under tension.
 Beyond this limit, the material will fail or permanently deform.
@@ -490,22 +650,22 @@ In VirtualBow, this value is used to assess whether any part of the limb experie
 Beyond this limit, the material will fail or permanently deform.
 In VirtualBow, this value is used to assess whether any part of the limb experiences compressive stresses that exceed the material’s allowable limits.</p>
 <p><strong>Margin of safety:</strong> The margin of safety (MoS) defines how conservatively the material’s strength limits are applied.
-It reduces the allowable stresses so that the bow operates with some reserve towards the actual failure thresholds.
+It reduces the allowable stresses so that the bow operates with some reserve against the actual failure thresholds.
 The margin of safety indicates by what percentage the allowable stress could increase before reaching the failure stress:</p>
-<p>\[\sigma_{\rm{faiure}} = \sigma_{\rm{allowed}}\times(100\% + \rm{MoS})\]</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">σ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight">failure</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">σ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight">allowed</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">100%</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathrm">MoS</span></span><span class="mclose">)</span></span></span></span></span></p>
 <p>A higher margin of safety leads to more conservative designs, reducing the risk of material failure but also potentially leaving some of the material’s performance on the table.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>For synthetic materials such as fiber-reinforced composites, the mechanical properties are often provided in a manufacturer’s datasheet.
 Natural materials like wood are more challenging, as their properties can vary quite a bit.
-Average numbers can be found at <a href="http://www.wood-database.com">The Wood Database</a> and other websites, which should provide a good baseline.
+Average numbers can be found at <a href="https://www.wood-database.com">The Wood Database</a> and other websites, which should provide a good baseline.
 As an alternative, you can determine some of the properties experimentally by a bending test.
-For details on that see <a href="#bending-test">Appendix C</a>.</p>
+For details on that see <a href="#bending-test">Appendix B</a>.</p>
 </blockquote>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>In this section, several concepts from the mechanics of materials - such as stresses and strains - have been introduced without much explanation.
-This doesn’t mean that those topics are common knowledge, but covering them here thoroughly would be beyond the scope of this manual.
+<p>In this section, several concepts from the mechanics of materials — such as stresses and strains — have been introduced without much explanation.
+This is not to suggest that these topics are common knowledge; covering them thoroughly here would simply be beyond the scope of this manual.
 If you want to dive in deeper, the list below provides some links to videos that explain these concepts in greater detail.</p>
 <ul>
 <li><a href="https://www.youtube.com/watch?v=aQf6Q8t1FQE">An Introduction to Stress and Strain</a></li>
@@ -515,23 +675,19 @@ If you want to dive in deeper, the list below provides some links to videos that
 </ul>
 </blockquote>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="layers"><a class="header" href="#layers"><img src="images/icons/model-layers.png" style="height:24; vertical-align:center"> Layers</a></h1>
+<h1 id="layers"><a class="header" href="#layers"><img src="images/icons/model-layers.png" style="height:24px; vertical-align:baseline"> Layers</a></h1>
 <p>Layers define the makeup of the bow in the thickness direction.
 A bow may consist of a single continuous layer, as in traditional self bows, or it may be built from multiple layers made from different materials.</p>
-<figure>
-  <a href="images/screenshots/editor/layers.png" target="_blank">
-    <img src="images/screenshots/editor/layers.png" width="200px">
-  </a>
+<figure style="--img-width: 200px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/layers.png" alt="Layers in the model tree"><span class="img-wrapper"><img src="images/screenshots/editor/layers.png" alt="Layers in the model tree"></span></label></p>
   <figcaption><b>Figure:</b> Layers in the model tree</figcaption>
 </figure>
-<p>If the <em>Layers</em> category in the model tree is selected, the buttons (<img src="images/icons/list-add.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-remove.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-up.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-down.svg" style="width:20; vertical-align:middle">) can be used to add, remove and reorder layers.
+<p>If the <em>Layers</em> category in the model tree is selected, the buttons (<img src="images/icons/list-add.svg" style="width:20px; vertical-align:middle">, <img src="images/icons/list-remove.svg" style="width:20px; vertical-align:middle">, <img src="images/icons/list-move-up.svg" style="width:20px; vertical-align:middle">, <img src="images/icons/list-move-down.svg" style="width:20px; vertical-align:middle">) can be used to add, remove and reorder layers.
 The order of layers in the list corresponds to their actual stacking order in the limb.
 Layers can be renamed by double-clicking and entering a new name.</p>
 <h2 id="layer-properties"><a class="header" href="#layer-properties">Layer properties</a></h2>
-<figure>
-  <a href="images/screenshots/editor/layer.png" target="_blank">
-    <img src="images/screenshots/editor/layer.png" width="800px">
-  </a>
+<figure style="--img-width: 800px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/layer.png" alt="Layer properties"><span class="img-wrapper"><img src="images/screenshots/editor/layer.png" alt="Layer properties"></span></label></p>
   <figcaption><b>Figure:</b> Layer properties</figcaption>
 </figure>
 <p><strong>Material:</strong> Each layer references a material and has a defined thickness distribution over its length.
@@ -544,124 +700,106 @@ Some <a href="#additional-rules">additional rules</a> described below ensure tha
 The actual thickness profile is constructed as a smooth curve (a monotone cubic spline) passing through the provided values and is displayed in the <em>Graph</em> panel.
 The plot’s context menu offers additional options, such as showing or hiding control points or adding an overlay image.</p>
 <h2 id="additional-rules"><a class="header" href="#additional-rules">Additional rules</a></h2>
-<p>A few rules must be observed when defining layer thickness to ensure that the limb geometry ends up being well‑defined.
-VirtualBow handles these checks for you - either enforcing the rules automatically or showing an error message when something isn’t allowed - so you don’t have to keep them all in mind yourself.</p>
+<p>A few rules must be observed when defining layer thickness to ensure that the limb geometry is well-defined.
+VirtualBow handles these checks for you — either enforcing the rules automatically or showing an error message when something isn’t allowed — so you don’t have to keep them all in mind yourself.</p>
 <h3 id="disjoint-layers"><a class="header" href="#disjoint-layers">Disjoint layers</a></h3>
-<p style="text-align: justify;">
-<a href="images/layer-rules-1.png" target="_blank">
-  <img src="images/layer-rules-1.png" width="350px" align="right">
-</a>
-Layers may have a thickness of zero at their start or end to model layers that fade out <b>(b)</b>, fade in <b>(c)</b> or both <b>(d)</b>.
-However, they may not contain a zero-thickness point somewhere inbetween, as this would create multiple disjoint layer segments <b>(e)</b>.
+<div class="float-right" style="--img-width: 350px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/layer-rules-1.png" alt="Valid and invalid layer thickness distributions"><span class="img-wrapper"><img src="images/layer-rules-1.png" alt="Valid and invalid layer thickness distributions"></span></label></p>
+</div>
+
+<p>Layers may have a thickness of zero at their start or end to model layers that fade out <b>(b)</b>, fade in <b>(c)</b> or both <b>(d)</b>.
+However, they may not contain a zero-thickness point somewhere in between, as this would create multiple disjoint layer segments <b>(e)</b>.</p>
 <p>Also, even though individual layers do not need to span the entire limb, the <i>combined</i> thickness of all layers must be positive along the full limb length.
 In other words, the stack of layers must cover the entire limb without gaps.</p>
-</p>
-
 <h3 id="continuity"><a class="header" href="#continuity">Continuity</a></h3>
-<p style="text-align: justify;">
-<a href="images/layer-rules-2.png" target="_blank">
-  <img src="images/layer-rules-2.png" width="350px" align="right">
-</a>
-Layers that start or end within the limb must taper to zero thickness to avoid creating a visible discontinuity in the geometry <b>(a)</b>.
+<div class="float-right" style="--img-width: 350px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/layer-rules-2.png" alt="Continuity requirements at layer endpoints"><span class="img-wrapper"><img src="images/layer-rules-2.png" alt="Continuity requirements at layer endpoints"></span></label></p>
+</div>
+
+<p>Layers that start or end within the limb must taper to zero thickness to avoid creating a visible discontinuity in the geometry <b>(a)</b>.
 However, this alone could still create a kink in adjacent layers, as shown in case <b>(b)</b>.
 To prevent this, a layer that fades in or out within the limb must have both zero thickness <i>and</i> zero slope at that point <b>(c)</b>.
-This requirement does not apply to layer endpoints that coincide with the limb's endpoints <b>(d)</b>.
-</p>
-
+This requirement does not apply to layer endpoints that coincide with the limb’s endpoints <b>(d)</b>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="profile"><a class="header" href="#profile"><img src="images/icons/model-profile.png" style="height:24; vertical-align:center"> Profile</a></h1>
+<h1 id="profile"><a class="header" href="#profile"><img src="images/icons/model-profile.png" style="height:24px; vertical-align:baseline"> Profile</a></h1>
 <p>The profile defines the shape of the bow in its unbraced state.
-It establishes the limb’s base curvature before any string tension is applied, and therefore determines the fundamental design of the bow - such as a straight longbow form, reflex/deflex, recurve, or any other variation.</p>
-<figure>
-  <a href="images/screenshots/editor/profile.png" target="_blank">
-    <img src="images/screenshots/editor/profile.png" width="200px">
-  </a>
+It establishes the limb’s base curvature before any string tension is applied, and therefore determines the fundamental design of the bow — such as a straight longbow form, reflex/deflex, recurve, or any other variation.</p>
+<figure style="--img-width: 200px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/profile.png" alt="Profile segments in the model tree"><span class="img-wrapper"><img src="images/screenshots/editor/profile.png" alt="Profile segments in the model tree"></span></label></p>
   <figcaption><b>Figure:</b> Profile segments in the model tree</figcaption>
 </figure>
-<p>If the <em>Profile</em> category in the model tree is selected, the buttons (<img src="images/icons/list-add.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-remove.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-up.svg" style="width:20; vertical-align:middle">, <img src="images/icons/list-move-down.svg" style="width:20; vertical-align:middle">) can be used to add, remove, and reorder the segments that make up the profile curve (such as lines, arcs, and other types).
+<p>If the <em>Profile</em> category in the model tree is selected, the buttons (<img src="images/icons/list-add.svg" style="width:20px; vertical-align:middle">, <img src="images/icons/list-remove.svg" style="width:20px; vertical-align:middle">, <img src="images/icons/list-move-up.svg" style="width:20px; vertical-align:middle">, <img src="images/icons/list-move-down.svg" style="width:20px; vertical-align:middle">) can be used to add, remove and reorder the segments that make up the profile curve (such as lines, arcs, and other types).
 The properties available for each segment depend on its type and are described below.
 The resulting profile shape is displayed in the <em>Graph</em> panel.
 The plot’s context menu provides additional options, such as showing or hiding control points, displaying curvature, or adding an overlay image.</p>
-<figure>
-  <a href="images/screenshots/editor/profile-plot.png" target="_blank">
-    <img src="images/screenshots/editor/profile-plot.png" width="800px">
-  </a>
+<figure style="--img-width: 800px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/profile-plot.png" alt="Profile plot"><span class="img-wrapper"><img src="images/screenshots/editor/profile-plot.png" alt="Profile plot"></span></label></p>
   <figcaption><b>Figure:</b> Profile plot</figcaption>
 </figure>
-<h2 id="line-segments"><a class="header" href="#line-segments">Line Segments</a></h2>
+<h2 id="line-segments"><a class="header" href="#line-segments">Line segments</a></h2>
 <p>A line segment represents a straight section of the profile.
 Its only adjustable property is its <strong>length</strong>.</p>
-<figure>
-  <a href="images/segment-line.svg" target="_blank">
-    <img src="images/segment-line.svg" width="500px">
-  </a>
+<figure style="--img-width: 500px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/segment-line.svg" alt="Line segment properties"><span class="img-wrapper"><img src="images/segment-line.svg" alt="Line segment properties"></span></label></p>
   <figcaption><b>Figure:</b> Line segment properties</figcaption>
 </figure>
-<h2 id="arc-segments"><a class="header" href="#arc-segments">Arc Segments</a></h2>
-<p>An arc segmnent represents a circular arc defined by its <strong>length</strong> and <strong>radius</strong>.
+<h2 id="arc-segments"><a class="header" href="#arc-segments">Arc segments</a></h2>
+<p>An arc segment represents a circular arc defined by its <strong>length</strong> and <strong>radius</strong>.
 The radius may be positive or negative, which determines the direction in which the arc curves.
 A radius of zero will be interpreted as a straight line instead.</p>
-<figure>
-  <a href="images/segment-arc.svg" target="_blank">
-    <img src="images/segment-arc.svg" width="400px">
-  </a>
+<figure style="--img-width: 400px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/segment-arc.svg" alt="Arc segment properties"><span class="img-wrapper"><img src="images/segment-arc.svg" alt="Arc segment properties"></span></label></p>
   <figcaption><b>Figure:</b> Arc segment properties</figcaption>
 </figure>
-<h2 id="spiral-segments"><a class="header" href="#spiral-segments">Spiral Segments</a></h2>
+<h2 id="spiral-segments"><a class="header" href="#spiral-segments">Spiral segments</a></h2>
 <p>A spiral segment represents an <a href="https://en.wikipedia.org/wiki/Euler_spiral">Euler spiral</a>, a curve whose curvature changes linearly along its length.
 This makes it ideal for creating smooth transitions between straight lines and arcs, or between arcs of different radii.
 It is defined by a <strong>start radius</strong>, an <strong>end radius</strong>, and a <strong>length</strong>.
 Both the start and end radius may be positive, negative, or zero, allowing the spiral’s endpoints to curve in either direction or transition seamlessly into straight sections.</p>
-<figure>
-  <a href="images/segment-spiral.svg" target="_blank">
-    <img src="images/segment-spiral.svg" width="400px">
-  </a>
+<figure style="--img-width: 400px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/segment-spiral.svg" alt="Spiral segment properties"><span class="img-wrapper"><img src="images/segment-spiral.svg" alt="Spiral segment properties"></span></label></p>
   <figcaption><b>Figure:</b> Spiral segment properties</figcaption>
 </figure>
-<h2 id="spline-segments"><a class="header" href="#spline-segments">Spline Segments</a></h2>
+<h2 id="spline-segments"><a class="header" href="#spline-segments">Spline segments</a></h2>
 <p>A spline segment interpolates a series of <code>(x, y)</code> points using a cubic spline curve.
 The coordinates are specified relative to the segment’s starting point (i.e. the end point of the previous segment, if present).</p>
-<figure>
-  <a href="images/segment-spline.svg" target="_blank">
-    <img src="images/segment-spline.svg" width="400px">
-  </a>
+<figure style="--img-width: 400px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/segment-spline.svg" alt="Spline segment properties"><span class="img-wrapper"><img src="images/segment-spline.svg" alt="Spline segment properties"></span></label></p>
   <figcaption><b>Figure:</b> Spline segment properties</figcaption>
 </figure>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="width"><a class="header" href="#width"><img src="images/icons/model-width.png" style="height:24; vertical-align:center"> Width</a></h1>
-<p>The width distribution along the limb defines its side‑to‑side shape, which is shared by all layers.
+<h1 id="width"><a class="header" href="#width"><img src="images/icons/model-width.png" style="height:24px; vertical-align:baseline"> Width</a></h1>
+<p>The width distribution along the limb defines its side-to-side shape, which is shared by all layers.
 It is defined by a table of relative length and width values.
 Each row specifies a position along the limb (from 0% to 100%) and the corresponding width of the limb at that point.
 A smooth curve (a monotone cubic spline) is fitted through these values to create the final width distribution, which is displayed in the <em>Graph</em> panel.
 The plot’s context menu offers additional options, such as showing or hiding control points or adding an overlay image.</p>
-<figure>
-  <a href="images/screenshots/editor/width.png" target="_blank">
-    <img src="images/screenshots/editor/width.png" width="800px">
-  </a>
+<figure style="--img-width: 800px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/width.png" alt="Width properties"><span class="img-wrapper"><img src="images/screenshots/editor/width.png" alt="Width properties"></span></label></p>
   <figcaption><b>Figure:</b> Width properties</figcaption>
 </figure>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="string"><a class="header" href="#string"><img src="images/icons/model-string.png" style="height:24; vertical-align:center"> String</a></h1>
+<h1 id="string"><a class="header" href="#string"><img src="images/icons/model-string.png" style="height:24px; vertical-align:baseline"> String</a></h1>
 <p>The string is defined by the material properties of a single strand and the number of strands it consists of.
 Its final length is calculated automatically based on the brace height specified in the <a href="#draw">Draw</a> settings.
 The following three properties are required:</p>
 <p><strong>Strand density:</strong> The linear density of a single strand (mass per unit length).
 This determines the overall weight of the string, which is an important factor in a bow’s efficiency.
-Additional masses on the string - such as servings or nocking points - can be accounted for separately in the <a href="#masses">Masses</a> settings.</p>
+Additional masses on the string — such as servings or nocking points — can be accounted for separately in the <a href="#masses">Masses</a> settings.</p>
 <p><strong>Strand stiffness:</strong> The stiffness of a single strand (force per unit strain).
 This value determines how much the string stretches elastically under load.</p>
 <p><strong>Number of strands:</strong> The total number of strands in the string.
-The string is treated as an endless loop string in which all strands run virtually parallel, allowing their properties to be added together.
-Strings with an extreme amount of twist might break this assumption.</p>
+The string is treated as an endless-loop string in which all strands run virtually parallel, allowing their properties to be added together.
+Strings with extreme amounts of twist might break this assumption.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>The linear density of a string material can be measured easily using an accurate scale (weight divided by length). The stiffness, however, is more difficult to obtain.
+<p>The linear density of a string material can be measured easily using an accurate scale (mass divided by length). The stiffness, however, is more difficult to obtain.
 Manufacturers generally do not publish this value.
 The table below lists the results of tensile tests for three common bowstring materials, done by the <em>German Institutes for Textile and Fiber Research</em> in July 2018.</p>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th style="text-align: left">Material</th><th style="text-align: left">Density [kg/m]</th><th style="text-align: left">Breaking strength [N]</th><th style="text-align: left">Elongation at break [%]</th><th style="text-align: left">Stiffness [N/100%]</th></tr>
+<tr><th style="text-align: left">Material</th><th style="text-align: left">Linear density [kg/m]</th><th style="text-align: left">Breaking strength [N]</th><th style="text-align: left">Elongation at break [%]</th><th style="text-align: left">Stiffness [N/100%]</th></tr>
 </thead>
 <tbody>
 <tr><td style="text-align: left">Dacron B50</td><td style="text-align: left">370e-6</td><td style="text-align: left">180</td><td style="text-align: left">8.5</td><td style="text-align: left">2118</td></tr>
@@ -673,9 +811,9 @@ The table below lists the results of tensile tests for three common bowstring ma
 <p><strong>Table:</strong> Material properties for common string materials. The stiffness values are a linear estimation from breaking strength and elongation.</p>
 </blockquote>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="masses"><a class="header" href="#masses"><img src="images/icons/model-masses.png" style="height:24; vertical-align:center"> Masses</a></h1>
+<h1 id="masses"><a class="header" href="#masses"><img src="images/icons/model-masses.png" style="height:24px; vertical-align:baseline"> Masses</a></h1>
 <p>Here you can set the mass of the arrow as well as additional masses placed on the bow or the string.
-Only the arrow mass is required, the others are optional and may be set to zero if not needed.</p>
+Only the arrow mass is required; the others are optional and may be set to zero if not needed.</p>
 <p><strong>Arrow:</strong> The mass of the arrow can be specified in one of three ways:</p>
 <ul>
 <li>
@@ -687,39 +825,33 @@ Only the arrow mass is required, the others are optional and may be set to zero 
 <li>
 <p><strong>Mass per energy:</strong> The established method of defining arrow mass relative to draw force has one limitation: it does not account for the bow’s power stroke or the shape of its force-draw curve.
 As a result, it is not a good metric for comparing bows with different energy storage characteristics.
-For example, a 10 gpp arrow on a bow with a 26“ draw length is a very different setup from a 10 gpp arrow on a 30“ draw length, because both produce the same arrow mass for a given draw force, even though the longer draw stores significantly more energy and would therefore require a heavier arrow.
+For example, a 10 gpp arrow on a bow with a 26“ draw length is a very different setup from a 10 gpp arrow on a 30“ draw length: both produce the same arrow mass for a given draw force, even though the longer draw stores significantly more energy and would therefore require a heavier arrow.
 The same problem arises when comparing, for example, a longbow and a recurve bow since they store different amounts of energy even at the same draw force and power stroke.
-To address these issues, VirtualBow offers an alternative definition of the arrow mass relative the bow’s stored energy, suggested to be measured in grains per Joule (GPJ).
+To address these issues, VirtualBow offers an alternative definition of the arrow mass relative to the bow’s stored energy, suggested to be measured in grains per joule (GPJ).
 When you specify the arrow mass in this way, VirtualBow calculates the actual mass after the static simulation, once the bow’s force-draw curve and stored energy are known.
 A conversion table between GPP and GPJ is provided below to give you a sense of typical values.</p>
 </li>
 </ul>
 <p><strong>String center:</strong> Additional masses located near the center of the string, typically the center serving and any nocking point(s).
 The image below shows a typical center serving with a single brass nocking point.</p>
-<figure>
-  <a href="images/mass-string-center.png" target="_blank">
-    <img src="images/mass-string-center.png" width="600px">
-  </a>
+<figure style="--img-width: 600px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/mass-string-center.png" alt="Center serving with a single brass nocking point"><span class="img-wrapper"><img src="images/mass-string-center.png" alt="Center serving with a single brass nocking point"></span></label></p>
 </figure>
-<p><strong>String end:</strong> Additional masses located near the ends of the string, typically the serving on the ears of an endless-loop string or the doubled-up splice section on a flemish twist string.
+<p><strong>String end:</strong> Additional masses located near the ends of the string, typically the serving on the ears of an endless-loop string or the doubled-up splice section on a Flemish twist string.
 See the image below for examples of both types.</p>
-<figure>
-  <a href="images/mass-string-end.png" target="_blank">
-    <img src="images/mass-string-end.png" width="600px">
-  </a>
+<figure style="--img-width: 600px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/mass-string-end.png" alt="Serving on the ears of an endless-loop string and the splice of a Flemish twist string"><span class="img-wrapper"><img src="images/mass-string-end.png" alt="Serving on the ears of an endless-loop string and the splice of a Flemish twist string"></span></label></p>
 </figure>
-<p><strong>Limb tip:</strong> There exists a wide variety of different limb tip designs, a few examples are shown below.
+<p><strong>Limb tip:</strong> There is a wide variety of limb tip designs; a few examples are shown below.
 What they all share is that they add some mass to the end of the limb, which can be represented by this value.
 The added mass typically consists of the small portion of the limb extending beyond the string attachment point, along with any reinforcing elements such as tip overlays or similar.</p>
-<figure>
-  <a href="images/mass-limb-tip.png" target="_blank">
-    <img src="images/mass-limb-tip.png" width="600px">
-  </a>
+<figure style="--img-width: 600px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/mass-limb-tip.png" alt="Examples of different limb tip designs"><span class="img-wrapper"><img src="images/mass-limb-tip.png" alt="Examples of different limb tip designs"></span></label></p>
 </figure>
 <br>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>This table shows the equivalent GPJ (grains per joule) value for each combination of GPP (grains per pound) and power stroke, estimated based on the assumption of a linear force–draw curve.</p>
+<p>This table shows the equivalent GPJ (grains per joule) value for each combination of GPP (grains per pound) and power stroke, estimated based on the assumption of a linear force-draw curve.</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -746,15 +878,15 @@ The added mass typically consists of the small portion of the limb extending bey
 </div>
 </blockquote>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="damping"><a class="header" href="#damping"><img src="images/icons/model-damping.png" style="height:24; vertical-align:center"> Damping</a></h1>
+<h1 id="damping"><a class="header" href="#damping"><img src="images/icons/model-damping.png" style="height:24px; vertical-align:baseline"> Damping</a></h1>
 <p>Damping accounts for energy dissipation, such as losses caused by internal friction or hysteresis in the materials.
 It affects only the dynamic analysis.</p>
 <p>A typical bow loses only a small part of its efficiency to energy dissipation.
-Most of the loss comes from kinetic energy that remains in the bow after the arrow leaves the string.
-For this reason, the damping parameters are not critical for modelling overall bow performance.
-They do however make the behaviour of the bow after the shot more realistic, since without damping the bow’s motion would never decay.</p>
-<p>Because modelling every form of energy dissipation in a bow in an exact way would be way too complex, the damping is reduced to two empirical values:
-The damping ratio of the <strong>Limbs</strong> and the damping ratio of the <strong>String</strong>.
+Most of its losses come instead from kinetic energy that remains in the bow after the arrow leaves the string.
+For this reason, the damping parameters are not critical for modeling overall bow performance.
+They do however make the behavior of the bow after the shot more realistic, since without damping the bow’s motion would never decay.</p>
+<p>Because modeling every form of energy dissipation in a bow in an exact way would be far too complex, the damping is reduced to two empirical values:
+the damping ratio of the <strong>Limbs</strong> and the damping ratio of the <strong>String</strong>.
 The <a href="https://en.wikipedia.org/wiki/Damping">damping ratio</a> describes how quickly oscillations decay over time:</p>
 <ul>
 <li>
@@ -769,8 +901,8 @@ The <a href="https://en.wikipedia.org/wiki/Damping">damping ratio</a> describes 
 </ul>
 <p>See the table below for a visualization of these three cases.
 The damping ratios of a bow’s limbs and string are largely empirical, and there is still limited practical experience with them.
-Realistic values are probably in the range of <strong>1 - 10%</strong> though.
-You can observe the damping behaviour of your bow’s limb by clamping the handle firmly on a table or workbench and plucking the limb tip.
+Realistic values are probably in the range of <strong>1–10%</strong>, though.
+You can observe the damping behavior of your bow’s limbs by clamping the handle firmly on a table or workbench and plucking the limb tip.
 The longer it continues to oscillate, the lower the damping ratio.</p>
 <br>
 <div class="table-wrapper">
@@ -779,29 +911,27 @@ The longer it continues to oscillate, the lower the damping ratio.</p>
 <tr><th>Damping ratio</th><th>Oscillation</th></tr>
 </thead>
 <tbody>
-<tr><td>0%</td><td><a href="images/damping-ratio-00.svg" target="_blank"><img src="images/damping-ratio-00.svg" width="200px"></a></td></tr>
-<tr><td>10%</td><td><a href="images/damping-ratio-01.svg" target="_blank"><img src="images/damping-ratio-01.svg" width="200px"></a></td></tr>
-<tr><td>100%</td><td><a href="images/damping-ratio-10.svg" target="_blank"><img src="images/damping-ratio-10.svg" width="200px"></a></td></tr>
+<tr><td>0%</td><td><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/damping-ratio-00.svg" alt="Undamped oscillation"><span class="img-wrapper"><img src="images/damping-ratio-00.svg" alt="Undamped oscillation"></span></label></td></tr>
+<tr><td>10%</td><td><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/damping-ratio-01.svg" alt="Lightly damped oscillation"><span class="img-wrapper"><img src="images/damping-ratio-01.svg" alt="Lightly damped oscillation"></span></label></td></tr>
+<tr><td>100%</td><td><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/damping-ratio-10.svg" alt="Critically damped oscillation"><span class="img-wrapper"><img src="images/damping-ratio-10.svg" alt="Critically damped oscillation"></span></label></td></tr>
 </tbody>
 </table>
 </div>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="result-viewer"><a class="header" href="#result-viewer">Result Viewer</a></h1>
-<p>The result viewer opens automatically after a simulation and provides tools to explore the static and dynamic behaviour of the bow.
-The buttons on the lower-right corner let you switch between static and dynamic results, if available.
+<p>The result viewer opens automatically after a simulation and provides tools to explore the static and dynamic behavior of the bow.
+The buttons in the lower-right corner let you switch between static and dynamic results, if available.
 All results are organized into tabs, which are described in the following sections.</p>
-<figure>
-  <a href="images/screenshots/viewer/result-viewer.png" target="_blank">
-    <img src="images/screenshots/viewer/result-viewer.png" width="90%">
-  </a>
+<figure style="--img-width: 90%">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/viewer/result-viewer.png" alt="Screenshot of the result viewer"><span class="img-wrapper"><img src="images/screenshots/viewer/result-viewer.png" alt="Screenshot of the result viewer"></span></label></p>
 </figure>
 <p>Beneath the tabs is a slider that controls the current state of the bow being displayed.</p>
 <ul>
 <li>
-<p>In <strong>static</strong> mode, the slider represents draw length</p>
+<p>In <strong>static</strong> mode, the slider represents draw length.</p>
 </li>
 <li>
-<p>In <strong>dynamic</strong> mode, it represents time</p>
+<p>In <strong>dynamic</strong> mode, it represents time.</p>
 </li>
 </ul>
 <p>This setting applies across all tabs, though only some of them make use of it.
@@ -811,14 +941,12 @@ The input field and dropdown menu next to the slider allow you to jump directly 
 <h1 id="characteristics"><a class="header" href="#characteristics">Characteristics</a></h1>
 <p>This tab lists all results that can be expressed as single numerical values.
 Some of these values apply only to static or only to dynamic analysis, while others are shared between both modes.</p>
-<figure>
-  <a href="images/screenshots/viewer/characteristics.png" target="_blank">
-    <img src="images/screenshots/viewer/characteristics.png" width="90%">
-  </a>
+<figure style="--img-width: 90%">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/viewer/characteristics.png" alt="Screenshot of the characteristics tab"><span class="img-wrapper"><img src="images/screenshots/viewer/characteristics.png" alt="Screenshot of the characteristics tab"></span></label></p>
 </figure>
 <h2 id="common"><a class="header" href="#common">Common</a></h2>
 <p><strong>Maximum stresses:</strong> Shows the maximum tensile and compressive stress that occurred in each layer during the simulation.
-The fields are color‑coded to indicate how these stresses compare to the material limits and the defined safety margin:</p>
+The fields are color-coded to indicate how these stresses compare to the material limits and the defined safety margin:</p>
 <ul>
 <li>
 <p><strong>Green</strong> indicates that the maximum stress is within the allowed range, based on the material’s tensile and compressive strength and the chosen margin of safety.</p>
@@ -830,7 +958,8 @@ The fields are color‑coded to indicate how these stresses compare to the mater
 <p><strong>Red</strong> signals that the stress has surpassed even the ultimate strength of the material.</p>
 </li>
 </ul>
-<p><strong>Maximum strains:</strong> Shows the maximum tensile and compressive strains that occurred in each layer during the simulation, using the same color‑coding scheme as the maximum stresses. Because stress and strain are directly linked, the maximum strains do not introduce any new information about potential material failure.</p>
+<p><strong>Maximum strains:</strong> Shows the maximum tensile and compressive strains that occurred in each layer during the simulation, using the same color-coding scheme as the maximum stresses.
+Because stress and strain are directly linked, the maximum strains do not introduce any new information about potential material failure.</p>
 <p><strong>Maximum absolute forces:</strong> This section reports the highest values reached during the simulation for selected forces in the bow.</p>
 <ul>
 <li>
@@ -848,48 +977,44 @@ The fields are color‑coded to indicate how these stresses compare to the mater
 This value is commonly referred to as the bow’s draw weight.</p>
 <p><strong>Drawing work:</strong> The total mechanical energy put into the bow while drawing it.
 This energy is stored in the limbs as elastic potential energy and later only partly passed on to the arrow, depending on the bow’s efficiency.
-It corresponds to the area under the bow’s force–draw curve.</p>
+It corresponds to the area under the bow’s force-draw curve.</p>
 <p><strong>Energy storage factor:</strong> This value indicates how effective the bow’s force-draw curve is at storing energy.
 It is defined as the ratio between the actual energy stored in the bow and the energy that <i>would</i> be stored if the draw curve were perfectly linear.
-A more convex curve has a higher storage factor because it accumulates more energy for the same final draw force.</p>
-<p style="text-align: justify;">
-<a href="images/storage-factor.svg" target="_blank">
-  <img src="images/storage-factor.svg" width="250px" align="right">
-</a>
+A curve that bulges above the linear reference has a higher storage factor, because it accumulates more energy for the same final draw force.</p>
+<div class="float-right" style="--img-width: 250px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/storage-factor.svg" alt="Draw curves with different energy storage factors"><span class="img-wrapper"><img src="images/storage-factor.svg" alt="Draw curves with different energy storage factors"></span></label></p>
+</div>
+
 <ul>
   
-<li><b>Factor &lt; 100%:</b> The bow stores less energy than a linear draw curve would allow. This is generally undesireable and might indicate stacking towards the end of the draw.</li>
+<li><b>Factor &lt; 100%:</b> The bow stores less energy than a linear draw curve would allow. This is generally undesirable and might indicate stacking towards the end of the draw.</li>
 
-  <br>
   
-<li><b>Factor = 100%:</b> The bow stores exactly as much energy as a linear draw curve would. Values in this range are common for longbows and similar designs.</li>
+<li><b>Factor = 100%:</b> The bow stores exactly as much energy as a linear draw curve would. Values near 100% are common for longbows and similar designs.</li>
 
-  <br>
   
 <li><b>Factor &gt; 100%:</b> The bow stores more energy than a linear draw curve would. This gives it additional stored energy at the same final draw weight, potentially improving its performance. Well-designed recurve bows, for example, should be firmly in this category.</li>
 
 </ul>
-
-</p>
 
 <p><strong>Limb mass:</strong> The total mass of a single bow limb, calculated from its geometry and material properties.
 Any additional masses at the limb tips are included in this value.</p>
 <p><strong>String mass:</strong> The total mass of the bowstring, calculated from its length and material properties.
 Any additional masses are included in this value.</p>
 <p><strong>String length:</strong> The length of the string as determined by the simulation in order to achieve the specified brace height.</p>
-<p><strong>Power stroke:</strong> The power stroke is the distance from brace height to full draw.
+<p><strong>Power stroke:</strong> The distance from brace height to full draw.
 It represents the portion of the draw over which the bow accelerates the arrow.</p>
 <h2 id="dynamics-1"><a class="header" href="#dynamics-1">Dynamics</a></h2>
 <p><strong>Arrow mass:</strong> This is either the explicitly specified mass of the arrow, or the computed arrow mass according to the desired mass per force or mass per energy ratio.</p>
 <p><strong>Final arrow velocity:</strong> Final velocity of the arrow when it leaves the bow.</p>
 <p><strong>Final arrow energy:</strong> Final kinetic energy of the arrow when it leaves the bow.</p>
 <p><strong>Degree of efficiency:</strong> Describes how effectively the bow converts input energy into useful output.
-It is the ratio between the drawing work put into the bow and the final kinetic energy of the arrow.
+It is the ratio between the final kinetic energy of the arrow and the drawing work put into the bow.
 Higher efficiency indicates that a greater portion of the stored energy is delivered to the arrow rather than lost to other effects.</p>
 <p><strong>Efficiency losses:</strong> The degree of efficiency indicates what portion of the bow’s input energy is transferred to the arrow.
 This section shows how the remainder of that energy is distributed at the time the arrow leaves the string.
 For each component, both the absolute energy loss and its contribution to reducing overall efficiency are listed.
-The categories are <strong>kinetic</strong> and <strong>elastic</strong> energy remaining in the limb and string after the arrow left the string, as well as energy lost to <strong>damping</strong> up to that moment.</p>
+The categories are <strong>kinetic</strong> and <strong>elastic</strong> energy remaining in the limbs and string after the arrow has left the string, as well as energy lost to <strong>damping</strong> up to that moment.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>The elastic energy of the limb often appears as a negative value.
@@ -901,82 +1026,68 @@ The string’s elastic energy increases correspondingly and no physical laws are
 </blockquote>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="shape"><a class="header" href="#shape">Shape</a></h1>
-<p>The shape view displays the geometry of the limbs and string, along with the arrow’s position, at different stages of the draw (for statics) or throughout the show (for dynamics).
+<p>The shape view displays the geometry of the limbs and string, along with the arrow’s position, at different stages of the draw (for statics) or throughout the shot (for dynamics).
 The small red circle marks the nock end of the arrow, and the blue cross marks the bow’s pivot point.
 You can use the slider at the bottom to move through the states or play them as a continuous animation.</p>
-<figure>
-  <a href="images/screenshots/viewer/shape.png" target="_blank">
-    <img src="images/screenshots/viewer/shape.png" width="90%">
-  </a>
+<figure style="--img-width: 90%">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/viewer/shape.png" alt="Screenshot of the shape tab"><span class="img-wrapper"><img src="images/screenshots/viewer/shape.png" alt="Screenshot of the shape tab"></span></label></p>
 </figure>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="draw-1"><a class="header" href="#draw-1">Draw</a></h1>
 <p>This tab is available only for static simulations.
-It displays the bow’s force–draw curve, showing how draw force changes with draw length.</p>
-<figure>
-  <a href="images/screenshots/viewer/draw.png" target="_blank">
-    <img src="images/screenshots/viewer/draw.png" width="90%">
-  </a>
+It displays the bow’s force-draw curve, showing how draw force changes with draw length.</p>
+<figure style="--img-width: 90%">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/viewer/draw.png" alt="Screenshot of the draw tab"><span class="img-wrapper"><img src="images/screenshots/viewer/draw.png" alt="Screenshot of the draw tab"></span></label></p>
 </figure>
 <p>Two options for this plot are available:</p>
 <p><strong>Show linear reference:</strong> Adds a straight line as a reference for comparison. See also the energy storage factor in the <a href="#characteristics">Characteristics tab</a>.</p>
 <p><strong>Show stiffness:</strong> Adds a plot of the bow’s stiffness over the draw length.
-Stiffness in this case is the increase in draw force per increase in draw length, or in other words the slope of the force-draw curve.
+Stiffness in this case is the increase in draw force per increase in draw length, or, in other words, the slope of the force-draw curve.
 High stiffness towards the end of the draw can indicate stacking.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="arrow"><a class="header" href="#arrow">Arrow</a></h1>
 <p>This tab is available only for dynamic simulations.
 It visualizes the motion of the arrow throughout the shot by plotting its position, velocity and acceleration over time.
 Together, these three curves show how the bow transfers energy into the arrow and how the arrow’s motion develops from release to separation.</p>
-<figure>
-  <a href="images/screenshots/viewer/arrow.png" target="_blank">
-    <img src="images/screenshots/viewer/arrow.png" width="90%">
-  </a>
+<figure style="--img-width: 90%">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/viewer/arrow.png" alt="Screenshot of the arrow tab"><span class="img-wrapper"><img src="images/screenshots/viewer/arrow.png" alt="Screenshot of the arrow tab"></span></label></p>
 </figure>
 <p><strong>Position:</strong> Shows how far the arrow has traveled from its starting point at each moment.</p>
 <p><strong>Velocity:</strong> Shows how quickly the arrow is moving at each moment.
 The arrow’s velocity typically rises until the arrow leaves the string, then remains constant.</p>
 <p><strong>Acceleration:</strong> Shows how strongly the bow is accelerating the arrow at each moment.
-Typically decreases to zero at the time the arrow separates from the string.
+It typically decreases to zero at the moment the arrow separates from the string.
 A slight negative acceleration (deceleration) right before separation can occur due to the <strong>arrow clamp force</strong> defined in the <a href="#dynamics">Settings</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="stress"><a class="header" href="#stress">Stress</a></h1>
 <p>This tab shows the distribution of bending stress for each layer along the length of the limb.
 It helps identify regions of the limb that are overstressed and ones that are carrying less load than they could.</p>
-<figure>
-  <a href="images/screenshots/viewer/stress.png" target="_blank">
-    <img src="images/screenshots/viewer/stress.png" width="90%">
-  </a>
+<figure style="--img-width: 90%">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/viewer/stress.png" alt="Screenshot of the stress tab"><span class="img-wrapper"><img src="images/screenshots/viewer/stress.png" alt="Screenshot of the stress tab"></span></label></p>
 </figure>
 <p>The bending stresses (tension and/or compression) vary linearly across the thickness of each layer.
-Due to this, the extremes always occur at the layer boundaries.
+Because of this, the extremes always occur at the layer boundaries.
 The plot therefore shows two stresses per layer: one at the back side and one at the belly side.
 Positive values represent tension, and negative values represent compression.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="curvature"><a class="header" href="#curvature">Curvature</a></h1>
 <p>This tab shows the limb’s curvature along its length, measured relative to its initial unbraced shape.
 It offers an additional way to assess the bow’s tiller by highlighting which sections of the limb are bending more and which are bending less.</p>
-<figure>
-  <a href="images/screenshots/viewer/curvature.png" target="_blank">
-    <img src="images/screenshots/viewer/curvature.png" width="90%">
-  </a>
+<figure style="--img-width: 90%">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/viewer/curvature.png" alt="Screenshot of the curvature tab"><span class="img-wrapper"><img src="images/screenshots/viewer/curvature.png" alt="Screenshot of the curvature tab"></span></label></p>
 </figure>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="energy"><a class="header" href="#energy">Energy</a></h1>
-<p>This plot shows how the energy stored in the bow evolves during the simulation and how it is distributed between components (limbs, string, arrow) and energy types (elastic/potential, kinetic, damping losses).
+<p>This plot shows how the energy stored in the bow evolves during the simulation and how it is distributed among components (limbs, string, arrow) and energy types (elastic/potential, kinetic, damping losses).
 For <strong>static</strong> simulations, it displays how the elastic energy in the limbs and string builds up during the draw.
 No kinetic energies or damping losses are shown, because they are zero in a static analysis.
 For <strong>dynamic</strong> simulations, it shows how the initial elastic energy in the limbs is transferred to the arrow and other bow components, as well as how much unused energy remains in the bow after the arrow departs.</p>
-<figure>
-  <a href="images/screenshots/viewer/energy-statics.png" target="_blank">
-    <img src="images/screenshots/viewer/energy-statics.png" width="90%">
-  </a>
+<figure style="--img-width: 90%">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/viewer/energy-statics.png" alt="Screenshot of the energy tab for static results"><span class="img-wrapper"><img src="images/screenshots/viewer/energy-statics.png" alt="Screenshot of the energy tab for static results"></span></label></p>
   <figcaption><b>Figure:</b> Screenshot of the energy tab for static results</figcaption>
 </figure>
-<figure>
-  <a href="images/screenshots/viewer/energy-dynamics.png" target="_blank">
-    <img src="images/screenshots/viewer/energy-dynamics.png" width="90%">
-  </a>
+<figure style="--img-width: 90%">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/viewer/energy-dynamics.png" alt="Screenshot of the energy tab for dynamic results"><span class="img-wrapper"><img src="images/screenshots/viewer/energy-dynamics.png" alt="Screenshot of the energy tab for dynamic results"></span></label></p>
   <figcaption><b>Figure:</b> Screenshot of the energy tab for dynamic results</figcaption>
 </figure>
 <p>In both modes, three display options can be selected independently:</p>
@@ -985,10 +1096,10 @@ For <strong>dynamic</strong> simulations, it shows how the initial elastic energ
 <p><strong>Stacked:</strong> Stacks all energy curves to show how they add up. If the simulation was correct, their sum should be constant.</p>
 </li>
 <li>
-<p><strong>Group by component:</strong> Group energies by component (limbs, string, arrow, damping)</p>
+<p><strong>Group by component:</strong> Group the energies by component (limbs, string, arrow).</p>
 </li>
 <li>
-<p><strong>Group by type:</strong> Group the energies only by type (elastic, kinetic, damping)</p>
+<p><strong>Group by type:</strong> Group the energies by type (elastic, kinetic, damping), regardless of component.</p>
 </li>
 </ul>
 <p>The reference for all elastic energies shown is the initial, unbraced state of the bow.
@@ -998,22 +1109,20 @@ This means the energy required to brace the bow is included.</p>
 <p>This tab lets you combine any results from the simulation and plot them against one another.
 It allows you to explore the data freely and visualize relationships that aren’t covered by the default plots.
 The available data series for static and dynamic analyses are listed below.</p>
-<figure>
-  <a href="images/screenshots/viewer/other-plots.png" target="_blank">
-    <img src="images/screenshots/viewer/other-plots.png" width="90%">
-  </a>
+<figure style="--img-width: 90%">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/viewer/other-plots.png" alt="Screenshot of the other plots tab"><span class="img-wrapper"><img src="images/screenshots/viewer/other-plots.png" alt="Screenshot of the other plots tab"></span></label></p>
 </figure>
 <h2 id="static-analysis"><a class="header" href="#static-analysis">Static analysis</a></h2>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th style="text-align: left">Data Series</th><th style="text-align: left">Description</th></tr>
+<tr><th style="text-align: left">Data series</th><th style="text-align: left">Description</th></tr>
 </thead>
 <tbody>
-<tr><td style="text-align: left">Power stroke</td><td style="text-align: left">Current distance between brace height and string</td></tr>
+<tr><td style="text-align: left">Power stroke</td><td style="text-align: left">Current distance of the string from its braced position</td></tr>
 <tr><td style="text-align: left">Draw length</td><td style="text-align: left">Current draw length of the bow</td></tr>
 <tr><td style="text-align: left">Draw force</td><td style="text-align: left">Current draw force of the bow</td></tr>
-<tr><td style="text-align: left">Draw stiffness</td><td style="text-align: left">Stiffness of the draw, i.e. force increase per increase in draw length</td></tr>
+<tr><td style="text-align: left">Draw stiffness</td><td style="text-align: left">Stiffness of the draw, i.e., force increase per increase in draw length</td></tr>
 <tr><td style="text-align: left">String force (total)</td><td style="text-align: left">Total tensile force in the string</td></tr>
 <tr><td style="text-align: left">String force (strand)</td><td style="text-align: left">Tensile force per individual strand</td></tr>
 <tr><td style="text-align: left">String length</td><td style="text-align: left">Current length of the string, including elastic stretch</td></tr>
@@ -1029,7 +1138,7 @@ The available data series for static and dynamic analyses are listed below.</p>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th style="text-align: left">Data Series</th><th style="text-align: left">Description</th></tr>
+<tr><th style="text-align: left">Data series</th><th style="text-align: left">Description</th></tr>
 </thead>
 <tbody>
 <tr><td style="text-align: left">Time</td><td style="text-align: left">Time elapsed since release</td></tr>
@@ -1054,7 +1163,7 @@ The available data series for static and dynamic analyses are listed below.</p>
 <h1 id="solver"><a class="header" href="#solver">Solver</a></h1>
 <p>The solver is the component of VirtualBow that performs all the numerical calculations required for a simulation.
 It is normally invoked automatically by the model editor whenever you start a static or dynamic analysis.
-For advanced workflows, however, the solver can also be run independently, allowing you to batch‑process models or integrate VirtualBow with external scripts.</p>
+For advanced workflows, however, the solver can also be run independently, allowing you to batch-process models or integrate VirtualBow with external scripts.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="command-line"><a class="header" href="#command-line">Command Line</a></h1>
 <p>The VirtualBow executables are named</p>
@@ -1078,14 +1187,14 @@ Options:
 </code></pre>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>To use the command line interface on Windows you have to either specify the complete path to the respective executable or add the installation directory to your <code>PATH</code> environment variable.
+<p>To use the command line interface on Windows, you have to either specify the complete path to the respective executable or add the installation directory to your <code>PATH</code> environment variable.
 There is an option to do this automatically during installation of VirtualBow.</p>
 </blockquote>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>On MacOS, the VirtualBow executables are hidden inside the application bundle.
-They can be accessed by their full path though, or their location can be temporarily added to the <code>PATH</code> environment variable with the command <code>export PATH = $PATH:/Applications/VirtualBow.app/Contents/MacOS</code>.
-Put this line into your <code>.bash_profile</code> if you want it to be permanently added.</p>
+<p>On macOS, the VirtualBow executables are hidden inside the application bundle.
+They can be accessed by their full path though, or their location can be temporarily added to the <code>PATH</code> environment variable with the command <code>export PATH=$PATH:/Applications/VirtualBow.app/Contents/MacOS</code>.
+Put this line into your shell’s startup file (<code>.zshrc</code> for the default zsh, <code>.bash_profile</code> for bash) if you want it to be added permanently.</p>
 </blockquote>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="file-formats"><a class="header" href="#file-formats">File Formats</a></h1>
@@ -1098,8 +1207,7 @@ Because it is human-readable, <code>.bow</code> files can be easily inspected or
 <p>The solver produces <code>.res</code> result files containing all static and/or dynamic simulation results.
 These files use the binary <a href="https://msgpack.org/">MessagePack</a> format.
 MessagePack represents the same kinds of data as JSON but in a more compact binary form.
-Unlike the input files, <code>.res</code> files cannot be viewed directly in a text editor, but <em>Visual Studio Code</em>, for example, with a Plugins such as <code>PackLens</code> or <code>Data File Viewer</code> can be used instead.</p>
-<h2 id=""><a class="header" href="#"></a></h2>
+Unlike the input files, <code>.res</code> files cannot be viewed directly in a text editor, but <em>Visual Studio Code</em>, for example, can display them with a plugin such as <code>PackLens</code> or <code>Data File Viewer</code>.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>Earlier versions of this manual included detailed specifications of the internal structure of both input and output files.
@@ -1113,26 +1221,30 @@ If you have questions about the file formats or need guidance for advanced use c
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
 <p>The internal file structure used by VirtualBow changes frequently.
 VirtualBow maintains backward compatibility only for <code>.bow</code> model files, not for <code>.res</code> result files.
-If you integrate tools or workflows with these formats, you should expect having to update them to keep them working with newer versions of VirtualBow.</p>
+If you integrate tools or workflows with these formats, you should expect to have to update them to keep them working with newer versions of VirtualBow.</p>
 </blockquote>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="scripting"><a class="header" href="#scripting">Scripting</a></h1>
-<p>The primary reason to use the solver as a standalone application is to automate simulations and analyze the results programmatically. This is especially useful for tasks such as design optimization, parameter sweeps, or studying how specific model parameters influence the simulation outcome.</p>
-<p>Scripts that interact with VirtualBow must be able to launch the solver through its command‑line interface and read or write the model and result files that serve as its input and output. Because the solver uses JSON for input and MessagePack for output, any programming language with support for these formats can be used. Both are widely supported, either natively or through readily available libraries.</p>
-<p>To help you get started, the following sections demonstrate how to interface with VirtualBow in several programming languages commonly used in scientific computing. Each example performs the same sequence of basic tasks:</p>
+<p>The primary reason to use the solver as a standalone application is to automate simulations and analyze the results programmatically.
+This is especially useful for tasks such as design optimization, parameter sweeps, or studying how specific model parameters influence the simulation outcome.</p>
+<p>Scripts that interact with VirtualBow must be able to launch the solver through its command-line interface and read or write the model and result files that serve as its input and output.
+Because the solver uses JSON for input and MessagePack for output, any programming language with support for these formats can be used.
+Both are widely supported, either natively or through readily available libraries.</p>
+<p>To help you get started, the following sections demonstrate how to interface with VirtualBow in several programming languages commonly used in scientific computing.
+Each example performs the same sequence of basic tasks:</p>
 <ol>
 <li>
-<p>Load, modify, and save a model file</p>
+<p>Load, modify, and save a model file.</p>
 </li>
 <li>
-<p>Run a static simulation using that model</p>
+<p>Run a static simulation using that model.</p>
 </li>
 <li>
-<p>Load the result file and print the final draw force</p>
+<p>Load the result file and print the final draw force.</p>
 </li>
 </ol>
 <h2 id="python"><a class="header" href="#python">Python</a></h2>
-<p>The python example below uses the external <a href="https://pypi.org/project/msgpack/">msgpack</a> package for reading the result files.
+<p>The Python example below uses the external <a href="https://pypi.org/project/msgpack/">msgpack</a> package for reading the result files.
 It can be installed with <code>pip install msgpack</code>.</p>
 <pre><code class="language-python">import json, msgpack      # Loading and saving model and result files
 import numpy as np        # Evaluating stresses
@@ -1216,31 +1328,27 @@ println(output["statics"]["final_draw_force"])
 <p>This section collects various notes about useful VirtualBow features that didn’t quite fit into any other part of the manual.</p>
 <h2 id="units"><a class="header" href="#units">Units</a></h2>
 <p>Manually converting between units is tedious and error-prone.
-That’s why all inputs and outputs in VirtualBow have a configurable unit that can be changed under <em>Options</em> - <em>Units</em>.</p>
-<figure>
-  <a href="images/screenshots/editor/units.png" target="_blank">
-    <img src="images/screenshots/editor/units.png" width="400px">
-  </a>
+That’s why all inputs and outputs in VirtualBow have a configurable unit that can be changed under <em>Options</em> → <em>Units</em>.</p>
+<figure style="--img-width: 400px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/units.png" alt="Unit selection dialog"><span class="img-wrapper"><img src="images/screenshots/editor/units.png" alt="Unit selection dialog"></span></label></p>
   <figcaption><b>Figure:</b> Unit selection dialog</figcaption>
 </figure>
 <p>In this dialog you can select units for different categories of values.
-Changing the unit for <em>Length</em>, for example, will change the unit everywhere where lengths are shown (e.g. width, layer height, dimensions).
+Changing the unit for <em>Length</em>, for example, will change the unit wherever lengths are shown (e.g. width, layer thickness, dimensions).
 There are also two pre-defined sets of defaults, one for SI units and one for US units.
-You can use those by clicking either of the buttons on the bottom left.</p>
+You can use those by clicking either of the buttons in the bottom left.</p>
 <p>It is worth noting that the units only affect how values are shown in the user interface.
 The data in the model and result files is always stored in SI base units.</p>
 <h2 id="plots"><a class="header" href="#plots">Plots</a></h2>
 <p><strong>Background images</strong></p>
 <p>Any plot can be given a background image.
 After selecting <em>Background image…</em> in the plot’s context menu, you can load an image and adjust its position and orientation.</p>
-<figure>
-  <a href="images/screenshots/editor/plot-overlay.png" target="_blank">
-    <img src="images/screenshots/editor/plot-overlay.png" width="600px">
-  </a>
+<figure style="--img-width: 600px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/plot-overlay.png" alt="Background image dialog"><span class="img-wrapper"><img src="images/screenshots/editor/plot-overlay.png" alt="Background image dialog"></span></label></p>
   <figcaption><b>Figure:</b> Background image dialog</figcaption>
 </figure>
 <p>This feature can be used to model existing bows more easily or to compare the simulation results with actual photographs.
-Background images are only temporary, they are not saved with the model files.</p>
+Background images are only temporary; they are not saved with the model files.</p>
 <p><strong>File exports</strong></p>
 <p>Plots can be exported to various image and data formats using the menu entry <em>Export as…</em>.
 Supported export formats are:</p>
@@ -1260,67 +1368,59 @@ Supported export formats are:</p>
 </ul>
 <p><strong>Other options</strong></p>
 <p>Some of the plots have additional context menu entries.
-The profile plot, for example, has options to show or hide nodes or visualize the curvature.</p>
+The profile plot, for example, has options to show or hide control points or visualize the curvature.</p>
 <h2 id="number-inputs"><a class="header" href="#number-inputs">Number inputs</a></h2>
 <p>Number input fields may seem simple, but there are a few details worth knowing to use them more effectively.</p>
-<figure>
-  <a href="images/screenshots/editor/spinbox.png" target="_blank">
-    <img src="images/screenshots/editor/spinbox.png" width="150px">
-  </a>
+<figure style="--img-width: 150px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/spinbox.png" alt="Number input field"><span class="img-wrapper"><img src="images/screenshots/editor/spinbox.png" alt="Number input field"></span></label></p>
   <figcaption><b>Figure:</b> Number input field</figcaption>
 </figure>
 <p><strong>Arithmetic expressions</strong></p>
 <p>Most number input fields in VirtualBow accept arithmetic expressions.
-This means that you can enter expressions like <code>1 + 5/2</code>, press enter, and it will automatically be evaluated to <code>3.5</code>.
+This means that you can enter expressions like <code>1 + 5/2</code>, press Enter, and it will automatically be evaluated to <code>3.5</code>.
 Supported operations are <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>^</code> and grouping with <code>(</code> and <code>)</code>.</p>
 <p><strong>Decimal separator</strong></p>
 <p>VirtualBow uses a dot (<code>.</code>) as the decimal separator for numbers, regardless of local conventions.
-However, since some countries use a comma (<code>,</code>) instead, their keyboard layouts have a comma on the number block, making it cumbersome to enter numbers with a dot.
+However, since some countries use a comma (<code>,</code>) instead, their keyboard layouts have a comma on the number pad, making it cumbersome to enter numbers with a dot.
 Therefore, to make things easier for such users, the comma on the number pad is automatically converted to a dot.</p>
 <p><strong>Scrolling</strong></p>
 <p>The little arrow buttons on the right of the input field can be used to increment/decrement the value.
 Scrolling the mouse wheel while the field is selected does the same thing, just faster.
-This can be used to quickly move through a whole range of values, which is especially useful when editing the bow’s geometry and observing the changes in the plots and the 3d view.</p>
+This can be used to quickly move through a whole range of values, which is especially useful when editing the bow’s geometry and observing the changes in the plots and the 3D view.</p>
 <h2 id="tables"><a class="header" href="#tables">Tables</a></h2>
 <p>Content in tables can be copied, cut, pasted and deleted using either the context menu or the standard shortcuts.
 Copy and paste also works between VirtualBow and other applications, for example spreadsheet software like Excel or LibreOffice Calc.</p>
-<figure>
-  <a href="images/screenshots/editor/tableview.png" target="_blank">
-    <img src="images/screenshots/editor/tableview.png" width="250px">
-  </a>
+<figure style="--img-width: 250px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/tableview.png" alt="Table context menu"><span class="img-wrapper"><img src="images/screenshots/editor/tableview.png" alt="Table context menu"></span></label></p>
   <figcaption><b>Figure:</b> Table context menu</figcaption>
 </figure>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="bending-test"><a class="header" href="#bending-test">Bending Test</a></h1>
-<p>A bending test is a good way to experimentally determine the elastic modulus \(E\) of a material.
-Starting point is a material sample with a constant width \(w\) and height \(h\).
+<p>A bending test is a good way to experimentally determine Young’s modulus <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">E</span></span></span></span> of a material.
+The starting point is a material sample with a constant width <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.02691em;">w</span></span></span></span> and height <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">h</span></span></span></span>.
 It is important that the dimensions, especially the height, are fairly precise, since they have a large influence on the final result.</p>
-<p>The useful length \(l\) of the sample should be much larger than the cross section dimensions such that it can bend enough for easy measuring while still staying in the elastic range of the material.
-On the other hand, the sample shouldn’t be so long that it bends significantly under its own weight either.
-A suggestion would be \(l \ge 100 \cdot h\).</p>
-<p>To perform the test, the sample is either clamped on one end, as shown in <a href="#clamped-setup">Clamped Setup</a>, or placed between two supports as shown in <a href="#three-point-setup">Three-point Setup</a>.
-It is then subjected to a force \(F\) and the resulting deflection \(s\) is measured.
-Finally the elastic modulus can be calulated from the measured deflection depending on the chosen setup.</p>
-<p>A good way to apply an accurate force is to use a known weight \(m\), suspended for example on a thread, and calculate the force as \(F = m \cdot g\) with \(g=9.81\frac{m}{s^2}\).
+<p>The usable length <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span></span></span></span> of the sample should be much larger than the cross section dimensions such that it can bend enough for easy measuring while still staying in the elastic range of the material.
+On the other hand, it shouldn’t be so long that it bends significantly under its own weight.
+A suggestion would be <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8304em;vertical-align:-0.136em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">100</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">h</span></span></span></span>.</p>
+<p>To perform the test, the sample is either clamped on one end, as shown in <a href="#clamped-setup">Clamped setup</a>, or placed between two supports as shown in <a href="#three-point-setup">Three-point setup</a>.
+It is then subjected to a force <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">F</span></span></span></span> and the resulting deflection <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span> is measured.
+Finally, Young’s modulus can be calculated from the measured deflection depending on the chosen setup.</p>
+<p>A good way to apply an accurate force is to use a known weight <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span>, suspended for example on a thread, and calculate the force as <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.4445em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span></span></span></span> with <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0404em;vertical-align:-0.345em;"></span><span class="mord">9.81</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6954em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight">s</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7463em;"><span style="top:-2.786em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathrm mtight">m</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span>.
 Alternatively, an accurate bow/hanging scale might also work.</p>
-<h2 id="clamped-setup"><a class="header" href="#clamped-setup">Clamped Setup</a></h2>
-<figure>
-  <a href="images/bending-test/setup-clamped.svg" target="_blank">
-    <img src="images/bending-test/setup-clamped.svg" width="450px">
-  </a>
+<h2 id="clamped-setup"><a class="header" href="#clamped-setup">Clamped setup</a></h2>
+<figure style="--img-width: 450px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/bending-test/setup-clamped.svg" alt="Clamped bending test setup"><span class="img-wrapper"><img src="images/bending-test/setup-clamped.svg" alt="Clamped bending test setup"></span></label></p>
 </figure>
 <p>In this setup the sample is clamped on one end and the force is applied on the free end.
-The elastic modulus can be calculated as</p>
-<p>\[E = \frac{Fl^3}{3Is} = \frac{4Fl^3}{wh^3 s}\]</p>
-<h2 id="three-point-setup"><a class="header" href="#three-point-setup">Three-point Setup</a></h2>
-<figure>
-  <a href="images/bending-test/setup-three-point.svg" target="_blank">
-    <img src="images/bending-test/setup-three-point.svg" width="400px">
-  </a>
+Young’s modulus can be calculated as</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">E</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.1771em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.4911em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">3</span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="mord mathnormal">s</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.1771em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.4911em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02691em;">w</span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mord mathnormal">s</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<h2 id="three-point-setup"><a class="header" href="#three-point-setup">Three-point setup</a></h2>
+<figure style="--img-width: 400px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/bending-test/setup-three-point.svg" alt="Three-point bending test setup"><span class="img-wrapper"><img src="images/bending-test/setup-three-point.svg" alt="Three-point bending test setup"></span></label></p>
 </figure>
-<p>In this setup the sample is placed between two rolling supports with distance \(l\) and the force is applied in the middle.
-The elastic modulus can be calculated as</p>
-<p>\[E = \frac{Fl^3}{48Is} = \frac{Fl^3}{4wh^3 s}\]</p>
+<p>In this setup the sample is placed between two rolling supports with distance <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span></span></span></span> and the force is applied in the middle.
+Young’s modulus can be calculated as</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">E</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.1771em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.4911em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">48</span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="mord mathnormal">s</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.1771em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.4911em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord mathnormal" style="margin-right:0.02691em;">w</span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mord mathnormal">s</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
 
                     </main>
 
@@ -1358,15 +1458,13 @@ The elastic modulus can be calculated as</p>
 
         <script src="clipboard-1626706a.min.js"></script>
         <script src="highlight-5a157b91.js"></script>
-        <script src="book-c22b7243.js"></script>
+        <script src="book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 
         <script>
         window.addEventListener('load', function() {
-            MathJax.Hub.Register.StartupHook('End', function() {
-                window.setTimeout(window.print, 100);
-            });
+            window.setTimeout(window.print, 100);
         });
         </script>
 

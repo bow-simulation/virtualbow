@@ -1,9 +1,12 @@
 # Latex
 /build
 /_minted-document
-*.toc
-*.gz
-*.pdf
-*.out
-*.log
-*.aux
+/*.toc
+/*.gz
+/*.pdf
+/*.out
+/*.log
+/*.aux
+/*.dvi
+/*.blg
+/*.bbl

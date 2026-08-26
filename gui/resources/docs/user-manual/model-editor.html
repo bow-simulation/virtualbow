@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Model Editor - User Manual - VirtualBow v0.10.0</title>
+        <title>Model Editor - VirtualBow User Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -15,8 +15,8 @@
         <link rel="icon" href="favicon-de23e50b.svg">
         <link rel="shortcut icon" href="favicon-8114d1fc.png">
         <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-0392ca55.css">
-        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
         <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
@@ -28,19 +28,20 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/justify-8b465511.css">
+        <link rel="stylesheet" href="theme/images-a5c4c95c.css">
+        <link rel="stylesheet" href="theme/katex-fa97f2bc.min.css">
 
-        <!-- MathJax -->
-        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e8a6249a.js";
+            window.path_to_searchindex_js = "searchindex-108bfcbe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-7c70e051.js"></script>
+        <script src="toc-f4b496fb.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -139,7 +140,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">User Manual - VirtualBow v0.10.0</h1>
+                    <h1 class="menu-title">VirtualBow User Manual</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -179,12 +180,10 @@
                         <h1 id="model-editor"><a class="header" href="#model-editor">Model Editor</a></h1>
 <p>The model editor is the first thing you will see when opening VirtualBow.
 It serves as the central workspace where you create and refine your bow designs.
-Here you can specify shape and dimensions, adjust material properties, and configure all other parameters that affect the bow’s behaviour.
+Here you can specify shape and dimensions, adjust material properties, and configure all other parameters that affect the bow’s behavior.
 Once the model is set up, you can launch simulations to evaluate the performance of your design.</p>
-<figure>
-  <a href="images/screenshots/editor/model-editor.png" target="_blank">
-    <img src="images/screenshots/editor/model-editor.png" width="90%">
-  </a>
+<figure style="--img-width: 90%">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/model-editor.png" alt="Screenshot of the model editor"><span class="img-wrapper"><img src="images/screenshots/editor/model-editor.png" alt="Screenshot of the model editor"></span></label></p>
   <figcaption><b>Figure:</b> Screenshot of the model editor</figcaption>
 </figure>
 <h2 id="loading-and-saving-files"><a class="header" href="#loading-and-saving-files">Loading and saving files</a></h2>
@@ -195,7 +194,7 @@ You can share these files with other users, who can then open them in VirtualBow
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>New versions of VirtualBow often introduce internal changes to the <code>.bow</code> file format.
 The software aims to remain compatible with older files whenever possible, so you can still open models created with earlier releases (currently down to version <code>0.7</code>).
-When you save such a file, VirtualBow automatically converts it to the current format and creates a backup with a <code>.bak</code> extension in case anything goes wrong.
+When you save such a file again, VirtualBow automatically converts it to the current format and creates a backup with a <code>.bak</code> extension in case anything goes wrong.
 After opening an older <code>.bow</code> file, it’s a good idea to review the model to ensure that the conversion was successful.</p>
 </blockquote>
 <h2 id="editing-the-bow-model"><a class="header" href="#editing-the-bow-model">Editing the bow model</a></h2>
@@ -203,52 +202,34 @@ After opening an older <code>.bow</code> file, it’s a good idea to review the 
 You can rotate the view with the left mouse button, pan with the middle button, and zoom using the mouse wheel.
 Additional view controls are available through the buttons at the bottom of the window.
 Alongside the 3D view, the editor interface includes three panels:</p>
-<ul>
-<li>
 <p><strong>Model:</strong> The model tree in the top-left corner shows how the bow model is organized, grouping its various physical and geometric properties.
-Selecting an item in the tree displays its details in the <em>Properties</em> and/or <em>Graph</em> panels. Some categories - such as <em>Materials</em>, <em>Layers</em>, and <em>Profile</em> - can be edited directly in the tree by adding, removing, or renaming items.</p>
-</li>
-<li>
+Selecting an item in the tree displays its details in the <em>Properties</em> and/or <em>Graph</em> panels. Some categories — such as <em>Materials</em>, <em>Layers</em>, and <em>Profile</em> — can be edited directly in the tree by adding, removing, or renaming items.</p>
 <p><strong>Properties:</strong> The property editor displays the properties of the currently selected item in the model tree.
 Here you can inspect and modify the physical and geometric parameters of the bow model.</p>
-</li>
-<li>
-<p><strong>Graph:</strong> The graph view will show any graphs/plots that are associated with the selected item in the model tree.
-The graphs reflect the current properties and change as the properties are being edited.</p>
-</li>
-<li>
 <p><strong>Graph:</strong> The graph panel displays any plots associated with the selected item in the model tree.
-These graphs update automatically as you adjust the corresponding properties, providing immediate visual feedback.</p>
-</li>
-</ul>
+These graphs update automatically as you adjust the corresponding properties, providing visual feedback.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>You can change the physical units used throughout the model editor under <em>Options</em> → <em>Units</em>.</p>
 </blockquote>
-<h2 id="running-simulations"><a class="header" href="#running-simulations">Running Simulations</a></h2>
-<p>Simulations can be started from the <em>Simuate</em> menu or by clicking one of the toolbar buttons.
-Once a simulation has finished, the results open in a separate result-viewer window.
+<h2 id="running-simulations"><a class="header" href="#running-simulations">Running simulations</a></h2>
+<p>Simulations can be started from the <em>Simulate</em> menu or by clicking one of the toolbar buttons.
+Once a simulation has finished, the results open in a separate result viewer window.
 There are two simulation modes:</p>
-<ul>
-<li>
-<p><img src="images/icons/run-statics.svg" style="width:20; vertical-align:top"> <strong>Statics</strong>:
+<p><img src="images/icons/run-statics.svg" style="width:20px; vertical-align:top"> <strong>Statics</strong>:
 The static simulation analyzes the bow as it is drawn from brace height to full draw.
-One of the results is the force-draw curve, among other characteristics.
+Among other characteristics, the results include the force-draw curve.
 This mode is called <em>static</em> because the bow is considered to be in static equilibrium at each stage of the draw.</p>
-</li>
-<li>
-<p><img src="images/icons/run-dynamics.svg" style="width:20; vertical-align:top"> <strong>Dynamics</strong>:
+<p><img src="images/icons/run-dynamics.svg" style="width:20px; vertical-align:top"> <strong>Dynamics</strong>:
 The dynamic simulation analyzes the bow and arrow in motion as the string is released from full draw.
 It provides results such as arrow speed and efficiency.
 Because it requires the initial state of the bow at full draw, every dynamic simulation is automatically preceded by a static simulation.</p>
-</li>
-</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="introduction.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="changelog.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
@@ -262,7 +243,7 @@ Because it requires the initial state of the bow at full draw, every dynamic sim
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="introduction.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="changelog.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
@@ -292,7 +273,7 @@ Because it requires the initial state of the bow at full draw, every dynamic sim
 
         <script src="clipboard-1626706a.min.js"></script>
         <script src="highlight-5a157b91.js"></script>
-        <script src="book-c22b7243.js"></script>
+        <script src="book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 

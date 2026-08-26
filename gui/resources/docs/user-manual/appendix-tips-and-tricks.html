@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>A - Tips &amp; Tricks - User Manual - VirtualBow v0.10.0</title>
+        <title>A - Tips &amp; Tricks - VirtualBow User Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -15,8 +15,8 @@
         <link rel="icon" href="favicon-de23e50b.svg">
         <link rel="shortcut icon" href="favicon-8114d1fc.png">
         <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-0392ca55.css">
-        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
         <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
@@ -28,19 +28,20 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/justify-8b465511.css">
+        <link rel="stylesheet" href="theme/images-a5c4c95c.css">
+        <link rel="stylesheet" href="theme/katex-fa97f2bc.min.css">
 
-        <!-- MathJax -->
-        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e8a6249a.js";
+            window.path_to_searchindex_js = "searchindex-108bfcbe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-7c70e051.js"></script>
+        <script src="toc-f4b496fb.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -139,7 +140,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">User Manual - VirtualBow v0.10.0</h1>
+                    <h1 class="menu-title">VirtualBow User Manual</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -180,31 +181,27 @@
 <p>This section collects various notes about useful VirtualBow features that didn’t quite fit into any other part of the manual.</p>
 <h2 id="units"><a class="header" href="#units">Units</a></h2>
 <p>Manually converting between units is tedious and error-prone.
-That’s why all inputs and outputs in VirtualBow have a configurable unit that can be changed under <em>Options</em> - <em>Units</em>.</p>
-<figure>
-  <a href="images/screenshots/editor/units.png" target="_blank">
-    <img src="images/screenshots/editor/units.png" width="400px">
-  </a>
+That’s why all inputs and outputs in VirtualBow have a configurable unit that can be changed under <em>Options</em> → <em>Units</em>.</p>
+<figure style="--img-width: 400px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/units.png" alt="Unit selection dialog"><span class="img-wrapper"><img src="images/screenshots/editor/units.png" alt="Unit selection dialog"></span></label></p>
   <figcaption><b>Figure:</b> Unit selection dialog</figcaption>
 </figure>
 <p>In this dialog you can select units for different categories of values.
-Changing the unit for <em>Length</em>, for example, will change the unit everywhere where lengths are shown (e.g. width, layer height, dimensions).
+Changing the unit for <em>Length</em>, for example, will change the unit wherever lengths are shown (e.g. width, layer thickness, dimensions).
 There are also two pre-defined sets of defaults, one for SI units and one for US units.
-You can use those by clicking either of the buttons on the bottom left.</p>
+You can use those by clicking either of the buttons in the bottom left.</p>
 <p>It is worth noting that the units only affect how values are shown in the user interface.
 The data in the model and result files is always stored in SI base units.</p>
 <h2 id="plots"><a class="header" href="#plots">Plots</a></h2>
 <p><strong>Background images</strong></p>
 <p>Any plot can be given a background image.
 After selecting <em>Background image…</em> in the plot’s context menu, you can load an image and adjust its position and orientation.</p>
-<figure>
-  <a href="images/screenshots/editor/plot-overlay.png" target="_blank">
-    <img src="images/screenshots/editor/plot-overlay.png" width="600px">
-  </a>
+<figure style="--img-width: 600px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/plot-overlay.png" alt="Background image dialog"><span class="img-wrapper"><img src="images/screenshots/editor/plot-overlay.png" alt="Background image dialog"></span></label></p>
   <figcaption><b>Figure:</b> Background image dialog</figcaption>
 </figure>
 <p>This feature can be used to model existing bows more easily or to compare the simulation results with actual photographs.
-Background images are only temporary, they are not saved with the model files.</p>
+Background images are only temporary; they are not saved with the model files.</p>
 <p><strong>File exports</strong></p>
 <p>Plots can be exported to various image and data formats using the menu entry <em>Export as…</em>.
 Supported export formats are:</p>
@@ -224,34 +221,30 @@ Supported export formats are:</p>
 </ul>
 <p><strong>Other options</strong></p>
 <p>Some of the plots have additional context menu entries.
-The profile plot, for example, has options to show or hide nodes or visualize the curvature.</p>
+The profile plot, for example, has options to show or hide control points or visualize the curvature.</p>
 <h2 id="number-inputs"><a class="header" href="#number-inputs">Number inputs</a></h2>
 <p>Number input fields may seem simple, but there are a few details worth knowing to use them more effectively.</p>
-<figure>
-  <a href="images/screenshots/editor/spinbox.png" target="_blank">
-    <img src="images/screenshots/editor/spinbox.png" width="150px">
-  </a>
+<figure style="--img-width: 150px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/spinbox.png" alt="Number input field"><span class="img-wrapper"><img src="images/screenshots/editor/spinbox.png" alt="Number input field"></span></label></p>
   <figcaption><b>Figure:</b> Number input field</figcaption>
 </figure>
 <p><strong>Arithmetic expressions</strong></p>
 <p>Most number input fields in VirtualBow accept arithmetic expressions.
-This means that you can enter expressions like <code>1 + 5/2</code>, press enter, and it will automatically be evaluated to <code>3.5</code>.
+This means that you can enter expressions like <code>1 + 5/2</code>, press Enter, and it will automatically be evaluated to <code>3.5</code>.
 Supported operations are <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>^</code> and grouping with <code>(</code> and <code>)</code>.</p>
 <p><strong>Decimal separator</strong></p>
 <p>VirtualBow uses a dot (<code>.</code>) as the decimal separator for numbers, regardless of local conventions.
-However, since some countries use a comma (<code>,</code>) instead, their keyboard layouts have a comma on the number block, making it cumbersome to enter numbers with a dot.
+However, since some countries use a comma (<code>,</code>) instead, their keyboard layouts have a comma on the number pad, making it cumbersome to enter numbers with a dot.
 Therefore, to make things easier for such users, the comma on the number pad is automatically converted to a dot.</p>
 <p><strong>Scrolling</strong></p>
 <p>The little arrow buttons on the right of the input field can be used to increment/decrement the value.
 Scrolling the mouse wheel while the field is selected does the same thing, just faster.
-This can be used to quickly move through a whole range of values, which is especially useful when editing the bow’s geometry and observing the changes in the plots and the 3d view.</p>
+This can be used to quickly move through a whole range of values, which is especially useful when editing the bow’s geometry and observing the changes in the plots and the 3D view.</p>
 <h2 id="tables"><a class="header" href="#tables">Tables</a></h2>
 <p>Content in tables can be copied, cut, pasted and deleted using either the context menu or the standard shortcuts.
 Copy and paste also works between VirtualBow and other applications, for example spreadsheet software like Excel or LibreOffice Calc.</p>
-<figure>
-  <a href="images/screenshots/editor/tableview.png" target="_blank">
-    <img src="images/screenshots/editor/tableview.png" width="250px">
-  </a>
+<figure style="--img-width: 250px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/editor/tableview.png" alt="Table context menu"><span class="img-wrapper"><img src="images/screenshots/editor/tableview.png" alt="Table context menu"></span></label></p>
   <figcaption><b>Figure:</b> Table context menu</figcaption>
 </figure>
 
@@ -303,7 +296,7 @@ Copy and paste also works between VirtualBow and other applications, for example
 
         <script src="clipboard-1626706a.min.js"></script>
         <script src="highlight-5a157b91.js"></script>
-        <script src="book-c22b7243.js"></script>
+        <script src="book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 

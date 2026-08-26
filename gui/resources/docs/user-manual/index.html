@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Introduction - User Manual - VirtualBow v0.10.0</title>
+        <title>Introduction - VirtualBow User Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -15,8 +15,8 @@
         <link rel="icon" href="favicon-de23e50b.svg">
         <link rel="shortcut icon" href="favicon-8114d1fc.png">
         <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-0392ca55.css">
-        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
         <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
@@ -28,19 +28,20 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/justify-8b465511.css">
+        <link rel="stylesheet" href="theme/images-a5c4c95c.css">
+        <link rel="stylesheet" href="theme/katex-fa97f2bc.min.css">
 
-        <!-- MathJax -->
-        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e8a6249a.js";
+            window.path_to_searchindex_js = "searchindex-108bfcbe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-7c70e051.js"></script>
+        <script src="toc-f4b496fb.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -139,7 +140,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">User Manual - VirtualBow v0.10.0</h1>
+                    <h1 class="menu-title">VirtualBow User Manual</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -178,33 +179,31 @@
                     <main>
                         <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
 <p>Welcome to the VirtualBow user manual!
-This guide will show you how to use the VirtualBow software to design bows, simulate their performance, and interpret the results.
-For support, feedback, or to download the latest version, please visit the project website: <a href="https://www.virtualbow.org/">https://www.virtualbow.org/</a>.</p>
+This guide will show you how to design bows, simulate their performance, and interpret the results using the VirtualBow software.
+The chapters follow the order in which you will typically use them: <a href="model-editor.html">Model Editor</a> for creating a bow, <a href="result-viewer.html">Result Viewer</a> for interpreting the simulation results, and <a href="solver.html">Solver</a> for more advanced use cases.
+The <a href="appendix.html">Appendix</a> collects practical tips and a bending test for determining material properties, while the <a href="changelog.html">Changelog</a> records what changed in each release.
+For support, feedback, or to download the latest version of the software, visit the project’s website:</p>
+<p><a href="https://www.virtualbow.org/"><strong>https://www.virtualbow.org/</strong></a></p>
 <p>Please keep in mind that VirtualBow is still under active development, and many of its simulation results have not yet been systematically validated.
-Although users often report good agreement with real-world behavior, the results should not be taken at face value.
-Generally, three main factors influence how closely the simulation can match an actual bow:</p>
-<ul>
-<li>
-<p><strong>Physical simplifications:</strong> Every simulation relies on assumptions that make complex real-world behavior mathematically manageable. VirtualBow tries to make reasonable assumptions, but no model can capture reality perfectly. If you’re interested in the underlying theory, you may want to explore the <em>VirtualBow theory manual</em>.</p>
-</li>
-<li>
-<p><strong>Software implementation:</strong> Errors in the code can obviously affect accuracy. While much work has been put into verifying the simulation code by automated testing, bugs can never be completely ruled out.</p>
-</li>
-<li>
-<p><strong>Quality of input data:</strong> A simulation is only as accurate as the data provided.
-In practice, no bow can be built exactly as modeled in VirtualBow, even though the type of bow can make this task easier or harder. Natural variations in material properties and small deviations in geometry, for example, will accumulate and affect the outcome.</p>
-</li>
-</ul>
-<p>Many of those points are being worked on to further improve the accuracy of VirtualBow.
+So the results should not be taken at face value just yet, even though users often report good agreement already.
+Generally, three main factors influence how closely a simulation can match an actual bow:</p>
+<p><strong>Physical simplifications:</strong> Every simulation relies on simplifying assumptions that make complex real-world behavior mathematically manageable. VirtualBow tries to make reasonable assumptions, but no model can capture reality perfectly. If you’re interested in the details of the underlying theory, have a look at the <a href="https://www.virtualbow.org/files/theory-manual.pdf">VirtualBow Theory Manual [PDF]</a>.</p>
+<p><strong>Software implementation:</strong> Errors in the software’s code can affect accuracy as well.
+And even though much work has been put into verifying the simulation code through automated testing, bugs can never be completely ruled out.</p>
+<p><strong>Quality of input data:</strong> A simulation is only as accurate as the provided input.
+Material properties or other parameters might not be known for certain due to a lack of data, natural variations, or other reasons.
+Also, in practice no bow can be built exactly as it has been modeled in VirtualBow.
+Even small deviations in geometry, for example, can accumulate and affect the outcome.</p>
+<p>Many of these points are being worked on to further improve the accuracy of VirtualBow.
 And while simulations will never be perfect, they can still reveal a lot about how a bow design works, highlight weaknesses, and point you toward possible improvements.
-Think of VirtualBow as a complementary tool to real world experimentation: it won’t replace building and testing real bows, but it can make the process more informed and efficient.</p>
+So think of VirtualBow as a complementary tool to real-world experimentation: it won’t replace building and testing real bows, but it can make the process more informed and efficient.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
 
-                            <a rel="next prefetch" href="model-editor.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="changelog.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -215,7 +214,7 @@ Think of VirtualBow as a complementary tool to real world experimentation: it wo
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
 
-                    <a rel="next prefetch" href="model-editor.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="changelog.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
@@ -241,7 +240,7 @@ Think of VirtualBow as a complementary tool to real world experimentation: it wo
 
         <script src="clipboard-1626706a.min.js"></script>
         <script src="highlight-5a157b91.js"></script>
-        <script src="book-c22b7243.js"></script>
+        <script src="book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 

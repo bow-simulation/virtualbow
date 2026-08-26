@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Scripting - User Manual - VirtualBow v0.10.0</title>
+        <title>Scripting - VirtualBow User Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -15,8 +15,8 @@
         <link rel="icon" href="favicon-de23e50b.svg">
         <link rel="shortcut icon" href="favicon-8114d1fc.png">
         <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-0392ca55.css">
-        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
         <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
@@ -28,19 +28,20 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/justify-8b465511.css">
+        <link rel="stylesheet" href="theme/images-a5c4c95c.css">
+        <link rel="stylesheet" href="theme/katex-fa97f2bc.min.css">
 
-        <!-- MathJax -->
-        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e8a6249a.js";
+            window.path_to_searchindex_js = "searchindex-108bfcbe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-7c70e051.js"></script>
+        <script src="toc-f4b496fb.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -139,7 +140,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">User Manual - VirtualBow v0.10.0</h1>
+                    <h1 class="menu-title">VirtualBow User Manual</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -177,22 +178,26 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="scripting"><a class="header" href="#scripting">Scripting</a></h1>
-<p>The primary reason to use the solver as a standalone application is to automate simulations and analyze the results programmatically. This is especially useful for tasks such as design optimization, parameter sweeps, or studying how specific model parameters influence the simulation outcome.</p>
-<p>Scripts that interact with VirtualBow must be able to launch the solver through its command‑line interface and read or write the model and result files that serve as its input and output. Because the solver uses JSON for input and MessagePack for output, any programming language with support for these formats can be used. Both are widely supported, either natively or through readily available libraries.</p>
-<p>To help you get started, the following sections demonstrate how to interface with VirtualBow in several programming languages commonly used in scientific computing. Each example performs the same sequence of basic tasks:</p>
+<p>The primary reason to use the solver as a standalone application is to automate simulations and analyze the results programmatically.
+This is especially useful for tasks such as design optimization, parameter sweeps, or studying how specific model parameters influence the simulation outcome.</p>
+<p>Scripts that interact with VirtualBow must be able to launch the solver through its command-line interface and read or write the model and result files that serve as its input and output.
+Because the solver uses JSON for input and MessagePack for output, any programming language with support for these formats can be used.
+Both are widely supported, either natively or through readily available libraries.</p>
+<p>To help you get started, the following sections demonstrate how to interface with VirtualBow in several programming languages commonly used in scientific computing.
+Each example performs the same sequence of basic tasks:</p>
 <ol>
 <li>
-<p>Load, modify, and save a model file</p>
+<p>Load, modify, and save a model file.</p>
 </li>
 <li>
-<p>Run a static simulation using that model</p>
+<p>Run a static simulation using that model.</p>
 </li>
 <li>
-<p>Load the result file and print the final draw force</p>
+<p>Load the result file and print the final draw force.</p>
 </li>
 </ol>
 <h2 id="python"><a class="header" href="#python">Python</a></h2>
-<p>The python example below uses the external <a href="https://pypi.org/project/msgpack/">msgpack</a> package for reading the result files.
+<p>The Python example below uses the external <a href="https://pypi.org/project/msgpack/">msgpack</a> package for reading the result files.
 It can be installed with <code>pip install msgpack</code>.</p>
 <pre><code class="language-python">import json, msgpack      # Loading and saving model and result files
 import numpy as np        # Evaluating stresses
@@ -318,7 +323,7 @@ println(output["statics"]["final_draw_force"])
 
         <script src="clipboard-1626706a.min.js"></script>
         <script src="highlight-5a157b91.js"></script>
-        <script src="book-c22b7243.js"></script>
+        <script src="book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 

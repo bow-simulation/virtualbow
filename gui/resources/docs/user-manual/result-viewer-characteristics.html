@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Characteristics - User Manual - VirtualBow v0.10.0</title>
+        <title>Characteristics - VirtualBow User Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -15,8 +15,8 @@
         <link rel="icon" href="favicon-de23e50b.svg">
         <link rel="shortcut icon" href="favicon-8114d1fc.png">
         <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-0392ca55.css">
-        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
         <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
@@ -28,19 +28,20 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/justify-8b465511.css">
+        <link rel="stylesheet" href="theme/images-a5c4c95c.css">
+        <link rel="stylesheet" href="theme/katex-fa97f2bc.min.css">
 
-        <!-- MathJax -->
-        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e8a6249a.js";
+            window.path_to_searchindex_js = "searchindex-108bfcbe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-7c70e051.js"></script>
+        <script src="toc-f4b496fb.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -139,7 +140,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">User Manual - VirtualBow v0.10.0</h1>
+                    <h1 class="menu-title">VirtualBow User Manual</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -179,14 +180,12 @@
                         <h1 id="characteristics"><a class="header" href="#characteristics">Characteristics</a></h1>
 <p>This tab lists all results that can be expressed as single numerical values.
 Some of these values apply only to static or only to dynamic analysis, while others are shared between both modes.</p>
-<figure>
-  <a href="images/screenshots/viewer/characteristics.png" target="_blank">
-    <img src="images/screenshots/viewer/characteristics.png" width="90%">
-  </a>
+<figure style="--img-width: 90%">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/screenshots/viewer/characteristics.png" alt="Screenshot of the characteristics tab"><span class="img-wrapper"><img src="images/screenshots/viewer/characteristics.png" alt="Screenshot of the characteristics tab"></span></label></p>
 </figure>
 <h2 id="common"><a class="header" href="#common">Common</a></h2>
 <p><strong>Maximum stresses:</strong> Shows the maximum tensile and compressive stress that occurred in each layer during the simulation.
-The fields are color‑coded to indicate how these stresses compare to the material limits and the defined safety margin:</p>
+The fields are color-coded to indicate how these stresses compare to the material limits and the defined safety margin:</p>
 <ul>
 <li>
 <p><strong>Green</strong> indicates that the maximum stress is within the allowed range, based on the material’s tensile and compressive strength and the chosen margin of safety.</p>
@@ -198,7 +197,8 @@ The fields are color‑coded to indicate how these stresses compare to the mater
 <p><strong>Red</strong> signals that the stress has surpassed even the ultimate strength of the material.</p>
 </li>
 </ul>
-<p><strong>Maximum strains:</strong> Shows the maximum tensile and compressive strains that occurred in each layer during the simulation, using the same color‑coding scheme as the maximum stresses. Because stress and strain are directly linked, the maximum strains do not introduce any new information about potential material failure.</p>
+<p><strong>Maximum strains:</strong> Shows the maximum tensile and compressive strains that occurred in each layer during the simulation, using the same color-coding scheme as the maximum stresses.
+Because stress and strain are directly linked, the maximum strains do not introduce any new information about potential material failure.</p>
 <p><strong>Maximum absolute forces:</strong> This section reports the highest values reached during the simulation for selected forces in the bow.</p>
 <ul>
 <li>
@@ -216,48 +216,44 @@ The fields are color‑coded to indicate how these stresses compare to the mater
 This value is commonly referred to as the bow’s draw weight.</p>
 <p><strong>Drawing work:</strong> The total mechanical energy put into the bow while drawing it.
 This energy is stored in the limbs as elastic potential energy and later only partly passed on to the arrow, depending on the bow’s efficiency.
-It corresponds to the area under the bow’s force–draw curve.</p>
+It corresponds to the area under the bow’s force-draw curve.</p>
 <p><strong>Energy storage factor:</strong> This value indicates how effective the bow’s force-draw curve is at storing energy.
 It is defined as the ratio between the actual energy stored in the bow and the energy that <i>would</i> be stored if the draw curve were perfectly linear.
-A more convex curve has a higher storage factor because it accumulates more energy for the same final draw force.</p>
-<p style="text-align: justify;">
-<a href="images/storage-factor.svg" target="_blank">
-  <img src="images/storage-factor.svg" width="250px" align="right">
-</a>
+A curve that bulges above the linear reference has a higher storage factor, because it accumulates more energy for the same final draw force.</p>
+<div class="float-right" style="--img-width: 250px">
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/storage-factor.svg" alt="Draw curves with different energy storage factors"><span class="img-wrapper"><img src="images/storage-factor.svg" alt="Draw curves with different energy storage factors"></span></label></p>
+</div>
+
 <ul>
   
-<li><b>Factor &lt; 100%:</b> The bow stores less energy than a linear draw curve would allow. This is generally undesireable and might indicate stacking towards the end of the draw.</li>
+<li><b>Factor &lt; 100%:</b> The bow stores less energy than a linear draw curve would allow. This is generally undesirable and might indicate stacking towards the end of the draw.</li>
 
-  <br>
   
-<li><b>Factor = 100%:</b> The bow stores exactly as much energy as a linear draw curve would. Values in this range are common for longbows and similar designs.</li>
+<li><b>Factor = 100%:</b> The bow stores exactly as much energy as a linear draw curve would. Values near 100% are common for longbows and similar designs.</li>
 
-  <br>
   
 <li><b>Factor &gt; 100%:</b> The bow stores more energy than a linear draw curve would. This gives it additional stored energy at the same final draw weight, potentially improving its performance. Well-designed recurve bows, for example, should be firmly in this category.</li>
 
 </ul>
-
-</p>
 
 <p><strong>Limb mass:</strong> The total mass of a single bow limb, calculated from its geometry and material properties.
 Any additional masses at the limb tips are included in this value.</p>
 <p><strong>String mass:</strong> The total mass of the bowstring, calculated from its length and material properties.
 Any additional masses are included in this value.</p>
 <p><strong>String length:</strong> The length of the string as determined by the simulation in order to achieve the specified brace height.</p>
-<p><strong>Power stroke:</strong> The power stroke is the distance from brace height to full draw.
+<p><strong>Power stroke:</strong> The distance from brace height to full draw.
 It represents the portion of the draw over which the bow accelerates the arrow.</p>
 <h2 id="dynamics"><a class="header" href="#dynamics">Dynamics</a></h2>
 <p><strong>Arrow mass:</strong> This is either the explicitly specified mass of the arrow, or the computed arrow mass according to the desired mass per force or mass per energy ratio.</p>
 <p><strong>Final arrow velocity:</strong> Final velocity of the arrow when it leaves the bow.</p>
 <p><strong>Final arrow energy:</strong> Final kinetic energy of the arrow when it leaves the bow.</p>
 <p><strong>Degree of efficiency:</strong> Describes how effectively the bow converts input energy into useful output.
-It is the ratio between the drawing work put into the bow and the final kinetic energy of the arrow.
+It is the ratio between the final kinetic energy of the arrow and the drawing work put into the bow.
 Higher efficiency indicates that a greater portion of the stored energy is delivered to the arrow rather than lost to other effects.</p>
 <p><strong>Efficiency losses:</strong> The degree of efficiency indicates what portion of the bow’s input energy is transferred to the arrow.
 This section shows how the remainder of that energy is distributed at the time the arrow leaves the string.
 For each component, both the absolute energy loss and its contribution to reducing overall efficiency are listed.
-The categories are <strong>kinetic</strong> and <strong>elastic</strong> energy remaining in the limb and string after the arrow left the string, as well as energy lost to <strong>damping</strong> up to that moment.</p>
+The categories are <strong>kinetic</strong> and <strong>elastic</strong> energy remaining in the limbs and string after the arrow has left the string, as well as energy lost to <strong>damping</strong> up to that moment.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>The elastic energy of the limb often appears as a negative value.
@@ -316,7 +312,7 @@ The string’s elastic energy increases correspondingly and no physical laws are
 
         <script src="clipboard-1626706a.min.js"></script>
         <script src="highlight-5a157b91.js"></script>
-        <script src="book-c22b7243.js"></script>
+        <script src="book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 
