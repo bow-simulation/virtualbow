@@ -193,6 +193,8 @@ jobs:
           tag_name: latest
           prerelease: true
           files: virtualbow*
+          body: |
+            This is an automated release of the current development version of VirtualBow. It includes the newest features and bugfixes, but may still contain bugs or unfinished functionality. Note that model files created with a development version might not be compatible with the eventual stable release.
 
   tagged-release:
     if: startsWith(github.ref, 'refs/tags')
