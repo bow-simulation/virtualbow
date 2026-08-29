@@ -6,8 +6,6 @@ VirtualBow is a software tool for designing and simulating bows.
 It consists of an editor and a result viewer written in C++/Qt and a custom finite element solver written in Rust.
 For more information about the project visit http://www.virtualbow.org.
 
-<img src="docs/user-manual/source/images/screenshots/editor/model-editor.png" width="600px">
-
 # Building
 
 ## Solver
