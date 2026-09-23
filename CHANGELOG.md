@@ -1,5 +1,12 @@
 # Changelog
 
+## Next
+---
+
+**Fixed**
+
+* Crash when editing tables in the GUI
+
 ## Version 0.10.0
 ---
 
