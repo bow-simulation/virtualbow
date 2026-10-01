@@ -72,8 +72,8 @@ pub fn compute_geometry(data: &[u8]) -> Result<Vec<u8>, String> {
     model.validate().map_err(|e| e.to_string())?;
 
     let geometry = LimbGeometry::new(&model).map_err(|e| e.to_string())?;
-    let discretized = geometry.discretize(model.settings.num_limb_sample_points, model.settings.num_limb_elements);
-    let limb_info = discretized.to_limb_info();    // TODO: Get rid of this intermediate step
+    let discretized = geometry.discretize(1000, 1);    // Magic numbers. Only 1 element, since the info associated with them is not needed for graphical display.
+    let limb_info = discretized.to_limb_info();        // TODO: Get rid of this intermediate step
     let data = limb_info.try_into().map_err(|e: ModelError| e.to_string())?;
 
     Ok(data)
