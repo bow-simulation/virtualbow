@@ -6,6 +6,7 @@
 **Fixed**
 
 * Crash when editing tables in the GUI
+* Improvements for a smoother starting point of the spline profile segment
 
 ## Version 0.10.0
 ---
