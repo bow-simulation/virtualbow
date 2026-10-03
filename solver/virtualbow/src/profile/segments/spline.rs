@@ -90,6 +90,24 @@ impl SplineCurve {
             frame,
         }
     }
+
+    // Positions (x, y, φ) of the control points that lie inside the curve, i.e. excluding
+    // the ones at the start and the end, which are already nodes of the profile curve.
+    pub fn interior_nodes(&self) -> Vec<[f64; 3]> {
+        let t = self.spline_u.args();
+        let u = self.spline_u.vals();
+        let v = self.spline_v.vals();
+
+        (1..t.len() - 1).map(|i| {
+            let point = (self.frame * Point2::new(u[i], v[i])).coords;
+
+            let dudt = self.spline_u.deriv1(t[i], Extrapolation::Cubic);
+            let dvdt = self.spline_v.deriv1(t[i], Extrapolation::Cubic);
+            let tangent = self.frame * vector![dudt, dvdt];
+
+            [point[0], point[1], f64::atan2(tangent[1], tangent[0])]
+        }).collect()
+    }
 }
 
 impl PlanarCurve for SplineCurve {

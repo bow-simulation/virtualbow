@@ -126,9 +126,12 @@ impl LimbGeometry {
         let p_nodes = s_nodes.iter().map(|&s| self.profile.position(s)).collect_vec();
         let (y_nodes, h_nodes): (Vec<_>, Vec<_>) = n_nodes.iter().map(|&n| self.section.layer_bounds(n)).unzip();
 
-        // Control points of the profile curve
+        // Control points of the profile curve, i.e. the nodes between the segments followed by the ones inside of them.
+        // The two are not distinguished and the result is not sorted by arc length, since the control points are only used for visualization.
         //let k_control = s_control.iter().map(|&s| self.profile.curvature(s)).collect_vec();                    // TODO: Implement
-        let p_control = self.profile.get_nodes().iter().map(|node| node.position).collect();    // TODO: Make those conversions unnecessary by using a single format for curve points
+        let p_control = self.profile.get_nodes().iter().map(|node| node.position)    // TODO: Make those conversions unnecessary by using a single format for curve points
+            .chain(self.profile.get_interior_nodes().iter().copied())
+            .collect();
 
         // Equidistant evaluation points along the length of the limb
         let s_eval = lin_space(0.0..=self.profile.length(), n_eval_points).collect_vec();

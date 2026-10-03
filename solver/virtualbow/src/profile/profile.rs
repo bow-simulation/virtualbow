@@ -31,6 +31,7 @@ impl CurvePoint {
 pub struct ProfileCurve {
     segments: Vec<Box<dyn PlanarCurve>>,    // List of segments that make up the profile curve
     nodes: Vec<CurvePoint>,                 // List of nodes at the start and end of each segment
+    interior: Vec<[f64; 3]>,                // Positions (x, y, φ) of the nodes inside the segments, e.g. the control points of a spline
 }
 
 impl ProfileCurve {
@@ -42,6 +43,7 @@ impl ProfileCurve {
 
         let mut nodes = Vec::with_capacity(segment_inputs.len() + 1);
         let mut segments = Vec::with_capacity(segment_inputs.len());
+        let mut interior = Vec::new();
 
         // The first node is the starting point at arc length = 0
         nodes.push(CurvePoint::new(0.0, start));
@@ -54,30 +56,42 @@ impl ProfileCurve {
 
             // Construct nodes and segment
             let node_start = nodes.last().unwrap();    // The last node is the starting point of the new segment (unwrap is okay because of previous push)
-            let segment = Self::create_curve(input, node_start.position);    // Create the new segment from its input and starting point
+            let (segment, segment_interior) = Self::create_curve(input, node_start.position);    // Create the new segment from its input and starting point, along with the nodes inside of it
             let node_end = CurvePoint::new(node_start.length + segment.length(), segment.position(segment.length()));    // Compute endpoint of the segment, advance arc length by length of the segment
 
             // Add both to the accumulated curve
             nodes.push(node_end);
             segments.push(segment);
+            interior.extend(segment_interior);
         }
 
         Ok(Self{
             segments,
             nodes,
+            interior,
         })
     }
 
     pub fn get_nodes(&self) -> &[CurvePoint] {
         &self.nodes
     }
-    
-    fn create_curve(segment: &ProfileSegment, start: [f64; 3]) -> Box<dyn PlanarCurve> {
+
+    pub fn get_interior_nodes(&self) -> &[[f64; 3]] {
+        &self.interior
+    }
+
+    // Creates the curve for the given segment input, together with the positions of the
+    // nodes that lie inside of it. Only spline segments have such interior nodes.
+    fn create_curve(segment: &ProfileSegment, start: [f64; 3]) -> (Box<dyn PlanarCurve>, Vec<[f64; 3]>) {
         match segment {
-            ProfileSegment::Line(input)   => Box::new(ClothoidCurve::line(start, input)),
-            ProfileSegment::Arc(input)    => Box::new(ClothoidCurve::arc(start, input)),
-            ProfileSegment::Spiral(input) => Box::new(ClothoidCurve::spiral(start, input)),
-            ProfileSegment::Spline(input) => Box::new(SplineCurve::new(start, input)),
+            ProfileSegment::Line(input)   => (Box::new(ClothoidCurve::line(start, input)), vec![]),
+            ProfileSegment::Arc(input)    => (Box::new(ClothoidCurve::arc(start, input)), vec![]),
+            ProfileSegment::Spiral(input) => (Box::new(ClothoidCurve::spiral(start, input)), vec![]),
+            ProfileSegment::Spline(input) => {
+                let curve = SplineCurve::new(start, input);
+                let interior = curve.interior_nodes();
+                (Box::new(curve), interior)
+            }
         }
     }
 
