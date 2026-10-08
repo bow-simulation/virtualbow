@@ -20,7 +20,8 @@ pub struct SplineCurve {
 
 impl SplineCurve {
     // Minimum tangent magnitude at the start, used as a fallback if the energy-optimal tangent would
-    // point backwards or be too short. Dimensionless, since chord-length parametrization makes |r'| ~ 1.
+    // point backwards or be too short. Relative to the total chord length of the control points,
+    // since the index parametrization makes |r'| scale with the overall size of the curve.
     const MIN_START_SPEED: f64 = 0.1;
 
     pub fn new(start: [f64; 3], input: &Spline) -> SplineCurve {
@@ -44,15 +45,18 @@ impl SplineCurve {
 
         assert!(u.len() >= 2, "At least two points are required");
 
-        // Chord-length parametrization
-        let mut t = Vec::<f64>::with_capacity(u.len());
-        t.push(0.0);
+        // Index parametrization, the points are equally spaced over the parameter regardless of their distances
+        let t = lin_space(0.0..=1.0, u.len()).collect::<Vec<f64>>();
+
+        // Total chord length of the points, used as the length scale of the curve
+        let mut chord = 0.0;
         for i in 1..u.len() {
-            let dt = f64::hypot(u[i] - u[i-1], v[i] - v[i-1]);
-            assert!(dt > 0.0, "Consecutive points must not coincide");
-            t.push(t[i-1] + dt);
+            let distance = f64::hypot(u[i] - u[i-1], v[i] - v[i-1]);
+            assert!(distance > 0.0, "Consecutive points must not coincide");
+            chord += distance;
         }
-        let t_max = t[t.len() - 1];
+
+        let min_start_speed = Self::MIN_START_SPEED*chord;
 
         // v: Clamped with zero slope at the start, enforces the tangent direction
         // u: Natural at the start, tangent magnitude is determined by minimizing the bending energy
@@ -60,15 +64,15 @@ impl SplineCurve {
         let mut spline_u = CubicSpline::from_components(&t, &u, false, SecondDerivative(0.0), SecondDerivative(0.0));
 
         // Fallback if the optimal tangent points backwards or is too short: clamp to minimum magnitude
-        if spline_u.deriv1(0.0, Extrapolation::Cubic) < Self::MIN_START_SPEED {
-            spline_u = CubicSpline::from_components(&t, &u, false, FirstDerivative(Self::MIN_START_SPEED), SecondDerivative(0.0));
+        if spline_u.deriv1(0.0, Extrapolation::Cubic) < min_start_speed {
+            spline_u = CubicSpline::from_components(&t, &u, false, FirstDerivative(min_start_speed), SecondDerivative(0.0));
         }
 
         // Approximate arc length s over curve parameter t
         // (ds/dt is invariant under rotation, so it can be computed in the local frame)
 
         let k = 50*(t.len() - 1);    // Magic number, integration points per cubic interval
-        let t = lin_space(0.0..=t_max, k).collect::<Vec<f64>>();
+        let t = lin_space(0.0..=1.0, k).collect::<Vec<f64>>();
 
         let mut s = vec![0.0; k];
 
@@ -81,7 +85,7 @@ impl SplineCurve {
         }
 
         // Spline function for interpolating the arc length, derivatives at the bounds are known
-        let spline_t = CubicSpline::from_components(&s, &t, true, FirstDerivative(1.0/dsdt(0.0)), FirstDerivative(1.0/dsdt(t_max)));
+        let spline_t = CubicSpline::from_components(&s, &t, true, FirstDerivative(1.0/dsdt(0.0)), FirstDerivative(1.0/dsdt(1.0)));
 
         Self {
             spline_t,
