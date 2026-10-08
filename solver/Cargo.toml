@@ -27,6 +27,7 @@ type_complexity = "allow"        # Style
 too_many_arguments = "allow"     # Style
 needless_range_loop = "allow"    # Sometimes needed
 toplevel_ref_arg = "allow"       # Triggers on nalgebra stack! macros, reenable when fixed
+redundant_field_names = "allow"  # Triggers on soa_derive macros, reenable when fixed
 identity_op = "allow"            # Style (i.e. use of + 0 for clarity)
 module_inception = "allow"       # Style (maybe reenable later)
 manual_range_contains = "allow"  # Style (manual version can be more readable)
