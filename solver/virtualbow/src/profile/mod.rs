@@ -44,7 +44,8 @@ mod tests {
         let start = [2.5, 5.4, 0.2];
         let input = Spline{ points: vec![[0.0, 0.0], [1.0, 1.0], [2.0, 4.0], [3.0, 9.0]] };
 
-        let segment = SplineCurve::new(start, &input);
+        // Curvature limits that are too wide to become active for this curve
+        let segment = SplineCurve::new(start, &input, (100.0, -100.0));
         test_curve_properties(start, &segment);
     }
 

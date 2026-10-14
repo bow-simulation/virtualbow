@@ -53,6 +53,11 @@ pub struct DrawInfo {
 }
 
 impl LimbGeometry {
+    // The permissible curvatures of the profile curve are scaled by this factor, so that a curve that is
+    // limited by them keeps some distance to the self-intersection check below, which would otherwise
+    // still fail at exactly the limit.
+    const CURVATURE_SAFETY_FACTOR: f64 = 0.99;
+
     pub fn new(input: &BowModel) -> Result<Self, ModelError> {
         // Section properties according to layers, materials and alignment to the profile curve
         let section = LayeredCrossSection::new(&input.section)?;
@@ -60,13 +65,23 @@ impl LimbGeometry {
         // Determine rigid parameters of the handle according to selection (flexible/rigid)
         let rigid_handle = &input.handle.to_rigid();
 
+        // Curvature limits for the profile curve, i.e. the curvatures at which the cross-sections would
+        // start to intersect each other, reduced by a safety margin so that the resulting curve stays
+        // below the limit instead of landing exactly on it.
+        //
+        // The bounds of the first cross-section are used for the whole curve. They are exact for a segment
+        // at the start of the limb, which is where the problem occurs in practice, and conservative for the
+        // later ones as long as the limb tapers towards the tips.
+        let (y_back, y_belly) = section.section_bounds(0.0);
+        let curvature_limits = (Self::CURVATURE_SAFETY_FACTOR/y_back, Self::CURVATURE_SAFETY_FACTOR/y_belly);
+
         // Profile curve with starting point according to the rigid handle length and angle
         // The pivot point of the handle determines the brace and draw offsets, while the profile curve always starts at y = 0
         let start = [0.5*rigid_handle.length, 0.0, rigid_handle.angle];
-        let profile = ProfileCurve::new(start, &input.profile.segments)?;
+        let profile = ProfileCurve::new(start, &input.profile.segments, curvature_limits)?;
 
         // Calculate the eccentricity, i.e. the distance between the reference point (belly) and the profile curve at the root of the limb.
-        let eccentricity = section.section_bounds(0.0).1;
+        let eccentricity = y_belly;
 
 
         // The pivot point position is the handle parameter (which is measured from the belly side), corrected by the distance between profile and belly

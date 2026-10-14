@@ -24,7 +24,12 @@ impl SplineCurve {
     // since the index parametrization makes |r'| scale with the overall size of the curve.
     const MIN_START_SPEED: f64 = 0.1;
 
-    pub fn new(start: [f64; 3], input: &Spline) -> SplineCurve {
+    // Constructs the curve from its control points, starting at the given position and angle.
+    //
+    // The curvature limits are the admissible curvatures towards the back and the belly of the limb,
+    // in that order. They are enforced at the start of the curve, where the prescribed starting angle
+    // would otherwise be able to produce an arbitrarily sharp bend.
+    pub fn new(start: [f64; 3], input: &Spline, curvature_limits: (f64, f64)) -> SplineCurve {
         let frame = Isometry2::new(vector![start[0], start[1]], start[2]);
 
         let mut u = Vec::<f64>::with_capacity(input.points.len() + 1);
@@ -56,14 +61,22 @@ impl SplineCurve {
             chord += distance;
         }
 
-        let min_start_speed = Self::MIN_START_SPEED*chord;
-
         // v: Clamped with zero slope at the start, enforces the tangent direction
         // u: Natural at the start, tangent magnitude is determined by minimizing the bending energy
         let spline_v = CubicSpline::from_components(&t, &v, false, FirstDerivative(0.0), SecondDerivative(0.0));
         let mut spline_u = CubicSpline::from_components(&t, &u, false, SecondDerivative(0.0), SecondDerivative(0.0));
 
+        // Since v'(0) = 0 by construction, the curvature at the start is k(0) = v''(0)/u'(0)^2.
+        // The v spline doesn't depend on the u spline, so v''(0) is already fixed at this point and
+        // the start curvature can be limited by choosing the tangent magnitude u'(0) accordingly.
+        // The sign of the curvature is the sign of v''(0), because u'(0) is positive, so only one
+        // of the two limits can be active. (The local v axis points towards the back of the limb.)
+        let dv2 = spline_v.deriv2(0.0, Extrapolation::Cubic);
+        let limit = if dv2 >= 0.0 { curvature_limits.0 } else { curvature_limits.1 };
+        let curvature_speed = f64::sqrt(f64::abs(dv2/limit));
+
         // Fallback if the optimal tangent points backwards or is too short: clamp to minimum magnitude
+        let min_start_speed = f64::max(Self::MIN_START_SPEED*chord, curvature_speed);
         if spline_u.deriv1(0.0, Extrapolation::Cubic) < min_start_speed {
             spline_u = CubicSpline::from_components(&t, &u, false, FirstDerivative(min_start_speed), SecondDerivative(0.0));
         }

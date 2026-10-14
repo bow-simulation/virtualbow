@@ -36,7 +36,12 @@ pub struct ProfileCurve {
 
 impl ProfileCurve {
     // TODO: Pass [f64; 3] by value either everywhere or nowhere (-> by refernce instead)
-    pub fn new(start: [f64; 3], segment_inputs: &[ProfileSegment]) -> Result<ProfileCurve, ModelError> {
+    //
+    // The curvature limits are the admissible curvatures towards the back and the belly of the limb,
+    // in that order. They are applied to the start of each spline segment, whose curvature is a result
+    // of the interpolation rather than a user input. The other segment types are not affected, since
+    // their curvature is prescribed directly.
+    pub fn new(start: [f64; 3], segment_inputs: &[ProfileSegment], curvature_limits: (f64, f64)) -> Result<ProfileCurve, ModelError> {
         if segment_inputs.is_empty() {
             return Err(ModelError::ProfileNoSegments);
         }
@@ -56,7 +61,7 @@ impl ProfileCurve {
 
             // Construct nodes and segment
             let node_start = nodes.last().unwrap();    // The last node is the starting point of the new segment (unwrap is okay because of previous push)
-            let (segment, segment_interior) = Self::create_curve(input, node_start.position);    // Create the new segment from its input and starting point, along with the nodes inside of it
+            let (segment, segment_interior) = Self::create_curve(input, node_start.position, curvature_limits);    // Create the new segment from its input and starting point, along with the nodes inside of it
             let node_end = CurvePoint::new(node_start.length + segment.length(), segment.position(segment.length()));    // Compute endpoint of the segment, advance arc length by length of the segment
 
             // Add both to the accumulated curve
@@ -82,13 +87,13 @@ impl ProfileCurve {
 
     // Creates the curve for the given segment input, together with the positions of the
     // nodes that lie inside of it. Only spline segments have such interior nodes.
-    fn create_curve(segment: &ProfileSegment, start: [f64; 3]) -> (Box<dyn PlanarCurve>, Vec<[f64; 3]>) {
+    fn create_curve(segment: &ProfileSegment, start: [f64; 3], curvature_limits: (f64, f64)) -> (Box<dyn PlanarCurve>, Vec<[f64; 3]>) {
         match segment {
             ProfileSegment::Line(input)   => (Box::new(ClothoidCurve::line(start, input)), vec![]),
             ProfileSegment::Arc(input)    => (Box::new(ClothoidCurve::arc(start, input)), vec![]),
             ProfileSegment::Spiral(input) => (Box::new(ClothoidCurve::spiral(start, input)), vec![]),
             ProfileSegment::Spline(input) => {
-                let curve = SplineCurve::new(start, input);
+                let curve = SplineCurve::new(start, input, curvature_limits);
                 let interior = curve.interior_nodes();
                 (Box::new(curve), interior)
             }
