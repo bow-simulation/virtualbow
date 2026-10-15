@@ -12,7 +12,7 @@ Q_DECLARE_METATYPE(ArrowMass)
 Q_DECLARE_METATYPE(DrawLength)
 Q_DECLARE_METATYPE(Handle)
 
-int main(int argc, char* argv[]) {   
+int main(int argc, char* argv[]) {
     QApplication::setOrganizationName(Config::ORGANIZATION_NAME);
     QApplication::setOrganizationDomain(Config::ORGANIZATION_DOMAIN);
     QApplication::setApplicationName(Config::APPLICATION_NAME_GUI);

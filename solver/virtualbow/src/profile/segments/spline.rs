@@ -23,6 +23,10 @@ impl SplineCurve {
     // point backwards or be too short. Dimensionless, since chord-length parametrization makes |r'| ~ 1.
     const MIN_START_SPEED: f64 = 0.1;
 
+    // Exponent applied to the distances between the control points when they are spaced out over the
+    // curve parameter. 0 gives an index parametrization, 1 a chord length one, 0.5 is centripetal.
+    const PARAMETRIZATION_EXPONENT: f64 = 0.5;
+
     pub fn new(start: [f64; 3], input: &Spline) -> SplineCurve {
         let frame = Isometry2::new(vector![start[0], start[1]], start[2]);
 
@@ -50,7 +54,7 @@ impl SplineCurve {
         for i in 1..u.len() {
             let dt = f64::hypot(u[i] - u[i-1], v[i] - v[i-1]);
             assert!(dt > 0.0, "Consecutive points must not coincide");
-            t.push(t[i-1] + dt);
+            t.push(t[i-1] + dt.powf(Self::PARAMETRIZATION_EXPONENT));
         }
         let t_max = t[t.len() - 1];
 
