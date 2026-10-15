@@ -10,6 +10,13 @@ use virtualbow_num::spline::{CubicSpline, Extrapolation};
 // u points along the start direction, v is normal to it. This way the tangent direction at the
 // start can be enforced exactly (v'(0) = 0) while the tangent magnitude is left free,
 // which minimizes the "overall curvature" of the spline.
+//
+// Since v'(0) = 0, the curvature at the start is k(0) = v''(0)/u'(0)^2, so prescribing the tangent
+// direction alone can still leave a sharp bend there. A cubic spline has only one boundary condition
+// per end though, which is already spent on the tangent direction. The v spline therefore carries one
+// additional knot inside its first interval, whose value is not a control point but is solved for such
+// that v''(0) = 0. The curve then leaves the starting point in the prescribed direction and without
+// curvature, like the natural end at the other side, while still interpolating all control points.
 
 pub struct SplineCurve {
     spline_t: CubicSpline,    // t(s): arc length -> parameter
@@ -23,6 +30,14 @@ impl SplineCurve {
     // point backwards or be too short. Relative to the total chord length of the control points,
     // since the index parametrization makes |r'| scale with the overall size of the curve.
     const MIN_START_SPEED: f64 = 0.1;
+
+    // Exponent applied to the distances between the control points when they are spaced out over the
+    // curve parameter. 0 gives an index parametrization, 1 a chord length one, 0.5 is centripetal.
+    const PARAMETRIZATION_EXPONENT: f64 = 0.5;
+
+    // Position of the additional knot of the v spline within the first interval, as a fraction of it.
+    // Moving it closer to the start makes the adjustment more local at the cost of conditioning.
+    const START_KNOT_POSITION: f64 = 0.5;
 
     pub fn new(start: [f64; 3], input: &Spline) -> SplineCurve {
         let frame = Isometry2::new(vector![start[0], start[1]], start[2]);
@@ -45,22 +60,61 @@ impl SplineCurve {
 
         assert!(u.len() >= 2, "At least two points are required");
 
-        // Index parametrization, the points are equally spaced over the parameter regardless of their distances
-        let t = lin_space(0.0..=1.0, u.len()).collect::<Vec<f64>>();
-
         // Total chord length of the points, used as the length scale of the curve
         let mut chord = 0.0;
+        let mut t = Vec::<f64>::with_capacity(u.len());
+        t.push(0.0);
         for i in 1..u.len() {
             let distance = f64::hypot(u[i] - u[i-1], v[i] - v[i-1]);
             assert!(distance > 0.0, "Consecutive points must not coincide");
             chord += distance;
+            t.push(t[i-1] + distance.powf(Self::PARAMETRIZATION_EXPONENT));
+        }
+
+        // Normalize the parameter to the range [0, 1]
+        let t_max = t[t.len() - 1];
+        for value in t.iter_mut() {
+            *value /= t_max;
         }
 
         let min_start_speed = Self::MIN_START_SPEED*chord;
 
-        // v: Clamped with zero slope at the start, enforces the tangent direction
+        // Knots of the v spline, with the additional one inserted into the first interval.
+        // The u spline keeps the knots of the control points, it doesn't need the extra freedom.
+        let mut t_v = Vec::<f64>::with_capacity(t.len() + 1);
+        t_v.push(t[0]);
+        t_v.push(t[0] + Self::START_KNOT_POSITION*(t[1] - t[0]));
+        t_v.extend_from_slice(&t[1..]);
+
+        // Builds the v spline for a given value at the additional knot.
+        // Clamped with zero slope at the start, which enforces the tangent direction.
+        let build_v = |v_extra: f64| {
+            let mut v_v = Vec::<f64>::with_capacity(v.len() + 1);
+            v_v.push(v[0]);
+            v_v.push(v_extra);
+            v_v.extend_from_slice(&v[1..]);
+
+            CubicSpline::from_components(&t_v, &v_v, false, FirstDerivative(0.0), SecondDerivative(0.0))
+        };
+
+        // The spline is linear in its values, so v''(0) is an affine function of the value at the
+        // additional knot. Evaluating it twice therefore determines the value that makes v''(0) vanish.
+        let dv2_0 = build_v(0.0).deriv2(0.0, Extrapolation::Cubic);
+        let dv2_1 = build_v(1.0).deriv2(0.0, Extrapolation::Cubic);
+        let slope = dv2_1 - dv2_0;
+
+        // The curvature at the start can't be influenced if v''(0) doesn't depend on the additional
+        // knot. This shouldn't happen, but if it does, just place the knot on the straight line.
+        let v_extra = if slope.is_normal() {
+            -dv2_0/slope
+        }
+        else {
+            Self::START_KNOT_POSITION*v[1]
+        };
+
+        // v: Zero slope and zero curvature at the start, natural at the end
         // u: Natural at the start, tangent magnitude is determined by minimizing the bending energy
-        let spline_v = CubicSpline::from_components(&t, &v, false, FirstDerivative(0.0), SecondDerivative(0.0));
+        let spline_v = build_v(v_extra);
         let mut spline_u = CubicSpline::from_components(&t, &u, false, SecondDerivative(0.0), SecondDerivative(0.0));
 
         // Fallback if the optimal tangent points backwards or is too short: clamp to minimum magnitude
@@ -100,10 +154,12 @@ impl SplineCurve {
     pub fn interior_nodes(&self) -> Vec<[f64; 3]> {
         let t = self.spline_u.args();
         let u = self.spline_u.vals();
-        let v = self.spline_v.vals();
 
+        // The v spline has an additional knot, so its values are not aligned with the control
+        // points and have to be evaluated. At a knot this returns the stored value exactly.
         (1..t.len() - 1).map(|i| {
-            let point = (self.frame * Point2::new(u[i], v[i])).coords;
+            let v = self.spline_v.value(t[i], Extrapolation::Cubic);
+            let point = (self.frame * Point2::new(u[i], v)).coords;
 
             let dudt = self.spline_u.deriv1(t[i], Extrapolation::Cubic);
             let dvdt = self.spline_v.deriv1(t[i], Extrapolation::Cubic);
