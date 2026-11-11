@@ -107,19 +107,15 @@ fn beam_element() {
 
     // Check at some different system states
 
-    system.set_displacements(&(&u0 + dvector![0.5, 0.5, 0.5, 0.5, 0.5, 0.5]));
-    system.set_velocities(&(&v0 + dvector![0.5, 0.5, 0.5, 0.5, 0.5, 0.5]));
+    system.set_state(&(&u0 + dvector![0.5, 0.5, 0.5, 0.5, 0.5, 0.5]), &(&v0 + dvector![0.5, 0.5, 0.5, 0.5, 0.5, 0.5]));
     assert_system_invariants(&mut system);
 
-    system.set_displacements(&(&u0 + dvector![0.5, 0.5, 0.5, -0.5, -0.5, -0.5]));
-    system.set_velocities(&(&v0 + dvector![0.5, 0.5, 0.5, -0.5, -0.5, -0.5]));
+    system.set_state(&(&u0 + dvector![0.5, 0.5, 0.5, -0.5, -0.5, -0.5]), &(&v0 + dvector![0.5, 0.5, 0.5, -0.5, -0.5, -0.5]));
     assert_system_invariants(&mut system);
 
-    system.set_displacements(&(&u0 + dvector![0.5, -0.5, 0.5, -0.5, 0.5, -0.5]));
-    system.set_velocities(&(&v0 + dvector![0.5, -0.5, 0.5, -0.5, 0.5, -0.5]));
+    system.set_state(&(&u0 + dvector![0.5, -0.5, 0.5, -0.5, 0.5, -0.5]), &(&v0 + dvector![0.5, -0.5, 0.5, -0.5, 0.5, -0.5]));
     assert_system_invariants(&mut system);
 
-    system.set_displacements(&(&u0 + dvector![-5.0, -5.0, -5.0, 5.0, 5.0, 5.0]));
-    system.set_velocities(&(&v0 + dvector![5.0, 5.0, 5.0, -5.0, -5.0, -5.0]));
+    system.set_state(&(&u0 + dvector![-5.0, -5.0, -5.0, 5.0, 5.0, 5.0]), &(&v0 + dvector![5.0, 5.0, 5.0, -5.0, -5.0, -5.0]));
     assert_system_invariants(&mut system);
 }

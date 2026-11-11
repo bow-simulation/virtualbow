@@ -202,7 +202,7 @@ fn simulate_and_test_beam(path: &Path) {
 
         // 2. Check evaluated properties within the elements
         for (iElement, &element) in elements.iter().enumerate() {
-            let element = system.element_ref::<BeamElement>(element);
+            let element = system.element::<BeamElement>(element);
             element.eval_properties().enumerate().for_each(|(iEval, eval)| {
                 // Compare node results or element midpoint results, depending on index of the eval point
                 if iEval % 2 == 0 {

@@ -21,14 +21,13 @@ pub fn assert_system_invariants(system: &mut System) {
     assert_potential_energy(system, &u_backup);
 
     // Reapply original system state
-    system.set_displacements(&u_backup);
-    system.set_velocities(&v_backup);
+    system.set_state(&u_backup, &v_backup);
 }
 
 // Evaluates the system's mass matrix and verifies that it is symmetric and positive definite
 pub fn assert_mass_matrix(system: &mut System) {
     let mut M = DVector::zeros(system.n_dofs());
-    system.compute_mass_matrix(&mut M);
+    system.evaluated().compute_mass_matrix(&mut M);
 
     // Mass matrix must be positive semi-definite
     assert!(M.min() >= 0.0);
@@ -40,13 +39,10 @@ pub fn assert_stiffness_matrix(system: &mut System, u: &DVector<f64>, v: &DVecto
     let mut K_sys = DMatrix::zeros(system.n_dofs(), system.n_dofs());
     let mut q_test = DVector::zeros(system.n_dofs());
 
-    system.set_displacements(u);
-    system.set_velocities(v);
-    system.compute_internal_forces(None, Some(&mut K_sys), None);
+    system.evaluate(u, v, None, Some(&mut K_sys), None);
 
     let (K_num, error) = differentiate_n_to_k(&mut |u_test| {
-        system.set_displacements(u_test);
-        system.compute_internal_forces(Some(&mut q_test), None, None);
+        system.evaluate(u_test, v, Some(&mut q_test), None, None);
         q_test.clone()
     }, u, NUM_DIFF_STEPSIZE);
 
@@ -63,13 +59,10 @@ pub fn assert_damping_matrix(system: &mut System, u: &DVector<f64>, v: &DVector<
     let mut D_sys = DMatrix::zeros(system.n_dofs(), system.n_dofs());
     let mut q_test = DVector::zeros(system.n_dofs());
 
-    system.set_displacements(u);
-    system.set_velocities(v);
-    system.compute_internal_forces(None, None, Some(&mut D_sys));
+    system.evaluate(u, v, None, None, Some(&mut D_sys));
 
     let (D_num, error) = differentiate_n_to_k(&mut |v_test| {
-        system.set_velocities(v_test);
-        system.compute_internal_forces(Some(&mut q_test), None, None);
+        system.evaluate(u, v_test, Some(&mut q_test), None, None);
         q_test.clone()
     }, v, NUM_DIFF_STEPSIZE);
 
@@ -87,14 +80,13 @@ pub fn assert_damping_matrix(system: &mut System, u: &DVector<f64>, v: &DVector<
 // Checks if the kinetic energy is consistent with the mass matrix and velocities of the system
 pub fn assert_kinetic_energy(system: &mut System, u: &DVector<f64>, v: &DVector<f64>) {
     let mut M = DVector::zeros(system.n_dofs());
-    system.compute_mass_matrix(&mut M);
+    let eval = system.evaluate(u, v, None, None, None);
 
-    system.set_displacements(u);
-    system.set_velocities(v);
+    // Both the mass matrix and the kinetic energy are taken at the same state here.
+    // They used to be evaluated at whatever state the previous check had left behind.
+    eval.compute_mass_matrix(&mut M);
 
-    system.compute_internal_forces(None, None, None);  // TODO: Make obsolete
-
-    let E_sys: f64 = system.elements().map(|element| { element.kinetic_energy() }).sum();
+    let E_sys: f64 = eval.elements().map(|element| { element.kinetic_energy() }).sum();
     let E_num: f64 = 0.5*v.dot(&(M.component_mul(v)));
 
     assert_relative_eq!(E_sys, E_num, max_relative=EPSILON_RELATIVE);
@@ -105,16 +97,12 @@ pub fn assert_kinetic_energy(system: &mut System, u: &DVector<f64>, v: &DVector<
 pub fn assert_potential_energy(system: &mut System, u: &DVector<f64>) {
     let v = DVector::<f64>::zeros(system.n_dofs());
 
-    system.set_displacements(u);
-    system.set_velocities(&v);
-
     let mut q_sys = DVector::zeros(system.n_dofs());
-    system.compute_internal_forces(Some(&mut q_sys), None, None);
+    system.evaluate(u, &v, Some(&mut q_sys), None, None);
 
     let (q_num, error) = differentiate_n_to_1(&mut |u_test| {
-        system.set_displacements(u_test);
-        system.compute_internal_forces(None, None, None);  // Only updates potential energies of the elements  // TODO: Should happen with system.set_state() or similar
-        system.elements().map(|element| { element.potential_energy() }).sum()
+        let eval = system.evaluate(u_test, &v, None, None, None);
+        eval.elements().map(|element| { element.potential_energy() }).sum()
     }, u, NUM_DIFF_STEPSIZE);
 
     // Check error of the derivative approximation

@@ -7,7 +7,7 @@ use virtualbow_fem::elements::mass::MassElement;
 use virtualbow_fem::elements::string::StringElement;
 use virtualbow_fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, DynamicSolverError, StopCondition, TimeStepping, DynamicTolerances};
 use virtualbow_fem::system::node::Node;
-use virtualbow_fem::system::system::{SystemEval, System};
+use virtualbow_fem::system::system::{SolverEval, System, SystemEval};
 use virtualbow_fem::testutils::plotter::Plotter;
 use virtualbow_fem::testutils::syschecks::assert_system_invariants;
 use approx::assert_abs_diff_eq;
@@ -65,7 +65,7 @@ fn mass_spring_damper_1() {
     let a_end = Cell::new(0.0);
 
     // Simulation callback that verifies the solution against analytical expressions
-    let mut callback = |system: &System, eval: &SystemEval| {
+    let mut callback = |system: &SystemEval, eval: &SolverEval| {
         // Numerical solution
         let t_sys = system.get_time();
         let x_sys = system.get_dof_position(node_b.x()) - l;
