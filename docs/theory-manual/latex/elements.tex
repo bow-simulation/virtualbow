@@ -1190,9 +1190,16 @@ Similarly, the tangent damping matrix is obtained as
 \end{equation}
 
 The derivatives~$\nicefrac{\partial l}{\partial\boldsymbol{u}}$ and~$\nicefrac{\partial^2 l}{\partial\boldsymbol{u}^2}$ of the string length, which are required for evaluating these expressions, are carried out in detail in Appendix~\ref{sec:derivatives-for-the-string-element}.
+The string element is special in the sense that one of its parameters, the initial length $l_0$, is not known at the start of our bow simulation.
+In order to find it, we are later going to need the derivative of the internal forces with respect to this parameter, which evaluates to
 
-One final tweak to the string model is required for dynamic analysis.
-Right now the model resists tension as well as compression, even though one of the defining properties of a string or cable is that it only resists tension, but not compression.
+\begin{align}
+\frac{\partial \boldsymbol{Q}}{\partial l_0} &= \frac{\partial}{\partial l_0}\left(EA\,\frac{l - l_0}{l_0} + \eta A\,\frac{\dot{l}}{l_0} \right)\frac{\partial l}{\partial \boldsymbol{u}} \notag \\
+&= -\left(EA\,\frac{l}{l_0^2} + \eta A\,\frac{\dot{l}}{l_0^2}\right)\frac{\partial l}{\partial \boldsymbol{u}} = -\left(\frac{EA + N}{l_0}\right)\frac{\partial l}{\partial \boldsymbol{u}}.
+\end{align}
+
+One final tweak is required for dynamic analysis.
+Right now the string model resists tension as well as compression, even though one of the defining properties of a string or cable is that it only resists tension.
 For static analysis this is not an actual problem, since the string should be under tension in any equilibrium state of the bow anyway.
 In dynamic analysis, however, especially in the slightly chaotic phase after the arrow leaves the string, it can happen that the string becomes shorter than its initial length, which means that it is under compression.
 This must not generate forces that counteract that compression; otherwise the string would behave like a bar and not like a string.

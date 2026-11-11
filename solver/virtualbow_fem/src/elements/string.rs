@@ -96,6 +96,21 @@ impl StringElement {
         self.cf = cf;
     }
 
+    // The string is below its unstressed length, where stiffness and damping are reduced by the compression factor
+    fn is_compressed(&self) -> bool {
+        self.l <= self.l0
+    }
+
+    // Linear stiffness, reduced in case of compression
+    fn effective_stiffness(&self) -> f64 {
+        if self.is_compressed() { self.cf*self.EA } else { self.EA }
+    }
+
+    // Linear damping, reduced in case of compression
+    fn effective_damping(&self) -> f64 {
+        if self.is_compressed() { self.cf*self.ηA } else { self.ηA }
+    }
+
     // Elastic component of the normal force
     pub fn normal_force_elastic(&self) -> f64 {
         self.Ne
@@ -160,9 +175,9 @@ impl Element for StringElement {
         self.lengths.extend(self.indices.iter().tuple_windows().map(|(&i, &j)| (self.positions[j] - self.positions[i]).norm()));
         self.l = self.lengths.iter().sum();
 
-        // Step 4: Reduce stiffness and damping according to alpha, if there is compression
-        let EA = if self.l > self.l0 { self.EA } else { self.cf *self.EA };
-        let ηA = if self.l > self.l0 { self.ηA } else { self.cf *self.ηA };
+        // Step 4: Reduce stiffness and damping by the compression factor, if there is compression
+        let EA = self.effective_stiffness();
+        let ηA = self.effective_damping();
 
         // Step 5: Compute partial derivatives of the length as needed for Q, K and D
 
@@ -270,6 +285,21 @@ impl Element for StringElement {
                     D.add(i, j, ηA /self.l0*self.dldu[i]*self.dldu[j]);
                 }
             }
+        }
+    }
+
+    // The parameter of a string element is its unstressed length. Only the normal force depends on it,
+    // the shape of the string and with it the gradient of its length do not:
+    //
+    //     Nt = (EA*l - EA*l0 + eta*A*dldt)/l0    =>    dNt/dl0 = -(EA + Nt)/l0
+    //
+    // Note that the stiffness is reduced below the unstressed length, which makes this derivative
+    // discontinuous at l = l0 unless the compression factor is one.
+    fn evaluate_parameter_derivative(&self, dqdp: &mut VectorView) {
+        let dNdl0 = -(self.effective_stiffness() + self.Nt)/self.l0;
+
+        for i in 0..self.dldu.len() {
+            dqdp.add(i, dNdl0*self.dldu[i]);
         }
     }
 

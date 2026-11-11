@@ -44,23 +44,33 @@ pub fn find_root_secant<F>(mut f: F, mut x0: f64, mut f0: f64, mut x1: f64, mut 
     None
 }
 
+// Reasons for which a root finding algorithm can fail
+#[derive(Debug, PartialEq)]
+pub enum RootError<E> {
+    FunctionFailed(E),    // The function could not be evaluated at one of the candidate points
+    NoConvergence,    // The maximum number of iterations was reached without meeting the tolerances
+}
+
 // Regula Falsi with Illinois modification, adapted from example on Wikipedia (https://en.wikipedia.org/wiki/Regula_falsi)
 // In this version, the function values at the initial interval bounds are supplied by the caller
 // in order to avoid re-computation when they're already known.
+//
+// The function is allowed to fail, which is reported back to the caller together with its own error.
+//
 // TODO: Have a look at Brent's method: https://en.wikipedia.org/wiki/Brent%27s_method
-pub fn find_root_falsi<F>(mut f: F, mut a: f64, mut b: f64, mut fa: f64, mut fb: f64, xtol: f64, ftol: f64, iter: usize) -> Option<f64>
-    where F: FnMut(f64) -> f64
+pub fn find_root_falsi<F, E>(mut f: F, mut a: f64, mut b: f64, mut fa: f64, mut fb: f64, xtol: f64, ftol: f64, iter: usize) -> Result<f64, RootError<E>>
+    where F: FnMut(f64) -> Result<f64, E>
 {
     let mut side = 0;
 
     for _ in 0..iter {
         // Compute new candidate and evaluate function
         let c = (fa*b - fb*a)/(fa - fb);
-        let fc = f(c);
+        let fc = f(c).map_err(RootError::FunctionFailed)?;
 
         // Check for convergence
         if (b - a).abs() < xtol || fc.abs() < ftol{
-            return Some(c);
+            return Ok(c);
         }
 
         // If fc and fb have same sign, c is the new right boundary
@@ -87,7 +97,7 @@ pub fn find_root_falsi<F>(mut f: F, mut a: f64, mut b: f64, mut fa: f64, mut fb:
         }
     }
 
-    None
+    Err(RootError::NoConvergence)
 }
 
 #[cfg(test)]
@@ -124,18 +134,40 @@ mod tests {
 
     #[test]
     fn test_regula_falsi() {
-        let f = |x| { f64::cos(x) - x.powi(3) };
+        let f = |x: f64| { f64::cos(x) - x.powi(3) };
         let a = 0.0;
         let b = 1.0;
 
         // Reference solution from https://en.wikipedia.org/wiki/Regula_falsi
         let x_ref = 0.865474033101614;
 
-        let x_ab = find_root_falsi(&f, a, b, f(a), f(b), 0.0, 1e-15, 50).expect("Solution failed");
-        let x_ba = find_root_falsi(&f, b, a, f(b), f(a), 0.0, 1e-15, 50).expect("Solution failed");
+        let x_ab = find_root_falsi(|x| Ok::<f64, ()>(f(x)), a, b, f(a), f(b), 0.0, 1e-15, 50).expect("Solution failed");
+        let x_ba = find_root_falsi(|x| Ok::<f64, ()>(f(x)), b, a, f(b), f(a), 0.0, 1e-15, 50).expect("Solution failed");
 
         assert_abs_diff_eq!(x_ab, x_ref, epsilon=1e-15);
         assert_abs_diff_eq!(x_ba, x_ref, epsilon=1e-15);
+    }
+
+    #[test]
+    fn test_regula_falsi_function_failure() {
+        // A function that cannot be evaluated must surface its own error instead of being
+        // reported as a failure to converge, and must not be substituted by some other value.
+        let f = |x: f64| { if x > 0.4 { Err("out of range") } else { Ok(f64::cos(x) - x.powi(3)) } };
+
+        // The first candidate of the algorithm is the midpoint 0.5, which the function rejects
+        let result = find_root_falsi(f, 0.0, 1.0, 1.0, -1.0, 0.0, 1e-15, 50);
+
+        assert_eq!(result, Err(RootError::FunctionFailed("out of range")));
+    }
+
+    #[test]
+    fn test_regula_falsi_no_convergence() {
+        let f = |x: f64| { f64::cos(x) - x.powi(3) };
+
+        // Far too few iterations for the requested tolerance
+        let result = find_root_falsi(|x| Ok::<f64, ()>(f(x)), 0.0, 1.0, f(0.0), f(1.0), 0.0, 1e-15, 2);
+
+        assert_eq!(result, Err(RootError::NoConvergence));
     }
 
     #[test]

@@ -36,7 +36,8 @@ impl LinearBeamSegment {
         let s_node = lin_space(0.0..=curve.length(), n_elements + 1).collect_vec();                            // Lengths at which the element nodes are placed
 
         let segments = s_node.iter().tuple_windows().map(|(&s0, &s1)| {
-            let s_eval = lin_space(s0..=s1, n_eval_per_element).collect_vec();            // Lengths at which the elements are evaluated
+            // Lengths at which the elements are evaluated. Evaluating at no points is valid, but lin_space cannot express it because it divides by the number of steps minus one.
+            let s_eval = if n_eval_per_element == 0 { Vec::new() } else { lin_space(s0..=s1, n_eval_per_element).collect_vec() };
             LinearBeamSegment::new(curve, section, s0, s1, &s_eval)
         }).collect_vec();
 

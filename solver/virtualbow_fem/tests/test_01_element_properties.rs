@@ -4,7 +4,7 @@ use virtualbow_fem::system::system::System;
 use virtualbow_fem::elements::beam::beam::BeamElement;
 use virtualbow_fem::elements::beam::linear::LinearBeamSegment;
 use virtualbow_fem::elements::string::StringElement;
-use virtualbow_fem::testutils::syschecks::assert_system_invariants;
+use virtualbow_fem::testutils::syschecks::{assert_parameter_derivative, assert_system_invariants};
 use virtualbow_fem::system::dof::DofType;
 use virtualbow_fem::testutils::curves::ArcCurve;
 use virtualbow_fem::testutils::sections::RectangularSection;
@@ -31,6 +31,11 @@ fn string_element() {
     let ηA = 400.0;
     let cf = 1.0;
 
+    // Sets the unstressed length of the string, which is the parameter of this element type
+    fn set_length(system: &mut System, element: usize, value: f64) {
+        system.modify_element::<StringElement, _>(element, |element| element.set_initial_length(value));
+    }
+
     // Two nodes
     {
         let mut system = System::new();
@@ -38,9 +43,16 @@ fn string_element() {
         let node1 = system.create_node([0.0, 1.0, 1.5], [DofType::Active; 3]);
 
         let offsets = vec![-0.1, -0.1];
-        system.add_element(&[node0, node1], StringElement::new(EA, ηA, l0, cf, offsets));
+        let element = system.add_element(&[node0, node1], StringElement::new(EA, ηA, l0, cf, offsets));
 
         assert_system_invariants(&mut system);
+
+        // Check the parameter derivative at a state with nonzero velocities as well,
+        // so that the viscous part of the normal force is covered by it
+        assert_parameter_derivative(&mut system, element, l0, |system, value| set_length(system, element, value));
+
+        system.set_state(&dvector![0.1, 0.2, 0.05, -0.1, 0.3, -0.05], &dvector![0.2, -0.1, 0.1, 0.1, 0.4, -0.1]);
+        assert_parameter_derivative(&mut system, element, l0, |system, value| set_length(system, element, value));
     }
 
     // Three nodes, middle node has contact
@@ -51,9 +63,10 @@ fn string_element() {
         let node2 = system.create_node([0.0, 2.0, 1.5], [DofType::Active; 3]);
 
         let offsets = vec![-0.1, -0.1, -0.1];
-        system.add_element(&[node0, node1, node2], StringElement::new(EA, ηA, l0, cf, offsets));
+        let element = system.add_element(&[node0, node1, node2], StringElement::new(EA, ηA, l0, cf, offsets));
 
         assert_system_invariants(&mut system);
+        assert_parameter_derivative(&mut system, element, l0, |system, value| set_length(system, element, value));
     }
 
     // Three nodes, middle node has no contact
@@ -62,11 +75,12 @@ fn string_element() {
         let node0 = system.create_node([0.0, 0.0, 1.5], [DofType::Active; 3]);
         let node1 = system.create_node([-0.1, 1.0, 1.5], [DofType::Active; 3]);
         let node2 = system.create_node([0.0, 2.0, 1.5], [DofType::Active; 3]);
-    
+
         let offsets = vec![-0.1, -0.1, -0.1];
-        system.add_element(&[node0, node1, node2], StringElement::new(EA, ηA, l0, cf, offsets));
-    
+        let element = system.add_element(&[node0, node1, node2], StringElement::new(EA, ηA, l0, cf, offsets));
+
         assert_system_invariants(&mut system);
+        assert_parameter_derivative(&mut system, element, l0, |system, value| set_length(system, element, value));
     }
 
     // Four nodes, middle nodes have contact
@@ -76,11 +90,12 @@ fn string_element() {
         let node1 = system.create_node([0.1, 1.0, 1.5], [DofType::Active; 3]);
         let node2 = system.create_node([0.1, 2.0, 1.5], [DofType::Active; 3]);
         let node3 = system.create_node([0.0, 3.0, 1.5], [DofType::Active; 3]);
-        
+
         let offsets = vec![-0.1, -0.1, -0.1, -0.1];
-        system.add_element(&[node0, node1, node2, node3], StringElement::new(EA, ηA, l0, cf, offsets));
-        
+        let element = system.add_element(&[node0, node1, node2, node3], StringElement::new(EA, ηA, l0, cf, offsets));
+
         assert_system_invariants(&mut system);
+        assert_parameter_derivative(&mut system, element, l0, |system, value| set_length(system, element, value));
     }
 }
 

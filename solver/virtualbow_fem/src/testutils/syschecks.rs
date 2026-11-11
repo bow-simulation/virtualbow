@@ -1,7 +1,7 @@
 use nalgebra::{DMatrix, DVector};
 use crate::system::system::System;
 use approx::{assert_abs_diff_eq, assert_relative_eq};
-use virtualbow_num::numdiff::{differentiate_n_to_1, differentiate_n_to_k};
+use virtualbow_num::numdiff::{differentiate_1_to_n, differentiate_n_to_1, differentiate_n_to_k};
 
 const NUM_DIFF_STEPSIZE : f64 = 0.0001;
 const NUM_DIFF_MAX_ERROR: f64 = 1e-3;
@@ -90,6 +90,40 @@ pub fn assert_kinetic_energy(system: &mut System, u: &DVector<f64>, v: &DVector<
     let E_num: f64 = 0.5*v.dot(&(M.component_mul(v)));
 
     assert_relative_eq!(E_sys, E_num, max_relative=EPSILON_RELATIVE);
+}
+
+// Verifies that the derivative of the internal forces with respect to an element's parameter is equal
+// to a numerical derivative of the internal forces, at the current state of the system.
+// The parameter is applied through the given closure, since only the caller knows which one it is.
+pub fn assert_parameter_derivative<F>(system: &mut System, index: usize, value: f64, mut set_parameter: F)
+    where F: FnMut(&mut System, f64)
+{
+    let u = system.get_displacements().clone();
+    let v = system.get_velocities().clone();
+
+    let mut q_test = DVector::zeros(system.n_dofs());
+    let mut dqdp_sys = DVector::zeros(system.n_dofs());
+
+    // Analytical derivative as reported by the element
+    set_parameter(system, value);
+    system.evaluate(&u, &v, None, None, None).parameter_derivative(index, &mut dqdp_sys);
+
+    // Numerical derivative of the internal forces with respect to the same parameter
+    let (dqdp_num, error) = differentiate_1_to_n(&mut |p| {
+        set_parameter(system, p);
+        system.evaluate(&u, &v, Some(&mut q_test), None, None);
+        q_test.clone()
+    }, value, NUM_DIFF_STEPSIZE);
+
+    // Put the parameter back and bring the elements in sync with it again
+    set_parameter(system, value);
+    system.set_state(&u, &v);
+
+    // Check error of the derivative approximation
+    assert!(error < NUM_DIFF_MAX_ERROR);
+
+    // The analytical derivative must be equal to the numerical one
+    assert_abs_diff_eq!(dqdp_sys, dqdp_num, epsilon=dqdp_num.amax()*EPSILON_RELATIVE + EPSILON_ABSOLUTE);
 }
 
 // Checks if the elastic forces are equal to the derivative of the potential energy

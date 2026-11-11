@@ -168,10 +168,6 @@ impl System {
     /// Applies the given state to the system and evaluates all elements with it, optionally
     /// accumulating their contributions to the internal forces q and the tangent stiffness and
     /// damping matrices K and D.
-    ///
-    /// Applying the state and evaluating the elements is deliberately a single operation. It is
-    /// what keeps the elements consistent with the system, and it still costs only one pass over
-    /// them, which matters because this sits in the innermost loop of every solver.
     pub fn evaluate(&mut self, u: &DVector<f64>, v: &DVector<f64>, q: Option<&mut DVector<f64>>, K: Option<&mut DMatrix<f64>>, D: Option<&mut DMatrix<f64>>) -> SystemEval<'_> {
         self.u.copy_from(u);
         self.v.copy_from(v);
@@ -180,11 +176,8 @@ impl System {
         SystemEval { system: self }
     }
 
-    /// Gives access to the results of the elements at the current state of the system,
-    /// evaluating them first if they are not up to date.
-    ///
-    /// This is a no-op whenever the system was already evaluated at its current state, which is
-    /// the usual case after a solver has run, so it costs nothing on the common path.
+    /// Gives access to the results of the elements at the current state of the system, evaluating them first if they are not up to date.
+    /// This is a no-op whenever the system was already evaluated at its current state, which is the usual case after a solver has run.
     pub fn evaluated(&mut self) -> SystemEval<'_> {
         if self.elements_outdated {
             self.compute_internal_forces(None, None, None);
@@ -287,6 +280,16 @@ impl<'a> SystemEval<'a> {
     pub fn element<T: Element + 'static>(&self, index: usize) -> &T {
         let (_, element) = &self.system.elements[index];
         element.downcast_ref::<T>().expect("Invalid element cast!")
+    }
+
+    /// Derivative of the internal forces with respect to the parameter of a single element,
+    /// expressed in the degrees of freedom of the system.
+    pub fn parameter_derivative(&self, index: usize, output: &mut DVector<f64>) {
+        assert_eq!(output.len(), self.system.n_dofs(), "Dimension must match the number of degrees of freedom");
+        output.fill(0.0);
+
+        let (dofs, element) = &self.system.elements[index];
+        element.evaluate_parameter_derivative(&mut VectorView::new(output, dofs));
     }
 
     pub fn compute_mass_matrix(&self, output: &mut DVector<f64>) {

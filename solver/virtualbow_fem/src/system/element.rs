@@ -9,6 +9,12 @@ pub trait Element: Downcast {
     // tangent stiffness, or tangent damping matrix.
     fn update_and_evaluate(&mut self, u: &PositionView, v: &VelocityView, q: Option<&mut VectorView>, K: Option<&mut MatrixView>, D: Option<&mut MatrixView>);
 
+    // Adds the derivative of the element's internal forces with respect to its parameter, evaluated at
+    // the state of the last update. The parameter is the one scalar property of an element that a solver
+    // may treat as an unknown, like the unstressed length of a string. Elements that don't have one leave
+    // the result untouched, which is what the default implementation does.
+    fn evaluate_parameter_derivative(&self, _dqdp: &mut VectorView) {}
+
     // Computes the element's potential energy based on the current state
     fn potential_energy(&self) -> f64;
 
