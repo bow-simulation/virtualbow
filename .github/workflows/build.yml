@@ -112,7 +112,7 @@ jobs:
           if-no-files-found: error
 
   build-macos:
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 30
     env:
       RUSTFLAGS: -D warnings    # Make Rust compiler fail on warnings
