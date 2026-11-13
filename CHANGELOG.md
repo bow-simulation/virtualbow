@@ -9,6 +9,7 @@
 
 **Changed**
 
+* Improvements to finding the braced equilibrium state of the bow
 * Improvements for a smoother starting point of the spline profile segment
 * Control points of spline segments are shown in the plot
 
