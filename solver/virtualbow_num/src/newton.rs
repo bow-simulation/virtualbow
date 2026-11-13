@@ -52,7 +52,6 @@ impl Default for LineSearchSettings {
 pub struct NewtonInfo {
     #[allow(dead_code)]
     pub x: DVector<f64>,     // Solution variables
-    #[allow(dead_code)]
     pub λ: f64,              // Solution parameter
     pub dxdλ: DVector<f64>,  // Derivative of the solution wrt. the parameter
     pub iterations: usize,     // Number of iterations that have been performed

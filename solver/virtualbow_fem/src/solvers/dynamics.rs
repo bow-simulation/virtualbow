@@ -2,7 +2,7 @@ use std::fmt::{Debug, Display, Formatter};
 use nalgebra::{DMatrix, DVector};
 use virtualbow_num::newton::{solve_newton, solve_newton_constrained, NewtonError, NewtonSettings, NewtonTolerances};
 use crate::system::dof::{Dof, DofDimension};
-use crate::system::system::{System, SystemEval};
+use crate::system::system::{SolverEval, System, SystemEval};
 
 // TODO: Split into static and dynamic tolerances?
 #[derive(Copy, Clone, Debug)]
@@ -108,7 +108,7 @@ impl<'a> DynamicSolver<'a> {
     }
 
     pub fn solve<F>(&mut self, stop: StopCondition, callback: &mut F) -> Result<(), DynamicSolverError>
-        where F: FnMut(&System, &SystemEval) -> bool
+        where F: FnMut(&SystemEval, &SolverEval) -> bool
     {
         // Constant average acceleration (unconditionally stable for linear systems)
         let beta  = 0.25;
@@ -116,7 +116,7 @@ impl<'a> DynamicSolver<'a> {
 
         // The mass matrix has to be evaluated only once
         let mut M = DVector::zeros(self.system.n_dofs());
-        self.system.compute_mass_matrix(&mut M);
+        self.system.evaluated().compute_mass_matrix(&mut M);
 
         // Dynamic system properties for evaluation
         let mut K_eval = DMatrix::zeros(self.system.n_dofs(), self.system.n_dofs());
@@ -158,7 +158,7 @@ impl<'a> DynamicSolver<'a> {
             λtol: self.tolerances.loadfactor,
         };
 
-        if !callback(self.system, &SystemEval::new(&p_eval, &q_eval, &a_eval)) {
+        if !callback(&self.system.evaluated(), &SolverEval::new(&p_eval, &q_eval, &a_eval)) {
             return Ok(());
         }
 
@@ -200,11 +200,8 @@ impl<'a> DynamicSolver<'a> {
                 u_next.copy_from(&(&u_prev + dt*&v_prev + dt*dt*((0.5 - beta)*&a_prev + beta*a_next)));
 
                 self.system.set_time(t_next);
-                self.system.set_displacements(&u_next);
-                self.system.set_velocities(&v_next);
-
                 self.system.compute_external_forces(&mut p_eval);
-                self.system.compute_internal_forces(Some(&mut q_eval), Some(&mut K_eval), Some(&mut D_eval));
+                self.system.evaluate(&u_next, &v_next, Some(&mut q_eval), Some(&mut K_eval), Some(&mut D_eval));
                 a_eval.copy_from(&(&p_eval - &q_eval).component_div(&M));
 
                 r_next.copy_from(&(M.component_mul(a_next) + &q_eval - &p_eval));
@@ -231,11 +228,8 @@ impl<'a> DynamicSolver<'a> {
                         u_next.copy_from(&(&u_prev + dt*&v_prev + dt*dt*((0.5 - beta)*&a_prev + beta*a_next)));
 
                         self.system.set_time(t_prev + dt);
-                        self.system.set_displacements(&u_next);
-                        self.system.set_velocities(&v_next);
-
                         self.system.compute_external_forces(&mut p_eval);
-                        self.system.compute_internal_forces(Some(&mut q_eval), Some(&mut K_eval), Some(&mut D_eval));
+                        self.system.evaluate(&u_next, &v_next, Some(&mut q_eval), Some(&mut K_eval), Some(&mut D_eval));
                         a_eval.copy_from(&(&p_eval - &q_eval).component_div(&M));
 
                         r_next.copy_from(&(&M.component_mul(a_next) + &q_eval - &p_eval));
@@ -257,7 +251,7 @@ impl<'a> DynamicSolver<'a> {
                         .map_err(DynamicSolverError::EquilibriumError)?;
 
                     // Invoke callback with final system state, then end the simulation
-                    if !callback(self.system, &SystemEval::new(&p_eval, &q_eval, &a_eval)) {
+                    if !callback(&self.system.evaluated(), &SolverEval::new(&p_eval, &q_eval, &a_eval)) {
                         return Err(DynamicSolverError::AbortedByCaller);
                     }
 
@@ -266,7 +260,7 @@ impl<'a> DynamicSolver<'a> {
             }
 
             // Invoke callback with final system state
-            if !callback(self.system, &SystemEval::new(&p_eval, &q_eval, &a_eval)) {
+            if !callback(&self.system.evaluated(), &SolverEval::new(&p_eval, &q_eval, &a_eval)) {
                 return Err(DynamicSolverError::AbortedByCaller);
             }
 

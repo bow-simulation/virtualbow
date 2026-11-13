@@ -16,6 +16,10 @@ use nalgebra::{DMatrix, DVector, SVector};
 // Each time the system is evaluated, the elements are assigned local positions and velocities corresponding to the system state, from which they compute requested quantities,
 // such as internal forces and mass-, damping- or stiffness matrices. Additionally the elements compute local results which are specific to the element type
 // or store information that makes computing those results easy when queried later. A beam element, for example, might compute curvatures and bending moments.
+//
+// The elements are kept consistent with the system state at all times. The state can only be changed by applying it and evaluating the elements in the same operation,
+// so there is no way to leave the two out of sync through the public interface. Element results can therefore be queried at any point without having to ask
+// whether they still belong to the current state of the system.
 
 type ElementHandle = Box<dyn Element>;
 type ExternalForce = Box<dyn Fn(f64) -> f64>;
@@ -34,6 +38,10 @@ pub struct System {
     t: f64,             // Time
     u: DVector<f64>,    // Displacements (active dofs)
     v: DVector<f64>,    // Velocities (active dofs)
+
+    // Set whenever something happened that the elements have not seen yet, i.e. a new element was
+    // added or the parameters of an existing one were changed. Evaluating the elements clears it.
+    elements_outdated: bool,
 }
 
 impl System {
@@ -48,6 +56,7 @@ impl System {
             t: 0.0,
             u: DVector::zeros(0),
             v: DVector::zeros(0),
+            elements_outdated: false,
         }
     }
 
@@ -61,6 +70,8 @@ impl System {
         }
 
         self.elements.push((dofs, Box::new(element)));
+        self.elements_outdated = true;
+
         self.elements.len() - 1
     }
 
@@ -126,18 +137,16 @@ impl System {
         &self.dimensions
     }
 
-    pub fn elements(&self) -> impl Iterator<Item=&ElementHandle> {
-        self.elements.iter().map(|(_dofs, handle)| { handle })
-    }
+    /// Changes the parameters of an element. The results that the element is holding on to are
+    /// invalidated by this, so they are recomputed the next time the system is evaluated.
+    pub fn modify_element<T: Element + 'static, R>(&mut self, index: usize, f: impl FnOnce(&mut T) -> R) -> R {
+        let result = {
+            let (_, element) = &mut self.elements[index];
+            f(element.downcast_mut::<T>().expect("Invalid element cast!"))
+        };
 
-    pub fn element_ref<T: Element + 'static>(&self, index: usize) -> &T {
-        let (_, element) = &self.elements[index];
-        element.downcast_ref::<T>().expect("Invalid element cast!")
-    }
-
-    pub fn element_mut<T: Element + 'static>(&mut self, index: usize) -> &mut T {
-        let (_, element) = &mut self.elements[index];
-        element.downcast_mut::<T>().expect("Invalid element cast!")
+        self.elements_outdated = true;
+        result
     }
 
     pub fn get_time(&self) -> f64 {
@@ -152,16 +161,29 @@ impl System {
         &self.u
     }
 
-    pub fn set_displacements(&mut self, u: &DVector<f64>) {
-        self.u.copy_from(u);
-    }
-
     pub fn get_velocities(&self) -> &DVector<f64> {
         &self.v
     }
 
-    pub fn set_velocities(&mut self, v: &DVector<f64>) {
+    /// Applies the given state to the system and evaluates all elements with it, optionally
+    /// accumulating their contributions to the internal forces q and the tangent stiffness and
+    /// damping matrices K and D.
+    pub fn evaluate(&mut self, u: &DVector<f64>, v: &DVector<f64>, q: Option<&mut DVector<f64>>, K: Option<&mut DMatrix<f64>>, D: Option<&mut DMatrix<f64>>) -> SystemEval<'_> {
+        self.u.copy_from(u);
         self.v.copy_from(v);
+        self.compute_internal_forces(q, K, D);
+
+        SystemEval { system: self }
+    }
+
+    /// Gives access to the results of the elements at the current state of the system, evaluating them first if they are not up to date.
+    /// This is a no-op whenever the system was already evaluated at its current state, which is the usual case after a solver has run.
+    pub fn evaluated(&mut self) -> SystemEval<'_> {
+        if self.elements_outdated {
+            self.compute_internal_forces(None, None, None);
+        }
+
+        SystemEval { system: self }
     }
 
     pub fn get_dof_displacement(&self, dof: Dof) -> f64 {
@@ -191,21 +213,18 @@ impl System {
         node.dofs().map(|dof| self.get_dof_velocity(dof))
     }
 
+    /// Applies the given state to the system without computing any results.
+    /// Shorthand for an evaluation that is only meant to bring the elements up to date.
+    pub fn set_state(&mut self, u: &DVector<f64>, v: &DVector<f64>) {
+        self.evaluate(u, v, None, None, None);
+    }
+
     /// Restores the initial state of the system (t = 0, u = 0, v = 0)
     pub fn reset_state(&mut self) {
         self.t = 0.0;
         self.u.fill(0.0);
         self.v.fill(0.0);
-    }
-
-    pub fn compute_mass_matrix(&self, output: &mut DVector<f64>) {
-        assert_eq!(output.len(), self.n_dofs(), "Dimension must match the number of degrees of freedom");
-        output.fill(0.0);
-
-        for (dofs, element) in &self.elements {
-            let mut view = VectorView::new(output, dofs);
-            element.evaluate_mass_matrix(&mut view);
-        }
+        self.elements_outdated = true;
     }
 
     pub fn compute_external_forces(&self, output: &mut DVector<f64>) {
@@ -216,17 +235,6 @@ impl System {
             let mut view = VectorView::new(output, std::slice::from_ref(dof));
             view.add_vec(SVector::<f64, 1>::from_element(force(self.t)));
         }
-    }
-
-    // Evaluates the element with the current system state
-    // Only necessary in special occasions, usually the solvers do this anyway.
-    // TODO: Do this when elements are added to the system?
-    pub fn update_element(&mut self, index: usize) {
-        let (dofs, element) = &mut self.elements[index];
-        let u_view = PositionView::new(&self.xl, &self.xa, &self.u, dofs);
-        let v_view = VelocityView::new(&self.v, dofs);
-
-        element.update_and_evaluate(&u_view, &v_view, None, None, None);
     }
 
     pub fn compute_internal_forces(&mut self, mut q: Option<&mut DVector<f64>>, mut K: Option<&mut DMatrix<f64>>, mut D: Option<&mut DMatrix<f64>>) {
@@ -247,18 +255,71 @@ impl System {
             // TODO: Maybe include a separate element.set_state(u, v) step before. Then make eval_element method obsolete.
             element.update_and_evaluate(&u_view, &v_view, q_view.as_mut(), k_view.as_mut(), d_view.as_mut());
         }
+
+        self.elements_outdated = false;
+    }
+}
+
+// Gives access to the results that the elements have computed, which are only meaningful as long
+// as the elements are in sync with the state of the system.
+//
+// This can only be obtained from the system itself, which evaluates the elements first if they are
+// not up to date, and it borrows the system for as long as it exists. The system therefore cannot
+// be modified while any of these results are still in use, which is what keeps the two from
+// drifting apart. Everything that does not depend on the elements, like node positions, stays
+// reachable through the system that this dereferences to.
+pub struct SystemEval<'a> {
+    system: &'a System,
+}
+
+impl<'a> SystemEval<'a> {
+    pub fn elements(&self) -> impl Iterator<Item=&ElementHandle> {
+        self.system.elements.iter().map(|(_dofs, handle)| { handle })
+    }
+
+    pub fn element<T: Element + 'static>(&self, index: usize) -> &T {
+        let (_, element) = &self.system.elements[index];
+        element.downcast_ref::<T>().expect("Invalid element cast!")
+    }
+
+    /// Derivative of the internal forces with respect to the parameter of a single element,
+    /// expressed in the degrees of freedom of the system.
+    pub fn parameter_derivative(&self, index: usize, output: &mut DVector<f64>) {
+        assert_eq!(output.len(), self.system.n_dofs(), "Dimension must match the number of degrees of freedom");
+        output.fill(0.0);
+
+        let (dofs, element) = &self.system.elements[index];
+        element.evaluate_parameter_derivative(&mut VectorView::new(output, dofs));
+    }
+
+    pub fn compute_mass_matrix(&self, output: &mut DVector<f64>) {
+        assert_eq!(output.len(), self.system.n_dofs(), "Dimension must match the number of degrees of freedom");
+        output.fill(0.0);
+
+        for (dofs, element) in &self.system.elements {
+            let mut view = VectorView::new(output, dofs);
+            element.evaluate_mass_matrix(&mut view);
+        }
+    }
+}
+
+impl<'a> std::ops::Deref for SystemEval<'a> {
+    type Target = System;
+
+    fn deref(&self) -> &System {
+        self.system
     }
 }
 
 // Wrapper around force-, and acceleration vectors.
 // Used by the different solvers to give access to those quantities in a unified way.
-pub struct SystemEval<'a> {
+pub struct SolverEval<'a> {
     p: &'a DVector<f64>,    // External forces
     q: &'a DVector<f64>,    // Internal forces
     a: &'a DVector<f64>,    // Accelerations
 }
 
-impl<'a> SystemEval<'a> {
+impl<'a> SolverEval<'a> {
     pub fn new(p: &'a DVector<f64>, q: &'a DVector<f64>, a: &'a DVector<f64>) -> Self {
         Self {
             p,

@@ -1,12 +1,12 @@
 use std::f64::consts::{PI, FRAC_PI_2};
 use clap::ValueEnum;
 use itertools::Itertools;
-use nalgebra::{vector, SVector};
+use nalgebra::{vector, DMatrix, DVector, SVector};
 use virtualbow_fem::solvers::eigen::{Mode, natural_frequencies};
 use virtualbow_fem::solvers::statics::{DisplacementControl, LoadControl, StaticTolerances};
 use virtualbow_fem::system::element::Element;
 use virtualbow_fem::system::node::Node;
-use virtualbow_fem::system::system::{System, SystemEval};
+use virtualbow_fem::system::system::{SolverEval, System, SystemEval};
 use crate::errors::ModelError;
 use crate::geometry::{DiscreteLimbGeometry, LimbGeometry};
 use crate::input::{ArrowMass, BowModel};
@@ -17,9 +17,8 @@ use virtualbow_fem::elements::string::StringElement;
 use virtualbow_fem::solvers::dynamics::{DynamicSolver, DynamicSolverSettings, DynamicTolerances, StopCondition, TimeStepping};
 use virtualbow_fem::system::dof::DofType;
 use virtualbow_num::integration::cumulative_simpson;
-use virtualbow_num::roots::find_root_falsi;
 use virtualbow_num::minmax::{discrete_maximum_nd, discrete_minimum_nd};
-use virtualbow_num::newton::NewtonSettings;
+use virtualbow_num::newton::{solve_newton_constrained, NewtonSettings, NewtonTolerances};
 
 #[derive(ValueEnum, PartialEq, Debug, Copy, Clone)]
 pub enum SimulationMode {
@@ -31,8 +30,6 @@ struct BracingSettings {
     delta_start: f64,             // Initial decrement in string length
     delta_min: f64,               // Minimum step length, abort if smaller
     delta_max: f64,               // Maximum step length, don't increase beyond
-    slope_tol: f64,               // Tolerance for the string's slope error
-    max_root_iter: usize,         // Maximum number of iterations for the terminal root finding algorithm
     target_newton_iter: usize,    // Desired number of iterations for the static solver
 }
 
@@ -42,8 +39,6 @@ impl Default for BracingSettings {
             delta_start: 1e-3,
             delta_min: 1e-5,
             delta_max: 1e-2,
-            slope_tol: 1e-6,
-            max_root_iter: 20,
             target_newton_iter: 5
         }
     }
@@ -121,7 +116,7 @@ impl<'a> Simulation<'a> {
             let modes = natural_frequencies(&mut system).map_err(ModelError::SimulationEigenSolutionFailed)?;
             let alpha = 2.0* model.damping.damping_ratio_limbs/modes[0].omega;
             for &e in &limb_elements {
-                system.element_mut::<BeamElement>(e).set_damping(alpha);
+                system.modify_element::<BeamElement, _>(e, |element| element.set_damping(alpha));
             }
         }
 
@@ -152,10 +147,8 @@ impl<'a> Simulation<'a> {
 
         // Evaluate the string element once so that the actual string length is computed (but no forces are applied)
         // We call this the unstressed length of the string and assign that to the element so that the string is tension-free initially.
-        system.update_element(string_element);
-        let element = system.element_mut::<StringElement>(string_element);
-        let unstressed_length = element.get_current_length();
-        element.set_initial_length(unstressed_length);
+        let unstressed_length = system.evaluated().element::<StringElement>(string_element).get_current_length();
+        system.modify_element::<StringElement, _>(string_element, |element| element.set_initial_length(unstressed_length));
 
         // If string is to be initialized, perform bracing simulation
         if string {
@@ -166,86 +159,142 @@ impl<'a> Simulation<'a> {
             // Direction of the applied force for displacement control
             system.add_force(string_nodes[0].y(), move |_t| { -1.0 });
 
-            // Returns the slope of the string at the centerpoint against the x direction
-            let get_string_slope = |system: &System| -> f64 {
-                let mut string_pos = system.element_ref::<StringElement>(string_element).contact_positions();
+            // Checks whether the string at the centerpoint slopes backwards
+            let is_slope_negative = |system: &SystemEval| -> bool {
+                let mut string_pos = system.element::<StringElement>(string_element).contact_positions();
                 let pos0 = string_pos.next().unwrap();    // Unwrap is okay because string must always have at least two contact nodes
                 let pos1 = string_pos.next().unwrap();    // Unwrap is okay
 
-                (pos1[1] - pos0[1])/(pos1[0] - pos0[0])
+                pos1[1] < pos0[1]
             };
 
-            // Initial values for the string length factor, the string's slope and the step size for iterating on the string factor
-            let mut factor1 = 1.0;
-            let mut slope1 = get_string_slope(&system);
-            let mut delta = bracing_settings.delta_start;
-
-            // Abort if the initial slope is negative, which means that the supplied brace height is too
-            if slope1 < 0.0 {
+            // Abort if the initial slope is negative, which means that the supplied brace height is too low.
+            if is_slope_negative(&system.evaluated()) {
                 // TODO: Determine the minimum required brace height and put it into the error message
                 return Err(ModelError::SimulationBraceHeightTooLow(model.draw.brace_height));
             }
 
-            // Function that applies the given string length to the bow, solves for static equilibrium with the string pinned at brace height.
-            // Returns the slope of the string as well as the return state of the static solver.
-            // The root of this function is the string length that braces the bow with the desired brace height.
-            let mut try_string_length = |factor: f64| {
-                system.element_mut::<StringElement>(string_element).set_initial_length(factor*unstressed_length);
+            // Step 1: Shorten the string until the force that holds the string center at the brace height
+            // changes sign, which means that the braced state has been passed.
+            let factor_passed = {
+                // Function that applies the given string length to the bow and solves for static equilibrium
+                // with the string pinned at brace height. The load factor of that solution is the force that
+                // is needed to hold the string center there.
+                let mut try_string_length = |factor: f64| {
+                    system.modify_element::<StringElement, _>(string_element, |element| element.set_initial_length(factor*unstressed_length));
 
-                // TODO: Duplication with settings used in static analysis
-                let tolerances = StaticTolerances::new(*geometry.s_eval.last().unwrap(), FRAC_PI_2, model.settings.static_iteration_tolerance);  // Use limb length and pi/2 as reference displacements for absolute tolerances
+                    // TODO: Duplication with settings used in static analysis
+                    let tolerances = StaticTolerances::new(*geometry.s_eval.last().unwrap(), FRAC_PI_2, model.settings.static_iteration_tolerance);  // Use limb length and pi/2 as reference displacements for absolute tolerances
 
-                let solver = DisplacementControl::new(&mut system, tolerances, newton_settings);   // TODO: Don't construct new solver in each iteration?
-                let result = solver.solve_equilibrium(string_nodes[0].y(), 0.0);    // TODO: Code repetition with initial position of the string node above
-                let slope = get_string_slope(&system);
+                    let solver = DisplacementControl::new(&mut system, tolerances, newton_settings);   // TODO: Don't construct new solver in each iteration?
+                    solver.solve_equilibrium(string_nodes[0].y(), 0.0)    // TODO: Code repetition with initial position of the string node above
+                };
 
-                (slope, result)
-            };
+                let mut factor = 1.0;
+                let mut delta = bracing_settings.delta_start;
+                let mut previous: Option<(f64, f64)> = None;    // String length and holding force of the previous step
 
-            // Iterate on the string length factor in order to find the braced equilibrium state
-            loop {
-                // Try new factor reduced by step size
-                let factor2 = factor1 - delta;
-                let (slope2, result) = try_string_length(factor1 - delta);
+                loop {
+                    // Try new factor reduced by step size
+                    let result = try_string_length(factor - delta);
 
-                if let Ok(info) = result {
-                    // Static iteration success
-                    if slope2 <= 0.0 {
-                        // Sign change of the slope: Almost done, do the rest by root finding
-                        let try_string_length = |factor| { try_string_length(factor).0 };  // TODO: Error handling, do something with the solver information
-                        find_root_falsi(try_string_length, factor1, factor2, slope1, slope2, 0.0, bracing_settings.slope_tol, bracing_settings.max_root_iter).ok_or(ModelError::SimulationBracingNoConvergence)?;
-                        break;
-                    }
-                    else {
-                        // Otherwise apply step and continue
-                        factor1 = factor2;
-                        slope1 = slope2;
+                    if let Ok(info) = result {
+                        // Static iteration success, apply the step
+                        factor -= delta;
+
+                        // Sign change of the holding force: The braced state has been passed
+                        if info.λ <= 0.0 {
+                            break factor;
+                        }
 
                         // Adjust step size according to static solver performance, cap at maximum
                         delta *= (bracing_settings.target_newton_iter as f64) / (info.iterations as f64);
                         delta = f64::min(delta, bracing_settings.delta_max);
+
+                        // The holding force varies smoothly with the string length, so the two most recent steps give a secant estimate of how far away the sign change still is.
+                        // Not stepping beyond that estimate keeps the braced state from being overshot by much, which would otherwise happen whenever the step size is large shortly before the crossing.
+                        // The estimate only gets better as the iteration approaches, and a step that falls short of the crossing is simply followed by another one.
+                        // The limit is never allowed to fall below the minimum step length, so that approaching the braced state cannot be mistaken for a lack of progress by the check below.
+                        if let Some((factor_prev, λ_prev)) = previous {
+                            if λ_prev > info.λ {
+                                let distance = info.λ*(factor_prev - factor)/(λ_prev - info.λ);
+                                delta = f64::min(delta, f64::max(distance, bracing_settings.delta_min));
+                            }
+                        }
+
+                        previous = Some((factor, info.λ));
+                    }
+                    else {
+                        // Static iteration failure: Reduce step size by a generic factor
+                        delta /= 2.0;
+                    }
+
+                    // Abort if the step size becomes too small
+                    if delta < bracing_settings.delta_min {
+                        return Err(ModelError::SimulationBracingNoSignChange)
                     }
                 }
-                else {
-                    // Static iteration failure: Reduce step size by a generic factor
-                    delta /= 2.0;
+            };
+
+            // Step 2: We are close enough to solve for the braced state directly, with the string length as an additional unknown.
+            {
+                let n = system.n_dofs();
+                let string_dof = string_nodes[0].y();
+                let u0 = system.get_displacements().clone();
+
+                let tolerances = StaticTolerances::new(*geometry.s_eval.last().unwrap(), FRAC_PI_2, model.settings.static_iteration_tolerance);
+                let tolerances = NewtonTolerances { xtol: tolerances.xtol(&system), λtol: tolerances.loadfactor };
+
+                let v = DVector::zeros(n);             // Velocities are zero in a static solution
+                let mut q = DVector::zeros(n);         // Internal forces
+                let mut dqdl0 = DVector::zeros(n);     // Derivative of the internal forces wrt. the string length
+                let mut K = DMatrix::zeros(n, n);      // Tangent stiffness matrix
+
+                // Equilibrium of the bow without external forces, as a function of the displacements
+                // and the string length factor
+                let mut objective = |u: &DVector<f64>, factor: f64, f: &mut DVector<f64>, dfdx: &mut DMatrix<f64>, dfdλ: &mut DVector<f64>| {
+                    system.modify_element::<StringElement, _>(string_element, |element| element.set_initial_length(factor*unstressed_length));
+
+                    let eval = system.evaluate(u, &v, Some(&mut q), Some(&mut K), None);
+                    eval.parameter_derivative(string_element, &mut dqdl0);
+
+                    f.copy_from(&q);
+                    dfdx.copy_from(&K);
+
+                    // The unknown is the factor that scales the string length, not the length itself
+                    dfdλ.copy_from(&(&dqdl0*unstressed_length));
+                };
+
+                // The string center has to stay at the brace height
+                let mut constraint = |u: &DVector<f64>, _factor: f64, c: &mut f64, dcdx: &mut DVector<f64>, dcdλ: &mut f64| {
+                    *c = u[string_dof.index];
+                    *dcdλ = 0.0;
+
+                    dcdx.fill(0.0);
+                    dcdx[string_dof.index] = 1.0;
+                };
+
+                let result = solve_newton_constrained(&mut objective, &mut constraint, u0.clone(), factor_passed, &tolerances, &newton_settings);
+
+                // The objective applies trial states to the system, so a failed solution would leave it in the
+                // diverged state of the last iteration. Restore what was there before, like the static solvers do.
+                if result.is_err() {
+                    system.modify_element::<StringElement, _>(string_element, |element| element.set_initial_length(factor_passed*unstressed_length));
+                    system.set_state(&u0, &v);
                 }
 
-                // Abort if the step size becomes too small
-                if delta < bracing_settings.delta_min {
-                    return Err(ModelError::SimulationBracingNoSignChange)
-                }
+                result.map_err(|_| ModelError::SimulationBracingNoConvergence)?;
             }
         }
 
         // After the initial string length is known, we can calculate the viscosity that is required for achieving the prescribed damping ratio
-        let l0 = system.element_ref::<StringElement>(string_element).get_initial_length();
+        let l0 = system.evaluated().element::<StringElement>(string_element).get_initial_length();
         let ηA = 4.0*l0/PI*f64::sqrt(ρA*EA)* model.damping.damping_ratio_string;
-        system.element_mut::<StringElement>(string_element).set_linear_damping(ηA);
+        system.modify_element::<StringElement, _>(string_element, |element| element.set_linear_damping(ηA));
 
         // Set additional masses to base mass + partial masses of the string
-        system.element_mut::<MassElement>(mass_element_string_center).set_mass(0.5* model.masses.string_center + 1.0/3.0*ρA*l0);
-        system.element_mut::<MassElement>(mass_element_string_tip).set_mass(model.masses.string_end + 2.0/3.0*ρA*l0);
+        system.modify_element::<MassElement, _>(mass_element_string_center, |element| element.set_mass(0.5* model.masses.string_center + 1.0/3.0*ρA*l0));
+        system.modify_element::<MassElement, _>(mass_element_string_tip, |element| element.set_mass(model.masses.string_end + 2.0/3.0*ρA*l0));
 
         // Compute additional common output results
         let power_stroke = geometry.draw.power_stroke;
@@ -344,7 +393,7 @@ impl<'a> Simulation<'a> {
                 };
 
                 // The applied arrow mass is halved because of the symmetrical bow model
-                system.element_mut::<MassElement>(simulation.mass_element_arrow).set_mass(0.5*simulation.arrow_mass);
+                system.modify_element::<MassElement, _>(simulation.mass_element_arrow, |element| element.set_mass(0.5*simulation.arrow_mass));
 
                 // Estimate timeout after which to abort the simulation
                 let k_bow = statics.final_draw_force/(model.draw.draw_length.from_pivot() - model.draw.brace_height);
@@ -361,7 +410,7 @@ impl<'a> Simulation<'a> {
                 let settings = DynamicSolverSettings { time_stepping: step, max_time: t_max, newton: Default::default() };    // TODO: Don't use default tolerances?
 
                 // Modify the string's compression factor to make it a lot less stiff on compression
-                system.element_mut::<StringElement>(simulation.string_element).set_compression_factor(model.settings.string_compression_factor);
+                system.modify_element::<StringElement, _>(simulation.string_element, |element| element.set_compression_factor(model.settings.string_compression_factor));
 
                 // Remove static draw force
                 system.reset_forces();
@@ -414,7 +463,7 @@ impl<'a> Simulation<'a> {
                 simulation.arrow_departure = Some((states.len() - 1, *state.time, *state.arrow_pos, *state.arrow_vel));
 
                 // Set the arrow mass to zero since the arrow is no longer attached to the string
-                system.element_mut::<MassElement>(simulation.mass_element_arrow).set_mass(0.0);
+                system.modify_element::<MassElement, _>(simulation.mass_element_arrow, |element| element.set_mass(0.0));
 
                 // Simulate the second part of the shot after arrow separation if the time span factor is larger than 1.
                 // The end time is the time until arrow separation multiplied by the time span factor
@@ -530,7 +579,7 @@ impl<'a> Simulation<'a> {
 
     // TODO: Let mutation, write functions for intermediate results
     // TODO: Find a better way to get the stiffness of the force draw curve in there
-    fn get_bow_state(&self, system: &System, eval: &SystemEval, draw_stiffness: f64) -> State {
+    fn get_bow_state(&self, system: &SystemEval, eval: &SolverEval, draw_stiffness: f64) -> State {
         let time = system.get_time();
         let draw_length = self.geometry.draw.draw_ref - system.get_dof_position(self.string_nodes[0].y());
         let power_stroke = self.geometry.draw.brace_pos - system.get_dof_position(self.string_nodes[0].y());
@@ -556,8 +605,8 @@ impl<'a> Simulation<'a> {
 
         // String kinematics
 
-        let string_pos: Vec<[f64; 2]> = system.element_ref::<StringElement>(self.string_element).contact_positions().map_into().collect_vec();
-        let string_vel: Vec<[f64; 2]> = system.element_ref::<StringElement>(self.string_element).contact_velocities().map_into().collect_vec();
+        let string_pos: Vec<[f64; 2]> = system.element::<StringElement>(self.string_element).contact_positions().map_into().collect_vec();
+        let string_vel: Vec<[f64; 2]> = system.element::<StringElement>(self.string_element).contact_velocities().map_into().collect_vec();
 
         // Evaluate positions, velocities, forces and strains at the limb's evaluation points
 
@@ -568,7 +617,7 @@ impl<'a> Simulation<'a> {
         let mut limb_force  = Vec::<[f64; 3]>::new();  // TODO: Capacity
 
         for &element in &self.limb_elements {
-            let element = system.element_ref::<BeamElement>(element);
+            let element = system.element::<BeamElement>(element);
             element.eval_properties().for_each(|eval| {
                 limb_pos.push(eval.position.into());
                 limb_vel.push(eval.velocity.into());
@@ -602,22 +651,22 @@ impl<'a> Simulation<'a> {
         // Defined to be positive on "pressure", therefore the minus sign, and multiplied by two for symmetry.
         let grip_force = -2.0*(limb_force[0][0]*f64::sin(limb_pos[0][2]) + limb_force[0][1]*f64::cos(limb_pos[0][2]));
 
-        let elastic_energy_limbs = 2.0*self.limb_elements.iter().map(|&e| { system.element_ref::<BeamElement>(e).potential_energy() }).sum::<f64>();
-        let elastic_energy_string = 2.0*system.element_ref::<StringElement>(self.string_element).potential_energy();
+        let elastic_energy_limbs = 2.0*self.limb_elements.iter().map(|&e| { system.element::<BeamElement>(e).potential_energy() }).sum::<f64>();
+        let elastic_energy_string = 2.0*system.element::<StringElement>(self.string_element).potential_energy();
 
         // The kinetic energy of a single limb is sum of the kinetic energies of the limb elements plus the energy of the limb tip mass.
         // The total kinetic energy of the bow is twice that because of symmetry.
-        let kinetic_energy_limbs = 2.0*(self.limb_elements.iter().map(|&e| system.element_ref::<BeamElement>(e).kinetic_energy()).sum::<f64>() + system.element_ref::<MassElement>(self.mass_element_limb_tip).kinetic_energy());
-        let kinetic_energy_string = 2.0*(system.element_ref::<MassElement>(self.mass_element_string_center).kinetic_energy() + system.element_ref::<MassElement>(self.mass_element_string_tip).kinetic_energy());
+        let kinetic_energy_limbs = 2.0*(self.limb_elements.iter().map(|&e| system.element::<BeamElement>(e).kinetic_energy()).sum::<f64>() + system.element::<MassElement>(self.mass_element_limb_tip).kinetic_energy());
+        let kinetic_energy_string = 2.0*(system.element::<MassElement>(self.mass_element_string_center).kinetic_energy() + system.element::<MassElement>(self.mass_element_string_tip).kinetic_energy());
         let kinetic_energy_arrow = 0.5*self.arrow_mass*arrow_vel.powi(2);    // Don't use kinetic energy of arrow element since it is invalid after separation
 
-        let damping_power_limbs = 2.0*self.limb_elements.iter().map(|&e| system.element_ref::<BeamElement>(e).dissipative_power()).sum::<f64>();
-        let damping_power_string = 2.0*system.element_ref::<StringElement>(self.string_element).dissipative_power();
+        let damping_power_limbs = 2.0*self.limb_elements.iter().map(|&e| system.element::<BeamElement>(e).dissipative_power()).sum::<f64>();
+        let damping_power_string = 2.0*system.element::<StringElement>(self.string_element).dissipative_power();
 
         // Other string quantities (length, force, angles)
 
-        let string_length = system.element_ref::<StringElement>(self.string_element).get_current_length();
-        let string_force = system.element_ref::<StringElement>(self.string_element).normal_force_total();
+        let string_length = system.element::<StringElement>(self.string_element).get_current_length();
+        let string_force = system.element::<StringElement>(self.string_element).normal_force_total();
         let strand_force = string_force/(self.input.string.num_strands as f64);
 
         // TODO: Using the orientation angle of the last node might be more accurate here

@@ -55,8 +55,9 @@ fn straight_uniform_elongation() {
 
     let mut plotter = Plotter::new();
 
-    for element in elements {
-        let element = system.element_ref::<BeamElement>(element);
+    for element_index in elements {
+        let element = system.evaluated();
+        let element = element.element::<BeamElement>(element_index);
         element.eval_properties().for_each(|eval| {
             // Numerical solution for displacements and forces
             let u_num = eval.position[0] - eval.length;
@@ -133,8 +134,9 @@ fn straight_uniform_cantilever() {
 
     let mut plotter = Plotter::new();
 
-    for element in elements {
-        let element = system.element_ref::<BeamElement>(element);
+    for element_index in elements {
+        let element = system.evaluated();
+        let element = element.element::<BeamElement>(element_index);
         element.eval_properties().for_each(|eval| {
             // Numerical solution for displacements and forces
             let x_num = eval.position[0];

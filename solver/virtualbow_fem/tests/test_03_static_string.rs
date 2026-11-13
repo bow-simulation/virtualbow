@@ -53,7 +53,7 @@ fn string_over_quarter_circle() {
         let y = system.get_dof_position(free_node.y());
         let h = r - y;
 
-        let points = system.element_ref::<StringElement>(element).contact_positions().collect_vec();
+        let points = system.element::<StringElement>(element).contact_positions().collect_vec();
 
         // Actual contact angle vs analytical reference
         let alpha_num = f64::atan2(points[1][1], points[1][0]);
@@ -63,7 +63,7 @@ fn string_over_quarter_circle() {
         assert_abs_diff_eq!(alpha_num, alpha_ref, epsilon=1e-1);    // Expectedly not very accurate due to the finite number of contact points
 
         // Actual string length vs analytical reference
-        let l_num = system.element_ref::<StringElement>(element).get_current_length();
+        let l_num = system.element::<StringElement>(element).get_current_length();
         let l_ref = (FRAC_PI_2 - alpha_ref + f64::tan(alpha_ref/2.0))*r;
 
         plotter.add_points("String length", "h [m]", "l [m]", [("Actual", h, l_num), ("Reference", h, l_ref)]);
@@ -77,7 +77,7 @@ fn string_over_quarter_circle() {
         assert_relative_eq!(F_num, F_ref, max_relative=1e-2);
 
         // Actual string force vs analytical reference
-        let N_num = system.element_ref::<StringElement>(element).normal_force_total();
+        let N_num = system.element::<StringElement>(element).normal_force_total();
         let N_ref = EA/l0*(l_ref - l0);
 
         plotter.add_points("String force", "h [m]", "N [m]", [("Actual", h, N_num), ("Reference", h, N_ref)]);

@@ -51,8 +51,8 @@ pub fn natural_frequencies(system: &mut System) -> Result<Vec<Mode>, EigenSolver
     let mut D = DMatrix::zeros(system.n_dofs(), system.n_dofs());
     let mut K = DMatrix::zeros(system.n_dofs(), system.n_dofs());
 
-    system.compute_mass_matrix(&mut M);
     system.compute_internal_forces(None, Some(&mut K), Some(&mut D));
+    system.evaluated().compute_mass_matrix(&mut M);
 
     natural_frequencies_from_matrices(&M, &D, &K)
 }

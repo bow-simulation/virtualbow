@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter};
 use nalgebra::{DMatrix, DVector};
-use crate::system::system::{System, SystemEval};
+use crate::system::system::{SolverEval, System, SystemEval};
 
 use iter_num_tools::lin_space;
 use virtualbow_num::newton::{solve_newton, solve_newton_constrained, NewtonError, NewtonInfo, NewtonSettings, NewtonTolerances};
@@ -56,6 +56,18 @@ impl std::error::Error for StaticSolverError {
 
 }
 
+// Stores the current state of the system, so that it can be restored in case the solution fails.
+fn save_state(system: &System) -> (DVector<f64>, DVector<f64>) {
+    (system.get_displacements().clone(), system.get_velocities().clone())
+}
+
+// Restores the system state if there has been a failure
+fn restore_state_on_failure(system: &mut System, result: &Result<NewtonInfo, StaticSolverError>, u0: &DVector<f64>, v0: &DVector<f64>) {
+    if let Err(StaticSolverError::EquilibriumError(_)) = result {
+        system.set_state(u0, v0);
+    }
+}
+
 pub struct LoadControl<'a> {
     system: &'a mut System,
     tolerances: StaticTolerances,
@@ -78,8 +90,22 @@ impl<'a> LoadControl<'a> {
 
     // Static equilibrium for load factors from 0 to 1 with a given number of steps
     // points = steps + 1, callback evaluated at each point
-    pub fn solve_equilibrium_path<F>(self, steps: usize, callback: &mut F) -> Result<NewtonInfo, StaticSolverError>
-        where F: FnMut(&System, &SystemEval, &NewtonInfo) -> bool    // TODO: struct StepInfo { index, lambda }?
+    //
+    // If the equilibrium iterations fail, the system is restored to the state it had before the
+    // call, such that a failed attempt has no observable effect. If the caller aborts the solution
+    // instead, the system is left at the last equilibrium state that was reached.
+    pub fn solve_equilibrium_path<F>(mut self, steps: usize, callback: &mut F) -> Result<NewtonInfo, StaticSolverError>
+        where F: FnMut(&SystemEval, &SolverEval, &NewtonInfo) -> bool    // TODO: struct StepInfo { index, lambda }?
+    {
+        let (u0, v0) = save_state(self.system);
+        let result = self.solve_equilibrium_path_impl(steps, callback);
+        restore_state_on_failure(self.system, &result, &u0, &v0);
+
+        result
+    }
+
+    fn solve_equilibrium_path_impl<F>(&mut self, steps: usize, callback: &mut F) -> Result<NewtonInfo, StaticSolverError>
+        where F: FnMut(&SystemEval, &SolverEval, &NewtonInfo) -> bool
     {
         assert!(steps >= 1, "At least one step is required");
 
@@ -95,8 +121,12 @@ impl<'a> LoadControl<'a> {
         // The full/unscaled external loads have to be calculated only once
         self.system.compute_external_forces(&mut p0);
 
-        // Set system velocities to zero, since we are looking for a static equilibrium
-        self.system.set_velocities(&DVector::zeros(n));
+        // Velocities are zero in a static solution. The state is applied once here so that the
+        // system is consistent before the first equilibrium iteration, and the same zero vector
+        // is then handed to every evaluation below.
+        let v_static = DVector::zeros(n);
+        let u_current = self.system.get_displacements().clone();
+        self.system.set_state(&u_current, &v_static);
 
         // Determine Newton tolerances for the system dofs according to their dimensions
         // and the corresponding static tolerances
@@ -118,8 +148,7 @@ impl<'a> LoadControl<'a> {
 
             // Objective function for static equilibrium
             let mut objective = |x: &DVector<f64>, f: &mut DVector<f64>, dfdx: &mut DMatrix<f64>| {
-                self.system.set_displacements(x);
-                self.system.compute_internal_forces(Some(&mut q), Some(&mut K), None);
+                self.system.evaluate(x, &v_static, Some(&mut q), Some(&mut K), None);
 
                 f.copy_from(&(&q - &pλ));    // Residual forces with scaled external loads
                 dfdx.copy_from(&K);          // Jacobian given by tangent stiffness matrix
@@ -129,7 +158,7 @@ impl<'a> LoadControl<'a> {
             info = solve_newton(&mut objective, &x0, &tolerances, &self.settings).map_err(StaticSolverError::EquilibriumError)?;
 
             // Execute callback and pass current system info
-            if !callback(self.system, &SystemEval::new(&pλ, &q, &a), &info) {
+            if !callback(&self.system.evaluated(), &SolverEval::new(&pλ, &q, &a), &info) {
                 return Err(StaticSolverError::AbortedByCaller)
             }
         }
@@ -160,8 +189,22 @@ impl<'a> DisplacementControl<'a> {
 
     // Static equilibrium for target displacement from current to given value with a given number of steps
     // points = steps + 1, callback evaluated at each point
-    pub fn solve_equilibrium_path<F>(self, dof: Dof, u_target: f64, steps: usize, callback: &mut F) -> Result<NewtonInfo, StaticSolverError>
-    where F: FnMut(&System, &SystemEval, &NewtonInfo) -> bool    // TODO: struct StepInfo { index, lambda }?
+    //
+    // If the equilibrium iterations fail, the system is restored to the state it had before the
+    // call, such that a failed attempt has no observable effect. If the caller aborts the solution
+    // instead, the system is left at the last equilibrium state that was reached.
+    pub fn solve_equilibrium_path<F>(mut self, dof: Dof, u_target: f64, steps: usize, callback: &mut F) -> Result<NewtonInfo, StaticSolverError>
+    where F: FnMut(&SystemEval, &SolverEval, &NewtonInfo) -> bool    // TODO: struct StepInfo { index, lambda }?
+    {
+        let (u0, v0) = save_state(self.system);
+        let result = self.solve_equilibrium_path_impl(dof, u_target, steps, callback);
+        restore_state_on_failure(self.system, &result, &u0, &v0);
+
+        result
+    }
+
+    fn solve_equilibrium_path_impl<F>(&mut self, dof: Dof, u_target: f64, steps: usize, callback: &mut F) -> Result<NewtonInfo, StaticSolverError>
+    where F: FnMut(&SystemEval, &SolverEval, &NewtonInfo) -> bool
     {
         assert!(dof.is_active(), "Controlled dof must be active");
         assert!(steps >= 1, "At least one step is required");
@@ -179,8 +222,12 @@ impl<'a> DisplacementControl<'a> {
         // The full/unscaled external loads have to be calculated only once
         self.system.compute_external_forces(&mut p0);
 
-        // Set system velocities to zero, since we are looking for a static equilibrium
-        self.system.set_velocities(&DVector::zeros(n));
+        // Velocities are zero in a static solution. The state is applied once here so that the
+        // system is consistent before the first equilibrium iteration, and the same zero vector
+        // is then handed to every evaluation below.
+        let v_static = DVector::zeros(n);
+        let u_current = self.system.get_displacements().clone();
+        self.system.set_state(&u_current, &v_static);
 
         // Determine tolerances for the Newton method
         let tolerances = NewtonTolerances {
@@ -200,8 +247,7 @@ impl<'a> DisplacementControl<'a> {
             // Objective function for static equilibrium
             let mut objective = |u: &DVector<f64>, λ: f64, f: &mut DVector<f64>, dfdx: &mut DMatrix<f64>, dfdλ: &mut DVector<f64>| {
                 // Apply displacements to the system
-                self.system.set_displacements(u);
-                self.system.compute_internal_forces(Some(&mut q), Some(&mut K), None);
+                self.system.evaluate(u, &v_static, Some(&mut q), Some(&mut K), None);
 
                 // Apply load scaling
                 λi = λ;
@@ -226,7 +272,7 @@ impl<'a> DisplacementControl<'a> {
                 .map_err(StaticSolverError::EquilibriumError)?;
 
             // Execute callback and pass current system info
-            if !callback(self.system, &SystemEval::new(&pλ, &q, &a), &info) {    // TODO: Pass complete info to caller? Might be a cleaner API.
+            if !callback(&self.system.evaluated(), &SolverEval::new(&pλ, &q, &a), &info) {    // TODO: Pass complete info to caller? Might be a cleaner API.
                 return Err(StaticSolverError::AbortedByCaller)
             }
         }
